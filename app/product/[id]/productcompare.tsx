@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 
 const turkceSozluk: Record<string, string> = {
@@ -25,40 +25,62 @@ const turkceSozluk: Record<string, string> = {
 
 export default function ProductCompare({
   currentProduct,
-  productList
+  productList // Sayfadan gelen eski listeyi çökmeleri önlemek için tutuyoruz ama aramayı canlı yapacağız
 }: {
   currentProduct: { name: string; acf: any };
   productList: { id: number; name: string }[];
 }) {
-  // YENİ: Kıyaslama panelinin açık mı kapalı mı olduğunu tutan sistem (Varsayılan: false yani kapalı)
   const [isCompareOpen, setIsCompareOpen] = useState(false);
-  
   const [compareData, setCompareData] = useState<{ id: string; name: string; acf: any } | null>(null);
+  
   const [isLoading, setIsLoading] = useState(false);
+  const [isSearching, setIsSearching] = useState(false); // YENİ: Arama yapıldığını gösteren state
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [liveResults, setLiveResults] = useState<any[]>([]); // YENİ: Canlı arama sonuçlarını tutar
 
-  // Defansif filtreleme
-  const filteredProducts = (productList || []).filter((p) => 
-    p && p.name && typeof p.name === 'string' && p.name.toLowerCase().includes((searchTerm || "").toLowerCase())
-  );
+  // ==========================================
+  // EĞİTİM BÖLÜMÜ: CANLI ARAMA VE DEBOUNCE MANTIĞI
+  // Bu kod bloğu (useEffect), searchTerm (Arama kutusu) her değiştiğinde çalışır.
+  // Kullanıcı her harf yazdığında sunucuya istek atmamak için 'setTimeout' ile 400 milisaniye bekleriz.
+  // ==========================================
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      // Sadece 2 veya daha fazla harf yazıldığında arama yap (Sunucuyu yormamak için)
+      if (searchTerm.length >= 2) {
+        setIsSearching(true);
+        try {
+          // Doğrudan WordPress arama motorunu kullanıyoruz, 100 limitine takılmaz.
+          const res = await fetch(`${process.env.NEXT_PUBLIC_WC_URL}/wp-json/wp/v2/product?search=${searchTerm}`);
+          if (res.ok) {
+            const data = await res.json();
+            setLiveResults(data);
+          }
+        } catch (error) {
+          console.error("Canlı arama hatası:", error);
+        }
+        setIsSearching(false);
+      } else {
+        setLiveResults([]); // Kutuda az harf varsa listeyi boşalt
+      }
+    }, 400); // 400ms bekleme süresi
 
-  const handleSelectProduct = async (product: { id: number; name: string }) => {
-    setSearchTerm(product.name); 
+    // Eğer 400ms dolmadan yeni bir harf yazılırsa, eski sayacı iptal et (Clean-up)
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Listeden ürün seçme işlemi
+  const handleSelectProduct = (product: any) => {
+    // WordPress'ten gelen başlık yapısı genelde product.title.rendered şeklindedir
+    const productName = product?.title?.rendered || "Bilinmeyen Ürün";
+    
+    // HTML kodlarını temizle (Örn: &#8211; gibi işaretler)
+    const cleanName = productName.replace(/&#(\d+);/g, (match: string, dec: number) => String.fromCharCode(dec));
+
+    setSearchTerm(cleanName); 
     setIsDropdownOpen(false);    
-    setIsLoading(true);          
-    
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_WC_URL}/wp-json/wp/v2/product/${product.id}`);
-      if (!res.ok) throw new Error("API Baglanti Hatasi");
-      const data = await res.json();
-      setCompareData({ id: product.id.toString(), name: product.name, acf: data.acf || {} });
-    } catch (error) {
-      console.error("Veri çekilirken hata oluştu:", error);
-      setCompareData({ id: product.id.toString(), name: product.name, acf: {} });
-    }
-    
-    setIsLoading(false); 
+    setCompareData({ id: product.id.toString(), name: cleanName, acf: product.acf || {} });
   };
 
   const acfKeys = Object.keys(currentProduct?.acf || {}).filter((key) => {
@@ -66,7 +88,6 @@ export default function ProductCompare({
     return val && typeof val !== "object" && !key.toLowerCase().includes("fps");
   });
 
-  // EĞER PANEL KAPALIYSA SADECE BU BUTON GÖRÜNÜR
   if (!isCompareOpen) {
     return (
       <button 
@@ -78,11 +99,9 @@ export default function ProductCompare({
     );
   }
 
-  // EĞER BUTONA BASILDIYSA AŞAĞIDAKİ PANEL AÇILIR
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-500">
       
-      {/* Paneli Kapat Butonu */}
       <div className="flex justify-end">
         <button 
           onClick={() => setIsCompareOpen(false)} 
@@ -113,28 +132,36 @@ export default function ProductCompare({
                 setIsDropdownOpen(true); 
               }}
               onFocus={() => setIsDropdownOpen(true)} 
-              // YENİ: Ekran kartına özel örnekler
               placeholder="Örn: RTX 5090, RX 7800 XT..."
               className="w-full bg-[#111827] border border-slate-700 text-white text-sm rounded-2xl px-5 py-4 font-semibold focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-600"
             />
 
-            {isDropdownOpen && searchTerm.length > 0 && (
+            {/* AÇILIR LİSTE (DROPDOWN) */}
+            {isDropdownOpen && searchTerm.length >= 2 && (
               <ul className="absolute z-50 w-full mt-2 bg-[#111827] border border-slate-700 rounded-xl max-h-52 overflow-y-auto shadow-[0_10px_40px_rgba(0,0,0,0.8)] custom-scrollbar">
-                {filteredProducts.length > 0 ? (
-                  filteredProducts.map((p) => (
+                
+                {isSearching ? (
+                  // Yükleniyor durumu
+                  <li className="px-5 py-4 text-sm text-blue-400 font-bold animate-pulse text-center">
+                    Sistemde Aranıyor...
+                  </li>
+                ) : liveResults.length > 0 ? (
+                  // Sonuçlar bulunduysa listele
+                  liveResults.map((p) => (
                     <li 
                       key={p.id} 
                       onClick={() => handleSelectProduct(p)}
                       className="px-5 py-3 border-b border-slate-800/50 hover:bg-blue-600/20 cursor-pointer transition-colors text-sm text-slate-300 font-semibold"
-                    >
-                      {p.name}
-                    </li>
+                      dangerouslySetInnerHTML={{ __html: p.title?.rendered || "Bilinmeyen Ürün" }}
+                    />
                   ))
                 ) : (
+                  // Sonuç bulunamadıysa
                   <li className="px-5 py-4 text-sm text-slate-500 italic text-center">
                     Böyle bir ürün bulunamadı...
                   </li>
                 )}
+                
               </ul>
             )}
           </div>
@@ -150,6 +177,7 @@ export default function ProductCompare({
         </div>
       </div>
 
+      {/* DETAYLAR TABLOSU */}
       <div className="grid grid-cols-1 gap-4 relative z-10">
         {acfKeys.map((key) => (
           <div key={key} className="bg-[#111827] rounded-[1.5rem] border border-slate-800/50 p-5 md:p-6 flex flex-col md:flex-row md:items-center hover:border-slate-700 transition-colors group">
