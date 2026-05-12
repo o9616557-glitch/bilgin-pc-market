@@ -1,6 +1,5 @@
 "use client";
 
-// 1. ADIM: React ve hook'ları içeri aktarıyoruz
 import React, { useState } from "react";
 import Link from "next/link";
 
@@ -31,75 +30,94 @@ export default function ProductCompare({
   currentProduct: { name: string; acf: any };
   productList: { id: number; name: string }[];
 }) {
+  // YENİ: Kıyaslama panelinin açık mı kapalı mı olduğunu tutan sistem (Varsayılan: false yani kapalı)
+  const [isCompareOpen, setIsCompareOpen] = useState(false);
+  
   const [compareData, setCompareData] = useState<{ id: string; name: string; acf: any } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  // YENİ: Arama kutusunun açık/kapalı durumunu kontrol eden state
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // YENİ: Yazılan kelimeyi (örn: "4060") içeren ürünleri anında filtreleyen akıllı motor
-  const filteredProducts = productList.filter((p) => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // Defansif filtreleme
+  const filteredProducts = (productList || []).filter((p) => 
+    p && p.name && typeof p.name === 'string' && p.name.toLowerCase().includes((searchTerm || "").toLowerCase())
   );
 
-  // Listeden bir ürüne tıklandığında çalışacak fonksiyon
   const handleSelectProduct = async (product: { id: number; name: string }) => {
-    setSearchTerm(product.name); // Kutunun içine seçilen ürünün tam adını yaz
-    setIsDropdownOpen(false);    // Seçim yapıldıktan sonra listeyi kapat
-    setIsLoading(true);          // Yükleniyor animasyonunu başlat
+    setSearchTerm(product.name); 
+    setIsDropdownOpen(false);    
+    setIsLoading(true);          
     
     try {
-      // WordPress'ten seçilen ürünün detaylarını (ACF) çek
       const res = await fetch(`${process.env.NEXT_PUBLIC_WC_URL}/wp-json/wp/v2/product/${product.id}`);
+      if (!res.ok) throw new Error("API Baglanti Hatasi");
       const data = await res.json();
       setCompareData({ id: product.id.toString(), name: product.name, acf: data.acf || {} });
     } catch (error) {
-      console.error(error);
+      console.error("Veri çekilirken hata oluştu:", error);
+      setCompareData({ id: product.id.toString(), name: product.name, acf: {} });
     }
     
-    setIsLoading(false); // Yükleme bitti
+    setIsLoading(false); 
   };
 
-  // Teknik özellikleri filtreleme (FPS vb. hariç tutulur)
-  const acfKeys = Object.keys(currentProduct.acf || {}).filter((key) => {
+  const acfKeys = Object.keys(currentProduct?.acf || {}).filter((key) => {
     const val = currentProduct.acf[key];
     return val && typeof val !== "object" && !key.toLowerCase().includes("fps");
   });
 
+  // EĞER PANEL KAPALIYSA SADECE BU BUTON GÖRÜNÜR
+  if (!isCompareOpen) {
+    return (
+      <button 
+        onClick={() => setIsCompareOpen(true)}
+        className="w-full bg-[#111827] border border-slate-700/50 hover:border-blue-500/50 text-slate-300 font-bold py-5 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-3 uppercase tracking-widest text-sm"
+      >
+        <span className="text-xl">⚖️</span> Farklı Bir Ekran Kartı İle Kıyasla
+      </button>
+    );
+  }
+
+  // EĞER BUTONA BASILDIYSA AŞAĞIDAKİ PANEL AÇILIR
   return (
-    <div className="w-full space-y-8">
+    <div className="w-full space-y-6 animate-in fade-in duration-500">
       
-      {/* SEÇİM VE ARAMA ALANI */}
+      {/* Paneli Kapat Butonu */}
+      <div className="flex justify-end">
+        <button 
+          onClick={() => setIsCompareOpen(false)} 
+          className="text-[10px] uppercase tracking-widest font-bold text-slate-500 hover:text-red-400 transition-colors"
+        >
+          ✕ Paneli Kapat
+        </button>
+      </div>
+
       <div className="flex flex-col lg:flex-row gap-6 items-center bg-[#0b0f1a] p-6 md:p-8 rounded-[2rem] border border-slate-800 shadow-2xl relative z-20">
         
-        {/* Sol Taraf: Mevcut Cihaz */}
         <div className="flex-1 w-full bg-[#111827] p-5 rounded-2xl border border-slate-700/50 shadow-inner">
           <span className="text-[10px] text-blue-500 font-black uppercase tracking-widest block mb-2">Mevcut Cihaz</span>
-          <h4 className="text-white font-bold text-sm md:text-base leading-snug">{currentProduct.name}</h4>
+          <h4 className="text-white font-bold text-sm md:text-base leading-snug">{currentProduct?.name || "Bilinmeyen Ürün"}</h4>
         </div>
 
-        {/* Ortadaki VS Logosu */}
         <div className="text-slate-600 font-black text-2xl italic px-2 lg:px-4">VS</div>
 
-        {/* Sağ Taraf: Akıllı Arama Kutusu */}
         <div className="flex-[1.5] w-full flex flex-col sm:flex-row gap-4 items-end relative">
           <div className="w-full relative">
-            <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest block mb-2 ml-1">Kıyaslanacak Ürünü Ara</span>
+            <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest block mb-2 ml-1">Kıyaslanacak Kartı Ara</span>
             
-            {/* Özel Input Alanı */}
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
-                setIsDropdownOpen(true); // Yazı yazıldıkça listeyi aç
+                setIsDropdownOpen(true); 
               }}
-              onFocus={() => setIsDropdownOpen(true)} // Tıklandığında listeyi aç
-              placeholder="Örn: 4060 veya Ryzen..."
+              onFocus={() => setIsDropdownOpen(true)} 
+              // YENİ: Ekran kartına özel örnekler
+              placeholder="Örn: RTX 5090, RX 7800 XT..."
               className="w-full bg-[#111827] border border-slate-700 text-white text-sm rounded-2xl px-5 py-4 font-semibold focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-600"
             />
 
-            {/* YENİ: Kendi Yazdığımız Akıllı Açılır Liste (Dropdown) */}
             {isDropdownOpen && searchTerm.length > 0 && (
               <ul className="absolute z-50 w-full mt-2 bg-[#111827] border border-slate-700 rounded-xl max-h-52 overflow-y-auto shadow-[0_10px_40px_rgba(0,0,0,0.8)] custom-scrollbar">
                 {filteredProducts.length > 0 ? (
@@ -121,7 +139,6 @@ export default function ProductCompare({
             )}
           </div>
 
-          {/* Ürüne Git Butonu */}
           {compareData && (
             <Link
               href={`/product/${compareData.id}`}
@@ -133,7 +150,6 @@ export default function ProductCompare({
         </div>
       </div>
 
-      {/* KARŞILAŞTIRMA KARTLARI */}
       <div className="grid grid-cols-1 gap-4 relative z-10">
         {acfKeys.map((key) => (
           <div key={key} className="bg-[#111827] rounded-[1.5rem] border border-slate-800/50 p-5 md:p-6 flex flex-col md:flex-row md:items-center hover:border-slate-700 transition-colors group">

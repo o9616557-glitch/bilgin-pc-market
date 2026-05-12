@@ -27,7 +27,7 @@ const api = new (WooCommerceRestApi as any)({
 // Işık Hızı Motoru: Tüm ürün sayfalarını önceden oluşturur
 export async function generateStaticParams() {
   try {
-    const res = await api.get('products', { per_page: 50, status: 'publish' });
+    const res = await api.get('products', { per_page: 250, status: 'publish' });
     return res.data.map((product: any) => ({
       id: product.id.toString(),
     }));
@@ -51,7 +51,7 @@ export default async function UrunDetay({ params }: { params: Promise<{ id: stri
   const [wcRes, wpRes, allProductsRes] = await Promise.all([
     api.get(`products/${id}`).catch(() => ({ data: {} })),
     fetch(`${process.env.NEXT_PUBLIC_WC_URL}/wp-json/wp/v2/product/${id}`).then(res => res.json()).catch(() => ({})),
-    api.get('products', { per_page: 50, status: 'publish' }).catch(() => ({ data: [] }))
+    api.get('products', { per_page: 250, status: 'publish' }).catch(() => ({ data: [] }))
   ]);
 
   const product = wcRes.data;
