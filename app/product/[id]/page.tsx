@@ -1,11 +1,10 @@
 // @ts-ignore
 import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
-import FpsMotoru from "./fpsmotoru"; 
+import FpsMotoru from "./fpsmotoru";
 import ProductGallery from "./productgallery";
 import ProductCompare from "./productcompare";
 
-// app/product/[id]/page.tsx dosyasındaki ilgili kısmı bununla değiştir:
-
+// BURASI KASANIN ANAHTARI - SİLDİĞİMİZ İÇİN HATA VERMİŞTİ
 const api = new (WooCommerceRestApi as any)({
   url: process.env.NEXT_PUBLIC_WC_URL || "",
   consumerKey: process.env.WC_CONSUMER_KEY || "",
@@ -37,10 +36,11 @@ const turkceSozluk: Record<string, string> = {
 export default async function UrunDetay({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
+  // VERİ ÇEKME - 100 YERİNE 10 ÜRÜN ÇEKEREK HIZLANDIRDIK
   const [wcRes, wpRes, allProductsRes] = await Promise.all([
     api.get(`products/${id}`).catch(() => ({ data: {} })),
     fetch(`${process.env.NEXT_PUBLIC_WC_URL}/wp-json/wp/v2/product/${id}`).then(res => res.json()).catch(() => ({})),
-    api.get(`products`, { per_page: 100, status: 'publish' }).catch(() => ({ data: [] }))
+    api.get('products', { per_page: 10, status: 'publish' }).catch(() => ({ data: [] }))
   ]);
 
   const product = wcRes.data;
@@ -60,14 +60,14 @@ export default async function UrunDetay({ params }: { params: Promise<{ id: stri
           <div className="p-6 md:p-10 bg-[#0b0f1a] flex items-start justify-center lg:border-r border-slate-800/50">
             <ProductGallery images={product.images} productName={product.name} />
           </div>
-          
+
           <div className="p-6 md:p-10 space-y-6 flex flex-col justify-center">
             <div>
-              <span className="text-blue-500 text-[10px] font-black tracking-widest mb-2 block uppercase">Performance Series</span>
-              <h1 className="text-2xl md:text-3xl font-black leading-tight text-white capitalize">{product.name}</h1>
+              <span className="text-blue-500 text-[10px] font-black tracking-widest mb-1 block uppercase">Performance Series</span>
+              <h1 className="text-2xl md:text-3xl font-bold leading-tight text-white capitalize">{product.name}</h1>
               <div className="text-2xl md:text-3xl font-black text-blue-500 mt-3">{product.price} TL</div>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-2">
               {Object.entries(acf).map(([key, value]: any) => {
                 if (!value || typeof value === 'object' || key.toLowerCase().includes('fps')) return null;
@@ -80,25 +80,26 @@ export default async function UrunDetay({ params }: { params: Promise<{ id: stri
                 );
               })}
             </div>
+
             <button className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-black text-lg shadow-lg active:scale-95 transition-all uppercase">
               Sisteme Dahil Et
             </button>
           </div>
         </div>
 
-        {/* CİHAZ ÖZETİ (Kapalı başlar) */}
+        {/* CİHAZ ÖZETİ */}
         <details className="group bg-[#111827] rounded-[20px] border border-slate-800/50 overflow-hidden shadow-xl">
           <summary className="flex justify-between items-center p-4 md:p-5 cursor-pointer list-none select-none hover:bg-white/5">
             <div className="flex items-center gap-3">
-              <div className="bg-blue-600 w-8 h-8 rounded flex items-center justify-center text-white text-xs">■</div>
+              <div className="bg-blue-600 w-8 h-8 rounded-full flex items-center justify-center text-black text-xs font-bold">📄</div>
               <span className="text-blue-500 font-black text-base tracking-widest uppercase">Cihaz Özeti ve Detaylar</span>
             </div>
             <div className="bg-[#0b1120] w-10 h-8 rounded-lg border border-slate-800 flex items-center justify-center text-slate-400 group-open:rotate-180 transition-transform">▼</div>
           </summary>
-          <div className="p-6 md:p-8 pt-4 text-slate-300 text-xs md:text-sm border-t border-slate-800/30 [&_*]:!text-current [&_h2]:!text-white [&_h2]:text-base [&_h2]:font-black [&_h2]:mb-3 [&_h2]:mt-6 [&_h2]:border-l-4 [&_h2]:border-blue-600 [&_h2]:pl-3 [&_h2]:capitalize [&_h3]:!text-blue-400 [&_h3]:text-sm [&_h3]:font-black [&_h3]:mb-2 [&_h3]:mt-4 [&_h3]:capitalize [&_strong]:!text-blue-300 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:mb-4" dangerouslySetInnerHTML={{ __html: uzunAciklama }} />
+          <div className="p-4 md:p-8 pt-4 text-slate-300 text-xs md:text-sm border-t border-slate-800/30 [&_p]:mb-3 [&_li]:mb-1 [&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-4" dangerouslySetInnerHTML={{ __html: uzunAciklama }} />
         </details>
 
-        {/* FPS MOTORU (Açık başlar) */}
+        {/* FPS MOTORU */}
         <details className="group bg-[#111827] rounded-[20px] border border-slate-800/50 overflow-hidden shadow-xl" open>
           <summary className="flex justify-between items-center p-4 md:p-5 cursor-pointer list-none select-none hover:bg-white/5">
             <div className="flex items-center gap-3">
@@ -108,11 +109,11 @@ export default async function UrunDetay({ params }: { params: Promise<{ id: stri
             <div className="bg-[#0b1120] w-10 h-8 rounded-lg border border-slate-800 flex items-center justify-center text-slate-400 group-open:rotate-180 transition-transform">▼</div>
           </summary>
           <div className="p-4 md:p-8 pt-0 border-t border-slate-800/20">
-             {acf && <FpsMotoru acf={acf} />}
+            {acf && <FpsMotoru acf={acf} />}
           </div>
         </details>
 
-        {/* KIYASLAMA MOTORU (Kapalı başlar) */}
+        {/* KIYASLAMA MOTORU */}
         <details className="group bg-[#111827] rounded-[20px] border border-slate-800/50 overflow-hidden shadow-xl">
           <summary className="flex justify-between items-center p-4 md:p-5 cursor-pointer list-none select-none hover:bg-white/5">
             <div className="flex items-center gap-3">
@@ -122,7 +123,7 @@ export default async function UrunDetay({ params }: { params: Promise<{ id: stri
             <div className="bg-[#0b1120] w-10 h-8 rounded-lg border border-slate-800 flex items-center justify-center text-slate-400 group-open:rotate-180 transition-transform">▼</div>
           </summary>
           <div className="p-4 md:p-8 pt-4 border-t border-slate-800/30">
-             <ProductCompare currentProduct={{ name: product.name, acf }} productList={productList} />
+            <ProductCompare currentProduct={{ name: product.name, acf }} productList={productList} />
           </div>
         </details>
 
