@@ -5,7 +5,7 @@ import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
 import dynamic from 'next/dynamic'; 
 import ProductGallery from "./productgallery";
 
-// Ağır bileşenleri sayfa açılışını yavaşlatmamak için sonradan yüklüyoruz (Lazy Load)
+// Ağır bileşenleri sayfa açılışını yavaşlatmamak için sonradan yüklüyoruz
 const FpsMotoru = dynamic(() => import("./fpsmotoru"), { 
   loading: () => <p className="text-slate-500 p-4">Performans analizi yükleniyor...</p> 
 });
@@ -24,11 +24,7 @@ const api = new (WooCommerceRestApi as any)({
   version: "wc/v3"
 });
 
-// ==========================================
-// YENİ EKLENEN IŞIK HIZI MOTORU (generateStaticParams)
-// Bu kod, site yüklenirken tüm ürünleri bulur ve sayfalarını önceden oluşturur.
-// Böylece müşteri tıkladığında WordPress'i beklemez!
-// ==========================================
+// Işık Hızı Motoru: Tüm ürün sayfalarını önceden oluşturur
 export async function generateStaticParams() {
   try {
     const res = await api.get('products', { per_page: 50, status: 'publish' });
@@ -36,7 +32,7 @@ export async function generateStaticParams() {
       id: product.id.toString(),
     }));
   } catch (error) {
-    return []; // Hata olursa sistemi çökertmemek için boş döner
+    return []; 
   }
 }
 
@@ -48,11 +44,10 @@ const turkceSozluk: Record<string, string> = {
   "bellek_arayuzu": "Bellek Arayüzü", "cozunurluk": "Çözünürlük", "boyutlar": "Boyutlar"
 };
 
-// Ürün Detay Sayfası Tasarımı ve Veri Çekimi
 export default async function UrunDetay({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  // Ürün verilerini ve karşılaştırma listesini çekiyoruz
+  // Verileri çekiyoruz
   const [wcRes, wpRes, allProductsRes] = await Promise.all([
     api.get(`products/${id}`).catch(() => ({ data: {} })),
     fetch(`${process.env.NEXT_PUBLIC_WC_URL}/wp-json/wp/v2/product/${id}`).then(res => res.json()).catch(() => ({})),
@@ -109,13 +104,23 @@ export default async function UrunDetay({ params }: { params: Promise<{ id: stri
           </div>
         </div>
 
-        {/* DETAYLAR BÖLÜMÜ */}
+        {/* DETAYLAR BÖLÜMÜ (İÇ İÇE GİRMEYİ ÇÖZEN YENİ TASARIM) */}
         <details className="group bg-[#111827] rounded-[20px] border border-slate-800/50 overflow-hidden shadow-xl" open>
           <summary className="p-4 md:p-5 cursor-pointer list-none hover:bg-white/5 flex justify-between items-center select-none">
             <span className="text-blue-500 font-black uppercase tracking-wider">📄 Cihaz Detayları</span>
             <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
           </summary>
-          <div className="p-4 md:p-8 pt-0 border-t border-slate-800/30 text-xs md:text-sm text-slate-300 break-words" dangerouslySetInnerHTML={{ __html: uzunAciklama }} />
+          <div 
+            className="p-4 md:p-8 pt-0 border-t border-slate-800/30 text-xs md:text-sm text-slate-300 break-words leading-relaxed
+              [&>p]:mb-4 
+              [&>h1]:text-2xl [&>h1]:font-black [&>h1]:text-white [&>h1]:mb-4 [&>h1]:mt-6
+              [&>h2]:text-lg [&>h2]:font-bold [&>h2]:text-blue-400 [&>h2]:mb-3 [&>h2]:mt-6
+              [&>h3]:text-base [&>h3]:font-bold [&>h3]:text-slate-200 [&>h3]:mb-2 [&>h3]:mt-4
+              [&>ul]:list-disc [&>ul]:ml-5 [&>ul]:mb-4 [&>ul>li]:mb-1 [&>ul>li]:pl-1
+              [&>ol]:list-decimal [&>ol]:ml-5 [&>ol]:mb-4 [&>ol>li]:mb-1
+              [&>strong]:text-white [&>strong]:font-bold" 
+            dangerouslySetInnerHTML={{ __html: uzunAciklama }} 
+          />
         </details>
 
         {/* FPS MOTORU */}
