@@ -1,5 +1,6 @@
 "use client";
 
+// 1. ADIM: React ve hook'ları içeri aktarıyoruz
 import React, { useState } from "react";
 import Link from "next/link";
 
@@ -33,35 +34,33 @@ export default function ProductCompare({
   const [compareData, setCompareData] = useState<{ id: string; name: string; acf: any } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  // YENİ: Arama kutusunun açık/kapalı durumunu kontrol eden state
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Ürün seçildiğinde verilerini çeken fonksiyon
-  const fetchCompareData = async (selectedId: string, selectedName: string) => {
-    setIsLoading(true);
+  // YENİ: Yazılan kelimeyi (örn: "4060") içeren ürünleri anında filtreleyen akıllı motor
+  const filteredProducts = productList.filter((p) => 
+    p.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Listeden bir ürüne tıklandığında çalışacak fonksiyon
+  const handleSelectProduct = async (product: { id: number; name: string }) => {
+    setSearchTerm(product.name); // Kutunun içine seçilen ürünün tam adını yaz
+    setIsDropdownOpen(false);    // Seçim yapıldıktan sonra listeyi kapat
+    setIsLoading(true);          // Yükleniyor animasyonunu başlat
+    
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_WC_URL}/wp-json/wp/v2/product/${selectedId}`);
+      // WordPress'ten seçilen ürünün detaylarını (ACF) çek
+      const res = await fetch(`${process.env.NEXT_PUBLIC_WC_URL}/wp-json/wp/v2/product/${product.id}`);
       const data = await res.json();
-      setCompareData({ id: selectedId, name: selectedName, acf: data.acf || {} });
+      setCompareData({ id: product.id.toString(), name: product.name, acf: data.acf || {} });
     } catch (error) {
       console.error(error);
     }
-    setIsLoading(false);
-  };
-
-  // Arama kutusuna yazı yazıldığında çalışan fonksiyon
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setSearchTerm(val);
     
-    // Yazılan isim listedeki bir ürünle tam eşleşirse verisini getir
-    const foundProduct = productList.find((p) => p.name === val);
-    if (foundProduct) {
-      fetchCompareData(foundProduct.id.toString(), foundProduct.name);
-    } else if (val === "") {
-      setCompareData(null);
-    }
+    setIsLoading(false); // Yükleme bitti
   };
 
-  // FPS harici teknik özellikleri filtreleme
+  // Teknik özellikleri filtreleme (FPS vb. hariç tutulur)
   const acfKeys = Object.keys(currentProduct.acf || {}).filter((key) => {
     const val = currentProduct.acf[key];
     return val && typeof val !== "object" && !key.toLowerCase().includes("fps");
@@ -70,8 +69,8 @@ export default function ProductCompare({
   return (
     <div className="w-full space-y-8">
       
-      {/* SEÇİM VE ARAMA ALANI (Modernize Edildi) */}
-      <div className="flex flex-col lg:flex-row gap-6 items-center bg-[#0b0f1a] p-6 md:p-8 rounded-[2rem] border border-slate-800 shadow-2xl">
+      {/* SEÇİM VE ARAMA ALANI */}
+      <div className="flex flex-col lg:flex-row gap-6 items-center bg-[#0b0f1a] p-6 md:p-8 rounded-[2rem] border border-slate-800 shadow-2xl relative z-20">
         
         {/* Sol Taraf: Mevcut Cihaz */}
         <div className="flex-1 w-full bg-[#111827] p-5 rounded-2xl border border-slate-700/50 shadow-inner">
@@ -82,27 +81,47 @@ export default function ProductCompare({
         {/* Ortadaki VS Logosu */}
         <div className="text-slate-600 font-black text-2xl italic px-2 lg:px-4">VS</div>
 
-        {/* Sağ Taraf: Yazarak Arama Kutusu */}
-        <div className="flex-[1.5] w-full flex flex-col sm:flex-row gap-4 items-end">
-          <div className="w-full">
+        {/* Sağ Taraf: Akıllı Arama Kutusu */}
+        <div className="flex-[1.5] w-full flex flex-col sm:flex-row gap-4 items-end relative">
+          <div className="w-full relative">
             <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest block mb-2 ml-1">Kıyaslanacak Ürünü Ara</span>
-            {/* Akıllı Input: Datalist ile bağlantılı */}
+            
+            {/* Özel Input Alanı */}
             <input
               type="text"
-              list="product-list"
               value={searchTerm}
-              onChange={handleSearchChange}
-              placeholder="Ürün adını yazın..."
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setIsDropdownOpen(true); // Yazı yazıldıkça listeyi aç
+              }}
+              onFocus={() => setIsDropdownOpen(true)} // Tıklandığında listeyi aç
+              placeholder="Örn: 4060 veya Ryzen..."
               className="w-full bg-[#111827] border border-slate-700 text-white text-sm rounded-2xl px-5 py-4 font-semibold focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-600"
             />
-            <datalist id="product-list">
-              {productList.map((p) => (
-                <option key={p.id} value={p.name} />
-              ))}
-            </datalist>
+
+            {/* YENİ: Kendi Yazdığımız Akıllı Açılır Liste (Dropdown) */}
+            {isDropdownOpen && searchTerm.length > 0 && (
+              <ul className="absolute z-50 w-full mt-2 bg-[#111827] border border-slate-700 rounded-xl max-h-52 overflow-y-auto shadow-[0_10px_40px_rgba(0,0,0,0.8)] custom-scrollbar">
+                {filteredProducts.length > 0 ? (
+                  filteredProducts.map((p) => (
+                    <li 
+                      key={p.id} 
+                      onClick={() => handleSelectProduct(p)}
+                      className="px-5 py-3 border-b border-slate-800/50 hover:bg-blue-600/20 cursor-pointer transition-colors text-sm text-slate-300 font-semibold"
+                    >
+                      {p.name}
+                    </li>
+                  ))
+                ) : (
+                  <li className="px-5 py-4 text-sm text-slate-500 italic text-center">
+                    Böyle bir ürün bulunamadı...
+                  </li>
+                )}
+              </ul>
+            )}
           </div>
 
-          {/* Ürüne Git Butonu (Sadece ürün seçilince görünür) */}
+          {/* Ürüne Git Butonu */}
           {compareData && (
             <Link
               href={`/product/${compareData.id}`}
@@ -114,28 +133,23 @@ export default function ProductCompare({
         </div>
       </div>
 
-      {/* KARŞILAŞTIRMA KARTLARI (Mobilde Alt Alta, PC'de Yan Yana) */}
-      <div className="grid grid-cols-1 gap-4">
+      {/* KARŞILAŞTIRMA KARTLARI */}
+      <div className="grid grid-cols-1 gap-4 relative z-10">
         {acfKeys.map((key) => (
           <div key={key} className="bg-[#111827] rounded-[1.5rem] border border-slate-800/50 p-5 md:p-6 flex flex-col md:flex-row md:items-center hover:border-slate-700 transition-colors group">
             
-            {/* Özellik Başlığı (Mobilde En Üstte) */}
             <div className="md:w-1/3 mb-4 md:mb-0">
               <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest bg-slate-800/50 px-3 py-1.5 rounded-lg">
                 {turkceSozluk[key.toLowerCase()] || key}
               </span>
             </div>
 
-            {/* Değerler Kutusu */}
             <div className="md:w-2/3 flex flex-col sm:flex-row gap-3">
-              
-              {/* Mevcut Ürün Değeri */}
               <div className="flex-1 bg-[#0b0f1a] p-4 rounded-xl border border-slate-800/50 group-hover:border-blue-500/30 transition-colors">
                 <span className="text-[10px] text-slate-500 block mb-1 uppercase font-bold tracking-wider">Mevcut</span>
                 <span className="text-white text-sm font-bold capitalize">{String(currentProduct.acf[key])}</span>
               </div>
 
-              {/* Kıyaslanan Ürün Değeri */}
               <div className="flex-1 bg-[#0b0f1a] p-4 rounded-xl border border-slate-800/50 group-hover:border-purple-500/30 transition-colors">
                 <span className="text-[10px] text-slate-500 block mb-1 uppercase font-bold tracking-wider">Kıyaslanan</span>
                 <span className="text-slate-300 text-sm font-bold capitalize">
@@ -146,8 +160,8 @@ export default function ProductCompare({
                   )}
                 </span>
               </div>
-
             </div>
+            
           </div>
         ))}
       </div>
