@@ -4,6 +4,8 @@ import FpsMotoru from "./fpsmotoru";
 import ProductGallery from "./productgallery";
 import ProductCompare from "./productcompare";
 
+// app/product/[id]/page.tsx dosyasındaki ilgili kısmı bununla değiştir:
+
 const api = new (WooCommerceRestApi as any)({
   url: process.env.NEXT_PUBLIC_WC_URL || "",
   consumerKey: process.env.WC_CONSUMER_KEY || "",
