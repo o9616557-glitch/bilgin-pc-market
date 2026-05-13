@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
+// YENİ: Sayfa yönlendirmelerini daha güvenli yapmak için useRouter ekledik
+import { useRouter } from "next/navigation"; 
 
 const turkceSozluk: Record<string, string> = {
   "model": "Model",
@@ -30,6 +31,8 @@ export default function ProductCompare({
   currentProduct: { name: string; acf: any };
   productList: { id: number; name: string }[];
 }) {
+  const router = useRouter(); // Yönlendirme motorunu başlatıyoruz
+
   const [isCompareOpen, setIsCompareOpen] = useState(false);
   const [compareData, setCompareData] = useState<{ id: string; name: string; acf: any } | null>(null);
   
@@ -40,9 +43,12 @@ export default function ProductCompare({
   const [liveResults, setLiveResults] = useState<any[]>([]);
 
   // ==========================================
-  // EĞİTİM BÖLÜMÜ: AKILLI SIRALAMA (SORTING)
-  // WordPress'ten gelen karmaşık listeyi, kullanıcının yazdığı kelimeye göre mantıklı dizer.
+  // DOKÜMANTASYON: Yönlendirme Hafızası
+  // Butona tıklandığında "true" olur ve sistemi kilitler, dönen animasyonu başlatır.
   // ==========================================
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
+  // Akıllı ve Canlı Arama Motoru
   useEffect(() => {
     const timer = setTimeout(async () => {
       if (searchTerm.length >= 2) {
@@ -52,24 +58,21 @@ export default function ProductCompare({
           if (res.ok) {
             const data = await res.json();
             
-            // YENİ: Akıllı Sıralama Motoru
+            // Kısa ismi olanları üste çıkaran sıralama
             const sortedData = data.sort((a: any, b: any) => {
               const nameA = (a.title?.rendered || "").toLowerCase();
               const nameB = (b.title?.rendered || "").toLowerCase();
               const search = searchTerm.toLowerCase();
 
-              // Kelimenin cümle içinde kaçıncı sırada başladığını buluyoruz
               const indexA = nameA.indexOf(search);
               const indexB = nameB.indexOf(search);
 
-              // 1. Kural: Aranan kelime ile "başlayanlar" her zaman üstte olsun.
               if (indexA !== indexB) {
                 if (indexA === -1) return 1;
                 if (indexB === -1) return -1;
                 return indexA - indexB;
               }
 
-              // 2. Kural: İkisi de aynı yerden başlıyorsa, İSMİ KISA OLAN (Örn: 4060) üste geçsin.
               return nameA.length - nameB.length;
             });
 
@@ -102,8 +105,21 @@ export default function ProductCompare({
   });
 
   // ==========================================
-  // YENİ TASARIM: MODERN VE SADE AÇMA BUTONU
+  // DOKÜMANTASYON: Güvenli Yönlendirme Fonksiyonu
+  // Butona tıklandığında çalışır. Çift tıklamayı engeller ve animasyonu başlatır.
   // ==========================================
+  const handleGoToProduct = (e: React.MouseEvent) => {
+    e.preventDefault(); // Tarayıcının varsayılan donuk geçişini engelle
+    
+    if (isRedirecting || !compareData) return; // Zaten yükleniyorsa hiçbir şey yapma (Koruma kalkanı)
+    
+    setIsRedirecting(true); // Animasyonu Başlat
+    
+    // Güvenli bir şekilde yeni sayfaya geç
+    router.push(`/product/${compareData.id}`);
+  };
+
+  // Kıyaslama kapalıyken görünen modern buton
   if (!isCompareOpen) {
     return (
       <button 
@@ -178,13 +194,32 @@ export default function ProductCompare({
             )}
           </div>
 
+          {/* ========================================== */}
+          {/* ANİMASYONLU YÖNLENDİRME BUTONU */}
+          {/* ========================================== */}
           {compareData && (
-            <Link
-              href={`/product/${compareData.id}`}
-              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white text-xs font-black py-4 px-8 rounded-2xl transition-all uppercase tracking-wider text-center shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(37,99,235,0.5)] shrink-0"
+            <button
+              onClick={handleGoToProduct}
+              disabled={isRedirecting} // Animasyon çalışırken butonu fiziksel olarak tıkla(na)maz yapıyoruz
+              className={`w-full sm:w-auto text-white text-xs font-black py-4 px-8 rounded-2xl transition-all uppercase tracking-wider text-center flex items-center justify-center gap-2 shrink-0
+                ${isRedirecting 
+                  ? "bg-blue-800 cursor-wait opacity-80" 
+                  : "bg-blue-600 hover:bg-blue-500 shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(37,99,235,0.5)]"
+                }`}
             >
-              Ürüne Git
-            </Link>
+              {isRedirecting ? (
+                <>
+                  {/* Dönen animasyon çarkı (Spinner) */}
+                  <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Sisteme Giriliyor...
+                </>
+              ) : (
+                "Ürüne Git"
+              )}
+            </button>
           )}
         </div>
       </div>
