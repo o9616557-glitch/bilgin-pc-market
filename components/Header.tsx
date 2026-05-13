@@ -1,60 +1,81 @@
+/**
+ * BİLGİN PC MARKET - MODÜLER HEADER BİLEŞENİ
+ * Bu bileşen PC ve Mobil görünümleri otomatik ayarlar ve ödeme sayfasında gizlenir.
+ */
 "use client";
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Header() {
-  // Hamburger menünün açık/kapalı durumunu tutan hafıza
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Ödeme sayfasında menüyü göstermeme mantığı
+  const isCheckoutPage = pathname.includes("/odeme") || pathname.includes("/checkout");
+  if (isCheckoutPage) return null;
 
   return (
-    <header className="w-full bg-[#050810] border-b border-slate-800/50 sticky top-0 z-50">
-      
-      <div className="max-w-7xl mx-auto px-5 h-16 flex items-center justify-between relative">
+    <header className="w-full bg-[#050810] border-b border-white/5 sticky top-0 z-[100] h-20 flex items-center">
+      <div className="max-w-7xl mx-auto px-5 w-full flex items-center justify-between relative">
         
-        {/* SOL: HAMBURGER VE ARAMA */}
-        <div className="flex items-center gap-5">
+        {/* SOL: MOBİLDE HAMBURGER / PC'DE YAZILI MENÜ */}
+        <div className="flex items-center gap-6">
+          {/* Mobil Hamburger Butonu */}
           <button 
-            onClick={() => setIsMenuOpen(!isMenuOpen)} 
-            className="text-slate-300 hover:text-white"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="text-white md:hidden p-2"
           >
-            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
           </button>
           
-          <button className="text-slate-300 hover:text-blue-400">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          {/* Arama İkonu (Her iki görünümde de var) */}
+          <button className="text-slate-400 hover:text-blue-500 transition-colors">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
           </button>
+
+          {/* PC YAZILI MENÜ (md:flex ile sadece bilgisayarda gözükür) */}
+          <nav className="hidden md:flex items-center gap-8 ml-4">
+            <Link href="/" className="text-[11px] font-black uppercase tracking-widest text-slate-300 hover:text-white transition-colors">Ana Sayfa</Link>
+            <Link href="/sistemler" className="text-[11px] font-black uppercase tracking-widest text-slate-300 hover:text-white transition-colors">Sistemler</Link>
+            <Link href="/parcalar" className="text-[11px] font-black uppercase tracking-widest text-slate-300 hover:text-white transition-colors">Parçalar</Link>
+          </nav>
         </div>
 
-        {/* ORTA: LOGO */}
-        <Link href="/" className="text-xl font-black tracking-widest text-white uppercase absolute left-1/2 -translate-x-1/2">
-          BİLGİN <span className="text-blue-500">PC</span>
+        {/* ORTA: LOGO (Amblem) */}
+        <Link href="/" className="absolute left-1/2 -translate-x-1/2 text-2xl font-black italic tracking-tighter">
+          BİLGİN<span className="text-blue-500 uppercase not-italic">PC</span>
         </Link>
 
-        {/* SAĞ: HESABIM VE SEPET */}
-        <div className="flex items-center gap-5">
-          <button className="text-slate-300 hover:text-white">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-          </button>
-
-          <button className="text-slate-300 hover:text-green-400 relative">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-            <span className="absolute -top-1 -right-1 bg-green-500 text-[#050810] text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full">0</span>
-          </button>
+        {/* SAĞ: HESABIM VE SEPETİM */}
+        <div className="flex items-center gap-6">
+          <Link href="/hesabim" className="text-slate-400 hover:text-white transition-colors">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </Link>
+          <Link href="/sepet" className="text-slate-400 hover:text-green-500 relative transition-colors">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span className="absolute -top-1.5 -right-2 bg-green-500 text-[#050810] text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full">0</span>
+          </Link>
         </div>
-
       </div>
 
-      {/* HAMBURGER MENÜ AÇILIR LİSTESİ */}
+      {/* MOBİL AÇILIR MENÜ ALANI */}
       {isMenuOpen && (
-        <div className="absolute top-16 left-0 w-64 bg-[#111827] border-r border-b border-slate-800/50 shadow-2xl flex flex-col p-6 gap-4">
-          <span className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-2">Kategoriler</span>
-          <Link href="/kategori/ekran-kartlari" className="text-white hover:text-blue-400 font-bold transition-colors">Ekran Kartları</Link>
-          <Link href="/kategori/islemciler" className="text-white hover:text-blue-400 font-bold transition-colors">İşlemciler</Link>
-          <Link href="/kategori/anakartlar" className="text-white hover:text-blue-400 font-bold transition-colors">Anakartlar</Link>
+        <div className="absolute top-20 left-0 w-full bg-[#0b0f1a] border-b border-white/5 p-6 flex flex-col gap-5 md:hidden animate-in fade-in slide-in-from-top-4">
+          <Link href="/" className="text-lg font-black italic uppercase text-white">Ana Sayfa</Link>
+          <Link href="/sistemler" className="text-lg font-black italic uppercase text-white">Sistemler</Link>
+          <Link href="/parcalar" className="text-lg font-black italic uppercase text-white">Parçalar</Link>
         </div>
       )}
-
     </header>
   );
 }
