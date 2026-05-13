@@ -5,18 +5,15 @@ import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
 import dynamic from 'next/dynamic'; 
 import ProductGallery from "./productgallery";
 
-// Ağır bileşenleri sayfa açılışını yavaşlatmamak için sonradan yüklüyoruz
 const FpsMotoru = dynamic(() => import("./fpsmotoru"), { 
-  loading: () => <p className="text-slate-500 p-4">Performans analizi yükleniyor...</p> 
+  loading: () => <p className="text-slate-500 p-4 animate-pulse">Performans analizi yükleniyor...</p> 
 });
 const ProductCompare = dynamic(() => import("./productcompare"), { 
-  loading: () => <p className="text-slate-500 p-4">Kıyaslama motoru hazırlanıyor...</p> 
+  loading: () => <p className="text-slate-500 p-4 animate-pulse">Kıyaslama motoru hazırlanıyor...</p> 
 });
 
-// Sayfanın arkada 1 saatte bir kendini sessizce güncellemesini sağlar
 export const revalidate = 3600; 
 
-// WooCommerce Bağlantı Ayarları
 const api = new (WooCommerceRestApi as any)({
   url: process.env.NEXT_PUBLIC_WC_URL || "",
   consumerKey: process.env.WC_CONSUMER_KEY || "",
@@ -24,40 +21,27 @@ const api = new (WooCommerceRestApi as any)({
   version: "wc/v3"
 });
 
-// =================================================================
-// EĞİTİM BÖLÜMÜ: TÜM ÜRÜNLERİ ÖNCEDEN İNŞA ETME (IŞIK HIZI MOTORU)
-// Eskiden sadece 100 ürün çekiyorduk. Şimdi bir "While" döngüsü ile 
-// sayfaları 100'er 100'er dolaşıp tüm ürünleri önceden hazırlıyoruz.
-// =================================================================
 export async function generateStaticParams() {
   try {
     let allProducts: any[] = [];
     let page = 1;
     let hasMore = true;
 
-    // Vercel çökmesin diye verileri 100'erli paketler halinde (Maksimum 4 sayfa = 400 ürün) çekiyoruz
     while (hasMore && page <= 4) {
       const res = await api.get('products', { per_page: 100, page: page, status: 'publish' });
-      
-      // Eğer çekilen sayfada ürün kalmadıysa döngüyü bitir
       if (res.data.length === 0) {
         hasMore = false;
       } else {
-        // Gelen ürünleri ana listemize ekle ve bir sonraki sayfaya geç
         allProducts = [...allProducts, ...res.data];
         page++;
       }
     }
-
-    return allProducts.map((product: any) => ({
-      id: product.id.toString(),
-    }));
+    return allProducts.map((product: any) => ({ id: product.id.toString() }));
   } catch (error) {
     return []; 
   }
 }
 
-// Özellik isimlerini Türkçeleştirme sözlüğü
 const turkceSozluk: Record<string, string> = {
   "model": "Model", "grafik_motoru": "Grafik Motoru", "ai_performansi": "AI Performansı",
   "bus_standarti": "Veri Yolu Standartı", "opengl": "OpenGL", "bellek": "Bellek",
@@ -68,11 +52,9 @@ const turkceSozluk: Record<string, string> = {
 export default async function UrunDetay({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  // Verileri çekiyoruz
   const [wcRes, wpRes, allProductsRes] = await Promise.all([
     api.get(`products/${id}`).catch(() => ({ data: {} })),
     fetch(`${process.env.NEXT_PUBLIC_WC_URL}/wp-json/wp/v2/product/${id}`).then(res => res.json()).catch(() => ({})),
-    // Alttaki listede sadece ilk 50 ürünü göstermek sayfa hızı için yeterlidir (Canlı arama motorumuz zaten tüm ürünleri bulabiliyor)
     api.get('products', { per_page: 50, status: 'publish' }).catch(() => ({ data: [] }))
   ]);
 
@@ -87,76 +69,105 @@ export default async function UrunDetay({ params }: { params: Promise<{ id: stri
   if (!product.id) return <div className="text-white p-10">Ürün bulunamadı...</div>;
 
   return (
-    <div className="bg-[#0b1120] min-h-screen p-4 md:p-10 text-white font-sans text-left">
-      <div className="max-w-5xl mx-auto space-y-4">
+    <div className="bg-[#050810] min-h-screen pb-24 text-white font-sans text-left selection:bg-blue-500/30">
+      
+      {/* 1. BÖLÜM: BAŞLIK VE YILDIZLAR (Tıpkı resimdeki gibi en üstte) */}
+      <div className="max-w-4xl mx-auto px-5 pt-8 pb-6">
+        <span className="text-blue-500 text-[11px] font-black uppercase tracking-widest bg-blue-500/10 px-3 py-1.5 rounded-full">
+          Performance Series
+        </span>
+        <h1 className="text-2xl md:text-4xl font-black text-white mt-4 leading-tight">{product.name}</h1>
         
-        {/* ANA ÜRÜN KARTI */}
-        <div className="bg-[#111827] rounded-[25px] border border-slate-800/50 grid grid-cols-1 lg:grid-cols-2 overflow-hidden shadow-2xl">
-          <div className="p-4 md:p-10 bg-[#0b0f1a] flex items-center justify-center border-b lg:border-b-0 lg:border-r border-slate-800/50">
-            <ProductGallery images={product.images} productName={product.name} />
+        {/* Yorumlar ve Yıldızlar */}
+        <div className="flex flex-wrap items-center gap-3 mt-3 text-sm">
+          <div className="flex text-yellow-400 text-lg">★★★★★</div>
+          <span className="text-slate-300 font-medium">5 üzerinden 5</span>
+          <span className="text-blue-400 hover:text-blue-300 transition-colors cursor-pointer underline underline-offset-4 decoration-blue-500/30">
+            Tüm Yorumları Görüntüle
+          </span>
+        </div>
+      </div>
+
+      {/* 2. BÖLÜM: GALERİ (Kutu yok, ferah) */}
+      <div className="max-w-4xl mx-auto px-5 mb-8">
+        <ProductGallery images={product.images} productName={product.name} />
+      </div>
+
+      {/* 3. BÖLÜM: GÜVEN ROZETLERİ (Yan yana şık ikonlar) */}
+      <div className="max-w-3xl mx-auto px-5 mb-12">
+        <div className="flex justify-center gap-6 md:gap-16 border-y border-slate-800/60 py-6">
+          <div className="flex flex-col items-center text-center gap-3 group cursor-default">
+            <div className="w-12 h-12 rounded-full border border-slate-700 bg-[#0b0f1a] flex items-center justify-center text-xl group-hover:border-blue-500 transition-colors">🚚</div>
+            <span className="text-[11px] text-slate-400 font-semibold tracking-wide">HIZLI<br/>KARGO</span>
           </div>
-
-          <div className="p-6 md:p-10 space-y-6 flex flex-col justify-center min-w-0">
-            <div>
-              <span className="text-blue-500 text-[10px] font-black uppercase">Performance Series</span>
-              <h1 className="text-xl md:text-3xl font-bold text-white capitalize break-words">{product.name}</h1>
-              <div className="text-2xl font-black text-blue-500 mt-2">{product.price} TL</div>
-            </div>
-
-            {/* TEKNİK DETAYLAR */}
-            <div className="grid grid-cols-2 gap-3">
-              {Object.entries(acf).map(([key, value]: any) => {
-                if (!value || typeof value === 'object' || key.toLowerCase().includes('fps')) return null;
-                return (
-                  <div key={key} className="bg-[#0b0f1a] p-3 rounded-lg border border-slate-800/50 flex flex-col justify-center min-w-0">
-                    <span className="text-[10px] text-slate-400 block uppercase mb-1 truncate" title={turkceSozluk[key.toLowerCase()] || key}>
-                      {turkceSozluk[key.toLowerCase()] || key}
-                    </span>
-                    <span className="text-blue-400 font-bold text-xs block break-words">
-                      {String(value)}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-
-            <button className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-black text-lg shadow-lg active:scale-95 transition-all">
-              SİSTEME DAHİL ET
-            </button>
+          <div className="flex flex-col items-center text-center gap-3 group cursor-default">
+            <div className="w-12 h-12 rounded-full border border-slate-700 bg-[#0b0f1a] flex items-center justify-center text-xl group-hover:border-blue-500 transition-colors">🛡️</div>
+            <span className="text-[11px] text-slate-400 font-semibold tracking-wide">GÜVENLİ<br/>ALIŞVERİŞ</span>
+          </div>
+          <div className="flex flex-col items-center text-center gap-3 group cursor-default">
+            <div className="w-12 h-12 rounded-full border border-slate-700 bg-[#0b0f1a] flex items-center justify-center text-xl group-hover:border-blue-500 transition-colors">💬</div>
+            <span className="text-[11px] text-slate-400 font-semibold tracking-wide">MÜŞTERİ<br/>DESTEĞİ</span>
           </div>
         </div>
+      </div>
 
-        {/* DETAYLAR BÖLÜMÜ */}
-        <details className="group bg-[#111827] rounded-[20px] border border-slate-800/50 overflow-hidden shadow-xl" open>
-          <summary className="p-4 md:p-5 cursor-pointer list-none hover:bg-white/5 flex justify-between items-center select-none">
-            <span className="text-blue-500 font-black uppercase tracking-wider">📄 Cihaz Detayları</span>
-            <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+      <div className="max-w-4xl mx-auto px-5 space-y-8">
+        
+        {/* FİYAT VE SEPETE EKLE */}
+        <div className="bg-[#0b0f1a] p-6 rounded-[2rem] border border-slate-800/60 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
+          <div>
+            <span className="text-slate-500 text-xs font-bold uppercase tracking-widest block mb-1">Peşin Fiyatına</span>
+            <div className="text-4xl font-black text-white">{product.price} <span className="text-blue-500 text-2xl">TL</span></div>
+          </div>
+          <button className="w-full md:w-auto bg-blue-600 hover:bg-blue-500 text-white py-4 px-10 rounded-2xl font-black text-sm uppercase tracking-widest shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(37,99,235,0.5)] active:scale-95 transition-all">
+            SİSTEME DAHİL ET
+          </button>
+        </div>
+
+        {/* TEKNİK DETAYLAR (Artık daha sade) */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {Object.entries(acf).map(([key, value]: any) => {
+            if (!value || typeof value === 'object' || key.toLowerCase().includes('fps')) return null;
+            return (
+              <div key={key} className="bg-[#0b0f1a] p-4 rounded-2xl border border-slate-800/40 flex flex-col justify-center text-center">
+                <span className="text-[10px] text-slate-500 font-bold uppercase mb-1 truncate" title={turkceSozluk[key.toLowerCase()] || key}>
+                  {turkceSozluk[key.toLowerCase()] || key}
+                </span>
+                <span className="text-blue-400 font-bold text-xs break-words">{String(value)}</span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* UZUN AÇIKLAMA (Şık Akordiyon) */}
+        <details className="group bg-[#0b0f1a] rounded-[2rem] border border-slate-800/60 overflow-hidden" open>
+          <summary className="p-6 cursor-pointer list-none flex justify-between items-center select-none">
+            <span className="text-white font-bold uppercase tracking-wider text-sm">📄 Detaylı İnceleme</span>
+            <span className="text-blue-500 group-open:rotate-180 transition-transform">▼</span>
           </summary>
           <div 
-            className="p-4 md:p-8 pt-0 border-t border-slate-800/30 text-xs md:text-sm text-slate-300 break-words leading-relaxed
+            className="p-6 pt-0 text-sm text-slate-400 leading-relaxed
               [&>p]:mb-4 
-              [&>h1]:text-2xl [&>h1]:font-black [&>h1]:text-white [&>h1]:mb-4 [&>h1]:mt-6
+              [&>h1]:text-xl [&>h1]:font-black [&>h1]:text-white [&>h1]:mb-4 [&>h1]:mt-6
               [&>h2]:text-lg [&>h2]:font-bold [&>h2]:text-blue-400 [&>h2]:mb-3 [&>h2]:mt-6
-              [&>h3]:text-base [&>h3]:font-bold [&>h3]:text-slate-200 [&>h3]:mb-2 [&>h3]:mt-4
-              [&>ul]:list-disc [&>ul]:ml-5 [&>ul]:mb-4 [&>ul>li]:mb-1 [&>ul>li]:pl-1
-              [&>ol]:list-decimal [&>ol]:ml-5 [&>ol]:mb-4 [&>ol>li]:mb-1
-              [&>strong]:text-white [&>strong]:font-bold" 
+              [&>ul]:list-disc [&>ul]:ml-5 [&>ul]:mb-4 [&>ul>li]:mb-2
+              [&>strong]:text-slate-200" 
             dangerouslySetInnerHTML={{ __html: uzunAciklama }} 
           />
         </details>
 
-        {/* FPS MOTORU */}
-        <div className="bg-[#111827] rounded-[20px] border border-slate-800/50 p-4 md:p-8 shadow-xl">
-           <h3 className="text-green-500 font-black mb-4 uppercase tracking-wider flex items-center gap-2">
-             <span>⚡</span> Performans Analizi
+        {/* OYUN FPS MOTORU */}
+        <div className="bg-[#0b0f1a] rounded-[2rem] border border-slate-800/60 p-6 shadow-xl">
+           <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-6 flex items-center gap-2">
+             <span className="text-green-500 text-lg">⚡</span> Oyun Performansı
            </h3>
            {acf && <FpsMotoru acf={acf} />}
         </div>
 
         {/* KIYASLAMA MOTORU */}
-        <div className="bg-[#111827] rounded-[20px] border border-slate-800/50 p-4 md:p-8 shadow-xl overflow-x-auto">
-           <h3 className="text-slate-400 font-black mb-4 uppercase tracking-wider flex items-center gap-2">
-             <span>⚖️</span> Teknik Kıyaslama
+        <div className="bg-[#0b0f1a] rounded-[2rem] border border-slate-800/60 p-6 shadow-xl overflow-x-auto">
+           <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-6 flex items-center gap-2">
+             <span className="text-blue-500 text-lg">⚖️</span> Teknik Kıyaslama
            </h3>
            <ProductCompare currentProduct={{ name: product.name, acf }} productList={productList} />
         </div>
