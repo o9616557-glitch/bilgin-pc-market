@@ -13,37 +13,38 @@ export default function ProductGallery({ images, productName }: { images: any[],
   }
 
   return (
-    // EĞİTİM NOTU: flex-col kullanarak noktaları zorunlu olarak resmin altına hizalıyoruz.
     <div className="flex flex-col items-center w-full">
       
       {/* ANA RESİM VE OKLAR */}
-      <div className="relative w-full aspect-[4/3] md:aspect-video bg-gradient-to-b from-[#111827] to-[#0b0f1a] rounded-3xl flex items-center justify-center overflow-hidden group border border-slate-800/30">
+      {/* EĞİTİM NOTU: h-[350px] md:h-[500px] ile kutuya sabit ama ferah bir yükseklik verdik. p-2 ile iç boşluğu azalttık. */}
+      <div className="relative w-full h-[350px] md:h-[500px] bg-gradient-to-b from-[#111827]/30 to-[#0b0f1a]/30 rounded-3xl flex items-center justify-center group overflow-hidden border border-slate-800/30 p-2 md:p-6">
         
         {/* Ürün Görseli */}
+        {/* EĞİTİM NOTU: w-full h-full object-contain sayesinde resim artık kutunun içine hapsolmuyor, sınırları dolduruyor. */}
         <img 
           src={images[currentIndex].src} 
           alt={productName} 
-          className="object-contain max-h-[80%] max-w-[80%] drop-shadow-2xl transition-transform duration-500 group-hover:scale-105" 
+          className="w-full h-full object-contain drop-shadow-2xl transition-transform duration-500 group-hover:scale-105" 
         />
 
-        {/* Sol Ok - Sadece üzerine gelince veya mobilde görünür */}
+        {/* Sol Ok */}
         <button 
           onClick={prevImage} 
-          className="absolute left-2 md:left-6 p-3 md:p-4 bg-[#111827]/80 text-white rounded-full hover:bg-blue-600 transition-all border border-slate-700/50 backdrop-blur-sm"
+          className="absolute left-2 md:left-4 p-3 md:p-4 bg-[#111827]/80 text-white rounded-full hover:bg-blue-600 transition-all border border-slate-700/50 backdrop-blur-sm shadow-lg"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
+          <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
         </button>
 
         {/* Sağ Ok */}
         <button 
           onClick={nextImage} 
-          className="absolute right-2 md:right-6 p-3 md:p-4 bg-[#111827]/80 text-white rounded-full hover:bg-blue-600 transition-all border border-slate-700/50 backdrop-blur-sm"
+          className="absolute right-2 md:right-4 p-3 md:p-4 bg-[#111827]/80 text-white rounded-full hover:bg-blue-600 transition-all border border-slate-700/50 backdrop-blur-sm shadow-lg"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+          <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
         </button>
       </div>
 
-      {/* YUVARLAK NOKTALAR (RESMİN ALTINDA) */}
+      {/* YUVARLAK NOKTALAR */}
       <div className="flex gap-3 mt-6">
         {images.map((_, index) => (
           <button
@@ -51,8 +52,8 @@ export default function ProductGallery({ images, productName }: { images: any[],
             onClick={() => setCurrentIndex(index)}
             className={`h-2.5 rounded-full transition-all duration-300 ${
               index === currentIndex 
-                ? "bg-blue-500 w-8 shadow-[0_0_10px_rgba(59,130,246,0.5)]" // Aktif olan nokta mavi ve uzun
-                : "bg-slate-700 w-2.5 hover:bg-slate-500" // Diğerleri yuvarlak
+                ? "bg-blue-500 w-8 shadow-[0_0_10px_rgba(59,130,246,0.5)]" 
+                : "bg-slate-700 w-2.5 hover:bg-slate-500" 
             }`}
           />
         ))}
