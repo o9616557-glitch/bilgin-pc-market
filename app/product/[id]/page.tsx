@@ -4,7 +4,7 @@
 import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
 import dynamic from 'next/dynamic'; 
 import ProductGallery from "./productgallery";
-
+import Header from "../../../components/Header";
 const FpsMotoru = dynamic(() => import("./fpsmotoru"), { 
   loading: () => <p className="text-slate-500 p-4 animate-pulse">Performans analizi yükleniyor...</p> 
 });
