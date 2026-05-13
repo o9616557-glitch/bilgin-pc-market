@@ -24,11 +24,32 @@ const api = new (WooCommerceRestApi as any)({
   version: "wc/v3"
 });
 
-// Işık Hızı Motoru: Tüm ürün sayfalarını önceden oluşturur
+// =================================================================
+// EĞİTİM BÖLÜMÜ: TÜM ÜRÜNLERİ ÖNCEDEN İNŞA ETME (IŞIK HIZI MOTORU)
+// Eskiden sadece 100 ürün çekiyorduk. Şimdi bir "While" döngüsü ile 
+// sayfaları 100'er 100'er dolaşıp tüm ürünleri önceden hazırlıyoruz.
+// =================================================================
 export async function generateStaticParams() {
   try {
-    const res = await api.get('products', { per_page: 250, status: 'publish' });
-    return res.data.map((product: any) => ({
+    let allProducts: any[] = [];
+    let page = 1;
+    let hasMore = true;
+
+    // Vercel çökmesin diye verileri 100'erli paketler halinde (Maksimum 4 sayfa = 400 ürün) çekiyoruz
+    while (hasMore && page <= 4) {
+      const res = await api.get('products', { per_page: 100, page: page, status: 'publish' });
+      
+      // Eğer çekilen sayfada ürün kalmadıysa döngüyü bitir
+      if (res.data.length === 0) {
+        hasMore = false;
+      } else {
+        // Gelen ürünleri ana listemize ekle ve bir sonraki sayfaya geç
+        allProducts = [...allProducts, ...res.data];
+        page++;
+      }
+    }
+
+    return allProducts.map((product: any) => ({
       id: product.id.toString(),
     }));
   } catch (error) {
@@ -51,7 +72,8 @@ export default async function UrunDetay({ params }: { params: Promise<{ id: stri
   const [wcRes, wpRes, allProductsRes] = await Promise.all([
     api.get(`products/${id}`).catch(() => ({ data: {} })),
     fetch(`${process.env.NEXT_PUBLIC_WC_URL}/wp-json/wp/v2/product/${id}`).then(res => res.json()).catch(() => ({})),
-    api.get('products', { per_page: 250, status: 'publish' }).catch(() => ({ data: [] }))
+    // Alttaki listede sadece ilk 50 ürünü göstermek sayfa hızı için yeterlidir (Canlı arama motorumuz zaten tüm ürünleri bulabiliyor)
+    api.get('products', { per_page: 50, status: 'publish' }).catch(() => ({ data: [] }))
   ]);
 
   const product = wcRes.data;
@@ -104,7 +126,7 @@ export default async function UrunDetay({ params }: { params: Promise<{ id: stri
           </div>
         </div>
 
-        {/* DETAYLAR BÖLÜMÜ (İÇ İÇE GİRMEYİ ÇÖZEN YENİ TASARIM) */}
+        {/* DETAYLAR BÖLÜMÜ */}
         <details className="group bg-[#111827] rounded-[20px] border border-slate-800/50 overflow-hidden shadow-xl" open>
           <summary className="p-4 md:p-5 cursor-pointer list-none hover:bg-white/5 flex justify-between items-center select-none">
             <span className="text-blue-500 font-black uppercase tracking-wider">📄 Cihaz Detayları</span>
