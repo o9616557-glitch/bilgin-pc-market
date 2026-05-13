@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; 
+// YENİ: En yüksek hızı elde etmek için Next.js'in yerel Link bileşenini geri getiriyoruz
+import Link from "next/link"; 
 
 const turkceSozluk: Record<string, string> = {
   "model": "Model",
@@ -30,7 +31,6 @@ export default function ProductCompare({
   currentProduct: { name: string; acf: any };
   productList: { id: number; name: string }[];
 }) {
-  const router = useRouter(); 
 
   const [isCompareOpen, setIsCompareOpen] = useState(false);
   const [compareData, setCompareData] = useState<{ id: string; name: string; acf: any } | null>(null);
@@ -40,18 +40,9 @@ export default function ProductCompare({
   const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [liveResults, setLiveResults] = useState<any[]>([]);
+  
+  // Tıklama animasyonunu yönetecek hafıza
   const [isRedirecting, setIsRedirecting] = useState(false);
-
-  // ==========================================
-  // EĞİTİM BÖLÜMÜ: PREFETCH (ÖNCEDEN YÜKLEME)
-  // Müşteri bir ürün seçtiğinde (compareData dolduğunda), 
-  // Next.js o sayfanın verilerini arka planda çaktırmadan indirir.
-  // ==========================================
-  useEffect(() => {
-    if (compareData && compareData.id) {
-      router.prefetch(`/product/${compareData.id}`);
-    }
-  }, [compareData, router]);
 
   // Akıllı ve Canlı Arama Motoru
   useEffect(() => {
@@ -107,15 +98,6 @@ export default function ProductCompare({
     const val = currentProduct.acf[key];
     return val && typeof val !== "object" && !key.toLowerCase().includes("fps");
   });
-
-  const handleGoToProduct = (e: React.MouseEvent) => {
-    e.preventDefault(); 
-    
-    if (isRedirecting || !compareData) return; 
-    
-    setIsRedirecting(true); 
-    router.push(`/product/${compareData.id}`);
-  };
 
   if (!isCompareOpen) {
     return (
@@ -191,10 +173,21 @@ export default function ProductCompare({
             )}
           </div>
 
+          {/* ========================================== */}
+          {/* EĞİTİM BÖLÜMÜ: IŞIK HIZI YÖNLENDİRME */}
+          {/* prefetch={true} komutu sayesinde sayfa arka planda anında indirilir. */}
+          {/* ========================================== */}
           {compareData && (
-            <button
-              onClick={handleGoToProduct}
-              disabled={isRedirecting}
+            <Link
+              href={`/product/${compareData.id}`}
+              prefetch={true} // BÜYÜK HIZLANDIRICI BURASI!
+              onClick={(e) => {
+                if (isRedirecting) {
+                  e.preventDefault(); 
+                  return;
+                }
+                setIsRedirecting(true); // Animasyonu başlat
+              }}
               className={`w-full sm:w-auto text-white text-xs font-black py-4 px-8 rounded-2xl transition-all uppercase tracking-wider text-center flex items-center justify-center gap-2 shrink-0
                 ${isRedirecting 
                   ? "bg-blue-800 cursor-wait opacity-80" 
@@ -212,7 +205,7 @@ export default function ProductCompare({
               ) : (
                 "Ürüne Git"
               )}
-            </button>
+            </Link>
           )}
         </div>
       </div>
