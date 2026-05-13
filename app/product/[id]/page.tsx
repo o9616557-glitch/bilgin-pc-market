@@ -74,7 +74,7 @@ export default async function UrunDetay({ params }: { params: Promise<{ id: stri
       {/* BÖLÜM 1: BAŞLIK (Genişlik max-w-5xl yapıldı) */}
       <div className="max-w-5xl mx-auto px-5 pt-8 pb-6">
         <span className="text-blue-500 text-[11px] font-black uppercase tracking-widest bg-blue-500/10 px-3 py-1.5 rounded-full">
-          Performance Series
+          BİLGİN PERFORMANCE
         </span>
         <h1 className="text-2xl md:text-4xl font-black text-white mt-4 leading-tight">{product.name}</h1>
         
