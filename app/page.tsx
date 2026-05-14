@@ -1,6 +1,8 @@
 import React from 'react';
 import Hero from '@/components/Hero';
 import Footer from '@/components/Footer';
+// EĞİTİM NOTU: Yeni Kaydırmalı Vitrin parçamızı sayfaya çağırıyoruz.
+import ProductSlider from '@/components/ProductSlider';
 
 // @ts-ignore
 import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
@@ -17,26 +19,32 @@ const api = new (WooCommerceRestApi as any)({
 
 export default async function HomePage() {
   
-  // WOOCOMMERCE VERİ ÇEKME İŞLEMLERİ
-  const res = await api.get('products', { per_page: 20, status: 'publish' }).catch(() => ({ data: [] }));
+  // WOOCOMMERCE VERİ ÇEKME İŞLEMLERİ (Senin mağazandaki gerçek ürünler)
+  const res = await api.get('products', { per_page: 10, status: 'publish' }).catch(() => ({ data: [] }));
   const urunler = res.data.map((item: any) => ({
     id: item.id,
     ad: item.name,
     fiyat: item.price ? Number(item.price).toLocaleString('tr-TR') + " TL" : "Fiyat Sorunuz",
     resim: item.images?.[0]?.src || "https://via.placeholder.com/300?text=Bilgin+PC",
-    ozellik: item.short_description ? item.short_description.replace(/(<([^>]+)>)/gi, "").substring(0, 60) + "..." : "Sistem özellikleri yükleniyor..."
+    ozellik: item.short_description ? item.short_description.replace(/(<([^>]+)>)/gi, "").substring(0, 60) + "..." : "Sistem detayları için tıklayın."
   }));
 
   return (
     <div className="bg-[#0b1120] min-h-screen text-white font-sans selection:bg-blue-500/30 flex flex-col">
       
-      {/* 1. PARÇA: Ana İçerik (Header silindi, sadece layout.tsx'den gelecek) */}
+      {/* ANA İÇERİK */}
       <main className="flex-grow">
+        
+        {/* 1. KAHRAMAN AFİŞİ */}
         <Hero />
-        {/* İleride ürünleri dizeceğimiz alan */}
+        
+        {/* 2. KAYDIRMALI ÜRÜN VİTRİNİ */}
+        {/* EĞİTİM NOTU: Yukarıda API'den çektiğimiz 'urunler' listesini Slider'ın içine gönderiyoruz. */}
+        <ProductSlider urunler={urunler} />
+
       </main>
 
-      {/* 2. PARÇA: Alt Bilgi (Footer) */}
+      {/* ALT BİLGİ */}
       <Footer />
 
     </div>
