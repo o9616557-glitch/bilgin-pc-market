@@ -1,9 +1,7 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 
-// Ana sayfadan gelecek olan 'urunler' listesinin veri yapısı
 interface Urun {
   id: number;
   ad: string;
@@ -14,7 +12,6 @@ interface Urun {
 
 export default function ProductGrid({ urunler }: { urunler: Urun[] }) {
   
-  // Ürün yoksa bu alanı gizle
   if (!urunler || urunler.length === 0) {
     return null; 
   }
@@ -29,34 +26,38 @@ export default function ProductGrid({ urunler }: { urunler: Urun[] }) {
         </h2>
       </div>
 
-      {/* IZGARA (GRID) ALANI */}
-      {/* grid-cols-2 (telefonda 2'li), md:grid-cols-3 (tablette 3'lü), lg:grid-cols-4 (bilgisayarda 4'lü) düzeni sağlar */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+      {/* DÜZELTİLMİŞ ALAN: MOBİLDE KAYDIRMALI, PC'DE IZGARA */}
+      {/* EĞİTİM NOTU: 
+          - 'flex overflow-x-auto' -> Mobilde yan yana dizer ve kaydırma sağlar.
+          - 'md:grid md:grid-cols-3 lg:grid-cols-4' -> Ekran büyüyünce ızgara düzenine geçer.
+          - 'pb-6' -> Mobilde kaydırma çubuğu ile ürün arasına mesafe koyar.
+      */}
+      <div className="flex overflow-x-auto md:overflow-visible pb-6 md:pb-0 gap-4 md:gap-6 snap-x snap-mandatory md:grid md:grid-cols-3 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         
         {urunler.map((urun) => (
-          // ÜRÜN KUTUSU (Hover efektleriyle birlikte)
-          <div key={urun.id} className="bg-[#0b0f1a] border border-white/5 rounded-2xl p-3 md:p-4 group hover:border-blue-500/30 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] transition-all duration-300 flex flex-col h-full relative">
+          // EĞİTİM NOTU: 'min-w-[280px] md:min-w-0' -> Mobilde kartların ezilmesini önler, PC'de genişliği ızgaraya bırakır.
+          <div key={urun.id} className="min-w-[280px] md:min-w-0 snap-start bg-[#0b0f1a] border border-white/5 rounded-2xl p-4 group hover:border-blue-500/30 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] transition-all duration-300 flex flex-col h-full relative">
             
             {/* Ürün Görseli */}
-            <div className="w-full h-[150px] md:h-[200px] bg-[#050810] rounded-xl mb-4 overflow-hidden relative flex items-center justify-center">
-              <img src={urun.resim} alt={urun.ad} className="object-contain h-full p-2 md:p-4 group-hover:scale-105 transition-transform duration-500" />
+            <div className="w-full h-[180px] md:h-[200px] bg-[#050810] rounded-xl mb-4 overflow-hidden relative flex items-center justify-center">
+              <img src={urun.resim} alt={urun.ad} className="object-contain h-full p-4 group-hover:scale-105 transition-transform duration-500" />
             </div>
 
             {/* Ürün Detayları */}
             <div className="flex flex-col flex-grow gap-2">
-              <h3 className="text-white font-bold text-xs md:text-sm line-clamp-2 leading-tight group-hover:text-blue-400 transition-colors">
+              <h3 className="text-white font-bold text-sm line-clamp-2 leading-tight group-hover:text-blue-400 transition-colors">
                 {urun.ad}
               </h3>
-              <p className="text-[10px] md:text-xs text-slate-500 line-clamp-2">
+              <p className="text-xs text-slate-500 line-clamp-2">
                 {urun.ozellik}
               </p>
             </div>
             
-            {/* Fiyat ve Sepete Ekle Butonu */}
+            {/* Fiyat ve Buton */}
             <div className="mt-auto pt-4">
-              <div className="text-sm md:text-lg font-black text-white mb-3">{urun.fiyat}</div>
+              <div className="text-lg font-black text-white mb-3">{urun.fiyat}</div>
               
-              <button className="w-full py-2 md:py-2.5 bg-white/5 hover:bg-blue-600 border border-white/10 hover:border-blue-500 rounded-lg text-xs md:text-sm font-bold text-white uppercase tracking-wider transition-all flex items-center justify-center gap-2">
+              <button className="w-full py-2.5 bg-white/5 hover:bg-blue-600 border border-white/10 hover:border-blue-500 rounded-lg text-xs font-bold text-white uppercase tracking-wider transition-all flex items-center justify-center gap-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                 Sepete Ekle
               </button>
