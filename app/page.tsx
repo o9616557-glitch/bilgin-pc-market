@@ -1,8 +1,8 @@
 import React from 'react';
 import Hero from '@/components/Hero';
-import Footer from '@/components/Footer';
-// EĞİTİM NOTU: Yeni Kaydırmalı Vitrin parçamızı sayfaya çağırıyoruz.
 import ProductSlider from '@/components/ProductSlider';
+import ProductGrid from '@/components/ProductGrid';
+import Footer from '@/components/Footer';
 
 // @ts-ignore
 import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
@@ -19,8 +19,8 @@ const api = new (WooCommerceRestApi as any)({
 
 export default async function HomePage() {
   
-  // WOOCOMMERCE VERİ ÇEKME İŞLEMLERİ (Senin mağazandaki gerçek ürünler)
-  const res = await api.get('products', { per_page: 10, status: 'publish' }).catch(() => ({ data: [] }));
+  // WOOCOMMERCE VERİ ÇEKME İŞLEMLERİ
+  const res = await api.get('products', { per_page: 20, status: 'publish' }).catch(() => ({ data: [] }));
   const urunler = res.data.map((item: any) => ({
     id: item.id,
     ad: item.name,
@@ -39,8 +39,10 @@ export default async function HomePage() {
         <Hero />
         
         {/* 2. KAYDIRMALI ÜRÜN VİTRİNİ */}
-        {/* EĞİTİM NOTU: Yukarıda API'den çektiğimiz 'urunler' listesini Slider'ın içine gönderiyoruz. */}
         <ProductSlider urunler={urunler} />
+
+        {/* 3. YENİ EKLENDİ: POPÜLER ÜRÜNLER IZGARASI (GRID) */}
+        <ProductGrid urunler={urunler} />
 
       </main>
 
