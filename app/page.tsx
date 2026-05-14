@@ -1,7 +1,5 @@
 import React from 'react';
-import Header from '@/components/Header';
 import Hero from '@/components/Hero';
-// EĞİTİM NOTU: Yeni oluşturduğumuz Footer parçasını buraya dahil ettik.
 import Footer from '@/components/Footer';
 
 // @ts-ignore
@@ -32,16 +30,13 @@ export default async function HomePage() {
   return (
     <div className="bg-[#0b1120] min-h-screen text-white font-sans selection:bg-blue-500/30 flex flex-col">
       
-      {/* 1. PARÇA: Üst Menü */}
-      <Header />
-
-      {/* 2. PARÇA: Ana İçerik */}
+      {/* 1. PARÇA: Ana İçerik (Header silindi, sadece layout.tsx'den gelecek) */}
       <main className="flex-grow">
         <Hero />
-        {/* İleride ürünleri dizeceğimiz alan burası */}
+        {/* İleride ürünleri dizeceğimiz alan */}
       </main>
 
-      {/* 3. PARÇA: Yeni Alt Bilgi (Footer) */}
+      {/* 2. PARÇA: Alt Bilgi (Footer) */}
       <Footer />
 
     </div>
