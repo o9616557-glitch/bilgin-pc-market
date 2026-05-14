@@ -3,7 +3,6 @@
 import React from "react";
 import Link from "next/link";
 
-// Ana sayfadan gelecek olan 'urunler' listesinin yapısı
 interface Urun {
   id: number;
   ad: string;
@@ -21,23 +20,20 @@ export default function ProductSlider({ urunler }: { urunler: Urun[] }) {
   return (
     <section className="w-full max-w-[1400px] mx-auto px-5 py-16">
       
-      {/* 1. DÜZELTME: BAŞLIK VE BUTON ARASINDAKİ SIKIŞIKLIK ÇÖZÜLDÜ */}
-      {/* EĞİTİM NOTU: 'flex-col sm:flex-row' ile mobilde alt alta, PC'de yan yana durmalarını sağladık. 'gap-4' ile aralarına ferah bir boşluk koyduk. */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         
         <h2 className="text-2xl md:text-3xl font-black italic tracking-tighter uppercase text-white">
-          Yeni Gelen <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-green-500">Sistemler</span>
+          {/* EĞİTİM NOTU: Kesik R harfini düzeltmek için aşağıdaki span etiketinin sonuna 'pr-2' (sağdan boşluk) komutunu ekledik. */}
+          Yeni Gelen <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-green-500 pr-2">Sistemler</span>
         </h2>
         
-        {/* 2. DÜZELTME: 404 HATASI ÇÖZÜMÜ */}
-        {/* EĞİTİM NOTU: href="#" yaparak sayfa bulunamadı hatasını engelledik. İleride bu kategori sayfasını yapınca burayı güncelleyeceğiz. */}
+        {/* Tümünü Gör butonu şimdilik '#' olarak kalıyor. İleride kategori sayfasını yapınca bağlayacağız. */}
         <Link href="#" className="text-sm font-bold text-slate-400 hover:text-white transition-colors flex items-center gap-1 w-max">
           Tümünü Gör <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
         </Link>
 
       </div>
 
-      {/* KAYDIRMALI BANT (SLIDER) ALANI - Buraya dokunmadık, mükemmel çalışıyor */}
       <div className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         
         {urunler.map((urun) => (
