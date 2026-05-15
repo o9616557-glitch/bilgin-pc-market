@@ -3,44 +3,32 @@
 import React, { useState } from "react";
 import Link from "next/link";
 
-// ŞEFİM: Attığın ekran görüntüsündeki orijinal liste birebir buradadır.
+// ŞEFİM: Orijinal listeye KESİNLİKLE dokunmadım. Her şey harfi harfine aynı.
 const navigation = [
   { name: "Tüm bilgisayarlar", subs: ["Tüm bilgisayarlar"] },
-  { 
-    name: "Masaüstü bilgisayarlar", 
-    subs: ["Tüm masaüstü bilgisayarlar", "Ofis ve günlük", "Performans", "Gaming", "3D ve tasarım", "Pro sistemler"] 
-  },
-  { 
-    name: "Laptop bilgisayar", 
-    subs: ["Tüm laptop bilgisayarlar", "Ofis ve günlük", "Performans", "Gaming", "3D ve tasarım", "Pro sistemler"] 
-  },
-  { 
-    name: "Hazır sistem bilgisayarlar", 
-    subs: ["Tüm hazır sistem bilgisayarlar", "Ofis ve günlük", "Performans", "Gaming", "3D ve tasarım", "Pro sistemler"] 
-  },
-  { 
-    name: "Bilgisayar parçaları", 
-    subs: ["Kasa", "Anakart", "İşlemci", "Ekran kartı", "RAM", "SSD", "Sıvı soğutma", "Güç kaynağı"] 
-  },
-  { 
-    name: "Bilgisayar ekipmanları", 
-    subs: ["Monitör", "Mouse", "Klavye", "Kulaklık", "Mikrofon", "Hoparlör", "Direksiyon seti", "Webcam", "RGB aydınlatma", "Mousepad", "Oyuncu ve ofis koltuğu"] 
-  },
-  { 
-    name: "Aksesuar ve bağlantı", 
-    subs: ["HDMI kablo", "Display port kablo", "USB kablo", "Dönüştürücü adaptör", "Uzatma kablosu", "Wi-Fi adaptörü", "Çoklayıcı", "İnternet kablosu", "Laptop standı", "Kulaklık standı", "Temizlik"] 
-  }
+  { name: "Masaüstü bilgisayarlar", subs: ["Tüm masaüstü bilgisayarlar", "Ofis ve günlük", "Performans", "Gaming", "3D ve tasarım", "Pro sistemler"] },
+  { name: "Laptop bilgisayar", subs: ["Tüm laptop bilgisayarlar", "Ofis ve günlük", "Performans", "Gaming", "3D ve tasarım", "Pro sistemler"] },
+  { name: "Hazır sistem bilgisayarlar", subs: ["Tüm hazır sistem bilgisayarlar", "Ofis ve günlük", "Performans", "Gaming", "3D ve tasarım", "Pro sistemler"] },
+  { name: "Bilgisayar parçaları", subs: ["Kasa", "Anakart", "İşlemci", "Ekran kartı", "RAM", "SSD", "Sıvı soğutma", "Güç kaynağı"] },
+  { name: "Bilgisayar ekipmanları", subs: ["Monitör", "Mouse", "Klavye", "Kulaklık", "Mikrofon", "Hoparlör", "Direksiyon seti", "Webcam", "RGB aydınlatma", "Mousepad", "Oyuncu ve ofis koltuğu"] },
+  { name: "Aksesuar ve bağlantı", subs: ["HDMI kablo", "Display port kablo", "USB kablo", "Dönüştürücü adaptör", "Uzatma kablosu", "Wi-Fi adaptörü", "Çoklayıcı", "İnternet kablosu", "Laptop standı", "Kulaklık standı", "Temizlik"] }
 ];
 
 export default function Header() {
+  // EĞİTİM NOTU: Menünün titrememesi için "Hover" durumunu State ile kontrol ediyoruz.
+  const [activeHover, setActiveHover] = useState<string | null>(null);
+  
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openSub, setOpenSub] = useState<string | null>(null);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
 
+  // Aktif kategorinin verilerini bul
+  const activeNavData = navigation.find(item => item.name === activeHover);
+
   return (
     <header className="w-full bg-[#050810] border-b border-white/5 sticky top-0 z-[100]">
       
-      <div className="max-w-[1400px] mx-auto px-4 xl:px-5 h-20 flex items-center justify-between">
+      <div className="max-w-[1400px] mx-auto px-4 xl:px-5 h-20 flex items-center justify-between relative">
         
         {/* LOGO */}
         <div className="flex items-center flex-shrink-0">
@@ -52,53 +40,67 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* ORTA MENÜ - TİTREMEZ VE LAPTOP UYUMLU */}
-        <nav className="hidden lg:flex items-center justify-center flex-1 h-full mx-2">
+        {/* ORTA MENÜ - TİTREMEYİ ÖNLEYEN TEK KUTU SİSTEMİ */}
+        {/* EĞİTİM NOTU: onMouseLeave sadece tüm nav alanından çıkınca çalışır. */}
+        <nav 
+          className="hidden lg:flex items-center justify-center flex-1 h-full mx-2"
+          onMouseLeave={() => setActiveHover(null)}
+        >
           {navigation.map((item) => (
-            <div key={item.name} className="group h-full flex items-center">
-              
+            <div 
+              key={item.name} 
+              className="h-full flex items-center px-1.5 xl:px-3 cursor-pointer"
+              onMouseEnter={() => setActiveHover(item.name)}
+            >
               <Link 
                 href="#" 
-                className="text-[11px] xl:text-[12px] font-medium capitalize tracking-tight text-slate-300 group-hover:text-white transition-colors whitespace-nowrap px-1.5 xl:px-3 h-full flex items-center"
+                // Aktif olan menünün yazısı beyaz kalır, diğerleri soluklaşır.
+                className={`text-[11px] xl:text-[12px] font-medium capitalize tracking-tight whitespace-nowrap transition-colors ${activeHover === item.name ? "text-white" : "text-slate-300 hover:text-white"}`}
               >
                 {item.name}
               </Link>
-
-              {/* MEGA MENÜ: Tam Opak ve Arkası Gözükmez */}
-              <div className="absolute top-full left-0 w-full bg-[#0b0f1a] border-t border-white/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-75 z-[110] shadow-[0_50px_100px_rgba(0,0,0,0.9)]">
-                <div className="max-w-[1400px] mx-auto px-10 py-10 flex gap-10">
-                  
-                  {/* Alt Kategoriler (Subs) */}
-                  <div className="w-1/3 flex flex-col gap-4">
-                    <h3 className="text-[10px] text-slate-500 font-black uppercase tracking-widest border-b border-white/5 pb-2">Keşfet</h3>
-                    <div className="flex flex-col gap-2.5">
-                      {item.subs.map((sub) => (
-                        <Link key={sub} href="#" className="flex items-center justify-between text-slate-300 hover:text-white font-medium text-sm capitalize group/link transition-colors">
-                          {sub}
-                          <svg className="w-4 h-4 text-slate-700 group-hover/link:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="w-px bg-white/5 h-auto"></div>
-
-                  {/* Sağ Taraf: Yardım ve Keşif */}
-                  <div className="w-2/3 flex flex-col gap-4">
-                     <h3 className="text-[10px] text-slate-500 font-black uppercase tracking-widest border-b border-white/5 pb-2">Yardım ve Keşif</h3>
-                     <div className="grid grid-cols-2 gap-4">
-                        <Link href="#" className="text-slate-400 hover:text-white text-xs font-medium transition-colors">Tüm {item.name} Ürünlerini Gör</Link>
-                        <Link href="#" className="text-slate-400 hover:text-white text-xs font-medium transition-colors">Yeni Gelen Modeller</Link>
-                        <Link href="#" className="text-slate-400 hover:text-white text-xs font-medium transition-colors">Sıkça Sorulan Sorular</Link>
-                        <Link href="#" className="text-slate-400 hover:text-white text-xs font-medium transition-colors">Destek ve İletişim</Link>
-                     </div>
-                  </div>
-
-                </div>
-              </div>
-
             </div>
           ))}
+
+          {/* İŞTE SİHİR BURADA: TEK VE SABİT MEGA MENÜ KUTUSU */}
+          {/* Bu kutu kategori değiştikçe asla kapanmaz, sadece içindeki yazı değişir! */}
+          <div 
+            className={`absolute top-full left-0 w-full bg-[#0b0f1a] border-t border-white/10 shadow-[0_50px_100px_rgba(0,0,0,0.9)] z-[110] transition-all duration-200 ease-in-out ${
+              activeHover ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"
+            }`}
+          >
+            {activeNavData && (
+              <div className="max-w-[1400px] mx-auto px-10 py-10 flex gap-10">
+                
+                {/* Sol Taraf: Alt Kategoriler (Subs) */}
+                <div className="w-1/3 flex flex-col gap-4">
+                  <h3 className="text-[10px] text-slate-500 font-black uppercase tracking-widest border-b border-white/5 pb-2">Keşfet</h3>
+                  <div className="flex flex-col gap-2.5">
+                    {activeNavData.subs.map((sub) => (
+                      <Link key={sub} href="#" className="flex items-center justify-between text-slate-300 hover:text-white font-medium text-sm capitalize group/link transition-colors">
+                        {sub}
+                        <svg className="w-4 h-4 text-slate-700 group-hover/link:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="w-px bg-white/5 h-auto"></div>
+
+                {/* Sağ Taraf: Yardım ve Keşif */}
+                <div className="w-2/3 flex flex-col gap-4">
+                   <h3 className="text-[10px] text-slate-500 font-black uppercase tracking-widest border-b border-white/5 pb-2">Yardım ve Keşif</h3>
+                   <div className="grid grid-cols-2 gap-4">
+                      <Link href="#" className="text-slate-400 hover:text-white text-xs font-medium transition-colors">Tüm {activeNavData.name} Ürünlerini Gör</Link>
+                      <Link href="#" className="text-slate-400 hover:text-white text-xs font-medium transition-colors">Yeni Gelen Modeller</Link>
+                      <Link href="#" className="text-slate-400 hover:text-white text-xs font-medium transition-colors">Sıkça Sorulan Sorular</Link>
+                      <Link href="#" className="text-slate-400 hover:text-white text-xs font-medium transition-colors">Destek ve İletişim</Link>
+                   </div>
+                </div>
+
+              </div>
+            )}
+          </div>
         </nav>
 
         {/* SAĞ İKONLAR */}
@@ -108,7 +110,7 @@ export default function Header() {
             <svg className="w-5 h-5 xl:w-6 xl:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
           </button>
 
-          {/* HESABIM (Düzeltilmiş Pop-up) */}
+          {/* HESABIM */}
           <div 
             className="relative flex items-center h-full group"
             onMouseEnter={() => setIsAccountOpen(true)}
