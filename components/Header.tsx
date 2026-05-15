@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
 
-// ŞEFİM: Orijinal listeye KESİNLİKLE dokunmadım. Her şey harfi harfine aynı.
 const navigation = [
   { name: "Tüm bilgisayarlar", subs: ["Tüm bilgisayarlar"] },
   { name: "Masaüstü bilgisayarlar", subs: ["Tüm masaüstü bilgisayarlar", "Ofis ve günlük", "Performans", "Gaming", "3D ve tasarım", "Pro sistemler"] },
@@ -15,14 +14,11 @@ const navigation = [
 ];
 
 export default function Header() {
-  // EĞİTİM NOTU: Menünün titrememesi için "Hover" durumunu State ile kontrol ediyoruz.
   const [activeHover, setActiveHover] = useState<string | null>(null);
-  
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openSub, setOpenSub] = useState<string | null>(null);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
 
-  // Aktif kategorinin verilerini bul
   const activeNavData = navigation.find(item => item.name === activeHover);
 
   return (
@@ -41,7 +37,6 @@ export default function Header() {
         </div>
 
         {/* ORTA MENÜ - TİTREMEYİ ÖNLEYEN TEK KUTU SİSTEMİ */}
-        {/* EĞİTİM NOTU: onMouseLeave sadece tüm nav alanından çıkınca çalışır. */}
         <nav 
           className="hidden lg:flex items-center justify-center flex-1 h-full mx-2"
           onMouseLeave={() => setActiveHover(null)}
@@ -54,7 +49,6 @@ export default function Header() {
             >
               <Link 
                 href="#" 
-                // Aktif olan menünün yazısı beyaz kalır, diğerleri soluklaşır.
                 className={`text-[11px] xl:text-[12px] font-medium capitalize tracking-tight whitespace-nowrap transition-colors ${activeHover === item.name ? "text-white" : "text-slate-300 hover:text-white"}`}
               >
                 {item.name}
@@ -62,8 +56,7 @@ export default function Header() {
             </div>
           ))}
 
-          {/* İŞTE SİHİR BURADA: TEK VE SABİT MEGA MENÜ KUTUSU */}
-          {/* Bu kutu kategori değiştikçe asla kapanmaz, sadece içindeki yazı değişir! */}
+          {/* TEK VE SABİT MEGA MENÜ KUTUSU */}
           <div 
             className={`absolute top-full left-0 w-full bg-[#0b0f1a] border-t border-white/10 shadow-[0_50px_100px_rgba(0,0,0,0.9)] z-[110] transition-all duration-200 ease-in-out ${
               activeHover ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"
@@ -110,11 +103,12 @@ export default function Header() {
             <svg className="w-5 h-5 xl:w-6 xl:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
           </button>
 
-          {/* HESABIM */}
+          {/* HESABIM - Tıklayınca kapanma eklendi */}
           <div 
             className="relative flex items-center h-full group"
             onMouseEnter={() => setIsAccountOpen(true)}
             onMouseLeave={() => setIsAccountOpen(false)}
+            onClick={() => setIsAccountOpen(!isAccountOpen)}
           >
             <div className="text-slate-400 group-hover:text-white transition-colors p-1 cursor-pointer">
               <svg className="w-5 h-5 xl:w-6 xl:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
@@ -126,7 +120,8 @@ export default function Header() {
                 <Link href="/siparis" className="px-5 py-3.5 text-xs font-medium text-slate-300 hover:bg-white/5 hover:text-white border-b border-white/5">Sipariş Takip</Link>
                 <Link href="/favoriler" className="px-5 py-3.5 text-xs font-medium text-slate-300 hover:bg-white/5 hover:text-white border-b border-white/5">Favorilerim</Link>
                 <Link href="/hesabim" className="px-5 py-3.5 text-xs font-medium text-slate-300 hover:bg-white/5 hover:text-white border-b border-white/5">Hesabım</Link>
-                <Link href="/giris" className="px-5 py-4 text-xs font-black text-green-500 hover:bg-green-500/10 uppercase tracking-widest transition-colors">Giriş Yap</Link>
+                {/* Giriş Yap - Rengi korundu, uppercase kaldırıldı */}
+                <Link href="/giris" className="px-5 py-4 text-xs font-black text-green-500 hover:bg-green-500/10 tracking-widest transition-colors">Giriş Yap</Link>
               </div>
             </div>
           </div>
