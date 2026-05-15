@@ -43,31 +43,46 @@ export default function Header() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isSearchOpen]);
 
-  // CANLI ARAMA MOTORU (WordPress'e Bağlanıyor)
-  useEffect(() => {
-    // 3 harften az yazılırsa veya boşsa API'yi yorma
-    if (searchTerm.trim().length < 3) {
-      setSearchResults([]);
-      return;
-    }
-    
-    // Kullanıcı yazmayı bıraktıktan yarım saniye sonra WooCommerce'e istek atar
-    const delayDebounceFn = setTimeout(async () => {
-      setIsSearching(true);
-      try {
-        const res = await fetch(`/api/search?q=${searchTerm}`);
-        const data = await res.json();
-        setSearchResults(data || []);
-      } catch (error) {
-        console.error("Ürünler çekilemedi:", error);
-        setSearchResults([]);
-      } finally {
-        setIsSearching(false);
-      }
-    }, 500);
+  // Şefim bu hafıza deposu, dosyada component dışında (en üste) tanımlanabilir veya içinde kalabilir
+const searchCache = useRef(new Map()).current;
 
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchTerm]);
+// CANLI ARAMA MOTORU (Nitro & Cache Destekli)
+useEffect(() => {
+  // 3 harften azsa sonuçları temizle ve API'yi yorma
+  if (searchTerm.trim().length < 3) {
+    setSearchResults([]);
+    setIsSearching(false);
+    return;
+  }
+
+  // 1. ADIM: Hafızada (Cache) var mı? Varsa anında getir!
+  if (searchCache.has(searchTerm)) {
+    setSearchResults(searchCache.get(searchTerm));
+    return; // API'ye gitme, işimiz bitti
+  }
+
+  // 2. ADIM: Debounce (Hızlandırıldı: 250ms)
+  const delayDebounceFn = setTimeout(async () => {
+    setIsSearching(true);
+    try {
+      // Şefim buradaki fetch'i senin kendi /api/search rotana göre ayarlıyorum, 
+      // ama o API'nin hızlı yanıt vermesi lazım. Eğer orası yavaşsa doğrudan WooCommerce URL'sini de kullanabiliriz.
+      const res = await fetch(`/api/search?q=${searchTerm}`);
+      const data = await res.json();
+      
+      // Gelen veriyi hafızaya al
+      searchCache.set(searchTerm, data);
+      setSearchResults(data || []);
+    } catch (error) {
+      console.error("Ürünler çekilemedi:", error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  }, 250); // 500'den 250'ye çektik!
+
+  return () => clearTimeout(delayDebounceFn);
+}, [searchTerm]);
 
   // GERÇEK ÜRÜN KARTINI EKRANA BASMA (WooCommerce Verileriyle)
   const renderProductCard = (product: any) => {
