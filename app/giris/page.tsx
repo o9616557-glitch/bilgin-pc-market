@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -14,7 +14,6 @@ export default function LoginPage() {
     setIsLoading(true);
     
     // Şefim buraya ileride gerçek giriş API'sini bağlayacağız.
-    // Şimdilik butona basıldığında 1.5 saniye dönme efekti yapıyor.
     setTimeout(() => {
       setIsLoading(false);
     }, 1500);
@@ -43,16 +42,16 @@ export default function LoginPage() {
         <div className="bg-[#0b1120] p-8 md:p-10 rounded-3xl border border-white/5 shadow-2xl">
           <form onSubmit={handleLogin} className="space-y-6">
             
-            {/* E-Posta */}
+            {/* E-Posta veya Kullanıcı Adı (Türü "text" yapıldı ki ikisini de kabul etsin) */}
             <div className="space-y-2">
-              <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">E-Posta Adresi</label>
+              <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">E-Posta veya Kullanıcı Adı</label>
               <div className="relative">
                 <input 
-                  type="email" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="text" 
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   required
-                  placeholder="ornek@mail.com" 
+                  placeholder="E-posta veya kullanıcı adınız..." 
                   className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white font-medium placeholder-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all"
                 />
                 <div className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-600">
@@ -120,8 +119,32 @@ export default function LoginPage() {
             </button>
           </form>
 
+          {/* VEYA ÇİZGİSİ */}
+          <div className="relative flex items-center py-6 mt-2">
+            <div className="flex-grow border-t border-white/5"></div>
+            <span className="flex-shrink-0 mx-4 text-slate-600 text-[10px] font-black uppercase tracking-widest">Hızlı Giriş</span>
+            <div className="flex-grow border-t border-white/5"></div>
+          </div>
+
+          {/* GOOGLE VE FACEBOOK BUTONLARI */}
+          <div className="grid grid-cols-2 gap-4">
+            <button type="button" className="flex items-center justify-center space-x-2 bg-white/5 hover:bg-white/10 border border-white/5 py-3.5 rounded-xl transition-all group">
+               <svg className="w-5 h-5 text-white group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor">
+                 <path d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"/>
+               </svg>
+               <span className="text-xs font-bold text-slate-300 group-hover:text-white tracking-widest uppercase">Google</span>
+            </button>
+            
+            <button type="button" className="flex items-center justify-center space-x-2 bg-[#1877F2]/10 hover:bg-[#1877F2]/20 border border-[#1877F2]/20 py-3.5 rounded-xl transition-all group">
+               <svg className="w-5 h-5 text-[#1877F2] group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
+                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+               </svg>
+               <span className="text-xs font-bold text-[#1877F2] tracking-widest uppercase">Facebook</span>
+            </button>
+          </div>
+
           {/* Kayıt Ol Yönlendirmesi */}
-          <div className="mt-8 pt-8 border-t border-white/5 text-center">
+          <div className="mt-8 pt-6 border-t border-white/5 text-center">
             <p className="text-sm font-medium text-slate-400">
               Hesabınız yok mu? <Link href="#" className="text-white font-bold hover:text-blue-500 transition-colors uppercase tracking-wide ml-1">Kayıt Ol</Link>
             </p>
