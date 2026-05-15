@@ -19,18 +19,16 @@ export default function Header() {
   const [openSub, setOpenSub] = useState<string | null>(null);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   
-  // NEW: State for full-page search overlay and search results
+  // ARAMA EKRANI İÇİN STATELER (Hatalar burada düzeltildi: any[] eklendi)
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
   
-  // NEW: Ref to focus the search input when overlay opens
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchOverlayRef = useRef<HTMLDivElement>(null);
 
   const activeNavData = navigation.find(item => item.name === activeHover);
 
-  // NEW: Effect to focus input and handle keyboard navigation (close on ESC)
   useEffect(() => {
     if (isSearchOpen && searchInputRef.current) {
       searchInputRef.current.focus();
@@ -49,13 +47,13 @@ export default function Header() {
     };
   }, [isSearchOpen]);
 
-  // NEW: Local filtering logic for navigation data
+  // ARAMA MANTIĞI (Hata düzeltildi: reduce içine <any[]> eklendi)
   useEffect(() => {
     if (searchTerm.trim().length === 0) {
       setSearchResults([]);
       return;
     }
-    const filtered = navigation.reduce((acc, item) => {
+    const filtered = navigation.reduce<any[]>((acc, item) => {
       const categoryMatch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
       const subCategoryMatches = item.subs.filter(sub => sub.toLowerCase().includes(searchTerm.toLowerCase()));
       if (categoryMatch) {
@@ -67,8 +65,8 @@ export default function Header() {
     setSearchResults(filtered);
   }, [searchTerm]);
 
-  // NEW: Search Result Item Renderer
-  const renderSearchResultItem = (item) => {
+  // ARAMA SONUCU KUTUSU (Hata düzeltildi: item: any eklendi)
+  const renderSearchResultItem = (item: any) => {
     let title, description;
     if (item.type === 'category') {
       title = item.name;
@@ -179,16 +177,15 @@ export default function Header() {
         {/* SAĞ İKONLAR */}
         <div className="flex items-center gap-4 xl:gap-7 flex-shrink-0 relative">
           
-          {/* SEARCH (TIKLAYINCA AÇILIR) */}
+          {/* SEARCH İKONU (Tıklanınca Arama Ekranı Açılır) */}
           <button 
             onClick={() => setIsSearchOpen(true)}
             className="text-slate-400 hover:text-white p-1"
-            aria-label="Arama sayfasını aç"
           >
             <svg className="w-5 h-5 xl:w-6 xl:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
           </button>
 
-          {/* HESABIM (Düzeltilmiş Tıklama) */}
+          {/* HESABIM */}
           <div 
             className="relative flex items-center h-full group"
             onMouseEnter={() => setIsAccountOpen(true)}
@@ -205,7 +202,7 @@ export default function Header() {
                 <Link href="/siparis" className="px-5 py-3.5 text-xs font-medium text-slate-300 hover:bg-white/5 hover:text-white border-b border-white/5">Sipariş Takip</Link>
                 <Link href="/favoriler" className="px-5 py-3.5 text-xs font-medium text-slate-300 hover:bg-white/5 hover:text-white border-b border-white/5">Favorilerim</Link>
                 <Link href="/hesabim" className="px-5 py-3.5 text-xs font-medium text-slate-300 hover:bg-white/5 hover:text-white border-b border-white/5">Hesabım</Link>
-                <Link href="/giris" className="px-5 py-4 text-xs font-black text-green-500 hover:bg-green-500/10 uppercase tracking-widest transition-colors">Giriş Yap</Link>
+                <Link href="/giris" className="px-5 py-4 text-xs font-black text-green-500 hover:bg-green-500/10 tracking-widest transition-colors">Giriş Yap</Link>
               </div>
             </div>
           </div>
@@ -219,60 +216,53 @@ export default function Header() {
         </div>
       </div>
 
-      {/* NEW: Full-page Search Overlay (TIKLAYINCA AÇILIR, ARKASI GÜZEL MODERN BİR SAYFA) */}
+      {/* DEV EKRAN ARAMA SAYFASI (MODERN) */}
       {isSearchOpen && (
-        <div ref={searchOverlayRef} className="fixed inset-0 bg-black/80 z-[200] p-5 overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="searchHeading">
+        <div ref={searchOverlayRef} className="fixed inset-0 bg-black/80 z-[200] p-5 overflow-y-auto backdrop-blur-sm">
           <div className="absolute top-5 right-5 flex space-x-3 items-center">
-            <span className="text-slate-600 text-xs font-medium uppercase tracking-widest">[ESC] ile kapat</span>
+            <span className="text-slate-400 text-xs font-medium uppercase tracking-widest hidden md:block">[ESC] ile kapat</span>
             <button 
               onClick={() => setIsSearchOpen(false)} 
-              className="w-10 h-10 bg-white/5 border border-white/5 hover:border-white/10 rounded-full flex items-center justify-center p-2 text-white transition-colors"
-              aria-label="Arama sayfasını kapat"
+              className="w-10 h-10 bg-white/5 border border-white/10 hover:bg-red-500/20 hover:text-red-500 rounded-full flex items-center justify-center p-2 text-white transition-all"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>
           
-          <div className="max-w-[1400px] mx-auto mt-20 relative bg-[#050810] bg-grid-white/5 p-10 rounded-3xl border border-white/5 min-h-[calc(100vh-10rem)] shadow-[0_0_100px_rgba(34,197,94,0.1)]">
-            <h1 id="searchHeading" className="text-5xl md:text-7xl font-black italic tracking-tighter uppercase text-white leading-none mb-10 text-center">
-              Ürün <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-green-500 pr-2">Ara</span>
+          <div className="max-w-[1400px] mx-auto mt-20 relative bg-[#050810] p-10 md:p-16 rounded-3xl border border-white/5 min-h-[calc(100vh-10rem)] shadow-2xl">
+            <h1 className="text-4xl md:text-6xl font-black italic tracking-tighter uppercase text-white leading-none mb-10 text-center">
+              Bilgin PC'de <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-green-500 pr-2">Ara</span>
             </h1>
             
-            <div className="relative mb-16">
+            <div className="relative mb-16 max-w-4xl mx-auto">
               <input 
                 ref={searchInputRef}
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Ürün, marka veya kategori ara..." 
-                className="w-full bg-[#0b1120] p-6 pl-20 rounded-full text-4xl font-black italic text-white placeholder-slate-600 focus:outline-none focus:ring-4 focus:ring-blue-500/30 transition-shadow transition-colors"
-                aria-label="Arama terimini gir"
+                placeholder="Örn: Ekran Kartı, Masaüstü, Kasa..." 
+                className="w-full bg-[#0b1120] p-6 pl-20 rounded-2xl text-2xl md:text-4xl font-black italic text-white placeholder-slate-700 border border-white/5 focus:border-blue-500/50 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
               />
               <div className="absolute left-6 top-1/2 -translate-y-1/2 p-2">
-                <svg className="w-10 h-10 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                <svg className="w-8 h-8 md:w-10 md:h-10 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
               </div>
               {searchTerm && (
-                <button onClick={() => setSearchTerm('')} className="absolute right-6 top-1/2 -translate-y-1/2 p-3 text-slate-600 hover:text-white transition-colors" aria-label="Arama terimini temizle">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" /></svg>
+                <button onClick={() => setSearchTerm('')} className="absolute right-6 top-1/2 -translate-y-1/2 p-3 text-slate-600 hover:text-white transition-colors">
+                  <svg className="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               )}
             </div>
 
-            {/* RESULTS AREA */}
+            {/* SONUÇLAR */}
             <div className="space-y-10">
               {searchTerm.length === 0 ? (
-                <div className="text-center py-20 text-slate-600 font-medium italic">Aramaya başlamak için bir şeyler yazın...</div>
+                <div className="text-center py-20 text-slate-600 font-medium italic text-lg">Ne aramak istersiniz?</div>
               ) : searchResults.length === 0 ? (
-                <div className="text-center py-20 text-red-500/60 font-medium">Aramanızla eşleşen ürün bulunamadı. Lütfen teriminizi değiştirip tekrar deneyin.</div>
+                <div className="text-center py-20 text-red-400 font-medium">Böyle bir kategori bulunamadı. Lütfen başka bir kelime deneyin.</div>
               ) : (
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {searchResults.map(renderSearchResultItem)}
-                  </div>
-                  <div className="flex items-center justify-center pt-8 border-t border-white/5 space-x-3">
-                    <span className="text-[10px] text-slate-600 font-black uppercase tracking-widest">Sitede</span>
-                    <span className="text-[10px] text-blue-500 font-black uppercase tracking-widest">{searchResults.length} sonuç</span>
-                    <span className="text-[10px] text-slate-600 font-black uppercase tracking-widest">bulundu</span>
                   </div>
                 </>
               )}
