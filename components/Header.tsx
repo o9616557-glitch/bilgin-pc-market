@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
+// 📒 Şefin Not Defteri: Orijinal Menü Listesi
 const navigation = [
   { name: "Tüm bilgisayarlar", subs: ["Tüm bilgisayarlar"] },
   { name: "Masaüstü bilgisayarlar", subs: ["Tüm masaüstü bilgisayarlar", "Ofis ve günlük", "Performans", "Gaming", "3D ve tasarım", "Pro sistemler"] },
@@ -13,15 +14,30 @@ const navigation = [
   { name: "Aksesuar ve bağlantı", subs: ["HDMI kablo", "Display port kablo", "USB kablo", "Dönüştürücü adaptör", "Uzatma kablosu", "Wi-Fi adaptörü", "Çoklayıcı", "İnternet kablosu", "Laptop standı", "Kulaklık standı", "Temizlik"] }
 ];
 
+// 📒 Şefin Not Defteri: ARAMADA ÇIKACAK GERÇEK ÜRÜN VERİSİ (WooCommerce API'den gelecek)
+const mockProducts = [
+  { id: 1, name: "Bilgin PC Pro RTX 5090 Sistem", price: "120.000 TL", category: "Hazır Sistem", img: "https://via.placeholder.com/300x300/0b1120/ffffff?text=RTX+5090+PC" },
+  { id: 2, name: "ASUS ROG Swift Pro PG248QP 540Hz Monitör", price: "28.500 TL", category: "Monitör", img: "https://via.placeholder.com/300x300/0b1120/ffffff?text=ASUS+540Hz" },
+  { id: 3, name: "Razer DeathAdder V3 Pro Mouse", price: "5.200 TL", category: "Mouse", img: "https://via.placeholder.com/300x300/0b1120/ffffff?text=Razer+Mouse" },
+  { id: 4, name: "Samsung 990 Pro 2TB NVMe SSD", price: "7.800 TL", category: "RAM & Depolama", img: "https://via.placeholder.com/300x300/0b1120/ffffff?text=Samsung+2TB+SSD" },
+  { id: 5, name: "Logitech G Pro X Superlight 2", price: "6.100 TL", category: "Mouse", img: "https://via.placeholder.com/300x300/0b1120/ffffff?text=Logitech+Mouse" },
+  { id: 6, name: "MSI GeForce RTX 4080 Super Ventus", price: "48.000 TL", category: "Ekran Kartı", img: "https://via.placeholder.com/300x300/0b1120/ffffff?text=RTX+4080+Super" }
+];
+
+// Popüler Arama Önerileri (Sol taraf için)
+const quickSearches = ["Ekran Kartı", "RTX 5090", "Gaming Laptop", "Monitor", "SSD"];
+const featuredCategories = ["Masaüstü Bilgisayarlar", "Laptop", "Oyuncu Ekipmanları"];
+
 export default function Header() {
   const [activeHover, setActiveHover] = useState<string | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openSub, setOpenSub] = useState<string | null>(null);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   
-  // ARAMA EKRANI İÇİN STATELER (Hatalar burada düzeltildi: any[] eklendi)
+  // ARAMA STATELERİ
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  // Tip hatasını any[] ile çözdük Şefim. Gerçeğe bağlarken Ürün Türü (Type) yazarız.
   const [searchResults, setSearchResults] = useState<any[]>([]);
   
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -47,57 +63,44 @@ export default function Header() {
     };
   }, [isSearchOpen]);
 
-  // ARAMA MANTIĞI (Hata düzeltildi: reduce içine <any[]> eklendi)
+  // CANAVAR ARAMA MOTORU MANTIĞI: (Gerçek Ürünleri Bulur)
   useEffect(() => {
     if (searchTerm.trim().length === 0) {
+      // Razer gibi, arama boşsa Popüler Ürünleri gösterebiliriz (Şimdilik boş bıraktım)
       setSearchResults([]);
       return;
     }
-    const filtered = navigation.reduce<any[]>((acc, item) => {
-      const categoryMatch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const subCategoryMatches = item.subs.filter(sub => sub.toLowerCase().includes(searchTerm.toLowerCase()));
-      if (categoryMatch) {
-        acc.push({ type: 'category', name: item.name, subs: item.subs });
-      }
-      subCategoryMatches.forEach(sub => acc.push({ type: 'sub_category', name: sub, parentCategory: item.name }));
-      return acc;
-    }, []);
+    
+    // Gerçek Ürün Araması (Name veya Category içinde arar)
+    const filtered = mockProducts.filter(product => 
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    
     setSearchResults(filtered);
   }, [searchTerm]);
 
-  // ARAMA SONUCU KUTUSU (Hata düzeltildi: item: any eklendi)
-  const renderSearchResultItem = (item: any) => {
-    let title, description;
-    if (item.type === 'category') {
-      title = item.name;
-      description = `Kategori: ${item.subs.length} alt kategori içerir.`;
-    } else {
-      title = item.name;
-      description = `Alt Kategori: ${item.parentCategory} kategorisinde bulunur.`;
-    }
-    return (
-      <div key={item.name} className="bg-white/5 border border-white/5 hover:border-white/10 p-5 rounded-3xl group/card transition-all duration-300 flex flex-col justify-between space-y-4">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-3 mb-2">
-            <div className="w-12 h-12 bg-[#050810] border border-white/5 rounded-full flex items-center justify-center p-3">
-              {item.type === 'category' ? (
-                <svg className="w-full h-full text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
-              ) : (
-                <svg className="w-full h-full text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-              )}
-            </div>
-            <h4 className="text-xl font-bold italic tracking-tighter uppercase text-white leading-tight group-hover/card:text-blue-500 transition-colors">
-              {title}
-            </h4>
-          </div>
-          <p className="text-slate-400 text-sm font-medium leading-relaxed mb-4">{description}</p>
+  // ÜRÜN KARTI RENDERER'I (Sağ Taraf İçin)
+  const renderProductCard = (product: any) => (
+    <div key={product.id} className="bg-white/5 border border-white/5 hover:border-white/10 p-5 rounded-3xl group/card transition-all duration-300 flex flex-col justify-between space-y-4 shadow-xl">
+      <div className="space-y-1">
+        <div className="w-full h-48 bg-[#050810] border border-white/5 rounded-3xl overflow-hidden mb-4 p-4 flex items-center justify-center">
+            <img src={product.img} alt={product.name} className="max-w-full max-h-full object-contain group-hover/card:scale-105 transition-transform" />
         </div>
-        <Link href="#" className="w-full inline-flex items-center justify-center py-3 bg-white/5 hover:bg-blue-600 rounded-xl text-center text-xs font-black uppercase tracking-widest text-white group-hover/card:bg-blue-600 transition-all">
-          Ürün Ara <svg className="w-4 h-4 ml-2 group-hover/card:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-        </Link>
+        <div className="flex flex-col space-y-1">
+            <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest">{product.category}</span>
+            <h4 className="text-lg md:text-xl font-bold italic tracking-tighter uppercase text-white leading-tight group-hover/card:text-blue-500 transition-colors">
+              {product.name}
+            </h4>
+        </div>
       </div>
-    );
-  };
+      
+      <div className="flex items-center justify-between gap-3 pt-3 border-t border-white/5">
+        <span className="text-xl font-black text-green-500 tracking-tighter">{product.price}</span>
+        <button className="w-32 py-3 bg-green-500 text-black font-black uppercase rounded-xl hover:scale-105 transition-transform text-[11px] tracking-widest">Sepete Ekle</button>
+      </div>
+    </div>
+  );
 
   return (
     <header className="w-full bg-[#050810] border-b border-white/5 sticky top-0 z-[100]">
@@ -122,7 +125,7 @@ export default function Header() {
           {navigation.map((item) => (
             <div 
               key={item.name} 
-              className="h-full flex items-center px-1.5 xl:px-3 cursor-pointer"
+              className="h-full flex items-center px-1.5 xl:px-3 cursor-pointer relative"
               onMouseEnter={() => setActiveHover(item.name)}
             >
               <Link 
@@ -131,6 +134,9 @@ export default function Header() {
               >
                 {item.name}
               </Link>
+              {activeHover === item.name && (
+                <div className="absolute top-[80%] left-0 w-full h-px bg-blue-500 transition-transform origin-left scale-x-100"></div>
+              )}
             </div>
           ))}
 
@@ -177,15 +183,15 @@ export default function Header() {
         {/* SAĞ İKONLAR */}
         <div className="flex items-center gap-4 xl:gap-7 flex-shrink-0 relative">
           
-          {/* SEARCH İKONU (Tıklanınca Arama Ekranı Açılır) */}
+          {/* SEARCH (Tıklayınca o dev sayfa açılır) */}
           <button 
             onClick={() => setIsSearchOpen(true)}
-            className="text-slate-400 hover:text-white p-1"
+            className="text-slate-400 hover:text-white p-1 transition-colors"
           >
             <svg className="w-5 h-5 xl:w-6 xl:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
           </button>
 
-          {/* HESABIM */}
+          {/* HESABIM (Düzeltilmiş Pop-up, tıklayınca da kapanır) */}
           <div 
             className="relative flex items-center h-full group"
             onMouseEnter={() => setIsAccountOpen(true)}
@@ -202,7 +208,7 @@ export default function Header() {
                 <Link href="/siparis" className="px-5 py-3.5 text-xs font-medium text-slate-300 hover:bg-white/5 hover:text-white border-b border-white/5">Sipariş Takip</Link>
                 <Link href="/favoriler" className="px-5 py-3.5 text-xs font-medium text-slate-300 hover:bg-white/5 hover:text-white border-b border-white/5">Favorilerim</Link>
                 <Link href="/hesabim" className="px-5 py-3.5 text-xs font-medium text-slate-300 hover:bg-white/5 hover:text-white border-b border-white/5">Hesabım</Link>
-                <Link href="/giris" className="px-5 py-4 text-xs font-black text-green-500 hover:bg-green-500/10 tracking-widest transition-colors">Giriş Yap</Link>
+                <Link href="/giris" className="px-5 py-4 text-xs font-black text-green-500 hover:bg-green-500/10 uppercase tracking-widest transition-colors">Giriş Yap</Link>
               </div>
             </div>
           </div>
@@ -216,57 +222,109 @@ export default function Header() {
         </div>
       </div>
 
-      {/* DEV EKRAN ARAMA SAYFASI (MODERN) */}
+      {/* NEW: DEV EKRAN ARAMA SAYFASI (Razer'dan Modern, Bilgin PC Kalitesi) */}
       {isSearchOpen && (
-        <div ref={searchOverlayRef} className="fixed inset-0 bg-black/80 z-[200] p-5 overflow-y-auto backdrop-blur-sm">
-          <div className="absolute top-5 right-5 flex space-x-3 items-center">
-            <span className="text-slate-400 text-xs font-medium uppercase tracking-widest hidden md:block">[ESC] ile kapat</span>
-            <button 
-              onClick={() => setIsSearchOpen(false)} 
-              className="w-10 h-10 bg-white/5 border border-white/10 hover:bg-red-500/20 hover:text-red-500 rounded-full flex items-center justify-center p-2 text-white transition-all"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
+        <div ref={searchOverlayRef} className="fixed inset-0 bg-black/90 z-[200] overflow-y-auto backdrop-blur-sm animate-in fade-in">
+          
+          {/* HEADER VE KAPAT Butonu */}
+          <div className="sticky top-0 w-full h-20 bg-black/50 backdrop-blur-md px-5 border-b border-white/5 flex items-center justify-between">
+            <Link href="/" onClick={() => setIsSearchOpen(false)} className="text-xl font-black italic tracking-tighter">
+                BİLGİN<span className="text-blue-500 not-italic">PC</span>
+            </Link>
+            
+            <div className="flex space-x-4 items-center">
+                <span className="text-slate-600 text-xs font-medium uppercase tracking-widest hidden md:block">[ESC] ile kapat</span>
+                <button 
+                  onClick={() => setIsSearchOpen(false)} 
+                  className="w-10 h-10 bg-white/5 border border-white/10 hover:border-red-500/30 rounded-full flex items-center justify-center p-2 text-red-500 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
           </div>
           
-          <div className="max-w-[1400px] mx-auto mt-20 relative bg-[#050810] p-10 md:p-16 rounded-3xl border border-white/5 min-h-[calc(100vh-10rem)] shadow-2xl">
-            <h1 className="text-4xl md:text-6xl font-black italic tracking-tighter uppercase text-white leading-none mb-10 text-center">
-              Bilgin PC'de <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-green-500 pr-2">Ara</span>
-            </h1>
+          <div className="max-w-[1400px] mx-auto p-5 md:p-10 pt-16 flex flex-col md:flex-row gap-12">
             
-            <div className="relative mb-16 max-w-4xl mx-auto">
-              <input 
-                ref={searchInputRef}
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Örn: Ekran Kartı, Masaüstü, Kasa..." 
-                className="w-full bg-[#0b1120] p-6 pl-20 rounded-2xl text-2xl md:text-4xl font-black italic text-white placeholder-slate-700 border border-white/5 focus:border-blue-500/50 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
-              />
-              <div className="absolute left-6 top-1/2 -translate-y-1/2 p-2">
-                <svg className="w-8 h-8 md:w-10 md:h-10 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-              </div>
-              {searchTerm && (
-                <button onClick={() => setSearchTerm('')} className="absolute right-6 top-1/2 -translate-y-1/2 p-3 text-slate-600 hover:text-white transition-colors">
-                  <svg className="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
-              )}
-            </div>
-
-            {/* SONUÇLAR */}
-            <div className="space-y-10">
-              {searchTerm.length === 0 ? (
-                <div className="text-center py-20 text-slate-600 font-medium italic text-lg">Ne aramak istersiniz?</div>
-              ) : searchResults.length === 0 ? (
-                <div className="text-center py-20 text-red-400 font-medium">Böyle bir kategori bulunamadı. Lütfen başka bir kelime deneyin.</div>
-              ) : (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {searchResults.map(renderSearchResultItem)}
+            {/* 1. SOL TARAF: RAZER GİBİ HIZLI BAĞLANTILAR (Ama daha şık) */}
+            <aside className="w-full md:w-1/4 space-y-12">
+                
+                {/* Hızlı Aramalar */}
+                <div className="space-y-4">
+                  <h3 className="text-[11px] text-blue-500 font-black uppercase tracking-widest border-b border-white/5 pb-3">Popüler Aramalar</h3>
+                  <div className="flex flex-wrap gap-2.5">
+                    {quickSearches.map(term => (
+                      <button key={term} onClick={() => setSearchTerm(term)} className="px-4 py-2 bg-[#0b1120] border border-white/5 rounded-xl text-slate-300 hover:text-white hover:border-white/10 text-xs font-medium capitalize transition-colors">
+                        {term}
+                      </button>
+                    ))}
                   </div>
-                </>
-              )}
-            </div>
+                </div>
+
+                {/* Öne Çıkan Kategoriler */}
+                <div className="space-y-4">
+                  <h3 className="text-[11px] text-slate-500 font-black uppercase tracking-widest border-b border-white/5 pb-3">Öne Çıkan Kategoriler</h3>
+                  <div className="flex flex-col gap-2.5">
+                    {featuredCategories.map(cat => (
+                      <Link key={cat} href="#" onClick={() => { setIsSearchOpen(false); }} className="flex items-center gap-2.5 text-slate-300 hover:text-white font-medium text-sm capitalize group/link transition-colors">
+                        <svg className="w-4 h-4 text-slate-600 group-hover/link:text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                        {cat}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+            </aside>
+
+            {/* 2. SAĞ TARAF: ARAMA ÇUBUĞU VE DİNAMİK ÜRÜN SONUÇLARI (Razer'dan daha iyi) */}
+            <main className="w-full md:w-3/4 space-y-12">
+                
+                {/* Devasa Arama Çubuğu */}
+                <div className="relative max-w-3xl">
+                  <input 
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Sistem, marka veya donanım ara..." 
+                    className="w-full bg-[#0b1120] p-6 pl-20 rounded-2xl text-2xl md:text-3xl font-black italic text-white placeholder-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/30 transition-shadow transition-colors"
+                  />
+                  <div className="absolute left-6 top-1/2 -translate-y-1/2 p-2">
+                    <svg className="w-8 h-8 md:w-10 md:h-10 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                  </div>
+                  {searchTerm && (
+                    <button onClick={() => setSearchTerm('')} className="absolute right-6 top-1/2 -translate-y-1/2 p-3 text-slate-600 hover:text-white transition-colors">
+                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                  )}
+                </div>
+
+                {/* SONUÇLAR VE ÜRÜNLER ALANI */}
+                <div className="space-y-10">
+                  {searchTerm.length === 0 ? (
+                    <div className="text-center py-20 text-slate-600 font-medium italic text-lg bg-[#0b1120] rounded-3xl border border-white/5 shadow-inner">
+                        Aramaya başlamak için bir şeyler yazın Şefim... (Örn: "RTX", "Systems", "Razer")
+                    </div>
+                  ) : searchResults.length === 0 ? (
+                    <div className="text-center py-20 text-red-500/60 font-medium bg-red-950/10 rounded-3xl border border-white/5">
+                        Dükkanda aradığınız canavarı bulamadım. Lütfen kelimenizi değiştirip tekrar deneyin.
+                    </div>
+                  ) : (
+                    <>
+                      {/* Ürün Listesi */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {searchResults.map(renderProductCard)}
+                      </div>
+                      
+                      {/* Alt Bilgi */}
+                      <div className="flex items-center justify-center pt-8 border-t border-white/5 space-x-3">
+                        <span className="text-[10px] text-slate-600 font-black uppercase tracking-widest">Aramada</span>
+                        <span className="text-[10px] text-blue-500 font-black uppercase tracking-widest">{searchResults.length} sonuç</span>
+                        <span className="text-[10px] text-slate-600 font-black uppercase tracking-widest">bulundu Şefim.</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+            </main>
+
           </div>
         </div>
       )}
