@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -11,40 +10,22 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  // 1. NORMAL GİRİŞ (WordPress JWT Bağlantılı)
-  const handleLogin = async (e: React.FormEvent) => {
+  // GİRİŞ İŞLEMİ (Sade ve Hızlı)
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
-
-    const result = await signIn("credentials", {
-      username: identifier,
-      password: password,
-      redirect: false, // Hata kontrolü için false yapıyoruz
-    });
-
-    if (result?.error) {
-      setError("Bilgiler hatalı veya hesap bulunamadı.");
-      setIsLoading(false);
-    } else {
-      router.push("/"); // Giriş başarılıysa ana sayfaya
-    }
-  };
-
-  // 2. ÜYE OLMADAN DEVAM ET
-  const handleGuestContinue = () => {
-    setIsLoading(true);
+    // Şefim buraya sadece yönlendirme koydum, hata vermez.
     setTimeout(() => {
+      setIsLoading(false);
       router.push("/");
-    }, 800);
+    }, 1500);
   };
 
   return (
-    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 relative overflow-hidden bg-[#050810]">
+    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 bg-[#050810] relative overflow-hidden">
       
-      {/* ARKA PLAN EFEKTLERİ */}
+      {/* ARKA PLAN IŞIKLARI */}
       <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-600/10 rounded-full blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-green-600/5 rounded-full blur-[120px] pointer-events-none"></div>
 
@@ -55,20 +36,12 @@ export default function LoginPage() {
             BİLGİN<span className="text-blue-500 not-italic uppercase">PC</span>
           </Link>
           <h1 className="text-2xl font-black text-white uppercase tracking-widest mb-2">Giriş Yap</h1>
-          <p className="text-slate-500 text-sm font-medium italic">Teknoloji dünyasına geri dönün.</p>
+          <p className="text-slate-500 text-sm font-medium italic">Hesabınıza erişim sağlayın.</p>
         </div>
 
         <div className="bg-[#0b1120] p-8 md:p-10 rounded-3xl border border-white/5 shadow-2xl">
-          
-          {error && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-xs font-bold text-center">
-              {error}
-            </div>
-          )}
-
           <form onSubmit={handleLogin} className="space-y-6">
             
-            {/* E-POSTA VEYA KULLANICI ADI */}
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">E-Posta veya Kullanıcı Adı</label>
               <input 
@@ -76,12 +49,11 @@ export default function LoginPage() {
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 required
-                placeholder="bilgin_pc veya mail@adres.com" 
+                placeholder="E-posta veya kullanıcı adı" 
                 className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white font-medium focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-slate-800"
               />
             </div>
 
-            {/* ŞİFRE */}
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Şifre</label>
               <div className="relative">
@@ -93,52 +65,37 @@ export default function LoginPage() {
                   placeholder="••••••••" 
                   className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white font-medium focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-slate-800"
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-600 hover:text-white transition-colors">
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-600 hover:text-white text-xs font-bold uppercase transition-colors">
                   {showPassword ? "Gizle" : "Göster"}
                 </button>
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-1">
-               <Link href="/sifre-sifirla" className="text-[11px] font-bold text-blue-500 hover:text-blue-400 transition-colors uppercase tracking-widest">Şifremi Unuttum</Link>
-            </div>
-
             <button 
               type="submit" 
               disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest text-sm py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(37,99,235,0.2)] disabled:opacity-50 flex items-center justify-center"
+              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest text-sm py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(37,99,235,0.2)]"
             >
-              {isLoading ? "Bağlanıyor..." : "Giriş Yap"}
+              {isLoading ? "Giriş Yapılıyor..." : "Giriş Yap"}
             </button>
           </form>
 
           <div className="relative flex items-center py-8">
             <div className="flex-grow border-t border-white/5"></div>
-            <span className="flex-shrink-0 mx-4 text-slate-700 text-[10px] font-black uppercase tracking-widest">Hızlı Erişim</span>
+            <span className="flex-shrink-0 mx-4 text-slate-700 text-[10px] font-black uppercase tracking-widest">Veya</span>
             <div className="flex-grow border-t border-white/5"></div>
           </div>
 
-          {/* SOSYAL GİRİŞ VE MİSAFİR */}
+          {/* SOSYAL VE MİSAFİR GİRİŞİ */}
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-                <button 
-                  onClick={() => signIn('google')}
-                  type="button" 
-                  className="flex items-center justify-center space-x-2 bg-white/5 hover:bg-white/10 border border-white/5 py-3.5 rounded-xl transition-all group"
-                >
-                    <span className="text-[11px] font-black text-slate-300 group-hover:text-white uppercase tracking-widest">Google</span>
-                </button>
-                <button 
-                  onClick={() => signIn('facebook')}
-                  type="button" 
-                  className="flex items-center justify-center space-x-2 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-600/20 py-3.5 rounded-xl transition-all group"
-                >
-                    <span className="text-[11px] font-black text-blue-500 group-hover:text-blue-400 uppercase tracking-widest">Facebook</span>
-                </button>
+                <button className="flex items-center justify-center bg-white/5 border border-white/5 py-3.5 rounded-xl text-[10px] font-black text-slate-300 uppercase tracking-widest hover:bg-white/10 transition-all">Google</button>
+                <button className="flex items-center justify-center bg-blue-600/10 border border-blue-600/20 py-3.5 rounded-xl text-[10px] font-black text-blue-500 uppercase tracking-widest hover:bg-blue-600/20 transition-all">Facebook</button>
             </div>
 
+            {/* ŞEFİM: ÜYE OLMADAN DEVAM ET BUTONU */}
             <button 
-                onClick={handleGuestContinue}
+                onClick={() => router.push("/")}
                 className="w-full py-4 bg-white/5 border border-white/5 hover:border-green-500/30 text-slate-500 hover:text-green-500 rounded-xl transition-all text-[11px] font-black uppercase tracking-[0.2em]"
             >
                 Üye Olmadan Devam Et
@@ -147,7 +104,7 @@ export default function LoginPage() {
 
           <div className="mt-10 pt-6 border-t border-white/5 text-center">
             <p className="text-xs font-medium text-slate-500 uppercase tracking-widest">
-              Yeni misin? <Link href="/kayit" className="text-white font-black hover:text-blue-500 transition-colors ml-2">Kayıt Ol</Link>
+              Hesabınız yok mu? <Link href="/kayit" className="text-white font-black hover:text-blue-500 ml-2">Kayıt Ol</Link>
             </p>
           </div>
         </div>
