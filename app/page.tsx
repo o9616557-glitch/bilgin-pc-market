@@ -6,7 +6,9 @@ import ProductGrid from '@/components/ProductGrid';
 import Footer from '@/components/Footer';
 import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
 
-export const revalidate = 0; // 🚀 HER DAİM CANLI VE ANLIK VERİ: Bekleme süresini sıfıra indirdik!
+// 🚀 İŞTE HIZ BURADAN GELİYOR! 0 yerine 60 yaptık. 
+// Artık Vercel sayfayı hazırda tutacak, tıkladığın an bekletmeden yüzüne çarpacak!
+export const revalidate = 60; 
 
 const api = new WooCommerceRestApi({
   url: process.env.NEXT_PUBLIC_WC_URL || "",
@@ -16,7 +18,6 @@ const api = new WooCommerceRestApi({
 });
 
 export default async function HomePage() {
-  // 🚀 SUNUCU TARAFINDA IŞIK HIZINDA VERİ ÇEKME (Ziyaretçi hiç beklemeyecek)
   const res = await api.get('products', { per_page: 20, status: 'publish' }).catch(() => ({ data: [] }));
   
   const urunler = res.data.map((item: any) => ({
@@ -29,7 +30,6 @@ export default async function HomePage() {
     in_stock: item.stock_status === "instock"
   }));
 
-  // Slider için eski formata uygun paslama
   const sliderUrunler = urunler.map((u: any) => ({
     id: u.id,
     ad: u.name,
@@ -42,12 +42,8 @@ export default async function HomePage() {
     <div className="bg-[#050810] min-h-screen text-white font-sans flex flex-col">
       <main className="flex-grow">
         <Hero />
-        
         <ProductSlider urunler={sliderUrunler} />
-        
         <MidBanner />
-
-        {/* 🚀 Verileri doğrudan içine fırlatıyoruz, havada yakalayacak */}
         <section className="max-w-7xl mx-auto px-4 py-16 relative z-10">
           <div className="mb-10">
             <h2 className="text-xl md:text-2xl font-black tracking-tight uppercase italic text-white">
@@ -55,11 +51,9 @@ export default async function HomePage() {
             </h2>
             <div className="h-1 w-12 bg-blue-500 mt-2 rounded-full shadow-[0_0_15px_#3b82f6]"></div>
           </div>
-          
           <ProductGrid initialProducts={urunler} />
         </section>
       </main>
-      
       <Footer />
     </div>
   );
