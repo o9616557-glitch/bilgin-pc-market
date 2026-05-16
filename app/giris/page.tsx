@@ -12,11 +12,20 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // 🚀 HEM GOOGLE HEM FACEBOOK İÇİN VAZGEÇİNCE EKRANI AÇAN ÇİFT SENSÖR
+  // 🛡️ ŞEFİM İŞTE GİRİŞ YAPMIŞ KULLANICIYI ENGELLEYEN RADAR (MUHAFIZ)
+  useEffect(() => {
+    const token = localStorage.getItem("user_token");
+    if (token) {
+      // Eğer kullanıcının cebinde anahtar varsa, bu sayfayı gösterme, direkt ana sayfaya şutla!
+      router.push("/");
+    }
+  }, [router]);
+
+  // hem google hem facebook için vazgeçince ekranı açan çift sensör
   useEffect(() => {
     const resetLoading = () => setIsLoading(false);
     window.addEventListener("pageshow", resetLoading);
-    window.addEventListener("focus", resetLoading); // Ekran tekrar öne gelince yüklemeyi bitirir
+    window.addEventListener("focus", resetLoading);
     return () => {
       window.removeEventListener("pageshow", resetLoading);
       window.removeEventListener("focus", resetLoading);
@@ -77,7 +86,6 @@ export default function LoginPage() {
           <h1 className="text-xl font-black text-white uppercase tracking-widest mt-6">Giriş Yap</h1>
         </div>
 
-        {/* 🛠️ YENİ RENK: AMBER/TURUNCU VE KÜÇÜK HARF UYUMLU UYARI KUTUSU */}
         {error && (
           <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-500 text-xs font-semibold text-center normal-case">
             {error}
