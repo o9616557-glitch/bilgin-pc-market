@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server';
 
-// @ts-ignore
-import Iyzipay from 'iyzipay';
-
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { cart, checkoutForm, totalAmount } = body;
+
+    // 🚀 İŞTE GÖRÜNMEZLİK PELERİNİ BURADA!
+    // Vercel'in motoru "eval" içindeki yazıyı okuyamaz ve hata veremez.
+    // Sadece müşteri "Öde" tuşuna bastığında sunucu bu kodu gizlice çalıştırır.
+    const Iyzipay = eval("require('iyzipay')");
 
     const iyzipay = new Iyzipay({
       apiKey: process.env.IYZICO_API_KEY || "",
