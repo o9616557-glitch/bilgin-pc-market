@@ -18,6 +18,12 @@ function ResetPasswordContent() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    const resetLoading = () => setIsLoading(false);
+    window.addEventListener("pageshow", resetLoading);
+    return () => window.removeEventListener("pageshow", resetLoading);
+  }, []);
+
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -30,25 +36,28 @@ function ResetPasswordContent() {
     setError("");
 
     try {
-      // 🚀 REST API engellerine takılmamak için doğrudan tarayıcı modunda form fırlatıyoruz
-      const formData = new URLSearchParams();
-      formData.append("rp_key", key);
-      formData.append("rp_login", login);
-      formData.append("pass1", password);
-      formData.append("pass2", confirmPassword);
-
-      await fetch("https://bilginpcmarket.com/wp-login.php?action=rp", {
+      // 🚀 ŞEFİM: Az önce oluşturduğumuz o güvenli ve özel API kapısına şutluyoruz
+      const res = await fetch("https://bilginpcmarket.com/wp-json/bilginpc/v1/reset-password", {
         method: "POST",
-        mode: "no-cors", // Güvenlik duvarını aşan sihirli mod
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: formData.toString(),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          key: key,
+          login: login,
+          password: password
+        }),
       });
 
-      // İstek başarıyla fırlatıldı
-      setIsSuccess(true);
-      setTimeout(() => {
-        router.push("/giris");
-      }, 3000);
+      const data = await res.json();
+
+      if (res.ok) {
+        setIsSuccess(true);
+        setTimeout(() => {
+          router.push("/giris");
+        }, 3000);
+      } else {
+        // WordPress'ten gelen gerçek hata mesajını (Örn: Linkin süresi dolmuş) ekrana basar
+        setError(data.message || "Şifre güncellenemedi, link geçersiz olabilir.");
+      }
 
     } catch (err) {
       setError("Bağlantı hatası oluştu. Lütfen tekrar deneyin.");
@@ -129,7 +138,6 @@ function ResetPasswordContent() {
   );
 }
 
-// Next.js build alırken searchParams kullanımı için Suspense sarmalı zorunludur şefim
 export default function ResetPasswordPage() {
   return (
     <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 bg-[#050810] relative overflow-hidden font-sans">
