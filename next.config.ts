@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    // 🚀 İYZİCO'YU PAKETLEYİCİDEN (WEBPACK) KAÇIRAN GÜVENLİK GEÇİŞİ
+    serverComponentsExternalPackages: ["iyzipay"],
+  },
 };
 
 export default nextConfig;
