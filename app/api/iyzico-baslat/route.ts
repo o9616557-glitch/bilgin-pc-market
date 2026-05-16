@@ -1,27 +1,30 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
+import { NextResponse } from 'next/server';
+
+// 🚀 İYZİCO'NUN HATALI ANA DOSYASINI TAMAMEN ES GEÇİP, 
+// DİREKT ÖDEME FORMUNU BAŞLATAN ALT PARÇAYI NOKTA ATIŞI ÇAĞIRIYORUZ!
 // @ts-ignore
-import Iyzipay from 'iyzipay';
+const CheckoutFormInitialize = require('iyzipay/lib/resources/CheckoutFormInitialize');
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') return res.status(405).end();
-
+export async function POST(request: Request) {
   try {
-    const { cart, checkoutForm, totalAmount } = req.body;
+    const body = await request.json();
+    const { cart, checkoutForm, totalAmount } = body;
 
-    const iyzipay = new Iyzipay({
+    // Sınıfı doğrudan ayarlarımızla ayağa kaldırıyoruz
+    const checkoutFormInitInstance = new CheckoutFormInitialize({
       apiKey: process.env.IYZICO_API_KEY || "",
       secretKey: process.env.IYZICO_SECRET_KEY || "",
       uri: "https://api.iyzipay.com" 
     });
 
     const requestData = {
-      locale: Iyzipay.LOCALE.TR,
+      locale: "tr", 
       conversationId: Math.floor(Math.random() * 100000000).toString(),
       price: totalAmount.toString(),
       paidPrice: totalAmount.toString(),
-      currency: Iyzipay.CURRENCY.TRY,
+      currency: "TRY", 
       basketId: "B" + Math.floor(Math.random() * 100000),
-      paymentGroup: Iyzipay.PAYMENT_GROUP.PRODUCT,
+      paymentGroup: "PRODUCT", 
       callbackUrl: "https://bilginpcmarket.com/api/iyzico-sonuc",
       enabledInstallments: [2, 3, 6, 9, 12],
       buyer: {
@@ -57,22 +60,24 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         id: item.id.toString(),
         name: item.name,
         category1: "Donanım",
-        itemType: Iyzipay.BASKET_ITEM_TYPE.PHYSICAL,
+        itemType: "PHYSICAL", 
         price: (parseFloat(item.price.replace(/[^\d]/g, "")) / (item.price.replace(/[^\d]/g, "") > 1000000 ? 100 : 1)).toString()
       }))
     };
 
-    iyzipay.checkoutFormInitialize.create(requestData, (err: any, result: any) => {
-      if (err) {
-        return res.status(500).json({ success: false, error: "İyzico sunucu bağlantı hatası." });
-      } else if (result.status === "success") {
-        return res.status(200).json({ success: true, formContent: result.checkoutFormContent });
-      } else {
-        return res.status(400).json({ success: false, error: result.errorMessage });
-      }
+    return new Promise((resolve) => {
+      checkoutFormInitInstance.create(requestData, (err: any, result: any) => {
+        if (err) {
+          resolve(NextResponse.json({ success: false, error: "İyzico sunucu bağlantı hatası." }, { status: 500 }));
+        } else if (result.status === "success") {
+          resolve(NextResponse.json({ success: true, formContent: result.checkoutFormContent }));
+        } else {
+          resolve(NextResponse.json({ success: false, error: result.errorMessage }, { status: 400 }));
+        }
+      });
     });
 
   } catch (error) {
-    return res.status(500).json({ success: false, error: "Beklenmeyen bir hata oluştu." });
+    return NextResponse.json({ success: false, error: "Beklenmeyen bir hata oluştu." }, { status: 500 });
   }
 }

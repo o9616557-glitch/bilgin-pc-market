@@ -103,6 +103,7 @@ export default function CartAndCheckoutPage() {
     if (paymentMethod === "credit_card") {
       try {
         // 🚀 Klasik motorun tam adresi:
+// Orijinal jilet gibi modern adresimiz
 const res = await fetch("/api/iyzico-baslat", {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
