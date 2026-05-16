@@ -24,7 +24,7 @@ export default function MyAccountPage() {
     fullAddress: ""
   });
 
-  // 1. CANLI VERİLERİ ÇEKEN MOTOR
+  // CANLI VERİLERİ ÇEKEN MOTOR
   useEffect(() => {
     const fetchAccountData = async () => {
       const token = localStorage.getItem("user_token");
@@ -58,7 +58,7 @@ export default function MyAccountPage() {
     fetchAccountData();
   }, [router]);
 
-  // Formu doldurma motoru
+  // Formu eski verilerle doldurma radarı
   useEffect(() => {
     if (editMode) {
       const addr = editMode === "billing" ? customerData?.billing : customerData?.shipping;
@@ -79,18 +79,26 @@ export default function MyAccountPage() {
     router.push("/giris");
   };
 
-  // 🚀 ARIZA KAMERALI ADRES KAYDETME FONKSİYONU
+  // 🚀 YENİDEN TASARLANAN BAYPAS ADRES KAYDETME MOTORU
   const handleAddressSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const token = localStorage.getItem("user_token");
+
+    // Ön yüzde zaten yüklü olan gerçek WooCommerce Müşteri ID'sini yakalıyoruz
+    const userId = customerData?.id;
+
+    if (!userId) {
+      alert("Kullanıcı kimliği tam yüklenemedi. Lütfen sayfayı yenileyip tekrar deneyin şefim.");
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const res = await fetch("/api/account/update-address", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          token,
+          userId: userId, // 🚀 İşte o düşen token yerine doğrudan ID fırlatıyoruz!
           type: editMode,
           address: addressForm
         }),
@@ -99,7 +107,7 @@ export default function MyAccountPage() {
       const data = await res.json();
 
       if (res.ok) {
-        // Ekranı anlık güncelle
+        // Ekranı anlık güncelle ki yenilemeden yansısın
         const currentCustomer = customerData || { billing: {}, shipping: {} };
         const updated = { ...currentCustomer };
         const addrKey = editMode === "billing" ? "billing" : "shipping";
@@ -117,11 +125,10 @@ export default function MyAccountPage() {
         setEditMode(null);
         alert("Adresiniz başarıyla veritabanına kaydedildi şefim! ✓");
       } else {
-        // Sunucudan dönen hatayı ekrana kusar
         alert("WordPress Engeli: " + (data.error || "Sunucu güncellemeyi reddetti."));
       }
     } catch (err) {
-      alert("Bağlantı Hatası: Vercel veya Next.js kuryesine ulaşılamadı.");
+      alert("Bağlantı Hatası: API hattına ulaşılamadı.");
     } finally {
       setIsSubmitting(false);
     }
@@ -148,7 +155,7 @@ export default function MyAccountPage() {
     <div className="min-h-[calc(100vh-80px)] bg-[#050810] text-white py-10 px-4 font-sans relative overflow-hidden">
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8 relative z-10">
         
-        {/* SOL MENU */}
+        {/* SOL PANEL */}
         <div className="lg:col-span-1 space-y-4">
           <div className="bg-[#0b1120] border border-white/5 p-6 rounded-3xl text-center shadow-xl">
             <div className="w-16 h-16 bg-blue-600/10 border border-blue-500/30 text-blue-500 rounded-full flex items-center justify-center mx-auto text-2xl font-black shadow-[0_0_20px_rgba(37,99,235,0.15)] uppercase">
@@ -159,22 +166,14 @@ export default function MyAccountPage() {
           </div>
 
           <div className="bg-[#0b1120] border border-white/5 p-3 rounded-3xl space-y-1 shadow-xl">
-            <button
-              onClick={() => { setActiveTab("orders"); setEditMode(null); }}
-              className={`w-full text-left px-5 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-between ${activeTab === "orders" ? "bg-blue-600 text-white shadow-lg shadow-blue-600/10" : "text-slate-400 hover:bg-white/5 hover:text-white"}`}
-            >
-              <span>Siparişlerim</span>
+            <button onClick={() => { setActiveTab("orders"); setEditMode(null); }} className={`w-full text-left px-5 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all ${activeTab === "orders" ? "bg-blue-600 text-white" : "text-slate-400 hover:bg-white/5"}`}>
+              Siparişlerim
             </button>
-
-            <button
-              onClick={() => { setActiveTab("addresses"); }}
-              className={`w-full text-left px-5 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-between ${activeTab === "addresses" ? "bg-blue-600 text-white shadow-lg shadow-blue-600/10" : "text-slate-400 hover:bg-white/5 hover:text-white"}`}
-            >
-              <span>Adres Bilgilerim</span>
+            <button onClick={() => { setActiveTab("addresses"); }} className={`w-full text-left px-5 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all ${activeTab === "addresses" ? "bg-blue-600 text-white" : "text-slate-400 hover:bg-white/5"}`}>
+              Adres Bilgilerim
             </button>
-
             <button onClick={handleLogOut} className="w-full text-left px-5 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider text-amber-500 hover:bg-amber-500/10 transition-all">
-              <span>Güvenli Çıkış</span>
+              Güvenli Çıkış
             </button>
           </div>
         </div>
@@ -182,7 +181,7 @@ export default function MyAccountPage() {
         {/* SAĞ PANEL */}
         <div className="lg:col-span-3">
           
-          {/* SİPARİŞLERİM SEKMESİ */}
+          {/* SİPARİŞLERİM */}
           {activeTab === "orders" && (
             <div className="bg-[#0b1120] border border-white/5 p-6 md:p-8 rounded-3xl shadow-xl space-y-6">
               <h1 className="text-xl font-black uppercase italic tracking-wide border-b border-white/5 pb-4">Sipariş Geçmişi</h1>
@@ -229,7 +228,7 @@ export default function MyAccountPage() {
             </div>
           )}
 
-          {/* ADRESLERİM SEKMESİ */}
+          {/* ADRESLERİM */}
           {activeTab === "addresses" && (
             <div className="bg-[#0b1120] border border-white/5 p-6 md:p-8 rounded-3xl shadow-xl space-y-6">
               {editMode === null ? (
@@ -247,7 +246,7 @@ export default function MyAccountPage() {
                             <p className="text-slate-500 text-[10px] font-bold mt-1 uppercase">{customerData.billing.state} / {customerData.billing.city}</p>
                           </>
                         ) : (
-                          <p className="text-slate-500 text-xs font-bold italic uppercase pt-4">Adres bilgisi girilmemiş.</p>
+                          <p className="text-slate-500 text-xs font-bold italic uppercase pt-4">Adres bilgiisi girilmemiş.</p>
                         )}
                       </div>
                       <button onClick={() => setEditMode("billing")} className="mt-6 w-full py-2.5 bg-white/5 border border-white/5 text-slate-400 text-[10px] font-black uppercase rounded-xl transition-all">Adresi Düzenle</button>
