@@ -1,43 +1,78 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function MyAccountPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"orders" | "addresses" | "account">("orders");
+  const [activeTab, setActiveTab] = useState<"orders" | "addresses">("orders");
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [userName, setUserName] = useState("Değerli Şefimiz");
   
-  const [editMode, setEditMode] = useState<null | "billing" | "shipping">(null);
+  // Canlı Veritabanından Gelecek Durumlar
+  const [orders, setOrders] = useState<any[]>([]);
+  const [customerData, setCustomerData] = useState<any>(null);
+  const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
 
+  const [editMode, setEditMode] = useState<null | "billing" | "shipping">(null);
   const [addressForm, setAddressForm] = useState({
-    firstName: "Sevgi",
-    lastName: "Bilgin",
-    phone: "0555 555 55 55",
-    city: "İstanbul",
-    district: "Kadıköy",
-    fullAddress: "Moda Caddesi, No: 104, Daire: 5"
+    firstName: "",
+    lastName: "",
+    phone: "",
+    city: "",
+    district: "",
+    fullAddress: ""
   });
 
-  const mockOrders = [
-    { id: "#4592", date: "12 Mayıs 2026", total: "48.500 TL", status: "Hazırlanıyor", color: "text-amber-500 bg-amber-500/10 border-amber-500/20" },
-    { id: "#4310", date: "28 Nisan 2026", total: "3.200 TL", status: "Tamamlandı", color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20" },
-    { id: "#3988", date: "15 Mart 2026", total: "14.900 TL", status: "Kargoya Verildi", color: "text-blue-500 bg-blue-500/10 border-blue-500/20" },
-  ];
-
+  // 🚀 CANLI VERİLERİ WOOCOMMERCE'DEN ÇEKEN MOTOR
   useEffect(() => {
-    const token = localStorage.getItem("user_token");
-    const displayName = localStorage.getItem("user_display_name");
-    
-    if (!token) {
-      router.push("/giris");
-    } else {
+    const fetchAccountData = async () => {
+      const token = localStorage.getItem("user_token");
+      const displayName = localStorage.getItem("user_display_name");
+      
+      if (!token) {
+        router.push("/giris");
+        return;
+      }
       if (displayName) setUserName(displayName);
-      setIsLoading(false);
-    }
+
+      try {
+        const res = await fetch("/api/account", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          setOrders(data.orders || []);
+          setCustomerData(data.customer || null);
+        }
+      } catch (err) {
+        console.error("Veri bağlantı hatası şefim");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAccountData();
   }, [router]);
+
+  // Düzenleme modu açıldığında form alanlarını doldurur
+  useEffect(() => {
+    if (editMode && customerData) {
+      const addr = editMode === "billing" ? customerData.billing : customerData.shipping;
+      setAddressForm({
+        firstName: addr?.first_name || "",
+        lastName: addr?.last_name || "",
+        phone: addr?.phone || "",
+        city: addr?.city || "",
+        district: addr?.state || "",
+        fullAddress: addr?.address_1 || ""
+      });
+    }
+  }, [editMode, customerData]);
 
   const handleLogOut = () => {
     localStorage.removeItem("user_token");
@@ -45,20 +80,62 @@ export default function MyAccountPage() {
     router.push("/giris");
   };
 
-  const handleAddressSubmit = (e: React.FormEvent) => {
+  // 🚀 GERÇEK ADRES KAYDETME FONKSİYONU
+  const handleAddressSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      setEditMode(null);
-    }, 1000);
+    setIsSubmitting(true);
+    const token = localStorage.getItem("user_token");
+
+    try {
+      const res = await fetch("/api/account/update-address", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token,
+          type: editMode,
+          address: addressForm
+        }),
+      });
+
+      if (res.ok) {
+        // Yerel state'i güncelle ki sayfa yenilenmeden ekranda değişsin
+        if (customerData) {
+          const updated = { ...customerData };
+          const addrKey = editMode === "billing" ? "billing" : "shipping";
+          updated[addrKey] = {
+            first_name: addressForm.firstName,
+            last_name: addressForm.lastName,
+            phone: addressForm.phone,
+            city: addressForm.city,
+            state: addressForm.district,
+            address_1: addressForm.fullAddress
+          };
+          setCustomerData(updated);
+        }
+        setEditMode(null);
+      }
+    } catch (err) {
+      alert("Adres kaydedilirken bir hata oluştu.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // WooCommerce sipariş durumlarına göre renk belirleme ayarı
+  const getStatusMeta = (status: string) => {
+    switch (status) {
+      case "processing": return { text: "Hazırlanıyor", color: "text-amber-500 bg-amber-500/10 border-amber-500/20" };
+      case "completed": return { text: "Tamamlandı", color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20" };
+      case "completed": return { text: "Kargolandı", color: "text-blue-500 bg-blue-500/10 border-blue-500/20" };
+      default: return { text: status, color: "text-slate-400 bg-slate-500/10 border-slate-500/20" };
+    }
   };
 
   if (isLoading) {
     return (
       <div className="min-h-[calc(100vh-80px)] bg-[#050810] flex flex-col items-center justify-center space-y-4">
         <div className="w-10 h-10 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
-        <span className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Komuta Merkezi Yükleniyor...</span>
+        <span className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Komuta Merkezi Bağlanıyor...</span>
       </div>
     );
   }
@@ -69,17 +146,16 @@ export default function MyAccountPage() {
 
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8 relative z-10">
         
-        {/* SOL PANEL */}
+        {/* SOL MENU KARTI */}
         <div className="lg:col-span-1 space-y-4">
           <div className="bg-[#0b1120] border border-white/5 p-6 rounded-3xl text-center shadow-xl">
-            <div className="w-16 h-16 bg-blue-600/10 border border-blue-500/30 text-blue-500 rounded-full flex items-center justify-center mx-auto text-2xl font-black flex-shrink-0 shadow-[0_0_20px_rgba(37,99,235,0.15)] uppercase">
+            <div className="w-16 h-16 bg-blue-600/10 border border-blue-500/30 text-blue-500 rounded-full flex items-center justify-center mx-auto text-2xl font-black shadow-[0_0_20px_rgba(37,99,235,0.15)] uppercase">
               {userName.substring(0, 2)}
             </div>
             <h2 className="mt-4 text-white font-black uppercase tracking-wide line-clamp-1">{userName}</h2>
             <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block mt-1">Premium Üye</span>
           </div>
 
-          {/* MENÜ BUTONLARI (İtalyan Yazı ve Titreme Kaldırıldı Şefim) */}
           <div className="bg-[#0b1120] border border-white/5 p-3 rounded-3xl space-y-1 shadow-xl">
             <button
               onClick={() => { setActiveTab("orders"); setEditMode(null); }}
@@ -97,118 +173,132 @@ export default function MyAccountPage() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0" /></svg>
             </button>
 
-            <button
-              onClick={handleLogOut}
-              className="w-full text-left px-5 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider text-amber-500 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/10 transition-all flex items-center justify-between"
-            >
+            <button onClick={handleLogOut} className="w-full text-left px-5 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider text-amber-500 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/10 transition-all flex items-center justify-between">
               <span>Güvenli Çıkış</span>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
             </button>
           </div>
         </div>
 
-        {/* SAĞ PANEL */}
+        {/* SAĞ PANEL İÇERİK ALANI */}
         <div className="lg:col-span-3">
           
+          {/* GERÇEK SİPARİŞ LİSTESİ */}
           {activeTab === "orders" && (
             <div className="bg-[#0b1120] border border-white/5 p-6 md:p-8 rounded-3xl shadow-xl space-y-6 animate-in fade-in duration-300">
               <div className="border-b border-white/5 pb-4">
                 <h1 className="text-xl font-black uppercase italic tracking-wide">Sipariş Geçmişi</h1>
-                <p className="text-slate-500 text-[10px] uppercase tracking-widest font-bold mt-1">Son donanım siparişlerinizin durumunu buradan takip edebilirsiniz şefim.</p>
+                <p className="text-slate-500 text-[10px] uppercase tracking-widest font-bold mt-1">Sistemdeki tüm gerçek donanım siparişleriniz listelenmiştir şefim.</p>
               </div>
 
               <div className="space-y-4">
-                {mockOrders.map((order) => (
-                  <div key={order.id} className="p-5 bg-[#050810] border border-white/5 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all hover:border-white/10 group">
-                    <div className="flex items-center gap-6">
-                      <div className="p-3 bg-white/5 rounded-xl text-white font-black text-xs italic tracking-wider group-hover:text-blue-500 transition-colors">
-                        {order.id}
+                {orders.length === 0 ? (
+                  <div className="text-center py-10 text-slate-500 text-xs uppercase font-bold tracking-widest italic">Henüz hiç siparişiniz bulunmuyor şefim.</div>
+                ) : (
+                  orders.map((order) => {
+                    const statusMeta = getStatusMeta(order.status);
+                    const isExpanded = expandedOrderId === order.id;
+                    return (
+                      <div key={order.id} className="bg-[#050810] border border-white/5 rounded-2xl overflow-hidden transition-all hover:border-white/10">
+                        <div className="p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                          <div className="flex items-center gap-6">
+                            <div className="p-3 bg-white/5 rounded-xl text-white font-black text-xs italic tracking-wider">
+                              #{order.id}
+                            </div>
+                            <div>
+                              <div className="text-white text-xs font-black uppercase tracking-wider">{order.total} {order.currency}</div>
+                              <div className="text-slate-500 text-[10px] font-medium mt-0.5">{new Date(order.date_created).toLocaleDateString('tr-TR')}</div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center justify-between md:justify-end w-full md:w-auto gap-4">
+                            <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${statusMeta.color}`}>
+                              {statusMeta.text}
+                            </span>
+                            {/* 🚀 ARTIK ÇALIŞAN DETAY BUTONU */}
+                            <button 
+                              onClick={() => setExpandedOrderId(isExpanded ? null : order.id)}
+                              className="px-4 py-2 bg-white/5 hover:bg-blue-600 text-slate-300 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                            >
+                              {isExpanded ? "Kapat" : "Detaylar"}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* 🌟 SİPARİŞİN İÇİNDEN NE ALDIĞINI GÖSTEREN GENİŞLEYEN DETAY BÖLÜMÜ */}
+                        {isExpanded && (
+                          <div className="border-t border-white/5 bg-[#080d1a] p-5 space-y-3 animate-in fade-in duration-200">
+                            <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5 pb-2">Satın Alınan Donanımlar</div>
+                            {order.line_items?.map((item: any) => (
+                              <div key={item.id} className="flex justify-between items-center text-xs py-1">
+                                <div className="text-white font-bold uppercase">{item.name} <span className="text-blue-500 font-black ml-1">x{item.quantity}</span></div>
+                                <div className="text-slate-400 font-black">{item.total} TL</div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      <div>
-                        <div className="text-white text-xs font-black uppercase tracking-wider">{order.total}</div>
-                        <div className="text-slate-500 text-[10px] font-medium mt-0.5">{order.date}</div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between md:justify-end w-full md:w-auto gap-4">
-                      <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${order.color}`}>
-                        {order.status}
-                      </span>
-                      <button className="px-4 py-2 bg-white/5 hover:bg-blue-600 text-slate-300 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
-                        Detaylar
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                    );
+                  })
+                )}
               </div>
             </div>
           )}
 
-          {activeTab === "addresses" && (
+          {/* GERÇEK ADRES LİSTESİ VE GÜNCELLEME */}
+          {activeTab === "addresses" && customerData && (
             <div className="bg-[#0b1120] border border-white/5 p-6 md:p-8 rounded-3xl shadow-xl space-y-6 animate-in fade-in duration-300">
               
               {editMode === null ? (
                 <>
                   <div className="border-b border-white/5 pb-4">
                     <h1 className="text-xl font-black uppercase italic tracking-wide">Adres Kayıtları</h1>
-                    <p className="text-slate-500 text-[10px] uppercase tracking-widest font-bold mt-1">Kargo ve fatura adreslerinizi güncel tutarak sipariş hızınızı artırın.</p>
+                    <p className="text-slate-500 text-[10px] uppercase tracking-widest font-bold mt-1">Gerçek kargo ve fatura adresleriniz veritabanından çekilmiştir şefim.</p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
+                    {/* FATURA ADRESİ */}
                     <div className="p-6 bg-[#050810] border border-white/5 rounded-2xl relative group flex flex-col justify-between min-h-[220px]">
                       <div>
                         <div className="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
                           <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">Fatura Adresi</span>
-                          <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                         </div>
-                        <p className="text-white text-xs font-black uppercase">{addressForm.firstName} {addressForm.lastName}</p>
-                        <p className="text-slate-400 text-xs mt-2 font-medium leading-relaxed">{addressForm.fullAddress}</p>
-                        <p className="text-slate-500 text-[10px] font-bold mt-1 uppercase tracking-wide">{addressForm.district} / {addressForm.city}</p>
+                        <p className="text-white text-xs font-black uppercase">{customerData.billing?.first_name} {customerData.billing?.last_name || 'Adres Girilmemiş'}</p>
+                        <p className="text-slate-400 text-xs mt-2 font-medium leading-relaxed">{customerData.billing?.address_1}</p>
+                        <p className="text-slate-500 text-[10px] font-bold mt-1 uppercase tracking-wide">{customerData.billing?.state} {customerData.billing?.city}</p>
+                        <p className="text-slate-600 text-[10px] font-medium mt-1">{customerData.billing?.phone}</p>
                       </div>
-                      <button 
-                        onClick={() => setEditMode("billing")}
-                        className="mt-6 w-full py-2.5 bg-white/5 border border-white/5 group-hover:border-blue-500/30 text-slate-400 group-hover:text-blue-400 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all"
-                      >
+                      <button onClick={() => setEditMode("billing")} className="mt-6 w-full py-2.5 bg-white/5 border border-white/5 group-hover:border-blue-500/30 text-slate-400 group-hover:text-blue-400 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all">
                         Adresi Düzenle
                       </button>
                     </div>
 
+                    {/* TESLİMAT ADRESİ */}
                     <div className="p-6 bg-[#050810] border border-white/5 rounded-2xl relative group flex flex-col justify-between min-h-[220px]">
                       <div>
                         <div className="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
                           <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Teslimat Adresi</span>
-                          <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
                         </div>
-                        <p className="text-white text-xs font-black uppercase">{addressForm.firstName} {addressForm.lastName}</p>
-                        <p className="text-slate-400 text-xs mt-2 font-medium leading-relaxed">{addressForm.fullAddress}</p>
-                        <p className="text-slate-500 text-[10px] font-bold mt-1 uppercase tracking-wide">{addressForm.district} / {addressForm.city}</p>
+                        <p className="text-white text-xs font-black uppercase">{customerData.shipping?.first_name} {customerData.shipping?.last_name || 'Adres Girilmemiş'}</p>
+                        <p className="text-slate-400 text-xs mt-2 font-medium leading-relaxed">{customerData.shipping?.address_1}</p>
+                        <p className="text-slate-500 text-[10px] font-bold mt-1 uppercase tracking-wide">{customerData.shipping?.state} {customerData.shipping?.city}</p>
                       </div>
-                      <button 
-                        onClick={() => setEditMode("shipping")}
-                        className="mt-6 w-full py-2.5 bg-white/5 border border-white/5 group-hover:border-emerald-500/30 text-slate-400 group-hover:text-emerald-400 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all"
-                      >
+                      <button onClick={() => setEditMode("shipping")} className="mt-6 w-full py-2.5 bg-white/5 border border-white/5 group-hover:border-emerald-500/30 text-slate-400 group-hover:text-emerald-400 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all">
                         Adresi Düzenle
                       </button>
                     </div>
-
                   </div>
                 </>
               ) : (
+                /* ADRES DÜZENLEME FORMU */
                 <div className="animate-in slide-in-from-bottom-4 duration-300">
                   <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-6">
                     <div>
                       <h1 className="text-xl font-black uppercase italic tracking-wide">
                         {editMode === "billing" ? "Fatura Adresini Güncelle" : "Teslimat Adresini Güncelle"}
                       </h1>
-                      <p className="text-slate-500 text-[10px] uppercase tracking-widest font-bold mt-1">Lütfen alanları eksiksiz doldurun şefim.</p>
                     </div>
-                    <button 
-                      onClick={() => setEditMode(null)}
-                      className="px-3 py-1.5 bg-white/5 text-slate-400 hover:text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
-                    >
-                      İptal Et
-                    </button>
+                    <button onClick={() => setEditMode(null)} className="px-3 py-1.5 bg-white/5 text-slate-400 hover:text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">İptal Et</button>
                   </div>
 
                   <form onSubmit={handleAddressSubmit} className="space-y-5">
@@ -226,7 +316,7 @@ export default function MyAccountPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Telefon Numarası</label>
-                        <input type="text" value={addressForm.phone} onChange={(e) => setAddressForm({...addressForm, phone: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white font-medium focus:outline-none focus:border-blue-500/50 transition-all text-xs" required />
+                        <input type="text" value={addressForm.phone} onChange={(e) => setAddressForm({...addressForm, phone: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white font-medium focus:outline-none focus:border-blue-500/50 transition-all text-xs" />
                       </div>
                       <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Şehir</label>
@@ -243,9 +333,8 @@ export default function MyAccountPage() {
                       <textarea rows={3} value={addressForm.fullAddress} onChange={(e) => setAddressForm({...addressForm, fullAddress: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white font-medium focus:outline-none focus:border-blue-500/50 transition-all text-xs resize-none" required />
                     </div>
 
-                    {/* 🛠️ YENİ SADE BUTON METNİ */}
-                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-all shadow-lg shadow-blue-500/10">
-                      Değişiklikleri Kaydet
+                    <button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-all">
+                      {isSubmitting ? "Kaydediliyor..." : "Değişiklikleri Kaydet"}
                     </button>
                   </form>
                 </div>
