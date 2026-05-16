@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import crypto from 'crypto'; // Node.js'in kendi içindeki şifreleme motoru
+import crypto from 'crypto'; 
 
 export async function POST(request: Request) {
   try {
@@ -8,9 +8,11 @@ export async function POST(request: Request) {
 
     const apiKey = process.env.IYZICO_API_KEY || "";
     const secretKey = process.env.IYZICO_SECRET_KEY || "";
-    const baseUrl = "https://api.iyzipay.com"; // İyzico Canlı API Adresi
+    const iyzicoBaseUrl = "https://api.iyzipay.com"; 
 
-    // 1. İyzico'nun resmi sunucusunun bizden beklediği ham veri paketi
+    // 🚀 İŞTE DİNAMİK BASE URL: Sitenin o anki adresini (canlı veya localhost) otomatik kapar!
+    const siteBaseUrl = request.headers.get('origin') || "https://bilginpcmarket.com";
+
     const requestData = {
       locale: "tr",
       conversationId: Math.floor(Math.random() * 100000000).toString(),
@@ -19,7 +21,8 @@ export async function POST(request: Request) {
       currency: "TRY",
       basketId: "B" + Math.floor(Math.random() * 100000),
       paymentGroup: "PRODUCT",
-      callbackUrl: "https://bilginpcmarket.com/api/iyzico-sonuc",
+      // 🚀 Sabit adres yerine dinamik base URL'yi buraya çaktık şefim:
+      callbackUrl: `${siteBaseUrl}/api/iyzico-sonuc`,
       enabledInstallments: [2, 3, 6, 9, 12],
       buyer: {
         id: "BY789",
@@ -59,17 +62,14 @@ export async function POST(request: Request) {
       }))
     };
 
-    // 🚀 EL YAPIMI İYZİCO ŞİFRELEME MOTORU (KÜTÜPHANESİZ)
     const rawBodyStr = JSON.stringify(requestData);
     const rnd = Math.random().toString(36).substring(2, 12) + Date.now();
     
-    // İyzico'nun güvenlik duvarını aşmak için oluşturduğumuz imza bağı
     const signatureStr = apiKey + rnd + secretKey + rawBodyStr;
     const hash = crypto.createHash('sha1').update(signatureStr, 'utf-8').digest('base64');
     const authHeader = `IYZWS ${apiKey}:${hash}`;
 
-    // 🚀 DOĞRUDAN İYZİCO SUNUCUSUNA NATIVE FETCH İSTEĞİ
-    const iyzicoResponse = await fetch(`${baseUrl}/payment/iyziconnect/checkoutform/initialize`, {
+    const iyzicoResponse = await fetch(`${iyzicoBaseUrl}/payment/iyziconnect/checkoutform/initialize`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
