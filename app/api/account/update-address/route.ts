@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
-    const { token, type, address } = await request.json(); // type: "billing" veya "shipping"
+    const { token, type, address } = await request.json();
     if (!token) return NextResponse.json({ error: "Oturum yok." }, { status: 401 });
 
     const SITE_URL = "https://bilginpcmarket.com";
@@ -37,9 +37,10 @@ export async function POST(request: Request) {
       };
     }
 
-    // WooCommerce'e gerçek kaydı gönderiyoruz
+    // 🚀 ŞEFİM İŞTE BURAYI DEĞİŞTİRDİK: method: 'PUT' yaptık!
+    // WooCommerce güncelleme isteklerinde 'PUT' metodunu zorunlu kılar.
     const res = await fetch(`${SITE_URL}/wp-json/wc/v3/customers/${userId}?consumer_key=${CK}&consumer_secret=${CS}`, {
-      method: 'POST',
+      method: 'PUT', 
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updateBody)
     });
