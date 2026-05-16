@@ -21,7 +21,30 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openSub, setOpenSub] = useState<string | null>(null);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
-  
+  // 🚀 SEPET SAYAÇ RADARI (Buraya Yapıştırıyorsun Şefim)
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const updateCount = () => {
+      const storedCart = localStorage.getItem("user_cart");
+      if (storedCart) {
+        const cart = JSON.parse(storedCart);
+        const totalItems = cart.reduce((sum: number, item: any) => sum + item.quantity, 0);
+        setCartCount(totalItems);
+      } else {
+        setCartCount(0);
+      }
+    };
+
+    updateCount();
+    window.addEventListener("cart_updated", updateCount);
+    window.addEventListener("storage", updateCount);
+    
+    return () => {
+      window.removeEventListener("cart_updated", updateCount);
+      window.removeEventListener("storage", updateCount);
+    };
+  }, []);
   // ARAMA EKRANI İÇİN DEĞİŞKENLER
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -212,7 +235,9 @@ export default function Header() {
           {/* SEPET */}
           <Link href="/sepet" className="text-slate-400 hover:text-green-500 relative p-1 transition-colors">
             <svg className="w-5 h-5 xl:w-6 xl:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-            <span className="absolute -top-1 -right-1 bg-green-500 text-black text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full">0</span>
+            <span className="absolute -top-1 -right-1 bg-green-500 text-black text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full">
+  {cartCount}
+</span>
           </Link>
 
         </div>
