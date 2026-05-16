@@ -12,9 +12,20 @@ export async function POST(request: Request) {
 
     const apiKey = process.env.IYZICO_API_KEY || "";
     const secretKey = process.env.IYZICO_SECRET_KEY || "";
-    const iyzicoBaseUrl = "https://api.iyzipay.com"; 
-    const siteBaseUrl = request.headers.get('origin') || "https://bilginpcmarket.com";
 
+    // 🚀 1. KONTROL: Vercel'de şifreler gerçekten var mı?
+    if (!apiKey || !secretKey) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "DİKKAT: Vercel'de API Şifreleri eksik! Lütfen Vercel panelinden Environment Variables kısmına IYZICO_API_KEY ekleyin." 
+      }, { status: 400 });
+    }
+
+    // 🚀 2. KONTROL: Şifreler test şifresi mi canlı şifre mi? Adresi otomatik seç!
+    const isSandbox = apiKey.startsWith("sandbox-");
+    const iyzicoBaseUrl = isSandbox ? "https://sandbox-api.iyzipay.com" : "https://api.iyzipay.com";
+    
+    const siteBaseUrl = request.headers.get('origin') || "https://bilginpcmarket.com";
     const formattedPrice = Number(totalAmount).toFixed(1);
 
     const requestData = {
@@ -100,10 +111,14 @@ export async function POST(request: Request) {
     if (result.status === "success") {
       return NextResponse.json({ success: true, formContent: result.checkoutFormContent });
     } else {
-      return NextResponse.json({ success: false, error: result.errorMessage || "İyzico doğrulamayı reddetti." }, { status: 400 });
+      // 🚀 3. KONTROL: İyzico'nun tam olarak neyi beğenmediğini ekrana direkt yazdırıyoruz!
+      return NextResponse.json({ 
+        success: false, 
+        error: `İYZİCO DİYOR Kİ: ${result.errorMessage} (Hata Kodu: ${result.errorCode})` 
+      }, { status: 400 });
     }
 
   } catch (error) {
-    return NextResponse.json({ success: false, error: "Sistemde teknik bir aksaklık oluştu." }, { status: 500 });
+    return NextResponse.json({ success: false, error: "Sunucu hatası: " + (error as Error).message }, { status: 500 });
   }
 }
