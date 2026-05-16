@@ -25,7 +25,7 @@ export default function MyAccountPage() {
     fullAddress: ""
   });
 
-  // 🚀 CANLI VERİLERİ WOOCOMMERCE'DEN ÇEKEN MOTOR
+  // CANLI VERİLERİ WOOCOMMERCE'DEN ÇEKEN MOTOR
   useEffect(() => {
     const fetchAccountData = async () => {
       const token = localStorage.getItem("user_token");
@@ -59,10 +59,10 @@ export default function MyAccountPage() {
     fetchAccountData();
   }, [router]);
 
-  // Düzenleme modu açıldığında form alanlarını doldurur
+  // Düzenleme modu açıldığında form alanlarını doldurur (Güvenli hale getirildi)
   useEffect(() => {
-    if (editMode && customerData) {
-      const addr = editMode === "billing" ? customerData.billing : customerData.shipping;
+    if (editMode) {
+      const addr = editMode === "billing" ? customerData?.billing : customerData?.shipping;
       setAddressForm({
         firstName: addr?.first_name || "",
         lastName: addr?.last_name || "",
@@ -80,7 +80,7 @@ export default function MyAccountPage() {
     router.push("/giris");
   };
 
-  // 🚀 GERÇEK ADRES KAYDETME FONKSİYONU
+  // GERÇEK ADRES KAYDETME FONKSİYONU
   const handleAddressSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -98,20 +98,21 @@ export default function MyAccountPage() {
       });
 
       if (res.ok) {
-        // Yerel state'i güncelle ki sayfa yenilenmeden ekranda değişsin
-        if (customerData) {
-          const updated = { ...customerData };
-          const addrKey = editMode === "billing" ? "billing" : "shipping";
-          updated[addrKey] = {
-            first_name: addressForm.firstName,
-            last_name: addressForm.lastName,
-            phone: addressForm.phone,
-            city: addressForm.city,
-            state: addressForm.district,
-            address_1: addressForm.fullAddress
-          };
-          setCustomerData(updated);
-        }
+        // Yerel durumu güncelle
+        const currentCustomer = customerData || { billing: {}, shipping: {} };
+        const updated = { ...currentCustomer };
+        const addrKey = editMode === "billing" ? "billing" : "shipping";
+        
+        updated[addrKey] = {
+          first_name: addressForm.firstName,
+          last_name: addressForm.lastName,
+          phone: addressForm.phone,
+          city: addressForm.city,
+          state: addressForm.district,
+          address_1: addressForm.fullAddress
+        };
+        
+        setCustomerData(updated);
         setEditMode(null);
       }
     } catch (err) {
@@ -121,12 +122,11 @@ export default function MyAccountPage() {
     }
   };
 
-  // WooCommerce sipariş durumlarına göre renk belirleme ayarı
   const getStatusMeta = (status: string) => {
     switch (status) {
       case "processing": return { text: "Hazırlanıyor", color: "text-amber-500 bg-amber-500/10 border-amber-500/20" };
       case "completed": return { text: "Tamamlandı", color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20" };
-      case "completed": return { text: "Kargolandı", color: "text-blue-500 bg-blue-500/10 border-blue-500/20" };
+      case "on-hold": return { text: "Beklemede", color: "text-blue-500 bg-blue-500/10 border-blue-500/20" };
       default: return { text: status, color: "text-slate-400 bg-slate-500/10 border-slate-500/20" };
     }
   };
@@ -183,7 +183,7 @@ export default function MyAccountPage() {
         {/* SAĞ PANEL İÇERİK ALANI */}
         <div className="lg:col-span-3">
           
-          {/* GERÇEK SİPARİŞ LİSTESİ */}
+          {/* SİPARİŞ LİSTESİ */}
           {activeTab === "orders" && (
             <div className="bg-[#0b1120] border border-white/5 p-6 md:p-8 rounded-3xl shadow-xl space-y-6 animate-in fade-in duration-300">
               <div className="border-b border-white/5 pb-4">
@@ -215,7 +215,6 @@ export default function MyAccountPage() {
                             <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${statusMeta.color}`}>
                               {statusMeta.text}
                             </span>
-                            {/* 🚀 ARTIK ÇALIŞAN DETAY BUTONU */}
                             <button 
                               onClick={() => setExpandedOrderId(isExpanded ? null : order.id)}
                               className="px-4 py-2 bg-white/5 hover:bg-blue-600 text-slate-300 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
@@ -225,7 +224,6 @@ export default function MyAccountPage() {
                           </div>
                         </div>
 
-                        {/* 🌟 SİPARİŞİN İÇİNDEN NE ALDIĞINI GÖSTEREN GENİŞLEYEN DETAY BÖLÜMÜ */}
                         {isExpanded && (
                           <div className="border-t border-white/5 bg-[#080d1a] p-5 space-y-3 animate-in fade-in duration-200">
                             <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5 pb-2">Satın Alınan Donanımlar</div>
@@ -245,8 +243,8 @@ export default function MyAccountPage() {
             </div>
           )}
 
-          {/* GERÇEK ADRES LİSTESİ VE GÜNCELLEME */}
-          {activeTab === "addresses" && customerData && (
+          {/* 🚀 GÜVENLİ VE ASLA BOŞ KALMAYAN ADRES BÖLÜMÜ */}
+          {activeTab === "addresses" && (
             <div className="bg-[#0b1120] border border-white/5 p-6 md:p-8 rounded-3xl shadow-xl space-y-6 animate-in fade-in duration-300">
               
               {editMode === null ? (
@@ -263,10 +261,16 @@ export default function MyAccountPage() {
                         <div className="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
                           <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">Fatura Adresi</span>
                         </div>
-                        <p className="text-white text-xs font-black uppercase">{customerData.billing?.first_name} {customerData.billing?.last_name || 'Adres Girilmemiş'}</p>
-                        <p className="text-slate-400 text-xs mt-2 font-medium leading-relaxed">{customerData.billing?.address_1}</p>
-                        <p className="text-slate-500 text-[10px] font-bold mt-1 uppercase tracking-wide">{customerData.billing?.state} {customerData.billing?.city}</p>
-                        <p className="text-slate-600 text-[10px] font-medium mt-1">{customerData.billing?.phone}</p>
+                        {customerData?.billing?.first_name || customerData?.billing?.last_name ? (
+                          <>
+                            <p className="text-white text-xs font-black uppercase">{customerData.billing.first_name} {customerData.billing.last_name}</p>
+                            <p className="text-slate-400 text-xs mt-2 font-medium leading-relaxed">{customerData.billing.address_1}</p>
+                            <p className="text-slate-500 text-[10px] font-bold mt-1 uppercase tracking-wide">{customerData.billing.state} {customerData.billing.city}</p>
+                            <p className="text-slate-600 text-[10px] font-medium mt-1">{customerData.billing.phone}</p>
+                          </>
+                        ) : (
+                          <p className="text-slate-500 text-xs font-bold italic uppercase tracking-wider pt-4">Adres bilgisi girilmemiş.</p>
+                        )}
                       </div>
                       <button onClick={() => setEditMode("billing")} className="mt-6 w-full py-2.5 bg-white/5 border border-white/5 group-hover:border-blue-500/30 text-slate-400 group-hover:text-blue-400 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all">
                         Adresi Düzenle
@@ -279,9 +283,15 @@ export default function MyAccountPage() {
                         <div className="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
                           <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Teslimat Adresi</span>
                         </div>
-                        <p className="text-white text-xs font-black uppercase">{customerData.shipping?.first_name} {customerData.shipping?.last_name || 'Adres Girilmemiş'}</p>
-                        <p className="text-slate-400 text-xs mt-2 font-medium leading-relaxed">{customerData.shipping?.address_1}</p>
-                        <p className="text-slate-500 text-[10px] font-bold mt-1 uppercase tracking-wide">{customerData.shipping?.state} {customerData.shipping?.city}</p>
+                        {customerData?.shipping?.first_name || customerData?.shipping?.last_name ? (
+                          <>
+                            <p className="text-white text-xs font-black uppercase">{customerData.shipping.first_name} {customerData.shipping.last_name}</p>
+                            <p className="text-slate-400 text-xs mt-2 font-medium leading-relaxed">{customerData.shipping.address_1}</p>
+                            <p className="text-slate-500 text-[10px] font-bold mt-1 uppercase tracking-wide">{customerData.shipping.state} {customerData.shipping.city}</p>
+                          </>
+                        ) : (
+                          <p className="text-slate-500 text-xs font-bold italic uppercase tracking-wider pt-4">Adres bilgisi girilmemiş.</p>
+                        )}
                       </div>
                       <button onClick={() => setEditMode("shipping")} className="mt-6 w-full py-2.5 bg-white/5 border border-white/5 group-hover:border-emerald-500/30 text-slate-400 group-hover:text-emerald-400 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all">
                         Adresi Düzenle
@@ -333,7 +343,7 @@ export default function MyAccountPage() {
                       <textarea rows={3} value={addressForm.fullAddress} onChange={(e) => setAddressForm({...addressForm, fullAddress: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white font-medium focus:outline-none focus:border-blue-500/50 transition-all text-xs resize-none" required />
                     </div>
 
-                    <button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-all">
+                    <button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-all shadow-lg shadow-blue-500/10">
                       {isSubmitting ? "Kaydediliyor..." : "Değişiklikleri Kaydet"}
                     </button>
                   </form>
