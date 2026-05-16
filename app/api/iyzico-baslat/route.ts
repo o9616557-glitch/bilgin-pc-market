@@ -13,19 +13,15 @@ export async function POST(request: Request) {
     const apiKey = process.env.IYZICO_API_KEY || "";
     const secretKey = process.env.IYZICO_SECRET_KEY || "";
 
-    // 🚀 1. KONTROL: Vercel'de şifreler gerçekten var mı?
     if (!apiKey || !secretKey) {
-      return NextResponse.json({ 
-        success: false, 
-        error: "DİKKAT: Vercel'de API Şifreleri eksik! Lütfen Vercel panelinden Environment Variables kısmına IYZICO_API_KEY ekleyin." 
-      }, { status: 400 });
+      return NextResponse.json({ success: false, error: "API Şifreleri eksik! Vercel paneline şifreleri girmelisiniz." }, { status: 400 });
     }
 
-    // 🚀 2. KONTROL: Şifreler test şifresi mi canlı şifre mi? Adresi otomatik seç!
     const isSandbox = apiKey.startsWith("sandbox-");
     const iyzicoBaseUrl = isSandbox ? "https://sandbox-api.iyzipay.com" : "https://api.iyzipay.com";
-    
     const siteBaseUrl = request.headers.get('origin') || "https://bilginpcmarket.com";
+    
+    // Fiyatı zorunlu olarak "15000.0" formatına çeviriyoruz
     const formattedPrice = Number(totalAmount).toFixed(1);
 
     const requestData = {
@@ -37,6 +33,7 @@ export async function POST(request: Request) {
       basketId: "B" + Math.floor(Math.random() * 100000),
       paymentGroup: "PRODUCT",
       callbackUrl: `${siteBaseUrl}/api/iyzico-sonuc`,
+      enabledInstallments: [2, 3, 6, 9, 12],
       buyer: {
         id: "BY789",
         name: checkoutForm.firstName || "Ahmet",
@@ -68,27 +65,27 @@ export async function POST(request: Request) {
       },
       basketItems: cart.map((item: any) => ({
         id: item.id.toString(),
-        name: item.name,
+        name: item.name.replace(/,/g, ' '), // İsimde virgül varsa şifrelemeyi bozmaması için siliyoruz
         category1: "Donanım",
         itemType: "PHYSICAL",
         price: formattedPrice
       }))
     };
 
+    // 🚀 İŞTE ASIL SİHİR BURADA: İYZİCO'NUN İSTEDİĞİ MİLİMETRİK ŞİFRELEME SIRASI (HATA 11'İN ÇÖZÜMÜ)
     const pkiString = `[locale=${requestData.locale},` +
       `conversationId=${requestData.conversationId},` +
       `price=${requestData.price},` +
-      `paidPrice=${requestData.paidPrice},` +
-      `currency=${requestData.currency},` +
       `basketId=${requestData.basketId},` +
       `paymentGroup=${requestData.paymentGroup},` +
+      `buyer=[id=${requestData.buyer.id},name=${requestData.buyer.name},surname=${requestData.buyer.surname},identityNumber=${requestData.buyer.identityNumber},email=${requestData.buyer.email},gsmNumber=${requestData.buyer.gsmNumber},registrationDate=${requestData.buyer.registrationDate},lastLoginDate=${requestData.buyer.lastLoginDate},registrationAddress=${requestData.buyer.registrationAddress},city=${requestData.buyer.city},country=${requestData.buyer.country},zipCode=${requestData.buyer.zipCode},ip=${requestData.buyer.ip}],` +
+      `shippingAddress=[address=${requestData.shippingAddress.address},zipCode=${requestData.shippingAddress.zipCode},contactName=${requestData.shippingAddress.contactName},city=${requestData.shippingAddress.city},country=${requestData.shippingAddress.country}],` +
+      `billingAddress=[address=${requestData.billingAddress.address},zipCode=${requestData.billingAddress.zipCode},contactName=${requestData.billingAddress.contactName},city=${requestData.billingAddress.city},country=${requestData.billingAddress.country}],` +
+      `basketItems=[` + requestData.basketItems.map((item: any) => `[id=${item.id},price=${item.price},name=${item.name},category1=${item.category1},itemType=${item.itemType}]`).join(', ') + `],` +
       `callbackUrl=${requestData.callbackUrl},` +
-      `buyer=[id=${requestData.buyer.id},name=${requestData.buyer.name},surname=${requestData.buyer.surname},gsmNumber=${requestData.buyer.gsmNumber},email=${requestData.buyer.email},identityNumber=${requestData.buyer.identityNumber},lastLoginDate=${requestData.buyer.lastLoginDate},registrationDate=${requestData.buyer.registrationDate},registrationAddress=${requestData.buyer.registrationAddress},ip=${requestData.buyer.ip},city=${requestData.buyer.city},country=${requestData.buyer.country},zipCode=${requestData.buyer.zipCode}],` +
-      `shippingAddress=[contactName=${requestData.shippingAddress.contactName},city=${requestData.shippingAddress.city},country=${requestData.shippingAddress.country},address=${requestData.shippingAddress.address},zipCode=${requestData.shippingAddress.zipCode}],` +
-      `billingAddress=[contactName=${requestData.billingAddress.contactName},city=${requestData.billingAddress.city},country=${requestData.billingAddress.country},address=${requestData.billingAddress.address},zipCode=${requestData.billingAddress.zipCode}],` +
-      `basketItems=[` +
-      requestData.basketItems.map((item: any) => `[id=${item.id},name=${item.name},category1=${item.category1},itemType=${item.itemType},price=${item.price}]`).join(', ') +
-      `]]`;
+      `currency=${requestData.currency},` +
+      `paidPrice=${requestData.paidPrice},` +
+      `enabledInstallments=[2, 3, 6, 9, 12]]`;
 
     const rnd = Math.random().toString(36).substring(2, 12) + Date.now();
     const signatureStr = apiKey + rnd + secretKey + pkiString;
@@ -111,7 +108,6 @@ export async function POST(request: Request) {
     if (result.status === "success") {
       return NextResponse.json({ success: true, formContent: result.checkoutFormContent });
     } else {
-      // 🚀 3. KONTROL: İyzico'nun tam olarak neyi beğenmediğini ekrana direkt yazdırıyoruz!
       return NextResponse.json({ 
         success: false, 
         error: `İYZİCO DİYOR Kİ: ${result.errorMessage} (Hata Kodu: ${result.errorCode})` 
