@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
 
-// 🚀 TS MOTORUNU SUSTURAN SİHİRLİ KOMUT:
-// @ts-ignore
-import Iyzipay from 'iyzipay';
-
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { cart, checkoutForm, totalAmount } = body;
+
+    // 🚀 TURBOPACK'TEN GİZLEMEK İÇİN İYZİCO'YU EN TEPEDE DEĞİL, 
+    // SADECE BUTONA BASILDIĞINDA FONKSİYON İÇİNDE "REQUIRE" İLE ÇAĞIRIYORUZ!
+    // @ts-ignore
+    const Iyzipay = require('iyzipay');
 
     const iyzipay = new Iyzipay({
       apiKey: process.env.IYZICO_API_KEY || "",
