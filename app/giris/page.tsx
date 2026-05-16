@@ -11,17 +11,22 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  
+  // 🛡️ KULLANICI DURUMU RADARLARI
+  const [isAlreadyLoggedIn, setIsAlreadyLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("");
 
-  // 🛡️ ŞEFİM İŞTE GİRİŞ YAPMIŞ KULLANICIYI ENGELLEYEN RADAR (MUHAFIZ)
+  // Sayfa açılınca giriş yapılmış mı kontrol et (Kovma, durumunu göster)
   useEffect(() => {
     const token = localStorage.getItem("user_token");
+    const displayName = localStorage.getItem("user_display_name");
     if (token) {
-      // Eğer kullanıcının cebinde anahtar varsa, bu sayfayı gösterme, direkt ana sayfaya şutla!
-      router.push("/");
+      setIsAlreadyLoggedIn(true);
+      setUserName(displayName || "Şefim");
     }
-  }, [router]);
+  }, []);
 
-  // hem google hem facebook için vazgeçince ekranı açan çift sensör
+  // Hem Google hem Facebook için vazgeçince ekranı açan çift sensör
   useEffect(() => {
     const resetLoading = () => setIsLoading(false);
     window.addEventListener("pageshow", resetLoading);
@@ -48,7 +53,9 @@ export default function LoginPage() {
 
       if (res.ok && data.token) {
         localStorage.setItem("user_token", data.token);
-        localStorage.setItem("user_display_name", data.user_display_name);
+        localStorage.setItem("user_display_name", data.user_display_name || data.user_nicename);
+        setIsAlreadyLoggedIn(true);
+        setUserName(data.user_display_name || data.user_nicename);
         router.push("/");
       } else {
         setError("Kullanıcı adı veya şifre hatalı. Lütfen kontrol edin.");
@@ -58,6 +65,15 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // 🚀 İŞTE O MEŞHUR ÇIKIŞ YAPMA FONKSİYONU
+  const handleLogOut = () => {
+    localStorage.removeItem("user_token");
+    localStorage.removeItem("user_display_name");
+    setIsAlreadyLoggedIn(false);
+    setUserName("");
+    setError("");
   };
 
   const handleSocialLogin = (platform: string) => {
@@ -78,65 +94,103 @@ export default function LoginPage() {
           </div>
         )}
 
+        {/* LOGO ALANI */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block text-4xl font-black italic tracking-tighter text-white uppercase">
             BİLGİN<span className="text-blue-500 not-italic">PC</span>
           </Link>
           <div className="h-1 w-12 bg-blue-500 mx-auto mt-2 rounded-full shadow-[0_0_15px_#3b82f6]"></div>
-          <h1 className="text-xl font-black text-white uppercase tracking-widest mt-6">Giriş Yap</h1>
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-500 text-xs font-semibold text-center normal-case">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleLogin} className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Kullanıcı Adı veya Mail</label>
-            <input type="text" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required placeholder="Kullanıcı adınız..." className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white font-medium focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-slate-900" />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex justify-between items-center px-1">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Şifre</label>
-              <Link href="/sifre-sifirla" className="text-[9px] font-black text-blue-500 hover:text-blue-400 uppercase tracking-widest">Şifremi Unuttum?</Link>
+        {/* 🌟 1. DURUM: EĞER KULLANICI ZATEN GİRİŞ YAPDIYSA BURASI AÇILIR */}
+        {isAlreadyLoggedIn ? (
+          <div className="text-center py-4 space-y-6 animate-in fade-in duration-300">
+            <div className="space-y-1">
+              <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em]">Aktif Oturum</span>
+              <h1 className="text-2xl font-black text-white uppercase italic">GİRİŞ YAPILDI</h1>
             </div>
-            <div className="relative">
-              <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white font-medium focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-slate-900" />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-600 hover:text-white text-[10px] font-black uppercase">
-                {showPassword ? "Gizle" : "Göster"}
+
+            <div className="p-4 bg-white/5 border border-white/5 rounded-2xl">
+              <p className="text-slate-400 text-xs font-medium">Şu an açık olan hesap:</p>
+              <p className="text-white text-lg font-black uppercase mt-1 tracking-wider">{userName}</p>
+            </div>
+
+            <div className="space-y-3 pt-4">
+              <button 
+                onClick={() => router.push("/")} 
+                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-all shadow-lg shadow-blue-600/10"
+              >
+                Alışverişe Devam Et
+              </button>
+              
+              <button 
+                onClick={handleLogOut} 
+                className="w-full bg-amber-500/10 border border-amber-500/20 text-amber-500 hover:bg-amber-500/20 font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-all"
+              >
+                Başka Hesapla Gir / Çıkış Yap
               </button>
             </div>
           </div>
+        ) : (
+          /* 🌟 2. DURUM: EĞER GİRİŞ YAPILMADIYSA NORMAL FORM AÇILIR */
+          <>
+            <div className="text-center mb-6">
+              <h1 className="text-xl font-black text-white uppercase tracking-widest">Giriş Yap</h1>
+            </div>
 
-          <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest text-sm py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(37,99,235,0.2)]">
-            Giriş Yap
-          </button>
-        </form>
+            {error && (
+              <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-500 text-xs font-semibold text-center normal-case">
+                {error}
+              </div>
+            )}
 
-        <div className="relative flex items-center py-8">
-          <div className="flex-grow border-t border-white/5"></div>
-          <span className="flex-shrink-0 mx-4 text-slate-700 text-[10px] font-black uppercase tracking-widest">Hızlı Erişim</span>
-          <div className="flex-grow border-t border-white/5"></div>
-        </div>
+            <form onSubmit={handleLogin} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Kullanıcı Adı veya Mail</label>
+                <input type="text" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required placeholder="Kullanıcı adınız..." className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white font-medium focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-slate-900" />
+              </div>
 
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-              <button type="button" onClick={() => handleSocialLogin('Google')} className="bg-white/5 border border-white/5 py-3.5 rounded-xl text-[10px] font-black text-slate-300 uppercase hover:bg-white/10 transition-all">Google</button>
-              <button type="button" onClick={() => handleSocialLogin('Facebook')} className="bg-blue-600/5 border border-blue-600/20 py-3.5 rounded-xl text-[10px] font-black text-blue-500 uppercase hover:bg-blue-600/10 transition-all">Facebook</button>
-          </div>
-          <button onClick={() => router.push("/")} className="w-full py-4 bg-white/5 border border-white/5 hover:border-green-500/20 text-slate-500 hover:text-green-500 rounded-xl transition-all text-[11px] font-black uppercase tracking-[0.2em]">
-              Üye Olmadan Devam Et
-          </button>
-        </div>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center px-1">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Şifre</label>
+                  <Link href="/sifre-sifirla" className="text-[9px] font-black text-blue-500 hover:text-blue-400 uppercase tracking-widest">Şifremi Unuttum?</Link>
+                </div>
+                <div className="relative">
+                  <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white font-medium focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-slate-900" />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-600 hover:text-white text-[10px] font-black uppercase">
+                    {showPassword ? "Gizle" : "Göster"}
+                  </button>
+                </div>
+              </div>
 
-        <div className="mt-10 pt-6 border-t border-white/5 text-center">
-          <p className="text-[11px] font-medium text-slate-500 uppercase tracking-widest">
-            Hesabınız yok mu? <Link href="/kayit" className="text-white font-black hover:text-blue-500 ml-2 uppercase">Kayıt Ol</Link>
-          </p>
-        </div>
+              <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest text-sm py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(37,99,235,0.2)]">
+                Giriş Yap
+              </button>
+            </form>
+
+            <div className="relative flex items-center py-8">
+              <div className="flex-grow border-t border-white/5"></div>
+              <span className="flex-shrink-0 mx-4 text-slate-700 text-[10px] font-black uppercase tracking-widest">Hızlı Erişim</span>
+              <div className="flex-grow border-t border-white/5"></div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                  <button type="button" onClick={() => handleSocialLogin('Google')} className="bg-white/5 border border-white/5 py-3.5 rounded-xl text-[10px] font-black text-slate-300 uppercase hover:bg-white/10 transition-all">Google</button>
+                  <button type="button" onClick={() => handleSocialLogin('Facebook')} className="bg-blue-600/5 border border-blue-600/20 py-3.5 rounded-xl text-[10px] font-black text-blue-500 uppercase hover:bg-blue-600/10 transition-all">Facebook</button>
+              </div>
+              <button onClick={() => router.push("/")} className="w-full py-4 bg-white/5 border border-white/5 hover:border-green-500/20 text-slate-500 hover:text-green-500 rounded-xl transition-all text-[11px] font-black uppercase tracking-[0.2em]">
+                  Üye Olmadan Devam Et
+              </button>
+            </div>
+
+            <div className="mt-10 pt-6 border-t border-white/5 text-center">
+              <p className="text-[11px] font-medium text-slate-500 uppercase tracking-widest">
+                Hesabınız yok mu? <Link href="/kayit" className="text-white font-black hover:text-blue-500 ml-2 uppercase">Kayıt Ol</Link>
+              </p>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
