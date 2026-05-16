@@ -1,10 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    // Turbopack'e "Bu dosyaya mikroskopla bakma, dışarıdan al" diyoruz
-    serverComponentsExternalPackages: ["iyzipay"],
-  },
+  // 🚀 İŞTE SİHİRLİ KOMUT BURADA! (Experimental kelimesi kaldırıldı, ana ayar yapıldı)
+  // Bu komut Next.js'e "İyzico'yu sorgulama, onu olduğu gibi içeri al" emrini verir.
+  serverExternalPackages: ["iyzipay"],
 };
 
 export default nextConfig;
