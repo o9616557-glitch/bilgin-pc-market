@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/navigation";
+import Link from "next/link"; // 🚀 ŞEFİM: Doğru kapı burası, derleme hatası artık bitti!
 
 export default function OrderTrackingPage() {
   const [orderId, setOrderId] = useState("");
@@ -36,7 +36,6 @@ export default function OrderTrackingPage() {
     }
   };
 
-  // WooCommerce durumlarını Türkçe'ye ve görsel aşamalara (1-4) çeviren motor
   const getTrackingStep = (status: string) => {
     switch (status) {
       case "pending": case "on-hold": return { step: 1, text: "Sipariş Alındı", color: "text-blue-500 border-blue-500/30 bg-blue-500/10" };
@@ -60,11 +59,11 @@ export default function OrderTrackingPage() {
           </div>
         )}
 
-        {/* BAŞLIK ALANI */}
+        {/* BAŞLIK VE LOGO ALANI */}
         <div className="text-center mb-8">
-          <div className="text-4xl font-black italic tracking-tighter uppercase">
+          <Link href="/" className="inline-block text-4xl font-black italic tracking-tighter uppercase text-white hover:text-blue-500 transition-colors">
             BİLGİN<span className="text-blue-500 not-italic">PC</span>
-          </div>
+          </Link>
           <div className="h-1 w-12 bg-blue-500 mx-auto mt-2 rounded-full shadow-[0_0_15px_#3b82f6]"></div>
           <h1 className="text-xl font-black uppercase tracking-widest mt-6">Sipariş Takibi</h1>
         </div>
@@ -108,11 +107,10 @@ export default function OrderTrackingPage() {
           </form>
         )}
 
-        {/* 🌟 CANLI SİPARİŞ SONUÇ PANELİ */}
+        {/* CANLI SİPARİŞ SONUÇ PANELİ */}
         {orderData && (
           <div className="space-y-8 animate-in fade-in duration-300">
             
-            {/* ÜST BİLGİ ŞERİDİ */}
             <div className="p-5 bg-[#050810] border border-white/5 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">Sipariş No</span>
@@ -130,19 +128,16 @@ export default function OrderTrackingPage() {
               </div>
             </div>
 
-            {/* 🚀 NEON GÖRSEL ZAMAN ÇİZELGESİ (PROGRESS TIMELINE) */}
+            {/* NEON GÖRSEL ZAMAN ÇİZELGESİ */}
             {orderData.status !== "cancelled" && (
               <div className="py-4 px-2">
                 <div className="relative flex items-center justify-between w-full">
-                  {/* Arka plandaki sönük hat */}
                   <div className="absolute left-0 right-0 h-0.5 bg-white/5 z-0"></div>
-                  {/* Ön plandaki ilerleyen neon çizgi */}
                   <div 
                     className="absolute left-0 h-0.5 bg-blue-500 shadow-[0_0_10px_#3b82f6] z-0 transition-all duration-500"
                     style={{ width: `${((getTrackingStep(orderData.status).step - 1) / 3) * 100}%` }}
                   ></div>
 
-                  {/* AŞAMALAR */}
                   {[1, 2, 3, 4].map((index) => {
                     const currentStep = getTrackingStep(orderData.status).step;
                     const isDone = currentStep >= index;
@@ -163,7 +158,7 @@ export default function OrderTrackingPage() {
               </div>
             )}
 
-            {/* SATIN ALINAN DONANIMLAR */}
+            {/* PAKETTEKİ DONANIMLAR */}
             <div className="p-6 bg-[#050810] border border-white/5 rounded-2xl space-y-3">
               <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5 pb-2">Paketteki Donanımlar</div>
               {orderData.line_items?.map((item: any) => (
@@ -174,7 +169,6 @@ export default function OrderTrackingPage() {
               ))}
             </div>
 
-            {/* YENİDEN SORGULAMA BUTONU */}
             <button 
               onClick={() => setOrderData(null)}
               className="w-full py-3.5 bg-white/5 border border-white/5 hover:border-white/10 text-slate-400 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
