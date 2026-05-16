@@ -15,8 +15,6 @@ export default function MyAccountPage() {
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
 
   const [editMode, setEditMode] = useState<null | "billing" | "shipping">(null);
-  
-  // 🚀 ŞEFİM İŞTE O MODERN BİLDİRİM (TOAST) DURUMU
   const [toastMessage, setToastMessage] = useState("");
 
   const [addressForm, setAddressForm] = useState({
@@ -126,9 +124,8 @@ export default function MyAccountPage() {
         setCustomerData(updated);
         setEditMode(null);
         
-        // 🚀 ÇİRKİN ALERT GİTTİ, YERİNE ASİL MODERN TOAST GELDİ!
         setToastMessage("Adresiniz başarıyla veritabanına kaydedildi şefim! ✓");
-        setTimeout(() => setToastMessage(""), 4000); // 4 saniye sonra kendi kendine erir
+        setTimeout(() => setToastMessage(""), 4000);
 
       } else {
         setToastMessage("WordPress Engeli: " + (data.error || "Sunucu güncellemeyi reddetti."));
@@ -142,23 +139,14 @@ export default function MyAccountPage() {
     }
   };
 
-  // 🚀 WOOCOMMERCE GERÇEK DURUMLARINI %100 TÜRKÇELEŞTİREN RADAR GENİŞLETİLDİ
   const getStatusMeta = (status: string) => {
     switch (status) {
-      case "on-hold": 
-        return { text: "Beklemede", color: "text-blue-400 bg-blue-500/10 border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.05)]" };
-      case "processing": 
-        return { text: "Hazırlanıyor", color: "text-amber-500 bg-amber-500/10 border-amber-500/20" };
-      case "completed": 
-        return { text: "Tamamlandı", color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20" };
-      case "pending": 
-        return { text: "Ödeme Bekliyor", color: "text-orange-500 bg-orange-500/10 border-orange-500/20" };
-      case "cancelled": 
-        return { text: "İptal Edildi", color: "text-rose-500 bg-rose-500/10 border-rose-500/20" };
-      case "failed": 
-        return { text: "Başarısız", color: "text-rose-500 bg-rose-500/10 border-rose-500/20" };
-      default: 
-        return { text: status.toUpperCase(), color: "text-slate-400 bg-slate-500/10 border-slate-500/20" };
+      case "on-hold": return { text: "Beklemede", color: "text-blue-400 bg-blue-500/10 border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.05)]" };
+      case "processing": return { text: "Hazırlanıyor", color: "text-amber-500 bg-amber-500/10 border-amber-500/20" };
+      case "completed": return { text: "Tamamlandı", color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20" };
+      case "pending": return { text: "Ödeme Bekliyor", color: "text-orange-500 bg-orange-500/10 border-orange-500/20" };
+      case "cancelled": return { text: "İptal Edildi", color: "text-rose-500 bg-rose-500/10 border-rose-500/20" };
+      default: return { text: status.toUpperCase(), color: "text-slate-400 bg-slate-500/10 border-slate-500/20" };
     }
   };
 
@@ -174,9 +162,9 @@ export default function MyAccountPage() {
   return (
     <div className="min-h-[calc(100vh-80px)] bg-[#050810] text-white py-10 px-4 font-sans relative overflow-hidden">
       
-      {/* 🌟 PREMIUM NEON TOAST BİLDİRİM PENCERESİ */}
+      {/* PREMIUM TOAST BİLDİRİM PENCERESİ */}
       {toastMessage && (
-        <div className="fixed top-24 right-4 z-[9999] bg-[#0b1120] border border-emerald-500/30 text-emerald-400 font-black uppercase text-[11px] tracking-wider px-6 py-4 rounded-2xl shadow-2xl shadow-emerald-950/40 animate-in slide-in-from-top-4 fade-in duration-300 flex items-center gap-3">
+        <div className="fixed top-24 right-4 z-[9999] bg-[#0b1120] border border-emerald-500/30 text-emerald-400 font-black uppercase text-[11px] tracking-wider px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3">
           <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]"></div>
           {toastMessage}
         </div>
@@ -195,10 +183,10 @@ export default function MyAccountPage() {
           </div>
 
           <div className="bg-[#0b1120] border border-white/5 p-3 rounded-3xl space-y-1 shadow-xl">
-            <button onClick={() => { setActiveTab("orders"); setEditMode(null); }} className={`w-full text-left px-5 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all ${activeTab === "orders" ? "bg-blue-600 text-white shadow-lg shadow-blue-600/10" : "text-slate-400 hover:bg-white/5"}`}>
+            <button onClick={() => { setActiveTab("orders"); setEditMode(null); }} className={`w-full text-left px-5 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all ${activeTab === "orders" ? "bg-blue-600 text-white shadow-lg" : "text-slate-400 hover:bg-white/5"}`}>
               Siparişlerim
             </button>
-            <button onClick={() => { setActiveTab("addresses"); }} className={`w-full text-left px-5 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all ${activeTab === "addresses" ? "bg-blue-600 text-white shadow-lg shadow-blue-600/10" : "text-slate-400 hover:bg-white/5"}`}>
+            <button onClick={() => { setActiveTab("addresses"); }} className={`w-full text-left px-5 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all ${activeTab === "addresses" ? "bg-blue-600 text-white shadow-lg" : "text-slate-400 hover:bg-white/5"}`}>
               Adres Bilgilerim
             </button>
             <button onClick={handleLogOut} className="w-full text-left px-5 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider text-amber-500 hover:bg-amber-500/10 transition-all">
@@ -210,7 +198,7 @@ export default function MyAccountPage() {
         {/* SAĞ PANEL */}
         <div className="lg:col-span-3">
           
-          {/* SİPARİŞLERİM SEKMESİ */}
+          {/* SİPARİŞLERİM */}
           {activeTab === "orders" && (
             <div className="bg-[#0b1120] border border-white/5 p-6 md:p-8 rounded-3xl shadow-xl space-y-6">
               <h1 className="text-xl font-black uppercase italic tracking-wide border-b border-white/5 pb-4">Sipariş Geçmişi</h1>
@@ -257,7 +245,7 @@ export default function MyAccountPage() {
             </div>
           )}
 
-          {/* ADRESLERİM SEKMESİ */}
+          {/* ADRESLERİM */}
           {activeTab === "addresses" && (
             <div className="bg-[#0b1120] border border-white/5 p-6 md:p-8 rounded-3xl shadow-xl space-y-6">
               {editMode === null ? (
@@ -278,7 +266,7 @@ export default function MyAccountPage() {
                           <p className="text-slate-500 text-xs font-bold italic uppercase pt-4">Adres bilgisi girilmemiş.</p>
                         )}
                       </div>
-                      <button onClick={() => setEditMode("billing")} className="mt-6 w-full py-2.5 bg-white/5 border border-white/5 text-slate-400 text-[10px] font-black uppercase rounded-xl transition-all hover:border-blue-500/30 hover:text-blue-400">Adresi Düzenle</button>
+                      <button onClick={() => setEditMode("billing")} className="mt-6 w-full py-2.5 bg-white/5 border border-white/5 text-slate-400 text-[10px] font-black uppercase rounded-xl transition-all">Adresi Düzenle</button>
                     </div>
                     {/* TESLİMAT */}
                     <div className="p-6 bg-[#050810] border border-white/5 rounded-2xl flex flex-col justify-between min-h-[220px]">
@@ -294,28 +282,54 @@ export default function MyAccountPage() {
                           <p className="text-slate-500 text-xs font-bold italic uppercase pt-4">Adres bilgisi girilmemiş.</p>
                         )}
                       </div>
-                      <button onClick={() => setEditMode("shipping")} className="mt-6 w-full py-2.5 bg-white/5 border border-white/5 text-slate-400 text-[10px] font-black uppercase rounded-xl transition-all hover:border-emerald-500/30 hover:text-emerald-400">Adresi Düzenle</button>
+                      <button onClick={() => setEditMode("shipping")} className="mt-6 w-full py-2.5 bg-white/5 border border-white/5 text-slate-400 text-[10px] font-black uppercase rounded-xl transition-all">Adresi Düzenle</button>
                     </div>
                   </div>
                 </>
               ) : (
-                /* DÜZENLEME FORMU */
+                /* 🚀 DÜZENLEME FORMU - SABİT BAŞLIKLAR (LABELS) EKLENDİ ŞEFİM */
                 <div className="animate-in slide-in-from-bottom-4 duration-300">
                   <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-6">
                     <h1 className="text-xl font-black uppercase italic tracking-wide">{editMode === "billing" ? "Fatura Adresini Güncelle" : "Teslimat Adresini Güncelle"}</h1>
                     <button onClick={() => setEditMode(null)} className="px-3 py-1.5 bg-white/5 text-slate-400 text-[10px] font-black uppercase rounded-lg hover:text-white transition-all">İptal Et</button>
                   </div>
+                  
                   <form onSubmit={handleAddressSubmit} className="space-y-5">
+                    
+                    {/* AD VE SOYAD ALANI */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <input type="text" value={addressForm.firstName} onChange={(e) => setAddressForm({...addressForm, firstName: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all" placeholder="Adınız" required />
-                      <input type="text" value={addressForm.lastName} onChange={(e) => setAddressForm({...addressForm, lastName: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all" placeholder="Soyadınız" required />
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Adınız</label>
+                        <input type="text" value={addressForm.firstName} onChange={(e) => setAddressForm({...addressForm, firstName: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all" placeholder="Örn: Özkan" required />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Soyadınız</label>
+                        <input type="text" value={addressForm.lastName} onChange={(e) => setAddressForm({...addressForm, lastName: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all" placeholder="Örn: Bilgin" required />
+                      </div>
                     </div>
+
+                    {/* TELEFON, ŞEHİR VE İLÇE ALANI */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <input type="text" value={addressForm.phone} onChange={(e) => setAddressForm({...addressForm, phone: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all" placeholder="Telefon" />
-                      <input type="text" value={addressForm.city} onChange={(e) => setAddressForm({...addressForm, city: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all" placeholder="Şehir" required />
-                      <input type="text" value={addressForm.district} onChange={(e) => setAddressForm({...addressForm, district: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all" placeholder="İlçe" required />
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Telefon Numarası</label>
+                        <input type="text" value={addressForm.phone} onChange={(e) => setAddressForm({...addressForm, phone: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all" placeholder="+90532..." />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Şehir</label>
+                        <input type="text" value={addressForm.city} onChange={(e) => setAddressForm({...addressForm, city: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all" placeholder="Örn: İstanbul" required />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">İlçe</label>
+                        <input type="text" value={addressForm.district} onChange={(e) => setAddressForm({...addressForm, district: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all" placeholder="Örn: Kadıköy" required />
+                      </div>
                     </div>
-                    <textarea rows={3} value={addressForm.fullAddress} onChange={(e) => setAddressForm({...addressForm, fullAddress: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all resize-none" placeholder="Açık Adres" required />
+
+                    {/* AÇIK ADRES ALANI */}
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Açık Adres</label>
+                      <textarea rows={3} value={addressForm.fullAddress} onChange={(e) => setAddressForm({...addressForm, fullAddress: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all resize-none" placeholder="Mahalle, Cadde, Sokak, Kapı No..." required />
+                    </div>
+
                     <button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase text-xs py-4 rounded-xl transition-all shadow-lg shadow-blue-500/10">
                       {isSubmitting ? "Kaydediliyor..." : "Değişiklikleri Kaydet"}
                     </button>
