@@ -1,4 +1,7 @@
 import { NextResponse } from 'next/server';
+
+// 🚀 TS MOTORUNU SUSTURAN SİHİRLİ KOMUT:
+// @ts-ignore
 import Iyzipay from 'iyzipay';
 
 export async function POST(request: Request) {
@@ -6,14 +9,12 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { cart, checkoutForm, totalAmount } = body;
 
-    // 1. İYZİCO KASASINI AÇIYORUZ
     const iyzipay = new Iyzipay({
       apiKey: process.env.IYZICO_API_KEY || "",
       secretKey: process.env.IYZICO_SECRET_KEY || "",
-      uri: "https://api.iyzipay.com" // Test aşamasındaysan burayı: https://sandbox-api.iyzipay.com yapmalısın
+      uri: "https://api.iyzipay.com" 
     });
 
-    // 2. MÜŞTERİ VE SEPET VERİLERİNİ İYZİCO STANDARTLARINA PAKETLİYORUZ
     const requestData = {
       locale: Iyzipay.LOCALE.TR,
       conversationId: Math.floor(Math.random() * 100000000).toString(),
@@ -22,15 +23,15 @@ export async function POST(request: Request) {
       currency: Iyzipay.CURRENCY.TRY,
       basketId: "B" + Math.floor(Math.random() * 100000),
       paymentGroup: Iyzipay.PAYMENT_GROUP.PRODUCT,
-      callbackUrl: "https://bilginpcmarket.com/api/iyzico-sonuc", // İyzico parayı çekince buraya haber verecek
-      enabledInstallments: [2, 3, 6, 9, 12], // Açık taksit seçenekleri
+      callbackUrl: "https://bilginpcmarket.com/api/iyzico-sonuc",
+      enabledInstallments: [2, 3, 6, 9, 12],
       buyer: {
         id: "BY789",
         name: checkoutForm.firstName,
         surname: checkoutForm.lastName,
         gsmNumber: checkoutForm.phone,
         email: checkoutForm.email,
-        identityNumber: "11111111111", // T.C. Kimlik (Gerekirse formdan eklenebilir)
+        identityNumber: "11111111111",
         lastLoginDate: "2023-01-01 12:00:00",
         registrationDate: "2023-01-01 12:00:00",
         registrationAddress: checkoutForm.fullAddress,
@@ -58,12 +59,10 @@ export async function POST(request: Request) {
         name: item.name,
         category1: "Donanım",
         itemType: Iyzipay.BASKET_ITEM_TYPE.PHYSICAL,
-        // Fiyat temizleme motoru (WooCommerce'den gelen virgülleri ezer)
         price: (parseFloat(item.price.replace(/[^\d]/g, "")) / (item.price.replace(/[^\d]/g, "") > 1000000 ? 100 : 1)).toString()
       }))
     };
 
-    // 3. İYZİCO'YA BAĞLAN VE GÜVENLİ FORMU ÇEK
     return new Promise((resolve) => {
       iyzipay.checkoutFormInitialize.create(requestData, (err: any, result: any) => {
         if (err) {
