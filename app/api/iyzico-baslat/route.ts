@@ -1,30 +1,24 @@
 import { NextResponse } from 'next/server';
-
-// 🚀 İYZİCO'NUN HATALI ANA DOSYASINI TAMAMEN ES GEÇİP, 
-// DİREKT ÖDEME FORMUNU BAŞLATAN ALT PARÇAYI NOKTA ATIŞI ÇAĞIRIYORUZ!
-// @ts-ignore
-const CheckoutFormInitialize = require('iyzipay/lib/resources/CheckoutFormInitialize');
+import crypto from 'crypto'; // Node.js'in kendi içindeki şifreleme motoru
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { cart, checkoutForm, totalAmount } = body;
 
-    // Sınıfı doğrudan ayarlarımızla ayağa kaldırıyoruz
-    const checkoutFormInitInstance = new CheckoutFormInitialize({
-      apiKey: process.env.IYZICO_API_KEY || "",
-      secretKey: process.env.IYZICO_SECRET_KEY || "",
-      uri: "https://api.iyzipay.com" 
-    });
+    const apiKey = process.env.IYZICO_API_KEY || "";
+    const secretKey = process.env.IYZICO_SECRET_KEY || "";
+    const baseUrl = "https://api.iyzipay.com"; // İyzico Canlı API Adresi
 
+    // 1. İyzico'nun resmi sunucusunun bizden beklediği ham veri paketi
     const requestData = {
-      locale: "tr", 
+      locale: "tr",
       conversationId: Math.floor(Math.random() * 100000000).toString(),
       price: totalAmount.toString(),
       paidPrice: totalAmount.toString(),
-      currency: "TRY", 
+      currency: "TRY",
       basketId: "B" + Math.floor(Math.random() * 100000),
-      paymentGroup: "PRODUCT", 
+      paymentGroup: "PRODUCT",
       callbackUrl: "https://bilginpcmarket.com/api/iyzico-sonuc",
       enabledInstallments: [2, 3, 6, 9, 12],
       buyer: {
@@ -34,8 +28,8 @@ export async function POST(request: Request) {
         gsmNumber: checkoutForm.phone,
         email: checkoutForm.email,
         identityNumber: "11111111111",
-        lastLoginDate: "2023-01-01 12:00:00",
-        registrationDate: "2023-01-01 12:00:00",
+        lastLoginDate: "2026-01-01 12:00:00",
+        registrationDate: "2026-01-01 12:00:00",
         registrationAddress: checkoutForm.fullAddress,
         ip: "85.34.78.112",
         city: checkoutForm.city,
@@ -60,24 +54,41 @@ export async function POST(request: Request) {
         id: item.id.toString(),
         name: item.name,
         category1: "Donanım",
-        itemType: "PHYSICAL", 
+        itemType: "PHYSICAL",
         price: (parseFloat(item.price.replace(/[^\d]/g, "")) / (item.price.replace(/[^\d]/g, "") > 1000000 ? 100 : 1)).toString()
       }))
     };
 
-    return new Promise((resolve) => {
-      checkoutFormInitInstance.create(requestData, (err: any, result: any) => {
-        if (err) {
-          resolve(NextResponse.json({ success: false, error: "İyzico sunucu bağlantı hatası." }, { status: 500 }));
-        } else if (result.status === "success") {
-          resolve(NextResponse.json({ success: true, formContent: result.checkoutFormContent }));
-        } else {
-          resolve(NextResponse.json({ success: false, error: result.errorMessage }, { status: 400 }));
-        }
-      });
+    // 🚀 EL YAPIMI İYZİCO ŞİFRELEME MOTORU (KÜTÜPHANESİZ)
+    const rawBodyStr = JSON.stringify(requestData);
+    const rnd = Math.random().toString(36).substring(2, 12) + Date.now();
+    
+    // İyzico'nun güvenlik duvarını aşmak için oluşturduğumuz imza bağı
+    const signatureStr = apiKey + rnd + secretKey + rawBodyStr;
+    const hash = crypto.createHash('sha1').update(signatureStr, 'utf-8').digest('base64');
+    const authHeader = `IYZWS ${apiKey}:${hash}`;
+
+    // 🚀 DOĞRUDAN İYZİCO SUNUCUSUNA NATIVE FETCH İSTEĞİ
+    const iyzicoResponse = await fetch(`${baseUrl}/payment/iyziconnect/checkoutform/initialize`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": authHeader,
+        "x-iyzi-rnd": rnd
+      },
+      body: rawBodyStr
     });
 
+    const result = await iyzicoResponse.json();
+
+    if (result.status === "success") {
+      return NextResponse.json({ success: true, formContent: result.checkoutFormContent });
+    } else {
+      return NextResponse.json({ success: false, error: result.errorMessage || "İyzico hatası oluştu." }, { status: 400 });
+    }
+
   } catch (error) {
-    return NextResponse.json({ success: false, error: "Beklenmeyen bir hata oluştu." }, { status: 500 });
+    return NextResponse.json({ success: false, error: "Bağlantı kurulurken bir arıza meydana geldi." }, { status: 500 });
   }
 }
