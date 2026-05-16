@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link"; // 🚀 ŞEFİM: Doğru kapı burası, derleme hatası artık bitti!
+import Link from "next/link";
 
 export default function OrderTrackingPage() {
   const [orderId, setOrderId] = useState("");
@@ -47,10 +47,10 @@ export default function OrderTrackingPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 bg-[#050810] relative overflow-hidden font-sans text-white">
+    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-3 md:p-4 bg-[#050810] relative overflow-hidden font-sans text-white">
       <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-blue-600/5 rounded-full blur-[120px] pointer-events-none"></div>
       
-      <div className="w-full max-w-2xl relative z-10 bg-[#0b1120] p-8 md:p-10 rounded-3xl border border-white/5 shadow-2xl overflow-hidden">
+      <div className="w-full max-w-2xl relative z-10 bg-[#0b1120] p-5 md:p-10 rounded-3xl border border-white/5 shadow-2xl overflow-hidden">
         
         {isLoading && (
           <div className="absolute inset-0 bg-[#0b1120]/95 backdrop-blur-md z-50 flex flex-col items-center justify-center space-y-4">
@@ -60,12 +60,12 @@ export default function OrderTrackingPage() {
         )}
 
         {/* BAŞLIK VE LOGO ALANI */}
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-block text-4xl font-black italic tracking-tighter uppercase text-white hover:text-blue-500 transition-colors">
+        <div className="text-center mb-6 md:mb-8">
+          <Link href="/" className="inline-block text-3xl md:text-4xl font-black italic tracking-tighter uppercase text-white hover:text-blue-500 transition-colors">
             BİLGİN<span className="text-blue-500 not-italic">PC</span>
           </Link>
           <div className="h-1 w-12 bg-blue-500 mx-auto mt-2 rounded-full shadow-[0_0_15px_#3b82f6]"></div>
-          <h1 className="text-xl font-black uppercase tracking-widest mt-6">Sipariş Takibi</h1>
+          <h1 className="text-lg md:text-xl font-black uppercase tracking-widest mt-5">Sipariş Takibi</h1>
         </div>
 
         {error && (
@@ -76,8 +76,8 @@ export default function OrderTrackingPage() {
 
         {/* SORGULAMA FORMU */}
         {!orderData && (
-          <form onSubmit={handleTrack} className="space-y-6 max-w-md mx-auto">
-            <div className="space-y-2">
+          <form onSubmit={handleTrack} className="space-y-5 max-w-md mx-auto">
+            <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Sipariş Numarası</label>
               <input 
                 type="text" 
@@ -89,7 +89,7 @@ export default function OrderTrackingPage() {
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Fatura E-Posta Adresi</label>
               <input 
                 type="email" 
@@ -109,32 +109,33 @@ export default function OrderTrackingPage() {
 
         {/* CANLI SİPARİŞ SONUÇ PANELİ */}
         {orderData && (
-          <div className="space-y-8 animate-in fade-in duration-300">
+          <div className="space-y-6 md:space-y-8 animate-in fade-in duration-300">
             
-            <div className="p-5 bg-[#050810] border border-white/5 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div>
-                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">Sipariş No</span>
-                <span className="text-sm font-black text-white italic">#{orderData.id}</span>
+            {/* 🚀 TELEFONDA YAPIŞMAYI ÖNLEYEN 3'LÜ MOBİL GRİD SİSTEMİ */}
+            <div className="p-4 md:p-5 bg-[#050810] border border-white/5 rounded-2xl grid grid-cols-3 gap-2 text-center sm:flex sm:flex-row sm:justify-between sm:items-center sm:text-left">
+              <div className="flex flex-col items-center sm:items-start">
+                <span className="text-[8px] md:text-[9px] font-black text-slate-500 uppercase tracking-widest block">Sipariş No</span>
+                <span className="text-xs md:text-sm font-black text-white italic mt-0.5">#{orderData.id}</span>
               </div>
-              <div>
-                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">Toplam Tutar</span>
-                <span className="text-sm font-black text-blue-500">{orderData.total} {orderData.currency}</span>
+              <div className="flex flex-col items-center sm:items-start">
+                <span className="text-[8px] md:text-[9px] font-black text-slate-500 uppercase tracking-widest block">Toplam Tutar</span>
+                <span className="text-xs md:text-sm font-black text-blue-500 mt-0.5">{orderData.total} {orderData.currency}</span>
               </div>
-              <div>
-                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">Mevcut Durum</span>
-                <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase border block mt-0.5 ${getTrackingStep(orderData.status).color}`}>
+              <div className="flex flex-col items-center sm:items-start justify-center">
+                <span className="text-[8px] md:text-[9px] font-black text-slate-500 uppercase tracking-widest block">Mevcut Durum</span>
+                <span className={`px-2 md:px-3 py-1 rounded-lg text-[8px] md:text-[10px] font-black uppercase border block mt-1 ${getTrackingStep(orderData.status).color}`}>
                   {getTrackingStep(orderData.status).text}
                 </span>
               </div>
             </div>
 
-            {/* NEON GÖRSEL ZAMAN ÇİZELGESİ */}
+            {/* 🚀 TELEFONDA DA YAZILARI GÖSTEREN NEON ZAMAN ÇİZELGESİ */}
             {orderData.status !== "cancelled" && (
-              <div className="py-4 px-2">
+              <div className="py-4 px-1">
                 <div className="relative flex items-center justify-between w-full">
-                  <div className="absolute left-0 right-0 h-0.5 bg-white/5 z-0"></div>
+                  <div className="absolute left-2 right-2 h-0.5 bg-white/5 z-0"></div>
                   <div 
-                    className="absolute left-0 h-0.5 bg-blue-500 shadow-[0_0_10px_#3b82f6] z-0 transition-all duration-500"
+                    className="absolute left-2 h-0.5 bg-blue-500 shadow-[0_0_10px_#3b82f6] z-0 transition-all duration-500"
                     style={{ width: `${((getTrackingStep(orderData.status).step - 1) / 3) * 100}%` }}
                   ></div>
 
@@ -144,11 +145,12 @@ export default function OrderTrackingPage() {
                     const labels = ["Alındı", "Hazırlanıyor", "Kargoda", "Teslim Edildi"];
                     
                     return (
-                      <div key={index} className="relative z-10 flex flex-col items-center">
+                      <div key={index} className="relative z-10 flex flex-col items-center w-16 sm:w-20 text-center">
                         <div className={`w-6 h-6 rounded-full border flex items-center justify-center text-[10px] font-black transition-all ${isDone ? "bg-blue-600 border-blue-500 text-white shadow-[0_0_15px_#3b82f6]" : "bg-[#050810] border-white/5 text-slate-600"}`}>
                           {isDone ? "✓" : index}
                         </div>
-                        <span className={`text-[9px] font-black uppercase tracking-wider mt-2 hidden sm:block ${isDone ? "text-white" : "text-slate-600"}`}>
+                        {/* 🚀 GİZLEME KALDIRILDI: Telefonda da mikro boyutta okunaklı başlık */}
+                        <span className={`text-[7px] sm:text-[9px] font-black uppercase tracking-wider mt-2.5 text-center block leading-tight ${isDone ? "text-white" : "text-slate-600"}`}>
                           {labels[index - 1]}
                         </span>
                       </div>
@@ -159,12 +161,12 @@ export default function OrderTrackingPage() {
             )}
 
             {/* PAKETTEKİ DONANIMLAR */}
-            <div className="p-6 bg-[#050810] border border-white/5 rounded-2xl space-y-3">
-              <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5 pb-2">Paketteki Donanımlar</div>
+            <div className="p-4 md:p-6 bg-[#050810] border border-white/5 rounded-2xl space-y-3">
+              <div className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5 pb-2">Paketteki Donanımlar</div>
               {orderData.line_items?.map((item: any) => (
                 <div key={item.id} className="flex justify-between items-center text-xs py-1">
-                  <div className="text-white font-bold uppercase">{item.name} <span className="text-blue-500 font-black ml-1">x{item.quantity}</span></div>
-                  <div className="text-slate-400 font-black">{item.total} TL</div>
+                  <div className="text-white font-bold uppercase text-[11px] md:text-xs">{item.name} <span className="text-blue-500 font-black ml-1">x{item.quantity}</span></div>
+                  <div className="text-slate-400 font-black text-[11px] md:text-xs">{item.total} TL</div>
                 </div>
               ))}
             </div>
