@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
-    // 🚀 ŞEFİM: Artık şifreli token doğrulamasıyla uğraşmıyor, ID'yi direkt ön yüzden alıyoruz!
     const { userId, type, address } = await request.json();
     
     if (!userId) {
@@ -13,7 +12,6 @@ export async function POST(request: Request) {
     const CK = "ck_6ef66adad9ec356716cc40a803f4669e4c30006b";
     const CS = "cs_95b1791dad078934610a39930ac3e49da04a6efc";
 
-    // Adres paketini WooCommerce formatında hazırla
     const updateBody: any = {};
     if (type === "billing") {
       updateBody.billing = {
@@ -36,7 +34,7 @@ export async function POST(request: Request) {
       };
     }
 
-    // Doğrudan bilinen ID üzerinden WooCommerce veritabanına PUT vitesiyle yazıyoruz
+    // Doğrudan netleşen ID üzerinden WooCommerce'e PUT komutu fırlatıyoruz
     const res = await fetch(`${SITE_URL}/wp-json/wc/v3/customers/${userId}?consumer_key=${CK}&consumer_secret=${CS}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
