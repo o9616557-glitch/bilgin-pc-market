@@ -102,7 +102,8 @@ export default function CartAndCheckoutPage() {
     // 🚀 EĞER KREDİ KARTI SEÇİLMİŞSE, İYZİCO MOTORUNU UYANDIR!
     if (paymentMethod === "credit_card") {
       try {
-        const res = await fetch("/api/iyzico-baslat", {
+        // 🚀 Klasik motorun tam adresi:
+const res = await fetch("/api/iyzico-baslat", {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
             cart, 
