@@ -75,12 +75,6 @@ export default function MyAccountPage() {
     }
   }, [editMode, customerData]);
 
-  const handleLogOut = () => {
-    localStorage.removeItem("user_token");
-    localStorage.removeItem("user_display_name");
-    router.push("/giris");
-  };
-
   // GERÇEK ADRES KAYDETME MOTORU
   const handleAddressSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -162,7 +156,7 @@ export default function MyAccountPage() {
   return (
     <div className="min-h-[calc(100vh-80px)] bg-[#050810] text-white py-10 px-4 font-sans relative overflow-hidden">
       
-      {/* PREMIUM TOAST BİLDİRİM PENCERESİ */}
+      {/* TOAST BİLDİRİM PENCERESİ */}
       {toastMessage && (
         <div className="fixed top-24 right-4 z-[9999] bg-[#0b1120] border border-emerald-500/30 text-emerald-400 font-black uppercase text-[11px] tracking-wider px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3">
           <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]"></div>
@@ -172,7 +166,7 @@ export default function MyAccountPage() {
 
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8 relative z-10">
         
-        {/* SOL MENU */}
+        {/* SOL MENU (GÜVENLİ ÇIKIŞ TAMAMEN KALDIRILDI ŞEFİM) */}
         <div className="lg:col-span-1 space-y-4">
           <div className="bg-[#0b1120] border border-white/5 p-6 rounded-3xl text-center shadow-xl">
             <div className="w-16 h-16 bg-blue-600/10 border border-blue-500/30 text-blue-500 rounded-full flex items-center justify-center mx-auto text-2xl font-black shadow-[0_0_20px_rgba(37,99,235,0.15)] uppercase">
@@ -189,22 +183,19 @@ export default function MyAccountPage() {
             <button onClick={() => { setActiveTab("addresses"); }} className={`w-full text-left px-5 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all ${activeTab === "addresses" ? "bg-blue-600 text-white shadow-lg" : "text-slate-400 hover:bg-white/5"}`}>
               Adres Bilgilerim
             </button>
-            <button onClick={handleLogOut} className="w-full text-left px-5 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider text-amber-500 hover:bg-amber-500/10 transition-all">
-              <span>Güvenli Çıkış</span>
-            </button>
           </div>
         </div>
 
         {/* SAĞ PANEL */}
         <div className="lg:col-span-3">
           
-          {/* SİPARİŞLERİM */}
+          {/* SİPARİŞLERİM (İTALYAN YAZILAR TEMİZLENDİ) */}
           {activeTab === "orders" && (
             <div className="bg-[#0b1120] border border-white/5 p-6 md:p-8 rounded-3xl shadow-xl space-y-6">
-              <h1 className="text-xl font-black uppercase italic tracking-wide border-b border-white/5 pb-4">Sipariş Geçmişi</h1>
+              <h1 className="text-xl font-black uppercase tracking-wide border-b border-white/5 pb-4">Sipariş Geçmişi</h1>
               <div className="space-y-4">
                 {orders.length === 0 ? (
-                  <div className="text-center py-10 text-slate-500 text-xs uppercase font-bold tracking-widest italic">Henüz hiç siparişiniz bulunmuyor şefim.</div>
+                  <div className="text-center py-10 text-slate-500 text-xs uppercase font-bold tracking-widest">Henüz hiç siparişiniz bulunmuyor şefim.</div>
                 ) : (
                   orders.map((order) => {
                     const statusMeta = getStatusMeta(order.status);
@@ -213,7 +204,7 @@ export default function MyAccountPage() {
                       <div key={order.id} className="bg-[#050810] border border-white/5 rounded-2xl overflow-hidden transition-all hover:border-white/10">
                         <div className="p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                           <div className="flex items-center gap-6">
-                            <div className="p-3 bg-white/5 rounded-xl text-white font-black text-xs italic">#{order.id}</div>
+                            <div className="p-3 bg-white/5 rounded-xl text-white font-black text-xs">#{order.id}</div>
                             <div>
                               <div className="text-white text-xs font-black uppercase">{order.total} {order.currency}</div>
                               <div className="text-slate-500 text-[10px] font-medium mt-0.5">{new Date(order.date_created).toLocaleDateString('tr-TR')}</div>
@@ -245,12 +236,12 @@ export default function MyAccountPage() {
             </div>
           )}
 
-          {/* ADRESLERİM */}
+          {/* ADRESLERİM (İTALYAN YAZILAR TEMİZLENDİ) */}
           {activeTab === "addresses" && (
             <div className="bg-[#0b1120] border border-white/5 p-6 md:p-8 rounded-3xl shadow-xl space-y-6">
               {editMode === null ? (
                 <>
-                  <h1 className="text-xl font-black uppercase italic tracking-wide border-b border-white/5 pb-4">Adres Kayıtları</h1>
+                  <h1 className="text-xl font-black uppercase tracking-wide border-b border-white/5 pb-4">Adres Kayıtları</h1>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* FATURA */}
                     <div className="p-6 bg-[#050810] border border-white/5 rounded-2xl flex flex-col justify-between min-h-[220px]">
@@ -263,10 +254,10 @@ export default function MyAccountPage() {
                             <p className="text-slate-500 text-[10px] font-bold mt-1 uppercase">{customerData.billing.state} / {customerData.billing.city}</p>
                           </>
                         ) : (
-                          <p className="text-slate-500 text-xs font-bold italic uppercase pt-4">Adres bilgisi girilmemiş.</p>
+                          <p className="text-slate-500 text-xs font-bold uppercase pt-4">Adres bilgisi girilmemiş.</p>
                         )}
                       </div>
-                      <button onClick={() => setEditMode("billing")} className="mt-6 w-full py-2.5 bg-white/5 border border-white/5 text-slate-400 text-[10px] font-black uppercase rounded-xl transition-all">Adresi Düzenle</button>
+                      <button onClick={() => setEditMode("billing")} className="mt-6 w-full py-2.5 bg-white/5 border border-white/5 text-slate-400 text-[10px] font-black uppercase rounded-xl transition-all hover:border-blue-500/30 hover:text-blue-400">Adresi Düzenle</button>
                     </div>
                     {/* TESLİMAT */}
                     <div className="p-6 bg-[#050810] border border-white/5 rounded-2xl flex flex-col justify-between min-h-[220px]">
@@ -279,55 +270,52 @@ export default function MyAccountPage() {
                             <p className="text-slate-500 text-[10px] font-bold mt-1 uppercase">{customerData.shipping.state} / {customerData.shipping.city}</p>
                           </>
                         ) : (
-                          <p className="text-slate-500 text-xs font-bold italic uppercase pt-4">Adres bilgisi girilmemiş.</p>
+                          <p className="text-slate-500 text-xs font-bold uppercase pt-4">Adres bilgisi girilmemiş.</p>
                         )}
                       </div>
-                      <button onClick={() => setEditMode("shipping")} className="mt-6 w-full py-2.5 bg-white/5 border border-white/5 text-slate-400 text-[10px] font-black uppercase rounded-xl transition-all">Adresi Düzenle</button>
+                      <button onClick={() => setEditMode("shipping")} className="mt-6 w-full py-2.5 bg-white/5 border border-white/5 text-slate-400 text-[10px] font-black uppercase rounded-xl transition-all hover:border-emerald-500/30 hover:text-emerald-400">Adresi Düzenle</button>
                     </div>
                   </div>
                 </>
               ) : (
-                /* 🚀 DÜZENLEME FORMU - SABİT BAŞLIKLAR (LABELS) EKLENDİ ŞEFİM */
+                /* DÜZENLEME FORMU (PLACEHOLDERLAR SADELEŞTİRİLDİ) */
                 <div className="animate-in slide-in-from-bottom-4 duration-300">
                   <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-6">
-                    <h1 className="text-xl font-black uppercase italic tracking-wide">{editMode === "billing" ? "Fatura Adresini Güncelle" : "Teslimat Adresini Güncelle"}</h1>
+                    <h1 className="text-xl font-black uppercase tracking-wide">{editMode === "billing" ? "Fatura Adresini Güncelle" : "Teslimat Adresini Güncelle"}</h1>
                     <button onClick={() => setEditMode(null)} className="px-3 py-1.5 bg-white/5 text-slate-400 text-[10px] font-black uppercase rounded-lg hover:text-white transition-all">İptal Et</button>
                   </div>
                   
                   <form onSubmit={handleAddressSubmit} className="space-y-5">
                     
-                    {/* AD VE SOYAD ALANI */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Adınız</label>
-                        <input type="text" value={addressForm.firstName} onChange={(e) => setAddressForm({...addressForm, firstName: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all" placeholder="Örn: Özkan" required />
+                        <input type="text" value={addressForm.firstName} onChange={(e) => setAddressForm({...addressForm, firstName: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all" placeholder="" required />
                       </div>
                       <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Soyadınız</label>
-                        <input type="text" value={addressForm.lastName} onChange={(e) => setAddressForm({...addressForm, lastName: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all" placeholder="Örn: Bilgin" required />
+                        <input type="text" value={addressForm.lastName} onChange={(e) => setAddressForm({...addressForm, lastName: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all" placeholder="" required />
                       </div>
                     </div>
 
-                    {/* TELEFON, ŞEHİR VE İLÇE ALANI */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Telefon Numarası</label>
-                        <input type="text" value={addressForm.phone} onChange={(e) => setAddressForm({...addressForm, phone: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all" placeholder="+90532..." />
+                        <input type="text" value={addressForm.phone} onChange={(e) => setAddressForm({...addressForm, phone: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all" placeholder="" />
                       </div>
                       <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Şehir</label>
-                        <input type="text" value={addressForm.city} onChange={(e) => setAddressForm({...addressForm, city: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all" placeholder="Örn: İstanbul" required />
+                        <input type="text" value={addressForm.city} onChange={(e) => setAddressForm({...addressForm, city: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all" placeholder="" required />
                       </div>
                       <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">İlçe</label>
-                        <input type="text" value={addressForm.district} onChange={(e) => setAddressForm({...addressForm, district: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all" placeholder="Örn: Kadıköy" required />
+                        <input type="text" value={addressForm.district} onChange={(e) => setAddressForm({...addressForm, district: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all" placeholder="" required />
                       </div>
                     </div>
 
-                    {/* AÇIK ADRES ALANI */}
                     <div className="space-y-2">
                       <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Açık Adres</label>
-                      <textarea rows={3} value={addressForm.fullAddress} onChange={(e) => setAddressForm({...addressForm, fullAddress: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all resize-none" placeholder="Mahalle, Cadde, Sokak, Kapı No..." required />
+                      <textarea rows={3} value={addressForm.fullAddress} onChange={(e) => setAddressForm({...addressForm, fullAddress: e.target.value})} className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs focus:outline-none focus:border-blue-500/30 transition-all resize-none" placeholder="" required />
                     </div>
 
                     <button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase text-xs py-4 rounded-xl transition-all shadow-lg shadow-blue-500/10">
