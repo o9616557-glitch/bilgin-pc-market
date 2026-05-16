@@ -1,14 +1,23 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 
 export default function OrderTrackingPage() {
   const [orderId, setOrderId] = useState("");
   const [email, setEmail] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // 🚀 Giriş durumu radarı
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [orderData, setOrderData] = useState<any>(null);
+
+  // Sayfa açıldığında tarayıcıda aktif oturum var mı kontrol et
+  useEffect(() => {
+    const token = localStorage.getItem("user_token");
+    if (token) {
+      setIsLoggedIn(true);
+    }
+  }, []);
 
   const handleTrack = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,19 +25,26 @@ export default function OrderTrackingPage() {
     setError("");
     setOrderData(null);
 
+    const token = localStorage.getItem("user_token");
+
     try {
       const res = await fetch("/api/siparis-takip", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId, email }),
+        body: JSON.stringify({ 
+          orderId, 
+          // 🚀 Giriş yapıldıysa e-postaya gerek yok, token fırlatıyoruz!
+          email: isLoggedIn ? undefined : email,
+          token: isLoggedIn ? token : undefined
+        }),
       });
       const data = await res.json();
 
-      if (res.ok) {
-        setOrderData(data.order);
-      } else {
-        setError(data.error || "Sipariş bilgileri getirilemedi.");
-      }
+          if (res.ok) {
+            setOrderData(data.order);
+          } else {
+            setError(data.error || "Sipariş bilgileri getirilemedi.");
+          }
     } catch (err) {
       setError("Bağlantı hatası oluştu. Lütfen tekrar deneyin.");
     } finally {
@@ -59,7 +75,7 @@ export default function OrderTrackingPage() {
           </div>
         )}
 
-        {/* BAŞLIK VE LOGO ALANI */}
+        {/* BAŞLIK VE LOGO */}
         <div className="text-center mb-6 md:mb-8">
           <Link href="/" className="inline-block text-3xl md:text-4xl font-black italic tracking-tighter uppercase text-white hover:text-blue-500 transition-colors">
             BİLGİN<span className="text-blue-500 not-italic">PC</span>
@@ -77,6 +93,8 @@ export default function OrderTrackingPage() {
         {/* SORGULAMA FORMU */}
         {!orderData && (
           <form onSubmit={handleTrack} className="space-y-5 max-w-md mx-auto">
+            
+            {/* SİPARİŞ NUMARASI KUTUSU */}
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Sipariş Numarası</label>
               <input 
@@ -85,21 +103,29 @@ export default function OrderTrackingPage() {
                 value={orderId} 
                 onChange={(e) => setOrderId(e.target.value)} 
                 placeholder="Örn: 4592" 
-                className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs font-medium focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-slate-800" 
+                className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs font-medium focus:outline-none focus:border-blue-500/50 transition-all" 
               />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Fatura E-Posta Adresi</label>
-              <input 
-                type="email" 
-                required 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                placeholder="posta@adresiniz.com" 
-                className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs font-medium focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-slate-800" 
-              />
-            </div>
+            {/* 🚀 E-POSTA KUTUSU: SADECE GİRİŞ YAPMAYANLARA GÖSTERİLİR */}
+            {!isLoggedIn ? (
+              <div className="space-y-1.5 animate-in fade-in duration-300">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Fatura E-Posta Adresi</label>
+                <input 
+                  type="email" 
+                  required={!isLoggedIn} 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  placeholder="posta@adresiniz.com" 
+                  className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs font-medium focus:outline-none focus:border-blue-500/50 transition-all" 
+                />
+              </div>
+            ) : (
+              /* 🚀 GİRİŞ YAPANLAR İÇİN PREMIUM ROZET */
+              <div className="text-center text-slate-400 text-[10px] font-black uppercase tracking-wider bg-blue-500/5 border border-blue-500/10 p-3.5 rounded-xl animate-in zoom-in-95 duration-300">
+                Premium Oturum Aktif. E-posta yazmanıza gerek kalmadı şefim! ✓
+              </div>
+            )}
 
             <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(37,99,235,0.2)]">
               Siparişi Sorgula
@@ -111,7 +137,6 @@ export default function OrderTrackingPage() {
         {orderData && (
           <div className="space-y-6 md:space-y-8 animate-in fade-in duration-300">
             
-            {/* 🚀 TELEFONDA YAPIŞMAYI ÖNLEYEN 3'LÜ MOBİL GRİD SİSTEMİ */}
             <div className="p-4 md:p-5 bg-[#050810] border border-white/5 rounded-2xl grid grid-cols-3 gap-2 text-center sm:flex sm:flex-row sm:justify-between sm:items-center sm:text-left">
               <div className="flex flex-col items-center sm:items-start">
                 <span className="text-[8px] md:text-[9px] font-black text-slate-500 uppercase tracking-widest block">Sipariş No</span>
@@ -129,7 +154,7 @@ export default function OrderTrackingPage() {
               </div>
             </div>
 
-            {/* 🚀 TELEFONDA DA YAZILARI GÖSTEREN NEON ZAMAN ÇİZELGESİ */}
+            {/* NEON ZAMAN ÇİZELGESİ */}
             {orderData.status !== "cancelled" && (
               <div className="py-4 px-1">
                 <div className="relative flex items-center justify-between w-full">
@@ -149,7 +174,6 @@ export default function OrderTrackingPage() {
                         <div className={`w-6 h-6 rounded-full border flex items-center justify-center text-[10px] font-black transition-all ${isDone ? "bg-blue-600 border-blue-500 text-white shadow-[0_0_15px_#3b82f6]" : "bg-[#050810] border-white/5 text-slate-600"}`}>
                           {isDone ? "✓" : index}
                         </div>
-                        {/* 🚀 GİZLEME KALDIRILDI: Telefonda da mikro boyutta okunaklı başlık */}
                         <span className={`text-[7px] sm:text-[9px] font-black uppercase tracking-wider mt-2.5 text-center block leading-tight ${isDone ? "text-white" : "text-slate-600"}`}>
                           {labels[index - 1]}
                         </span>
