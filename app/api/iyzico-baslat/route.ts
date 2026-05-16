@@ -3,102 +3,86 @@ import { NextResponse } from 'next/server';
 // @ts-ignore
 import Iyzipay from 'iyzipay';
 
-// 🚀 İŞTE VERCEL'İ DİZE GETİREN O SİHİRLİ KOMUTLAR!
-// Turbopack'e "Bu dosyaya dokunma, klasik Node.js motoruyla çalıştır" emrini verir.
 export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
 
-export async function POST(request: Request) {
+export async function POST() {
   try {
-    const body = await request.json();
-    const { totalAmount } = body;
-
     const apiKey = process.env.IYZICO_API_KEY || "";
     const secretKey = process.env.IYZICO_SECRET_KEY || "";
-
-    if (!apiKey || !secretKey) {
-      return NextResponse.json({ success: false, error: "API Şifreleri Vercel'de eksik!" }, { status: 400 });
-    }
-
-    const isSandbox = apiKey.startsWith("sandbox-");
-    const siteBaseUrl = request.headers.get('origin') || "https://bilginpcmarket.com";
-    
-    // Fiyatı string formatında sabitliyoruz
-    const formattedPrice = Number(totalAmount).toFixed(1);
 
     const iyzipay = new Iyzipay({
       apiKey: apiKey,
       secretKey: secretKey,
-      uri: isSandbox ? "https://sandbox-api.iyzipay.com" : "https://api.iyzipay.com"
+      uri: apiKey.startsWith("sandbox-") ? "https://sandbox-api.iyzipay.com" : "https://api.iyzipay.com"
     });
 
+    // 🚀 DİKKAT: İyzico'nun Kendi Resmi Test Verisi! 
+    // Sepetini vs. her şeyi yok saydık, direkt 1 TL'lik test paketi yolluyoruz.
     const requestData = {
       locale: Iyzipay.LOCALE.TR,
-      conversationId: Math.floor(Math.random() * 100000000).toString(),
-      price: formattedPrice,
-      paidPrice: formattedPrice,
+      conversationId: "123456789",
+      price: "1.0",
+      paidPrice: "1.0",
       currency: Iyzipay.CURRENCY.TRY,
-      basketId: "B" + Math.floor(Math.random() * 100000),
+      basketId: "B67832",
       paymentGroup: Iyzipay.PAYMENT_GROUP.PRODUCT,
-      callbackUrl: `${siteBaseUrl}/api/iyzico-sonuc`,
+      callbackUrl: "https://bilginpcmarket.com/api/iyzico-sonuc",
       enabledInstallments: [2, 3, 6, 9, 12],
       buyer: {
         id: "BY789",
-        name: "Ahmet",
-        surname: "Yilmaz",
-        gsmNumber: "+905555555555",
-        email: "test@gmail.com",
-        identityNumber: "11111111111",
-        lastLoginDate: "2026-01-01 12:00:00",
-        registrationDate: "2026-01-01 12:00:00",
-        registrationAddress: "Moda Caddesi No:5",
+        name: "John",
+        surname: "Doe",
+        gsmNumber: "+905350000000",
+        email: "email@email.com",
+        identityNumber: "74300864791",
+        lastLoginDate: "2015-10-05 12:43:35",
+        registrationDate: "2013-04-21 15:12:09",
+        registrationAddress: "Nidakule Göztepe, Merdivenköy Mah. Bora Sok. No:1",
         ip: "85.34.78.112",
         city: "Istanbul",
         country: "Turkey",
         zipCode: "34732"
       },
       shippingAddress: {
-        contactName: "Ahmet Yilmaz",
+        contactName: "Jane Doe",
         city: "Istanbul",
         country: "Turkey",
-        address: "Moda Caddesi No:5",
+        address: "Nidakule Göztepe, Merdivenköy Mah. Bora Sok. No:1",
         zipCode: "34732"
       },
       billingAddress: {
-        contactName: "Ahmet Yilmaz",
+        contactName: "Jane Doe",
         city: "Istanbul",
         country: "Turkey",
-        address: "Moda Caddesi No:5",
+        address: "Nidakule Göztepe, Merdivenköy Mah. Bora Sok. No:1",
         zipCode: "34732"
       },
-      // 🚀 MATEMATİK HATASINI ENGELLEYEN TEK PARÇA SEPET
       basketItems: [
         {
-          id: "SEPET-100",
-          name: "Bilgin PC Market Sepet Tutari",
-          category1: "Donanim",
+          id: "BI101",
+          name: "Binocular",
+          category1: "Collectibles",
+          category2: "Accessories",
           itemType: Iyzipay.BASKET_ITEM_TYPE.PHYSICAL,
-          price: formattedPrice // Toplam tutarla birebir aynı fiyata sahip tek ürün!
+          price: "1.0"
         }
       ]
     };
 
     return new Promise((resolve) => {
       iyzipay.checkoutFormInitialize.create(requestData, (err: any, result: any) => {
-        if (err) {
-          resolve(NextResponse.json({ success: false, error: "İyzico sunucusuna ulaşılamadı." }, { status: 500 }));
-        } else if (result.status === "success") {
+        if (result && result.status === "success") {
           resolve(NextResponse.json({ success: true, formContent: result.checkoutFormContent }));
         } else {
           resolve(NextResponse.json({ 
             success: false, 
-            error: `İYZİCO REDDETTİ: ${result.errorMessage} (Hata Kodu: ${result.errorCode})` 
+            error: `İYZİCO REDDETTİ: ${result?.errorMessage} (Hata Kodu: ${result?.errorCode})` 
           }, { status: 400 }));
         }
       });
     });
 
   } catch (error) {
-    return NextResponse.json({ success: false, error: "Sunucu hatası: " + (error as Error).message }, { status: 500 });
+    return NextResponse.json({ success: false, error: "Sunucu hatası oluştu." }, { status: 500 });
   }
 }
