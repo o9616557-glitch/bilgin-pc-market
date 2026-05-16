@@ -6,12 +6,11 @@ import Link from "next/link";
 export default function OrderTrackingPage() {
   const [orderId, setOrderId] = useState("");
   const [email, setEmail] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // 🚀 Giriş durumu radarı
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [orderData, setOrderData] = useState<any>(null);
 
-  // Sayfa açıldığında tarayıcıda aktif oturum var mı kontrol et
   useEffect(() => {
     const token = localStorage.getItem("user_token");
     if (token) {
@@ -33,18 +32,17 @@ export default function OrderTrackingPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           orderId, 
-          // 🚀 Giriş yapıldıysa e-postaya gerek yok, token fırlatıyoruz!
           email: isLoggedIn ? undefined : email,
           token: isLoggedIn ? token : undefined
         }),
       });
       const data = await res.json();
 
-          if (res.ok) {
-            setOrderData(data.order);
-          } else {
-            setError(data.error || "Sipariş bilgileri getirilemedi.");
-          }
+      if (res.ok) {
+        setOrderData(data.order);
+      } else {
+        setError(data.error || "Sipariş bilgileri getirilemedi.");
+      }
     } catch (err) {
       setError("Bağlantı hatası oluştu. Lütfen tekrar deneyin.");
     } finally {
@@ -93,37 +91,20 @@ export default function OrderTrackingPage() {
         {/* SORGULAMA FORMU */}
         {!orderData && (
           <form onSubmit={handleTrack} className="space-y-5 max-w-md mx-auto">
-            
-            {/* SİPARİŞ NUMARASI KUTUSU */}
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Sipariş Numarası</label>
-              <input 
-                type="text" 
-                required 
-                value={orderId} 
-                onChange={(e) => setOrderId(e.target.value)} 
-                placeholder="Örn: 4592" 
-                className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs font-medium focus:outline-none focus:border-blue-500/50 transition-all" 
-              />
+              <input type="text" required value={orderId} onChange={(e) => setOrderId(e.target.value)} placeholder="Örn: 4592" className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs font-medium focus:outline-none focus:border-blue-500/50 transition-all" />
             </div>
 
-            {/* 🚀 E-POSTA KUTUSU: SADECE GİRİŞ YAPMAYANLARA GÖSTERİLİR */}
+            {/* 🚀 ARTIK TERTEMİZ KURUMSAL METİN */}
             {!isLoggedIn ? (
               <div className="space-y-1.5 animate-in fade-in duration-300">
                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Fatura E-Posta Adresi</label>
-                <input 
-                  type="email" 
-                  required={!isLoggedIn} 
-                  value={email} 
-                  onChange={(e) => setEmail(e.target.value)} 
-                  placeholder="posta@adresiniz.com" 
-                  className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs font-medium focus:outline-none focus:border-blue-500/50 transition-all" 
-                />
+                <input type="email" required={!isLoggedIn} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="posta@adresiniz.com" className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white text-xs font-medium focus:outline-none focus:border-blue-500/50 transition-all" />
               </div>
             ) : (
-              /* 🚀 GİRİŞ YAPANLAR İÇİN PREMIUM ROZET */
               <div className="text-center text-slate-400 text-[10px] font-black uppercase tracking-wider bg-blue-500/5 border border-blue-500/10 p-3.5 rounded-xl animate-in zoom-in-95 duration-300">
-                Premium Oturum Aktif. E-posta yazmanıza gerek kalmadı şefim! ✓
+                Oturumunuz aktif olduğu için e-posta adresi girmenize gerek yoktur. ✓
               </div>
             )}
 
@@ -136,7 +117,6 @@ export default function OrderTrackingPage() {
         {/* CANLI SİPARİŞ SONUÇ PANELİ */}
         {orderData && (
           <div className="space-y-6 md:space-y-8 animate-in fade-in duration-300">
-            
             <div className="p-4 md:p-5 bg-[#050810] border border-white/5 rounded-2xl grid grid-cols-3 gap-2 text-center sm:flex sm:flex-row sm:justify-between sm:items-center sm:text-left">
               <div className="flex flex-col items-center sm:items-start">
                 <span className="text-[8px] md:text-[9px] font-black text-slate-500 uppercase tracking-widest block">Sipariş No</span>
@@ -159,10 +139,7 @@ export default function OrderTrackingPage() {
               <div className="py-4 px-1">
                 <div className="relative flex items-center justify-between w-full">
                   <div className="absolute left-2 right-2 h-0.5 bg-white/5 z-0"></div>
-                  <div 
-                    className="absolute left-2 h-0.5 bg-blue-500 shadow-[0_0_10px_#3b82f6] z-0 transition-all duration-500"
-                    style={{ width: `${((getTrackingStep(orderData.status).step - 1) / 3) * 100}%` }}
-                  ></div>
+                  <div className="absolute left-2 h-0.5 bg-blue-500 shadow-[0_0_10px_#3b82f6] z-0 transition-all duration-500" style={{ width: `${((getTrackingStep(orderData.status).step - 1) / 3) * 100}%` }}></div>
 
                   {[1, 2, 3, 4].map((index) => {
                     const currentStep = getTrackingStep(orderData.status).step;
@@ -195,10 +172,7 @@ export default function OrderTrackingPage() {
               ))}
             </div>
 
-            <button 
-              onClick={() => setOrderData(null)}
-              className="w-full py-3.5 bg-white/5 border border-white/5 hover:border-white/10 text-slate-400 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
-            >
+            <button onClick={() => setOrderData(null)} className="w-full py-3.5 bg-white/5 border border-white/5 text-slate-400 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
               Başka Bir Sipariş Sorgula
             </button>
           </div>
