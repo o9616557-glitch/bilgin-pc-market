@@ -66,12 +66,12 @@ export default function ProductGrid({ initialProducts }: { initialProducts: any[
               </div>
 
               <div className="pt-3 border-t border-white/5 space-y-3">
-                {/* 🚀 FİYAT ALANI TERTEMİZ OLDU VE RENGİ GÜNCELLENDİ */}
+                {/* 🚀 TL YAZISI DA ARTIK SAF BEYAZ (text-white) ŞEFİM! */}
                 <div className="flex items-end gap-1">
                   <span className="text-xs md:text-sm font-black text-white tracking-wide">
                     {product.price}
                   </span>
-                  <span className="text-[9px] md:text-[10px] font-bold text-blue-500 mb-[1px]">TL</span>
+                  <span className="text-[10px] font-black text-white mb-[1px]">TL</span>
                 </div>
                 
                 <button 

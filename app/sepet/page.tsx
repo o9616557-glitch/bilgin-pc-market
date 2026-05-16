@@ -18,7 +18,7 @@ export default function CartAndCheckoutPage() {
   const [createdOrderId, setCreatedOrderId] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("bacs");
+  const [paymentMethod, setPaymentMethod] = useState("bacs"); // bacs = havale, credit_card = kredi kartı
   const [checkoutForm, setCheckoutForm] = useState({
     firstName: "", lastName: "", email: "", phone: "", city: "", district: "", fullAddress: ""
   });
@@ -68,10 +68,17 @@ export default function CartAndCheckoutPage() {
     window.dispatchEvent(new Event("cart_updated"));
   };
 
+  // 🚀 SIFIRLARI YUTMAYAN YENİ NOKTA-VİRGÜL MATEMATİK TERAZİSİ
   const getCartTotal = () => {
     return cart.reduce((total, item) => {
-      const cleanPrice = parseFloat(item.price.replace(/[^0-9.-]+/g, ""));
-      return total + (isNaN(cleanPrice) ? 0 : cleanPrice * item.quantity);
+      // Fiyattaki nokta, boşluk ve TL yazılarını temizler, saf sayıyı kurtarır
+      const rawPrice = item.price.replace(/[^\d]/g, ""); 
+      const cleanPrice = parseFloat(rawPrice);
+      
+      // Eğer fiyat WooCommerce'den binlik ayracı olmadan geldiyse korur, geldiyse düzeltir
+      const finalPrice = cleanPrice > 1000000 ? cleanPrice / 100 : cleanPrice;
+      
+      return total + (isNaN(finalPrice) ? 0 : finalPrice * item.quantity);
     }, 0);
   };
 
@@ -84,7 +91,13 @@ export default function CartAndCheckoutPage() {
     try {
       const res = await fetch("/api/siparis-olustur", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cart, checkoutForm, paymentMethod, userId: userId || undefined })
+        body: JSON.stringify({ 
+          cart, 
+          checkoutForm, 
+          paymentMethod, 
+          paymentMethodTitle: paymentMethod === "credit_card" ? "Online Kredi Kartı" : "Banka Havalesi / EFT",
+          userId: userId || undefined 
+        })
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -111,7 +124,7 @@ export default function CartAndCheckoutPage() {
           <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-3xl">✓</div>
           <div className="space-y-2">
             <h1 className="text-xl font-black uppercase tracking-wide">Siparişiniz Alındı!</h1>
-            <p className="text-slate-400 text-xs font-medium">Donanım canavarlarınız hazırlanıyor.</p>
+            <p className="text-slate-400 text-xs font-medium">Donanımların hazırlık aşamasına geçildi.</p>
           </div>
           <div className="p-4 bg-[#050810] border border-white/5 rounded-2xl">
             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">Sipariş Numarası</span>
@@ -148,7 +161,6 @@ export default function CartAndCheckoutPage() {
                 <h2 className="text-base font-black uppercase tracking-wide border-b border-white/5 pb-3 mb-4">Alışveriş Sepetiniz</h2>
                 <div className="space-y-4">
                   {cart.map((item) => (
-                    // 🚀 TELEFONDA FERAH ALAN (flex-col sm:flex-row) EKLENDİ
                     <div key={item.id} className="bg-[#050810] border border-white/5 p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 md:gap-6 relative group">
                       
                       <div className="flex items-center gap-4 w-full sm:w-auto pr-6 sm:pr-0">
@@ -158,11 +170,10 @@ export default function CartAndCheckoutPage() {
                         </div>
                         <div>
                           <h3 className="text-white font-bold text-xs uppercase line-clamp-2 tracking-wide pr-2">{item.name}</h3>
-                          <span className="text-blue-500 font-black text-xs block mt-1">{item.price}</span>
+                          <span className="text-blue-500 font-black text-xs block mt-1">{item.price} TL</span>
                         </div>
                       </div>
 
-                      {/* 🚀 ÇÖP KUTUSU ARTIK KÖŞEYE SIKIŞMAYACAK, AYRI BİR SATIRA/HİZAYA OTURACAK */}
                       <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4 pt-3 sm:pt-0 border-t border-white/5 sm:border-none">
                         <div className="flex items-center bg-[#0b1120] border border-white/5 rounded-xl p-1">
                           <button type="button" onClick={() => handleQuantityChange(item.id, -1)} className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white font-bold text-sm">-</button>
@@ -205,8 +216,9 @@ export default function CartAndCheckoutPage() {
                       <button type="button" onClick={() => setPaymentMethod("bacs")} className={`p-4 rounded-xl border text-center transition-all ${paymentMethod === "bacs" ? "bg-blue-600/10 border-blue-500 text-white" : "bg-[#050810] border-white/5 text-slate-400"}`}>
                         <div className="text-[10px] font-black uppercase">Havale / EFT</div>
                       </button>
-                      <button type="button" onClick={() => setPaymentMethod("cod")} className={`p-4 rounded-xl border text-center transition-all ${paymentMethod === "cod" ? "bg-blue-600/10 border-blue-500 text-white" : "bg-[#050810] border-white/5 text-slate-400"}`}>
-                        <div className="text-[10px] font-black uppercase">Kapıda Ödeme</div>
+                      {/* 🚀 KAPIDA ÖDEME KALDIRILDI, YERİNE KREDİ KARTI GELDİ! */}
+                      <button type="button" onClick={() => setPaymentMethod("credit_card")} className={`p-4 rounded-xl border text-center transition-all ${paymentMethod === "credit_card" ? "bg-blue-600/10 border-blue-500 text-white" : "bg-[#050810] border-white/5 text-slate-400"}`}>
+                        <div className="text-[10px] font-black uppercase">Kredi Kartı</div>
                       </button>
                     </div>
                   </div>
@@ -214,6 +226,7 @@ export default function CartAndCheckoutPage() {
                   <div className="mt-6 pt-4 border-t border-white/5 space-y-4">
                     <div className="flex justify-between items-center px-1">
                       <span className="text-xs font-black uppercase text-slate-400 tracking-wide">Genel Toplam</span>
+                      {/* 🚀 43 YERİNE ARTIK ASLANLAR GİBİ 43.000 TL BASACAK ALAN: */}
                       <span className="text-lg font-black text-emerald-400 tracking-wide">{getCartTotal().toLocaleString('tr-TR')} TL</span>
                     </div>
                     <button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase text-xs py-4 rounded-xl transition-all">
