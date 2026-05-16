@@ -12,13 +12,15 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // 🚀 TELEFONDA GERİ TUŞUNA BASINCA YÜKLENİYOR EKRANINI KAPATAN SENSÖR
+  // 🚀 HEM GOOGLE HEM FACEBOOK İÇİN VAZGEÇİNCE EKRANI AÇAN ÇİFT SENSÖR
   useEffect(() => {
-    const handlePageShow = (event: PageTransitionEvent) => {
-      if (event.persisted) setIsLoading(false);
+    const resetLoading = () => setIsLoading(false);
+    window.addEventListener("pageshow", resetLoading);
+    window.addEventListener("focus", resetLoading); // Ekran tekrar öne gelince yüklemeyi bitirir
+    return () => {
+      window.removeEventListener("pageshow", resetLoading);
+      window.removeEventListener("focus", resetLoading);
     };
-    window.addEventListener("pageshow", handlePageShow);
-    return () => window.removeEventListener("pageshow", handlePageShow);
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -44,7 +46,7 @@ export default function LoginPage() {
       }
     } catch (err) {
       setError("Dükkan sunucusuna bağlanılamadı. İnternetinizi kontrol edin.");
-    } {
+    } finally {
       setIsLoading(false);
     }
   };
@@ -67,7 +69,6 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* UNIFIED LOGO VE BAŞLIK ALANI */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block text-4xl font-black italic tracking-tighter text-white uppercase">
             BİLGİN<span className="text-blue-500 not-italic">PC</span>
@@ -76,7 +77,12 @@ export default function LoginPage() {
           <h1 className="text-xl font-black text-white uppercase tracking-widest mt-6">Giriş Yap</h1>
         </div>
 
-        {error && <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-[10px] font-bold text-center uppercase tracking-wider">{error}</div>}
+        {/* 🛠️ YENİ RENK: AMBER/TURUNCU VE KÜÇÜK HARF UYUMLU UYARI KUTUSU */}
+        {error && (
+          <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-500 text-xs font-semibold text-center normal-case">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
