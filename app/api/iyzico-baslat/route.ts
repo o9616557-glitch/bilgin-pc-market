@@ -11,17 +11,15 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { cart, checkoutForm, totalAmount } = body;
 
-    // Şifrelerin başındaki ve sonundaki görünmez boşlukları otomatik silen (trim) sistem
     const apiKey = process.env.IYZICO_API_KEY?.trim() || "";
     const secretKey = process.env.IYZICO_SECRET_KEY?.trim() || "";
 
     const iyzipay = new Iyzipay({
       apiKey: apiKey,
       secretKey: secretKey,
-      uri: "https://api.iyzipay.com" // GERÇEK CANLI SATIŞ SUNUCUSU
+      uri: "https://api.iyzipay.com" 
     });
 
-    // Fiyatı tam İyzico'nun istediği gibi formatlıyoruz
     const formattedPrice = Number(totalAmount).toFixed(1);
 
     const requestData = {
@@ -74,7 +72,8 @@ export async function POST(request: Request) {
       ]
     };
 
-    return new Promise((resolve) => {
+    // 🚀 İŞTE VERCEL'İ SUSTURAN KISIM! <NextResponse> etiketi eklendi ve await ile beklendi.
+    const response = await new Promise<NextResponse>((resolve) => {
       iyzipay.checkoutFormInitialize.create(requestData, (err: any, result: any) => {
         if (result && result.status === "success") {
           resolve(NextResponse.json({ success: true, formContent: result.checkoutFormContent }));
@@ -86,6 +85,8 @@ export async function POST(request: Request) {
         }
       });
     });
+
+    return response;
 
   } catch (error) {
     return NextResponse.json({ success: false, error: "Sunucu hatası oluştu." }, { status: 500 });
