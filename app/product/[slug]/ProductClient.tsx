@@ -85,7 +85,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     };
   }, []);
 
-  // 🚀 APİ'DEN VERİLERİ ÇEKİP AYRIŞTIRMA VE CEVAPLARI MUTLAK BAĞLAMA MOTORU
   const fetchReviewsAndQuestions = async () => {
     if (!product || !product.id) return;
     setLoadingReviews(true);
@@ -93,14 +92,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       const response = await fetch(`/api/reviews?product=${product.id}`);
       if (response.ok) {
         const data: Review[] = await response.json();
-        
-        // 1. Kök Yorumlar (Soru etiketi içermeyen ana yorumlar)
         const normalReviews = data.filter(item => Number(item.parent_id) === 0 && !item.review.includes("[SORU]"));
-        
-        // 2. Kök Sorular ([SORU] etiketi barındıran ana sorular)
         const customerQuestions = data.filter(item => Number(item.parent_id) === 0 && item.review.includes("[SORU]"));
-
-        // 3. Admin Cevapları (Kök yorumlara veya sorulara verilmiş tüm alt yanıtlar)
         const adminReplies = data.filter(item => Number(item.parent_id) > 0);
 
         setReviews(normalReviews);
@@ -138,7 +131,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       });
 
       if (!response.ok) throw new Error("Gönderilemedi");
-      
       setReviewSuccessMessage({ type: "success", text: "Yorumunuz panele iletildi şefim! Onayladıktan sonra burada listelenecektir." });
       fetchReviewsAndQuestions();
     } catch (err) {
@@ -175,7 +167,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       });
 
       if (!response.ok) throw new Error("Gönderilemedi");
-
       setQuestionSuccessMessage({ type: "success", text: "Sorunuz başarıyla WordPress panelinize gönderildi! Siz panelden onaylayıp cevap verdiğinizde listelenecektir." });
       fetchReviewsAndQuestions();
     } catch (error) {
@@ -236,8 +227,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const activeMapping = categoryMappings[currentCategoryType] || categoryMappings["ekran-karti"];
   const dynamicCustomSpecs = Object.entries(activeMapping).map(([key, label]) => ({ label, value: product.meta_data?.find((m: any) => m.key === key)?.value || product.acf?.[key] })).filter(spec => spec.value);
   
-  // 🚀 TEKNİK ÖZELLİK KIRPMASINI İPTAL ETTİK: Özel alan yoksa sistemdeki tüm fabrikasyon nitelikleri çeker!
-  const finalTechSpecs = dynamicCustomSpecs.length > 0 ? dynamicCustomSpecs : (product.attributes?.map((attr: any) => ({ label: attr.name, value: attr.options?.join(', ') })) || []);
+  const attrSpecs = product.attributes?.map((attr: any) => ({ label: attr.name, value: attr.options?.join(', ') })) || [];
+  const allSpecsMap = new Map();
+  attrSpecs.forEach(s => allSpecsMap.set(s.label.toLowerCase(), s));
+  dynamicCustomSpecs.forEach(s => allSpecsMap.set(s.label.toLowerCase(), s));
+  const finalTechSpecs = Array.from(allSpecsMap.values());
   
   const compareOptions = allProducts.filter((p: any) => p.id !== product.id);
   const filteredOptions = compareOptions.filter((item: any) => item.name?.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -260,36 +254,25 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 p-4 sm:p-8 rounded-xl shadow-lg relative z-10">
           
-          {/* GÖRSEL ALANI VE ABSOLUTE OK HİZALAMA LABORATUVARI */}
+          {/* GÖRSEL ALANI */}
           <div className="flex flex-col gap-4 relative group">
             <div className="w-full bg-transparent p-0 sm:p-6 rounded-md overflow-hidden aspect-square relative flex items-center justify-center cursor-pointer">
-              
-              {/* 🚀 FAVORİ BUTONU GÖRSELİN SAĞ ÜSTÜNE YERLEŞTİRİLDİ */}
-              <button onClick={() => setIsFav(!isFav)} className="absolute top-3 right-3 z-30 w-9 h-9 rounded-full bg-[#050814]/80 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-lg transition-transform active:scale-75">
-                <span className={`text-lg transition-colors ${isFav ? "text-red-500" : "text-slate-400"}`}>❤️</span>
-              </button>
-
               {galleryImages.map((img: any, index: number) => (
                 <PhotoView key={index} src={img.src}>
                   <img src={img.src} alt={product.name} className={`max-h-full max-w-full object-contain transform group-hover:scale-[1.02] transition-transform duration-500 ${activeImageIndex === index ? "block" : "hidden"}`} />
                 </PhotoView>
               ))}
-
-              {/* 🚀 OK HİZALAMA OPERASYONU: Oklar artık tam dikey ortalı ve görselin iç yanlarında patlıyor */}
-              {hasMultipleImages && (
-                <>
-                  <button onClick={prevImage} className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-md bg-[#050814]/70 backdrop-blur-sm border border-white/10 flex items-center justify-center text-slate-300 hover:text-white hover:bg-blue-600 transition-all">←</button>
-                  <button onClick={nextImage} className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-md bg-[#050814]/70 backdrop-blur-sm border border-white/10 flex items-center justify-center text-slate-300 hover:text-white hover:bg-blue-600 transition-all">→</button>
-                </>
-              )}
             </div>
 
-            {/* Sadece çoklu görsel varsa alt nokta navigasyonu açılır */}
             {hasMultipleImages && (
-              <div className="flex justify-center items-center gap-1.5 py-1">
-                {galleryImages.map((_: any, index: number) => (
-                  <button key={index} onClick={() => setActiveImageIndex(index)} className={`w-2 h-2 rounded-full transition-all ${activeImageIndex === index ? 'bg-blue-500 w-4' : 'bg-white/20'}`} />
-                ))}
+              <div className="flex items-center justify-between gap-3 bg-[#050814]/40 border border-white/5 p-2 rounded-md">
+                <button onClick={prevImage} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 transition-all">←</button>
+                <div className="flex-1 flex justify-center items-center gap-1.5 flex-wrap">
+                  {galleryImages.map((_: any, index: number) => (
+                    <button key={index} onClick={() => setActiveImageIndex(index)} className={`w-2 h-2 rounded-full transition-all ${activeImageIndex === index ? 'bg-blue-500 w-4' : 'bg-white/20'}`} />
+                  ))}
+                </div>
+                <button onClick={nextImage} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 transition-all">→</button>
               </div>
             )}
           </div>
@@ -300,8 +283,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <div className="flex flex-wrap items-center gap-1.5 mb-3">
                 <span className="bg-white/5 border border-white/10 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded-full">KOD: {product.sku || product.id}</span>
                 {stoktaVar ? <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-black px-2 py-0.5 rounded-full">STOKTA VAR</span> : <span className="bg-red-500/10 border border-red-500/20 text-red-400 text-[9px] font-black px-2 py-0.5 rounded-full">TÜKENDİ</span>}
-                {/* 🚀 İNDİRİM ROZETİ GERİ GELDİ */}
-                {isSale && <span className="bg-gradient-to-r from-red-500 to-amber-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">💎 İNDİRİMLİ FIRSAT</span>}
+                {isSale && <span className="bg-gradient-to-r from-red-500 to-amber-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">💎 BÜYÜK FIRSAT ÜRÜNÜ</span>}
               </div>
 
               <div className="flex items-center gap-2 mb-2">
@@ -311,7 +293,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
               <h1 className="text-lg sm:text-2xl font-black uppercase tracking-tight mb-3 text-slate-100">{product.name}</h1>
               
-              {/* 🚀 ESKİ FİYAT VE İNDİRİM YAPISI GERİ YÜKLENDİ */}
               <div className="bg-[#050814]/50 border border-white/5 p-4 rounded-md mb-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <span className="text-[10px] font-bold uppercase text-emerald-400 block mb-0.5">Havale Fiyatı (%5 İndirimli)</span>
@@ -328,21 +309,22 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 </div>
               </div>
 
-              {/* 🚀 KREDİ KARTINA 12 TAKSİT BİLGİSİ EKLENDİ */}
               <div className="bg-blue-600/5 border border-blue-500/10 rounded-md p-2.5 mb-3 flex items-center gap-2 text-xs font-bold text-blue-400 shadow-inner">
                 <span>💳</span>
-                <span>Kredi Kartlarına Vade Farksız Peşin Fiyatına 12 Taksit Seçeneği!</span>
+                <span>Kredi Kartına 12 Taksit Seçeneği!</span>
               </div>
 
               <div className="flex items-center gap-3 mb-4 bg-[#050814]/50 p-3 rounded-md border border-blue-500/20">
-                <div className="text-xl text-blue-400 animate-pulse">🚚</div>
+                <div className="text-xl text-blue-400 animate-pulse">🚀</div>
                 <div className="flex flex-col text-xs">
-                  <span className="text-slate-400">{timeLeft}</span>
-                  <span className={`font-black ${shippingMessage === "BUGÜN KARGODA!" ? "text-emerald-400" : "text-amber-400"}`}>{shippingMessage}</span>
+                  <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] text-blue-400">HIZLI KARGO AVANTAJI</span>
+                  <span className="text-slate-300 mt-0.5">{timeLeft}</span>
+                  <span className={`font-black text-sm uppercase ${shippingMessage === "BUGÜN KARGODA!" ? "text-emerald-400" : "text-amber-400"}`}>{shippingMessage}</span>
                 </div>
               </div>
             </div>
 
+            {/* MASAÜSTÜ SEPET VE FAVORİ ALANI */}
             <div className="border-t border-white/5 pt-4 mt-2 hidden sm:block">
               <div className="flex items-center gap-4">
                 <div className="flex items-center justify-between bg-[#050814] border border-white/10 rounded-md p-1.5 min-w-[100px]">
@@ -350,8 +332,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   <span className="px-2 font-black text-sm text-white">{quantity}</span>
                   <button onClick={() => setQuantity(q => q + 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500">+</button>
                 </div>
+                
                 <button onClick={handleAddToCart} disabled={addingToCart || addedSuccess || !stoktaVar} className={`flex-1 font-black py-3 px-6 rounded-md uppercase tracking-wider text-xs sm:text-sm ${addedSuccess ? "bg-emerald-500" : "bg-blue-600 hover:bg-blue-700"} text-white`}>
                   {addingToCart ? "Ekleniyor..." : addedSuccess ? "✅ SEPETE EKLENDİ" : !stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
+                </button>
+
+                <button type="button" onClick={() => setIsFav(!isFav)} className="w-12 h-12 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-xl transition-all hover:bg-white/10">
+                  <span className={isFav ? "text-red-500 scale-125 transition-transform" : "text-slate-400"}>❤️</span>
                 </button>
               </div>
             </div>
@@ -380,7 +367,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   <span className="text-sm font-black uppercase tracking-widest text-blue-400">⚙️ Teknik Özellikler</span>
                   <span className="text-blue-400">▼</span>
                 </button>
-                <div className={`px-4 overflow-hidden transition-all duration-300 ${openAccordion === "teknik" ? "max-h-[2000px] pb-4 opacity-100" : "max-h-0 opacity-0"}`}>
+                <div className={`px-4 overflow-hidden transition-all duration-300 ${openAccordion === "teknik" ? "max-h-[3000px] pb-4 opacity-100" : "max-h-0 opacity-0"}`}>
                      <div className="border-t border-white/5 pt-3">
                        <table className="w-full text-left text-sm">
                          <tbody>
@@ -459,8 +446,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                     <div className="space-y-4">
                         {reviews.length > 0 ? (
                           reviews.map((review) => {
-                            // Normal yorumlara ait bir cevap gelirse onun da listelenmesini sağlıyoruz
-                            const reviewReply = replies.find(r => Number(r.parent_id) === Number(review.id));
+                            const reviewReply = replies.filter(r => Number(r.parent_id) === Number(review.id));
                             return (
                               <div key={review.id} className="p-4 rounded-xl bg-[#050814]/40 border border-white/5 space-y-3">
                                 <div className="flex justify-between items-start gap-2">
@@ -472,12 +458,12 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                                 </div>
                                 <div className="text-slate-300 text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: review.review }} />
                                 
-                                {reviewReply && (
-                                  <div className="bg-blue-600/10 border border-blue-500/20 p-3 rounded-lg ml-4">
+                                {reviewReply.map((rep) => (
+                                  <div key={rep.id} className="bg-blue-600/10 border border-blue-500/20 p-3 rounded-lg ml-4">
                                     <div className="text-[10px] text-emerald-400 font-black uppercase mb-1">👨‍💻 Mağaza Yetkilisi Yanıtı</div>
-                                    <div className="text-slate-300 text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: reviewReply.review }} />
+                                    <div className="text-slate-300 text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: rep.review }} />
                                   </div>
-                                )}
+                                ))}
                               </div>
                             );
                           })
@@ -518,9 +504,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                       {questions.length > 0 ? (
                         questions.map((q) => {
                           const cleanQuestionText = q.review.replace("[SORU]", "").trim();
-                          
-                          // 🚀 TIP UYUŞMAZLIĞINI GİDERDİK: Number zorlaması ile admin cevapları artık milimetrik eşleşip görünür hale gelecek!
-                          const questionReply = replies.find(r => Number(r.parent_id) === Number(q.id));
+                          const questionReplies = replies.filter(r => Number(r.parent_id) === Number(q.id));
 
                           return (
                             <div key={q.id} className="p-4 rounded-xl bg-[#050814]/20 border border-white/5 flex flex-col gap-3">
@@ -532,12 +516,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                                 <p className="text-slate-200 text-xs pl-2 border-l border-blue-500/40">{cleanQuestionText}</p>
                               </div>
                               
-                              {/* WordPress Panelinden verdiğin yanıtlar tam bu noktaya basılır */}
-                              {questionReply ? (
-                                <div className="bg-blue-600/10 border border-blue-500/20 p-3 rounded-lg ml-3">
-                                  <div className="text-[10px] text-emerald-400 font-black uppercase mb-1">👨‍💻 Mağaza Yetkilisi Cevabı</div>
-                                  <div className="text-slate-300 text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: questionReply.review }} />
-                                </div>
+                              {questionReplies.length > 0 ? (
+                                questionReplies.map((reply) => (
+                                  <div key={reply.id} className="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg ml-3 shadow-inner">
+                                    <div className="text-[10px] text-emerald-400 font-black uppercase mb-1">👨‍💻 Mağaza Yetkilisi Cevabı</div>
+                                    <div className="text-slate-300 text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: reply.review }} />
+                                  </div>
+                                ))
                               ) : (
                                 <div className="text-[10px] text-slate-600 font-bold italic ml-3">⚙️ Bu soru mağaza yetkilisi tarafından inceleniyor...</div>
                               )}
@@ -558,51 +543,51 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 <span className="text-sm font-black uppercase tracking-widest text-emerald-400">⚖️ Ürün Karşılaştırma Laboratuvarı</span>
                 <span className="text-emerald-400">▼</span>
               </button>
-              <div className={`px-4 overflow-hidden transition-all duration-300 ${openAccordion === "karsilastir" ? "max-h-[2000px] pb-6 opacity-100" : "max-h-0 opacity-0"}`}>
+              <div className={`px-4 overflow-hidden transition-all duration-300 ${openAccordion === "karsilastir" ? "max-h-[3000px] pb-6 opacity-100" : "max-h-0 opacity-0"}`}>
                 <div className="border-t border-white/5 pt-4">
-                  <div className="relative mb-4" ref={dropdownRef}>
+                  <div className="relative mb-5" ref={dropdownRef}>
                     <label className="text-[10px] font-black uppercase text-slate-500 block mb-1">Kıyaslamak İstediğiniz Diğer Ürünü Seçin</label>
-                    <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="w-full bg-[#050814] border border-white/10 rounded-lg p-2.5 text-xs text-left text-slate-300 flex justify-between items-center">
+                    <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="w-full bg-[#050814] border border-white/10 rounded-lg p-3 text-xs text-left text-slate-300 flex justify-between items-center hover:border-blue-500 transition-colors">
                       <span>{selectedCompareProduct ? selectedCompareProduct.name : "Ürün Seçilmedi..."}</span>
                       <span>▼</span>
                     </button>
                     {isDropdownOpen && compareOptions.length > 0 && (
                       <div className="absolute left-0 right-0 mt-1 max-h-56 bg-[#0b1329] border border-white/10 rounded-lg overflow-y-auto z-50 p-1 shadow-2xl">
-                        <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Ürün adı ara..." className="w-full bg-[#050814] border border-white/5 rounded p-1.5 text-[11px] text-white focus:outline-none mb-1" />
+                        <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Ürün adı ara..." className="w-full bg-[#050814] border border-white/5 rounded p-2 text-xs text-white focus:outline-none mb-1" />
                         {filteredOptions.map((item: any) => (
-                          <div key={item.id} onClick={() => { setSelectedCompareProduct(item); setIsDropdownOpen(false); setSearchQuery(""); }} className="p-2 text-[11px] hover:bg-blue-600 rounded cursor-pointer transition-colors text-slate-300 hover:text-white uppercase font-bold">{item.name}</div>
+                          <div key={item.id} onClick={() => { setSelectedCompareProduct(item); setIsDropdownOpen(false); setSearchQuery(""); }} className="p-2 text-xs hover:bg-blue-600 rounded cursor-pointer text-slate-300 hover:text-white uppercase font-bold">{item.name}</div>
                         ))}
                       </div>
                     )}
                   </div>
 
                   {selectedCompareProduct ? (
-                    <div className="grid grid-cols-2 gap-3 mt-4 text-xs">
-                      <div className="p-3 bg-[#050814]/40 border border-white/5 rounded-lg">
-                        <span className="text-[9px] uppercase font-black text-blue-400 block mb-1">BU ÜRÜN</span>
-                        <p className="font-black uppercase mb-2 text-slate-200 line-clamp-1">{product.name}</p>
-                        <table className="w-full text-left">
-                          <tbody>
-                            {Object.entries(activeMapping).map(([key, label], i) => (
-                              <tr key={i} className="border-b border-white/5 last:border-0"><td className="py-1.5 font-bold text-slate-500 block">{label}</td><td className="py-1.5 text-slate-300 font-bold">{product.meta_data?.find((m: any) => m.key === key)?.value || product.acf?.[key] || "-"}</td></tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                      <div className="p-3 bg-blue-600/5 border border-blue-500/10 rounded-lg">
-                        <span className="text-[9px] uppercase font-black text-emerald-400 block mb-1">RAKİP ÜRÜN</span>
-                        <p className="font-black uppercase mb-2 text-slate-200 line-clamp-1">{selectedCompareProduct.name}</p>
-                        <table className="w-full text-left">
-                          <tbody>
-                            {Object.entries(activeMapping).map(([key, label], i) => (
-                              <tr key={i} className="border-b border-white/5 last:border-0"><td className="py-1.5 font-bold text-slate-500 block">{label}</td><td className="py-1.5 text-emerald-400 font-bold">{selectedCompareProduct.meta_data?.find((m: any) => m.key === key)?.value || selectedCompareProduct.acf?.[key] || "-"}</td></tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
+                    <div className="w-full bg-[#050814]/40 border border-white/5 rounded-xl p-4 overflow-x-auto shadow-inner">
+                      <table className="w-full text-left text-xs border-collapse">
+                        <thead>
+                          <tr className="border-b border-white/10 text-slate-400 text-[10px] uppercase font-black">
+                            <th className="pb-3 w-4/12">TEKNİK ÖZELLİK</th>
+                            <th className="pb-3 w-4/12 text-blue-400">BU ÜRÜN</th>
+                            <th className="pb-3 w-4/12 text-emerald-400">KARŞILAŞTIRILAN ÜRÜN</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                          {Object.entries(activeMapping).map(([key, label], i) => {
+                            const currentVal = product.meta_data?.find((m: any) => m.key === key)?.value || product.acf?.[key] || "-";
+                            const opponentVal = selectedCompareProduct?.meta_data?.find((m: any) => m.key === key)?.value || selectedCompareProduct?.acf?.[key] || "-";
+                            return (
+                              <tr key={i} className="hover:bg-white/5 transition-colors">
+                                <td className="py-3 font-bold text-slate-400 uppercase tracking-wider text-[10px]">{label}</td>
+                                <td className="py-3 text-slate-200 font-bold pr-3">{currentVal}</td>
+                                <td className="py-3 text-emerald-400 font-bold">{opponentVal}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
                     </div>
                   ) : (
-                    <div className="text-center py-4 text-slate-600 text-xs">Kıyaslanacak ürün listesi yüklenemedi şefim.</div>
+                    <div className="text-center py-4 text-slate-600 text-xs">Kıyaslanacak rakip ürün listesi yüklenemedi şefim.</div>
                   )}
                 </div>
               </div>
@@ -611,15 +596,20 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           </div>
         </div>
 
-        {/* MOBİL PANEL */}
+        {/* MOBİL PANEL VE FAVORİ KOMBİNASYONU */}
         <div className="fixed bottom-0 left-0 right-0 bg-[#0b1329]/90 backdrop-blur-xl border-t border-white/10 p-3 flex items-center justify-between z-50 sm:hidden">
           <div className="flex flex-col">
             <span className="text-[9px] font-bold text-emerald-400 uppercase">Havale Fiyatı</span>
             <span className="text-base font-black text-emerald-400">{havaleFiyati.toLocaleString('tr-TR')} TL</span>
           </div>
-          <button onClick={handleAddToCart} disabled={addingToCart || addedSuccess || !stoktaVar} className="font-black py-2.5 px-4 rounded-md uppercase text-xs text-white bg-blue-600">
-            {addingToCart ? "Ekleniyor..." : addedSuccess ? "✅ EKLENDİ" : "Sepete Ekle"}
-          </button>
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={() => setIsFav(!isFav)} className="w-10 h-10 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-lg">
+              <span className={isFav ? "text-red-500" : "text-slate-400"}>❤️</span>
+            </button>
+            <button type="button" onClick={handleAddToCart} disabled={addingToCart || addedSuccess || !stoktaVar} className="font-black py-2.5 px-5 rounded-md uppercase text-xs text-white bg-blue-600">
+              {addingToCart ? "..." : addedSuccess ? "✅" : "Sepete Ekle"}
+            </button>
+          </div>
         </div>
 
       </div>
