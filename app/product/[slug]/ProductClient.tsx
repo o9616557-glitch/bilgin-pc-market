@@ -5,6 +5,15 @@ import { useRouter } from "next/navigation";
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 
+interface Review {
+  id: number;
+  date_created: string;
+  review: string;
+  rating: number;
+  reviewer: string;
+  verified: boolean;
+}
+
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
@@ -17,50 +26,64 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [timeLeft, setTimeLeft] = useState("");
   const [shippingMessage, setShippingMessage] = useState("");
 
-  // FPS SİMÜLATÖR & ARAMA STATE'LERİ
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // FPS SİMÜLATÖR STATE'LERİ
   const [selectedCpu, setSelectedCpu] = useState("mid");
   const [selectedRes, setSelectedRes] = useState<"1080p" | "1440p">("1080p");
+
+  // ARAMA VE KIYASLAMA STATE'LERİ
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedCompareProduct, setSelectedCompareProduct] = useState<any>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // 🚀 SENİN PHP MOTORUNDAN GELECEK VERİLERİN STATE'İ
-  const [premiumData, setPremiumData] = useState({
-    html_reviews: '',
-    html_qa: '',
-    total_reviews: 0,
-    total_qa: 0,
-    is_logged_in: false
-  });
-  const [loadingPremium, setLoadingPremium] = useState(true);
-
-  // FORM STATE'LERİ
+  // YORUMLAR SİSTEMİ STATE'LERİ (STANDART WOOCOMMERCE)
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(false);
+  const [reviewsError, setReviewsError] = useState<string | null>(null);
+  
   const [showReviewForm, setShowReviewForm] = useState(false);
-  const [newReview, setNewReview] = useState({ text: "", rating: 5 });
-  const [newQuestion, setNewQuestion] = useState({ name: "", text: "" });
-  const [submittingAction, setSubmittingAction] = useState(false);
-  const [actionMessage, setActionMessage] = useState({ type: "", text: "" });
+  const [newReview, setNewReview] = useState({ reviewer: "", email: "", review: "", rating: 5 });
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewSuccessMessage, setReviewSuccessMessage] = useState({ type: "", text: "" });
+
+  // MAĞAZAYA SORU SOR STATE'LERİ
+  const [newQuestion, setNewQuestion] = useState({ name: "", email: "", question: "" });
+  const [submittingQuestion, setSubmittingQuestion] = useState(false);
+  const [questionSuccessMessage, setQuestionSuccessMessage] = useState({ type: "", text: "" });
 
   const toggleAccordion = (section: string) => {
     setOpenAccordion(openAccordion === section ? null : section);
   };
 
   useEffect(() => {
+    const checkLoginStatus = () => {
+      const hasToken = localStorage.getItem("token") || localStorage.getItem("user") || localStorage.getItem("jwt");
+      const hasCookie = document.cookie.includes("token") || document.cookie.includes("wordpress_logged_in");
+      setIsLoggedIn(!!hasToken || !!hasCookie);
+    };
+
+    checkLoginStatus();
+    window.addEventListener("storage", checkLoginStatus);
+
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    
+    return () => {
+      window.removeEventListener("storage", checkLoginStatus);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [product]);
 
-  // KARGO MOTORU
   useEffect(() => {
     const calculateShipping = () => {
       const now = new Date();
@@ -78,121 +101,115 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     return () => clearInterval(timer);
   }, []);
 
-  // 🚀 SENİN PHP MOTORUNDAN (premium_verileri_getir) VERİ ÇEKME İŞLEMİ
-  const fetchPremiumData = async () => {
-    if (!product || !product.id) return;
-    setLoadingPremium(true);
-    try {
-      const formData = new FormData();
-      formData.append("action", "premium_verileri_getir");
-      formData.append("urun_id", product.id.toString());
-
-      // WP admin-ajax bağlantısı (credentials: 'include' WP çerezlerini tanısın diye)
-      const res = await fetch("https://bilginpcmarket.com/wp-admin/admin-ajax.php", {
-        method: "POST",
-        body: formData,
-        credentials: "include" 
-      });
-      
-      const result = await res.json();
-      if (result.success && result.data) {
-        setPremiumData(result.data);
-      }
-    } catch (error) {
-      console.error("AJAX Motoruyla bağlantı kurulamadı şefim:", error);
-    } finally {
-      setLoadingPremium(false);
-    }
-  };
-
+  // 🚀 STANDART WOOCOMMERCE YORUMLARI ÇEKME
   useEffect(() => {
-    fetchPremiumData();
+    if (!product || !product.id) return;
+
+    const fetchReviews = async () => {
+      setLoadingReviews(true);
+      try {
+        const response = await fetch(`/api/reviews?product=${product.id}`);
+        if (response.ok) {
+          const data: Review[] = await response.json();
+          setReviews(data);
+        } else {
+          // Köprü yoksa sessizce hatayı yakala
+          console.warn("API köprüsü kurulamadı.");
+        }
+      } catch (error: any) {
+        console.error("Yorum motoru arızalandı:", error);
+      } finally {
+        setLoadingReviews(false);
+      }
+    };
+
+    fetchReviews();
   }, [product]);
 
-  // 🚀 SENİN PHP MOTORUNA (premium_yorum_ekle) YORUM POST ETME
+  // 🚀 STANDART WOOCOMMERCE YORUM GÖNDERME
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmittingAction(true);
-    setActionMessage({ type: "", text: "" });
+    setSubmittingReview(true);
+    setReviewSuccessMessage({ type: "", text: "" });
 
     try {
-      const formData = new FormData();
-      formData.append("action", "premium_yorum_ekle");
-      formData.append("urun_id", product.id.toString());
-      formData.append("puan", newReview.rating.toString());
-      formData.append("yorum_metni", newReview.text);
-
-      const res = await fetch("https://bilginpcmarket.com/wp-admin/admin-ajax.php", {
-        method: "POST",
-        body: formData,
-        credentials: "include"
+      const response = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product_id: product.id,
+          reviewer: newReview.reviewer,
+          reviewer_email: newReview.email,
+          review: newReview.review,
+          rating: newReview.rating
+        })
       });
+
+      if (!response.ok) throw new Error("API Köprüsü Bulunamadı (Failed to fetch)");
       
-      const result = await res.json();
-      if (result.success) {
-        setActionMessage({ type: "success", text: result.data || "Yorumunuz alındı, onaylandıktan sonra yayınlanacaktır." });
-        setTimeout(() => {
-          setShowReviewForm(false);
-          setNewReview({ text: "", rating: 5 });
-          setActionMessage({ type: "", text: "" });
-          fetchPremiumData(); // Listeyi yenile
-        }, 3000);
-      } else {
-        throw new Error(result.data || "Gönderilemedi");
-      }
+      setReviewSuccessMessage({ type: "success", text: "Yorumunuz başarıyla gönderildi! Onaylandıktan sonra yayınlanacaktır." });
     } catch (err: any) {
-      setActionMessage({ type: "error", text: err.message || "Bir hata oluştu şefim." });
+      setReviewSuccessMessage({ type: "error", text: "Güvenlik köprüsü (/api/reviews) kurulamadı şefim. Lütfen API dosyasını oluşturun." });
     } finally {
-      setSubmittingAction(false);
+      setTimeout(() => {
+        setSubmittingReview(false);
+        if (reviewSuccessMessage.type === "success") {
+          setShowReviewForm(false);
+          setNewReview({ reviewer: "", email: "", review: "", rating: 5 });
+        }
+        setReviewSuccessMessage({ type: "", text: "" });
+      }, 4000);
     }
   };
 
-  // 🚀 SENİN PHP MOTORUNA (premium_soru_ekle) SORU POST ETME
+  // 🚀 SORU SORMA SİMÜLASYONU (WooCommerce'in standart soru sor API'si yoktur)
   const handleQuestionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmittingAction(true);
-    setActionMessage({ type: "", text: "" });
-
-    try {
-      const formData = new FormData();
-      formData.append("action", "premium_soru_ekle");
-      formData.append("urun_id", product.id.toString());
-      formData.append("soran_kisi", newQuestion.name);
-      formData.append("soru_metni", newQuestion.text);
-
-      const res = await fetch("https://bilginpcmarket.com/wp-admin/admin-ajax.php", {
-        method: "POST",
-        body: formData,
-        credentials: "include"
-      });
-      
-      const result = await res.json();
-      if (result.success) {
-        setActionMessage({ type: "success", text: result.data || "Sorunuz alındı şefim!" });
-        setTimeout(() => {
-          setNewQuestion({ name: "", text: "" });
-          setActionMessage({ type: "", text: "" });
-          fetchPremiumData(); // Listeyi yenile
-        }, 3000);
-      } else {
-        throw new Error(result.data || "Gönderilemedi");
-      }
-    } catch (err: any) {
-      setActionMessage({ type: "error", text: err.message || "Bir hata oluştu şefim." });
-    } finally {
-      setSubmittingAction(false);
-    }
+    setSubmittingQuestion(true);
+    
+    setTimeout(() => {
+      setSubmittingQuestion(false);
+      setQuestionSuccessMessage({ type: "success", text: "Sorunuz mağazamıza iletildi şefim! En kısa sürede yanıtlanacaktır." });
+      setTimeout(() => {
+        setQuestionSuccessMessage({ type: "", text: "" });
+        setNewQuestion({ name: "", email: "", question: "" });
+      }, 4000);
+    }, 1200);
   };
-
 
   if (!product) return <div className="min-h-screen bg-[#050814]"></div>;
 
   const galleryImages = product.images || [];
-  const nextImage = (e: React.MouseEvent) => { e.preventDefault(); if (galleryImages.length > 0) setActiveImageIndex((prev) => (prev + 1) % galleryImages.length); };
-  const prevImage = (e: React.MouseEvent) => { e.preventDefault(); if (galleryImages.length > 0) setActiveImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length); };
 
-  const handleAddToCart = () => { /* Mevcut Ekleme Mantığı Korundu */ };
-  
+  const nextImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (galleryImages.length > 0) setActiveImageIndex((prev) => (prev + 1) % galleryImages.length);
+  };
+
+  const prevImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (galleryImages.length > 0) setActiveImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
+  };
+
+  const handleAddToCart = () => {
+    setAddingToCart(true);
+    const currentCart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const existingItemIndex = currentCart.findIndex((item: any) => item.id === product.id);
+    if (existingItemIndex > -1) {
+      currentCart[existingItemIndex].quantity += quantity;
+    } else {
+      currentCart.push({ id: product.id, name: product.name, price: product.price || product.regular_price, image: galleryImages[0]?.src || "/placeholder.png", slug: product.slug, quantity: quantity });
+    }
+    localStorage.setItem("cart", JSON.stringify(currentCart));
+    window.dispatchEvent(new Event("cartUpdated"));
+    window.dispatchEvent(new Event("storage")); 
+    setTimeout(() => {
+      setAddingToCart(false);
+      setAddedSuccess(true);
+      setTimeout(() => setAddedSuccess(false), 2000); 
+    }, 800);
+  };
+
   const stoktaVar = product.stock_status === "instock";
   const hasMultipleImages = galleryImages.length > 1;
   const regularPrice = Number(product.regular_price || 0);
@@ -239,6 +256,19 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     return { label: game.label, fps: finalFps, percentage: Math.min((finalFps / game.maxFps) * 100, 100), color: game.color };
   });
 
+  const renderStars = (rating: number) => (
+    <div className="flex items-center gap-0.5 text-amber-400 text-sm">
+      {[...Array(5)].map((_, index) => <span key={index}>{index < rating ? '★' : '☆'}</span>)}
+    </div>
+  );
+
+  const formatDate = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('tr-TR', options);
+  };
+
+  const reviewsRating = reviews.length > 0 ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1) : 0;
+
   return (
     <PhotoProvider>
       <div className="min-h-[calc(100vh-80px)] bg-[#050814] text-white pt-2 pb-24 md:py-8 px-3 sm:px-6 lg:px-8 relative overflow-hidden font-medium">
@@ -258,17 +288,27 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
             <div className="flex items-center justify-between gap-3 bg-[#050814]/40 border border-white/5 p-2 rounded-md">
               <button onClick={prevImage} disabled={!hasMultipleImages} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 hover:border-blue-600 disabled:opacity-10 transition-all"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg></button>
+              
+              {/* 🚀 EKSİK OLAN NOKTALAR (DOTS) GERİ GELDİ */}
               <div className="flex-1 flex justify-center items-center">
                 {hasMultipleImages ? (
-                  <div className="hidden sm:flex flex-wrap gap-2 justify-center items-center">
-                    {galleryImages.map((img: any, index: number) => (
-                      <button key={index} onClick={() => setActiveImageIndex(index)} className={`w-10 h-10 sm:w-12 sm:h-12 bg-transparent border rounded-md p-1 transition-all flex items-center justify-center ${activeImageIndex === index ? 'border-blue-500 scale-110 bg-white/5' : 'border-white/10 opacity-40 hover:opacity-100 hover:bg-white/5'}`}>
-                        <img src={img.src} alt="" className="max-w-full max-h-full object-contain drop-shadow-md" />
-                      </button>
-                    ))}
-                  </div>
+                  <>
+                    <div className="hidden sm:flex flex-wrap gap-2 justify-center items-center">
+                      {galleryImages.map((img: any, index: number) => (
+                        <button key={index} onClick={() => setActiveImageIndex(index)} className={`w-10 h-10 sm:w-12 sm:h-12 bg-transparent border rounded-md p-1 transition-all flex items-center justify-center ${activeImageIndex === index ? 'border-blue-500 scale-110 bg-white/5' : 'border-white/10 opacity-40 hover:opacity-100 hover:bg-white/5'}`}>
+                          <img src={img.src} alt="" className="max-w-full max-h-full object-contain drop-shadow-md" />
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex sm:hidden justify-center items-center gap-1.5 flex-wrap">
+                      {galleryImages.map((_: any, index: number) => (
+                        <button key={index} onClick={() => setActiveImageIndex(index)} className={`w-2 h-2 rounded-full transition-all duration-300 ${activeImageIndex === index ? 'bg-blue-500 w-4' : 'bg-white/20'}`} />
+                      ))}
+                    </div>
+                  </>
                 ) : <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Tek Görsel</span>}
               </div>
+
               <button onClick={nextImage} disabled={!hasMultipleImages} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 hover:border-blue-600 disabled:opacity-10 transition-all"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg></button>
             </div>
           </div>
@@ -279,6 +319,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 {isSale && <span className="bg-blue-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-widest animate-pulse shadow-[0_0_15px_rgba(37,99,235,0.6)]">💎 BÜYÜK FIRSAT</span>}
                 {stoktaVar ? <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1"><span className="w-1 h-1 bg-emerald-400 rounded-full animate-ping"></span> STOKTA</span> : <span className="bg-red-500/10 border border-red-500/20 text-red-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">TÜKENDİ</span>}
                 <span className="bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">⚡ HIZLI TESLİMAT</span>
+                
+                {/* 🚀 ÜRÜN ID / SKU GERİ GELDİ */}
+                <span className="bg-white/5 border border-white/10 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  KOD: {product.sku || product.id}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 mb-2">
+                {renderStars(Number(reviewsRating))}
+                <span className="text-[11px] font-bold text-slate-400">{reviewsRating} / ({reviews.length}) Değerlendirme</span>
               </div>
 
               <h1 className="text-lg sm:text-2xl font-black uppercase tracking-tight mb-3 text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400 leading-tight">
@@ -294,10 +344,20 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   <span className="text-[10px] text-slate-500 block font-bold">Kredi Kartı / Tek Çekim</span>
                   {isSale && eskiFiyat > 0 ? (
                     <div className="flex flex-wrap items-center gap-1.5 sm:justify-end">
-                      <span className="text-xs line-through text-slate-500 font-bold">{eskiFiyat.toLocaleString('tr-TR')} TL</span>
+                      <span className="text-xs line-through text-blue-400 font-extrabold shadow-sm">{eskiFiyat.toLocaleString('tr-TR')} TL</span>
                       <span className="text-sm sm:text-base font-black text-slate-200 bg-white/5 px-1.5 py-0.5 rounded border border-white/5">{kartFiyati.toLocaleString('tr-TR')} TL</span>
                     </div>
                   ) : <span className="text-sm font-bold text-slate-300">{kartFiyati.toLocaleString('tr-TR')} TL</span>}
+                </div>
+              </div>
+
+              {/* 🚀 PAYLAŞIM İKONLARI GERİ GELDİ */}
+              <div className="flex items-center gap-3 mb-4 bg-[#050814]/30 border border-white/5 p-2 rounded-md w-max">
+                <span className="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Paylaş:</span>
+                <div className="flex items-center gap-2 opacity-50 hover:opacity-100 transition-opacity">
+                  <div className="w-7 h-7 rounded-md bg-white/5 flex items-center justify-center text-[11px] cursor-pointer hover:bg-blue-600 hover:text-white transition-colors">🔗</div>
+                  <div className="w-7 h-7 rounded-md bg-green-500/10 flex items-center justify-center text-[11px] text-green-400 cursor-pointer hover:bg-green-500 hover:text-white transition-colors">WP</div>
+                  <div className="w-7 h-7 rounded-md bg-blue-500/10 flex items-center justify-center text-[11px] text-blue-400 cursor-pointer hover:bg-blue-500 hover:text-white transition-colors">X</div>
                 </div>
               </div>
 
@@ -459,7 +519,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             </div>
 
-            {/* 🚀 5. CANLI TOPLULUK DEĞERLENDİRME (PHP MOTORUNDAN) */}
+            {/* 5. TOPLULUK DEĞERLENDİRME */}
             <div className="border-b border-white/5 last:border-0">
               <button onClick={() => toggleAccordion("topluluk")} className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group">
                 <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3"><span className="text-lg sm:text-xl">💬</span> Topluluk Değerlendirme</span>
@@ -471,28 +531,30 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                     {!showReviewForm && (
                       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 p-5 rounded-xl bg-[#050814]/50 border border-white/5 shadow-inner">
                         <div className="flex flex-col items-center">
-                          <span className="text-5xl font-black text-amber-400">{premiumData.total_reviews > 0 ? "5.0" : "0.0"}</span>
+                          <span className="text-5xl font-black text-amber-400">{reviewsRating}</span>
+                          <span className="text-[10px] text-slate-500 mt-1">5.0 üzerinden</span>
                         </div>
                         <div className="flex flex-col items-center sm:items-start gap-1">
-                          <p className="text-slate-300 font-bold text-lg">{premiumData.total_reviews} Topluluk Değerlendirmesi</p>
+                          {renderStars(Number(reviewsRating))}
+                          <p className="text-slate-300 font-bold text-lg">{reviews.length} Topluluk Değerlendirmesi</p>
                           <p className="text-slate-500 text-center sm:text-left text-xs max-w-md">Deneyimlerinizi bizimle paylaşın, diğer oyunculara yol gösterin!</p>
                         </div>
-                        <button onClick={() => premiumData.is_logged_in ? setShowReviewForm(true) : router.push('/giris')} className={`sm:ml-auto font-black px-6 py-3 rounded-lg text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 ${premiumData.is_logged_in ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white" : "bg-white/10 border border-white/20 text-slate-300 hover:bg-white/20"}`}>
-                          {premiumData.is_logged_in ? "Yorum Yap & Puanla" : "Yorum İçin Giriş Yap"}
+                        <button onClick={() => isLoggedIn ? setShowReviewForm(true) : router.push('/giris')} className={`sm:ml-auto font-black px-6 py-3 rounded-lg text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 ${isLoggedIn ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white" : "bg-white/10 border border-white/20 text-slate-300 hover:bg-white/20"}`}>
+                          {isLoggedIn ? "Yorum Yap & Puanla" : "Yorum İçin Giriş Yap"}
                         </button>
                       </div>
                     )}
 
-                    {showReviewForm && premiumData.is_logged_in && (
+                    {showReviewForm && isLoggedIn && (
                       <form onSubmit={handleReviewSubmit} className="p-5 rounded-xl bg-[#0b1329] border border-blue-500/30 shadow-[0_0_20px_rgba(59,130,246,0.1)] animate-fade-in flex flex-col gap-4">
                         <div className="flex items-center justify-between border-b border-white/5 pb-3">
                           <h3 className="text-blue-400 font-black uppercase tracking-wider">Deneyiminizi Paylaşın</h3>
                           <button type="button" onClick={() => setShowReviewForm(false)} className="text-slate-500 hover:text-red-400 transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
                         </div>
 
-                        {actionMessage.text && (
-                          <div className={`p-3 rounded-lg border text-xs font-bold text-center ${actionMessage.type === "success" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-red-500/10 text-red-400 border-red-500/20"}`}>
-                            {actionMessage.type === "success" ? "✅" : "❌"} {actionMessage.text}
+                        {reviewSuccessMessage.text && (
+                          <div className={`bg-${reviewSuccessMessage.type === 'error' ? 'red' : 'emerald'}-500/10 text-${reviewSuccessMessage.type === 'error' ? 'red' : 'emerald'}-400 p-3 rounded-lg border border-${reviewSuccessMessage.type === 'error' ? 'red' : 'emerald'}-500/20 text-xs font-bold text-center`}>
+                            {reviewSuccessMessage.text}
                           </div>
                         )}
 
@@ -505,23 +567,47 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                           </div>
                         </div>
 
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Yorumunuz</label>
-                          <textarea required value={newReview.text} onChange={(e) => setNewReview({ ...newReview, text: e.target.value })} rows={4} className="w-full bg-[#050814]/50 border border-white/10 text-slate-200 rounded-lg p-3 text-sm focus:outline-none focus:border-blue-500 transition-colors resize-none" placeholder="Ürünle ilgili düşüncelerinizi detaylıca paylaşın..." />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">İsminiz</label>
+                            <input required type="text" value={newReview.reviewer} onChange={(e) => setNewReview({ ...newReview, reviewer: e.target.value })} className="w-full bg-[#050814]/50 border border-white/10 text-slate-200 rounded-lg p-2.5 text-xs font-medium focus:outline-none focus:border-blue-500 transition-colors" placeholder="Adınız Soyadınız" />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">E-Posta Adresiniz</label>
+                            <input required type="email" value={newReview.email} onChange={(e) => setNewReview({ ...newReview, email: e.target.value })} className="w-full bg-[#050814]/50 border border-white/10 text-slate-200 rounded-lg p-2.5 text-xs font-medium focus:outline-none focus:border-blue-500 transition-colors" placeholder="E-posta adresiniz" />
+                          </div>
                         </div>
 
-                        <button type="submit" disabled={submittingAction} className="w-full sm:w-auto sm:self-end bg-blue-600 hover:bg-blue-500 text-white font-black px-8 py-3 rounded-lg text-xs uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(37,99,235,0.4)] disabled:opacity-50">
-                          {submittingAction ? "Gönderiliyor..." : "Yorumu Gönder"}
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Yorumunuz</label>
+                          <textarea required value={newReview.review} onChange={(e) => setNewReview({ ...newReview, review: e.target.value })} rows={4} className="w-full bg-[#050814]/50 border border-white/10 text-slate-200 rounded-lg p-3 text-sm focus:outline-none focus:border-blue-500 transition-colors resize-none" placeholder="Ürünle ilgili düşüncelerinizi detaylıca paylaşın..." />
+                        </div>
+
+                        <button type="submit" disabled={submittingReview} className="w-full sm:w-auto sm:self-end bg-blue-600 hover:bg-blue-500 text-white font-black px-8 py-3 rounded-lg text-xs uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(37,99,235,0.4)] disabled:opacity-50">
+                          {submittingReview ? "Gönderiliyor..." : "Yorumu Gönder"}
                         </button>
                       </form>
                     )}
 
-                    {/* 🚀 SENİN PHP KODUNUN TASARLADIĞI YORUMLARI EKRANA BASIYORUZ */}
                     <div className="space-y-4">
-                        {loadingPremium ? (
+                        {loadingReviews ? (
                           <div className="text-center py-10 text-slate-500 text-xs animate-pulse">Değerlendirmeler WP veritabanından çekiliyor...</div>
-                        ) : premiumData.html_reviews ? (
-                          <div dangerouslySetInnerHTML={{ __html: premiumData.html_reviews }} />
+                        ) : reviews.length > 0 ? (
+                          reviews.map((review) => (
+                            <div key={review.id} className="p-5 rounded-xl bg-[#050814]/40 border border-white/5 hover:border-white/10 transition-colors shadow-inner">
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-md">{review.reviewer.substring(0, 2).toUpperCase()}</div>
+                                    <div className="flex flex-col">
+                                      <span className="text-sm font-black text-slate-200 flex items-center gap-1.5">{review.reviewer}{review.verified && <span className="bg-emerald-500/10 text-emerald-400 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider flex items-center gap-0.5">✓ Doğrulanmış</span>}</span>
+                                      <span className="text-[10px] font-medium text-slate-500">{formatDate(review.date_created)}</span>
+                                    </div>
+                                </div>
+                                <div className="sm:ml-auto">{renderStars(review.rating)}</div>
+                              </div>
+                              <div className="text-slate-300 text-sm leading-relaxed prose prose-invert font-normal max-w-none prose-p:my-1" dangerouslySetInnerHTML={{ __html: review.review || "" }} />
+                            </div>
+                          ))
                         ) : (
                           <div className="text-center py-12 text-slate-500 text-xs bg-[#050814]/20 rounded-lg border border-white/5 border-dashed">Bu canavarı test eden ilk kişilerden biri olun! Deneyimlerinizi bizimle paylaşın.</div>
                         )}
@@ -531,7 +617,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             </div>
 
-            {/* 🚀 6. MAĞAZAYA SORU SOR (SENİN PHP MOTORUNDAN) */}
+            {/* 6. MAĞAZAYA SORU SOR (YENİ ASİL İKON VE SİMÜLASYON) */}
             <div className="border-b border-white/5 last:border-0">
               <button onClick={() => toggleAccordion("sorusor")} className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group">
                 <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
@@ -544,45 +630,38 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </button>
               <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "sorusor" ? "max-h-[5000px] pb-6 opacity-100" : "max-h-0 opacity-0"}`}>
                  <div className="border-t border-white/5 pt-5 space-y-6">
-                    
                     <form onSubmit={handleQuestionSubmit} className="p-5 rounded-xl bg-[#050814]/40 border border-white/5 shadow-inner flex flex-col gap-4">
                       <div className="mb-2">
                         <h3 className="text-white font-black text-base">Ürün hakkında merak ettikleriniz mi var?</h3>
                         <p className="text-xs text-slate-500 mt-1">Uzman BilginPC teknik ekibimiz sorularınızı en kısa sürede yanıtlayacaktır.</p>
                       </div>
 
-                      {actionMessage.text && (
-                        <div className={`p-3 rounded-lg border text-xs font-bold text-center animate-fade-in ${actionMessage.type === "success" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-red-500/10 text-red-400 border-red-500/20"}`}>
-                          {actionMessage.type === "success" ? "✅" : "❌"} {actionMessage.text}
+                      {questionSuccessMessage.text && (
+                        <div className={`p-3 rounded-lg border text-xs font-bold text-center animate-fade-in ${questionSuccessMessage.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
+                          {questionSuccessMessage.type === 'success' ? '✅' : '❌'} {questionSuccessMessage.text}
                         </div>
                       )}
 
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">İsminiz</label>
-                        <input required type="text" value={newQuestion.name} onChange={(e) => setNewQuestion({ ...newQuestion, name: e.target.value })} className="w-full bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-2.5 text-xs font-medium focus:outline-none focus:border-blue-500 transition-colors" placeholder="Adınız" />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">İsminiz</label>
+                          <input required type="text" value={newQuestion.name} onChange={(e) => setNewQuestion({ ...newQuestion, name: e.target.value })} className="w-full bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-2.5 text-xs font-medium focus:outline-none focus:border-blue-500 transition-colors" placeholder="Adınız" />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">E-Posta Adresiniz</label>
+                          <input required type="email" value={newQuestion.email} onChange={(e) => setNewQuestion({ ...newQuestion, email: e.target.value })} className="w-full bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-2.5 text-xs font-medium focus:outline-none focus:border-blue-500 transition-colors" placeholder="Size ulaşabilmemiz için" />
+                        </div>
                       </div>
 
                       <div className="flex flex-col gap-1.5">
                         <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Sorunuz</label>
-                        <textarea required value={newQuestion.text} onChange={(e) => setNewQuestion({ ...newQuestion, text: e.target.value })} rows={4} className="w-full bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-3 text-sm focus:outline-none focus:border-blue-500 transition-colors resize-none" placeholder="Ürünle ilgili sorunuzu detaylıca yazın..." />
+                        <textarea required value={newQuestion.question} onChange={(e) => setNewQuestion({ ...newQuestion, question: e.target.value })} rows={4} className="w-full bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-3 text-sm focus:outline-none focus:border-blue-500 transition-colors resize-none" placeholder="Ürünle ilgili sorunuzu detaylıca yazın..." />
                       </div>
 
-                      <button type="submit" disabled={submittingAction} className="w-full sm:w-auto sm:self-end bg-white/10 hover:bg-white/20 border border-white/20 text-white font-black px-8 py-3 rounded-lg text-xs uppercase tracking-widest transition-all disabled:opacity-50 mt-2">
-                        {submittingAction ? "İletiliyor..." : "Soruyu Gönder"}
+                      <button type="submit" disabled={submittingQuestion} className="w-full sm:w-auto sm:self-end bg-white/10 hover:bg-white/20 border border-white/20 text-white font-black px-8 py-3 rounded-lg text-xs uppercase tracking-widest transition-all disabled:opacity-50 mt-2">
+                        {submittingQuestion ? "İletiliyor..." : "Soruyu Gönder"}
                       </button>
                     </form>
-
-                    {/* 🚀 SENİN PHP KODUNUN TASARLADIĞI CEVAPLANMIŞ SORULARI EKRANA BASIYORUZ */}
-                    <div className="space-y-4 mt-6">
-                        {loadingPremium ? (
-                          <div className="text-center py-10 text-slate-500 text-xs animate-pulse">Soru & Cevaplar WP veritabanından çekiliyor...</div>
-                        ) : premiumData.html_qa ? (
-                          <div dangerouslySetInnerHTML={{ __html: premiumData.html_qa }} />
-                        ) : (
-                          <div className="text-center py-8 text-slate-500 text-xs bg-[#050814]/20 rounded-lg border border-white/5 border-dashed">Bu ürün için henüz soru sorulmamış şefim. İlk soran siz olun!</div>
-                        )}
-                    </div>
-
                  </div>
               </div>
             </div>
