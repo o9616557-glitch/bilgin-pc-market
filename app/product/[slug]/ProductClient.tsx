@@ -217,7 +217,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const eskiFiyat = regularPrice > currentPrice ? regularPrice : (isSale ? Math.round(currentPrice * 1.15) : 0);
   const havaleFiyati = currentPrice * 0.95;
 
-  // 🚀 1. SIRA SORUNU KESİN OLARAK ÇÖZÜLDÜ: Resimdeki 17 teknik özelliğin birebir orijinal dizilim sırası sabitleştirildi.
+  // 🚀 17 TEKNİK ÖZELLİK RESİMDEKİ TAM SIRAYLA SABİTLENDİ
   const activeMapping: Record<string, string> = {
     model: "Model",
     grafik_motoru: "Grafik Motoru",
@@ -264,12 +264,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const compareOptions = allProducts.filter((p: any) => p.id !== product.id);
   const filteredOptions = compareOptions.filter((item: any) => item.name?.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  // 🎮 FPS PERFORMANS LABORATUVARI HESAPLAMALARI
+  // 🚀 1. GÖNDERDİĞİN FOTOĞRAFTA YER ALAN 5 OYUNUN TAM LISTESI VE ACF EŞLEŞMELERİ
   const cpuMultipliers: Record<string, number> = { entry: 0.85, mid: 0.93, high: 1.00, extreme: 1.10 };
   const gamesConfig = [
     { id: "pubg", label: "PUBG: BATTLEGROUNDS", maxFps: 400, default1080p: 210, default1440p: 140, color: "from-amber-500 to-orange-600" },
     { id: "valorant", label: "VALORANT", maxFps: 600, default1080p: 450, default1440p: 320, color: "from-rose-500 to-red-600" },
-    { id: "cs2", label: "Counter-Strike 2 (CS2)", maxFps: 550, default1080p: 380, default1440p: 260, color: "from-sky-500 to-blue-600" }
+    { id: "cs2", label: "Counter-Strike 2 (CS2)", maxFps: 550, default1080p: 380, default1440p: 260, color: "from-sky-500 to-blue-600" },
+    { id: "cyberpunk", label: "Cyberpunk 2077", maxFps: 220, default1080p: 95, default1440p: 65, color: "from-yellow-400 to-amber-500" },
+    { id: "rdr2", label: "Red Dead Redemption 2", maxFps: 240, default1080p: 110, default1440p: 80, color: "from-red-600 to-red-800" }
   ];
   
   const processedFpsData = gamesConfig.map((game: any) => {
@@ -315,16 +317,20 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               ))}
             </div>
 
-            {/* Oklar ve Çizgiler Altta */}
+            {/* 🚀 4. OK HİZALAMA DÜZELTİLDİ: İçindeki ok çizgileri flex yapısıyla milimetrik olarak kutuya ortalandı */}
             {hasMultipleImages && (
               <div className="flex items-center justify-between gap-3 bg-[#050814]/40 border border-white/5 p-2 rounded-md">
-                <button type="button" onClick={prevImage} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 transition-all">←</button>
+                <button type="button" onClick={prevImage} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-center font-bold text-slate-400 hover:text-white hover:bg-blue-600 transition-all leading-none">
+                  <span className="block transform translate-y-[-1px]">←</span>
+                </button>
                 <div className="flex-1 flex justify-center items-center gap-1.5 flex-wrap">
                   {galleryImages.map((_: any, index: number) => (
                     <button key={index} type="button" onClick={() => setActiveImageIndex(index)} className={`w-2 h-2 rounded-full transition-all ${activeImageIndex === index ? 'bg-blue-500 w-4' : 'bg-white/20'}`} />
                   ))}
                 </div>
-                <button type="button" onClick={nextImage} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 transition-all">→</button>
+                <button type="button" onClick={nextImage} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-center font-bold text-slate-400 hover:text-white hover:bg-blue-600 transition-all leading-none">
+                  <span className="block transform translate-y-[-1px]">→</span>
+                </button>
               </div>
             )}
           </div>
@@ -345,7 +351,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
               <h1 className="text-lg sm:text-2xl font-black uppercase tracking-tight mb-3 text-slate-100">{product.name}</h1>
 
-              {/* 🚀 4. HIZLI KARGO LOGOSU VE SAYAÇ PANELI TEKRAR EN ÜSTE ALINDI */}
+              {/* HIZLI KARGO ÜST ALANDA SABİT */}
               <div className="flex items-center gap-3 mb-3 bg-[#050814]/50 p-3 rounded-md border border-blue-500/20">
                 <div className="text-xl text-blue-400 animate-pulse">🚀</div>
                 <div className="flex flex-col text-xs">
@@ -364,7 +370,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   <span className="text-[10px] text-slate-500 block font-bold">Kredi Kartı Tek Çekim</span>
                   {isSale && eskiFiyat > 0 ? (
                     <div className="flex flex-wrap items-center gap-1.5 sm:justify-end">
-                      <span className="text-xs line-through text-red-400 font-bold">{eskiFiyat.toLocaleString('tr-TR')} TL</span>
+                      {/* 🚀 2. ESKİ FİYAT ARTIK KIRMIZI DEĞİL, SLATE RENGİNDE */}
+                      <span className="text-xs line-through text-slate-400 font-bold">{eskiFiyat.toLocaleString('tr-TR')} TL</span>
                       <span className="text-sm sm:text-base font-black text-slate-200">{currentPrice.toLocaleString('tr-TR')} TL</span>
                     </div>
                   ) : <span className="text-sm sm:text-base font-black text-slate-200">{currentPrice.toLocaleString('tr-TR')} TL</span>}
@@ -374,6 +381,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <div className="bg-blue-600/5 border border-blue-500/10 rounded-md p-2.5 mb-3 flex items-center gap-2 text-xs font-bold text-blue-400 shadow-inner">
                 <span>💳</span>
                 <span>Kredi Kartına 12 Taksit Seçeneği!</span>
+              </div>
+
+              {/* 🚀 3. GERİ GELEN PAYLAŞIM İKONLARI BAR BARİZ BURADA */}
+              <div className="flex items-center gap-3 mb-4 bg-[#050814]/30 border border-white/5 p-2 rounded-md w-max shadow-inner">
+                <span className="text-[10px] font-bold uppercase text-slate-500">Paylaş:</span>
+                <div className="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
+                  <div className="w-7 h-7 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-[11px] cursor-pointer hover:bg-blue-600">🔗</div>
+                  <div className="w-7 h-7 rounded-md bg-green-500/10 flex items-center justify-center text-[11px] text-green-400 cursor-pointer">WP</div>
+                  <div className="w-7 h-7 rounded-md bg-blue-500/10 flex items-center justify-center text-[11px] text-blue-400 cursor-pointer">X</div>
+                </div>
               </div>
             </div>
 
@@ -390,11 +407,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   {addingToCart ? "Ekleniyor..." : addedSuccess ? "✅ SEPETE EKLENDİ" : !stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
                 </button>
 
-                {/* 🚀 3. FAVORİ KUTU TASARIMI DÜZELTİLDİ: Kutu rengi sabit, sadece içindeki kalp dinamik olarak değişiyor */}
-                <button type="button" onClick={() => setIsFav(!isFav)} className="w-12 h-12 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-xl transition-all hover:bg-white/10">
-                  <span className={isFav ? "text-red-500 scale-110 transition-transform" : "text-slate-400"}>
-                    {isFav ? "❤️" : "🤍"}
-                  </span>
+                {/* 🚀 FAVORİ BUTONU: KUTU KOMPLE KIRMIZI OLMAZ, SADECE KALBİN KENDİSİ DEĞİŞİR */}
+                <button type="button" onClick={() => setIsFav(!isFav)} className="w-12 h-12 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-lg transition-all hover:bg-white/10">
+                  <span>{isFav ? "❤️" : "🤍"}</span>
                 </button>
               </div>
             </div>
@@ -416,7 +431,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             </div>
 
-            {/* 🚀 1. TEKNİK ÖZELLİKLER (RESİMDEKİ 17 ADET ÖZELLİK TAM SIRALAMAYLA AKTİF) */}
+            {/* TEKNİK ÖZELLİKLER (TAM SIRALI LİSTE) */}
             {finalTechSpecs.length > 0 && (
               <div className="border-b border-white/5">
                 <button type="button" onClick={() => toggleAccordion("teknik")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
@@ -440,7 +455,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             )}
 
-            {/* 🚀 2. FPS PERFORMANS LABORATUVARI (İŞLEMCİ YAZILARI GERİ GELDİ) */}
+            {/* 🎮 FPS PERFORMANS LABORATUVARI (5 OYUN VE TAM İŞLEMCİ METİNLERİ YERİNDE) */}
             <div className="border-b border-white/5">
               <button type="button" onClick={() => toggleAccordion("fps_paneli")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                 <span className="text-sm font-black uppercase tracking-widest text-amber-500">🎮 Oyun FPS Performans Laboratuvarı</span>
@@ -454,7 +469,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                     <button type="button" onClick={() => setSelectedRes("1440p")} className={`px-4 py-1.5 rounded font-bold uppercase transition-all ${selectedRes === '1440p' ? 'bg-blue-600 text-white shadow' : 'text-slate-400'}`}>2K Ultra (1440p)</button>
                   </div>
 
-                  {/* Üzerinde tam yazıların olduğu işlemci seçim alanı */}
+                  {/* Tam işlemci gücü yazıları bariz yerinde */}
                   <div className="grid grid-cols-4 gap-2 text-[11px] text-center font-bold">
                     {[
                       { id: "entry", label: "Giriş Seviye İşlemci" },
@@ -484,7 +499,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             </div>
 
-            {/* ÜRÜN KARŞILAŞTIRMA LAB (TAM SIRALI LİSTEYLE FERAH TABLO) */}
+            {/* ÜRÜN KARŞILAŞTIRMA LAB (TAM SIRALAMALI FERAH PREMIUM TABLO) */}
             <div>
               <button type="button" onClick={() => toggleAccordion("karsilastir")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                 <span className="text-sm font-black uppercase tracking-widest text-emerald-400">⚖️ Ürün Karşılaştırma Laboratuvarı</span>
@@ -557,9 +572,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           </div>
           <div className="flex items-center gap-2">
             <button type="button" onClick={() => setIsFav(!isFav)} className="w-10 h-10 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-lg">
-              <span className={isFav ? "text-red-500" : "text-slate-400"}>
-                {isFav ? "❤️" : "🤍"}
-              </span>
+              <span>{isFav ? "❤️" : "🤍"}</span>
             </button>
             <button type="button" onClick={handleAddToCart} disabled={addingToCart || addedSuccess || !stoktaVar} className="font-black py-2.5 px-5 rounded-md uppercase text-xs text-white bg-blue-600">
               {addingToCart ? "..." : addedSuccess ? "✅" : "Sepete Ekle"}
