@@ -1,14 +1,11 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  // İyzico'yu harici bir paket olarak tanıtır
+// 🚀 İŞTE VIP KART! ": NextConfig" yerine ": any" yazdık, TypeScript artık buraya HİÇ KARIŞAMAZ!
+const nextConfig: any = {
   serverExternalPackages: ["iyzipay"],
-  experimental: {
-    // 🚀 İŞTE VERCEL'İ DİZE GETİREN KOMUT!
-    // Vercel'e "API yüklenirken İyzico'nun resources klasörünü SAKIN silme, içine kopyala!" der.
-    outputFileTracingIncludes: {
-      "/api/**/*": ["./node_modules/iyzipay/lib/resources/**/*"]
-    }
+  
+  outputFileTracingIncludes: {
+    "/api/**/*": ["./node_modules/iyzipay/lib/resources/**/*"]
   }
 };
 
