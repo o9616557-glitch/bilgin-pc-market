@@ -1,11 +1,11 @@
 import type { NextConfig } from "next";
 
-// 🚀 İŞTE VIP KART! ": NextConfig" yerine ": any" yazdık, TypeScript artık buraya HİÇ KARIŞAMAZ!
 const nextConfig: any = {
   serverExternalPackages: ["iyzipay"],
   
+  // 🚀 SİHİRLİ DOKUNUŞ: Sadece 'resources' değil, tüm 'iyzipay' klasörünü korumaya aldık!
   outputFileTracingIncludes: {
-    "/api/**/*": ["./node_modules/iyzipay/lib/resources/**/*"]
+    "/api/**/*": ["./node_modules/iyzipay/**/*"]
   }
 };
 
