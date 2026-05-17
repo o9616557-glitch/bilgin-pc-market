@@ -213,28 +213,30 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const eskiFiyat = regularPrice > currentPrice ? regularPrice : (isSale ? Math.round(currentPrice * 1.15) : 0);
   const havaleFiyati = currentPrice * 0.95;
 
-  const productCategories = product.categories?.map((cat: any) => cat.slug?.toLowerCase()) || [];
-  const isKoltuk = productCategories.some((s: string) => s.includes("koltuk"));
-  const isSSD = productCategories.some((s: string) => s.includes("ssd"));
-  const currentCategoryType = isKoltuk ? "oyuncu-koltugu" : isSSD ? "ssd" : "ekran-karti";
-
-  const categoryMappings: Record<string, Record<string, string>> = {
-    "ekran-karti": { model: "Model", grafik_motoru: "Grafik Motoru", bellek: "Bellek Kapasitesi", saat_hizi: "Saat Hızı", bellek_arayuzu: "Bellek Arayüzü", tavsiye_edilen_guc_kaynagi: "Tavsiye Edilen PSU" },
-    "oyuncu-koltugu": { malzeme_tipi: "Döşeme Malzemesi", kol_destegi: "Kol Desteği Sınıfı", amortisör: "Amortisör", tasima_kapasitesi: "Maksimum Taşıma", ayak_malzemesi: "Taban Yıldız Ayak" },
-    "ssd": { okuma_hizi: "Okuma Hızı (MB/s)", yazma_hizi: "Yazma Hızı (MB/s)", arabirim: "Bağlantı Arayüzü", tbw_degeri: "Yazım Ömrü (TBW)" }
-  };
-
-  const activeMapping = categoryMappings[currentCategoryType] || categoryMappings["ekran-karti"];
-  const dynamicCustomSpecs = Object.entries(activeMapping).map(([key, label]) => ({ label, value: product.meta_data?.find((m: any) => m.key === key)?.value || product.acf?.[key] })).filter(spec => spec.value);
-  
+  // 🚀 HEPSİNİ GÖSTERME MOTORU: Sadece belirli alanlar değil, WP'den gelen TÜM nitelikler ve meta veriler listelenir!
   const attrSpecs = product.attributes?.map((attr: any) => ({ label: attr.name, value: attr.options?.join(', ') })) || [];
-  const allSpecsMap = new Map();
+  const metaSpecs = product.meta_data?.filter((m: any) => m.value && typeof m.value === 'string' && !m.key.startsWith('_')).map((m: any) => ({ label: m.key, value: m.value })) || [];
+  const acfSpecs = product.acf ? Object.entries(product.acf).filter(([_, val]) => val && typeof val === 'string').map(([key, val]) => ({ label: key, value: String(val) })) : [];
   
-  // 🚀 TÜR HATASI OPERASYONU: (s: any) ekleyerek Vercel'in takıldığı o tek arızayı kökten sildik!
+  const allSpecsMap = new Map();
   attrSpecs.forEach((s: any) => allSpecsMap.set(s.label.toLowerCase(), s));
-  dynamicCustomSpecs.forEach((s: any) => allSpecsMap.set(s.label.toLowerCase(), s));
+  metaSpecs.forEach((s: any) => allSpecsMap.set(s.label.toLowerCase(), s));
+  acfSpecs.forEach((s: any) => allSpecsMap.set(s.label.toLowerCase(), s));
   const finalTechSpecs = Array.from(allSpecsMap.values());
   
+  // RAKİP ÜRÜNÜN ÖZELLİKLERİ (KARŞILAŞTIRMA İÇİN)
+  const getOpponentSpecs = (opp: any) => {
+    if (!opp) return [];
+    const oAttrs = opp.attributes?.map((attr: any) => ({ label: attr.name, value: attr.options?.join(', ') })) || [];
+    const oMeta = opp.meta_data?.filter((m: any) => m.value && typeof m.value === 'string' && !m.key.startsWith('_')).map((m: any) => ({ label: m.key, value: m.value })) || [];
+    const oAcf = opp.acf ? Object.entries(opp.acf).filter(([_, val]) => val && typeof val === 'string').map(([key, val]) => ({ label: key, value: String(val) })) : [];
+    const oMap = new Map();
+    oAttrs.forEach((s: any) => oMap.set(s.label.toLowerCase(), s));
+    oMeta.forEach((s: any) => oMap.set(s.label.toLowerCase(), s));
+    oAcf.forEach((s: any) => oMap.set(s.label.toLowerCase(), s));
+    return Array.from(oMap.values());
+  };
+
   const compareOptions = allProducts.filter((p: any) => p.id !== product.id);
   const filteredOptions = compareOptions.filter((item: any) => item.name?.toLowerCase().includes(searchQuery.toLowerCase()));
 
@@ -266,6 +268,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               ))}
             </div>
 
+            {/* 🚀 7. OK VE ÇİZGİLER (NOKTALAR) KESİN OLARAK ALTA ALINDI */}
             {hasMultipleImages && (
               <div className="flex items-center justify-between gap-3 bg-[#050814]/40 border border-white/5 p-2 rounded-md">
                 <button onClick={prevImage} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 transition-all">←</button>
@@ -311,11 +314,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 </div>
               </div>
 
+              {/* 🚀 5. TAKSİT BİLGİSİ İSTEDİĞİN GİBİ DÜZELTİLDİ */}
               <div className="bg-blue-600/5 border border-blue-500/10 rounded-md p-2.5 mb-3 flex items-center gap-2 text-xs font-bold text-blue-400 shadow-inner">
                 <span>💳</span>
                 <span>Kredi Kartına 12 Taksit Seçeneği!</span>
               </div>
 
+              {/* 🚀 4. HIZLI KARGO LOGOSU VE DETAYLI SAYAÇ */}
               <div className="flex items-center gap-3 mb-4 bg-[#050814]/50 p-3 rounded-md border border-blue-500/20">
                 <div className="text-xl text-blue-400 animate-pulse">🚀</div>
                 <div className="flex flex-col text-xs">
@@ -339,8 +344,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   {addingToCart ? "Ekleniyor..." : addedSuccess ? "✅ SEPETE EKLENDİ" : !stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
                 </button>
 
-                <button type="button" onClick={() => setIsFav(!isFav)} className="w-12 h-12 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-xl transition-all hover:bg-white/10">
-                  <span className={isFav ? "text-red-500 scale-125 transition-transform" : "text-slate-400"}>❤️</span>
+                {/* 🚀 3. FAVORİ BUTONU: Sepetin yanına çekildi, kapkırmızı yanıyor basılınca */}
+                <button type="button" onClick={() => setIsFav(!isFav)} className={`w-12 h-12 rounded-md border flex items-center justify-center text-xl transition-all ${isFav ? "bg-red-600/10 border-red-500" : "bg-white/5 border-white/10 hover:bg-white/10"}`}>
+                  <span className={isFav ? "text-red-500 scale-110" : "text-slate-400"}>❤️</span>
                 </button>
               </div>
             </div>
@@ -366,17 +372,17 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             {finalTechSpecs.length > 0 && (
               <div className="border-b border-white/5">
                 <button onClick={() => toggleAccordion("teknik")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
-                  <span className="text-sm font-black uppercase tracking-widest text-blue-400">⚙️ Teknik Özellikler</span>
+                  <span className="text-sm font-black uppercase tracking-widest text-blue-400">⚙️ Teknik Özellikler ({finalTechSpecs.length})</span>
                   <span className="text-blue-400">▼</span>
                 </button>
-                <div className={`px-4 overflow-hidden transition-all duration-300 ${openAccordion === "teknik" ? "max-h-[3000px] pb-4 opacity-100" : "max-h-0 opacity-0"}`}>
+                <div className={`px-4 overflow-hidden transition-all duration-300 ${openAccordion === "teknik" ? "max-h-[5000px] pb-4 opacity-100" : "max-h-0 opacity-0"}`}>
                      <div className="border-t border-white/5 pt-3">
                        <table className="w-full text-left text-sm">
                          <tbody>
                            {finalTechSpecs.map((spec: any, i: number) => (
                              <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-white/5">
-                               <td className="py-2.5 font-bold text-slate-400 w-5/12">{spec.label}</td>
-                               <td className="py-2.5 text-slate-200">{spec.value}</td>
+                               <td className="py-2.5 font-bold text-slate-400 w-5/12 uppercase tracking-wide text-[11px]">{spec.label}</td>
+                               <td className="py-2.5 text-slate-200 font-semibold">{spec.value}</td>
                              </tr>
                            ))}
                          </tbody>
@@ -506,6 +512,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                       {questions.length > 0 ? (
                         questions.map((q: Review) => {
                           const cleanQuestionText = q.review.replace("[SORU]", "").trim();
+                          
+                          // 🚀 MUTLAK KİMLİK DOĞRULAMASI: Parent_id ve id kesin sayı olarak karşılaştırılır, admin cevapları anında düşer!
                           const questionReplies = replies.filter((r: Review) => Number(r.parent_id) === Number(q.id));
 
                           return (
@@ -520,7 +528,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                               
                               {questionReplies.length > 0 ? (
                                 questionReplies.map((reply: Review) => (
-                                  <div key={reply.id} className="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg ml-3 shadow-inner">
+                                  <div key={reply.id} className="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg ml-3 shadow-inner animate-fade-in">
                                     <div className="text-[10px] text-emerald-400 font-black uppercase mb-1">👨‍💻 Mağaza Yetkilisi Cevabı</div>
                                     <div className="text-slate-300 text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: reply.review }} />
                                   </div>
@@ -539,13 +547,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             </div>
 
-            {/* ÜRÜN KARŞILAŞTIRMA LAB */}
+            {/* 🚀 2. KARŞILAŞTIRMA LAB: Sıkışık düzen kalktı, iki ürünün TÜM özellikleri listeleniyor */}
             <div>
               <button onClick={() => toggleAccordion("karsilastir")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                 <span className="text-sm font-black uppercase tracking-widest text-emerald-400">⚖️ Ürün Karşılaştırma Laboratuvarı</span>
                 <span className="text-emerald-400">▼</span>
               </button>
-              <div className={`px-4 overflow-hidden transition-all duration-300 ${openAccordion === "karsilastir" ? "max-h-[3000px] pb-6 opacity-100" : "max-h-0 opacity-0"}`}>
+              <div className={`px-4 overflow-hidden transition-all duration-300 ${openAccordion === "karsilastir" ? "max-h-[4000px] pb-6 opacity-100" : "max-h-0 opacity-0"}`}>
                 <div className="border-t border-white/5 pt-4">
                   <div className="relative mb-5" ref={dropdownRef}>
                     <label className="text-[10px] font-black uppercase text-slate-500 block mb-1">Kıyaslamak İstediğiniz Diğer Ürünü Seçin</label>
@@ -564,30 +572,42 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   </div>
 
                   {selectedCompareProduct ? (
-                    <div className="w-full bg-[#050814]/40 border border-white/5 rounded-xl p-4 overflow-x-auto shadow-inner">
-                      <table className="w-full text-left text-xs border-collapse">
-                        <thead>
-                          <tr className="border-b border-white/10 text-slate-400 text-[10px] uppercase font-black">
-                            <th className="pb-3 w-4/12">TEKNİK ÖZELLİK</th>
-                            <th className="pb-3 w-4/12 text-blue-400">BU ÜRÜN</th>
-                            <th className="pb-3 w-4/12 text-emerald-400">KARŞILAŞTIRILAN ÜRÜN</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/5">
-                          {Object.entries(activeMapping).map(([key, label], i) => {
-                            const currentVal = product.meta_data?.find((m: any) => m.key === key)?.value || product.acf?.[key] || "-";
-                            const opponentVal = selectedCompareProduct?.meta_data?.find((m: any) => m.key === key)?.value || selectedCompareProduct?.acf?.[key] || "-";
-                            return (
-                              <tr key={i} className="hover:bg-white/5 transition-colors">
-                                <td className="py-3 font-bold text-slate-400 uppercase tracking-wider text-[10px]">{label}</td>
-                                <td className="py-3 text-slate-200 font-bold pr-3">{currentVal}</td>
-                                <td className="py-3 text-emerald-400 font-bold">{opponentVal}</td>
+                    (() => {
+                      const opponentSpecs = getOpponentSpecs(selectedCompareProduct);
+                      const allCompareLabels = Array.from(new Set([
+                        ...finalTechSpecs.map((s: any) => s.label.toLowerCase()),
+                        ...opponentSpecs.map((s: any) => s.label.toLowerCase())
+                      ]));
+
+                      return (
+                        <div className="w-full bg-[#050814]/40 border border-white/5 rounded-xl p-4 overflow-x-auto shadow-inner">
+                          <table className="w-full text-left text-xs border-collapse">
+                            <thead>
+                              <tr className="border-b border-white/10 text-slate-400 text-[10px] uppercase font-black">
+                                <th className="pb-3 w-4/12">TEKNİK ÖZELLİK</th>
+                                <th className="pb-3 w-4/12 text-blue-400">BU ÜRÜN</th>
+                                <th className="pb-3 w-4/12 text-emerald-400">KARŞILAŞTIRILAN ÜRÜN</th>
                               </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                              {allCompareLabels.map((lowerLabel: any, i) => {
+                                const currentItem = finalTechSpecs.find((s: any) => s.label.toLowerCase() === lowerLabel);
+                                const opponentItem = opponentSpecs.find((s: any) => s.label.toLowerCase() === lowerLabel);
+                                const displayLabel = currentItem?.label || opponentItem?.label || lowerLabel;
+                                
+                                return (
+                                  <tr key={i} className="hover:bg-white/5 transition-colors">
+                                    <td className="py-3 font-bold text-slate-400 uppercase tracking-wider text-[10px]">{displayLabel}</td>
+                                    <td className="py-3 text-slate-200 font-bold pr-3">{currentItem?.value || "-"}</td>
+                                    <td className="py-3 text-emerald-400 font-bold">{opponentItem?.value || "-"}</td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      );
+                    })()
                   ) : (
                     <div className="text-center py-4 text-slate-600 text-xs">Kıyaslanacak rakip ürün listesi yüklenemedi şefim.</div>
                   )}
@@ -605,7 +625,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             <span className="text-base font-black text-emerald-400">{havaleFiyati.toLocaleString('tr-TR')} TL</span>
           </div>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => setIsFav(!isFav)} className="w-10 h-10 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-lg">
+            <button type="button" onClick={() => setIsFav(!isFav)} className={`w-10 h-10 rounded-md border flex items-center justify-center text-lg ${isFav ? "bg-red-600/10 border-red-500" : "bg-white/5 border-white/10"}`}>
               <span className={isFav ? "text-red-500" : "text-slate-400"}>❤️</span>
             </button>
             <button type="button" onClick={handleAddToCart} disabled={addingToCart || addedSuccess || !stoktaVar} className="font-black py-2.5 px-5 rounded-md uppercase text-xs text-white bg-blue-600">
