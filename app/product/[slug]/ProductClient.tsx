@@ -17,6 +17,10 @@ export default function ProductClient({ product }: { product: Record<string, any
   const [timeLeft, setTimeLeft] = useState("");
   const [shippingMessage, setShippingMessage] = useState("");
 
+  // 🚀 SIMÜLATÖR STATE'LERİ (Varsayılan: Orta Seviye CPU ve 1080p)
+  const [selectedCpu, setSelectedCpu] = useState("mid");
+  const [selectedRes, setSelectedRes] = useState<"1080p" | "1440p">("1080p");
+
   const toggleAccordion = (section: string) => {
     setOpenAccordion(openAccordion === section ? null : section);
   };
@@ -108,7 +112,7 @@ export default function ProductClient({ product }: { product: Record<string, any
   const kartFiyati = Number(product.price || product.regular_price || 0);
   const havaleFiyati = kartFiyati * 0.95;
 
-  // TEKNİK ÖZELLİKLER ACF EŞLEŞTİRME HARİTASI
+  // TEKNİK ÖZELLİKLER ACF ESLESTİRME HARİTASI
   const acfMapping: Record<string, string> = {
     model: "Model",
     grafik_motoru: "Grafik Motoru",
@@ -134,20 +138,38 @@ export default function ProductClient({ product }: { product: Record<string, any
     return { label, value: metaValue };
   }).filter(spec => spec.value !== undefined && spec.value !== null && spec.value !== "");
 
-  // 🚀 OYUN PERFORMANS TESTİ ACF HARİTASI VE DYNAMIC BAR AYARLARI
-  const fpsMapping: Record<string, { label: string; maxFps: number; defaultFps: number; color: string }> = {
-    fps_valorant: { label: "VALORANT (1080p Ultra)", maxFps: 500, defaultFps: 420, color: "from-rose-500 to-red-600 shadow-[0_0_15px_rgba(244,63,94,0.4)]" },
-    fps_cs2: { label: "Counter-Strike 2 (1080p High)", maxFps: 500, defaultFps: 310, color: "from-amber-500 to-orange-600 shadow-[0_0_15px_rgba(245,158,11,0.4)]" },
-    fps_warzone: { label: "CoD: Warzone 3.0 (1080p Balanced)", maxFps: 240, defaultFps: 145, color: "from-blue-500 to-indigo-600 shadow-[0_0_15px_rgba(59,130,246,0.4)]" },
-    fps_cyberpunk: { label: "Cyberpunk 2077 (1080p Ultra - DLSS ON)", maxFps: 160, defaultFps: 95, color: "from-purple-500 to-fuchsia-600 shadow-[0_0_15px_rgba(168,85,247,0.4)]" }
+  // 🚀 İŞLEMCİ GÜÇ ÇARPANLARI (V8 MOTORU)
+  const cpuMultipliers: Record<string, number> = {
+    entry: 0.85,  // Giriş Seviyesi %15 kayıp (darboğaz)
+    mid: 0.93,    // Orta Seviye %7 kayıp
+    high: 1.00,   // Üst Seviye (Tam Performans - ACF Baz Değeri)
+    extreme: 1.10 // Ekstrem Seviye (%10 Bonus güç)
   };
 
-  const fpsSpecs = Object.entries(fpsMapping).map(([key, config]) => {
-    const metaValue = product.meta_data?.find((m: any) => m.key === key)?.value || product.acf?.[key];
-    // Eğer WP'de değer girilmişse onu sayıya çevir, girilmemişse default test değerini bas!
-    const finalFps = metaValue ? Number(metaValue) : config.defaultFps;
-    const percentage = Math.min((finalFps / config.maxFps) * 100, 100);
-    return { label: config.label, fps: finalFps, percentage, color: config.color };
+  // 🚀 OYUN SİMÜLASYON HARİTASI (Tamamen Gönderdiğin Fotoğraftaki ACF İsimleriyle Birebir!)
+  const gamesConfig = [
+    { id: "pubg", label: "PUBG: BATTLEGROUNDS", maxFps: 400, default1080p: 210, default1440p: 140, color: "from-amber-500 to-orange-600 shadow-[0_0_15px_rgba(245,158,11,0.3)]" },
+    { id: "valorant", label: "VALORANT", maxFps: 600, default1080p: 450, default1440p: 320, color: "from-rose-500 to-red-600 shadow-[0_0_15px_rgba(244,63,94,0.3)]" },
+    { id: "cs2", label: "Counter-Strike 2 (CS2)", maxFps: 550, default1080p: 380, default1440p: 260, color: "from-sky-500 to-blue-600 shadow-[0_0_15px_rgba(59,130,246,0.3)]" },
+    { id: "cyberpunk", label: "Cyberpunk 2077", maxFps: 200, default1080p: 110, default1440p: 65, color: "from-purple-500 to-fuchsia-600 shadow-[0_0_15px_rgba(168,85,247,0.3)]" },
+    { id: "rdr2", label: "Red Dead Redemption 2", maxFps: 200, default1080p: 95, default1440p: 60, color: "from-emerald-500 to-teal-600 shadow-[0_0_15px_rgba(16,185,129,0.3)]" }
+  ];
+
+  const currentCpuMultiplier = cpuMultipliers[selectedCpu] || 1.0;
+
+  // Veri çekme ve dinamik hesaplama motoru
+  const processedFpsData = gamesConfig.map(game => {
+    const acfKey = `${game.id}_${selectedRes}_fps`; // Dinamik anahtar örn: valorant_1080p_fps
+    const metaValue = product.meta_data?.find((m: any) => m.key === acfKey)?.value || product.acf?.[acfKey];
+    
+    // Panel boşsa dükkan kör kalmasın diye varsayılan RTX 4060 Ti değerini ata
+    const baseFps = metaValue ? Number(metaValue) : (selectedRes === "1080p" ? game.default1080p : game.default1440p);
+    
+    // Canlı Çarpan İşlemi (Matematiksel Dönüşüm)
+    const finalFps = Math.round(baseFps * currentCpuMultiplier);
+    const percentage = Math.min((finalFps / game.maxFps) * 100, 100);
+
+    return { label: game.label, fps: finalFps, percentage, color: game.color };
   });
 
   const getMetaData = (key: string) => {
@@ -373,7 +395,7 @@ export default function ProductClient({ product }: { product: Record<string, any
               </div>
             </div>
 
-            {/* 🚀 3. OYUN PERFORMANS TESTİ (CANLI ANİMASYONLU BARKOD MOTORU!) */}
+            {/* 🚀 3. ULTRA-PREMIUM CANLI SİMÜLATÖRLÜ OYUN PERFORMANS TESTİ */}
             <div className="border-b border-white/5 last:border-0">
               <button 
                 onClick={() => toggleAccordion("performans")}
@@ -384,23 +406,69 @@ export default function ProductClient({ product }: { product: Record<string, any
                 </span>
                 <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "performans" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
               </button>
-              <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "performans" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
-                 <div className="border-t border-white/5 pt-4 sm:pt-6 space-y-4 sm:space-y-5">
-                   {fpsSpecs.map((spec, i) => (
-                     <div key={i} className="space-y-1.5">
-                       <div className="flex justify-between items-center text-xs sm:text-sm font-bold text-slate-300">
-                         <span>{spec.label}</span>
-                         <span className="text-emerald-400 font-black tracking-tight">{spec.fps} FPS</span>
+              <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "performans" ? "max-h-[5000px] pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
+                 <div className="border-t border-white/5 pt-4 space-y-6">
+                   
+                   {/* SİMÜLATÖR PANEL KUMANDASI */}
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[#050814]/40 p-4 rounded-xl border border-white/5 shadow-inner">
+                     
+                     {/* İŞLEMCİ SEÇİMİ (DROPDOWN) */}
+                     <div className="flex flex-col gap-1.5">
+                       <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">SİSTEM İŞLEMCİSİ (CPU)</label>
+                       <select 
+                         value={selectedCpu} 
+                         onChange={(e) => setSelectedCpu(e.target.value)}
+                         className="w-full bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-2.5 text-xs font-bold focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+                       >
+                         <option value="entry">Giriş Seviyesi (Ryzen 5 5600 / Core i3-i5)</option>
+                         <option value="mid">Orta Seviye (Ryzen 5 7600 / Core i5)</option>
+                         <option value="high">Üst Seviye (Ryzen 7 7800X3D / Core i7)</option>
+                         <option value="extreme">Ekstrem Seviye (Ryzen 9 9950X / Core i9)</option>
+                       </select>
+                     </div>
+
+                     {/* ÇÖZÜNÜRLÜK SEÇİMİ (PREMIUM SEGMANTASYON HAPLARI) */}
+                     <div className="flex flex-col gap-1.5">
+                       <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">ÇÖZÜNÜRLÜK MODU</label>
+                       <div className="grid grid-cols-2 bg-[#0b1329] p-1 rounded-lg border border-white/10 h-[38px] items-center">
+                         <button 
+                           onClick={() => setSelectedRes("1080p")} 
+                           className={`h-full text-xs font-black rounded-md uppercase tracking-wider transition-all ${selectedRes === "1080p" ? "bg-blue-600 text-white shadow-md shadow-blue-600/20 scale-[1.02]" : "text-slate-400 hover:text-white"}`}
+                         >
+                           1080p
+                         </button>
+                         <button 
+                           onClick={() => setSelectedRes("1440p")} 
+                           className={`h-full text-xs font-black rounded-md uppercase tracking-wider transition-all ${selectedRes === "1440p" ? "bg-blue-600 text-white shadow-md shadow-blue-600/20 scale-[1.02]" : "text-slate-400 hover:text-white"}`}
+                         >
+                           1440p (2K)
+                         </button>
                        </div>
-                       <div className="w-full bg-white/5 h-3 sm:h-4 rounded-full overflow-hidden border border-white/5 shadow-inner">
+                     </div>
+
+                   </div>
+
+                   {/* DİNAMİK GRAFİK BARLARI */}
+                   <div className="space-y-4 pt-2">
+                     {processedFpsData.map((spec, i) => (
+                       <div key={i} className="space-y-1">
+                         <div className="flex justify-between items-center text-xs sm:text-sm font-bold text-slate-300">
+                           <span className="tracking-wide">{spec.label}</span>
+                           <span className="text-emerald-400 font-black tracking-tight text-right text-sm">{spec.fps} FPS</span>
+                       </div>
+                       <div className="w-full bg-white/5 h-2.5 rounded-full overflow-hidden border border-white/5 relative shadow-inner">
                          <div 
-                           className={`h-full bg-gradient-to-r ${spec.color} rounded-full transition-all duration-1000 ease-out`}
+                           className={`h-full bg-gradient-to-r ${spec.color} rounded-full transition-all duration-500 ease-out`}
                            style={{ width: `${spec.percentage}%` }}
                          />
                        </div>
                      </div>
                    ))}
-                   <p className="text-[10px] text-slate-500 italic text-center pt-2">*Referans değerler RTX 4060 Ti donanım ailesi ve DLSS Aktif modda test edilmiştir.</p>
+                   </div>
+
+                   <p className="text-[10px] text-slate-500 italic text-center pt-2 border-t border-white/5">
+                     *BilginPC Laboratuvarı: Çarpan motoru seçilen donanım kombinasyonunun bağımsız Yüksek/Ultra test ortalamalarını simüle eder.
+                   </p>
                  </div>
               </div>
             </div>
