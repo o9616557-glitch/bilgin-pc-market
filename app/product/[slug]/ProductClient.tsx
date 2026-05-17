@@ -18,6 +18,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [addingToCart, setAddingToCart] = useState(false);
   const [addedSuccess, setAddedSuccess] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isFav, setIsFav] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>("aciklama");
 
   const [timeLeft, setTimeLeft] = useState("");
@@ -84,7 +85,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     };
   }, []);
 
-  // 🚀 APİ'DEN VERİLERİ ÇEKİP AYRIŞTIRMA VE CEVAPLARI BAĞLAMA MOTORU
+  // 🚀 APİ'DEN VERİLERİ ÇEKİP AYRIŞTIRMA VE CEVAPLARI MUTLAK BAĞLAMA MOTORU
   const fetchReviewsAndQuestions = async () => {
     if (!product || !product.id) return;
     setLoadingReviews(true);
@@ -93,14 +94,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       if (response.ok) {
         const data: Review[] = await response.json();
         
-        // 1. Kök Yorumlar (Parent ID'si 0 olan ve soru etiketi içermeyenler)
-        const normalReviews = data.filter(item => item.parent_id === 0 && !item.review.includes("[SORU]"));
+        // 1. Kök Yorumlar (Soru etiketi içermeyen ana yorumlar)
+        const normalReviews = data.filter(item => Number(item.parent_id) === 0 && !item.review.includes("[SORU]"));
         
-        // 2. Kök Sorular (Parent ID'si 0 olan ve [SORU] içerenler)
-        const customerQuestions = data.filter(item => item.parent_id === 0 && item.review.includes("[SORU]"));
+        // 2. Kök Sorular ([SORU] etiketi barındıran ana sorular)
+        const customerQuestions = data.filter(item => Number(item.parent_id) === 0 && item.review.includes("[SORU]"));
 
-        // 3. Admin Cevapları (Herhangi bir yoruma/soruya ait olan alt yanıtlar)
-        const adminReplies = data.filter(item => item.parent_id > 0);
+        // 3. Admin Cevapları (Kök yorumlara veya sorulara verilmiş tüm alt yanıtlar)
+        const adminReplies = data.filter(item => Number(item.parent_id) > 0);
 
         setReviews(normalReviews);
         setQuestions(customerQuestions);
@@ -215,7 +216,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   };
 
   const stoktaVar = product.stock_status === "instock";
+  const regularPrice = Number(product.regular_price || 0);
   const currentPrice = Number(product.price || 0);
+  const isSale = product.on_sale === true || product.on_sale === "true" || (regularPrice > currentPrice && currentPrice > 0);
+  const eskiFiyat = regularPrice > currentPrice ? regularPrice : (isSale ? Math.round(currentPrice * 1.15) : 0);
   const havaleFiyati = currentPrice * 0.95;
 
   const productCategories = product.categories?.map((cat: any) => cat.slug?.toLowerCase()) || [];
@@ -230,7 +234,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   };
 
   const activeMapping = categoryMappings[currentCategoryType] || categoryMappings["ekran-karti"];
-  const finalTechSpecs = Object.entries(activeMapping).map(([key, label]) => ({ label, value: product.meta_data?.find((m: any) => m.key === key)?.value || product.acf?.[key] })).filter(spec => spec.value);
+  const dynamicCustomSpecs = Object.entries(activeMapping).map(([key, label]) => ({ label, value: product.meta_data?.find((m: any) => m.key === key)?.value || product.acf?.[key] })).filter(spec => spec.value);
+  
+  // 🚀 TEKNİK ÖZELLİK KIRPMASINI İPTAL ETTİK: Özel alan yoksa sistemdeki tüm fabrikasyon nitelikleri çeker!
+  const finalTechSpecs = dynamicCustomSpecs.length > 0 ? dynamicCustomSpecs : (product.attributes?.map((attr: any) => ({ label: attr.name, value: attr.options?.join(', ') })) || []);
   
   const compareOptions = allProducts.filter((p: any) => p.id !== product.id);
   const filteredOptions = compareOptions.filter((item: any) => item.name?.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -253,25 +260,36 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 p-4 sm:p-8 rounded-xl shadow-lg relative z-10">
           
-          {/* GÖRSEL ALANI */}
-          <div className="flex flex-col gap-4">
-            <div className="w-full bg-transparent p-0 sm:p-6 rounded-md overflow-hidden aspect-square relative group flex items-center justify-center cursor-pointer">
+          {/* GÖRSEL ALANI VE ABSOLUTE OK HİZALAMA LABORATUVARI */}
+          <div className="flex flex-col gap-4 relative group">
+            <div className="w-full bg-transparent p-0 sm:p-6 rounded-md overflow-hidden aspect-square relative flex items-center justify-center cursor-pointer">
+              
+              {/* 🚀 FAVORİ BUTONU GÖRSELİN SAĞ ÜSTÜNE YERLEŞTİRİLDİ */}
+              <button onClick={() => setIsFav(!isFav)} className="absolute top-3 right-3 z-30 w-9 h-9 rounded-full bg-[#050814]/80 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-lg transition-transform active:scale-75">
+                <span className={`text-lg transition-colors ${isFav ? "text-red-500" : "text-slate-400"}`}>❤️</span>
+              </button>
+
               {galleryImages.map((img: any, index: number) => (
                 <PhotoView key={index} src={img.src}>
                   <img src={img.src} alt={product.name} className={`max-h-full max-w-full object-contain transform group-hover:scale-[1.02] transition-transform duration-500 ${activeImageIndex === index ? "block" : "hidden"}`} />
                 </PhotoView>
               ))}
+
+              {/* 🚀 OK HİZALAMA OPERASYONU: Oklar artık tam dikey ortalı ve görselin iç yanlarında patlıyor */}
+              {hasMultipleImages && (
+                <>
+                  <button onClick={prevImage} className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-md bg-[#050814]/70 backdrop-blur-sm border border-white/10 flex items-center justify-center text-slate-300 hover:text-white hover:bg-blue-600 transition-all">←</button>
+                  <button onClick={nextImage} className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-md bg-[#050814]/70 backdrop-blur-sm border border-white/10 flex items-center justify-center text-slate-300 hover:text-white hover:bg-blue-600 transition-all">→</button>
+                </>
+              )}
             </div>
 
+            {/* Sadece çoklu görsel varsa alt nokta navigasyonu açılır */}
             {hasMultipleImages && (
-              <div className="flex items-center justify-between gap-3 bg-[#050814]/40 border border-white/5 p-2 rounded-md">
-                <button onClick={prevImage} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white">←</button>
-                <div className="flex-1 flex justify-center items-center gap-1.5 flex-wrap">
-                  {galleryImages.map((_: any, index: number) => (
-                    <button key={index} onClick={() => setActiveImageIndex(index)} className={`w-2 h-2 rounded-full transition-all ${activeImageIndex === index ? 'bg-blue-500 w-4' : 'bg-white/20'}`} />
-                  ))}
-                </div>
-                <button onClick={nextImage} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white">→</button>
+              <div className="flex justify-center items-center gap-1.5 py-1">
+                {galleryImages.map((_: any, index: number) => (
+                  <button key={index} onClick={() => setActiveImageIndex(index)} className={`w-2 h-2 rounded-full transition-all ${activeImageIndex === index ? 'bg-blue-500 w-4' : 'bg-white/20'}`} />
+                ))}
               </div>
             )}
           </div>
@@ -282,6 +300,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <div className="flex flex-wrap items-center gap-1.5 mb-3">
                 <span className="bg-white/5 border border-white/10 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded-full">KOD: {product.sku || product.id}</span>
                 {stoktaVar ? <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-black px-2 py-0.5 rounded-full">STOKTA VAR</span> : <span className="bg-red-500/10 border border-red-500/20 text-red-400 text-[9px] font-black px-2 py-0.5 rounded-full">TÜKENDİ</span>}
+                {/* 🚀 İNDİRİM ROZETİ GERİ GELDİ */}
+                {isSale && <span className="bg-gradient-to-r from-red-500 to-amber-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">💎 İNDİRİMLİ FIRSAT</span>}
               </div>
 
               <div className="flex items-center gap-2 mb-2">
@@ -291,15 +311,27 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
               <h1 className="text-lg sm:text-2xl font-black uppercase tracking-tight mb-3 text-slate-100">{product.name}</h1>
               
-              <div className="bg-[#050814]/50 border border-white/5 p-4 rounded-md mb-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* 🚀 ESKİ FİYAT VE İNDİRİM YAPISI GERİ YÜKLENDİ */}
+              <div className="bg-[#050814]/50 border border-white/5 p-4 rounded-md mb-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <span className="text-[10px] font-bold uppercase text-emerald-400 block mb-0.5">Havale Fiyatı (%5 İndirimli)</span>
                   <span className="text-xl sm:text-2xl font-black text-emerald-400">{havaleFiyati.toLocaleString('tr-TR')} TL</span>
                 </div>
                 <div className="sm:text-right border-t sm:border-t-0 border-white/5 pt-2 sm:pt-0 flex flex-col justify-center">
-                  <span className="text-[10px] text-slate-500 block font-bold">Tek Çekim Fiyatı</span>
-                  <span className="text-sm sm:text-base font-black text-slate-200">{currentPrice.toLocaleString('tr-TR')} TL</span>
+                  <span className="text-[10px] text-slate-500 block font-bold">Kredi Kartı Tek Çekim</span>
+                  {isSale && eskiFiyat > 0 ? (
+                    <div className="flex flex-wrap items-center gap-1.5 sm:justify-end">
+                      <span className="text-xs line-through text-red-400 font-bold">{eskiFiyat.toLocaleString('tr-TR')} TL</span>
+                      <span className="text-sm sm:text-base font-black text-slate-200">{currentPrice.toLocaleString('tr-TR')} TL</span>
+                    </div>
+                  ) : <span className="text-sm sm:text-base font-black text-slate-200">{currentPrice.toLocaleString('tr-TR')} TL</span>}
                 </div>
+              </div>
+
+              {/* 🚀 KREDİ KARTINA 12 TAKSİT BİLGİSİ EKLENDİ */}
+              <div className="bg-blue-600/5 border border-blue-500/10 rounded-md p-2.5 mb-3 flex items-center gap-2 text-xs font-bold text-blue-400 shadow-inner">
+                <span>💳</span>
+                <span>Kredi Kartlarına Vade Farksız Peşin Fiyatına 12 Taksit Seçeneği!</span>
               </div>
 
               <div className="flex items-center gap-3 mb-4 bg-[#050814]/50 p-3 rounded-md border border-blue-500/20">
@@ -348,7 +380,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   <span className="text-sm font-black uppercase tracking-widest text-blue-400">⚙️ Teknik Özellikler</span>
                   <span className="text-blue-400">▼</span>
                 </button>
-                <div className={`px-4 overflow-hidden transition-all duration-300 ${openAccordion === "teknik" ? "max-h-[1000px] pb-4 opacity-100" : "max-h-0 opacity-0"}`}>
+                <div className={`px-4 overflow-hidden transition-all duration-300 ${openAccordion === "teknik" ? "max-h-[2000px] pb-4 opacity-100" : "max-h-0 opacity-0"}`}>
                      <div className="border-t border-white/5 pt-3">
                        <table className="w-full text-left text-sm">
                          <tbody>
@@ -365,7 +397,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             )}
 
-            {/* YORUMLAR */}
+            {/* KULLANICI YORUMLARI */}
             <div className="border-b border-white/5">
               <button onClick={() => toggleAccordion("topluluk")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                 <span className="text-sm font-black uppercase tracking-widest text-blue-400">💬 Kullanıcı Yorumları ({reviews.length})</span>
@@ -426,18 +458,29 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
                     <div className="space-y-4">
                         {reviews.length > 0 ? (
-                          reviews.map((review) => (
-                            <div key={review.id} className="p-4 rounded-xl bg-[#050814]/40 border border-white/5">
-                              <div className="flex justify-between items-start gap-2 mb-2">
-                                <div>
-                                  <span className="text-xs font-black text-slate-200 block">{review.reviewer}</span>
-                                  <span className="text-[9px] text-slate-500">{formatDate(review.date_created)}</span>
+                          reviews.map((review) => {
+                            // Normal yorumlara ait bir cevap gelirse onun da listelenmesini sağlıyoruz
+                            const reviewReply = replies.find(r => Number(r.parent_id) === Number(review.id));
+                            return (
+                              <div key={review.id} className="p-4 rounded-xl bg-[#050814]/40 border border-white/5 space-y-3">
+                                <div className="flex justify-between items-start gap-2">
+                                  <div>
+                                    <span className="text-xs font-black text-slate-200 block">{review.reviewer}</span>
+                                    <span className="text-[9px] text-slate-500">{formatDate(review.date_created)}</span>
+                                  </div>
+                                  {renderStars(review.rating)}
                                 </div>
-                                {renderStars(review.rating)}
+                                <div className="text-slate-300 text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: review.review }} />
+                                
+                                {reviewReply && (
+                                  <div className="bg-blue-600/10 border border-blue-500/20 p-3 rounded-lg ml-4">
+                                    <div className="text-[10px] text-emerald-400 font-black uppercase mb-1">👨‍💻 Mağaza Yetkilisi Yanıtı</div>
+                                    <div className="text-slate-300 text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: reviewReply.review }} />
+                                  </div>
+                                )}
                               </div>
-                              <div className="text-slate-300 text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: review.review }} />
-                            </div>
-                          ))
+                            );
+                          })
                         ) : (
                           <div className="text-center py-6 text-slate-500 text-xs">Bu ürüne henüz yorum yapılmadı şefim.</div>
                         )}
@@ -446,7 +489,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             </div>
 
-            {/* MAĞAZAYA SORU SOR */}
+            {/* MAĞAZAYA SORU SOR & CEVAP MOTORU */}
             <div className="border-b border-white/5">
               <button onClick={() => toggleAccordion("sorusor")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                 <span className="text-sm font-black uppercase tracking-widest text-blue-400">❓ Mağazaya Soru Sor ({questions.length})</span>
@@ -475,7 +518,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                       {questions.length > 0 ? (
                         questions.map((q) => {
                           const cleanQuestionText = q.review.replace("[SORU]", "").trim();
-                          const questionReply = replies.find(r => r.parent_id === q.id);
+                          
+                          // 🚀 TIP UYUŞMAZLIĞINI GİDERDİK: Number zorlaması ile admin cevapları artık milimetrik eşleşip görünür hale gelecek!
+                          const questionReply = replies.find(r => Number(r.parent_id) === Number(q.id));
 
                           return (
                             <div key={q.id} className="p-4 rounded-xl bg-[#050814]/20 border border-white/5 flex flex-col gap-3">
@@ -487,6 +532,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                                 <p className="text-slate-200 text-xs pl-2 border-l border-blue-500/40">{cleanQuestionText}</p>
                               </div>
                               
+                              {/* WordPress Panelinden verdiğin yanıtlar tam bu noktaya basılır */}
                               {questionReply ? (
                                 <div className="bg-blue-600/10 border border-blue-500/20 p-3 rounded-lg ml-3">
                                   <div className="text-[10px] text-emerald-400 font-black uppercase mb-1">👨‍💻 Mağaza Yetkilisi Cevabı</div>
@@ -506,7 +552,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             </div>
 
-            {/* KARŞILAŞTIRMA LAB */}
+            {/* ÜRÜN KARŞILAŞTIRMA LAB */}
             <div>
               <button onClick={() => toggleAccordion("karsilastir")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                 <span className="text-sm font-black uppercase tracking-widest text-emerald-400">⚖️ Ürün Karşılaştırma Laboratuvarı</span>
