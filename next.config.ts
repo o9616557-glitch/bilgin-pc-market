@@ -1,9 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // 🚀 İŞTE SİHİRLİ KOMUT BURADA! (Experimental kelimesi kaldırıldı, ana ayar yapıldı)
-  // Bu komut Next.js'e "İyzico'yu sorgulama, onu olduğu gibi içeri al" emrini verir.
+  // İyzico'yu harici bir paket olarak tanıtır
   serverExternalPackages: ["iyzipay"],
+  experimental: {
+    // 🚀 İŞTE VERCEL'İ DİZE GETİREN KOMUT!
+    // Vercel'e "API yüklenirken İyzico'nun resources klasörünü SAKIN silme, içine kopyala!" der.
+    outputFileTracingIncludes: {
+      "/api/**/*": ["./node_modules/iyzipay/lib/resources/**/*"]
+    }
+  }
 };
 
 export default nextConfig;
