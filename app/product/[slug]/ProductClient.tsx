@@ -125,9 +125,8 @@ export default function ProductClient({ product }: { product: Record<string, any
     ["hazir-sistem", "ekran-karti", "masaustu-bilgisayarlar", "laptop-bilgisayar", "hazir-sistem-bilgisayarlar", "ekran-kartlari"].includes(slug)
   );
 
-  // 🚀 ŞEFİN MASTER ANAHTAR SANTRALİ (Kategoriye Göre ACF Eşleştirme Sözlüğü)
+  // MASTER ANAHTAR SANTRALİ (Kategoriye Göre ACF Eşleştirme Sözlüğü)
   const categoryMappings: Record<string, Record<string, string>> = {
-    // EKRAN KARTI ALANLARI
     "ekran-karti": {
       model: "Model", grafik_motoru: "Grafik Motoru", ai_performansi: "AI Performansı", bus_standarti: "Bus Standartı",
       opengl: "OpenGL", bellek: "Bellek Kapasitesi", saat_hizi: "Saat Hızı", cuda_cekirdegi: "CUDA Çekirdeği",
@@ -142,7 +141,6 @@ export default function ProductClient({ product }: { product: Record<string, any
       boyutlar: "Boyutlar", tavsiye_edilen_guc_kaynagi: "Tavsiye Edilen PSU", guc_baglantilari: "Güç Bağlantıları",
       yuva: "Yuva Tipi", aura_sync: "Aura Sync / RGB"
     },
-    // 🛋️ KOLTUK VE EKİPMAN ALANLARI (Yeni Eklenen Can Damarı!)
     "oyuncu-koltugu": {
       malzeme_tipi: "Döşeme Malzemesi", kol_destegi: "Kol Desteği Sınıfı", amortisör: "Amortisör Klasmanı",
       tasima_kapasitesi: "Maksimum Taşıma", mekanizma: "Yatış Mekanizması", ayak_malzemesi: "Ayak Yıldız Tabanı",
@@ -153,14 +151,12 @@ export default function ProductClient({ product }: { product: Record<string, any
       tasima_kapasitesi: "Maksimum Taşıma", mekanizma: "Yatış Mekanizması", ayak_malzemesi: "Ayak Yıldız Tabanı",
       yastik_destegi: "Bel & Boyun Yastığı", koltuk_boyutu: "Ürün Ölçüleri / Boyut"
     },
-    // 💾 SSD DEPOLAMA ALANLARI
     "ssd": {
       okuma_hizi: "Okuma Hızı (MB/s)", yazma_hizi: "Yazma Hızı (MB/s)", arabirim: "Bağlantı Arayüzü",
       tbw_degeri: "Yazım Ömrü (TBW)", nvme_versiyon: "NVMe Sürümü", flash_tipi: "NAND Flash Tipi"
     }
   };
 
-  // 🚀 AKTİF KATEGORİYİ BULUP DOĞRU SÖZLÜĞÜ SEÇME MOTORU
   let activeMapping: Record<string, string> = {};
   for (const slug of productCategories) {
     if (categoryMappings[slug]) {
@@ -169,21 +165,17 @@ export default function ProductClient({ product }: { product: Record<string, any
     }
   }
 
-  // ACF Verilerini Süzme İşlemi
   const dynamicCustomSpecs = Object.entries(activeMapping).map(([key, label]) => {
     const metaValue = product.meta_data?.find((m: any) => m.key === key)?.value || product.acf?.[key];
     return { label, value: metaValue };
   }).filter(spec => spec.value !== undefined && spec.value !== null && spec.value !== "");
 
-  // Fallback Mantığı: Eğer o kategoriye ait özel ACF girilmediyse standart WooCommerce Niteliklerini listele
   const finalTechSpecs = dynamicCustomSpecs.length > 0 
     ? dynamicCustomSpecs 
     : (product.attributes?.map((attr: any) => ({ label: attr.name, value: attr.options?.join(', ') })) || []);
 
-  // İŞLEMCİ ÇARPANLARI
   const cpuMultipliers: Record<string, number> = { entry: 0.85, mid: 0.93, high: 1.00, extreme: 1.10 };
 
-  // OYUN SİMÜLASYON HARİTASI
   const gamesConfig = [
     { id: "pubg", label: "PUBG: BATTLEGROUNDS", maxFps: 400, default1080p: 210, default1440p: 140, color: "from-amber-500 to-orange-600 shadow-[0_0_15px_rgba(245,158,11,0.3)]" },
     { id: "valorant", label: "VALORANT", maxFps: 600, default1080p: 450, default1440p: 320, color: "from-rose-500 to-red-600 shadow-[0_0_15px_rgba(244,63,94,0.3)]" },
@@ -202,13 +194,6 @@ export default function ProductClient({ product }: { product: Record<string, any
     const percentage = Math.min((finalFps / game.maxFps) * 100, 100);
     return { label: game.label, fps: finalFps, percentage, color: game.color };
   });
-
-  const getMetaData = (key: string) => {
-    const meta = product.meta_data?.find((m: any) => m.key === key);
-    return meta ? meta.value : null;
-  };
-
-  const comparisonData = getMetaData('karsilastirma');
 
   return (
     <PhotoProvider>
@@ -407,7 +392,7 @@ export default function ProductClient({ product }: { product: Record<string, any
               </div>
             </div>
 
-            {/* 2. TEKNİK ÖZELLİKLER (BUKALEMUN TABLO MOTORU) */}
+            {/* 2. TEKNİK ÖZELLİKLER */}
             {finalTechSpecs.length > 0 && (
               <div className="border-b border-white/5 last:border-0">
                 <button 
@@ -438,7 +423,7 @@ export default function ProductClient({ product }: { product: Record<string, any
               </div>
             )}
 
-            {/* 3. OYUN PERFORMANS TESTİ (SADECE PC VEYA GPU KATEGORİSİNDEYSE OTOMATİK AKTİF!) */}
+            {/* 3. OYUN PERFORMANS TESTİ */}
             {isPCorGPU && (
               <div className="border-b border-white/5 last:border-0">
                 <button 
@@ -524,27 +509,7 @@ export default function ProductClient({ product }: { product: Record<string, any
               </div>
             )}
 
-            {/* 4. ÜRÜN KARŞILAŞTIRMA */}
-            {comparisonData && (
-              <div className="border-b border-white/5 last:border-0">
-                <button 
-                  onClick={() => toggleAccordion("karsilastirma")}
-                  className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group"
-                >
-                  <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
-                    <span className="text-lg sm:text-xl">⚖️</span> Ürün Karşılaştırma
-                  </span>
-                  <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "karsilastirma" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
-                </button>
-                <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "karsilastirma" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
-                   <div className="border-t border-white/5 pt-3 sm:pt-4">
-                     <div dangerouslySetInnerHTML={{ __html: comparisonData }} />
-                   </div>
-                </div>
-              </div>
-            )}
-
-            {/* 5. TOPLULUK DEĞERLENDİRME */}
+            {/* 4. TOPLULUK DEĞERLENDİRME */}
             <div className="border-b border-white/5 last:border-0">
               <button 
                 onClick={() => toggleAccordion("topluluk")}
@@ -553,7 +518,7 @@ export default function ProductClient({ product }: { product: Record<string, any
                 <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
                   <span className="text-lg sm:text-xl">💬</span> Topluluk Değerlendirme
                 </span>
-                <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "topluluk" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
+                <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "topluluk" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
               </button>
               <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "topluluk" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
                  <div className="border-t border-white/5 pt-3 sm:pt-4 flex flex-col items-center justify-center gap-2 py-6">
