@@ -12,7 +12,9 @@ export default function ProductClient({ product }: { product: Record<string, any
   const [addedSuccess, setAddedSuccess] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isFav, setIsFav] = useState(false);
-  const [openAccordion, setOpenAccordion] = useState<string | null>(null);
+  
+  // 🚀 ŞEFİN EMRİ: Sayfa açıldığında varsayılan olarak "aciklama" sekmesi AÇIK gelecek!
+  const [openAccordion, setOpenAccordion] = useState<string | null>("aciklama");
 
   const toggleAccordion = (section: string) => {
     setOpenAccordion(openAccordion === section ? null : section);
@@ -82,17 +84,14 @@ export default function ProductClient({ product }: { product: Record<string, any
 
   return (
     <PhotoProvider>
-      {/* 🚀 ANA EKRAN YAN BOŞLUKLARI KISILDI (px-3) */}
       <div className="min-h-[calc(100vh-80px)] bg-[#050814] text-white pt-2 pb-24 md:py-8 px-3 sm:px-6 lg:px-8 relative overflow-hidden font-medium">
         
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/5 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-emerald-600/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-        {/* ÜST VİTRİN BÖLÜMÜ (Mobilde dar padding: p-4) */}
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 p-4 sm:p-8 rounded-xl sm:rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10">
           
           <div className="flex flex-col gap-4">
-            {/* MOBİLDE RESİM KUTUSU SIFIR PADDING */}
             <div className="w-full bg-transparent p-0 sm:p-6 rounded-md overflow-hidden aspect-square relative group flex items-center justify-center cursor-pointer">
               {galleryImages.map((img: any, index: number) => (
                 <PhotoView key={index} src={img.src}>
@@ -222,25 +221,34 @@ export default function ProductClient({ product }: { product: Record<string, any
           </div>
         </div>
 
-        {/* 🚀 KUTU İÇİ KUTULAR KALKTI: DÜMDÜZ VE FERAH BÖLÜMLER */}
+        {/* 🚀 BİRLEŞTİRİLMİŞ AKORDEON SEKMELERİ (ÜRÜN AÇIKLAMASI DAHİL) */}
         <div className="max-w-6xl mx-auto mt-6 sm:mt-10 relative z-10 flex flex-col gap-6 sm:gap-8">
           
-          {/* 1. ÜRÜN AÇIKLAMASI (Sıfır iç boşluk kalabalığı, geniş metin) */}
-          <div className="bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 rounded-xl sm:rounded-2xl p-4 sm:p-8 shadow-lg">
-            <h2 className="text-base sm:text-xl font-black uppercase tracking-widest text-blue-500 italic mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
-              <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-lg sm:text-xl">🛠️</span> 
-              Ürün Açıklaması
-            </h2>
-            <div 
-              className="text-slate-200 text-base md:text-lg leading-relaxed space-y-4 prose prose-invert font-normal max-w-none prose-p:my-2 prose-headings:text-white prose-headings:font-black prose-img:rounded-xl sm:prose-img:rounded-2xl prose-img:shadow-[0_10px_30px_rgba(0,0,0,0.4)] prose-img:w-full prose-img:my-6 sm:prose-img:my-10"
-              dangerouslySetInnerHTML={{ __html: product.description || "Bu canavar için henüz detaylı bir teknik açıklama girilmemiş şefim." }}
-            />
-          </div>
-
-          {/* 2. AKORDEON SEKMELERİ (Hepsi tek bir ana kartta toplandı, boşluklar atıldı) */}
           <div className="bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 rounded-xl sm:rounded-2xl shadow-lg flex flex-col overflow-hidden">
             
-            {/* TEKNİK ÖZELLİKLER */}
+            {/* 1. ÜRÜN AÇIKLAMASI (SAYFA AÇILDIĞINDA AKTİF GELECEK) */}
+            <div className="border-b border-white/5 last:border-0">
+              <button 
+                onClick={() => toggleAccordion("aciklama")}
+                className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group"
+              >
+                <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-slate-300 group-hover:text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
+                  <span className="text-lg sm:text-xl">🛠️</span> Ürün Açıklaması
+                </span>
+                <svg className={`w-4 h-4 sm:w-5 sm:h-5 text-slate-500 transform transition-transform duration-500 ${openAccordion === "aciklama" ? "rotate-180 text-blue-400" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
+              </button>
+              {/* max-h-[5000px] eklendi ki içine eklenecek devasa resimler ve yazılar yarıda kesilmesin */}
+              <div className={`px-4 sm:px-5 overflow-hidden transition-all duration-500 ${openAccordion === "aciklama" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
+                 <div className="border-t border-white/5 pt-3 sm:pt-4">
+                    <div 
+                      className="text-slate-200 text-base md:text-lg leading-relaxed space-y-4 prose prose-invert font-normal max-w-none prose-p:my-2 prose-headings:text-white prose-headings:font-black prose-img:rounded-xl sm:prose-img:rounded-2xl prose-img:shadow-[0_10px_30px_rgba(0,0,0,0.4)] prose-img:w-full prose-img:my-6 sm:prose-img:my-10"
+                      dangerouslySetInnerHTML={{ __html: product.description || "Bu canavar için henüz detaylı bir teknik açıklama girilmemiş şefim." }}
+                    />
+                 </div>
+              </div>
+            </div>
+
+            {/* 2. TEKNİK ÖZELLİKLER */}
             <div className="border-b border-white/5 last:border-0">
               <button 
                 onClick={() => toggleAccordion("teknik")}
@@ -249,14 +257,16 @@ export default function ProductClient({ product }: { product: Record<string, any
                 <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-slate-300 group-hover:text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
                   <span className="text-lg sm:text-xl">⚙️</span> Teknik Özellikler
                 </span>
-                <svg className={`w-4 h-4 sm:w-5 sm:h-5 text-slate-500 transform transition-transform duration-300 ${openAccordion === "teknik" ? "rotate-180 text-blue-400" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
+                <svg className={`w-4 h-4 sm:w-5 sm:h-5 text-slate-500 transform transition-transform duration-500 ${openAccordion === "teknik" ? "rotate-180 text-blue-400" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
               </button>
-              <div className={`px-4 sm:px-5 text-slate-400 text-sm overflow-hidden transition-all duration-300 ${openAccordion === "teknik" ? "max-h-96 pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
-                 <p className="border-t border-white/5 pt-3 sm:pt-4">Teknik veriler buraya çekilecek.</p>
+              <div className={`px-4 sm:px-5 text-slate-400 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "teknik" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
+                 <div className="border-t border-white/5 pt-3 sm:pt-4">
+                   <p>Teknik veriler buraya çekilecek.</p>
+                 </div>
               </div>
             </div>
 
-            {/* OYUN PERFORMANS TESTİ */}
+            {/* 3. OYUN PERFORMANS TESTİ */}
             <div className="border-b border-white/5 last:border-0">
               <button 
                 onClick={() => toggleAccordion("performans")}
@@ -265,14 +275,16 @@ export default function ProductClient({ product }: { product: Record<string, any
                 <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-slate-300 group-hover:text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
                   <span className="text-lg sm:text-xl">🎮</span> Oyun Performans Testi
                 </span>
-                <svg className={`w-4 h-4 sm:w-5 sm:h-5 text-slate-500 transform transition-transform duration-300 ${openAccordion === "performans" ? "rotate-180 text-blue-400" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
+                <svg className={`w-4 h-4 sm:w-5 sm:h-5 text-slate-500 transform transition-transform duration-500 ${openAccordion === "performans" ? "rotate-180 text-blue-400" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
               </button>
-              <div className={`px-4 sm:px-5 text-slate-400 text-sm overflow-hidden transition-all duration-300 ${openAccordion === "performans" ? "max-h-96 pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
-                 <p className="border-t border-white/5 pt-3 sm:pt-4">Oyun FPS değerleri buraya gelecek.</p>
+              <div className={`px-4 sm:px-5 text-slate-400 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "performans" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
+                 <div className="border-t border-white/5 pt-3 sm:pt-4">
+                   <p>Oyun FPS değerleri buraya gelecek.</p>
+                 </div>
               </div>
             </div>
 
-            {/* ÜRÜN KARŞILAŞTIRMA */}
+            {/* 4. ÜRÜN KARŞILAŞTIRMA */}
             <div className="border-b border-white/5 last:border-0">
               <button 
                 onClick={() => toggleAccordion("karsilastirma")}
@@ -281,14 +293,16 @@ export default function ProductClient({ product }: { product: Record<string, any
                 <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-slate-300 group-hover:text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
                   <span className="text-lg sm:text-xl">⚖️</span> Ürün Karşılaştırma
                 </span>
-                <svg className={`w-4 h-4 sm:w-5 sm:h-5 text-slate-500 transform transition-transform duration-300 ${openAccordion === "karsilastirma" ? "rotate-180 text-blue-400" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
+                <svg className={`w-4 h-4 sm:w-5 sm:h-5 text-slate-500 transform transition-transform duration-500 ${openAccordion === "karsilastirma" ? "rotate-180 text-blue-400" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
               </button>
-              <div className={`px-4 sm:px-5 text-slate-400 text-sm overflow-hidden transition-all duration-300 ${openAccordion === "karsilastirma" ? "max-h-96 pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
-                 <p className="border-t border-white/5 pt-3 sm:pt-4">Karşılaştırma tabloları burada yer alacak.</p>
+              <div className={`px-4 sm:px-5 text-slate-400 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "karsilastirma" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
+                 <div className="border-t border-white/5 pt-3 sm:pt-4">
+                   <p>Karşılaştırma tabloları burada yer alacak.</p>
+                 </div>
               </div>
             </div>
 
-            {/* TOPLULUK DEĞERLENDİRME */}
+            {/* 5. TOPLULUK DEĞERLENDİRME */}
             <div className="border-b border-white/5 last:border-0">
               <button 
                 onClick={() => toggleAccordion("topluluk")}
@@ -297,17 +311,18 @@ export default function ProductClient({ product }: { product: Record<string, any
                 <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-slate-300 group-hover:text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
                   <span className="text-lg sm:text-xl">💬</span> Topluluk Değerlendirme
                 </span>
-                <svg className={`w-4 h-4 sm:w-5 sm:h-5 text-slate-500 transform transition-transform duration-300 ${openAccordion === "topluluk" ? "rotate-180 text-blue-400" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
+                <svg className={`w-4 h-4 sm:w-5 sm:h-5 text-slate-500 transform transition-transform duration-500 ${openAccordion === "topluluk" ? "rotate-180 text-blue-400" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
               </button>
-              <div className={`px-4 sm:px-5 text-slate-400 text-sm overflow-hidden transition-all duration-300 ${openAccordion === "topluluk" ? "max-h-96 pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
-                 <p className="border-t border-white/5 pt-3 sm:pt-4">Müşteri yorumları buraya çekilecek.</p>
+              <div className={`px-4 sm:px-5 text-slate-400 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "topluluk" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
+                 <div className="border-t border-white/5 pt-3 sm:pt-4">
+                   <p>Müşteri yorumları buraya çekilecek.</p>
+                 </div>
               </div>
             </div>
             
           </div>
         </div>
 
-        {/* MOBİL YAPIŞKAN SEPET */}
         <div className="fixed bottom-0 left-0 right-0 bg-[#0b1329]/90 backdrop-blur-xl border-t border-white/10 p-3 flex items-center justify-between z-50 sm:hidden shadow-[0_-10px_30px_rgba(0,0,0,0.6)] animate-fade-in">
           <div className="flex flex-col">
             <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-wider">Havale Fiyatı</span>
