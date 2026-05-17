@@ -17,7 +17,7 @@ export default function ProductClient({ product }: { product: Record<string, any
   const [timeLeft, setTimeLeft] = useState("");
   const [shippingMessage, setShippingMessage] = useState("");
 
-  // 🚀 SIMÜLATÖR STATE'LERİ (Varsayılan: Orta Seviye CPU ve 1080p)
+  // SIMÜLATÖR STATE'LERİ
   const [selectedCpu, setSelectedCpu] = useState("mid");
   const [selectedRes, setSelectedRes] = useState<"1080p" | "1440p">("1080p");
 
@@ -112,7 +112,7 @@ export default function ProductClient({ product }: { product: Record<string, any
   const kartFiyati = Number(product.price || product.regular_price || 0);
   const havaleFiyati = kartFiyati * 0.95;
 
-  // TEKNİK ÖZELLİKLER ACF ESLESTİRME HARİTASI
+  // TEKNİK ÖZELLİKLER HARİTASI
   const acfMapping: Record<string, string> = {
     model: "Model",
     grafik_motoru: "Grafik Motoru",
@@ -138,15 +138,15 @@ export default function ProductClient({ product }: { product: Record<string, any
     return { label, value: metaValue };
   }).filter(spec => spec.value !== undefined && spec.value !== null && spec.value !== "");
 
-  // 🚀 İŞLEMCİ GÜÇ ÇARPANLARI (V8 MOTORU)
+  // İŞLEMCİ ÇARPANLARI
   const cpuMultipliers: Record<string, number> = {
-    entry: 0.85,  // Giriş Seviyesi %15 kayıp (darboğaz)
-    mid: 0.93,    // Orta Seviye %7 kayıp
-    high: 1.00,   // Üst Seviye (Tam Performans - ACF Baz Değeri)
-    extreme: 1.10 // Ekstrem Seviye (%10 Bonus güç)
+    entry: 0.85,
+    mid: 0.93,
+    high: 1.00,
+    extreme: 1.10
   };
 
-  // 🚀 OYUN SİMÜLASYON HARİTASI (Tamamen Gönderdiğin Fotoğraftaki ACF İsimleriyle Birebir!)
+  // OYUN SİMÜLASYON HARİTASI
   const gamesConfig = [
     { id: "pubg", label: "PUBG: BATTLEGROUNDS", maxFps: 400, default1080p: 210, default1440p: 140, color: "from-amber-500 to-orange-600 shadow-[0_0_15px_rgba(245,158,11,0.3)]" },
     { id: "valorant", label: "VALORANT", maxFps: 600, default1080p: 450, default1440p: 320, color: "from-rose-500 to-red-600 shadow-[0_0_15px_rgba(244,63,94,0.3)]" },
@@ -157,15 +157,11 @@ export default function ProductClient({ product }: { product: Record<string, any
 
   const currentCpuMultiplier = cpuMultipliers[selectedCpu] || 1.0;
 
-  // Veri çekme ve dinamik hesaplama motoru
   const processedFpsData = gamesConfig.map(game => {
-    const acfKey = `${game.id}_${selectedRes}_fps`; // Dinamik anahtar örn: valorant_1080p_fps
+    const acfKey = `${game.id}_${selectedRes}_fps`;
     const metaValue = product.meta_data?.find((m: any) => m.key === acfKey)?.value || product.acf?.[acfKey];
     
-    // Panel boşsa dükkan kör kalmasın diye varsayılan RTX 4060 Ti değerini ata
     const baseFps = metaValue ? Number(metaValue) : (selectedRes === "1080p" ? game.default1080p : game.default1440p);
-    
-    // Canlı Çarpan İşlemi (Matematiksel Dönüşüm)
     const finalFps = Math.round(baseFps * currentCpuMultiplier);
     const percentage = Math.min((finalFps / game.maxFps) * 100, 100);
 
@@ -337,7 +333,7 @@ export default function ProductClient({ product }: { product: Record<string, any
           </div>
         </div>
 
-        {/* 🚀 AKORDEON DEPARTMANI */}
+        {/* AKORDEON DEPARTMANI */}
         <div className="max-w-6xl mx-auto mt-6 sm:mt-10 relative z-10 flex flex-col gap-6 sm:gap-8">
           <div className="bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 rounded-xl sm:rounded-2xl shadow-lg flex flex-col overflow-hidden">
             
@@ -395,7 +391,7 @@ export default function ProductClient({ product }: { product: Record<string, any
               </div>
             </div>
 
-            {/* 🚀 3. ULTRA-PREMIUM CANLI SİMÜLATÖRLÜ OYUN PERFORMANS TESTİ */}
+            {/* 3. OYUN PERFORMANS TESTİ */}
             <div className="border-b border-white/5 last:border-0">
               <button 
                 onClick={() => toggleAccordion("performans")}
@@ -411,8 +407,6 @@ export default function ProductClient({ product }: { product: Record<string, any
                    
                    {/* SİMÜLATÖR PANEL KUMANDASI */}
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[#050814]/40 p-4 rounded-xl border border-white/5 shadow-inner">
-                     
-                     {/* İŞLEMCİ SEÇİMİ (DROPDOWN) */}
                      <div className="flex flex-col gap-1.5">
                        <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">SİSTEM İŞLEMCİSİ (CPU)</label>
                        <select 
@@ -427,7 +421,6 @@ export default function ProductClient({ product }: { product: Record<string, any
                        </select>
                      </div>
 
-                     {/* ÇÖZÜNÜRLÜK SEÇİMİ (PREMIUM SEGMANTASYON HAPLARI) */}
                      <div className="flex flex-col gap-1.5">
                        <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">ÇÖZÜNÜRLÜK MODU</label>
                        <div className="grid grid-cols-2 bg-[#0b1329] p-1 rounded-lg border border-white/10 h-[38px] items-center">
@@ -445,7 +438,6 @@ export default function ProductClient({ product }: { product: Record<string, any
                          </button>
                        </div>
                      </div>
-
                    </div>
 
                    {/* DİNAMİK GRAFİK BARLARI */}
@@ -455,20 +447,33 @@ export default function ProductClient({ product }: { product: Record<string, any
                          <div className="flex justify-between items-center text-xs sm:text-sm font-bold text-slate-300">
                            <span className="tracking-wide">{spec.label}</span>
                            <span className="text-emerald-400 font-black tracking-tight text-right text-sm">{spec.fps} FPS</span>
+                         </div>
+                         <div className="w-full bg-white/5 h-2.5 rounded-full overflow-hidden border border-white/5 relative shadow-inner">
+                           <div 
+                             className={`h-full bg-gradient-to-r ${spec.color} rounded-full transition-all duration-500 ease-out`}
+                             style={{ width: `${spec.percentage}%` }}
+                           />
+                         </div>
                        </div>
-                       <div className="w-full bg-white/5 h-2.5 rounded-full overflow-hidden border border-white/5 relative shadow-inner">
-                         <div 
-                           className={`h-full bg-gradient-to-r ${spec.color} rounded-full transition-all duration-500 ease-out`}
-                           style={{ width: `${spec.percentage}%` }}
-                         />
-                       </div>
-                     </div>
-                   ))}
+                     ))}
                    </div>
 
-                   <p className="text-[10px] text-slate-500 italic text-center pt-2 border-t border-white/5">
-                     *BilginPC Laboratuvarı: Çarpan motoru seçilen donanım kombinasyonunun bağımsız Yüksek/Ultra test ortalamalarını simüle eder.
-                   </p>
+                   {/* 🚀 KUSURSUZ İKNA EDİCİ LAB LAB BİLGİLENDİRME KUTUSU (PAPAZ OLMAYA SON!) */}
+                   <div className="mt-4 p-4 rounded-xl bg-blue-500/5 border border-blue-500/10 text-slate-400 text-xs space-y-2 leading-relaxed shadow-inner">
+                     <div className="flex items-center gap-2 text-blue-400 font-black uppercase tracking-wider text-[11px]">
+                       <span>📊</span> BilginPC Donanım Laboratuvarı Bildirisi:
+                     </div>
+                     <p className="font-normal text-slate-400">
+                       Bu simülatörde listelenen FPS değerleri, BilginPC mühendisleri ve bağımsız donanım platformlarının <strong>Yüksek/Ultra grafik ayarlarında</strong> elde ettiği kararlı dünya ortalamalarıdır. 
+                     </p>
+                     <p className="font-normal text-slate-400">
+                       Anlık gelen Windows güncellemeleri, ekran kartı sürücü (driver) versiyonunuz, RAM belleklerinizin XMP/EXPO frekans hızları ve hatta oyun içi haritalardaki oyuncu yoğunluğu gibi yüzlerce farklı dış etken sebebiyle, sizin kendi sisteminizde alacağınız canlı skorlarda <strong>± %5 ila %10 arasında frame (kare) oynamaları görülmesi tamamen doğaldır ve endüstri standardıdır.</strong> 
+                     </p>
+                     <p className="font-bold text-slate-300 italic">
+                       Buradaki motor, bütçenize ve ihtiyacınıza en doğru işlemci-ekran kartı kombinasyonunu papaz olmadan, en dürüst şekilde seçebilmeniz için saf bir referans kılavuzudur.
+                     </p>
+                   </div>
+
                  </div>
               </div>
             </div>
