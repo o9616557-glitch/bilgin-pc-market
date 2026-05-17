@@ -166,7 +166,7 @@ function SepetIcerigi() {
                     
                     {/* İŞTE ARADIĞIMIZ O EFSANE BUTON ŞEFİM! */}
                     <button type="submit" disabled={isSubmitting || cart.length === 0} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase text-xs py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)]">
-                      {isSubmitting ? "Bağlanıyor..." : "Güvenli Ödemeye Geç"}
+                      {isSubmitting ? "Bağlanıyor..." : "GÜVENLİ ÖDEMEYE GEÇ (TEST)"}
                     </button>
                   </div>
                 </form>
