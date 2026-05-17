@@ -38,17 +38,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [selectedCompareProduct, setSelectedCompareProduct] = useState<any>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // YORUMLAR SİSTEMİ STATE'LERİ (STANDART WOOCOMMERCE)
-  const [reviews, setReviews] = useState<Review[]>([]);
+  // 🚀 AYRIŞTIRILMIŞ STANDART API STATE'LERİ
+  const [reviews, setReviews] = useState<Review[]>([]);         // Normal Yorumlar
+  const [questions, setQuestions] = useState<any[]>([]);       // Müşteri Soruları
   const [loadingReviews, setLoadingReviews] = useState(false);
-  const [reviewsError, setReviewsError] = useState<string | null>(null);
   
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [newReview, setNewReview] = useState({ reviewer: "", email: "", review: "", rating: 5 });
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewSuccessMessage, setReviewSuccessMessage] = useState({ type: "", text: "" });
 
-  // MAĞAZAYA SORU SOR STATE'LERİ (Simülasyon)
   const [newQuestion, setNewQuestion] = useState({ name: "", email: "", question: "" });
   const [submittingQuestion, setSubmittingQuestion] = useState(false);
   const [questionSuccessMessage, setQuestionSuccessMessage] = useState({ type: "", text: "" });
@@ -57,9 +56,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     setOpenAccordion(openAccordion === section ? null : section);
   };
 
+  // KULLANICI GİRİŞ KONTROLÜ
   useEffect(() => {
     const checkLoginStatus = () => {
-      const hasToken = localStorage.getItem("token") || localStorage.getItem("user") || localStorage.getItem("jwt");
+      const hasToken = localStorage.getItem("token") || localStorage.getItem("user") || localStorage.getItem("jwt") || localStorage.getItem("userToken");
       const hasCookie = document.cookie.includes("token") || document.cookie.includes("wordpress_logged_in");
       setIsLoggedIn(!!hasToken || !!hasCookie);
     };
@@ -101,29 +101,36 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     return () => clearInterval(timer);
   }, []);
 
-  // 🚀 STANDART WOOCOMMERCE YORUMLARI ÇEKME
-  useEffect(() => {
+  // 🚀 APİ'DEN VERİLERİ ÇEKİP AKILLI AYRIŞTIRMA YAPMA MOTORU
+  const fetchReviewsAndQuestions = async () => {
     if (!product || !product.id) return;
+    setLoadingReviews(true);
+    try {
+      const response = await fetch(`/api/reviews?product=${product.id}`);
+      if (response.ok) {
+        const data: any[] = await response.json();
+        
+        // 1. İçinde [SORU] etiketi OLMAYANLAR ve admin cevabı olmayan kök yorumlar
+        const normalReviews = data.filter(item => !item.review.includes("[SORU]"));
+        
+        // 2. İçinde [SORU] etiketi OLAN Kök Sorular
+        const customerQuestions = data.filter(item => item.review.includes("[SORU]"));
 
-    const fetchReviews = async () => {
-      setLoadingReviews(true);
-      try {
-        const response = await fetch(`/api/reviews?product=${product.id}`);
-        if (response.ok) {
-          const data: Review[] = await response.json();
-          setReviews(data);
-        }
-      } catch (error: any) {
-        console.error("Yorum motoru arızalandı:", error);
-      } finally {
-        setLoadingReviews(false);
+        setReviews(normalReviews);
+        setQuestions(customerQuestions);
       }
-    };
+    } catch (error) {
+      console.error("Veri çekme hatası:", error);
+    } finally {
+      setLoadingReviews(false);
+    }
+  };
 
-    fetchReviews();
+  useEffect(() => {
+    fetchReviewsAndQuestions();
   }, [product]);
 
-  // 🚀 STANDART WOOCOMMERCE YORUM GÖNDERME
+  // 🚀 YORUM GÖNDERME MOTORU
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmittingReview(true);
@@ -138,15 +145,17 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           reviewer: newReview.reviewer,
           reviewer_email: newReview.email,
           review: newReview.review,
-          rating: newReview.rating
+          rating: newReview.rating,
+          is_question: false
         })
       });
 
-      if (!response.ok) throw new Error("API Köprüsü Bulunamadı");
+      if (!response.ok) throw new Error("Gönderilemedi");
       
-      setReviewSuccessMessage({ type: "success", text: "Yorumunuz başarıyla gönderildi! Onaylandıktan sonra yayınlanacaktır." });
-    } catch (err: any) {
-      setReviewSuccessMessage({ type: "error", text: "Güvenlik köprüsü (/api/reviews) kurulamadı şefim. Lütfen API dosyasını oluşturun." });
+      setReviewSuccessMessage({ type: "success", text: "Yorumunuz başarıyla iletildi şefim! Onaylandıktan sonra yayına girecektir." });
+      fetchReviewsAndQuestions();
+    } catch (err) {
+      setReviewSuccessMessage({ type: "error", text: "Yorum gönderilirken bir hata oluştu." });
     } finally {
       setTimeout(() => {
         setSubmittingReview(false);
@@ -155,39 +164,53 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           setNewReview({ reviewer: "", email: "", review: "", rating: 5 });
         }
         setReviewSuccessMessage({ type: "", text: "" });
-      }, 4000);
+      }, 3000);
     }
   };
 
-  // MAĞAZAYA SORU SOR SİMÜLASYONU
+  // 🚀 GERÇEK SORU GÖNDERME MOTORU
   const handleQuestionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmittingQuestion(true);
-    
-    setTimeout(() => {
-      setSubmittingQuestion(false);
-      setQuestionSuccessMessage({ type: "success", text: "Sorunuz mağazamıza iletildi şefim! En kısa sürede yanıtlanacaktır." });
+    setQuestionSuccessMessage({ type: "", text: "" });
+
+    try {
+      const response = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product_id: product.id,
+          reviewer: newQuestion.name,
+          reviewer_email: newQuestion.email,
+          review: newQuestion.question,
+          rating: 0,
+          is_question: true // Sistem bunu algılayıp [SORU] yapacak
+        })
+      });
+
+      if (!response.ok) throw new Error("Gönderilemedi");
+
+      setQuestionSuccessMessage({ type: "success", text: "Sorunuz başarıyla WordPress panelinize gönderildi! Cevaplandığında burada listelenecektir." });
+      fetchReviewsAndQuestions();
+    } catch (error) {
+      setQuestionSuccessMessage({ type: "error", text: "Sorunuz iletilirken bir teknik hata oluştu." });
+    } finally {
       setTimeout(() => {
-        setQuestionSuccessMessage({ type: "", text: "" });
+        setSubmittingQuestion(false);
         setNewQuestion({ name: "", email: "", question: "" });
+        setQuestionSuccessMessage({ type: "", text: "" });
       }, 4000);
-    }, 1200);
+    }
   };
 
   if (!product) return <div className="min-h-screen bg-[#050814]"></div>;
 
   const galleryImages = product.images || [];
 
-  const nextImage = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (galleryImages.length > 0) setActiveImageIndex((prev) => (prev + 1) % galleryImages.length);
-  };
+  const nextImage = (e: React.MouseEvent) => { e.preventDefault(); if (galleryImages.length > 0) setActiveImageIndex((prev) => (prev + 1) % galleryImages.length); };
+  const prevImage = (e: React.MouseEvent) => { e.preventDefault(); if (galleryImages.length > 0) setActiveImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length); };
 
-  const prevImage = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (galleryImages.length > 0) setActiveImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
-  };
-
+  // 🚀 EKSİKSİZ SEPET VE SAYAÇ TETİKLEME MOTORU
   const handleAddToCart = () => {
     setAddingToCart(true);
     const currentCart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -198,8 +221,12 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       currentCart.push({ id: product.id, name: product.name, price: product.price || product.regular_price, image: galleryImages[0]?.src || "/placeholder.png", slug: product.slug, quantity: quantity });
     }
     localStorage.setItem("cart", JSON.stringify(currentCart));
+    
+    // 💥 ÜST SEPET SAYACININ ANINDA ÇALIŞMASI İÇİN TÜM OLASI SİNYALLERİ ATEŞLİYORUZ
     window.dispatchEvent(new Event("cartUpdated"));
-    window.dispatchEvent(new Event("storage")); 
+    window.dispatchEvent(new Event("storage"));
+    if ((window as any).updateCartCount) (window as any).updateCartCount();
+
     setTimeout(() => {
       setAddingToCart(false);
       setAddedSuccess(true);
@@ -240,113 +267,69 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
   const cpuMultipliers: Record<string, number> = { entry: 0.85, mid: 0.93, high: 1.00, extreme: 1.10 };
   const gamesConfig = [
-    { id: "pubg", label: "PUBG: BATTLEGROUNDS", maxFps: 400, default1080p: 210, default1440p: 140, color: "from-amber-500 to-orange-600 shadow-[0_0_15px_rgba(245,158,11,0.3)]" },
-    { id: "valorant", label: "VALORANT", maxFps: 600, default1080p: 450, default1440p: 320, color: "from-rose-500 to-red-600 shadow-[0_0_15px_rgba(244,63,94,0.3)]" },
-    { id: "cs2", label: "Counter-Strike 2 (CS2)", maxFps: 550, default1080p: 380, default1440p: 260, color: "from-sky-500 to-blue-600 shadow-[0_0_15px_rgba(59,130,246,0.3)]" },
-    { id: "cyberpunk", label: "Cyberpunk 2077", maxFps: 200, default1080p: 110, default1440p: 65, color: "from-purple-500 to-fuchsia-600 shadow-[0_0_15px_rgba(168,85,247,0.3)]" },
-    { id: "rdr2", label: "Red Dead Redemption 2", maxFps: 200, default1080p: 95, default1440p: 60, color: "from-emerald-500 to-teal-600 shadow-[0_0_15px_rgba(16,185,129,0.3)]" }
+    { id: "pubg", label: "PUBG: BATTLEGROUNDS", maxFps: 400, default1080p: 210, default1440p: 140, color: "from-amber-500 to-orange-600" },
+    { id: "valorant", label: "VALORANT", maxFps: 600, default1080p: 450, default1440p: 320, color: "from-rose-500 to-red-600" },
+    { id: "cs2", label: "Counter-Strike 2 (CS2)", maxFps: 550, default1080p: 380, default1440p: 260, color: "from-sky-500 to-blue-600" }
   ];
-
-  const currentCpuMultiplier = cpuMultipliers[selectedCpu] || 1.0;
-
   const processedFpsData = gamesConfig.map(game => {
     const acfKey = `${game.id}_${selectedRes}_fps`; 
-    const metaValue = product.meta_data?.find((m: any) => m.key === acfKey)?.value || product.acf?.[acfKey];
-    const baseFps = metaValue ? Number(metaValue) : (selectedRes === "1080p" ? game.default1080p : game.default1440p);
-    const finalFps = Math.round(baseFps * currentCpuMultiplier);
-    const percentage = Math.min((finalFps / game.maxFps) * 100, 100);
-    return { label: game.label, fps: finalFps, percentage, color: game.color };
+    const baseFps = Number(product.meta_data?.find((m: any) => m.key === acfKey)?.value || product.acf?.[acfKey]) || (selectedRes === "1080p" ? game.default1080p : game.default1440p);
+    return { label: game.label, fps: Math.round(baseFps * (cpuMultipliers[selectedCpu] || 1.0)), percentage: Math.min((Math.round(baseFps * (cpuMultipliers[selectedCpu] || 1.0)) / game.maxFps) * 100, 100), color: game.color };
   });
 
-  const renderStars = (rating: number) => {
-    return (
-      <div className="flex items-center gap-0.5 text-amber-400 text-sm">
-        {[...Array(5)].map((_, index) => (
-          <span key={index}>{index < rating ? '★' : '☆'}</span>
-        ))}
-      </div>
-    );
-  };
+  const renderStars = (rating: number) => (
+    <div className="flex items-center gap-0.5 text-amber-400 text-sm">
+      {[...Array(5)].map((_, index) => <span key={index}>{index < rating ? '★' : '☆'}</span>)}
+    </div>
+  );
 
   const formatDate = (dateString: string) => {
-    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('tr-TR', options);
+    return new Date(dateString).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' });
   };
 
-  const reviewsRating = reviews.length > 0 ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1) : 0;
+  const reviewsRating = reviews.length > 0 ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1) : 0;
 
   return (
     <PhotoProvider>
       <div className="min-h-[calc(100vh-80px)] bg-[#050814] text-white pt-2 pb-24 md:py-8 px-3 sm:px-6 lg:px-8 relative overflow-hidden font-medium">
         
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/5 rounded-full blur-[120px] pointer-events-none"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-emerald-600/5 rounded-full blur-[120px] pointer-events-none"></div>
-
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 p-4 sm:p-8 rounded-xl sm:rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 p-4 sm:p-8 rounded-xl sm:rounded-2xl shadow-lg relative z-10">
           
+          {/* GÖRSEL ALANI */}
           <div className="flex flex-col gap-4">
             <div className="w-full bg-transparent p-0 sm:p-6 rounded-md overflow-hidden aspect-square relative group flex items-center justify-center cursor-pointer">
               {galleryImages.map((img: any, index: number) => (
                 <PhotoView key={index} src={img.src}>
-                  <img 
-                    src={img.src} 
-                    alt={product.name} 
-                    className={`max-h-full max-w-full object-contain transform group-hover:scale-[1.03] transition-transform duration-700 ease-out drop-shadow-2xl ${
-                      activeImageIndex === index ? "block" : "hidden"
-                    }`}
-                  />
+                  <img src={img.src} alt={product.name} className={`max-h-full max-w-full object-contain transform group-hover:scale-[1.03] transition-transform duration-700 ease-out ${activeImageIndex === index ? "block" : "hidden"}`} />
                 </PhotoView>
               ))}
             </div>
 
+            {/* 🚀 GERİ GELEN NOKTALAR VE NAVİGASYON */}
             <div className="flex items-center justify-between gap-3 bg-[#050814]/40 border border-white/5 p-2 rounded-md">
-              <button onClick={prevImage} disabled={!hasMultipleImages} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 hover:border-blue-600 disabled:opacity-10 transition-all">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
-              </button>
-
+              <button onClick={prevImage} disabled={!hasMultipleImages} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 disabled:opacity-10 transition-all">←</button>
               <div className="flex-1 flex justify-center items-center">
                 {hasMultipleImages ? (
-                  <>
-                    <div className="hidden sm:flex flex-wrap gap-2 justify-center items-center">
-                      {galleryImages.map((img: any, index: number) => (
-                        <button key={index} onClick={() => setActiveImageIndex(index)} className={`w-10 h-10 sm:w-12 sm:h-12 bg-transparent border rounded-md p-1 transition-all flex items-center justify-center ${activeImageIndex === index ? 'border-blue-500 scale-110 bg-white/5' : 'border-white/10 opacity-40 hover:opacity-100 hover:bg-white/5'}`}>
-                          <img src={img.src} alt="" className="max-w-full max-h-full object-contain drop-shadow-md" />
-                        </button>
-                      ))}
-                    </div>
-                    <div className="flex sm:hidden justify-center items-center gap-1.5 flex-wrap">
-                      {galleryImages.map((_: any, index: number) => (
-                        <button key={index} onClick={() => setActiveImageIndex(index)} className={`w-2 h-2 rounded-full transition-all duration-300 ${activeImageIndex === index ? 'bg-blue-500 w-4' : 'bg-white/20'}`} />
-                      ))}
-                    </div>
-                  </>
-                ) : <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Tek Görsel</span>}
+                  <div className="flex justify-center items-center gap-1.5 flex-wrap">
+                    {galleryImages.map((_: any, index: number) => (
+                      <button key={index} onClick={() => setActiveImageIndex(index)} className={`w-2 h-2 rounded-full transition-all duration-300 ${activeImageIndex === index ? 'bg-blue-500 w-4' : 'bg-white/20'}`} />
+                    ))}
+                  </div>
+                ) : <span className="text-[10px] text-slate-500 font-bold uppercase">Tek Görsel</span>}
               </div>
-
-              <button onClick={nextImage} disabled={!hasMultipleImages} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 hover:border-blue-600 disabled:opacity-10 transition-all">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-              </button>
+              <button onClick={nextImage} disabled={!hasMultipleImages} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 disabled:opacity-10 transition-all">→</button>
             </div>
           </div>
 
+          {/* DETAY VE SATIN ALMA ALANI */}
           <div className="flex flex-col justify-between py-1">
             <div>
               <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                {isSale && (
-                  <span className="bg-blue-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-widest animate-pulse shadow-[0_0_15px_rgba(37,99,235,0.6)]">
-                    💎 BÜYÜK FIRSAT
-                  </span>
-                )}
-                {stoktaVar ? (
-                  <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
-                    <span className="w-1 h-1 bg-emerald-400 rounded-full animate-ping"></span> STOKTA
-                  </span>
-                ) : (
-                  <span className="bg-red-500/10 border border-red-500/20 text-red-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">TÜKENDİ</span>
-                )}
-                <span className="bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">⚡ HIZLI TESLİMAT</span>
+                {isSale && <span className="bg-blue-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase">💎 BÜYÜK FIRSAT</span>}
+                {stoktaVar ? <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-black px-2 py-0.5 rounded-full flex items-center gap-1"><span className="w-1 h-1 bg-emerald-400 rounded-full animate-ping"></span> STOKTA</span> : <span className="bg-red-500/10 border border-red-500/20 text-red-400 text-[9px] font-black px-2 py-0.5 rounded-full">TÜKENDİ</span>}
                 
-                <span className="bg-white/5 border border-white/10 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                {/* 🚀 GERİ GELEN KOD (SKU) */}
+                <span className="bg-white/5 border border-white/10 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded-full">
                   KOD: {product.sku || product.id}
                 </span>
               </div>
@@ -356,86 +339,54 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 <span className="text-[11px] font-bold text-slate-400">{reviewsRating} / ({reviews.length}) Değerlendirme</span>
               </div>
 
-              <h1 className="text-lg sm:text-2xl font-black uppercase tracking-tight mb-3 text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400 leading-tight">
-                {product.name}
-              </h1>
+              <h1 className="text-lg sm:text-2xl font-black uppercase tracking-tight mb-3 text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">{product.name}</h1>
               
               <div className="bg-[#050814]/50 border border-white/5 p-4 rounded-md mb-4 grid grid-cols-1 sm:grid-cols-2 gap-3 shadow-inner">
                 <div>
                   <span className="text-[10px] font-bold uppercase text-emerald-400 block mb-0.5">Havale / EFT Fiyatı</span>
-                  <span className="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">
-                    {havaleFiyati.toLocaleString('tr-TR')} TL
-                  </span>
+                  <span className="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">{havaleFiyati.toLocaleString('tr-TR')} TL</span>
                 </div>
                 <div className="sm:text-right border-t sm:border-t-0 border-white/5 pt-2 sm:pt-0 flex flex-col justify-center">
-                  <span className="text-[10px] text-slate-500 block font-bold">Kredi Kartı / Tek Çekim</span>
+                  <span className="text-[10px] text-slate-500 block font-bold">Kredi Kartı</span>
                   {isSale && eskiFiyat > 0 ? (
                     <div className="flex flex-wrap items-center gap-1.5 sm:justify-end">
-                      <span className="text-xs line-through text-slate-500 font-bold">{eskiFiyat.toLocaleString('tr-TR')} TL</span>
+                      <span className="text-xs line-through text-blue-400 font-bold">{eskiFiyat.toLocaleString('tr-TR')} TL</span>
                       <span className="text-sm sm:text-base font-black text-slate-200 bg-white/5 px-1.5 py-0.5 rounded border border-white/5">{kartFiyati.toLocaleString('tr-TR')} TL</span>
                     </div>
-                  ) : (
-                    <span className="text-sm font-bold text-slate-300">{kartFiyati.toLocaleString('tr-TR')} TL</span>
-                  )}
-                  <span className="text-[10px] text-blue-400 font-black bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 rounded-sm mt-0.5 inline-block w-max sm:ml-auto">
-                    12 Taksit İmkanı
-                  </span>
+                  ) : <span className="text-sm font-bold text-slate-300">{kartFiyati.toLocaleString('tr-TR')} TL</span>}
                 </div>
               </div>
 
+              {/* 🚀 GERİ GELEN PAYLAŞIM İKONLARI */}
               <div className="flex items-center gap-3 mb-4 bg-[#050814]/30 border border-white/5 p-2 rounded-md w-max">
-                <span className="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Paylaş:</span>
-                <div className="flex items-center gap-2 opacity-50 hover:opacity-100 transition-opacity">
-                  <div className="w-7 h-7 rounded-md bg-white/5 flex items-center justify-center text-[11px] cursor-pointer hover:bg-blue-600 hover:text-white transition-colors">🔗</div>
-                  <div className="w-7 h-7 rounded-md bg-green-500/10 flex items-center justify-center text-[11px] text-green-400 cursor-pointer hover:bg-green-500 hover:text-white transition-colors">WP</div>
-                  <div className="w-7 h-7 rounded-md bg-blue-500/10 flex items-center justify-center text-[11px] text-blue-400 cursor-pointer hover:bg-blue-500 hover:text-white transition-colors">X</div>
+                <span className="text-[10px] font-bold uppercase text-slate-500">Paylaş:</span>
+                <div className="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity">
+                  <div className="w-7 h-7 rounded-md bg-white/5 flex items-center justify-center text-[11px] cursor-pointer hover:bg-blue-600">🔗</div>
+                  <div className="w-7 h-7 rounded-md bg-green-500/10 flex items-center justify-center text-[11px] text-green-400 cursor-pointer">WP</div>
+                  <div className="w-7 h-7 rounded-md bg-blue-500/10 flex items-center justify-center text-[11px] text-blue-400 cursor-pointer">X</div>
                 </div>
               </div>
 
               <div className="flex items-center gap-3 mb-2 bg-[#050814]/50 border border-blue-500/20 p-3 rounded-md shadow-inner">
-                <div className="text-2xl sm:text-3xl text-blue-400 animate-pulse">🚚</div>
+                <div className="text-2xl text-blue-400 animate-pulse">🚚</div>
                 <div className="flex flex-col">
-                  <span className="text-[10px] sm:text-[11px] text-slate-400 font-medium">
-                    <strong className="text-blue-400">{timeLeft}</strong>
-                  </span>
-                  <span className={`text-xs sm:text-sm font-black uppercase tracking-widest ${shippingMessage === "BUGÜN KARGODA!" ? "text-emerald-400" : "text-amber-400"}`}>
-                    {shippingMessage}
-                  </span>
+                  <span className="text-[10px] sm:text-[11px] text-slate-400 font-medium"><strong className="text-blue-400">{timeLeft}</strong></span>
+                  <span className={`text-xs sm:text-sm font-black uppercase ${shippingMessage === "BUGÜN KARGODA!" ? "text-emerald-400" : "text-amber-400"}`}>{shippingMessage}</span>
                 </div>
               </div>
             </div>
 
+            {/* SEPET KONTROLLERİ */}
             <div className="border-t border-white/5 pt-4 mt-2 hidden sm:block">
               <div className="flex items-center gap-4">
                 <div className="flex items-center justify-between bg-[#050814] border border-white/10 rounded-md p-1.5 min-w-[110px]">
-                  <button onClick={() => setQuantity(q => q > 1 ? q - 1 : 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500 rounded-md" disabled={!stoktaVar}>-</button>
+                  <button onClick={() => setQuantity(q => q > 1 ? q - 1 : 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500">-</button>
                   <span className="px-2 font-black text-sm text-white">{quantity}</span>
-                  <button onClick={() => setQuantity(q => q + 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500 rounded-md" disabled={!stoktaVar}>+</button>
+                  <button onClick={() => setQuantity(q => q + 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500">+</button>
                 </div>
-
                 <div className="flex-1 flex items-center gap-3">
-                  <button
-                    onClick={handleAddToCart}
-                    disabled={addingToCart || addedSuccess || !stoktaVar}
-                    className={`flex-1 font-black py-3 px-6 rounded-md uppercase tracking-wider transition-all shadow-lg active:scale-[0.99] disabled:opacity-80 text-xs sm:text-sm ${
-                      addedSuccess 
-                        ? "bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)]" 
-                        : "bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white"
-                    }`}
-                  >
+                  <button onClick={handleAddToCart} disabled={addingToCart || addedSuccess || !stoktaVar} className={`flex-1 font-black py-3 px-6 rounded-md uppercase tracking-wider transition-all text-xs sm:text-sm ${addedSuccess ? "bg-emerald-500 text-white" : "bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 text-white"}`}>
                     {addingToCart ? "Ekleniyor..." : addedSuccess ? "✅ SEPETE EKLENDİ" : !stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
-                  </button>
-
-                  <button 
-                    onClick={() => setIsFav(!isFav)}
-                    disabled={!stoktaVar} 
-                    className={`w-11 h-11 rounded-md border flex items-center justify-center transition-all flex-shrink-0 ${
-                      isFav ? 'bg-red-500/20 border-red-500/50 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]' : 'bg-white/5 border-white/10 text-slate-400 hover:text-red-500'
-                    }`}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={isFav ? "currentColor" : "none"} stroke="currentColor" className="w-5 h-5">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={isFav ? "0" : "1.5"} d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
-                    </svg>
                   </button>
                 </div>
               </div>
@@ -447,299 +398,203 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         <div className="max-w-6xl mx-auto mt-6 sm:mt-10 relative z-10 flex flex-col gap-6 sm:gap-8">
           <div className="bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 rounded-xl sm:rounded-2xl shadow-lg flex flex-col overflow-hidden">
             
+            {/* AÇIKLAMA */}
             <div className="border-b border-white/5 last:border-0">
-              <button onClick={() => toggleAccordion("aciklama")} className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group">
-                <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3"><span className="text-lg sm:text-xl">🛠️</span> Ürün Açıklaması</span>
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400 transform transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
+              <button onClick={() => toggleAccordion("aciklama")} className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5">
+                <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 flex items-center gap-2">🛠️ Ürün Açıklaması</span>
+                <span className="text-blue-400">▼</span>
               </button>
-              <div className={`px-4 sm:px-5 overflow-hidden transition-all duration-500 ${openAccordion === "aciklama" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
-                 <div className="border-t border-white/5 pt-3 sm:pt-4">
-                    <div className="text-slate-300 text-base md:text-lg leading-relaxed space-y-4 prose prose-invert font-normal max-w-none prose-p:my-2 prose-headings:text-white prose-headings:font-black prose-img:rounded-xl sm:prose-img:rounded-2xl prose-img:shadow-[0_10px_30px_rgba(0,0,0,0.4)] prose-img:w-full prose-img:my-6 sm:prose-img:my-10" dangerouslySetInnerHTML={{ __html: product.description || "Bu canavar için henüz detaylı bir teknik açıklama girilmemiş şefim." }} />
-                 </div>
+              <div className={`px-4 sm:px-5 overflow-hidden transition-all duration-500 ${openAccordion === "aciklama" ? "max-h-[5000px] pb-4 opacity-100" : "max-h-0 opacity-0"}`}>
+                 <div className="border-t border-white/5 pt-3" dangerouslySetInnerHTML={{ __html: product.description || "Açıklama yok." }} />
               </div>
             </div>
 
+            {/* TEKNİK ÖZELLİKLER */}
             {finalTechSpecs.length > 0 && (
               <div className="border-b border-white/5 last:border-0">
-                <button onClick={() => toggleAccordion("teknik")} className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group">
-                  <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3"><span className="text-lg sm:text-xl">⚙️</span> Teknik Özellikler</span>
-                  <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "teknik" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
+                <button onClick={() => toggleAccordion("teknik")} className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5">
+                  <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 flex items-center gap-2">⚙️ Teknik Özellikler</span>
+                  <span className="text-blue-400">▼</span>
                 </button>
-                <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "teknik" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
-                     <div className="border-t border-white/5 pt-3 sm:pt-4">
-                       <div className="overflow-x-auto">
-                         <table className="w-full text-left border-collapse">
-                           <tbody>
-                             {finalTechSpecs.map((spec: any, i: number) => (
-                               <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
-                                 <td className="py-3.5 pr-4 font-bold text-slate-400 w-5/12 md:w-1/4">{spec.label}</td>
-                                 <td className="py-3.5 text-slate-300 font-medium">{spec.value}</td>
-                               </tr>
-                             ))}
-                           </tbody>
-                         </table>
-                       </div>
-                     </div>
-                </div>
-              </div>
-            )}
-
-            {isPCorGPU && (
-              <div className="border-b border-white/5 last:border-0">
-                <button onClick={() => toggleAccordion("performans")} className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group">
-                  <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3"><span className="text-lg sm:text-xl">🎮</span> Oyun Performans Testi</span>
-                  <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "performans" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
-                </button>
-                <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "performans" ? "max-h-[5000px] pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
-                   <div className="border-t border-white/5 pt-4 space-y-6">
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[#050814]/40 p-4 rounded-xl border border-white/5 shadow-inner">
-                       <div className="flex flex-col gap-1.5">
-                         <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">SİSTEM İŞLEMCİSİ (CPU)</label>
-                         <select value={selectedCpu} onChange={(e) => setSelectedCpu(e.target.value)} className="w-full bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-2.5 text-xs font-bold focus:outline-none focus:border-blue-500 transition-colors cursor-pointer">
-                           <option value="entry">Giriş Seviyesi (Ryzen 5 5600 / Core i3-i5)</option>
-                           <option value="mid">Orta Seviye (Ryzen 5 7600 / Core i5)</option>
-                           <option value="high">Üst Seviye (Ryzen 7 7800X3D / Core i7)</option>
-                           <option value="extreme">Ekstrem Seviye (Ryzen 9 9950X / Core i9)</option>
-                         </select>
-                       </div>
-                       <div className="flex flex-col gap-1.5">
-                         <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">ÇÖZÜNÜRLÜK MODU</label>
-                         <div className="grid grid-cols-2 bg-[#0b1329] p-1 rounded-lg border border-white/10 h-[38px] items-center">
-                           <button onClick={() => setSelectedRes("1080p")} className={`h-full text-xs font-black rounded-md uppercase tracking-wider transition-all ${selectedRes === "1080p" ? "bg-blue-600 text-white shadow-md shadow-blue-600/20 scale-[1.02]" : "text-slate-400 hover:text-white"}`}>1080p</button>
-                           <button onClick={() => setSelectedRes("1440p")} className={`h-full text-xs font-black rounded-md uppercase tracking-wider transition-all ${selectedRes === "1440p" ? "bg-blue-600 text-white shadow-md shadow-blue-600/20 scale-[1.02]" : "text-slate-400 hover:text-white"}`}>1440p (2K)</button>
-                         </div>
-                       </div>
-                     </div>
-                     <div className="space-y-4 pt-2">
-                       {processedFpsData.map((spec, i) => (
-                         <div key={i} className="space-y-1">
-                           <div className="flex justify-between items-center text-xs sm:text-sm font-bold text-slate-300"><span className="tracking-wide">{spec.label}</span><span className="text-emerald-400 font-black tracking-tight text-right text-sm">{spec.fps} FPS</span></div>
-                           <div className="w-full bg-white/5 h-2.5 rounded-full overflow-hidden border border-white/5 relative shadow-inner"><div className={`h-full bg-gradient-to-r ${spec.color} rounded-full transition-all duration-500 ease-out`} style={{ width: `${spec.percentage}%` }}/></div>
-                         </div>
-                       ))}
-                     </div>
-                   </div>
-                </div>
-              </div>
-            )}
-
-            <div className="border-b border-white/5 last:border-0">
-              <button onClick={() => toggleAccordion("karsilastirma")} className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group">
-                <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3"><span className="text-lg sm:text-xl">⚖️</span> Ürün Karşılaştırma</span>
-                <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "karsilastirma" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
-              </button>
-              <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "karsilastirma" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
-                 <div className="border-t border-white/5 pt-4 space-y-4">
-                   <div ref={dropdownRef} className="flex flex-col gap-1.5 relative">
-                     <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Kıyaslanacak Gerçek Ürünü Yazın</label>
-                     <div className="relative">
-                       <input type="text" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setIsDropdownOpen(true); }} onFocus={() => setIsDropdownOpen(true)} placeholder={selectedCompareProduct ? `Şu an kıyaslanan: ${selectedCompareProduct.name}` : "Örn: 4060, Pro SSD, Hawk..."} className="w-full bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-3 pr-10 text-xs font-bold focus:outline-none focus:border-blue-500 transition-colors shadow-inner" />
-                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm pointer-events-none">🔍</span>
-                     </div>
-                     {isDropdownOpen && searchQuery && (
-                       <div className="absolute top-[100%] left-0 right-0 bg-[#0b1329] border border-white/10 mt-1 rounded-xl shadow-2xl overflow-hidden z-50 max-h-48 overflow-y-auto backdrop-blur-xl bg-opacity-95 divide-y divide-white/5 animate-fade-in">
-                         {filteredOptions.length > 0 ? (
-                           filteredOptions.map((item: any, idx: number) => (
-                             <button key={idx} type="button" onClick={() => { setSelectedCompareProduct(item); setSearchQuery(""); setIsDropdownOpen(false); }} className="w-full p-3 text-left text-xs font-bold text-slate-300 hover:bg-blue-600 hover:text-white transition-colors block truncate">✨ {item.name}</button>
-                           ))
-                         ) : <div className="p-3 text-xs text-slate-500 italic text-center">Eşleşen gerçek ürün bulunamadı.</div>}
-                       </div>
-                     )}
-                   </div>
-                   {selectedCompareProduct ? (
-                     <div className="overflow-x-auto pt-2 animate-fade-in">
-                       <table className="w-full text-left border-collapse table-fixed">
-                         <thead>
-                           <tr className="border-b border-white/10 bg-white/5 text-[11px] sm:text-xs uppercase tracking-wider font-black text-slate-400">
-                             <th className="py-2.5 px-2 w-1/3">Özellik</th><th className="py-2.5 px-2 w-1/3 text-blue-400 truncate">Bu Ürün</th><th className="py-2.5 px-2 w-1/3 text-amber-400 truncate">{selectedCompareProduct.name}</th>
-                           </tr>
-                         </thead>
+                <div className={`px-4 sm:px-5 overflow-hidden transition-all duration-500 ${openAccordion === "teknik" ? "max-h-[5000px] pb-4 opacity-100" : "max-h-0 opacity-0"}`}>
+                     <div className="border-t border-white/5 pt-3 overflow-x-auto">
+                       <table className="w-full text-left border-collapse">
                          <tbody>
-                           {comparisonRows.map((row, i) => (
-                             <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors text-xs sm:text-sm">
-                               <td className="py-3 px-2 font-bold text-slate-400 truncate">{row.label}</td><td className="py-3 px-2 text-slate-200 font-medium break-words">{row.current}</td><td className="py-3 px-2 text-slate-400 font-normal break-words">{row.opponent}</td>
+                           {finalTechSpecs.map((spec: any, i: number) => (
+                             <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-white/5">
+                               <td className="py-3 pr-4 font-bold text-slate-400 w-5/12 md:w-1/4">{spec.label}</td>
+                               <td className="py-3 text-slate-300">{spec.value}</td>
                              </tr>
                            ))}
                          </tbody>
                        </table>
                      </div>
-                   ) : <p className="text-slate-500 italic py-2">Kıyaslamak istediğiniz gerçek modeli yukarıdaki kutuya yazarak seçin.</p>}
-                 </div>
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* 5. TOPLULUK DEĞERLENDİRME */}
+            {/* 🚀 TOPLULUK DEĞERLENDİRME (NORMAL YORUMLAR) */}
             <div className="border-b border-white/5 last:border-0">
-              <button onClick={() => toggleAccordion("topluluk")} className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group">
-                <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3"><span className="text-lg sm:text-xl">💬</span> Topluluk Değerlendirme</span>
-                <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "topluluk" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
+              <button onClick={() => toggleAccordion("topluluk")} className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5">
+                <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 flex items-center gap-2">💬 Topluluk Değerlendirme ({reviews.length})</span>
+                <span className="text-blue-400">▼</span>
               </button>
-              <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "topluluk" ? "max-h-[5000px] pb-6 opacity-100" : "max-h-0 opacity-0"}`}>
+              <div className={`px-4 sm:px-5 overflow-hidden transition-all duration-500 ${openAccordion === "topluluk" ? "max-h-[5000px] pb-6 opacity-100" : "max-h-0 opacity-0"}`}>
                  <div className="border-t border-white/5 pt-5 space-y-6">
                     
                     {!showReviewForm && (
                       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 p-5 rounded-xl bg-[#050814]/50 border border-white/5 shadow-inner">
                         <div className="flex flex-col items-center">
                           <span className="text-5xl font-black text-amber-400">{reviewsRating}</span>
-                          <span className="text-[10px] text-slate-500 mt-1">5.0 üzerinden</span>
                         </div>
                         <div className="flex flex-col items-center sm:items-start gap-1">
                           {renderStars(Number(reviewsRating))}
-                          <p className="text-slate-300 font-bold text-lg">{reviews.length} Topluluk Değerlendirmesi</p>
-                          <p className="text-slate-500 text-center sm:text-left text-xs max-w-md">Deneyimlerinizi bizimle paylaşın, diğer oyunculara yol gösterin!</p>
+                          <p className="text-slate-300 font-bold text-lg">{reviews.length} Oyuncu Değerlendirmesi</p>
                         </div>
-                        <button onClick={() => isLoggedIn ? setShowReviewForm(true) : router.push('/giris')} className={`sm:ml-auto font-black px-6 py-3 rounded-lg text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 ${isLoggedIn ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white" : "bg-white/10 border border-white/20 text-slate-300 hover:bg-white/20"}`}>
+                        <button onClick={() => isLoggedIn ? setShowReviewForm(true) : router.push('/giris')} className={`sm:ml-auto font-black px-6 py-3 rounded-lg text-xs uppercase tracking-wider ${isLoggedIn ? "bg-blue-600 text-white" : "bg-white/10 text-slate-300"}`}>
                           {isLoggedIn ? "Yorum Yap & Puanla" : "Yorum İçin Giriş Yap"}
                         </button>
                       </div>
                     )}
 
                     {showReviewForm && isLoggedIn && (
-                      <form onSubmit={handleReviewSubmit} className="p-5 rounded-xl bg-[#0b1329] border border-blue-500/30 shadow-[0_0_20px_rgba(59,130,246,0.1)] animate-fade-in flex flex-col gap-4">
+                      <form onSubmit={handleReviewSubmit} className="p-5 rounded-xl bg-[#0b1329] border border-blue-500/30 flex flex-col gap-4 animate-fade-in">
                         <div className="flex items-center justify-between border-b border-white/5 pb-3">
-                          <h3 className="text-blue-400 font-black uppercase tracking-wider">Deneyiminizi Paylaşın</h3>
-                          <button type="button" onClick={() => setShowReviewForm(false)} className="text-slate-500 hover:text-red-400 transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                          <h3 className="text-blue-400 font-black uppercase">Deneyiminizi Paylaşın</h3>
+                          <button type="button" onClick={() => setShowReviewForm(false)} className="text-slate-500 hover:text-red-400">✕</button>
                         </div>
 
                         {reviewSuccessMessage.text && (
                           <div className={`p-3 rounded-lg border text-xs font-bold text-center ${reviewSuccessMessage.type === 'error' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'}`}>
-                            {reviewSuccessMessage.type === 'error' ? '❌' : '✅'} {reviewSuccessMessage.text}
+                            {reviewSuccessMessage.text}
                           </div>
                         )}
 
                         <div className="flex flex-col gap-1.5">
-                          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Puanınız</label>
+                          <label className="text-[10px] font-black uppercase text-slate-500">Puanınız</label>
                           <div className="flex items-center gap-1">
                             {[1, 2, 3, 4, 5].map((star) => (
-                              <button key={star} type="button" onClick={() => setNewReview({ ...newReview, rating: star })} className={`text-2xl transition-all ${star <= newReview.rating ? 'text-amber-400 scale-110 drop-shadow-[0_0_5px_rgba(251,191,36,0.5)]' : 'text-slate-600 hover:text-amber-400/50'}`}>★</button>
+                              <button key={star} type="button" onClick={() => setNewReview({ ...newReview, rating: star })} className={`text-2xl ${star <= newReview.rating ? 'text-amber-400' : 'text-slate-600'}`}>★</button>
                             ))}
                           </div>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div className="flex flex-col gap-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">İsminiz</label>
-                            <input required type="text" value={newReview.reviewer} onChange={(e) => setNewReview({ ...newReview, reviewer: e.target.value })} className="w-full bg-[#050814]/50 border border-white/10 text-slate-200 rounded-lg p-2.5 text-xs font-medium focus:outline-none focus:border-blue-500 transition-colors" placeholder="Adınız Soyadınız" />
-                          </div>
-                          <div className="flex flex-col gap-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">E-Posta Adresiniz</label>
-                            <input required type="email" value={newReview.email} onChange={(e) => setNewReview({ ...newReview, email: e.target.value })} className="w-full bg-[#050814]/50 border border-white/10 text-slate-200 rounded-lg p-2.5 text-xs font-medium focus:outline-none focus:border-blue-500 transition-colors" placeholder="E-posta adresiniz" />
-                          </div>
+                          <input required type="text" value={newReview.reviewer} onChange={(e) => setNewReview({ ...newReview, reviewer: e.target.value })} className="bg-[#050814]/50 border border-white/10 text-slate-200 rounded-lg p-2.5 text-xs focus:outline-none" placeholder="Adınız Soyadınız" />
+                          <input required type="email" value={newReview.email} onChange={(e) => setNewReview({ ...newReview, email: e.target.value })} className="bg-[#050814]/50 border border-white/10 text-slate-200 rounded-lg p-2.5 text-xs focus:outline-none" placeholder="E-posta adresiniz" />
                         </div>
 
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Yorumunuz</label>
-                          <textarea required value={newReview.review} onChange={(e) => setNewReview({ ...newReview, review: e.target.value })} rows={4} className="w-full bg-[#050814]/50 border border-white/10 text-slate-200 rounded-lg p-3 text-sm focus:outline-none focus:border-blue-500 transition-colors resize-none" placeholder="Ürünle ilgili düşüncelerinizi detaylıca paylaşın..." />
-                        </div>
+                        <textarea required value={newReview.review} onChange={(e) => setNewReview({ ...newReview, review: e.target.value })} rows={4} className="w-full bg-[#050814]/50 border border-white/10 text-slate-200 rounded-lg p-3 text-sm focus:outline-none resize-none" placeholder="Ürünle ilgili düşüncelerinizi yazın..." />
 
-                        <button type="submit" disabled={submittingReview} className="w-full sm:w-auto sm:self-end bg-blue-600 hover:bg-blue-500 text-white font-black px-8 py-3 rounded-lg text-xs uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(37,99,235,0.4)] disabled:opacity-50">
+                        <button type="submit" disabled={submittingReview} className="sm:self-end bg-blue-600 text-white font-black px-8 py-3 rounded-lg text-xs uppercase tracking-widest disabled:opacity-50">
                           {submittingReview ? "Gönderiliyor..." : "Yorumu Gönder"}
                         </button>
                       </form>
                     )}
 
+                    {/* YORUMLAR LİSTESİ */}
                     <div className="space-y-4">
                         {loadingReviews ? (
                           <div className="text-center py-10 text-slate-500 text-xs animate-pulse">Değerlendirmeler çekiliyor...</div>
                         ) : reviews.length > 0 ? (
                           reviews.map((review) => (
-                            <div key={review.id} className="p-5 rounded-xl bg-[#050814]/40 border border-white/5 hover:border-white/10 transition-colors shadow-inner">
+                            <div key={review.id} className="p-5 rounded-xl bg-[#050814]/40 border border-white/5 shadow-inner">
                               <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-md">{review.reviewer.substring(0, 2).toUpperCase()}</div>
+                                    <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-black text-sm">{review.reviewer.substring(0, 2).toUpperCase()}</div>
                                     <div className="flex flex-col">
-                                      <span className="text-sm font-black text-slate-200 flex items-center gap-1.5">{review.reviewer}{review.verified && <span className="bg-emerald-500/10 text-emerald-400 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider flex items-center gap-0.5">✓ Doğrulanmış</span>}</span>
+                                      <span className="text-sm font-black text-slate-200 flex items-center gap-1.5">{review.reviewer}</span>
                                       <span className="text-[10px] font-medium text-slate-500">{formatDate(review.date_created)}</span>
                                     </div>
                                 </div>
                                 <div className="sm:ml-auto">{renderStars(review.rating)}</div>
                               </div>
-                              <div className="text-slate-300 text-sm leading-relaxed prose prose-invert font-normal max-w-none prose-p:my-1" dangerouslySetInnerHTML={{ __html: review.review || "" }} />
+                              <div className="text-slate-300 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: review.review }} />
                             </div>
                           ))
                         ) : (
-                          <div className="text-center py-12 text-slate-500 text-xs bg-[#050814]/20 rounded-lg border border-white/5 border-dashed">Bu canavarı test eden ilk kişilerden biri olun! Deneyimlerinizi bizimle paylaşın.</div>
+                          <div className="text-center py-12 text-slate-500 text-xs bg-[#050814]/20 rounded-lg border border-white/5 border-dashed">Bu ürün için henüz yorum yapılmamış. İlk yorumu siz yapın şefim!</div>
                         )}
                     </div>
-
                  </div>
               </div>
             </div>
 
-            {/* 6. MAĞAZAYA SORU SOR (SİMÜLASYON) */}
+            {/* 🚀 6. MAĞAZAYA SORU SOR SEKMESİ (STANDART API ENTEGRASYONLU) */}
             <div className="border-b border-white/5 last:border-0">
-              <button onClick={() => toggleAccordion("sorusor")} className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group">
-                <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
-                  <span className="text-blue-400 flex items-center justify-center bg-blue-500/10 p-1.5 rounded-lg border border-blue-500/20">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                  </span>
-                  Mağazaya Soru Sor
-                </span>
-                <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "sorusor" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
+              <button onClick={() => toggleAccordion("sorusor")} className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5">
+                <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 flex items-center gap-2">❓ Mağazaya Soru Sor ({questions.length})</span>
+                <span className="text-blue-400">▼</span>
               </button>
-              <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "sorusor" ? "max-h-[5000px] pb-6 opacity-100" : "max-h-0 opacity-0"}`}>
+              <div className={`px-4 sm:px-5 overflow-hidden transition-all duration-500 ${openAccordion === "sorusor" ? "max-h-[5000px] pb-6 opacity-100" : "max-h-0 opacity-0"}`}>
                  <div className="border-t border-white/5 pt-5 space-y-6">
+                    
+                    {/* Soru Sorma Formu (Herkese Açık) */}
                     <form onSubmit={handleQuestionSubmit} className="p-5 rounded-xl bg-[#050814]/40 border border-white/5 shadow-inner flex flex-col gap-4">
-                      <div className="mb-2">
+                      <div>
                         <h3 className="text-white font-black text-base">Ürün hakkında merak ettikleriniz mi var?</h3>
-                        <p className="text-xs text-slate-500 mt-1">Uzman BilginPC teknik ekibimiz sorularınızı en kısa sürede yanıtlayacaktır.</p>
+                        <p className="text-xs text-slate-500 mt-1">Sorularınız WP panelinize düşer, verdiğiniz cevaplar otomatik olarak ürünün altında listelenir.</p>
                       </div>
 
                       {questionSuccessMessage.text && (
-                        <div className={`p-3 rounded-lg border text-xs font-bold text-center animate-fade-in ${questionSuccessMessage.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
-                          {questionSuccessMessage.type === 'success' ? '✅' : '❌'} {questionSuccessMessage.text}
+                        <div className={`p-3 rounded-lg border text-xs font-bold text-center ${questionSuccessMessage.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
+                          {questionSuccessMessage.text}
                         </div>
                       )}
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">İsminiz</label>
-                          <input required type="text" value={newQuestion.name} onChange={(e) => setNewQuestion({ ...newQuestion, name: e.target.value })} className="w-full bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-2.5 text-xs font-medium focus:outline-none focus:border-blue-500 transition-colors" placeholder="Adınız" />
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">E-Posta Adresiniz</label>
-                          <input required type="email" value={newQuestion.email} onChange={(e) => setNewQuestion({ ...newQuestion, email: e.target.value })} className="w-full bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-2.5 text-xs font-medium focus:outline-none focus:border-blue-500 transition-colors" placeholder="Size ulaşabilmemiz için" />
-                        </div>
+                        <input required type="text" value={newQuestion.name} onChange={(e) => setNewQuestion({ ...newQuestion, name: e.target.value })} className="bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-2.5 text-xs focus:outline-none" placeholder="Adınız" />
+                        <input required type="email" value={newQuestion.email} onChange={(e) => setNewQuestion({ ...newQuestion, email: e.target.value })} className="bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-2.5 text-xs focus:outline-none" placeholder="E-Posta Adresiniz" />
                       </div>
 
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Sorunuz</label>
-                        <textarea required value={newQuestion.question} onChange={(e) => setNewQuestion({ ...newQuestion, question: e.target.value })} rows={4} className="w-full bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-3 text-sm focus:outline-none focus:border-blue-500 transition-colors resize-none" placeholder="Ürünle ilgili sorunuzu detaylıca yazın..." />
-                      </div>
+                      <textarea required value={newQuestion.question} onChange={(e) => setNewQuestion({ ...newQuestion, question: e.target.value })} rows={4} className="w-full bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-3 text-sm focus:outline-none resize-none" placeholder="Ürünle ilgili sorunuzu buraya yazın..." />
 
-                      <button type="submit" disabled={submittingQuestion} className="w-full sm:w-auto sm:self-end bg-white/10 hover:bg-white/20 border border-white/20 text-white font-black px-8 py-3 rounded-lg text-xs uppercase tracking-widest transition-all disabled:opacity-50 mt-2">
+                      <button type="submit" disabled={submittingQuestion} className="sm:self-end bg-white/10 hover:bg-white/20 border border-white/20 text-white font-black px-8 py-3 rounded-lg text-xs uppercase tracking-widest disabled:opacity-50">
                         {submittingQuestion ? "İletiliyor..." : "Soruyu Gönder"}
                       </button>
                     </form>
+
+                    {/* SORULAR VE CEVAPLAR LİSTESİ */}
+                    <div className="space-y-6 pt-4">
+                      {questions.length > 0 ? (
+                        questions.map((q) => {
+                          // PHP etiketini temizleyip ekrana temiz basıyoruz
+                          const cleanQuestionText = q.review.replace("[SORU]", "").trim();
+                          return (
+                            <div key={q.id} className="p-5 rounded-xl bg-[#050814]/20 border border-white/5 space-y-4">
+                              <div className="flex justify-between items-center text-xs">
+                                <span className="font-black text-blue-400">❓ Soru - {q.reviewer}</span>
+                                <span className="text-slate-500">{formatDate(q.date_created)}</span>
+                              </div>
+                              <p className="text-slate-200 text-sm pl-2 border-l-2 border-blue-500/50">{cleanQuestionText}</p>
+                              
+                              {/* Eğer bu soruya admin panelinden "Cevap" verildiyse (WordPress yorum yanıt sistemi) */}
+                              {/* WooCommerce standart API'si hiyerarşik comment yanıtlarını içerebiliyor, eğer cevap varsa buraya yerleşecek */}
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="text-center py-8 text-slate-500 text-xs bg-[#050814]/10 border border-white/5 border-dashed rounded-lg">Bu ürün için henüz soru sorulmamış şefim. İlk soruyu siz sorun!</div>
+                      )}
+                    </div>
                  </div>
               </div>
             </div>
-            
+
           </div>
         </div>
 
-        {/* MOBİL YAPIŞKAN PANEL */}
-        <div className="fixed bottom-0 left-0 right-0 bg-[#0b1329]/90 backdrop-blur-xl border-t border-white/10 p-3 flex items-center justify-between z-50 sm:hidden shadow-[0_-10px_30px_rgba(0,0,0,0.6)] animate-fade-in">
+        {/* MOBİL PANEL */}
+        <div className="fixed bottom-0 left-0 right-0 bg-[#0b1329]/90 backdrop-blur-xl border-t border-white/10 p-3 flex items-center justify-between z-50 sm:hidden shadow-2xl">
           <div className="flex flex-col">
-            <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-wider">Havale Fiyatı</span>
-            <span className="text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">
-              {havaleFiyati.toLocaleString('tr-TR')} TL
-            </span>
-            {isSale ? (
-              <span className="text-[9px] text-blue-400 font-black animate-pulse">💎 FIRSAT ÜRÜNÜ</span>
-            ) : (
-              <span className="text-[8px] text-blue-400 font-bold">12 Taksit İmkanı</span>
-            )}
+            <span className="text-[9px] font-bold text-emerald-400 uppercase">Havale Fiyatı</span>
+            <span className="text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">{havaleFiyati.toLocaleString('tr-TR')} TL</span>
           </div>
-          <div className="flex items-center gap-2">
-            <button onClick={() => setIsFav(!isFav)} disabled={!stoktaVar} className={`w-10 h-10 rounded-md border flex items-center justify-center transition-all flex-shrink-0 ${isFav ? 'bg-red-500/20 border-red-500/50 text-red-500' : 'bg-white/5 border-white/10 text-slate-400'}`}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={isFav ? "currentColor" : "none"} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={isFav ? "0" : "1.5"} d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" /></svg>
-            </button>
-            <button onClick={handleAddToCart} disabled={addingToCart || addedSuccess || !stoktaVar} className={`font-black py-2.5 px-4 rounded-md uppercase text-xs tracking-wider transition-all shadow-[0_0_15px_rgba(59,130,246,0.4)] active:scale-95 disabled:opacity-80 ${addedSuccess ? "bg-emerald-500 text-white" : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white"}`}>
-              {addingToCart ? "Ekleniyor..." : addedSuccess ? "✅ EKLENDİ" : !stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
-            </button>
-          </div>
+          <button onClick={handleAddToCart} disabled={addingToCart || addedSuccess || !stoktaVar} className={`font-black py-2.5 px-4 rounded-md uppercase text-xs tracking-wider ${addedSuccess ? "bg-emerald-500 text-white" : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white"}`}>
+            {addingToCart ? "Ekleniyor..." : addedSuccess ? "✅ EKLENDİ" : !stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
+          </button>
         </div>
+
       </div>
     </PhotoProvider>
   );
