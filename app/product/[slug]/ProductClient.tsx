@@ -200,7 +200,7 @@ export default function ProductClient({ product }: { product: Record<string, any
     return meta ? meta.value : null;
   };
 
-  // 🚀 KARŞILAŞTIRMA VERİ KÖPRÜSÜ GERİ GELDİ!
+  // Karşılaştırma Verisi
   const comparisonData = getMetaData('karsilastirma') || product.acf?.['karsilastirma'];
 
   return (
@@ -394,7 +394,7 @@ export default function ProductClient({ product }: { product: Record<string, any
                  <div className="border-t border-white/5 pt-3 sm:pt-4">
                     <div 
                       className="text-slate-300 text-base md:text-lg leading-relaxed space-y-4 prose prose-invert font-normal max-w-none prose-p:my-2 prose-headings:text-white prose-headings:font-black prose-img:rounded-xl sm:prose-img:rounded-2xl prose-img:shadow-[0_10px_30px_rgba(0,0,0,0.4)] prose-img:w-full prose-img:my-6 sm:prose-img:my-10"
-                      dangerouslySetInnerHTML={{ __html: product.description || "Bu canavar için henüz detaylı bir teknik açıklama girilmemiş şefim." }}
+                      dangerouslySetInnerHTML={{ __html: product.description || "Bu canavar için henüz teknik açıklama girilmemiş şefim." }}
                     />
                  </div>
               </div>
@@ -478,7 +478,7 @@ export default function ProductClient({ product }: { product: Record<string, any
 
                        <div className="flex flex-col gap-1.5">
                          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">ÇÖZÜNÜRLÜK MODU</label>
-                         <div className="grid grid-cols-2 bg-[#0b1329] p-1 rounded-lg border border-white/10 h-[38px] items-center">
+                         <div className="grid grid-cols-2 bg-[#0b1329 p-1 rounded-lg border border-white/10 h-[38px] items-center">
                            <button 
                              onClick={() => setSelectedRes("1080p")} 
                              className={`h-full text-xs font-black rounded-md uppercase tracking-wider transition-all ${selectedRes === "1080p" ? "bg-blue-600 text-white shadow-md shadow-blue-600/20 scale-[1.02]" : "text-slate-400 hover:text-white"}`}
@@ -517,25 +517,27 @@ export default function ProductClient({ product }: { product: Record<string, any
               </div>
             )}
 
-            {/* 🚀 4. ÜRÜN KARŞILAŞTIRMA (PANELDE VARSA ŞAK DİYE BURADA!) */}
-            {comparisonData && (
-              <div className="border-b border-white/5 last:border-0">
-                <button 
-                  onClick={() => toggleAccordion("karsilastirma")}
-                  className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group"
-                >
-                  <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
-                    <span className="text-lg sm:text-xl">⚖️</span> Ürün Karşılaştırma
-                  </span>
-                  <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "karsilastirma" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
-                </button>
-                <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "karsilastirma" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
-                   <div className="border-t border-white/5 pt-3 sm:pt-4">
+            {/* 🚀 4. ÜRÜN KARŞILAŞTIRMA (ARIK HER KOŞULDA GÖRÜNÜR, İÇİ DİNAMİK PLACEHOLDER!) */}
+            <div className="border-b border-white/5 last:border-0">
+              <button 
+                onClick={() => toggleAccordion("karsilastirma")}
+                className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group"
+              >
+                <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
+                  <span className="text-lg sm:text-xl">⚖️</span> Ürün Karşılaştırma
+                </span>
+                <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "karsilastirma" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
+              </button>
+              <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "karsilastirma" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
+                 <div className="border-t border-white/5 pt-3 sm:pt-4">
+                   {comparisonData ? (
                      <div dangerouslySetInnerHTML={{ __html: comparisonData }} />
-                   </div>
-                </div>
+                   ) : (
+                     <p className="text-slate-500 italic py-2">Bu ürüne ait karşılaştırma tablosu veya verisi WordPress panelinden henüz girilmemiş şefim.</p>
+                   )}
+                 </div>
               </div>
-            )}
+            </div>
 
             {/* 5. TOPLULUK DEĞERLENDİRME */}
             <div className="border-b border-white/5 last:border-0">
