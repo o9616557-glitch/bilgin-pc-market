@@ -16,8 +16,6 @@ export async function POST() {
       uri: apiKey.startsWith("sandbox-") ? "https://sandbox-api.iyzipay.com" : "https://api.iyzipay.com"
     });
 
-    // 🚀 DİKKAT: İyzico'nun Kendi Resmi Test Verisi! 
-    // Sepetini vs. her şeyi yok saydık, direkt 1 TL'lik test paketi yolluyoruz.
     const requestData = {
       locale: Iyzipay.LOCALE.TR,
       conversationId: "123456789",
@@ -37,7 +35,7 @@ export async function POST() {
         identityNumber: "74300864791",
         lastLoginDate: "2015-10-05 12:43:35",
         registrationDate: "2013-04-21 15:12:09",
-        registrationAddress: "Nidakule Göztepe, Merdivenköy Mah. Bora Sok. No:1",
+        registrationAddress: "Nidakule Goztepe, Merdivenkoy Mah. Bora Sok. No:1",
         ip: "85.34.78.112",
         city: "Istanbul",
         country: "Turkey",
@@ -47,14 +45,14 @@ export async function POST() {
         contactName: "Jane Doe",
         city: "Istanbul",
         country: "Turkey",
-        address: "Nidakule Göztepe, Merdivenköy Mah. Bora Sok. No:1",
+        address: "Nidakule Goztepe, Merdivenkoy Mah. Bora Sok. No:1",
         zipCode: "34732"
       },
       billingAddress: {
         contactName: "Jane Doe",
         city: "Istanbul",
         country: "Turkey",
-        address: "Nidakule Göztepe, Merdivenköy Mah. Bora Sok. No:1",
+        address: "Nidakule Goztepe, Merdivenkoy Mah. Bora Sok. No:1",
         zipCode: "34732"
       },
       basketItems: [
@@ -83,6 +81,6 @@ export async function POST() {
     });
 
   } catch (error) {
-    return NextResponse.json({ success: false, error: "Sunucu hatası oluştu." }, { status: 500 });
+    return NextResponse.json({ success: false, error: "Sunucu hatasi olustu." }, { status: 500 });
   }
 }
