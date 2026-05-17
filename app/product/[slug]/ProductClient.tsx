@@ -5,7 +5,14 @@ import { useRouter } from "next/navigation";
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 
-export default function ProductClient({ product }: { product: Record<string, any> }) {
+// 🚀 ARTIK DIŞARIDAN WORDPRESS'TEKİ GERÇEK ÜRÜNLERİNİ DE ALIYORUZ!
+export default function ProductClient({ 
+  product, 
+  allProducts = [] 
+}: { 
+  product: Record<string, any>; 
+  allProducts?: any[];
+}) {
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
@@ -21,9 +28,7 @@ export default function ProductClient({ product }: { product: Record<string, any
   const [selectedCpu, setSelectedCpu] = useState("mid");
   const [selectedRes, setSelectedRes] = useState<"1080p" | "1440p">("1080p");
 
-  // CANLI GERÇEK ÜRÜN VE ARAMA MOTORU STATE'LERİ
-  const [categoryProducts, setCategoryProducts] = useState<any[]>([]);
-  const [loadingProducts, setLoadingProducts] = useState(false);
+  // ARAMA VE FİLTRELEME STATE'LERİ
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedCompareProduct, setSelectedCompareProduct] = useState<any>(null);
@@ -33,7 +38,7 @@ export default function ProductClient({ product }: { product: Record<string, any
     setOpenAccordion(openAccordion === section ? null : section);
   };
 
-  // Dropdown dışına tıklanınca listeyi kapatma motoru
+  // Dropdown dışına tıklanınca listeyi kapatır
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -149,7 +154,7 @@ export default function ProductClient({ product }: { product: Record<string, any
 
   const currentCategoryType = isKoltuk ? "oyuncu-koltugu" : isSSD ? "ssd" : isPCorGPU ? "ekran-karti" : "genel";
 
-  // MASTER ANAHTAR SÖZLÜĞÜ
+  // MASTER SÖZLÜK MAPPING MIMARISI
   const categoryMappings: Record<string, Record<string, string>> = {
     "ekran-karti": {
       model: "Model", grafik_motoru: "Grafik Motoru", ai_performansi: "AI Performansı", bus_standarti: "Bus Standartı",
@@ -181,76 +186,32 @@ export default function ProductClient({ product }: { product: Record<string, any
     ? dynamicCustomSpecs 
     : (product.attributes?.map((attr: any) => ({ label: attr.name, value: attr.options?.join(', ') })) || []);
 
-  // API BAĞLANTI DENEMESİ
-  useEffect(() => {
-    if (!product || !product.categories || product.categories.length === 0) return;
-
-    const fetchAlternatives = async () => {
-      setLoadingProducts(true);
-      try {
-        const categoryId = product.categories[0].id;
-        const res = await fetch(`/api/products?category=${categoryId}&per_page=30`);
-        const data = await res.json();
-        
-        if (Array.isArray(data)) {
-          const filtered = data.filter((p: any) => p.id !== product.id);
-          setCategoryProducts(filtered);
-        }
-      } catch (err) {
-        console.log("Canlı API verisi bekleniyor, yerel geniş havuz devrede.");
-      } finally {
-        setLoadingProducts(false);
-      }
-    };
-
-    fetchAlternatives();
-  }, [product]);
-
-  // 🚀 ŞEFİN EMRİYLE ZENGİNLEŞTİRİLMİŞ GENİŞ YEDEK ÜRÜN HAVUZU (TÜM MODELLER BURADA!)
-  const backupDatabase: Record<string, Array<{ name: string; specs: Record<string, string> }>> = {
-    "ekran-karti": [
-      { name: "NVIDIA GeForce RTX 4060", specs: { model: "RTX 4060", grafik_motoru: "NVIDIA GeForce RTX 4060", ai_performansi: "Giriş Seviye (150 TOPS)", bus_standarti: "PCIe 4.0", opengl: "OpenGL 4.6", bellek: "8GB GDDR6", saat_hizi: "2460 MHz", cuda_cekirdegi: "3072", bellek_hizi: "17 Gbps", bellek_arayuzu: "128-bit", cozunurluk: "7680 x 4320", boyutlar: "250 x 118 x 42 mm", tavsiye_edilen_guc_kaynagi: "550W", guc_baglantilari: "1x 8-pin", yuva: "2 Slot", aura_sync: "RGB Uyumlu" }},
-      { name: "NVIDIA GeForce RTX 4060 Ti", specs: { model: "RTX 4060 Ti", grafik_motoru: "NVIDIA GeForce RTX 4060 Ti", ai_performansi: "Orta Seviye (160 TOPS)", bus_standarti: "PCIe 4.0", opengl: "OpenGL 4.6", bellek: "8GB GDDR6", saat_hizi: "2535 MHz", cuda_cekirdegi: "4352", bellek_hizi: "18 Gbps", bellek_arayuzu: "128-bit", cozunurluk: "7680 x 4320", boyutlar: "260 x 120 x 45 mm", tavsiye_edilen_guc_kaynagi: "600W", guc_baglantilari: "1x 8-pin", yuva: "2.2 Slot", aura_sync: "RGB Uyumlu" }},
-      { name: "NVIDIA GeForce RTX 4070 SUPER Master", specs: { model: "RTX 4070 SUPER", grafik_motoru: "NVIDIA GeForce RTX 4070 SUPER", ai_performansi: "Üst Seviye (520 TOPS)", bus_standarti: "PCIe 4.0", opengl: "OpenGL 4.6", bellek: "12GB GDDR6X", saat_hizi: "2475 MHz", cuda_cekirdegi: "5888", bellek_hizi: "21 Gbps", bellek_arayuzu: "192-bit", cozunurluk: "7680 x 4320", boyutlar: "300 x 120 x 50 mm", tavsiye_edilen_guc_kaynagi: "650W", guc_baglantilari: "1x 16-pin", yuva: "2.5 Slot", aura_sync: "ARGB Senkron" }},
-      { name: "NVIDIA GeForce RTX 4080 SUPER", specs: { model: "RTX 4080 SUPER", grafik_motoru: "NVIDIA GeForce RTX 4080 SUPER", ai_performansi: "Zirve (836 TOPS)", bus_standarti: "PCIe 4.0", opengl: "OpenGL 4.6", bellek: "16GB GDDR6X", saat_hizi: "2550 MHz", cuda_cekirdegi: "10240", bellek_hizi: "23 Gbps", bellek_arayuzu: "256-bit", cozunurluk: "7680 x 4320", boyutlar: "310 x 130 x 61 mm", tavsiye_edilen_guc_kaynagi: "750W", guc_baglantilari: "1x 16-pin", yuva: "3 Slot", aura_sync: "ARGB Master" }},
-      { name: "NVIDIA GeForce RTX 4090 Extreme", specs: { model: "RTX 4090", grafik_motoru: "NVIDIA GeForce RTX 4090", ai_performansi: "Saf Güç (1321 TOPS)", bus_standarti: "PCIe 4.0", opengl: "OpenGL 4.6", bellek: "24GB GDDR6X", saat_hizi: "2520 MHz", cuda_cekirdegi: "16384", bellek_hizi: "21 Gbps", bellek_arayuzu: "384-bit", cozunurluk: "7680 x 4320", boyutlar: "340 x 150 x 70 mm", tavsiye_edilen_guc_kaynagi: "850W", guc_baglantilari: "1x 16-pin", yuva: "3.5 Slot", aura_sync: "ARGB Ultimate" }}
-    ],
-    "oyuncu-koltugu": [
-      { name: "XDrive Fırtına Profesyonel Koltuk", specs: { malzeme_tipi: "Premium PU Suni Deri", kol_destegi: "3D Kol", amortisör: "Class 4", tasima_kapasitesi: "120 kg", mekanizma: "135 Derece Yatış", ayak_malzemesi: "Metal", yastik_destegi: "Mevcut", koltuk_boyutu: "68 x 70 x 132 cm" }},
-      { name: "Hawk Gaming Chair Fab V5 Kumaş", specs: { malzeme_tipi: "Terletmez Kumaş", kol_destegi: "4D Kol", amortisör: "Class 4", tasima_kapasitesi: "140 kg", mekanizma: "180 Derece Yatış", ayak_malzemesi: "Alüminyum", yastik_destegi: "Mevcut", koltuk_boyutu: "70 x 72 x 135 cm" }},
-      { name: "Calitte Titan TT Oyuncu Koltuğu", specs: { malzeme_tipi: "Hibrit Deri & Kumaş", kol_destegi: "2D Kol", amortisör: "Class 4", tasima_kapasitesi: "110 kg", mekanizma: "120 Derece Yatış", ayak_malzemesi: "Güçlendirilmiş Plastik", yastik_destegi: "Mevcut", koltuk_boyutu: "65 x 65 x 128 cm" }}
-    ],
-    "ssd": [
-      { name: "Samsung 990 Pro M.2 NVMe SSD", specs: { okuma_hizi: "7450 MB/s", yazma_hizi: "6900 MB/s", arabirim: "PCIe Gen 4", tbw_degeri: "1200 TBW", nvme_versiyon: "NVMe 2.0", flash_tipi: "TLC NAND" }},
-      { name: "Kingston NV2 NVMe M.2 SSD", specs: { okuma_hizi: "3500 MB/s", yazma_hizi: "2800 MB/s", arabirim: "PCIe Gen 4", tbw_degeri: "600 TBW", nvme_versiyon: "NVMe 1.4", flash_tipi: "QLC NAND" }},
-      { name: "Crucial P3 Plus Gen4 NVMe", specs: { okuma_hizi: "5000 MB/s", yazma_hizi: "420 MB/s", arabirim: "PCIe Gen 4", tbw_degeri: "800 TBW", nvme_versiyon: "NVMe 1.4", flash_tipi: "3D NAND TLC" }}
-    ]
-  };
-
-  const localItems = backupDatabase[currentCategoryType] || [];
-  const compareOptions = categoryProducts.length > 0 ? categoryProducts : localItems;
+  // 🚀 SADECE MEVCUT ÜRÜNLE AYNI KATEGORİDEKİ GERÇEK ÜRÜNLERİ SÜZÜYORUZ (Açık olan ürünü listeden eler)
+  const compareOptions = allProducts.filter((p: any) => p.id !== product.id);
 
   const filteredOptions = compareOptions.filter((item: any) =>
     item.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // İlk açılışta havuzdaki ilk elemanı seçtir
+  // İlk açılışta havuzdaki ilk gerçek ürünü seçtir
   useEffect(() => {
     if (compareOptions.length > 0 && !selectedCompareProduct) {
       setSelectedCompareProduct(compareOptions[0]);
     }
   }, [compareOptions, selectedCompareProduct]);
 
-  // DİNAMİK KIYAS MATRİSİ
+  // CANLI GERÇEK KIYAS MATRİS SATIRLARI
   const comparisonRows = Object.entries(activeMapping).map(([key, label]) => {
     const currentProductValue = product.meta_data?.find((m: any) => m.key === key)?.value || product.acf?.[key] || "-";
+    
+    // Seçilen diğer gerçek ürünün meta_data veya acf değerini canlı eşler
     const opponentValue = selectedCompareProduct?.meta_data?.find((m: any) => m.key === key)?.value || 
-                          selectedCompareProduct?.acf?.[key] || 
-                          selectedCompareProduct?.specs?.[key] || "-";
+                          selectedCompareProduct?.acf?.[key] || "-";
+    
     return { label, current: currentProductValue, opponent: opponentValue };
   }).filter(row => row.current !== "-" || row.opponent !== "-");
 
-  // İŞLEMCİ ÇARPANLARI VE FPS MOTORU
+  // FPS SIMULATOR MOTORU
   const cpuMultipliers: Record<string, number> = { entry: 0.85, mid: 0.93, high: 1.00, extreme: 1.10 };
   const gamesConfig = [
     { id: "pubg", label: "PUBG: BATTLEGROUNDS", maxFps: 400, default1080p: 210, default1440p: 140, color: "from-amber-500 to-orange-600 shadow-[0_0_15px_rgba(245,158,11,0.3)]" },
@@ -368,9 +329,9 @@ export default function ProductClient({ product }: { product: Record<string, any
                 <div className="sm:text-right border-t sm:border-t-0 border-white/5 pt-2 sm:pt-0 flex flex-col justify-center">
                   <span className="text-[10px] text-slate-500 block font-bold">Kredi Kartı / Tek Çekim</span>
                   
-                  {/* 🚀 ÇİZGİLİ ESKİ FİYAT ARTIK İSTEDİĞİN TEMİZ GRİ TONUNDA! */}
                   {isSale && eskiFiyat > 0 ? (
                     <div className="flex flex-wrap items-center gap-1.5 sm:justify-end">
+                      {/* ÇİZGİLİ ESKİ FİYAT ARTIK PREMİUM SLATE GRİSİ */}
                       <span className="text-xs line-through text-slate-500 font-bold">{eskiFiyat.toLocaleString('tr-TR')} TL</span>
                       <span className="text-sm sm:text-base font-black text-slate-200 bg-white/5 px-1.5 py-0.5 rounded border border-white/5">{kartFiyati.toLocaleString('tr-TR')} TL</span>
                     </div>
@@ -541,7 +502,6 @@ export default function ProductClient({ product }: { product: Record<string, any
 
                        <div className="flex flex-col gap-1.5">
                          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">ÇÖZÜNÜRLÜK MODU</label>
-                         {/* 🚀 PARANTEZ VE SYNTAX HATASI KESİNLİKLE DÜZELTİLDİ: bg-[#0b1329] */}
                          <div className="grid grid-cols-2 bg-[#0b1329] p-1 rounded-lg border border-white/10 h-[38px] items-center">
                            <button 
                              onClick={() => setSelectedRes("1080p")} 
@@ -581,7 +541,7 @@ export default function ProductClient({ product }: { product: Record<string, any
               </div>
             )}
 
-            {/* 4. ÜRÜN KARŞILAŞTIRMA */}
+            {/* 4. ÜRÜN KARŞILAŞTIRMA (TAM DIŞA BAĞIMSIZ - CANLI ENTEGRASYON) */}
             <div className="border-b border-white/5 last:border-0">
               <button 
                 onClick={() => toggleAccordion("karsilastirma")}
@@ -595,9 +555,9 @@ export default function ProductClient({ product }: { product: Record<string, any
               <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "karsilastirma" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
                  <div className="border-t border-white/5 pt-4 space-y-4">
                    
-                   {/* DİNAMİK CANLI ARAMA INPUT ALANI */}
+                   {/* DİNAMİK ARAMA INPUT ALANI */}
                    <div ref={dropdownRef} className="flex flex-col gap-1.5 relative">
-                     <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Kıyaslanacak Alternatif Ürünü Yazın</label>
+                     <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Kıyaslanacak Gerçek Ürünü Yazın</label>
                      <div className="relative">
                        <input 
                          type="text"
@@ -613,12 +573,10 @@ export default function ProductClient({ product }: { product: Record<string, any
                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm pointer-events-none">🔍</span>
                      </div>
 
-                     {/* 🚀 GENİŞ ÜRÜN DROP LİSTESİ: ARTIK HER ŞEY YAZILDIĞINDA AKACAK */}
+                     {/* DROP DOWN LİSTESİ: ARTIK BURASI %100 PANELDEKİ GERÇEK ÜRÜNLERİ DÖKER */}
                      {isDropdownOpen && searchQuery && (
                        <div className="absolute top-[100%] left-0 right-0 bg-[#0b1329] border border-white/10 mt-1 rounded-xl shadow-2xl overflow-hidden z-50 max-h-48 overflow-y-auto backdrop-blur-xl bg-opacity-95 divide-y divide-white/5 animate-fade-in">
-                         {loadingProducts ? (
-                           <div className="p-3 text-xs text-slate-500 text-center">Canlı veriler taranıyor...</div>
-                         ) : filteredOptions.length > 0 ? (
+                         {filteredOptions.length > 0 ? (
                            filteredOptions.map((item, idx) => (
                              <button
                                key={idx}
@@ -634,7 +592,7 @@ export default function ProductClient({ product }: { product: Record<string, any
                              </button>
                            ))
                          ) : (
-                           <div className="p-3 text-xs text-slate-500 italic text-center">Kategoride eşleşen ürün bulunamadı şefim.</div>
+                           <div className="p-3 text-xs text-slate-500 italic text-center">Eşleşen gerçek ürün bulunamadı şefim.</div>
                          )}
                        </div>
                      )}
@@ -663,7 +621,7 @@ export default function ProductClient({ product }: { product: Record<string, any
                        </table>
                      </div>
                    ) : (
-                     <p className="text-slate-500 italic py-2">Kıyaslamak istediğiniz modeli yukarıdaki kutuya yazarak seçin şefim.</p>
+                     <p className="text-slate-500 italic py-2">Kıyaslamak istediğiniz gerçek modeli yukarıdaki kutuya yazarak seçin şefim.</p>
                    )}
 
                  </div>
@@ -679,7 +637,7 @@ export default function ProductClient({ product }: { product: Record<string, any
                 <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
                   <span className="text-lg sm:text-xl">💬</span> Topluluk Değerlendirme
                 </span>
-                <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "topluluk" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "topluluk" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
               </button>
               <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "topluluk" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
                  <div className="border-t border-white/5 pt-3 sm:pt-4 flex flex-col items-center justify-center gap-2 py-6">
@@ -716,7 +674,7 @@ export default function ProductClient({ product }: { product: Record<string, any
               }`}
             >
               <svg className="w-4 h-4" fill={isFav ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </button>
 
