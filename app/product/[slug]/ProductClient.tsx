@@ -195,6 +195,14 @@ export default function ProductClient({ product }: { product: Record<string, any
     return { label: game.label, fps: finalFps, percentage, color: game.color };
   });
 
+  const getMetaData = (key: string) => {
+    const meta = product.meta_data?.find((m: any) => m.key === key);
+    return meta ? meta.value : null;
+  };
+
+  // 🚀 KARŞILAŞTIRMA VERİ KÖPRÜSÜ GERİ GELDİ!
+  const comparisonData = getMetaData('karsilastirma') || product.acf?.['karsilastirma'];
+
   return (
     <PhotoProvider>
       <div className="min-h-[calc(100vh-80px)] bg-[#050814] text-white pt-2 pb-24 md:py-8 px-3 sm:px-6 lg:px-8 relative overflow-hidden font-medium">
@@ -509,7 +517,27 @@ export default function ProductClient({ product }: { product: Record<string, any
               </div>
             )}
 
-            {/* 4. TOPLULUK DEĞERLENDİRME */}
+            {/* 🚀 4. ÜRÜN KARŞILAŞTIRMA (PANELDE VARSA ŞAK DİYE BURADA!) */}
+            {comparisonData && (
+              <div className="border-b border-white/5 last:border-0">
+                <button 
+                  onClick={() => toggleAccordion("karsilastirma")}
+                  className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group"
+                >
+                  <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
+                    <span className="text-lg sm:text-xl">⚖️</span> Ürün Karşılaştırma
+                  </span>
+                  <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "karsilastirma" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "karsilastirma" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
+                   <div className="border-t border-white/5 pt-3 sm:pt-4">
+                     <div dangerouslySetInnerHTML={{ __html: comparisonData }} />
+                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* 5. TOPLULUK DEĞERLENDİRME */}
             <div className="border-b border-white/5 last:border-0">
               <button 
                 onClick={() => toggleAccordion("topluluk")}
@@ -518,7 +546,7 @@ export default function ProductClient({ product }: { product: Record<string, any
                 <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
                   <span className="text-lg sm:text-xl">💬</span> Topluluk Değerlendirme
                 </span>
-                <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "topluluk" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "topluluk" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
               </button>
               <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "topluluk" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
                  <div className="border-t border-white/5 pt-3 sm:pt-4 flex flex-col items-center justify-center gap-2 py-6">
