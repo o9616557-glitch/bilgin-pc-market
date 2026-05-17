@@ -217,6 +217,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const eskiFiyat = regularPrice > currentPrice ? regularPrice : (isSale ? Math.round(currentPrice * 1.15) : 0);
   const havaleFiyati = currentPrice * 0.95;
 
+  // 🚀 17 TEKNİK ÖZELLİK RESİMDEKİ TAM SIRAYLA SABİTLENDİ
   const activeMapping: Record<string, string> = {
     model: "Model",
     grafik_motoru: "Grafik Motoru",
@@ -263,6 +264,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const compareOptions = allProducts.filter((p: any) => p.id !== product.id);
   const filteredOptions = compareOptions.filter((item: any) => item.name?.toLowerCase().includes(searchQuery.toLowerCase()));
 
+  // GÖNDERDİĞİN FOTOĞRAFTA YER ALAN 5 OYUNUN TAM LISTESI VE ACF EŞLEŞMELERİ
   const cpuMultipliers: Record<string, number> = { entry: 0.85, mid: 0.93, high: 1.00, extreme: 1.10 };
   const gamesConfig = [
     { id: "pubg", label: "PUBG: BATTLEGROUNDS", maxFps: 400, default1080p: 210, default1440p: 140, color: "from-amber-500 to-orange-600" },
@@ -315,11 +317,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               ))}
             </div>
 
-            {/* 🚀 OK VE ORTALAMA AYARI DÜZELTİLDİ: İçerideki oklar milimetrik SVG geometrisiyle her ekranda tam merkeze kilitlendi */}
+            {/* Oklar ve Çizgiler Altta */}
             {hasMultipleImages && (
               <div className="flex items-center justify-between gap-3 bg-[#050814]/40 border border-white/5 p-2 rounded-md">
                 <button type="button" onClick={prevImage} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 transition-all duration-300">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-4 h-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-4 h-4 block">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                   </svg>
                 </button>
@@ -329,7 +331,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   ))}
                 </div>
                 <button type="button" onClick={nextImage} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 transition-all duration-300">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-4 h-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-4 h-4 block">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                   </svg>
                 </button>
@@ -417,30 +419,33 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           </div>
         </div>
 
-        {/* 🚀 AKORDEON DEPARTMANI: max-height limitleri ve ease-in-out yumuşatma motoru optimize edildi */}
+        {/* 🚀 AKORDEON DEPARTMANI: Kasmayan ve asla kırpmayan "CSS Grid 1fr" motoru entegre edildi! */}
         <div className="max-w-6xl mx-auto mt-6 sm:mt-10 flex flex-col gap-6">
           <div className="bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 rounded-xl shadow-lg flex flex-col overflow-hidden">
             
-            {/* AÇIKLAMA */}
+            {/* AÇIKLAMA (SIFIR KIRPMA & SIFIR KASMA) */}
             <div className="border-b border-white/5">
               <button type="button" onClick={() => toggleAccordion("aciklama")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                 <span className="text-sm font-black uppercase tracking-widest text-blue-400">🛠️ Ürün Açıklaması</span>
                 <span className="text-blue-400">▼</span>
               </button>
-              <div className={`px-4 overflow-hidden transition-[max-height,opacity] duration-500 ease-in-out ${openAccordion === "aciklama" ? "max-h-[1200px] pb-4 opacity-100" : "max-h-0 opacity-0"}`}>
-                 <div className="border-t border-white/5 pt-3 text-slate-300 text-sm" dangerouslySetInnerHTML={{ __html: product.description || "Açıklama yok." }} />
+              <div className={`grid transition-all duration-300 ease-in-out ${openAccordion === "aciklama" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+                <div className="overflow-hidden">
+                  <div className="px-4 pb-4 border-t border-white/5 pt-3 text-slate-300 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: product.description || "Açıklama yok." }} />
+                </div>
               </div>
             </div>
 
-            {/* TEKNİK ÖZELLİKLER (TAM SIRALI LİSTE YAĞ GİBİ AÇILIR) */}
+            {/* TEKNİK ÖZELLİKLER (SIFIR KIRPMA & SIFIR KASMA) */}
             {finalTechSpecs.length > 0 && (
               <div className="border-b border-white/5">
                 <button type="button" onClick={() => toggleAccordion("teknik")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                   <span className="text-sm font-black uppercase tracking-widest text-blue-400">⚙️ Teknik Özellikler ({finalTechSpecs.length})</span>
                   <span className="text-blue-400">▼</span>
                 </button>
-                <div className={`px-4 overflow-hidden transition-[max-height,opacity] duration-500 ease-in-out ${openAccordion === "teknik" ? "max-h-[1500px] pb-4 opacity-100" : "max-h-0 opacity-0"}`}>
-                     <div className="border-t border-white/5 pt-3">
+                <div className={`grid transition-all duration-300 ease-in-out ${openAccordion === "teknik" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+                  <div className="overflow-hidden">
+                     <div className="px-4 pb-4 border-t border-white/5 pt-3">
                        <table className="w-full text-left text-sm">
                          <tbody>
                            {finalTechSpecs.map((spec: any, i: number) => (
@@ -452,111 +457,116 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                          </tbody>
                        </table>
                      </div>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* 🎮 FPS PERFORMANS LABORATUVARI (5 OYUN VE TAM METİNLERLE YUMUŞAKÇA AÇILIR) */}
+            {/* 🎮 FPS PERFORMANS LABORATUVARI (SIFIR KIRPMA & SIFIR KASMA) */}
             <div className="border-b border-white/5">
               <button type="button" onClick={() => toggleAccordion("fps_paneli")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                 <span className="text-sm font-black uppercase tracking-widest text-amber-500">🎮 Oyun FPS Performans Laboratuvarı</span>
                 <span className="text-amber-500">▼</span>
               </button>
-              <div className={`px-4 overflow-hidden transition-[max-height,opacity] duration-500 ease-in-out ${openAccordion === "fps_paneli" ? "max-h-[1200px] pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
-                <div className="border-t border-white/5 pt-4 space-y-4">
-                  
-                  <div className="flex items-center gap-2 bg-[#050814] p-1 border border-white/5 rounded-lg w-max text-xs">
-                    <button type="button" onClick={() => setSelectedRes("1080p")} className={`px-4 py-1.5 rounded font-bold uppercase transition-all ${selectedRes === '1080p' ? 'bg-blue-600 text-white shadow' : 'text-slate-400'}`}>Full HD (1080p)</button>
-                    <button type="button" onClick={() => setSelectedRes("1440p")} className={`px-4 py-1.5 rounded font-bold uppercase transition-all ${selectedRes === '1440p' ? 'bg-blue-600 text-white shadow' : 'text-slate-400'}`}>2K Ultra (1440p)</button>
-                  </div>
+              <div className={`grid transition-all duration-300 ease-in-out ${openAccordion === "fps_paneli" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+                <div className="overflow-hidden">
+                  <div className="px-4 pb-5 border-t border-white/5 pt-4 space-y-4">
+                    
+                    <div className="flex items-center gap-2 bg-[#050814] p-1 border border-white/5 rounded-lg w-max text-xs">
+                      <button type="button" onClick={() => setSelectedRes("1080p")} className={`px-4 py-1.5 rounded font-bold uppercase transition-all ${selectedRes === '1080p' ? 'bg-blue-600 text-white shadow' : 'text-slate-400'}`}>Full HD (1080p)</button>
+                      <button type="button" onClick={() => setSelectedRes("1440p")} className={`px-4 py-1.5 rounded font-bold uppercase transition-all ${selectedRes === '1440p' ? 'bg-blue-600 text-white shadow' : 'text-slate-400'}`}>2K Ultra (1440p)</button>
+                    </div>
 
-                  <div className="grid grid-cols-4 gap-2 text-[11px] text-center font-bold">
-                    {[
-                      { id: "entry", label: "Giriş Seviye İşlemci" },
-                      { id: "mid", label: "Orta Seviye İşlemci" },
-                      { id: "high", label: "Üst Seviye İşlemci" },
-                      { id: "extreme", label: "Ekstrem İşlemci" }
-                    ].map((cpu) => (
-                      <button key={cpu.id} type="button" onClick={() => setSelectedCpu(cpu.id)} className={`p-2 rounded border transition-all ${selectedCpu === cpu.id ? 'bg-amber-500/10 border-amber-500 text-amber-400' : 'bg-[#050814]/40 border-white/5 text-slate-400'}`}>{cpu.label}</button>
-                    ))}
-                  </div>
+                    <div className="grid grid-cols-4 gap-2 text-[11px] text-center font-bold">
+                      {[
+                        { id: "entry", label: "Giriş Seviye İşlemci" },
+                        { id: "mid", label: "Orta Seviye İşlemci" },
+                        { id: "high", label: "Üst Seviye İşlemci" },
+                        { id: "extreme", label: "Ekstrem İşlemci" }
+                      ].map((cpu) => (
+                        <button key={cpu.id} type="button" onClick={() => setSelectedCpu(cpu.id)} className={`p-2 rounded border transition-all ${selectedCpu === cpu.id ? 'bg-amber-500/10 border-amber-500 text-amber-400' : 'bg-[#050814]/40 border-white/5 text-slate-400'}`}>{cpu.label}</button>
+                      ))}
+                    </div>
 
-                  <div className="space-y-3.5 pt-2">
-                    {processedFpsData.map((game: any, idx: number) => (
-                      <div key={idx} className="space-y-1">
-                        <div className="flex justify-between text-xs font-bold">
-                          <span className="text-slate-300 uppercase tracking-wide">{game.label}</span>
-                          <span className="text-amber-400 font-black">{game.fps} FPS</span>
+                    <div className="space-y-3.5 pt-2">
+                      {processedFpsData.map((game: any, idx: number) => (
+                        <div key={idx} className="space-y-1">
+                          <div className="flex justify-between text-xs font-bold">
+                            <span className="text-slate-300 uppercase tracking-wide">{game.label}</span>
+                            <span className="text-amber-400 font-black">{game.fps} FPS</span>
+                          </div>
+                          <div className="w-full bg-[#050814] h-2 rounded-full overflow-hidden border border-white/5">
+                            <div className={`h-full bg-gradient-to-r ${game.color} rounded-full transition-all duration-500`} style={{ width: `${game.percentage}%` }}></div>
+                          </div>
                         </div>
-                        <div className="w-full bg-[#050814] h-2 rounded-full overflow-hidden border border-white/5">
-                          <div className={`h-full bg-gradient-to-r ${game.color} rounded-full transition-all duration-500`} style={{ width: `${game.percentage}%` }}></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
 
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* ÜRÜN KARŞILAŞTIRMA LAB (PREMIUM VE YUMUŞAK GEÇİŞLİ) */}
+            {/* ÜRÜN KARŞILAŞTIRMA LAB (SIFIR KIRPMA & SIFIR KASMA) */}
             <div>
               <button type="button" onClick={() => toggleAccordion("karsilastir")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                 <span className="text-sm font-black uppercase tracking-widest text-emerald-400">⚖️ Ürün Karşılaştırma Laboratuvarı</span>
                 <span className="text-emerald-400">▼</span>
               </button>
-              <div className={`px-4 overflow-hidden transition-[max-height,opacity] duration-500 ease-in-out ${openAccordion === "karsilastir" ? "max-h-[2500px] pb-6 opacity-100" : "max-h-0 opacity-0"}`}>
-                <div className="border-t border-white/5 pt-4">
-                  <div className="relative mb-5" ref={dropdownRef}>
-                    <label className="text-[10px] font-black uppercase text-slate-500 block mb-1">Kıyaslamak İstediğiniz Diğer Ürünü Seçin</label>
-                    <button type="button" onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="w-full bg-[#050814] border border-white/10 rounded-lg p-3 text-xs text-left text-slate-300 flex justify-between items-center hover:border-blue-500 transition-colors">
-                      <span>{selectedCompareProduct ? selectedCompareProduct.name : "Ürün Seçilmedi..."}</span>
-                      <span>▼</span>
+              <div className={`grid transition-all duration-300 ease-in-out ${openAccordion === "karsilastir" ? "max-h-[3000px] pb-6 opacity-100" : "max-h-0 opacity-0"}`}>
+                <div className="overflow-hidden">
+                  <div className="px-4 pb-6 border-t border-white/5 pt-4">
+                    <div className="relative mb-5" ref={dropdownRef}>
+                      <label className="text-[10px] font-black uppercase text-slate-500 block mb-1">Kıyaslamak İstediğiniz Diğer Ürünü Seçin</label>
+                      <button type="button" onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="w-full bg-[#050814] border border-white/10 rounded-lg p-3 text-xs text-left text-slate-300 flex justify-between items-center hover:border-blue-500 transition-colors">
+                        <span>{selectedCompareProduct ? selectedCompareProduct.name : "Ürün Seçilmedi..."}</span>
+                        <span>▼</span>
                     </button>
-                    {isDropdownOpen && compareOptions.length > 0 && (
-                      <div className="absolute left-0 right-0 mt-1 max-h-56 bg-[#0b1329] border border-white/10 rounded-lg overflow-y-auto z-50 p-1 shadow-2xl">
-                        <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Ürün adı ara..." className="w-full bg-[#050814] border border-white/5 rounded p-2 text-xs text-white focus:outline-none mb-1" />
-                        {filteredOptions.map((item: any) => (
-                          <div key={item.id} onClick={() => { setSelectedCompareProduct(item); setIsDropdownOpen(false); setSearchQuery(""); }} className="p-2 text-xs hover:bg-blue-600 rounded cursor-pointer text-slate-300 hover:text-white uppercase font-bold">{item.name}</div>
-                        ))}
-                      </div>
+                      {isDropdownOpen && compareOptions.length > 0 && (
+                        <div className="absolute left-0 right-0 mt-1 max-h-56 bg-[#0b1329] border border-white/10 rounded-lg overflow-y-auto z-50 p-1 shadow-2xl">
+                          <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Ürün adı ara..." className="w-full bg-[#050814] border border-white/5 rounded p-2 text-xs text-white focus:outline-none mb-1" />
+                          {filteredOptions.map((item: any) => (
+                            <div key={item.id} onClick={() => { setSelectedCompareProduct(item); setIsDropdownOpen(false); setSearchQuery(""); }} className="p-2 text-xs hover:bg-blue-600 rounded cursor-pointer text-slate-300 hover:text-white uppercase font-bold">{item.name}</div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {selectedCompareProduct ? (
+                      (() => {
+                        const opponentSpecs = getSpecsList(selectedCompareProduct);
+                        return (
+                          <div className="w-full bg-[#050814]/40 border border-white/5 rounded-xl p-4 overflow-x-auto shadow-inner">
+                            <table className="w-full text-left text-xs border-collapse">
+                              <thead>
+                                <tr className="border-b border-white/10 text-slate-400 text-[10px] uppercase font-black">
+                                  <th className="pb-3 w-4/12">TEKNİK ÖZELLİK</th>
+                                  <th className="pb-3 w-4/12 text-blue-400">BU ÜRÜN</th>
+                                  <th className="pb-3 w-4/12 text-emerald-400">KARŞILAŞTIRILAN ÜRÜN</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-white/5">
+                                {Object.entries(activeMapping).map(([key, label]: [string, string], i: number) => {
+                                  const currentItem = finalTechSpecs.find((s: any) => s.label.toLowerCase() === label.toLowerCase());
+                                  const opponentItem = opponentSpecs.find((s: any) => s.label.toLowerCase() === label.toLowerCase());
+                                  
+                                  return (
+                                    <tr key={i} className="hover:bg-white/5 transition-colors">
+                                      <td className="py-3 font-bold text-slate-400 uppercase tracking-wider text-[10px]">{label}</td>
+                                      <td className="py-3 text-slate-200 font-bold pr-3">{currentItem?.value || "-"}</td>
+                                      <td className="py-3 text-emerald-400 font-bold">{opponentItem?.value || "-"}</td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          </div>
+                        );
+                      })()
+                    ) : (
+                      <div className="text-center py-4 text-slate-600 text-xs">Kıyaslanacak rakip ürün listesi yüklenemedi şefim.</div>
                     )}
                   </div>
-
-                  {selectedCompareProduct ? (
-                    (() => {
-                      const opponentSpecs = getSpecsList(selectedCompareProduct);
-                      return (
-                        <div className="w-full bg-[#050814]/40 border border-white/5 rounded-xl p-4 overflow-x-auto shadow-inner">
-                          <table className="w-full text-left text-xs border-collapse">
-                            <thead>
-                              <tr className="border-b border-white/10 text-slate-400 text-[10px] uppercase font-black">
-                                <th className="pb-3 w-4/12">TEKNİK ÖZELLİK</th>
-                                <th className="pb-3 w-4/12 text-blue-400">BU ÜRÜN</th>
-                                <th className="pb-3 w-4/12 text-emerald-400">KARŞILAŞTIRILAN ÜRÜN</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/5">
-                              {Object.entries(activeMapping).map(([key, label]: [string, string], i: number) => {
-                                const currentItem = finalTechSpecs.find((s: any) => s.label.toLowerCase() === label.toLowerCase());
-                                const opponentItem = opponentSpecs.find((s: any) => s.label.toLowerCase() === label.toLowerCase());
-                                
-                                return (
-                                  <tr key={i} className="hover:bg-white/5 transition-colors">
-                                    <td className="py-3 font-bold text-slate-400 uppercase tracking-wider text-[10px]">{label}</td>
-                                    <td className="py-3 text-slate-200 font-bold pr-3">{currentItem?.value || "-"}</td>
-                                    <td className="py-3 text-emerald-400 font-bold">{opponentItem?.value || "-"}</td>
-                                  </tr>
-                                );
-                              })}
-                            </tbody>
-                          </table>
-                        </div>
-                      );
-                    })()
-                  ) : (
-                    <div className="text-center py-4 text-slate-600 text-xs">Kıyaslanacak rakip ürün listesi yüklenemedi şefim.</div>
-                  )}
                 </div>
               </div>
             </div>
