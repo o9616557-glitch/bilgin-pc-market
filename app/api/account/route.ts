@@ -21,14 +21,18 @@ export async function POST(request: Request) {
 
     if (!userId) return NextResponse.json({ error: "Kullanıcı ID'si tespit edilemedi." }, { status: 404 });
 
-    // 🚀 ŞEFİM İŞTE BEKLEMEYİ BİTİREN PARALEL MOTOR (Promise.all)
-    // Adres bilgilerini ve Sipariş geçmişini WooCommerce'den AYNI ANDA talep ediyoruz!
+    // 🚀 VERCEL HAFIZA KALKANI (next: { revalidate: 300 })
+    // WordPress'ten gelen cevapları 5 dakika boyunca Vercel hafızasında kilitler.
+    // İlk tıklamadan sonraki tüm girişler salisesinde açılır!
     const [customerRes, ordersRes] = await Promise.all([
-      fetch(`${SITE_URL}/wp-json/wc/v3/customers/${userId}?consumer_key=${CK}&consumer_secret=${CS}`),
-      fetch(`${SITE_URL}/wp-json/wc/v3/orders?customer=${userId}&consumer_key=${CK}&consumer_secret=${CS}`)
+      fetch(`${SITE_URL}/wp-json/wc/v3/customers/${userId}?consumer_key=${CK}&consumer_secret=${CS}`, {
+        next: { revalidate: 300 } 
+      }),
+      fetch(`${SITE_URL}/wp-json/wc/v3/orders?customer=${userId}&consumer_key=${CK}&consumer_secret=${CS}`, {
+        next: { revalidate: 300 } 
+      })
     ]);
 
-    // Gelen iki cevabı da yine beklemeden aynı anda JSON formatına çözüyoruz
     const [customerData, ordersData] = await Promise.all([
       customerRes.json(),
       ordersRes.json()
