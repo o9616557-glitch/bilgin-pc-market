@@ -11,8 +11,6 @@ export default function ProductClient({ product }: { product: any }) {
   const [addingToCart, setAddingToCart] = useState(false);
   const [addedSuccess, setAddedSuccess] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  
-  // 🚀 FAVORİ (KALP) MOTORU
   const [isFav, setIsFav] = useState(false);
 
   useEffect(() => {
@@ -65,8 +63,9 @@ export default function ProductClient({ product }: { product: any }) {
     
     localStorage.setItem("cart", JSON.stringify(currentCart));
     
-    // 🚀 Üst menüye (Header) "sepet güncellendi" sinyalini fırlatır!
+    // 🚀 ŞEFİN ÇİFTE SİNYAL MOTORU: Üst menü hangisini dinliyorsa onu vursun!
     window.dispatchEvent(new Event("cartUpdated"));
+    window.dispatchEvent(new Event("storage")); // Ana sayfanın sayacı tetiklediği standart sinyal
     
     setTimeout(() => {
       setAddingToCart(false);
@@ -199,7 +198,6 @@ export default function ProductClient({ product }: { product: any }) {
                 </div>
 
                 <div className="flex-1 flex items-center gap-3">
-                  {/* 🚀 BUTON KÖŞELERİ KESKİNLEŞTİ (rounded-md) */}
                   <button
                     onClick={handleAddToCart}
                     disabled={addingToCart || addedSuccess || !stoktaVar}
@@ -212,7 +210,6 @@ export default function ProductClient({ product }: { product: any }) {
                     {addingToCart ? "Ekleniyor..." : addedSuccess ? "✅ SEPETE EKLENDİ" : !stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
                   </button>
 
-                  {/* 🚀 CANLANAN FAVORİ (KALP) BUTONU */}
                   <button 
                     onClick={() => setIsFav(!isFav)}
                     disabled={!stoktaVar} 
@@ -257,17 +254,33 @@ export default function ProductClient({ product }: { product: any }) {
             <span className="text-[8px] text-blue-400 font-bold">12 Taksit İmkanı</span>
           </div>
           
-          <button
-            onClick={handleAddToCart}
-            disabled={addingToCart || addedSuccess || !stoktaVar}
-            className={`font-black py-2.5 px-5 rounded-md uppercase text-xs tracking-wider transition-all shadow-[0_0_15px_rgba(59,130,246,0.4)] active:scale-95 disabled:opacity-80 ${
-              addedSuccess 
-                ? "bg-emerald-500 text-white" 
-                : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
-            }`}
-          >
-            {addingToCart ? "Ekleniyor..." : addedSuccess ? "✅ EKLENDİ" : !stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setIsFav(!isFav)}
+              disabled={!stoktaVar} 
+              className={`w-10 h-10 rounded-md border flex items-center justify-center transition-all ${
+                isFav 
+                  ? 'bg-red-500/20 border-red-500/50 text-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]' 
+                  : 'bg-white/5 border-white/10 text-slate-400 hover:text-red-500 hover:bg-red-500/10'
+              }`}
+            >
+              <svg className="w-4 h-4" fill={isFav ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </button>
+
+            <button
+              onClick={handleAddToCart}
+              disabled={addingToCart || addedSuccess || !stoktaVar}
+              className={`font-black py-2.5 px-4 rounded-md uppercase text-xs tracking-wider transition-all shadow-[0_0_15px_rgba(59,130,246,0.4)] active:scale-95 disabled:opacity-80 ${
+                addedSuccess 
+                  ? "bg-emerald-500 text-white" 
+                  : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
+              }`}
+            >
+              {addingToCart ? "Ekleniyor..." : addedSuccess ? "✅ EKLENDİ" : !stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
+            </button>
+          </div>
         </div>
 
       </div>
