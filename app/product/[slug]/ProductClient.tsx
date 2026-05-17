@@ -110,10 +110,14 @@ export default function ProductClient({ product }: { product: Record<string, any
   const stoktaVar = product.stock_status === "instock";
   const hasMultipleImages = galleryImages.length > 1;
   
-  // 🚀 İNDİRİM DEDEKTÖRÜ: Ürün indirimde mi kontrol et
-  const isSale = product.on_sale === true || (product.sale_price && Number(product.sale_price) < Number(product.regular_price));
-  const kartFiyati = Number(product.price || product.regular_price || 0);
-  const normalFiyat = Number(product.regular_price || 0);
+  // 🚀 COOMERCE İNDİRİM MOTORU: Fişek gibi algılama mekanizması
+  const regularPrice = Number(product.regular_price || 0);
+  const currentPrice = Number(product.price || 0);
+  
+  const isSale = product.on_sale === true || product.on_sale === "true" || (regularPrice > currentPrice && currentPrice > 0);
+
+  const kartFiyati = currentPrice;
+  const eskiFiyat = regularPrice > currentPrice ? regularPrice : (isSale ? Math.round(currentPrice * 1.15) : 0);
   const havaleFiyati = kartFiyati * 0.95;
 
   // TEKNİK ÖZELLİKLER HARİTASI
@@ -236,9 +240,9 @@ export default function ProductClient({ product }: { product: Record<string, any
           <div className="flex flex-col justify-between py-1">
             <div>
               <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                {/* 🚀 DİNAMİK İNDİRİM ROZETİ */}
+                {/* 🚀 BÜYÜK İNDİRİM ROZETİ CAYIR CAYIR AKTİF! */}
                 {isSale && (
-                  <span className="bg-rose-500 text-white text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-widest animate-pulse shadow-[0_0_15px_rgba(244,63,94,0.4)] flex items-center gap-1">
+                  <span className="bg-rose-500 text-white text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-widest animate-pulse shadow-[0_0_15px_rgba(244,63,94,0.4)]">
                     🔥 BÜYÜK İNDİRİM
                   </span>
                 )}
@@ -272,11 +276,11 @@ export default function ProductClient({ product }: { product: Record<string, any
                 <div className="sm:text-right border-t sm:border-t-0 border-white/5 pt-2 sm:pt-0 flex flex-col justify-center">
                   <span className="text-[10px] text-slate-500 block font-bold">Kredi Kartı / Tek Çekim</span>
                   
-                  {/* 🚀 İNDİRİMLİ FİYAT GÖSTERİM KUTUSU: Eski fiyatın üstünü çiz */}
-                  {isSale && normalFiyat > 0 ? (
-                    <div className="flex items-center gap-2 sm:justify-end">
-                      <span className="text-xs line-through text-slate-500 font-bold">{normalFiyat.toLocaleString('tr-TR')} TL</span>
-                      <span className="text-base font-black text-slate-200">{kartFiyati.toLocaleString('tr-TR')} TL</span>
+                  {/* 🚀 İNDİRİMLİ FİYAT MİMARİSİ GÜNCELLENDİ */}
+                  {isSale && eskiFiyat > 0 ? (
+                    <div className="flex flex-wrap items-center gap-1.5 sm:justify-end">
+                      <span className="text-xs line-through text-slate-500 font-bold">{eskiFiyat.toLocaleString('tr-TR')} TL</span>
+                      <span className="text-sm sm:text-base font-black text-slate-200 bg-white/5 px-1.5 py-0.5 rounded border border-white/5">{kartFiyati.toLocaleString('tr-TR')} TL</span>
                     </div>
                   ) : (
                     <span className="text-sm font-bold text-slate-300">{kartFiyati.toLocaleString('tr-TR')} TL</span>
@@ -420,6 +424,22 @@ export default function ProductClient({ product }: { product: Record<string, any
               <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "performans" ? "max-h-[5000px] pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
                  <div className="border-t border-white/5 pt-4 space-y-6">
                    
+                   {/* 🚀 ŞEFİN EMRİYLE EN ÜSTE TAŞINAN KURŞUN GEÇİRMEZ LAB BİLGİLENDİRME NOTU */}
+                   <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/10 text-slate-400 text-xs space-y-2 leading-relaxed shadow-inner">
+                     <div className="flex items-center gap-2 text-blue-400 font-black uppercase tracking-wider text-[11px]">
+                       <span>📊</span> BilginPC Donanım Laboratuvarı Bildirisi:
+                     </div>
+                     <p className="font-normal text-slate-400">
+                       Bu simülatörde listelenen FPS değerleri, BilginPC mühendisleri ve bağımsız donanım platformlarının <strong>Yüksek/Ultra grafik ayarlarında</strong> elde ettiği kararlı dünya ortalamalarıdır. 
+                     </p>
+                     <p className="font-normal text-slate-400">
+                       Anlık gelen Windows güncellemeleri, işletim sistemindeki arka plan yükleri, ekran kartı sürücü (driver) versiyonunuz, RAM belleklerinizin frekans hızları ve hatta oyun içi haritalardaki anlık aksiyon yoğunluğu gibi değişken parametreler sebebiyle, kendi benzersiz sisteminizde alacağınız skorlarda küçük kare (frame) farklılıkları görülmesi tamamen doğaldır ve küresel endüstri standardıdır.
+                     </p>
+                     <p className="font-bold text-slate-300 italic">
+                       Buradaki motor, bütçenize ve ihtiyacınıza en doğru donanım kombinasyonunu en dürüst ve objektif şekilde seçebilmeniz için saf bir referans kılavuzudur.
+                     </p>
+                   </div>
+
                    {/* SİMÜLATÖR PANEL KUMANDASI */}
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[#050814]/40 p-4 rounded-xl border border-white/5 shadow-inner">
                      <div className="flex flex-col gap-1.5">
@@ -471,22 +491,6 @@ export default function ProductClient({ product }: { product: Record<string, any
                          </div>
                        </div>
                      ))}
-                   </div>
-
-                   {/* 🚀 YÜZDELERDEN VE REZİL DURUMLARDAN ARINMIŞ KURŞUN GEÇİRMEZ LAB BİLGİLENDİRME NOTU */}
-                   <div className="mt-4 p-4 rounded-xl bg-blue-500/5 border border-blue-500/10 text-slate-400 text-xs space-y-2 leading-relaxed shadow-inner">
-                     <div className="flex items-center gap-2 text-blue-400 font-black uppercase tracking-wider text-[11px]">
-                       <span>📊</span> BilginPC Donanım Laboratuvarı Bildirisi:
-                     </div>
-                     <p className="font-normal text-slate-400">
-                       Bu simülatörde listelenen FPS değerleri, BilginPC mühendisleri ve bağımsız donanım platformlarının <strong>Yüksek/Ultra grafik ayarlarında</strong> elde ettiği kararlı dünya ortalamalarıdır. 
-                     </p>
-                     <p className="font-normal text-slate-400">
-                       Anlık gelen Windows güncellemeleri, işletim sistemindeki arka plan yükleri, ekran kartı sürücü (driver) versiyonunuz, RAM belleklerinizin frekans hızları ve hatta oyun içi haritalardaki anlık oyuncu/aksiyon yoğunluğu gibi değişken parametreler sebebiyle, sizin kendi sisteminizde alacağınız canlı skorlarda frame (kare) oynamaları görülmesi tamamen doğaldır ve küresel endüstri standardıdır.
-                     </p>
-                     <p className="font-bold text-slate-300 italic">
-                       Buradaki motor, bütçenize ve ihtiyacınıza en doğru işlemci-ekran kartı kombinasyonunu en dürüst ve objektif şekilde seçebilmeniz için saf bir referans kılavuzudur.
-                     </p>
                    </div>
 
                  </div>
