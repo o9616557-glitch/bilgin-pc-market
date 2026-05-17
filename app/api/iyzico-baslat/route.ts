@@ -4,7 +4,6 @@ import crypto from 'crypto';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-// 🚀 İYZİCO'NUN ŞİFRELEME MATEMATİĞİ (Pakete İhtiyaç Duymadan Biz Yapıyoruz)
 function generatePKI(data: any) {
   let pki = '[';
   const append = (k: string, v: any) => { if (v !== undefined && v !== null && v !== "") pki += k + '=' + v + ','; };
@@ -70,8 +69,6 @@ function generatePKI(data: any) {
       appI('category1', item.category1);
       appI('category2', item.category2);
       appI('itemType', item.itemType);
-      appI('subMerchantKey', item.subMerchantKey);
-      appIPrice('subMerchantPrice', item.subMerchantPrice);
       items.push(i.slice(0, -1) + ']');
     });
     pki += 'basketItems=[' + items.join(', ') + '],';
@@ -89,7 +86,6 @@ function generatePKI(data: any) {
   return pki.slice(0, -1) + ']';
 }
 
-
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -98,7 +94,9 @@ export async function POST(request: Request) {
     const apiKey = process.env.IYZICO_API_KEY?.trim() || "";
     const secretKey = process.env.IYZICO_SECRET_KEY?.trim() || "";
 
-    const formattedPrice = Number(totalAmount || 0).toFixed(1);
+    // Fiyattaki olası virgülleri temizleyip saf sayıya çeviriyoruz
+    const safeAmount = totalAmount ? totalAmount.toString().replace(/,/g, '') : "0";
+    const formattedPrice = Number(safeAmount).toFixed(1);
 
     const requestData = {
       locale: "tr",
@@ -150,15 +148,14 @@ export async function POST(request: Request) {
       ]
     };
 
-    // 🚀 PAKETSİZ SAF ŞİFRELEME (Vercel bunu bozamaz!)
     const pkiString = generatePKI(requestData);
     const rnd = Math.random().toString(36).substring(2, 12) + Date.now();
     const signatureStr = apiKey + rnd + secretKey + pkiString;
     const hash = crypto.createHash('sha1').update(signatureStr, 'utf-8').digest('base64');
     const authHeader = `IYZWS ${apiKey}:${hash}`;
 
-    // 🚀 SAF FETCH İLE İYZİCO'YA BAĞLANTI
-    const iyzicoResponse = await fetch("https://api.iyzipay.com/payment/iyziconnect/checkoutform/initialize", {
+    // 🚀 İŞTE ASIL SİHİR BURADA: YANLIŞ OLAN "iyziconnect" ADRESİ "iyzipos" OLARAK DÜZELTİLDİ!
+    const iyzicoResponse = await fetch("https://api.iyzipay.com/payment/iyzipos/checkoutform/initialize/auth/ecom", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -181,6 +178,6 @@ export async function POST(request: Request) {
     }
 
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: `CRITICAL ERROR: ${error.message}` }, { status: 500 });
+    return NextResponse.json({ success: false, error: `SİSTEM HATASI: ${error.message}` }, { status: 500 });
   }
 }
