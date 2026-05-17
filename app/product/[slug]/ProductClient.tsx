@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 
-export default function ProductClient({ product }: { product: any }) {
+export default function ProductClient({ product }: { product: Record<string, any> }) {
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
