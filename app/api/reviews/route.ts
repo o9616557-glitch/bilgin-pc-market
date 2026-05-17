@@ -4,7 +4,7 @@ const CK = "ck_6ef66adad9ec356716cc40a803f4669e4c30006b";
 const CS = "cs_95b1791dad078934610a39930ac3e49da04a6efc";
 const SITE_URL = "https://bilginpcmarket.com";
 
-// 🚀 1. WORDPRESS'TEN TÜM YORUM VE SORULARI ÇEKME
+// 🚀 WORDPRESS'TEN SADECE ONAYLI YORUM VE CEVAPLARI ÇEKME
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const productId = searchParams.get('product');
@@ -14,9 +14,9 @@ export async function GET(request: Request) {
   }
 
   try {
-    // WooCommerce standart yorum ve soru listesini çeker
+    // status=approved ekleyerek onaysızların otomatik görünmesini engelledik!
     const res = await fetch(
-      `${SITE_URL}/wp-json/wc/v3/products/reviews?product=${productId}&per_page=100&consumer_key=${CK}&consumer_secret=${CS}`,
+      `${SITE_URL}/wp-json/wc/v3/products/reviews?product=${productId}&status=approved&per_page=100&consumer_key=${CK}&consumer_secret=${CS}`,
       { cache: 'no-store' }
     );
     const data = await res.json();
@@ -26,13 +26,12 @@ export async function GET(request: Request) {
   }
 }
 
-// 🚀 2. WORDPRESS'E YORUM VEYA SORU GÖNDERME
+// 🚀 WORDPRESS'E YORUM VEYA SORU GÖNDERME
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { product_id, reviewer, reviewer_email, review, rating, is_question } = body;
 
-    // Eğer gelen istek bir soru ise metnin başına [SORU] etiketi çakıyoruz
     const finalReviewText = is_question ? `[SORU] ${review}` : review;
     const finalRating = is_question ? 0 : rating;
 
