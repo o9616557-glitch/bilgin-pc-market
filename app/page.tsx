@@ -6,7 +6,6 @@ import ProductGrid from '@/components/ProductGrid';
 import Footer from '@/components/Footer';
 import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
 
-// 🚀 İŞTE HIZ BURADAN GELİYOR! Vercel sayfayı hazırda tutacak.
 export const revalidate = 60;
 
 const api = new WooCommerceRestApi({
@@ -34,8 +33,8 @@ export default async function HomePage() {
       <main className="flex-grow">
         <Hero />
         
-        {/* ⚡ İŞTE KRİTİK DEĞİŞİKLİK: Artık dışarıdan zorla veri istemiyor, kendi canlı verisini çekiyor! */}
-        <ProductSlider /> 
+        {/* ⚡ İŞTE O HATALI OLAN 38. SATIRIN DOĞRU HALİ ŞEFİM: */}
+        <ProductSlider initialProducts={urunler.slice(0, 6)} /> 
         
         <MidBanner />
         
