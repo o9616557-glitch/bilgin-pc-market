@@ -17,9 +17,12 @@ export default function ProductClient({ product }: { product: Record<string, any
   const [timeLeft, setTimeLeft] = useState("");
   const [shippingMessage, setShippingMessage] = useState("");
 
-  // SİMÜLATÖR STATE'LERİ
+  // FPS SİMÜLATÖR STATE'LERİ
   const [selectedCpu, setSelectedCpu] = useState("mid");
   const [selectedRes, setSelectedRes] = useState<"1080p" | "1440p">("1080p");
+
+  // 🚀 INTERAKTİF KIYASLAMA MOTORU STATE'I (Varsayılan: İlk rakip ürün seçili)
+  const [compareIndex, setCompareIndex] = useState<number>(0);
 
   const toggleAccordion = (section: string) => {
     setOpenAccordion(openAccordion === section ? null : section);
@@ -121,20 +124,17 @@ export default function ProductClient({ product }: { product: Record<string, any
 
   // KATEGORİ RADARI
   const productCategories = product.categories?.map((cat: any) => cat.slug?.toLowerCase()) || [];
-  const isPCorGPU = productCategories.some((slug: string) => 
+  const isKoltuk = productCategories.some((s: string) => s.includes("koltuk"));
+  const isSSD = productCategories.some((s: string) => s.includes("ssd"));
+  const isPCorGPU = !isKoltuk && !isSSD && productCategories.some((slug: string) => 
     ["hazir-sistem", "ekran-karti", "masaustu-bilgisayarlar", "laptop-bilgisayar", "hazir-sistem-bilgisayarlar", "ekran-kartlari"].includes(slug)
   );
 
-  // MASTER ANAHTAR SANTRALİ (Kategoriye Göre ACF Eşleştirme Sözlüğü)
+  const currentCategoryType = isKoltuk ? "oyuncu-koltugu" : isSSD ? "ssd" : isPCorGPU ? "ekran-karti" : "genel";
+
+  // MASTER ANAHTAR SÖZLÜĞÜ
   const categoryMappings: Record<string, Record<string, string>> = {
     "ekran-karti": {
-      model: "Model", grafik_motoru: "Grafik Motoru", ai_performansi: "AI Performansı", bus_standarti: "Bus Standartı",
-      opengl: "OpenGL", bellek: "Bellek Kapasitesi", saat_hizi: "Saat Hızı", cuda_cekirdegi: "CUDA Çekirdeği",
-      bellek_hizi: "Bellek Hızı", bellek_arayuzu: "Bellek Arayüzü", cozunurluk: "Maksimum Çözünürlük",
-      boyutlar: "Boyutlar", tavsiye_edilen_guc_kaynagi: "Tavsiye Edilen PSU", guc_baglantilari: "Güç Bağlantıları",
-      yuva: "Yuva Tipi", aura_sync: "Aura Sync / RGB"
-    },
-    "ekran-kartlari": {
       model: "Model", grafik_motoru: "Grafik Motoru", ai_performansi: "AI Performansı", bus_standarti: "Bus Standartı",
       opengl: "OpenGL", bellek: "Bellek Kapasitesi", saat_hizi: "Saat Hızı", cuda_cekirdegi: "CUDA Çekirdeği",
       bellek_hizi: "Bellek Hızı", bellek_arayuzu: "Bellek Arayüzü", cozunurluk: "Maksimum Çözünürlük",
@@ -146,24 +146,16 @@ export default function ProductClient({ product }: { product: Record<string, any
       tasima_kapasitesi: "Maksimum Taşıma", mekanizma: "Yatış Mekanizması", ayak_malzemesi: "Ayak Yıldız Tabanı",
       yastik_destegi: "Bel & Boyun Yastığı", koltuk_boyutu: "Ürün Ölçüleri / Boyut"
     },
-    "oyuncu-koltuklari": {
-      malzeme_tipi: "Döşeme Malzemesi", kol_destegi: "Kol Desteği Sınıfı", amortisör: "Amortisör Klasmanı",
-      tasima_kapasitesi: "Maksimum Taşıma", mekanizma: "Yatış Mekanizması", ayak_malzemesi: "Ayak Yıldız Tabanı",
-      yastik_destegi: "Bel & Boyun Yastığı", koltuk_boyutu: "Ürün Ölçüleri / Boyut"
-    },
     "ssd": {
       okuma_hizi: "Okuma Hızı (MB/s)", yazma_hizi: "Yazma Hızı (MB/s)", arabirim: "Bağlantı Arayüzü",
       tbw_degeri: "Yazım Ömrü (TBW)", nvme_versiyon: "NVMe Sürümü", flash_tipi: "NAND Flash Tipi"
+    },
+    "genel": {
+      garanti: "Garanti Süresi", mensei: "Üretim Yeri"
     }
   };
 
-  let activeMapping: Record<string, string> = {};
-  for (const slug of productCategories) {
-    if (categoryMappings[slug]) {
-      activeMapping = categoryMappings[slug];
-      break;
-    }
-  }
+  const activeMapping = categoryMappings[currentCategoryType];
 
   const dynamicCustomSpecs = Object.entries(activeMapping).map(([key, label]) => {
     const metaValue = product.meta_data?.find((m: any) => m.key === key)?.value || product.acf?.[key];
@@ -174,8 +166,55 @@ export default function ProductClient({ product }: { product: Record<string, any
     ? dynamicCustomSpecs 
     : (product.attributes?.map((attr: any) => ({ label: attr.name, value: attr.options?.join(', ') })) || []);
 
-  const cpuMultipliers: Record<string, number> = { entry: 0.85, mid: 0.93, high: 1.00, extreme: 1.10 };
+  // 🚀 İNTERAKTİF KIYASLAMA VERİ TABANI (Kategoriye göre dinamik beslenir)
+  const comparisonDatabase: Record<string, Array<{ name: string; specs: Record<string, string> }>> = {
+    "ekran-karti": [
+      {
+        name: "BilginPC Ultra Premium (RTX 4070 SUPER)",
+        specs: { model: "RTX 4070 SUPER", grafik_motoru: "NVIDIA GeForce RTX 4070 SUPER", ai_performansi: "Zirve Seviye (520 AI TOPS)", bus_standarti: "PCI Express 4.0", opengl: "OpenGL 4.6", bellek: "12GB GDDR6X", saat_hizi: "2475 MHz (Boost)", cuda_cekirdegi: "5888", bellek_hizi: "21 Gbps", bellek_arayuzu: "192-bit", cozunurluk: "7680 x 4320", boyutlar: "300 x 120 x 50 mm", tavsiye_edilen_guc_kaynagi: "650W PSU", guc_baglantilari: "1x 16-pin", yuva: "2.5 Slot", aura_sync: "ARGB Senkronize" }
+      },
+      {
+        name: "Standart Giriş Sistemi (RTX 3060)",
+        specs: { model: "RTX 3060", grafik_motoru: "NVIDIA GeForce RTX 3060", ai_performansi: "Giriş Seviye (102 AI TOPS)", bus_standarti: "PCI Express 4.0", opengl: "OpenGL 4.6", bellek: "12GB GDDR6", saat_hizi: "1777 MHz", cuda_cekirdegi: "3584", bellek_hizi: "15 Gbps", bellek_arayuzu: "192-bit", cozunurluk: "7680 x 4320", boyutlar: "240 x 110 x 40 mm", tavsiye_edilen_guc_kaynagi: "550W PSU", guc_baglantilari: "1x 8-pin", yuva: "2 Slot", aura_sync: "Sabit RGB" }
+      }
+    ],
+    "oyuncu-koltugu": [
+      {
+        name: "Sektör Standardı xDrive/Hawk Muadili",
+        specs: { malzeme_tipi: "Premium PU Suni Deri", kol_destegi: "3D Hareketli Kol", amortisör: "Class 4 Amortisör", tasima_kapasitesi: "120 kg", mekanizma: "135 Derece Yatış", ayak_malzemesi: "Plastik Yıldız Taban", yastik_destegi: "Mevcut (Sünger)", koltuk_boyutu: "68 x 70 x 132 cm" }
+      },
+      {
+        name: "Sıradan Ofis / Çalışma Koltuğu",
+        specs: { malzeme_tipi: "Fileli Kumaş", kol_destegi: "Sabit Plastik Kol", amortisör: "Class 3 Amortisör", tasima_kapasitesi: "90 kg", mekanizma: "Yatışsız TILT", ayak_malzemesi: "Naylon Ayak", yastik_destegi: "Yok", koltuk_boyutu: "60 x 60 x 115 cm" }
+      }
+    ],
+    "ssd": [
+      {
+        name: "Premium Gen4 Rakip NVMe SSD",
+        specs: { okuma_hizi: "7400 MB/s", yazma_hizi: "6500 MB/s", arabirim: "PCIe Gen 4.0 x4", tbw_degeri: "1200 TBW", nvme_versiyon: "NVMe 1.4", flash_tipi: "3D TLC NAND" }
+      },
+      {
+        name: "Standart SATA SSD",
+        specs: { okuma_hizi: "550 MB/s", yazma_hizi: "520 MB/s", arabirim: "SATA III 6Gb/s", tbw_degeri: "300 TBW", nvme_versiyon: "SATA Mimarisi", flash_tipi: "QLC NAND" }
+      }
+    ],
+    "genel": [
+      { name: "Standart Alternatif Ürün", specs: { garanti: "2 Yıl", mensei: "İthal" } }
+    ]
+  };
 
+  const compareOptions = comparisonDatabase[currentCategoryType] || [];
+  const selectedCompareProduct = compareOptions[compareIndex];
+
+  // 🚀 KIYASLAMA MATRİS MOTORU: Sol ve sağ verileri haritalayıp satırları inşa eder
+  const comparisonRows = Object.entries(activeMapping).map(([key, label]) => {
+    const currentProductValue = product.meta_data?.find((m: any) => m.key === key)?.value || product.acf?.[key] || "-";
+    const opponentValue = selectedCompareProduct?.specs?.[key] || "-";
+    return { label, current: currentProductValue, opponent: opponentValue };
+  }).filter(row => row.current !== "-" || row.opponent !== "-");
+
+  // FPS SIMULATOR MOTORU
+  const cpuMultipliers: Record<string, number> = { entry: 0.85, mid: 0.93, high: 1.00, extreme: 1.10 };
   const gamesConfig = [
     { id: "pubg", label: "PUBG: BATTLEGROUNDS", maxFps: 400, default1080p: 210, default1440p: 140, color: "from-amber-500 to-orange-600 shadow-[0_0_15px_rgba(245,158,11,0.3)]" },
     { id: "valorant", label: "VALORANT", maxFps: 600, default1080p: 450, default1440p: 320, color: "from-rose-500 to-red-600 shadow-[0_0_15px_rgba(244,63,94,0.3)]" },
@@ -183,9 +222,7 @@ export default function ProductClient({ product }: { product: Record<string, any
     { id: "cyberpunk", label: "Cyberpunk 2077", maxFps: 200, default1080p: 110, default1440p: 65, color: "from-purple-500 to-fuchsia-600 shadow-[0_0_15px_rgba(168,85,247,0.3)]" },
     { id: "rdr2", label: "Red Dead Redemption 2", maxFps: 200, default1080p: 95, default1440p: 60, color: "from-emerald-500 to-teal-600 shadow-[0_0_15px_rgba(16,185,129,0.3)]" }
   ];
-
   const currentCpuMultiplier = cpuMultipliers[selectedCpu] || 1.0;
-
   const processedFpsData = gamesConfig.map(game => {
     const acfKey = `${game.id}_${selectedRes}_fps`;
     const metaValue = product.meta_data?.find((m: any) => m.key === acfKey)?.value || product.acf?.[acfKey];
@@ -194,14 +231,6 @@ export default function ProductClient({ product }: { product: Record<string, any
     const percentage = Math.min((finalFps / game.maxFps) * 100, 100);
     return { label: game.label, fps: finalFps, percentage, color: game.color };
   });
-
-  const getMetaData = (key: string) => {
-    const meta = product.meta_data?.find((m: any) => m.key === key);
-    return meta ? meta.value : null;
-  };
-
-  // Karşılaştırma Verisi
-  const comparisonData = getMetaData('karsilastirma') || product.acf?.['karsilastirma'];
 
   return (
     <PhotoProvider>
@@ -394,7 +423,7 @@ export default function ProductClient({ product }: { product: Record<string, any
                  <div className="border-t border-white/5 pt-3 sm:pt-4">
                     <div 
                       className="text-slate-300 text-base md:text-lg leading-relaxed space-y-4 prose prose-invert font-normal max-w-none prose-p:my-2 prose-headings:text-white prose-headings:font-black prose-img:rounded-xl sm:prose-img:rounded-2xl prose-img:shadow-[0_10px_30px_rgba(0,0,0,0.4)] prose-img:w-full prose-img:my-6 sm:prose-img:my-10"
-                      dangerouslySetInnerHTML={{ __html: product.description || "Bu canavar için henüz teknik açıklama girilmemiş şefim." }}
+                      dangerouslySetInnerHTML={{ __html: product.description || "Bu canavar için henüz detaylı bir teknik açıklama girilmemiş şefim." }}
                     />
                  </div>
               </div>
@@ -478,7 +507,7 @@ export default function ProductClient({ product }: { product: Record<string, any
 
                        <div className="flex flex-col gap-1.5">
                          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">ÇÖZÜNÜRLÜK MODU</label>
-                         <div className="grid grid-cols-2 bg-[#0b1329 p-1 rounded-lg border border-white/10 h-[38px] items-center">
+                         <div className="grid grid-cols-2 bg-[#0b1329] p-1 rounded-lg border border-white/10 h-[38px] items-center">
                            <button 
                              onClick={() => setSelectedRes("1080p")} 
                              className={`h-full text-xs font-black rounded-md uppercase tracking-wider transition-all ${selectedRes === "1080p" ? "bg-blue-600 text-white shadow-md shadow-blue-600/20 scale-[1.02]" : "text-slate-400 hover:text-white"}`}
@@ -517,7 +546,7 @@ export default function ProductClient({ product }: { product: Record<string, any
               </div>
             )}
 
-            {/* 🚀 4. ÜRÜN KARŞILAŞTIRMA (ARIK HER KOŞULDA GÖRÜNÜR, İÇİ DİNAMİK PLACEHOLDER!) */}
+            {/* 🚀 4. BÜYÜK İNTERAKTİF ÜRÜN KARŞILAŞTIRMA SEKMESİ (HER ÜRÜNE ÖZEL AKILLI BUKALEMUN MODELİ!) */}
             <div className="border-b border-white/5 last:border-0">
               <button 
                 onClick={() => toggleAccordion("karsilastirma")}
@@ -529,12 +558,52 @@ export default function ProductClient({ product }: { product: Record<string, any
                 <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "karsilastirma" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
               </button>
               <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "karsilastirma" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
-                 <div className="border-t border-white/5 pt-3 sm:pt-4">
-                   {comparisonData ? (
-                     <div dangerouslySetInnerHTML={{ __html: comparisonData }} />
+                 <div className="border-t border-white/5 pt-4 space-y-4">
+                   
+                   {/* RAKİP ÜRÜN SEÇME PANELI */}
+                   <div className="flex flex-col gap-1.5 bg-[#050814]/40 p-4 rounded-xl border border-white/5">
+                     <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">KARŞILAŞTIRILACAK ALTERNATİF ÜRÜN</label>
+                     {compareOptions.length > 0 ? (
+                       <select 
+                         value={compareIndex} 
+                         onChange={(e) => setCompareIndex(Number(e.target.value))}
+                         className="w-full bg-[#0b1329] border border-white/10 text-blue-400 rounded-lg p-2.5 text-xs font-black focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+                       >
+                         {compareOptions.map((opt, idx) => (
+                           <option key={idx} value={idx} className="text-slate-300 font-bold">{opt.name}</option>
+                         ))}
+                       </select>
+                     ) : (
+                       <p className="text-xs text-slate-500 italic">Bu kategori için henüz kıyaslanabilir bir rakip ürün eşleşmedi.</p>
+                     )}
+                   </div>
+
+                   {/* CANLI YAN YANA KIYASLAMA TABLOSU */}
+                   {comparisonRows.length > 0 ? (
+                     <div className="overflow-x-auto pt-2">
+                       <table className="w-full text-left border-collapse table-fixed">
+                         <thead>
+                           <tr className="border-b border-white/10 bg-white/5 text-[11px] sm:text-xs uppercase tracking-wider font-black text-slate-400">
+                             <th className="py-2.5 px-2 w-1/3">Özellik</th>
+                             <th className="py-2.5 px-2 w-1/3 text-blue-400">Bu Ürün</th>
+                             <th className="py-2.5 px-2 w-1/3 text-amber-400">Kıyaslanan</th>
+                           </tr>
+                         </thead>
+                         <tbody>
+                           {comparisonRows.map((row, i) => (
+                             <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors text-xs sm:text-sm">
+                               <td className="py-3 px-2 font-bold text-slate-400 truncate">{row.label}</td>
+                               <td className="py-3 px-2 text-slate-200 font-medium break-words">{row.current}</td>
+                               <td className="py-3 px-2 text-slate-400 font-normal break-words">{row.opponent}</td>
+                             </tr>
+                           ))}
+                         </tbody>
+                       </table>
+                     </div>
                    ) : (
-                     <p className="text-slate-500 italic py-2">Bu ürüne ait karşılaştırma tablosu veya verisi WordPress panelinden henüz girilmemiş şefim.</p>
+                     <p className="text-slate-500 italic py-2">Kıyaslanacak teknik özellik verisi bulunamadı şefim.</p>
                    )}
+
                  </div>
               </div>
             </div>
