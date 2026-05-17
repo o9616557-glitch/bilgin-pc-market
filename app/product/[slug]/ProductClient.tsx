@@ -9,7 +9,7 @@ export default function ProductClient({ product }: { product: any }) {
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
-  const [addedSuccess, setAddedSuccess] = useState(false); // Başarı mesajı için yeni durum
+  const [addedSuccess, setAddedSuccess] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   useEffect(() => {
@@ -42,7 +42,6 @@ export default function ProductClient({ product }: { product: any }) {
     }
   };
 
-  // 🚀 SEPETE EKLEME VE ONAY MESAJI MOTORU
   const handleAddToCart = () => {
     setAddingToCart(true);
     const currentCart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -63,11 +62,12 @@ export default function ProductClient({ product }: { product: any }) {
     
     localStorage.setItem("cart", JSON.stringify(currentCart));
     
-    // 800ms ekleniyor animasyonu, ardından başarı mesajı
+    // 🚀 ŞEFİN SİNYAL MOTORU: Sepet eklendiğinde üst menüdeki sayacı anında tetikler!
+    window.dispatchEvent(new Event("cartUpdated"));
+    
     setTimeout(() => {
       setAddingToCart(false);
       setAddedSuccess(true);
-      // 2 saniye sonra başarı mesajını kapatır, butonu eski haline getirir
       setTimeout(() => setAddedSuccess(false), 2000); 
     }, 800);
   };
@@ -81,21 +81,14 @@ export default function ProductClient({ product }: { product: any }) {
     <PhotoProvider>
       <div className="min-h-[calc(100vh-80px)] bg-[#050814] text-white pt-2 pb-24 md:py-8 px-4 sm:px-6 lg:px-8 relative overflow-hidden font-medium">
         
-        {/* Kozmik arka plan efektleri */}
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/5 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-emerald-600/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-        {/* ÜST BÖLÜM: GÖRSEL VE DETAY KUTUSU */}
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 p-4 sm:p-8 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10">
           
-          {/* SOL BÖLÜM: GALERİ SİSTEMİ */}
           <div className="flex flex-col gap-4">
             
-            {/* 🚀 ANA RESİM KUTUSU (ÇİZGİLER SİLİNDİ, TAM EKRAN GALERİ MOTORU DÜZELTİLDİ) */}
             <div className="w-full bg-white border border-white/5 p-4 sm:p-6 rounded-2xl overflow-hidden aspect-square relative group shadow-inner flex items-center justify-center cursor-pointer">
-              
-              {/* Tüm resimleri PhotoView'a bağlıyoruz ama sadece aktif olanı gösteriyoruz. 
-                  Bu sayede tam ekrana geçince oklar otomatik çalışır! */}
               {product.images?.map((img: any, index: number) => (
                 <PhotoView key={index} src={img.src}>
                   <img 
@@ -107,8 +100,6 @@ export default function ProductClient({ product }: { product: any }) {
                   />
                 </PhotoView>
               ))}
-
-              {/* Büyüteç İkonu (Sabit durur) */}
               <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md border border-white/10 w-8 h-8 rounded-lg flex items-center justify-center opacity-70 group-hover:opacity-100 transition-all shadow-lg pointer-events-none">
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -116,7 +107,6 @@ export default function ProductClient({ product }: { product: any }) {
               </div>
             </div>
 
-            {/* OKLAR PANELİ */}
             <div className="flex items-center justify-between gap-4 bg-[#050814]/40 border border-white/5 p-2 rounded-xl">
               <button onClick={prevImage} disabled={!hasMultipleImages} className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 hover:border-blue-600 disabled:opacity-10 transition-all">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
@@ -147,10 +137,8 @@ export default function ProductClient({ product }: { product: any }) {
             </div>
           </div>
 
-          {/* SAĞ BÖLÜM: SATIN ALMA ALANI */}
           <div className="flex flex-col justify-between py-1">
             <div>
-              {/* Rozetler */}
               <div className="flex flex-wrap items-center gap-1.5 mb-3">
                 {stoktaVar ? (
                   <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
@@ -164,18 +152,15 @@ export default function ProductClient({ product }: { product: any }) {
                 <span className="bg-slate-500/10 border border-white/5 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded-full tracking-wider">KOD: BPC-{product.id}</span>
               </div>
 
-              {/* Yıldız Değerlendirme */}
               <div className="flex items-center gap-2 mb-2">
                 <div className="text-amber-400 text-xs tracking-tighter">⭐⭐⭐⭐⭐</div>
                 <span className="text-[11px] font-bold text-slate-400">5.0 / (0) Değerlendirme</span>
               </div>
 
-              {/* Ürün Adı */}
               <h1 className="text-lg sm:text-2xl font-black uppercase tracking-tight mb-3 text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400 leading-tight">
                 {product.name}
               </h1>
               
-              {/* 🚀 FİYAT KUTUSU (TAKSİT YANILGISI DÜZELTİLDİ) */}
               <div className="bg-[#050814]/50 border border-white/5 p-4 rounded-xl mb-4 grid grid-cols-1 sm:grid-cols-2 gap-3 shadow-inner">
                 <div>
                   <span className="text-[10px] font-bold uppercase text-emerald-400 block mb-0.5">Havale / EFT Özel Fiyatı (%5 İndirim)</span>
@@ -187,12 +172,12 @@ export default function ProductClient({ product }: { product: any }) {
                   <span className="text-[10px] text-slate-500 block font-bold">Kredi Kartı / Tek Çekim</span>
                   <span className="text-sm font-bold text-slate-300">{kartFiyati.toLocaleString('tr-TR')} TL</span>
                   <span className="text-[10px] text-blue-400 font-black bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 rounded mt-0.5 inline-block w-max sm:ml-auto">
-                    Taksit Seçenekleri Mevcut
+                    {/* 🚀 TAKSİT YAZISI DEĞİŞTİ */}
+                    12 Taksit İmkanı
                   </span>
                 </div>
               </div>
 
-              {/* Paylaş Butonları */}
               <div className="flex items-center gap-3 mb-4 bg-[#050814]/30 border border-white/5 p-2 rounded-xl w-max">
                 <span className="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Paylaş:</span>
                 <div className="flex items-center gap-2 opacity-40 hover:opacity-100 transition-opacity">
@@ -203,7 +188,6 @@ export default function ProductClient({ product }: { product: any }) {
               </div>
             </div>
 
-            {/* MASAÜSTÜ SATIN ALMA PANELİ */}
             <div className="border-t border-white/5 pt-4 mt-2 hidden sm:block">
               <div className="flex items-center gap-4">
                 <div className="flex items-center justify-between bg-[#050814] border border-white/10 rounded-xl p-1.5 min-w-[110px]">
@@ -236,7 +220,6 @@ export default function ProductClient({ product }: { product: any }) {
           </div>
         </div>
 
-        {/* ÜRÜN AÇIKLAMASI */}
         <div className="max-w-6xl mx-auto mt-8 bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 p-4 sm:p-8 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10">
           <div className="border-b border-white/5 pb-3 mb-5">
             <h2 className="text-base md:text-lg font-black uppercase tracking-widest text-blue-500 italic flex items-center gap-2">
@@ -251,14 +234,16 @@ export default function ProductClient({ product }: { product: any }) {
           />
         </div>
 
-        {/* 📱 TELEFONLAR İÇİN ALT YAPIŞKAN SEPET (MOBİLDE DE ONAY MESAJI VERİR) */}
         <div className="fixed bottom-0 left-0 right-0 bg-[#0b1329]/90 backdrop-blur-xl border-t border-white/10 p-3 flex items-center justify-between z-50 sm:hidden shadow-[0_-10px_30px_rgba(0,0,0,0.6)] animate-fade-in">
           <div className="flex flex-col">
             <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-wider">Havale Fiyatı</span>
             <span className="text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">
               {havaleFiyati.toLocaleString('tr-TR')} TL
             </span>
-            <span className="text-[8px] text-blue-400 font-bold">Taksit İmkanı</span>
+            <span className="text-[8px] text-blue-400 font-bold">
+              {/* 🚀 MOBİLDEKİ TAKSİT YAZISI DEĞİŞTİ */}
+              12 Taksit İmkanı
+            </span>
           </div>
           
           <button
