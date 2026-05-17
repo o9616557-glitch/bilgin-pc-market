@@ -17,7 +17,7 @@ export default function ProductClient({ product }: { product: Record<string, any
   const [timeLeft, setTimeLeft] = useState("");
   const [shippingMessage, setShippingMessage] = useState("");
 
-  // SIMÜLATÖR STATE'LERİ
+  // SİMÜLATÖR STATE'LERİ
   const [selectedCpu, setSelectedCpu] = useState("mid");
   const [selectedRes, setSelectedRes] = useState<"1080p" | "1440p">("1080p");
 
@@ -109,7 +109,11 @@ export default function ProductClient({ product }: { product: Record<string, any
 
   const stoktaVar = product.stock_status === "instock";
   const hasMultipleImages = galleryImages.length > 1;
+  
+  // 🚀 İNDİRİM DEDEKTÖRÜ: Ürün indirimde mi kontrol et
+  const isSale = product.on_sale === true || (product.sale_price && Number(product.sale_price) < Number(product.regular_price));
   const kartFiyati = Number(product.price || product.regular_price || 0);
+  const normalFiyat = Number(product.regular_price || 0);
   const havaleFiyati = kartFiyati * 0.95;
 
   // TEKNİK ÖZELLİKLER HARİTASI
@@ -139,12 +143,7 @@ export default function ProductClient({ product }: { product: Record<string, any
   }).filter(spec => spec.value !== undefined && spec.value !== null && spec.value !== "");
 
   // İŞLEMCİ ÇARPANLARI
-  const cpuMultipliers: Record<string, number> = {
-    entry: 0.85,
-    mid: 0.93,
-    high: 1.00,
-    extreme: 1.10
-  };
+  const cpuMultipliers: Record<string, number> = { entry: 0.85, mid: 0.93, high: 1.00, extreme: 1.10 };
 
   // OYUN SİMÜLASYON HARİTASI
   const gamesConfig = [
@@ -237,6 +236,12 @@ export default function ProductClient({ product }: { product: Record<string, any
           <div className="flex flex-col justify-between py-1">
             <div>
               <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                {/* 🚀 DİNAMİK İNDİRİM ROZETİ */}
+                {isSale && (
+                  <span className="bg-rose-500 text-white text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-widest animate-pulse shadow-[0_0_15px_rgba(244,63,94,0.4)] flex items-center gap-1">
+                    🔥 BÜYÜK İNDİRİM
+                  </span>
+                )}
                 {stoktaVar ? (
                   <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
                     <span className="w-1 h-1 bg-emerald-400 rounded-full animate-ping"></span> STOKTA
@@ -266,7 +271,17 @@ export default function ProductClient({ product }: { product: Record<string, any
                 </div>
                 <div className="sm:text-right border-t sm:border-t-0 border-white/5 pt-2 sm:pt-0 flex flex-col justify-center">
                   <span className="text-[10px] text-slate-500 block font-bold">Kredi Kartı / Tek Çekim</span>
-                  <span className="text-sm font-bold text-slate-300">{kartFiyati.toLocaleString('tr-TR')} TL</span>
+                  
+                  {/* 🚀 İNDİRİMLİ FİYAT GÖSTERİM KUTUSU: Eski fiyatın üstünü çiz */}
+                  {isSale && normalFiyat > 0 ? (
+                    <div className="flex items-center gap-2 sm:justify-end">
+                      <span className="text-xs line-through text-slate-500 font-bold">{normalFiyat.toLocaleString('tr-TR')} TL</span>
+                      <span className="text-base font-black text-slate-200">{kartFiyati.toLocaleString('tr-TR')} TL</span>
+                    </div>
+                  ) : (
+                    <span className="text-sm font-bold text-slate-300">{kartFiyati.toLocaleString('tr-TR')} TL</span>
+                  )}
+                  
                   <span className="text-[10px] text-blue-400 font-black bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 rounded-sm mt-0.5 inline-block w-max sm:ml-auto">
                     12 Taksit İmkanı
                   </span>
@@ -458,7 +473,7 @@ export default function ProductClient({ product }: { product: Record<string, any
                      ))}
                    </div>
 
-                   {/* 🚀 KUSURSUZ İKNA EDİCİ LAB LAB BİLGİLENDİRME KUTUSU (PAPAZ OLMAYA SON!) */}
+                   {/* 🚀 YÜZDELERDEN VE REZİL DURUMLARDAN ARINMIŞ KURŞUN GEÇİRMEZ LAB BİLGİLENDİRME NOTU */}
                    <div className="mt-4 p-4 rounded-xl bg-blue-500/5 border border-blue-500/10 text-slate-400 text-xs space-y-2 leading-relaxed shadow-inner">
                      <div className="flex items-center gap-2 text-blue-400 font-black uppercase tracking-wider text-[11px]">
                        <span>📊</span> BilginPC Donanım Laboratuvarı Bildirisi:
@@ -467,10 +482,10 @@ export default function ProductClient({ product }: { product: Record<string, any
                        Bu simülatörde listelenen FPS değerleri, BilginPC mühendisleri ve bağımsız donanım platformlarının <strong>Yüksek/Ultra grafik ayarlarında</strong> elde ettiği kararlı dünya ortalamalarıdır. 
                      </p>
                      <p className="font-normal text-slate-400">
-                       Anlık gelen Windows güncellemeleri, ekran kartı sürücü (driver) versiyonunuz, RAM belleklerinizin XMP/EXPO frekans hızları ve hatta oyun içi haritalardaki oyuncu yoğunluğu gibi yüzlerce farklı dış etken sebebiyle, sizin kendi sisteminizde alacağınız canlı skorlarda <strong>± %5 ila %10 arasında frame (kare) oynamaları görülmesi tamamen doğaldır ve endüstri standardıdır.</strong> 
+                       Anlık gelen Windows güncellemeleri, işletim sistemindeki arka plan yükleri, ekran kartı sürücü (driver) versiyonunuz, RAM belleklerinizin frekans hızları ve hatta oyun içi haritalardaki anlık oyuncu/aksiyon yoğunluğu gibi değişken parametreler sebebiyle, sizin kendi sisteminizde alacağınız canlı skorlarda frame (kare) oynamaları görülmesi tamamen doğaldır ve küresel endüstri standardıdır.
                      </p>
                      <p className="font-bold text-slate-300 italic">
-                       Buradaki motor, bütçenize ve ihtiyacınıza en doğru işlemci-ekran kartı kombinasyonunu papaz olmadan, en dürüst şekilde seçebilmeniz için saf bir referans kılavuzudur.
+                       Buradaki motor, bütçenize ve ihtiyacınıza en doğru işlemci-ekran kartı kombinasyonunu en dürüst ve objektif şekilde seçebilmeniz için saf bir referans kılavuzudur.
                      </p>
                    </div>
 
