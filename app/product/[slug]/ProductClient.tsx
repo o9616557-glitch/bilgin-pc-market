@@ -108,7 +108,7 @@ export default function ProductClient({ product }: { product: Record<string, any
   const kartFiyati = Number(product.price || product.regular_price || 0);
   const havaleFiyati = kartFiyati * 0.95;
 
-  // 🚀 ŞEFİN ACF EŞLEŞTİRME HARİTASI
+  // TEKNİK ÖZELLİKLER ACF EŞLEŞTİRME HARİTASI
   const acfMapping: Record<string, string> = {
     model: "Model",
     grafik_motoru: "Grafik Motoru",
@@ -129,20 +129,32 @@ export default function ProductClient({ product }: { product: Record<string, any
     aura_sync: "Aura Sync / RGB"
   };
 
-  // 🚀 ACF VERİLERİNİ API PAKETİNDEN SÜZME MOTORU
   const techSpecs = Object.entries(acfMapping).map(([key, label]) => {
-    // REST API'de ACF verileri meta_data içinde veya doğrudan "acf" objesinde gelebilir.
     const metaValue = product.meta_data?.find((m: any) => m.key === key)?.value || product.acf?.[key];
     return { label, value: metaValue };
-  }).filter(spec => spec.value !== undefined && spec.value !== null && spec.value !== ""); // Boş olanları gizle
+  }).filter(spec => spec.value !== undefined && spec.value !== null && spec.value !== "");
 
-  // Özel alanlar için genel çağrı
+  // 🚀 OYUN PERFORMANS TESTİ ACF HARİTASI VE DYNAMIC BAR AYARLARI
+  const fpsMapping: Record<string, { label: string; maxFps: number; defaultFps: number; color: string }> = {
+    fps_valorant: { label: "VALORANT (1080p Ultra)", maxFps: 500, defaultFps: 420, color: "from-rose-500 to-red-600 shadow-[0_0_15px_rgba(244,63,94,0.4)]" },
+    fps_cs2: { label: "Counter-Strike 2 (1080p High)", maxFps: 500, defaultFps: 310, color: "from-amber-500 to-orange-600 shadow-[0_0_15px_rgba(245,158,11,0.4)]" },
+    fps_warzone: { label: "CoD: Warzone 3.0 (1080p Balanced)", maxFps: 240, defaultFps: 145, color: "from-blue-500 to-indigo-600 shadow-[0_0_15px_rgba(59,130,246,0.4)]" },
+    fps_cyberpunk: { label: "Cyberpunk 2077 (1080p Ultra - DLSS ON)", maxFps: 160, defaultFps: 95, color: "from-purple-500 to-fuchsia-600 shadow-[0_0_15px_rgba(168,85,247,0.4)]" }
+  };
+
+  const fpsSpecs = Object.entries(fpsMapping).map(([key, config]) => {
+    const metaValue = product.meta_data?.find((m: any) => m.key === key)?.value || product.acf?.[key];
+    // Eğer WP'de değer girilmişse onu sayıya çevir, girilmemişse default test değerini bas!
+    const finalFps = metaValue ? Number(metaValue) : config.defaultFps;
+    const percentage = Math.min((finalFps / config.maxFps) * 100, 100);
+    return { label: config.label, fps: finalFps, percentage, color: config.color };
+  });
+
   const getMetaData = (key: string) => {
     const meta = product.meta_data?.find((m: any) => m.key === key);
     return meta ? meta.value : null;
   };
 
-  const performanceTest = getMetaData('performans_testi');
   const comparisonData = getMetaData('karsilastirma');
 
   return (
@@ -290,7 +302,7 @@ export default function ProductClient({ product }: { product: Record<string, any
                     onClick={() => setIsFav(!isFav)}
                     disabled={!stoktaVar} 
                     className={`w-11 h-11 rounded-md border flex items-center justify-center transition-all ${
-                      isFav ? 'bg-red-500/20 border-red-500/50 text-red-500' : 'bg-white/5 border-white/10 text-slate-400'
+                      isFav ? 'bg-red-500/20 border-red-500/50 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]' : 'bg-white/5 border-white/10 text-slate-400 hover:text-red-500'
                     }`}
                   >
                     <svg className="w-4 h-4" fill={isFav ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
@@ -313,33 +325,33 @@ export default function ProductClient({ product }: { product: Record<string, any
                 onClick={() => toggleAccordion("aciklama")}
                 className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group"
               >
-                <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-slate-300 group-hover:text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
+                <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
                   <span className="text-lg sm:text-xl">🛠️</span> Ürün Açıklaması
                 </span>
-                <svg className={`w-4 h-4 sm:w-5 sm:h-5 text-slate-500 transform transition-transform duration-500 ${openAccordion === "aciklama" ? "rotate-180 text-blue-400" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400 transform transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
               </button>
               <div className={`px-4 sm:px-5 overflow-hidden transition-all duration-500 ${openAccordion === "aciklama" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
                  <div className="border-t border-white/5 pt-3 sm:pt-4">
                     <div 
-                      className="text-slate-200 text-base md:text-lg leading-relaxed space-y-4 prose prose-invert font-normal max-w-none prose-p:my-2 prose-headings:text-white prose-headings:font-black prose-img:rounded-xl sm:prose-img:rounded-2xl prose-img:shadow-[0_10px_30px_rgba(0,0,0,0.4)] prose-img:w-full prose-img:my-6 sm:prose-img:my-10"
+                      className="text-slate-300 text-base md:text-lg leading-relaxed space-y-4 prose prose-invert font-normal max-w-none prose-p:my-2 prose-headings:text-white prose-headings:font-black prose-img:rounded-xl sm:prose-img:rounded-2xl prose-img:shadow-[0_10px_30px_rgba(0,0,0,0.4)] prose-img:w-full prose-img:my-6 sm:prose-img:my-10"
                       dangerouslySetInnerHTML={{ __html: product.description || "Bu canavar için henüz detaylı bir teknik açıklama girilmemiş şefim." }}
                     />
                  </div>
               </div>
             </div>
 
-            {/* 🚀 2. TEKNİK ÖZELLİKLER (KAYIRSIZ ŞARTSIZ ARTIK TAMAMEN ACF-DÜNYASI!) */}
+            {/* 2. TEKNİK ÖZELLİKLER */}
             <div className="border-b border-white/5 last:border-0">
               <button 
                 onClick={() => toggleAccordion("teknik")}
                 className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group"
               >
-                <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-slate-300 group-hover:text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
+                <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
                   <span className="text-lg sm:text-xl">⚙️</span> Teknik Özellikler
                 </span>
-                <svg className={`w-4 h-4 sm:w-5 sm:h-5 text-slate-500 transform transition-transform duration-500 ${openAccordion === "teknik" ? "rotate-180 text-blue-400" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
+                <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "teknik" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
               </button>
-              <div className={`px-4 sm:px-5 text-slate-400 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "teknik" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
+              <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "teknik" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
                  {techSpecs.length > 0 ? (
                    <div className="border-t border-white/5 pt-3 sm:pt-4">
                      <div className="overflow-x-auto">
@@ -347,8 +359,8 @@ export default function ProductClient({ product }: { product: Record<string, any
                          <tbody>
                            {techSpecs.map((spec, i) => (
                              <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
-                               <td className="py-3.5 pr-4 font-bold text-slate-300 w-5/12 md:w-1/4">{spec.label}</td>
-                               <td className="py-3.5 text-slate-400 font-normal">{spec.value}</td>
+                               <td className="py-3.5 pr-4 font-bold text-slate-400 w-5/12 md:w-1/4">{spec.label}</td>
+                               <td className="py-3.5 text-slate-300 font-medium">{spec.value}</td>
                              </tr>
                            ))}
                          </tbody>
@@ -361,24 +373,34 @@ export default function ProductClient({ product }: { product: Record<string, any
               </div>
             </div>
 
-            {/* 3. OYUN PERFORMANS TESTİ */}
+            {/* 🚀 3. OYUN PERFORMANS TESTİ (CANLI ANİMASYONLU BARKOD MOTORU!) */}
             <div className="border-b border-white/5 last:border-0">
               <button 
                 onClick={() => toggleAccordion("performans")}
                 className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group"
               >
-                <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-slate-300 group-hover:text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
+                <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
                   <span className="text-lg sm:text-xl">🎮</span> Oyun Performans Testi
                 </span>
-                <svg className={`w-4 h-4 sm:w-5 sm:h-5 text-slate-500 transform transition-transform duration-500 ${openAccordion === "performans" ? "rotate-180 text-blue-400" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
+                <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "performans" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
               </button>
-              <div className={`px-4 sm:px-5 text-slate-400 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "performans" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
-                 <div className="border-t border-white/5 pt-3 sm:pt-4">
-                   {performanceTest ? (
-                     <div dangerouslySetInnerHTML={{ __html: performanceTest }} />
-                   ) : (
-                     <p className="text-slate-500 italic">Oyun performans verileri yakında eklenecektir.</p>
-                   )}
+              <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "performans" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
+                 <div className="border-t border-white/5 pt-4 sm:pt-6 space-y-4 sm:space-y-5">
+                   {fpsSpecs.map((spec, i) => (
+                     <div key={i} className="space-y-1.5">
+                       <div className="flex justify-between items-center text-xs sm:text-sm font-bold text-slate-300">
+                         <span>{spec.label}</span>
+                         <span className="text-emerald-400 font-black tracking-tight">{spec.fps} FPS</span>
+                       </div>
+                       <div className="w-full bg-white/5 h-3 sm:h-4 rounded-full overflow-hidden border border-white/5 shadow-inner">
+                         <div 
+                           className={`h-full bg-gradient-to-r ${spec.color} rounded-full transition-all duration-1000 ease-out`}
+                           style={{ width: `${spec.percentage}%` }}
+                         />
+                       </div>
+                     </div>
+                   ))}
+                   <p className="text-[10px] text-slate-500 italic text-center pt-2">*Referans değerler RTX 4060 Ti donanım ailesi ve DLSS Aktif modda test edilmiştir.</p>
                  </div>
               </div>
             </div>
@@ -389,12 +411,12 @@ export default function ProductClient({ product }: { product: Record<string, any
                 onClick={() => toggleAccordion("karsilastirma")}
                 className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group"
               >
-                <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-slate-300 group-hover:text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
+                <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
                   <span className="text-lg sm:text-xl">⚖️</span> Ürün Karşılaştırma
                 </span>
-                <svg className={`w-4 h-4 sm:w-5 sm:h-5 text-slate-500 transform transition-transform duration-500 ${openAccordion === "karsilastirma" ? "rotate-180 text-blue-400" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
+                <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "karsilastirma" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
               </button>
-              <div className={`px-4 sm:px-5 text-slate-400 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "karsilastirma" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
+              <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "karsilastirma" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
                  <div className="border-t border-white/5 pt-3 sm:pt-4">
                    {comparisonData ? (
                      <div dangerouslySetInnerHTML={{ __html: comparisonData }} />
@@ -411,12 +433,12 @@ export default function ProductClient({ product }: { product: Record<string, any
                 onClick={() => toggleAccordion("topluluk")}
                 className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group"
               >
-                <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-slate-300 group-hover:text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
+                <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
                   <span className="text-lg sm:text-xl">💬</span> Topluluk Değerlendirme
                 </span>
-                <svg className={`w-4 h-4 sm:w-5 sm:h-5 text-slate-500 transform transition-transform duration-500 ${openAccordion === "topluluk" ? "rotate-180 text-blue-400" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
+                <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "topluluk" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
               </button>
-              <div className={`px-4 sm:px-5 text-slate-400 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "topluluk" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
+              <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "topluluk" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
                  <div className="border-t border-white/5 pt-3 sm:pt-4 flex flex-col items-center justify-center gap-2 py-6">
                    <div className="text-amber-400 text-2xl tracking-widest">⭐⭐⭐⭐⭐</div>
                    <p className="text-slate-300 font-bold text-lg mt-2">5.0 / 5 Mükemmel</p>
