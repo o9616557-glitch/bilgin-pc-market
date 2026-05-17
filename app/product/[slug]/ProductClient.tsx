@@ -21,7 +21,9 @@ export default function ProductClient({ product }: { product: Record<string, any
   const [selectedCpu, setSelectedCpu] = useState("mid");
   const [selectedRes, setSelectedRes] = useState<"1080p" | "1440p">("1080p");
 
-  // 🚀 CANLI ARAMA VE FİLTRELEME MOTORU STATE'LERİ
+  // CANLI GERÇEK ÜRÜN VE ARAMA MOTORU STATE'LERİ
+  const [categoryProducts, setCategoryProducts] = useState<any[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedCompareProduct, setSelectedCompareProduct] = useState<any>(null);
@@ -46,6 +48,7 @@ export default function ProductClient({ product }: { product: Record<string, any
     window.scrollTo(0, 0);
   }, [product]);
 
+  // CANLI KARGO GERI SAYIM MOTORU
   useEffect(() => {
     const calculateShipping = () => {
       const now = new Date();
@@ -127,6 +130,7 @@ export default function ProductClient({ product }: { product: Record<string, any
   const stoktaVar = product.stock_status === "instock";
   const hasMultipleImages = galleryImages.length > 1;
   
+  // WOOCOMMERCE INDIRIM HESAPLAMA MOTORU
   const regularPrice = Number(product.regular_price || 0);
   const currentPrice = Number(product.price || 0);
   const isSale = product.on_sale === true || product.on_sale === "true" || (regularPrice > currentPrice && currentPrice > 0);
@@ -145,7 +149,7 @@ export default function ProductClient({ product }: { product: Record<string, any
 
   const currentCategoryType = isKoltuk ? "oyuncu-koltugu" : isSSD ? "ssd" : isPCorGPU ? "ekran-karti" : "genel";
 
-  // MASTER ANAHTAR SÖZLÜĞÜ
+  // MASTER KATEGORI ACF HARİTASI
   const categoryMappings: Record<string, Record<string, string>> = {
     "ekran-karti": {
       model: "Model", grafik_motoru: "Grafik Motoru", ai_performansi: "AI Performansı", bus_standarti: "Bus Standartı",
@@ -166,7 +170,7 @@ export default function ProductClient({ product }: { product: Record<string, any
     "genel": { garanti: "Garanti Süresi", mensei: "Üretim Yeri" }
   };
 
-  const activeMapping = categoryMappings[currentCategoryType];
+  const activeMapping = categoryMappings[currentCategoryType] || categoryMappings["genel"];
 
   const dynamicCustomSpecs = Object.entries(activeMapping).map(([key, label]) => {
     const metaValue = product.meta_data?.find((m: any) => m.key === key)?.value || product.acf?.[key];
@@ -177,49 +181,71 @@ export default function ProductClient({ product }: { product: Record<string, any
     ? dynamicCustomSpecs 
     : (product.attributes?.map((attr: any) => ({ label: attr.name, value: attr.options?.join(', ') })) || []);
 
-  // 🚀 ZENGİNLEŞTİRİLMİŞ DİNAMİK ARAMA VERİTABANI (Müşteri 4060 veya SSD yazınca aşağı akacak listemiz)
-  const comparisonDatabase: Record<string, Array<{ name: string; specs: Record<string, string> }>> = {
+  // REAL-TIME API VERI CEKME VE YEDEKLİ HAVUZ MOTORU
+  useEffect(() => {
+    if (!product || !product.categories || product.categories.length === 0) return;
+
+    const fetchAlternatives = async () => {
+      setLoadingProducts(true);
+      try {
+        const categoryId = product.categories[0].id;
+        const res = await fetch(`/api/products?category=${categoryId}&per_page=30`);
+        const data = await res.json();
+        
+        if (Array.isArray(data)) {
+          const filtered = data.filter((p: any) => p.id !== product.id);
+          setCategoryProducts(filtered);
+          if (filtered.length > 0) {
+            setSelectedCompareProduct(filtered[0]);
+          }
+        }
+      } catch (err) {
+        console.error("Canlı alternatif veriler akamadı şefim:", err);
+      } finally {
+        setLoadingProducts(false);
+      }
+    };
+
+    fetchAlternatives();
+  }, [product]);
+
+  // BACKUP YEREL RAKİP VERİ TABANI (API GECİKİRSE EKRAN BOŞ KALMASIN DİYE)
+  const backupDatabase: Record<string, Array<{ name: string; specs: Record<string, string> }>> = {
     "ekran-karti": [
-      { name: "NVIDIA GeForce RTX 4060", specs: { model: "RTX 4060", grafik_motoru: "NVIDIA GeForce RTX 4060", ai_performansi: "Giriş-Orta Seviye (150 AI TOPS)", bus_standarti: "PCI Express 4.0", opengl: "OpenGL 4.6", bellek: "8GB GDDR6", saat_hizi: "2460 MHz", cuda_cekirdegi: "3072", bellek_hizi: "17 Gbps", bellek_arayuzu: "128-bit", cozunurluk: "7680 x 4320", boyutlar: "250 x 118 x 42 mm", tavsiye_edilen_guc_kaynagi: "550W PSU", guc_baglantilari: "1x 8-pin", yuva: "2 Slot", aura_sync: "RGB Uyumlu" }},
-      { name: "NVIDIA GeForce RTX 4060 Ti", specs: { model: "RTX 4060 Ti", grafik_motoru: "NVIDIA GeForce RTX 4060 Ti", ai_performansi: "Orta Seviye (160 AI TOPS)", bus_standarti: "PCI Express 4.0", opengl: "OpenGL 4.6", bellek: "8GB GDDR6", saat_hizi: "2535 MHz", cuda_cekirdegi: "4352", bellek_hizi: "18 Gbps", bellek_arayuzu: "128-bit", cozunurluk: "7680 x 4320", boyutlar: "260 x 120 x 45 mm", tavsiye_edilen_guc_kaynagi: "600W PSU", guc_baglantilari: "1x 8-pin", yuva: "2.2 Slot", aura_sync: "RGB Uyumlu" }},
-      { name: "NVIDIA GeForce RTX 4070 SUPER", specs: { model: "RTX 4070 SUPER", grafik_motoru: "NVIDIA GeForce RTX 4070 SUPER", ai_performansi: "Zirve Seviye (520 AI TOPS)", bus_standarti: "PCI Express 4.0", opengl: "OpenGL 4.6", bellek: "12GB GDDR6X", saat_hizi: "2475 MHz", cuda_cekirdegi: "5888", bellek_hizi: "21 Gbps", bellek_arayuzu: "192-bit", cozunurluk: "7680 x 4320", boyutlar: "300 x 120 x 50 mm", tavsiye_edilen_guc_kaynagi: "650W PSU", guc_baglantilari: "1x 16-pin", yuva: "2.5 Slot", aura_sync: "ARGB Senkronize" }}
+      { name: "NVIDIA GeForce RTX 4060 Ti Gümrük Serisi", specs: { model: "RTX 4060 Ti", grafik_motoru: "NVIDIA GeForce RTX 4060 Ti", ai_performansi: "Orta Seviye (160 TOPS)", bus_standarti: "PCIe 4.0", opengl: "OpenGL 4.6", bellek: "8GB GDDR6", saat_hizi: "2535 MHz", cuda_cekirdegi: "4352", bellek_hizi: "18 Gbps", bellek_arayuzu: "128-bit", cozunurluk: "7680 x 4320", boyutlar: "260 x 120 x 45 mm", tavsiye_edilen_guc_kaynagi: "600W", guc_baglantilari: "1x 8-pin", yuva: "2.2 Slot", aura_sync: "RGB Uyumlu" }},
+      { name: "NVIDIA GeForce RTX 4070 SUPER Master", specs: { model: "RTX 4070 SUPER", grafik_motoru: "NVIDIA GeForce RTX 4070 SUPER", ai_performansi: "Üst Seviye (520 TOPS)", bus_standarti: "PCIe 4.0", opengl: "OpenGL 4.6", bellek: "12GB GDDR6X", saat_hizi: "2475 MHz", cuda_cekirdegi: "5888", bellek_hizi: "21 Gbps", bellek_arayuzu: "192-bit", cozunurluk: "7680 x 4320", boyutlar: "300 x 120 x 50 mm", tavsiye_edilen_guc_kaynagi: "650W", guc_baglantilari: "1x 16-pin", yuva: "2.5 Slot", aura_sync: "ARGB Senkron" }}
     ],
     "oyuncu-koltugu": [
-      { name: "xDrive Fırtına Profesyonel Seri", specs: { malzeme_tipi: "Premium PU Suni Deri", kol_destegi: "3D Hareketli Kol", amortisör: "Class 4 Amortisör", tasima_kapasitesi: "120 kg", mekanizma: "135 Derece Yatış", ayak_malzemesi: "Metal Yıldız Taban", yastik_destegi: "Mevcut (Sünger)", koltuk_boyutu: "68 x 70 x 132 cm" }},
-      { name: "Hawk Gaming Chair Fab V5", specs: { malzeme_tipi: "Terletmez Kumaş Döşeme", kol_destegi: "4D Tam Hareketli Kol", amortisör: "Class 4 Amortisör", tasima_kapasitesi: "140 kg", mekanizma: "180 Derece Yatış", ayak_malzemesi: "Alüminyum Yıldız Taban", yastik_destegi: "Mevcut (Visco)", koltuk_boyutu: "70 x 72 x 135 cm" }}
+      { name: "XDrive Fırtına Profesyonel Koltuk", specs: { malzeme_tipi: "Premium PU Suni Deri", kol_destegi: "3D Kol", amortisör: "Class 4", tasima_kapasitesi: "120 kg", mekanizma: "135 Derece Yatış", ayak_malzemesi: "Metal", yastik_destegi: "Mevcut", koltuk_boyutu: "68 x 70 x 132 cm" }},
+      { name: "Hawk Gaming Chair Fab V5", specs: { malzeme_tipi: "Terletmez Kumaş", kol_destegi: "4D Kol", amortisör: "Class 4", tasima_kapasitesi: "140 kg", mekanizma: "180 Derece Yatış", ayak_malzemesi: "Alüminyum", yastik_destegi: "Mevcut", koltuk_boyutu: "70 x 72 x 135 cm" }}
     ],
     "ssd": [
-      { name: "Samsung 990 Pro NVMe M.2 SSD", specs: { okuma_hizi: "7450 MB/s", yazma_hizi: "6900 MB/s", arabirim: "PCIe Gen 4.0 x4", tbw_degeri: "1200 TBW", nvme_versiyon: "NVMe 2.0", flash_tipi: "Samsung V-NAND 3-bit MLC" }},
-      { name: "Kingston NV2 NVMe M.2 SSD", specs: { okuma_hizi: "3500 MB/s", yazma_hizi: "2800 MB/s", arabirim: "PCIe Gen 4.0 x4", tbw_degeri: "600 TBW", nvme_versiyon: "NVMe 1.4", flash_tipi: "3D NAND QLC" }}
-    ],
-    "genel": [
-      { name: "Standart Alternatif Donanım", specs: { garanti: "2 Yıl", mensei: "İthal" } }
+      { name: "Samsung 990 Pro M.2 NVMe", specs: { okuma_hizi: "7450 MB/s", yazma_hizi: "6900 MB/s", arabirim: "PCIe Gen 4", tbw_degeri: "1200 TBW", nvme_versiyon: "NVMe 2.0", flash_tipi: "TLC NAND" }}
     ]
   };
 
-  const compareOptions = comparisonDatabase[currentCategoryType] || [];
+  const localItems = backupDatabase[currentCategoryType] || [];
+  const compareOptions = categoryProducts.length > 0 ? categoryProducts : localItems;
 
-  // 🚀 ARAMA FİLTRELEME MOTORU: Kullanıcı yazdıkça eşleşen ürünleri süzme işlemi
-  const filteredOptions = compareOptions.filter(item =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredOptions = compareOptions.filter((item: any) =>
+    item.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Sayfa ilk açıldığında listenin ilk elemanını varsayılan kıyaslanan ürün seç
-  useEffect(() => {
-    if (compareOptions.length > 0 && !selectedCompareProduct) {
-      setSelectedCompareProduct(compareOptions[0]);
-    }
-  }, [compareOptions, selectedCompareProduct]);
-
-  // 🚀 KIYASLAMA TABLOSU SATIR MATRİSİ
+  // DİNAMİK CANLI KIYAS MATRİSİ
   const comparisonRows = Object.entries(activeMapping).map(([key, label]) => {
     const currentProductValue = product.meta_data?.find((m: any) => m.key === key)?.value || product.acf?.[key] || "-";
-    const opponentValue = selectedCompareProduct?.specs?.[key] || "-";
+    
+    const opponentValue = selectedCompareProduct?.meta_data?.find((m: any) => m.key === key)?.value || 
+                          selectedCompareProduct?.acf?.[key] || 
+                          selectedCompareProduct?.specs?.[key] || "-";
+    
     return { label, current: currentProductValue, opponent: opponentValue };
   }).filter(row => row.current !== "-" || row.opponent !== "-");
 
-  // FPS SIMULATOR MOTORU
+  // İŞLEMCİ ÇARPANLARI
   const cpuMultipliers: Record<string, number> = { entry: 0.85, mid: 0.93, high: 1.00, extreme: 1.10 };
+  
+  // FOTOĞRAFTAKİ GERÇEK ACF ANAHTARLARIYLA BİREBİR FPS MOTORU MAPLEMESİ
   const gamesConfig = [
     { id: "pubg", label: "PUBG: BATTLEGROUNDS", maxFps: 400, default1080p: 210, default1440p: 140, color: "from-amber-500 to-orange-600 shadow-[0_0_15px_rgba(245,158,11,0.3)]" },
     { id: "valorant", label: "VALORANT", maxFps: 600, default1080p: 450, default1440p: 320, color: "from-rose-500 to-red-600 shadow-[0_0_15px_rgba(244,63,94,0.3)]" },
@@ -227,9 +253,12 @@ export default function ProductClient({ product }: { product: Record<string, any
     { id: "cyberpunk", label: "Cyberpunk 2077", maxFps: 200, default1080p: 110, default1440p: 65, color: "from-purple-500 to-fuchsia-600 shadow-[0_0_15px_rgba(168,85,247,0.3)]" },
     { id: "rdr2", label: "Red Dead Redemption 2", maxFps: 200, default1080p: 95, default1440p: 60, color: "from-emerald-500 to-teal-600 shadow-[0_0_15px_rgba(16,185,129,0.3)]" }
   ];
+
   const currentCpuMultiplier = cpuMultipliers[selectedCpu] || 1.0;
+
   const processedFpsData = gamesConfig.map(game => {
-    const acfKey = `${game.id}_${selectedRes}_fps`;
+    // 🚀 Fotoğraftaki tam isim şablonu: pubg_1080p_fps / valorant_1440p_fps
+    const acfKey = `${game.id}_${selectedRes}_fps`; 
     const metaValue = product.meta_data?.find((m: any) => m.key === acfKey)?.value || product.acf?.[acfKey];
     const baseFps = metaValue ? Number(metaValue) : (selectedRes === "1080p" ? game.default1080p : game.default1440p);
     const finalFps = Math.round(baseFps * currentCpuMultiplier);
@@ -300,7 +329,7 @@ export default function ProductClient({ product }: { product: Record<string, any
             <div>
               <div className="flex flex-wrap items-center gap-1.5 mb-3">
                 {isSale && (
-                  <span className="bg-rose-500 text-white text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-widest animate-pulse shadow-[0_0_15px_rgba(244,63,94,0.4)]">
+                  <span className="bg-red-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-widest animate-pulse shadow-[0_0_15px_rgba(220,38,38,0.6)]">
                     🔥 BÜYÜK İNDİRİM
                   </span>
                 )}
@@ -336,7 +365,7 @@ export default function ProductClient({ product }: { product: Record<string, any
                   
                   {isSale && eskiFiyat > 0 ? (
                     <div className="flex flex-wrap items-center gap-1.5 sm:justify-end">
-                      <span className="text-xs line-through text-slate-500 font-bold">{eskiFiyat.toLocaleString('tr-TR')} TL</span>
+                      <span className="text-xs line-through text-red-500 font-extrabold">{eskiFiyat.toLocaleString('tr-TR')} TL</span>
                       <span className="text-sm sm:text-base font-black text-slate-200 bg-white/5 px-1.5 py-0.5 rounded border border-white/5">{kartFiyati.toLocaleString('tr-TR')} TL</span>
                     </div>
                   ) : (
@@ -485,7 +514,7 @@ export default function ProductClient({ product }: { product: Record<string, any
                          <span>📊</span> BilginPC Donanım Laboratuvarı Bildirisi:
                        </div>
                        <p className="font-normal text-slate-400">
-                         Bu simülatörde listelenen FPS değerleri, BilginPC mühendisleri birleşik test verileridir. Donanım ailesine, sürücü (driver) versiyonunuza ve anlık oyun içi aksiyon yoğunluğuna göre kare hızlarında oynamalar görülmesi tamamen doğaldır.
+                         Bu simülatörde listelenen FPS değerleri, BilginPC mühendisleri birleşik test verileridir. Donanım ailesine, sürücü versiyonunuza ve anlık oyun içi aksiyon yoğunluğuna göre kare hızlarında oynamalar görülmesi tamamen doğaldır.
                        </p>
                      </div>
 
@@ -545,7 +574,7 @@ export default function ProductClient({ product }: { product: Record<string, any
               </div>
             )}
 
-            {/* 🚀 4. GOOGLE TARZI AKILLI ARAMA MOTORLU ÜRÜN KARŞILAŞTIRMA SEKMESİ */}
+            {/* 4. ÜRÜN KARŞILAŞTIRMA */}
             <div className="border-b border-white/5 last:border-0">
               <button 
                 onClick={() => toggleAccordion("karsilastirma")}
@@ -559,7 +588,7 @@ export default function ProductClient({ product }: { product: Record<string, any
               <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "karsilastirma" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
                  <div className="border-t border-white/5 pt-4 space-y-4">
                    
-                   {/* 🔍 FIŞEK GİBİ AKTİF ARAMA INPUT ALANI */}
+                   {/* DİNAMİK CANLI ARAMA INPUT ALANI */}
                    <div ref={dropdownRef} className="flex flex-col gap-1.5 relative">
                      <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Kıyaslanacak Alternatif Ürünü Yazın</label>
                      <div className="relative">
@@ -577,17 +606,19 @@ export default function ProductClient({ product }: { product: Record<string, any
                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm pointer-events-none">🔍</span>
                      </div>
 
-                     {/* AKILLI DÖKÜLEN OTOMATİK TAMAMLAMA LİSTESİ */}
+                     {/* DROP DOWN LİSTESİ */}
                      {isDropdownOpen && searchQuery && (
                        <div className="absolute top-[100%] left-0 right-0 bg-[#0b1329] border border-white/10 mt-1 rounded-xl shadow-2xl overflow-hidden z-50 max-h-48 overflow-y-auto backdrop-blur-xl bg-opacity-95 divide-y divide-white/5 animate-fade-in">
-                         {filteredOptions.length > 0 ? (
+                         {loadingProducts ? (
+                           <div className="p-3 text-xs text-slate-500 text-center">Canlı veriler taranıyor...</div>
+                         ) : filteredOptions.length > 0 ? (
                            filteredOptions.map((item, idx) => (
                              <button
                                key={idx}
                                type="button"
                                onClick={() => {
                                  setSelectedCompareProduct(item);
-                                 setSearchQuery(""); // Seçince inputu temizle
+                                 setSearchQuery(""); 
                                  setIsDropdownOpen(false);
                                }}
                                className="w-full p-3 text-left text-xs font-bold text-slate-300 hover:bg-blue-600 hover:text-white transition-colors block truncate"
@@ -596,13 +627,13 @@ export default function ProductClient({ product }: { product: Record<string, any
                              </button>
                            ))
                          ) : (
-                           <div className="p-3 text-xs text-slate-500 italic text-center">Eşleşen donanım bulunamadı şefim.</div>
+                           <div className="p-3 text-xs text-slate-500 italic text-center">Kategoride eşleşen gerçek ürün bulunamadı şefim.</div>
                          )}
                        </div>
                      )}
                    </div>
 
-                   {/* CANLI KIYASLAMA TABLOSU */}
+                   {/* KIYASLAMA TABLOSU */}
                    {selectedCompareProduct ? (
                      <div className="overflow-x-auto pt-2 animate-fade-in">
                        <table className="w-full text-left border-collapse table-fixed">
@@ -662,7 +693,11 @@ export default function ProductClient({ product }: { product: Record<string, any
             <span className="text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">
               {havaleFiyati.toLocaleString('tr-TR')} TL
             </span>
-            <span className="text-[8px] text-blue-400 font-bold">12 Taksit İmkanı</span>
+            {isSale ? (
+              <span className="text-[9px] text-red-500 font-black animate-pulse">🔥 İNDİRİMLİ ÜRÜN</span>
+            ) : (
+              <span className="text-[8px] text-blue-400 font-bold">12 Taksit İmkanı</span>
+            )}
           </div>
           
           <div className="flex items-center gap-2">
