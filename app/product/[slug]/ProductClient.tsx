@@ -24,6 +24,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [timeLeft, setTimeLeft] = useState("");
   const [shippingMessage, setShippingMessage] = useState("");
 
+  // 🎮 FPS SİMÜLATÖRÜ STATE'LERİ
+  const [selectedCpu, setSelectedCpu] = useState("mid");
+  const [selectedRes, setSelectedRes] = useState<"1080p" | "1440p">("1080p");
+
   // ARAMA VE KIYASLAMA STATE'LERİ
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -131,7 +135,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       });
 
       if (!response.ok) throw new Error("Gönderilemedi");
-      setReviewSuccessMessage({ type: "success", text: "Yorumunuz panele iletildi şefim! Onayladıktan sonra burada listelenecektir." });
+      setReviewSuccessMessage({ type: "success", text: "Yorumunuz panele iletildi şefim!" });
       fetchReviewsAndQuestions();
     } catch (err) {
       setReviewSuccessMessage({ type: "error", text: "Yorum gönderilirken bir hata oluştu." });
@@ -167,7 +171,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       });
 
       if (!response.ok) throw new Error("Gönderilemedi");
-      setQuestionSuccessMessage({ type: "success", text: "Sorunuz başarıyla WordPress panelinize gönderildi! Siz panelden onaylayıp cevap verdiğinizde listelenecektir." });
+      setQuestionSuccessMessage({ type: "success", text: "Sorunuz başarıyla iletildi!" });
       fetchReviewsAndQuestions();
     } catch (error) {
       setQuestionSuccessMessage({ type: "error", text: "Sorunuz iletilirken bir teknik hata oluştu." });
@@ -213,44 +217,72 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const eskiFiyat = regularPrice > currentPrice ? regularPrice : (isSale ? Math.round(currentPrice * 1.15) : 0);
   const havaleFiyati = currentPrice * 0.95;
 
-  // 🚀 HEPSİNİ GÖSTERME MOTORU: Sadece belirli alanlar değil, WP'den gelen TÜM nitelikler ve meta veriler listelenir!
-  const attrSpecs = product.attributes?.map((attr: any) => ({ label: attr.name, value: attr.options?.join(', ') })) || [];
-  const metaSpecs = product.meta_data?.filter((m: any) => m.value && typeof m.value === 'string' && !m.key.startsWith('_')).map((m: any) => ({ label: m.key, value: m.value })) || [];
-  const acfSpecs = product.acf ? Object.entries(product.acf).filter(([_, val]) => val && typeof val === 'string').map(([key, val]) => ({ label: key, value: String(val) })) : [];
-  
-  const allSpecsMap = new Map();
-  attrSpecs.forEach((s: any) => allSpecsMap.set(s.label.toLowerCase(), s));
-  metaSpecs.forEach((s: any) => allSpecsMap.set(s.label.toLowerCase(), s));
-  acfSpecs.forEach((s: any) => allSpecsMap.set(s.label.toLowerCase(), s));
-  const finalTechSpecs = Array.from(allSpecsMap.values());
-  
-  // RAKİP ÜRÜNÜN ÖZELLİKLERİ (KARŞILAŞTIRMA İÇİN)
-  const getOpponentSpecs = (opp: any) => {
-    if (!opp) return [];
-    const oAttrs = opp.attributes?.map((attr: any) => ({ label: attr.name, value: attr.options?.join(', ') })) || [];
-    const oMeta = opp.meta_data?.filter((m: any) => m.value && typeof m.value === 'string' && !m.key.startsWith('_')).map((m: any) => ({ label: m.key, value: m.value })) || [];
-    const oAcf = opp.acf ? Object.entries(opp.acf).filter(([_, val]) => val && typeof val === 'string').map(([key, val]) => ({ label: key, value: String(val) })) : [];
-    const oMap = new Map();
-    oAttrs.forEach((s: any) => oMap.set(s.label.toLowerCase(), s));
-    oMeta.forEach((s: any) => oMap.set(s.label.toLowerCase(), s));
-    oAcf.forEach((s: any) => oMap.set(s.label.toLowerCase(), s));
-    return Array.from(oMap.values());
+  // 🚀 17 KRİTİK BAĞLANTI İSMİ HARFİYEN TANIMLANDI
+  const activeMapping: Record<string, string> = {
+    model: "Model",
+    grafik_motoru: "Grafik Motoru",
+    ai_performansi: "AI Performansı",
+    bus_standarti: "Bus Standartı",
+    opengl: "OpenGL",
+    bellek: "Bellek Kapasitesi",
+    saat_hizi: "Saat Hızı",
+    cuda_cekirdegi: "CUDA Çekirdeği",
+    bellek_hizi: "Bellek Hızı",
+    bellek_arayuzu: "Bellek Arayüzü",
+    cozunurluk: "Maksimum Çözünürlük",
+    maksimum_ekran_destegi: "Maksimum Ekran Desteği",
+    boyutlar: "Boyutlar",
+    tavsiye_edilen_guc_kaynagi: "Tavsiye Edilen Güç Kaynağı (PSU)",
+    guc_baglantilari: "Güç Bağlantıları",
+    yuva: "Yuva Tipi",
+    aura_sync: "Aura Sync / RGB"
   };
 
-  const compareOptions = allProducts.filter((p: any) => p.id !== product.id);
-  const filteredOptions = compareOptions.filter((item: any) => item.name?.toLowerCase().includes(searchQuery.toLowerCase()));
+  const getSpecsList = (targetProduct: any) => {
+    if (!targetProduct) return [];
+    const specsMap = new Map<string, any>();
+    
+    Object.entries(activeMapping).forEach(([key, label]: [string, string]) => {
+      const metaValue = targetProduct.meta_data?.find((m: any) => m.key === key)?.value || targetProduct.acf?.[key];
+      if (metaValue) {
+        specsMap.set(key, { label, value: String(metaValue) });
+      }
+    });
 
-  const renderStars = (rating: number) => (
-    <div className="flex items-center gap-0.5 text-amber-400 text-sm">
-      {[...Array(5)].map((_, index) => <span key={index}>{index < rating ? '★' : '☆'}</span>)}
-    </div>
-  );
+    targetProduct.attributes?.forEach((attr: any) => {
+      const matchKey = Object.keys(activeMapping).find((k: string) => k === attr.name?.toLowerCase() || activeMapping[k].toLowerCase() === attr.name?.toLowerCase());
+      if (matchKey) {
+        specsMap.set(matchKey, { label: activeMapping[matchKey], value: attr.options?.join(', ') });
+      } else if (attr.name && attr.options) {
+        specsMap.set(attr.name.toLowerCase(), { label: attr.name, value: attr.options.join(', ') });
+      }
+    });
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' });
+    return Array.from(specsMap.values());
   };
 
-  const reviewsRating = reviews.length > 0 ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1) : 0;
+  const finalTechSpecs = getSpecsList(product);
+  const opponentSpecs = getSpecsList(selectedCompareProduct);
+  
+  // 🎮 FPS PERFORMANS LABORATUVARI HESAPLAMALARI
+  const cpuMultipliers: Record<string, number> = { entry: 0.85, mid: 0.93, high: 1.00, extreme: 1.10 };
+  const gamesConfig = [
+    { id: "pubg", label: "PUBG: BATTLEGROUNDS", maxFps: 400, default1080p: 210, default1440p: 140, color: "from-amber-500 to-orange-600" },
+    { id: "valorant", label: "VALORANT", maxFps: 600, default1080p: 450, default1440p: 320, color: "from-rose-500 to-red-600" },
+    { id: "cs2", label: "Counter-Strike 2 (CS2)", maxFps: 550, default1080p: 380, default1440p: 260, color: "from-sky-500 to-blue-600" }
+  ];
+  
+  const processedFpsData = gamesConfig.map((game: any) => {
+    const acfKey = `${game.id}_${selectedRes}_fps`; 
+    const baseFps = Number(product.meta_data?.find((m: any) => m.key === acfKey)?.value || product.acf?.[acfKey]) || (selectedRes === "1080p" ? game.default1080p : game.default1440p);
+    const calculatedFps = Math.round(baseFps * (cpuMultipliers[selectedCpu] || 1.0));
+    return {
+      label: game.label,
+      fps: calculatedFps,
+      percentage: Math.min((calculatedFps / game.maxFps) * 100, 100),
+      color: game.color
+    };
+  });
 
   return (
     <PhotoProvider>
@@ -268,16 +300,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               ))}
             </div>
 
-            {/* 🚀 7. OK VE ÇİZGİLER (NOKTALAR) KESİN OLARAK ALTA ALINDI */}
+            {/* 🚀 OKLAR VE ÇİZGİLER (NOKTALAR) KESİN OLARAK GÖRSELİN ALTINDA */}
             {hasMultipleImages && (
               <div className="flex items-center justify-between gap-3 bg-[#050814]/40 border border-white/5 p-2 rounded-md">
-                <button onClick={prevImage} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 transition-all">←</button>
+                <button type="button" onClick={prevImage} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 transition-all">←</button>
                 <div className="flex-1 flex justify-center items-center gap-1.5 flex-wrap">
                   {galleryImages.map((_: any, index: number) => (
-                    <button key={index} onClick={() => setActiveImageIndex(index)} className={`w-2 h-2 rounded-full transition-all ${activeImageIndex === index ? 'bg-blue-500 w-4' : 'bg-white/20'}`} />
+                    <button key={index} type="button" onClick={() => setActiveImageIndex(index)} className={`w-2 h-2 rounded-full transition-all ${activeImageIndex === index ? 'bg-blue-500 w-4' : 'bg-white/20'}`} />
                   ))}
                 </div>
-                <button onClick={nextImage} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 transition-all">→</button>
+                <button type="button" onClick={nextImage} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 transition-all">→</button>
               </div>
             )}
           </div>
@@ -314,13 +346,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 </div>
               </div>
 
-              {/* 🚀 5. TAKSİT BİLGİSİ İSTEDİĞİN GİBİ DÜZELTİLDİ */}
               <div className="bg-blue-600/5 border border-blue-500/10 rounded-md p-2.5 mb-3 flex items-center gap-2 text-xs font-bold text-blue-400 shadow-inner">
                 <span>💳</span>
                 <span>Kredi Kartına 12 Taksit Seçeneği!</span>
               </div>
 
-              {/* 🚀 4. HIZLI KARGO LOGOSU VE DETAYLI SAYAÇ */}
               <div className="flex items-center gap-3 mb-4 bg-[#050814]/50 p-3 rounded-md border border-blue-500/20">
                 <div className="text-xl text-blue-400 animate-pulse">🚀</div>
                 <div className="flex flex-col text-xs">
@@ -335,18 +365,18 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             <div className="border-t border-white/5 pt-4 mt-2 hidden sm:block">
               <div className="flex items-center gap-4">
                 <div className="flex items-center justify-between bg-[#050814] border border-white/10 rounded-md p-1.5 min-w-[100px]">
-                  <button onClick={() => setQuantity(q => q > 1 ? q - 1 : 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500">-</button>
+                  <button type="button" onClick={() => setQuantity(q => q > 1 ? q - 1 : 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500">-</button>
                   <span className="px-2 font-black text-sm text-white">{quantity}</span>
-                  <button onClick={() => setQuantity(q => q + 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500">+</button>
+                  <button type="button" onClick={() => setQuantity(q => q + 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500">+</button>
                 </div>
                 
-                <button onClick={handleAddToCart} disabled={addingToCart || addedSuccess || !stoktaVar} className={`flex-1 font-black py-3 px-6 rounded-md uppercase tracking-wider text-xs sm:text-sm ${addedSuccess ? "bg-emerald-500" : "bg-blue-600 hover:bg-blue-700"} text-white`}>
+                <button type="button" onClick={handleAddToCart} disabled={addingToCart || addedSuccess || !stoktaVar} className={`flex-1 font-black py-3 px-6 rounded-md uppercase tracking-wider text-xs sm:text-sm ${addedSuccess ? "bg-emerald-500" : "bg-blue-600 hover:bg-blue-700"} text-white`}>
                   {addingToCart ? "Ekleniyor..." : addedSuccess ? "✅ SEPETE EKLENDİ" : !stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
                 </button>
 
-                {/* 🚀 3. FAVORİ BUTONU: Sepetin yanına çekildi, kapkırmızı yanıyor basılınca */}
-                <button type="button" onClick={() => setIsFav(!isFav)} className={`w-12 h-12 rounded-md border flex items-center justify-center text-xl transition-all ${isFav ? "bg-red-600/10 border-red-500" : "bg-white/5 border-white/10 hover:bg-white/10"}`}>
-                  <span className={isFav ? "text-red-500 scale-110" : "text-slate-400"}>❤️</span>
+                {/* 🚀 FAVORİ BUTONU: SEPETİN YANINDA, BASINCA KAP-KIRMIZI, BASILMAZSA RENKSİZ! */}
+                <button type="button" onClick={() => setIsFav(!isFav)} className={`w-12 h-12 rounded-md border flex items-center justify-center text-xl transition-all ${isFav ? "bg-red-600 border-red-500 text-white shadow" : "bg-white/5 border-white/10 hover:bg-white/10 text-slate-400"}`}>
+                  <span className={isFav ? "text-white" : "text-slate-400"}>❤️</span>
                 </button>
               </div>
             </div>
@@ -359,7 +389,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             
             {/* AÇIKLAMA */}
             <div className="border-b border-white/5">
-              <button onClick={() => toggleAccordion("aciklama")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
+              <button type="button" onClick={() => toggleAccordion("aciklama")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                 <span className="text-sm font-black uppercase tracking-widest text-blue-400">🛠️ Ürün Açıklaması</span>
                 <span className="text-blue-400">▼</span>
               </button>
@@ -368,10 +398,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             </div>
 
-            {/* TEKNİK ÖZELLİKLER */}
+            {/* 🚀 TÜM TEKNİK ÖZELLİKLER EKSİKSİZ LİSTELENİR */}
             {finalTechSpecs.length > 0 && (
               <div className="border-b border-white/5">
-                <button onClick={() => toggleAccordion("teknik")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
+                <button type="button" onClick={() => toggleAccordion("teknik")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                   <span className="text-sm font-black uppercase tracking-widest text-blue-400">⚙️ Teknik Özellikler ({finalTechSpecs.length})</span>
                   <span className="text-blue-400">▼</span>
                 </button>
@@ -392,172 +422,60 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             )}
 
-            {/* KULLANICI YORUMLARI */}
+            {/* 🎮 FPS PERFORMANS LABORATUVARI PANELI */}
             <div className="border-b border-white/5">
-              <button onClick={() => toggleAccordion("topluluk")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
-                <span className="text-sm font-black uppercase tracking-widest text-blue-400">💬 Kullanıcı Yorumları ({reviews.length})</span>
-                <span className="text-blue-400">▼</span>
+              <button type="button" onClick={() => toggleAccordion("fps_paneli")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
+                <span className="text-sm font-black uppercase tracking-widest text-amber-500">🎮 Oyun FPS Performans Laboratuvarı</span>
+                <span className="text-amber-500">▼</span>
               </button>
-              <div className={`px-4 overflow-hidden transition-all duration-300 ${openAccordion === "topluluk" ? "max-h-[5000px] pb-6 opacity-100" : "max-h-0 opacity-0"}`}>
-                 <div className="border-t border-white/5 pt-5 space-y-6">
-                    
-                    {!showReviewForm && (
-                      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl bg-[#050814]/50 border border-white/5">
-                        <div className="flex items-center gap-3">
-                          <span className="text-4xl font-black text-amber-400">{reviewsRating}</span>
-                          <div className="text-xs text-slate-400">
-                            {renderStars(Number(reviewsRating))}
-                            <p className="mt-0.5 font-bold">{reviews.length} Değerlendirme</p>
-                          </div>
+              <div className={`px-4 overflow-hidden transition-all duration-300 ${openAccordion === "fps_paneli" ? "max-h-[1000px] pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
+                <div className="border-t border-white/5 pt-4 space-y-4">
+                  
+                  <div className="flex items-center gap-2 bg-[#050814] p-1 border border-white/5 rounded-lg w-max text-xs">
+                    <button type="button" onClick={() => setSelectedRes("1080p")} className={`px-4 py-1.5 rounded font-bold uppercase transition-all ${selectedRes === '1080p' ? 'bg-blue-600 text-white shadow' : 'text-slate-400'}`}>Full HD (1080p)</button>
+                    <button type="button" onClick={() => setSelectedRes("1440p")} className={`px-4 py-1.5 rounded font-bold uppercase transition-all ${selectedRes === '1440p' ? 'bg-blue-600 text-white shadow' : 'text-slate-400'}`}>2K Ultra (1440p)</button>
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-2 text-[11px] text-center font-bold">
+                    {[
+                      { id: "entry", label: "Giriş Seviye" },
+                      { id: "mid", label: "Orta Seviye" },
+                      { id: "high", label: "Üst Seviye" },
+                      { id: "extreme", label: "Ekstrem" }
+                    ].map((cpu) => (
+                      <button key={cpu.id} type="button" onClick={() => setSelectedCpu(cpu.id)} className={`p-2 rounded border transition-all ${selectedCpu === cpu.id ? 'bg-amber-500/10 border-amber-500 text-amber-400' : 'bg-[#050814]/40 border-white/5 text-slate-400'}`}>{cpu.label}</button>
+                    ))}
+                  </div>
+
+                  <div className="space-y-3.5 pt-2">
+                    {processedFpsData.map((game: any, idx: number) => (
+                      <div key={idx} className="space-y-1">
+                        <div className="flex justify-between text-xs font-bold">
+                          <span className="text-slate-300 uppercase tracking-wide">{game.label}</span>
+                          <span className="text-amber-400 font-black">{game.fps} FPS</span>
                         </div>
-                        <button onClick={() => setShowReviewForm(true)} className="bg-blue-600 hover:bg-blue-700 text-white font-black px-5 py-2.5 rounded-md text-xs uppercase tracking-wider">
-                          Yorum Yap & Puanla
-                        </button>
+                        <div className="w-full bg-[#050814] h-2 rounded-full overflow-hidden border border-white/5">
+                          <div className={`h-full bg-gradient-to-r ${game.color} rounded-full transition-all duration-500`} style={{ width: `${game.percentage}%` }}></div>
+                        </div>
                       </div>
-                    )}
+                    ))}
+                  </div>
 
-                    {showReviewForm && (
-                      <form onSubmit={handleReviewSubmit} className="p-4 rounded-xl bg-[#0b1329] border border-blue-500/30 flex flex-col gap-4 animate-fade-in">
-                        <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                          <h3 className="text-blue-400 font-black text-xs uppercase">Deneyiminizi Yazın</h3>
-                          <button type="button" onClick={() => setShowReviewForm(false)} className="text-slate-500 hover:text-white">✕</button>
-                        </div>
-
-                        {reviewSuccessMessage.text && (
-                          <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-xs font-bold text-center text-blue-400">
-                            {reviewSuccessMessage.text}
-                          </div>
-                        )}
-
-                        <div className="flex flex-col gap-1">
-                          <label className="text-[10px] font-black uppercase text-slate-500">Puan Ver</label>
-                          <div className="flex items-center gap-1">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <button key={star} type="button" onClick={() => setNewReview({ ...newReview, rating: star })} className={`text-xl ${star <= newReview.rating ? 'text-amber-400' : 'text-slate-600'}`}>★</button>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          <input required type="text" value={newReview.reviewer} onChange={(e) => setNewReview({ ...newReview, reviewer: e.target.value })} className="bg-[#050814]/50 border border-white/10 text-slate-200 rounded-lg p-2 text-xs focus:outline-none" placeholder="Adınız Soyadınız" />
-                          <input required type="email" value={newReview.email} onChange={(e) => setNewReview({ ...newReview, email: e.target.value })} className="bg-[#050814]/50 border border-white/10 text-slate-200 rounded-lg p-2 text-xs focus:outline-none" placeholder="E-posta Adresiniz" />
-                        </div>
-
-                        <textarea required value={newReview.review} onChange={(e) => setNewReview({ ...newReview, review: e.target.value })} rows={3} className="w-full bg-[#050814]/50 border border-white/10 text-slate-200 rounded-lg p-2.5 text-xs focus:outline-none resize-none" placeholder="Ürün yorumunuzu buraya girin..." />
-
-                        <button type="submit" disabled={submittingReview} className="sm:self-end bg-blue-600 text-white font-black px-6 py-2 rounded-md text-xs uppercase tracking-widest">
-                          {submittingReview ? "Gönderiliyor..." : "Yorumu Gönder"}
-                        </button>
-                      </form>
-                    )}
-
-                    <div className="space-y-4">
-                        {reviews.length > 0 ? (
-                          reviews.map((review) => {
-                            const reviewReply = replies.filter((r: Review) => Number(r.parent_id) === Number(review.id));
-                            return (
-                              <div key={review.id} className="p-4 rounded-xl bg-[#050814]/40 border border-white/5 space-y-3">
-                                <div className="flex justify-between items-start gap-2">
-                                  <div>
-                                    <span className="text-xs font-black text-slate-200 block">{review.reviewer}</span>
-                                    <span className="text-[9px] text-slate-500">{formatDate(review.date_created)}</span>
-                                  </div>
-                                  {renderStars(review.rating)}
-                                </div>
-                                <div className="text-slate-300 text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: review.review }} />
-                                
-                                {reviewReply.map((rep: Review) => (
-                                  <div key={rep.id} className="bg-blue-600/10 border border-blue-500/20 p-3 rounded-lg ml-4">
-                                    <div className="text-[10px] text-emerald-400 font-black uppercase mb-1">👨‍💻 Mağaza Yetkilisi Yanıtı</div>
-                                    <div className="text-slate-300 text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: rep.review }} />
-                                  </div>
-                                ))}
-                              </div>
-                            );
-                          })
-                        ) : (
-                          <div className="text-center py-6 text-slate-500 text-xs">Bu ürüne henüz yorum yapılmadı şefim.</div>
-                        )}
-                    </div>
-                 </div>
+                </div>
               </div>
             </div>
 
-            {/* MAĞAZAYA SORU SOR & CEVAP MOTORU */}
-            <div className="border-b border-white/5">
-              <button onClick={() => toggleAccordion("sorusor")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
-                <span className="text-sm font-black uppercase tracking-widest text-blue-400">❓ Mağazaya Soru Sor ({questions.length})</span>
-                <span className="text-blue-400">▼</span>
-              </button>
-              <div className={`px-4 overflow-hidden transition-all duration-300 ${openAccordion === "sorusor" ? "max-h-[5000px] pb-6 opacity-100" : "max-h-0 opacity-0"}`}>
-                 <div className="border-t border-white/5 pt-5 space-y-6">
-                    
-                    <form onSubmit={handleQuestionSubmit} className="p-4 rounded-xl bg-[#050814]/40 border border-white/5 flex flex-col gap-3">
-                      <textarea required value={newQuestion.question} onChange={(e) => setNewQuestion({ ...newQuestion, question: e.target.value })} rows={3} className="w-full bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-2.5 text-xs focus:outline-none resize-none" placeholder="Ürünle ilgili merak ettiğiniz soruyu buraya yazın..." />
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <input required type="text" value={newQuestion.name} onChange={(e) => setNewQuestion({ ...newQuestion, name: e.target.value })} className="bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-2 text-xs focus:outline-none" placeholder="Adınız" />
-                        <input required type="email" value={newQuestion.email} onChange={(e) => setNewQuestion({ ...newQuestion, email: e.target.value })} className="bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-2 text-xs focus:outline-none" placeholder="E-Posta Adresiniz" />
-                      </div>
-                      {questionSuccessMessage.text && (
-                        <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-md text-xs font-bold text-center text-emerald-400">
-                          {questionSuccessMessage.text}
-                        </div>
-                      )}
-                      <button type="submit" disabled={submittingQuestion} className="sm:self-end bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black px-6 py-2 rounded-md text-xs uppercase tracking-widest">
-                        {submittingQuestion ? "İletiliyor..." : "Soruyu Gönder"}
-                      </button>
-                    </form>
-
-                    <div className="space-y-4">
-                      {questions.length > 0 ? (
-                        questions.map((q: Review) => {
-                          const cleanQuestionText = q.review.replace("[SORU]", "").trim();
-                          
-                          // 🚀 MUTLAK KİMLİK DOĞRULAMASI: Parent_id ve id kesin sayı olarak karşılaştırılır, admin cevapları anında düşer!
-                          const questionReplies = replies.filter((r: Review) => Number(r.parent_id) === Number(q.id));
-
-                          return (
-                            <div key={q.id} className="p-4 rounded-xl bg-[#050814]/20 border border-white/5 flex flex-col gap-3">
-                              <div>
-                                <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold mb-1">
-                                  <span className="text-blue-400">❓ Müşteri Sorusu ({q.reviewer})</span>
-                                  <span>{formatDate(q.date_created)}</span>
-                                </div>
-                                <p className="text-slate-200 text-xs pl-2 border-l border-blue-500/40">{cleanQuestionText}</p>
-                              </div>
-                              
-                              {questionReplies.length > 0 ? (
-                                questionReplies.map((reply: Review) => (
-                                  <div key={reply.id} className="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg ml-3 shadow-inner animate-fade-in">
-                                    <div className="text-[10px] text-emerald-400 font-black uppercase mb-1">👨‍💻 Mağaza Yetkilisi Cevabı</div>
-                                    <div className="text-slate-300 text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: reply.review }} />
-                                  </div>
-                                ))
-                              ) : (
-                                <div className="text-[10px] text-slate-600 font-bold italic ml-3">⚙️ Bu soru mağaza yetkilisi tarafından inceleniyor...</div>
-                              )}
-                            </div>
-                          );
-                        })
-                      ) : (
-                        <div className="text-center py-6 text-slate-500 text-xs border border-white/5 border-dashed rounded-lg">Bu ürün için henüz soru sorulmamış şefim.</div>
-                      )}
-                    </div>
-                 </div>
-              </div>
-            </div>
-
-            {/* 🚀 2. KARŞILAŞTIRMA LAB: Sıkışık düzen kalktı, iki ürünün TÜM özellikleri listeleniyor */}
+            {/* 🚀 ÜRÜN KARŞILAŞTIRMA LAB: SIKIŞMADAN TÜM ÖZELLİKLER LİSTELENİR */}
             <div>
-              <button onClick={() => toggleAccordion("karsilastir")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
+              <button type="button" onClick={() => toggleAccordion("karsilastir")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                 <span className="text-sm font-black uppercase tracking-widest text-emerald-400">⚖️ Ürün Karşılaştırma Laboratuvarı</span>
                 <span className="text-emerald-400">▼</span>
               </button>
-              <div className={`px-4 overflow-hidden transition-all duration-300 ${openAccordion === "karsilastir" ? "max-h-[4000px] pb-6 opacity-100" : "max-h-0 opacity-0"}`}>
+              <div className={`px-4 overflow-hidden transition-all duration-300 ${openAccordion === "karsilastir" ? "max-h-[3000px] pb-6 opacity-100" : "max-h-0 opacity-0"}`}>
                 <div className="border-t border-white/5 pt-4">
                   <div className="relative mb-5" ref={dropdownRef}>
                     <label className="text-[10px] font-black uppercase text-slate-500 block mb-1">Kıyaslamak İstediğiniz Diğer Ürünü Seçin</label>
-                    <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="w-full bg-[#050814] border border-white/10 rounded-lg p-3 text-xs text-left text-slate-300 flex justify-between items-center hover:border-blue-500 transition-colors">
+                    <button type="button" onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="w-full bg-[#050814] border border-white/10 rounded-lg p-3 text-xs text-left text-slate-300 flex justify-between items-center hover:border-blue-500 transition-colors">
                       <span>{selectedCompareProduct ? selectedCompareProduct.name : "Ürün Seçilmedi..."}</span>
                       <span>▼</span>
                     </button>
@@ -573,7 +491,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
                   {selectedCompareProduct ? (
                     (() => {
-                      const opponentSpecs = getOpponentSpecs(selectedCompareProduct);
+                      const opponentSpecs = getSpecsList(selectedCompareProduct);
                       const allCompareLabels = Array.from(new Set([
                         ...finalTechSpecs.map((s: any) => s.label.toLowerCase()),
                         ...opponentSpecs.map((s: any) => s.label.toLowerCase())
@@ -590,7 +508,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
-                              {allCompareLabels.map((lowerLabel: any, i) => {
+                              {allCompareLabels.map((lowerLabel: any, i: number) => {
                                 const currentItem = finalTechSpecs.find((s: any) => s.label.toLowerCase() === lowerLabel);
                                 const opponentItem = opponentSpecs.find((s: any) => s.label.toLowerCase() === lowerLabel);
                                 const displayLabel = currentItem?.label || opponentItem?.label || lowerLabel;
@@ -625,8 +543,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             <span className="text-base font-black text-emerald-400">{havaleFiyati.toLocaleString('tr-TR')} TL</span>
           </div>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => setIsFav(!isFav)} className={`w-10 h-10 rounded-md border flex items-center justify-center text-lg ${isFav ? "bg-red-600/10 border-red-500" : "bg-white/5 border-white/10"}`}>
-              <span className={isFav ? "text-red-500" : "text-slate-400"}>❤️</span>
+            <button type="button" onClick={() => setIsFav(!isFav)} className={`w-10 h-10 rounded-md border flex items-center justify-center text-lg ${isFav ? "bg-red-600 border-red-500 text-white" : "bg-white/5 border-white/10"}`}>
+              <span className={isFav ? "text-white" : "text-slate-400"}>❤️</span>
             </button>
             <button type="button" onClick={handleAddToCart} disabled={addingToCart || addedSuccess || !stoktaVar} className="font-black py-2.5 px-5 rounded-md uppercase text-xs text-white bg-blue-600">
               {addingToCart ? "..." : addedSuccess ? "✅" : "Sepete Ekle"}
