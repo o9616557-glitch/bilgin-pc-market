@@ -217,7 +217,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const eskiFiyat = regularPrice > currentPrice ? regularPrice : (isSale ? Math.round(currentPrice * 1.15) : 0);
   const havaleFiyati = currentPrice * 0.95;
 
-  // 🚀 17 ADET TEKNİK ÖZELLİK LİSTESİ HARFİYEN KORUNDU
+  // 🚀 1. SIRA SORUNU KESİN OLARAK ÇÖZÜLDÜ: Resimdeki 17 teknik özelliğin birebir orijinal dizilim sırası sabitleştirildi.
   const activeMapping: Record<string, string> = {
     model: "Model",
     grafik_motoru: "Grafik Motoru",
@@ -240,30 +240,27 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
   const getSpecsList = (targetProduct: any) => {
     if (!targetProduct) return [];
-    const specsMap = new Map<string, any>();
+    const specs: any[] = [];
     
     Object.entries(activeMapping).forEach(([key, label]: [string, string]) => {
-      const metaValue = targetProduct.meta_data?.find((m: any) => m.key === key)?.value || targetProduct.acf?.[key];
-      if (metaValue) {
-        specsMap.set(key, { label, value: String(metaValue) });
+      let value = targetProduct.meta_data?.find((m: any) => m.key === key)?.value || targetProduct.acf?.[key];
+      
+      if (!value && targetProduct.attributes) {
+        const attr = targetProduct.attributes.find((a: any) => a.name?.toLowerCase() === key || a.name?.toLowerCase() === label.toLowerCase());
+        if (attr && attr.options) {
+          value = attr.options.join(', ');
+        }
+      }
+      
+      if (value) {
+        specs.push({ label, value: String(value) });
       }
     });
-
-    targetProduct.attributes?.forEach((attr: any) => {
-      const matchKey = Object.keys(activeMapping).find((k: string) => k === attr.name?.toLowerCase() || activeMapping[k].toLowerCase() === attr.name?.toLowerCase());
-      if (matchKey) {
-        specsMap.set(matchKey, { label: activeMapping[matchKey], value: attr.options?.join(', ') });
-      } else if (attr.name && attr.options) {
-        specsMap.set(attr.name.toLowerCase(), { label: attr.name, value: attr.options.join(', ') });
-      }
-    });
-
-    return Array.from(specsMap.values());
+    return specs;
   };
 
   const finalTechSpecs = getSpecsList(product);
   
-  // 🚀 VERCEL'İN SEBEP OLDUĞU HATA ÇÖZÜLDÜ: Karşılaştırma kutusunun arama listesini besleyen değişkenler eklendi!
   const compareOptions = allProducts.filter((p: any) => p.id !== product.id);
   const filteredOptions = compareOptions.filter((item: any) => item.name?.toLowerCase().includes(searchQuery.toLowerCase()));
 
@@ -287,7 +284,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     };
   });
 
-  // 🌟 YILDIZLAMA VE TARİH YARDIMCI FONKSİYONLARI YERİNDE
   const renderStars = (rating: number) => {
     return (
       <div className="flex items-center gap-0.5 text-amber-400 text-sm">
@@ -348,6 +344,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
 
               <h1 className="text-lg sm:text-2xl font-black uppercase tracking-tight mb-3 text-slate-100">{product.name}</h1>
+
+              {/* 🚀 4. HIZLI KARGO LOGOSU VE SAYAÇ PANELI TEKRAR EN ÜSTE ALINDI */}
+              <div className="flex items-center gap-3 mb-3 bg-[#050814]/50 p-3 rounded-md border border-blue-500/20">
+                <div className="text-xl text-blue-400 animate-pulse">🚀</div>
+                <div className="flex flex-col text-xs">
+                  <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] text-blue-400">HIZLI KARGO AVANTAJI</span>
+                  <span className="text-slate-300 mt-0.5">{timeLeft}</span>
+                  <span className={`font-black text-sm uppercase ${shippingMessage === "BUGÜN KARGODA!" ? "text-emerald-400" : "text-amber-400"}`}>{shippingMessage}</span>
+                </div>
+              </div>
               
               <div className="bg-[#050814]/50 border border-white/5 p-4 rounded-md mb-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
@@ -369,15 +375,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 <span>💳</span>
                 <span>Kredi Kartına 12 Taksit Seçeneği!</span>
               </div>
-
-              <div className="flex items-center gap-3 mb-4 bg-[#050814]/50 p-3 rounded-md border border-blue-500/20">
-                <div className="text-xl text-blue-400 animate-pulse">🚀</div>
-                <div className="flex flex-col text-xs">
-                  <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] text-blue-400">HIZLI KARGO AVANTAJI</span>
-                  <span className="text-slate-300 mt-0.5">{timeLeft}</span>
-                  <span className={`font-black text-sm uppercase ${shippingMessage === "BUGÜN KARGODA!" ? "text-emerald-400" : "text-amber-400"}`}>{shippingMessage}</span>
-                </div>
-              </div>
             </div>
 
             {/* MASAÜSTÜ SEPET VE FAVORİ ALANI */}
@@ -393,9 +390,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   {addingToCart ? "Ekleniyor..." : addedSuccess ? "✅ SEPETE EKLENDİ" : !stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
                 </button>
 
-                {/* ❤️ Favori Butonu */}
-                <button type="button" onClick={() => setIsFav(!isFav)} className={`w-12 h-12 rounded-md border flex items-center justify-center text-xl transition-all ${isFav ? "bg-red-600 border-red-500 text-white shadow" : "bg-white/5 border-white/10 hover:bg-white/10 text-slate-400"}`}>
-                  <span className={isFav ? "text-white" : "text-slate-400"}>❤️</span>
+                {/* 🚀 3. FAVORİ KUTU TASARIMI DÜZELTİLDİ: Kutu rengi sabit, sadece içindeki kalp dinamik olarak değişiyor */}
+                <button type="button" onClick={() => setIsFav(!isFav)} className="w-12 h-12 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-xl transition-all hover:bg-white/10">
+                  <span className={isFav ? "text-red-500 scale-110 transition-transform" : "text-slate-400"}>
+                    {isFav ? "❤️" : "🤍"}
+                  </span>
                 </button>
               </div>
             </div>
@@ -417,7 +416,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             </div>
 
-            {/* ⚙️ TEKNİK ÖZELLİKLER */}
+            {/* 🚀 1. TEKNİK ÖZELLİKLER (RESİMDEKİ 17 ADET ÖZELLİK TAM SIRALAMAYLA AKTİF) */}
             {finalTechSpecs.length > 0 && (
               <div className="border-b border-white/5">
                 <button type="button" onClick={() => toggleAccordion("teknik")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
@@ -441,7 +440,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             )}
 
-            {/* 🎮 FPS PERFORMANS LABORATUVARI PANELI */}
+            {/* 🚀 2. FPS PERFORMANS LABORATUVARI (İŞLEMCİ YAZILARI GERİ GELDİ) */}
             <div className="border-b border-white/5">
               <button type="button" onClick={() => toggleAccordion("fps_paneli")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                 <span className="text-sm font-black uppercase tracking-widest text-amber-500">🎮 Oyun FPS Performans Laboratuvarı</span>
@@ -455,12 +454,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                     <button type="button" onClick={() => setSelectedRes("1440p")} className={`px-4 py-1.5 rounded font-bold uppercase transition-all ${selectedRes === '1440p' ? 'bg-blue-600 text-white shadow' : 'text-slate-400'}`}>2K Ultra (1440p)</button>
                   </div>
 
+                  {/* Üzerinde tam yazıların olduğu işlemci seçim alanı */}
                   <div className="grid grid-cols-4 gap-2 text-[11px] text-center font-bold">
                     {[
-                      { id: "entry", label: "Giriş Seviye" },
-                      { id: "mid", label: "Orta Seviye" },
-                      { id: "high", label: "Üst Seviye" },
-                      { id: "extreme", label: "Ekstrem" }
+                      { id: "entry", label: "Giriş Seviye İşlemci" },
+                      { id: "mid", label: "Orta Seviye İşlemci" },
+                      { id: "high", label: "Üst Seviye İşlemci" },
+                      { id: "extreme", label: "Ekstrem İşlemci" }
                     ].map((cpu) => (
                       <button key={cpu.id} type="button" onClick={() => setSelectedCpu(cpu.id)} className={`p-2 rounded border transition-all ${selectedCpu === cpu.id ? 'bg-amber-500/10 border-amber-500 text-amber-400' : 'bg-[#050814]/40 border-white/5 text-slate-400'}`}>{cpu.label}</button>
                     ))}
@@ -484,7 +484,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             </div>
 
-            {/* ⚖️ ÜRÜN KARŞILAŞTIRMA LAB */}
+            {/* ÜRÜN KARŞILAŞTIRMA LAB (TAM SIRALI LİSTEYLE FERAH TABLO) */}
             <div>
               <button type="button" onClick={() => toggleAccordion("karsilastir")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                 <span className="text-sm font-black uppercase tracking-widest text-emerald-400">⚖️ Ürün Karşılaştırma Laboratuvarı</span>
@@ -511,11 +511,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   {selectedCompareProduct ? (
                     (() => {
                       const opponentSpecs = getSpecsList(selectedCompareProduct);
-                      const allCompareLabels = Array.from(new Set([
-                        ...finalTechSpecs.map((s: any) => s.label.toLowerCase()),
-                        ...opponentSpecs.map((s: any) => s.label.toLowerCase())
-                      ]));
-
                       return (
                         <div className="w-full bg-[#050814]/40 border border-white/5 rounded-xl p-4 overflow-x-auto shadow-inner">
                           <table className="w-full text-left text-xs border-collapse">
@@ -527,14 +522,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
-                              {allCompareLabels.map((lowerLabel: any, i: number) => {
-                                const currentItem = finalTechSpecs.find((s: any) => s.label.toLowerCase() === lowerLabel);
-                                const opponentItem = opponentSpecs.find((s: any) => s.label.toLowerCase() === lowerLabel);
-                                const displayLabel = currentItem?.label || opponentItem?.label || lowerLabel;
+                              {Object.entries(activeMapping).map(([key, label]: [string, string], i: number) => {
+                                const currentItem = finalTechSpecs.find((s: any) => s.label.toLowerCase() === label.toLowerCase());
+                                const opponentItem = opponentSpecs.find((s: any) => s.label.toLowerCase() === label.toLowerCase());
                                 
                                 return (
                                   <tr key={i} className="hover:bg-white/5 transition-colors">
-                                    <td className="py-3 font-bold text-slate-400 uppercase tracking-wider text-[10px]">{displayLabel}</td>
+                                    <td className="py-3 font-bold text-slate-400 uppercase tracking-wider text-[10px]">{label}</td>
                                     <td className="py-3 text-slate-200 font-bold pr-3">{currentItem?.value || "-"}</td>
                                     <td className="py-3 text-emerald-400 font-bold">{opponentItem?.value || "-"}</td>
                                   </tr>
@@ -562,8 +556,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             <span className="text-base font-black text-emerald-400">{havaleFiyati.toLocaleString('tr-TR')} TL</span>
           </div>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => setIsFav(!isFav)} className={`w-10 h-10 rounded-md border flex items-center justify-center text-lg ${isFav ? "bg-red-600 border-red-500 text-white" : "bg-white/5 border-white/10"}`}>
-              <span className={isFav ? "text-white" : "text-slate-400"}>❤️</span>
+            <button type="button" onClick={() => setIsFav(!isFav)} className="w-10 h-10 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-lg">
+              <span className={isFav ? "text-red-500" : "text-slate-400"}>
+                {isFav ? "❤️" : "🤍"}
+              </span>
             </button>
             <button type="button" onClick={handleAddToCart} disabled={addingToCart || addedSuccess || !stoktaVar} className="font-black py-2.5 px-5 rounded-md uppercase text-xs text-white bg-blue-600">
               {addingToCart ? "..." : addedSuccess ? "✅" : "Sepete Ekle"}
