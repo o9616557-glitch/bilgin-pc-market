@@ -217,7 +217,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const eskiFiyat = regularPrice > currentPrice ? regularPrice : (isSale ? Math.round(currentPrice * 1.15) : 0);
   const havaleFiyati = currentPrice * 0.95;
 
-  // 🚀 17 TEKNİK ÖZELLİK RESİMDEKİ TAM SIRAYLA SABİTLENDİ
+  // 17 TEKNİK ÖZELLİK RESİMDEKİ TAM SIRAYLA SABİTLENDİ
   const activeMapping: Record<string, string> = {
     model: "Model",
     grafik_motoru: "Grafik Motoru",
@@ -264,7 +264,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const compareOptions = allProducts.filter((p: any) => p.id !== product.id);
   const filteredOptions = compareOptions.filter((item: any) => item.name?.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  // GÖNDERDİĞİN FOTOĞRAFTA YER ALAN 5 OYUNUN TAM LISTESI VE ACF EŞLEŞMELERİ
+  // 5 OYUNUN TAM LISTESI VE ACF EŞLEŞMELERİ
   const cpuMultipliers: Record<string, number> = { entry: 0.85, mid: 0.93, high: 1.00, extreme: 1.10 };
   const gamesConfig = [
     { id: "pubg", label: "PUBG: BATTLEGROUNDS", maxFps: 400, default1080p: 210, default1440p: 140, color: "from-amber-500 to-orange-600" },
@@ -294,11 +294,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     );
   };
 
-  const formatDate = (dateString: string) => {
-    if (!dateString) return "-";
-    return new Date(dateString).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' });
-  };
-
   const reviewsRating = reviews.length > 0 ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1) : 0;
 
   return (
@@ -317,7 +312,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               ))}
             </div>
 
-            {/* Oklar ve Çizgiler Altta */}
+            {/* Oklar ve Çizgiler Altta (SVG GEOMETRİSİ İLE MİLİMETRİK ORTALANDI) */}
             {hasMultipleImages && (
               <div className="flex items-center justify-between gap-3 bg-[#050814]/40 border border-white/5 p-2 rounded-md">
                 <button type="button" onClick={prevImage} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 transition-all duration-300">
@@ -406,6 +401,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   <button type="button" onClick={() => setQuantity(q => q + 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500">+</button>
                 </div>
                 
+                {/* 🚀 MASAÜSTÜ SEPETE EKLENDİ METNİ */}
                 <button type="button" onClick={handleAddToCart} disabled={addingToCart || addedSuccess || !stoktaVar} className={`flex-1 font-black py-3 px-6 rounded-md uppercase tracking-wider text-xs sm:text-sm ${addedSuccess ? "bg-emerald-500" : "bg-blue-600 hover:bg-blue-700"} text-white`}>
                   {addingToCart ? "Ekleniyor..." : addedSuccess ? "✅ SEPETE EKLENDİ" : !stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
                 </button>
@@ -419,11 +415,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           </div>
         </div>
 
-        {/* 🚀 AKORDEON DEPARTMANI: Kasmayan ve asla kırpmayan "CSS Grid 1fr" motoru entegre edildi! */}
+        {/* AKORDEON DEPARTMANI */}
         <div className="max-w-6xl mx-auto mt-6 sm:mt-10 flex flex-col gap-6">
           <div className="bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 rounded-xl shadow-lg flex flex-col overflow-hidden">
             
-            {/* AÇIKLAMA (SIFIR KIRPMA & SIFIR KASMA) */}
+            {/* AÇIKLAMA */}
             <div className="border-b border-white/5">
               <button type="button" onClick={() => toggleAccordion("aciklama")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                 <span className="text-sm font-black uppercase tracking-widest text-blue-400">🛠️ Ürün Açıklaması</span>
@@ -436,7 +432,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             </div>
 
-            {/* TEKNİK ÖZELLİKLER (SIFIR KIRPMA & SIFIR KASMA) */}
+            {/* TEKNİK ÖZELLİKLER */}
             {finalTechSpecs.length > 0 && (
               <div className="border-b border-white/5">
                 <button type="button" onClick={() => toggleAccordion("teknik")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
@@ -462,7 +458,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             )}
 
-            {/* 🎮 FPS PERFORMANS LABORATUVARI (SIFIR KIRPMA & SIFIR KASMA) */}
+            {/* 🎮 FPS PERFORMANS LABORATUVARI */}
             <div className="border-b border-white/5">
               <button type="button" onClick={() => toggleAccordion("fps_paneli")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                 <span className="text-sm font-black uppercase tracking-widest text-amber-500">🎮 Oyun FPS Performans Laboratuvarı</span>
@@ -507,13 +503,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             </div>
 
-            {/* ÜRÜN KARŞILAŞTIRMA LAB (SIFIR KIRPMA & SIFIR KASMA) */}
+            {/* ÜRÜN KARŞILAŞTIRMA LAB */}
             <div>
               <button type="button" onClick={() => toggleAccordion("karsilastir")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                 <span className="text-sm font-black uppercase tracking-widest text-emerald-400">⚖️ Ürün Karşılaştırma Laboratuvarı</span>
                 <span className="text-emerald-400">▼</span>
               </button>
-              <div className={`grid transition-all duration-300 ease-in-out ${openAccordion === "karsilastir" ? "max-h-[3000px] pb-6 opacity-100" : "max-h-0 opacity-0"}`}>
+              <div className={`grid transition-all duration-300 ease-in-out ${openAccordion === "karsilastir" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
                 <div className="overflow-hidden">
                   <div className="px-4 pb-6 border-t border-white/5 pt-4">
                     <div className="relative mb-5" ref={dropdownRef}>
@@ -584,8 +580,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             <button type="button" onClick={() => setIsFav(!isFav)} className="w-10 h-10 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-lg">
               <span>{isFav ? "❤️" : "🤍"}</span>
             </button>
-            <button type="button" onClick={handleAddToCart} disabled={addingToCart || addedSuccess || !stoktaVar} className="font-black py-2.5 px-5 rounded-md uppercase text-xs text-white bg-blue-600">
-              {addingToCart ? "..." : addedSuccess ? "✅" : "Sepete Ekle"}
+            {/* 🚀 MOBİL SEPETE EKLENDİ METNİ KUSURSUZCA AYARLANDI */}
+            <button type="button" onClick={handleAddToCart} disabled={addingToCart || addedSuccess || !stoktaVar} className={`font-black py-2.5 px-5 rounded-md uppercase text-xs text-white ${addedSuccess ? "bg-emerald-500" : "bg-blue-600"}`}>
+              {addingToCart ? "Ekleniyor..." : addedSuccess ? "✅ SEPETE EKLENDİ" : !stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
             </button>
           </div>
         </div>
