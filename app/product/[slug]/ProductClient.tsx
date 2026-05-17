@@ -33,7 +33,7 @@ export default function ProductClient({ product }: { product: Record<string, any
     setOpenAccordion(openAccordion === section ? null : section);
   };
 
-  // Dışarı tıklayınca arama listesini kapatma motoru
+  // Dışarı tıklayınca dropdown kapatma motoru
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -48,7 +48,7 @@ export default function ProductClient({ product }: { product: Record<string, any
     window.scrollTo(0, 0);
   }, [product]);
 
-  // CANLI KARGO GERI SAYIM MOTORU
+  // CANLI KARGO MOTORU
   useEffect(() => {
     const calculateShipping = () => {
       const now = new Date();
@@ -130,7 +130,7 @@ export default function ProductClient({ product }: { product: Record<string, any
   const stoktaVar = product.stock_status === "instock";
   const hasMultipleImages = galleryImages.length > 1;
   
-  // WOOCOMMERCE INDIRIM HESAPLAMA MOTORU
+  // WOOCOMMERCE İNDİRİM MOTORU
   const regularPrice = Number(product.regular_price || 0);
   const currentPrice = Number(product.price || 0);
   const isSale = product.on_sale === true || product.on_sale === "true" || (regularPrice > currentPrice && currentPrice > 0);
@@ -149,7 +149,7 @@ export default function ProductClient({ product }: { product: Record<string, any
 
   const currentCategoryType = isKoltuk ? "oyuncu-koltugu" : isSSD ? "ssd" : isPCorGPU ? "ekran-karti" : "genel";
 
-  // MASTER KATEGORI ACF HARİTASI
+  // MASTER ANAHTAR SÖZLÜĞÜ
   const categoryMappings: Record<string, Record<string, string>> = {
     "ekran-karti": {
       model: "Model", grafik_motoru: "Grafik Motoru", ai_performansi: "AI Performansı", bus_standarti: "Bus Standartı",
@@ -181,7 +181,7 @@ export default function ProductClient({ product }: { product: Record<string, any
     ? dynamicCustomSpecs 
     : (product.attributes?.map((attr: any) => ({ label: attr.name, value: attr.options?.join(', ') })) || []);
 
-  // REAL-TIME API VERI CEKME VE YEDEKLİ HAVUZ MOTORU
+  // API BAĞLANTI DENEMESİ
   useEffect(() => {
     if (!product || !product.categories || product.categories.length === 0) return;
 
@@ -195,12 +195,9 @@ export default function ProductClient({ product }: { product: Record<string, any
         if (Array.isArray(data)) {
           const filtered = data.filter((p: any) => p.id !== product.id);
           setCategoryProducts(filtered);
-          if (filtered.length > 0) {
-            setSelectedCompareProduct(filtered[0]);
-          }
         }
       } catch (err) {
-        console.error("Canlı alternatif veriler akamadı şefim:", err);
+        console.log("Canlı API henüz hazır değil şefim, yerel yedek depo aktif edildi.");
       } finally {
         setLoadingProducts(false);
       }
@@ -209,10 +206,11 @@ export default function ProductClient({ product }: { product: Record<string, any
     fetchAlternatives();
   }, [product]);
 
-  // BACKUP YEREL RAKİP VERİ TABANI (API GECİKİRSE EKRAN BOŞ KALMASIN DİYE)
+  // 🚀 ŞEFİN EMRİYLE 4060 VE 4060 Ti MODELLERİ YEREL HAVUZA ÇAKILDI!
   const backupDatabase: Record<string, Array<{ name: string; specs: Record<string, string> }>> = {
     "ekran-karti": [
-      { name: "NVIDIA GeForce RTX 4060 Ti Gümrük Serisi", specs: { model: "RTX 4060 Ti", grafik_motoru: "NVIDIA GeForce RTX 4060 Ti", ai_performansi: "Orta Seviye (160 TOPS)", bus_standarti: "PCIe 4.0", opengl: "OpenGL 4.6", bellek: "8GB GDDR6", saat_hizi: "2535 MHz", cuda_cekirdegi: "4352", bellek_hizi: "18 Gbps", bellek_arayuzu: "128-bit", cozunurluk: "7680 x 4320", boyutlar: "260 x 120 x 45 mm", tavsiye_edilen_guc_kaynagi: "600W", guc_baglantilari: "1x 8-pin", yuva: "2.2 Slot", aura_sync: "RGB Uyumlu" }},
+      { name: "NVIDIA GeForce RTX 4060", specs: { model: "RTX 4060", grafik_motoru: "NVIDIA GeForce RTX 4060", ai_performansi: "Giriş-Orta Seviye (150 TOPS)", bus_standarti: "PCIe 4.0", opengl: "OpenGL 4.6", bellek: "8GB GDDR6", saat_hizi: "2460 MHz", cuda_cekirdegi: "3072", bellek_hizi: "17 Gbps", bellek_arayuzu: "128-bit", cozunurluk: "7680 x 4320", boyutlar: "250 x 118 x 42 mm", tavsiye_edilen_guc_kaynagi: "550W", guc_baglantilari: "1x 8-pin", yuva: "2 Slot", aura_sync: "RGB Uyumlu" }},
+      { name: "NVIDIA GeForce RTX 4060 Ti", specs: { model: "RTX 4060 Ti", grafik_motoru: "NVIDIA GeForce RTX 4060 Ti", ai_performansi: "Orta Seviye (160 TOPS)", bus_standarti: "PCIe 4.0", opengl: "OpenGL 4.6", bellek: "8GB GDDR6", saat_hizi: "2535 MHz", cuda_cekirdegi: "4352", bellek_hizi: "18 Gbps", bellek_arayuzu: "128-bit", cozunurluk: "7680 x 4320", boyutlar: "260 x 120 x 45 mm", tavsiye_edilen_guc_kaynagi: "600W", guc_baglantilari: "1x 8-pin", yuva: "2.2 Slot", aura_sync: "RGB Uyumlu" }},
       { name: "NVIDIA GeForce RTX 4070 SUPER Master", specs: { model: "RTX 4070 SUPER", grafik_motoru: "NVIDIA GeForce RTX 4070 SUPER", ai_performansi: "Üst Seviye (520 TOPS)", bus_standarti: "PCIe 4.0", opengl: "OpenGL 4.6", bellek: "12GB GDDR6X", saat_hizi: "2475 MHz", cuda_cekirdegi: "5888", bellek_hizi: "21 Gbps", bellek_arayuzu: "192-bit", cozunurluk: "7680 x 4320", boyutlar: "300 x 120 x 50 mm", tavsiye_edilen_guc_kaynagi: "650W", guc_baglantilari: "1x 16-pin", yuva: "2.5 Slot", aura_sync: "ARGB Senkron" }}
     ],
     "oyuncu-koltugu": [
@@ -220,7 +218,8 @@ export default function ProductClient({ product }: { product: Record<string, any
       { name: "Hawk Gaming Chair Fab V5", specs: { malzeme_tipi: "Terletmez Kumaş", kol_destegi: "4D Kol", amortisör: "Class 4", tasima_kapasitesi: "140 kg", mekanizma: "180 Derece Yatış", ayak_malzemesi: "Alüminyum", yastik_destegi: "Mevcut", koltuk_boyutu: "70 x 72 x 135 cm" }}
     ],
     "ssd": [
-      { name: "Samsung 990 Pro M.2 NVMe", specs: { okuma_hizi: "7450 MB/s", yazma_hizi: "6900 MB/s", arabirim: "PCIe Gen 4", tbw_degeri: "1200 TBW", nvme_versiyon: "NVMe 2.0", flash_tipi: "TLC NAND" }}
+      { name: "Samsung 990 Pro M.2 NVMe SSD", specs: { okuma_hizi: "7450 MB/s", yazma_hizi: "6900 MB/s", arabirim: "PCIe Gen 4", tbw_degeri: "1200 TBW", nvme_versiyon: "NVMe 2.0", flash_tipi: "TLC NAND" }},
+      { name: "Kingston NV2 NVMe M.2 SSD", specs: { okuma_hizi: "3500 MB/s", yazma_hizi: "2800 MB/s", arabirim: "PCIe Gen 4", tbw_degeri: "600 TBW", nvme_versiyon: "NVMe 1.4", flash_tipi: "QLC NAND" }}
     ]
   };
 
@@ -231,21 +230,24 @@ export default function ProductClient({ product }: { product: Record<string, any
     item.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // DİNAMİK CANLI KIYAS MATRİSİ
+  // İlk açılışta havuzdaki ilk elemanı seçtir
+  useEffect(() => {
+    if (compareOptions.length > 0 && !selectedCompareProduct) {
+      setSelectedCompareProduct(compareOptions[0]);
+    }
+  }, [compareOptions, selectedCompareProduct]);
+
+  // DİNAMİK KIYAS MATRİSİ
   const comparisonRows = Object.entries(activeMapping).map(([key, label]) => {
     const currentProductValue = product.meta_data?.find((m: any) => m.key === key)?.value || product.acf?.[key] || "-";
-    
     const opponentValue = selectedCompareProduct?.meta_data?.find((m: any) => m.key === key)?.value || 
                           selectedCompareProduct?.acf?.[key] || 
                           selectedCompareProduct?.specs?.[key] || "-";
-    
     return { label, current: currentProductValue, opponent: opponentValue };
   }).filter(row => row.current !== "-" || row.opponent !== "-");
 
-  // İŞLEMCİ ÇARPANLARI
+  // İŞLEMCİ ÇARPANLARI VE FPS MOTORU
   const cpuMultipliers: Record<string, number> = { entry: 0.85, mid: 0.93, high: 1.00, extreme: 1.10 };
-  
-  // FOTOĞRAFTAKİ GERÇEK ACF ANAHTARLARIYLA BİREBİR FPS MOTORU MAPLEMESİ
   const gamesConfig = [
     { id: "pubg", label: "PUBG: BATTLEGROUNDS", maxFps: 400, default1080p: 210, default1440p: 140, color: "from-amber-500 to-orange-600 shadow-[0_0_15px_rgba(245,158,11,0.3)]" },
     { id: "valorant", label: "VALORANT", maxFps: 600, default1080p: 450, default1440p: 320, color: "from-rose-500 to-red-600 shadow-[0_0_15px_rgba(244,63,94,0.3)]" },
@@ -257,7 +259,6 @@ export default function ProductClient({ product }: { product: Record<string, any
   const currentCpuMultiplier = cpuMultipliers[selectedCpu] || 1.0;
 
   const processedFpsData = gamesConfig.map(game => {
-    // 🚀 Fotoğraftaki tam isim şablonu: pubg_1080p_fps / valorant_1440p_fps
     const acfKey = `${game.id}_${selectedRes}_fps`; 
     const metaValue = product.meta_data?.find((m: any) => m.key === acfKey)?.value || product.acf?.[acfKey];
     const baseFps = metaValue ? Number(metaValue) : (selectedRes === "1080p" ? game.default1080p : game.default1440p);
@@ -574,7 +575,7 @@ export default function ProductClient({ product }: { product: Record<string, any
               </div>
             )}
 
-            {/* 4. ÜRÜN KARŞILAŞTIRMA */}
+            {/* 4. ÜRÜN KARŞILAŞTIRMA (Arama Motorlu & Korumalı) */}
             <div className="border-b border-white/5 last:border-0">
               <button 
                 onClick={() => toggleAccordion("karsilastirma")}
@@ -588,7 +589,7 @@ export default function ProductClient({ product }: { product: Record<string, any
               <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "karsilastirma" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
                  <div className="border-t border-white/5 pt-4 space-y-4">
                    
-                   {/* DİNAMİK CANLI ARAMA INPUT ALANI */}
+                   {/* 🔍 ARAMA INPUT ALANI */}
                    <div ref={dropdownRef} className="flex flex-col gap-1.5 relative">
                      <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Kıyaslanacak Alternatif Ürünü Yazın</label>
                      <div className="relative">
@@ -606,12 +607,10 @@ export default function ProductClient({ product }: { product: Record<string, any
                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm pointer-events-none">🔍</span>
                      </div>
 
-                     {/* DROP DOWN LİSTESİ */}
+                     {/* 🚀 DROP DOWN LİSTESİ: ARTIK 4060 VE 4060 Ti YAZINCA ŞAKIR ŞAKIR AKACAK LİSTE */}
                      {isDropdownOpen && searchQuery && (
                        <div className="absolute top-[100%] left-0 right-0 bg-[#0b1329] border border-white/10 mt-1 rounded-xl shadow-2xl overflow-hidden z-50 max-h-48 overflow-y-auto backdrop-blur-xl bg-opacity-95 divide-y divide-white/5 animate-fade-in">
-                         {loadingProducts ? (
-                           <div className="p-3 text-xs text-slate-500 text-center">Canlı veriler taranıyor...</div>
-                         ) : filteredOptions.length > 0 ? (
+                         {filteredOptions.length > 0 ? (
                            filteredOptions.map((item, idx) => (
                              <button
                                key={idx}
@@ -627,7 +626,7 @@ export default function ProductClient({ product }: { product: Record<string, any
                              </button>
                            ))
                          ) : (
-                           <div className="p-3 text-xs text-slate-500 italic text-center">Kategoride eşleşen gerçek ürün bulunamadı şefim.</div>
+                           <div className="p-3 text-xs text-slate-500 italic text-center">Eşleşen ürün bulunamadı şefim.</div>
                          )}
                        </div>
                      )}
