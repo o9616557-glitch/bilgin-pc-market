@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 
+// 🚀 KIRMIZI 1 HATASI BURADA ÇÖZÜLDÜ: "any" yerine "Record<string, any>" yazdık!
 export default function ProductClient({ product }: { product: Record<string, any> }) {
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
@@ -63,9 +64,8 @@ export default function ProductClient({ product }: { product: Record<string, any
     
     localStorage.setItem("cart", JSON.stringify(currentCart));
     
-    // 🚀 ŞEFİN ÇİFTE SİNYAL MOTORU: Üst menü hangisini dinliyorsa onu vursun!
     window.dispatchEvent(new Event("cartUpdated"));
-    window.dispatchEvent(new Event("storage")); // Ana sayfanın sayacı tetiklediği standart sinyal
+    window.dispatchEvent(new Event("storage")); 
     
     setTimeout(() => {
       setAddingToCart(false);
@@ -90,19 +90,20 @@ export default function ProductClient({ product }: { product: Record<string, any
           
           <div className="flex flex-col gap-4">
             
-            <div className="w-full bg-white border border-white/5 p-4 sm:p-6 rounded-md overflow-hidden aspect-square relative group shadow-inner flex items-center justify-center cursor-pointer">
+            {/* 🚀 MONSTER STİLİ: BEYAZ KUTU SİLİNDİ, TAMAMEN ŞEFFAF VE SİTEYE GÖMÜLÜ! */}
+            <div className="w-full bg-transparent p-4 sm:p-6 rounded-md overflow-hidden aspect-square relative group flex items-center justify-center cursor-pointer">
               {product.images?.map((img: any, index: number) => (
                 <PhotoView key={index} src={img.src}>
                   <img 
                     src={img.src} 
                     alt={product.name} 
-                    className={`max-h-full max-w-full object-contain transform group-hover:scale-[1.01] transition-transform duration-500 ease-out ${
+                    className={`max-h-full max-w-full object-contain transform group-hover:scale-[1.03] transition-transform duration-700 ease-out drop-shadow-2xl ${
                       activeImageIndex === index ? "block" : "hidden"
                     }`}
                   />
                 </PhotoView>
               ))}
-              <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md border border-white/10 w-8 h-8 rounded-md flex items-center justify-center opacity-70 group-hover:opacity-100 transition-all shadow-lg pointer-events-none">
+              <div className="absolute top-3 right-3 bg-white/10 backdrop-blur-md border border-white/20 w-8 h-8 rounded-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg pointer-events-none">
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
@@ -117,10 +118,10 @@ export default function ProductClient({ product }: { product: Record<string, any
               <div className="flex-1 flex justify-center items-center">
                 {hasMultipleImages ? (
                   <>
-                    <div className="hidden sm:flex flex-wrap gap-1.5 justify-center items-center">
+                    <div className="hidden sm:flex flex-wrap gap-2 justify-center items-center">
                       {product.images.map((img: any, index: number) => (
-                        <button key={index} onClick={() => setActiveImageIndex(index)} className={`w-10 h-10 bg-[#050814] border rounded-md p-1 transition-all flex items-center justify-center ${activeImageIndex === index ? 'border-blue-500 scale-105' : 'border-white/5 opacity-50'}`}>
-                          <img src={img.src} alt="" className="max-w-full max-h-full object-contain" />
+                        <button key={index} onClick={() => setActiveImageIndex(index)} className={`w-12 h-12 bg-transparent border rounded-md p-1 transition-all flex items-center justify-center ${activeImageIndex === index ? 'border-blue-500 scale-110 bg-white/5' : 'border-white/10 opacity-40 hover:opacity-100 hover:bg-white/5'}`}>
+                          <img src={img.src} alt="" className="max-w-full max-h-full object-contain drop-shadow-md" />
                         </button>
                       ))}
                     </div>
