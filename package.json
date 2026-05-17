@@ -13,7 +13,8 @@
     "iyzipay": "^2.0.67",
     "next": "16.2.6",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "react-photo-view": "^1.2.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
