@@ -1,12 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function ProductClient({ product }: { product: any }) {
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
+
+  // 🚀 İŞTE EKRANI EN ÜSTE FIRLATAN SİHİRLİ DOKUNUŞ:
+  // Sayfa yüklendiği salisede tarayıcıyı milimetrik olarak en tepeye (0,0) çeker.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [product]);
 
   if (!product) {
     return (
