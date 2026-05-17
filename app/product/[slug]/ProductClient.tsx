@@ -92,9 +92,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       const response = await fetch(`/api/reviews?product=${product.id}`);
       if (response.ok) {
         const data: Review[] = await response.json();
-        const normalReviews = data.filter(item => Number(item.parent_id) === 0 && !item.review.includes("[SORU]"));
-        const customerQuestions = data.filter(item => Number(item.parent_id) === 0 && item.review.includes("[SORU]"));
-        const adminReplies = data.filter(item => Number(item.parent_id) > 0);
+        const normalReviews = data.filter((item: Review) => Number(item.parent_id) === 0 && !item.review.includes("[SORU]"));
+        const customerQuestions = data.filter((item: Review) => Number(item.parent_id) === 0 && item.review.includes("[SORU]"));
+        const adminReplies = data.filter((item: Review) => Number(item.parent_id) > 0);
 
         setReviews(normalReviews);
         setQuestions(customerQuestions);
@@ -229,8 +229,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   
   const attrSpecs = product.attributes?.map((attr: any) => ({ label: attr.name, value: attr.options?.join(', ') })) || [];
   const allSpecsMap = new Map();
-  attrSpecs.forEach(s => allSpecsMap.set(s.label.toLowerCase(), s));
-  dynamicCustomSpecs.forEach(s => allSpecsMap.set(s.label.toLowerCase(), s));
+  
+  // 🚀 TÜR HATASI OPERASYONU: (s: any) ekleyerek Vercel'in takıldığı o tek arızayı kökten sildik!
+  attrSpecs.forEach((s: any) => allSpecsMap.set(s.label.toLowerCase(), s));
+  dynamicCustomSpecs.forEach((s: any) => allSpecsMap.set(s.label.toLowerCase(), s));
   const finalTechSpecs = Array.from(allSpecsMap.values());
   
   const compareOptions = allProducts.filter((p: any) => p.id !== product.id);
@@ -446,7 +448,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                     <div className="space-y-4">
                         {reviews.length > 0 ? (
                           reviews.map((review) => {
-                            const reviewReply = replies.filter(r => Number(r.parent_id) === Number(review.id));
+                            const reviewReply = replies.filter((r: Review) => Number(r.parent_id) === Number(review.id));
                             return (
                               <div key={review.id} className="p-4 rounded-xl bg-[#050814]/40 border border-white/5 space-y-3">
                                 <div className="flex justify-between items-start gap-2">
@@ -458,7 +460,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                                 </div>
                                 <div className="text-slate-300 text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: review.review }} />
                                 
-                                {reviewReply.map((rep) => (
+                                {reviewReply.map((rep: Review) => (
                                   <div key={rep.id} className="bg-blue-600/10 border border-blue-500/20 p-3 rounded-lg ml-4">
                                     <div className="text-[10px] text-emerald-400 font-black uppercase mb-1">👨‍💻 Mağaza Yetkilisi Yanıtı</div>
                                     <div className="text-slate-300 text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: rep.review }} />
@@ -502,9 +504,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
                     <div className="space-y-4">
                       {questions.length > 0 ? (
-                        questions.map((q) => {
+                        questions.map((q: Review) => {
                           const cleanQuestionText = q.review.replace("[SORU]", "").trim();
-                          const questionReplies = replies.filter(r => Number(r.parent_id) === Number(q.id));
+                          const questionReplies = replies.filter((r: Review) => Number(r.parent_id) === Number(q.id));
 
                           return (
                             <div key={q.id} className="p-4 rounded-xl bg-[#050814]/20 border border-white/5 flex flex-col gap-3">
@@ -517,7 +519,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                               </div>
                               
                               {questionReplies.length > 0 ? (
-                                questionReplies.map((reply) => (
+                                questionReplies.map((reply: Review) => (
                                   <div key={reply.id} className="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg ml-3 shadow-inner">
                                     <div className="text-[10px] text-emerald-400 font-black uppercase mb-1">👨‍💻 Mağaza Yetkilisi Cevabı</div>
                                     <div className="text-slate-300 text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: reply.review }} />
