@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
@@ -21,12 +21,26 @@ export default function ProductClient({ product }: { product: Record<string, any
   const [selectedCpu, setSelectedCpu] = useState("mid");
   const [selectedRes, setSelectedRes] = useState<"1080p" | "1440p">("1080p");
 
-  // 🚀 INTERAKTİF KIYASLAMA MOTORU STATE'I (Varsayılan: İlk rakip ürün seçili)
-  const [compareIndex, setCompareIndex] = useState<number>(0);
+  // 🚀 CANLI ARAMA VE FİLTRELEME MOTORU STATE'LERİ
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedCompareProduct, setSelectedCompareProduct] = useState<any>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleAccordion = (section: string) => {
     setOpenAccordion(openAccordion === section ? null : section);
   };
+
+  // Dışarı tıklayınca arama listesini kapatma motoru
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -113,7 +127,6 @@ export default function ProductClient({ product }: { product: Record<string, any
   const stoktaVar = product.stock_status === "instock";
   const hasMultipleImages = galleryImages.length > 1;
   
-  // WOOCOMMERCE İNDİRİM MOTORU
   const regularPrice = Number(product.regular_price || 0);
   const currentPrice = Number(product.price || 0);
   const isSale = product.on_sale === true || product.on_sale === "true" || (regularPrice > currentPrice && currentPrice > 0);
@@ -150,9 +163,7 @@ export default function ProductClient({ product }: { product: Record<string, any
       okuma_hizi: "Okuma Hızı (MB/s)", yazma_hizi: "Yazma Hızı (MB/s)", arabirim: "Bağlantı Arayüzü",
       tbw_degeri: "Yazım Ömrü (TBW)", nvme_versiyon: "NVMe Sürümü", flash_tipi: "NAND Flash Tipi"
     },
-    "genel": {
-      garanti: "Garanti Süresi", mensei: "Üretim Yeri"
-    }
+    "genel": { garanti: "Garanti Süresi", mensei: "Üretim Yeri" }
   };
 
   const activeMapping = categoryMappings[currentCategoryType];
@@ -166,47 +177,41 @@ export default function ProductClient({ product }: { product: Record<string, any
     ? dynamicCustomSpecs 
     : (product.attributes?.map((attr: any) => ({ label: attr.name, value: attr.options?.join(', ') })) || []);
 
-  // 🚀 İNTERAKTİF KIYASLAMA VERİ TABANI (Kategoriye göre dinamik beslenir)
+  // 🚀 ZENGİNLEŞTİRİLMİŞ DİNAMİK ARAMA VERİTABANI (Müşteri 4060 veya SSD yazınca aşağı akacak listemiz)
   const comparisonDatabase: Record<string, Array<{ name: string; specs: Record<string, string> }>> = {
     "ekran-karti": [
-      {
-        name: "BilginPC Ultra Premium (RTX 4070 SUPER)",
-        specs: { model: "RTX 4070 SUPER", grafik_motoru: "NVIDIA GeForce RTX 4070 SUPER", ai_performansi: "Zirve Seviye (520 AI TOPS)", bus_standarti: "PCI Express 4.0", opengl: "OpenGL 4.6", bellek: "12GB GDDR6X", saat_hizi: "2475 MHz (Boost)", cuda_cekirdegi: "5888", bellek_hizi: "21 Gbps", bellek_arayuzu: "192-bit", cozunurluk: "7680 x 4320", boyutlar: "300 x 120 x 50 mm", tavsiye_edilen_guc_kaynagi: "650W PSU", guc_baglantilari: "1x 16-pin", yuva: "2.5 Slot", aura_sync: "ARGB Senkronize" }
-      },
-      {
-        name: "Standart Giriş Sistemi (RTX 3060)",
-        specs: { model: "RTX 3060", grafik_motoru: "NVIDIA GeForce RTX 3060", ai_performansi: "Giriş Seviye (102 AI TOPS)", bus_standarti: "PCI Express 4.0", opengl: "OpenGL 4.6", bellek: "12GB GDDR6", saat_hizi: "1777 MHz", cuda_cekirdegi: "3584", bellek_hizi: "15 Gbps", bellek_arayuzu: "192-bit", cozunurluk: "7680 x 4320", boyutlar: "240 x 110 x 40 mm", tavsiye_edilen_guc_kaynagi: "550W PSU", guc_baglantilari: "1x 8-pin", yuva: "2 Slot", aura_sync: "Sabit RGB" }
-      }
+      { name: "NVIDIA GeForce RTX 4060", specs: { model: "RTX 4060", grafik_motoru: "NVIDIA GeForce RTX 4060", ai_performansi: "Giriş-Orta Seviye (150 AI TOPS)", bus_standarti: "PCI Express 4.0", opengl: "OpenGL 4.6", bellek: "8GB GDDR6", saat_hizi: "2460 MHz", cuda_cekirdegi: "3072", bellek_hizi: "17 Gbps", bellek_arayuzu: "128-bit", cozunurluk: "7680 x 4320", boyutlar: "250 x 118 x 42 mm", tavsiye_edilen_guc_kaynagi: "550W PSU", guc_baglantilari: "1x 8-pin", yuva: "2 Slot", aura_sync: "RGB Uyumlu" }},
+      { name: "NVIDIA GeForce RTX 4060 Ti", specs: { model: "RTX 4060 Ti", grafik_motoru: "NVIDIA GeForce RTX 4060 Ti", ai_performansi: "Orta Seviye (160 AI TOPS)", bus_standarti: "PCI Express 4.0", opengl: "OpenGL 4.6", bellek: "8GB GDDR6", saat_hizi: "2535 MHz", cuda_cekirdegi: "4352", bellek_hizi: "18 Gbps", bellek_arayuzu: "128-bit", cozunurluk: "7680 x 4320", boyutlar: "260 x 120 x 45 mm", tavsiye_edilen_guc_kaynagi: "600W PSU", guc_baglantilari: "1x 8-pin", yuva: "2.2 Slot", aura_sync: "RGB Uyumlu" }},
+      { name: "NVIDIA GeForce RTX 4070 SUPER", specs: { model: "RTX 4070 SUPER", grafik_motoru: "NVIDIA GeForce RTX 4070 SUPER", ai_performansi: "Zirve Seviye (520 AI TOPS)", bus_standarti: "PCI Express 4.0", opengl: "OpenGL 4.6", bellek: "12GB GDDR6X", saat_hizi: "2475 MHz", cuda_cekirdegi: "5888", bellek_hizi: "21 Gbps", bellek_arayuzu: "192-bit", cozunurluk: "7680 x 4320", boyutlar: "300 x 120 x 50 mm", tavsiye_edilen_guc_kaynagi: "650W PSU", guc_baglantilari: "1x 16-pin", yuva: "2.5 Slot", aura_sync: "ARGB Senkronize" }}
     ],
     "oyuncu-koltugu": [
-      {
-        name: "Sektör Standardı xDrive/Hawk Muadili",
-        specs: { malzeme_tipi: "Premium PU Suni Deri", kol_destegi: "3D Hareketli Kol", amortisör: "Class 4 Amortisör", tasima_kapasitesi: "120 kg", mekanizma: "135 Derece Yatış", ayak_malzemesi: "Plastik Yıldız Taban", yastik_destegi: "Mevcut (Sünger)", koltuk_boyutu: "68 x 70 x 132 cm" }
-      },
-      {
-        name: "Sıradan Ofis / Çalışma Koltuğu",
-        specs: { malzeme_tipi: "Fileli Kumaş", kol_destegi: "Sabit Plastik Kol", amortisör: "Class 3 Amortisör", tasima_kapasitesi: "90 kg", mekanizma: "Yatışsız TILT", ayak_malzemesi: "Naylon Ayak", yastik_destegi: "Yok", koltuk_boyutu: "60 x 60 x 115 cm" }
-      }
+      { name: "xDrive Fırtına Profesyonel Seri", specs: { malzeme_tipi: "Premium PU Suni Deri", kol_destegi: "3D Hareketli Kol", amortisör: "Class 4 Amortisör", tasima_kapasitesi: "120 kg", mekanizma: "135 Derece Yatış", ayak_malzemesi: "Metal Yıldız Taban", yastik_destegi: "Mevcut (Sünger)", koltuk_boyutu: "68 x 70 x 132 cm" }},
+      { name: "Hawk Gaming Chair Fab V5", specs: { malzeme_tipi: "Terletmez Kumaş Döşeme", kol_destegi: "4D Tam Hareketli Kol", amortisör: "Class 4 Amortisör", tasima_kapasitesi: "140 kg", mekanizma: "180 Derece Yatış", ayak_malzemesi: "Alüminyum Yıldız Taban", yastik_destegi: "Mevcut (Visco)", koltuk_boyutu: "70 x 72 x 135 cm" }}
     ],
     "ssd": [
-      {
-        name: "Premium Gen4 Rakip NVMe SSD",
-        specs: { okuma_hizi: "7400 MB/s", yazma_hizi: "6500 MB/s", arabirim: "PCIe Gen 4.0 x4", tbw_degeri: "1200 TBW", nvme_versiyon: "NVMe 1.4", flash_tipi: "3D TLC NAND" }
-      },
-      {
-        name: "Standart SATA SSD",
-        specs: { okuma_hizi: "550 MB/s", yazma_hizi: "520 MB/s", arabirim: "SATA III 6Gb/s", tbw_degeri: "300 TBW", nvme_versiyon: "SATA Mimarisi", flash_tipi: "QLC NAND" }
-      }
+      { name: "Samsung 990 Pro NVMe M.2 SSD", specs: { okuma_hizi: "7450 MB/s", yazma_hizi: "6900 MB/s", arabirim: "PCIe Gen 4.0 x4", tbw_degeri: "1200 TBW", nvme_versiyon: "NVMe 2.0", flash_tipi: "Samsung V-NAND 3-bit MLC" }},
+      { name: "Kingston NV2 NVMe M.2 SSD", specs: { okuma_hizi: "3500 MB/s", yazma_hizi: "2800 MB/s", arabirim: "PCIe Gen 4.0 x4", tbw_degeri: "600 TBW", nvme_versiyon: "NVMe 1.4", flash_tipi: "3D NAND QLC" }}
     ],
     "genel": [
-      { name: "Standart Alternatif Ürün", specs: { garanti: "2 Yıl", mensei: "İthal" } }
+      { name: "Standart Alternatif Donanım", specs: { garanti: "2 Yıl", mensei: "İthal" } }
     ]
   };
 
   const compareOptions = comparisonDatabase[currentCategoryType] || [];
-  const selectedCompareProduct = compareOptions[compareIndex];
 
-  // 🚀 KIYASLAMA MATRİS MOTORU: Sol ve sağ verileri haritalayıp satırları inşa eder
+  // 🚀 ARAMA FİLTRELEME MOTORU: Kullanıcı yazdıkça eşleşen ürünleri süzme işlemi
+  const filteredOptions = compareOptions.filter(item =>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Sayfa ilk açıldığında listenin ilk elemanını varsayılan kıyaslanan ürün seç
+  useEffect(() => {
+    if (compareOptions.length > 0 && !selectedCompareProduct) {
+      setSelectedCompareProduct(compareOptions[0]);
+    }
+  }, [compareOptions, selectedCompareProduct]);
+
+  // 🚀 KIYASLAMA TABLOSU SATIR MATRİSİ
   const comparisonRows = Object.entries(activeMapping).map(([key, label]) => {
     const currentProductValue = product.meta_data?.find((m: any) => m.key === key)?.value || product.acf?.[key] || "-";
     const opponentValue = selectedCompareProduct?.specs?.[key] || "-";
@@ -480,13 +485,7 @@ export default function ProductClient({ product }: { product: Record<string, any
                          <span>📊</span> BilginPC Donanım Laboratuvarı Bildirisi:
                        </div>
                        <p className="font-normal text-slate-400">
-                         Bu simülatörde listelenen FPS değerleri, BilginPC mühendisleri ve bağımsız donanım platformlarının <strong>Yüksek/Ultra grafik ayarlarında</strong> elde ettiği kararlı dünya ortalamalarıdır. 
-                       </p>
-                       <p className="font-normal text-slate-400">
-                         Anlık gelen işletim sistemi güncellemeleri, arka plan yükleri, ekran kartı sürücü versiyonunuz, RAM belleklerinizin frekans hızları ve hatta oyun içi haritalardaki anlık aksiyon yoğunluğu gibi değişken parametreler sebebiyle, kendi sisteminizde alacağınız skorlarda küçük kare farklılıkları görülmesi tamamen doğaldır ve küresel endüstri standardıdır.
-                       </p>
-                       <p className="font-bold text-slate-300 italic">
-                         Buradaki motor, bütçenize ve ihtiyacınıza en doğru donanım kombinasyonunu en dürüst ve objektif şekilde seçebilmeniz için saf bir referans kılavuzudur.
+                         Bu simülatörde listelenen FPS değerleri, BilginPC mühendisleri birleşik test verileridir. Donanım ailesine, sürücü (driver) versiyonunuza ve anlık oyun içi aksiyon yoğunluğuna göre kare hızlarında oynamalar görülmesi tamamen doğaldır.
                        </p>
                      </div>
 
@@ -546,7 +545,7 @@ export default function ProductClient({ product }: { product: Record<string, any
               </div>
             )}
 
-            {/* 🚀 4. BÜYÜK İNTERAKTİF ÜRÜN KARŞILAŞTIRMA SEKMESİ (HER ÜRÜNE ÖZEL AKILLI BUKALEMUN MODELİ!) */}
+            {/* 🚀 4. GOOGLE TARZI AKILLI ARAMA MOTORLU ÜRÜN KARŞILAŞTIRMA SEKMESİ */}
             <div className="border-b border-white/5 last:border-0">
               <button 
                 onClick={() => toggleAccordion("karsilastirma")}
@@ -560,33 +559,58 @@ export default function ProductClient({ product }: { product: Record<string, any
               <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "karsilastirma" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
                  <div className="border-t border-white/5 pt-4 space-y-4">
                    
-                   {/* RAKİP ÜRÜN SEÇME PANELI */}
-                   <div className="flex flex-col gap-1.5 bg-[#050814]/40 p-4 rounded-xl border border-white/5">
-                     <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">KARŞILAŞTIRILACAK ALTERNATİF ÜRÜN</label>
-                     {compareOptions.length > 0 ? (
-                       <select 
-                         value={compareIndex} 
-                         onChange={(e) => setCompareIndex(Number(e.target.value))}
-                         className="w-full bg-[#0b1329] border border-white/10 text-blue-400 rounded-lg p-2.5 text-xs font-black focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
-                       >
-                         {compareOptions.map((opt, idx) => (
-                           <option key={idx} value={idx} className="text-slate-300 font-bold">{opt.name}</option>
-                         ))}
-                       </select>
-                     ) : (
-                       <p className="text-xs text-slate-500 italic">Bu kategori için henüz kıyaslanabilir bir rakip ürün eşleşmedi.</p>
+                   {/* 🔍 FIŞEK GİBİ AKTİF ARAMA INPUT ALANI */}
+                   <div ref={dropdownRef} className="flex flex-col gap-1.5 relative">
+                     <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Kıyaslanacak Alternatif Ürünü Yazın</label>
+                     <div className="relative">
+                       <input 
+                         type="text"
+                         value={searchQuery}
+                         onChange={(e) => {
+                           setSearchQuery(e.target.value);
+                           setIsDropdownOpen(true);
+                         }}
+                         onFocus={() => setIsDropdownOpen(true)}
+                         placeholder={selectedCompareProduct ? `Şu an kıyaslanan: ${selectedCompareProduct.name}` : "Örn: 4060, Pro SSD, Hawk..."}
+                         className="w-full bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-3 pr-10 text-xs font-bold focus:outline-none focus:border-blue-500 transition-colors shadow-inner"
+                       />
+                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm pointer-events-none">🔍</span>
+                     </div>
+
+                     {/* AKILLI DÖKÜLEN OTOMATİK TAMAMLAMA LİSTESİ */}
+                     {isDropdownOpen && searchQuery && (
+                       <div className="absolute top-[100%] left-0 right-0 bg-[#0b1329] border border-white/10 mt-1 rounded-xl shadow-2xl overflow-hidden z-50 max-h-48 overflow-y-auto backdrop-blur-xl bg-opacity-95 divide-y divide-white/5 animate-fade-in">
+                         {filteredOptions.length > 0 ? (
+                           filteredOptions.map((item, idx) => (
+                             <button
+                               key={idx}
+                               type="button"
+                               onClick={() => {
+                                 setSelectedCompareProduct(item);
+                                 setSearchQuery(""); // Seçince inputu temizle
+                                 setIsDropdownOpen(false);
+                               }}
+                               className="w-full p-3 text-left text-xs font-bold text-slate-300 hover:bg-blue-600 hover:text-white transition-colors block truncate"
+                             >
+                               ✨ {item.name}
+                             </button>
+                           ))
+                         ) : (
+                           <div className="p-3 text-xs text-slate-500 italic text-center">Eşleşen donanım bulunamadı şefim.</div>
+                         )}
+                       </div>
                      )}
                    </div>
 
-                   {/* CANLI YAN YANA KIYASLAMA TABLOSU */}
-                   {comparisonRows.length > 0 ? (
-                     <div className="overflow-x-auto pt-2">
+                   {/* CANLI KIYASLAMA TABLOSU */}
+                   {selectedCompareProduct ? (
+                     <div className="overflow-x-auto pt-2 animate-fade-in">
                        <table className="w-full text-left border-collapse table-fixed">
                          <thead>
                            <tr className="border-b border-white/10 bg-white/5 text-[11px] sm:text-xs uppercase tracking-wider font-black text-slate-400">
                              <th className="py-2.5 px-2 w-1/3">Özellik</th>
-                             <th className="py-2.5 px-2 w-1/3 text-blue-400">Bu Ürün</th>
-                             <th className="py-2.5 px-2 w-1/3 text-amber-400">Kıyaslanan</th>
+                             <th className="py-2.5 px-2 w-1/3 text-blue-400 truncate">Bu Ürün</th>
+                             <th className="py-2.5 px-2 w-1/3 text-amber-400 truncate">{selectedCompareProduct.name}</th>
                            </tr>
                          </thead>
                          <tbody>
@@ -601,7 +625,7 @@ export default function ProductClient({ product }: { product: Record<string, any
                        </table>
                      </div>
                    ) : (
-                     <p className="text-slate-500 italic py-2">Kıyaslanacak teknik özellik verisi bulunamadı şefim.</p>
+                     <p className="text-slate-500 italic py-2">Kıyaslamak istediğiniz modeli yukarıdaki kutuya yazarak seçin şefim.</p>
                    )}
 
                  </div>
