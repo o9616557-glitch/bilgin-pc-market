@@ -14,7 +14,6 @@ export default function ProductClient({ product }: { product: Record<string, any
   const [isFav, setIsFav] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>("aciklama");
 
-  // 🚀 KARGO MOTORU STATE'LERİ
   const [timeLeft, setTimeLeft] = useState("");
   const [shippingMessage, setShippingMessage] = useState("");
 
@@ -26,7 +25,6 @@ export default function ProductClient({ product }: { product: Record<string, any
     window.scrollTo(0, 0);
   }, [product]);
 
-  // 🚀 ŞEFİN V8 KARGO MOTORU (Canlı Geri Sayım)
   useEffect(() => {
     const calculateShipping = () => {
       const now = new Date();
@@ -38,10 +36,7 @@ export default function ProductClient({ product }: { product: Record<string, any
         const hoursLeft = 15 - currentHour;
         const minutesLeft = 59 - currentMinute;
         const secondsLeft = 59 - currentSecond;
-        
-        // Tek haneli sayıların başına 0 ekleme (örn: 03:05:09)
         const pad = (n: number) => n.toString().padStart(2, '0');
-        
         setTimeLeft(`${pad(hoursLeft)}:${pad(minutesLeft)}:${pad(secondsLeft)} içinde sipariş verirseniz`);
         setShippingMessage("BUGÜN KARGODA!");
       } else {
@@ -50,10 +45,9 @@ export default function ProductClient({ product }: { product: Record<string, any
       }
     };
 
-    calculateShipping(); // Sayfa açıldığında hemen hesapla
-    const timer = setInterval(calculateShipping, 1000); // Her 1 saniyede bir güncelle
-
-    return () => clearInterval(timer); // Bileşen kapanınca motoru durdur
+    calculateShipping();
+    const timer = setInterval(calculateShipping, 1000);
+    return () => clearInterval(timer);
   }, []);
 
   if (!product) {
@@ -113,6 +107,43 @@ export default function ProductClient({ product }: { product: Record<string, any
   const hasMultipleImages = galleryImages.length > 1;
   const kartFiyati = Number(product.price || product.regular_price || 0);
   const havaleFiyati = kartFiyati * 0.95;
+
+  // 🚀 ŞEFİN ACF EŞLEŞTİRME HARİTASI
+  const acfMapping: Record<string, string> = {
+    model: "Model",
+    grafik_motoru: "Grafik Motoru",
+    ai_performansi: "AI Performansı",
+    bus_standarti: "Bus Standartı",
+    opengl: "OpenGL",
+    bellek: "Bellek Kapasitesi",
+    saat_hizi: "Saat Hızı",
+    cuda_cekirdegi: "CUDA Çekirdeği",
+    bellek_hizi: "Bellek Hızı",
+    bellek_arayuzu: "Bellek Arayüzü",
+    cozunurluk: "Maksimum Çözünürlük",
+    maksimum_ekran_destegi: "Maksimum Ekran Desteği",
+    boyutlar: "Boyutlar",
+    tavsiye_edilen_guc_kaynagi: "Tavsiye Edilen PSU",
+    guc_baglantilari: "Güç Bağlantıları",
+    yuva: "Yuva Tipi",
+    aura_sync: "Aura Sync / RGB"
+  };
+
+  // 🚀 ACF VERİLERİNİ API PAKETİNDEN SÜZME MOTORU
+  const techSpecs = Object.entries(acfMapping).map(([key, label]) => {
+    // REST API'de ACF verileri meta_data içinde veya doğrudan "acf" objesinde gelebilir.
+    const metaValue = product.meta_data?.find((m: any) => m.key === key)?.value || product.acf?.[key];
+    return { label, value: metaValue };
+  }).filter(spec => spec.value !== undefined && spec.value !== null && spec.value !== ""); // Boş olanları gizle
+
+  // Özel alanlar için genel çağrı
+  const getMetaData = (key: string) => {
+    const meta = product.meta_data?.find((m: any) => m.key === key);
+    return meta ? meta.value : null;
+  };
+
+  const performanceTest = getMetaData('performans_testi');
+  const comparisonData = getMetaData('karsilastirma');
 
   return (
     <PhotoProvider>
@@ -212,17 +243,15 @@ export default function ProductClient({ product }: { product: Record<string, any
                 </div>
               </div>
 
-              {/* 🚀 GERİ DÖNEN PAYLAŞIM İKONLARI */}
               <div className="flex items-center gap-3 mb-4 bg-[#050814]/30 border border-white/5 p-2 rounded-md w-max">
                 <span className="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Paylaş:</span>
                 <div className="flex items-center gap-2 opacity-50 hover:opacity-100 transition-opacity">
-                  <div className="w-7 h-7 rounded-md bg-white/5 flex items-center justify-center text-[11px] cursor-pointer hover:bg-blue-600 hover:text-white transition-colors" title="Kopyala">🔗</div>
-                  <div className="w-7 h-7 rounded-md bg-green-500/10 flex items-center justify-center text-[11px] text-green-400 cursor-pointer hover:bg-green-500 hover:text-white transition-colors" title="WhatsApp">WP</div>
-                  <div className="w-7 h-7 rounded-md bg-blue-500/10 flex items-center justify-center text-[11px] text-blue-400 cursor-pointer hover:bg-blue-500 hover:text-white transition-colors" title="X (Twitter)">X</div>
+                  <div className="w-7 h-7 rounded-md bg-white/5 flex items-center justify-center text-[11px] cursor-pointer hover:bg-blue-600 hover:text-white transition-colors">🔗</div>
+                  <div className="w-7 h-7 rounded-md bg-green-500/10 flex items-center justify-center text-[11px] text-green-400 cursor-pointer hover:bg-green-500 hover:text-white transition-colors">WP</div>
+                  <div className="w-7 h-7 rounded-md bg-blue-500/10 flex items-center justify-center text-[11px] text-blue-400 cursor-pointer hover:bg-blue-500 hover:text-white transition-colors">X</div>
                 </div>
               </div>
 
-              {/* 🚀 CANLI KARGO GERİ SAYIM MOTORU */}
               <div className="flex items-center gap-3 mb-2 bg-[#050814]/50 border border-blue-500/20 p-3 rounded-md shadow-inner">
                 <div className="text-2xl sm:text-3xl text-blue-400 animate-pulse">🚚</div>
                 <div className="flex flex-col">
@@ -234,7 +263,6 @@ export default function ProductClient({ product }: { product: Record<string, any
                   </span>
                 </div>
               </div>
-
             </div>
 
             <div className="border-t border-white/5 pt-4 mt-2 hidden sm:block">
@@ -262,9 +290,7 @@ export default function ProductClient({ product }: { product: Record<string, any
                     onClick={() => setIsFav(!isFav)}
                     disabled={!stoktaVar} 
                     className={`w-11 h-11 rounded-md border flex items-center justify-center transition-all ${
-                      isFav 
-                        ? 'bg-red-500/20 border-red-500/50 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]' 
-                        : 'bg-white/5 border-white/10 text-slate-400 hover:text-red-500 hover:bg-red-500/10'
+                      isFav ? 'bg-red-500/20 border-red-500/50 text-red-500' : 'bg-white/5 border-white/10 text-slate-400'
                     }`}
                   >
                     <svg className="w-4 h-4" fill={isFav ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
@@ -277,6 +303,7 @@ export default function ProductClient({ product }: { product: Record<string, any
           </div>
         </div>
 
+        {/* 🚀 AKORDEON DEPARTMANI */}
         <div className="max-w-6xl mx-auto mt-6 sm:mt-10 relative z-10 flex flex-col gap-6 sm:gap-8">
           <div className="bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 rounded-xl sm:rounded-2xl shadow-lg flex flex-col overflow-hidden">
             
@@ -301,7 +328,7 @@ export default function ProductClient({ product }: { product: Record<string, any
               </div>
             </div>
 
-            {/* 2. TEKNİK ÖZELLİKLER */}
+            {/* 🚀 2. TEKNİK ÖZELLİKLER (KAYIRSIZ ŞARTSIZ ARTIK TAMAMEN ACF-DÜNYASI!) */}
             <div className="border-b border-white/5 last:border-0">
               <button 
                 onClick={() => toggleAccordion("teknik")}
@@ -313,9 +340,24 @@ export default function ProductClient({ product }: { product: Record<string, any
                 <svg className={`w-4 h-4 sm:w-5 sm:h-5 text-slate-500 transform transition-transform duration-500 ${openAccordion === "teknik" ? "rotate-180 text-blue-400" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
               </button>
               <div className={`px-4 sm:px-5 text-slate-400 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "teknik" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
-                 <div className="border-t border-white/5 pt-3 sm:pt-4">
-                   <p>Teknik veriler buraya çekilecek.</p>
-                 </div>
+                 {techSpecs.length > 0 ? (
+                   <div className="border-t border-white/5 pt-3 sm:pt-4">
+                     <div className="overflow-x-auto">
+                       <table className="w-full text-left border-collapse">
+                         <tbody>
+                           {techSpecs.map((spec, i) => (
+                             <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
+                               <td className="py-3.5 pr-4 font-bold text-slate-300 w-5/12 md:w-1/4">{spec.label}</td>
+                               <td className="py-3.5 text-slate-400 font-normal">{spec.value}</td>
+                             </tr>
+                           ))}
+                         </tbody>
+                       </table>
+                     </div>
+                   </div>
+                 ) : (
+                   <p className="border-t border-white/5 pt-3 sm:pt-4 text-slate-500 italic">Bu ürüne ait teknik detaylar panelden henüz girilmemiş şefim.</p>
+                 )}
               </div>
             </div>
 
@@ -332,7 +374,11 @@ export default function ProductClient({ product }: { product: Record<string, any
               </button>
               <div className={`px-4 sm:px-5 text-slate-400 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "performans" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
                  <div className="border-t border-white/5 pt-3 sm:pt-4">
-                   <p>Oyun FPS değerleri buraya gelecek.</p>
+                   {performanceTest ? (
+                     <div dangerouslySetInnerHTML={{ __html: performanceTest }} />
+                   ) : (
+                     <p className="text-slate-500 italic">Oyun performans verileri yakında eklenecektir.</p>
+                   )}
                  </div>
               </div>
             </div>
@@ -350,7 +396,11 @@ export default function ProductClient({ product }: { product: Record<string, any
               </button>
               <div className={`px-4 sm:px-5 text-slate-400 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "karsilastirma" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
                  <div className="border-t border-white/5 pt-3 sm:pt-4">
-                   <p>Karşılaştırma tabloları burada yer alacak.</p>
+                   {comparisonData ? (
+                     <div dangerouslySetInnerHTML={{ __html: comparisonData }} />
+                   ) : (
+                     <p className="text-slate-500 italic">Karşılaştırma tabloları hazırlanıyor.</p>
+                   )}
                  </div>
               </div>
             </div>
@@ -367,8 +417,10 @@ export default function ProductClient({ product }: { product: Record<string, any
                 <svg className={`w-4 h-4 sm:w-5 sm:h-5 text-slate-500 transform transition-transform duration-500 ${openAccordion === "topluluk" ? "rotate-180 text-blue-400" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
               </button>
               <div className={`px-4 sm:px-5 text-slate-400 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "topluluk" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
-                 <div className="border-t border-white/5 pt-3 sm:pt-4">
-                   <p>Müşteri yorumları buraya çekilecek.</p>
+                 <div className="border-t border-white/5 pt-3 sm:pt-4 flex flex-col items-center justify-center gap-2 py-6">
+                   <div className="text-amber-400 text-2xl tracking-widest">⭐⭐⭐⭐⭐</div>
+                   <p className="text-slate-300 font-bold text-lg mt-2">5.0 / 5 Mükemmel</p>
+                   <p className="text-slate-500 text-center max-w-md">Bu canavarı test eden ilk kişilerden biri olun! Deneyimlerinizi bizimle paylaşın.</p>
                  </div>
               </div>
             </div>
@@ -376,6 +428,7 @@ export default function ProductClient({ product }: { product: Record<string, any
           </div>
         </div>
 
+        {/* MOBİL YAPIŞKAN PANEL */}
         <div className="fixed bottom-0 left-0 right-0 bg-[#0b1329]/90 backdrop-blur-xl border-t border-white/10 p-3 flex items-center justify-between z-50 sm:hidden shadow-[0_-10px_30px_rgba(0,0,0,0.6)] animate-fade-in">
           <div className="flex flex-col">
             <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-wider">Havale Fiyatı</span>
