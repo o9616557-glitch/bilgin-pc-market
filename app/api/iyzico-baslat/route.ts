@@ -4,66 +4,72 @@ import { NextResponse } from 'next/server';
 import Iyzipay from 'iyzipay';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
-    const apiKey = process.env.IYZICO_API_KEY || "";
-    const secretKey = process.env.IYZICO_SECRET_KEY || "";
+    const body = await request.json();
+    const { cart, checkoutForm, totalAmount } = body;
 
-    const uri = apiKey.startsWith("sandbox-") ? "https://sandbox-api.iyzipay.com" : "https://api.iyzipay.com";
+    // Şifrelerin başındaki ve sonundaki görünmez boşlukları otomatik silen (trim) sistem
+    const apiKey = process.env.IYZICO_API_KEY?.trim() || "";
+    const secretKey = process.env.IYZICO_SECRET_KEY?.trim() || "";
 
     const iyzipay = new Iyzipay({
       apiKey: apiKey,
       secretKey: secretKey,
-      uri: uri
+      uri: "https://api.iyzipay.com" // GERÇEK CANLI SATIŞ SUNUCUSU
     });
+
+    // Fiyatı tam İyzico'nun istediği gibi formatlıyoruz
+    const formattedPrice = Number(totalAmount).toFixed(1);
 
     const requestData = {
       locale: Iyzipay.LOCALE.TR,
-      conversationId: "123456789",
-      price: "1.0",
-      paidPrice: "1.0",
+      conversationId: Math.floor(Math.random() * 100000000).toString(),
+      price: formattedPrice,
+      paidPrice: formattedPrice,
       currency: Iyzipay.CURRENCY.TRY,
-      basketId: "B67832",
+      basketId: "B" + Math.floor(Math.random() * 100000),
       paymentGroup: Iyzipay.PAYMENT_GROUP.PRODUCT,
       callbackUrl: "https://bilginpcmarket.com/api/iyzico-sonuc",
       enabledInstallments: [2, 3, 6, 9, 12],
       buyer: {
         id: "BY789",
-        name: "John",
-        surname: "Doe",
-        gsmNumber: "+905350000000",
-        email: "email@email.com",
-        identityNumber: "74300864791",
-        lastLoginDate: "2015-10-05 12:43:35",
-        registrationDate: "2013-04-21 15:12:09",
-        registrationAddress: "Nidakule Goztepe, Merdivenkoy Mah. Bora Sok. No:1",
+        name: checkoutForm?.firstName || "Ahmet",
+        surname: checkoutForm?.lastName || "Yilmaz",
+        gsmNumber: checkoutForm?.phone || "+905555555555",
+        email: checkoutForm?.email || "test@gmail.com",
+        identityNumber: "11111111111",
+        lastLoginDate: "2023-01-01 12:00:00",
+        registrationDate: "2023-01-01 12:00:00",
+        registrationAddress: checkoutForm?.fullAddress || "Moda Caddesi No:5",
         ip: "85.34.78.112",
-        city: "Istanbul",
+        city: checkoutForm?.city || "Istanbul",
         country: "Turkey",
         zipCode: "34732"
       },
       shippingAddress: {
-        contactName: "Jane Doe",
-        city: "Istanbul",
+        contactName: (checkoutForm?.firstName || "Ahmet") + " " + (checkoutForm?.lastName || "Yilmaz"),
+        city: checkoutForm?.city || "Istanbul",
         country: "Turkey",
-        address: "Nidakule Goztepe, Merdivenkoy Mah. Bora Sok. No:1",
+        address: checkoutForm?.fullAddress || "Moda Caddesi No:5",
         zipCode: "34732"
       },
       billingAddress: {
-        contactName: "Jane Doe",
-        city: "Istanbul",
+        contactName: (checkoutForm?.firstName || "Ahmet") + " " + (checkoutForm?.lastName || "Yilmaz"),
+        city: checkoutForm?.city || "Istanbul",
         country: "Turkey",
-        address: "Nidakule Goztepe, Merdivenkoy Mah. Bora Sok. No:1",
+        address: checkoutForm?.fullAddress || "Moda Caddesi No:5",
         zipCode: "34732"
       },
       basketItems: [
         {
-          id: "BI101",
-          name: "Binocular",
-          category1: "Collectibles",
+          id: "SEPET-100",
+          name: "Bilgin PC Market Sepet Tutari",
+          category1: "Donanim",
           itemType: Iyzipay.BASKET_ITEM_TYPE.PHYSICAL,
-          price: "1.0"
+          price: formattedPrice
         }
       ]
     };
@@ -73,19 +79,15 @@ export async function POST() {
         if (result && result.status === "success") {
           resolve(NextResponse.json({ success: true, formContent: result.checkoutFormContent }));
         } else {
-          // 🚀 İŞTE DEDEKTİF BURADA DEVREYE GİRİYOR! EKRANA ŞİFRENİN DURUMUNU BASACAK!
           resolve(NextResponse.json({ 
             success: false, 
-            error: `HATA 11! VERCEL'İN ŞU AN KULLANDIĞI ŞİFRELER:
-            API Key Başlangıcı: "${apiKey.substring(0, 6)}..." (Uzunluk: ${apiKey.length})
-            Secret Key Başlangıcı: "${secretKey.substring(0, 6)}..." (Uzunluk: ${secretKey.length})
-            Bağlanılan Adres: ${uri}` 
+            error: `YENİ KOD ÇALIŞTI HATA VERDİ: ${result?.errorMessage} (Hata Kodu: ${result?.errorCode})` 
           }, { status: 400 }));
         }
       });
     });
 
   } catch (error) {
-    return NextResponse.json({ success: false, error: "Sunucu hatasi olustu." }, { status: 500 });
+    return NextResponse.json({ success: false, error: "Sunucu hatası oluştu." }, { status: 500 });
   }
 }
