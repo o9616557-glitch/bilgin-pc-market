@@ -1,11 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: any = {
-  serverExternalPackages: ["iyzipay"],
+  // Hem İyzico'yu hem de onun kargocusunu Vercel'den koruyoruz!
+  serverExternalPackages: ["iyzipay", "postman-request"],
   
-  // 🚀 SİHİRLİ DOKUNUŞ: Sadece 'resources' değil, tüm 'iyzipay' klasörünü korumaya aldık!
   outputFileTracingIncludes: {
-    "/api/**/*": ["./node_modules/iyzipay/**/*"]
+    "/api/**/*": [
+      "./node_modules/iyzipay/**/*",
+      "./node_modules/postman-request/**/*"
+    ]
   }
 };
 
