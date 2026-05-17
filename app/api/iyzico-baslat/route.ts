@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       uri: "https://api.iyzipay.com" 
     });
 
-    const formattedPrice = Number(totalAmount).toFixed(1);
+    const formattedPrice = Number(totalAmount || 0).toFixed(1);
 
     const requestData = {
       locale: Iyzipay.LOCALE.TR,
@@ -72,15 +72,16 @@ export async function POST(request: Request) {
       ]
     };
 
-    // 🚀 İŞTE VERCEL'İ SUSTURAN KISIM! <NextResponse> etiketi eklendi ve await ile beklendi.
     const response = await new Promise<NextResponse>((resolve) => {
       iyzipay.checkoutFormInitialize.create(requestData, (err: any, result: any) => {
-        if (result && result.status === "success") {
+        if (err) {
+          resolve(NextResponse.json({ success: false, error: `İYZİPAY PAKET HATASI: ${err.message || err}` }, { status: 500 }));
+        } else if (result && result.status === "success") {
           resolve(NextResponse.json({ success: true, formContent: result.checkoutFormContent }));
         } else {
           resolve(NextResponse.json({ 
             success: false, 
-            error: `YENİ KOD ÇALIŞTI HATA VERDİ: ${result?.errorMessage} (Hata Kodu: ${result?.errorCode})` 
+            error: `İYZİCO REDDETTİ: ${result?.errorMessage} (Hata Kodu: ${result?.errorCode})` 
           }, { status: 400 }));
         }
       });
@@ -88,7 +89,8 @@ export async function POST(request: Request) {
 
     return response;
 
-  } catch (error) {
-    return NextResponse.json({ success: false, error: "Sunucu hatası oluştu." }, { status: 500 });
+  } catch (error: any) {
+    // 🚀 ASIL HATAYI BURADA YAKALAYIP EKRANA BASIYORUZ!
+    return NextResponse.json({ success: false, error: `SİSTEM HATASI: ${error.message}` }, { status: 500 });
   }
 }
