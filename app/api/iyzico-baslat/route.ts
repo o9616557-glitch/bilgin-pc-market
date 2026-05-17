@@ -10,10 +10,12 @@ export async function POST() {
     const apiKey = process.env.IYZICO_API_KEY || "";
     const secretKey = process.env.IYZICO_SECRET_KEY || "";
 
+    const uri = apiKey.startsWith("sandbox-") ? "https://sandbox-api.iyzipay.com" : "https://api.iyzipay.com";
+
     const iyzipay = new Iyzipay({
       apiKey: apiKey,
       secretKey: secretKey,
-      uri: apiKey.startsWith("sandbox-") ? "https://sandbox-api.iyzipay.com" : "https://api.iyzipay.com"
+      uri: uri
     });
 
     const requestData = {
@@ -60,7 +62,6 @@ export async function POST() {
           id: "BI101",
           name: "Binocular",
           category1: "Collectibles",
-          category2: "Accessories",
           itemType: Iyzipay.BASKET_ITEM_TYPE.PHYSICAL,
           price: "1.0"
         }
@@ -72,9 +73,13 @@ export async function POST() {
         if (result && result.status === "success") {
           resolve(NextResponse.json({ success: true, formContent: result.checkoutFormContent }));
         } else {
+          // 🚀 İŞTE DEDEKTİF BURADA DEVREYE GİRİYOR! EKRANA ŞİFRENİN DURUMUNU BASACAK!
           resolve(NextResponse.json({ 
             success: false, 
-            error: `İYZİCO REDDETTİ: ${result?.errorMessage} (Hata Kodu: ${result?.errorCode})` 
+            error: `HATA 11! VERCEL'İN ŞU AN KULLANDIĞI ŞİFRELER:
+            API Key Başlangıcı: "${apiKey.substring(0, 6)}..." (Uzunluk: ${apiKey.length})
+            Secret Key Başlangıcı: "${secretKey.substring(0, 6)}..." (Uzunluk: ${secretKey.length})
+            Bağlanılan Adres: ${uri}` 
           }, { status: 400 }));
         }
       });
