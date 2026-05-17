@@ -9,9 +9,6 @@ export async function POST(request: Request) {
     const CK = "ck_6ef66adad9ec356716cc40a803f4669e4c30006b";
     const CS = "cs_95b1791dad078934610a39930ac3e49da04a6efc";
 
-    // 🚀 ŞEFİM İŞTE SİHİRLİ DOKUNUŞ: 
-    // Hosting firması Authorization başlığını silse bile etkilenmiyoruz.
-    // Token'ı Next.js içinde yerel olarak decode edip ID'yi kendimiz cımbızlıyoruz!
     let userId;
     try {
       const payloadBase64 = token.split('.')[1];
@@ -24,13 +21,18 @@ export async function POST(request: Request) {
 
     if (!userId) return NextResponse.json({ error: "Kullanıcı ID'si tespit edilemedi." }, { status: 404 });
 
-    // 2. Bulduğumuz net ID üzerinden WooCommerce veritabanından adres bilgilerini çekiyoruz
-    const customerRes = await fetch(`${SITE_URL}/wp-json/wc/v3/customers/${userId}?consumer_key=${CK}&consumer_secret=${CS}`);
-    const customerData = await customerRes.json();
+    // 🚀 ŞEFİM İŞTE BEKLEMEYİ BİTİREN PARALEL MOTOR (Promise.all)
+    // Adres bilgilerini ve Sipariş geçmişini WooCommerce'den AYNI ANDA talep ediyoruz!
+    const [customerRes, ordersRes] = await Promise.all([
+      fetch(`${SITE_URL}/wp-json/wc/v3/customers/${userId}?consumer_key=${CK}&consumer_secret=${CS}`),
+      fetch(`${SITE_URL}/wp-json/wc/v3/orders?customer=${userId}&consumer_key=${CK}&consumer_secret=${CS}`)
+    ]);
 
-    // 3. Aynı ID üzerinden gerçek sipariş geçmişini çekiyoruz
-    const ordersRes = await fetch(`${SITE_URL}/wp-json/wc/v3/orders?customer=${userId}&consumer_key=${CK}&consumer_secret=${CS}`);
-    const ordersData = await ordersRes.json();
+    // Gelen iki cevabı da yine beklemeden aynı anda JSON formatına çözüyoruz
+    const [customerData, ordersData] = await Promise.all([
+      customerRes.json(),
+      ordersRes.json()
+    ]);
 
     return NextResponse.json({
       customer: customerData,
