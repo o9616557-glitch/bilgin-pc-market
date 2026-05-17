@@ -20,18 +20,16 @@ export default async function ProductDetailPage({
   const data = await res.json();
   const product = data && data.length > 0 ? data[0] : null;
 
-  // 2. 🚀 TÜM KATEGORİ BAĞLARINI ÇEK (Sadece ilkine değil, hepsine bak!)
+  // 2. 🚀 OPTİMİZE EDİLMİŞ CANLI KIYASLAMA MOTORU (AŞIRI HIZLANDIRILDI!)
   let allProducts: any[] = [];
   if (product && product.categories && product.categories.length > 0) {
-    
-    // Ürünün bağlı olduğu TÜM kategorilerin ID'lerini aralarına virgül koyarak alıyoruz (Örn: "15,24,30")
-    // Bu sayede alt kategori / üst kategori ayrımı yapmadan o ailedeki tüm ürünleri yakalıyoruz!
     const categoryIds = product.categories.map((cat: any) => cat.id).join(",");
     
     try {
-      // per_page=100 ile ağı devasa genişlettik
+      // ŞEFİN DİKKATİNE: URL'nin içine "&_fields=id,name,meta_data,acf,attributes" komutunu çaktık!
+      // Artık WP gereksiz resimleri ve açıklamaları yüklemiyor. Sadece arama kutusu ve tablo için gereken saf veriyi saniyesinde fırlatıyor.
       const resAll = await fetch(
-        `${SITE_URL}/wp-json/wc/v3/products?category=${categoryIds}&per_page=100&consumer_key=${CK}&consumer_secret=${CS}`,
+        `${SITE_URL}/wp-json/wc/v3/products?category=${categoryIds}&per_page=100&_fields=id,name,meta_data,acf,attributes&consumer_key=${CK}&consumer_secret=${CS}`,
         { next: { revalidate: 86400 } }
       );
       allProducts = await resAll.json();
