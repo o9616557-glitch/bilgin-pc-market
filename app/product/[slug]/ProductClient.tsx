@@ -29,10 +29,9 @@ export default function ProductClient({ product }: { product: Record<string, any
     );
   }
 
-  // 🚀 ŞEFİN ZEKASI: Resimleri İkiye Bölüyoruz (İlk 5 Vitrine, Kalanlar Açıklamaya!)
+  // 🚀 SADECE İLK 5 RESMİ ÜST VİTRİNE ALIYORUZ
   const allImages = product.images || [];
-  const galleryImages = allImages.slice(0, 5); // Üstteki vitrin için max 5 görsel
-  const descriptionImages = allImages.slice(5); // Kalan tüm görseller açıklama altına
+  const galleryImages = allImages.slice(0, 5);
 
   const nextImage = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -94,7 +93,6 @@ export default function ProductClient({ product }: { product: Record<string, any
           
           <div className="flex flex-col gap-4">
             
-            {/* VİTRİN ANA RESMİ */}
             <div className="w-full bg-transparent p-4 sm:p-6 rounded-md overflow-hidden aspect-square relative group flex items-center justify-center cursor-pointer">
               {galleryImages.map((img: any, index: number) => (
                 <PhotoView key={index} src={img.src}>
@@ -114,7 +112,6 @@ export default function ProductClient({ product }: { product: Record<string, any
               </div>
             </div>
 
-            {/* VİTRİN OKLARI VE KÜÇÜK RESİMLERİ (MAX 5 TANE) */}
             <div className="flex items-center justify-between gap-4 bg-[#050814]/40 border border-white/5 p-2 rounded-md">
               <button onClick={prevImage} disabled={!hasMultipleImages} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 hover:border-blue-600 disabled:opacity-10 transition-all">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
@@ -237,7 +234,7 @@ export default function ProductClient({ product }: { product: Record<string, any
           </div>
         </div>
 
-        {/* ÜRÜN AÇIKLAMASI VE KALAN RESİMLER */}
+        {/* 🚀 ÜRÜN AÇIKLAMASI (WP İÇİNDEN EKLENEN RESİMLER OTOMATİK DEVASA OLUR) */}
         <div className="max-w-6xl mx-auto mt-8 bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 p-4 sm:p-8 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10">
           <div className="border-b border-white/5 pb-3 mb-5">
             <h2 className="text-base md:text-lg font-black uppercase tracking-widest text-blue-500 italic flex items-center gap-2">
@@ -247,25 +244,9 @@ export default function ProductClient({ product }: { product: Record<string, any
           </div>
           
           <div 
-            className="text-slate-200 text-sm md:text-base lg:text-lg leading-relaxed space-y-4 prose prose-invert font-normal max-w-none prose-p:my-2 prose-headings:text-white prose-headings:font-black"
+            className="text-slate-200 text-sm md:text-base lg:text-lg leading-relaxed space-y-4 prose prose-invert font-normal max-w-none prose-p:my-2 prose-headings:text-white prose-headings:font-black prose-img:rounded-2xl prose-img:shadow-[0_10px_30px_rgba(0,0,0,0.4)] prose-img:w-full prose-img:my-10"
             dangerouslySetInnerHTML={{ __html: product.description || "Bu canavar için henüz detaylı bir teknik açıklama girilmemiş şefim." }}
           />
-
-          {/* 🚀 EĞER 5'TEN FAZLA RESİM VARSA BURAYA DEVASA DERGİ STİLİNDE DİZİLİR */}
-          {descriptionImages.length > 0 && (
-            <div className="mt-10 space-y-8 border-t border-white/5 pt-10">
-              <h3 className="text-center text-sm font-black uppercase tracking-widest text-slate-400 mb-6">Detaylı Görseller</h3>
-              {descriptionImages.map((img: any, index: number) => (
-                <div key={index} className="w-full flex justify-center">
-                  <img 
-                    src={img.src} 
-                    alt={`${product.name} Detay ${index + 1}`} 
-                    className="max-w-full rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.4)] border border-white/5"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
         </div>
 
         <div className="fixed bottom-0 left-0 right-0 bg-[#0b1329]/90 backdrop-blur-xl border-t border-white/10 p-3 flex items-center justify-between z-50 sm:hidden shadow-[0_-10px_30px_rgba(0,0,0,0.6)] animate-fade-in">
