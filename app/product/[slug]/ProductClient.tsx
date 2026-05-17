@@ -217,7 +217,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const eskiFiyat = regularPrice > currentPrice ? regularPrice : (isSale ? Math.round(currentPrice * 1.15) : 0);
   const havaleFiyati = currentPrice * 0.95;
 
-  // 🚀 17 TEKNİK ÖZELLİK RESİMDEKİ TAM SIRAYLA SABİTLENDİ
   const activeMapping: Record<string, string> = {
     model: "Model",
     grafik_motoru: "Grafik Motoru",
@@ -264,7 +263,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const compareOptions = allProducts.filter((p: any) => p.id !== product.id);
   const filteredOptions = compareOptions.filter((item: any) => item.name?.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  // 🚀 1. GÖNDERDİĞİN FOTOĞRAFTA YER ALAN 5 OYUNUN TAM LISTESI VE ACF EŞLEŞMELERİ
   const cpuMultipliers: Record<string, number> = { entry: 0.85, mid: 0.93, high: 1.00, extreme: 1.10 };
   const gamesConfig = [
     { id: "pubg", label: "PUBG: BATTLEGROUNDS", maxFps: 400, default1080p: 210, default1440p: 140, color: "from-amber-500 to-orange-600" },
@@ -317,19 +315,23 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               ))}
             </div>
 
-            {/* 🚀 4. OK HİZALAMA DÜZELTİLDİ: İçindeki ok çizgileri flex yapısıyla milimetrik olarak kutuya ortalandı */}
+            {/* 🚀 OK VE ORTALAMA AYARI DÜZELTİLDİ: İçerideki oklar milimetrik SVG geometrisiyle her ekranda tam merkeze kilitlendi */}
             {hasMultipleImages && (
               <div className="flex items-center justify-between gap-3 bg-[#050814]/40 border border-white/5 p-2 rounded-md">
-                <button type="button" onClick={prevImage} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-center font-bold text-slate-400 hover:text-white hover:bg-blue-600 transition-all leading-none">
-                  <span className="block transform translate-y-[-1px]">←</span>
+                <button type="button" onClick={prevImage} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 transition-all duration-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                  </svg>
                 </button>
                 <div className="flex-1 flex justify-center items-center gap-1.5 flex-wrap">
                   {galleryImages.map((_: any, index: number) => (
                     <button key={index} type="button" onClick={() => setActiveImageIndex(index)} className={`w-2 h-2 rounded-full transition-all ${activeImageIndex === index ? 'bg-blue-500 w-4' : 'bg-white/20'}`} />
                   ))}
                 </div>
-                <button type="button" onClick={nextImage} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-center font-bold text-slate-400 hover:text-white hover:bg-blue-600 transition-all leading-none">
-                  <span className="block transform translate-y-[-1px]">→</span>
+                <button type="button" onClick={nextImage} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 transition-all duration-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  </svg>
                 </button>
               </div>
             )}
@@ -351,7 +353,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
               <h1 className="text-lg sm:text-2xl font-black uppercase tracking-tight mb-3 text-slate-100">{product.name}</h1>
 
-              {/* HIZLI KARGO ÜST ALANDA SABİT */}
+              {/* HIZLI KARGO ÜST BANTTA EKSİKSİZ AKTİF */}
               <div className="flex items-center gap-3 mb-3 bg-[#050814]/50 p-3 rounded-md border border-blue-500/20">
                 <div className="text-xl text-blue-400 animate-pulse">🚀</div>
                 <div className="flex flex-col text-xs">
@@ -370,7 +372,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   <span className="text-[10px] text-slate-500 block font-bold">Kredi Kartı Tek Çekim</span>
                   {isSale && eskiFiyat > 0 ? (
                     <div className="flex flex-wrap items-center gap-1.5 sm:justify-end">
-                      {/* 🚀 2. ESKİ FİYAT ARTIK KIRMIZI DEĞİL, SLATE RENGİNDE */}
                       <span className="text-xs line-through text-slate-400 font-bold">{eskiFiyat.toLocaleString('tr-TR')} TL</span>
                       <span className="text-sm sm:text-base font-black text-slate-200">{currentPrice.toLocaleString('tr-TR')} TL</span>
                     </div>
@@ -383,7 +384,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 <span>Kredi Kartına 12 Taksit Seçeneği!</span>
               </div>
 
-              {/* 🚀 3. GERİ GELEN PAYLAŞIM İKONLARI BAR BARİZ BURADA */}
+              {/* PAYLAŞIM İKONLARI BAR BARİZ BURADA DURUYOR */}
               <div className="flex items-center gap-3 mb-4 bg-[#050814]/30 border border-white/5 p-2 rounded-md w-max shadow-inner">
                 <span className="text-[10px] font-bold uppercase text-slate-500">Paylaş:</span>
                 <div className="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
@@ -407,7 +408,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   {addingToCart ? "Ekleniyor..." : addedSuccess ? "✅ SEPETE EKLENDİ" : !stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
                 </button>
 
-                {/* 🚀 FAVORİ BUTONU: KUTU KOMPLE KIRMIZI OLMAZ, SADECE KALBİN KENDİSİ DEĞİŞİR */}
+                {/* GÖZ ALMAYAN AKILLI FAVORİ KALBİ */}
                 <button type="button" onClick={() => setIsFav(!isFav)} className="w-12 h-12 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-lg transition-all hover:bg-white/10">
                   <span>{isFav ? "❤️" : "🤍"}</span>
                 </button>
@@ -416,7 +417,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           </div>
         </div>
 
-        {/* AKORDEON DEPARTMANI */}
+        {/* 🚀 AKORDEON DEPARTMANI: max-height limitleri ve ease-in-out yumuşatma motoru optimize edildi */}
         <div className="max-w-6xl mx-auto mt-6 sm:mt-10 flex flex-col gap-6">
           <div className="bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 rounded-xl shadow-lg flex flex-col overflow-hidden">
             
@@ -426,19 +427,19 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 <span className="text-sm font-black uppercase tracking-widest text-blue-400">🛠️ Ürün Açıklaması</span>
                 <span className="text-blue-400">▼</span>
               </button>
-              <div className={`px-4 overflow-hidden transition-all duration-300 ${openAccordion === "aciklama" ? "max-h-[5000px] pb-4 opacity-100" : "max-h-0 opacity-0"}`}>
+              <div className={`px-4 overflow-hidden transition-[max-height,opacity] duration-500 ease-in-out ${openAccordion === "aciklama" ? "max-h-[1200px] pb-4 opacity-100" : "max-h-0 opacity-0"}`}>
                  <div className="border-t border-white/5 pt-3 text-slate-300 text-sm" dangerouslySetInnerHTML={{ __html: product.description || "Açıklama yok." }} />
               </div>
             </div>
 
-            {/* TEKNİK ÖZELLİKLER (TAM SIRALI LİSTE) */}
+            {/* TEKNİK ÖZELLİKLER (TAM SIRALI LİSTE YAĞ GİBİ AÇILIR) */}
             {finalTechSpecs.length > 0 && (
               <div className="border-b border-white/5">
                 <button type="button" onClick={() => toggleAccordion("teknik")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                   <span className="text-sm font-black uppercase tracking-widest text-blue-400">⚙️ Teknik Özellikler ({finalTechSpecs.length})</span>
                   <span className="text-blue-400">▼</span>
                 </button>
-                <div className={`px-4 overflow-hidden transition-all duration-300 ${openAccordion === "teknik" ? "max-h-[5000px] pb-4 opacity-100" : "max-h-0 opacity-0"}`}>
+                <div className={`px-4 overflow-hidden transition-[max-height,opacity] duration-500 ease-in-out ${openAccordion === "teknik" ? "max-h-[1500px] pb-4 opacity-100" : "max-h-0 opacity-0"}`}>
                      <div className="border-t border-white/5 pt-3">
                        <table className="w-full text-left text-sm">
                          <tbody>
@@ -455,13 +456,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             )}
 
-            {/* 🎮 FPS PERFORMANS LABORATUVARI (5 OYUN VE TAM İŞLEMCİ METİNLERİ YERİNDE) */}
+            {/* 🎮 FPS PERFORMANS LABORATUVARI (5 OYUN VE TAM METİNLERLE YUMUŞAKÇA AÇILIR) */}
             <div className="border-b border-white/5">
               <button type="button" onClick={() => toggleAccordion("fps_paneli")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                 <span className="text-sm font-black uppercase tracking-widest text-amber-500">🎮 Oyun FPS Performans Laboratuvarı</span>
                 <span className="text-amber-500">▼</span>
               </button>
-              <div className={`px-4 overflow-hidden transition-all duration-300 ${openAccordion === "fps_paneli" ? "max-h-[1000px] pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
+              <div className={`px-4 overflow-hidden transition-[max-height,opacity] duration-500 ease-in-out ${openAccordion === "fps_paneli" ? "max-h-[1200px] pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
                 <div className="border-t border-white/5 pt-4 space-y-4">
                   
                   <div className="flex items-center gap-2 bg-[#050814] p-1 border border-white/5 rounded-lg w-max text-xs">
@@ -469,7 +470,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                     <button type="button" onClick={() => setSelectedRes("1440p")} className={`px-4 py-1.5 rounded font-bold uppercase transition-all ${selectedRes === '1440p' ? 'bg-blue-600 text-white shadow' : 'text-slate-400'}`}>2K Ultra (1440p)</button>
                   </div>
 
-                  {/* Tam işlemci gücü yazıları bariz yerinde */}
                   <div className="grid grid-cols-4 gap-2 text-[11px] text-center font-bold">
                     {[
                       { id: "entry", label: "Giriş Seviye İşlemci" },
@@ -499,13 +499,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             </div>
 
-            {/* ÜRÜN KARŞILAŞTIRMA LAB (TAM SIRALAMALI FERAH PREMIUM TABLO) */}
+            {/* ÜRÜN KARŞILAŞTIRMA LAB (PREMIUM VE YUMUŞAK GEÇİŞLİ) */}
             <div>
               <button type="button" onClick={() => toggleAccordion("karsilastir")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                 <span className="text-sm font-black uppercase tracking-widest text-emerald-400">⚖️ Ürün Karşılaştırma Laboratuvarı</span>
                 <span className="text-emerald-400">▼</span>
               </button>
-              <div className={`px-4 overflow-hidden transition-all duration-300 ${openAccordion === "karsilastir" ? "max-h-[3000px] pb-6 opacity-100" : "max-h-0 opacity-0"}`}>
+              <div className={`px-4 overflow-hidden transition-[max-height,opacity] duration-500 ease-in-out ${openAccordion === "karsilastir" ? "max-h-[2500px] pb-6 opacity-100" : "max-h-0 opacity-0"}`}>
                 <div className="border-t border-white/5 pt-4">
                   <div className="relative mb-5" ref={dropdownRef}>
                     <label className="text-[10px] font-black uppercase text-slate-500 block mb-1">Kıyaslamak İstediğiniz Diğer Ürünü Seçin</label>
