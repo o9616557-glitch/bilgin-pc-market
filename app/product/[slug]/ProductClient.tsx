@@ -26,7 +26,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [timeLeft, setTimeLeft] = useState("");
   const [shippingMessage, setShippingMessage] = useState("");
 
-  // 🚀 KULLANICI GİRİŞ KONTROLÜ (Yorum yapabilmesi için)
+  // 🚀 KULLANICI GİRİŞ KONTROLÜ (Genişletilmiş Tarama Motoru)
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // FPS SİMÜLATÖR STATE'LERİ
@@ -49,7 +49,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewSuccessMessage, setReviewSuccessMessage] = useState("");
 
-  // 🚀 MAĞAZAYA SORU SOR STATE'LERİ (Herkese açık)
+  // MAĞAZAYA SORU SOR STATE'LERİ
   const [newQuestion, setNewQuestion] = useState({ name: "", email: "", question: "" });
   const [submittingQuestion, setSubmittingQuestion] = useState(false);
   const [questionSuccessMessage, setQuestionSuccessMessage] = useState("");
@@ -58,11 +58,28 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     setOpenAccordion(openAccordion === section ? null : section);
   };
 
-  // Oturum durumunu ve Dropdown kontrolünü sağlar
+  // 🚀 GELİŞMİŞ GİRİŞ TARAMA SİSTEMİ
   useEffect(() => {
-    // Müşterinin giriş yapıp yapmadığını tarayıcıdan (token) anlıyoruz
-    const token = localStorage.getItem("token") || localStorage.getItem("user");
-    setIsLoggedIn(!!token);
+    const checkLoginStatus = () => {
+      // LocalStorage içindeki tüm olası giriş anahtarlarını arar
+      const hasToken = localStorage.getItem("token") || 
+                       localStorage.getItem("user") || 
+                       localStorage.getItem("jwt") || 
+                       localStorage.getItem("userToken");
+      
+      // Cookie (Çerez) içindeki olası WordPress/Next.js giriş anahtarlarını arar
+      const hasCookie = document.cookie.includes("token") || 
+                        document.cookie.includes("user") || 
+                        document.cookie.includes("wordpress_logged_in");
+
+      setIsLoggedIn(!!hasToken || !!hasCookie);
+    };
+
+    // İlk açılışta kontrol et
+    checkLoginStatus();
+
+    // Sekmeler arası değişiklik olursa anında yakala
+    window.addEventListener("storage", checkLoginStatus);
 
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -70,7 +87,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    
+    return () => {
+      window.removeEventListener("storage", checkLoginStatus);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   useEffect(() => {
@@ -125,7 +146,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     fetchReviews();
   }, [product]);
 
-  // YORUM GÖNDERME MOTORU (SADECE ÜYELER)
+  // YORUM GÖNDERME MOTORU
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmittingReview(true);
@@ -145,11 +166,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       });
 
       if (!response.ok) throw new Error("API Route yok");
-      
       setReviewSuccessMessage("Yorumunuz başarıyla gönderildi! Onaylandıktan sonra yayınlanacaktır.");
     } catch (err) {
-      // ŞEFİM BURASI ÖNEMLİ: API bağlı olmadığı için hata patlamasın diye Test Modu Başarısı gösteriyoruz
-      setReviewSuccessMessage("Yorumunuz iletildi şefim! (API test modu, backend bağlanınca WP'ye düşecek)");
+      setReviewSuccessMessage("Yorumunuz iletildi şefim! (API bağlanınca WP'ye düşecek)");
     } finally {
       setTimeout(() => {
         setSubmittingReview(false);
@@ -160,15 +179,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     }
   };
 
-  // 🚀 MAĞAZAYA SORU SORMA MOTORU (HERKESE AÇIK)
+  // MAĞAZAYA SORU SORMA MOTORU (Simülasyon - API Yok)
   const handleQuestionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmittingQuestion(true);
     
-    // API yazılana kadar görsel simülasyon yapıyoruz
     setTimeout(() => {
       setSubmittingQuestion(false);
-      setQuestionSuccessMessage("Sorunuz başarıyla mağazamıza iletildi şefim! En kısa sürede yanıtlanacaktır.");
+      setQuestionSuccessMessage("Sorunuz mağazamıza iletildi şefim! (API test modu)");
       setTimeout(() => {
         setQuestionSuccessMessage("");
         setNewQuestion({ name: "", email: "", question: "" });
@@ -232,7 +250,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const stoktaVar = product.stock_status === "instock";
   const hasMultipleImages = galleryImages.length > 1;
   
-  // WOOCOMMERCE İNDİRİM MOTORU
   const regularPrice = Number(product.regular_price || 0);
   const currentPrice = Number(product.price || 0);
   const isSale = product.on_sale === true || product.on_sale === "true" || (regularPrice > currentPrice && currentPrice > 0);
@@ -241,7 +258,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const eskiFiyat = regularPrice > currentPrice ? regularPrice : (isSale ? Math.round(currentPrice * 1.15) : 0);
   const havaleFiyati = kartFiyati * 0.95;
 
-  // KATEGORİ RADARI
   const productCategories = product.categories?.map((cat: any) => cat.slug?.toLowerCase()) || [];
   const isKoltuk = productCategories.some((s: string) => s.includes("koltuk"));
   const isSSD = productCategories.some((s: string) => s.includes("ssd"));
@@ -730,7 +746,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             </div>
 
-            {/* 🚀 5. TOPLULUK DEĞERLENDİRME VE YORUM YAPMA (ÜYE KORUMALI) */}
+            {/* 5. TOPLULUK DEĞERLENDİRME */}
             <div className="border-b border-white/5 last:border-0">
               <button 
                 onClick={() => toggleAccordion("topluluk")}
@@ -756,7 +772,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                           <p className="text-slate-500 text-center sm:text-left text-xs max-w-md">Deneyimlerinizi bizimle paylaşın, diğer oyunculara yol gösterin!</p>
                         </div>
                         
-                        {/* GİRİŞ KONTROLLÜ YORUM BUTONU */}
                         <button 
                           onClick={() => isLoggedIn ? setShowReviewForm(true) : router.push('/giris')} 
                           className={`sm:ml-auto font-black px-6 py-3 rounded-lg text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 ${
@@ -821,10 +836,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                       </form>
                     )}
 
-                    {/* LİSTELENEN YORUMLAR */}
                     <div className="space-y-4">
                         {loadingReviews ? (
-                          <div className="text-center py-10 text-slate-500 text-xs animate-pulse">Değerlendirmeler WP veritabanından çekiliyor şefim...</div>
+                          <div className="text-center py-10 text-slate-500 text-xs animate-pulse">Değerlendirmeler WP veritabanından çekiliyor...</div>
                         ) : reviews.length > 0 ? (
                           reviews.map((review) => (
                             <div key={review.id} className="p-5 rounded-xl bg-[#050814]/40 border border-white/5 hover:border-white/10 transition-colors shadow-inner">
@@ -858,14 +872,20 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             </div>
 
-            {/* 🚀 6. MAĞAZAYA SORU SOR SEKMESİ (HERKESE AÇIK) */}
+            {/* 🚀 6. MAĞAZAYA SORU SOR (HERKESE AÇIK) VE SIFIRLANMIŞ MAVİ İKON */}
             <div className="border-b border-white/5 last:border-0">
               <button 
                 onClick={() => toggleAccordion("sorusor")}
                 className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group"
               >
                 <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
-                  <span className="text-lg sm:text-xl">❓</span> Mağazaya Soru Sor
+                  {/* KIRMIZI EMOJİ ÇÖPE ATILDI, MAVİ JİLET SVG GELDİ! */}
+                  <span className="text-blue-400 flex items-center justify-center bg-blue-500/10 p-1.5 rounded-lg border border-blue-500/20">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </span>
+                  Mağazaya Soru Sor
                 </span>
                 <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "sorusor" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
               </button>
