@@ -11,6 +11,9 @@ export default function ProductClient({ product }: { product: any }) {
   const [addingToCart, setAddingToCart] = useState(false);
   const [addedSuccess, setAddedSuccess] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  
+  // 🚀 FAVORİ (KALP) MOTORU
+  const [isFav, setIsFav] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -19,9 +22,9 @@ export default function ProductClient({ product }: { product: any }) {
   if (!product) {
     return (
       <div className="min-h-[calc(100vh-80px)] bg-[#050814] flex flex-col items-center justify-center text-white px-4">
-        <div className="w-20 h-20 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center justify-center text-red-400 text-3xl mb-4 animate-bounce">⚠️</div>
+        <div className="w-20 h-20 bg-red-500/10 border border-red-500/20 rounded-md flex items-center justify-center text-red-400 text-3xl mb-4 animate-bounce">⚠️</div>
         <h2 className="text-2xl font-black tracking-tight mb-2">Ürün Bulunamadı Şefim!</h2>
-        <button onClick={() => router.push("/")} className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-xl transition-all">
+        <button onClick={() => router.push("/")} className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-md transition-all">
           Ana Sayfaya Dön
         </button>
       </div>
@@ -62,7 +65,7 @@ export default function ProductClient({ product }: { product: any }) {
     
     localStorage.setItem("cart", JSON.stringify(currentCart));
     
-    // 🚀 ŞEFİN SİNYAL MOTORU: Sepet eklendiğinde üst menüdeki sayacı anında tetikler!
+    // 🚀 Üst menüye (Header) "sepet güncellendi" sinyalini fırlatır!
     window.dispatchEvent(new Event("cartUpdated"));
     
     setTimeout(() => {
@@ -84,11 +87,11 @@ export default function ProductClient({ product }: { product: any }) {
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/5 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-emerald-600/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 p-4 sm:p-8 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 p-4 sm:p-8 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10">
           
           <div className="flex flex-col gap-4">
             
-            <div className="w-full bg-white border border-white/5 p-4 sm:p-6 rounded-2xl overflow-hidden aspect-square relative group shadow-inner flex items-center justify-center cursor-pointer">
+            <div className="w-full bg-white border border-white/5 p-4 sm:p-6 rounded-md overflow-hidden aspect-square relative group shadow-inner flex items-center justify-center cursor-pointer">
               {product.images?.map((img: any, index: number) => (
                 <PhotoView key={index} src={img.src}>
                   <img 
@@ -100,15 +103,15 @@ export default function ProductClient({ product }: { product: any }) {
                   />
                 </PhotoView>
               ))}
-              <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md border border-white/10 w-8 h-8 rounded-lg flex items-center justify-center opacity-70 group-hover:opacity-100 transition-all shadow-lg pointer-events-none">
+              <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md border border-white/10 w-8 h-8 rounded-md flex items-center justify-center opacity-70 group-hover:opacity-100 transition-all shadow-lg pointer-events-none">
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
             </div>
 
-            <div className="flex items-center justify-between gap-4 bg-[#050814]/40 border border-white/5 p-2 rounded-xl">
-              <button onClick={prevImage} disabled={!hasMultipleImages} className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 hover:border-blue-600 disabled:opacity-10 transition-all">
+            <div className="flex items-center justify-between gap-4 bg-[#050814]/40 border border-white/5 p-2 rounded-md">
+              <button onClick={prevImage} disabled={!hasMultipleImages} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 hover:border-blue-600 disabled:opacity-10 transition-all">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
               </button>
 
@@ -131,7 +134,7 @@ export default function ProductClient({ product }: { product: any }) {
                 ) : <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Tek Görsel</span>}
               </div>
 
-              <button onClick={nextImage} disabled={!hasMultipleImages} className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 hover:border-blue-600 disabled:opacity-10 transition-all">
+              <button onClick={nextImage} disabled={!hasMultipleImages} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 hover:border-blue-600 disabled:opacity-10 transition-all">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
               </button>
             </div>
@@ -161,7 +164,7 @@ export default function ProductClient({ product }: { product: any }) {
                 {product.name}
               </h1>
               
-              <div className="bg-[#050814]/50 border border-white/5 p-4 rounded-xl mb-4 grid grid-cols-1 sm:grid-cols-2 gap-3 shadow-inner">
+              <div className="bg-[#050814]/50 border border-white/5 p-4 rounded-md mb-4 grid grid-cols-1 sm:grid-cols-2 gap-3 shadow-inner">
                 <div>
                   <span className="text-[10px] font-bold uppercase text-emerald-400 block mb-0.5">Havale / EFT Özel Fiyatı (%5 İndirim)</span>
                   <span className="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">
@@ -171,36 +174,36 @@ export default function ProductClient({ product }: { product: any }) {
                 <div className="sm:text-right border-t sm:border-t-0 border-white/5 pt-2 sm:pt-0 flex flex-col justify-center">
                   <span className="text-[10px] text-slate-500 block font-bold">Kredi Kartı / Tek Çekim</span>
                   <span className="text-sm font-bold text-slate-300">{kartFiyati.toLocaleString('tr-TR')} TL</span>
-                  <span className="text-[10px] text-blue-400 font-black bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 rounded mt-0.5 inline-block w-max sm:ml-auto">
-                    {/* 🚀 TAKSİT YAZISI DEĞİŞTİ */}
+                  <span className="text-[10px] text-blue-400 font-black bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 rounded-sm mt-0.5 inline-block w-max sm:ml-auto">
                     12 Taksit İmkanı
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 mb-4 bg-[#050814]/30 border border-white/5 p-2 rounded-xl w-max">
+              <div className="flex items-center gap-3 mb-4 bg-[#050814]/30 border border-white/5 p-2 rounded-md w-max">
                 <span className="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Paylaş:</span>
                 <div className="flex items-center gap-2 opacity-40 hover:opacity-100 transition-opacity">
-                  <div className="w-6 h-6 rounded bg-white/5 flex items-center justify-center text-[10px]">🔗</div>
-                  <div className="w-6 h-6 rounded bg-green-500/10 flex items-center justify-center text-[10px] text-green-400">WP</div>
-                  <div className="w-6 h-6 rounded bg-blue-500/10 flex items-center justify-center text-[10px] text-blue-400">X</div>
+                  <div className="w-6 h-6 rounded-md bg-white/5 flex items-center justify-center text-[10px] cursor-pointer">🔗</div>
+                  <div className="w-6 h-6 rounded-md bg-green-500/10 flex items-center justify-center text-[10px] text-green-400 cursor-pointer">WP</div>
+                  <div className="w-6 h-6 rounded-md bg-blue-500/10 flex items-center justify-center text-[10px] text-blue-400 cursor-pointer">X</div>
                 </div>
               </div>
             </div>
 
             <div className="border-t border-white/5 pt-4 mt-2 hidden sm:block">
               <div className="flex items-center gap-4">
-                <div className="flex items-center justify-between bg-[#050814] border border-white/10 rounded-xl p-1.5 min-w-[110px]">
+                <div className="flex items-center justify-between bg-[#050814] border border-white/10 rounded-md p-1.5 min-w-[110px]">
                   <button onClick={() => setQuantity(q => q > 1 ? q - 1 : 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500 rounded-md" disabled={!stoktaVar}>-</button>
                   <span className="px-2 font-black text-sm text-white">{quantity}</span>
                   <button onClick={() => setQuantity(q => q + 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500 rounded-md" disabled={!stoktaVar}>+</button>
                 </div>
 
                 <div className="flex-1 flex items-center gap-3">
+                  {/* 🚀 BUTON KÖŞELERİ KESKİNLEŞTİ (rounded-md) */}
                   <button
                     onClick={handleAddToCart}
                     disabled={addingToCart || addedSuccess || !stoktaVar}
-                    className={`flex-1 font-black py-3 px-6 rounded-xl uppercase tracking-wider transition-all shadow-lg active:scale-[0.99] disabled:opacity-80 text-xs sm:text-sm ${
+                    className={`flex-1 font-black py-3 px-6 rounded-md uppercase tracking-wider transition-all shadow-lg active:scale-[0.99] disabled:opacity-80 text-xs sm:text-sm ${
                       addedSuccess 
                         ? "bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)]" 
                         : "bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white"
@@ -209,8 +212,19 @@ export default function ProductClient({ product }: { product: any }) {
                     {addingToCart ? "Ekleniyor..." : addedSuccess ? "✅ SEPETE EKLENDİ" : !stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
                   </button>
 
-                  <button disabled={!stoktaVar} className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-all">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                  {/* 🚀 CANLANAN FAVORİ (KALP) BUTONU */}
+                  <button 
+                    onClick={() => setIsFav(!isFav)}
+                    disabled={!stoktaVar} 
+                    className={`w-11 h-11 rounded-md border flex items-center justify-center transition-all ${
+                      isFav 
+                        ? 'bg-red-500/20 border-red-500/50 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]' 
+                        : 'bg-white/5 border-white/10 text-slate-400 hover:text-red-500 hover:bg-red-500/10'
+                    }`}
+                  >
+                    <svg className="w-4 h-4" fill={isFav ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
                   </button>
                 </div>
               </div>
@@ -220,7 +234,7 @@ export default function ProductClient({ product }: { product: any }) {
           </div>
         </div>
 
-        <div className="max-w-6xl mx-auto mt-8 bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 p-4 sm:p-8 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10">
+        <div className="max-w-6xl mx-auto mt-8 bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 p-4 sm:p-8 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10">
           <div className="border-b border-white/5 pb-3 mb-5">
             <h2 className="text-base md:text-lg font-black uppercase tracking-widest text-blue-500 italic flex items-center gap-2">
               🛠️ Donanım & Detaylı Ürün Açıklaması
@@ -240,16 +254,13 @@ export default function ProductClient({ product }: { product: any }) {
             <span className="text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">
               {havaleFiyati.toLocaleString('tr-TR')} TL
             </span>
-            <span className="text-[8px] text-blue-400 font-bold">
-              {/* 🚀 MOBİLDEKİ TAKSİT YAZISI DEĞİŞTİ */}
-              12 Taksit İmkanı
-            </span>
+            <span className="text-[8px] text-blue-400 font-bold">12 Taksit İmkanı</span>
           </div>
           
           <button
             onClick={handleAddToCart}
             disabled={addingToCart || addedSuccess || !stoktaVar}
-            className={`font-black py-2.5 px-5 rounded-xl uppercase text-xs tracking-wider transition-all shadow-[0_0_15px_rgba(59,130,246,0.4)] active:scale-95 disabled:opacity-80 ${
+            className={`font-black py-2.5 px-5 rounded-md uppercase text-xs tracking-wider transition-all shadow-[0_0_15px_rgba(59,130,246,0.4)] active:scale-95 disabled:opacity-80 ${
               addedSuccess 
                 ? "bg-emerald-500 text-white" 
                 : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
