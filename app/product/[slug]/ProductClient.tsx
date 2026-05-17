@@ -41,6 +41,7 @@ export default function ProductClient({ product }: { product: any }) {
     }
   };
 
+  // 🚀 ADIM 1: SEPETE EKLEME MOTORUNU SADELEŞTİRDİK
   const handleAddToCart = () => {
     setAddingToCart(true);
     const currentCart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -61,22 +62,20 @@ export default function ProductClient({ product }: { product: any }) {
     
     localStorage.setItem("cart", JSON.stringify(currentCart));
     
+    // Artık sepete yönlendirme yok, sadece yükleniyor animasyonunu durduruyoruz.
     setTimeout(() => {
       setAddingToCart(false);
-      router.push("/sepet");
+      // 🔥 router.push("/sepet"); bu satırı sildik şefim!
     }, 800);
   };
 
   const stoktaVar = product.stock_status === "instock";
   const hasMultipleImages = product.images && product.images.length > 1;
-
-  // 🚀 HAVALE İNDİRİM HESAPLAMA SİHİRİ (%5 İNDİRİM)
   const kartFiyati = Number(product.price || product.regular_price || 0);
   const havaleFiyati = kartFiyati * 0.95;
 
   return (
     <PhotoProvider>
-      {/* pb-24 eklendi ki mobilde alttaki yapışkan bar içeriği kapatmasın şefim */}
       <div className="min-h-[calc(100vh-80px)] bg-[#050814] text-white pt-2 pb-24 md:py-8 px-4 sm:px-6 lg:px-8 relative overflow-hidden font-medium">
         
         {/* Kozmik arka plan efektleri */}
@@ -86,10 +85,12 @@ export default function ProductClient({ product }: { product: any }) {
         {/* ÜST BÖLÜM: GÖRSEL VE DETAY KUTUSU */}
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 p-4 sm:p-8 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10">
           
-          {/* SOL BÖLÜM: PRESLEŞMİŞ GALERİ SİSTEMİ */}
+          {/* SOL BÖLÜM: GALERİ SİSTEMİ */}
           <div className="flex flex-col gap-4">
-            {/* ANA RESMİN ETRAFI DARALTILDI */}
-            <div className="w-full bg-[#050814]/80 border border-white/5 p-4 sm:p-6 rounded-2xl overflow-hidden aspect-square relative group shadow-inner flex items-center justify-center cursor-pointer">
+            
+            {/* 🚀 ADIM 2: ESKİ KAFA SİYAH ÇERÇEVEYİ BEYAZ YAPTIK! */}
+            {/* background: #050814 yerine bg-white kullandık. */}
+            <div className="w-full bg-white border border-white/5 p-4 sm:p-6 rounded-2xl overflow-hidden aspect-square relative group shadow-inner flex items-center justify-center cursor-pointer">
               <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-blue-500 rounded-tl-lg opacity-40"></div>
               <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-emerald-400 rounded-br-lg opacity-40"></div>
               
@@ -143,7 +144,7 @@ export default function ProductClient({ product }: { product: any }) {
           {/* SAĞ BÖLÜM: SATIN ALMA ALANI */}
           <div className="flex flex-col justify-between py-1">
             <div>
-              {/* Ürün Kodu ve Rozetler Mobilde de Kusursuz Düzenlendi */}
+              {/* Rozetler ve Kodu */}
               <div className="flex flex-wrap items-center gap-1.5 mb-3">
                 {stoktaVar ? (
                   <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
@@ -157,7 +158,7 @@ export default function ProductClient({ product }: { product: any }) {
                 <span className="bg-slate-500/10 border border-white/5 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded-full tracking-wider">KOD: BPC-{product.id}</span>
               </div>
 
-              {/* Yorum Yıldızları */}
+              {/* Yıldız Değerlendirme */}
               <div className="flex items-center gap-2 mb-2">
                 <div className="text-amber-400 text-xs tracking-tighter">⭐⭐⭐⭐⭐</div>
                 <span className="text-[11px] font-bold text-slate-400">5.0 / (0) Değerlendirme</span>
@@ -168,7 +169,7 @@ export default function ProductClient({ product }: { product: any }) {
                 {product.name}
               </h1>
               
-              {/* 🚀 HAVALE İNDİRİMLİ YENİ SÜPER FİYAT KUTUSU (MOBİL UYUMLU) */}
+              {/* Fiyat Kutusu (Havale İndirimli) */}
               <div className="bg-[#050814]/50 border border-white/5 p-4 rounded-xl mb-4 grid grid-cols-1 sm:grid-cols-2 gap-3 shadow-inner">
                 <div>
                   <span className="text-[10px] font-bold uppercase text-emerald-400 block mb-0.5">Havale / EFT Özel Fiyatı (%5 İndirim)</span>
@@ -183,10 +184,10 @@ export default function ProductClient({ product }: { product: any }) {
                 </div>
               </div>
 
-              {/* Sosyal Medya Paylaş */}
+              {/* Paylaş Butonları */}
               <div className="flex items-center gap-3 mb-4 bg-[#050814]/30 border border-white/5 p-2 rounded-xl w-max">
                 <span className="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Paylaş:</span>
-                <div className="flex items-center gap-2 opacity-40">
+                <div className="flex items-center gap-2 opacity-40 hover:opacity-100 transition-opacity">
                   <div className="w-6 h-6 rounded bg-white/5 flex items-center justify-center text-[10px]">🔗</div>
                   <div className="w-6 h-6 rounded bg-green-500/10 flex items-center justify-center text-[10px] text-green-400">WP</div>
                   <div className="w-6 h-6 rounded bg-blue-500/10 flex items-center justify-center text-[10px] text-blue-400">X</div>
@@ -223,7 +224,7 @@ export default function ProductClient({ product }: { product: any }) {
           </div>
         </div>
 
-        {/* ÜRÜN AÇIKLAMASI TAM GENİŞLİK ALTA ALINDI */}
+        {/* ÜRÜN AÇIKLAMASI (TAM GENİŞLİK ALTA ALINDI) */}
         <div className="max-w-6xl mx-auto mt-8 bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 p-4 sm:p-8 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10">
           <div className="border-b border-white/5 pb-3 mb-5">
             <h2 className="text-base md:text-lg font-black uppercase tracking-widest text-blue-500 italic flex items-center gap-2">
@@ -238,7 +239,7 @@ export default function ProductClient({ product }: { product: any }) {
           />
         </div>
 
-        {/* 🚀 📱 TELEFONLAR İÇİN ALT YAPIŞKAN (STICKY) SEPET PANELİ */}
+        {/* 📱 TELEFONLAR İÇİN ALT YAPIŞKAN (STICKY) SEPET PANELİ */}
         <div className="fixed bottom-0 left-0 right-0 bg-[#0b1329]/90 backdrop-blur-xl border-t border-white/10 p-3 flex items-center justify-between z-50 sm:hidden shadow-[0_-10px_30px_rgba(0,0,0,0.6)] animate-fade-in">
           <div className="flex flex-col">
             <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-wider">Havale Fiyatı</span>
