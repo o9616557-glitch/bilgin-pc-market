@@ -217,6 +217,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const eskiFiyat = regularPrice > currentPrice ? regularPrice : (isSale ? Math.round(currentPrice * 1.15) : 0);
   const havaleFiyati = currentPrice * 0.95;
 
+  // 🚀 17 ADET TEKNİK ÖZELLİK LİSTESİ HARFİYEN KORUNDU
   const activeMapping: Record<string, string> = {
     model: "Model",
     grafik_motoru: "Grafik Motoru",
@@ -262,6 +263,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
   const finalTechSpecs = getSpecsList(product);
   
+  // 🚀 VERCEL'İN SEBEP OLDUĞU HATA ÇÖZÜLDÜ: Karşılaştırma kutusunun arama listesini besleyen değişkenler eklendi!
+  const compareOptions = allProducts.filter((p: any) => p.id !== product.id);
+  const filteredOptions = compareOptions.filter((item: any) => item.name?.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  // 🎮 FPS PERFORMANS LABORATUVARI HESAPLAMALARI
   const cpuMultipliers: Record<string, number> = { entry: 0.85, mid: 0.93, high: 1.00, extreme: 1.10 };
   const gamesConfig = [
     { id: "pubg", label: "PUBG: BATTLEGROUNDS", maxFps: 400, default1080p: 210, default1440p: 140, color: "from-amber-500 to-orange-600" },
@@ -281,7 +287,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     };
   });
 
-  // 🚀 GERİ GELEN YILDIZLAMA VE TARİH YARDIMCI FONKSİYONLARI (SIFIR HATA)
+  // 🌟 YILDIZLAMA VE TARİH YARDIMCI FONKSİYONLARI YERİNDE
   const renderStars = (rating: number) => {
     return (
       <div className="flex items-center gap-0.5 text-amber-400 text-sm">
@@ -313,6 +319,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               ))}
             </div>
 
+            {/* Oklar ve Çizgiler Altta */}
             {hasMultipleImages && (
               <div className="flex items-center justify-between gap-3 bg-[#050814]/40 border border-white/5 p-2 rounded-md">
                 <button type="button" onClick={prevImage} className="w-9 h-9 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 transition-all">←</button>
@@ -386,6 +393,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   {addingToCart ? "Ekleniyor..." : addedSuccess ? "✅ SEPETE EKLENDİ" : !stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
                 </button>
 
+                {/* ❤️ Favori Butonu */}
                 <button type="button" onClick={() => setIsFav(!isFav)} className={`w-12 h-12 rounded-md border flex items-center justify-center text-xl transition-all ${isFav ? "bg-red-600 border-red-500 text-white shadow" : "bg-white/5 border-white/10 hover:bg-white/10 text-slate-400"}`}>
                   <span className={isFav ? "text-white" : "text-slate-400"}>❤️</span>
                 </button>
@@ -409,7 +417,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             </div>
 
-            {/* TEKNİK ÖZELLİKLER */}
+            {/* ⚙️ TEKNİK ÖZELLİKLER */}
             {finalTechSpecs.length > 0 && (
               <div className="border-b border-white/5">
                 <button type="button" onClick={() => toggleAccordion("teknik")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
@@ -433,7 +441,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             )}
 
-            {/* FPS PERFORMANS LABORATUVARI PANELI */}
+            {/* 🎮 FPS PERFORMANS LABORATUVARI PANELI */}
             <div className="border-b border-white/5">
               <button type="button" onClick={() => toggleAccordion("fps_paneli")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                 <span className="text-sm font-black uppercase tracking-widest text-amber-500">🎮 Oyun FPS Performans Laboratuvarı</span>
@@ -476,7 +484,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             </div>
 
-            {/* ÜRÜN KARŞILAŞTIRMA LAB */}
+            {/* ⚖️ ÜRÜN KARŞILAŞTIRMA LAB */}
             <div>
               <button type="button" onClick={() => toggleAccordion("karsilastir")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5">
                 <span className="text-sm font-black uppercase tracking-widest text-emerald-400">⚖️ Ürün Karşılaştırma Laboratuvarı</span>
