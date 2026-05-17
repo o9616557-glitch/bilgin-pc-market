@@ -12,9 +12,11 @@ export default function ProductClient({ product }: { product: Record<string, any
   const [addedSuccess, setAddedSuccess] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isFav, setIsFav] = useState(false);
-  
-  // 🚀 ŞEFİN EMRİ: Sayfa açıldığında varsayılan olarak "aciklama" sekmesi AÇIK gelecek!
   const [openAccordion, setOpenAccordion] = useState<string | null>("aciklama");
+
+  // 🚀 KARGO MOTORU STATE'LERİ
+  const [timeLeft, setTimeLeft] = useState("");
+  const [shippingMessage, setShippingMessage] = useState("");
 
   const toggleAccordion = (section: string) => {
     setOpenAccordion(openAccordion === section ? null : section);
@@ -23,6 +25,36 @@ export default function ProductClient({ product }: { product: Record<string, any
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [product]);
+
+  // 🚀 ŞEFİN V8 KARGO MOTORU (Canlı Geri Sayım)
+  useEffect(() => {
+    const calculateShipping = () => {
+      const now = new Date();
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      const currentSecond = now.getSeconds();
+
+      if (currentHour < 16) {
+        const hoursLeft = 15 - currentHour;
+        const minutesLeft = 59 - currentMinute;
+        const secondsLeft = 59 - currentSecond;
+        
+        // Tek haneli sayıların başına 0 ekleme (örn: 03:05:09)
+        const pad = (n: number) => n.toString().padStart(2, '0');
+        
+        setTimeLeft(`${pad(hoursLeft)}:${pad(minutesLeft)}:${pad(secondsLeft)} içinde sipariş verirseniz`);
+        setShippingMessage("BUGÜN KARGODA!");
+      } else {
+        setTimeLeft("Saat 16:00'ı geçtiği için siparişiniz");
+        setShippingMessage("YARIN KARGODA!");
+      }
+    };
+
+    calculateShipping(); // Sayfa açıldığında hemen hesapla
+    const timer = setInterval(calculateShipping, 1000); // Her 1 saniyede bir güncelle
+
+    return () => clearInterval(timer); // Bileşen kapanınca motoru durdur
+  }, []);
 
   if (!product) {
     return (
@@ -179,6 +211,30 @@ export default function ProductClient({ product }: { product: Record<string, any
                   </span>
                 </div>
               </div>
+
+              {/* 🚀 GERİ DÖNEN PAYLAŞIM İKONLARI */}
+              <div className="flex items-center gap-3 mb-4 bg-[#050814]/30 border border-white/5 p-2 rounded-md w-max">
+                <span className="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Paylaş:</span>
+                <div className="flex items-center gap-2 opacity-50 hover:opacity-100 transition-opacity">
+                  <div className="w-7 h-7 rounded-md bg-white/5 flex items-center justify-center text-[11px] cursor-pointer hover:bg-blue-600 hover:text-white transition-colors" title="Kopyala">🔗</div>
+                  <div className="w-7 h-7 rounded-md bg-green-500/10 flex items-center justify-center text-[11px] text-green-400 cursor-pointer hover:bg-green-500 hover:text-white transition-colors" title="WhatsApp">WP</div>
+                  <div className="w-7 h-7 rounded-md bg-blue-500/10 flex items-center justify-center text-[11px] text-blue-400 cursor-pointer hover:bg-blue-500 hover:text-white transition-colors" title="X (Twitter)">X</div>
+                </div>
+              </div>
+
+              {/* 🚀 CANLI KARGO GERİ SAYIM MOTORU */}
+              <div className="flex items-center gap-3 mb-2 bg-[#050814]/50 border border-blue-500/20 p-3 rounded-md shadow-inner">
+                <div className="text-2xl sm:text-3xl text-blue-400 animate-pulse">🚚</div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] sm:text-[11px] text-slate-400 font-medium">
+                    <strong className="text-blue-400">{timeLeft}</strong>
+                  </span>
+                  <span className={`text-xs sm:text-sm font-black uppercase tracking-widest ${shippingMessage === "BUGÜN KARGODA!" ? "text-emerald-400" : "text-amber-400"}`}>
+                    {shippingMessage}
+                  </span>
+                </div>
+              </div>
+
             </div>
 
             <div className="border-t border-white/5 pt-4 mt-2 hidden sm:block">
@@ -221,12 +277,10 @@ export default function ProductClient({ product }: { product: Record<string, any
           </div>
         </div>
 
-        {/* 🚀 BİRLEŞTİRİLMİŞ AKORDEON SEKMELERİ (ÜRÜN AÇIKLAMASI DAHİL) */}
         <div className="max-w-6xl mx-auto mt-6 sm:mt-10 relative z-10 flex flex-col gap-6 sm:gap-8">
-          
           <div className="bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 rounded-xl sm:rounded-2xl shadow-lg flex flex-col overflow-hidden">
             
-            {/* 1. ÜRÜN AÇIKLAMASI (SAYFA AÇILDIĞINDA AKTİF GELECEK) */}
+            {/* 1. ÜRÜN AÇIKLAMASI */}
             <div className="border-b border-white/5 last:border-0">
               <button 
                 onClick={() => toggleAccordion("aciklama")}
@@ -237,7 +291,6 @@ export default function ProductClient({ product }: { product: Record<string, any
                 </span>
                 <svg className={`w-4 h-4 sm:w-5 sm:h-5 text-slate-500 transform transition-transform duration-500 ${openAccordion === "aciklama" ? "rotate-180 text-blue-400" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
               </button>
-              {/* max-h-[5000px] eklendi ki içine eklenecek devasa resimler ve yazılar yarıda kesilmesin */}
               <div className={`px-4 sm:px-5 overflow-hidden transition-all duration-500 ${openAccordion === "aciklama" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
                  <div className="border-t border-white/5 pt-3 sm:pt-4">
                     <div 
