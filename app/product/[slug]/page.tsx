@@ -14,20 +14,24 @@ export default async function ProductDetailPage({
   // 1. MEVCUT AÇIK OLAN ÜRÜNÜ ÇEK
   const res = await fetch(
     `${SITE_URL}/wp-json/wc/v3/products?slug=${slug}&consumer_key=${CK}&consumer_secret=${CS}`,
-    { next: { revalidate: 86400 } } // 24 Saat Ön Bellek (İlk sefer yavaş, sonrakiler fişek!)
+    { next: { revalidate: 86400 } }
   );
 
   const data = await res.json();
   const product = data && data.length > 0 ? data[0] : null;
 
-  // 2. 🚀 CANLI KIYASLAMA MOTORU (LİMİT 100'E ÇIKARILDI - TÜM SERİLER GELECEK!)
+  // 2. 🚀 TÜM KATEGORİ BAĞLARINI ÇEK (Sadece ilkine değil, hepsine bak!)
   let allProducts: any[] = [];
   if (product && product.categories && product.categories.length > 0) {
-    const categoryId = product.categories[0].id;
+    
+    // Ürünün bağlı olduğu TÜM kategorilerin ID'lerini aralarına virgül koyarak alıyoruz (Örn: "15,24,30")
+    // Bu sayede alt kategori / üst kategori ayrımı yapmadan o ailedeki tüm ürünleri yakalıyoruz!
+    const categoryIds = product.categories.map((cat: any) => cat.id).join(",");
+    
     try {
-      // per_page=100 komutu ile o kategorideki 100 ürünü birden tek seferde çeker.
+      // per_page=100 ile ağı devasa genişlettik
       const resAll = await fetch(
-        `${SITE_URL}/wp-json/wc/v3/products?category=${categoryId}&per_page=100&consumer_key=${CK}&consumer_secret=${CS}`,
+        `${SITE_URL}/wp-json/wc/v3/products?category=${categoryIds}&per_page=100&consumer_key=${CK}&consumer_secret=${CS}`,
         { next: { revalidate: 86400 } }
       );
       allProducts = await resAll.json();
