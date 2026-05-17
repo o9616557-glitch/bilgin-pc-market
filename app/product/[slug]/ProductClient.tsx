@@ -110,41 +110,75 @@ export default function ProductClient({ product }: { product: Record<string, any
   const stoktaVar = product.stock_status === "instock";
   const hasMultipleImages = galleryImages.length > 1;
   
-  // 🚀 COOMERCE İNDİRİM MOTORU: Fişek gibi algılama mekanizması
+  // WOOCOMMERCE İNDİRİM MOTORU
   const regularPrice = Number(product.regular_price || 0);
   const currentPrice = Number(product.price || 0);
-  
   const isSale = product.on_sale === true || product.on_sale === "true" || (regularPrice > currentPrice && currentPrice > 0);
 
   const kartFiyati = currentPrice;
   const eskiFiyat = regularPrice > currentPrice ? regularPrice : (isSale ? Math.round(currentPrice * 1.15) : 0);
   const havaleFiyati = kartFiyati * 0.95;
 
-  // TEKNİK ÖZELLİKLER HARİTASI
-  const acfMapping: Record<string, string> = {
-    model: "Model",
-    grafik_motoru: "Grafik Motoru",
-    ai_performansi: "AI Performansı",
-    bus_standarti: "Bus Standartı",
-    opengl: "OpenGL",
-    bellek: "Bellek Kapasitesi",
-    saat_hizi: "Saat Hızı",
-    cuda_cekirdegi: "CUDA Çekirdeği",
-    bellek_hizi: "Bellek Hızı",
-    bellek_arayuzu: "Bellek Arayüzü",
-    cozunurluk: "Maksimum Çözünürlük",
-    maksimum_ekran_destegi: "Maksimum Ekran Desteği",
-    boyutlar: "Boyutlar",
-    tavsiye_edilen_guc_kaynagi: "Tavsiye Edilen PSU",
-    guc_baglantilari: "Güç Bağlantıları",
-    yuva: "Yuva Tipi",
-    aura_sync: "Aura Sync / RGB"
+  // KATEGORİ RADARI
+  const productCategories = product.categories?.map((cat: any) => cat.slug?.toLowerCase()) || [];
+  const isPCorGPU = productCategories.some((slug: string) => 
+    ["hazir-sistem", "ekran-karti", "masaustu-bilgisayarlar", "laptop-bilgisayar", "hazir-sistem-bilgisayarlar", "ekran-kartlari"].includes(slug)
+  );
+
+  // 🚀 ŞEFİN MASTER ANAHTAR SANTRALİ (Kategoriye Göre ACF Eşleştirme Sözlüğü)
+  const categoryMappings: Record<string, Record<string, string>> = {
+    // EKRAN KARTI ALANLARI
+    "ekran-karti": {
+      model: "Model", grafik_motoru: "Grafik Motoru", ai_performansi: "AI Performansı", bus_standarti: "Bus Standartı",
+      opengl: "OpenGL", bellek: "Bellek Kapasitesi", saat_hizi: "Saat Hızı", cuda_cekirdegi: "CUDA Çekirdeği",
+      bellek_hizi: "Bellek Hızı", bellek_arayuzu: "Bellek Arayüzü", cozunurluk: "Maksimum Çözünürlük",
+      boyutlar: "Boyutlar", tavsiye_edilen_guc_kaynagi: "Tavsiye Edilen PSU", guc_baglantilari: "Güç Bağlantıları",
+      yuva: "Yuva Tipi", aura_sync: "Aura Sync / RGB"
+    },
+    "ekran-kartlari": {
+      model: "Model", grafik_motoru: "Grafik Motoru", ai_performansi: "AI Performansı", bus_standarti: "Bus Standartı",
+      opengl: "OpenGL", bellek: "Bellek Kapasitesi", saat_hizi: "Saat Hızı", cuda_cekirdegi: "CUDA Çekirdeği",
+      bellek_hizi: "Bellek Hızı", bellek_arayuzu: "Bellek Arayüzü", cozunurluk: "Maksimum Çözünürlük",
+      boyutlar: "Boyutlar", tavsiye_edilen_guc_kaynagi: "Tavsiye Edilen PSU", guc_baglantilari: "Güç Bağlantıları",
+      yuva: "Yuva Tipi", aura_sync: "Aura Sync / RGB"
+    },
+    // 🛋️ KOLTUK VE EKİPMAN ALANLARI (Yeni Eklenen Can Damarı!)
+    "oyuncu-koltugu": {
+      malzeme_tipi: "Döşeme Malzemesi", kol_destegi: "Kol Desteği Sınıfı", amortisör: "Amortisör Klasmanı",
+      tasima_kapasitesi: "Maksimum Taşıma", mekanizma: "Yatış Mekanizması", ayak_malzemesi: "Ayak Yıldız Tabanı",
+      yastik_destegi: "Bel & Boyun Yastığı", koltuk_boyutu: "Ürün Ölçüleri / Boyut"
+    },
+    "oyuncu-koltuklari": {
+      malzeme_tipi: "Döşeme Malzemesi", kol_destegi: "Kol Desteği Sınıfı", amortisör: "Amortisör Klasmanı",
+      tasima_kapasitesi: "Maksimum Taşıma", mekanizma: "Yatış Mekanizması", ayak_malzemesi: "Ayak Yıldız Tabanı",
+      yastik_destegi: "Bel & Boyun Yastığı", koltuk_boyutu: "Ürün Ölçüleri / Boyut"
+    },
+    // 💾 SSD DEPOLAMA ALANLARI
+    "ssd": {
+      okuma_hizi: "Okuma Hızı (MB/s)", yazma_hizi: "Yazma Hızı (MB/s)", arabirim: "Bağlantı Arayüzü",
+      tbw_degeri: "Yazım Ömrü (TBW)", nvme_versiyon: "NVMe Sürümü", flash_tipi: "NAND Flash Tipi"
+    }
   };
 
-  const techSpecs = Object.entries(acfMapping).map(([key, label]) => {
+  // 🚀 AKTİF KATEGORİYİ BULUP DOĞRU SÖZLÜĞÜ SEÇME MOTORU
+  let activeMapping: Record<string, string> = {};
+  for (const slug of productCategories) {
+    if (categoryMappings[slug]) {
+      activeMapping = categoryMappings[slug];
+      break;
+    }
+  }
+
+  // ACF Verilerini Süzme İşlemi
+  const dynamicCustomSpecs = Object.entries(activeMapping).map(([key, label]) => {
     const metaValue = product.meta_data?.find((m: any) => m.key === key)?.value || product.acf?.[key];
     return { label, value: metaValue };
   }).filter(spec => spec.value !== undefined && spec.value !== null && spec.value !== "");
+
+  // Fallback Mantığı: Eğer o kategoriye ait özel ACF girilmediyse standart WooCommerce Niteliklerini listele
+  const finalTechSpecs = dynamicCustomSpecs.length > 0 
+    ? dynamicCustomSpecs 
+    : (product.attributes?.map((attr: any) => ({ label: attr.name, value: attr.options?.join(', ') })) || []);
 
   // İŞLEMCİ ÇARPANLARI
   const cpuMultipliers: Record<string, number> = { entry: 0.85, mid: 0.93, high: 1.00, extreme: 1.10 };
@@ -163,11 +197,9 @@ export default function ProductClient({ product }: { product: Record<string, any
   const processedFpsData = gamesConfig.map(game => {
     const acfKey = `${game.id}_${selectedRes}_fps`;
     const metaValue = product.meta_data?.find((m: any) => m.key === acfKey)?.value || product.acf?.[acfKey];
-    
     const baseFps = metaValue ? Number(metaValue) : (selectedRes === "1080p" ? game.default1080p : game.default1440p);
     const finalFps = Math.round(baseFps * currentCpuMultiplier);
     const percentage = Math.min((finalFps / game.maxFps) * 100, 100);
-
     return { label: game.label, fps: finalFps, percentage, color: game.color };
   });
 
@@ -240,7 +272,6 @@ export default function ProductClient({ product }: { product: Record<string, any
           <div className="flex flex-col justify-between py-1">
             <div>
               <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                {/* 🚀 BÜYÜK İNDİRİM ROZETİ CAYIR CAYIR AKTİF! */}
                 {isSale && (
                   <span className="bg-rose-500 text-white text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-widest animate-pulse shadow-[0_0_15px_rgba(244,63,94,0.4)]">
                     🔥 BÜYÜK İNDİRİM
@@ -276,7 +307,6 @@ export default function ProductClient({ product }: { product: Record<string, any
                 <div className="sm:text-right border-t sm:border-t-0 border-white/5 pt-2 sm:pt-0 flex flex-col justify-center">
                   <span className="text-[10px] text-slate-500 block font-bold">Kredi Kartı / Tek Çekim</span>
                   
-                  {/* 🚀 İNDİRİMLİ FİYAT MİMARİSİ GÜNCELLENDİ */}
                   {isSale && eskiFiyat > 0 ? (
                     <div className="flex flex-wrap items-center gap-1.5 sm:justify-end">
                       <span className="text-xs line-through text-slate-500 font-bold">{eskiFiyat.toLocaleString('tr-TR')} TL</span>
@@ -377,147 +407,142 @@ export default function ProductClient({ product }: { product: Record<string, any
               </div>
             </div>
 
-            {/* 2. TEKNİK ÖZELLİKLER */}
-            <div className="border-b border-white/5 last:border-0">
-              <button 
-                onClick={() => toggleAccordion("teknik")}
-                className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group"
-              >
-                <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
-                  <span className="text-lg sm:text-xl">⚙️</span> Teknik Özellikler
-                </span>
-                <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "teknik" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
-              </button>
-              <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "teknik" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
-                 {techSpecs.length > 0 ? (
-                   <div className="border-t border-white/5 pt-3 sm:pt-4">
-                     <div className="overflow-x-auto">
-                       <table className="w-full text-left border-collapse">
-                         <tbody>
-                           {techSpecs.map((spec, i) => (
-                             <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
-                               <td className="py-3.5 pr-4 font-bold text-slate-400 w-5/12 md:w-1/4">{spec.label}</td>
-                               <td className="py-3.5 text-slate-300 font-medium">{spec.value}</td>
-                             </tr>
-                           ))}
-                         </tbody>
-                       </table>
-                     </div>
-                   </div>
-                 ) : (
-                   <p className="border-t border-white/5 pt-3 sm:pt-4 text-slate-500 italic">Bu ürüne ait teknik detaylar panelden henüz girilmemiş şefim.</p>
-                 )}
-              </div>
-            </div>
-
-            {/* 3. OYUN PERFORMANS TESTİ */}
-            <div className="border-b border-white/5 last:border-0">
-              <button 
-                onClick={() => toggleAccordion("performans")}
-                className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group"
-              >
-                <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
-                  <span className="text-lg sm:text-xl">🎮</span> Oyun Performans Testi
-                </span>
-                <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "performans" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
-              </button>
-              <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "performans" ? "max-h-[5000px] pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
-                 <div className="border-t border-white/5 pt-4 space-y-6">
-                   
-                   {/* 🚀 ŞEFİN EMRİYLE EN ÜSTE TAŞINAN KURŞUN GEÇİRMEZ LAB BİLGİLENDİRME NOTU */}
-                   <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/10 text-slate-400 text-xs space-y-2 leading-relaxed shadow-inner">
-                     <div className="flex items-center gap-2 text-blue-400 font-black uppercase tracking-wider text-[11px]">
-                       <span>📊</span> BilginPC Donanım Laboratuvarı Bildirisi:
-                     </div>
-                     <p className="font-normal text-slate-400">
-                       Bu simülatörde listelenen FPS değerleri, BilginPC mühendisleri ve bağımsız donanım platformlarının <strong>Yüksek/Ultra grafik ayarlarında</strong> elde ettiği kararlı dünya ortalamalarıdır. 
-                     </p>
-                     <p className="font-normal text-slate-400">
-                       Anlık gelen Windows güncellemeleri, işletim sistemindeki arka plan yükleri, ekran kartı sürücü (driver) versiyonunuz, RAM belleklerinizin frekans hızları ve hatta oyun içi haritalardaki anlık aksiyon yoğunluğu gibi değişken parametreler sebebiyle, kendi benzersiz sisteminizde alacağınız skorlarda küçük kare (frame) farklılıkları görülmesi tamamen doğaldır ve küresel endüstri standardıdır.
-                     </p>
-                     <p className="font-bold text-slate-300 italic">
-                       Buradaki motor, bütçenize ve ihtiyacınıza en doğru donanım kombinasyonunu en dürüst ve objektif şekilde seçebilmeniz için saf bir referans kılavuzudur.
-                     </p>
-                   </div>
-
-                   {/* SİMÜLATÖR PANEL KUMANDASI */}
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[#050814]/40 p-4 rounded-xl border border-white/5 shadow-inner">
-                     <div className="flex flex-col gap-1.5">
-                       <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">SİSTEM İŞLEMCİSİ (CPU)</label>
-                       <select 
-                         value={selectedCpu} 
-                         onChange={(e) => setSelectedCpu(e.target.value)}
-                         className="w-full bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-2.5 text-xs font-bold focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
-                       >
-                         <option value="entry">Giriş Seviyesi (Ryzen 5 5600 / Core i3-i5)</option>
-                         <option value="mid">Orta Seviye (Ryzen 5 7600 / Core i5)</option>
-                         <option value="high">Üst Seviye (Ryzen 7 7800X3D / Core i7)</option>
-                         <option value="extreme">Ekstrem Seviye (Ryzen 9 9950X / Core i9)</option>
-                       </select>
-                     </div>
-
-                     <div className="flex flex-col gap-1.5">
-                       <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">ÇÖZÜNÜRLÜK MODU</label>
-                       <div className="grid grid-cols-2 bg-[#0b1329] p-1 rounded-lg border border-white/10 h-[38px] items-center">
-                         <button 
-                           onClick={() => setSelectedRes("1080p")} 
-                           className={`h-full text-xs font-black rounded-md uppercase tracking-wider transition-all ${selectedRes === "1080p" ? "bg-blue-600 text-white shadow-md shadow-blue-600/20 scale-[1.02]" : "text-slate-400 hover:text-white"}`}
-                         >
-                           1080p
-                         </button>
-                         <button 
-                           onClick={() => setSelectedRes("1440p")} 
-                           className={`h-full text-xs font-black rounded-md uppercase tracking-wider transition-all ${selectedRes === "1440p" ? "bg-blue-600 text-white shadow-md shadow-blue-600/20 scale-[1.02]" : "text-slate-400 hover:text-white"}`}
-                         >
-                           1440p (2K)
-                         </button>
+            {/* 2. TEKNİK ÖZELLİKLER (BUKALEMUN TABLO MOTORU) */}
+            {finalTechSpecs.length > 0 && (
+              <div className="border-b border-white/5 last:border-0">
+                <button 
+                  onClick={() => toggleAccordion("teknik")}
+                  className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group"
+                >
+                  <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
+                    <span className="text-lg sm:text-xl">⚙️</span> Teknik Özellikler
+                  </span>
+                  <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "teknik" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "teknik" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
+                     <div className="border-t border-white/5 pt-3 sm:pt-4">
+                       <div className="overflow-x-auto">
+                         <table className="w-full text-left border-collapse">
+                           <tbody>
+                             {finalTechSpecs.map((spec: any, i: number) => (
+                               <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
+                                 <td className="py-3.5 pr-4 font-bold text-slate-400 w-5/12 md:w-1/4">{spec.label}</td>
+                                 <td className="py-3.5 text-slate-300 font-medium">{spec.value}</td>
+                               </tr>
+                             ))}
+                           </tbody>
+                         </table>
                        </div>
                      </div>
-                   </div>
+                </div>
+              </div>
+            )}
 
-                   {/* DİNAMİK GRAFİK BARLARI */}
-                   <div className="space-y-4 pt-2">
-                     {processedFpsData.map((spec, i) => (
-                       <div key={i} className="space-y-1">
-                         <div className="flex justify-between items-center text-xs sm:text-sm font-bold text-slate-300">
-                           <span className="tracking-wide">{spec.label}</span>
-                           <span className="text-emerald-400 font-black tracking-tight text-right text-sm">{spec.fps} FPS</span>
-                         </div>
-                         <div className="w-full bg-white/5 h-2.5 rounded-full overflow-hidden border border-white/5 relative shadow-inner">
-                           <div 
-                             className={`h-full bg-gradient-to-r ${spec.color} rounded-full transition-all duration-500 ease-out`}
-                             style={{ width: `${spec.percentage}%` }}
-                           />
+            {/* 3. OYUN PERFORMANS TESTİ (SADECE PC VEYA GPU KATEGORİSİNDEYSE OTOMATİK AKTİF!) */}
+            {isPCorGPU && (
+              <div className="border-b border-white/5 last:border-0">
+                <button 
+                  onClick={() => toggleAccordion("performans")}
+                  className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group"
+                >
+                  <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
+                    <span className="text-lg sm:text-xl">🎮</span> Oyun Performans Testi
+                  </span>
+                  <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "performans" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "performans" ? "max-h-[5000px] pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
+                   <div className="border-t border-white/5 pt-4 space-y-6">
+                     
+                     <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/10 text-slate-400 text-xs space-y-2 leading-relaxed shadow-inner">
+                       <div className="flex items-center gap-2 text-blue-400 font-black uppercase tracking-wider text-[11px]">
+                         <span>📊</span> BilginPC Donanım Laboratuvarı Bildirisi:
+                       </div>
+                       <p className="font-normal text-slate-400">
+                         Bu simülatörde listelenen FPS değerleri, BilginPC mühendisleri ve bağımsız donanım platformlarının <strong>Yüksek/Ultra grafik ayarlarında</strong> elde ettiği kararlı dünya ortalamalarıdır. 
+                       </p>
+                       <p className="font-normal text-slate-400">
+                         Anlık gelen işletim sistemi güncellemeleri, arka plan yükleri, ekran kartı sürücü versiyonunuz, RAM belleklerinizin frekans hızları ve hatta oyun içi haritalardaki anlık aksiyon yoğunluğu gibi değişken parametreler sebebiyle, kendi sisteminizde alacağınız skorlarda küçük kare farklılıkları görülmesi tamamen doğaldır ve küresel endüstri standardıdır.
+                       </p>
+                       <p className="font-bold text-slate-300 italic">
+                         Buradaki motor, bütçenize ve ihtiyacınıza en doğru donanım kombinasyonunu en dürüst ve objektif şekilde seçebilmeniz için saf bir referans kılavuzudur.
+                       </p>
+                     </div>
+
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[#050814]/40 p-4 rounded-xl border border-white/5 shadow-inner">
+                       <div className="flex flex-col gap-1.5">
+                         <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">SİSTEM İŞLEMCİSİ (CPU)</label>
+                         <select 
+                           value={selectedCpu} 
+                           onChange={(e) => setSelectedCpu(e.target.value)}
+                           className="w-full bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-2.5 text-xs font-bold focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+                         >
+                           <option value="entry">Giriş Seviyesi (Ryzen 5 5600 / Core i3-i5)</option>
+                           <option value="mid">Orta Seviye (Ryzen 5 7600 / Core i5)</option>
+                           <option value="high">Üst Seviye (Ryzen 7 7800X3D / Core i7)</option>
+                           <option value="extreme">Ekstrem Seviye (Ryzen 9 9950X / Core i9)</option>
+                         </select>
+                       </div>
+
+                       <div className="flex flex-col gap-1.5">
+                         <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">ÇÖZÜNÜRLÜK MODU</label>
+                         <div className="grid grid-cols-2 bg-[#0b1329] p-1 rounded-lg border border-white/10 h-[38px] items-center">
+                           <button 
+                             onClick={() => setSelectedRes("1080p")} 
+                             className={`h-full text-xs font-black rounded-md uppercase tracking-wider transition-all ${selectedRes === "1080p" ? "bg-blue-600 text-white shadow-md shadow-blue-600/20 scale-[1.02]" : "text-slate-400 hover:text-white"}`}
+                           >
+                             1080p
+                           </button>
+                           <button 
+                             onClick={() => setSelectedRes("1440p")} 
+                             className={`h-full text-xs font-black rounded-md uppercase tracking-wider transition-all ${selectedRes === "1440p" ? "bg-blue-600 text-white shadow-md shadow-blue-600/20 scale-[1.02]" : "text-slate-400 hover:text-white"}`}
+                           >
+                             1440p (2K)
+                           </button>
                          </div>
                        </div>
-                     ))}
-                   </div>
+                     </div>
 
-                 </div>
+                     <div className="space-y-4 pt-2">
+                       {processedFpsData.map((spec, i) => (
+                         <div key={i} className="space-y-1">
+                           <div className="flex justify-between items-center text-xs sm:text-sm font-bold text-slate-300">
+                             <span className="tracking-wide">{spec.label}</span>
+                             <span className="text-emerald-400 font-black tracking-tight text-right text-sm">{spec.fps} FPS</span>
+                           </div>
+                           <div className="w-full bg-white/5 h-2.5 rounded-full overflow-hidden border border-white/5 relative shadow-inner">
+                             <div 
+                               className={`h-full bg-gradient-to-r ${spec.color} rounded-full transition-all duration-500 ease-out`}
+                               style={{ width: `${spec.percentage}%` }}
+                             />
+                           </div>
+                         </div>
+                       ))}
+                     </div>
+
+                   </div>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* 4. ÜRÜN KARŞILAŞTIRMA */}
-            <div className="border-b border-white/5 last:border-0">
-              <button 
-                onClick={() => toggleAccordion("karsilastirma")}
-                className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group"
-              >
-                <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
-                  <span className="text-lg sm:text-xl">⚖️</span> Ürün Karşılaştırma
-                </span>
-                <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "karsilastirma" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
-              </button>
-              <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "karsilastirma" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
-                 <div className="border-t border-white/5 pt-3 sm:pt-4">
-                   {comparisonData ? (
+            {comparisonData && (
+              <div className="border-b border-white/5 last:border-0">
+                <button 
+                  onClick={() => toggleAccordion("karsilastirma")}
+                  className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-white/5 transition-colors group"
+                >
+                  <span className="text-sm sm:text-lg font-black uppercase tracking-widest text-blue-400 transition-colors flex items-center gap-2 sm:gap-3">
+                    <span className="text-lg sm:text-xl">⚖️</span> Ürün Karşılaştırma
+                  </span>
+                  <svg className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-500 ${openAccordion === "karsilastirma" ? "rotate-180 text-blue-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                <div className={`px-4 sm:px-5 text-slate-300 text-sm overflow-hidden transition-all duration-500 ${openAccordion === "karsilastirma" ? "max-h-[5000px] pb-4 sm:pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
+                   <div className="border-t border-white/5 pt-3 sm:pt-4">
                      <div dangerouslySetInnerHTML={{ __html: comparisonData }} />
-                   ) : (
-                     <p className="text-slate-500 italic">Karşılaştırma tabloları hazırlanıyor.</p>
-                   )}
-                 </div>
+                   </div>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* 5. TOPLULUK DEĞERLENDİRME */}
             <div className="border-b border-white/5 last:border-0">
