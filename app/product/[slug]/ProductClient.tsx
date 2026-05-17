@@ -9,6 +9,7 @@ export default function ProductClient({ product }: { product: any }) {
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [addedSuccess, setAddedSuccess] = useState(false); // Başarı mesajı için yeni durum
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   useEffect(() => {
@@ -41,7 +42,7 @@ export default function ProductClient({ product }: { product: any }) {
     }
   };
 
-  // 🚀 ADIM 1: SEPETE EKLEME MOTORUNU SADELEŞTİRDİK
+  // 🚀 SEPETE EKLEME VE ONAY MESAJI MOTORU
   const handleAddToCart = () => {
     setAddingToCart(true);
     const currentCart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -62,10 +63,12 @@ export default function ProductClient({ product }: { product: any }) {
     
     localStorage.setItem("cart", JSON.stringify(currentCart));
     
-    // Artık sepete yönlendirme yok, sadece yükleniyor animasyonunu durduruyoruz.
+    // 800ms ekleniyor animasyonu, ardından başarı mesajı
     setTimeout(() => {
       setAddingToCart(false);
-      // 🔥 router.push("/sepet"); bu satırı sildik şefim!
+      setAddedSuccess(true);
+      // 2 saniye sonra başarı mesajını kapatır, butonu eski haline getirir
+      setTimeout(() => setAddedSuccess(false), 2000); 
     }, 800);
   };
 
@@ -88,26 +91,29 @@ export default function ProductClient({ product }: { product: any }) {
           {/* SOL BÖLÜM: GALERİ SİSTEMİ */}
           <div className="flex flex-col gap-4">
             
-            {/* 🚀 ADIM 2: ESKİ KAFA SİYAH ÇERÇEVEYİ BEYAZ YAPTIK! */}
-            {/* background: #050814 yerine bg-white kullandık. */}
+            {/* 🚀 ANA RESİM KUTUSU (ÇİZGİLER SİLİNDİ, TAM EKRAN GALERİ MOTORU DÜZELTİLDİ) */}
             <div className="w-full bg-white border border-white/5 p-4 sm:p-6 rounded-2xl overflow-hidden aspect-square relative group shadow-inner flex items-center justify-center cursor-pointer">
-              <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-blue-500 rounded-tl-lg opacity-40"></div>
-              <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-emerald-400 rounded-br-lg opacity-40"></div>
               
-              <PhotoView src={product.images?.[activeImageIndex]?.src || "/placeholder.png"}>
-                <div className="relative w-full h-full flex items-center justify-center">
+              {/* Tüm resimleri PhotoView'a bağlıyoruz ama sadece aktif olanı gösteriyoruz. 
+                  Bu sayede tam ekrana geçince oklar otomatik çalışır! */}
+              {product.images?.map((img: any, index: number) => (
+                <PhotoView key={index} src={img.src}>
                   <img 
-                    src={product.images?.[activeImageIndex]?.src || "/placeholder.png"} 
+                    src={img.src} 
                     alt={product.name} 
-                    className="max-h-full max-w-full object-contain transform group-hover:scale-[1.01] transition-transform duration-500 ease-out"
+                    className={`max-h-full max-w-full object-contain transform group-hover:scale-[1.01] transition-transform duration-500 ease-out ${
+                      activeImageIndex === index ? "block" : "hidden"
+                    }`}
                   />
-                  <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md border border-white/10 w-8 h-8 rounded-lg flex items-center justify-center opacity-70 group-hover:opacity-100 transition-all shadow-lg">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                  </div>
-                </div>
-              </PhotoView>
+                </PhotoView>
+              ))}
+
+              {/* Büyüteç İkonu (Sabit durur) */}
+              <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md border border-white/10 w-8 h-8 rounded-lg flex items-center justify-center opacity-70 group-hover:opacity-100 transition-all shadow-lg pointer-events-none">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
             </div>
 
             {/* OKLAR PANELİ */}
@@ -144,7 +150,7 @@ export default function ProductClient({ product }: { product: any }) {
           {/* SAĞ BÖLÜM: SATIN ALMA ALANI */}
           <div className="flex flex-col justify-between py-1">
             <div>
-              {/* Rozetler ve Kodu */}
+              {/* Rozetler */}
               <div className="flex flex-wrap items-center gap-1.5 mb-3">
                 {stoktaVar ? (
                   <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
@@ -169,7 +175,7 @@ export default function ProductClient({ product }: { product: any }) {
                 {product.name}
               </h1>
               
-              {/* Fiyat Kutusu (Havale İndirimli) */}
+              {/* 🚀 FİYAT KUTUSU (TAKSİT YANILGISI DÜZELTİLDİ) */}
               <div className="bg-[#050814]/50 border border-white/5 p-4 rounded-xl mb-4 grid grid-cols-1 sm:grid-cols-2 gap-3 shadow-inner">
                 <div>
                   <span className="text-[10px] font-bold uppercase text-emerald-400 block mb-0.5">Havale / EFT Özel Fiyatı (%5 İndirim)</span>
@@ -180,7 +186,9 @@ export default function ProductClient({ product }: { product: any }) {
                 <div className="sm:text-right border-t sm:border-t-0 border-white/5 pt-2 sm:pt-0 flex flex-col justify-center">
                   <span className="text-[10px] text-slate-500 block font-bold">Kredi Kartı / Tek Çekim</span>
                   <span className="text-sm font-bold text-slate-300">{kartFiyati.toLocaleString('tr-TR')} TL</span>
-                  <span className="text-[10px] text-blue-400 font-black bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 rounded mt-0.5 inline-block w-max sm:ml-auto">12 Taksit Seçeneği</span>
+                  <span className="text-[10px] text-blue-400 font-black bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 rounded mt-0.5 inline-block w-max sm:ml-auto">
+                    Taksit Seçenekleri Mevcut
+                  </span>
                 </div>
               </div>
 
@@ -207,10 +215,14 @@ export default function ProductClient({ product }: { product: any }) {
                 <div className="flex-1 flex items-center gap-3">
                   <button
                     onClick={handleAddToCart}
-                    disabled={addingToCart || !stoktaVar}
-                    className="flex-1 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black py-3 px-6 rounded-xl uppercase tracking-wider transition-all shadow-lg active:scale-[0.99] disabled:opacity-40 text-xs sm:text-sm"
+                    disabled={addingToCart || addedSuccess || !stoktaVar}
+                    className={`flex-1 font-black py-3 px-6 rounded-xl uppercase tracking-wider transition-all shadow-lg active:scale-[0.99] disabled:opacity-80 text-xs sm:text-sm ${
+                      addedSuccess 
+                        ? "bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)]" 
+                        : "bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white"
+                    }`}
                   >
-                    {addingToCart ? "Sistem Ekleniyor..." : !stoktaVar ? "STOKTA YOK" : "Sisteme ve Sepete Ekle"}
+                    {addingToCart ? "Ekleniyor..." : addedSuccess ? "✅ SEPETE EKLENDİ" : !stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
                   </button>
 
                   <button disabled={!stoktaVar} className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-all">
@@ -224,7 +236,7 @@ export default function ProductClient({ product }: { product: any }) {
           </div>
         </div>
 
-        {/* ÜRÜN AÇIKLAMASI (TAM GENİŞLİK ALTA ALINDI) */}
+        {/* ÜRÜN AÇIKLAMASI */}
         <div className="max-w-6xl mx-auto mt-8 bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 p-4 sm:p-8 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10">
           <div className="border-b border-white/5 pb-3 mb-5">
             <h2 className="text-base md:text-lg font-black uppercase tracking-widest text-blue-500 italic flex items-center gap-2">
@@ -239,22 +251,26 @@ export default function ProductClient({ product }: { product: any }) {
           />
         </div>
 
-        {/* 📱 TELEFONLAR İÇİN ALT YAPIŞKAN (STICKY) SEPET PANELİ */}
+        {/* 📱 TELEFONLAR İÇİN ALT YAPIŞKAN SEPET (MOBİLDE DE ONAY MESAJI VERİR) */}
         <div className="fixed bottom-0 left-0 right-0 bg-[#0b1329]/90 backdrop-blur-xl border-t border-white/10 p-3 flex items-center justify-between z-50 sm:hidden shadow-[0_-10px_30px_rgba(0,0,0,0.6)] animate-fade-in">
           <div className="flex flex-col">
             <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-wider">Havale Fiyatı</span>
             <span className="text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">
               {havaleFiyati.toLocaleString('tr-TR')} TL
             </span>
-            <span className="text-[8px] text-blue-400 font-bold">Kart ile 12 Taksit</span>
+            <span className="text-[8px] text-blue-400 font-bold">Taksit İmkanı</span>
           </div>
           
           <button
             onClick={handleAddToCart}
-            disabled={addingToCart || !stoktaVar}
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black py-2.5 px-5 rounded-xl uppercase text-xs tracking-wider transition-all shadow-[0_0_15px_rgba(59,130,246,0.4)] active:scale-95 disabled:opacity-40"
+            disabled={addingToCart || addedSuccess || !stoktaVar}
+            className={`font-black py-2.5 px-5 rounded-xl uppercase text-xs tracking-wider transition-all shadow-[0_0_15px_rgba(59,130,246,0.4)] active:scale-95 disabled:opacity-80 ${
+              addedSuccess 
+                ? "bg-emerald-500 text-white" 
+                : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
+            }`}
           >
-            {addingToCart ? "Ekleniyor..." : !stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
+            {addingToCart ? "Ekleniyor..." : addedSuccess ? "✅ EKLENDİ" : !stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
           </button>
         </div>
 
