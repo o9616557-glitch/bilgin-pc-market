@@ -43,30 +43,22 @@ export default function CheckoutPage() {
     }, [formContent]);
 
     return (
-        <div className="min-h-screen bg-[#050814] text-white flex flex-col items-center justify-center p-4">
+        <div className="min-h-screen bg-[#050814] text-white flex flex-col items-center justify-center p-4 overflow-x-hidden">
             
-            {/* 🔥 İYZİCO'NUN BEYNİNİ EZEN KÜRESEL CSS ENJEKSİYONU */}
+            {/* 🔥 İYZİCO'YU ZORLA DEVLEŞTİREN SİHİRLİ ÖLÇEKLENDİRME CSS'İ */}
             <style dangerouslySetInnerHTML={{__html: `
-                @media (min-width: 768px) {
-                    /* İyzico'nun ana form kutusunun 400px'lik sınırını kırıp 850px yapıyoruz */
-                    #iyzipay-checkout-form, 
-                    .iyzipay-responsive, 
-                    #iyzico-checkout-form,
-                    [class*="iyzipay-"], 
-                    [id*="iyzipay-"] {
-                        max-width: 850px !important;
-                        width: 850px !important;
-                        min-width: 850px !important;
-                    }
-                    /* Formun içindeki girdileri (kart no, isim) geniş ekrana yayıyoruz */
-                    .iyzi-co-container, .iyzi-box {
-                        width: 100% !important;
-                        max-width: 100% !important;
+                @media (min-width: 1024px) {
+                    /* PC ekranlarında tüm formu bozmadan %25 oranında büyütüyoruz */
+                    #iyzico-form-wrapper {
+                        transform: scale(1.25) !important;
+                        transform-origin: center center !important;
+                        margin-top: 20px !important;
+                        margin-bottom: 20px !important;
                     }
                 }
             `}} />
 
-            {/* YÜKLENİYOR SİMGEALTI */}
+            {/* YÜKLENİYOR ALANI */}
             {loading && (
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
@@ -74,9 +66,9 @@ export default function CheckoutPage() {
                 </div>
             )}
             
-            {/* FORM YUVASI */}
+            {/* FORM ALANI */}
             <div className="w-full flex items-center justify-center">
-                <div id="iyzico-form-wrapper" className="w-full flex justify-center"></div>
+                <div id="iyzico-form-wrapper" className="w-full flex justify-center transition-all duration-300"></div>
             </div>
             
         </div>
