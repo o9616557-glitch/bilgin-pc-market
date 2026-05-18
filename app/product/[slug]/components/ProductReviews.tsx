@@ -41,19 +41,21 @@ export default function ProductReviews({ productId }: { productId: number }) {
     <div className="space-y-6 pt-3">
       
       {!showForm ? (
-        // 🚀 DÜMDÜZ YAZI YERİNE MODERN İSTATİSTİK ROZETİ (BADGE) VE PREMIUM BUTON
         <div className="flex flex-col sm:flex-row items-center justify-between gap-5 p-5 rounded-xl bg-[#050814]/40 border border-white/5 shadow-inner">
-          <div className="flex items-center gap-4 w-full sm:w-auto">
+          
+          {/* 🚀 DEĞİŞİKLİK BURADA: Mobilde flex-col (alt alta), Masaüstünde sm:flex-row (yan yana) yapıldı! */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto text-center sm:text-left">
             <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
               <span className="text-xl">⭐</span>
             </div>
             <div className="flex flex-col">
               <span className="text-base font-black text-slate-100">
-                {reviews.length} <span className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Değerlendirme</span>
+                {reviews.length} <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block sm:inline sm:ml-1 mt-0.5 sm:mt-0">Değerlendirme</span>
               </span>
-              <span className="text-[10px] text-slate-500 font-medium mt-0.5">Gerçek müşteri deneyimleri</span>
+              <span className="text-[10px] text-slate-500 font-medium mt-1 sm:mt-0.5">Gerçek müşteri deneyimleri</span>
             </div>
           </div>
+
           <button onClick={() => setShowForm(true)} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-black px-6 py-3 rounded-lg text-xs uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(37,99,235,0.3)]">
             Yorum Yap & Puanla
           </button>
