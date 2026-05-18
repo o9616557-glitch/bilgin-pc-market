@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 export const revalidate = 0;
 
+// ⬇️ 1. GET: WOOCOMMERCE VE WORDPRESS'İ BİRLEŞTİREN MASTER MOTOR
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const productId = searchParams.get('product');
@@ -16,35 +17,59 @@ export async function GET(request: Request) {
 
   try {
     const cacheBuster = Date.now();
-    // 🚀 WORDPRESS HAFIZASINI KIRAN LİNK
-    const fetchUrl = `${wpUrl}/wp-json/wc/v3/products/reviews?product=${productId}&status=approved&_t=${cacheBuster}`;
 
-    const res = await fetch(fetchUrl, {
+    // 1️⃣ ADIM: WOOCOMMERCE'DEN YILDIZLI MÜŞTERİ YORUMLARINI ÇEK
+    const wcRes = await fetch(`${wpUrl}/wp-json/wc/v3/products/reviews?product=${productId}&status=approved&_t=${cacheBuster}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache, no-store, must-revalidate', // 🚀 WP'YE ZORLA YENİ VERİ GETİR DİYORUZ
-        'Pragma': 'no-cache',
         Authorization: `Basic ${Buffer.from(`${ck}:${cs}`).toString('base64')}`
       },
       cache: 'no-store'
     });
-    
-    const data = await res.json();
-    
-    // 🚀 BROWSER (CHROME) HAFIZASINI KIRAN YANIT
-    const response = NextResponse.json(data);
+    const wcData = await wcRes.json();
+
+    // 2️⃣ ADIM: WORDPRESS ÇEKİRDEĞİNDEN TÜM YORUMLARI VE "ADMİN CEVAPLARINI" ÇEK
+    const wpRes = await fetch(`${wpUrl}/wp-json/wp/v2/comments?post=${productId}&status=approve&_t=${cacheBuster}`, {
+      method: 'GET',
+      cache: 'no-store'
+    });
+    const wpData = await wpRes.json();
+
+    // 3️⃣ ADIM: İKİSİNİ HAVADA BİRLEŞTİR (Admin cevaplarını ve parent_id'leri kurtar!)
+    let finalReviews = [];
+
+    if (Array.isArray(wpData) && wpData.length > 0) {
+      finalReviews = wpData.map((wpItem: any) => {
+        // Bu yorum WooCommerce'in yıldızlı listesinde var mı diye bakıyoruz
+        const wcMatch = Array.isArray(wcData) ? wcData.find((wcItem: any) => wcItem.id === wpItem.id) : null;
+
+        return {
+          id: wpItem.id,
+          parent: wpItem.parent, // İŞTE BİZE LAZIM OLAN BAĞLANTI KİMLİĞİ!
+          date_created: wpItem.date,
+          review: wpItem.content?.rendered || "",
+          rating: wcMatch ? wcMatch.rating : 0, // Admin cevabıysa yıldız 0 olur
+          reviewer: wpItem.author_name
+        };
+      });
+    } else if (Array.isArray(wcData)) {
+      // Eğer wp API kapalıysa sadece WooCommerce verisini kullan (Yedek Plan)
+      finalReviews = wcData.map((item: any) => ({ ...item, parent: 0 }));
+    }
+
+    const response = NextResponse.json(finalReviews);
     response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
     response.headers.set('Pragma', 'no-cache');
     response.headers.set('Expires', '0');
-    response.headers.set('Surrogate-Control', 'no-store');
     
     return response;
   } catch (error) {
-    return NextResponse.json({ error: 'Yorumlar WP panelinden çekilemedi' }, { status: 500 });
+    return NextResponse.json({ error: 'Yorumlar çekilemedi' }, { status: 500 });
   }
 }
 
+// ⬆️ 2. POST: YORUM GÖNDERME MOTORU (Aynı kalıyor)
 export async function POST(request: Request) {
   try {
     const body = await request.json();
