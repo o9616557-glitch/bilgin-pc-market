@@ -1,110 +1,119 @@
 "use client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
-
-// 🎯 VERCEL'İN ARADIĞI KRİTİK SATIR BURASI: "export default" kesinlikle olmalı!
 export default function CartPage() {
-  const [cart, setCart] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
+    const router = useRouter();
+    const [cart, setCart] = useState<any[]>([]);
+    const [total, setTotal] = useState<number>(0);
 
-  useEffect(() => {
-    const storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
-    setCart(storedCart);
-    setLoading(false);
-  }, []);
+    // Sayfa açıldığında sepet verilerini çekiyoruz
+    useEffect(() => {
+        const savedCart = localStorage.getItem("cart");
+        if (savedCart) {
+            const parsed = JSON.parse(savedCart);
+            setCart(parsed);
+            const calculatedTotal = parsed.reduce((acc: number, item: any) => acc + (parseFloat(item.price) * (item.quantity || 1)), 0);
+            setTotal(calculatedTotal);
+        } else {
+            // Test için eğer sepet boşsa hafızaya örnek bir RTX 4060 Ti ekleyelim
+            const dummyCart = [
+                { id: 101, name: "ASUS TUF Gaming RTX™ 4060 Ti 8GB OC", price: "36500.00", quantity: 1 }
+            ];
+            localStorage.setItem("cart", JSON.stringify(dummyCart));
+            setCart(dummyCart);
+            setTotal(36500);
+        }
+    }, []);
 
-  const updateQty = (id: number, delta: number) => {
-    const updated = cart.map(item => 
-      item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item
-    );
-    setCart(updated);
-    localStorage.setItem("cart", JSON.stringify(updated));
-    window.dispatchEvent(new Event("cartUpdated"));
-  };
+    // Miktar artırma / azaltma fonksiyonları (Her cihazda dokunmatik uyumlu)
+    const updateQuantity = (id: number, type: 'increase' | 'decrease') => {
+        const updated = cart.map(item => {
+            if (item.id === id) {
+                const newQty = type === 'increase' ? (item.quantity || 1) + 1 : (item.quantity || 1) - 1;
+                return { ...item, quantity: newQty < 1 ? 1 : newQty };
+            }
+            return item;
+        });
+        setCart(updated);
+        localStorage.setItem("cart", JSON.stringify(updated));
+        setTotal(updated.reduce((acc, item) => acc + (parseFloat(item.price) * (item.quantity || 1)), 0));
+    };
 
-  const removeItem = (id: number) => {
-    const updated = cart.filter(item => item.id !== id);
-    setCart(updated);
-    localStorage.setItem("cart", JSON.stringify(updated));
-    window.dispatchEvent(new Event("cartUpdated"));
-  };
+    return (
+        <div className="min-h-screen bg-[#050814] text-white p-4 md:p-8 lg:p-12 flex flex-col items-center">
+            
+            <div className="w-full max-w-6xl">
+                <h1 className="text-2xl md:text-3xl font-black mb-8 uppercase tracking-tight border-b border-slate-800 pb-4">
+                    🛒 ALIŞVERİŞ SEPETİNİZ
+                </h1>
 
-  const total = cart.reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0);
+                {/* 🎯 PC'DE YAN YANA, TABLET/TELEFONDA ÜST ÜSTE GELEN RESPONSIVE GRID */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    
+                    {/* SOL TARAF: Ürün Listesi (PC/Tablet için geniş alan, mobilde tam ekran) */}
+                    <div className="lg:col-span-8 space-y-4">
+                        {cart.map((item) => (
+                            <div key={item.id} className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 md:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 backdrop-blur-sm">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center font-black text-blue-400 text-sm shrink-0">
+                                        PC
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm md:text-base font-bold text-slate-200 line-clamp-2 max-w-md">{item.name}</h3>
+                                        <p className="text-xs text-blue-400 font-black mt-1">{parseFloat(item.price).toLocaleString('tr-TR')} TL</p>
+                                    </div>
+                                </div>
 
-  const handleCheckout = async () => {
-    if (cart.length === 0) return;
-    setCheckoutLoading(true);
-    try {
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cartItems: cart, customerDetails: { first_name: "Ziyaretçi" } })
-      });
-      const data = await res.json();
-      if (data.paymentUrl) {
-        localStorage.setItem("cart", "[]");
-        window.location.href = data.paymentUrl;
-      } else { 
-        alert("Kasa bağlantısı başarısız."); 
-      }
-    } catch (e) { 
-      alert("Sistem hatası."); 
-    }
-    setCheckoutLoading(false);
-  };
+                                {/* Adet Kontrolü - Mobil Uyumlu Büyük Butonlar */}
+                                <div className="flex items-center justify-between w-full sm:w-auto gap-6 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-800/60">
+                                    <div className="flex items-center bg-slate-950 rounded-xl p-1 border border-slate-800">
+                                        <button onClick={() => updateQuantity(item.id, 'decrease')} className="w-8 h-8 flex items-center justify-center font-black text-slate-400 hover:text-white transition-all text-lg">-</button>
+                                        <span className="w-8 text-center text-xs font-bold font-mono">{item.quantity || 1}</span>
+                                        <button onClick={() => updateQuantity(item.id, 'increase')} className="w-8 h-8 flex items-center justify-center font-black text-slate-400 hover:text-white transition-all text-lg">+</button>
+                                    </div>
+                                    <span className="text-sm md:text-base font-black text-slate-100 shrink-0">
+                                        {(parseFloat(item.price) * (item.quantity || 1)).toLocaleString('tr-TR')} TL
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
 
-  if (loading) return <div className="min-h-screen bg-[#050814] flex items-center justify-center text-white">Yükleniyor...</div>;
+                    {/* SAĞ TARAF: Sipariş Özeti ve Hızlı Ödeme Butonu */}
+                    <div className="lg:col-span-4 bg-slate-900/20 border border-slate-900 rounded-2xl p-6 backdrop-blur-md space-y-6">
+                        <h2 className="text-sm font-black uppercase tracking-wider text-slate-400">Sipariş Özeti</h2>
+                        
+                        <div className="space-y-3 text-xs border-b border-slate-800 pb-4 text-slate-400">
+                            <div className="flex justify-between">
+                                <span>Ara Toplam</span>
+                                <span className="font-bold text-slate-200">{total.toLocaleString('tr-TR')} TL</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span>Kargo Dağıtım</span>
+                                <span className="text-green-400 font-bold uppercase">Ücretsiz</span>
+                            </div>
+                        </div>
 
-  return (
-    <div className="min-h-screen bg-[#050814] text-white py-12 px-4 sm:px-8 font-medium">
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl font-black uppercase tracking-tight mb-10 border-b border-white/5 pb-6">🛒 Sepetim</h1>
-        
-        {cart.length > 0 ? (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            <div className="lg:col-span-2 space-y-4">
-              {cart.map((item) => (
-                <div key={item.id} className="bg-[#0b1329]/60 border border-white/5 p-4 rounded-xl flex items-center gap-4">
-                  <img src={item.image} className="w-20 h-20 object-contain bg-white/5 rounded-lg" alt={item.name} />
-                  <div className="flex-1">
-                    <h2 className="text-sm font-bold uppercase line-clamp-1">{item.name}</h2>
-                    <p className="text-blue-400 font-black mt-1">{Number(item.price).toLocaleString('tr-TR')} TL</p>
-                  </div>
-                  <div className="flex items-center gap-3 bg-[#050814] p-1 rounded-lg border border-white/10">
-                    <button onClick={() => updateQty(item.id, -1)} className="w-8 h-8 flex items-center justify-center hover:text-blue-500">-</button>
-                    <span className="font-black text-sm">{item.quantity}</span>
-                    <button onClick={() => updateQty(item.id, 1)} className="w-8 h-8 flex items-center justify-center hover:text-blue-500">+</button>
-                  </div>
-                  <button onClick={() => removeItem(item.id)} className="text-red-500/50 hover:text-red-500 text-xs uppercase font-black px-2">Kaldır</button>
+                        <div className="flex justify-between items-center">
+                            <span className="text-xs font-black text-slate-400">GENEL TOPLAM</span>
+                            <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300">
+                                {total.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} TL
+                            </span>
+                        </div>
+
+                        {/* 🔥 3 CİHAZDA DA TIKLAMA REKORU KIRACAK ÖDEME BUTONU */}
+                        <button 
+                            onClick={() => router.push("/checkout")}
+                            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black py-4 rounded-xl text-xs md:text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(59,130,246,0.3)] hover:shadow-[0_4px_25px_rgba(59,130,246,0.5)] active:scale-[0.98] transition-all text-center block cursor-pointer"
+                        >
+                            Güvenli Ödemeye Geç ➔
+                        </button>
+                    </div>
+
                 </div>
-              ))}
             </div>
 
-            <div className="bg-[#0b1329] border border-blue-500/20 p-6 rounded-2xl h-fit shadow-2xl">
-              <h2 className="text-xs font-black uppercase text-slate-500 tracking-widest mb-4">Sipariş Özeti</h2>
-              <div className="flex justify-between items-center mb-6">
-                <span className="text-slate-300">Toplam Tutarı:</span>
-                <span className="text-2xl font-black text-blue-400">{total.toLocaleString('tr-TR')} TL</span>
-              </div>
-              <button 
-                onClick={handleCheckout}
-                disabled={checkoutLoading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl uppercase tracking-widest text-xs disabled:opacity-50 transition-all shadow-lg"
-              >
-                {checkoutLoading ? "Kasa Hazırlanıyor..." : "🔒 Güvenli Ödemeye Geç"}
-              </button>
-              <p className="text-[10px] text-slate-500 text-center mt-4 uppercase font-bold">💳 256-Bit SSL ile Şifrelenmiş Ödeme</p>
-            </div>
-          </div>
-        ) : (
-          <div className="text-center py-20 bg-[#0b1329]/20 border border-dashed border-white/10 rounded-3xl">
-            <p className="text-slate-500 font-black uppercase tracking-widest mb-6">Sepetin henüz boş şef!</p>
-            <Link href="/" className="bg-white/5 border border-white/10 px-8 py-3 rounded-xl hover:bg-white/10 transition-all font-black uppercase text-xs">Alışverişe Başla</Link>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+        </div>
+    );
 }
