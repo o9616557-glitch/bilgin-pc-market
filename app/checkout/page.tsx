@@ -56,32 +56,19 @@ export default function CheckoutPage() {
         fetchRealPaymentForm();
     }, []);
 
+    // 🎯 ÇALIŞAN GARANTİ DÖNGÜYE GERİ DÖNDÜK
     useEffect(() => {
         if (formContent) {
             const wrapper = document.getElementById("iyzico-form-wrapper");
             if (wrapper) {
                 wrapper.innerHTML = formContent;
-                
-                const rawScripts = Array.from(wrapper.getElementsByTagName("script"));
-                rawScripts.forEach(s => s.remove());
-
-                const srcScript = rawScripts.find(s => s.src);
-                const inlineScript = rawScripts.find(s => !s.src);
-
-                if (srcScript) {
-                    const mainScript = document.createElement("script");
-                    mainScript.src = srcScript.src;
-                    mainScript.type = "text/javascript";
-                    
-                    mainScript.onload = () => {
-                        if (inlineScript) {
-                            const triggerScript = document.createElement("script");
-                            triggerScript.type = "text/javascript";
-                            triggerScript.innerHTML = inlineScript.innerHTML;
-                            document.body.appendChild(triggerScript);
-                        }
-                    };
-                    document.body.appendChild(mainScript);
+                const scripts = wrapper.getElementsByTagName("script");
+                for (let i = 0; i < scripts.length; i++) {
+                    const script = document.createElement("script");
+                    script.type = "text/javascript";
+                    if (scripts[i].src) script.src = scripts[i].src;
+                    else script.innerHTML = scripts[i].innerHTML;
+                    document.body.appendChild(script);
                 }
             }
         }
@@ -90,7 +77,7 @@ export default function CheckoutPage() {
     return (
         <div className="min-h-screen bg-[#030712] text-white p-4 lg:p-12 flex items-center justify-center font-sans">
             
-            {/* 1. YÜKLENİYOR SİNYALİ */}
+            {/* YÜKLENİYOR SİNYALİ */}
             {loading && (
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
@@ -98,7 +85,7 @@ export default function CheckoutPage() {
                 </div>
             )}
 
-            {/* Sepet Boşsa Gösterilecek Engel */}
+            {/* Sepet Boşsa Uyarı */}
             {!loading && cart.length === 0 && (
                 <div className="text-center bg-[#0f172a]/60 border border-slate-800 p-8 rounded-2xl max-w-md">
                     <span className="text-4xl">🛒</span>
@@ -107,16 +94,16 @@ export default function CheckoutPage() {
                 </div>
             )}
 
-            {/* 🎯 KUSURSUZ YAN YANA DÜZEN (HİÇBİR ŞEY ÜST ÜSTE BİNMEYECEK) */}
+            {/* YAN YANA KUSURSUZ PANEL DÜZENİ */}
             {!loading && cart.length > 0 && (
                 <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     
-                    {/* SOL TARAF: Sipariş Özeti & Adres (PC'de Sabit Kalır) */}
+                    {/* SOL TARAF: Sipariş Özeti & Adres */}
                     <div className="lg:col-span-6 space-y-6">
                         
                         {/* Sipariş Kutusu */}
                         <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 backdrop-blur-md">
-                            <h2 className="text-md font-black border-b border-slate-800 pb-3 mb-4 uppercase tracking-wider text-slate-300">🛒 Sipariş Özeti</h2>
+                            <h2 className="text-sm font-black border-b border-slate-800 pb-3 mb-4 uppercase tracking-wider text-slate-300">🛒 Sipariş Özeti</h2>
                             <div className="space-y-3 max-h-[180px] overflow-y-auto pr-1">
                                 {cart.map((item, index) => (
                                     <div key={index} className="flex justify-between items-center text-xs bg-slate-950/40 p-2.5 rounded-xl border border-slate-900">
@@ -139,9 +126,8 @@ export default function CheckoutPage() {
                             <p><strong className="text-slate-300">Telefon:</strong> {customer?.phone}</p>
                             <p className="line-clamp-2"><strong className="text-slate-300">Adres:</strong> {customer?.address_1}, {customer?.city}</p>
                             
-                            {/* İptal/Geri Dönüş Butonu */}
                             <div className="pt-4">
-                                <a href="/cart" className="inline-block text-[11px] font-bold text-slate-500 hover:text-blue-400 transition-all uppercase tracking-wider">
+                                <a href="/" className="inline-block text-[11px] font-bold text-slate-500 hover:text-blue-400 transition-all uppercase tracking-wider">
                                     ← Sepete Dön veya Alışverişe Devam Et
                                 </a>
                             </div>
@@ -149,8 +135,8 @@ export default function CheckoutPage() {
 
                     </div>
 
-                    {/* SAĞ TARAF: İyzico Formunun Bağımsız Özgür Alanı */}
-                    <div className="lg:col-span-6 flex justify-center">
+                    {/* SAĞ TARAF: İyzico Formunun Özgür Alanı */}
+                    <div className="lg:col-span-6 flex justify-center min-h-[600px]">
                         <div id="iyzico-form-wrapper" className="w-full max-w-[400px]"></div>
                     </div>
 
