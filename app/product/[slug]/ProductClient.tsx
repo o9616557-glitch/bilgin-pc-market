@@ -12,7 +12,7 @@ import ProductCompare from "./components/ProductCompare";
 import ProductReviews from "./components/ProductReviews";
 import ProductQuestions from "./components/ProductQuestions";
 
-interface Review { id: number; parent_id?: number; review: string; rating: number; }
+interface Review { id: number; parent?: number; review: string; rating: number; }
 
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const [quantity, setQuantity] = useState(1);
@@ -56,12 +56,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         });
         if (res.ok) {
           const data: Review[] = await res.json();
-          // 🚀 KİLİT AÇILDI: Üst taraftaki yıldız motoru da artık eksik kimlikli yorumları sayacak!
-          const normalReviews = data.filter((item: Review) => (!item.parent_id || Number(item.parent_id) === 0) && !item.review.includes("[SORU]"));
+          // 🚀 MATEMATİK DÜZELTİLDİ: Sadece ana yorumları (parent olmayan) ve yıldızı 0'dan büyük olan GERCÇEK yorumları sayar!
+          const normalReviews = data.filter((item: Review) => (!item.parent || Number(item.parent) === 0) && !item.review.includes("[SORU]") && item.rating > 0);
+          
           setTopReviewsCount(normalReviews.length);
           if (normalReviews.length > 0) {
-            const avg = normalReviews.reduce((sum, r) => sum + r.rating, 0) / normalReviews.length;
+            const totalScore = normalReviews.reduce((sum, r) => sum + r.rating, 0);
+            const avg = totalScore / normalReviews.length;
             setTopRating(Number(avg.toFixed(1)));
+          } else {
+            setTopRating(0);
           }
         }
       } catch (e) { console.error(e); }
