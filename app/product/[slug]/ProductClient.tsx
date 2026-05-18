@@ -24,6 +24,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [timeLeft, setTimeLeft] = useState("");
   const [shippingMessage, setShippingMessage] = useState("");
   
+  // 🚀 YENİ: Verilerin yüklenip yüklenmediğini takip eden sistem
+  const [topDataLoading, setTopDataLoading] = useState(true);
   const [topReviewsCount, setTopReviewsCount] = useState(0);
   const [topQuestionsCount, setTopQuestionsCount] = useState(0);
   const [topRating, setTopRating] = useState(0);
@@ -51,6 +53,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
     const fetchTopData = async () => {
       try {
+        setTopDataLoading(true); // Yükleme başladı
         const res = await fetch(`/api/reviews?product=${product.id}&_t=${Date.now()}`, { 
           cache: 'no-store',
           headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
@@ -71,7 +74,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             setTopRating(0);
           }
         }
-      } catch (e) { console.error(e); }
+      } catch (e) { 
+        console.error(e); 
+      } finally {
+        setTopDataLoading(false); // Yükleme bitti
+      }
     };
     if (product?.id) fetchTopData();
 
@@ -93,7 +100,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     window.dispatchEvent(new Event("cartUpdated"));
     window.dispatchEvent(new Event("storage"));
     
-    // 🚀 HIZLANDIRILDI: 850ms beklemek yerine çok daha anlık ve tatlı bir tepki verecek (300ms)
     setTimeout(() => { 
       setAddingToCart(false); 
       setAddedSuccess(true); 
@@ -108,7 +114,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const eskiFiyat = regularPrice > currentPrice ? regularPrice : (isSale ? Math.round(currentPrice * 1.15) : 0);
   const havaleFiyati = currentPrice * 0.95;
 
+  // 🚀 YENİ: Eğer yükleniyorsa ekranda o anlamsız yazılar yerine yükleniyor animasyonu çıkar!
   const getTopText = () => {
+    if (topDataLoading) return "Değerlendirmeler kontrol ediliyor...";
     if (topReviewsCount === 0 && topQuestionsCount === 0) return "İlk değerlendiren siz olun veya soru sorun";
     const parts = [];
     if (topReviewsCount > 0) parts.push(`${topReviewsCount} Yorum`);
@@ -130,9 +138,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
               <h1 className="text-lg sm:text-2xl font-black uppercase tracking-tight mb-3 text-slate-100">{product.name}</h1>
               
+              {/* 🚀 ÜST BAR GÜNCELLEMESİ */}
               <div className="flex items-center gap-2 mb-3 bg-white/[0.02] border border-white/5 p-2 rounded-md w-max">
-                <div className="flex items-center gap-0.5 text-amber-400 text-xs">{[...Array(5)].map((_, i) => <span key={i}>{i < (topRating || 5) ? '★' : '☆'}</span>)}</div>
-                <button type="button" onClick={scrollToReviewsSection} className="text-[11px] font-bold tracking-wide text-blue-400 hover:text-blue-300 hover:underline transition-colors">
+                <div className="flex items-center gap-0.5 text-amber-400 text-xs">
+                  {topDataLoading ? (
+                    <span className="animate-pulse text-blue-400 font-bold text-[10px] tracking-widest uppercase">Yükleniyor...</span>
+                  ) : (
+                    [...Array(5)].map((_, i) => <span key={i}>{i < (topRating || 5) ? '★' : '☆'}</span>)
+                  )}
+                </div>
+                <button type="button" disabled={topDataLoading} onClick={scrollToReviewsSection} className={`text-[11px] font-bold tracking-wide transition-colors ${topDataLoading ? 'text-slate-500 cursor-wait' : 'text-blue-400 hover:text-blue-300 hover:underline'}`}>
                   {getTopText()}
                 </button>
               </div>
@@ -149,7 +164,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <ProductShare />
             </div>
             
-            {/* 🚀 MASAÜSTÜ SEPETE EKLE BUTONU VE BALON */}
             <div className="border-t border-white/5 pt-4 mt-2 hidden sm:block">
               <div className="flex items-center gap-4">
                 <div className="flex items-center justify-between bg-[#050814] border border-white/10 rounded-md p-1.5 min-w-[100px]"><button type="button" onClick={() => setQuantity(q => q > 1 ? q - 1 : 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500">-</button><span className="px-2 font-black text-sm text-white">{quantity}</span><button type="button" onClick={() => setQuantity(q => q + 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500">+</button></div>
@@ -183,7 +197,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           </div>
         </div>
 
-        {/* 🚀 MOBİL SEPETE EKLE BUTONU VE BALON */}
         <div className="fixed bottom-0 left-0 right-0 bg-[#0b1329]/90 backdrop-blur-xl border-t border-white/10 p-3 flex items-center justify-between z-50 sm:hidden">
           <div className="flex flex-col"><span className="text-[9px] font-bold text-emerald-400 uppercase">Havale Fiyatı</span><span className="text-base font-black text-emerald-400">{havaleFiyati.toLocaleString('tr-TR')} TL</span></div>
           <div className="flex items-center gap-2">
