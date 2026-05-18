@@ -45,40 +45,39 @@ export default function CheckoutPage() {
     return (
         <div className="min-h-screen bg-[#050814] text-white flex flex-col items-center justify-center p-4">
             
-            {/* 1. YÜKLENİYOR EKRANI */}
+            {/* 🔥 İYZİCO'NUN BEYNİNİ EZEN KÜRESEL CSS ENJEKSİYONU */}
+            <style dangerouslySetInnerHTML={{__html: `
+                @media (min-width: 768px) {
+                    /* İyzico'nun ana form kutusunun 400px'lik sınırını kırıp 850px yapıyoruz */
+                    #iyzipay-checkout-form, 
+                    .iyzipay-responsive, 
+                    #iyzico-checkout-form,
+                    [class*="iyzipay-"], 
+                    [id*="iyzipay-"] {
+                        max-width: 850px !important;
+                        width: 850px !important;
+                        min-width: 850px !important;
+                    }
+                    /* Formun içindeki girdileri (kart no, isim) geniş ekrana yayıyoruz */
+                    .iyzi-co-container, .iyzi-box {
+                        width: 100% !important;
+                        max-width: 100% !important;
+                    }
+                }
+            `}} />
+
+            {/* YÜKLENİYOR SİMGEALTI */}
             {loading && (
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4 shadow-[0_0_15px_rgba(59,130,246,0.3)]"></div>
-                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Güvenli Ödeme Kanalı Açılıyor...</p>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Güvenli Ödeme Açılıyor...</p>
                 </div>
             )}
             
-            {/* 2. KUSURSUZ HİZALANMIŞ ÖDEME ALANI */}
-            {formContent && (
-                <div className="w-full max-w-[440px] flex flex-col transition-all duration-500 scale-100 opacity-100">
-                    
-                    {/* Üst Logo ve Güvenlik Başlığı */}
-                    <div className="text-center mb-6">
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 font-bold text-[10px] tracking-wider uppercase mb-3">
-                            🔒 256-Bit SSL Korunmalı Güvenli Kasa
-                        </div>
-                        <h2 className="text-xl font-black tracking-tight text-white uppercase">BILGIN PC MARKET</h2>
-                        <p className="text-slate-400 text-xs mt-1 font-medium">Ödemenizi kart bilgilerinizi girerek tamamlayın.</p>
-                    </div>
-
-                    {/* 🎯 İyzico Formunun Kusursuzca Yerleşeceği Yuva */}
-                    <div className="w-full bg-white rounded-2xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] overflow-hidden border border-slate-200">
-                        <div id="iyzico-form-wrapper" className="w-full p-2"></div>
-                    </div>
-
-                    {/* Alt Bilgilendirme Örtüsü */}
-                    <div className="text-center mt-6 pt-4 border-t border-slate-900 flex items-center justify-center gap-2 text-slate-500 text-[11px] font-bold">
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-                        iyzico Altyapısı ile Kart Bilgileriniz Güvendedir.
-                    </div>
-
-                </div>
-            )}
+            {/* FORM YUVASI */}
+            <div className="w-full flex items-center justify-center">
+                <div id="iyzico-form-wrapper" className="w-full flex justify-center"></div>
+            </div>
             
         </div>
     );
