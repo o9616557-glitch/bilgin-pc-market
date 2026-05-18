@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 
-// ⬇️ 1. GET: SİTE YÜKLENDİĞİNDE YORUMLARI VE SORULARI WORDPRESS'TEN ÇEKER
+// 🚀 NEXT.JS HAFIZASINI (CACHE) KÖKTEN İPTAL EDEN SİHİRLİ KOMUT
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+// ⬇️ 1. GET: SİTE YÜKLENDİĞİNDE YORUMLARI VE SORULARI CANLI OLARAK ÇEKER
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const productId = searchParams.get('product');
@@ -12,11 +16,12 @@ export async function GET(request: Request) {
   const cs = process.env.WC_CONSUMER_SECRET;
 
   try {
+    // 🚀 CACHE: 'NO-STORE' ekledik. Asla hafızadan getirme, direkt WP panelinden CANLI getir!
     const res = await fetch(`${wpUrl}/wp-json/wc/v3/products/reviews?product=${productId}&status=approved`, {
       headers: {
         Authorization: `Basic ${Buffer.from(`${ck}:${cs}`).toString('base64')}`
       },
-      next: { revalidate: 30 }
+      cache: 'no-store'
     });
     
     const data = await res.json();
@@ -36,10 +41,6 @@ export async function POST(request: Request) {
     const cs = process.env.WC_CONSUMER_SECRET;
 
     const finalReviewText = body.is_question ? `[SORU] ${body.review}` : body.review;
-    
-    // 🚀 NOKTA ATIŞI HATA ÇÖZÜMÜ: 
-    // Yorum odasından "email", Soru odasından ise "reviewer_email" geliyor.
-    // İkisini de havada yakalamak için akıllı eşitleme yapıyoruz:
     const finalEmail = body.reviewer_email || body.email;
 
     const res = await fetch(`${wpUrl}/wp-json/wc/v3/products/reviews`, {
@@ -52,14 +53,13 @@ export async function POST(request: Request) {
         product_id: body.product_id,
         review: finalReviewText,
         reviewer: body.reviewer,
-        reviewer_email: finalEmail, // Artık asla boş gitmeyecek!
+        reviewer_email: finalEmail,
         rating: body.rating || 0
       })
     });
 
     const data = await res.json();
     
-    // Eğer WooCommerce tarafında bir kilitlenme veya yetki hatası varsa terminale bassın:
     if (!res.ok) {
       console.error("❌ WooCommerce REST API Reddetme Hatası:", data);
       return NextResponse.json(data, { status: res.status });
