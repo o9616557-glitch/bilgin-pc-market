@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server';
 
-// 🚀 NEXT.JS HAFIZASINI (CACHE) KÖKTEN İPTAL EDEN SİHİRLİ KOMUT
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-// ⬇️ 1. GET: SİTE YÜKLENDİĞİNDE YORUMLARI VE SORULARI CANLI OLARAK ÇEKER
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const productId = searchParams.get('product');
@@ -16,7 +14,6 @@ export async function GET(request: Request) {
   const cs = process.env.WC_CONSUMER_SECRET;
 
   try {
-    // 🚀 CACHE: 'NO-STORE' ekledik. Asla hafızadan getirme, direkt WP panelinden CANLI getir!
     const res = await fetch(`${wpUrl}/wp-json/wc/v3/products/reviews?product=${productId}&status=approved`, {
       headers: {
         Authorization: `Basic ${Buffer.from(`${ck}:${cs}`).toString('base64')}`
@@ -31,7 +28,6 @@ export async function GET(request: Request) {
   }
 }
 
-// ⬆️ 2. POST: MÜŞTERİ BUTONA BASTIĞINDA YORUMU/SORUYU WORDPRESS PANELİNE GÖNDERİR
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -54,7 +50,8 @@ export async function POST(request: Request) {
         review: finalReviewText,
         reviewer: body.reviewer,
         reviewer_email: finalEmail,
-        rating: body.rating || 0
+        rating: body.rating || 0,
+        status: 'hold' // 🚀 ŞEFİM İŞTE BU KOD YORUMU ZORLA "ONAY BEKLİYOR"A DÜŞÜRÜR!
       })
     });
 

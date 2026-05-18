@@ -14,7 +14,8 @@ export default function ProductReviews({ productId }: { productId: number }) {
 
   const load = async () => {
     try {
-      const res = await fetch(`/api/reviews?product=${productId}`);
+      // 🚀 HAFIZA KIRICI: Sonuna saat-saniye zaman damgası koyduk ki tarayıcı her seferinde taze veri çeksin
+      const res = await fetch(`/api/reviews?product=${productId}&t=${new Date().getTime()}`, { cache: 'no-store' });
       if (res.ok) {
         const data: Review[] = await res.json();
         setReviews(data.filter((r) => Number(r.parent_id) === 0 && !r.review.includes("[SORU]")));
@@ -42,8 +43,6 @@ export default function ProductReviews({ productId }: { productId: number }) {
       
       {!showForm ? (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-5 p-5 rounded-xl bg-[#050814]/40 border border-white/5 shadow-inner">
-          
-          {/* 🚀 DEĞİŞİKLİK BURADA: Mobilde flex-col (alt alta), Masaüstünde sm:flex-row (yan yana) yapıldı! */}
           <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto text-center sm:text-left">
             <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
               <span className="text-xl">⭐</span>
@@ -55,7 +54,6 @@ export default function ProductReviews({ productId }: { productId: number }) {
               <span className="text-[10px] text-slate-500 font-medium mt-1 sm:mt-0.5">Gerçek müşteri deneyimleri</span>
             </div>
           </div>
-
           <button onClick={() => setShowForm(true)} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-black px-6 py-3 rounded-lg text-xs uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(37,99,235,0.3)]">
             Yorum Yap & Puanla
           </button>
