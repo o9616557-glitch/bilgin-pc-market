@@ -42,12 +42,12 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "instant" }); 
       
-      // 1. Aşama: Sayfa açılır açılmaz yerel hafızadan oku (Sayfa asla çökmez)
+      // Önce hızlıca yerel hafızadan oku
       const currentFavs = JSON.parse(localStorage.getItem("user_favorites") || "[]");
       const isProductFav = currentFavs.some((item: any) => Number(item.id) === Number(product?.id));
       setIsFav(isProductFav);
 
-      // 2. Aşama: Giriş yapılmışsa çaktırmadan arka planda senkronize et
+      // Giriş yapılmışsa arka planda sessizce senkronize et
       const token = localStorage.getItem("user_token");
       if (token) {
         fetch("/wp-json/wp/v2/users/me", {
@@ -131,7 +131,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     setTimeout(() => { setAddingToCart(false); setAddedSuccess(true); setTimeout(() => setAddedSuccess(false), 2000); }, 300);
   };
 
-  // 🚀 HATA KORUMALI FAVORİ EKLEME MOTORU
   const handleToggleFavorite = async () => {
     if (typeof window === "undefined") return;
 
@@ -157,11 +156,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       setFavMessage("❤️ Eklendi");
     }
 
-    // Önce yerel hafızayı jet hızında güncelle
     localStorage.setItem("user_favorites", JSON.stringify(updatedFavs));
     window.dispatchEvent(new Event("favoritesUpdated"));
 
-    // Kullanıcı oturumu varsa arka planda WordPress'e gönder (Çökme riski sıfırdır)
     if (token) {
       try {
         await fetch("/wp-json/wp/v2/users/me", {
@@ -179,6 +176,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       }
     }
     setTimeout(() => setFavMessage(""), 2000);
+  };
+
+  // 🚀 GERİ GETİRİLEN AKILLI YAZI MOTORU
+  const getTopText = () => {
+    if (topDataLoading) return "Değerlendirmeler kontrol ediliyor...";
+    if (topReviewsCount === 0 && topQuestionsCount === 0) return "İlk değerlendiren siz olun veya soru sorun";
+    const parts = [];
+    if (topReviewsCount > 0) parts.push(`${topReviewsCount} Yorum`);
+    if (topQuestionsCount > 0) parts.push(`${topQuestionsCount} Soru`);
+    return `${topRating > 0 ? topRating + ' Puan ' : ''}(${parts.join(' & ')})`;
   };
 
   const stoktaVar = product.stock_status === "instock";
@@ -201,14 +208,21 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 {isSale && <span className="bg-gradient-to-r from-red-500 to-amber-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">💎 BÜYÜK FIRSAT ÜRÜNÜ</span>}
               </div>
               <h1 className="text-lg sm:text-2xl font-black uppercase tracking-tight mb-3 text-slate-100">{product.name}</h1>
+              
+              {/* 🚀 DÜZELTİLEN YORUM ALANI */}
               <div className="flex items-center gap-2 mb-3 bg-white/[0.02] border border-white/5 p-2 rounded-md w-max">
                 <div className="flex items-center gap-0.5 text-amber-400 text-xs">
-                  {topDataLoading ? <span className="animate-pulse text-blue-400 font-bold text-[10px] tracking-widest uppercase">Yükleniyor...</span> : [...Array(5)].map((_, i) => <span key={i}>{i < (topRating || 5) ? '★' : '☆'}</span>)}
+                  {topDataLoading ? (
+                    <span className="animate-pulse text-blue-400 font-bold text-[10px] tracking-widest uppercase">Yükleniyor...</span>
+                  ) : (
+                    [...Array(5)].map((_, i) => <span key={i}>{i < (topRating || 5) ? '★' : '☆'}</span>)
+                  )}
                 </div>
-                <button type="button" disabled={topDataLoading} onClick={scrollToReviewsSection} className="text-[11px] font-bold tracking-wide text-blue-400 hover:text-blue-300 hover:underline">
-                  {topReviewsCount === 0 && topQuestionsCount === 0 ? "İlk değerlendiren siz olun veya soru sorun" : `${topRating > 0 ? topRating + ' Puan ' : ''}(${topReviewsCount} Yorum & ${topQuestionsCount} Soru)`}
+                <button type="button" disabled={topDataLoading} onClick={scrollToReviewsSection} className={`text-[11px] font-bold tracking-wide transition-colors ${topDataLoading ? 'text-slate-500 cursor-wait' : 'text-blue-400 hover:text-blue-300 hover:underline'}`}>
+                  {getTopText()}
                 </button>
               </div>
+
               <div className="flex items-center gap-3 mb-3 bg-[#050814]/50 p-3 rounded-md border border-blue-500/20">
                 <div className="text-xl text-blue-400 animate-pulse">🚀</div>
                 <div className="flex flex-col text-xs"><span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] text-blue-400">HIZLI KARGO AVANTAJI</span><span className="text-slate-300 mt-0.5">{timeLeft}</span><span className={`font-black text-sm uppercase ${shippingMessage === "BUGÜN KARGODA!" ? "text-emerald-400" : "text-amber-400"}`}>{shippingMessage}</span></div>
@@ -220,25 +234,35 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <div className="bg-blue-600/5 border border-blue-500/10 rounded-md p-2.5 mb-3 flex items-center gap-2 text-xs font-bold text-blue-400 shadow-inner">💳 Kredi Kartına 12 Taksit Seçeneği!</div>
               <ProductShare />
             </div>
+            
+            {/* MASAÜSTÜ ALT BUTONLAR */}
             <div className="border-t border-white/5 pt-4 mt-2 hidden sm:block">
               <div className="flex items-center gap-4">
                 <div className="flex items-center justify-between bg-[#050814] border border-white/10 rounded-md p-1.5 min-w-[100px]"><button type="button" onClick={() => setQuantity(q => q > 1 ? q - 1 : 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500">-</button><span className="px-2 font-black text-sm text-white">{quantity}</span><button type="button" onClick={() => setQuantity(q => q + 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500">+</button></div>
+                
                 <div className="flex-1 relative">
                   <button type="button" onClick={handleAddToCart} disabled={addingToCart || !stoktaVar} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 px-6 rounded-md uppercase tracking-wider text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
                     {!stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
                   </button>
-                  {addedSuccess && <div className="absolute -top-11 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[10px] font-black px-3 py-1.5 rounded-md shadow-[0_0_15px_rgba(16,185,129,0.5)] animate-bounce whitespace-nowrap">✅ Sepete Eklendi</div>}
+                  
+                  {/* 🚀 DÜZELTİLEN MASAÜSTÜ BALONU (FLEX YAPILDI, ASLA ÜST ÜSTE BİNMEZ) */}
+                  {addedSuccess && (
+                    <div className="absolute -top-11 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[10px] font-black px-3 py-1.5 rounded-md shadow-[0_0_15px_rgba(16,185,129,0.5)] animate-bounce flex items-center gap-1.5 whitespace-nowrap pointer-events-none z-50 before:content-[''] before:absolute before:top-full before:left-1/2 before:-translate-x-1/2 before:border-4 before:border-transparent before:border-t-emerald-500">
+                      <span>✅</span> <span>Sepete Eklendi</span>
+                    </div>
+                  )}
                 </div>
+
                 <div className="relative">
                   <button type="button" onClick={handleToggleFavorite} className="w-12 h-12 rounded-md border bg-white/5 border-white/10 hover:bg-white/10 flex items-center justify-center text-xl transition-all"><span>{isFav ? "❤️" : "🤍"}</span></button>
-                  {favMessage && <div className="absolute -top-11 right-0 bg-[#0b1329] border border-white/10 text-white text-[10px] font-black px-3 py-1.5 rounded-md shadow-xl animate-fade-in whitespace-nowrap">{favMessage}</div>}
+                  {favMessage && <div className="absolute -top-11 right-0 bg-[#0b1329] border border-white/10 text-white text-[10px] font-black px-3 py-1.5 rounded-md shadow-xl animate-fade-in whitespace-nowrap z-50">{favMessage}</div>}
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* TÜM SEKMELERİN EKSİKSİZ GERİ GETİRİLEN ORİJİNAL KODLARI */}
+        {/* TÜM SEKMELER */}
         <div className="max-w-6xl mx-auto mt-6 sm:mt-10 flex flex-col gap-6">
           <div className="bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 rounded-xl shadow-lg flex flex-col overflow-hidden">
             <div className="border-b border-white/5"><button type="button" onClick={() => toggleAccordion("aciklama")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5 group transition-all"><span className="text-sm font-bold tracking-wide text-slate-200 group-hover:text-blue-400 transition-colors">🛠️ Ürün Açıklaması</span><span className="text-slate-500 group-hover:text-blue-400 transition-colors">▼</span></button><div className={`grid transition-all duration-300 ease-in-out ${openAccordion === "aciklama" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}><div className="overflow-hidden"><div className="px-4 pb-4 border-t border-white/5 pt-3 text-slate-300 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: product.description || "Açıklama yok." }} /></div></div></div>
@@ -256,13 +280,19 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           <div className="flex items-center gap-2">
             <div className="relative">
               <button type="button" onClick={handleToggleFavorite} className="w-10 h-10 rounded-md border bg-white/5 border-white/10 flex items-center justify-center text-lg"><span>{isFav ? "❤️" : "🤍"}</span></button>
-              {favMessage && <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#0b1329] border border-white/10 text-white text-[10px] font-black px-3 py-1.5 rounded-md shadow-xl animate-fade-in whitespace-nowrap">{favMessage}</div>}
+              {favMessage && <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#0b1329] border border-white/10 text-white text-[10px] font-black px-3 py-1.5 rounded-md shadow-xl animate-fade-in whitespace-nowrap z-50">{favMessage}</div>}
             </div>
             <div className="relative">
               <button type="button" onClick={handleAddToCart} disabled={addingToCart || !stoktaVar} className="font-black py-2.5 px-5 rounded-md uppercase text-xs text-white bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
                 {!stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
               </button>
-              {addedSuccess && <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[10px] font-black px-3 py-1.5 rounded-md shadow-[0_0_15px_rgba(16,185,129,0.5)] animate-bounce">✅ Eklendi</div>}
+              
+              {/* 🚀 DÜZELTİLEN MOBİL BALONU */}
+              {addedSuccess && (
+                <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[10px] font-black px-3 py-1.5 rounded-md shadow-[0_0_15px_rgba(16,185,129,0.5)] animate-bounce flex items-center gap-1.5 whitespace-nowrap pointer-events-none z-50 before:content-[''] before:absolute before:top-full before:left-1/2 before:-translate-x-1/2 before:border-4 before:border-transparent before:border-t-emerald-500">
+                  <span>✅</span> <span>Eklendi</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
