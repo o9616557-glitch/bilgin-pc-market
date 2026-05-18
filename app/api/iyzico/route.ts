@@ -1,16 +1,8 @@
 import { NextResponse } from 'next/server';
-// 👑 KESİN ÇÖZÜM: Ana motoru devre dışı bırakıp doğrudan alt modülü çağırıyoruz (scandir hatası imkansız hale gelir)
-// @ts-ignore
-import CheckoutFormInitialize from 'iyzipay/lib/resources/checkout-form-initialize';
+// 👑 DOĞRU BAĞLANTI: Hazırladığımız zırhlı ana motoru çağırıyoruz
+import iyzipay from '@/lib/iyzipay';
 
 export const dynamic = "force-dynamic";
-
-// İyzico'nun ihtiyaç duyduğu config nesnesini doğrudan kendimiz hazırlıyoruz
-const iyzicoConfig = {
-    apiKey: process.env.IYZICO_API_KEY || '',
-    secretKey: process.env.IYZICO_SECRET_KEY || '',
-    uri: process.env.IYZICO_URI || 'https://sandbox-api.iyzipay.com'
-};
 
 export async function POST(req: Request): Promise<Response> {
     try {
@@ -79,10 +71,7 @@ export async function POST(req: Request): Promise<Response> {
         };
 
         const iyzicoResponse = await new Promise<NextResponse>((resolve) => {
-            // Hatalı üst sınıf yerine doğrudan alt sınıfı ayağa kaldırıyoruz
-            const initializeInstance = new CheckoutFormInitialize(iyzicoConfig);
-            
-            initializeInstance.create(request, function (err: any, result: any) {
+            iyzipay.checkoutForm.initialize(request, function (err: any, result: any) {
                 if (err || result?.status !== 'success') {
                     console.error("İyzico Hata Detayı:", result);
                     resolve(NextResponse.json({ success: false, error: result?.errorMessage || 'İyzico başlatılamadı' }, { status: 500 }));
