@@ -6,7 +6,6 @@ export default function CheckoutPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // 1. Sayfa açılır açılmaz bizim kasaya (API'ye) gidip formu istiyoruz
         async function fetchForm() {
             try {
                 const res = await fetch("/api/iyzico", { method: "POST" });
@@ -26,8 +25,6 @@ export default function CheckoutPage() {
         fetchForm();
     }, []);
 
-    // 2. React/Next.js güvenliği nedeniyle doğrudan HTML içindeki scriptler çalışmaz. 
-    // Bu ufak sihirli kod, İyzico'nun scriptini zorla çalıştırıp formu ekrana basar.
     useEffect(() => {
         if (formContent) {
             const wrapper = document.getElementById("iyzico-form-wrapper");
@@ -46,24 +43,49 @@ export default function CheckoutPage() {
     }, [formContent]);
 
     return (
-        <div className="min-h-screen bg-[#050814] text-white flex flex-col items-center justify-center p-6">
+        <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center p-4 md:p-12">
             
             {/* Yükleniyor Ekranı */}
             {loading && (
-                <div className="text-center">
+                <div className="text-center animate-fade-in">
                     <div className="animate-spin rounded-full h-14 w-14 border-b-4 border-[#3b82f6] mx-auto mb-6 shadow-[0_0_15px_rgba(59,130,246,0.5)]"></div>
-                    <h2 className="text-2xl font-extrabold uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">
-                        Güvenli Ödeme Ağına Bağlanıyor
+                    <h2 className="text-xl font-extrabold uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">
+                        Güvenli Ödeme Kanalı Açılıyor
                     </h2>
-                    <p className="text-slate-400 mt-2 font-semibold text-sm">256-Bit SSL ile korunmaktadır.</p>
+                    <p className="text-slate-500 mt-2 text-xs font-semibold">Lütfen bekleyiniz...</p>
                 </div>
             )}
             
-            {/* İyzico Formunun Doğacağı Kutu (Eğer form geldiyse beyaz bir arka planla şıkça açılır) */}
-            <div 
-                id="iyzico-form-wrapper" 
-                className={`w-full max-w-3xl rounded-2xl overflow-hidden transition-all duration-700 ${formContent ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
-            ></div>
+            {/* 🎯 PC'DE GENİŞ VE ŞIK GÖRÜNEN YENİ PANEL DÜZENİ */}
+            {formContent && (
+                <div className="w-full max-w-5xl bg-[#0b1329] border border-slate-800/60 rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] grid grid-cols-1 md:grid-cols-12 transition-all duration-700 scale-100 opacity-100">
+                    
+                    {/* SOL TARAF: Şık Bilgilendirme ve Sipariş Özeti Paneli (Ekranı doldurması için) */}
+                    <div className="md:col-span-5 bg-[#0f1934] p-8 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-800/60">
+                        <div>
+                            <div className="flex items-center gap-2 text-blue-500 font-black tracking-wider text-sm mb-6 uppercase">
+                                🔒 BILGIN PC MARKET SECURITY
+                            </div>
+                            <h3 className="text-2xl font-black mb-2 leading-tight">Siparişiniz Güvende</h3>
+                            <p className="text-slate-400 text-xs leading-relaxed font-medium">
+                                Ödemeniz İyzico altyapısıyla 256-Bit SSL sertifikası koruması altında şifrelenerek tamamlanır. Kart bilgileriniz asla sunucularımızda saklanmaz.
+                            </p>
+                        </div>
+                        
+                        {/* Alt kısımdaki profesyonel damga */}
+                        <div className="mt-8 pt-6 border-t border-slate-800/40 flex items-center gap-3 text-slate-400 text-xs font-bold">
+                            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                            Canlı API Bağlantısı Aktif
+                        </div>
+                    </div>
+
+                    {/* SAĞ TARAF: Genişletilmiş İyzico Form Alanı */}
+                    <div className="md:col-span-7 bg-white p-6 md:p-10 flex items-center justify-center">
+                        <div id="iyzico-form-wrapper" className="w-full"></div>
+                    </div>
+
+                </div>
+            )}
             
         </div>
     );
