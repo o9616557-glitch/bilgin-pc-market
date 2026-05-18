@@ -18,67 +18,68 @@ export default function FavoritesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [toastMessage, setToastMessage] = useState("");
 
-  // 🚀 CANLI VERİTABANI RADARI: Sayfa açıldığında API üzerinden verileri çeker
+  // 🚀 AKILLI HİBRİT RADAR
   useEffect(() => {
     const loadFavorites = async () => {
       try {
+        // 1. Önce hızlıca yerel hafızayı çek (Ekran anında dolsun, bekletmesin)
+        const localData = JSON.parse(localStorage.getItem("user_favorites") || "[]");
+        setFavorites(Array.isArray(localData) ? localData : []);
+        setIsLoading(false);
+
+        // 2. Kullanıcı giriş yapmışsa canlı veritabanını çekip eşitle
         const token = localStorage.getItem("user_token");
-        
-        // Giriş yapmamışsa sayfaya sokma, girişe fırlat
-        if (!token) {
-          router.push("/giris");
-          return;
-        }
-
-        const res = await fetch("/api/favorites", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          setFavorites(Array.isArray(data) ? data : []);
-        } else {
-          setToastMessage("⚠️ Oturum yenilenemedi.");
+        if (token) {
+          const res = await fetch("/wp-json/wp/v2/users/me", {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (res.ok) {
+            const userData = await res.json();
+            if (userData && userData.meta?.user_favorites) {
+              const wpFavs = JSON.parse(userData.meta.user_favorites);
+              if (Array.isArray(wpFavs) && wpFavs.length > 0) {
+                setFavorites(wpFavs);
+                localStorage.setItem("user_favorites", JSON.stringify(wpFavs));
+              }
+            }
+          }
         }
       } catch (error) {
-        console.error("Favoriler yüklenirken hata oluştu.");
-      } finally {
-        setIsLoading(false);
+        console.log("Arka plan veritabanı eşitlemesi yerel modda devam ediyor.");
       }
     };
     loadFavorites();
   }, [router]);
 
-  // 🚀 CANLI VERİTABANI KALDIRMA MOTORU
+  // 🚀 KALDIRMA MOTORU
   const handleRemoveFavorite = async (id: number) => {
     const token = localStorage.getItem("user_token");
-    if (!token) return;
-
-    // Arayüzde anında kaybolması için filtrele (Hız efekti)
     const updatedFavorites = favorites.filter((item) => Number(item.id) !== Number(id));
+    
     setFavorites(updatedFavorites);
+    localStorage.setItem("user_favorites", JSON.stringify(updatedFavorites));
     setToastMessage("❌ Ürün favorilerden kaldırıldı.");
 
-    try {
-      await fetch("/api/favorites", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          product: { id },
-          action: "remove"
-        })
-      });
-    } catch (error) {
-      console.error(error);
+    if (token) {
+      try {
+        await fetch("/wp-json/wp/v2/users/me", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            meta: { user_favorites: JSON.stringify(updatedFavorites) }
+          })
+        });
+      } catch (err) {
+        console.log("Kaldırma işlemi yerel hafızada tamamlandı.");
+      }
     }
-
     setTimeout(() => setToastMessage(""), 3000);
   };
 
-  // Sepete ekleme motoru
+  // 🚀 SEPETE EKLEME MOTORU (TAMAMEN BİRLEŞTİ)
   const handleAddToCart = (product: FavoriteProduct) => {
     try {
       const storedCart = localStorage.getItem("cart");
@@ -108,7 +109,6 @@ export default function FavoritesPage() {
       setToastMessage("🛒 Ürün sepetinize eklendi!");
       setTimeout(() => setToastMessage(""), 3000);
     } catch (error) {
-      console.error("Sepet hatası:", error);
       setToastMessage("⚠️ Sepete eklenirken bir hata oluştu.");
     }
   };
@@ -118,7 +118,7 @@ export default function FavoritesPage() {
       <div className="absolute inset-0 z-0 opacity-[0.02] bg-[size:24px_24px] bg-[linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)]"></div>
 
       {toastMessage && (
-        <div className="fixed top-24 right-4 z-50 bg-[#0b1329] border border-blue-500/30 text-slate-100 px-5 py-3 rounded-xl shadow-[0_0_20px_rgba(37,99,235,0.2)] text-xs font-black uppercase tracking-wider animate-fade-in flex items-center gap-2">
+        <div className="fixed top-24 right-4 z-50 bg-[#0b1329] border border-blue-500/30 text-slate-100 px-5 py-3 rounded-xl shadow-[0_0_20px_rgba(37,99,235,0.2)] text-xs font-black uppercase tracking-wider flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
           {toastMessage}
         </div>
@@ -129,13 +129,13 @@ export default function FavoritesPage() {
           <h1 className="text-xl sm:text-3xl font-black uppercase tracking-tight text-slate-100 flex items-center gap-3">
             <span className="text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.4)]">❤️</span> Favorilerim
           </h1>
-          <p className="text-xs text-slate-500 mt-2 uppercase tracking-widest font-bold">Hesabınızda kayıtlı duran favori ürünleriniz</p>
+          <p className="text-xs text-slate-500 mt-2 uppercase tracking-widest font-bold">Takip ettiğiniz ürünler</p>
         </div>
 
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-xs text-slate-500 uppercase tracking-widest font-black animate-pulse">Veritabanı taranıyor...</span>
+            <span className="text-xs text-slate-500 uppercase tracking-widest font-black animate-pulse">Listeleniyor...</span>
           </div>
         ) : favorites.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -153,13 +153,11 @@ export default function FavoritesPage() {
                     <button 
                       type="button" 
                       onClick={() => handleRemoveFavorite(product.id)}
-                      className="absolute top-2 right-2 w-7 h-7 bg-[#050814]/80 border border-white/10 rounded-full flex items-center justify-center text-slate-400 hover:text-red-400 hover:border-red-500/30 transition-all text-xs"
-                      title="Listeden Kaldır"
+                      className="absolute top-2 right-2 w-7 h-7 bg-[#050814]/80 border border-white/10 rounded-full flex items-center justify-center text-slate-400 hover:text-red-400 text-xs"
                     >
                       ✕
                     </button>
                   </div>
-
                   <Link href={`/product/${product.slug}`} className="block mb-2">
                     <h2 className="text-xs sm:text-sm font-black uppercase text-slate-200 group-hover:text-blue-400 transition-colors line-clamp-2 h-10 leading-tight">
                       {product.name}
@@ -172,15 +170,11 @@ export default function FavoritesPage() {
                     <span className="text-[9px] font-black uppercase text-slate-500 tracking-wider">Fiyat</span>
                     <span className="text-sm font-black text-blue-400 tracking-wide">{Number(product.price).toLocaleString('tr-TR')} TL</span>
                   </div>
-
                   <button
                     type="button"
                     onClick={() => handleAddToCart(product)}
                     className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black text-[10px] uppercase tracking-widest py-3 rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
                   >
-                    <svg className="w-3.5 h-3.5 fill-none stroke-current" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                    </svg>
                     Sepete Ekle
                   </button>
                 </div>
@@ -192,12 +186,9 @@ export default function FavoritesPage() {
             <div className="text-4xl opacity-40 animate-pulse">❤️</div>
             <div className="flex flex-col gap-1">
               <span className="text-xs font-black uppercase text-slate-400 tracking-widest">Favori listeniz henüz boş</span>
-              <span className="text-[10px] text-slate-600 font-bold uppercase">Beğendiğiniz ve takibe aldığınız ürünler burada listelenir</span>
+              <span className="text-[10px] text-slate-600 font-bold uppercase">Beğendiğiniz ürünler burada listelenir</span>
             </div>
-            <Link 
-              href="/" 
-              className="mt-2 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-widest px-6 py-3 rounded-lg transition-all"
-            >
+            <Link href="/" className="mt-2 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-widest px-6 py-3 rounded-lg transition-all">
               Alışverişe Devam Et
             </Link>
           </div>
