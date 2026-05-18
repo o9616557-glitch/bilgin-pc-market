@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ['iyzipay'], // İyzico'yu rahat bırakma emri
+  // 1. Senin yazdığın harici paket kuralı (Aynen koruyoruz)
+  serverExternalPackages: ['iyzipay'],
+
+  // 2. Vercel'in İyzico kaynak dosyalarını sunucuda silmesini engelleyen kesin zırh
+  experimental: {
+    outputFileTracingIncludes: {
+      '/api/**/*': ['node_modules/iyzipay/**/*'],
+    },
+  },
 };
 
 export default nextConfig;
