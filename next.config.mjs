@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // 1. Senin yazdığın harici paket kuralı (Aynen koruyoruz)
+  // 1. Harici paket kuralı
   serverExternalPackages: ['iyzipay'],
 
-  // 2. Vercel'in İyzico kaynak dosyalarını sunucuda silmesini engelleyen kesin zırh
+  // 2. Vercel dosya taşıma zırhı
   experimental: {
     outputFileTracingIncludes: {
       '/api/**/*': ['node_modules/iyzipay/**/*'],
