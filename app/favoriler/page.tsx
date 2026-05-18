@@ -42,13 +42,12 @@ export default function FavoritesPage() {
     setTimeout(() => setToastMessage(""), 3000);
   };
 
-  // 🚀 KURŞUN GEÇİRMEZ SEPETE EKLEME MOTORU (TÜM KİLİTLER KIRILDI)
+  // Sepete ekleme motoru
   const handleAddToCart = (product: FavoriteProduct) => {
     try {
       const storedCart = localStorage.getItem("cart");
       let cart = storedCart ? JSON.parse(storedCart) : [];
 
-      // Kimlikleri zorla sayıya çevirerek tam eşleşme sağlıyoruz
       const existingItem = cart.find((item: any) => Number(item.id) === Number(product.id));
       
       if (existingItem) {
@@ -66,7 +65,6 @@ export default function FavoritesPage() {
 
       localStorage.setItem("cart", JSON.stringify(cart));
 
-      // Sitenin üst barındaki sayaçların anında artması için tüm global sinyaller fırlatılıyor
       window.dispatchEvent(new Event("cartUpdated"));
       window.dispatchEvent(new Event("cart_updated"));
       window.dispatchEvent(new Event("storage"));
@@ -93,22 +91,21 @@ export default function FavoritesPage() {
       )}
 
       <div className="max-w-6xl mx-auto relative z-10">
-        {/* Sayfa Başlığı */}
+        {/* Sayfa Başlığı - Kurumsal Yapıldı */}
         <div className="flex flex-col mb-10 border-b border-white/5 pb-6">
           <h1 className="text-xl sm:text-3xl font-black uppercase tracking-tight text-slate-100 flex items-center gap-3">
-            <span className="text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.4)]">❤️</span> Favori Laboratuvarı
+            <span className="text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.4)]">❤️</span> Favorilerim
           </h1>
-          <p className="text-xs text-slate-500 mt-2 uppercase tracking-widest font-bold">Takipteki premium ürünleriniz</p>
+          <p className="text-xs text-slate-500 mt-2 uppercase tracking-widest font-bold">Beğendiğiniz ve takip ettiğiniz ürünler</p>
         </div>
 
         {/* Yükleniyor Durumu */}
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-xs text-slate-500 uppercase tracking-widest font-black animate-pulse">Hafıza taranıyor...</span>
+            <span className="text-xs text-slate-500 uppercase tracking-widest font-black animate-pulse">Listeleniyor...</span>
           </div>
         ) : favorites.length > 0 ? (
-          /* 🚀 YENİ MODERN GRID TASARIMI */
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {favorites.map((product) => (
               <div key={product.id} className="bg-[#0b1329]/40 backdrop-blur-xl border border-white/5 rounded-2xl p-4 flex flex-col justify-between hover:border-blue-500/20 transition-all group shadow-lg">
@@ -122,7 +119,6 @@ export default function FavoritesPage() {
                         className="max-w-full max-h-full object-contain transform group-hover:scale-105 transition-transform duration-300"
                       />
                     </Link>
-                    {/* Hızlı Kaldır Butonu (Sağ Üstte Çarpı İkonu) */}
                     <button 
                       type="button" 
                       onClick={() => handleRemoveFavorite(product.id)}
@@ -141,14 +137,13 @@ export default function FavoritesPage() {
                   </Link>
                 </div>
 
-                {/* Alt Kısım: Fiyat ve Sepet Butonu */}
+                {/* Alt Kısım */}
                 <div className="mt-4 pt-3 border-t border-white/5 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-[9px] font-black uppercase text-slate-500 tracking-wider">Fiyat</span>
                     <span className="text-sm font-black text-blue-400 tracking-wide">{Number(product.price).toLocaleString('tr-TR')} TL</span>
                   </div>
 
-                  {/* Sepete Fırlat Aksiyon Butonu */}
                   <button
                     type="button"
                     onClick={() => handleAddToCart(product)}
@@ -164,18 +159,18 @@ export default function FavoritesPage() {
             ))}
           </div>
         ) : (
-          /* Boş Sayfa Tasarımı (Hologram Look) */
+          /* Boş Durum Yazıları Tamamen Profesyonel Hale Getirildi */
           <div className="text-center py-20 border border-white/5 border-dashed rounded-2xl bg-[#0b1329]/20 flex flex-col items-center justify-center gap-4">
             <div className="text-4xl opacity-40 animate-pulse">❤️</div>
             <div className="flex flex-col gap-1">
-              <span className="text-xs font-black uppercase text-slate-400 tracking-widest">Favori listeniz bomboş şef</span>
-              <span className="text-[10px] text-slate-600 font-bold uppercase">Kalplediğiniz canavar kasalar burada listelenir</span>
+              <span className="text-xs font-black uppercase text-slate-400 tracking-widest">Favori listeniz henüz boş</span>
+              <span className="text-[10px] text-slate-600 font-bold uppercase">Beğendiğiniz ve takibe aldığınız ürünler burada listelenir</span>
             </div>
             <Link 
               href="/" 
               className="mt-2 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-widest px-6 py-3 rounded-lg transition-all"
             >
-              Ürünleri İncele
+              Alışverişe Devam Et
             </Link>
           </div>
         )}
