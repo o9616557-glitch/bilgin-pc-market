@@ -25,7 +25,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [shippingMessage, setShippingMessage] = useState("");
   
   const [topReviewsCount, setTopReviewsCount] = useState(0);
-  const [topQuestionsCount, setTopQuestionsCount] = useState(0); // 🚀 YENİ: Soru sayacı eklendi
+  const [topQuestionsCount, setTopQuestionsCount] = useState(0);
   const [topRating, setTopRating] = useState(0);
 
   const reviewsRef = useRef<HTMLDivElement>(null);
@@ -57,13 +57,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         });
         if (res.ok) {
           const data: Review[] = await res.json();
-          
-          // Gerçek Yorumları ve Soruları ayrı ayrı sayıyoruz
           const normalReviews = data.filter((item: Review) => (!item.parent || Number(item.parent) === 0) && !item.review.includes("[SORU]") && item.rating > 0);
           const questionReviews = data.filter((item: Review) => (!item.parent || Number(item.parent) === 0) && item.review.includes("[SORU]"));
           
           setTopReviewsCount(normalReviews.length);
-          setTopQuestionsCount(questionReviews.length); // Soruları da hafızaya aldık
+          setTopQuestionsCount(questionReviews.length);
           
           if (normalReviews.length > 0) {
             const totalScore = normalReviews.reduce((sum, r) => sum + r.rating, 0);
@@ -94,7 +92,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     localStorage.setItem("cart", JSON.stringify(currentCart));
     window.dispatchEvent(new Event("cartUpdated"));
     window.dispatchEvent(new Event("storage"));
-    setTimeout(() => { setAddingToCart(false); setAddedSuccess(true); setTimeout(() => setAddedSuccess(false), 2000); }, 850);
+    
+    // 🚀 HIZLANDIRILDI: 850ms beklemek yerine çok daha anlık ve tatlı bir tepki verecek (300ms)
+    setTimeout(() => { 
+      setAddingToCart(false); 
+      setAddedSuccess(true); 
+      setTimeout(() => setAddedSuccess(false), 2000); 
+    }, 300);
   };
 
   const stoktaVar = product.stock_status === "instock";
@@ -104,7 +108,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const eskiFiyat = regularPrice > currentPrice ? regularPrice : (isSale ? Math.round(currentPrice * 1.15) : 0);
   const havaleFiyati = currentPrice * 0.95;
 
-  // 🚀 YENİ: Üst bar yazısını dinamik olarak oluşturan mantık
   const getTopText = () => {
     if (topReviewsCount === 0 && topQuestionsCount === 0) return "İlk değerlendiren siz olun veya soru sorun";
     const parts = [];
@@ -127,7 +130,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
               <h1 className="text-lg sm:text-2xl font-black uppercase tracking-tight mb-3 text-slate-100">{product.name}</h1>
               
-              {/* 🚀 GÜNCELLENMİŞ DİNAMİK ÜST BAR */}
               <div className="flex items-center gap-2 mb-3 bg-white/[0.02] border border-white/5 p-2 rounded-md w-max">
                 <div className="flex items-center gap-0.5 text-amber-400 text-xs">{[...Array(5)].map((_, i) => <span key={i}>{i < (topRating || 5) ? '★' : '☆'}</span>)}</div>
                 <button type="button" onClick={scrollToReviewsSection} className="text-[11px] font-bold tracking-wide text-blue-400 hover:text-blue-300 hover:underline transition-colors">
@@ -146,10 +148,24 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <div className="bg-blue-600/5 border border-blue-500/10 rounded-md p-2.5 mb-3 flex items-center gap-2 text-xs font-bold text-blue-400 shadow-inner">💳 Kredi Kartına 12 Taksit Seçeneği!</div>
               <ProductShare />
             </div>
+            
+            {/* 🚀 MASAÜSTÜ SEPETE EKLE BUTONU VE BALON */}
             <div className="border-t border-white/5 pt-4 mt-2 hidden sm:block">
               <div className="flex items-center gap-4">
                 <div className="flex items-center justify-between bg-[#050814] border border-white/10 rounded-md p-1.5 min-w-[100px]"><button type="button" onClick={() => setQuantity(q => q > 1 ? q - 1 : 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500">-</button><span className="px-2 font-black text-sm text-white">{quantity}</span><button type="button" onClick={() => setQuantity(q => q + 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500">+</button></div>
-                <button type="button" onClick={handleAddToCart} disabled={addingToCart || addedSuccess || !stoktaVar} className={`flex-1 font-black py-3 px-6 rounded-md uppercase tracking-wider text-xs sm:text-sm ${addedSuccess ? "bg-emerald-500" : "bg-blue-600 hover:bg-blue-700"} text-white`}>{addingToCart ? "Ekleniyor..." : addedSuccess ? "✅ SEPETE EKLENDİ" : !stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}</button>
+                
+                <div className="flex-1 relative">
+                  <button type="button" onClick={handleAddToCart} disabled={addingToCart || !stoktaVar} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 px-6 rounded-md uppercase tracking-wider text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                    {!stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
+                  </button>
+                  
+                  {addedSuccess && (
+                    <div className="absolute -top-11 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[10px] font-black px-3 py-1.5 rounded-md shadow-[0_0_15px_rgba(16,185,129,0.5)] animate-bounce whitespace-nowrap pointer-events-none before:content-[''] before:absolute before:top-full before:left-1/2 before:-translate-x-1/2 before:border-4 before:border-transparent before:border-t-emerald-500">
+                      ✅ Sepete Eklendi
+                    </div>
+                  )}
+                </div>
+
                 <button type="button" onClick={() => setIsFav(!isFav)} className="w-12 h-12 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-xl transition-all hover:bg-white/10"><span>{isFav ? "❤️" : "🤍"}</span></button>
               </div>
             </div>
@@ -167,12 +183,23 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           </div>
         </div>
 
-        {/* MOBİL PANEL */}
+        {/* 🚀 MOBİL SEPETE EKLE BUTONU VE BALON */}
         <div className="fixed bottom-0 left-0 right-0 bg-[#0b1329]/90 backdrop-blur-xl border-t border-white/10 p-3 flex items-center justify-between z-50 sm:hidden">
           <div className="flex flex-col"><span className="text-[9px] font-bold text-emerald-400 uppercase">Havale Fiyatı</span><span className="text-base font-black text-emerald-400">{havaleFiyati.toLocaleString('tr-TR')} TL</span></div>
           <div className="flex items-center gap-2">
             <button type="button" onClick={() => setIsFav(!isFav)} className="w-10 h-10 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-lg"><span>{isFav ? "❤️" : "🤍"}</span></button>
-            <button type="button" onClick={handleAddToCart} disabled={addingToCart || addedSuccess || !stoktaVar} className={`font-black py-2.5 px-5 rounded-md uppercase text-xs text-white ${addedSuccess ? "bg-emerald-500" : "bg-blue-600"}`}>{addingToCart ? "..." : addedSuccess ? "✅ SEPETE EKLENDİ" : !stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}</button>
+            
+            <div className="relative">
+              <button type="button" onClick={handleAddToCart} disabled={addingToCart || !stoktaVar} className="font-black py-2.5 px-5 rounded-md uppercase text-xs text-white bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                {!stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
+              </button>
+              
+              {addedSuccess && (
+                <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[10px] font-black px-3 py-1.5 rounded-md shadow-[0_0_15px_rgba(16,185,129,0.5)] animate-bounce whitespace-nowrap pointer-events-none before:content-[''] before:absolute before:top-full before:left-1/2 before:-translate-x-1/2 before:border-4 before:border-transparent before:border-t-emerald-500">
+                  ✅ Eklendi
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
