@@ -1,8 +1,15 @@
 import { NextResponse } from 'next/server';
-import iyzipay from '@/lib/iyzipay';
+// 👑 KESİN ÇÖZÜM: Ana motoru devre dışı bırakıp doğrudan alt modülü çağırıyoruz (scandir hatası imkansız hale gelir)
+// @ts-ignore
+import CheckoutForm from 'iyzipay/lib/resources/checkout-form';
 
-// 👑 VERCEL HATASINI ENGELLEYEN SİHİRLİ SATIR: Next.js'e bu rotayı statik derleme diyoruz
 export const dynamic = "force-dynamic";
+
+const iyzicoConfig = {
+    apiKey: process.env.IYZICO_API_KEY || '',
+    secretKey: process.env.IYZICO_SECRET_KEY || '',
+    uri: process.env.IYZICO_URI || 'https://sandbox-api.iyzipay.com'
+};
 
 export async function POST(req: Request): Promise<Response> {
     try {
@@ -14,7 +21,10 @@ export async function POST(req: Request): Promise<Response> {
         }
 
         const redirectResponse = await new Promise<NextResponse>((resolve) => {
-            iyzipay.checkoutForm.retrieve({ locale: 'tr', token }, function (err: any, result: any) {
+            // Hatalı üst sınıf yerine doğrudan geri çağırma alt sınıfını ayağa kaldırıyoruz
+            const checkoutFormInstance = new CheckoutForm(iyzicoConfig);
+
+            checkoutFormInstance.retrieve({ locale: 'tr', token }, function (err: any, result: any) {
                 if (err || result.status !== 'success') {
                     console.error("Ödeme Başarısız:", result);
                     const reason = result?.errorMessage || 'bilinmiyor';
