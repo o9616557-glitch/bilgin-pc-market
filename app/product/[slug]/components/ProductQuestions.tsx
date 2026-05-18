@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 
-interface Review { id: number; parent_id: number; date_created: string; review: string; rating: number; reviewer: string; }
+interface Review { id: number; parent_id?: number; date_created: string; review: string; rating: number; reviewer: string; }
 
 export default function ProductQuestions({ productId }: { productId: number }) {
   const [questions, setQuestions] = useState<Review[]>([]);
@@ -13,15 +13,15 @@ export default function ProductQuestions({ productId }: { productId: number }) {
 
   const load = async () => {
     try {
-      // 🚀 BROWSER HAFIZASINI KIRAN LİNK BURAYA DA EKLENDİ!
       const res = await fetch(`/api/reviews?product=${productId}&_t=${Date.now()}`, { 
         cache: 'no-store',
         headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
       });
       if (res.ok) {
         const data: Review[] = await res.json();
-        setQuestions(data.filter((q) => Number(q.parent_id) === 0 && q.review.includes("[SORU]")));
-        setReplies(data.filter((r) => Number(r.parent_id) > 0));
+        // 🚀 KİLİT AÇILDI: Sorular da artık eksik kimlikle bile ekranda çıkacak!
+        setQuestions(data.filter((q) => (!q.parent_id || Number(q.parent_id) === 0) && q.review.includes("[SORU]")));
+        setReplies(data.filter((r) => r.parent_id && Number(r.parent_id) > 0));
       }
     } catch (e) { console.error(e); }
   };

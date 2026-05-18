@@ -12,7 +12,7 @@ import ProductCompare from "./components/ProductCompare";
 import ProductReviews from "./components/ProductReviews";
 import ProductQuestions from "./components/ProductQuestions";
 
-interface Review { id: number; parent_id: number; review: string; rating: number; }
+interface Review { id: number; parent_id?: number; review: string; rating: number; }
 
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const [quantity, setQuantity] = useState(1);
@@ -50,14 +50,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
     const fetchTopData = async () => {
       try {
-        // 🚀 BROWSER HAFIZASINI KIRAN LİNK BURAYA DA EKLENDİ!
         const res = await fetch(`/api/reviews?product=${product.id}&_t=${Date.now()}`, { 
           cache: 'no-store',
           headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
         });
         if (res.ok) {
           const data: Review[] = await res.json();
-          const normalReviews = data.filter((item: Review) => Number(item.parent_id) === 0 && !item.review.includes("[SORU]"));
+          // 🚀 KİLİT AÇILDI: Üst taraftaki yıldız motoru da artık eksik kimlikli yorumları sayacak!
+          const normalReviews = data.filter((item: Review) => (!item.parent_id || Number(item.parent_id) === 0) && !item.review.includes("[SORU]"));
           setTopReviewsCount(normalReviews.length);
           if (normalReviews.length > 0) {
             const avg = normalReviews.reduce((sum, r) => sum + r.rating, 0) / normalReviews.length;
