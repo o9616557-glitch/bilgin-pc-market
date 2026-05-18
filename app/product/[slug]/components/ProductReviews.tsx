@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 
-interface Review { id: number; parent_id?: number; date_created: string; review: string; rating: number; reviewer: string; }
+interface Review { id: number; parent: number; date_created: string; review: string; rating: number; reviewer: string; }
 
 export default function ProductReviews({ productId }: { productId: number }) {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -20,9 +20,9 @@ export default function ProductReviews({ productId }: { productId: number }) {
       });
       if (res.ok) {
         const data: Review[] = await res.json();
-        // 🚀 KİLİT AÇILDI: Artık parent_id olmasa da (undefined olsa da) yorumları çöpe atmaz, ekranda gösterir!
-        setReviews(data.filter((r) => (!r.parent_id || Number(r.parent_id) === 0) && !r.review.includes("[SORU]")));
-        setReplies(data.filter((r) => r.parent_id && Number(r.parent_id) > 0));
+        // 🚀 APİ DEĞİŞİKLİĞİ: parent_id yerine 'parent' kullanılarak onaylı cevapların görünmesi sağlandı!
+        setReviews(data.filter((r) => (!r.parent || Number(r.parent) === 0) && !r.review.includes("[SORU]")));
+        setReplies(data.filter((r) => r.parent && Number(r.parent) > 0));
       }
     } catch (e) { console.error(e); }
   };
@@ -35,7 +35,7 @@ export default function ProductReviews({ productId }: { productId: number }) {
     try {
       const res = await fetch('/api/reviews', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ product_id: productId, ...newReview, is_question: false }) });
       if (res.ok) {
-        setSuccess("Yorumunuz iletildi şefim! Onaylanınca görünecektir.");
+        setSuccess("Yorumunuz iletildi şef! Onaylanınca görünecektir.");
         setTimeout(() => { setShowForm(false); setNewReview({ reviewer: "", email: "", review: "", rating: 5 }); setSuccess(""); load(); }, 3000);
       }
     } catch (err) { console.error(err); } finally { setSubmitting(false); }
@@ -46,13 +46,9 @@ export default function ProductReviews({ productId }: { productId: number }) {
       {!showForm ? (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-5 p-5 rounded-xl bg-[#050814]/40 border border-white/5 shadow-inner">
           <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto text-center sm:text-left">
-            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
-              <span className="text-xl">⭐</span>
-            </div>
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.1)]"><span className="text-xl">⭐</span></div>
             <div className="flex flex-col">
-              <span className="text-base font-black text-slate-100">
-                {reviews.length} <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block sm:inline sm:ml-1 mt-0.5 sm:mt-0">Değerlendirme</span>
-              </span>
+              <span className="text-base font-black text-slate-100">{reviews.length} <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block sm:inline sm:ml-1 mt-0.5 sm:mt-0">Değerlendirme</span></span>
               <span className="text-[10px] text-slate-500 font-medium mt-1 sm:mt-0.5">Gerçek müşteri deneyimleri</span>
             </div>
           </div>
@@ -72,7 +68,7 @@ export default function ProductReviews({ productId }: { productId: number }) {
       <div className="space-y-4 mt-4">
         {reviews.length > 0 ? (
           reviews.map((r) => {
-            const rReplies = replies.filter((rep) => Number(rep.parent_id) === Number(r.id));
+            const rReplies = replies.filter((rep) => Number(rep.parent) === Number(r.id));
             return (
               <div key={r.id} className="p-5 rounded-xl bg-[#050814]/40 border border-white/5 space-y-4 hover:border-white/10 transition-colors">
                 <div className="flex justify-between items-start">
@@ -93,7 +89,7 @@ export default function ProductReviews({ productId }: { productId: number }) {
               </div>
             );
           })
-        ) : (!showForm && <div className="text-center py-8 text-slate-500 text-xs border border-white/5 border-dashed rounded-xl bg-[#050814]/20">Bu ürüne henüz yorum yapılmamış. İlk değerlendiren sen ol!</div>)}
+        ) : (!showForm && <div className="text-center py-8 text-slate-500 text-xs border border-white/5 border-dashed rounded-xl bg-[#050814]/20">Bu ürüne henüz yorum yapılmamış. İlk değerlendiren siz olun!</div>)}
       </div>
     </div>
   );

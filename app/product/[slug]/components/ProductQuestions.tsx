@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 
-interface Review { id: number; parent_id?: number; date_created: string; review: string; rating: number; reviewer: string; }
+interface Review { id: number; parent: number; date_created: string; review: string; rating: number; reviewer: string; }
 
 export default function ProductQuestions({ productId }: { productId: number }) {
   const [questions, setQuestions] = useState<Review[]>([]);
@@ -19,9 +19,9 @@ export default function ProductQuestions({ productId }: { productId: number }) {
       });
       if (res.ok) {
         const data: Review[] = await res.json();
-        // 🚀 KİLİT AÇILDI: Sorular da artık eksik kimlikle bile ekranda çıkacak!
-        setQuestions(data.filter((q) => (!q.parent_id || Number(q.parent_id) === 0) && q.review.includes("[SORU]")));
-        setReplies(data.filter((r) => r.parent_id && Number(r.parent_id) > 0));
+        // 🚀 APİ DEĞİŞİKLİĞİ: parent_id yerine 'parent' kullanılarak onaylı cevapların görünmesi sağlandı!
+        setQuestions(data.filter((q) => (!q.parent || Number(q.parent) === 0) && q.review.includes("[SORU]")));
+        setReplies(data.filter((r) => r.parent && Number(r.parent) > 0));
       }
     } catch (e) { console.error(e); }
   };
@@ -52,10 +52,14 @@ export default function ProductQuestions({ productId }: { productId: number }) {
         {questions.length > 0 ? (
           questions.map((q) => {
             const cleanText = q.review.replace("[SORU]", "").trim();
-            const qReplies = replies.filter((r) => Number(r.parent_id) === Number(q.id));
+            const qReplies = replies.filter((r) => Number(r.parent) === Number(q.id));
             return (
               <div key={q.id} className="p-5 rounded-xl bg-[#050814]/20 border border-white/5 flex flex-col gap-3 text-xs hover:border-white/10 transition-colors">
-                <div><span className="text-blue-400 font-bold block mb-1.5 flex items-center gap-1"><span className="text-sm">❓</span> Müşteri Sorusu ({q.reviewer})</span><p className="text-slate-200 pl-3 border-l-2 border-blue-500/40 py-1 leading-relaxed">{cleanText}</p></div>
+                {/* 🚀 DEĞİŞİKLİK: 'dangerouslySetInnerHTML' eklenerek başında ve sonunda 'p' harflerinin çıkması %100 engellendi! */}
+                <div>
+                  <span className="text-blue-400 font-bold block mb-1.5 flex items-center gap-1"><span className="text-sm">❓</span> Müşteri Sorusu ({q.reviewer})</span>
+                  <div className="text-slate-300 pl-3 border-l-2 border-blue-500/40 py-1 leading-relaxed" dangerouslySetInnerHTML={{ __html: cleanText }} />
+                </div>
                 {qReplies.length > 0 ? (
                   qReplies.map((reply) => (
                     <div key={reply.id} className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-lg ml-3 shadow-inner relative overflow-hidden mt-1">
@@ -68,7 +72,7 @@ export default function ProductQuestions({ productId }: { productId: number }) {
               </div>
             );
           })
-        ) : (<div className="text-center py-8 text-slate-500 text-xs border border-white/5 border-dashed rounded-xl bg-[#050814]/20">Henüz soru sorulmamış. İlk soruyu sen sor!</div>)}
+        ) : (<div className="text-center py-8 text-slate-500 text-xs border border-white/5 border-dashed rounded-xl bg-[#050814]/20">Henüz soru sorulmamış. İlk soruyu siz sorun!</div>)}
       </div>
     </div>
   );
