@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { PhotoProvider } from "react-photo-view";
 import "react-photo-view/dist/react-photo-view.css";
 
-// 🚀 MODÜLER BİLEŞENLERİMİZİ İTHAL EDİYORUZ
+// 🚀 MODÜLER BİLEŞENLERİMİZ
 import ProductGallery from "./components/ProductGallery";
 import ProductShare from "./components/ProductShare";
 import ProductSpecs from "./components/ProductSpecs";
@@ -12,6 +12,13 @@ import ProductFps from "./components/ProductFps";
 import ProductCompare from "./components/ProductCompare";
 import ProductReviews from "./components/ProductReviews";
 import ProductQuestions from "./components/ProductQuestions";
+
+interface Review {
+  id: number;
+  parent_id: number;
+  review: string;
+  rating: number;
+}
 
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const [quantity, setQuantity] = useState(1);
@@ -22,10 +29,24 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
   const [timeLeft, setTimeLeft] = useState("");
   const [shippingMessage, setShippingMessage] = useState("");
+  
+  // Üst tarafta dinamik yıldız göstermek için kısa yorum durumları
+  const [topReviewsCount, setTopReviewsCount] = useState(0);
+  const [topRating, setTopRating] = useState(0);
+
+  // 🚀 AŞAĞI KAYDIRMA İÇİN REF TANIMI
+  const reviewsRef = useRef<HTMLDivElement>(null);
 
   const toggleAccordion = (section: string) => {
     setOpenAccordion(openAccordion === section ? null : section);
   };
+
+  // 🚀 SORUN 1 ÇÖZÜLDÜ: Sayfaya girildiğinde ortadan başlama hatası %100 engellendi, sayfa en üste kilitleniyor
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+  }, [product?.id]);
 
   useEffect(() => {
     const calculateShipping = () => {
@@ -41,8 +62,34 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     };
     calculateShipping();
     const timer = setInterval(calculateShipping, 1000);
+
+    // Üst kısımdaki yıldızları beslemek için hızlıca yorum sayısını çekiyoruz
+    const fetchTopData = async () => {
+      try {
+        const res = await fetch(`/api/reviews?product=${product.id}`);
+        if (res.ok) {
+          const data: Review[] = await res.json();
+          const normalReviews = data.filter((item: Review) => Number(item.parent_id) === 0 && !item.review.includes("[SORU]"));
+          setTopReviewsCount(normalReviews.length);
+          if (normalReviews.length > 0) {
+            const avg = normalReviews.reduce((sum, r) => sum + r.rating, 0) / normalReviews.length;
+            setTopRating(Number(avg.toFixed(1)));
+          }
+        }
+      } catch (e) { console.error(e); }
+    };
+    if (product?.id) fetchTopData();
+
     return () => clearInterval(timer);
-  }, []);
+  }, [product?.id]);
+
+  // 🚀 SORUN 2 ÇÖZÜLDÜ: Üstteki bağlantıya tıklayınca akordeonu otomatik açıp aşağıya yumuşakça kaydıran motor
+  const scrollToReviewsSection = () => {
+    setOpenAccordion("topluluk");
+    setTimeout(() => {
+      reviewsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 120);
+  };
 
   const handleAddToCart = () => {
     setAddingToCart(true);
@@ -73,7 +120,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           {/* SOL TARAF: GALERİ MODÜLÜ */}
           <ProductGallery images={product.images || []} productName={product.name} />
 
-          {/* SAĞ TARAF: DETAYLAR VE SATIN ALMA ÇARKI */}
+          {/* SAĞ TARAF: VİTRİN DETAYLARI VE SATIN ALMA PANELI */}
           <div className="flex flex-col justify-between py-1">
             <div>
               <div className="flex flex-wrap items-center gap-1.5 mb-3">
@@ -84,7 +131,17 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
               <h1 className="text-lg sm:text-2xl font-black uppercase tracking-tight mb-3 text-slate-100">{product.name}</h1>
 
-              {/* HIZLI KARGO ÜST BANTTA */}
+              {/* 🚀 SORUN 2: ÜST TARAFA EKLENEN MODERN YORUMLARI GÖR BAĞLANTISI */}
+              <div className="flex items-center gap-2 mb-3 bg-white/[0.02] border border-white/5 p-2 rounded-md w-max">
+                <div className="flex items-center gap-0.5 text-amber-400 text-xs">
+                  {[...Array(5)].map((_, i) => <span key={i}>{i < (topRating || 5) ? '★' : '☆'}</span>)}
+                </div>
+                <button type="button" onClick={scrollToReviewsSection} className="text-[11px] font-black tracking-wide text-blue-400 hover:text-blue-300 uppercase hover:underline transition-colors">
+                  {topReviewsCount > 0 ? `${topRating} Puan (${topReviewsCount} Kullanıcı Yorumu)` : "İlk Yorumu Sen Yap & Soru Sor"}
+                </button>
+              </div>
+
+              {/* HIZLI KARGO ÜST VİTRİNDE SABİT */}
               <div className="flex items-center gap-3 mb-3 bg-[#050814]/50 p-3 rounded-md border border-blue-500/20">
                 <div className="text-xl text-blue-400 animate-pulse">🚀</div>
                 <div className="flex flex-col text-xs">
@@ -112,7 +169,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
               <div className="bg-blue-600/5 border border-blue-500/10 rounded-md p-2.5 mb-3 flex items-center gap-2 text-xs font-bold text-blue-400 shadow-inner">💳 Kredi Kartına 12 Taksit Seçeneği!</div>
               
-              {/* PAYLAŞIM MODÜLÜ */}
+              {/* CANLI PAYLAŞIM BİLEŞENİ */}
               <ProductShare />
             </div>
 
@@ -158,8 +215,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <div className={`grid transition-all duration-300 ease-in-out ${openAccordion === "fps_paneli" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}><div className="overflow-hidden"><ProductFps product={product} /></div></div>
             </div>
 
-            {/* KULLANICI YORUMLARI MODÜLÜ */}
-            <div className="border-b border-white/5">
+            {/* 🚀 KULLANICI YORUMLARI MODÜLÜ (SCROLL REF BAĞLANDI) */}
+            <div className="border-b border-white/5" ref={reviewsRef}>
               <button type="button" onClick={() => toggleAccordion("topluluk")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5"><span className="text-sm font-black uppercase tracking-widest text-blue-400">💬 Kullanıcı Yorumları</span><span className="text-blue-400">▼</span></button>
               <div className={`grid transition-all duration-300 ease-in-out ${openAccordion === "topluluk" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}><div className="overflow-hidden"><div className="px-4 pb-4 border-t border-white/5"><ProductReviews productId={product.id} /></div></div></div>
             </div>
