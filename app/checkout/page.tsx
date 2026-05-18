@@ -6,7 +6,6 @@ export default function CheckoutPage() {
   const [formContent, setFormContent] = useState<string | null>(null);
 
   useEffect(() => {
-    // Sepetteki gerçek verileri hafızadan çekip arkadaki kasaya yolluyoruz
     const savedCart = localStorage.getItem("cart");
     const savedCustomer = localStorage.getItem("customerDetails");
 
@@ -50,34 +49,19 @@ export default function CheckoutPage() {
     fetchRealPaymentForm();
   }, []);
 
-  // 👑 MOBİL ZIRHLI İYZİCO MOTORU
+  // 👑 NİHAİ ÇÖZÜM: createContextualFragment (Mobil tarayıcıları %100 ikna eder)
   useEffect(() => {
     if (formContent) {
       const wrapper = document.getElementById("iyzico-form-wrapper");
       if (wrapper) {
-        // 1. Önce İyzico'nun iskeletini sayfaya oturtuyoruz
-        wrapper.innerHTML = formContent;
-
-        // 2. Mobil tarayıcıların panik yapmaması ve DOM'u çizmesi için 150ms nefes aldırıyoruz
-        setTimeout(() => {
-          const scripts = wrapper.getElementsByTagName("script");
-          // Canlı döngü hatalarını önlemek için kodları güvenli bir diziye alıyoruz
-          const scriptsArray = Array.from(scripts); 
-          
-          scriptsArray.forEach((oldScript) => {
-            const newScript = document.createElement("script");
-            newScript.type = "text/javascript";
-            
-            if (oldScript.src) {
-              newScript.src = oldScript.src;
-            } else {
-              newScript.text = oldScript.innerHTML;
-            }
-            
-            // Kodları doğrudan body'nin en sonuna güvenle ekliyoruz
-            document.body.appendChild(newScript);
-          });
-        }, 150); // Bu ufak gecikme mobil kilidi tamamen kırar
+        // 1. Olası çift yüklemeleri önlemek için yuvayı tamamen temizliyoruz
+        wrapper.innerHTML = "";
+        
+        // 2. İyzico kodunu tarayıcının doğal bir parçası gibi işliyoruz
+        const fragment = document.createRange().createContextualFragment(formContent);
+        
+        // 3. Organik olarak sayfaya ekliyoruz (Telefon bunu tehdit olarak algılamaz)
+        wrapper.appendChild(fragment);
       }
     }
   }, [formContent]);
@@ -85,7 +69,6 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-[#050814] flex flex-col items-center justify-center p-4">
       
-      {/* SADECE YÜKLENİRKEN GÖRÜNEN HALKA */}
       {loading && (
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
@@ -93,8 +76,8 @@ export default function CheckoutPage() {
         </div>
       )}
 
-      {/* FORMUN DOĞACAĞI, ARKASI TAMAMEN BOŞ OLAN YUVA */}
-      <div id="iyzico-form-wrapper" className="w-full flex justify-center"></div>
+      {/* İyzico formu burada belirecek */}
+      <div id="iyzico-form-wrapper" className="w-full max-w-2xl flex justify-center"></div>
 
     </div>
   );
