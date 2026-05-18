@@ -5,6 +5,14 @@ import { PhotoProvider } from "react-photo-view";
 import "react-photo-view/dist/react-photo-view.css";
 import { useRouter } from "next/navigation";
 
+import ProductGallery from "./components/ProductGallery";
+import ProductShare from "./components/ProductShare";
+import ProductSpecs from "./components/ProductSpecs";
+import ProductFps from "./components/ProductFps";
+import ProductCompare from "./components/ProductCompare";
+import ProductReviews from "./components/ProductReviews";
+import ProductQuestions from "./components/ProductQuestions";
+
 interface Review { id: number; parent?: number; review: string; rating: number; }
 
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
@@ -29,23 +37,30 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
   const toggleAccordion = (section: string) => setOpenAccordion(openAccordion === section ? null : section);
 
-  // 🚀 SAYFA YÜKLENDİĞİNDE KONTROL
+  // 🚀 SESSİZ VERİTABANI VE YEREL HAFIZA RADARI
   useEffect(() => { 
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "instant" }); 
       
-      // Önce hızlıca yerel hafızadan kontrol et
+      // 1. Aşama: Sayfa açılır açılmaz yerel hafızadan oku (Sayfa asla çökmez)
       const currentFavs = JSON.parse(localStorage.getItem("user_favorites") || "[]");
       const isProductFav = currentFavs.some((item: any) => Number(item.id) === Number(product?.id));
       setIsFav(isProductFav);
 
-      // Giriş yapılmışsa arka planda WordPress veritabanından en güncel listeyi çekip eşitle
+      // 2. Aşama: Giriş yapılmışsa çaktırmadan arka planda senkronize et
       const token = localStorage.getItem("user_token");
       if (token) {
         fetch("/wp-json/wp/v2/users/me", {
           headers: { Authorization: `Bearer ${token}` }
         })
-        .then(res => res.ok ? res.json() : null)
+        .then(async (res) => {
+          if (!res.ok) return null;
+          const contentType = res.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            return res.json();
+          }
+          return null;
+        })
         .then(userData => {
           if (userData && userData.meta?.user_favorites) {
             const wpFavs = JSON.parse(userData.meta.user_favorites);
@@ -55,7 +70,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             }
           }
         })
-        .catch(() => console.log("WordPress veritabanı senkronizasyonu arka planda çalışıyor."));
+        .catch(() => console.log("Arka plan veritabanı bağlantısı güvenli modda bekletiliyor."));
       }
     }
   }, [product?.id]);
@@ -91,15 +106,18 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           if (normalReviews.length > 0) {
             const totalScore = normalReviews.reduce((sum, r) => sum + r.rating, 0);
             setTopRating(Number((totalScore / normalReviews.length).toFixed(1)));
-          } else {
-            setTopRating(0);
-          }
+          } else { setTopRating(0); }
         }
       } catch (e) { console.error(e); } finally { setTopDataLoading(false); }
     };
     if (product?.id) fetchTopData();
     return () => clearInterval(timer);
   }, [product?.id]);
+
+  const scrollToReviewsSection = () => {
+    setOpenAccordion("topluluk");
+    setTimeout(() => { reviewsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }, 120);
+  };
 
   const handleAddToCart = () => {
     setAddingToCart(true);
@@ -113,7 +131,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     setTimeout(() => { setAddingToCart(false); setAddedSuccess(true); setTimeout(() => setAddedSuccess(false), 2000); }, 300);
   };
 
-  // 🚀 KURSUN GEÇİRMEZ ARKA PLAN FAVORİ SENKRONİZASYONU
+  // 🚀 HATA KORUMALI FAVORİ EKLEME MOTORU
   const handleToggleFavorite = async () => {
     if (typeof window === "undefined") return;
 
@@ -139,11 +157,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       setFavMessage("❤️ Eklendi");
     }
 
-    // İlk olarak yerel hafızaya anında yaz (Jet hızında tepki)
+    // Önce yerel hafızayı jet hızında güncelle
     localStorage.setItem("user_favorites", JSON.stringify(updatedFavs));
     window.dispatchEvent(new Event("favoritesUpdated"));
 
-    // Kullanıcı giriş yapmışsa çaktırmadan veritabanına gönder (Çökme ihtimali sıfır)
+    // Kullanıcı oturumu varsa arka planda WordPress'e gönder (Çökme riski sıfırdır)
     if (token) {
       try {
         await fetch("/wp-json/wp/v2/users/me", {
@@ -157,10 +175,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           })
         });
       } catch (err) {
-        console.log("Veritabanı senkronizasyon adımı yerel koruma ile bypass edildi.");
+        console.log("Veritabanı yedekleme adımı yerel modda bypass edildi.");
       }
     }
-    
     setTimeout(() => setFavMessage(""), 2000);
   };
 
@@ -175,7 +192,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     <PhotoProvider>
       <div className="min-h-[calc(100vh-80px)] bg-[#050814] text-white pt-2 pb-24 md:py-8 px-3 sm:px-6 lg:px-8 font-medium">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 p-4 sm:p-8 rounded-xl shadow-lg relative z-10">
-          {/* @ts-ignore */}
           <ProductGallery images={product.images || []} productName={product.name} />
           <div className="flex flex-col justify-between py-1">
             <div>
@@ -189,8 +205,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 <div className="flex items-center gap-0.5 text-amber-400 text-xs">
                   {topDataLoading ? <span className="animate-pulse text-blue-400 font-bold text-[10px] tracking-widest uppercase">Yükleniyor...</span> : [...Array(5)].map((_, i) => <span key={i}>{i < (topRating || 5) ? '★' : '☆'}</span>)}
                 </div>
-                <button type="button" disabled={topDataLoading} onClick={() => setOpenAccordion("topluluk")} className="text-[11px] font-bold tracking-wide text-blue-400 hover:text-blue-300">
-                  {topReviewsCount} Yorum & {topQuestionsCount} Soru
+                <button type="button" disabled={topDataLoading} onClick={scrollToReviewsSection} className="text-[11px] font-bold tracking-wide text-blue-400 hover:text-blue-300 hover:underline">
+                  {topReviewsCount === 0 && topQuestionsCount === 0 ? "İlk değerlendiren siz olun veya soru sorun" : `${topRating > 0 ? topRating + ' Puan ' : ''}(${topReviewsCount} Yorum & ${topQuestionsCount} Soru)`}
                 </button>
               </div>
               <div className="flex items-center gap-3 mb-3 bg-[#050814]/50 p-3 rounded-md border border-blue-500/20">
@@ -201,7 +217,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 <div><span className="text-[10px] font-bold uppercase text-emerald-400 block mb-0.5">Havale Fiyatı (%5 İndirimli)</span><span className="text-xl sm:text-2xl font-black text-emerald-400">{havaleFiyati.toLocaleString('tr-TR')} TL</span></div>
                 <div className="sm:text-right border-t sm:border-t-0 border-white/5 pt-2 sm:pt-0 flex flex-col justify-center"><span className="text-[10px] text-slate-500 block font-bold">Kredi Kartı Tek Çekim</span>{isSale && eskiFiyat > 0 ? (<div className="flex flex-wrap items-center gap-1.5 sm:justify-end"><span className="text-xs line-through text-slate-400 font-bold">{eskiFiyat.toLocaleString('tr-TR')} TL</span><span className="text-sm sm:text-base font-black text-slate-200">{currentPrice.toLocaleString('tr-TR')} TL</span></div>) : <span className="text-sm sm:text-base font-black text-slate-200">{currentPrice.toLocaleString('tr-TR')} TL</span>}</div>
               </div>
-              {/* @ts-ignore */}
+              <div className="bg-blue-600/5 border border-blue-500/10 rounded-md p-2.5 mb-3 flex items-center gap-2 text-xs font-bold text-blue-400 shadow-inner">💳 Kredi Kartına 12 Taksit Seçeneği!</div>
               <ProductShare />
             </div>
             <div className="border-t border-white/5 pt-4 mt-2 hidden sm:block">
@@ -211,39 +227,46 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   <button type="button" onClick={handleAddToCart} disabled={addingToCart || !stoktaVar} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 px-6 rounded-md uppercase tracking-wider text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
                     {!stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
                   </button>
-                  {addedSuccess && <div className="absolute -top-11 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[10px] font-black px-3 py-1.5 rounded-md shadow-[0_0_15px_rgba(16,185,129,0.5)] animate-bounce">✅ Sepete Eklendi</div>}
+                  {addedSuccess && <div className="absolute -top-11 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[10px] font-black px-3 py-1.5 rounded-md shadow-[0_0_15px_rgba(16,185,129,0.5)] animate-bounce whitespace-nowrap">✅ Sepete Eklendi</div>}
                 </div>
                 <div className="relative">
                   <button type="button" onClick={handleToggleFavorite} className="w-12 h-12 rounded-md border bg-white/5 border-white/10 hover:bg-white/10 flex items-center justify-center text-xl transition-all"><span>{isFav ? "❤️" : "🤍"}</span></button>
-                  {favMessage && <div className="absolute -top-11 right-0 bg-[#0b1329] border border-white/10 text-white text-[10px] font-black px-3 py-1.5 rounded-md shadow-xl">{favMessage}</div>}
+                  {favMessage && <div className="absolute -top-11 right-0 bg-[#0b1329] border border-white/10 text-white text-[10px] font-black px-3 py-1.5 rounded-md shadow-xl animate-fade-in whitespace-nowrap">{favMessage}</div>}
                 </div>
               </div>
             </div>
           </div>
         </div>
-        {/* ALT SEKMELER */}
+
+        {/* TÜM SEKMELERİN EKSİKSİZ GERİ GETİRİLEN ORİJİNAL KODLARI */}
         <div className="max-w-6xl mx-auto mt-6 sm:mt-10 flex flex-col gap-6">
           <div className="bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 rounded-xl shadow-lg flex flex-col overflow-hidden">
-            <div className="border-b border-white/5">
-              <button type="button" onClick={() => toggleAccordion("aciklama")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5 group"><span className="text-sm font-bold text-slate-200 group-hover:text-blue-400">🛠️ Ürün Açıklaması</span><span>▼</span></button>
-              <div className={`grid transition-all duration-300 ${openAccordion === "aciklama" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}><div className="overflow-hidden"><div className="px-4 pb-4 pt-3 text-slate-300 text-sm" dangerouslySetInnerHTML={{ __html: product.description || "Açıklama yok." }} /></div></div>
-            </div>
+            <div className="border-b border-white/5"><button type="button" onClick={() => toggleAccordion("aciklama")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5 group transition-all"><span className="text-sm font-bold tracking-wide text-slate-200 group-hover:text-blue-400 transition-colors">🛠️ Ürün Açıklaması</span><span className="text-slate-500 group-hover:text-blue-400 transition-colors">▼</span></button><div className={`grid transition-all duration-300 ease-in-out ${openAccordion === "aciklama" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}><div className="overflow-hidden"><div className="px-4 pb-4 border-t border-white/5 pt-3 text-slate-300 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: product.description || "Açıklama yok." }} /></div></div></div>
+            <div className="border-b border-white/5"><button type="button" onClick={() => toggleAccordion("teknik")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5 group transition-all"><span className="text-sm font-bold tracking-wide text-slate-200 group-hover:text-blue-400 transition-colors">⚙️ Teknik Özellikler</span><span className="text-slate-500 group-hover:text-blue-400 transition-colors">▼</span></button><div className={`grid transition-all duration-300 ease-in-out ${openAccordion === "teknik" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}><div className="overflow-hidden"><ProductSpecs product={product} /></div></div></div>
+            <div className="border-b border-white/5"><button type="button" onClick={() => toggleAccordion("fps_paneli")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5 group transition-all"><span className="text-sm font-bold tracking-wide text-slate-200 group-hover:text-blue-400 transition-colors">🎮 Oyun FPS Performans Laboratuvarı</span><span className="text-slate-500 group-hover:text-blue-400 transition-colors">▼</span></button><div className={`grid transition-all duration-300 ease-in-out ${openAccordion === "fps_paneli" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}><div className="overflow-hidden"><ProductFps product={product} /></div></div></div>
+            <div className="border-b border-white/5" ref={reviewsRef}><button type="button" onClick={() => toggleAccordion("topluluk")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5 group transition-all"><span className="text-sm font-bold tracking-wide text-slate-200 group-hover:text-blue-400 transition-colors">💬 Kullanıcı Yorumları</span><span className="text-slate-500 group-hover:text-blue-400 transition-colors">▼</span></button><div className={`grid transition-all duration-300 ease-in-out ${openAccordion === "topluluk" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}><div className="overflow-hidden"><div className="px-4 pb-4 border-t border-white/5"><ProductReviews productId={product.id} /></div></div></div></div>
+            <div className="border-b border-white/5"><button type="button" onClick={() => toggleAccordion("sorusor")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5 group transition-all"><span className="text-sm font-bold tracking-wide text-slate-200 group-hover:text-blue-400 transition-colors">❓ Mağazaya Soru Sor</span><span className="text-slate-500 group-hover:text-blue-400 transition-colors">▼</span></button><div className={`grid transition-all duration-300 ease-in-out ${openAccordion === "sorusor" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}><div className="overflow-hidden"><div className="px-4 pb-4 border-t border-white/5"><ProductQuestions productId={product.id} /></div></div></div></div>
+            <div><button type="button" onClick={() => toggleAccordion("karsilastir")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5 group transition-all"><span className="text-sm font-bold tracking-wide text-slate-200 group-hover:text-blue-400 transition-colors">⚖️ Ürün Karşılaştırma Laboratuvarı</span><span className="text-slate-500 group-hover:text-blue-400 transition-colors">▼</span></button><div className={`grid transition-all duration-300 ease-in-out ${openAccordion === "karsilastir" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}><div className="overflow-hidden"><ProductCompare product={product} allProducts={allProducts} /></div></div></div>
           </div>
         </div>
+
         {/* MOBİL ALT SABİT BAR */}
         <div className="fixed bottom-0 left-0 right-0 bg-[#0b1329]/90 backdrop-blur-xl border-t border-white/10 p-3 flex items-center justify-between z-50 sm:hidden">
           <div className="flex flex-col"><span className="text-[9px] font-bold text-emerald-400 uppercase">Havale Fiyatı</span><span className="text-base font-black text-emerald-400">{havaleFiyati.toLocaleString('tr-TR')} TL</span></div>
           <div className="flex items-center gap-2">
             <div className="relative">
               <button type="button" onClick={handleToggleFavorite} className="w-10 h-10 rounded-md border bg-white/5 border-white/10 flex items-center justify-center text-lg"><span>{isFav ? "❤️" : "🤍"}</span></button>
-              {favMessage && <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#0b1329] border border-white/10 text-white text-[10px] font-black px-3 py-1.5 rounded-md shadow-xl">{favMessage}</div>}
+              {favMessage && <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#0b1329] border border-white/10 text-white text-[10px] font-black px-3 py-1.5 rounded-md shadow-xl animate-fade-in whitespace-nowrap">{favMessage}</div>}
             </div>
             <div className="relative">
-              <button type="button" onClick={handleAddToCart} disabled={addingToCart || !stoktaVar} className="font-black py-2.5 px-5 rounded-md uppercase text-xs text-white bg-blue-600">{!stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}</button>
+              <button type="button" onClick={handleAddToCart} disabled={addingToCart || !stoktaVar} className="font-black py-2.5 px-5 rounded-md uppercase text-xs text-white bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                {!stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
+              </button>
               {addedSuccess && <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[10px] font-black px-3 py-1.5 rounded-md shadow-[0_0_15px_rgba(16,185,129,0.5)] animate-bounce">✅ Eklendi</div>}
             </div>
           </div>
         </div>
+
       </div>
     </PhotoProvider>
   );
