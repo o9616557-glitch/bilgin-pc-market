@@ -37,10 +37,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
   const toggleAccordion = (section: string) => setOpenAccordion(openAccordion === section ? null : section);
 
+  // 🚀 SAYFA YÜKLENDİĞİNDE: Artık senin sayfandaki gibi "user_favorites" anahtarı kontrol ediliyor!
   useEffect(() => { 
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "instant" }); 
-      const currentFavs = JSON.parse(localStorage.getItem("favorites") || "[]");
+      const currentFavs = JSON.parse(localStorage.getItem("user_favorites") || "[]");
       const isProductFav = currentFavs.some((item: any) => item.id === product?.id);
       setIsFav(isProductFav);
     }
@@ -117,11 +118,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     }, 300);
   };
 
-  // 🚀 GÜNCELLEME: HERKESE AÇIK ÖZGÜR FAVORİ MOTORU
+  // 🚀 FAVORİ MOTORU GÜNCELLEMESİ: Veriler artık doğrudan "user_favorites" olarak yazılıyor!
   const handleToggleFavorite = () => {
     if (typeof window === "undefined") return;
 
-    const currentFavs = JSON.parse(localStorage.getItem("favorites") || "[]");
+    const currentFavs = JSON.parse(localStorage.getItem("user_favorites") || "[]");
     const existingIndex = currentFavs.findIndex((item: any) => item.id === product.id);
 
     if (existingIndex > -1) {
@@ -129,7 +130,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       setIsFav(false);
       setFavMessage("💔 Çıkarıldı");
     } else {
-      // Giriş zorunluluğu yok, direkt hafızaya ekliyoruz şef!
       currentFavs.push({ 
         id: product.id, 
         name: product.name, 
@@ -141,7 +141,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       setFavMessage("❤️ Eklendi");
     }
 
-    localStorage.setItem("favorites", JSON.stringify(currentFavs));
+    localStorage.setItem("user_favorites", JSON.stringify(currentFavs));
     window.dispatchEvent(new Event("favoritesUpdated"));
     
     setTimeout(() => setFavMessage(""), 2000);
