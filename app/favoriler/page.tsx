@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface FavoriteProduct {
   id: number;
@@ -12,17 +13,32 @@ interface FavoriteProduct {
 }
 
 export default function FavoritesPage() {
+  const router = useRouter();
   const [favorites, setFavorites] = useState<FavoriteProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [toastMessage, setToastMessage] = useState("");
 
-  // Yerel hafızadaki favori ürünleri yükleyen radar
+  // 🚀 CANLI VERİTABANI RADARI: Sayfa açıldığında API üzerinden verileri çeker
   useEffect(() => {
-    const loadFavorites = () => {
+    const loadFavorites = async () => {
       try {
-        const storedFavorites = localStorage.getItem("user_favorites");
-        if (storedFavorites) {
-          setFavorites(JSON.parse(storedFavorites));
+        const token = localStorage.getItem("user_token");
+        
+        // Giriş yapmamışsa sayfaya sokma, girişe fırlat
+        if (!token) {
+          router.push("/giris");
+          return;
+        }
+
+        const res = await fetch("/api/favorites", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setFavorites(Array.isArray(data) ? data : []);
+        } else {
+          setToastMessage("⚠️ Oturum yenilenemedi.");
         }
       } catch (error) {
         console.error("Favoriler yüklenirken hata oluştu.");
@@ -31,14 +47,34 @@ export default function FavoritesPage() {
       }
     };
     loadFavorites();
-  }, []);
+  }, [router]);
 
-  // Ürünü favorilerden kaldıran fonksiyon
-  const handleRemoveFavorite = (id: number) => {
+  // 🚀 CANLI VERİTABANI KALDIRMA MOTORU
+  const handleRemoveFavorite = async (id: number) => {
+    const token = localStorage.getItem("user_token");
+    if (!token) return;
+
+    // Arayüzde anında kaybolması için filtrele (Hız efekti)
     const updatedFavorites = favorites.filter((item) => Number(item.id) !== Number(id));
     setFavorites(updatedFavorites);
-    localStorage.setItem("user_favorites", JSON.stringify(updatedFavorites));
     setToastMessage("❌ Ürün favorilerden kaldırıldı.");
+
+    try {
+      await fetch("/api/favorites", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          product: { id },
+          action: "remove"
+        })
+      });
+    } catch (error) {
+      console.error(error);
+    }
+
     setTimeout(() => setToastMessage(""), 3000);
   };
 
@@ -79,10 +115,8 @@ export default function FavoritesPage() {
 
   return (
     <div className="min-h-screen bg-[#050814] text-white py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden font-medium">
-      {/* Arka plan siber grid deseni */}
       <div className="absolute inset-0 z-0 opacity-[0.02] bg-[size:24px_24px] bg-[linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)]"></div>
 
-      {/* Modern Toast Bildirim Balonu */}
       {toastMessage && (
         <div className="fixed top-24 right-4 z-50 bg-[#0b1329] border border-blue-500/30 text-slate-100 px-5 py-3 rounded-xl shadow-[0_0_20px_rgba(37,99,235,0.2)] text-xs font-black uppercase tracking-wider animate-fade-in flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
@@ -91,26 +125,23 @@ export default function FavoritesPage() {
       )}
 
       <div className="max-w-6xl mx-auto relative z-10">
-        {/* Sayfa Başlığı - Kurumsal Yapıldı */}
         <div className="flex flex-col mb-10 border-b border-white/5 pb-6">
           <h1 className="text-xl sm:text-3xl font-black uppercase tracking-tight text-slate-100 flex items-center gap-3">
             <span className="text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.4)]">❤️</span> Favorilerim
           </h1>
-          <p className="text-xs text-slate-500 mt-2 uppercase tracking-widest font-bold">Beğendiğiniz ve takip ettiğiniz ürünler</p>
+          <p className="text-xs text-slate-500 mt-2 uppercase tracking-widest font-bold">Hesabınızda kayıtlı duran favori ürünleriniz</p>
         </div>
 
-        {/* Yükleniyor Durumu */}
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-xs text-slate-500 uppercase tracking-widest font-black animate-pulse">Listeleniyor...</span>
+            <span className="text-xs text-slate-500 uppercase tracking-widest font-black animate-pulse">Veritabanı taranıyor...</span>
           </div>
         ) : favorites.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {favorites.map((product) => (
               <div key={product.id} className="bg-[#0b1329]/40 backdrop-blur-xl border border-white/5 rounded-2xl p-4 flex flex-col justify-between hover:border-blue-500/20 transition-all group shadow-lg">
                 <div>
-                  {/* Ürün Resmi Alanı */}
                   <div className="w-full aspect-square bg-[#050814]/60 rounded-xl border border-white/5 overflow-hidden relative mb-4 flex items-center justify-center">
                     <Link href={`/product/${product.slug}`} className="w-full h-full p-4 flex items-center justify-center">
                       <img 
@@ -129,7 +160,6 @@ export default function FavoritesPage() {
                     </button>
                   </div>
 
-                  {/* Ürün Adı */}
                   <Link href={`/product/${product.slug}`} className="block mb-2">
                     <h2 className="text-xs sm:text-sm font-black uppercase text-slate-200 group-hover:text-blue-400 transition-colors line-clamp-2 h-10 leading-tight">
                       {product.name}
@@ -137,7 +167,6 @@ export default function FavoritesPage() {
                   </Link>
                 </div>
 
-                {/* Alt Kısım */}
                 <div className="mt-4 pt-3 border-t border-white/5 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-[9px] font-black uppercase text-slate-500 tracking-wider">Fiyat</span>
@@ -159,7 +188,6 @@ export default function FavoritesPage() {
             ))}
           </div>
         ) : (
-          /* Boş Durum Yazıları Tamamen Profesyonel Hale Getirildi */
           <div className="text-center py-20 border border-white/5 border-dashed rounded-2xl bg-[#0b1329]/20 flex flex-col items-center justify-center gap-4">
             <div className="text-4xl opacity-40 animate-pulse">❤️</div>
             <div className="flex flex-col gap-1">

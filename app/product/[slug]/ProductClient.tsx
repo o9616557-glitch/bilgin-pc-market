@@ -37,13 +37,24 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
   const toggleAccordion = (section: string) => setOpenAccordion(openAccordion === section ? null : section);
 
-  // 🚀 SAYFA YÜKLENDİĞİNDE: Artık senin sayfandaki gibi "user_favorites" anahtarı kontrol ediliyor!
+  // 🚀 SAYFA YÜKLENDİĞİNDE: Veritabanındaki canlı favori listesini kontrol et
   useEffect(() => { 
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "instant" }); 
-      const currentFavs = JSON.parse(localStorage.getItem("user_favorites") || "[]");
-      const isProductFav = currentFavs.some((item: any) => item.id === product?.id);
-      setIsFav(isProductFav);
+      
+      const token = localStorage.getItem("user_token");
+      if (token) {
+        fetch("/api/favorites", {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            setIsFav(data.some((item: any) => Number(item.id) === Number(product?.id)));
+          }
+        })
+        .catch(err => console.error(err));
+      }
     }
   }, [product?.id]);
 
@@ -118,31 +129,52 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     }, 300);
   };
 
-  // 🚀 FAVORİ MOTORU GÜNCELLEMESİ: Veriler artık doğrudan "user_favorites" olarak yazılıyor!
-  const handleToggleFavorite = () => {
+  // 🚀 VERİTABANI ODAKLI FAVORİ EKLE/ÇIKAR MOTORU
+  const handleToggleFavorite = async () => {
     if (typeof window === "undefined") return;
 
-    const currentFavs = JSON.parse(localStorage.getItem("user_favorites") || "[]");
-    const existingIndex = currentFavs.findIndex((item: any) => item.id === product.id);
+    const token = localStorage.getItem("user_token");
 
-    if (existingIndex > -1) {
-      currentFavs.splice(existingIndex, 1);
-      setIsFav(false);
-      setFavMessage("💔 Çıkarıldı");
-    } else {
-      currentFavs.push({ 
-        id: product.id, 
-        name: product.name, 
-        price: product.price || product.regular_price, 
-        image: product.images?.[0]?.src || "/placeholder.png", 
-        slug: product.slug 
-      });
-      setIsFav(true);
-      setFavMessage("❤️ Eklendi");
+    // Giriş yapmadıysa engelle ve yönlendir
+    if (!token) {
+      setFavMessage("⚠️ Lütfen Önce Giriş Yapınız");
+      setTimeout(() => {
+        setFavMessage("");
+        router.push("/giris");
+      }, 2000);
+      return;
     }
 
-    localStorage.setItem("user_favorites", JSON.stringify(currentFavs));
-    window.dispatchEvent(new Event("favoritesUpdated"));
+    const actionType = isFav ? "remove" : "add";
+    
+    // İyimser Güncelleme (Hız hissi için anında rengi değiştiriyoruz)
+    setIsFav(!isFav);
+    setFavMessage(actionType === "add" ? "❤️ Eklendi" : "💔 Çıkarıldı");
+
+    try {
+      const res = await fetch("/api/favorites", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          product: product,
+          action: actionType
+        })
+      });
+
+      if (!res.ok) {
+        // Hata durumunda işlemi geri alıyoruz
+        setIsFav(isFav);
+        setFavMessage("⚠️ Bir hata oluştu");
+      } else {
+        window.dispatchEvent(new Event("favoritesUpdated"));
+      }
+    } catch (error) {
+      setIsFav(isFav);
+      setFavMessage("⚠️ Sunucu hatası");
+    }
     
     setTimeout(() => setFavMessage(""), 2000);
   };
@@ -202,7 +234,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <ProductShare />
             </div>
             
-            {/* MASAÜSTÜ ALT BUTONLAR */}
             <div className="border-t border-white/5 pt-4 mt-2 hidden sm:block">
               <div className="flex items-center gap-4">
                 <div className="flex items-center justify-between bg-[#050814] border border-white/10 rounded-md p-1.5 min-w-[100px]"><button type="button" onClick={() => setQuantity(q => q > 1 ? q - 1 : 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500">-</button><span className="px-2 font-black text-sm text-white">{quantity}</span><button type="button" onClick={() => setQuantity(q => q + 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500">+</button></div>
@@ -218,7 +249,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   )}
                 </div>
 
-                {/* MASAÜSTÜ FAVORİ */}
                 <div className="relative">
                   <button type="button" onClick={handleToggleFavorite} className="w-12 h-12 rounded-md border bg-white/5 border-white/10 hover:bg-white/10 flex items-center justify-center text-xl transition-all">
                     <span>{isFav ? "❤️" : "🤍"}</span>
@@ -251,7 +281,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           <div className="flex flex-col"><span className="text-[9px] font-bold text-emerald-400 uppercase">Havale Fiyatı</span><span className="text-base font-black text-emerald-400">{havaleFiyati.toLocaleString('tr-TR')} TL</span></div>
           <div className="flex items-center gap-2">
             
-            {/* MOBİL FAVORİ */}
             <div className="relative">
               <button type="button" onClick={handleToggleFavorite} className="w-10 h-10 rounded-md border bg-white/5 border-white/10 flex items-center justify-center text-lg transition-all">
                 <span>{isFav ? "❤️" : "🤍"}</span>
