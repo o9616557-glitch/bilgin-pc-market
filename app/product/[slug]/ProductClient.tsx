@@ -37,7 +37,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
   const toggleAccordion = (section: string) => setOpenAccordion(openAccordion === section ? null : section);
 
-  // 🚀 ARKA PLAN ACF VERİTABANI RADARI
+  // 🚀 MUTLAK WORDPRESS ADRESİ İLE SENKRONİZASYON RADARI
   useEffect(() => { 
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "instant" }); 
@@ -47,8 +47,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       setIsFav(isProductFav);
 
       const token = localStorage.getItem("user_token");
-      if (token) {
-        fetch("/wp-json/wp/v2/users/me", {
+      const wpBaseUrl = process.env.NEXT_PUBLIC_WORDPRESS_URL || "";
+
+      if (token && wpBaseUrl) {
+        // 🎯 DÜZELTİLDİ: İstek artık doğrudan mutlak WordPress API adresine gidiyor
+        fetch(`${wpBaseUrl}/wp-json/wp/v2/users/me`, {
           headers: { Authorization: `Bearer ${token}` }
         })
         .then(async (res) => {
@@ -68,7 +71,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             }
           }
         })
-        .catch(() => console.log("Veritabanı senkronizasyonu arka planda güvenle bekliyor."));
+        .catch(() => console.log("Arka plan veritabanı senkronizasyonu aktif modda bekliyor."));
       }
     }
   }, [product?.id]);
@@ -129,20 +132,19 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     setTimeout(() => { setAddingToCart(false); setAddedSuccess(true); setTimeout(() => setAddedSuccess(false), 2000); }, 300);
   };
 
-  // 🚀 KESİN ÜYELİK KİLİTLİ FAVORİ MOTORU
   const handleToggleFavorite = async () => {
     if (typeof window === "undefined") return;
 
     const token = localStorage.getItem("user_token");
+    const wpBaseUrl = process.env.NEXT_PUBLIC_WORDPRESS_URL || "";
 
-    // 🎯 ÇELİK DUVAR: Eğer user_token yoksa, yani üye girişi yapılmadıysa direkt engelle!
     if (!token) {
       setFavMessage("⚠️ Önce Giriş Yapmalısınız");
       setTimeout(() => {
         setFavMessage("");
-        router.push("/giris"); // Üyeyi direkt giriş sayfasına fırlatır
+        router.push("/giris");
       }, 1500);
-      return; // Kod burada kesilir, aşağıya geçip favoriye EKLEYEMEZ!
+      return;
     }
 
     const currentFavs = JSON.parse(localStorage.getItem("user_favorites") || "[]");
@@ -169,21 +171,23 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     localStorage.setItem("user_favorites", JSON.stringify(updatedFavs));
     window.dispatchEvent(new Event("favoritesUpdated"));
 
-    try {
-      await fetch("/wp-json/wp/v2/users/me", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          acf: { user_favorites: JSON.stringify(updatedFavs) }
-        })
-      });
-    } catch (err) {
-      console.log("Senkronizasyon yerel modda korundu.");
+    if (token && wpBaseUrl) {
+      try {
+        // 🎯 DÜZELTİLDİ: Kaydetme isteği doğrudan mutlak WordPress API adresine gidiyor
+        await fetch(`${wpBaseUrl}/wp-json/wp/v2/users/me`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            acf: { user_favorites: JSON.stringify(updatedFavs) }
+          })
+        });
+      } catch (err) {
+        console.log("Senkronizasyon güvenli yerel modda korundu.");
+      }
     }
-    
     setTimeout(() => setFavMessage(""), 2000);
   };
 

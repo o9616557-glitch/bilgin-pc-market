@@ -18,7 +18,7 @@ export default function FavoritesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [toastMessage, setToastMessage] = useState("");
 
-  // 🚀 ACF SENKRONİZASYON RADARI
+  // 🚀 MUTLAK WORDPRESS ADRESİ İLE GÜVENLİ SENKRONİZASYON RADARI
   useEffect(() => {
     const loadFavorites = async () => {
       try {
@@ -27,17 +27,18 @@ export default function FavoritesPage() {
         setFavorites(Array.isArray(localData) ? localData : []);
         setIsLoading(false);
 
-        // Giriş yapılmışsa canlı ACF alanını senkronize et
         const token = localStorage.getItem("user_token");
-        if (token) {
-          const res = await fetch("/wp-json/wp/v2/users/me", {
+        const wpBaseUrl = process.env.NEXT_PUBLIC_WORDPRESS_URL || "";
+
+        if (token && wpBaseUrl) {
+          // 🎯 DÜZELTİLDİ: İstek artık doğrudan mutlak WordPress API adresine gidiyor
+          const res = await fetch(`${wpBaseUrl}/wp-json/wp/v2/users/me`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           if (res.ok) {
             const contentType = res.headers.get("content-type");
             if (contentType && contentType.includes("application/json")) {
               const userData = await res.json();
-              // 🎯 DEĞİŞİKLİK: Favori sayfası da veriyi artık acf altından okuyor
               if (userData && userData.acf?.user_favorites) {
                 const wpFavs = JSON.parse(userData.acf.user_favorites);
                 if (Array.isArray(wpFavs) && wpFavs.length > 0) {
@@ -58,21 +59,21 @@ export default function FavoritesPage() {
   // 🚀 ACF KALDIRMA MOTORU
   const handleRemoveFavorite = async (id: number) => {
     const token = localStorage.getItem("user_token");
+    const wpBaseUrl = process.env.NEXT_PUBLIC_WORDPRESS_URL || "";
     const updatedFavorites = favorites.filter((item) => Number(item.id) !== Number(id));
     
     setFavorites(updatedFavorites);
     localStorage.setItem("user_favorites", JSON.stringify(updatedFavorites));
     setToastMessage("❌ Ürün favorilerden kaldırıldı.");
 
-    if (token) {
+    if (token && wpBaseUrl) {
       try {
-        await fetch("/wp-json/wp/v2/users/me", {
+        await fetch(`${wpBaseUrl}/wp-json/wp/v2/users/me`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`
           },
-          // 🎯 DEĞİŞİKLİK: Kaldırma işlemi yaparken acf odasına gönderiliyor
           body: JSON.stringify({
             acf: { user_favorites: JSON.stringify(updatedFavorites) }
           })
