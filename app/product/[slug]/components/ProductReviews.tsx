@@ -40,15 +40,27 @@ export default function ProductReviews({ productId }: { productId: number }) {
     } catch (err) { console.error(err); } finally { setSubmitting(false); }
   };
 
+  // 🚀 YENİ: Ortalama puanı hesaplayan matematik!
+  const avgRating = reviews.length > 0 
+    ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1) 
+    : "0.0";
+
   return (
     <div className="space-y-6 pt-3">
       {!showForm ? (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-5 p-4 sm:p-5 rounded-xl bg-[#050814]/40 border border-white/5 shadow-inner">
           <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto text-center sm:text-left">
-            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.1)]"><span className="text-xl">⭐</span></div>
+            
+            {/* 🚀 GÜNCELLENDİ: İçinde puan yazan çok şık yuvarlak yıldız rozeti */}
+            <div className="flex flex-col items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
+              <span className="text-base font-black leading-none">{avgRating}</span>
+              <span className="text-[10px] mt-0.5">⭐</span>
+            </div>
+
             <div className="flex flex-col">
               <span className="text-base font-black text-slate-100">{reviews.length} <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block sm:inline sm:ml-1 mt-0.5 sm:mt-0">Değerlendirme</span></span>
-              <span className="text-[10px] text-slate-500 font-medium mt-1 sm:mt-0.5">Gerçek dükkan deneyimleri</span>
+              {/* 🚀 METİN DEĞİŞTİRİLDİ */}
+              <span className="text-[10px] text-slate-500 font-medium mt-1 sm:mt-0.5">Onaylı müşteri değerlendirmeleri</span>
             </div>
           </div>
           <button onClick={() => setShowForm(true)} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-black px-6 py-3 rounded-lg text-xs uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(37,99,235,0.3)]">Yorum Yap & Puanla</button>
@@ -76,10 +88,7 @@ export default function ProductReviews({ productId }: { productId: number }) {
                 </div>
                 <div className="flex items-center gap-0.5 text-amber-400 text-xs sm:text-sm drop-shadow-[0_0_2px_rgba(251,191,36,0.3)]">{[...Array(5)].map((_, i) => <span key={i}>{i < r.rating ? '★' : '☆'}</span>)}</div>
               </div>
-              
-              {/* 🚀 MOBİLDE GİRİNTİLER SIFIRLANDI: Yazılar tam ekrana yayılıyor */}
               <div className="text-slate-300 text-sm leading-relaxed pl-0 sm:pl-11 mt-2 sm:mt-0 animate-fade-in" dangerouslySetInnerHTML={{ __html: r.review }} />
-              
               {rReplies.map((rep) => (
                 <div key={rep.id} className="bg-blue-600/10 border border-blue-500/20 p-3 sm:p-4 rounded-lg ml-0 sm:ml-11 mt-3 sm:mt-4 text-xs sm:text-sm relative overflow-hidden">
                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500/50"></div>

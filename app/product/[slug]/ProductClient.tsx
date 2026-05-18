@@ -25,6 +25,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [shippingMessage, setShippingMessage] = useState("");
   
   const [topReviewsCount, setTopReviewsCount] = useState(0);
+  const [topQuestionsCount, setTopQuestionsCount] = useState(0); // 🚀 YENİ: Soru sayacı eklendi
   const [topRating, setTopRating] = useState(0);
 
   const reviewsRef = useRef<HTMLDivElement>(null);
@@ -56,10 +57,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         });
         if (res.ok) {
           const data: Review[] = await res.json();
-          // 🚀 MATEMATİK DÜZELTİLDİ: Sadece ana yorumları (parent olmayan) ve yıldızı 0'dan büyük olan GERCÇEK yorumları sayar!
+          
+          // Gerçek Yorumları ve Soruları ayrı ayrı sayıyoruz
           const normalReviews = data.filter((item: Review) => (!item.parent || Number(item.parent) === 0) && !item.review.includes("[SORU]") && item.rating > 0);
+          const questionReviews = data.filter((item: Review) => (!item.parent || Number(item.parent) === 0) && item.review.includes("[SORU]"));
           
           setTopReviewsCount(normalReviews.length);
+          setTopQuestionsCount(questionReviews.length); // Soruları da hafızaya aldık
+          
           if (normalReviews.length > 0) {
             const totalScore = normalReviews.reduce((sum, r) => sum + r.rating, 0);
             const avg = totalScore / normalReviews.length;
@@ -99,6 +104,15 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const eskiFiyat = regularPrice > currentPrice ? regularPrice : (isSale ? Math.round(currentPrice * 1.15) : 0);
   const havaleFiyati = currentPrice * 0.95;
 
+  // 🚀 YENİ: Üst bar yazısını dinamik olarak oluşturan mantık
+  const getTopText = () => {
+    if (topReviewsCount === 0 && topQuestionsCount === 0) return "İlk değerlendiren siz olun veya soru sorun";
+    const parts = [];
+    if (topReviewsCount > 0) parts.push(`${topReviewsCount} Yorum`);
+    if (topQuestionsCount > 0) parts.push(`${topQuestionsCount} Soru`);
+    return `${topRating > 0 ? topRating + ' Puan ' : ''}(${parts.join(' & ')})`;
+  };
+
   return (
     <PhotoProvider>
       <div className="min-h-[calc(100vh-80px)] bg-[#050814] text-white pt-2 pb-24 md:py-8 px-3 sm:px-6 lg:px-8 font-medium">
@@ -112,10 +126,15 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 {isSale && <span className="bg-gradient-to-r from-red-500 to-amber-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">💎 BÜYÜK FIRSAT ÜRÜNÜ</span>}
               </div>
               <h1 className="text-lg sm:text-2xl font-black uppercase tracking-tight mb-3 text-slate-100">{product.name}</h1>
+              
+              {/* 🚀 GÜNCELLENMİŞ DİNAMİK ÜST BAR */}
               <div className="flex items-center gap-2 mb-3 bg-white/[0.02] border border-white/5 p-2 rounded-md w-max">
                 <div className="flex items-center gap-0.5 text-amber-400 text-xs">{[...Array(5)].map((_, i) => <span key={i}>{i < (topRating || 5) ? '★' : '☆'}</span>)}</div>
-                <button type="button" onClick={scrollToReviewsSection} className="text-[11px] font-bold tracking-wide text-blue-400 hover:text-blue-300 hover:underline transition-colors">{topReviewsCount > 0 ? `${topRating} Puan (${topReviewsCount} Kullanıcı Yorumu)` : "İlk değerlendiren siz olun veya soru sorun"}</button>
+                <button type="button" onClick={scrollToReviewsSection} className="text-[11px] font-bold tracking-wide text-blue-400 hover:text-blue-300 hover:underline transition-colors">
+                  {getTopText()}
+                </button>
               </div>
+
               <div className="flex items-center gap-3 mb-3 bg-[#050814]/50 p-3 rounded-md border border-blue-500/20">
                 <div className="text-xl text-blue-400 animate-pulse">🚀</div>
                 <div className="flex flex-col text-xs"><span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] text-blue-400">HIZLI KARGO AVANTAJI</span><span className="text-slate-300 mt-0.5">{timeLeft}</span><span className={`font-black text-sm uppercase ${shippingMessage === "BUGÜN KARGODA!" ? "text-emerald-400" : "text-amber-400"}`}>{shippingMessage}</span></div>
