@@ -13,8 +13,11 @@ export default function ProductQuestions({ productId }: { productId: number }) {
 
   const load = async () => {
     try {
-      // 🚀 HAFIZA KIRICI: Sorular odası için de aynı zaman damgasını ekledik!
-      const res = await fetch(`/api/reviews?product=${productId}&t=${new Date().getTime()}`, { cache: 'no-store' });
+      // 🚀 BROWSER HAFIZASINI KIRAN LİNK BURAYA DA EKLENDİ!
+      const res = await fetch(`/api/reviews?product=${productId}&_t=${Date.now()}`, { 
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
+      });
       if (res.ok) {
         const data: Review[] = await res.json();
         setQuestions(data.filter((q) => Number(q.parent_id) === 0 && q.review.includes("[SORU]")));
@@ -42,13 +45,9 @@ export default function ProductQuestions({ productId }: { productId: number }) {
       <form onSubmit={send} className="p-4 rounded-xl bg-[#050814]/40 border border-white/5 flex flex-col gap-3">
         {success && <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-md text-xs font-bold text-center text-emerald-400">{success}</div>}
         <textarea required value={newQuestion.question} onChange={(e) => setNewQuestion({ ...newQuestion, question: e.target.value })} rows={3} className="w-full bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-2.5 text-xs focus:outline-none resize-none transition-colors focus:border-blue-500/50" placeholder="Ürünle ilgili sorunuzu yazın..." />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <input required type="text" value={newQuestion.name} onChange={(e) => setNewQuestion({ ...newQuestion, name: e.target.value })} className="bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-3 text-xs focus:outline-none transition-colors focus:border-blue-500/50" placeholder="Adınız" />
-          <input required type="email" value={newQuestion.email} onChange={(e) => setNewQuestion({ ...newQuestion, email: e.target.value })} className="bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-3 text-xs focus:outline-none transition-colors focus:border-blue-500/50" placeholder="E-Posta Adresiniz" />
-        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3"><input required type="text" value={newQuestion.name} onChange={(e) => setNewQuestion({ ...newQuestion, name: e.target.value })} className="bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-3 text-xs focus:outline-none transition-colors focus:border-blue-500/50" placeholder="Adınız" /><input required type="email" value={newQuestion.email} onChange={(e) => setNewQuestion({ ...newQuestion, email: e.target.value })} className="bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-3 text-xs focus:outline-none transition-colors focus:border-blue-500/50" placeholder="E-Posta Adresiniz" /></div>
         <button type="submit" disabled={submitting} className="bg-white/5 border border-white/10 text-white font-black px-6 py-3 rounded-lg text-xs uppercase tracking-widest sm:self-end hover:bg-white/10 transition-all disabled:opacity-50">{submitting ? "İletiliyor..." : "Soruyu Gönder"}</button>
       </form>
-
       <div className="space-y-4">
         {questions.length > 0 ? (
           questions.map((q) => {
@@ -56,29 +55,20 @@ export default function ProductQuestions({ productId }: { productId: number }) {
             const qReplies = replies.filter((r) => Number(r.parent_id) === Number(q.id));
             return (
               <div key={q.id} className="p-5 rounded-xl bg-[#050814]/20 border border-white/5 flex flex-col gap-3 text-xs hover:border-white/10 transition-colors">
-                <div>
-                  <span className="text-blue-400 font-bold block mb-1.5 flex items-center gap-1"><span className="text-sm">❓</span> Müşteri Sorusu ({q.reviewer})</span>
-                  <p className="text-slate-200 pl-3 border-l-2 border-blue-500/40 py-1 leading-relaxed">{cleanText}</p>
-                </div>
+                <div><span className="text-blue-400 font-bold block mb-1.5 flex items-center gap-1"><span className="text-sm">❓</span> Müşteri Sorusu ({q.reviewer})</span><p className="text-slate-200 pl-3 border-l-2 border-blue-500/40 py-1 leading-relaxed">{cleanText}</p></div>
                 {qReplies.length > 0 ? (
                   qReplies.map((reply) => (
                     <div key={reply.id} className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-lg ml-3 shadow-inner relative overflow-hidden mt-1">
                       <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500/50"></div>
-                      <div className="text-[10px] text-emerald-400 font-black uppercase mb-1.5 flex items-center gap-1.5">
-                        <span className="text-sm">👨‍💻</span> Mağaza Yetkilisi Cevabı
-                      </div>
+                      <div className="text-[10px] text-emerald-400 font-black uppercase mb-1.5 flex items-center gap-1.5"><span className="text-sm">👨‍💻</span> Mağaza Yetkilisi Cevabı</div>
                       <div className="text-slate-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: reply.review }} />
                     </div>
                   ))
-                ) : (
-                  <div className="text-[10px] text-slate-600 font-bold italic ml-3 mt-1 flex items-center gap-1">⚙️ Mağaza yetkilisinin onayı ve cevabı bekleniyor...</div>
-                )}
+                ) : (<div className="text-[10px] text-slate-600 font-bold italic ml-3 mt-1 flex items-center gap-1">⚙️ Mağaza yetkilisinin onayı ve cevabı bekleniyor...</div>)}
               </div>
             );
           })
-        ) : (
-           <div className="text-center py-8 text-slate-500 text-xs border border-white/5 border-dashed rounded-xl bg-[#050814]/20">Henüz soru sorulmamış. İlk soruyu sen sor!</div>
-        )}
+        ) : (<div className="text-center py-8 text-slate-500 text-xs border border-white/5 border-dashed rounded-xl bg-[#050814]/20">Henüz soru sorulmamış. İlk soruyu sen sor!</div>)}
       </div>
     </div>
   );
