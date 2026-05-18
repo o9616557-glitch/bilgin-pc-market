@@ -105,13 +105,14 @@ export default function CartPage() {
               </span>
             </div>
 
-            {/* 👑 DEĞİŞİKLİK BURADA YAPILDI: İYZİCO HAFIZASINI TEMİZLEMESİ İÇİN KESİN ÇÖZÜM */}
-            <button 
-              onClick={() => window.location.href = '/checkout'}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black py-4 rounded-xl text-xs md:text-sm uppercase tracking-widest shadow-[0_4px_24px_rgba(37,99,235,0.4)] hover:shadow-[0_4px_24px_rgba(79,70,229,0.6)] transition-all active:scale-[0.98]"
+            {/* 👑 MOBİL KURŞUN GEÇİRMEZ LİNK: 
+                onClick iptal edildi, <a> etiketi ve zorunlu sayfa yenileme şifresi eklendi */}
+            <a 
+              href={`/checkout?t=${Date.now()}`}
+              className="flex justify-center items-center w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black py-4 rounded-xl text-xs md:text-sm uppercase tracking-widest shadow-[0_4px_24px_rgba(37,99,235,0.4)] hover:shadow-[0_4px_24px_rgba(79,70,229,0.6)] transition-all active:scale-[0.98]"
             >
               Güvenli Ödemeye Geç ➔
-            </button>
+            </a>
 
           </div>
         </div>
