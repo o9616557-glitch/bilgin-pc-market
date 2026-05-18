@@ -37,7 +37,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
   const toggleAccordion = (section: string) => setOpenAccordion(openAccordion === section ? null : section);
 
-  // 🚀 SESSİZ VERİTABANI VE YEREL HAFIZA RADARI
+  // 🚀 ARKA PLAN ACF VERİTABANI RADARI
   useEffect(() => { 
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "instant" }); 
@@ -47,7 +47,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       const isProductFav = currentFavs.some((item: any) => Number(item.id) === Number(product?.id));
       setIsFav(isProductFav);
 
-      // Giriş yapılmışsa arka planda sessizce senkronize et
+      // Giriş yapılmışsa arka planda sessizce ACF odasından verileri senkronize et
       const token = localStorage.getItem("user_token");
       if (token) {
         fetch("/wp-json/wp/v2/users/me", {
@@ -62,15 +62,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           return null;
         })
         .then(userData => {
-          if (userData && userData.meta?.user_favorites) {
-            const wpFavs = JSON.parse(userData.meta.user_favorites);
+          // 🎯 DEĞİŞİKLİK: Veriler artık meta yerine doğrudan acf altından okunuyor
+          if (userData && userData.acf?.user_favorites) {
+            const wpFavs = JSON.parse(userData.acf.user_favorites);
             if (Array.isArray(wpFavs)) {
               localStorage.setItem("user_favorites", JSON.stringify(wpFavs));
               setIsFav(wpFavs.some((item: any) => Number(item.id) === Number(product?.id)));
             }
           }
         })
-        .catch(() => console.log("Arka plan veritabanı bağlantısı güvenli modda bekletiliyor."));
+        .catch(() => console.log("Veritabanı senkronizasyonu arka planda güvenle bekliyor."));
       }
     }
   }, [product?.id]);
@@ -131,6 +132,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     setTimeout(() => { setAddingToCart(false); setAddedSuccess(true); setTimeout(() => setAddedSuccess(false), 2000); }, 300);
   };
 
+  // 🚀 ACF GÜVENLİ YAZMA MOTORU
   const handleToggleFavorite = async () => {
     if (typeof window === "undefined") return;
 
@@ -156,9 +158,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       setFavMessage("❤️ Eklendi");
     }
 
+    // İlk tepkiyi yerel hafızaya yaz
     localStorage.setItem("user_favorites", JSON.stringify(updatedFavs));
     window.dispatchEvent(new Event("favoritesUpdated"));
 
+    // Giriş yapılmışsa canlı ACF alanına kilitle
     if (token) {
       try {
         await fetch("/wp-json/wp/v2/users/me", {
@@ -167,18 +171,18 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`
           },
+          // 🎯 DEĞİŞİKLİK: WordPress'e veri gönderirken meta yerine acf odası kullanılıyor
           body: JSON.stringify({
-            meta: { user_favorites: JSON.stringify(updatedFavs) }
+            acf: { user_favorites: JSON.stringify(updatedFavs) }
           })
         });
       } catch (err) {
-        console.log("Veritabanı yedekleme adımı yerel modda bypass edildi.");
+        console.log("Veritabanı senkronizasyon adımı yerel koruma moduyla bypass edildi.");
       }
     }
     setTimeout(() => setFavMessage(""), 2000);
   };
 
-  // 🚀 GERİ GETİRİLEN AKILLI YAZI MOTORU
   const getTopText = () => {
     if (topDataLoading) return "Değerlendirmeler kontrol ediliyor...";
     if (topReviewsCount === 0 && topQuestionsCount === 0) return "İlk değerlendiren siz olun veya soru sorun";
@@ -209,7 +213,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
               <h1 className="text-lg sm:text-2xl font-black uppercase tracking-tight mb-3 text-slate-100">{product.name}</h1>
               
-              {/* 🚀 DÜZELTİLEN YORUM ALANI */}
               <div className="flex items-center gap-2 mb-3 bg-white/[0.02] border border-white/5 p-2 rounded-md w-max">
                 <div className="flex items-center gap-0.5 text-amber-400 text-xs">
                   {topDataLoading ? (
@@ -235,7 +238,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <ProductShare />
             </div>
             
-            {/* MASAÜSTÜ ALT BUTONLAR */}
             <div className="border-t border-white/5 pt-4 mt-2 hidden sm:block">
               <div className="flex items-center gap-4">
                 <div className="flex items-center justify-between bg-[#050814] border border-white/10 rounded-md p-1.5 min-w-[100px]"><button type="button" onClick={() => setQuantity(q => q > 1 ? q - 1 : 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500">-</button><span className="px-2 font-black text-sm text-white">{quantity}</span><button type="button" onClick={() => setQuantity(q => q + 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500">+</button></div>
@@ -245,7 +247,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                     {!stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
                   </button>
                   
-                  {/* 🚀 DÜZELTİLEN MASAÜSTÜ BALONU (FLEX YAPILDI, ASLA ÜST ÜSTE BİNMEZ) */}
+                  {/* ÜST ÜSTE BİNME ENGELLENMİŞ BALON */}
                   {addedSuccess && (
                     <div className="absolute -top-11 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[10px] font-black px-3 py-1.5 rounded-md shadow-[0_0_15px_rgba(16,185,129,0.5)] animate-bounce flex items-center gap-1.5 whitespace-nowrap pointer-events-none z-50 before:content-[''] before:absolute before:top-full before:left-1/2 before:-translate-x-1/2 before:border-4 before:border-transparent before:border-t-emerald-500">
                       <span>✅</span> <span>Sepete Eklendi</span>
@@ -262,7 +264,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           </div>
         </div>
 
-        {/* TÜM SEKMELER */}
         <div className="max-w-6xl mx-auto mt-6 sm:mt-10 flex flex-col gap-6">
           <div className="bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 rounded-xl shadow-lg flex flex-col overflow-hidden">
             <div className="border-b border-white/5"><button type="button" onClick={() => toggleAccordion("aciklama")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5 group transition-all"><span className="text-sm font-bold tracking-wide text-slate-200 group-hover:text-blue-400 transition-colors">🛠️ Ürün Açıklaması</span><span className="text-slate-500 group-hover:text-blue-400 transition-colors">▼</span></button><div className={`grid transition-all duration-300 ease-in-out ${openAccordion === "aciklama" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}><div className="overflow-hidden"><div className="px-4 pb-4 border-t border-white/5 pt-3 text-slate-300 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: product.description || "Açıklama yok." }} /></div></div></div>
@@ -286,8 +287,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <button type="button" onClick={handleAddToCart} disabled={addingToCart || !stoktaVar} className="font-black py-2.5 px-5 rounded-md uppercase text-xs text-white bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
                 {!stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
               </button>
-              
-              {/* 🚀 DÜZELTİLEN MOBİL BALONU */}
               {addedSuccess && (
                 <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[10px] font-black px-3 py-1.5 rounded-md shadow-[0_0_15px_rgba(16,185,129,0.5)] animate-bounce flex items-center gap-1.5 whitespace-nowrap pointer-events-none z-50 before:content-[''] before:absolute before:top-full before:left-1/2 before:-translate-x-1/2 before:border-4 before:border-transparent before:border-t-emerald-500">
                   <span>✅</span> <span>Eklendi</span>

@@ -18,40 +18,44 @@ export default function FavoritesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [toastMessage, setToastMessage] = useState("");
 
-  // 🚀 AKILLI HİBRİT RADAR
+  // 🚀 ACF SENKRONİZASYON RADARI
   useEffect(() => {
     const loadFavorites = async () => {
       try {
-        // 1. Önce hızlıca yerel hafızayı çek (Ekran anında dolsun, bekletmesin)
+        // Önce yerel hafızayı çek (Çökme koruması)
         const localData = JSON.parse(localStorage.getItem("user_favorites") || "[]");
         setFavorites(Array.isArray(localData) ? localData : []);
         setIsLoading(false);
 
-        // 2. Kullanıcı giriş yapmışsa canlı veritabanını çekip eşitle
+        // Giriş yapılmışsa canlı ACF alanını senkronize et
         const token = localStorage.getItem("user_token");
         if (token) {
           const res = await fetch("/wp-json/wp/v2/users/me", {
             headers: { Authorization: `Bearer ${token}` }
           });
           if (res.ok) {
-            const userData = await res.json();
-            if (userData && userData.meta?.user_favorites) {
-              const wpFavs = JSON.parse(userData.meta.user_favorites);
-              if (Array.isArray(wpFavs) && wpFavs.length > 0) {
-                setFavorites(wpFavs);
-                localStorage.setItem("user_favorites", JSON.stringify(wpFavs));
+            const contentType = res.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+              const userData = await res.json();
+              // 🎯 DEĞİŞİKLİK: Favori sayfası da veriyi artık acf altından okuyor
+              if (userData && userData.acf?.user_favorites) {
+                const wpFavs = JSON.parse(userData.acf.user_favorites);
+                if (Array.isArray(wpFavs) && wpFavs.length > 0) {
+                  setFavorites(wpFavs);
+                  localStorage.setItem("user_favorites", JSON.stringify(wpFavs));
+                }
               }
             }
           }
         }
       } catch (error) {
-        console.log("Arka plan veritabanı eşitlemesi yerel modda devam ediyor.");
+        console.log("Veritabanı senkronizasyonu yerel modda güvenle çalışıyor.");
       }
     };
     loadFavorites();
   }, [router]);
 
-  // 🚀 KALDIRMA MOTORU
+  // 🚀 ACF KALDIRMA MOTORU
   const handleRemoveFavorite = async (id: number) => {
     const token = localStorage.getItem("user_token");
     const updatedFavorites = favorites.filter((item) => Number(item.id) !== Number(id));
@@ -68,18 +72,18 @@ export default function FavoritesPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`
           },
+          // 🎯 DEĞİŞİKLİK: Kaldırma işlemi yaparken acf odasına gönderiliyor
           body: JSON.stringify({
-            meta: { user_favorites: JSON.stringify(updatedFavorites) }
+            acf: { user_favorites: JSON.stringify(updatedFavorites) }
           })
         });
       } catch (err) {
-        console.log("Kaldırma işlemi yerel hafızada tamamlandı.");
+        console.log("Kaldırma işlemi koruma moduyla tamamlandı.");
       }
     }
     setTimeout(() => setToastMessage(""), 3000);
   };
 
-  // 🚀 SEPETE EKLEME MOTORU (TAMAMEN BİRLEŞTİ)
   const handleAddToCart = (product: FavoriteProduct) => {
     try {
       const storedCart = localStorage.getItem("cart");
