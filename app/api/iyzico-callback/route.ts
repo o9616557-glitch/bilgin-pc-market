@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import iyzipay from '@/lib/iyzipay';
 
-export async function POST(req: Request) {
+// 🎯 TypeScript'e bu fonksiyonun kesinlikle bir "Response" döndüreceğini açıkça söylüyoruz
+export async function POST(req: Request): Promise<Response> {
     try {
-        // 1. İyzico'dan gelen ham form verisini okuyoruz
         const formData = await req.formData();
         const token = formData.get('token') as string;
 
@@ -11,22 +11,21 @@ export async function POST(req: Request) {
             return NextResponse.redirect(new URL('/sepet?error=token_yok', req.url));
         }
 
-        // 2. Token ile İyzico'ya "Bu işlemin sonucu ne oldu?" diye soruyoruz
-        return new Promise((resolve) => {
+        // 👑 ZIRHLI ALAN: Promise'in türünü <NextResponse> olarak kilitledik, Vercel artık hata veremez
+        const redirectResponse = await new Promise<NextResponse>((resolve) => {
             iyzipay.checkoutForm.retrieve({ locale: 'tr', token }, function (err: any, result: any) {
                 if (err || result.status !== 'success') {
                     console.error("Ödeme Başarısız:", result);
-                    // Ödeme başarısızsa müşteriyi hata mesajıyla sepete geri fırlatıyoruz
-                    return resolve(NextResponse.redirect(new URL(`/sepet?status=fail&reason=${result?.errorMessage || 'bilinmiyor'}`, req.url)));
+                    const reason = result?.errorMessage || 'bilinmiyor';
+                    resolve(NextResponse.redirect(new URL(`/sepet?status=fail&reason=${encodeURIComponent(reason)}`, req.url)));
+                } else {
+                    console.log("Efsane Başarı! Para Çekildi:", result);
+                    resolve(NextResponse.redirect(new URL('/siparis-takip?status=success', req.url)));
                 }
-
-                // 🌟 ÖDEME BAŞARILI! (Gerçek para çekildi)
-                console.log("Efsane Başarı! Para Çekildi:", result);
-                
-                // Müşteriyi senin projedeki sipariş takip veya başarı sayfasına yönlendiriyoruz
-                return resolve(NextResponse.redirect(new URL('/siparis-takip?status=success', req.url)));
             });
         });
+
+        return redirectResponse;
 
     } catch (error) {
         console.error("Callback Hatası:", error);
