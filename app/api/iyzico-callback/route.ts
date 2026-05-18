@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import iyzipay from '@/lib/iyzipay';
 
-// 🎯 TypeScript'e bu fonksiyonun kesinlikle bir "Response" döndüreceğini açıkça söylüyoruz
+// 👑 VERCEL HATASINI ENGELLEYEN SİHİRLİ SATIR: Next.js'e bu rotayı statik derleme diyoruz
+export const dynamic = "force-dynamic";
+
 export async function POST(req: Request): Promise<Response> {
     try {
         const formData = await req.formData();
@@ -11,7 +13,6 @@ export async function POST(req: Request): Promise<Response> {
             return NextResponse.redirect(new URL('/sepet?error=token_yok', req.url));
         }
 
-        // 👑 ZIRHLI ALAN: Promise'in türünü <NextResponse> olarak kilitledik, Vercel artık hata veremez
         const redirectResponse = await new Promise<NextResponse>((resolve) => {
             iyzipay.checkoutForm.retrieve({ locale: 'tr', token }, function (err: any, result: any) {
                 if (err || result.status !== 'success') {
