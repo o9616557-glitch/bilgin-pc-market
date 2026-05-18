@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import iyzipay from '@/lib/iyzipay';
 
-export async function POST(req: Request) {
+// 🎯 Fonksiyonun kesinlikle bir "Response" döndüreceğini TypeScript'e dikte ediyoruz
+export async function POST(req: Request): Promise<Response> {
     try {
         const body = await req.json();
-        // Next.js sepetinden ve adres formundan gelen gerçek verileri yakalıyoruz
         const { cartItems, customerDetails, totalPrice } = body;
 
         if (!cartItems || cartItems.length === 0) {
@@ -22,7 +22,8 @@ export async function POST(req: Request) {
             currency: 'TRY',
             basketId: 'BASKET-' + Math.floor(Math.random() * 100000),
             paymentGroup: 'PRODUCT',
-            callbackUrl: "https://app.bilginpcmarket.com/api/iyzico-callback", // Ödeme bitince Vercel'de döneceği yer
+            // 🌟 CANLI ADRESİMİZ KİLİTLİ
+            callbackUrl: "https://app.bilginpcmarket.com/api/iyzico-callback", 
             enabledInstallments: [2, 3, 6, 9], // Peşin fiyatına taksit kanalları
             buyer: {
                 id: 'CUST-' + Math.floor(Math.random() * 10000),
@@ -32,28 +33,27 @@ export async function POST(req: Request) {
                 email: customerDetails?.email || 'satis@bilginpcmarket.com',
                 identityNumber: '11111111111', // T.C. Kimlik Zorunluluğu
                 lastLoginDate: '2026-05-18 21:30:00',
-                registrationDate: '2026-05-10 12:00:00',
+                registrationDate: '2026-05-18 21:30:00',
                 registrationAddress: customerDetails?.address_1 || 'Belirtilmedi',
                 ip: '85.34.78.112',
-                city: customerDetails?.city || 'Istanbul',
+                city: customerDetails?.city || 'İstanbul',
                 country: 'Turkey',
                 zipCode: customerDetails?.postcode || '34000'
             },
             shippingAddress: {
                 contactName: `${customerDetails?.first_name || 'Müşteri'} ${customerDetails?.last_name || ''}`,
-                city: customerDetails?.city || 'Istanbul',
+                city: customerDetails?.city || 'İstanbul',
                 country: 'Turkey',
                 address: customerDetails?.address_1 || 'Belirtilmedi',
                 zipCode: customerDetails?.postcode || '34000'
             },
             billingAddress: {
                 contactName: `${customerDetails?.first_name || 'Müşteri'} ${customerDetails?.last_name || ''}`,
-                city: customerDetails?.city || 'Istanbul',
+                city: customerDetails?.city || 'İstanbul',
                 country: 'Turkey',
                 address: customerDetails?.address_1 || 'Belirtilmedi',
                 zipCode: customerDetails?.postcode || '34000'
             },
-            // 🔥 HATALI ÇARPMANIN DÜZELTİLDİĞİ GÜVENLİ ALAN: Önce sayıya çevirip sonra çarpıyoruz
             basketItems: cartItems.map((item: any, idx: number) => ({
                 id: item.id?.toString() || `PROD-${idx}`,
                 name: item.name || 'Bilgisayar Bileşeni',
@@ -63,17 +63,21 @@ export async function POST(req: Request) {
             }))
         };
 
-        return new Promise((resolve) => {
-            iyzipay.checkoutFormInitialize.create(request, function (err: any, result: any) {
-                if (err) {
-                    console.error("İyzico API Hatası:", err);
-                    return resolve(NextResponse.json({ success: false, error: err }, { status: 500 }));
+        // 👑 KRİTİK ZIRHLAMA: Promise yapısını <NextResponse> olarak kilitledik. Vercel artık geçit verecek!
+        const iyzicoResponse = await new Promise<NextResponse>((resolve) => {
+            iyzipay.checkoutForm.initialize(request, function (err: any, result: any) {
+                if (err || result?.status !== 'success') {
+                    resolve(NextResponse.json({ success: false, error: result?.errorMessage || 'İyzico başlatılamadı' }, { status: 500 }));
+                } else {
+                    resolve(NextResponse.json({ success: true, data: result }));
                 }
-                return resolve(NextResponse.json({ success: true, data: result }));
             });
         });
 
-    } catch (error) {
-        return NextResponse.json({ success: false, error: 'Kritik Sunucu Hatası' }, { status: 500 });
+        return iyzicoResponse;
+
+    } catch (error: any) {
+        console.error("İyzico API Hatası:", error);
+        return NextResponse.json({ success: false, error: 'Sistem hatası' }, { status: 500 });
     }
 }
