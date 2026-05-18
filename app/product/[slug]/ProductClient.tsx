@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { PhotoProvider } from "react-photo-view";
 import "react-photo-view/dist/react-photo-view.css";
 
-// 🚀 MODÜLER BİLEŞENLERİMİZ
+// 🚀 MODÜLER BİLEŞENLERİMİZİ İTHAL EDİYORUZ
 import ProductGallery from "./components/ProductGallery";
 import ProductShare from "./components/ProductShare";
 import ProductSpecs from "./components/ProductSpecs";
@@ -30,18 +30,15 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [timeLeft, setTimeLeft] = useState("");
   const [shippingMessage, setShippingMessage] = useState("");
   
-  // Üst tarafta dinamik yıldız göstermek için kısa yorum durumları
   const [topReviewsCount, setTopReviewsCount] = useState(0);
   const [topRating, setTopRating] = useState(0);
 
-  // 🚀 AŞAĞI KAYDIRMA İÇİN REF TANIMI
   const reviewsRef = useRef<HTMLDivElement>(null);
 
   const toggleAccordion = (section: string) => {
     setOpenAccordion(openAccordion === section ? null : section);
   };
 
-  // 🚀 SORUN 1 ÇÖZÜLDÜ: Sayfaya girildiğinde ortadan başlama hatası %100 engellendi, sayfa en üste kilitleniyor
   useEffect(() => {
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "instant" });
@@ -63,7 +60,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     calculateShipping();
     const timer = setInterval(calculateShipping, 1000);
 
-    // Üst kısımdaki yıldızları beslemek için hızlıca yorum sayısını çekiyoruz
     const fetchTopData = async () => {
       try {
         const res = await fetch(`/api/reviews?product=${product.id}`);
@@ -83,7 +79,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     return () => clearInterval(timer);
   }, [product?.id]);
 
-  // 🚀 SORUN 2 ÇÖZÜLDÜ: Üstteki bağlantıya tıklayınca akordeonu otomatik açıp aşağıya yumuşakça kaydıran motor
   const scrollToReviewsSection = () => {
     setOpenAccordion("topluluk");
     setTimeout(() => {
@@ -117,10 +112,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       <div className="min-h-[calc(100vh-80px)] bg-[#050814] text-white pt-2 pb-24 md:py-8 px-3 sm:px-6 lg:px-8 font-medium">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 p-4 sm:p-8 rounded-xl shadow-lg relative z-10">
           
-          {/* SOL TARAF: GALERİ MODÜLÜ */}
           <ProductGallery images={product.images || []} productName={product.name} />
 
-          {/* SAĞ TARAF: VİTRİN DETAYLARI VE SATIN ALMA PANELI */}
           <div className="flex flex-col justify-between py-1">
             <div>
               <div className="flex flex-wrap items-center gap-1.5 mb-3">
@@ -131,17 +124,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
               <h1 className="text-lg sm:text-2xl font-black uppercase tracking-tight mb-3 text-slate-100">{product.name}</h1>
 
-              {/* 🚀 SORUN 2: ÜST TARAFA EKLENEN MODERN YORUMLARI GÖR BAĞLANTISI */}
+              {/* 🎨 KİBARLAŞTIRILMIŞ VE KÜÇÜK HARFLİ YORUM BAĞLANTISI */}
               <div className="flex items-center gap-2 mb-3 bg-white/[0.02] border border-white/5 p-2 rounded-md w-max">
                 <div className="flex items-center gap-0.5 text-amber-400 text-xs">
                   {[...Array(5)].map((_, i) => <span key={i}>{i < (topRating || 5) ? '★' : '☆'}</span>)}
                 </div>
-                <button type="button" onClick={scrollToReviewsSection} className="text-[11px] font-black tracking-wide text-blue-400 hover:text-blue-300 uppercase hover:underline transition-colors">
-                  {topReviewsCount > 0 ? `${topRating} Puan (${topReviewsCount} Kullanıcı Yorumu)` : "İlk Yorumu Sen Yap & Soru Sor"}
+                <button type="button" onClick={scrollToReviewsSection} className="text-[11px] font-bold tracking-wide text-blue-400 hover:text-blue-300 hover:underline transition-colors">
+                  {topReviewsCount > 0 ? `${topRating} Puan (${topReviewsCount} Kullanıcı Yorumu)` : "İlk değerlendiren siz olun veya soru sorun"}
                 </button>
               </div>
 
-              {/* HIZLI KARGO ÜST VİTRİNDE SABİT */}
               <div className="flex items-center gap-3 mb-3 bg-[#050814]/50 p-3 rounded-md border border-blue-500/20">
                 <div className="text-xl text-blue-400 animate-pulse">🚀</div>
                 <div className="flex flex-col text-xs">
@@ -169,11 +161,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
               <div className="bg-blue-600/5 border border-blue-500/10 rounded-md p-2.5 mb-3 flex items-center gap-2 text-xs font-bold text-blue-400 shadow-inner">💳 Kredi Kartına 12 Taksit Seçeneği!</div>
               
-              {/* CANLI PAYLAŞIM BİLEŞENİ */}
               <ProductShare />
             </div>
 
-            {/* MASAÜSTÜ SEPET VE FAVORİ ALANI */}
             <div className="border-t border-white/5 pt-4 mt-2 hidden sm:block">
               <div className="flex items-center gap-4">
                 <div className="flex items-center justify-between bg-[#050814] border border-white/10 rounded-md p-1.5 min-w-[100px]">
@@ -184,7 +174,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 <button type="button" onClick={handleAddToCart} disabled={addingToCart || addedSuccess || !stoktaVar} className={`flex-1 font-black py-3 px-6 rounded-md uppercase tracking-wider text-xs sm:text-sm ${addedSuccess ? "bg-emerald-500" : "bg-blue-600 hover:bg-blue-700"} text-white`}>
                   {addingToCart ? "Ekleniyor..." : addedSuccess ? "✅ SEPETE EKLENDİ" : !stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
                 </button>
-                {/* AKILLI FAVORİ KALBİ */}
                 <button type="button" onClick={() => setIsFav(!isFav)} className="w-12 h-12 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-xl transition-all hover:bg-white/10">
                   <span>{isFav ? "❤️" : "🤍"}</span>
                 </button>
@@ -193,43 +182,61 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           </div>
         </div>
 
-        {/* ALT ALAN: AKORDEON DEPARTMANI (YUMUŞAK GRID MOTORU) */}
+        {/* 🎨 MODERN VE BÜTÜNLEŞİK RENKLİ AKORDEON DEPARTMANI */}
         <div className="max-w-6xl mx-auto mt-6 sm:mt-10 flex flex-col gap-6">
           <div className="bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 rounded-xl shadow-lg flex flex-col overflow-hidden">
             
             {/* AÇIKLAMA */}
             <div className="border-b border-white/5">
-              <button type="button" onClick={() => toggleAccordion("aciklama")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5"><span className="text-sm font-black uppercase tracking-widest text-blue-400">🛠️ Ürün Açıklaması</span><span className="text-blue-400">▼</span></button>
+              <button type="button" onClick={() => toggleAccordion("aciklama")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5 group transition-all">
+                <span className="text-sm font-bold tracking-wide text-slate-200 group-hover:text-blue-400 transition-colors">🛠️ Ürün Açıklaması</span>
+                <span className="text-slate-500 group-hover:text-blue-400 transition-colors">▼</span>
+              </button>
               <div className={`grid transition-all duration-300 ease-in-out ${openAccordion === "aciklama" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}><div className="overflow-hidden"><div className="px-4 pb-4 border-t border-white/5 pt-3 text-slate-300 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: product.description || "Açıklama yok." }} /></div></div>
             </div>
 
-            {/* TEKNİK ÖZELLİKLER MODÜLÜ */}
+            {/* TEKNİK ÖZELLİKLER */}
             <div className="border-b border-white/5">
-              <button type="button" onClick={() => toggleAccordion("teknik")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5"><span className="text-sm font-black uppercase tracking-widest text-blue-400">⚙️ Teknik Özellikler</span><span className="text-blue-400">▼</span></button>
+              <button type="button" onClick={() => toggleAccordion("teknik")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5 group transition-all">
+                <span className="text-sm font-bold tracking-wide text-slate-200 group-hover:text-blue-400 transition-colors">⚙️ Teknik Özellikler</span>
+                <span className="text-slate-500 group-hover:text-blue-400 transition-colors">▼</span>
+              </button>
               <div className={`grid transition-all duration-300 ease-in-out ${openAccordion === "teknik" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}><div className="overflow-hidden"><ProductSpecs product={product} /></div></div>
             </div>
 
             {/* FPS PERFORMANS LABORATUVARI */}
             <div className="border-b border-white/5">
-              <button type="button" onClick={() => toggleAccordion("fps_paneli")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5"><span className="text-sm font-black uppercase tracking-widest text-amber-500">🎮 Oyun FPS Performans Laboratuvarı</span><span className="text-amber-500">▼</span></button>
+              <button type="button" onClick={() => toggleAccordion("fps_paneli")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5 group transition-all">
+                <span className="text-sm font-bold tracking-wide text-slate-200 group-hover:text-blue-400 transition-colors">🎮 Oyun FPS Performans Laboratuvarı</span>
+                <span className="text-slate-500 group-hover:text-blue-400 transition-colors">▼</span>
+              </button>
               <div className={`grid transition-all duration-300 ease-in-out ${openAccordion === "fps_paneli" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}><div className="overflow-hidden"><ProductFps product={product} /></div></div>
             </div>
 
-            {/* 🚀 KULLANICI YORUMLARI MODÜLÜ (SCROLL REF BAĞLANDI) */}
+            {/* KULLANICI YORUMLARI MODÜLÜ */}
             <div className="border-b border-white/5" ref={reviewsRef}>
-              <button type="button" onClick={() => toggleAccordion("topluluk")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5"><span className="text-sm font-black uppercase tracking-widest text-blue-400">💬 Kullanıcı Yorumları</span><span className="text-blue-400">▼</span></button>
+              <button type="button" onClick={() => toggleAccordion("topluluk")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5 group transition-all">
+                <span className="text-sm font-bold tracking-wide text-slate-200 group-hover:text-blue-400 transition-colors">💬 Kullanıcı Yorumları</span>
+                <span className="text-slate-500 group-hover:text-blue-400 transition-colors">▼</span>
+              </button>
               <div className={`grid transition-all duration-300 ease-in-out ${openAccordion === "topluluk" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}><div className="overflow-hidden"><div className="px-4 pb-4 border-t border-white/5"><ProductReviews productId={product.id} /></div></div></div>
             </div>
 
             {/* MAĞAZAYA SORU SOR MODÜLÜ */}
             <div className="border-b border-white/5">
-              <button type="button" onClick={() => toggleAccordion("sorusor")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5"><span className="text-sm font-black uppercase tracking-widest text-blue-400">❓ Mağazaya Soru Sor</span><span className="text-blue-400">▼</span></button>
+              <button type="button" onClick={() => toggleAccordion("sorusor")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5 group transition-all">
+                <span className="text-sm font-bold tracking-wide text-slate-200 group-hover:text-blue-400 transition-colors">❓ Mağazaya Soru Sor</span>
+                <span className="text-slate-500 group-hover:text-blue-400 transition-colors">▼</span>
+              </button>
               <div className={`grid transition-all duration-300 ease-in-out ${openAccordion === "sorusor" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}><div className="overflow-hidden"><div className="px-4 pb-4 border-t border-white/5"><ProductQuestions productId={product.id} /></div></div></div>
             </div>
 
             {/* ÜRÜN KARŞILAŞTIRMA LAB */}
             <div>
-              <button type="button" onClick={() => toggleAccordion("karsilastir")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5"><span className="text-sm font-black uppercase tracking-widest text-emerald-400">⚖️ Ürün Karşılaştırma Laboratuvarı</span><span className="text-emerald-400">▼</span></button>
+              <button type="button" onClick={() => toggleAccordion("karsilastir")} className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5 group transition-all">
+                <span className="text-sm font-bold tracking-wide text-slate-200 group-hover:text-blue-400 transition-colors">⚖️ Ürün Karşılaştırma Laboratuvarı</span>
+                <span className="text-slate-500 group-hover:text-blue-400 transition-colors">▼</span>
+              </button>
               <div className={`grid transition-all duration-300 ease-in-out ${openAccordion === "karsilastir" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}><div className="overflow-hidden"><ProductCompare product={product} allProducts={allProducts} /></div></div>
             </div>
 
