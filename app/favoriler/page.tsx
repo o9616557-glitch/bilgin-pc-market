@@ -48,9 +48,10 @@ export default function FavoritesPage() {
   // Ürünü doğrudan sepete fırlatan fonksiyon
   const handleAddToCart = (product: FavoriteProduct) => {
     try {
-      const storedCart = localStorage.getItem("user_cart");
+      // 🚀 DÜZELTİLDİ: user_cart yerine sitenin ana sepeti olan "cart" kutusuna bağlandı
+      const storedCart = localStorage.getItem("cart");
       let cart = storedCart ? JSON.parse(storedCart) : [];
-      
+
       // Ürün sepette zaten var mı kontrolü
       const existingItem = cart.find((item: any) => item.id === product.id);
       if (existingItem) {
@@ -59,16 +60,17 @@ export default function FavoritesPage() {
         cart.push({ ...product, quantity: 1 });
       }
 
-      localStorage.setItem("user_cart", JSON.stringify(cart));
-      
-      // Sepet sayacını tetiklemek için global event fırlatıyoruz şefim
-      window.dispatchEvent(new Event("cart_updated"));
+      // 🚀 DÜZELTİLDİ: "cart" kutusuna güncel hali kaydedildi
+      localStorage.setItem("cart", JSON.stringify(cart));
+
+      // 🚀 DÜZELTİLDİ: Sinyaller sitenin geneliyle (Header ile) eşitlendi, sayaç anında artacak!
+      window.dispatchEvent(new Event("cartUpdated"));
+      window.dispatchEvent(new Event("storage"));
 
       setToastMessage("Ürün başarıyla sepetinize eklendi! ✓");
       setTimeout(() => setToastMessage(""), 3000);
     } catch (error) {
       setToastMessage("Ürün sepete eklenirken bir hata oluştu.");
-      setTimeout(() => setToastMessage(""), 3000);
     }
   };
 
