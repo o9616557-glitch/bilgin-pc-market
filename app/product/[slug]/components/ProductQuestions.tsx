@@ -1,0 +1,76 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+
+interface Review { id: number; parent_id: number; date_created: string; review: string; rating: number; reviewer: string; }
+
+export default function ProductQuestions({ productId }: { productId: number }) {
+  const [questions, setQuestions] = useState<Review[]>([]);
+  const [replies, setReplies] = useState<Review[]>([]);
+  const [newQuestion, setNewQuestion] = useState({ name: "", email: "", question: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState("");
+
+  const load = async () => {
+    try {
+      const res = await fetch(`/api/reviews?product=${productId}`);
+      if (res.ok) {
+        const data: Review[] = await res.json();
+        setQuestions(data.filter((q) => Number(q.parent_id) === 0 && q.review.includes("[SORU]")));
+        setReplies(data.filter((r) => Number(r.parent_id) > 0));
+      }
+    } catch (e) { console.error(e); }
+  };
+
+  useEffect(() => { if (productId) load(); }, [productId]);
+
+  const send = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const res = await fetch('/api/reviews', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ product_id: productId, reviewer: newQuestion.name, reviewer_email: newQuestion.email, review: newQuestion.question, rating: 0, is_question: true }) });
+      if (res.ok) {
+        setSuccess("Sorunuz başarıyla iletildi!");
+        setTimeout(() => { setNewQuestion({ name: "", email: "", question: "" }); setSuccess(""); load(); }, 3000);
+      }
+    } catch (err) { console.error(err); } finally { setSubmitting(false); }
+  };
+
+  return (
+    <div className="space-y-6 pt-3">
+      <form onSubmit={send} className="p-4 rounded-xl bg-[#050814]/40 border border-white/5 flex flex-col gap-3">
+        {success && <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-md text-xs font-bold text-center text-emerald-400">{success}</div>}
+        <textarea required value={newQuestion.question} onChange={(e) => setNewQuestion({ ...newQuestion, question: e.target.value })} rows={3} className="w-full bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-2.5 text-xs focus:outline-none resize-none" placeholder="Soru yazın..." />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <input required type="text" value={newQuestion.name} onChange={(e) => setNewQuestion({ ...newQuestion, name: e.target.value })} className="bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-2 text-xs focus:outline-none" placeholder="Adınız" />
+          <input required type="email" value={newQuestion.email} onChange={(e) => setNewQuestion({ ...newQuestion, email: e.target.value })} className="bg-[#0b1329] border border-white/10 text-slate-200 rounded-lg p-2 text-xs focus:outline-none" placeholder="E-Posta" />
+        </div>
+        <button type="submit" disabled={submitting} className="bg-white/5 border border-white/10 text-white font-black px-6 py-2 rounded-md text-xs uppercase tracking-widest sm:self-end hover:bg-white/10 transition-all">{submitting ? "İletiliyor..." : "Soruyu Gönder"}</button>
+      </form>
+      <div className="space-y-4">
+        {questions.map((q) => {
+          const cleanText = q.review.replace("[SORU]", "").trim();
+          const qReplies = replies.filter((r) => Number(r.parent_id) === Number(q.id));
+          return (
+            <div key={q.id} className="p-4 rounded-xl bg-[#050814]/20 border border-white/5 flex flex-col gap-3 text-xs">
+              <div>
+                <span className="text-blue-400 font-bold block mb-1">❓ Müşteri Sorusu ({q.reviewer})</span>
+                <p className="text-slate-200 pl-2 border-l border-blue-500/40">{cleanText}</p>
+              </div>
+              {qReplies.length > 0 ? (
+                qReplies.map((reply) => (
+                  <div key={reply.id} className="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg ml-3 shadow-inner">
+                    <div className="text-[10px] text-emerald-400 font-black uppercase mb-1">👨‍💻 Mağaza Yetkilisi Cevabı</div>
+                    <div className="text-slate-300" dangerouslySetInnerHTML={{ __html: reply.review }} />
+                  </div>
+                ))
+              ) : (
+                <div className="text-[10px] text-slate-600 font-bold italic ml-3">⚙️ Cevap bekleniyor...</div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
