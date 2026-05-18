@@ -18,20 +18,19 @@ export default function FavoritesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [toastMessage, setToastMessage] = useState("");
 
-  // 🚀 MUTLAK WORDPRESS ADRESİ İLE GÜVENLİ SENKRONİZASYON RADARI
+  // 🚀 ADRES DİREKT ÇİVİLENDİ
   useEffect(() => {
     const loadFavorites = async () => {
       try {
-        // Önce yerel hafızayı çek (Çökme koruması)
         const localData = JSON.parse(localStorage.getItem("user_favorites") || "[]");
         setFavorites(Array.isArray(localData) ? localData : []);
         setIsLoading(false);
 
         const token = localStorage.getItem("user_token");
-        const wpBaseUrl = process.env.NEXT_PUBLIC_WORDPRESS_URL || "";
+        // 🎯 KESİN ADRES ÇİVİSİ
+        const wpBaseUrl = "https://bilginpcmarket.com";
 
-        if (token && wpBaseUrl) {
-          // 🎯 DÜZELTİLDİ: İstek artık doğrudan mutlak WordPress API adresine gidiyor
+        if (token) {
           const res = await fetch(`${wpBaseUrl}/wp-json/wp/v2/users/me`, {
             headers: { Authorization: `Bearer ${token}` }
           });
@@ -50,23 +49,22 @@ export default function FavoritesPage() {
           }
         }
       } catch (error) {
-        console.log("Veritabanı senkronizasyonu yerel modda güvenle çalışıyor.");
+        console.log("Veritabanı senkronizasyonu hatası: ", error);
       }
     };
     loadFavorites();
   }, [router]);
 
-  // 🚀 ACF KALDIRMA MOTORU
   const handleRemoveFavorite = async (id: number) => {
     const token = localStorage.getItem("user_token");
-    const wpBaseUrl = process.env.NEXT_PUBLIC_WORDPRESS_URL || "";
+    const wpBaseUrl = "https://bilginpcmarket.com";
     const updatedFavorites = favorites.filter((item) => Number(item.id) !== Number(id));
     
     setFavorites(updatedFavorites);
     localStorage.setItem("user_favorites", JSON.stringify(updatedFavorites));
     setToastMessage("❌ Ürün favorilerden kaldırıldı.");
 
-    if (token && wpBaseUrl) {
+    if (token) {
       try {
         await fetch(`${wpBaseUrl}/wp-json/wp/v2/users/me`, {
           method: "POST",
@@ -79,7 +77,7 @@ export default function FavoritesPage() {
           })
         });
       } catch (err) {
-        console.log("Kaldırma işlemi koruma moduyla tamamlandı.");
+        console.log("Kaldırma işlemi hatası: ", err);
       }
     }
     setTimeout(() => setToastMessage(""), 3000);

@@ -37,7 +37,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
   const toggleAccordion = (section: string) => setOpenAccordion(openAccordion === section ? null : section);
 
-  // 🚀 MUTLAK WORDPRESS ADRESİ İLE SENKRONİZASYON RADARI
+  // 🚀 ADRES DİREKT ÇİVİLENDİ
   useEffect(() => { 
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "instant" }); 
@@ -47,10 +47,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       setIsFav(isProductFav);
 
       const token = localStorage.getItem("user_token");
-      const wpBaseUrl = process.env.NEXT_PUBLIC_WORDPRESS_URL || "";
+      // 🎯 KESİN ADRES ÇİVİSİ
+      const wpBaseUrl = "https://bilginpcmarket.com";
 
-      if (token && wpBaseUrl) {
-        // 🎯 DÜZELTİLDİ: İstek artık doğrudan mutlak WordPress API adresine gidiyor
+      if (token) {
         fetch(`${wpBaseUrl}/wp-json/wp/v2/users/me`, {
           headers: { Authorization: `Bearer ${token}` }
         })
@@ -71,7 +71,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             }
           }
         })
-        .catch(() => console.log("Arka plan veritabanı senkronizasyonu aktif modda bekliyor."));
+        .catch((err) => console.log("Arka plan API bağlantısı: ", err));
       }
     }
   }, [product?.id]);
@@ -136,7 +136,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     if (typeof window === "undefined") return;
 
     const token = localStorage.getItem("user_token");
-    const wpBaseUrl = process.env.NEXT_PUBLIC_WORDPRESS_URL || "";
+    // 🎯 KESİN ADRES ÇİVİSİ
+    const wpBaseUrl = "https://bilginpcmarket.com";
 
     if (!token) {
       setFavMessage("⚠️ Önce Giriş Yapmalısınız");
@@ -171,9 +172,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     localStorage.setItem("user_favorites", JSON.stringify(updatedFavs));
     window.dispatchEvent(new Event("favoritesUpdated"));
 
-    if (token && wpBaseUrl) {
+    if (token) {
       try {
-        // 🎯 DÜZELTİLDİ: Kaydetme isteği doğrudan mutlak WordPress API adresine gidiyor
         await fetch(`${wpBaseUrl}/wp-json/wp/v2/users/me`, {
           method: "POST",
           headers: {
@@ -185,7 +185,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           })
         });
       } catch (err) {
-        console.log("Senkronizasyon güvenli yerel modda korundu.");
+        console.log("Bağlantı hatası: ", err);
       }
     }
     setTimeout(() => setFavMessage(""), 2000);
