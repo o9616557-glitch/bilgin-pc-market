@@ -53,7 +53,7 @@ export async function POST(request: Request) {
 
     // 🚀 İŞTE O SİHİRLİ GÜVENLİ ÖDEME LİNKİ!
     // Bu link müşteriyi direkt İyzico ekranının açılacağı ödeme sayfasına fırlatır
-    const securePaymentUrl = `${WP_URL}/checkout/order-pay/${createdOrder.id}/?key=${createdOrder.order_key}&pay_for_order=true`;
+    const securePaymentUrl = `${WP_URL}/odeme/order-pay/${createdOrder.id}/?key=${createdOrder.order_key}&pay_for_order=true`;
 
     return NextResponse.json({ paymentUrl: securePaymentUrl });
 
