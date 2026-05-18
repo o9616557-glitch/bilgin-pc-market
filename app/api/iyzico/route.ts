@@ -3,70 +3,77 @@ import iyzipay from '@/lib/iyzipay';
 
 export async function POST(req: Request) {
     try {
-        // İyzico'ya gönderilecek sipariş ve müşteri verileri (Şimdilik test verisi)
+        const body = await req.json();
+        // Next.js sepetinden ve adres formundan gelen gerçek verileri yakalıyoruz
+        const { cartItems, customerDetails, totalPrice } = body;
+
+        if (!cartItems || cartItems.length === 0) {
+            return NextResponse.json({ success: false, error: 'Sepet boş' }, { status: 400 });
+        }
+
+        // Fiyatı İyzico formatına (Örn: 34500.00) güvenle çeviriyoruz
+        const formattedPrice = parseFloat(totalPrice).toFixed(2);
+
         const request = {
             locale: 'tr',
-            conversationId: 'SIPARIS-' + Math.floor(Math.random() * 100000), // Rastgele sipariş no
-            price: '1.0', // Ürünlerin toplamı
-            paidPrice: '1.0', // Müşterinin kartından çekilecek kesin tutar
+            conversationId: 'BPC-' + Math.floor(Math.random() * 1000000), // Benzersiz Sipariş Kodu
+            price: formattedPrice,
+            paidPrice: formattedPrice,
             currency: 'TRY',
-            basketId: 'BASKET-12345',
+            basketId: 'BASKET-' + Math.floor(Math.random() * 100000),
             paymentGroup: 'PRODUCT',
-            callbackUrl: "https://www.bilginpcmarket.com/api/iyzico-callback", // Başarılı ödeme sonrası dönülecek yer
-            enabledInstallments: [2, 3, 6, 9], // Taksit seçenekleri
+            callbackUrl: "https://www.bilginpcmarket.com/api/iyzico-callback", // Ödeme bitince Vercel'de döneceği yer
+            enabledInstallments: [2, 3, 6, 9], // Peşin fiyatına taksit kanalları
             buyer: {
-                id: 'BY789',
-                name: 'Bilgin',
-                surname: 'PC',
-                gsmNumber: '+905551234567', // Telefon
-                email: 'satis@bilginpcmarket.com', // E-posta
-                identityNumber: '11111111111', // TC Kimlik (Zorunlu)
-                lastLoginDate: '2026-05-18 20:00:00',
-                registrationDate: '2026-05-10 15:12:09',
-                registrationAddress: 'Teknoloji Mah. Bilişim Sok. No:1',
-                ip: '85.34.78.112', // Müşterinin IP adresi
-                city: 'Istanbul',
+                id: 'CUST-' + Math.floor(Math.random() * 10000),
+                name: customerDetails?.first_name || 'Ziyaretçi',
+                surname: customerDetails?.last_name || 'Müşteri',
+                gsmNumber: customerDetails?.phone || '+905551234567',
+                email: customerDetails?.email || 'satis@bilginpcmarket.com',
+                identityNumber: '11111111111', // T.C. Kimlik Zorunluluğu
+                lastLoginDate: '2026-05-18 21:30:00',
+                registrationDate: '2026-05-10 12:00:00',
+                registrationAddress: customerDetails?.address_1 || 'Belirtilmedi',
+                ip: '85.34.78.112',
+                city: customerDetails?.city || 'Istanbul',
                 country: 'Turkey',
-                zipCode: '34732'
+                zipCode: customerDetails?.postcode || '34000'
             },
             shippingAddress: {
-                contactName: 'Bilgin PC',
-                city: 'Istanbul',
+                contactName: `${customerDetails?.first_name || 'Müşteri'} ${customerDetails?.last_name || ''}`,
+                city: customerDetails?.city || 'Istanbul',
                 country: 'Turkey',
-                address: 'Teknoloji Mah. Bilişim Sok. No:1',
-                zipCode: '34732'
+                address: customerDetails?.address_1 || 'Belirtilmedi',
+                zipCode: customerDetails?.postcode || '34000'
             },
             billingAddress: {
-                contactName: 'Bilgin PC',
-                city: 'Istanbul',
+                contactName: `${customerDetails?.first_name || 'Müşteri'} ${customerDetails?.last_name || ''}`,
+                city: customerDetails?.city || 'Istanbul',
                 country: 'Turkey',
-                address: 'Teknoloji Mah. Bilişim Sok. No:1',
-                zipCode: '34732'
+                address: customerDetails?.address_1 || 'Belirtilmedi',
+                zipCode: customerDetails?.postcode || '34000'
             },
-            basketItems: [
-                {
-                    id: 'BI101',
-                    name: 'Test Ürünü - ASUS RTX 4060',
-                    category1: 'Bilgisayar',
-                    itemType: 'PHYSICAL', // Fiziki ürün
-                    price: '1.0'
-                }
-            ]
+            // 🔥 HATALI ÇARPMANIN DÜZELTİLDİĞİ GÜVENLİ ALAN: Önce sayıya çevirip sonra çarpıyoruz
+            basketItems: cartItems.map((item: any, idx: number) => ({
+                id: item.id?.toString() || `PROD-${idx}`,
+                name: item.name || 'Bilgisayar Bileşeni',
+                category1: 'Donanım',
+                itemType: 'PHYSICAL',
+                price: (parseFloat(item.price) * (item.quantity || 1)).toFixed(2)
+            }))
         };
 
-        // İyzico'dan form HTML'ini talep et
         return new Promise((resolve) => {
             iyzipay.checkoutFormInitialize.create(request, function (err: any, result: any) {
                 if (err) {
-                    console.error("İyzico Hata:", err);
+                    console.error("İyzico API Hatası:", err);
                     return resolve(NextResponse.json({ success: false, error: err }, { status: 500 }));
                 }
-                // Başarılıysa İyzico'dan gelen form kodunu ekrana yolla
                 return resolve(NextResponse.json({ success: true, data: result }));
             });
         });
 
     } catch (error) {
-        return NextResponse.json({ success: false, error: 'Sunucu Hatası' }, { status: 500 });
+        return NextResponse.json({ success: false, error: 'Kritik Sunucu Hatası' }, { status: 500 });
     }
 }
