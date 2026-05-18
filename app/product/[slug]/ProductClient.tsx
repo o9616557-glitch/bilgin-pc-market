@@ -42,12 +42,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "instant" }); 
       
-      // Önce hızlıca yerel hafızadan oku
       const currentFavs = JSON.parse(localStorage.getItem("user_favorites") || "[]");
       const isProductFav = currentFavs.some((item: any) => Number(item.id) === Number(product?.id));
       setIsFav(isProductFav);
 
-      // Giriş yapılmışsa arka planda sessizce ACF odasından verileri senkronize et
       const token = localStorage.getItem("user_token");
       if (token) {
         fetch("/wp-json/wp/v2/users/me", {
@@ -62,7 +60,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           return null;
         })
         .then(userData => {
-          // 🎯 DEĞİŞİKLİK: Veriler artık meta yerine doğrudan acf altından okunuyor
           if (userData && userData.acf?.user_favorites) {
             const wpFavs = JSON.parse(userData.acf.user_favorites);
             if (Array.isArray(wpFavs)) {
@@ -132,11 +129,22 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     setTimeout(() => { setAddingToCart(false); setAddedSuccess(true); setTimeout(() => setAddedSuccess(false), 2000); }, 300);
   };
 
-  // 🚀 ACF GÜVENLİ YAZMA MOTORU
+  // 🚀 KESİN ÜYELİK KİLİTLİ FAVORİ MOTORU
   const handleToggleFavorite = async () => {
     if (typeof window === "undefined") return;
 
     const token = localStorage.getItem("user_token");
+
+    // 🎯 ÇELİK DUVAR: Eğer user_token yoksa, yani üye girişi yapılmadıysa direkt engelle!
+    if (!token) {
+      setFavMessage("⚠️ Önce Giriş Yapmalısınız");
+      setTimeout(() => {
+        setFavMessage("");
+        router.push("/giris"); // Üyeyi direkt giriş sayfasına fırlatır
+      }, 1500);
+      return; // Kod burada kesilir, aşağıya geçip favoriye EKLEYEMEZ!
+    }
+
     const currentFavs = JSON.parse(localStorage.getItem("user_favorites") || "[]");
     const existingIndex = currentFavs.findIndex((item: any) => Number(item.id) === Number(product.id));
     
@@ -158,28 +166,24 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       setFavMessage("❤️ Eklendi");
     }
 
-    // İlk tepkiyi yerel hafızaya yaz
     localStorage.setItem("user_favorites", JSON.stringify(updatedFavs));
     window.dispatchEvent(new Event("favoritesUpdated"));
 
-    // Giriş yapılmışsa canlı ACF alanına kilitle
-    if (token) {
-      try {
-        await fetch("/wp-json/wp/v2/users/me", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          },
-          // 🎯 DEĞİŞİKLİK: WordPress'e veri gönderirken meta yerine acf odası kullanılıyor
-          body: JSON.stringify({
-            acf: { user_favorites: JSON.stringify(updatedFavs) }
-          })
-        });
-      } catch (err) {
-        console.log("Veritabanı senkronizasyon adımı yerel koruma moduyla bypass edildi.");
-      }
+    try {
+      await fetch("/wp-json/wp/v2/users/me", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          acf: { user_favorites: JSON.stringify(updatedFavs) }
+        })
+      });
+    } catch (err) {
+      console.log("Senkronizasyon yerel modda korundu.");
     }
+    
     setTimeout(() => setFavMessage(""), 2000);
   };
 
@@ -247,7 +251,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                     {!stoktaVar ? "STOKTA YOK" : "Sepete Ekle"}
                   </button>
                   
-                  {/* ÜST ÜSTE BİNME ENGELLENMİŞ BALON */}
                   {addedSuccess && (
                     <div className="absolute -top-11 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[10px] font-black px-3 py-1.5 rounded-md shadow-[0_0_15px_rgba(16,185,129,0.5)] animate-bounce flex items-center gap-1.5 whitespace-nowrap pointer-events-none z-50 before:content-[''] before:absolute before:top-full before:left-1/2 before:-translate-x-1/2 before:border-4 before:border-transparent before:border-t-emerald-500">
                       <span>✅</span> <span>Sepete Eklendi</span>
