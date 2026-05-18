@@ -25,9 +25,18 @@ export default function ProductShare() {
     <div className="flex items-center gap-3 mb-4 bg-[#050814]/30 border border-white/5 p-2 rounded-md w-max shadow-inner">
       <span className="text-[10px] font-bold uppercase text-slate-500">Paylaş:</span>
       <div className="flex items-center gap-2">
-        <button type="button" onClick={handleCopy} className="w-7 h-7 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-[11px] cursor-pointer hover:bg-blue-600 font-bold transition-all">{copied ? "✅" : "🔗"}</button>
-        <button type="button" onClick={() => handleShare("wp")} className="w-7 h-7 rounded-md bg-green-500/10 hover:bg-green-500/20 flex items-center justify-center text-[10px] font-black text-green-400 cursor-pointer transition-all">WP</button>
-        <button type="button" onClick={() => handleShare("x")} className="w-7 h-7 rounded-md bg-blue-500/10 hover:bg-blue-500/20 flex items-center justify-center text-[10px] font-black text-blue-400 cursor-pointer transition-all">X</button>
+        {/* 🚀 DAHA ANLAŞILIR KOPYALA BUTONU */}
+        <button 
+          type="button" 
+          onClick={handleCopy} 
+          title="Bağlantıyı Kopyala"
+          className={`flex items-center gap-1.5 h-7 px-2.5 rounded-md border text-[11px] font-bold cursor-pointer transition-all ${copied ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400' : 'bg-white/5 border-white/10 text-slate-300 hover:bg-blue-600 hover:border-blue-500 hover:text-white'}`}
+        >
+          {copied ? "✅ Kopyalandı" : "🔗 Kopyala"}
+        </button>
+        
+        <button type="button" onClick={() => handleShare("wp")} title="WhatsApp'ta Paylaş" className="w-7 h-7 rounded-md bg-green-500/10 hover:bg-green-500/20 flex items-center justify-center text-[10px] font-black text-green-400 cursor-pointer transition-all">WP</button>
+        <button type="button" onClick={() => handleShare("x")} title="X'te (Twitter) Paylaş" className="w-7 h-7 rounded-md bg-blue-500/10 hover:bg-blue-500/20 flex items-center justify-center text-[10px] font-black text-blue-400 cursor-pointer transition-all">X</button>
       </div>
     </div>
   );
