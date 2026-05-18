@@ -30,7 +30,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [topQuestionsCount, setTopQuestionsCount] = useState(0);
   const [topRating, setTopRating] = useState(0);
 
-  // 🚀 FAVORİ SİSTEMİ STATELERİ
   const [isFav, setIsFav] = useState(false);
   const [favMessage, setFavMessage] = useState("");
 
@@ -38,12 +37,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
   const toggleAccordion = (section: string) => setOpenAccordion(openAccordion === section ? null : section);
 
-  // Sayfa yüklendiğinde favori kontrolü yap
   useEffect(() => { 
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "instant" }); 
-      
-      // Giriş yapmış üyenin favori listesini kontrol et
       const currentFavs = JSON.parse(localStorage.getItem("favorites") || "[]");
       const isProductFav = currentFavs.some((item: any) => item.id === product?.id);
       setIsFav(isProductFav);
@@ -121,19 +117,40 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     }, 300);
   };
 
-  // 🚀 GÜNCELLEME: ÜYE KONTROLLÜ FAVORİ EKLE/ÇIKAR MOTORU
+  // 🚀 KESİN ÇÖZÜM: AKILLI GİRİŞ DEDEKTÖRÜ
+  const checkIsUserLoggedIn = () => {
+    if (typeof window === "undefined") return false;
+
+    // 1. Yol: Tüm ihtimalleri tara (Senin sistem hangisini kullanıyorsa yakalar)
+    const loginKeys = ["user", "token", "userInfo", "userData", "customer", "isLoggedIn", "logged_in"];
+    const hasLocalSession = loginKeys.some(key => localStorage.getItem(key) !== null);
+    if (hasLocalSession) return true;
+
+    // 2. Yol: Eğer LocalStorage boşsa, WordPress giriş çerezlerini kontrol et
+    if (document.cookie && (
+      document.cookie.includes("wordpress_logged_in") || 
+      document.cookie.includes("wc_session") ||
+      document.cookie.includes("wp-settings")
+    )) {
+      return true;
+    }
+
+    // Sorun devam ederse terminale ve loglara bakabilmemiz için mevcut anahtarları yazdırır
+    console.log("Dükkan Hafıza Anahtarları:", Object.keys(localStorage));
+    return false;
+  };
+
   const handleToggleFavorite = () => {
     if (typeof window === "undefined") return;
 
-    // Sitede giriş yapan kullanıcının token veya user bilgisini kontrol ediyoruz
-    const userSession = localStorage.getItem("user") || localStorage.getItem("token");
+    // 🚀 Yeni dedektör motoru burada devreye giriyor
+    const isLoggedIn = checkIsUserLoggedIn();
 
-    // EĞER GİRİŞ YAPMAMIŞSA (ÜYE DEĞİLSE) ENGELLE VE GİRİŞE AT!
-    if (!userSession) {
+    if (!isLoggedIn) {
       setFavMessage("⚠️ Önce Giriş Yapmalısınız");
       setTimeout(() => {
         setFavMessage("");
-        router.push("/giris"); // Giriş sayfasına fırlatır
+        router.push("/giris");
       }, 2000);
       return;
     }
@@ -146,7 +163,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       setIsFav(false);
       setFavMessage("💔 Çıkarıldı");
     } else {
-      // Favoriler sayfasının (`/favoriler`) tam takım okuyabileceği standart WooCommerce datasını yazıyoruz
       currentFavs.push({ 
         id: product.id, 
         name: product.name, 
@@ -159,7 +175,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     }
 
     localStorage.setItem("favorites", JSON.stringify(currentFavs));
-    window.dispatchEvent(new Event("favoritesUpdated")); // Sayaç tetikleyici
+    window.dispatchEvent(new Event("favoritesUpdated"));
     
     setTimeout(() => setFavMessage(""), 2000);
   };
@@ -219,7 +235,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <ProductShare />
             </div>
             
-            {/* MASAÜSTÜ ALT BUTONLAR */}
             <div className="border-t border-white/5 pt-4 mt-2 hidden sm:block">
               <div className="flex items-center gap-4">
                 <div className="flex items-center justify-between bg-[#050814] border border-white/10 rounded-md p-1.5 min-w-[100px]"><button type="button" onClick={() => setQuantity(q => q > 1 ? q - 1 : 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500">-</button><span className="px-2 font-black text-sm text-white">{quantity}</span><button type="button" onClick={() => setQuantity(q => q + 1)} className="w-7 h-7 flex items-center justify-center font-black text-slate-400 hover:text-blue-500">+</button></div>
@@ -235,7 +250,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   )}
                 </div>
 
-                {/* 🚀 MASAÜSTÜ FAVORİ: Çerçeve sabitlendi, sadece kalp rengi oynuyor */}
                 <div className="relative">
                   <button type="button" onClick={handleToggleFavorite} className="w-12 h-12 rounded-md border bg-white/5 border-white/10 hover:bg-white/10 flex items-center justify-center text-xl transition-all">
                     <span>{isFav ? "❤️" : "🤍"}</span>
@@ -263,12 +277,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           </div>
         </div>
 
-        {/* MOBİL ALT SABİT BAR */}
         <div className="fixed bottom-0 left-0 right-0 bg-[#0b1329]/90 backdrop-blur-xl border-t border-white/10 p-3 flex items-center justify-between z-50 sm:hidden">
           <div className="flex flex-col"><span className="text-[9px] font-bold text-emerald-400 uppercase">Havale Fiyatı</span><span className="text-base font-black text-emerald-400">{havaleFiyati.toLocaleString('tr-TR')} TL</span></div>
           <div className="flex items-center gap-2">
             
-            {/* 🚀 MOBİL FAVORİ: Çerçeve sabitlendi */}
             <div className="relative">
               <button type="button" onClick={handleToggleFavorite} className="w-10 h-10 rounded-md border bg-white/5 border-white/10 flex items-center justify-center text-lg transition-all">
                 <span>{isFav ? "❤️" : "🤍"}</span>
