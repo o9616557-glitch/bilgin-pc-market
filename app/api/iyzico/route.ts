@@ -22,7 +22,7 @@ export async function POST(req: Request) {
             currency: 'TRY',
             basketId: 'BASKET-' + Math.floor(Math.random() * 100000),
             paymentGroup: 'PRODUCT',
-            callbackUrl: "https://www.bilginpcmarket.com/api/iyzico-callback", // Ödeme bitince Vercel'de döneceği yer
+            callbackUrl: "https://app.bilginpcmarket.com/api/iyzico-callback", // Ödeme bitince Vercel'de döneceği yer
             enabledInstallments: [2, 3, 6, 9], // Peşin fiyatına taksit kanalları
             buyer: {
                 id: 'CUST-' + Math.floor(Math.random() * 10000),
