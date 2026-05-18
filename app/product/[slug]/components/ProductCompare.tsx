@@ -1,7 +1,48 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { activeMapping, getSpecsList } from "./ProductSpecs";
+
+// 🚀 MATRİS DOĞRUDAN İÇERİ ALINDI: Diğer dosyaya bağımlılık bitti, hata ihtimali sıfırlandı!
+const activeMapping: Record<string, string> = {
+  model: "Model",
+  grafik_motoru: "Grafik Motoru",
+  ai_performansi: "AI Performansı",
+  bus_standarti: "Bus Standartı",
+  opengl: "OpenGL",
+  bellek: "Bellek Kapasitesi",
+  saat_hizi: "Saat Hızı",
+  cuda_cekirdegi: "CUDA Çekirdeği",
+  bellek_hizi: "Bellek Hızı",
+  bellek_arayuzu: "Bellek Arayüzü",
+  cozunurluk: "Maksimum Çözünürlük",
+  maksimum_ekran_destegi: "Maksimum Ekran Desteği",
+  boyutlar: "Boyutlar",
+  tavsiye_edilen_guc_kaynagi: "Tavsiye Edilen Güç Kaynağı (PSU)",
+  guc_baglantilari: "Güç Bağlantıları",
+  yuva: "Yuva Tipi",
+  aura_sync: "Aura Sync / RGB"
+};
+
+function getSpecsList(targetProduct: any) {
+  if (!targetProduct) return [];
+  const specs: any[] = [];
+  
+  Object.entries(activeMapping).forEach(([key, label]: [string, string]) => {
+    let value = targetProduct.meta_data?.find((m: any) => m.key === key)?.value || targetProduct.acf?.[key];
+    
+    if (!value && targetProduct.attributes) {
+      const attr = targetProduct.attributes.find((a: any) => a.name?.toLowerCase() === key || a.name?.toLowerCase() === label.toLowerCase());
+      if (attr && attr.options) {
+        value = attr.options.join(', ');
+      }
+    }
+    
+    if (value) {
+      specs.push({ label, value: String(value) });
+    }
+  });
+  return specs;
+}
 
 export default function ProductCompare({ product, allProducts = [] }: { product: any; allProducts: any[] }) {
   const [searchQuery, setSearchQuery] = useState("");
