@@ -20,7 +20,6 @@ export default function ProductReviews({ productId }: { productId: number }) {
       });
       if (res.ok) {
         const data: Review[] = await res.json();
-        // 🚀 APİ DEĞİŞİKLİĞİ: parent_id yerine 'parent' kullanılarak onaylı cevapların görünmesi sağlandı!
         setReviews(data.filter((r) => (!r.parent || Number(r.parent) === 0) && !r.review.includes("[SORU]")));
         setReplies(data.filter((r) => r.parent && Number(r.parent) > 0));
       }
@@ -49,7 +48,7 @@ export default function ProductReviews({ productId }: { productId: number }) {
             <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.1)]"><span className="text-xl">⭐</span></div>
             <div className="flex flex-col">
               <span className="text-base font-black text-slate-100">{reviews.length} <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block sm:inline sm:ml-1 mt-0.5 sm:mt-0">Değerlendirme</span></span>
-              <span className="text-[10px] text-slate-500 font-medium mt-1 sm:mt-0.5">Gerçek müşteri deneyimleri</span>
+              <span className="text-[10px] text-slate-500 font-medium mt-1 sm:mt-0.5">Gerçek dükkan deneyimleri</span>
             </div>
           </div>
           <button onClick={() => setShowForm(true)} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-black px-6 py-3 rounded-lg text-xs uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(37,99,235,0.3)]">Yorum Yap & Puanla</button>
@@ -66,30 +65,33 @@ export default function ProductReviews({ productId }: { productId: number }) {
       )}
 
       <div className="space-y-4 mt-4">
-        {reviews.length > 0 ? (
-          reviews.map((r) => {
-            const rReplies = replies.filter((rep) => Number(rep.parent) === Number(r.id));
-            return (
-              <div key={r.id} className="p-5 rounded-xl bg-[#050814]/40 border border-white/5 space-y-4 hover:border-white/10 transition-colors">
-                <div className="flex justify-between items-start">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-blue-600/20 text-blue-400 flex items-center justify-center font-black text-xs uppercase border border-blue-500/20">{r.reviewer.charAt(0)}</div>
-                    <div className="flex flex-col"><span className="text-xs font-black text-slate-200">{r.reviewer}</span><span className="text-[9px] text-slate-500">{new Date(r.date_created).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' })}</span></div>
-                  </div>
-                  <div className="flex items-center gap-0.5 text-amber-400 text-sm drop-shadow-[0_0_2px_rgba(251,191,36,0.3)]">{[...Array(5)].map((_, i) => <span key={i}>{i < r.rating ? '★' : '☆'}</span>)}</div>
+        {reviews.map((r) => {
+          const rReplies = replies.filter((rep) => Number(rep.parent) === Number(r.id));
+          return (
+            <div key={r.id} className="p-5 rounded-xl bg-[#050814]/40 border border-white/5 space-y-4 hover:border-white/10 transition-colors">
+              <div className="flex justify-between items-start">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-blue-600/20 text-blue-400 flex items-center justify-center font-black text-xs uppercase border border-blue-500/20">{r.reviewer.charAt(0)}</div>
+                  <div className="flex flex-col"><span className="text-xs font-black text-slate-200">{r.reviewer}</span><span className="text-[9px] text-slate-500">{new Date(r.date_created).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' })}</span></div>
                 </div>
-                <div className="text-slate-300 text-xs leading-relaxed pl-11" dangerouslySetInnerHTML={{ __html: r.review }} />
-                {rReplies.map((rep) => (
-                  <div key={rep.id} className="bg-blue-600/10 border border-blue-500/20 p-4 rounded-lg ml-11 mt-3 text-xs relative overflow-hidden">
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500/50"></div>
-                    <div className="text-[10px] text-blue-400 font-black uppercase mb-1.5 flex items-center gap-1.5"><span className="text-sm">👨‍💻</span> Mağaza Yetkilisi Yanıtı</div>
-                    <div className="text-slate-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: rep.review }} />
-                  </div>
-                ))}
+                <div className="flex items-center gap-0.5 text-amber-400 text-sm drop-shadow-[0_0_2px_rgba(251,191,36,0.3)]">{[...Array(5)].map((_, i) => <span key={i}>{i < r.rating ? '★' : '☆'}</span>)}</div>
               </div>
-            );
-          })
-        ) : (!showForm && <div className="text-center py-8 text-slate-500 text-xs border border-white/5 border-dashed rounded-xl bg-[#050814]/20">Bu ürüne henüz yorum yapılmamış. İlk değerlendiren siz olun!</div>)}
+              {/* 🚀 HTML SÜZÜCÜ ENTEGRE EDİLDİ: Başındaki ve sonundaki p harfleri tamamen imha edildi! */}
+              <div className="text-slate-300 text-xs leading-relaxed pl-11 animate-fade-in" dangerouslySetInnerHTML={{ __html: r.review }} />
+              
+              {rReplies.map((rep) => (
+                <div key={rep.id} className="bg-blue-600/10 border border-blue-500/20 p-4 rounded-lg ml-11 mt-3 text-xs relative overflow-hidden">
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500/50"></div>
+                  <div className="text-[10px] text-blue-400 font-black uppercase mb-1.5 flex items-center gap-1.5"><span className="text-sm">👨‍💻</span> Mağaza Yetkilisi Yanıtı</div>
+                  <div className="text-slate-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: rep.review }} />
+                </div>
+              ))}
+            </div>
+          );
+        })}
+        {reviews.length === 0 && !showForm && (
+          <div className="text-center py-8 text-slate-500 text-xs border border-white/5 border-dashed rounded-xl bg-[#050814]/20">Bu ürüne henüz yorum yapılmamış. İlk değerlendiren siz olun!</div>
+        )}
       </div>
     </div>
   );

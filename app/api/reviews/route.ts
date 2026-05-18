@@ -4,7 +4,6 @@ export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 export const revalidate = 0;
 
-// ⬇️ 1. GET: WOOCOMMERCE VE WORDPRESS'İ BİRLEŞTİREN MASTER MOTOR
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const productId = searchParams.get('product');
@@ -14,11 +13,13 @@ export async function GET(request: Request) {
   const wpUrl = process.env.NEXT_PUBLIC_WC_URL; 
   const ck = process.env.WC_CONSUMER_KEY;
   const cs = process.env.WC_CONSUMER_SECRET;
+  const cacheBuster = Date.now();
 
+  let wcData = [];
+  let wpData = [];
+
+  // 1️⃣ WooCommerce üzerinden yıldızlı müşteri yorumlarını güvenli modda çek
   try {
-    const cacheBuster = Date.now();
-
-    // 1️⃣ ADIM: WOOCOMMERCE'DEN YILDIZLI MÜŞTERİ YORUMLARINI ÇEK
     const wcRes = await fetch(`${wpUrl}/wp-json/wc/v3/products/reviews?product=${productId}&status=approved&_t=${cacheBuster}`, {
       method: 'GET',
       headers: {
@@ -27,49 +28,54 @@ export async function GET(request: Request) {
       },
       cache: 'no-store'
     });
-    const wcData = await wcRes.json();
+    if (wcRes.ok) wcData = await wcRes.json();
+  } catch (e) {
+    console.error("WooCommerce bağlantı hatası:", e);
+  }
 
-    // 2️⃣ ADIM: WORDPRESS ÇEKİRDEĞİNDEN TÜM YORUMLARI VE "ADMİN CEVAPLARINI" ÇEK
+  // 2️⃣ WordPress çekirdeğinden senin yazdığın admin cevaplarını çek
+  try {
     const wpRes = await fetch(`${wpUrl}/wp-json/wp/v2/comments?post=${productId}&status=approve&_t=${cacheBuster}`, {
       method: 'GET',
       cache: 'no-store'
     });
-    const wpData = await wpRes.json();
-
-    // 3️⃣ ADIM: İKİSİNİ HAVADA BİRLEŞTİR (Admin cevaplarını ve parent_id'leri kurtar!)
-    let finalReviews = [];
-
-    if (Array.isArray(wpData) && wpData.length > 0) {
-      finalReviews = wpData.map((wpItem: any) => {
-        // Bu yorum WooCommerce'in yıldızlı listesinde var mı diye bakıyoruz
-        const wcMatch = Array.isArray(wcData) ? wcData.find((wcItem: any) => wcItem.id === wpItem.id) : null;
-
-        return {
-          id: wpItem.id,
-          parent: wpItem.parent, // İŞTE BİZE LAZIM OLAN BAĞLANTI KİMLİĞİ!
-          date_created: wpItem.date,
-          review: wpItem.content?.rendered || "",
-          rating: wcMatch ? wcMatch.rating : 0, // Admin cevabıysa yıldız 0 olur
-          reviewer: wpItem.author_name
-        };
-      });
-    } else if (Array.isArray(wcData)) {
-      // Eğer wp API kapalıysa sadece WooCommerce verisini kullan (Yedek Plan)
-      finalReviews = wcData.map((item: any) => ({ ...item, parent: 0 }));
-    }
-
-    const response = NextResponse.json(finalReviews);
-    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
-    response.headers.set('Pragma', 'no-cache');
-    response.headers.set('Expires', '0');
-    
-    return response;
-  } catch (error) {
-    return NextResponse.json({ error: 'Yorumlar çekilemedi' }, { status: 500 });
+    if (wpRes.ok) wpData = await wpRes.json();
+  } catch (e) {
+    console.error("WordPress çekirdek bağlantı hatası:", e);
   }
+
+  // 3️⃣ İki listeyi birbirini ezmeden havada KUSURSUZCA BİRLEŞTİR
+  const cleanedReviews = (Array.isArray(wcData) ? wcData : []).map((item: any) => ({
+    id: item.id,
+    parent: item.parent_id || item.parent || 0,
+    date_created: item.date_created || item.date,
+    review: item.review || "",
+    rating: item.rating || 0,
+    reviewer: item.reviewer
+  }));
+
+  const cleanedReplies = (Array.isArray(wpData) ? wpData : [])
+    .filter((item: any) => item.parent && item.parent > 0)
+    .map((item: any) => ({
+      id: item.id,
+      parent: item.parent,
+      date_created: item.date,
+      review: item.content?.rendered || item.content || "",
+      rating: 0, // Admin cevaplarında yıldız olmaz
+      reviewer: item.author_name || "Mağaza Yetkilisi"
+    }));
+
+  // İki listeyi harmanlayarak tek bir havuzda topluyoruz
+  const finalReviews = [...cleanedReviews, ...cleanedReplies];
+
+  const response = NextResponse.json(finalReviews);
+  response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  response.headers.set('Pragma', 'no-cache');
+  response.headers.set('Expires', '0');
+  
+  return response;
 }
 
-// ⬆️ 2. POST: YORUM GÖNDERME MOTORU (Aynı kalıyor)
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -92,7 +98,7 @@ export async function POST(request: Request) {
         reviewer: body.reviewer,
         reviewer_email: finalEmail,
         rating: body.rating || 0,
-        status: 'hold' 
+        status: 'hold'
       })
     });
 
