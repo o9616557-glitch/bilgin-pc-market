@@ -28,7 +28,7 @@ export default function FavoritesPage() {
 
         const token = localStorage.getItem("user_token");
         // 🎯 KESİN ADRES ÇİVİSİ
-        const  = "https://bilginpcmarket.com";
+       const wpBaseUrl = "https://bilginpcmarket.com";
 
         if (token) {
           const res = await fetch(`${}/wp-json/wp/v2/users/me`, {
@@ -57,7 +57,7 @@ export default function FavoritesPage() {
 
   const handleRemoveFavorite = async (id: number) => {
     const token = localStorage.getItem("user_token");
-    const  = "https://bilginpcmarket.com";
+    const wpBaseUrl = "https://bilginpcmarket.com";
     const updatedFavorites = favorites.filter((item) => Number(item.id) !== Number(id));
     
     setFavorites(updatedFavorites);

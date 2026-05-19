@@ -1,11 +1,10 @@
 import clientPromise from "@/lib/mongodb";
 
 export default async function HomePage() {
-  let urunler = [];
+  let urunler: any[] = [];
   
   try {
     const client = await clientPromise;
-    // Veritabanı adının "bilginpcmarket", koleksiyon adının "urunler" olduğunu varsayıyoruz
     const db = client.db("bilginpcmarket"); 
     urunler = await db.collection("urunler").find({}).toArray();
   } catch (e) {

@@ -46,33 +46,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       const isProductFav = currentFavs.some((item: any) => Number(item.id) === Number(product?.id));
       setIsFav(isProductFav);
 
-      const token = localStorage.getItem("user_token");
-      // 🎯 KESİN ADRES ÇİVİSİ
-      const  = "https://bilginpcmarket.com";
-
-      if (token) {
-        fetch(`${}/wp-json/wp/v2/users/me`, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-        .then(async (res) => {
-          if (!res.ok) return null;
-          const contentType = res.headers.get("content-type");
-          if (contentType && contentType.includes("application/json")) {
-            return res.json();
-          }
-          return null;
-        })
-        .then(userData => {
-          if (userData && userData.acf?.user_favorites) {
-            const wpFavs = JSON.parse(userData.acf.user_favorites);
-            if (Array.isArray(wpFavs)) {
-              localStorage.setItem("user_favorites", JSON.stringify(wpFavs));
-              setIsFav(wpFavs.some((item: any) => Number(item.id) === Number(product?.id)));
-            }
-          }
-        })
-        .catch((err) => console.log("Arka plan API bağlantısı: ", err));
-      }
+      
     }
   }, [product?.id]);
 
@@ -137,7 +111,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
     const token = localStorage.getItem("user_token");
     // 🎯 KESİN ADRES ÇİVİSİ
-    const  = "https://bilginpcmarket.com";
+    const wpBaseUrl = "https://bilginpcmarket.com";
 
     if (!token) {
       setFavMessage("⚠️ Önce Giriş Yapmalısınız");
@@ -172,22 +146,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     localStorage.setItem("user_favorites", JSON.stringify(updatedFavs));
     window.dispatchEvent(new Event("favoritesUpdated"));
 
-    if (token) {
-      try {
-        await fetch(`${}/wp-json/wp/v2/users/me`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            acf: { user_favorites: JSON.stringify(updatedFavs) }
-          })
-        });
-      } catch (err) {
-        console.log("Bağlantı hatası: ", err);
-      }
-    }
+    
     setTimeout(() => setFavMessage(""), 2000);
   };
 
@@ -209,7 +168,8 @@ const isSale = product?.on_sale === true || product?.on_sale === "true" || (regu
 if (!product) {
   return <div className="text-center p-10 text-white font-bold">Ürün bilgileri yükleniyor...</div>;
 }
-
+const havaleFiyati = product?.price ? Number(product.price) : 0;
+const eskiFiyat = product?.regular_price ? Number(product.regular_price) : 0;
 return (
   <PhotoProvider>
     <div className="min-h-[calc(100vh-80px)] bg-[#050814] text-white pt-2 pb-24 md:py-8 px-3 sm:px-6 lg:px-8 font-medium">
