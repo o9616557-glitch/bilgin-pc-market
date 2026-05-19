@@ -48,10 +48,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
       const token = localStorage.getItem("user_token");
       // 🎯 KESİN ADRES ÇİVİSİ
-      const wpBaseUrl = "https://bilginpcmarket.com";
+      const  = "https://bilginpcmarket.com";
 
       if (token) {
-        fetch(`${wpBaseUrl}/wp-json/wp/v2/users/me`, {
+        fetch(`${}/wp-json/wp/v2/users/me`, {
           headers: { Authorization: `Bearer ${token}` }
         })
         .then(async (res) => {
@@ -137,7 +137,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
     const token = localStorage.getItem("user_token");
     // 🎯 KESİN ADRES ÇİVİSİ
-    const wpBaseUrl = "https://bilginpcmarket.com";
+    const  = "https://bilginpcmarket.com";
 
     if (!token) {
       setFavMessage("⚠️ Önce Giriş Yapmalısınız");
@@ -174,7 +174,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
     if (token) {
       try {
-        await fetch(`${wpBaseUrl}/wp-json/wp/v2/users/me`, {
+        await fetch(`${}/wp-json/wp/v2/users/me`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -200,19 +200,22 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     return `${topRating > 0 ? topRating + ' Puan ' : ''}(${parts.join(' & ')})`;
   };
 
-  const stoktaVar = product.stock_status === "instock";
-  const regularPrice = Number(product.regular_price || 0);
-  const currentPrice = Number(product.price || 0);
-  const isSale = product.on_sale === true || product.on_sale === "true" || (regularPrice > currentPrice && currentPrice > 0);
-  const eskiFiyat = regularPrice > currentPrice ? regularPrice : (isSale ? Math.round(currentPrice * 1.15) : 0);
-  const havaleFiyati = currentPrice * 0.95;
+  // YENİ HALİ (GÜVENLİ VE TEK RETURN):
+const stoktaVar = product?.stock_status === "instock";
+const regularPrice = Number(product?.regular_price || 0);
+const currentPrice = Number(product?.price || 0);
+const isSale = product?.on_sale === true || product?.on_sale === "true" || (regularPrice > currentPrice && currentPrice > 0);
 
-  return (
-    <PhotoProvider>
-      <div className="min-h-[calc(100vh-80px)] bg-[#050814] text-white pt-2 pb-24 md:py-8 px-3 sm:px-6 lg:px-8 font-medium">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 p-4 sm:p-8 rounded-xl shadow-lg relative z-10">
-          <ProductGallery images={product.images || []} productName={product.name} />
-          <div className="flex flex-col justify-between py-1">
+if (!product) {
+  return <div className="text-center p-10 text-white font-bold">Ürün bilgileri yükleniyor...</div>;
+}
+
+return (
+  <PhotoProvider>
+    <div className="min-h-[calc(100vh-80px)] bg-[#050814] text-white pt-2 pb-24 md:py-8 px-3 sm:px-6 lg:px-8 font-medium">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 p-4 sm:p-8 rounded-xl shadow-lg relative z-10">
+        <ProductGallery images={product?.images || []} productName={product?.name || "Ürün"} />
+        <div className="flex flex-col justify-between py-1">
             <div>
               <div className="flex flex-wrap items-center gap-1.5 mb-3">
                 <span className="bg-white/5 border border-white/10 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded-full">KOD: {product.sku || product.id}</span>

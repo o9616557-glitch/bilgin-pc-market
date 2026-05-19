@@ -1,55 +1,42 @@
-import React from 'react';
-import Hero from '@/components/Hero';
-import ProductSlider from '@/components/ProductSlider';
-import MidBanner from '@/components/MidBanner';
-import ProductGrid from '@/components/ProductGrid';
-import Footer from '@/components/Footer';
-import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
-
-export const revalidate = 60;
-
-const api = new WooCommerceRestApi({
-  url: process.env.NEXT_PUBLIC_WC_URL || "",
-  consumerKey: process.env.WC_CONSUMER_KEY || "",
-  consumerSecret: process.env.WC_CONSUMER_SECRET || "",
-  version: "wc/v3"
-});
+import clientPromise from "@/lib/mongodb";
 
 export default async function HomePage() {
-  const res = await api.get('products', { per_page: 20, status: 'publish' }).catch(() => ({ data: [] }));
-
-  const urunler = res.data.map((item: any) => ({
-    id: item.id,
-    name: item.name,
-    price: item.price ? Number(item.price).toLocaleString('tr-TR') : "Fiyat Sorunuz",
-    slug: item.slug,
-    images: item.images || [{ src: "https://via.placeholder.com/300" }],
-    short_description: item.short_description || "",
-    in_stock: item.stock_status === "instock",
-  }));
+  let urunler = [];
+  
+  try {
+    const client = await clientPromise;
+    // Veritabanı adının "bilginpcmarket", koleksiyon adının "urunler" olduğunu varsayıyoruz
+    const db = client.db("bilginpcmarket"); 
+    urunler = await db.collection("urunler").find({}).toArray();
+  } catch (e) {
+    console.error("MongoDB'ye bağlanırken hata oluştu:", e);
+  }
 
   return (
-    <div className="bg-[#050810] min-h-screen text-white font-sans flex flex-col">
-      <main className="flex-grow">
-        <Hero />
-        
-        {/* ⚡ İŞTE O HATALI OLAN 38. SATIRIN DOĞRU HALİ ŞEFİM: */}
-        <ProductSlider initialProducts={urunler.slice(0, 6)} /> 
-        
-        <MidBanner />
-        
-        <section className="max-w-7xl mx-auto px-4 py-16 relative z-10">
-          <div className="mb-10">
-            <h2 className="text-xl md:text-2xl font-black tracking-tight uppercase italic text-white">
-              ÖNE ÇIKAN <span className="text-blue-500">DONANIMLAR</span>
-            </h2>
-            <div className="h-1 w-12 bg-blue-500 mt-2 rounded-full shadow-[0_0_15px_#3b82f6]"></div>
-          </div>
-          
-          <ProductGrid initialProducts={urunler} />
-        </section>
-      </main>
-      <Footer />
-    </div>
+    <main style={{ padding: "40px", fontFamily: "Arial, sans-serif" }}>
+      <h1 style={{ color: "#333", borderBottom: "2px solid #ddd", paddingBottom: "10px" }}>
+        Bilgin PC Market - Yeni Sistem (MongoDB)
+      </h1>
+      
+      <p style={{ fontSize: "18px", color: "green" }}>
+        Eğer aşağıda ekran kartını görüyorsan, WordPress zindanlarından kurtulduk demektir!
+      </p>
+
+      <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", marginTop: "30px" }}>
+        {urunler.length > 0 ? (
+          urunler.map((urun) => (
+            <div key={urun._id.toString()} style={{ border: "1px solid #ccc", padding: "20px", borderRadius: "10px", width: "320px", boxShadow: "0 4px 8px rgba(0,0,0,0.1)" }}>
+              <h2 style={{ fontSize: "20px", margin: "0 0 10px 0" }}>{urun.isim}</h2>
+              <p style={{ margin: "5px 0", fontSize: "24px", fontWeight: "bold", color: "#e60000" }}>{urun.fiyat} TL</p>
+              <p style={{ margin: "5px 0" }}><strong>Stok:</strong> {urun.stok_durumu}</p>
+              <p style={{ margin: "5px 0" }}><strong>Kategori:</strong> {urun.kategori}</p>
+              <p style={{ margin: "10px 0 0 0", fontSize: "14px", color: "#555" }}>{urun.Tanım}</p>
+            </div>
+          ))
+        ) : (
+          <p>Veritabanında ürün bulunamadı. Bağlantıyı kontrol edin veya ürün ekleyin.</p>
+        )}
+      </div>
+    </main>
   );
 }
