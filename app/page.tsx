@@ -6,8 +6,8 @@ export default async function HomePage() {
   try {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket"); 
-    // KOLEKSİYON ADINI "products" OLARAK GÜNCELLEDİK!
-    urunler = await db.collection("products").find({}).toArray();
+    // KOLEKSİYON ADINI TAM OLARAK "ürünler" YAPTIK
+    urunler = await db.collection("ürünler").find({}).toArray();
   } catch (e) {
     console.error("HATA:", e);
   }
@@ -21,10 +21,11 @@ export default async function HomePage() {
             <div key={urun._id.toString()} style={{ border: "1px solid #ccc", padding: "20px", borderRadius: "10px" }}>
               <h2>{urun.isim}</h2>
               <p style={{ fontWeight: "bold" }}>{urun.fiyat} TL</p>
+              <p>Stok: {urun.stok_durumu}</p>
             </div>
           ))
         ) : (
-          <p>Veritabanında ürün bulunamadı. Lütfen koleksiyon ismini kontrol edin.</p>
+          <p>Veritabanı bağlantısı kuruldu ama ürünler yüklenemedi. Lütfen koleksiyon ismini kontrol et.</p>
         )}
       </div>
     </main>
