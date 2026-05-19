@@ -2,40 +2,30 @@ import clientPromise from "@/lib/mongodb";
 
 export default async function HomePage() {
   let urunler: any[] = [];
-  let debugMesaj = "Bağlantı denendi...";
-
+  
   try {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket"); 
-    
-    // 1. Önce "urunler" diye deneyelim (Türkçe karakter yok)
-    let collection = db.collection("urunler");
-    urunler = await collection.find({}).toArray();
-
-    // 2. Eğer "urunler" boşsa, belki de koleksiyonun ismi farklıdır
-    if (urunler.length === 0) {
-       // Tüm koleksiyonları listele bakalım ne var içinde
-       const collections = await db.listCollections().toArray();
-       debugMesaj = "Veritabanı boş veya koleksiyon isimleri: " + collections.map(c => c.name).join(", ");
-    }
+    // SİSTEMİN "products" OLDUĞUNU KENDİ GÖZÜMÜZLE GÖRDÜK:
+    urunler = await db.collection("products").find({}).toArray();
   } catch (e) {
-    debugMesaj = "HATA: " + e;
+    console.error("HATA:", e);
   }
 
   return (
-    <main style={{ padding: "40px" }}>
+    <main style={{ padding: "40px", fontFamily: "Arial, sans-serif" }}>
       <h1>Bilgin PC Market</h1>
-      <p style={{ color: "red" }}>{debugMesaj}</p>
-      <div style={{ display: "flex", gap: "20px" }}>
+      <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
         {urunler.length > 0 ? (
           urunler.map((urun: any) => (
-            <div key={urun._id.toString()} style={{ border: "1px solid #ccc", padding: "20px" }}>
+            <div key={urun._id.toString()} style={{ border: "1px solid #ccc", padding: "20px", borderRadius: "10px", width: "300px" }}>
               <h2>{urun.isim || "İsimsiz Ürün"}</h2>
-              <p>{urun.fiyat} TL</p>
+              <p style={{ fontWeight: "bold" }}>{urun.fiyat} TL</p>
+              <p>Stok: {urun.stok_durumu}</p>
             </div>
           ))
         ) : (
-          <p>Ürün bulunamadı. Lütfen sayfayı yenileyin.</p>
+          <p>Veritabanına bağlandık ama 'products' koleksiyonu hala boş görünüyor. Lütfen Atlas panelinde verilerin 'products' içinde olduğundan emin ol.</p>
         )}
       </div>
     </main>
