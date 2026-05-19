@@ -6,9 +6,8 @@ export default async function HomePage() {
   try {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket"); 
-    // KOLEKSİYON ADINI BURADAN KONTROL ET: 
-    // Eğer Atlas'ta "products" yazıyorsa burayı "products" yap!
-    urunler = await db.collection("urunler").find({}).toArray();
+    // KOLEKSİYON ADINI "products" OLARAK GÜNCELLEDİK!
+    urunler = await db.collection("products").find({}).toArray();
   } catch (e) {
     console.error("HATA:", e);
   }
@@ -20,12 +19,12 @@ export default async function HomePage() {
         {urunler.length > 0 ? (
           urunler.map((urun) => (
             <div key={urun._id.toString()} style={{ border: "1px solid #ccc", padding: "20px", borderRadius: "10px" }}>
-              <h2>{urun.isim || urun.name}</h2>
-              <p style={{ fontWeight: "bold" }}>{urun.fiyat || urun.price} TL</p>
+              <h2>{urun.isim}</h2>
+              <p style={{ fontWeight: "bold" }}>{urun.fiyat} TL</p>
             </div>
           ))
         ) : (
-          <p>Veritabanı boş veya koleksiyon adı yanlış! Atlas panelinde koleksiyonun isminin "urunler" olduğundan emin ol.</p>
+          <p>Veritabanında ürün bulunamadı. Lütfen koleksiyon ismini kontrol edin.</p>
         )}
       </div>
     </main>
