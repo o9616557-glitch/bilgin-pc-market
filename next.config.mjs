@@ -1,14 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // 1. Harici paket kuralı
+  // Iyzico için gerekli paketleri dışarıda bırakıyoruz
   serverExternalPackages: ['iyzipay'],
-
-  // 2. Vercel dosya taşıma zırhı
-  experimental: {
-    outputFileTracingIncludes: {
-      '/api/**/*': ['node_modules/iyzipay/**/*'],
-    },
-  },
+  
+  // Hata veren 'experimental' kısmını geçici olarak kaldırıyoruz
+  // Projen düzgün çalışınca burayı tekrar optimize ederiz.
 };
 
 export default nextConfig;
