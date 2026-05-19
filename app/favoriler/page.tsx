@@ -19,69 +19,29 @@ export default function FavoritesPage() {
   const [toastMessage, setToastMessage] = useState("");
 
   // 🚀 ADRES DİREKT ÇİVİLENDİ
-  useEffect(() => {
-    const loadFavorites = async () => {
+  
+    useEffect(() => {
+    const loadFavorites = () => {
       try {
         const localData = JSON.parse(localStorage.getItem("user_favorites") || "[]");
         setFavorites(Array.isArray(localData) ? localData : []);
-        setIsLoading(false);
-
-        const token = localStorage.getItem("user_token");
-        // 🎯 KESİN ADRES ÇİVİSİ
-       const wpBaseUrl = "https://bilginpcmarket.com";
-
-        if (token) {
-          const res = await fetch(`${}/wp-json/wp/v2/users/me`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          if (res.ok) {
-            const contentType = res.headers.get("content-type");
-            if (contentType && contentType.includes("application/json")) {
-              const userData = await res.json();
-              if (userData && userData.acf?.user_favorites) {
-                const wpFavs = JSON.parse(userData.acf.user_favorites);
-                if (Array.isArray(wpFavs) && wpFavs.length > 0) {
-                  setFavorites(wpFavs);
-                  localStorage.setItem("user_favorites", JSON.stringify(wpFavs));
-                }
-              }
-            }
-          }
-        }
       } catch (error) {
-        console.log("Veritabanı senkronizasyonu hatası: ", error);
+        console.log("Favoriler yüklenirken hata:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
+
     loadFavorites();
-  }, [router]);
+  }, []);
 
-  const handleRemoveFavorite = async (id: number) => {
-    const token = localStorage.getItem("user_token");
-    const wpBaseUrl = "https://bilginpcmarket.com";
-    const updatedFavorites = favorites.filter((item) => Number(item.id) !== Number(id));
-    
-    setFavorites(updatedFavorites);
-    localStorage.setItem("user_favorites", JSON.stringify(updatedFavorites));
-    setToastMessage("❌ Ürün favorilerden kaldırıldı.");
-
-    if (token) {
-      try {
-        await fetch(`${}/wp-json/wp/v2/users/me`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            acf: { user_favorites: JSON.stringify(updatedFavorites) }
-          })
-        });
-      } catch (err) {
-        console.log("Kaldırma işlemi hatası: ", err);
-      }
-    }
-    setTimeout(() => setToastMessage(""), 3000);
-  };
+  const handleRemoveFavorite = (id: number) => {
+  const updatedFavorites = favorites.filter((item: any) => Number(item.id) !== Number(id));
+  setFavorites(updatedFavorites);
+  localStorage.setItem("user_favorites", JSON.stringify(updatedFavorites));
+  setToastMessage("❌ Ürün favorilerden kaldırıldı.");
+  setTimeout(() => setToastMessage(""), 3000);
+};
 
   const handleAddToCart = (product: FavoriteProduct) => {
     try {
