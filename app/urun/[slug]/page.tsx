@@ -29,9 +29,12 @@ export default async function UrunDetaySayfasi({ params }: { params: { slug: str
   return (
     <main style={{ minHeight: "100vh", backgroundColor: "#09090b", color: "#ededed", padding: "20px", fontFamily: "'Inter', sans-serif" }}>
       
+      {/* CSS: Mobil Uyum ve Başlık Küçültme */}
       <style dangerouslySetInnerHTML={{__html: `
+        .urun-baslik { font-size: 2.2rem; font-weight: 900; color: #ffffff; line-height: 1.2; margin-bottom: 16px; }
         .mobil-alt-bar { display: none !important; }
         @media (max-width: 768px) {
+          .urun-baslik { font-size: 1.35rem !important; margin-bottom: 12px; } /* Mobilde başlık ufaldı */
           .mobil-alt-bar { display: flex !important; }
           .masaustu-sepet { display: none !important; }
           .urun-ana-blok { flex-direction: column; }
@@ -40,7 +43,6 @@ export default async function UrunDetaySayfasi({ params }: { params: { slug: str
 
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         
-        {/* Üst Navigasyon */}
         <div style={{ marginBottom: "20px", fontSize: "0.85rem", color: "#a1a1aa", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <Link href="/" style={{ color: "#00e5ff", textDecoration: "none" }}>Ana Sayfa</Link>
@@ -50,10 +52,8 @@ export default async function UrunDetaySayfasi({ params }: { params: { slug: str
           <span style={{ color: "#52525b" }}>Kod: {urun._id.toString().substring(0, 8).toUpperCase()}</span>
         </div>
 
-        {/* Ana Blok */}
         <div className="urun-ana-blok" style={{ display: "flex", gap: "24px", marginBottom: "40px" }}>
           
-          {/* Sol Görsel ve Butonlar */}
           <div style={{ flex: "1 1 50%", display: "flex", flexDirection: "column", gap: "16px" }}>
             <div style={{ width: "100%", height: "450px", backgroundColor: "#121214", borderRadius: "20px", border: "1px solid #27272a", display: "flex", alignItems: "center", justifyContent: "center", padding: "16px", position: "relative" }}>
               <div style={{ position: "absolute", top: "16px", left: "16px", backgroundColor: "#ef4444", color: "white", padding: "6px 14px", borderRadius: "30px", fontWeight: "800", fontSize: "0.85rem", boxShadow: "0 0 15px rgba(239,68,68,0.4)" }}>
@@ -66,20 +66,17 @@ export default async function UrunDetaySayfasi({ params }: { params: { slug: str
               )}
             </div>
             
-            {/* 3'lü Etkileşimli Butonlar */}
             <EtkilesimliButonlar />
           </div>
 
-          {/* Sağ Detaylar */}
           <div style={{ flex: "1 1 50%", display: "flex", flexDirection: "column" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
               <span style={{ color: "#f59e0b", fontSize: "1.2rem" }}>★★★★★</span>
-              <span style={{ color: "#00e5ff", fontSize: "0.85rem", fontWeight: "600" }}>(24 Değerlendirme)</span>
+              <span style={{ color: "#00e5ff", fontSize: "0.85rem", fontWeight: "600" }}>({urun.degerlendirme_sayisi || 0} Değerlendirme)</span>
             </div>
 
-            <h1 style={{ fontSize: "2rem", fontWeight: "900", color: "#ffffff", lineHeight: "1.2", marginBottom: "16px" }}>
-              {urun.isim}
-            </h1>
+            {/* BAŞLIK BURADA (Telefonda otomatik küçülecek) */}
+            <h1 className="urun-baslik">{urun.isim}</h1>
 
             <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginBottom: "16px" }}>
               <div style={{ background: "rgba(16, 185, 129, 0.1)", color: "#10b981", padding: "6px 12px", borderRadius: "8px", fontWeight: "700", fontSize: "0.8rem", border: "1px solid rgba(16, 185, 129, 0.2)" }}>
@@ -93,7 +90,6 @@ export default async function UrunDetaySayfasi({ params }: { params: { slug: str
               </div>
             </div>
 
-            {/* Fiyat Alanı */}
             <div style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "20px", marginBottom: "20px" }}>
               <div style={{ marginBottom: "16px" }}>
                 <span style={{ fontSize: "0.9rem", color: "#a1a1aa", display: "block" }}>Kredi Kartı Tek Çekim</span>
@@ -106,25 +102,27 @@ export default async function UrunDetaySayfasi({ params }: { params: { slug: str
                 </div>
                 <div>
                   <span style={{ fontSize: "0.8rem", color: "#a1a1aa", display: "block" }}>9 - 12 Taksit Seçenekleri</span>
-                  <div style={{ fontSize: "1.1rem", fontWeight: "700", color: "#00e5ff", marginTop: "4px" }}>Vade Farksız</div>
-                  <div style={{ fontSize: "0.75rem", color: "#71717a", marginTop: "4px", lineHeight: "1.4" }}>Tüm kredi kartlarına esnek ödeme adımlarıyla bütçenizi yormadan sahip olun.</div>
+                  {/* VADE FARKSIZ YAZISI DEĞİŞTİRİLDİ */}
+                  <div style={{ fontSize: "1.0rem", fontWeight: "700", color: "#00e5ff", marginTop: "4px" }}>Esnek Ödeme Fırsatı</div>
+                  <div style={{ fontSize: "0.75rem", color: "#71717a", marginTop: "4px", lineHeight: "1.4" }}>Uygun vade oranlarıyla tüm kartlara taksit.</div>
                 </div>
               </div>
             </div>
 
-            {/* Masaüstü Sepete Ekle Butonu */}
             <button className="masaustu-sepet" style={{ width: "100%", padding: "18px", fontSize: "1.2rem", fontWeight: "900", background: "linear-gradient(45deg, #00e5ff, #007acc)", color: "#000", border: "none", borderRadius: "12px", cursor: "pointer", textTransform: "uppercase", letterSpacing: "1px" }}>
               Sepete Ekle
             </button>
           </div>
         </div>
 
-        {/* EFSANE BÖLÜMLER GERİ DÖNDÜ */}
+        {/* DİNAMİK BÖLÜMLER (MongoDB'den "Can" Bulan Kısımlar) */}
         <div style={{ display: "flex", flexDirection: "column", gap: "24px", paddingBottom: "80px" }}>
           
           <section style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px" }}>
             <h3 style={{ color: "#00e5ff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "12px" }}>⚙️ Ürün Açıklaması</h3>
-            <p style={{ color: "#d4d4d8", lineHeight: "1.6", fontSize: "0.95rem" }}>{urun.aciklama || "Bu canavar donanım, en yüksek ayarlarda akıcı bir deneyim sunmak için özel olarak optimize edildi. Bilgin PC Market güvencesiyle kutusunda hazır."}</p>
+            <p style={{ color: "#d4d4d8", lineHeight: "1.6", fontSize: "0.95rem" }}>
+              {urun.aciklama || "Bu ürünün detaylı açıklaması yakında eklenecektir."}
+            </p>
           </section>
 
           <section style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px" }}>
@@ -132,67 +130,52 @@ export default async function UrunDetaySayfasi({ params }: { params: { slug: str
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px" }}>
               <div style={{ background: "#09090b", padding: "12px", borderRadius: "10px", border: "1px solid #1f1f22" }}>
                 <span style={{ color: "#71717a", fontSize: "0.8rem" }}>Kategori</span>
-                <div style={{ fontWeight: "700", marginTop: "2px", fontSize: "0.9rem" }}>{urun.kategori || "Üst Segment"}</div>
+                <div style={{ fontWeight: "700", marginTop: "2px", fontSize: "0.9rem" }}>{urun.kategori || "Bileşen"}</div>
               </div>
               <div style={{ background: "#09090b", padding: "12px", borderRadius: "10px", border: "1px solid #1f1f22" }}>
                 <span style={{ color: "#71717a", fontSize: "0.8rem" }}>Garanti</span>
-                <div style={{ fontWeight: "700", marginTop: "2px", fontSize: "0.9rem" }}>2 Yıl Distribütör</div>
+                <div style={{ fontWeight: "700", marginTop: "2px", fontSize: "0.9rem" }}>{urun.garanti || "2 Yıl Distribütör"}</div>
               </div>
               <div style={{ background: "#09090b", padding: "12px", borderRadius: "10px", border: "1px solid #1f1f22" }}>
                 <span style={{ color: "#71717a", fontSize: "0.8rem" }}>Durum</span>
-                <div style={{ fontWeight: "700", marginTop: "2px", fontSize: "0.9rem" }}>Sıfır, Orijinal Kutu</div>
+                <div style={{ fontWeight: "700", marginTop: "2px", fontSize: "0.9rem" }}>{urun.durum || "Sıfır, Kapalı Kutu"}</div>
               </div>
             </div>
           </section>
 
+          {/* DİNAMİK FPS TESTLERİ */}
           <section style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px" }}>
             <h3 style={{ color: "#00e5ff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "16px" }}>🎮 Oyun Performans Testleri (4K / Ultra)</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              <div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "0.9rem" }}>
-                  <span>Cyberpunk 2077</span>
-                  <span style={{ color: "#10b981", fontWeight: "900" }}>145 FPS</span>
-                </div>
-                <div style={{ width: "100%", height: "6px", background: "#18181b", borderRadius: "4px" }}><div style={{ width: "85%", height: "100%", background: "#10b981", borderRadius: "4px" }}></div></div>
-              </div>
-              <div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "0.9rem" }}>
-                  <span>Valorant</span>
-                  <span style={{ color: "#10b981", fontWeight: "900" }}>520 FPS</span>
-                </div>
-                <div style={{ width: "100%", height: "6px", background: "#18181b", borderRadius: "4px" }}><div style={{ width: "98%", height: "100%", background: "#10b981", borderRadius: "4px" }}></div></div>
-              </div>
+              {urun.oyun_testleri && urun.oyun_testleri.length > 0 ? (
+                urun.oyun_testleri.map((test: any, index: number) => (
+                  <div key={index}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "0.9rem" }}>
+                      <span>{test.oyun_adi}</span>
+                      <span style={{ color: "#10b981", fontWeight: "900" }}>{test.fps} FPS</span>
+                    </div>
+                    {/* Dinamik Bar Genişliği */}
+                    <div style={{ width: "100%", height: "6px", background: "#18181b", borderRadius: "4px" }}>
+                      <div style={{ width: `${Math.min(test.fps / 2, 100)}%`, height: "100%", background: "#10b981", borderRadius: "4px" }}></div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p style={{ color: "#71717a", fontSize: "0.9rem", margin: 0 }}>Bu ürün için henüz FPS testi eklenmemiştir.</p>
+              )}
             </div>
           </section>
 
           <section style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px" }}>
             <h3 style={{ color: "#00e5ff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "12px" }}>⚔️ Donanım Karşılaştırma</h3>
-            <p style={{ color: "#a1a1aa", fontSize: "0.95rem", lineHeight: "1.6" }}>Bu bileşen, bir önceki nesle kıyasla <strong style={{ color: "#fff" }}>%38 daha az güç tüketirken</strong>, saf performans kasında <strong style={{ color: "#10b981" }}>%42 artış</strong> sağlamaktadır.</p>
-          </section>
-
-          <section style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px" }}>
-            <h3 style={{ color: "#00e5ff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "16px" }}>👥 Topluluk ve Değerlendirmeler</h3>
-            <div style={{ borderBottom: "1px solid #27272a", paddingBottom: "16px", marginBottom: "16px" }}>
-              <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "6px" }}>
-                <span style={{ fontWeight: "700", fontSize: "0.95rem" }}>Özkan B.</span>
-                <span style={{ color: "#f59e0b", fontSize: "0.8rem" }}>★★★★★</span>
-              </div>
-              <p style={{ color: "#a1a1aa", fontSize: "0.9rem", margin: 0 }}>Paketleme kusursuzdu, saat 15:30'da aldım akşamına kargoya verildi. Performans akıl almaz.</p>
-            </div>
-          </section>
-
-          <section style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px" }}>
-            <h3 style={{ color: "#00e5ff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "16px" }}>❓ Soru & Cevap</h3>
-            <div style={{ background: "#09090b", padding: "16px", borderRadius: "10px", border: "1px solid #27272a" }}>
-              <p style={{ margin: "0 0 6px 0", fontWeight: "700", fontSize: "0.95rem" }}>Soru: Güç kaynağı kaç watt olmalı?</p>
-              <p style={{ margin: 0, color: "#a1a1aa", fontSize: "0.9rem" }}><strong style={{ color: "#00e5ff" }}>Bilgin PC Yanıtı:</strong> En az 650W kaliteli bir PSU kullanmanızı öneririz.</p>
-            </div>
+            <p style={{ color: "#a1a1aa", fontSize: "0.95rem", lineHeight: "1.6", margin: 0 }}>
+              {urun.karsilastirma || "Bu ürünün detaylı güç ve performans karşılaştırması yakında eklenecektir."}
+            </p>
           </section>
 
         </div>
       </div>
 
-      {/* MOBİL YAPIŞKAN SEPET BUTONU */}
       <div className="mobil-alt-bar" style={{
         position: "fixed", bottom: 0, left: 0, right: 0, backgroundColor: "rgba(18, 18, 20, 0.98)", borderTop: "1px solid #27272a", padding: "12px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 9999
       }}>
