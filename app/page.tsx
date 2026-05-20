@@ -8,8 +8,8 @@ export default async function HomePage() {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket"); 
     
-    // ŞEFİM: Koleksiyon adını tamamen senin Atlas'taki gibi "ürünler" yaptık!
-    urunler = await db.collection("ürünler").find({}).toArray();
+    // ŞEFİM: Orijinal adına (products) geri döndük!
+    urunler = await db.collection("products").find({}).toArray();
   } catch (e) {
     console.error("HATA:", e);
   }
@@ -18,7 +18,6 @@ export default async function HomePage() {
     <main style={{ minHeight: "100vh", backgroundColor: "#09090b", color: "#ededed", padding: "40px 20px", fontFamily: "'Inter', sans-serif" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         
-        {/* Şık ve Agresif Siberpunk Başlık Alanı */}
         <header style={{ marginBottom: "50px", textAlign: "center" }}>
           <h1 style={{ fontSize: "3rem", fontWeight: "900", letterSpacing: "-1px", background: "linear-gradient(to right, #ffffff, #00e5ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", margin: 0 }}>
             BILGIN PC MARKET
@@ -28,7 +27,6 @@ export default async function HomePage() {
           </p>
         </header>
 
-        {/* Ürün Kartları Izgarası (Grid) */}
         <div style={{ 
           display: "grid", 
           gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", 
@@ -37,7 +35,6 @@ export default async function HomePage() {
           {urunler.length > 0 ? (
             urunler.map((urun: any) => {
               
-              // ŞEFİM: Eğer MongoDB'deki üründe yeni kurduğumuz 'resimler' dizisi varsa ilk resmi kap, yoksa düz 'resim' alanını kap
               const vitrinResmi = urun.resimler && urun.resimler.length > 0 ? urun.resimler[0] : urun.resim;
               const anaFiyat = Number(urun.fiyat) || 0;
 
@@ -47,7 +44,6 @@ export default async function HomePage() {
                   key={urun._id.toString()} 
                   style={{ textDecoration: "none", color: "inherit", display: "block", height: "100%" }}
                 >
-                  {/* Premium Karbon Kart Tasarımı */}
                   <div style={{ 
                     background: "#121214",
                     borderRadius: "20px",
@@ -61,7 +57,6 @@ export default async function HomePage() {
                     boxShadow: "0 4px 20px rgba(0,0,0,0.4)"
                   }}>
                     
-                    {/* Ürün Vitrin Resmi */}
                     <div style={{ width: "100%", height: "220px", backgroundColor: "#09090b", borderRadius: "14px", border: "1px solid #1f1f22", overflow: "hidden", marginBottom: "16px", display: "flex", alignItems: "center", justifyContent: "center", padding: "10px" }}>
                       {vitrinResmi ? (
                         <img src={vitrinResmi} alt={urun.isim} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
@@ -70,7 +65,6 @@ export default async function HomePage() {
                       )}
                     </div>
 
-                    {/* Detay Bilgileri */}
                     <div style={{ flexGrow: 1, display: "flex", flexDirection: "column", gap: "8px" }}>
                       <span style={{ color: "#00e5ff", fontSize: "0.8rem", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px" }}>
                         {urun.kategori || "Donanım"}
@@ -83,7 +77,6 @@ export default async function HomePage() {
                       </div>
                     </div>
 
-                    {/* Agresif İncele Butonu */}
                     <button style={{ 
                       width: "100%", 
                       padding: "14px", 
@@ -104,7 +97,6 @@ export default async function HomePage() {
               );
             })
           ) : (
-            // Eğer veritabanı tamamen boşsa müşteriye çıkacak uyarı
             <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "60px", color: "#71717a" }}>
               <p style={{ fontSize: "1.2rem", margin: "0 0 10px 0" }}>Veritabanında sergilenecek ürün bulunamadı.</p>
               <p style={{ fontSize: "0.9rem", margin: 0 }}>MongoDB Atlas panelinden ürün eklemeyi unutmayın şef.</p>

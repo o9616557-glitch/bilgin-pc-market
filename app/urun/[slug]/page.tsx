@@ -1,7 +1,7 @@
 import clientPromise from "@/lib/mongodb";
 import Link from "next/link";
 import EtkilesimliButonlar from "./EtkilesimliButonlar";
-import UrunGorselGalerisi from "./UrunGorselGalerisi"; // YENİ GALERİMİZİ EKLEDİK
+import UrunGorselGalerisi from "./UrunGorselGalerisi";
 
 export default async function UrunDetaySayfasi({ params }: { params: { slug: string } }) {
   const slug = params.slug;
@@ -10,6 +10,8 @@ export default async function UrunDetaySayfasi({ params }: { params: { slug: str
   try {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
+    
+    // ŞEFİM: Orijinal adına (products) geri döndük!
     urun = await db.collection("products").findOne({ slug: slug });
   } catch (e) {
     console.error("HATA:", e);
@@ -27,12 +29,11 @@ export default async function UrunDetaySayfasi({ params }: { params: { slug: str
   const anaFiyat = Number(urun.fiyat) || 0;
   const havaleFiyati = (anaFiyat * 0.95).toFixed(0);
 
-  // MongoDB'den gelen resimleri dizi (array) formatına çeviriyoruz
   let resimListesi: string[] = [];
   if (urun.resimler && Array.isArray(urun.resimler)) {
-    resimListesi = urun.resimler; // Eğer MongoDB'de 'resimler' diye bir dizi varsa onu kullan
+    resimListesi = urun.resimler;
   } else if (urun.resim) {
-    resimListesi = [urun.resim]; // Eski sistem tek resim varsa onu listeye çevir
+    resimListesi = [urun.resim];
   }
 
   return (
@@ -63,7 +64,6 @@ export default async function UrunDetaySayfasi({ params }: { params: { slug: str
         <div className="urun-ana-blok" style={{ display: "flex", gap: "30px", marginBottom: "40px" }}>
           
           <div style={{ flex: "1 1 50%", display: "flex", flexDirection: "column", gap: "16px", minWidth: 0 }}>
-            {/* ŞEFİM, EFSANE GALERİ BURAYA GELDİ */}
             <UrunGorselGalerisi resimler={resimListesi} />
             <EtkilesimliButonlar />
           </div>
@@ -112,7 +112,6 @@ export default async function UrunDetaySayfasi({ params }: { params: { slug: str
           </div>
         </div>
 
-        {/* DİNAMİK BÖLÜMLER */}
         <div style={{ display: "flex", flexDirection: "column", gap: "24px", paddingBottom: "80px" }}>
           <section style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px" }}>
             <h3 style={{ color: "#00e5ff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "12px" }}>⚙️ Ürün Açıklaması</h3>
@@ -120,7 +119,53 @@ export default async function UrunDetaySayfasi({ params }: { params: { slug: str
               {urun.aciklama || "Bu ürünün detaylı açıklaması yakında eklenecektir."}
             </p>
           </section>
-          {/* Diğer sekmeler aynen duruyor... */}
+
+          <section style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px" }}>
+            <h3 style={{ color: "#00e5ff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "16px" }}>📊 Teknik Bilgiler</h3>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px" }}>
+              <div style={{ background: "#09090b", padding: "12px", borderRadius: "10px", border: "1px solid #1f1f22" }}>
+                <span style={{ color: "#71717a", fontSize: "0.8rem" }}>Kategori</span>
+                <div style={{ fontWeight: "700", marginTop: "2px", fontSize: "0.9rem" }}>{urun.kategori || "Bileşen"}</div>
+              </div>
+              <div style={{ background: "#09090b", padding: "12px", borderRadius: "10px", border: "1px solid #1f1f22" }}>
+                <span style={{ color: "#71717a", fontSize: "0.8rem" }}>Garanti</span>
+                <div style={{ fontWeight: "700", marginTop: "2px", fontSize: "0.9rem" }}>{urun.garanti || "2 Yıl Distribütör"}</div>
+              </div>
+              <div style={{ background: "#09090b", padding: "12px", borderRadius: "10px", border: "1px solid #1f1f22" }}>
+                <span style={{ color: "#71717a", fontSize: "0.8rem" }}>Durum</span>
+                <div style={{ fontWeight: "700", marginTop: "2px", fontSize: "0.9rem" }}>{urun.durum || "Sıfır, Kapalı Kutu"}</div>
+              </div>
+            </div>
+          </section>
+
+          <section style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px" }}>
+            <h3 style={{ color: "#00e5ff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "16px" }}>🎮 Oyun Performans Testleri (4K / Ultra)</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              {urun.oyun_testleri && urun.oyun_testleri.length > 0 ? (
+                urun.oyun_testleri.map((test: any, index: number) => (
+                  <div key={index}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "0.9rem" }}>
+                      <span>{test.oyun_adi}</span>
+                      <span style={{ color: "#10b981", fontWeight: "900" }}>{test.fps} FPS</span>
+                    </div>
+                    <div style={{ width: "100%", height: "6px", background: "#18181b", borderRadius: "4px" }}>
+                      <div style={{ width: `${Math.min(test.fps / 2, 100)}%`, height: "100%", background: "#10b981", borderRadius: "4px" }}></div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p style={{ color: "#71717a", fontSize: "0.9rem", margin: 0 }}>Bu ürün için henüz FPS testi eklenmemiştir.</p>
+              )}
+            </div>
+          </section>
+
+          <section style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px" }}>
+            <h3 style={{ color: "#00e5ff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "12px" }}>⚔️ Donanım Karşılaştırma</h3>
+            <p style={{ color: "#a1a1aa", fontSize: "0.95rem", lineHeight: "1.6", margin: 0 }}>
+              {urun.karsilastirma || "Bu ürünün detaylı güç ve performans karşılaştırması yakında eklenecektir."}
+            </p>
+          </section>
+
         </div>
       </div>
 
@@ -135,6 +180,7 @@ export default async function UrunDetaySayfasi({ params }: { params: { slug: str
           Sepete Ekle
         </button>
       </div>
+
     </main>
   );
 }
