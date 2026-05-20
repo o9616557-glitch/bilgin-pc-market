@@ -5,14 +5,24 @@ import UrunGorselGalerisi from "./UrunGorselGalerisi";
 
 export const dynamic = "force-dynamic";
 
-export default async function UrunDetaySayfasi({ params }: { params: { slug: string } }) {
-  const slug = params.slug;
+export default async function UrunDetaySayfasi({ params }: { params: any }) {
+  // 1. Next.js 15 ve 14 Uyumluluğu İçin Parametreleri Güvenli Hale Getiriyoruz
+  const resolvedParams = await params;
+  const rawSlug = resolvedParams.slug || "";
+  
+  // URL'den gelebilecek ekstra karakterleri ve boşlukları temizliyoruz
+  const slug = decodeURIComponent(rawSlug).trim();
+
   let urun = null;
 
   try {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
-    urun = await db.collection("products").findOne({ slug: slug });
+    
+    // 2. AKILLI SORGULA: Başında/sonunda gizli boşluk olsa bile ürünü bulan Regex yapısı
+    urun = await db.collection("products").findOne({
+      slug: { $regex: new RegExp(`^\\s*${slug}\\s*$`, "i") }
+    });
   } catch (e) {
     console.error("HATA:", e);
   }
@@ -21,6 +31,7 @@ export default async function UrunDetaySayfasi({ params }: { params: { slug: str
     return (
       <main style={{ padding: "100px 20px", textAlign: "center", background: "#09090b", color: "white", minHeight: "100vh" }}>
         <h1 style={{ fontSize: "3rem", marginBottom: "20px" }}>Bileşen Bulunamadı</h1>
+        <p style={{ color: "#a1a1aa", marginBottom: "30px" }}>Aranan Adres: "{slug}"</p>
         <Link href="/" style={{ color: "#00e5ff", textDecoration: "none", fontSize: "1.2rem" }}>&larr; Ana Sayfaya Dön</Link>
       </main>
     );
@@ -58,7 +69,7 @@ export default async function UrunDetaySayfasi({ params }: { params: { slug: str
             <span style={{ margin: "0 8px" }}>/</span>
             <span style={{ color: "#fff" }}>{urun.kategori || "Donanım"}</span>
           </div>
-          <span style={{ color: "#52525b" }}>Kod: {urun._id.toString().substring(0, 8).toUpperCase()}</span>
+          <span style={{ color: "#52525b" }}>Kod: {urun._id ? urun._id.toString().substring(0, 8).toUpperCase() : "BİLİNMEYEN"}</span>
         </div>
 
         <div className="urun-ana-blok" style={{ display: "flex", gap: "30px", marginBottom: "40px" }}>
