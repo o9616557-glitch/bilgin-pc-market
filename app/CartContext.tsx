@@ -17,7 +17,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // 2. Sepete Ekleme Motoru
   const sepeteEkle = (urun: any) => {
     setSepet((eskiSepet) => {
-      // Ürün zaten sepette var mı kontrol et (Seçili varyasyon dahil)
+      // Ürün zaten sepette var mı kontrol et
       const varMi = eskiSepet.find(
         (item) => item.id === urun.id && item.varyasyon === urun.varyasyon
       );
@@ -31,17 +31,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             : item
         );
       } else {
-        // Yoksa sepete yeni ürün olarak ekle (adeti 1 yap)
+        // Yoksa sepete yeni ürün olarak ekle
         yeniSepet = [...eskiSepet, { ...urun, adet: 1 }];
       }
 
-      // Sepeti bilgisayarın çerezlerine kaydet (F5 yapınca silinmesin diye)
+      // Sepeti kaydet
       localStorage.setItem("bilgin-sepet", JSON.stringify(yeniSepet));
       return yeniSepet;
     });
-
-    // Ekranda havalı bir uyarı çıkar
-    alert("EFSANE SEÇİM! 🛒 Ürün başarıyla sepete eklendi.");
+    
+    // ŞEFİM, SİNİR BOZUCU UYARI (ALERT) MESAJI BURADAN TAMAMEN SİLİNDİ!
   };
 
   return (
@@ -51,5 +50,4 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// İŞTE VERCEL'İN BULAMADIĞI O KRİTİK EKSİK SATIR BURASIYDI:
 export const useCart = () => useContext(CartContext);

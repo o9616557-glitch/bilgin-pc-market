@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
-
-// 1. SEPET BEYNİNİ İÇERİ ALDIK
 import { CartProvider } from "./CartContext";
 
 const geistSans = Geist({
@@ -27,20 +25,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr" className="h-full">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-full flex flex-col bg-[#050810]`}>
+    // ŞEFİM DİKKAT: Buradaki h-full silindi, yapışkan menü serbest bırakıldı!
+    <html lang="tr">
+      {/* overflow-x-hidden: Sağa sola kaymayı sonsuza dek kilitler! */}
+      {/* min-h-screen: Ekranı tam kaplar ama menünün seninle inmesine izin verir! */}
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-[#050810] overflow-x-hidden`}>
         
-        {/* 2. TÜM SİTEYİ VE MENÜYÜ SEPET HAFIZASIYLA SARIYORUZ */}
         <CartProvider>
-          
-          {/* Üst Menü: Tüm sayfalarda sabitlenmiş şekilde en tepede yer alır */}
+          {/* Bu menü artık sen aşağı indikçe seninle gelecek */}
           <Header />
 
-          {/* Sayfa İçerikleri: Header'ın altından başlar */}
-          <main className="flex-grow">
+          <main className="flex-grow w-full">
             {children}
           </main>
-
         </CartProvider>
 
       </body>
