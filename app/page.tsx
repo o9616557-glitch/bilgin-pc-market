@@ -1,5 +1,5 @@
 import clientPromise from "@/lib/mongodb";
-import Link from "next/link"; 
+import Link from "next/link";
 
 export default async function HomePage() {
   let urunler: any[] = [];
@@ -7,72 +7,108 @@ export default async function HomePage() {
   try {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket"); 
-    urunler = await db.collection("products").find({}).toArray();
+    
+    // ŞEFİM: Koleksiyon adını tamamen senin Atlas'taki gibi "ürünler" yaptık!
+    urunler = await db.collection("ürünler").find({}).toArray();
   } catch (e) {
     console.error("HATA:", e);
   }
 
   return (
-    <main style={{ minHeight: "100vh", backgroundColor: "#f4f4f5", padding: "40px 20px", fontFamily: "'Inter', sans-serif" }}>
+    <main style={{ minHeight: "100vh", backgroundColor: "#09090b", color: "#ededed", padding: "40px 20px", fontFamily: "'Inter', sans-serif" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         
-        <header style={{ marginBottom: "40px", textAlign: "center" }}>
-          <h1 style={{ fontSize: "2.5rem", color: "#111827", fontWeight: "800" }}>Bilgin PC Market</h1>
-          <p style={{ color: "#6b7280", marginTop: "8px" }}>En güncel donanımlar, en iyi fiyatlarla</p>
+        {/* Şık ve Agresif Siberpunk Başlık Alanı */}
+        <header style={{ marginBottom: "50px", textAlign: "center" }}>
+          <h1 style={{ fontSize: "3rem", fontWeight: "900", letterSpacing: "-1px", background: "linear-gradient(to right, #ffffff, #00e5ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", margin: 0 }}>
+            BILGIN PC MARKET
+          </h1>
+          <p style={{ color: "#a1a1aa", marginTop: "10px", fontSize: "1.1rem", letterSpacing: "1px" }}>
+            [ GELECEĞİN TEKNOLOJİSİ, BUGÜNÜN PERFORMANSI ]
+          </p>
         </header>
 
+        {/* Ürün Kartları Izgarası (Grid) */}
         <div style={{ 
           display: "grid", 
           gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", 
           gap: "24px" 
         }}>
           {urunler.length > 0 ? (
-            urunler.map((urun: any) => (
-              <Link 
-                href={`/urun/${urun.slug}`} 
-                key={urun._id.toString()} 
-                style={{ textDecoration: "none", color: "inherit", display: "block", height: "100%" }}
-              >
-                <div style={{ 
-                  background: "#ffffff",
-                  borderRadius: "16px",
-                  padding: "16px",
-                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                  display: "flex",
-                  flexDirection: "column",
-                  height: "100%",
-                  cursor: "pointer"
-                }}>
-                  <div style={{ width: "100%", height: "200px", backgroundColor: "#f9fafb", borderRadius: "12px", overflow: "hidden", marginBottom: "16px" }}>
-                    {urun.resim ? (
-                      <img src={urun.resim} alt={urun.isim} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-                    ) : (
-                      <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#ccc" }}>Görsel Yok</div>
-                    )}
-                  </div>
+            urunler.map((urun: any) => {
+              
+              // ŞEFİM: Eğer MongoDB'deki üründe yeni kurduğumuz 'resimler' dizisi varsa ilk resmi kap, yoksa düz 'resim' alanını kap
+              const vitrinResmi = urun.resimler && urun.resimler.length > 0 ? urun.resimler[0] : urun.resim;
+              const anaFiyat = Number(urun.fiyat) || 0;
 
-                  <div style={{ flexGrow: 1 }}>
-                    <h2 style={{ fontSize: "1.1rem", color: "#1f2937", marginBottom: "8px" }}>{urun.isim}</h2>
-                    <p style={{ fontSize: "1.25rem", fontWeight: "700", color: "#000", marginBottom: "16px" }}>{urun.fiyat} TL</p>
-                  </div>
-
-                  <button style={{ 
-                    width: "100%", 
-                    padding: "12px", 
-                    backgroundColor: "#000", 
-                    color: "#fff", 
-                    border: "none", 
-                    borderRadius: "8px", 
+              return (
+                <Link 
+                  href={`/urun/${urun.slug || ""}`} 
+                  key={urun._id.toString()} 
+                  style={{ textDecoration: "none", color: "inherit", display: "block", height: "100%" }}
+                >
+                  {/* Premium Karbon Kart Tasarımı */}
+                  <div style={{ 
+                    background: "#121214",
+                    borderRadius: "20px",
+                    border: "1px solid #27272a",
+                    padding: "20px",
+                    display: "flex",
+                    flexDirection: "column",
+                    height: "100%",
                     cursor: "pointer",
-                    fontWeight: "bold"
+                    transition: "all 0.3s ease",
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.4)"
                   }}>
-                    Ürünü İncele
-                  </button>
-                </div>
-              </Link>
-            ))
+                    
+                    {/* Ürün Vitrin Resmi */}
+                    <div style={{ width: "100%", height: "220px", backgroundColor: "#09090b", borderRadius: "14px", border: "1px solid #1f1f22", overflow: "hidden", marginBottom: "16px", display: "flex", alignItems: "center", justifyContent: "center", padding: "10px" }}>
+                      {vitrinResmi ? (
+                        <img src={vitrinResmi} alt={urun.isim} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
+                      ) : (
+                        <div style={{ color: "#52525b", fontSize: "0.9rem", letterSpacing: "1px" }}>[ GÖRSEL_YOK ]</div>
+                      )}
+                    </div>
+
+                    {/* Detay Bilgileri */}
+                    <div style={{ flexGrow: 1, display: "flex", flexDirection: "column", gap: "8px" }}>
+                      <span style={{ color: "#00e5ff", fontSize: "0.8rem", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px" }}>
+                        {urun.kategori || "Donanım"}
+                      </span>
+                      <h2 style={{ fontSize: "1.1rem", fontWeight: "700", color: "#ffffff", margin: 0, lineHeight: "1.4", minHeight: "50px" }}>
+                        {urun.isim}
+                      </h2>
+                      <div style={{ fontSize: "1.6rem", fontWeight: "900", color: "#ffffff", marginTop: "10px", textShadow: "0 0 10px rgba(255,255,255,0.05)" }}>
+                        {anaFiyat.toLocaleString()} TL
+                      </div>
+                    </div>
+
+                    {/* Agresif İncele Butonu */}
+                    <button style={{ 
+                      width: "100%", 
+                      padding: "14px", 
+                      backgroundColor: "#18181b", 
+                      color: "#00e5ff", 
+                      border: "1px solid #27272a", 
+                      borderRadius: "10px", 
+                      cursor: "pointer",
+                      fontWeight: "800",
+                      marginTop: "20px",
+                      textTransform: "uppercase",
+                      letterSpacing: "1px"
+                    }}>
+                      Detayları İncele &rarr;
+                    </button>
+                  </div>
+                </Link>
+              );
+            })
           ) : (
-            <p>Ürün bulunamadı.</p>
+            // Eğer veritabanı tamamen boşsa müşteriye çıkacak uyarı
+            <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "60px", color: "#71717a" }}>
+              <p style={{ fontSize: "1.2rem", margin: "0 0 10px 0" }}>Veritabanında sergilenecek ürün bulunamadı.</p>
+              <p style={{ fontSize: "0.9rem", margin: 0 }}>MongoDB Atlas panelinden ürün eklemeyi unutmayın şef.</p>
+            </div>
           )}
         </div>
       </div>
