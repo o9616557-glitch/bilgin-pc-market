@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header"; // Menü bileşenini iskelete dahil ettik
+import Header from "@/components/Header";
+
+// 1. SEPET BEYNİNİ İÇERİ ALDIK
+import { CartProvider } from "./CartContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,13 +30,18 @@ export default function RootLayout({
     <html lang="tr" className="h-full">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-full flex flex-col bg-[#050810]`}>
         
-        {/* Üst Menü: Tüm sayfalarda sabitlenmiş şekilde en tepede yer alır */}
-        <Header />
+        {/* 2. TÜM SİTEYİ VE MENÜYÜ SEPET HAFIZASIYLA SARIYORUZ */}
+        <CartProvider>
+          
+          {/* Üst Menü: Tüm sayfalarda sabitlenmiş şekilde en tepede yer alır */}
+          <Header />
 
-        {/* Sayfa İçerikleri: Header'ın altından başlar */}
-        <main className="flex-grow">
-          {children}
-        </main>
+          {/* Sayfa İçerikleri: Header'ın altından başlar */}
+          <main className="flex-grow">
+            {children}
+          </main>
+
+        </CartProvider>
 
       </body>
     </html>
