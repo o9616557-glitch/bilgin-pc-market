@@ -3,6 +3,8 @@ import Link from "next/link";
 import EtkilesimliButonlar from "./EtkilesimliButonlar";
 import UrunGorselGalerisi from "./UrunGorselGalerisi";
 
+export const dynamic = "force-dynamic";
+
 export default async function UrunDetaySayfasi({ params }: { params: { slug: string } }) {
   const slug = params.slug;
   let urun = null;
@@ -10,8 +12,6 @@ export default async function UrunDetaySayfasi({ params }: { params: { slug: str
   try {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
-    
-    // ŞEFİM: Orijinal adına (products) geri döndük!
     urun = await db.collection("products").findOne({ slug: slug });
   } catch (e) {
     console.error("HATA:", e);

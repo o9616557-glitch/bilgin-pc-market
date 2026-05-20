@@ -1,14 +1,14 @@
 import clientPromise from "@/lib/mongodb";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   let urunler: any[] = [];
   
   try {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket"); 
-    
-    // ŞEFİM: Orijinal adına (products) geri döndük!
     urunler = await db.collection("products").find({}).toArray();
   } catch (e) {
     console.error("HATA:", e);
