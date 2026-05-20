@@ -1,5 +1,5 @@
 import clientPromise from "@/lib/mongodb";
-import Link from "next/link"; // SİHİRLİ KÖPRÜMÜZÜ EKLİYORUZ
+import Link from "next/link"; 
 
 export default async function HomePage() {
   let urunler: any[] = [];
@@ -28,11 +28,10 @@ export default async function HomePage() {
         }}>
           {urunler.length > 0 ? (
             urunler.map((urun: any) => (
-              /* KARTLARI LİNK İÇİNE ALDIK - TIKLAYINCA DETAYA GİDECEK */
               <Link 
                 href={`/urun/${urun.slug}`} 
                 key={urun._id.toString()} 
-                style={{ textDecoration: "none", color: "inherit", display: "block" }}
+                style={{ textDecoration: "none", color: "inherit", display: "block", height: "100%" }}
               >
                 <div style={{ 
                   background: "#ffffff",
@@ -42,13 +41,8 @@ export default async function HomePage() {
                   display: "flex",
                   flexDirection: "column",
                   height: "100%",
-                  transition: "transform 0.2s",
                   cursor: "pointer"
-                }}
-                onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.02)"}
-                onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
-                >
-                  {/* Resim Alanı */}
+                }}>
                   <div style={{ width: "100%", height: "200px", backgroundColor: "#f9fafb", borderRadius: "12px", overflow: "hidden", marginBottom: "16px" }}>
                     {urun.resim ? (
                       <img src={urun.resim} alt={urun.isim} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
@@ -57,7 +51,6 @@ export default async function HomePage() {
                     )}
                   </div>
 
-                  {/* İçerik */}
                   <div style={{ flexGrow: 1 }}>
                     <h2 style={{ fontSize: "1.1rem", color: "#1f2937", marginBottom: "8px" }}>{urun.isim}</h2>
                     <p style={{ fontSize: "1.25rem", fontWeight: "700", color: "#000", marginBottom: "16px" }}>{urun.fiyat} TL</p>
