@@ -95,7 +95,7 @@ export default function OdemeSayfasi() {
   }
 
   return (
-    <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
+    <div className="ana-konteynir" style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
       <h1 style={{ color: "#fff", fontSize: "2rem", fontWeight: "900", marginBottom: "30px", borderLeft: "6px solid #00e5ff", paddingLeft: "15px", marginTop: "20px" }}>
         KASA / <span style={{ color: "#00e5ff" }}>ÖDEME</span>
       </h1>
@@ -104,7 +104,7 @@ export default function OdemeSayfasi() {
         
         <div style={{ flex: "2", display: "flex", flexDirection: "column", gap: "20px" }}>
           
-          <form onSubmit={siparisTamamla} style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px" }}>
+          <form onSubmit={siparisTamamla} className="form-kutu" style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px" }}>
             
             <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
               <span>📍</span> Teslimat Bilgileri
@@ -162,7 +162,7 @@ export default function OdemeSayfasi() {
             </div>
 
             {!faturaAyni && (
-              <div style={{ background: "#09090b", border: "1px solid #27272a", borderRadius: "12px", padding: "20px", marginBottom: "25px" }}>
+              <div className="form-kutu" style={{ background: "#09090b", border: "1px solid #27272a", borderRadius: "12px", padding: "20px", marginBottom: "25px" }}>
                 <h4 style={{ color: "#00e5ff", marginBottom: "15px", fontSize: "1rem" }}>Farklı Adres Bilgileri</h4>
                 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginBottom: "15px" }} className="form-grid-2">
@@ -247,7 +247,7 @@ export default function OdemeSayfasi() {
             )}
           </form>
 
-          {/* ŞEFİM: EKRAN YÜZDELİK ORANLARLA TAM KAPLANIP, BUTON EN ÜSTE ÇİVİLENDİ */}
+          {/* ŞEFİM: BEYAZ EKRAN ÜST BOŞLUĞU SIFIRLANDI VE X BUTONU İÇERİ/ÜSTE ALINDI */}
           <div style={{ 
             display: (odemeYontemi === "kart" && iyzicoFormHtml) ? "flex" : "none", 
             position: "fixed", 
@@ -259,11 +259,10 @@ export default function OdemeSayfasi() {
             zIndex: 999999, 
             flexDirection: "column", 
             alignItems: "center", 
-            justifyContent: "flex-start", 
-            overflowY: "auto",
-            paddingTop: "80px", // Formu 80px aşağı ittik ki X butonuyla asla çarpışmasın
-            paddingBottom: "40px"
+            justifyContent: "flex-start", // En tepeden başlatır
+            overflowY: "auto"
           }}>
+            {/* X Butonu tam sağ üst köşede, formun üzerine denk gelecek şekilde! */}
             <button 
               type="button"
               onClick={() => {
@@ -275,34 +274,35 @@ export default function OdemeSayfasi() {
                 }
               }} 
               style={{ 
-                position: "fixed", // Ekrana çiviledik
-                top: "20px", 
-                right: "20px", 
+                position: "fixed", 
+                top: "10px", // Yukarıya sıfırlandı
+                right: "10px", // Sağa iyice yanaştı
                 background: "#f4f4f5", 
                 color: "#000", 
-                border: "2px solid #e4e4e7", // Telefondan net görünsün diye çerçeve
+                border: "2px solid #e4e4e7", 
                 borderRadius: "50%", 
-                width: "45px", 
-                height: "45px", 
-                fontSize: "1.3rem", 
+                width: "40px", 
+                height: "40px", 
+                fontSize: "1.2rem", 
                 cursor: "pointer", 
                 fontWeight: "bold", 
                 display: "flex", 
                 alignItems: "center", 
                 justifyContent: "center",
-                boxShadow: "0 4px 15px rgba(0,0,0,0.3)", // Mobilde havada dursun diye gölge
-                zIndex: 2147483647 // İzin verilen en yüksek z-index (asla arkada kalmaz)
+                boxShadow: "0 4px 15px rgba(0,0,0,0.3)", 
+                zIndex: 2147483647 // Her şeyin ama her şeyin üzerinde durur
               }}>
               ✕
             </button>
             
-            <div style={{ width: "100%", maxWidth: "600px", background: "#ffffff", padding: "0 15px" }}>
+            <div style={{ width: "100%", maxWidth: "600px", background: "#ffffff", padding: "0" }}>
               <div id="iyzipay-checkout-form" className="responsive"></div>
             </div>
           </div>
 
         </div>
 
+        {/* SAĞ PANEL: SİPARİŞ ÖZETİ */}
         <div style={{ flex: "1" }}>
           <div style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "20px", padding: "24px", position: "sticky", top: "100px" }}>
             <h2 style={{ color: "#fff", fontSize: "1.3rem", fontWeight: "800", marginBottom: "20px" }}>Sipariş Özetiniz</h2>
@@ -342,9 +342,14 @@ export default function OdemeSayfasi() {
 
       </div>
 
+      {/* ŞEFİM: MOBİLDE BOŞLUKLARI SİLEN SİHİRLİ KODLAR BURADA EKLENDİ! */}
       <style dangerouslySetInnerHTML={{__html: `
         @media (max-width: 992px) { .odeme-konteynir { flex-direction: column !important; } }
-        @media (max-width: 550px) { .form-grid-2 { grid-template-columns: 1fr !important; } }
+        @media (max-width: 550px) { 
+          .form-grid-2 { grid-template-columns: 1fr !important; } 
+          .ana-konteynir { padding: 10px !important; }
+          .form-kutu { padding: 15px !important; }
+        }
       `}} />
     </div>
   );
