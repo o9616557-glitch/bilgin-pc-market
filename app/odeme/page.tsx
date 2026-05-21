@@ -69,7 +69,7 @@ export default function OdemeSayfasi() {
 
       if (data.success) {
         if (data.odemeYontemi === "havale") {
-          alert(`Tebrikler! Siparişiniz başarıyla alındı.\nSipariş Kodunuz: ${data.siparisKodu}\nBizi tercih ettiğiniz için teşekkür ederiz.`);
+          window.location.href = "/siparis-basarili?kodu=" + data.siparisKodu;
           window.location.href = "/";
         } else {
           setIyzicoFormHtml(data.checkoutFormContent);

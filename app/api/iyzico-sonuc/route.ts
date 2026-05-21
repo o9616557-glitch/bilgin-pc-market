@@ -46,7 +46,7 @@ export async function POST(request: Request) {
         { $set: { durum: "Ödendi - Hazırlanıyor", odemeId: sonuc.paymentId } }
       );
 
-      return NextResponse.redirect(new URL(`/?siparisBasarili=${siparisKodu}`, request.url));
+      return NextResponse.redirect(new URL(`/siparis-basarili?kodu=${siparisKodu}`, request.url));
     } else {
       return NextResponse.redirect(new URL("/odeme?hata=odeme_reddedildi", request.url));
     }
