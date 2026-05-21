@@ -5,19 +5,23 @@ import Link from "next/link";
 
 export default function OdemeSayfasi() {
   const { sepet } = useCart();
-  const [odemeYontemi, setOdemeYontemi] = useState("kart"); // "kart" veya "havale"
+  const [odemeYontemi, setOdemeYontemi] = useState("kart"); 
 
-  // Fiyat Hesaplamaları
   const araToplam = sepet.reduce((toplam: number, urun: any) => toplam + (urun.fiyat * urun.adet), 0);
   const kargo = araToplam > 5000 ? 0 : 150;
   const havaleIndirimi = araToplam * 0.05;
   const genelToplam = odemeYontemi === "havale" ? (araToplam - havaleIndirimi + kargo) : (araToplam + kargo);
 
-  // Eğer sepet boşsa ödeme sayfasına girmesin, sepete yönlendirsin
+  // Form gönderildiğinde (Tüm zorunlu alanlar dolduğunda) çalışacak fonksiyon
+  const siparisTamamla = (e: React.FormEvent) => {
+    e.preventDefault(); // Sayfanın yenilenmesini engeller
+    alert("Tebrikler! Siparişiniz başarıyla alındı. Bizi tercih ettiğiniz için teşekkür ederiz.");
+  };
+
   if (sepet.length === 0) {
     return (
       <div style={{ minHeight: "80vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px", textAlign: "center" }}>
-        <h2 style={{ color: "#fff", fontSize: "2rem", fontWeight: "900", marginBottom: "20px" }}>Ödeme İçin Sepetinizde Ürün Olmalı Şef!</h2>
+        <h2 style={{ color: "#fff", fontSize: "2rem", fontWeight: "900", marginBottom: "20px" }}>Ödeme İçin Sepetinizde Ürün Olmalı</h2>
         <Link href="/" style={{ background: "#00e5ff", color: "#000", padding: "15px 40px", borderRadius: "12px", fontWeight: "900", textDecoration: "none" }}>Alışverişe Başla</Link>
       </div>
     );
@@ -29,12 +33,12 @@ export default function OdemeSayfasi() {
         KASA / <span style={{ color: "#00e5ff" }}>ÖDEME</span>
       </h1>
 
-      <div style={{ display: "flex", flexDirection: "row", gap: "30px" }} className="odeme-konteynir">
+      {/* DİKKAT: Burası <div> yerine <form> yapıldı ki zorunlu alanlar çalışsın */}
+      <form onSubmit={siparisTamamla} style={{ display: "flex", flexDirection: "row", gap: "30px" }} className="odeme-konteynir">
         
         {/* SOL TARAF: ADRES VE ÖDEME FORMLARI */}
         <div style={{ flex: "2", display: "flex", flexDirection: "column", gap: "20px" }}>
           
-          {/* 1. TESLİMAT ADRESİ FORMU */}
           <div style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px" }}>
             <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
               <span>📍</span> Teslimat ve Fatura Bilgileri
@@ -79,15 +83,14 @@ export default function OdemeSayfasi() {
             </div>
           </div>
 
-          {/* 2. ÖDEME YÖNTEMİ SEÇİMİ VE KART/HAVALE FORMU */}
           <div style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px" }}>
             <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
               <span>💳</span> Ödeme Yöntemi
             </h3>
 
-            {/* Sekme Butonları */}
             <div style={{ display: "flex", gap: "10px", marginBottom: "25px" }}>
               <button 
+                type="button"
                 onClick={() => setOdemeYontemi("kart")}
                 style={{
                   flex: 1, padding: "14px", borderRadius: "10px", cursor: "pointer", fontWeight: "700", fontSize: "0.95rem",
@@ -100,6 +103,7 @@ export default function OdemeSayfasi() {
                 Kredi / Banka Kartı
               </button>
               <button 
+                type="button"
                 onClick={() => setOdemeYontemi("havale")}
                 style={{
                   flex: 1, padding: "14px", borderRadius: "10px", cursor: "pointer", fontWeight: "700", fontSize: "0.95rem",
@@ -113,35 +117,33 @@ export default function OdemeSayfasi() {
               </button>
             </div>
 
-            {/* KREDİ KARTIK FORMU */}
             {odemeYontemi === "kart" && (
               <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                 <div>
-                  <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Kart Üzerindeki İsim</label>
-                  <input type="text" placeholder="John Doe" style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+                  <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Kart Üzerindeki İsim *</label>
+                  <input type="text" required placeholder="Ahmet Yılmaz" style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
                 </div>
                 <div>
-                  <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Kart Numarası</label>
-                  <input type="text" maxLength={16} placeholder="0000 0000 0000 0000" style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+                  <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Kart Numarası *</label>
+                  <input type="text" required maxLength={16} placeholder="0000 0000 0000 0000" style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
                   <div>
-                    <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Son Kullanma (AA/YY)</label>
-                    <input type="text" placeholder="12/29" style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+                    <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Son Kullanma (AA/YY) *</label>
+                    <input type="text" required placeholder="12/29" style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
                   </div>
                   <div>
-                    <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>CVC / Güvenlik Kodu</label>
-                    <input type="text" maxLength={3} placeholder="123" style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+                    <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>CVC / Güvenlik Kodu *</label>
+                    <input type="text" required maxLength={3} placeholder="123" style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
                   </div>
                 </div>
               </div>
             )}
 
-            {/* HAVALE BİLGİSİ */}
             {odemeYontemi === "havale" && (
               <div style={{ background: "#09090b", border: "1px solid #27272a", borderRadius: "12px", padding: "16px", color: "#d4d4d8", fontSize: "0.9rem", lineHeight: "1.6" }}>
                 <p style={{ color: "#10b981", fontWeight: "700", marginBottom: "10px" }} >💡 Havale Ödeme Talimatı:</p>
-                Siparişi tamamladıktan sonra, toplam tutarı aşağıdaki IBAN hesabımıza <strong>"Sipariş Kodu"</strong> açıklalamasıyla göndermeniz yeterlidir. Paraniz hesaba düştüğü an kargonuz yola çıkar şef!
+                Siparişi tamamladıktan sonra, toplam tutarı aşağıdaki IBAN hesabımıza <strong>"Sipariş Kodu"</strong> açıklamasıyla göndermeniz yeterlidir. Paranız hesaba düştüğü an kargonuz yola çıkar!
                 <div style={{ marginTop: "15px", borderTop: "1px solid #27272a", paddingTop: "12px", fontFamily: "monospace" }}>
                   <strong>Banka:</strong> Bilgin PC Akıllı Banka<br />
                   <strong>Alıcı:</strong> BİLGİN PC MARKET LTD. ŞTİ.<br />
@@ -158,7 +160,6 @@ export default function OdemeSayfasi() {
           <div style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "20px", padding: "24px", position: "sticky", top: "100px" }}>
             <h2 style={{ color: "#fff", fontSize: "1.3rem", fontWeight: "800", marginBottom: "20px" }}>Sipariş Özetiniz</h2>
             
-            {/* Küçük Ürün Kartları */}
             <div style={{ maxHeight: "200px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px", marginBottom: "20px", paddingRight: "5px" }}>
               {sepet.map((urun: any, idx: number) => (
                 <div key={idx} style={{ display: "flex", gap: "10px", alignItems: "center" }}>
@@ -196,9 +197,9 @@ export default function OdemeSayfasi() {
               </div>
             </div>
 
-            {/* SİPARİŞİ TAMAMLA BUTONU */}
+            {/* BUTON TİPİ "submit" OLARAK DEĞİŞTİRİLDİ */}
             <button 
-              onClick={() => alert("TEBRİKLER ŞEF! 🎉 Siparişiniz başarıyla alındı. Bilgin PC ailesine hoş geldiniz!")}
+              type="submit"
               style={{ 
                 width: "100%", padding: "16px", color: "#000", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "1.05rem", cursor: "pointer", textTransform: "uppercase", letterSpacing: "1px",
                 background: odemeYontemi === "havale" ? "linear-gradient(45deg, #10b981, #059669)" : "linear-gradient(45deg, #00e5ff, #007acc)",
@@ -212,15 +213,11 @@ export default function OdemeSayfasi() {
           </div>
         </div>
 
-      </div>
+      </form>
 
       <style dangerouslySetInnerHTML={{__html: `
-        @media (max-width: 992px) {
-          .odeme-konteynir { flex-direction: column !important; }
-        }
-        @media (max-width: 550px) {
-          .form-grid-2 { grid-template-columns: 1fr !important; }
-        }
+        @media (max-width: 992px) { .odeme-konteynir { flex-direction: column !important; } }
+        @media (max-width: 550px) { .form-grid-2 { grid-template-columns: 1fr !important; } }
       `}} />
     </div>
   );
