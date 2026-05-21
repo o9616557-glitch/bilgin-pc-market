@@ -9,7 +9,6 @@ export default function OdemeSayfasi() {
   const [yukleniyor, setYukleniyor] = useState(false);
   const [iyzicoFormHtml, setIyzicoFormHtml] = useState<string>("");
 
-  // YENİ: Fatura Adresi Aynı Mı? ve Sözleşme Kabul Tiki
   const [faturaAyni, setFaturaAyni] = useState(true);
   const [sozlesmeKabul, setSozlesmeKabul] = useState(false);
 
@@ -18,9 +17,9 @@ export default function OdemeSayfasi() {
     ad: "", soyad: "", telefon: "", eposta: "", adres: "", sehir: "", ilce: ""
   });
 
-  // Fatura Formu (Sadece tik kaldırıldığında kullanılır)
+  // Fatura (veya farklı teslimat) Formu - BASİTLEŞTİRİLDİ
   const [faturaForm, setFaturaForm] = useState({
-    ad: "", soyad: "", tcVergiNo: "", adres: "", sehir: "", ilce: ""
+    ad: "", soyad: "", telefon: "", adres: "", sehir: "", ilce: ""
   });
 
   const araToplam = sepet.reduce((toplam: number, urun: any) => toplam + (urun.fiyat * urun.adet), 0);
@@ -51,7 +50,6 @@ export default function OdemeSayfasi() {
     setIyzicoFormHtml("");
 
     const siparisVerisi = {
-      // Arka uca (API) gidecek müşteri verisi (İleride fatura ayrımı için veritabanına ekliyoruz)
       musteri: {
         ...form,
         faturaBilgileri: faturaAyni ? form : faturaForm
@@ -154,7 +152,7 @@ export default function OdemeSayfasi() {
 
             <hr style={{ borderColor: "#27272a", marginBottom: "20px" }} />
 
-            {/* 2. FATURA BİLGİLERİ KONTROLÜ */}
+            {/* 2. FATURA / FARKLI ADRES KONTROLÜ */}
             <div style={{ marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
               <input 
                 type="checkbox" 
@@ -163,32 +161,32 @@ export default function OdemeSayfasi() {
                 onChange={(e) => setFaturaAyni(e.target.checked)} 
                 style={{ width: "18px", height: "18px", cursor: "pointer", accentColor: "#00e5ff" }} 
               />
-              <label htmlFor="faturaAyni" style={{ color: "#d4d4d8", cursor: "pointer", fontSize: "0.95rem" }}>Fatura adresim, teslimat adresim ile aynıdır.</label>
+              <label htmlFor="faturaAyni" style={{ color: "#d4d4d8", cursor: "pointer", fontSize: "0.95rem" }}>Fatura/Teslimat adresim yukarıdaki ile aynıdır.</label>
             </div>
 
-            {/* Fatura Adresi Farklıysa Açılacak Form */}
+            {/* Fatura/Farklı Adres Formu (Basitleştirilmiş Normal Adres Formu) */}
             {!faturaAyni && (
               <div style={{ background: "#09090b", border: "1px solid #27272a", borderRadius: "12px", padding: "20px", marginBottom: "25px" }}>
-                <h4 style={{ color: "#00e5ff", marginBottom: "15px", fontSize: "1rem" }}>Fatura Bilgileri</h4>
+                <h4 style={{ color: "#00e5ff", marginBottom: "15px", fontSize: "1rem" }}>Farklı Adres Bilgileri</h4>
                 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginBottom: "15px" }} className="form-grid-2">
                   <div>
-                    <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Fatura Ad / Şirket Ünvanı *</label>
+                    <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Adınız *</label>
                     <input type="text" name="ad" value={faturaForm.ad} onChange={faturaInputDegis} required={!faturaAyni} style={{ width: "100%", background: "#121214", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
                   </div>
                   <div>
-                    <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Fatura Soyad / Vergi Dairesi *</label>
+                    <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Soyadınız *</label>
                     <input type="text" name="soyad" value={faturaForm.soyad} onChange={faturaInputDegis} required={!faturaAyni} style={{ width: "100%", background: "#121214", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
                   </div>
                 </div>
 
                 <div style={{ marginBottom: "15px" }}>
-                  <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>T.C. Kimlik No / Vergi No *</label>
-                  <input type="text" name="tcVergiNo" value={faturaForm.tcVergiNo} onChange={faturaInputDegis} required={!faturaAyni} style={{ width: "100%", background: "#121214", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+                  <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Telefon Numarası *</label>
+                  <input type="tel" name="telefon" value={faturaForm.telefon} onChange={faturaInputDegis} required={!faturaAyni} style={{ width: "100%", background: "#121214", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
                 </div>
 
                 <div style={{ marginBottom: "15px" }}>
-                  <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Fatura Adresi *</label>
+                  <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Açık Adres *</label>
                   <textarea rows={2} name="adres" value={faturaForm.adres} onChange={faturaInputDegis} required={!faturaAyni} style={{ width: "100%", background: "#121214", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none", resize: "none" }}></textarea>
                 </div>
 
@@ -204,7 +202,6 @@ export default function OdemeSayfasi() {
                 </div>
               </div>
             )}
-
 
             {/* 3. ÖDEME YÖNTEMİ */}
             <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
@@ -256,11 +253,48 @@ export default function OdemeSayfasi() {
             )}
           </form>
 
-          {/* İYZİCO GERÇEK ÖDEME KUTUSU (TAM EKRAN BEYAZ) */}
+          {/* İYZİCO GERÇEK ÖDEME KUTUSU (BEMBEYAZ BÜTÜNLEŞİK EKRAN) */}
           {odemeYontemi === "kart" && iyzicoFormHtml && (
-            <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "#ffffff", zIndex: 99999, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", overflowY: "auto" }}>
-              <button onClick={() => setIyzicoFormHtml("")} style={{ position: "absolute", top: "20px", right: "20px", background: "#121214", color: "#fff", border: "none", borderRadius: "50%", width: "40px", height: "40px", fontSize: "1.2rem", cursor: "pointer", fontWeight: "bold", boxShadow: "0 4px 10px rgba(0,0,0,0.2)" }}>✕</button>
-              <div style={{ width: "100%", maxWidth: "500px", padding: "20px" }}>
+            <div style={{ 
+              position: "fixed", 
+              top: 0, 
+              left: 0, 
+              width: "100vw", 
+              height: "100vh", 
+              background: "#ffffff", 
+              zIndex: 999999, 
+              display: "flex", 
+              flexDirection: "column", 
+              alignItems: "center", 
+              justifyContent: "flex-start", 
+              overflowY: "auto",
+              paddingTop: "40px"
+            }}>
+              {/* Çarpı Butonu */}
+              <button 
+                onClick={() => setIyzicoFormHtml("")} 
+                style={{ 
+                  position: "absolute", 
+                  top: "20px", 
+                  right: "20px", 
+                  background: "#f4f4f5", 
+                  color: "#000", 
+                  border: "none", 
+                  borderRadius: "50%", 
+                  width: "45px", 
+                  height: "45px", 
+                  fontSize: "1.3rem", 
+                  cursor: "pointer", 
+                  fontWeight: "bold", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "center",
+                  boxShadow: "0 2px 10px rgba(0,0,0,0.1)" 
+                }}>
+                ✕
+              </button>
+              
+              <div style={{ width: "100%", maxWidth: "600px", background: "#ffffff", padding: "0" }}>
                 <div id="iyzico-Konteynir"></div>
               </div>
             </div>
