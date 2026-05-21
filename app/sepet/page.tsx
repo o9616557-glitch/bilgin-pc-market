@@ -29,17 +29,11 @@ export default function SepetSayfasi() {
 
       <div style={{ display: "flex", flexDirection: "row", gap: "30px" }} className="sepet-konteynir">
         
-        {/* SOL TARAF: ÜRÜN LİSTESİ */}
         <div style={{ flex: "2" }}>
           {sepet.map((urun: any, index: number) => (
             <div key={index} style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "16px", display: "flex", gap: "15px", marginBottom: "15px" }}>
-              
-              {/* ŞEFİM: Resmi mobilde alanı daraltmasın diye 80px yaptık ve flexShrink: 0 ile sıkışmasını engelledik */}
               <img src={urun.resim} alt={urun.isim} style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "12px", flexShrink: 0 }} />
-              
               <div style={{ flex: "1", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                
-                {/* ÜST SATIR: İSİM VE FİYAT (Yan yana) */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "10px" }} className="urun-ust-kisim">
                   <div>
                     <h3 style={{ color: "#fff", fontSize: "1rem", fontWeight: "700", marginBottom: "4px", lineHeight: "1.3" }}>{urun.isim}</h3>
@@ -49,68 +43,45 @@ export default function SepetSayfasi() {
                     <div style={{ color: "#fff", fontSize: "1.1rem", fontWeight: "900" }}>{(urun.fiyat * urun.adet).toLocaleString()} TL</div>
                   </div>
                 </div>
-
-                {/* ALT SATIR: ADET KONTROLÜ VE SİLME BUTONU */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "12px" }}>
                   <div style={{ display: "flex", alignItems: "center", background: "#09090b", borderRadius: "8px", border: "1px solid #27272a" }}>
-                    <button onClick={() => adetGuncelle(urun.id, urun.varyasyon, -1)} style={{ padding: "6px 12px", color: "#fff", border: "none", background: "none", cursor: "pointer", fontSize: "1rem" }}>-</button>
-                    <span style={{ color: "#fff", fontWeight: "800", minWidth: "24px", textAlign: "center", fontSize: "0.9rem" }}>{urun.adet}</span>
-                    <button onClick={() => adetGuncelle(urun.id, urun.varyasyon, 1)} style={{ padding: "6px 12px", color: "#fff", border: "none", background: "none", cursor: "pointer", fontSize: "1rem" }}>+</button>
+                    <button onClick={() => adetGuncelle(urun.id, urun.varyasyon, -1)} style={{ padding: "6px 12px", color: "#fff", border: "none", background: "none", cursor: "pointer" }}>-</button>
+                    <span style={{ color: "#fff", fontWeight: "800", minWidth: "24px", textAlign: "center" }}>{urun.adet}</span>
+                    <button onClick={() => adetGuncelle(urun.id, urun.varyasyon, 1)} style={{ padding: "6px 12px", color: "#fff", border: "none", background: "none", cursor: "pointer" }}>+</button>
                   </div>
-                  <button onClick={() => sepettenSil(urun.id, urun.varyasyon)} style={{ color: "#ef4444", background: "none", border: "none", fontSize: "0.85rem", cursor: "pointer", fontWeight: "700", padding: "5px" }}>Kaldır</button>
+                  <button onClick={() => sepettenSil(urun.id, urun.varyasyon)} style={{ color: "#ef4444", background: "none", border: "none", fontSize: "0.85rem", cursor: "pointer", fontWeight: "700" }}>Kaldır</button>
                 </div>
-                
               </div>
             </div>
           ))}
         </div>
 
-        {/* SAĞ TARAF: SİPARİŞ ÖZETİ */}
         <div style={{ flex: "1" }}>
           <div style={{ background: "#121214", border: "1px solid #00e5ff", borderRadius: "20px", padding: "24px", position: "sticky", top: "100px" }}>
             <h2 style={{ color: "#fff", fontSize: "1.4rem", fontWeight: "800", marginBottom: "20px" }}>Sipariş Özeti</h2>
-            
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", color: "#a1a1aa" }}>
-              <span>Ara Toplam</span>
-              <span style={{ color: "#fff" }}>{araToplam.toLocaleString()} TL</span>
-            </div>
-            
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", color: "#a1a1aa" }}>
-              <span>Kargo</span>
-              <span style={{ color: kargo === 0 ? "#10b981" : "#fff" }}>{kargo === 0 ? "BEDAVA" : kargo + " TL"}</span>
-            </div>
-
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", color: "#a1a1aa" }}><span>Ara Toplam</span><span style={{ color: "#fff" }}>{araToplam.toLocaleString()} TL</span></div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", color: "#a1a1aa" }}><span>Kargo</span><span style={{ color: kargo === 0 ? "#10b981" : "#fff" }}>{kargo === 0 ? "BEDAVA" : kargo + " TL"}</span></div>
             <div style={{ background: "rgba(16, 185, 129, 0.1)", padding: "12px", borderRadius: "10px", margin: "20px 0", border: "1px dashed #10b981" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", color: "#10b981", fontWeight: "700", fontSize: "0.9rem" }}>
-                <span>Havale İndirimi (%5)</span>
-                <span>-{havaleIndirimi.toLocaleString()} TL</span>
-              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", color: "#10b981", fontWeight: "700", fontSize: "0.9rem" }}><span>Havale İndirimi (%5)</span><span>-{havaleIndirimi.toLocaleString()} TL</span></div>
             </div>
-
             <div style={{ borderTop: "1px solid #27272a", paddingTop: "20px", marginBottom: "30px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-                <span style={{ color: "#fff", fontWeight: "600" }}>TOPLAM</span>
-                <span style={{ color: "#00e5ff", fontSize: "1.8rem", fontWeight: "900" }}>{genelToplam.toLocaleString()} TL</span>
-              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}><span style={{ color: "#fff", fontWeight: "600" }}>TOPLAM</span><span style={{ color: "#00e5ff", fontSize: "1.8rem", fontWeight: "900" }}>{genelToplam.toLocaleString()} TL</span></div>
             </div>
 
-            <button style={{ width: "100%", padding: "18px", background: "linear-gradient(45deg, #00e5ff, #007acc)", color: "#000", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "1.1rem", cursor: "pointer", textTransform: "uppercase", letterSpacing: "1px", boxShadow: "0 10px 20px rgba(0, 229, 255, 0.2)" }}>
-              Alışverişi Tamamla
-            </button>
+            {/* ŞEFİM: İŞTE BAĞLANTIYI BURADA KURDUK! */}
+            <Link href="/odeme" style={{ textDecoration: "none" }}>
+              <button style={{ width: "100%", padding: "18px", background: "linear-gradient(45deg, #00e5ff, #007acc)", color: "#000", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "1.1rem", cursor: "pointer", textTransform: "uppercase", letterSpacing: "1px", boxShadow: "0 10px 20px rgba(0, 229, 255, 0.2)" }}>
+                Alışverişi Tamamla
+              </button>
+            </Link>
+
           </div>
         </div>
-
       </div>
 
       <style dangerouslySetInnerHTML={{__html: `
-        @media (max-width: 992px) {
-          .sepet-konteynir { flex-direction: column !important; }
-        }
-        @media (max-width: 480px) {
-          /* Çok dar ekranlarda ürün adını ve fiyatını alt alta dizer */
-          .urun-ust-kisim { flex-direction: column !important; }
-          .urun-ust-kisim > div:nth-child(2) { text-align: left !important; margin-top: 5px; }
-        }
+        @media (max-width: 992px) { .sepet-konteynir { flex-direction: column !important; } }
+        @media (max-width: 480px) { .urun-ust-kisim { flex-direction: column !important; } .urun-ust-kisim > div:nth-child(2) { text-align: left !important; margin-top: 5px; } }
       `}} />
     </div>
   );
