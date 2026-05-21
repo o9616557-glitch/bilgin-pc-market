@@ -1,10 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Iyzico için gerekli paketleri dışarıda bırakıyoruz
-  serverExternalPackages: ['iyzipay'],
-  
-  // Hata veren 'experimental' kısmını geçici olarak kaldırıyoruz
-  // Projen düzgün çalışınca burayı tekrar optimize ederiz.
+  serverExternalPackages: ["iyzipay"],
+  experimental: {
+    serverComponentsExternalPackages: ["iyzipay"]
+  }
 };
 
 export default nextConfig;
