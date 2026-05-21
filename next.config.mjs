@@ -1,9 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ["iyzipay"],
   experimental: {
-    serverComponentsExternalPackages: ["iyzipay"]
-  }
+    serverComponentsExternalPackages: ["iyzipay"],
+    // ŞEFİM: İŞTE BALYOZ BURASI! Vercel'e dosyaları zorla paketletiyoruz.
+    outputFileTracingIncludes: {
+      "/api/**/*": ["./node_modules/iyzipay/**/*"],
+    },
+  },
 };
 
 export default nextConfig;
