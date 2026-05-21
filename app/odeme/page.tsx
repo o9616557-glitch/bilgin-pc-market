@@ -12,12 +12,10 @@ export default function OdemeSayfasi() {
   const [faturaAyni, setFaturaAyni] = useState(true);
   const [sozlesmeKabul, setSozlesmeKabul] = useState(false);
 
-  // Teslimat Formu
   const [form, setForm] = useState({
     ad: "", soyad: "", telefon: "", eposta: "", adres: "", sehir: "", ilce: ""
   });
 
-  // Fatura (veya farklı teslimat) Formu - BASİTLEŞTİRİLDİ
   const [faturaForm, setFaturaForm] = useState({
     ad: "", soyad: "", telefon: "", adres: "", sehir: "", ilce: ""
   });
@@ -30,12 +28,15 @@ export default function OdemeSayfasi() {
   const inputDegis = (e: any) => { setForm({ ...form, [e.target.name]: e.target.value }); };
   const faturaInputDegis = (e: any) => { setFaturaForm({ ...faturaForm, [e.target.name]: e.target.value }); };
 
+  // ŞEFİM: IYZICO'NUN ARADIĞI KUTUNUN ADINI DÜZELTTİK
   useEffect(() => {
     if (iyzicoFormHtml) {
       const gonderilenScript = document.getElementById("iyzico-script");
       if (gonderilenScript) gonderilenScript.remove();
+      
       const icerik = document.createRange().createContextualFragment(iyzicoFormHtml);
-      document.getElementById("iyzico-Konteynir")?.appendChild(icerik);
+      // Iyzico'nun zorunlu kıldığı id'yi kullanıyoruz
+      document.getElementById("iyzipay-checkout-form")?.appendChild(icerik);
     }
   }, [iyzicoFormHtml]);
 
@@ -107,7 +108,6 @@ export default function OdemeSayfasi() {
           
           <form onSubmit={siparisTamamla} style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px" }}>
             
-            {/* 1. TESLİMAT BİLGİLERİ */}
             <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
               <span>📍</span> Teslimat Bilgileri
             </h3>
@@ -152,7 +152,6 @@ export default function OdemeSayfasi() {
 
             <hr style={{ borderColor: "#27272a", marginBottom: "20px" }} />
 
-            {/* 2. FATURA / FARKLI ADRES KONTROLÜ */}
             <div style={{ marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
               <input 
                 type="checkbox" 
@@ -164,7 +163,6 @@ export default function OdemeSayfasi() {
               <label htmlFor="faturaAyni" style={{ color: "#d4d4d8", cursor: "pointer", fontSize: "0.95rem" }}>Fatura/Teslimat adresim yukarıdaki ile aynıdır.</label>
             </div>
 
-            {/* Fatura/Farklı Adres Formu (Basitleştirilmiş Normal Adres Formu) */}
             {!faturaAyni && (
               <div style={{ background: "#09090b", border: "1px solid #27272a", borderRadius: "12px", padding: "20px", marginBottom: "25px" }}>
                 <h4 style={{ color: "#00e5ff", marginBottom: "15px", fontSize: "1rem" }}>Farklı Adres Bilgileri</h4>
@@ -203,7 +201,6 @@ export default function OdemeSayfasi() {
               </div>
             )}
 
-            {/* 3. ÖDEME YÖNTEMİ */}
             <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
               <span>💳</span> Ödeme Yöntemi
             </h3>
@@ -224,7 +221,6 @@ export default function OdemeSayfasi() {
               </div>
             )}
 
-            {/* 4. SÖZLEŞME VE KVKK TİKİ */}
             <div style={{ marginBottom: "25px", display: "flex", alignItems: "flex-start", gap: "10px", background: "rgba(0, 229, 255, 0.05)", padding: "15px", borderRadius: "10px", border: "1px solid rgba(0, 229, 255, 0.2)" }}>
               <input 
                 type="checkbox" 
@@ -253,7 +249,7 @@ export default function OdemeSayfasi() {
             )}
           </form>
 
-          {/* İYZİCO GERÇEK ÖDEME KUTUSU (BEMBEYAZ BÜTÜNLEŞİK EKRAN) */}
+          {/* ŞEFİM: IYZICO ARTIK KARANLIK POP-UP AÇAMAYACAK, TAMAMEN BU BEYAZ KUTUNUN İÇİNE GÖMÜLECEK! */}
           {odemeYontemi === "kart" && iyzicoFormHtml && (
             <div style={{ 
               position: "fixed", 
@@ -266,11 +262,9 @@ export default function OdemeSayfasi() {
               display: "flex", 
               flexDirection: "column", 
               alignItems: "center", 
-              justifyContent: "flex-start", 
+              justifyContent: "center", 
               overflowY: "auto",
-              paddingTop: "40px"
             }}>
-              {/* Çarpı Butonu */}
               <button 
                 onClick={() => setIyzicoFormHtml("")} 
                 style={{ 
@@ -294,8 +288,9 @@ export default function OdemeSayfasi() {
                 ✕
               </button>
               
-              <div style={{ width: "100%", maxWidth: "600px", background: "#ffffff", padding: "0" }}>
-                <div id="iyzico-Konteynir"></div>
+              <div style={{ width: "100%", maxWidth: "600px", padding: "20px" }}>
+                {/* İŞTE SİHİRLİ KELİMELER BURADA */}
+                <div id="iyzipay-checkout-form" className="responsive"></div>
               </div>
             </div>
           )}
