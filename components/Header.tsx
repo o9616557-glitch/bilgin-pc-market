@@ -5,14 +5,13 @@ import { useState, useEffect, useRef } from "react";
 
 export default function Header() {
   const { sepet } = useCart();
-  const [menuAcik, setMenuAcik] = useState(false); // Hamburger menü için
-  const [hesabimAcik, setHesabimAcik] = useState(false); // Yeni Hesabım Popup'ı için
+  const [menuAcik, setMenuAcik] = useState(false);
+  const [hesabimAcik, setHesabimAcik] = useState(false);
   
   const hesabimRef = useRef<HTMLDivElement>(null);
 
   const sepetAdedi = sepet.reduce((toplam: number, urun: any) => toplam + (urun.adet || 1), 0);
 
-  // Ekranda menü dışına tıklanınca Hesabım popup'ını kapatır
   useEffect(() => {
     function disariTiklandi(event: any) {
       if (hesabimRef.current && !hesabimRef.current.contains(event.target)) {
@@ -34,12 +33,38 @@ export default function Header() {
     }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         
-        {/* LOGO */}
-        <Link href="/" style={{ textDecoration: "none", display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: "1.6rem", fontWeight: "900", color: "#ffffff", letterSpacing: "-1px", lineHeight: "1" }}>
-            BİLGİN <span style={{ color: "#00e5ff" }}>PC</span>
-          </span>
-        </Link>
+        {/* ŞEFİM: SOL KISIM (Mobilde Hamburger + Logo) */}
+        <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+          
+          {/* HAMBURGER BUTONU (Sadece Mobilde Görünür, PC'de Gizlenir) */}
+          <button 
+            className="md:hidden" 
+            onClick={() => setMenuAcik(!menuAcik)}
+            style={{ 
+              background: "transparent", // Mobilde daha şık durması için arkasını şeffaf yaptık
+              border: "none", 
+              padding: "0", 
+              height: "30px", 
+              width: "30px",
+              cursor: "pointer", 
+              display: "flex", 
+              flexDirection: "column", 
+              gap: "6px", 
+              justifyContent: "center",
+              alignItems: "center"
+            }}>
+            <span style={{ display: "block", width: "24px", height: "2px", background: "#fff", transition: "all 0.3s", transform: menuAcik ? "rotate(45deg) translate(5px, 5px)" : "none" }}></span>
+            <span style={{ display: "block", width: "24px", height: "2px", background: "#fff", transition: "all 0.3s", opacity: menuAcik ? 0 : 1 }}></span>
+            <span style={{ display: "block", width: "24px", height: "2px", background: "#fff", transition: "all 0.3s", transform: menuAcik ? "rotate(-45deg) translate(6px, -6px)" : "none" }}></span>
+          </button>
+
+          {/* LOGO */}
+          <Link href="/" style={{ textDecoration: "none", display: "flex", flexDirection: "column" }}>
+            <span style={{ fontSize: "1.6rem", fontWeight: "900", color: "#ffffff", letterSpacing: "-1px", lineHeight: "1" }}>
+              BİLGİN <span style={{ color: "#00e5ff" }}>PC</span>
+            </span>
+          </Link>
+        </div>
 
         {/* MASAÜSTÜ MENÜ (Mobilde gizlenir) */}
         <nav className="hidden md:flex" style={{ gap: "24px" }}>
@@ -48,10 +73,10 @@ export default function Header() {
           <Link href="/" style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.9rem", fontWeight: "600", transition: "color 0.2s" }}>Aksesuar</Link>
         </nav>
 
-        {/* SAĞ KISIM: Hesabım, Sepet ve Hamburger */}
+        {/* SAĞ KISIM: Hesabım ve Sepet */}
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           
-          {/* YENİ: HESABIM BUTONU VE POPUP KUTUSU */}
+          {/* HESABIM BUTONU VE POPUP KUTUSU */}
           <div ref={hesabimRef} style={{ position: "relative" }}>
             <button 
               onClick={() => setHesabimAcik(!hesabimAcik)}
@@ -64,7 +89,7 @@ export default function Header() {
                 border: hesabimAcik ? "1px solid rgba(0, 229, 255, 0.3)" : "1px solid #27272a",
                 borderRadius: "12px",
                 padding: "10px 16px",
-                height: "46px", // Sepet ve Hamburger ile tam aynı boy
+                height: "46px", 
                 cursor: "pointer",
                 fontWeight: "700",
                 fontSize: "0.9rem",
@@ -123,7 +148,7 @@ export default function Header() {
             gap: "8px",
             background: "#18181b",
             padding: "10px 16px",
-            height: "46px", // Eşit boy
+            height: "46px",
             borderRadius: "12px",
             border: "1px solid #27272a",
             transition: "all 0.3s ease"
@@ -153,29 +178,6 @@ export default function Header() {
               </span>
             )}
           </Link>
-
-          {/* HAMBURGER BUTONU (Mobilde görünür) */}
-          <button 
-            className="md:hidden" 
-            onClick={() => setMenuAcik(!menuAcik)}
-            style={{ 
-              background: "#18181b", 
-              border: "1px solid #27272a", 
-              padding: "10px", 
-              height: "46px", // Eşit boy
-              width: "46px",
-              borderRadius: "12px", 
-              cursor: "pointer", 
-              display: "flex", 
-              flexDirection: "column", 
-              gap: "4px", 
-              justifyContent: "center",
-              alignItems: "center"
-            }}>
-            <span style={{ display: "block", width: "20px", height: "2px", background: "#fff", transition: "all 0.3s", transform: menuAcik ? "rotate(45deg) translate(4px, 4px)" : "none" }}></span>
-            <span style={{ display: "block", width: "20px", height: "2px", background: "#fff", transition: "all 0.3s", opacity: menuAcik ? 0 : 1 }}></span>
-            <span style={{ display: "block", width: "20px", height: "2px", background: "#fff", transition: "all 0.3s", transform: menuAcik ? "rotate(-45deg) translate(4px, -4px)" : "none" }}></span>
-          </button>
           
         </div>
       </div>
