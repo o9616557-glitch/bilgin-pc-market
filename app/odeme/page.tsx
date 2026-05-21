@@ -9,8 +9,18 @@ export default function OdemeSayfasi() {
   const [yukleniyor, setYukleniyor] = useState(false);
   const [iyzicoFormHtml, setIyzicoFormHtml] = useState<string>("");
 
+  // YENİ: Fatura Adresi Aynı Mı? ve Sözleşme Kabul Tiki
+  const [faturaAyni, setFaturaAyni] = useState(true);
+  const [sozlesmeKabul, setSozlesmeKabul] = useState(false);
+
+  // Teslimat Formu
   const [form, setForm] = useState({
     ad: "", soyad: "", telefon: "", eposta: "", adres: "", sehir: "", ilce: ""
+  });
+
+  // Fatura Formu (Sadece tik kaldırıldığında kullanılır)
+  const [faturaForm, setFaturaForm] = useState({
+    ad: "", soyad: "", tcVergiNo: "", adres: "", sehir: "", ilce: ""
   });
 
   const araToplam = sepet.reduce((toplam: number, urun: any) => toplam + (urun.fiyat * urun.adet), 0);
@@ -18,16 +28,13 @@ export default function OdemeSayfasi() {
   const havaleIndirimi = araToplam * 0.05;
   const genelToplam = odemeYontemi === "havale" ? (araToplam - havaleIndirimi + kargo) : (araToplam + kargo);
 
-  const inputDegis = (e: any) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const inputDegis = (e: any) => { setForm({ ...form, [e.target.name]: e.target.value }); };
+  const faturaInputDegis = (e: any) => { setFaturaForm({ ...faturaForm, [e.target.name]: e.target.value }); };
 
-  // Iyzico formu yüklendiğinde script kodlarının çalışmasını tetikler
   useEffect(() => {
     if (iyzicoFormHtml) {
       const gonderilenScript = document.getElementById("iyzico-script");
       if (gonderilenScript) gonderilenScript.remove();
-
       const icerik = document.createRange().createContextualFragment(iyzicoFormHtml);
       document.getElementById("iyzico-Konteynir")?.appendChild(icerik);
     }
@@ -35,11 +42,20 @@ export default function OdemeSayfasi() {
 
   const siparisTamamla = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!sozlesmeKabul) {
+      alert("Lütfen Mesafeli Satış Sözleşmesi ve KVKK metnini onaylayın.");
+      return;
+    }
+    
     setYukleniyor(true);
     setIyzicoFormHtml("");
 
     const siparisVerisi = {
-      musteri: form,
+      // Arka uca (API) gidecek müşteri verisi (İleride fatura ayrımı için veritabanına ekliyoruz)
+      musteri: {
+        ...form,
+        faturaBilgileri: faturaAyni ? form : faturaForm
+      },
       sepet: sepet.map((item: any) => ({ id: item.id, isim: item.isim, miktar: item.adet, adet: item.adet, fiyat: item.fiyat, varyasyon: item.varyasyon })),
       odemeYontemi,
       toplamTutar: genelToplam
@@ -59,7 +75,6 @@ export default function OdemeSayfasi() {
           alert(`Tebrikler! Siparişiniz başarıyla alındı.\nSipariş Kodunuz: ${data.siparisKodu}\nBizi tercih ettiğiniz için teşekkür ederiz.`);
           window.location.href = "/";
         } else {
-          // Iyzico form kodunu hafızaya alıyoruz, ekranda belirecek
           setIyzicoFormHtml(data.checkoutFormContent);
         }
       } else {
@@ -92,10 +107,11 @@ export default function OdemeSayfasi() {
         
         <div style={{ flex: "2", display: "flex", flexDirection: "column", gap: "20px" }}>
           
-          {/* ADRES FORMU */}
           <form onSubmit={siparisTamamla} style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px" }}>
+            
+            {/* 1. TESLİMAT BİLGİLERİ */}
             <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
-              <span>📍</span> Teslimat ve Fatura Bilgileri
+              <span>📍</span> Teslimat Bilgileri
             </h3>
             
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginBottom: "15px" }} className="form-grid-2">
@@ -136,6 +152,64 @@ export default function OdemeSayfasi() {
               </div>
             </div>
 
+            <hr style={{ borderColor: "#27272a", marginBottom: "20px" }} />
+
+            {/* 2. FATURA BİLGİLERİ KONTROLÜ */}
+            <div style={{ marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
+              <input 
+                type="checkbox" 
+                id="faturaAyni" 
+                checked={faturaAyni} 
+                onChange={(e) => setFaturaAyni(e.target.checked)} 
+                style={{ width: "18px", height: "18px", cursor: "pointer", accentColor: "#00e5ff" }} 
+              />
+              <label htmlFor="faturaAyni" style={{ color: "#d4d4d8", cursor: "pointer", fontSize: "0.95rem" }}>Fatura adresim, teslimat adresim ile aynıdır.</label>
+            </div>
+
+            {/* Fatura Adresi Farklıysa Açılacak Form */}
+            {!faturaAyni && (
+              <div style={{ background: "#09090b", border: "1px solid #27272a", borderRadius: "12px", padding: "20px", marginBottom: "25px" }}>
+                <h4 style={{ color: "#00e5ff", marginBottom: "15px", fontSize: "1rem" }}>Fatura Bilgileri</h4>
+                
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginBottom: "15px" }} className="form-grid-2">
+                  <div>
+                    <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Fatura Ad / Şirket Ünvanı *</label>
+                    <input type="text" name="ad" value={faturaForm.ad} onChange={faturaInputDegis} required={!faturaAyni} style={{ width: "100%", background: "#121214", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+                  </div>
+                  <div>
+                    <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Fatura Soyad / Vergi Dairesi *</label>
+                    <input type="text" name="soyad" value={faturaForm.soyad} onChange={faturaInputDegis} required={!faturaAyni} style={{ width: "100%", background: "#121214", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: "15px" }}>
+                  <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>T.C. Kimlik No / Vergi No *</label>
+                  <input type="text" name="tcVergiNo" value={faturaForm.tcVergiNo} onChange={faturaInputDegis} required={!faturaAyni} style={{ width: "100%", background: "#121214", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+                </div>
+
+                <div style={{ marginBottom: "15px" }}>
+                  <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Fatura Adresi *</label>
+                  <textarea rows={2} name="adres" value={faturaForm.adres} onChange={faturaInputDegis} required={!faturaAyni} style={{ width: "100%", background: "#121214", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none", resize: "none" }}></textarea>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }} className="form-grid-2">
+                  <div>
+                    <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Şehir *</label>
+                    <input type="text" name="sehir" value={faturaForm.sehir} onChange={faturaInputDegis} required={!faturaAyni} style={{ width: "100%", background: "#121214", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+                  </div>
+                  <div>
+                    <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>İlçe *</label>
+                    <input type="text" name="ilce" value={faturaForm.ilce} onChange={faturaInputDegis} required={!faturaAyni} style={{ width: "100%", background: "#121214", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+                  </div>
+                </div>
+              </div>
+            )}
+
+
+            {/* 3. ÖDEME YÖNTEMİ */}
+            <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
+              <span>💳</span> Ödeme Yöntemi
+            </h3>
             <div style={{ display: "flex", gap: "10px", marginBottom: "25px" }}>
               <button type="button" onClick={() => { setIyzicoFormHtml(""); setOdemeYontemi("kart"); }} style={{ flex: 1, padding: "14px", borderRadius: "10px", cursor: "pointer", fontWeight: "700", background: odemeYontemi === "kart" ? "rgba(0, 229, 255, 0.1)" : "#09090b", color: odemeYontemi === "kart" ? "#00e5ff" : "#a1a1aa", border: odemeYontemi === "kart" ? "1px solid #00e5ff" : "1px solid #27272a" }}>Kredi / Banka Kartı</button>
               <button type="button" onClick={() => { setIyzicoFormHtml(""); setOdemeYontemi("havale"); }} style={{ flex: 1, padding: "14px", borderRadius: "10px", cursor: "pointer", fontWeight: "700", background: odemeYontemi === "havale" ? "rgba(16, 185, 129, 0.1)" : "#09090b", color: odemeYontemi === "havale" ? "#10b981" : "#a1a1aa", border: odemeYontemi === "havale" ? "1px solid #10b981" : "1px solid #27272a" }}>Havale / EFT (%5 İndirimli)</button>
@@ -153,17 +227,42 @@ export default function OdemeSayfasi() {
               </div>
             )}
 
+            {/* 4. SÖZLEŞME VE KVKK TİKİ */}
+            <div style={{ marginBottom: "25px", display: "flex", alignItems: "flex-start", gap: "10px", background: "rgba(0, 229, 255, 0.05)", padding: "15px", borderRadius: "10px", border: "1px solid rgba(0, 229, 255, 0.2)" }}>
+              <input 
+                type="checkbox" 
+                id="sozlesmeKabul" 
+                checked={sozlesmeKabul} 
+                onChange={(e) => setSozlesmeKabul(e.target.checked)} 
+                style={{ width: "20px", height: "20px", cursor: "pointer", accentColor: "#00e5ff", marginTop: "2px" }} 
+              />
+              <label htmlFor="sozlesmeKabul" style={{ color: "#d4d4d8", cursor: "pointer", fontSize: "0.85rem", lineHeight: "1.5" }}>
+                Ön Bilgilendirme Formu'nu, <span style={{ color: "#00e5ff", textDecoration: "underline" }}>Mesafeli Satış Sözleşmesi</span>'ni ve <span style={{ color: "#00e5ff", textDecoration: "underline" }}>KVKK Aydınlatma Metni</span>'ni okudum, anladım ve onaylıyorum.
+              </label>
+            </div>
+
             {!iyzicoFormHtml && (
-              <button type="submit" disabled={yukleniyor} style={{ width: "100%", padding: "16px", color: "#000", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "1.05rem", cursor: "pointer", background: odemeYontemi === "havale" ? "linear-gradient(45deg, #10b981, #059669)" : "linear-gradient(45deg, #00e5ff, #007acc)" }}>
-                {yukleniyor ? "Lütfen Bekleyin..." : odemeYontemi === "havale" ? "Siparişi Onayla" : "Kart Ödemesine İlerle"}
+              <button 
+                type="submit" 
+                disabled={yukleniyor || !sozlesmeKabul} 
+                style={{ 
+                  width: "100%", padding: "16px", color: "#000", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "1.05rem", 
+                  cursor: (yukleniyor || !sozlesmeKabul) ? "not-allowed" : "pointer", 
+                  background: odemeYontemi === "havale" ? "linear-gradient(45deg, #10b981, #059669)" : "linear-gradient(45deg, #00e5ff, #007acc)",
+                  opacity: (yukleniyor || !sozlesmeKabul) ? 0.5 : 1
+                }}>
+                {yukleniyor ? "Lütfen Bekleyin..." : (!sozlesmeKabul ? "Sözleşmeyi Onaylayın" : (odemeYontemi === "havale" ? "Siparişi Onayla" : "Kart Ödemesine İlerle"))}
               </button>
             )}
           </form>
 
-          {/* İYZİCO GERÇEK ÖDEME KUTUSUNUN BELİRECEĞİ YER */}
+          {/* İYZİCO GERÇEK ÖDEME KUTUSU (TAM EKRAN BEYAZ) */}
           {odemeYontemi === "kart" && iyzicoFormHtml && (
-            <div style={{ background: "#fff", padding: "20px", borderRadius: "16px", border: "2px solid #00e5ff" }}>
-              <div id="iyzico-Konteynir"></div>
+            <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "#ffffff", zIndex: 99999, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", overflowY: "auto" }}>
+              <button onClick={() => setIyzicoFormHtml("")} style={{ position: "absolute", top: "20px", right: "20px", background: "#121214", color: "#fff", border: "none", borderRadius: "50%", width: "40px", height: "40px", fontSize: "1.2rem", cursor: "pointer", fontWeight: "bold", boxShadow: "0 4px 10px rgba(0,0,0,0.2)" }}>✕</button>
+              <div style={{ width: "100%", maxWidth: "500px", padding: "20px" }}>
+                <div id="iyzico-Konteynir"></div>
+              </div>
             </div>
           )}
         </div>
