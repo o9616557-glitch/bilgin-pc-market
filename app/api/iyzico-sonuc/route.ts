@@ -5,11 +5,11 @@ import Iyzipay from "iyzipay";
 
 export async function POST(request: Request) {
   try {
-    // ŞEFİM: Iyzico kurulumu burada da içeri alındı!
+   // BURAYI DA GÜNCELLEDİK
     const iyzipay = new Iyzipay({
       apiKey: process.env.IYZICO_API_KEY,
       secretKey: process.env.IYZICO_SECRET_KEY,
-      uri: process.env.IYZICO_BASE_URL
+      uri: process.env.IYZICO_URI
     });
 
     const formData = await request.formData();

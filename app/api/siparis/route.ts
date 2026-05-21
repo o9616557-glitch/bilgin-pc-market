@@ -5,12 +5,12 @@ import Iyzipay from "iyzipay";
 
 export async function POST(request: Request) {
   try {
+    // ŞEFİM: IYZICO_BASE_URL yerine senin Vercel'deki IYZICO_URI adını yazdık!
     const iyzipay = new Iyzipay({
       apiKey: process.env.IYZICO_API_KEY,
       secretKey: process.env.IYZICO_SECRET_KEY,
-      uri: process.env.IYZICO_BASE_URL
+      uri: process.env.IYZICO_URI
     });
-
     const body = await request.json();
     const { musteri, sepet, odemeYontemi, toplamTutar } = body;
 
