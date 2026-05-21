@@ -5,7 +5,6 @@ import Iyzipay from "iyzipay";
 
 export async function POST(request: Request) {
   try {
-    // ŞEFİM: Iyzico kurulumunu sadece istek geldiğinde çalışacak şekilde içeri aldık!
     const iyzipay = new Iyzipay({
       apiKey: process.env.IYZICO_API_KEY,
       secretKey: process.env.IYZICO_SECRET_KEY,
@@ -39,13 +38,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, odemeYontemi: "havale", siparisKodu });
     }
 
-    const sepetUrunleri = sepet.map((item: any) => ({
+    // İŞTE ÇÖZÜM BURADA: Sepet ürünlerini Iyzico formatına çevir
+    let sepetUrunleri = sepet.map((item: any) => ({
       id: item.id,
       name: item.isim,
       category1: "Bilgisayar Donanım",
       itemType: "PHYSICAL",
-      price: item.fiyat.toString()
+      price: (item.fiyat * item.adet).toString()
     }));
+
+    // Arka planda kargoyu hesapla ve eğer kargo varsa onu da "Sanal Ürün" olarak Iyzico sepetine ekle!
+    const araToplam = sepet.reduce((top: number, u: any) => top + (u.fiyat * u.adet), 0);
+    const kargoUcreti = araToplam > 5000 ? 0 : 150;
+    
+    if (kargoUcreti > 0) {
+      sepetUrunleri.push({
+        id: "KARGO-01",
+        name: "Teslimat / Kargo Bedeli",
+        category1: "Hizmet",
+        itemType: "VIRTUAL",
+        price: kargoUcreti.toString()
+      });
+    }
 
     const iyzicoTalep = {
       locale: "tr",
@@ -103,6 +117,7 @@ export async function POST(request: Request) {
         checkoutFormContent: iyzicoSonuc.checkoutFormContent
       });
     } else {
+      // Iyzico'nun tam olarak neden reddettiğini görmek için detaylı hata yazdırıyoruz
       return NextResponse.json({ error: iyzicoSonuc.errorMessage || "Iyzico bağlantı hatası." }, { status: 400 });
     }
 
