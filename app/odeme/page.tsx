@@ -68,13 +68,12 @@ export default function OdemeSayfasi() {
       const data = await response.json();
 
       if (data.success) {
-        if (data.odemeYontemi === "havale") {
-          window.location.href = "/siparis-basarili?kodu=" + data.siparisKodu;
-          window.location.href = "/";
-        } else {
-          setIyzicoFormHtml(data.checkoutFormContent);
-        }
-      } else {
+  if (data.odemeYontemi === "havale") {
+    window.location.href = "/siparis-basarili?kodu=" + data.siparisKodu;
+  } else {
+    setIyzicoFormHtml(data.checkoutFormContent);
+  }
+} else {
         alert("Hata oluştu: " + data.error);
       }
     } catch (hata) {
