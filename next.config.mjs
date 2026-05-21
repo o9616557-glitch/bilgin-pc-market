@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    serverComponentsExternalPackages: ["iyzipay"],
-    // ŞEFİM: İŞTE BALYOZ BURASI! Vercel'e dosyaları zorla paketletiyoruz.
+    // ŞEFİM: Listeye "postman-request" eklendi!
+    serverComponentsExternalPackages: ["iyzipay", "postman-request"],
     outputFileTracingIncludes: {
       "/api/**/*": ["./node_modules/iyzipay/**/*"],
     },
