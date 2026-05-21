@@ -3,15 +3,15 @@ import clientPromise from "@/lib/mongodb";
 // @ts-ignore
 import Iyzipay from "iyzipay";
 
-// Iyzico bağlantısını başlatıyoruz
-const iyzipay = new Iyzipay({
-  apiKey: process.env.IYZICO_API_KEY,
-  secretKey: process.env.IYZICO_SECRET_KEY,
-  uri: process.env.IYZICO_BASE_URL
-});
-
 export async function POST(request: Request) {
   try {
+    // ŞEFİM: Iyzico kurulumunu sadece istek geldiğinde çalışacak şekilde içeri aldık!
+    const iyzipay = new Iyzipay({
+      apiKey: process.env.IYZICO_API_KEY,
+      secretKey: process.env.IYZICO_SECRET_KEY,
+      uri: process.env.IYZICO_BASE_URL
+    });
+
     const body = await request.json();
     const { musteri, sepet, odemeYontemi, toplamTutar } = body;
 
@@ -23,7 +23,6 @@ export async function POST(request: Request) {
     const db = client.db("bilginpcmarket");
     const siparisKodu = `BPC-${Math.floor(100000 + Math.random() * 900000)}`;
 
-    // 1. ADIM: Siparişi veritabanına "Ödeme Bekliyor" olarak kaydediyoruz
     const yeniSiparis = {
       siparisKodu,
       musteri,
@@ -33,14 +32,13 @@ export async function POST(request: Request) {
       durum: odemeYontemi === "havale" ? "Havale Bekliyor" : "Ödeme Bekliyor",
       tarih: new Date()
     };
+    
     await db.collection("orders").insertOne(yeniSiparis);
 
-    // 2. ADIM: Eğer ödeme yöntemi HAVALE ise doğrudan başarı dönüyoruz
     if (odemeYontemi === "havale") {
       return NextResponse.json({ success: true, odemeYontemi: "havale", siparisKodu });
     }
 
-    // 3. ADIM: Ödeme yöntemi KART ise Iyzico Ödeme Formunu tetikliyoruz
     const sepetUrunleri = sepet.map((item: any) => ({
       id: item.id,
       name: item.isim,
@@ -57,7 +55,6 @@ export async function POST(request: Request) {
       currency: "TRY",
       basketId: siparisKodu,
       paymentGroup: "PRODUCT",
-      // Test ettiğin sitenin adresi (Lokalde çalışırken localhost, canlıda kendi sitenin domaini olmalı)
       callbackUrl: `${request.headers.get("origin")}/api/iyzico-sonuc?siparisKodu=${siparisKodu}`,
       enabledInstallments: [1, 2, 3, 6, 9],
       buyer: {
@@ -66,7 +63,7 @@ export async function POST(request: Request) {
         surname: musteri.soyad,
         gsmNumber: musteri.telefon.startsWith("0") ? musteri.telefon : `+90${musteri.telefon}`,
         email: musteri.eposta,
-        identityNumber: "11111111111", // Test için sabit TC verilebilir
+        identityNumber: "11111111111",
         lastLoginDate: "2026-05-21 12:00:00",
         registrationDate: "2026-05-21 12:00:00",
         registrationAddress: musteri.adres,
@@ -92,7 +89,6 @@ export async function POST(request: Request) {
       basketItems: sepetUrunleri
     };
 
-    // Iyzico'dan güvenli formu istiyoruz
     const iyzicoSonuc: any = await new Promise((resolve, reject) => {
       iyzipay.checkoutFormInitialize.create(iyzicoTalep, (err: any, result: any) => {
         if (err) reject(err);
@@ -101,7 +97,6 @@ export async function POST(request: Request) {
     });
 
     if (iyzicoSonuc.status === "success") {
-      // Başarılıysa ön yüze Iyzico formunun yükleneceği HTML kodunu dönüyoruz
       return NextResponse.json({
         success: true,
         odemeYontemi: "kart",
