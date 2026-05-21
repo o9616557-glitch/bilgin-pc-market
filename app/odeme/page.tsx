@@ -5,17 +5,68 @@ import Link from "next/link";
 
 export default function OdemeSayfasi() {
   const { sepet } = useCart();
-  const [odemeYontemi, setOdemeYontemi] = useState("kart"); 
+  const [odemeYontemi, setOdemeYontemi] = useState("kart");
+  const [yukleniyor, setYukleniyor] = useState(false);
+
+  const [form, setForm] = useState({
+    ad: "", soyad: "", telefon: "", eposta: "", adres: "", sehir: "", ilce: "", kartIsim: "", kartNo: "", skt: "", cvc: ""
+  });
 
   const araToplam = sepet.reduce((toplam: number, urun: any) => toplam + (urun.fiyat * urun.adet), 0);
   const kargo = araToplam > 5000 ? 0 : 150;
   const havaleIndirimi = araToplam * 0.05;
   const genelToplam = odemeYontemi === "havale" ? (araToplam - havaleIndirimi + kargo) : (araToplam + kargo);
 
-  // Form gönderildiğinde (Tüm zorunlu alanlar dolduğunda) çalışacak fonksiyon
-  const siparisTamamla = (e: React.FormEvent) => {
-    e.preventDefault(); // Sayfanın yenilenmesini engeller
-    alert("Tebrikler! Siparişiniz başarıyla alındı. Bizi tercih ettiğiniz için teşekkür ederiz.");
+  const inputDegis = (e: any) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const siparisTamamla = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setYukleniyor(true);
+
+    const siparisVerisi = {
+      musteri: {
+        ad: form.ad,
+        soyad: form.soyad,
+        telefon: form.telefon,
+        eposta: form.eposta,
+        adres: form.adres,
+        sehir: form.sehir,
+        ilce: form.ilce
+      },
+      sepet: sepet.map((item: any) => ({
+        id: item.id,
+        isim: item.isim,
+        adet: item.adet,
+        varyasyon: item.varyasyon,
+        fiyat: item.fiyat
+      })),
+      odemeYontemi,
+      toplamTutar: genelToplam
+    };
+
+    try {
+      const response = await fetch("/api/siparis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(siparisVerisi)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert(`Tebrikler! Siparişiniz başarıyla alındı.\nSipariş Kodunuz: ${data.siparisKodu}\nBizi tercih ettiğiniz için teşekkür ederiz.`);
+        window.location.href = "/";
+      } else {
+        alert("Sipariş alınırken bir sorun oluştu: " + data.error);
+      }
+    } catch (hata) {
+      console.error(hata);
+      alert("Sistemsel bir hata meydana geldi.");
+    } finally {
+      setYukleniyor(false);
+    }
   };
 
   if (sepet.length === 0) {
@@ -33,10 +84,8 @@ export default function OdemeSayfasi() {
         KASA / <span style={{ color: "#00e5ff" }}>ÖDEME</span>
       </h1>
 
-      {/* DİKKAT: Burası <div> yerine <form> yapıldı ki zorunlu alanlar çalışsın */}
       <form onSubmit={siparisTamamla} style={{ display: "flex", flexDirection: "row", gap: "30px" }} className="odeme-konteynir">
         
-        {/* SOL TARAF: ADRES VE ÖDEME FORMLARI */}
         <div style={{ flex: "2", display: "flex", flexDirection: "column", gap: "20px" }}>
           
           <div style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px" }}>
@@ -47,38 +96,38 @@ export default function OdemeSayfasi() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginBottom: "15px" }} className="form-grid-2">
               <div>
                 <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Adınız *</label>
-                <input type="text" required style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+                <input type="text" name="ad" value={form.ad} onChange={inputDegis} required style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
               </div>
               <div>
                 <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Soyadınız *</label>
-                <input type="text" required style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+                <input type="text" name="soyad" value={form.soyad} onChange={inputDegis} required style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
               </div>
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginBottom: "15px" }} className="form-grid-2">
               <div>
                 <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Telefon Numarası *</label>
-                <input type="tel" placeholder="05xx xxx xx xx" required style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+                <input type="tel" name="telefon" placeholder="05xx xxx xx xx" value={form.telefon} onChange={inputDegis} required style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
               </div>
               <div>
                 <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>E-Posta Adresi *</label>
-                <input type="email" required style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+                <input type="email" name="eposta" value={form.eposta} onChange={inputDegis} required style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
               </div>
             </div>
 
             <div style={{ marginBottom: "15px" }}>
               <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Açık Adres *</label>
-              <textarea rows={3} required placeholder="Mahalle, sokak, kapı numarası, daire..." style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none", resize: "none" }}></textarea>
+              <textarea rows={3} name="adres" value={form.adres} onChange={inputDegis} required placeholder="Mahalle, sokak, kapı numarası, daire..." style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none", resize: "none" }}></textarea>
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }} className="form-grid-2">
               <div>
                 <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Şehir *</label>
-                <input type="text" required style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+                <input type="text" name="sehir" value={form.sehir} onChange={inputDegis} required style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
               </div>
               <div>
                 <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>İlçe *</label>
-                <input type="text" required style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+                <input type="text" name="ilce" value={form.ilce} onChange={inputDegis} required style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
               </div>
             </div>
           </div>
@@ -89,52 +138,29 @@ export default function OdemeSayfasi() {
             </h3>
 
             <div style={{ display: "flex", gap: "10px", marginBottom: "25px" }}>
-              <button 
-                type="button"
-                onClick={() => setOdemeYontemi("kart")}
-                style={{
-                  flex: 1, padding: "14px", borderRadius: "10px", cursor: "pointer", fontWeight: "700", fontSize: "0.95rem",
-                  background: odemeYontemi === "kart" ? "rgba(0, 229, 255, 0.1)" : "#09090b",
-                  color: odemeYontemi === "kart" ? "#00e5ff" : "#a1a1aa",
-                  border: odemeYontemi === "kart" ? "1px solid #00e5ff" : "1px solid #27272a",
-                  transition: "all 0.2s"
-                }}
-              >
-                Kredi / Banka Kartı
-              </button>
-              <button 
-                type="button"
-                onClick={() => setOdemeYontemi("havale")}
-                style={{
-                  flex: 1, padding: "14px", borderRadius: "10px", cursor: "pointer", fontWeight: "700", fontSize: "0.95rem",
-                  background: odemeYontemi === "havale" ? "rgba(16, 185, 129, 0.1)" : "#09090b",
-                  color: odemeYontemi === "havale" ? "#10b981" : "#a1a1aa",
-                  border: odemeYontemi === "havale" ? "1px solid #10b981" : "1px solid #27272a",
-                  transition: "all 0.2s"
-                }}
-              >
-                Havale / EFT (%5 İndirimli)
-              </button>
+              {/* ŞEFİM: HATALI KISIMLAR DÜZELTİLDİ. SADECE setOdemeYontemi KALDI. */}
+              <button type="button" onClick={() => setOdemeYontemi("kart")} style={{ flex: 1, padding: "14px", borderRadius: "10px", cursor: "pointer", fontWeight: "700", fontSize: "0.95rem", background: odemeYontemi === "kart" ? "rgba(0, 229, 255, 0.1)" : "#09090b", color: odemeYontemi === "kart" ? "#00e5ff" : "#a1a1aa", border: odemeYontemi === "kart" ? "1px solid #00e5ff" : "1px solid #27272a", transition: "all 0.2s" }}>Kredi / Banka Kartı</button>
+              <button type="button" onClick={() => setOdemeYontemi("havale")} style={{ flex: 1, padding: "14px", borderRadius: "10px", cursor: "pointer", fontWeight: "700", fontSize: "0.95rem", background: odemeYontemi === "havale" ? "rgba(16, 185, 129, 0.1)" : "#09090b", color: odemeYontemi === "havale" ? "#10b981" : "#a1a1aa", border: odemeYontemi === "havale" ? "1px solid #10b981" : "1px solid #27272a", transition: "all 0.2s" }}>Havale / EFT (%5 İndirimli)</button>
             </div>
 
             {odemeYontemi === "kart" && (
               <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                 <div>
                   <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Kart Üzerindeki İsim *</label>
-                  <input type="text" required placeholder="Ahmet Yılmaz" style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+                  <input type="text" name="kartIsim" value={form.kartIsim} onChange={inputDegis} required style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
                 </div>
                 <div>
                   <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Kart Numarası *</label>
-                  <input type="text" required maxLength={16} placeholder="0000 0000 0000 0000" style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+                  <input type="text" name="kartNo" maxLength={16} value={form.kartNo} onChange={inputDegis} required placeholder="0000 0000 0000 0000" style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
                   <div>
                     <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Son Kullanma (AA/YY) *</label>
-                    <input type="text" required placeholder="12/29" style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+                    <input type="text" name="skt" value={form.skt} onChange={inputDegis} required placeholder="12/29" style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
                   </div>
                   <div>
                     <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>CVC / Güvenlik Kodu *</label>
-                    <input type="text" required maxLength={3} placeholder="123" style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+                    <input type="text" name="cvc" maxLength={3} value={form.cvc} onChange={inputDegis} required placeholder="123" style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
                   </div>
                 </div>
               </div>
@@ -143,7 +169,7 @@ export default function OdemeSayfasi() {
             {odemeYontemi === "havale" && (
               <div style={{ background: "#09090b", border: "1px solid #27272a", borderRadius: "12px", padding: "16px", color: "#d4d4d8", fontSize: "0.9rem", lineHeight: "1.6" }}>
                 <p style={{ color: "#10b981", fontWeight: "700", marginBottom: "10px" }} >💡 Havale Ödeme Talimatı:</p>
-                Siparişi tamamladıktan sonra, toplam tutarı aşağıdaki IBAN hesabımıza <strong>"Sipariş Kodu"</strong> açıklamasıyla göndermeniz yeterlidir. Paranız hesaba düştüğü an kargonuz yola çıkar!
+                Siparişi tamamladıktan sonra, toplam tutarı aşağıdaki IBAN hesabımıza açıklama kısmına adınızı ve soyadınızı yazarak göndermeniz yeterlidir. Paranız hesaba düştüğü an kargonuz yola çıkar!
                 <div style={{ marginTop: "15px", borderTop: "1px solid #27272a", paddingTop: "12px", fontFamily: "monospace" }}>
                   <strong>Banka:</strong> Bilgin PC Akıllı Banka<br />
                   <strong>Alıcı:</strong> BİLGİN PC MARKET LTD. ŞTİ.<br />
@@ -155,7 +181,6 @@ export default function OdemeSayfasi() {
           </div>
         </div>
 
-        {/* SAĞ TARAF: SİPARİŞ ÖZETİ SAĞ PANEL */}
         <div style={{ flex: "1" }}>
           <div style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "20px", padding: "24px", position: "sticky", top: "100px" }}>
             <h2 style={{ color: "#fff", fontSize: "1.3rem", fontWeight: "800", marginBottom: "20px" }}>Sipariş Özetiniz</h2>
@@ -193,21 +218,21 @@ export default function OdemeSayfasi() {
             <div style={{ borderTop: "1px solid #27272a", paddingTop: "15px", marginBottom: "25px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
                 <span style={{ color: "#fff", fontWeight: "600" }}>ÖDENECEK TUTAR</span>
-                <span style={{ color: odemeYontemi === "havale" ? "#10b981" : "#00e5ff", fontSize: "1.8rem", fontWeight: "900", transition: "all 0.3s" }}>{genelToplam.toLocaleString()} TL</span>
+                <span style={{ color: odemeYontemi === "havale" ? "#10b981" : "#00e5ff", fontSize: "1.8rem", fontWeight: "900" }}>{genelToplam.toLocaleString()} TL</span>
               </div>
             </div>
 
-            {/* BUTON TİPİ "submit" OLARAK DEĞİŞTİRİLDİ */}
             <button 
               type="submit"
+              disabled={yukleniyor}
               style={{ 
-                width: "100%", padding: "16px", color: "#000", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "1.05rem", cursor: "pointer", textTransform: "uppercase", letterSpacing: "1px",
+                width: "100%", padding: "16px", color: "#000", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "1.05rem", cursor: yukleniyor ? "not-allowed" : "pointer", textTransform: "uppercase", letterSpacing: "1px",
                 background: odemeYontemi === "havale" ? "linear-gradient(45deg, #10b981, #059669)" : "linear-gradient(45deg, #00e5ff, #007acc)",
                 boxShadow: odemeYontemi === "havale" ? "0 10px 20px rgba(16, 185, 129, 0.2)" : "0 10px 20px rgba(0, 229, 255, 0.2)",
-                transition: "all 0.3s"
+                opacity: yukleniyor ? 0.7 : 1
               }}
             >
-              Siparişi Onayla ve Öde
+              {yukleniyor ? "Sipariş İşleniyor..." : "Siparişi Onayla ve Öde"}
             </button>
             
           </div>
