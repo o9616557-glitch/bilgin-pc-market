@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 // @ts-ignore
-import Iyzipay from "iyzico";
+import Iyzipay from "iyzipay";
 
 // Iyzico bağlantısını başlatıyoruz
 const iyzipay = new Iyzipay({
