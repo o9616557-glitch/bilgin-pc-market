@@ -6,45 +6,46 @@ const CartContext = createContext<any>(null);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [sepet, setSepet] = useState<any[]>([]);
 
-  // 1. Sayfa ilk açıldığında bilgisayarın hafızasındaki (localStorage) sepeti getir
   useEffect(() => {
     const hafiza = localStorage.getItem("bilgin-sepet");
-    if (hafiza) {
-      setSepet(JSON.parse(hafiza));
-    }
+    if (hafiza) setSepet(JSON.parse(hafiza));
   }, []);
 
-  // 2. Sepete Ekleme Motoru
   const sepeteEkle = (urun: any) => {
     setSepet((eskiSepet) => {
-      // Ürün zaten sepette var mı kontrol et
-      const varMi = eskiSepet.find(
-        (item) => item.id === urun.id && item.varyasyon === urun.varyasyon
-      );
-
-      let yeniSepet;
+      const varMi = eskiSepet.find((i) => i.id === urun.id && i.varyasyon === urun.varyasyon);
+      let yeni;
       if (varMi) {
-        // Varsa adetini 1 artır
-        yeniSepet = eskiSepet.map((item) =>
-          item.id === urun.id && item.varyasyon === urun.varyasyon
-            ? { ...item, adet: item.adet + 1 }
-            : item
-        );
+        yeni = eskiSepet.map((i) => i.id === urun.id && i.varyasyon === urun.varyasyon ? { ...i, adet: i.adet + 1 } : i);
       } else {
-        // Yoksa sepete yeni ürün olarak ekle
-        yeniSepet = [...eskiSepet, { ...urun, adet: 1 }];
+        yeni = [...eskiSepet, { ...urun, adet: 1 }];
       }
-
-      // Sepeti kaydet
-      localStorage.setItem("bilgin-sepet", JSON.stringify(yeniSepet));
-      return yeniSepet;
+      localStorage.setItem("bilgin-sepet", JSON.stringify(yeni));
+      return yeni;
     });
-    
-    // ŞEFİM, SİNİR BOZUCU UYARI (ALERT) MESAJI BURADAN TAMAMEN SİLİNDİ!
+  };
+
+  // --- YENİ YETENEKLER ---
+  const sepettenSil = (id: string, varyasyon: string) => {
+    const yeni = sepet.filter((i) => !(i.id === id && i.varyasyon === varyasyon));
+    setSepet(yeni);
+    localStorage.setItem("bilgin-sepet", JSON.stringify(yeni));
+  };
+
+  const adetGuncelle = (id: string, varyasyon: string, miktar: number) => {
+    const yeni = sepet.map((i) => {
+      if (i.id === id && i.varyasyon === varyasyon) {
+        const yeniAdet = Math.max(1, i.adet + miktar);
+        return { ...i, adet: yeniAdet };
+      }
+      return i;
+    });
+    setSepet(yeni);
+    localStorage.setItem("bilgin-sepet", JSON.stringify(yeni));
   };
 
   return (
-    <CartContext.Provider value={{ sepet, sepeteEkle }}>
+    <CartContext.Provider value={{ sepet, sepeteEkle, sepettenSil, adetGuncelle }}>
       {children}
     </CartContext.Provider>
   );
