@@ -1,10 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    // ŞEFİM: Listeye "postman-request" eklendi!
     serverComponentsExternalPackages: ["iyzipay", "postman-request"],
     outputFileTracingIncludes: {
-      "/api/**/*": ["./node_modules/iyzipay/**/*"],
+      "/api/**/*": [
+        "./node_modules/iyzipay/**/*",
+        "./node_modules/postman-request/**/*"
+      ],
     },
   },
 };

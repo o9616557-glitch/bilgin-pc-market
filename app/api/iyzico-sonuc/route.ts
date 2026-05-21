@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 // @ts-ignore
 import Iyzipay from "iyzipay";
+// @ts-ignore
+import "postman-request"; // ŞEFİM: VERCEL SİLMESİN DİYE ZORLA KODUN İÇİNE ÇAĞIRDIK!
+
+// ... kodun geri kalanı aynı kalacak
 
 export async function POST(request: Request) {
   try {
