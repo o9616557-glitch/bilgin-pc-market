@@ -28,14 +28,12 @@ export default function OdemeSayfasi() {
   const inputDegis = (e: any) => { setForm({ ...form, [e.target.name]: e.target.value }); };
   const faturaInputDegis = (e: any) => { setFaturaForm({ ...faturaForm, [e.target.name]: e.target.value }); };
 
-  // ŞEFİM: IYZICO'NUN ARADIĞI KUTUNUN ADINI DÜZELTTİK
   useEffect(() => {
     if (iyzicoFormHtml) {
       const gonderilenScript = document.getElementById("iyzico-script");
       if (gonderilenScript) gonderilenScript.remove();
       
       const icerik = document.createRange().createContextualFragment(iyzicoFormHtml);
-      // Iyzico'nun zorunlu kıldığı id'yi kullanıyoruz
       document.getElementById("iyzipay-checkout-form")?.appendChild(icerik);
     }
   }, [iyzicoFormHtml]);
@@ -249,54 +247,62 @@ export default function OdemeSayfasi() {
             )}
           </form>
 
-          {/* ŞEFİM: IYZICO ARTIK KARANLIK POP-UP AÇAMAYACAK, TAMAMEN BU BEYAZ KUTUNUN İÇİNE GÖMÜLECEK! */}
-          {odemeYontemi === "kart" && iyzicoFormHtml && (
-            <div style={{ 
-              position: "fixed", 
-              top: 0, 
-              left: 0, 
-              width: "100vw", 
-              height: "100vh", 
-              background: "#ffffff", 
-              zIndex: 999999, 
-              display: "flex", 
-              flexDirection: "column", 
-              alignItems: "center", 
-              justifyContent: "center", 
-              overflowY: "auto",
-            }}>
-              <button 
-                onClick={() => setIyzicoFormHtml("")} 
-                style={{ 
-                  position: "absolute", 
-                  top: "20px", 
-                  right: "20px", 
-                  background: "#f4f4f5", 
-                  color: "#000", 
-                  border: "none", 
-                  borderRadius: "50%", 
-                  width: "45px", 
-                  height: "45px", 
-                  fontSize: "1.3rem", 
-                  cursor: "pointer", 
-                  fontWeight: "bold", 
-                  display: "flex", 
-                  alignItems: "center", 
-                  justifyContent: "center",
-                  boxShadow: "0 2px 10px rgba(0,0,0,0.1)" 
-                }}>
-                ✕
-              </button>
-              
-              <div style={{ width: "100%", maxWidth: "600px", padding: "20px" }}>
-                {/* İŞTE SİHİRLİ KELİMELER BURADA */}
-                <div id="iyzipay-checkout-form" className="responsive"></div>
-              </div>
+          {/* ŞEFİM: EKRAN YÜZDELİK ORANLARLA TAM KAPLANIP, BUTON EN ÜSTE ÇİVİLENDİ */}
+          <div style={{ 
+            display: (odemeYontemi === "kart" && iyzicoFormHtml) ? "flex" : "none", 
+            position: "fixed", 
+            top: 0, 
+            left: 0, 
+            width: "100%", 
+            height: "100%", 
+            background: "#ffffff", 
+            zIndex: 999999, 
+            flexDirection: "column", 
+            alignItems: "center", 
+            justifyContent: "flex-start", 
+            overflowY: "auto",
+            paddingTop: "80px", // Formu 80px aşağı ittik ki X butonuyla asla çarpışmasın
+            paddingBottom: "40px"
+          }}>
+            <button 
+              type="button"
+              onClick={() => {
+                setIyzicoFormHtml("");
+                const kutu = document.getElementById("iyzipay-checkout-form");
+                if (kutu) kutu.innerHTML = "";
+                if (typeof window !== "undefined") {
+                  (window as any).iyziInit = undefined;
+                }
+              }} 
+              style={{ 
+                position: "fixed", // Ekrana çiviledik
+                top: "20px", 
+                right: "20px", 
+                background: "#f4f4f5", 
+                color: "#000", 
+                border: "2px solid #e4e4e7", // Telefondan net görünsün diye çerçeve
+                borderRadius: "50%", 
+                width: "45px", 
+                height: "45px", 
+                fontSize: "1.3rem", 
+                cursor: "pointer", 
+                fontWeight: "bold", 
+                display: "flex", 
+                alignItems: "center", 
+                justifyContent: "center",
+                boxShadow: "0 4px 15px rgba(0,0,0,0.3)", // Mobilde havada dursun diye gölge
+                zIndex: 2147483647 // İzin verilen en yüksek z-index (asla arkada kalmaz)
+              }}>
+              ✕
+            </button>
+            
+            <div style={{ width: "100%", maxWidth: "600px", background: "#ffffff", padding: "0 15px" }}>
+              <div id="iyzipay-checkout-form" className="responsive"></div>
             </div>
-          )}
+          </div>
+
         </div>
 
-        {/* SAĞ PANEL: SİPARİŞ ÖZETİ */}
         <div style={{ flex: "1" }}>
           <div style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "20px", padding: "24px", position: "sticky", top: "100px" }}>
             <h2 style={{ color: "#fff", fontSize: "1.3rem", fontWeight: "800", marginBottom: "20px" }}>Sipariş Özetiniz</h2>
