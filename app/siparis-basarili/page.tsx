@@ -1,15 +1,25 @@
 "use client";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 
 function BasariliIcerik() {
   const searchParams = useSearchParams();
   const siparisKodu = searchParams?.get("kodu");
+  const gosterilecekKod = siparisKodu || "BPC-XXXXXX";
+
+  // Kopyalama butonu için durum tutucu
+  const [kopyalandi, setKopyalandi] = useState(false);
+
+  // Kopyalama Fonksiyonu
+  const handleKopyala = () => {
+    navigator.clipboard.writeText(gosterilecekKod);
+    setKopyalandi(true);
+    // 2 Saniye sonra butonu eski haline çevir
+    setTimeout(() => setKopyalandi(false), 2000);
+  };
 
   return (
-    // ŞEFİM: Asansör gibi zıplamayı engellemek için dikey flex ortalamayı sildik.
-    // Kutuyu yukarıdan sabit 60px boşlukla yere çiviledik!
     <div style={{ 
       width: "100%",
       padding: "60px 15px", 
@@ -29,8 +39,9 @@ function BasariliIcerik() {
         boxSizing: "border-box"
       }}>
         
+        {/* ŞEFİM: İşte o yeşil tiki milimetrik ortaladık! (marginTop hatası silindi) */}
         <div style={{ width: "70px", height: "70px", background: "rgba(16, 185, 129, 0.08)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
-          <span style={{ fontSize: "35px", display: "block", marginTop: "12px" }}>✅</span>
+          <span style={{ fontSize: "35px" }}>✅</span>
         </div>
 
         <h1 style={{ color: "#fff", fontSize: "1.8rem", fontWeight: "900", marginBottom: "12px", letterSpacing: "-0.5px" }}>Siparişiniz Alındı!</h1>
@@ -38,11 +49,36 @@ function BasariliIcerik() {
           Bizi tercih ettiğiniz için teşekkür ederiz. Siparişiniz sistemimize başarıyla düştü ve hazırlık aşamasına geçildi.
         </p>
 
-        <div style={{ background: "#09090b", border: "1px dashed #00e5ff", borderRadius: "12px", padding: "18px", marginBottom: "25px" }}>
+        <div style={{ background: "#09090b", border: "1px dashed #00e5ff", borderRadius: "12px", padding: "20px", marginBottom: "25px" }}>
           <p style={{ color: "#a1a1aa", fontSize: "0.85rem", marginBottom: "6px" }}>Sipariş Takip Kodunuz:</p>
-          <div style={{ color: "#00e5ff", fontSize: "1.6rem", fontWeight: "900", letterSpacing: "2px" }}>
-            {siparisKodu || "BPC-XXXXXX"}
+          <div style={{ color: "#00e5ff", fontSize: "1.6rem", fontWeight: "900", letterSpacing: "2px", marginBottom: "15px" }}>
+            {gosterilecekKod}
           </div>
+          
+          {/* ŞEFİM: YENİ AKILLI KOPYALA BUTONUMUZ */}
+          <button 
+            onClick={handleKopyala}
+            style={{
+              background: kopyalandi ? "rgba(16, 185, 129, 0.2)" : "#18181b",
+              color: kopyalandi ? "#10b981" : "#e4e4e7",
+              border: kopyalandi ? "1px solid #10b981" : "1px solid #27272a",
+              padding: "8px 16px",
+              borderRadius: "8px",
+              cursor: "pointer",
+              fontSize: "0.85rem",
+              fontWeight: "700",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              transition: "all 0.2s ease"
+            }}
+          >
+            {kopyalandi ? (
+              <><span>✓</span> Kopyalandı</>
+            ) : (
+              <><span>📋</span> Kodu Kopyala</>
+            )}
+          </button>
         </div>
 
         <p style={{ color: "#71717a", fontSize: "0.8rem", marginBottom: "30px", lineHeight: "1.4" }}>
