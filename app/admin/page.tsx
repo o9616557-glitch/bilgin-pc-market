@@ -5,13 +5,25 @@ export default function AdminPaneli() {
   const [sifre, setSifre] = useState("");
   const [girisYapildi, setGirisYapildi] = useState(false);
   const [siparisler, setSiparisler] = useState<any[]>([]);
-  const [yukleniyor, setYukleniyor] = useState(false);
+  const [yukleniyor, setYukleniyor] = useState(true);
 
   const PATRON_SIFRESI = "Bilgin123";
+
+  // ŞEFİM: Sayfa açıldığında tarayıcı hafızasına bakar, giriş yapılmışsa şifre sormaz!
+  useEffect(() => {
+    const patronGirdiMi = sessionStorage.getItem("patronGiris");
+    if (patronGirdiMi === "basarili") {
+      setGirisYapildi(true);
+      siparisleriGetir();
+    } else {
+      setYukleniyor(false);
+    }
+  }, []);
 
   const girisYap = (e: React.FormEvent) => {
     e.preventDefault();
     if (sifre === PATRON_SIFRESI) {
+      sessionStorage.setItem("patronGiris", "basarili"); // Hafızaya kazıdık
       setGirisYapildi(true);
       siparisleriGetir();
     } else {
@@ -19,10 +31,15 @@ export default function AdminPaneli() {
     }
   };
 
+  const cikisYap = () => {
+    sessionStorage.removeItem("patronGiris");
+    setGirisYapildi(false);
+    setSiparisler([]);
+  };
+
   const siparisleriGetir = async () => {
     setYukleniyor(true);
     try {
-      // Şefim, isteğin sonuna milisaniye bazlı "v" parametresi ekleyerek tarayıcıyı kandırıyoruz, mecburen taze veri getiriyor!
       const res = await fetch(`/api/admin/siparisler?v=${Date.now()}`, { 
         method: "GET",
         cache: "no-store",
@@ -65,6 +82,10 @@ export default function AdminPaneli() {
     return "#f59e0b"; 
   };
 
+  if (yukleniyor && !girisYapildi) {
+    return <div style={{ textAlign: "center", padding: "100px", color: "#00e5ff" }}>Yükleniyor...</div>;
+  }
+
   if (!girisYapildi) {
     return (
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh", padding: "20px" }}>
@@ -93,9 +114,10 @@ export default function AdminPaneli() {
         <h1 style={{ color: "#fff", fontSize: "2rem", fontWeight: "900", borderLeft: "6px solid #00e5ff", paddingLeft: "15px" }}>
           SİPARİŞ <span style={{ color: "#00e5ff" }}>YÖNETİMİ</span>
         </h1>
-        <button onClick={siparisleriGetir} style={{ background: "#27272a", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "8px", cursor: "pointer", fontWeight: "700" }}>
-          🔄 Yenile
-        </button>
+        <div style={{ display: "flex", gap: "10px" }}>
+          <button onClick={siparisleriGetir} style={{ background: "#27272a", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "8px", cursor: "pointer", fontWeight: "700" }}>🔄 Yenile</button>
+          <button onClick={cikisYap} style={{ background: "rgba(239, 68, 68, 0.1)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.3)", padding: "10px 20px", borderRadius: "8px", cursor: "pointer", fontWeight: "700" }}>Çıkış Yap</button>
+        </div>
       </div>
 
       {yukleniyor ? (
