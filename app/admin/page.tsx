@@ -4,11 +4,9 @@ import { useState, useEffect } from "react";
 export default function AdminPaneli() {
   const [sifre, setSifre] = useState("");
   const [girisYapildi, setGirisYapildi] = useState(false);
-  
   const [siparisler, setSiparisler] = useState<any[]>([]);
   const [yukleniyor, setYukleniyor] = useState(false);
 
-  // ŞEFİM: Patron şifresi
   const PATRON_SIFRESI = "Bilgin123";
 
   const girisYap = (e: React.FormEvent) => {
@@ -24,8 +22,12 @@ export default function AdminPaneli() {
   const siparisleriGetir = async () => {
     setYukleniyor(true);
     try {
-      // ŞEFİM: Tarayıcının da hafızadan getirmesini yasakladık (cache: "no-store")
-      const res = await fetch("/api/admin/siparisler", { cache: "no-store" });
+      // Şefim, isteğin sonuna milisaniye bazlı "v" parametresi ekleyerek tarayıcıyı kandırıyoruz, mecburen taze veri getiriyor!
+      const res = await fetch(`/api/admin/siparisler?v=${Date.now()}`, { 
+        method: "GET",
+        cache: "no-store",
+        headers: { "Pragma": "no-cache", "Cache-Control": "no-cache" }
+      });
       const data = await res.json();
       if (data.success) {
         setSiparisler(data.siparisler);

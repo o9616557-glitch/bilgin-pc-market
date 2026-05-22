@@ -2,25 +2,36 @@ import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 
-// ŞEFİM: İŞTE SİHİRLİ KOD BU! Next.js'in hafıza tutmasını tamamen yasaklar.
+// ŞEFİM: Next.js önbelleğini tamamen kapatır ve her saniye sıfırdan istek attırır
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-// Tüm siparişleri en yenisi en üstte olacak şekilde getirir
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
     
+    // Şefim, tarayıcıların önbellek kurnazlığını bozmak için benzersiz bir url parametresiyle çekiyoruz
+    const { searchParams } = new URL(request.url);
+    const v = searchParams.get("v"); 
+
     const siparisler = await db.collection("orders").find({}).sort({ tarih: -1 }).toArray();
     
-    return NextResponse.json({ success: true, siparisler });
+    // Her ihtimale karşı tarayıcıya "asla kaydetme" başlıkları (headers) basıyoruz
+    return new NextResponse(JSON.stringify({ success: true, siparisler }), {
+      status: 200,
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0",
+      },
+    });
   } catch (error) {
     console.error("Siparişleri çekerken hata:", error);
     return NextResponse.json({ error: "Siparişler getirilemedi." }, { status: 500 });
   }
 }
 
-// Siparişin durumunu günceller
 export async function PUT(request: Request) {
   try {
     const { id, yeniDurum } = await request.json();
