@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 
 function TakipIcerik() {
   const searchParams = useSearchParams();
-  const defaultKodu = searchParams?.get("kodu") || "";
+  const defaultKodu = searchParams.get("kodu") || "";
 
   const [siparisKodu, setSiparisKodu] = useState(defaultKodu);
   const [sonuc, setSonuc] = useState<any>(null);
@@ -57,7 +57,6 @@ function TakipIcerik() {
   };
 
   return (
-    // ŞEFİM: Kıpırdamayı engellemek için burayı da yukarıdan sabit 40px boşlukla zımbaladık!
     <div style={{ maxWidth: "600px", margin: "40px auto", padding: "0 15px", boxSizing: "border-box" }}>
       <h1 style={{ color: "#fff", fontSize: "1.8rem", fontWeight: "900", marginBottom: "25px", borderLeft: "5px solid #00e5ff", paddingLeft: "12px" }}>
         SİPARİŞ <span style={{ color: "#00e5ff" }}>TAKİP</span>
@@ -89,7 +88,7 @@ function TakipIcerik() {
           
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #27272a", paddingBottom: "15px", marginBottom: "15px" }}>
             <div>
-              <h2 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: "800" }}>{sonuc.siparisKodu}</h2>
+              <h2 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: "900" }}>{sonuc.siparisKodu}</h2>
               <p style={{ color: "#a1a1aa", fontSize: "0.75rem", marginTop: "3px" }}>{new Date(sonuc.tarih).toLocaleDateString("tr-TR")}</p>
             </div>
             <div style={{ background: "rgba(255,255,255,0.02)", padding: "5px 12px", borderRadius: "8px", border: `1px solid ${durumRengi(sonuc.durum)}` }}>
@@ -97,19 +96,32 @@ function TakipIcerik() {
             </div>
           </div>
 
+          {/* ŞEFİM: PATRONUN ÖZEL MESAJI BURADA ÇIKACAK! */}
+          {sonuc.musteriMesaji && (
+            <div style={{ background: "rgba(245, 158, 11, 0.1)", border: "1px solid rgba(245, 158, 11, 0.3)", borderRadius: "10px", padding: "15px", marginBottom: "20px" }}>
+              <h3 style={{ color: "#f59e0b", fontSize: "0.85rem", textTransform: "uppercase", marginBottom: "5px", fontWeight: "800", display: "flex", alignItems: "center", gap: "5px" }}>
+                💬 Mağazadan Mesajınız Var
+              </h3>
+              <p style={{ color: "#fff", fontSize: "0.95rem", lineHeight: "1.5", fontStyle: "italic" }}>
+                "{sonuc.musteriMesaji}"
+              </p>
+            </div>
+          )}
+
           <div style={{ display: "flex", flexDirection: "column", gap: "15px", marginBottom: "20px" }}>
             <div style={{ borderBottom: "1px solid #222", paddingBottom: "12px" }}>
               <h3 style={{ color: "#a1a1aa", fontSize: "0.75rem", marginBottom: "6px", textTransform: "uppercase" }}>Alıcı Bilgileri</h3>
               <p style={{ color: "#fff", fontSize: "0.85rem", lineHeight: "1.4" }}>
-                <strong>{sonuc.musteri.ad} {sonuc.musteri.soyad}</strong><br/>
-                Telefon: {sonuc.musteri.telefon}<br/>
+                <strong>{sonuc.musteri.ad} {sonuc.musteri.soyad}</strong><br />
+                Telefon: {sonuc.musteri.telefon}<br />
                 Adres: {sonuc.musteri.adres} - {sonuc.musteri.ilce}/{sonuc.musteri.sehir}
               </p>
             </div>
+
             <div>
               <h3 style={{ color: "#a1a1aa", fontSize: "0.75rem", marginBottom: "6px", textTransform: "uppercase" }}>Ödeme Özeti</h3>
               <p style={{ color: "#fff", fontSize: "0.85rem" }}>
-                Yöntem: {sonuc.odemeYontemi === "kart" ? "Kredi Kartı" : "Havale / EFT"}<br/>
+                Yöntem: {sonuc.odemeYontemi === "kart" ? "Kredi Kartı" : "Havale / EFT"}<br />
                 Toplam: <span style={{ color: "#00e5ff", fontWeight: "800" }}>{sonuc.toplamTutar.toLocaleString()} TL</span>
               </p>
             </div>
@@ -123,13 +135,12 @@ function TakipIcerik() {
                   <p style={{ color: "#fff", fontWeight: "700", fontSize: "0.85rem", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>{urun.isim}</p>
                   <p style={{ color: "#a1a1aa", fontSize: "0.75rem", marginTop: "2px" }}>{urun.adet} Adet</p>
                 </div>
-                <div style={{ color: "#fff", fontWeight: "900", fontSize: "0.85rem" }}>
+                <div style={{ color: "#00e5ff", fontWeight: "800", fontSize: "0.85rem" }}>
                   {(urun.fiyat * urun.adet).toLocaleString()} TL
                 </div>
               </div>
             ))}
           </div>
-
         </div>
       )}
     </div>
