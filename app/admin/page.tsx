@@ -8,7 +8,7 @@ export default function AdminPaneli() {
   const [siparisler, setSiparisler] = useState<any[]>([]);
   const [yukleniyor, setYukleniyor] = useState(false);
 
-  // ŞEFİM: Patron şifresi burada! (Bunu istersen değiştirebilirsin)
+  // ŞEFİM: Patron şifresi
   const PATRON_SIFRESI = "Bilgin123";
 
   const girisYap = (e: React.FormEvent) => {
@@ -24,7 +24,8 @@ export default function AdminPaneli() {
   const siparisleriGetir = async () => {
     setYukleniyor(true);
     try {
-      const res = await fetch("/api/admin/siparisler");
+      // ŞEFİM: Tarayıcının da hafızadan getirmesini yasakladık (cache: "no-store")
+      const res = await fetch("/api/admin/siparisler", { cache: "no-store" });
       const data = await res.json();
       if (data.success) {
         setSiparisler(data.siparisler);
@@ -46,7 +47,6 @@ export default function AdminPaneli() {
       const data = await res.json();
       
       if (data.success) {
-        // Ekranda listeyi güncelle
         setSiparisler(siparisler.map(s => s._id === id ? { ...s, durum: yeniDurum } : s));
       } else {
         alert("Güncelleme başarısız!");
@@ -56,15 +56,13 @@ export default function AdminPaneli() {
     }
   };
 
-  // DURUM RENKLENDİRME MOTORU
   const durumRengi = (durum: string) => {
-    if (durum === "Ödendi / Hazırlanıyor" || durum.includes("Başarılı")) return "#10b981"; // Yeşil
-    if (durum === "Kargoya Verildi") return "#00e5ff"; // Mavi
-    if (durum === "İptal Edildi") return "#ef4444"; // Kırmızı
-    return "#f59e0b"; // Turuncu (Bekliyor vs.)
+    if (durum === "Ödendi / Hazırlanıyor" || durum.includes("Başarılı")) return "#10b981"; 
+    if (durum === "Kargoya Verildi") return "#00e5ff"; 
+    if (durum === "İptal Edildi") return "#ef4444"; 
+    return "#f59e0b"; 
   };
 
-  // 1. EKRAN: ŞİFRE DUVARI
   if (!girisYapildi) {
     return (
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh", padding: "20px" }}>
@@ -87,7 +85,6 @@ export default function AdminPaneli() {
     );
   }
 
-  // 2. EKRAN: PATRON KONTROL PANELİ
   return (
     <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "40px 20px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px", flexWrap: "wrap", gap: "15px" }}>
@@ -110,14 +107,12 @@ export default function AdminPaneli() {
           {siparisler.map((siparis) => (
             <div key={siparis._id} style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px", display: "flex", flexDirection: "column", gap: "20px" }}>
               
-              {/* Üst Bilgi Satırı */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "15px", borderBottom: "1px solid #27272a", paddingBottom: "15px" }}>
                 <div>
                   <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "5px" }}>{siparis.siparisKodu}</h3>
                   <p style={{ color: "#a1a1aa", fontSize: "0.85rem" }}>{new Date(siparis.tarih).toLocaleString("tr-TR")}</p>
                 </div>
                 
-                {/* Durum Değiştirme Butonları */}
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", background: "#09090b", padding: "8px", borderRadius: "10px", border: "1px solid #27272a" }}>
                   <span style={{ color: durumRengi(siparis.durum), fontWeight: "900", fontSize: "0.9rem", marginRight: "10px" }}>Mevcut: {siparis.durum}</span>
                   <select 
@@ -134,10 +129,7 @@ export default function AdminPaneli() {
                 </div>
               </div>
 
-              {/* Detay Satırı */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "20px" }}>
-                
-                {/* Alıcı */}
                 <div>
                   <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "5px" }}>Müşteri Bilgileri</p>
                   <p style={{ color: "#fff", fontSize: "0.9rem", lineHeight: "1.5" }}>
@@ -147,7 +139,6 @@ export default function AdminPaneli() {
                   </p>
                 </div>
 
-                {/* Ödeme */}
                 <div>
                   <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "5px" }}>Ödeme Detayı</p>
                   <p style={{ color: "#fff", fontSize: "0.9rem", lineHeight: "1.5" }}>
@@ -156,7 +147,6 @@ export default function AdminPaneli() {
                   </p>
                 </div>
 
-                {/* Ürünler */}
                 <div>
                   <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "5px" }}>Satın Alınanlar</p>
                   <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
@@ -167,7 +157,6 @@ export default function AdminPaneli() {
                     ))}
                   </div>
                 </div>
-
               </div>
             </div>
           ))}

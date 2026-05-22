@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 
+// ŞEFİM: İŞTE SİHİRLİ KOD BU! Next.js'in hafıza tutmasını tamamen yasaklar.
+export const dynamic = "force-dynamic";
+
 // Tüm siparişleri en yenisi en üstte olacak şekilde getirir
 export async function GET() {
   try {
@@ -17,7 +20,7 @@ export async function GET() {
   }
 }
 
-// Siparişin durumunu (Hazırlanıyor, Kargolandı vb.) günceller
+// Siparişin durumunu günceller
 export async function PUT(request: Request) {
   try {
     const { id, yeniDurum } = await request.json();
