@@ -57,13 +57,14 @@ function TakipIcerik() {
   };
 
   return (
-    <div style={{ maxWidth: "800px", margin: "0 auto", padding: "20px 15px", minHeight: "85vh", position: "relative", zIndex: 10 }}>
-      <h1 style={{ color: "#fff", fontSize: "1.8rem", fontWeight: "900", marginBottom: "20px", borderLeft: "5px solid #00e5ff", paddingLeft: "12px", marginTop: "10px" }}>
+    // ŞEFİM: Kıpırdamayı engellemek için burayı da yukarıdan sabit 40px boşlukla zımbaladık!
+    <div style={{ maxWidth: "600px", margin: "40px auto", padding: "0 15px", boxSizing: "border-box" }}>
+      <h1 style={{ color: "#fff", fontSize: "1.8rem", fontWeight: "900", marginBottom: "25px", borderLeft: "5px solid #00e5ff", paddingLeft: "12px" }}>
         SİPARİŞ <span style={{ color: "#00e5ff" }}>TAKİP</span>
       </h1>
 
-      <div style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "14px", padding: "20px", marginBottom: "20px" }}>
-        <form onSubmit={handleSorgula} style={{ display: "flex", gap: "10px", flexWrap: "nowrap" }}>
+      <div style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "14px", padding: "20px", marginBottom: "20px", boxSizing: "border-box" }}>
+        <form onSubmit={handleSorgula} style={{ display: "flex", gap: "10px" }}>
           <input
             type="text"
             value={siparisKodu}
@@ -80,42 +81,44 @@ function TakipIcerik() {
             {yukleniyor ? "..." : "Sorgula"}
           </button>
         </form>
-        {hata && <div style={{ color: "#ef4444", marginTop: "12px", fontWeight: "700", fontSize: "0.9rem" }}>❌ {hata}</div>}
+        {hata && <div style={{ color: "#ef4444", marginTop: "12px", fontWeight: "700", fontSize: "0.85rem" }}>❌ {hata}</div>}
       </div>
 
       {sonuc && (
-        <div style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "14px", padding: "20px", marginBottom: "40px" }}>
+        <div style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "14px", padding: "20px", marginBottom: "40px", boxSizing: "border-box" }}>
           
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #27272a", paddingBottom: "15px", marginBottom: "15px", flexWrap: "wrap", gap: "10px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #27272a", paddingBottom: "15px", marginBottom: "15px" }}>
             <div>
-              <h2 style={{ color: "#fff", fontSize: "1.3rem", fontWeight: "800" }}>{sonuc.siparisKodu}</h2>
-              <p style={{ color: "#a1a1aa", fontSize: "0.8rem", marginTop: "3px" }}>{new Date(sonuc.tarih).toLocaleDateString("tr-TR")}</p>
+              <h2 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: "800" }}>{sonuc.siparisKodu}</h2>
+              <p style={{ color: "#a1a1aa", fontSize: "0.75rem", marginTop: "3px" }}>{new Date(sonuc.tarih).toLocaleDateString("tr-TR")}</p>
             </div>
-            <div style={{ background: "rgba(255,255,255,0.02)", padding: "6px 14px", borderRadius: "8px", border: `1px solid ${durumRengi(sonuc.durum)}` }}>
-              <span style={{ color: durumRengi(sonuc.durum), fontWeight: "900", fontSize: "0.95rem" }}>{sonuc.durum}</span>
+            <div style={{ background: "rgba(255,255,255,0.02)", padding: "5px 12px", borderRadius: "8px", border: `1px solid ${durumRengi(sonuc.durum)}` }}>
+              <span style={{ color: durumRengi(sonuc.durum), fontWeight: "900", fontSize: "0.85rem" }}>{sonuc.durum}</span>
             </div>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "15px", marginBottom: "20px" }}>
-            <div style={{ borderBottom: "1px solid #222", paddingBottom: "10px" }}>
-              <h3 style={{ color: "#a1a1aa", fontSize: "0.8rem", marginBottom: "6px", textTransform: "uppercase" }}>Alıcı Bilgileri</h3>
-              <p style={{ color: "#fff", fontSize: "0.9rem", lineHeight: "1.4" }}>
-                {sonuc.musteri.ad} {sonuc.musteri.soyad} | {sonuc.musteri.telefon}<br/>
-                {sonuc.musteri.adres} - {sonuc.musteri.ilce}/{sonuc.musteri.sehir}
+            <div style={{ borderBottom: "1px solid #222", paddingBottom: "12px" }}>
+              <h3 style={{ color: "#a1a1aa", fontSize: "0.75rem", marginBottom: "6px", textTransform: "uppercase" }}>Alıcı Bilgileri</h3>
+              <p style={{ color: "#fff", fontSize: "0.85rem", lineHeight: "1.4" }}>
+                <strong>{sonuc.musteri.ad} {sonuc.musteri.soyad}</strong><br/>
+                Telefon: {sonuc.musteri.telefon}<br/>
+                Adres: {sonuc.musteri.adres} - {sonuc.musteri.ilce}/{sonuc.musteri.sehir}
               </p>
             </div>
             <div>
-              <h3 style={{ color: "#a1a1aa", fontSize: "0.8rem", marginBottom: "6px", textTransform: "uppercase" }}>Ödeme Özeti</h3>
-              <p style={{ color: "#fff", fontSize: "0.9rem" }}>
-                Yöntem: {sonuc.odemeYontemi === "kart" ? "Kart" : "Havale"} | Tutar: <span style={{ color: "#00e5ff", fontWeight: "800" }}>{sonuc.toplamTutar.toLocaleString()} TL</span>
+              <h3 style={{ color: "#a1a1aa", fontSize: "0.75rem", marginBottom: "6px", textTransform: "uppercase" }}>Ödeme Özeti</h3>
+              <p style={{ color: "#fff", fontSize: "0.85rem" }}>
+                Yöntem: {sonuc.odemeYontemi === "kart" ? "Kredi Kartı" : "Havale / EFT"}<br/>
+                Toplam: <span style={{ color: "#00e5ff", fontWeight: "800" }}>{sonuc.toplamTutar.toLocaleString()} TL</span>
               </p>
             </div>
           </div>
 
-          <h3 style={{ color: "#fff", fontSize: "1rem", borderBottom: "1px solid #27272a", paddingBottom: "8px", marginBottom: "12px" }}>Ürünler</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <h3 style={{ color: "#fff", fontSize: "0.9rem", borderBottom: "1px solid #27272a", paddingBottom: "6px", marginBottom: "12px" }}>Ürünler</h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             {sonuc.sepet.map((urun: any, index: number) => (
-              <div key={index} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#09090b", padding: "12px", borderRadius: "8px", border: "1px solid #27272a" }}>
+              <div key={index} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#09090b", padding: "10px 12px", borderRadius: "8px", border: "1px solid #27272a" }}>
                 <div style={{ minWidth: 0, flex: 1, paddingRight: "10px" }}>
                   <p style={{ color: "#fff", fontWeight: "700", fontSize: "0.85rem", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>{urun.isim}</p>
                   <p style={{ color: "#a1a1aa", fontSize: "0.75rem", marginTop: "2px" }}>{urun.adet} Adet</p>

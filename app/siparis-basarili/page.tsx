@@ -8,18 +8,18 @@ function BasariliIcerik() {
   const siparisKodu = searchParams?.get("kodu");
 
   return (
-    // ŞEFİM: Ekranı dikeyde ve yatayda tam ortaladık, kıpırdamaz yaptık!
+    // ŞEFİM: Asansör gibi zıplamayı engellemek için dikey flex ortalamayı sildik.
+    // Kutuyu yukarıdan sabit 60px boşlukla yere çiviledik!
     <div style={{ 
-      display: "flex", 
-      alignItems: "center", 
-      justifyContent: "center", 
-      minHeight: "80vh", 
-      padding: "20px",
-      boxSizing: "border-box"
+      width: "100%",
+      padding: "60px 15px", 
+      boxSizing: "border-box",
+      display: "flex",
+      justifyContent: "center"
     }}>
       <div style={{ 
         width: "100%",
-        maxWidth: "550px", 
+        maxWidth: "500px", 
         background: "#121214", 
         border: "1px solid #27272a", 
         borderRadius: "20px", 
@@ -30,7 +30,7 @@ function BasariliIcerik() {
       }}>
         
         <div style={{ width: "70px", height: "70px", background: "rgba(16, 185, 129, 0.08)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
-          <span style={{ fontSize: "35px" }}>✅</span>
+          <span style={{ fontSize: "35px", display: "block", marginTop: "12px" }}>✅</span>
         </div>
 
         <h1 style={{ color: "#fff", fontSize: "1.8rem", fontWeight: "900", marginBottom: "12px", letterSpacing: "-0.5px" }}>Siparişiniz Alındı!</h1>
@@ -50,10 +50,10 @@ function BasariliIcerik() {
         </p>
 
         <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
-          <Link href="/" style={{ flex: 1, minWidth: "140px", padding: "14px", background: "#27272a", color: "#fff", borderRadius: "10px", textDecoration: "none", fontWeight: "700", fontSize: "0.9rem", textAlign: "center" }}>
+          <Link href="/" style={{ flex: 1, minWidth: "130px", padding: "14px", background: "#27272a", color: "#fff", borderRadius: "10px", textDecoration: "none", fontWeight: "700", fontSize: "0.9rem", textAlign: "center" }}>
             Ana Sayfa
           </Link>
-          <Link href="/siparis-takip" style={{ flex: 1, minWidth: "140px", padding: "14px", background: "#00e5ff", color: "#000", borderRadius: "10px", textDecoration: "none", fontWeight: "900", fontSize: "0.9rem", textAlign: "center", boxShadow: "0 4px 15px rgba(0, 229, 255, 0.2)" }}>
+          <Link href="/siparis-takip" style={{ flex: 1, minWidth: "130px", padding: "14px", background: "#00e5ff", color: "#000", borderRadius: "10px", textDecoration: "none", fontWeight: "900", fontSize: "0.9rem", textAlign: "center", boxShadow: "0 4px 15px rgba(0, 229, 255, 0.2)" }}>
             Siparişi Takip Et
           </Link>
         </div>
