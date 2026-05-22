@@ -10,8 +10,8 @@ export async function GET(request: Request) {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
     
-    // ŞEFİM İŞTE BURASI! orders yerine siparişler klasörüne bakıyoruz
-    const siparisler = await db.collection("siparişler").find({}).sort({ tarih: -1 }).toArray();
+    // ŞEFİM: Kasa adını 'orders' yaptık!
+    const siparisler = await db.collection("orders").find({}).sort({ tarih: -1 }).toArray();
     
     return new NextResponse(JSON.stringify({ success: true, siparisler }), {
       status: 200,
@@ -38,8 +38,8 @@ export async function PUT(request: Request) {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
     
-    // GÜNCELLEMEYİ DE BURAYA YAPIYORUZ
-    await db.collection("siparişler").updateOne(
+    // GÜNCELLEMEYİ DE 'orders' KASASINA YAPIYORUZ
+    await db.collection("orders").updateOne(
       { _id: new ObjectId(id) },
       { $set: { durum: yeniDurum } }
     );
