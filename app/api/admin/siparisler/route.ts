@@ -5,8 +5,17 @@ import { ObjectId } from "mongodb";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+// ŞEFİM: İşte arka kapının gizli anahtarı!
+const GIZLI_ANAHTAR = "Bilgin123"; 
+
 export async function GET(request: Request) {
   try {
+    // 1. GÜVENLİK DUVARI: Şifre yoksa kapıdan kov!
+    const gelenAnahtar = request.headers.get("x-patron-anahtar");
+    if (gelenAnahtar !== GIZLI_ANAHTAR) {
+      return NextResponse.json({ error: "Erişim Engellendi! Dükkanın arkasına girmek yasaktır." }, { status: 401 });
+    }
+
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
     
@@ -28,7 +37,12 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    // ŞEFİM: Artık adminNotu yerine musteriMesaji alıyoruz
+    // 2. GÜVENLİK DUVARI: Veri değiştirmeye çalışanları engelle!
+    const gelenAnahtar = request.headers.get("x-patron-anahtar");
+    if (gelenAnahtar !== GIZLI_ANAHTAR) {
+      return NextResponse.json({ error: "Erişim Engellendi!" }, { status: 401 });
+    }
+
     const { id, yeniDurum, musteriMesaji } = await request.json();
     
     if (!id) {

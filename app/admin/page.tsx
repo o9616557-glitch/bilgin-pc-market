@@ -42,7 +42,11 @@ export default function AdminPaneli() {
       const res = await fetch(`/api/admin/siparisler?v=${Date.now()}`, { 
         method: "GET",
         cache: "no-store",
-        headers: { "Pragma": "no-cache", "Cache-Control": "no-cache" }
+        headers: { 
+          "Pragma": "no-cache", 
+          "Cache-Control": "no-cache",
+          "x-patron-anahtar": PATRON_SIFRESI // ŞEFİM: Gizli anahtarı gönderiyoruz!
+        }
       });
       const data = await res.json();
       if (data.success) {
@@ -59,7 +63,10 @@ export default function AdminPaneli() {
     try {
       const res = await fetch("/api/admin/siparisler", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "x-patron-anahtar": PATRON_SIFRESI // Gizli anahtar
+        },
         body: JSON.stringify({ id, yeniDurum })
       });
       const data = await res.json();
@@ -74,12 +81,14 @@ export default function AdminPaneli() {
     }
   };
 
-  // ŞEFİM: Müşteri Mesajını Kaydetme Fonksiyonu
   const mesajGuncelle = async (id: string, musteriMesaji: string) => {
     try {
       const res = await fetch("/api/admin/siparisler", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "x-patron-anahtar": PATRON_SIFRESI // Gizli anahtar
+        },
         body: JSON.stringify({ id, musteriMesaji })
       });
       const data = await res.json();
@@ -202,7 +211,6 @@ export default function AdminPaneli() {
                 </div>
               </div>
 
-              {/* ŞEFİM: MÜŞTERİYE MESAJ ALANI BURADA! */}
               <div style={{ marginTop: "10px", borderTop: "1px solid #27272a", paddingTop: "15px" }}>
                 <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "8px", fontWeight: "700" }}>💬 Müşteriye İletilecek Mesaj (Sipariş Takip Ekranında Görünür)</p>
                 <div style={{ display: "flex", gap: "10px" }}>
