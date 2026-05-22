@@ -10,7 +10,6 @@ export async function GET(request: Request) {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
     
-    // ŞEFİM: Kasa adını 'orders' yaptık!
     const siparisler = await db.collection("orders").find({}).sort({ tarih: -1 }).toArray();
     
     return new NextResponse(JSON.stringify({ success: true, siparisler }), {
@@ -29,24 +28,28 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const { id, yeniDurum } = await request.json();
+    const { id, yeniDurum, adminNotu } = await request.json();
     
-    if (!id || !yeniDurum) {
-      return NextResponse.json({ error: "Eksik bilgi gönderildi." }, { status: 400 });
+    if (!id) {
+      return NextResponse.json({ error: "Sipariş ID eksik." }, { status: 400 });
     }
 
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
     
-    // GÜNCELLEMEYİ DE 'orders' KASASINA YAPIYORUZ
+    // ŞEFİM: Sadece durum gelirse durumu, sadece not gelirse notu günceller!
+    const guncellenecekler: any = {};
+    if (yeniDurum !== undefined) guncellenecekler.durum = yeniDurum;
+    if (adminNotu !== undefined) guncellenecekler.adminNotu = adminNotu;
+
     await db.collection("orders").updateOne(
       { _id: new ObjectId(id) },
-      { $set: { durum: yeniDurum } }
+      { $set: guncellenecekler }
     );
     
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Sipariş güncellenirken hata:", error);
-    return NextResponse.json({ error: "Durum güncellenemedi." }, { status: 500 });
+    return NextResponse.json({ error: "Sistem hatası." }, { status: 500 });
   }
 }

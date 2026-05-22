@@ -9,7 +9,6 @@ export default function AdminPaneli() {
 
   const PATRON_SIFRESI = "Bilgin123";
 
-  // ŞEFİM: Sayfa açıldığında tarayıcı hafızasına bakar, giriş yapılmışsa şifre sormaz!
   useEffect(() => {
     const patronGirdiMi = sessionStorage.getItem("patronGiris");
     if (patronGirdiMi === "basarili") {
@@ -23,7 +22,7 @@ export default function AdminPaneli() {
   const girisYap = (e: React.FormEvent) => {
     e.preventDefault();
     if (sifre === PATRON_SIFRESI) {
-      sessionStorage.setItem("patronGiris", "basarili"); // Hafızaya kazıdık
+      sessionStorage.setItem("patronGiris", "basarili"); 
       setGirisYapildi(true);
       siparisleriGetir();
     } else {
@@ -69,6 +68,26 @@ export default function AdminPaneli() {
         setSiparisler(siparisler.map(s => s._id === id ? { ...s, durum: yeniDurum } : s));
       } else {
         alert("Güncelleme başarısız!");
+      }
+    } catch (error) {
+      alert("Sistemsel hata oluştu.");
+    }
+  };
+
+  // ŞEFİM: Yeni Not Kaydetme Fonksiyonumuz
+  const notGuncelle = async (id: string, adminNotu: string) => {
+    try {
+      const res = await fetch("/api/admin/siparisler", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, adminNotu })
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        alert("Notunuz başarıyla kaydedildi şefim! 📝");
+      } else {
+        alert("Not kaydedilemedi!");
       }
     } catch (error) {
       alert("Sistemsel hata oluştu.");
@@ -182,6 +201,27 @@ export default function AdminPaneli() {
                   </div>
                 </div>
               </div>
+
+              {/* ŞEFİM: ÖZEL NOT ALANI BURADA! */}
+              <div style={{ marginTop: "10px", borderTop: "1px solid #27272a", paddingTop: "15px" }}>
+                <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "8px", fontWeight: "700" }}>📝 Şefin Özel Notu (Müşteri Göremez)</p>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <input 
+                    type="text" 
+                    value={siparis.adminNotu || ""} 
+                    onChange={(e) => setSiparisler(siparisler.map(s => s._id === siparis._id ? { ...s, adminNotu: e.target.value } : s))}
+                    placeholder="Bu sipariş için hatırlatıcı bir not yazın..." 
+                    style={{ flex: 1, padding: "10px 15px", background: "#09090b", color: "#fff", border: "1px solid #27272a", borderRadius: "8px", outline: "none", fontSize: "0.85rem" }}
+                  />
+                  <button 
+                    onClick={() => notGuncelle(siparis._id, siparis.adminNotu)}
+                    style={{ background: "#00e5ff", color: "#000", border: "none", padding: "0 20px", borderRadius: "8px", fontWeight: "800", cursor: "pointer", fontSize: "0.85rem" }}
+                  >
+                    Kaydet
+                  </button>
+                </div>
+              </div>
+
             </div>
           ))}
         </div>
