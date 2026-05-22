@@ -74,20 +74,20 @@ export default function AdminPaneli() {
     }
   };
 
-  // ŞEFİM: Yeni Not Kaydetme Fonksiyonumuz
-  const notGuncelle = async (id: string, adminNotu: string) => {
+  // ŞEFİM: Müşteri Mesajını Kaydetme Fonksiyonu
+  const mesajGuncelle = async (id: string, musteriMesaji: string) => {
     try {
       const res = await fetch("/api/admin/siparisler", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, adminNotu })
+        body: JSON.stringify({ id, musteriMesaji })
       });
       const data = await res.json();
       
       if (data.success) {
-        alert("Notunuz başarıyla kaydedildi şefim! 📝");
+        alert("Mesajınız müşterinin sipariş takip ekranına gönderildi! 🚀");
       } else {
-        alert("Not kaydedilemedi!");
+        alert("Mesaj gönderilemedi!");
       }
     } catch (error) {
       alert("Sistemsel hata oluştu.");
@@ -202,22 +202,22 @@ export default function AdminPaneli() {
                 </div>
               </div>
 
-              {/* ŞEFİM: ÖZEL NOT ALANI BURADA! */}
+              {/* ŞEFİM: MÜŞTERİYE MESAJ ALANI BURADA! */}
               <div style={{ marginTop: "10px", borderTop: "1px solid #27272a", paddingTop: "15px" }}>
-                <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "8px", fontWeight: "700" }}>📝 Şefin Özel Notu (Müşteri Göremez)</p>
+                <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "8px", fontWeight: "700" }}>💬 Müşteriye İletilecek Mesaj (Sipariş Takip Ekranında Görünür)</p>
                 <div style={{ display: "flex", gap: "10px" }}>
                   <input 
                     type="text" 
-                    value={siparis.adminNotu || ""} 
-                    onChange={(e) => setSiparisler(siparisler.map(s => s._id === siparis._id ? { ...s, adminNotu: e.target.value } : s))}
-                    placeholder="Bu sipariş için hatırlatıcı bir not yazın..." 
-                    style={{ flex: 1, padding: "10px 15px", background: "#09090b", color: "#fff", border: "1px solid #27272a", borderRadius: "8px", outline: "none", fontSize: "0.85rem" }}
+                    value={siparis.musteriMesaji || ""} 
+                    onChange={(e) => setSiparisler(siparisler.map(s => s._id === siparis._id ? { ...s, musteriMesaji: e.target.value } : s))}
+                    placeholder="Örn: Merhaba, ürününüzü bugün kargoya verdik, iyi günlerde kullanın..." 
+                    style={{ flex: 1, padding: "10px 15px", background: "rgba(0, 229, 255, 0.05)", color: "#00e5ff", border: "1px solid rgba(0, 229, 255, 0.3)", borderRadius: "8px", outline: "none", fontSize: "0.85rem" }}
                   />
                   <button 
-                    onClick={() => notGuncelle(siparis._id, siparis.adminNotu)}
+                    onClick={() => mesajGuncelle(siparis._id, siparis.musteriMesaji)}
                     style={{ background: "#00e5ff", color: "#000", border: "none", padding: "0 20px", borderRadius: "8px", fontWeight: "800", cursor: "pointer", fontSize: "0.85rem" }}
                   >
-                    Kaydet
+                    Müşteriye Gönder
                   </button>
                 </div>
               </div>

@@ -28,7 +28,8 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const { id, yeniDurum, adminNotu } = await request.json();
+    // ŞEFİM: Artık adminNotu yerine musteriMesaji alıyoruz
+    const { id, yeniDurum, musteriMesaji } = await request.json();
     
     if (!id) {
       return NextResponse.json({ error: "Sipariş ID eksik." }, { status: 400 });
@@ -37,10 +38,9 @@ export async function PUT(request: Request) {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
     
-    // ŞEFİM: Sadece durum gelirse durumu, sadece not gelirse notu günceller!
     const guncellenecekler: any = {};
     if (yeniDurum !== undefined) guncellenecekler.durum = yeniDurum;
-    if (adminNotu !== undefined) guncellenecekler.adminNotu = adminNotu;
+    if (musteriMesaji !== undefined) guncellenecekler.musteriMesaji = musteriMesaji;
 
     await db.collection("orders").updateOne(
       { _id: new ObjectId(id) },
