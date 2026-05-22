@@ -167,7 +167,7 @@ export default function AdminPaneli() {
                   <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "5px" }}>Ödeme Detayı</p>
                   <p style={{ color: "#fff", fontSize: "0.9rem", lineHeight: "1.5" }}>
                     Yöntem: <strong>{siparis.odemeYontemi === "kart" ? "Kredi Kartı / Iyzico" : "Havale / EFT"}</strong><br />
-                    Tutar: <strong style={{ color: "#00e5ff", fontSize: "1.1rem" }}>{siparis.toplamTutar.toLocaleString()} TL</strong>
+                    Tutar: <strong style={{ color: "#00e5ff", fontSize: "1.1rem" }}>{((siparis.toplamTutar) || (siparis.Tutar) || 0).toLocaleString()} TL</strong>
                   </p>
                 </div>
 

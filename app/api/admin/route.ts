@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 
-// ŞEFİM: Next.js önbelleğini tamamen kapatır ve her saniye sıfırdan istek attırır
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -11,13 +10,9 @@ export async function GET(request: Request) {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
     
-    // Şefim, tarayıcıların önbellek kurnazlığını bozmak için benzersiz bir url parametresiyle çekiyoruz
-    const { searchParams } = new URL(request.url);
-    const v = searchParams.get("v"); 
-
-    const siparisler = await db.collection("orders").find({}).sort({ tarih: -1 }).toArray();
+    // ŞEFİM İŞTE BURASI! orders yerine siparişler klasörüne bakıyoruz
+    const siparisler = await db.collection("siparişler").find({}).sort({ tarih: -1 }).toArray();
     
-    // Her ihtimale karşı tarayıcıya "asla kaydetme" başlıkları (headers) basıyoruz
     return new NextResponse(JSON.stringify({ success: true, siparisler }), {
       status: 200,
       headers: {
@@ -43,7 +38,8 @@ export async function PUT(request: Request) {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
     
-    await db.collection("orders").updateOne(
+    // GÜNCELLEMEYİ DE BURAYA YAPIYORUZ
+    await db.collection("siparişler").updateOne(
       { _id: new ObjectId(id) },
       { $set: { durum: yeniDurum } }
     );
