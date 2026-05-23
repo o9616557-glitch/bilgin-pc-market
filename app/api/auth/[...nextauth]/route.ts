@@ -5,32 +5,32 @@ import FacebookProvider from "next-auth/providers/facebook";
 import clientPromise from "@/lib/mongodb";
 import bcrypt from "bcryptjs";
 
-const authOptions = {
+export const authOptions = {
   providers: [
     // 1. GOOGLE BAĞLANTI ADAPTÖRÜ
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
     
     // 2. FACEBOOK BAĞLANTI ADAPTÖRÜ
     FacebookProvider({
-      clientId: process.env.FACEBOOK_CLIENT_ID || "",
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET || "",
+      clientId: process.env.FACEBOOK_CLIENT_ID as string,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
     }),
-
+    
     // 3. E-POSTA VE ŞİFRE ADAPTÖRÜ
     CredentialsProvider({
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "text" },
-        password: { label: "Şifre", type: "password" }
+        password: { label: "Sifre", type: "password" }
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Lütfen e-posta ve şifrenizi girin.");
         }
-
+        
         const client = await clientPromise;
         const db = client.db("bilginpcmarket");
         const user = await db.collection("users").findOne({ email: credentials.email });
@@ -45,24 +45,43 @@ const authOptions = {
           throw new Error("Şifre hatalı, lütfen tekrar deneyin.");
         }
 
-        return { 
-          id: user._id.toString(), 
-          name: user.name, 
-          email: user.email 
+        return {
+          id: user._id.toString(),
+          name: user.name,
+          email: user.email
         };
       }
     })
   ],
-  session: { 
+  session: {
     strategy: "jwt" as const,
     maxAge: 30 * 24 * 60 * 60, // 30 Gün açık kalır
   },
   secret: process.env.NEXTAUTH_SECRET || "BilginPcMarketGizliAnahtar2026",
   pages: {
     signIn: "/giris",
-  }
+  },
+  
+  // 🚀 ŞEFİM İŞTE HAYAT KURTARAN GÜMRÜK KAPISI BURASI!
+  callbacks: {
+    async jwt({ token, user }: any) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }: any) {
+      if (session.user) {
+        // @ts-ignore
+        session.user.id = token.id;
+      }
+      return session;
+    }
+  },
+  // Hata olursa Vercel loglarında kabak gibi göstersin diye radar açtık
+  debug: true, 
 };
 
+// NextAuth'un çalışması için zorunlu dışa aktarım (Export) işlemi
 const handler = NextAuth(authOptions);
-
 export { handler as GET, handler as POST };
