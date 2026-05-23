@@ -1,3 +1,4 @@
+import AuthProvider from "@/components/AuthProvider";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -29,16 +30,19 @@ export default function RootLayout({
     <html lang="tr">
       {/* overflow-x-hidden: Sağa sola kaymayı sonsuza dek kilitler! */}
       {/* min-h-screen: Ekranı tam kaplar ama menünün seninle inmesine izin verir! */}
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-[#050810] overflow-x-hidden`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-[#050814] overflow-x-hidden`}>
         
-        <CartProvider>
-          {/* Bu menü artık sen aşağı indikçe seninle gelecek */}
-          <Header />
+        {/* 🚀 ŞEFİM: ANA ŞALTERİ BURAYA TAKTIK! ARTIK SİTENİN HER YERİNDE GOOGLE RADARI ÇALIŞACAK */}
+        <AuthProvider>
+          <CartProvider>
+            {/* Bu menü artık sen aşağı indikçe seninle gelecek */}
+            <Header />
 
-          <main className="flex-grow w-full">
-            {children}
-          </main>
-        </CartProvider>
+            <main className="flex-grow w-full">
+              {children}
+            </main>
+          </CartProvider>
+        </AuthProvider>
 
       </body>
     </html>
