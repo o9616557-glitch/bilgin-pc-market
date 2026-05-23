@@ -1,111 +1,125 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
+import clientPromise from "@/lib/mongodb";
+import { ObjectId } from "mongodb";
 
-export const dynamic = 'force-dynamic';
-export const fetchCache = 'force-no-store';
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+// ŞEFİM: Senin kilitli patron anahtarın
+const GIZLI_ANAHTAR = "Bilgin123";
+
+// 1. GET: Yorumları ve Soruları Çekme (Müşteri onaylıları görür, sen hepsini görürsün)
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const productId = searchParams.get('product');
-
-  if (!productId) return NextResponse.json({ error: 'Ürün ID gerekli' }, { status: 400 });
-
-  const wpUrl = process.env.NEXT_PUBLIC_WC_URL; 
-  const ck = process.env.WC_CONSUMER_KEY;
-  const cs = process.env.WC_CONSUMER_SECRET;
-  const cacheBuster = Date.now();
-
-  let wcData = [];
-  let wpData = [];
-
-  // 1️⃣ WooCommerce üzerinden yıldızlı müşteri yorumlarını güvenli modda çek
   try {
-    const wcRes = await fetch(`${wpUrl}/wp-json/wc/v3/products/reviews?product=${productId}&status=approved&_t=${cacheBuster}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Basic ${Buffer.from(`${ck}:${cs}`).toString('base64')}`
-      },
-      cache: 'no-store'
-    });
-    if (wcRes.ok) wcData = await wcRes.json();
-  } catch (e) {
-    console.error("WooCommerce bağlantı hatası:", e);
+    const url = new URL(request.url);
+    const productId = url.searchParams.get("productId");
+    const gelenAnahtar = request.headers.get("x-patron-anahtar");
+
+    const client = await clientPromise;
+    const db = client.db("bilginpcmarket");
+
+    let sorgu: any = {};
+
+    // Hangi ürüne girildiyse sadece onun yorumlarını getir
+    if (productId) {
+      sorgu.productId = String(productId);
+    }
+
+    // ŞEFİM BURASI ÇOK ÖNEMLİ: Eğer sen (Patron) bakmıyorsan, sadece ONAYLANMIŞ olanları göster!
+    if (gelenAnahtar !== GIZLI_ANAHTAR) {
+      sorgu.onaylandi = true;
+    }
+
+    // Tarihe göre en yeniler en üstte gelsin
+    const veriler = await db.collection("reviews").find(sorgu).sort({ tarih: -1 }).toArray();
+
+    return NextResponse.json({ success: true, data: veriler });
+  } catch (error) {
+    return NextResponse.json({ error: "Veriler çekilemedi." }, { status: 500 });
   }
-
-  // 2️⃣ WordPress çekirdeğinden senin yazdığın admin cevaplarını çek
-  try {
-    const wpRes = await fetch(`${wpUrl}/wp-json/wp/v2/comments?post=${productId}&status=approve&_t=${cacheBuster}`, {
-      method: 'GET',
-      cache: 'no-store'
-    });
-    if (wpRes.ok) wpData = await wpRes.json();
-  } catch (e) {
-    console.error("WordPress çekirdek bağlantı hatası:", e);
-  }
-
-  // 3️⃣ İki listeyi birbirini ezmeden havada KUSURSUZCA BİRLEŞTİR
-  const cleanedReviews = (Array.isArray(wcData) ? wcData : []).map((item: any) => ({
-    id: item.id,
-    parent: item.parent_id || item.parent || 0,
-    date_created: item.date_created || item.date,
-    review: item.review || "",
-    rating: item.rating || 0,
-    reviewer: item.reviewer
-  }));
-
-  const cleanedReplies = (Array.isArray(wpData) ? wpData : [])
-    .filter((item: any) => item.parent && item.parent > 0)
-    .map((item: any) => ({
-      id: item.id,
-      parent: item.parent,
-      date_created: item.date,
-      review: item.content?.rendered || item.content || "",
-      rating: 0, // Admin cevaplarında yıldız olmaz
-      reviewer: item.author_name || "Mağaza Yetkilisi"
-    }));
-
-  // İki listeyi harmanlayarak tek bir havuzda topluyoruz
-  const finalReviews = [...cleanedReviews, ...cleanedReplies];
-
-  const response = NextResponse.json(finalReviews);
-  response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
-  response.headers.set('Pragma', 'no-cache');
-  response.headers.set('Expires', '0');
-  
-  return response;
 }
 
+// 2. POST: Müşteri yorum veya soru gönderdiğinde çalışır (Onay bekler)
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const wpUrl = process.env.NEXT_PUBLIC_WC_URL;
-    const ck = process.env.WC_CONSUMER_KEY;
-    const cs = process.env.WC_CONSUMER_SECRET;
+    const { productId, type, name, rating, text } = body;
 
-    const finalReviewText = body.is_question ? `[SORU] ${body.review}` : body.review;
-    const finalEmail = body.reviewer_email || body.email;
+    // Müşterinin gönderdiği veri onaylanmamış (false) olarak pakete konuyor!
+    const yeniVeri = {
+      productId: String(productId),
+      type: type || "review", // "review" (Yorum) veya "question" (Soru)
+      name: name || "Misafir",
+      rating: Number(rating) || 5,
+      text: text || "",
+      answer: null, // Sorular için mağaza cevabı
+      onaylandi: false, // İŞTE KRİTİK NOKTA! Patron onaylayana kadar gizli!
+      tarih: new Date()
+    };
 
-    const res = await fetch(`${wpUrl}/wp-json/wc/v3/products/reviews`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Basic ${Buffer.from(`${ck}:${cs}`).toString('base64')}`
-      },
-      body: JSON.stringify({
-        product_id: body.product_id,
-        review: finalReviewText,
-        reviewer: body.reviewer,
-        reviewer_email: finalEmail,
-        rating: body.rating || 0,
-        status: 'hold'
-      })
-    });
+    const client = await clientPromise;
+    const db = client.db("bilginpcmarket");
 
-    const data = await res.json();
-    if (!res.ok) return NextResponse.json(data, { status: res.status });
-    return NextResponse.json(data);
+    await db.collection("reviews").insertOne(yeniVeri);
+
+    return NextResponse.json({ success: true, mesaj: "Başarıyla gönderildi, patron onayı bekliyor!" });
   } catch (error) {
-    return NextResponse.json({ error: 'Yorum WP paneline gönderilemedi' }, { status: 500 });
+    return NextResponse.json({ error: "Gönderilemedi." }, { status: 500 });
+  }
+}
+
+// 3. PUT: Patronun Onaylama ve Cevap Yazma Motoru
+export async function PUT(request: Request) {
+  try {
+    const gelenAnahtar = request.headers.get("x-patron-anahtar");
+    if (gelenAnahtar !== GIZLI_ANAHTAR) {
+      return NextResponse.json({ error: "Erişim Engellendi! Patron değilsin." }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { id, onaylandi, answer } = body;
+
+    if (!id) return NextResponse.json({ error: "ID eksik" }, { status: 400 });
+
+    const client = await clientPromise;
+    const db = client.db("bilginpcmarket");
+
+    // Ne güncellenecekse onu ayarla (Sadece onay mı veriliyor, yoksa soruya cevap mı yazılıyor?)
+    const guncellenecekler: any = {};
+    if (onaylandi !== undefined) guncellenecekler.onaylandi = onaylandi;
+    if (answer !== undefined) guncellenecekler.answer = answer;
+
+    await db.collection("reviews").updateOne(
+      { _id: new ObjectId(id) },
+      { $set: guncellenecekler }
+    );
+
+    return NextResponse.json({ success: true, mesaj: "Başarıyla güncellendi!" });
+  } catch (error) {
+    return NextResponse.json({ error: "Güncellenemedi." }, { status: 500 });
+  }
+}
+
+// 4. DELETE: Patronun Küfürlü/Sahte Yorumları Çöpe Atma Motoru
+export async function DELETE(request: Request) {
+  try {
+    const gelenAnahtar = request.headers.get("x-patron-anahtar");
+    if (gelenAnahtar !== GIZLI_ANAHTAR) {
+      return NextResponse.json({ error: "Erişim Engellendi!" }, { status: 401 });
+    }
+
+    const searchParams = new URL(request.url).searchParams;
+    const id = searchParams.get("id");
+
+    if (!id) return NextResponse.json({ error: "ID eksik." }, { status: 400 });
+
+    const client = await clientPromise;
+    const db = client.db("bilginpcmarket");
+
+    await db.collection("reviews").deleteOne({ _id: new ObjectId(id) });
+
+    return NextResponse.json({ success: true, mesaj: "Başarıyla silindi!" });
+  } catch (error) {
+    return NextResponse.json({ error: "Silinemedi." }, { status: 500 });
   }
 }
