@@ -27,7 +27,8 @@ export default function CheckoutPage() {
 
     async function fetchRealPaymentForm() {
       try {
-        const res = await fetch("/api/iyzico", {
+        // ŞEFİM: ADRES BURADA DÜZELTİLDİ! "/api/iyzico" YERİNE "/api/siparis-olustur" OLDU.
+        const res = await fetch("/api/siparis-olustur", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -37,10 +38,10 @@ export default function CheckoutPage() {
           })
         });
         const data = await res.json();
-        
-        // 👑 NÜKLEER BYPASS: Formu ekrana zorla basmak yerine, İyzico'nun Güvenli Ödeme Sayfasına uçuruyoruz!
+
+        // NÜKLEER BYPASS: Formu ekrana zorla basmak yerine, İyzico'nun Güvenli Ödeme Sayfasına uçuruyoruz!
         if (data.success && data.data?.paymentPageUrl) {
-          window.location.href = data.data.paymentPageUrl; 
+          window.location.href = data.data.paymentPageUrl;
         } else {
           // Eğer API'den ret gelirse kırmızı radarda sebebi yazar
           setErrorMsg(data.error || data.data?.errorMessage || "İyzico ödeme linki alınamadı.");
@@ -58,7 +59,7 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-[#050814] flex flex-col items-center justify-center p-4">
       
-      {/* 🚀 ARTIK BEKLEME EKRANINDA "YÖNLENDİRİLİYORSUNUZ" YAZACAK */}
+      {/* ARTIK BEKLEME EKRANINDA "YÖNLENDİRİLİYORSUNUZ" YAZACAK */}
       {loading && !errorMsg && (
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
@@ -66,7 +67,7 @@ export default function CheckoutPage() {
         </div>
       )}
 
-      {/* 🛑 GİZLİ HATALARI GÖSTEREN KIRMIZI RADAR */}
+      {/* GİZLİ HATALARI GÖSTEREN KIRMIZI RADAR */}
       {errorMsg && (
         <div className="bg-red-500/10 border border-red-500/50 p-6 rounded-2xl w-full max-w-md text-center backdrop-blur-sm">
           <div className="w-16 h-16 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-black">!</div>
@@ -77,7 +78,7 @@ export default function CheckoutPage() {
           </a>
         </div>
       )}
-
+      
     </div>
   );
 }
