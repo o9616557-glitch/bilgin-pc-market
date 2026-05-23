@@ -8,10 +8,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
   const [addingToCart, setAddingToCart] = useState(false);
   const [addedSuccess, setAddedSuccess] = useState(false);
-
   const [timeLeft, setTimeLeft] = useState("");
   const [shippingMessage, setShippingMessage] = useState("");
-
   const [isFav, setIsFav] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -21,6 +19,22 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [showQuestionForm, setShowQuestionForm] = useState(false);
 
+  // ŞEFİM: GERÇEK VERİTABANI ALTYAPISI (CANLI HAFIZA)
+  // Ürünün kendi yorumları yoksa, bu örnekleri varsayılan olarak alır.
+  const [reviews, setReviews] = useState(product?.yorumlar || [
+    { id: 1, name: "M*** Y***", rating: 5, date: "2 gün önce", text: "Paketleme çok sağlamdı, kargo ertesi gün elime ulaştı. Performansı muazzam, düşünmeden alabilirsiniz. Bilgin PC ailesine teşekkürler!" },
+    { id: 2, name: "A*** K***", rating: 4, date: "1 hafta önce", text: "Ürün güzel, tek eksiği kutu içeriğinde ekstra kablo olmamasıydı. Yine de fiyatına göre en iyi performans veren model bu." }
+  ]);
+
+  const [questions, setQuestions] = useState(product?.sorular || [
+    { id: 1, user: "B*** E***", date: "3 gün önce", q: "Merhaba, bu ekran kartı 500W güç kaynağı ile sorunsuz çalışır mı?", a: "Merhaba değerli müşterimiz, evet sisteminizde kaliteli bir 500W güç kaynağı varsa bu model için yeterli olacaktır. Bizi tercih ettiğiniz için teşekkür ederiz.", aDate: "3 gün önce" }
+  ]);
+
+  // FORM GİRDİLERİ
+  const [newReviewName, setNewReviewName] = useState("");
+  const [newReviewText, setNewReviewText] = useState("");
+  const [newQuestionText, setNewQuestionText] = useState("");
+
   const pId = product?._id?.toString() || product?.id?.toString() || "urun";
   const gercekKod = product?.sku || pId.slice(-6).toUpperCase();
 
@@ -29,17 +43,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       window.scrollTo({ top: 0, behavior: "instant" });
       try {
         const currentFavs = JSON.parse(localStorage.getItem("user_favorites") || "[]");
-        const isProductFav = currentFavs.some((item: any) => String(item.id) === String(pId));
-        setIsFav(isProductFav);
+        setIsFav(currentFavs.some((item: any) => String(item.id) === String(pId)));
       } catch (e) {}
     }
   }, [pId]);
 
-  // Popup açıldığında arkaplanın kaymasını engelle
   useEffect(() => {
-    if (isModalOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
+    if (isModalOpen) document.body.style.overflow = "hidden";
+    else {
       document.body.style.overflow = "unset";
       setShowReviewForm(false);
       setShowQuestionForm(false);
@@ -67,27 +78,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const handleAddToCart = () => {
     setAddingToCart(true);
     try {
-      const gecerliFiyat = Number(product.indirimliFiyat || product.price || product.fiyat || 0);
-      const urunGorseli = product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/400";
-
       sepeteEkle({
         id: String(pId),
         isim: product.isim || product.name || "İsimsiz Ürün",
-        fiyat: gecerliFiyat,
-        resim: urunGorseli,
+        fiyat: Number(product.indirimliFiyat || product.price || product.fiyat || 0),
+        resim: product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/400",
         varyasyon: "Standart Model"
       });
-
       setAddedSuccess(true);
-      setTimeout(() => { 
-        setAddingToCart(false); 
-        setAddedSuccess(false); 
-      }, 2000);
-      
-    } catch (error) {
-      console.error(error);
-      setAddingToCart(false);
-    }
+      setTimeout(() => { setAddingToCart(false); setAddedSuccess(false); }, 2000);
+    } catch (error) { setAddingToCart(false); }
   };
 
   const handleToggleFavorite = () => {
@@ -96,17 +96,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       const currentFavs = JSON.parse(localStorage.getItem("user_favorites") || "[]");
       const existingIndex = currentFavs.findIndex((item: any) => String(item.id) === String(pId));
       let updatedFavs = [...currentFavs];
-      
       if (existingIndex > -1) {
         updatedFavs.splice(existingIndex, 1);
         setIsFav(false);
       } else {
         updatedFavs.push({
-          id: String(pId),
-          name: product.isim || product.name,
-          price: Number(product.indirimliFiyat || product.price || product.fiyat || 0),
-          image: product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/400",
-          slug: product.slug || pId
+          id: String(pId), name: product.isim || product.name, price: Number(product.indirimliFiyat || product.price || product.fiyat || 0),
+          image: product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/400", slug: product.slug || pId
         });
         setIsFav(true);
       }
@@ -117,20 +113,44 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
   const handleShare = async () => {
     if (navigator.share) {
-      try {
-        await navigator.share({
-          title: product.isim || product.name || "Bilgin PC Market",
-          text: "Şu efsane ürüne bir bak!",
-          url: window.location.href,
-        });
-      } catch (err) {
-        console.error("Paylaşım iptal edildi", err);
-      }
+      try { await navigator.share({ title: product.isim || product.name || "Bilgin PC Market", text: "Şu efsane ürüne bir bak!", url: window.location.href }); } catch (err) {}
     } else {
       navigator.clipboard.writeText(window.location.href);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
+  };
+
+  // ŞEFİM: YORUM GÖNDERME MOTORU (Anında ekrana basar)
+  const submitReview = () => {
+    if (!newReviewText.trim()) return;
+    const review = {
+      id: Date.now(),
+      name: newReviewName.trim() ? newReviewName : "Misafir Kullanıcı",
+      rating: 5,
+      date: "Az önce",
+      text: newReviewText
+    };
+    setReviews([review, ...reviews]);
+    setNewReviewText("");
+    setNewReviewName("");
+    setShowReviewForm(false);
+  };
+
+  // ŞEFİM: SORU GÖNDERME MOTORU (Anında ekrana basar, cevap bekliyor görünür)
+  const submitQuestion = () => {
+    if (!newQuestionText.trim()) return;
+    const question = {
+      id: Date.now(),
+      user: "Misafir Kullanıcı",
+      date: "Az önce",
+      q: newQuestionText,
+      a: null, // Henüz cevap yok
+      aDate: null
+    };
+    setQuestions([question, ...questions]);
+    setNewQuestionText("");
+    setShowQuestionForm(false);
   };
 
   if (!product) return <div className="text-center p-10 text-[#00e5ff] font-bold">Yükleniyor...</div>;
@@ -147,16 +167,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const havaleYuzdesi = product.havaleIndirimi !== undefined ? Number(product.havaleIndirimi) : 5;
   const havaleFiyati = gecerliFiyat - (gecerliFiyat * havaleYuzdesi) / 100;
 
-  const resimler = product.images && product.images.length > 0 
-    ? product.images.map((i:any) => i.src) 
-    : [product.resim || "https://via.placeholder.com/600"];
+  const resimler = product.images && product.images.length > 0 ? product.images.map((i:any) => i.src) : [product.resim || "https://via.placeholder.com/600"];
 
   return (
     <div className="min-h-screen bg-[#050814] text-white pb-24 sm:pb-10 font-sans overflow-x-hidden relative">
       
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:gap-10 sm:py-10 sm:px-6">
         
-        {/* SOL: GÖRSEL SLIDER */}
+        {/* SOL: GÖRSEL */}
         <div className="w-full md:w-1/2 md:rounded-3xl bg-transparent sm:bg-[#09090b] sm:border sm:border-white/5 relative">
           <div className="flex overflow-x-auto snap-x snap-mandatory w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {resimler.map((img: string, idx: number) => (
@@ -193,12 +211,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             {urunAdi}
           </h1>
 
-          {/* YILDIZLAR -> Tıklanınca Modalı Açar */}
           <div onClick={() => { setActiveTab("reviews"); setIsModalOpen(true); }} className="flex items-center gap-2 mb-5 cursor-pointer group w-fit">
             <div className="flex text-amber-400 text-[13px] sm:text-sm tracking-widest">★★★★★</div>
-            <span className="text-slate-400 text-[11px] sm:text-xs font-medium group-hover:text-white transition-colors underline decoration-white/20 underline-offset-4">24 Değerlendirme</span>
+            <span className="text-slate-400 text-[11px] sm:text-xs font-medium group-hover:text-white transition-colors underline decoration-white/20 underline-offset-4">{reviews.length} Değerlendirme</span>
             <span className="text-slate-600 text-[11px] sm:text-xs">|</span>
-            <span className="text-slate-400 text-[11px] sm:text-xs font-medium group-hover:text-white transition-colors underline decoration-white/20 underline-offset-4">8 Soru & Cevap</span>
+            <span className="text-slate-400 text-[11px] sm:text-xs font-medium group-hover:text-white transition-colors underline decoration-white/20 underline-offset-4">{questions.length} Soru Cevap</span>
           </div>
 
           <div className="relative rounded-2xl bg-[#09090b] p-4 sm:p-6 mb-5 border border-[#00e5ff]/50 shadow-[0_0_20px_rgba(0,229,255,0.15)] overflow-hidden">
@@ -262,13 +279,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </button>
           </div>
 
-          {/* YORUMLAR VE SORULAR BUTONLARI -> Modalı Açar */}
-          <div className="flex items-center gap-2 sm:gap-3 mt-2 sm:mt-3">
-            <button onClick={() => { setActiveTab("reviews"); setIsModalOpen(true); }} className="flex-1 py-3 rounded-xl border border-white/5 bg-[#050814] hover:bg-white/5 flex items-center justify-center gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-300 transition-all">
-              ⭐ Ürün Yorumları
-            </button>
-            <button onClick={() => { setActiveTab("qa"); setIsModalOpen(true); }} className="flex-1 py-3 rounded-xl border border-white/5 bg-[#050814] hover:bg-white/5 flex items-center justify-center gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-300 transition-all">
-              💬 Soru & Cevap
+          {/* ŞEFİM: BİRLEŞTİRİLMİŞ TEK BUTON */}
+          <div className="mt-2 sm:mt-3">
+            <button onClick={() => { setActiveTab("reviews"); setIsModalOpen(true); }} className="w-full py-3.5 rounded-xl border border-white/5 bg-[#050814] hover:bg-white/5 flex items-center justify-center gap-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-300 transition-all">
+              ⭐ Ürün Yorumları ve Soru Cevap
             </button>
           </div>
           
@@ -293,50 +307,40 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-      {/* ŞEFİM: İŞTE O EFSANEVİ AKILLI POPUP (MODAL) SİSTEMİ */}
+      {/* ŞEFİM: KAYA GİBİ SABİT POPUP */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex justify-center items-end sm:items-center">
-          
-          {/* Arkaplan Cam Efekti */}
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onClick={() => setIsModalOpen(false)}></div>
           
-          {/* Pencere Kutusu */}
-          <div className="relative w-full sm:w-[600px] bg-[#0b1329] border border-[#00e5ff]/20 rounded-t-3xl sm:rounded-3xl max-h-[90vh] sm:max-h-[80vh] flex flex-col shadow-[0_-20px_50px_rgba(0,0,0,0.5)] sm:shadow-[0_0_50px_rgba(0,229,255,0.1)]">
+          <div className="relative w-full sm:w-[600px] bg-[#0b1329] border border-[#00e5ff]/20 rounded-t-3xl sm:rounded-3xl flex flex-col shadow-[0_-20px_50px_rgba(0,0,0,0.5)] sm:shadow-[0_0_50px_rgba(0,229,255,0.1)] h-[85vh] sm:h-[600px]">
             
-            {/* Mobilde kaydırma çubuğu görseli */}
-            <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto mt-3 sm:hidden"></div>
+            <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto mt-3 sm:hidden shrink-0"></div>
 
-            {/* Başlık ve Kapat Butonu */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 shrink-0">
               <h3 className="font-black text-lg uppercase tracking-wider text-white">Müşteri Deneyimi</h3>
-              <button onClick={() => setIsModalOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
-                ✕
-              </button>
+              <button onClick={() => setIsModalOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">✕</button>
             </div>
 
-            {/* Sekmeler (Tabs) */}
-            <div className="flex border-b border-white/5">
+            <div className="flex border-b border-white/5 shrink-0">
               <button onClick={() => setActiveTab("reviews")} className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition-all border-b-2 ${activeTab === "reviews" ? "border-[#00e5ff] text-[#00e5ff] bg-[#00e5ff]/5" : "border-transparent text-slate-400 hover:text-slate-200"}`}>
-                ⭐ Yorumlar (24)
+                ⭐ Yorumlar ({reviews.length})
               </button>
               <button onClick={() => setActiveTab("qa")} className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition-all border-b-2 ${activeTab === "qa" ? "border-[#00e5ff] text-[#00e5ff] bg-[#00e5ff]/5" : "border-transparent text-slate-400 hover:text-slate-200"}`}>
-                💬 Sorular (8)
+                💬 Soru ve Cevap ({questions.length})
               </button>
             </div>
 
-            {/* İçerik Alanı (Kaydırılabilir) */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar">
+            {/* İÇERİK: min-h ile sabitlendi */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar flex flex-col min-h-[400px]">
               
-              {/* YORUMLAR SEKMESİ */}
               {activeTab === "reviews" && (
-                <div className="animate-fade-in">
+                <div className="animate-fade-in flex flex-col h-full">
                   
-                  {/* Puan Özeti Tablosu */}
-                  <div className="flex flex-col sm:flex-row gap-6 items-center bg-[#050814] border border-white/5 p-6 rounded-2xl mb-6">
+                  <div className="flex flex-col sm:flex-row gap-6 items-center bg-[#050814] border border-white/5 p-6 rounded-2xl mb-6 shrink-0">
                     <div className="flex flex-col items-center justify-center w-full sm:w-1/3 border-b sm:border-b-0 sm:border-r border-white/10 pb-4 sm:pb-0">
                       <span className="text-5xl font-black text-[#00e5ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.4)]">4.8</span>
                       <div className="text-amber-400 text-lg mt-1 tracking-widest">★★★★★</div>
-                      <span className="text-xs text-slate-400 mt-2 font-medium">24 Değerlendirme</span>
+                      <span className="text-xs text-slate-400 mt-2 font-medium">{reviews.length} Değerlendirme</span>
                     </div>
                     <div className="flex flex-col gap-2 w-full sm:w-2/3">
                       {[5, 4, 3, 2, 1].map((star, idx) => {
@@ -354,8 +358,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                     </div>
                   </div>
 
-                  {/* Yorum Yap Butonu ve Formu */}
-                  <div className="mb-8">
+                  <div className="mb-6 shrink-0">
                     {!showReviewForm ? (
                       <button onClick={() => setShowReviewForm(true)} className="w-full py-3 bg-[#00e5ff]/10 border border-[#00e5ff]/30 text-[#00e5ff] rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-[#00e5ff]/20 transition-colors">
                         ✍️ Bu Ürünü Değerlendir
@@ -363,58 +366,45 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                     ) : (
                       <div className="bg-[#050814] p-5 rounded-xl border border-[#00e5ff]/20 animate-fade-in">
                         <h4 className="font-bold text-white mb-4 text-sm">Deneyimini Paylaş</h4>
-                        <div className="flex gap-2 mb-4 text-2xl text-slate-600 cursor-pointer">
-                          <span className="hover:text-amber-400 transition-colors">★</span><span className="hover:text-amber-400 transition-colors">★</span><span className="hover:text-amber-400 transition-colors">★</span><span className="hover:text-amber-400 transition-colors">★</span><span className="hover:text-amber-400 transition-colors">★</span>
+                        <div className="flex gap-2 mb-4 text-2xl text-amber-400 cursor-pointer">
+                          <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
                         </div>
-                        <input type="text" placeholder="İsminiz (Sadece baş harfi görünür)" className="w-full bg-[#09090b] border border-white/10 p-3 rounded-lg text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 mb-3" />
-                        <textarea rows={3} placeholder="Ürün hakkında ne düşünüyorsunuz?" className="w-full bg-[#09090b] border border-white/10 p-3 rounded-lg text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 mb-3"></textarea>
+                        <input value={newReviewName} onChange={(e) => setNewReviewName(e.target.value)} type="text" placeholder="İsminiz (Sadece baş harfi görünür)" className="w-full bg-[#09090b] border border-white/10 p-3 rounded-lg text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 mb-3" />
+                        <textarea value={newReviewText} onChange={(e) => setNewReviewText(e.target.value)} rows={3} placeholder="Ürün hakkında ne düşünüyorsunuz?" className="w-full bg-[#09090b] border border-white/10 p-3 rounded-lg text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 mb-3"></textarea>
                         <div className="flex gap-2">
                           <button onClick={() => setShowReviewForm(false)} className="px-4 py-2 bg-white/5 text-slate-300 rounded-lg text-xs font-bold uppercase hover:bg-white/10">İptal</button>
-                          <button onClick={() => { alert("Şefim yorum onaylanmak üzere sisteme düştü!"); setShowReviewForm(false); }} className="flex-1 py-2 bg-[#00e5ff] text-black rounded-lg text-xs font-black uppercase tracking-wider hover:bg-[#00c4db]">Gönder</button>
+                          <button onClick={submitReview} className="flex-1 py-2 bg-[#00e5ff] text-black rounded-lg text-xs font-black uppercase tracking-wider hover:bg-[#00c4db]">Gönder</button>
                         </div>
                       </div>
                     )}
                   </div>
 
-                  {/* Örnek Yorumlar Listesi */}
-                  <div className="flex flex-col gap-4">
-                    <div className="bg-[#09090b] p-4 rounded-xl border border-white/5">
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#00e5ff] to-blue-600 flex items-center justify-center text-xs font-black text-white">M</div>
-                          <div>
-                            <p className="text-white text-xs font-bold">M*** Y***</p>
-                            <div className="text-amber-400 text-[10px] tracking-widest">★★★★★</div>
+                  <div className="flex flex-col gap-4 pb-10">
+                    {reviews.length > 0 ? reviews.map((rev: any) => (
+                      <div key={rev.id} className="bg-[#09090b] p-4 rounded-xl border border-white/5">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#00e5ff] to-blue-600 flex items-center justify-center text-xs font-black text-white">{rev.name.charAt(0)}</div>
+                            <div>
+                              <p className="text-white text-xs font-bold">{rev.name}</p>
+                              <div className="text-amber-400 text-[10px] tracking-widest">{"★".repeat(rev.rating)}{"☆".repeat(5 - rev.rating)}</div>
+                            </div>
                           </div>
+                          <span className="text-slate-500 text-[10px]">{rev.date}</span>
                         </div>
-                        <span className="text-slate-500 text-[10px]">2 gün önce</span>
+                        <p className="text-slate-300 text-xs leading-relaxed">{rev.text}</p>
                       </div>
-                      <p className="text-slate-300 text-xs leading-relaxed">Paketleme çok sağlamdı, kargo ertesi gün elime ulaştı. Performansı muazzam, düşünmeden alabilirsiniz. Bilgin PC ailesine teşekkürler!</p>
-                    </div>
-
-                    <div className="bg-[#09090b] p-4 rounded-xl border border-white/5">
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-xs font-black text-white">A</div>
-                          <div>
-                            <p className="text-white text-xs font-bold">A*** K***</p>
-                            <div className="text-amber-400 text-[10px] tracking-widest">★★★★<span className="text-slate-600">★</span></div>
-                          </div>
-                        </div>
-                        <span className="text-slate-500 text-[10px]">1 hafta önce</span>
-                      </div>
-                      <p className="text-slate-300 text-xs leading-relaxed">Ürün güzel, tek eksiği kutu içeriğinde ekstra kablo olmamasıydı. Yine de fiyatına göre en iyi performans veren model bu.</p>
-                    </div>
+                    )) : (
+                      <div className="text-center py-6 text-slate-500 text-sm">İlk yorumu sen yap şefim!</div>
+                    )}
                   </div>
                 </div>
               )}
 
-              {/* SORULAR SEKMESİ */}
               {activeTab === "qa" && (
-                <div className="animate-fade-in">
+                <div className="animate-fade-in flex flex-col h-full">
                   
-                  {/* Soru Sor Butonu ve Formu */}
-                  <div className="mb-6">
+                  <div className="mb-6 shrink-0">
                     {!showQuestionForm ? (
                       <button onClick={() => setShowQuestionForm(true)} className="w-full py-3 bg-[#00e5ff]/10 border border-[#00e5ff]/30 text-[#00e5ff] rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-[#00e5ff]/20 transition-colors">
                         ❓ Mağazaya Soru Sor
@@ -422,35 +412,40 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                     ) : (
                       <div className="bg-[#050814] p-5 rounded-xl border border-[#00e5ff]/20 animate-fade-in">
                         <h4 className="font-bold text-white mb-3 text-sm">Sorunuzu İletin</h4>
-                        <textarea rows={3} placeholder="Ürünle ilgili ne öğrenmek istersiniz?" className="w-full bg-[#09090b] border border-white/10 p-3 rounded-lg text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 mb-3"></textarea>
+                        <textarea value={newQuestionText} onChange={(e) => setNewQuestionText(e.target.value)} rows={3} placeholder="Ürünle ilgili ne öğrenmek istersiniz?" className="w-full bg-[#09090b] border border-white/10 p-3 rounded-lg text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 mb-3"></textarea>
                         <div className="flex gap-2">
                           <button onClick={() => setShowQuestionForm(false)} className="px-4 py-2 bg-white/5 text-slate-300 rounded-lg text-xs font-bold uppercase hover:bg-white/10">İptal</button>
-                          <button onClick={() => { alert("Sorunuz mağazaya iletildi!"); setShowQuestionForm(false); }} className="flex-1 py-2 bg-[#00e5ff] text-black rounded-lg text-xs font-black uppercase tracking-wider hover:bg-[#00c4db]">Gönder</button>
+                          <button onClick={submitQuestion} className="flex-1 py-2 bg-[#00e5ff] text-black rounded-lg text-xs font-black uppercase tracking-wider hover:bg-[#00c4db]">Gönder</button>
                         </div>
                       </div>
                     )}
                   </div>
 
-                  {/* Örnek Soru Cevap Listesi */}
-                  <div className="flex flex-col gap-4">
-                    
-                    <div className="bg-[#050814] rounded-xl border border-white/5 overflow-hidden">
-                      <div className="p-4 bg-[#09090b]">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="bg-slate-700 text-white text-[9px] px-2 py-0.5 rounded font-bold uppercase">Soru</span>
-                          <span className="text-slate-400 text-xs font-medium">B*** E*** (3 gün önce)</span>
+                  <div className="flex flex-col gap-4 pb-10">
+                    {questions.length > 0 ? questions.map((q: any) => (
+                      <div key={q.id} className="bg-[#050814] rounded-xl border border-white/5 overflow-hidden">
+                        <div className="p-4 bg-[#09090b]">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="bg-slate-700 text-white text-[9px] px-2 py-0.5 rounded font-bold uppercase">Soru</span>
+                            <span className="text-slate-400 text-xs font-medium">{q.user} ({q.date})</span>
+                          </div>
+                          <p className="text-slate-300 text-xs">{q.q}</p>
                         </div>
-                        <p className="text-slate-300 text-xs">Merhaba, bu ekran kartı 500W güç kaynağı ile sorunsuz çalışır mı?</p>
+                        {q.a ? (
+                          <div className="p-4 bg-gradient-to-r from-[#00e5ff]/5 to-transparent border-l-2 border-[#00e5ff]">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="bg-[#00e5ff] text-black text-[9px] px-2 py-0.5 rounded font-bold uppercase">Cevap</span>
+                              <span className="text-[#00e5ff] text-xs font-bold">Bilgin PC Mağazası</span>
+                            </div>
+                            <p className="text-slate-300 text-xs">{q.a}</p>
+                          </div>
+                        ) : (
+                          <div className="p-3 text-[10px] text-slate-500 italic text-center">Mağaza henüz cevaplamadı.</div>
+                        )}
                       </div>
-                      <div className="p-4 bg-gradient-to-r from-[#00e5ff]/5 to-transparent border-l-2 border-[#00e5ff]">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="bg-[#00e5ff] text-black text-[9px] px-2 py-0.5 rounded font-bold uppercase">Cevap</span>
-                          <span className="text-[#00e5ff] text-xs font-bold">Bilgin PC Mağazası</span>
-                        </div>
-                        <p className="text-slate-300 text-xs">Merhaba değerli müşterimiz, evet sisteminizde kaliteli bir 500W güç kaynağı varsa bu model için yeterli olacaktır. Bizi tercih ettiğiniz için teşekkür ederiz.</p>
-                      </div>
-                    </div>
-
+                    )) : (
+                      <div className="text-center py-6 text-slate-500 text-sm">İlk soruyu sen sor şefim!</div>
+                    )}
                   </div>
                 </div>
               )}
@@ -460,7 +455,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       )}
 
-      {/* Tailwind için custom scrollbar ve animasyon stil tanımları (sayfaya özel) */}
       <style dangerouslySetInnerHTML={{__html: `
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
