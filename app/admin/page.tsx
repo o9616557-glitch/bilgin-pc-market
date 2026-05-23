@@ -16,7 +16,7 @@ export default function AdminPaneli() {
   const [duzenlenenUrun, setDuzenlenenUrun] = useState<any | null>(null);
   const [yeniUrunModu, setYeniUrunModu] = useState(false);
 
-  // Form Hafızası (Ekleme/Düzenleme İçin)
+  // Form Hafızası
   const [formIsim, setFormIsim] = useState("");
   const [formFiyat, setFormFiyat] = useState("");
   const [formStok, setFormStok] = useState("Stokta Var");
@@ -58,9 +58,9 @@ export default function AdminPaneli() {
     setGirisYapildi(false);
   };
 
-  // ==========================================
+  // ==============================
   // SİPARİŞ FONKSİYONLARI
-  // ==========================================
+  // ==============================
   const siparisleriGetir = async () => {
     try {
       const res = await fetch(`/api/admin/siparisler?v=${Date.now()}`, { 
@@ -110,9 +110,9 @@ export default function AdminPaneli() {
     } catch (e) { alert("Hata oluştu."); }
   };
 
-  // ==========================================
+  // ==============================
   // ÜRÜN FONKSİYONLARI
-  // ==========================================
+  // ==============================
   const urunleriGetir = async () => {
     try {
       const res = await fetch(`/api/admin/products?v=${Date.now()}`, {
@@ -163,8 +163,8 @@ export default function AdminPaneli() {
 
   const urunDuzenleModunuAc = (urun: any) => {
     setDuzenlenenUrun(urun);
-    setFormIsim(urun.isim);
-    setFormFiyat(urun.fiyat.toString());
+    setFormIsim(urun.isim || urun.name || "");
+    setFormFiyat(urun.fiyat ? urun.fiyat.toString() : urun.price ? urun.price.toString() : "0");
     setFormStok(urun.stokDurumu || "Stokta Var");
     setFormResim(urun.resim || "");
     setFormKategori(urun.kategori || "Bilgisayar");
@@ -235,7 +235,7 @@ export default function AdminPaneli() {
         </div>
       )}
 
-      {/* ÜRÜN EKLEME / DÜZENLEME AÇILIR PANELİ (MODAL) */}
+      {/* ÜRÜN EKLEME / DÜZENLEME MODAL */}
       {yeniUrunModu && (
         <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0, 0, 0, 0.85)", zIndex: 9999, display: "flex", justifyContent: "center", alignItems: "center", backdropFilter: "blur(5px)" }}>
           <form onSubmit={urunKaydet} style={{ background: "#121214", border: "1px solid #00e5ff", borderRadius: "16px", padding: "30px", maxWidth: "500px", width: "100%", display: "flex", flexDirection: "column", gap: "15px" }}>
@@ -282,7 +282,7 @@ export default function AdminPaneli() {
         </div>
       )}
 
-      {/* BAŞLIK VE ÇIKIŞ BUTONLARI */}
+      {/* ÜST BAŞLIK */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px", flexWrap: "wrap", gap: "15px" }}>
         <h1 style={{ color: "#fff", fontSize: "2rem", fontWeight: "900", borderLeft: "6px solid #00e5ff", paddingLeft: "15px" }}>
           PATRON <span style={{ color: "#00e5ff" }}>PANELİ</span>
@@ -290,7 +290,7 @@ export default function AdminPaneli() {
         <button onClick={cikisYap} style={{ background: "rgba(239, 68, 68, 0.1)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.3)", padding: "10px 20px", borderRadius: "8px", cursor: "pointer", fontWeight: "700" }}>Güvenli Çıkış</button>
       </div>
 
-      {/* ŞEFİM: İŞTE O STRATEJİK SEKME MENÜMÜZ! */}
+      {/* SEKMELER */}
       <div style={{ display: "flex", gap: "15px", marginBottom: "30px", borderBottom: "1px solid #27272a", paddingBottom: "15px" }}>
         <button 
           onClick={() => setAktifSekme("siparisler")}
@@ -310,9 +310,7 @@ export default function AdminPaneli() {
         <div style={{ textAlign: "center", padding: "50px", color: "#00e5ff", fontWeight: "900" }}>Veriler Çekiliyor Patron...</div>
       ) : aktifSekme === "siparisler" ? (
         
-        // ==========================================
-        // SİPARİŞLER SEKMESİ GÖRÜNÜMÜ
-        // ==========================================
+        // SİPARİŞLER SEKMESİ
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           {siparisler.map((siparis) => (
             <div key={siparis._id} style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px", display: "flex", flexDirection: "column", gap: "20px" }}>
@@ -349,7 +347,7 @@ export default function AdminPaneli() {
                   <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "5px" }}>Ödeme Detayı</p>
                   <p style={{ color: "#fff", fontSize: "0.9rem" }}>
                     Yöntem: <strong>{siparis.odemeYontemi === "kart" ? "Kredi Kartı / Iyzico" : "Havale / EFT"}</strong><br />
-                    Tutar: <strong style={{ color: "#00e5ff", fontSize: "1.1rem" }}>{((siparis.toplamTutar) || (siparis.Tutar) || 0).toLocaleString()} TL</strong>
+                    Tutar: <strong style={{ color: "#00e5ff", fontSize: "1.1rem" }}>{Number((siparis.toplamTutar) || (siparis.Tutar) || 0).toLocaleString("tr-TR")} TL</strong>
                   </p>
                 </div>
                 <div>
@@ -375,9 +373,7 @@ export default function AdminPaneli() {
         </div>
       ) : (
         
-        // ==========================================
-        // ÜRÜNLER SEKMESİ GÖRÜNÜMÜ
-        // ==========================================
+        // ÜRÜNLER SEKMESİ
         <div>
           <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "20px" }}>
             <button onClick={yeniUrunModunuAc} style={{ background: "#00e5ff", color: "#000", border: "none", padding: "12px 24px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", fontSize: "0.95rem" }}>
@@ -386,15 +382,21 @@ export default function AdminPaneli() {
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "20px" }}>
-            {urunler.map((urun) => (
-              <div key={urun._id} style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "20px", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "15px" }}>
+            {urunler.map((urun, index) => (
+              <div key={urun._id || index} style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "20px", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "15px" }}>
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px" }}>
                     <span style={{ background: "#27272a", color: "#a1a1aa", fontSize: "0.7rem", padding: "4px 8px", borderRadius: "4px", textTransform: "uppercase" }}>{urun.kategori || "Genel"}</span>
                     <span style={{ color: urun.stokDurumu === "Tükendi" ? "#ef4444" : "#10b981", fontWeight: "800", fontSize: "0.8rem" }}>● {urun.stokDurumu || "Stokta Var"}</span>
                   </div>
-                  <h3 style={{ color: "#fff", fontSize: "1.05rem", fontWeight: "700", lineHeight: "1.4", margin: "5px 0" }}>{urun.isim}</h3>
-                  <p style={{ color: "#00e5ff", fontSize: "1.3rem", fontWeight: "900", margin: "10px 0 0 0" }}>{urun.fiyat.toLocaleString("tr-TR")} TL</p>
+                  
+                  {/* ŞEFİM: HATA VEREN YER İÇİN ÇELİK YELEKLERİ GİYDİRDİK! */}
+                  <h3 style={{ color: "#fff", fontSize: "1.05rem", fontWeight: "700", lineHeight: "1.4", margin: "5px 0" }}>
+                    {urun.isim || urun.name || "İsimsiz Ürün (Test)"}
+                  </h3>
+                  <p style={{ color: "#00e5ff", fontSize: "1.3rem", fontWeight: "900", margin: "10px 0 0 0" }}>
+                    {Number(urun.fiyat || urun.price || urun.Fiyat || 0).toLocaleString("tr-TR")} TL
+                  </p>
                 </div>
 
                 <div style={{ display: "flex", gap: "10px", borderTop: "1px solid #27272a", paddingTop: "15px", marginTop: "5px" }}>
