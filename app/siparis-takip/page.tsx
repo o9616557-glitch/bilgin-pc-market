@@ -48,25 +48,39 @@ function TakipIcerik() {
     sorgula(siparisKodu);
   };
 
-  // ŞEFİM: Hangi adımda olduğumuzu hesaplayan akıllı sistem!
   const getAktifAdim = (durum: string) => {
-    if (durum.includes("İptal")) return -1; // İptal edildiyse çubuğu kırma
+    if (durum.includes("İptal")) return -1;
     if (durum.includes("Tamamlandı")) return 3;
     if (durum.includes("Kargo")) return 2;
     if (durum.includes("Hazırlanıyor") || durum.includes("Ödendi") || durum.includes("Başarılı")) return 1;
-    return 0; // Bekliyor veya yeni sipariş
+    return 0;
   };
 
   const adimlar = ["Sipariş Alındı", "Hazırlanıyor", "Kargoda", "Teslim Edildi"];
 
   return (
     <div style={{ maxWidth: "600px", margin: "40px auto", padding: "0 15px", boxSizing: "border-box" }}>
+      {/* ŞEFİM: CSS Spinner (Animasyon) İçin Küçük Bir Stil Eklemesi */}
+      <style>{`
+        @keyframes spinner {
+          to {transform: rotate(360deg);}
+        }
+        .loading-dot {
+          width: 20px;
+          height: 20px;
+          border: 3px solid rgba(0, 229, 255, 0.3);
+          border-radius: 50%;
+          border-top-color: #00e5ff;
+          animation: spinner .6s linear infinite;
+        }
+      `}</style>
+
       <h1 style={{ color: "#fff", fontSize: "1.8rem", fontWeight: "900", marginBottom: "25px", borderLeft: "5px solid #00e5ff", paddingLeft: "12px" }}>
         SİPARİŞ <span style={{ color: "#00e5ff" }}>TAKİP</span>
       </h1>
 
       <div style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "14px", padding: "20px", marginBottom: "20px", boxSizing: "border-box" }}>
-        <form onSubmit={handleSorgula} style={{ display: "flex", gap: "10px" }}>
+        <form onSubmit={handleSorgula} style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <input
             type="text"
             value={siparisKodu}
@@ -78,9 +92,15 @@ function TakipIcerik() {
           <button
             type="submit"
             disabled={yukleniyor}
-            style={{ background: "#00e5ff", color: "#000", border: "none", borderRadius: "8px", padding: "0 20px", fontWeight: "900", cursor: yukleniyor ? "not-allowed" : "pointer", fontSize: "0.95rem" }}
+            style={{ 
+              background: "#00e5ff", color: "#000", border: "none", borderRadius: "8px", 
+              height: "45px", minWidth: "120px", fontWeight: "900", 
+              cursor: yukleniyor ? "not-allowed" : "pointer", fontSize: "0.95rem",
+              display: "flex", justifyContent: "center", alignItems: "center"
+            }}
           >
-            {yukleniyor ? "..." : "Sorgula"}
+            {/* ŞEFİM: İşte o dört nokta yerine gelen profesyonel yükleme animasyonu! */}
+            {yukleniyor ? <div className="loading-dot"></div> : "Sorgula"}
           </button>
         </form>
         {hata && <div style={{ color: "#ef4444", marginTop: "12px", fontWeight: "700", fontSize: "0.85rem" }}>❌ {hata}</div>}
@@ -96,31 +116,20 @@ function TakipIcerik() {
             </div>
           </div>
 
-          {/* ŞEFİM: İŞTE O EFSANE İLERLEME ÇUBUĞU (PROGRESS BAR) */}
           <div style={{ marginBottom: "35px" }}>
             {sonuc.durum.includes("İptal") ? (
-              // ŞEFİM: İşte o korkutucu kırmızılığı sarıya/turuncuya çevirdik!
+              /* ŞEFİM: İPTAL MESAJI - ARTIK DAHA VAKUR VE GRİ TONLARDA */
               <div style={{ 
-                textAlign: "center", 
-                color: "#f59e0b", // Agresif kırmızı yerine yumuşak sarı/turuncu
-                fontWeight: "800", 
-                fontSize: "1rem", 
-                padding: "18px", 
-                background: "rgba(245, 158, 11, 0.05)", // Arka planı da sarımtırak yaptık
-                borderRadius: "10px", 
-                border: "1px solid rgba(245, 158, 11, 0.2)" // Kenarlığı da sarımtırak yaptık
+                textAlign: "center", color: "#94a3b8", fontWeight: "800", fontSize: "1rem", 
+                padding: "18px", background: "rgba(148, 163, 184, 0.05)", 
+                borderRadius: "10px", border: "1px solid rgba(148, 163, 184, 0.2)" 
               }}>
-                🚫 Bu sipariş iptal edilmiştir.
+                ⚪ Bu sipariş iptal edilmiştir.
               </div>
             ) : (
               <div style={{ position: "relative", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                {/* Arka plan sönük çizgi */}
                 <div style={{ position: "absolute", top: "16px", left: "10%", right: "10%", height: "4px", background: "#27272a", zIndex: 1, borderRadius: "2px" }}></div>
-                
-                {/* Yanan (Dolan) neon mavi çizgi */}
                 <div style={{ position: "absolute", top: "16px", left: "10%", width: `${(getAktifAdim(sonuc.durum) / 3) * 80}%`, height: "4px", background: "#00e5ff", zIndex: 2, borderRadius: "2px", transition: "width 0.6s ease-in-out" }}></div>
-                
-                {/* Adım Yuvarlakları */}
                 {adimlar.map((adim, index) => {
                   const aktifMi = index <= getAktifAdim(sonuc.durum);
                   return (
@@ -146,13 +155,18 @@ function TakipIcerik() {
             )}
           </div>
 
-          {/* ŞEFİN ÖZEL MESAJI */}
+          {/* ŞEFİM: MAĞAZA MESAJI - ARTIK HAVALI NEON MAVİ (CYAN) TONLARINDA */}
           {sonuc.musteriMesaji && (
-            <div style={{ background: "rgba(245, 158, 11, 0.1)", border: "1px solid rgba(245, 158, 11, 0.3)", borderRadius: "10px", padding: "15px", marginBottom: "25px" }}>
-              <h3 style={{ color: "#f59e0b", fontSize: "0.85rem", textTransform: "uppercase", marginBottom: "5px", fontWeight: "800", display: "flex", alignItems: "center", gap: "5px" }}>
-                💬 Mağazadan Mesajınız Var
+            <div style={{ 
+              background: "rgba(0, 229, 255, 0.05)", 
+              border: "1px solid rgba(0, 229, 255, 0.2)", 
+              borderRadius: "10px", padding: "15px", marginBottom: "25px",
+              boxShadow: "0 4px 15px rgba(0,0,0,0.2)"
+            }}>
+              <h3 style={{ color: "#00e5ff", fontSize: "0.85rem", textTransform: "uppercase", marginBottom: "5px", fontWeight: "800", display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{fontSize: "1.2rem"}}>💬</span> Mağazadan Mesajınız Var
               </h3>
-              <p style={{ color: "#fff", fontSize: "0.95rem", lineHeight: "1.5", fontStyle: "italic" }}>
+              <p style={{ color: "#fff", fontSize: "0.95rem", lineHeight: "1.5", fontStyle: "italic", paddingLeft: "5px" }}>
                 "{sonuc.musteriMesaji}"
               </p>
             </div>
