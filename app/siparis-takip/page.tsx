@@ -48,13 +48,16 @@ function TakipIcerik() {
     sorgula(siparisKodu);
   };
 
-  const durumRengi = (durum: string) => {
-    if (durum.includes("Ödendi") || durum.includes("Başarılı")) return "#10b981";
-    if (durum.includes("Bekliyor")) return "#f59e0b";
-    if (durum.includes("Kargo")) return "#00e5ff";
-    if (durum.includes("İptal")) return "#ef4444";
-    return "#a1a1aa";
+  // ŞEFİM: Hangi adımda olduğumuzu hesaplayan akıllı sistem!
+  const getAktifAdim = (durum: string) => {
+    if (durum.includes("İptal")) return -1; // İptal edildiyse çubuğu kırma
+    if (durum.includes("Tamamlandı")) return 3;
+    if (durum.includes("Kargo")) return 2;
+    if (durum.includes("Hazırlanıyor") || durum.includes("Ödendi") || durum.includes("Başarılı")) return 1;
+    return 0; // Bekliyor veya yeni sipariş
   };
+
+  const adimlar = ["Sipariş Alındı", "Hazırlanıyor", "Kargoda", "Teslim Edildi"];
 
   return (
     <div style={{ maxWidth: "600px", margin: "40px auto", padding: "0 15px", boxSizing: "border-box" }}>
@@ -86,19 +89,56 @@ function TakipIcerik() {
       {sonuc && (
         <div style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "14px", padding: "20px", marginBottom: "40px", boxSizing: "border-box" }}>
           
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #27272a", paddingBottom: "15px", marginBottom: "15px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #27272a", paddingBottom: "15px", marginBottom: "25px" }}>
             <div>
               <h2 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: "900" }}>{sonuc.siparisKodu}</h2>
               <p style={{ color: "#a1a1aa", fontSize: "0.75rem", marginTop: "3px" }}>{new Date(sonuc.tarih).toLocaleDateString("tr-TR")}</p>
             </div>
-            <div style={{ background: "rgba(255,255,255,0.02)", padding: "5px 12px", borderRadius: "8px", border: `1px solid ${durumRengi(sonuc.durum)}` }}>
-              <span style={{ color: durumRengi(sonuc.durum), fontWeight: "900", fontSize: "0.85rem" }}>{sonuc.durum}</span>
-            </div>
           </div>
 
-          {/* ŞEFİM: PATRONUN ÖZEL MESAJI BURADA ÇIKACAK! */}
+          {/* ŞEFİM: İŞTE O EFSANE İLERLEME ÇUBUĞU (PROGRESS BAR) */}
+          <div style={{ marginBottom: "35px" }}>
+            {sonuc.durum.includes("İptal") ? (
+              <div style={{ textAlign: "center", color: "#ef4444", fontWeight: "900", fontSize: "1.1rem", padding: "20px", background: "rgba(239, 68, 68, 0.1)", borderRadius: "10px", border: "1px solid rgba(239, 68, 68, 0.3)" }}>
+                ❌ BU SİPARİŞ İPTAL EDİLMİŞTİR
+              </div>
+            ) : (
+              <div style={{ position: "relative", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                {/* Arka plan sönük çizgi */}
+                <div style={{ position: "absolute", top: "16px", left: "10%", right: "10%", height: "4px", background: "#27272a", zIndex: 1, borderRadius: "2px" }}></div>
+                
+                {/* Yanan (Dolan) neon mavi çizgi */}
+                <div style={{ position: "absolute", top: "16px", left: "10%", width: `${(getAktifAdim(sonuc.durum) / 3) * 80}%`, height: "4px", background: "#00e5ff", zIndex: 2, borderRadius: "2px", transition: "width 0.6s ease-in-out" }}></div>
+                
+                {/* Adım Yuvarlakları */}
+                {adimlar.map((adim, index) => {
+                  const aktifMi = index <= getAktifAdim(sonuc.durum);
+                  return (
+                    <div key={index} style={{ position: "relative", zIndex: 3, display: "flex", flexDirection: "column", alignItems: "center", width: "25%", gap: "10px" }}>
+                      <div style={{ 
+                        width: "36px", height: "36px", borderRadius: "50%", 
+                        background: aktifMi ? "#00e5ff" : "#121214", 
+                        border: `4px solid ${aktifMi ? "#121214" : "#27272a"}`,
+                        boxShadow: aktifMi ? "0 0 15px rgba(0, 229, 255, 0.4)" : "none",
+                        display: "flex", justifyContent: "center", alignItems: "center",
+                        color: aktifMi ? "#000" : "#a1a1aa", fontWeight: "900", fontSize: "0.9rem",
+                        transition: "all 0.4s ease"
+                      }}>
+                        {aktifMi ? "✓" : index + 1}
+                      </div>
+                      <span style={{ color: aktifMi ? "#fff" : "#a1a1aa", fontSize: "0.7rem", fontWeight: aktifMi ? "800" : "600", textAlign: "center", textTransform: "uppercase" }}>
+                        {adim}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* ŞEFİN ÖZEL MESAJI */}
           {sonuc.musteriMesaji && (
-            <div style={{ background: "rgba(245, 158, 11, 0.1)", border: "1px solid rgba(245, 158, 11, 0.3)", borderRadius: "10px", padding: "15px", marginBottom: "20px" }}>
+            <div style={{ background: "rgba(245, 158, 11, 0.1)", border: "1px solid rgba(245, 158, 11, 0.3)", borderRadius: "10px", padding: "15px", marginBottom: "25px" }}>
               <h3 style={{ color: "#f59e0b", fontSize: "0.85rem", textTransform: "uppercase", marginBottom: "5px", fontWeight: "800", display: "flex", alignItems: "center", gap: "5px" }}>
                 💬 Mağazadan Mesajınız Var
               </h3>
@@ -121,7 +161,7 @@ function TakipIcerik() {
             <div>
               <h3 style={{ color: "#a1a1aa", fontSize: "0.75rem", marginBottom: "6px", textTransform: "uppercase" }}>Ödeme Özeti</h3>
               <p style={{ color: "#fff", fontSize: "0.85rem" }}>
-                Yöntem: {sonuc.odemeYontemi === "kart" ? "Kredi Kartı" : "Havale / EFT"}<br />
+                Yöntem: {sonuc.odemeYontemi === "kart" ? "Kredi Kartı / Iyzico" : "Havale / EFT"}<br />
                 Toplam: <span style={{ color: "#00e5ff", fontWeight: "800" }}>{sonuc.toplamTutar.toLocaleString()} TL</span>
               </p>
             </div>
