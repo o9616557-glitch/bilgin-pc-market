@@ -39,50 +39,43 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    // ŞEFİM: indirimliFiyat ve havaleIndirimi eklendi!
     const { id, isim, fiyat, indirimliFiyat, havaleIndirimi, stokDurumu, stokAdedi, resim, kategori } = body;
 
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
 
+    // ŞEFİM: İşte kurşun geçirmez eşleştirme! 
+    // Eğer indirimli fiyat varsa, ana sitenin kafası karışmasın diye 'price' alanına indirimli fiyatı yazıyoruz.
+    const anaSiteFiyati = indirimliFiyat ? Number(indirimliFiyat) : Number(fiyat);
+
+    const urunVerisi: any = {
+      name: isim,             // Orijinal site için
+      isim: isim,             // Admin paneli için
+      price: anaSiteFiyati,   // Orijinal site güncel fiyatı
+      fiyat: anaSiteFiyati,   // Admin güncel fiyatı
+      regular_price: Number(fiyat), // Üstü çizilecek olan normal fiyat
+      indirimliFiyat: indirimliFiyat ? Number(indirimliFiyat) : null,
+      havaleIndirimi: Number(havaleIndirimi || 0),
+      stokDurumu, 
+      stokAdedi: Number(stokAdedi || 0), 
+      resim, 
+      kategori 
+    };
+
     if (id) {
       await db.collection("products").updateOne(
         { _id: new ObjectId(id) },
-        { 
-          $set: { 
-            isim, 
-            fiyat: Number(fiyat), 
-            indirimliFiyat: indirimliFiyat ? Number(indirimliFiyat) : null, // Boşsa iptal et
-            havaleIndirimi: havaleIndirimi ? Number(havaleIndirimi) : 0,    // Boşsa %0 say
-            stokDurumu, 
-            stokAdedi: Number(stokAdedi || 0), 
-            resim, 
-            kategori 
-          } 
-        }
+        { $set: urunVerisi }
       );
       return NextResponse.json({ success: true, mesaj: "Ürün başarıyla güncellendi!" });
     } else {
       if (!isim || !fiyat) {
-        return NextResponse.json({ error: "İsim ve fiyat alanları zorunludur." }, { status: 400 });
+        return NextResponse.json({ error: "İsim ve fiyat zorunludur." }, { status: 400 });
       }
-      
-      const yeniUrun = {
-        isim,
-        fiyat: Number(fiyat),
-        indirimliFiyat: indirimliFiyat ? Number(indirimliFiyat) : null,
-        havaleIndirimi: havaleIndirimi ? Number(havaleIndirimi) : 0,
-        stokDurumu: stokDurumu || "Stokta Var",
-        stokAdedi: Number(stokAdedi || 10), 
-        resim: resim || "/placeholder.png",
-        kategori: kategori || "Bilgisayar",
-        tarih: new Date()
-      };
-
-      await db.collection("products").insertOne(yeniUrun);
+      urunVerisi.tarih = new Date();
+      await db.collection("products").insertOne(urunVerisi);
       return NextResponse.json({ success: true, mesaj: "Yeni ürün başarıyla eklendi şefim! 🚀" });
     }
-
   } catch (error) {
     return NextResponse.json({ error: "Sistemsel hata oluştu." }, { status: 500 });
   }
