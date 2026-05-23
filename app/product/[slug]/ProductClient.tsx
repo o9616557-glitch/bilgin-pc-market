@@ -15,9 +15,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [isFav, setIsFav] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // ŞEFİM: GERÇEK KOD BURADAN ALINIYOR
+  // ŞEFİM: UPZUN KODU KESTİK. EĞER SKU YOKSA SON 6 HANEYİ ALIR.
   const pId = product?._id?.toString() || product?.id?.toString() || "urun";
-  const gercekKod = product?.sku || pId;
+  const gercekKod = product?.sku || pId.slice(-6).toUpperCase();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -98,10 +98,24 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     } catch (e) {}
   };
 
-  const copyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  // ŞEFİM: İŞTE GERÇEK PAYLAŞIM MOTORU (TELEFONDA WHATSAPP VB. AÇAR)
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: product.isim || product.name || "Bilgin PC Market",
+          text: "Şu efsane ürüne bir bak!",
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.error("Paylaşım iptal edildi", err);
+      }
+    } else {
+      // Bilgisayardaysa veya tarayıcı desteklemiyorsa kopyalar
+      navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   if (!product) return <div className="text-center p-10 text-[#00e5ff] font-bold">Yükleniyor...</div>;
@@ -164,7 +178,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             {indirimVarMi && !tukendiMi && (
               <span className="bg-gradient-to-r from-orange-500 to-red-600 text-white text-xs font-black px-3 py-1 rounded-md uppercase">🔥 %{indirimOrani} İNDİRİM</span>
             )}
-            {/* ŞEFİM: GERÇEK KOD EKLENDİ */}
+            {/* ŞEFİM: KISA GERÇEK KOD BURADA */}
             <span className="bg-white/5 border border-white/10 text-slate-400 text-[10px] font-black px-2 py-1 rounded-md uppercase ml-auto">
               KOD: {gercekKod}
             </span>
@@ -181,18 +195,20 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <span className="text-slate-400 text-[11px] font-bold uppercase tracking-widest block mb-1">Kredi Kartı Tek Çekim</span>
               {indirimVarMi ? (
                 <div className="flex items-center gap-3">
-                  <span className="text-zinc-500 text-sm line-through font-bold">{normalFiyat.toLocaleString("tr-TR")} TL</span>
-                  <span className="text-3xl font-black text-white">{gecerliFiyat.toLocaleString("tr-TR")} TL</span>
+                  <span className="text-zinc-500 text-xs sm:text-sm line-through font-bold">{normalFiyat.toLocaleString("tr-TR")} TL</span>
+                  {/* ŞEFİM: TELEFONDA BİR TIK KÜÇÜLTÜLDÜ (text-2xl) */}
+                  <span className="text-2xl sm:text-3xl font-black text-white">{gecerliFiyat.toLocaleString("tr-TR")} TL</span>
                 </div>
               ) : (
-                <span className="text-3xl font-black text-white">{gecerliFiyat.toLocaleString("tr-TR")} TL</span>
+                <span className="text-2xl sm:text-3xl font-black text-white">{gecerliFiyat.toLocaleString("tr-TR")} TL</span>
               )}
             </div>
 
             <div>
               <span className="text-[#10b981] text-[11px] font-bold uppercase tracking-widest block mb-1">Havale / EFT Fiyatı</span>
               <div className="flex items-center gap-2">
-                <span className="text-3xl font-black text-[#10b981] drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]">{havaleFiyati.toLocaleString("tr-TR")} TL</span>
+                {/* ŞEFİM: TELEFONDA BİR TIK KÜÇÜLTÜLDÜ (text-2xl) */}
+                <span className="text-2xl sm:text-3xl font-black text-[#10b981] drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]">{havaleFiyati.toLocaleString("tr-TR")} TL</span>
                 {havaleYuzdesi > 0 && (
                   <span className="bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] text-[10px] font-bold px-2 py-0.5 rounded uppercase">%{havaleYuzdesi} İndirim</span>
                 )}
@@ -223,15 +239,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               ${tukendiMi ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-[#00e5ff] text-black shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:bg-[#00c4db] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)]'}`}
             >
               <div className="flex items-center gap-3">
-                {/* ŞEFİM: YENİ SEPET (MARKET ARABASI) İKONU */}
                 {!tukendiMi && <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>}
                 <span>{tukendiMi ? "STOK TÜKENDİ" : "SEPETE EKLE"}</span>
               </div>
-              {/* ŞEFİM: BUTONUN İÇİNDE HAVALE FİYATI */}
+              
+              {/* ŞEFİM: BUTON İÇİ HAVALE YAZISI BURADA */}
               {!tukendiMi && (
-                 <span className="bg-black/10 border border-black/10 px-3 py-1 rounded-lg text-base">
-                   {havaleFiyati.toLocaleString("tr-TR")} TL
-                 </span>
+                 <div className="bg-black/10 border border-black/10 px-3 py-1 rounded-lg flex flex-col items-end leading-tight">
+                   <span className="text-[10px] opacity-80 font-bold tracking-widest">HAVALE İLE</span>
+                   <span className="text-base">{havaleFiyati.toLocaleString("tr-TR")} TL</span>
+                 </div>
               )}
             </button>
             {addedSuccess && (
@@ -241,13 +258,19 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             )}
           </div>
 
-          {/* MASAÜSTÜ: PAYLAŞ VE FAVORİ BUTONLARI (Mobilde de ürünün altında kalacak) */}
+          {/* MASAÜSTÜ: PAYLAŞ VE FAVORİ BUTONLARI */}
           <div className="flex items-center gap-3 mt-4 mb-4 sm:mb-0">
             <button onClick={handleToggleFavorite} className={`flex-1 py-3.5 rounded-xl border flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider transition-all ${isFav ? 'bg-red-500/10 border-red-500/30 text-red-500' : 'bg-[#09090b] border-white/10 hover:bg-white/5 text-white'}`}>
               {isFav ? "❤️ Favorilerde" : "🤍 Favoriye Ekle"}
             </button>
-            <button onClick={copyLink} className="flex-1 py-3.5 rounded-xl border border-white/10 bg-[#09090b] hover:bg-white/5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-white transition-all">
-              {copied ? "✅ Kopyalandı" : "🔗 Bağlantıyı Paylaş"}
+            {/* ŞEFİM: PAYLAŞMA MOTORU BURAYA BAĞLANDI */}
+            <button onClick={handleShare} className="flex-1 py-3.5 rounded-xl border border-white/10 bg-[#09090b] hover:bg-white/5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-white transition-all">
+              {copied ? "✅ Kopyalandı" : (
+                <>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                  Paylaş / Kopyala
+                </>
+              )}
             </button>
           </div>
           
@@ -261,19 +284,20 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             type="button" 
             onClick={handleAddToCart} 
             disabled={addingToCart || tukendiMi} 
-            className={`w-full h-14 rounded-xl font-black text-[13px] uppercase tracking-widest flex items-center justify-between px-4
+            className={`w-full h-14 rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-between px-4
             ${tukendiMi ? 'bg-zinc-800 text-zinc-600' : 'bg-[#00e5ff] text-black shadow-[0_0_20px_rgba(0,229,255,0.3)]'}`}
           >
             <div className="flex items-center gap-2">
-              {/* ŞEFİM: YENİ SEPET (MARKET ARABASI) İKONU (MOBİL) */}
               {!tukendiMi && <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>}
               <span>{tukendiMi ? "STOK TÜKENDİ" : "SEPETE EKLE"}</span>
             </div>
-            {/* ŞEFİM: BUTONUN İÇİNDE HAVALE FİYATI (MOBİL) */}
+            
+            {/* ŞEFİM: BUTON İÇİ HAVALE YAZISI (MOBİL) */}
             {!tukendiMi && (
-               <span className="bg-black/10 border border-black/10 px-2 py-1 rounded-md text-[11px]">
-                 {havaleFiyati.toLocaleString("tr-TR")} TL
-               </span>
+               <div className="bg-black/10 border border-black/10 px-2 py-1 rounded-md flex flex-col items-end leading-none">
+                 <span className="text-[8px] opacity-80 font-bold tracking-widest mb-0.5">HAVALE</span>
+                 <span className="text-[11px]">{havaleFiyati.toLocaleString("tr-TR")} TL</span>
+               </div>
             )}
           </button>
           {addedSuccess && (
