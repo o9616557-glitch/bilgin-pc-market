@@ -1,10 +1,25 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
+import FacebookProvider from "next-auth/providers/facebook";
 import clientPromise from "@/lib/mongodb";
 import bcrypt from "bcryptjs";
 
 const authOptions = {
   providers: [
+    // 1. GOOGLE BAĞLANTI ADAPTÖRÜ
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+    }),
+    
+    // 2. FACEBOOK BAĞLANTI ADAPTÖRÜ
+    FacebookProvider({
+      clientId: process.env.FACEBOOK_CLIENT_ID || "",
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET || "",
+    }),
+
+    // 3. E-POSTA VE ŞİFRE ADAPTÖRÜ
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -12,28 +27,24 @@ const authOptions = {
         password: { label: "Şifre", type: "password" }
       },
       async authorize(credentials) {
-        // 1. Gelen verileri kontrol et
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Lütfen e-posta ve şifrenizi girin.");
         }
 
-        // 2. Veritabanına bağlan ve müşteriyi ara
         const client = await clientPromise;
         const db = client.db("bilginpcmarket");
         const user = await db.collection("users").findOne({ email: credentials.email });
 
         if (!user) {
-          throw new Error("Bu e-posta ile kayıtlı bir müşteri bulunamadı şefim.");
+          throw new Error("Bu e-posta ile kayıtlı bir kullanıcı bulunamadı.");
         }
 
-        // 3. Şifreyi Kripto motoruyla karşılaştır
         const isPasswordMatch = await bcrypt.compare(credentials.password, user.password);
         
         if (!isPasswordMatch) {
           throw new Error("Şifre hatalı, lütfen tekrar deneyin.");
         }
 
-        // 4. Giriş başarılıysa müşteri kimliğini teslim et
         return { 
           id: user._id.toString(), 
           name: user.name, 
@@ -44,11 +55,11 @@ const authOptions = {
   ],
   session: { 
     strategy: "jwt" as const,
-    maxAge: 30 * 24 * 60 * 60, // Müşteri 30 gün boyunca sistemde giriş yapılı kalır
+    maxAge: 30 * 24 * 60 * 60, // 30 Gün açık kalır
   },
-  secret: "BilginPcMarketGizliAnahtar2026", // Şifreleme kalkanı anahtarı
+  secret: process.env.NEXTAUTH_SECRET || "BilginPcMarketGizliAnahtar2026",
   pages: {
-    signIn: "/giris", // Müşteri yetkisiz bir yere girerse buraya postalanır
+    signIn: "/giris",
   }
 };
 
