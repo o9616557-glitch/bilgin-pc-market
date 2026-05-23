@@ -9,7 +9,7 @@ export default function AdminPaneli() {
   const router = useRouter();
   
   // 🚨 BURAYA KENDİ GOOGLE E-POSTA ADRESİNİ YAZMAYI UNUTMA! (Örn: "ozkan@gmail.com")
-  const ADMIN_EMAIL = "BURAYA_KENDİ_GOOGLE_MAİLİNİ_YAZ"; 
+  const ADMIN_EMAIL = "o9616557@gmail.com"; 
 
   useEffect(() => {
     if (status !== "loading") {
