@@ -7,6 +7,9 @@ export default function AdminPaneli() {
   const [aktifSekme, setAktifSekme] = useState<"siparisler" | "urunler">("siparisler");
   const [yukleniyor, setYukleniyor] = useState(true);
 
+  // ŞEFİM: İşte o çirkin uyarıları tarihe gömen Özel Bildirim Hafızamız!
+  const [bildirim, setBildirim] = useState<{tip: "basari" | "hata", mesaj: string} | null>(null);
+
   // Sipariş Devlet Hafızası
   const [siparisler, setSiparisler] = useState<any[]>([]);
   const [silinecekSiparisID, setSilinecekSiparisID] = useState<string | null>(null);
@@ -20,6 +23,7 @@ export default function AdminPaneli() {
   const [formIsim, setFormIsim] = useState("");
   const [formFiyat, setFormFiyat] = useState("");
   const [formStok, setFormStok] = useState("Stokta Var");
+  const [formStokAdedi, setFormStokAdedi] = useState("10"); // OTOMATİK STOK İÇİN YENİ!
   const [formResim, setFormResim] = useState("");
   const [formKategori, setFormKategori] = useState("Bilgisayar");
 
@@ -49,7 +53,7 @@ export default function AdminPaneli() {
       setGirisYapildi(true);
       verileriYukle();
     } else {
-      alert("Hatalı Şifre! Giriş Reddedildi.");
+      setBildirim({tip: "hata", mesaj: "Hatalı Şifre! Giriş Reddedildi."});
     }
   };
 
@@ -64,8 +68,7 @@ export default function AdminPaneli() {
   const siparisleriGetir = async () => {
     try {
       const res = await fetch(`/api/admin/siparisler?v=${Date.now()}`, { 
-        method: "GET",
-        headers: { "x-patron-anahtar": PATRON_SIFRESI }
+        method: "GET", headers: { "x-patron-anahtar": PATRON_SIFRESI }
       });
       const data = await res.json();
       if (data.success) setSiparisler(data.siparisler);
@@ -75,39 +78,40 @@ export default function AdminPaneli() {
   const durumGuncelle = async (id: string, yeniDurum: string) => {
     try {
       const res = await fetch("/api/admin/siparisler", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI },
+        method: "PUT", headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI },
         body: JSON.stringify({ id, yeniDurum })
       });
       if ((await res.json()).success) {
         setSiparisler(siparisler.map(s => s._id === id ? { ...s, durum: yeniDurum } : s));
+        setBildirim({tip: "basari", mesaj: "Sipariş durumu başarıyla güncellendi!"});
       }
-    } catch (e) { alert("Hata oluştu."); }
+    } catch (e) { setBildirim({tip: "hata", mesaj: "Durum güncellenirken bir hata oluştu."}); }
   };
 
   const mesajGuncelle = async (id: string, musteriMesaji: string) => {
     try {
       const res = await fetch("/api/admin/siparisler", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI },
+        method: "PUT", headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI },
         body: JSON.stringify({ id, musteriMesaji })
       });
-      if ((await res.json()).success) alert("Mesaj müşteriye iletildi! 🚀");
-    } catch (e) { alert("Hata oluştu."); }
+      if ((await res.json()).success) {
+        setBildirim({tip: "basari", mesaj: "Mesaj müşterinin takip ekranına iletildi! 🚀"});
+      }
+    } catch (e) { setBildirim({tip: "hata", mesaj: "Mesaj iletilemedi."}); }
   };
 
   const siparisSilmeIslemi = async () => {
     if (!silinecekSiparisID) return;
     try {
       const res = await fetch(`/api/admin/siparisler?id=${silinecekSiparisID}`, {
-        method: "DELETE",
-        headers: { "x-patron-anahtar": PATRON_SIFRESI }
+        method: "DELETE", headers: { "x-patron-anahtar": PATRON_SIFRESI }
       });
       if ((await res.json()).success) {
         setSiparisler(siparisler.filter(s => s._id !== silinecekSiparisID));
         setSilinecekSiparisID(null);
+        setBildirim({tip: "basari", mesaj: "Sipariş sistemden tamamen silindi!"});
       }
-    } catch (e) { alert("Hata oluştu."); }
+    } catch (e) { setBildirim({tip: "hata", mesaj: "Silme işlemi başarısız oldu."}); }
   };
 
   // ==============================
@@ -116,8 +120,7 @@ export default function AdminPaneli() {
   const urunleriGetir = async () => {
     try {
       const res = await fetch(`/api/admin/products?v=${Date.now()}`, {
-        method: "GET",
-        headers: { "x-patron-anahtar": PATRON_SIFRESI }
+        method: "GET", headers: { "x-patron-anahtar": PATRON_SIFRESI }
       });
       const data = await res.json();
       if (data.success) setUrunler(data.urunler);
@@ -131,34 +134,36 @@ export default function AdminPaneli() {
         isim: formIsim,
         fiyat: formFiyat,
         stokDurumu: formStok,
+        stokAdedi: formStokAdedi, // YENİ
         resim: formResim,
         kategori: formKategori
       };
       if (duzenlenenUrun) gonderilecekVeri.id = duzenlenenUrun._id;
 
       const res = await fetch("/api/admin/products", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI },
+        method: "PUT", headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI },
         body: JSON.stringify(gonderilecekVeri)
       });
       
       if ((await res.json()).success) {
-        alert(duzenlenenUrun ? "Ürün başarıyla güncellendi!" : "Yeni ürün eklendi! 🚀");
+        setBildirim({tip: "basari", mesaj: duzenlenenUrun ? "Ürün başarıyla güncellendi!" : "Yeni ürün dükkana eklendi! 🚀"});
         formuKapat();
         urunleriGetir();
       }
-    } catch (e) { alert("Kaydedilirken hata oluştu."); }
+    } catch (e) { setBildirim({tip: "hata", mesaj: "Ürün kaydedilirken hata oluştu."}); }
   };
 
   const urunSilmeIslemi = async (id: string) => {
     if (!window.confirm("Bu ürünü silmek istediğine emin misin şefim? Siteden tamamen kalkacak!")) return;
     try {
       const res = await fetch(`/api/admin/products?id=${id}`, {
-        method: "DELETE",
-        headers: { "x-patron-anahtar": PATRON_SIFRESI }
+        method: "DELETE", headers: { "x-patron-anahtar": PATRON_SIFRESI }
       });
-      if ((await res.json()).success) setUrunler(urunler.filter(u => u._id !== id));
-    } catch (e) { alert("Silinemedi."); }
+      if ((await res.json()).success) {
+        setUrunler(urunler.filter(u => u._id !== id));
+        setBildirim({tip: "basari", mesaj: "Ürün dükkandan kaldırıldı."});
+      }
+    } catch (e) { setBildirim({tip: "hata", mesaj: "Ürün silinemedi."}); }
   };
 
   const urunDuzenleModunuAc = (urun: any) => {
@@ -166,6 +171,7 @@ export default function AdminPaneli() {
     setFormIsim(urun.isim || urun.name || "");
     setFormFiyat(urun.fiyat ? urun.fiyat.toString() : urun.price ? urun.price.toString() : "0");
     setFormStok(urun.stokDurumu || "Stokta Var");
+    setFormStokAdedi(urun.stokAdedi ? urun.stokAdedi.toString() : "10"); // YENİ
     setFormResim(urun.resim || "");
     setFormKategori(urun.kategori || "Bilgisayar");
     setYeniUrunModu(true);
@@ -176,6 +182,7 @@ export default function AdminPaneli() {
     setFormIsim("");
     setFormFiyat("");
     setFormStok("Stokta Var");
+    setFormStokAdedi("10"); // YENİ
     setFormResim("");
     setFormKategori("Bilgisayar");
     setYeniUrunModu(true);
@@ -200,17 +207,20 @@ export default function AdminPaneli() {
   if (!girisYapildi) {
     return (
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh", padding: "20px" }}>
+        
+        {/* ŞEFİM: GİRİŞ EKRANINDA BİLE ÖZEL BİLDİRİMİMİZ ÇALIŞIYOR */}
+        {bildirim && (
+          <div style={{ position: "fixed", top: 20, right: 20, background: "#121214", border: `1px solid ${bildirim.tip === "basari" ? "#00e5ff" : "#ef4444"}`, borderRadius: "10px", padding: "15px 25px", color: "#fff", display: "flex", alignItems: "center", gap: "10px", boxShadow: "0 5px 20px rgba(0,0,0,0.5)", zIndex: 99999 }}>
+            <span style={{ fontSize: "1.2rem" }}>{bildirim.tip === "basari" ? "✅" : "❌"}</span>
+            <span style={{ fontWeight: "700" }}>{bildirim.mesaj}</span>
+            <button onClick={() => setBildirim(null)} style={{ background: "transparent", color: "#a1a1aa", border: "none", cursor: "pointer", marginLeft: "10px", fontSize: "1.2rem" }}>×</button>
+          </div>
+        )}
+
         <form onSubmit={girisYap} style={{ background: "#121214", border: "1px solid #27272a", padding: "40px", borderRadius: "20px", textAlign: "center", maxWidth: "400px", width: "100%" }}>
           <span style={{ fontSize: "3rem", display: "block", marginBottom: "15px" }}>🕵️‍♂️</span>
           <h2 style={{ color: "#fff", marginBottom: "25px", fontWeight: "900" }}>Patron Girişi</h2>
-          <input 
-            type="password" 
-            value={sifre} 
-            onChange={(e) => setSifre(e.target.value)} 
-            placeholder="Şifreyi Girin..." 
-            style={{ width: "100%", padding: "15px", background: "#09090b", border: "1px solid #27272a", borderRadius: "10px", color: "#fff", marginBottom: "20px", outline: "none" }}
-            required
-          />
+          <input type="password" value={sifre} onChange={(e) => setSifre(e.target.value)} placeholder="Şifreyi Girin..." style={{ width: "100%", padding: "15px", background: "#09090b", border: "1px solid #27272a", borderRadius: "10px", color: "#fff", marginBottom: "20px", outline: "none" }} required />
           <button type="submit" style={{ width: "100%", padding: "15px", background: "#00e5ff", color: "#000", border: "none", borderRadius: "10px", fontWeight: "900", cursor: "pointer" }}>Kilidi Aç</button>
         </form>
       </div>
@@ -220,6 +230,22 @@ export default function AdminPaneli() {
   return (
     <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "40px 20px" }}>
       
+      {/* ŞEFİM: İŞTE O EFSANE YENİ ÖZEL BİLDİRİM EKRANIMIZ! (Çirkin Browser Alert'in Katili) */}
+      {bildirim && (
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0, 0, 0, 0.7)", zIndex: 99999, display: "flex", justifyContent: "center", alignItems: "center", backdropFilter: "blur(4px)" }}>
+          <div style={{ background: "#121214", border: `1px solid ${bildirim.tip === "basari" ? "#00e5ff" : "#ef4444"}`, borderRadius: "16px", padding: "30px", maxWidth: "400px", width: "90%", textAlign: "center", boxShadow: `0 10px 40px ${bildirim.tip === "basari" ? "rgba(0, 229, 255, 0.2)" : "rgba(239, 68, 68, 0.2)"}` }}>
+            <div style={{ fontSize: "3rem", marginBottom: "10px" }}>{bildirim.tip === "basari" ? "✅" : "⚠️"}</div>
+            <h3 style={{ color: "#fff", fontWeight: "900", fontSize: "1.4rem", marginBottom: "15px" }}>
+              {bildirim.tip === "basari" ? "İşlem Başarılı" : "Bir Sorun Var"}
+            </h3>
+            <p style={{ color: "#a1a1aa", fontSize: "0.95rem", marginBottom: "25px", lineHeight: "1.5" }}>{bildirim.mesaj}</p>
+            <button onClick={() => setBildirim(null)} style={{ width: "100%", background: bildirim.tip === "basari" ? "#00e5ff" : "#ef4444", color: bildirim.tip === "basari" ? "#000" : "#fff", border: "none", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", fontSize: "1rem" }}>
+              Tamam
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* SİPARİŞ SİLME MODAL */}
       {silinecekSiparisID && (
         <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0, 0, 0, 0.8)", zIndex: 9999, display: "flex", justifyContent: "center", alignItems: "center", backdropFilter: "blur(5px)" }}>
@@ -238,7 +264,7 @@ export default function AdminPaneli() {
       {/* ÜRÜN EKLEME / DÜZENLEME MODAL */}
       {yeniUrunModu && (
         <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0, 0, 0, 0.85)", zIndex: 9999, display: "flex", justifyContent: "center", alignItems: "center", backdropFilter: "blur(5px)" }}>
-          <form onSubmit={urunKaydet} style={{ background: "#121214", border: "1px solid #00e5ff", borderRadius: "16px", padding: "30px", maxWidth: "500px", width: "100%", display: "flex", flexDirection: "column", gap: "15px" }}>
+          <form onSubmit={urunKaydet} style={{ background: "#121214", border: "1px solid #00e5ff", borderRadius: "16px", padding: "30px", maxWidth: "500px", width: "100%", display: "flex", flexDirection: "column", gap: "15px", maxHeight: "90vh", overflowY: "auto" }}>
             <h3 style={{ color: "#fff", fontSize: "1.3rem", fontWeight: "900", borderBottom: "1px solid #27272a", paddingBottom: "10px" }}>
               {duzenlenenUrun ? "⚙️ ÜRÜNÜ DÜZENLE" : "🚀 YENİ ÜRÜN EKLE"}
             </h3>
@@ -254,7 +280,7 @@ export default function AdminPaneli() {
                 <input type="number" value={formFiyat} onChange={(e) => setFormFiyat(e.target.value)} required style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }} />
               </div>
               <div>
-                <label style={{ color: "#a1a1aa", fontSize: "0.8rem", display: "block", marginBottom: "5px" }}>Stok Durumu</label>
+                <label style={{ color: "#a1a1aa", fontSize: "0.8rem", display: "block", marginBottom: "5px" }}>Stok Durumu (Yazı)</label>
                 <select value={formStok} onChange={(e) => setFormStok(e.target.value)} style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }}>
                   <option value="Stokta Var">Stokta Var</option>
                   <option value="Tükendi">Tükendi</option>
@@ -265,13 +291,18 @@ export default function AdminPaneli() {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
               <div>
+                <label style={{ color: "#a1a1aa", fontSize: "0.8rem", display: "block", marginBottom: "5px" }}>Stok Adedi (Sayı) 🔢</label>
+                <input type="number" value={formStokAdedi} onChange={(e) => setFormStokAdedi(e.target.value)} required placeholder="Örn: 10" style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#00e5ff", fontWeight: "900", outline: "none" }} />
+              </div>
+              <div>
                 <label style={{ color: "#a1a1aa", fontSize: "0.8rem", display: "block", marginBottom: "5px" }}>Kategori</label>
                 <input type="text" value={formKategori} onChange={(e) => setFormKategori(e.target.value)} placeholder="Bilgisayar, Ekran Kartı vb." style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }} />
               </div>
-              <div>
-                <label style={{ color: "#a1a1aa", fontSize: "0.8rem", display: "block", marginBottom: "5px" }}>Resim URL Yolu</label>
-                <input type="text" value={formResim} onChange={(e) => setFormResim(e.target.value)} placeholder="/resimler/urun.png" style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }} />
-              </div>
+            </div>
+
+            <div>
+              <label style={{ color: "#a1a1aa", fontSize: "0.8rem", display: "block", marginBottom: "5px" }}>Resim URL Yolu</label>
+              <input type="text" value={formResim} onChange={(e) => setFormResim(e.target.value)} placeholder="/resimler/urun.png" style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }} />
             </div>
 
             <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
@@ -387,15 +418,21 @@ export default function AdminPaneli() {
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px" }}>
                     <span style={{ background: "#27272a", color: "#a1a1aa", fontSize: "0.7rem", padding: "4px 8px", borderRadius: "4px", textTransform: "uppercase" }}>{urun.kategori || "Genel"}</span>
-                    <span style={{ color: urun.stokDurumu === "Tükendi" ? "#ef4444" : "#10b981", fontWeight: "800", fontSize: "0.8rem" }}>● {urun.stokDurumu || "Stokta Var"}</span>
+                    
+                    <div style={{display: "flex", alignItems: "center", gap: "8px"}}>
+                      {/* ŞEFİM: STOK ADEDİ SAYISI BURADA GÖRÜNÜYOR */}
+                      <span style={{ background: "rgba(0, 229, 255, 0.1)", color: "#00e5ff", fontSize: "0.7rem", padding: "4px 8px", borderRadius: "4px", fontWeight: "900" }}>
+                        {urun.stokAdedi || 0} Adet
+                      </span>
+                      <span style={{ color: urun.stokDurumu === "Tükendi" ? "#ef4444" : "#10b981", fontWeight: "800", fontSize: "0.8rem" }}>● {urun.stokDurumu || "Stokta Var"}</span>
+                    </div>
+
                   </div>
-                  
-                  {/* ŞEFİM: HATA VEREN YER İÇİN ÇELİK YELEKLERİ GİYDİRDİK! */}
                   <h3 style={{ color: "#fff", fontSize: "1.05rem", fontWeight: "700", lineHeight: "1.4", margin: "5px 0" }}>
-                    {urun.isim || urun.name || "İsimsiz Ürün (Test)"}
+                    {urun.isim || urun.name || "İsimsiz Ürün"}
                   </h3>
                   <p style={{ color: "#00e5ff", fontSize: "1.3rem", fontWeight: "900", margin: "10px 0 0 0" }}>
-                    {Number(urun.fiyat || urun.price || urun.Fiyat || 0).toLocaleString("tr-TR")} TL
+                    {Number(urun.fiyat || urun.price || 0).toLocaleString("tr-TR")} TL
                   </p>
                 </div>
 

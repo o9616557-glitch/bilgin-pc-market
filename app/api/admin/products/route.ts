@@ -7,7 +7,6 @@ export const revalidate = 0;
 
 const GIZLI_ANAHTAR = "Bilgin123";
 
-// 1. ÜRÜNLERİ GETİRME MOTORU
 export async function GET(request: Request) {
   try {
     const gelenAnahtar = request.headers.get("x-patron-anahtar");
@@ -18,7 +17,6 @@ export async function GET(request: Request) {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
     
-    // Veritabanındaki products (ürünler) klasöründen hepsini çekiyoruz
     const urunler = await db.collection("products").find({}).toArray();
     
     return new NextResponse(JSON.stringify({ success: true, urunler }), {
@@ -30,12 +28,10 @@ export async function GET(request: Request) {
       },
     });
   } catch (error) {
-    console.error("Ürünler çekilirken hata:", error);
     return NextResponse.json({ error: "Ürünler getirilemedi." }, { status: 500 });
   }
 }
 
-// 2. ÜRÜN GÜNCELLEME VE YENİ ÜRÜN EKLEME MOTORU
 export async function PUT(request: Request) {
   try {
     const gelenAnahtar = request.headers.get("x-patron-anahtar");
@@ -44,12 +40,12 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { id, isim, fiyat, stokDurumu, resim, kategori } = body;
+    // ŞEFİM: stokAdedi eklendi!
+    const { id, isim, fiyat, stokDurumu, stokAdedi, resim, kategori } = body;
 
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
 
-    // Eğer ID varsa mevcut ürünü GÜNCELLE
     if (id) {
       await db.collection("products").updateOne(
         { _id: new ObjectId(id) },
@@ -58,15 +54,14 @@ export async function PUT(request: Request) {
             isim, 
             fiyat: Number(fiyat), 
             stokDurumu, 
+            stokAdedi: Number(stokAdedi || 0), // Sayı olarak kaydediyoruz
             resim, 
             kategori 
           } 
         }
       );
       return NextResponse.json({ success: true, mesaj: "Ürün başarıyla güncellendi!" });
-    } 
-    // ID yoksa YENİ ÜRÜN EKLE
-    else {
+    } else {
       if (!isim || !fiyat) {
         return NextResponse.json({ error: "İsim ve fiyat alanları zorunludur." }, { status: 400 });
       }
@@ -75,6 +70,7 @@ export async function PUT(request: Request) {
         isim,
         fiyat: Number(fiyat),
         stokDurumu: stokDurumu || "Stokta Var",
+        stokAdedi: Number(stokAdedi || 10), // Varsayılan 10 adet
         resim: resim || "/placeholder.png",
         kategori: kategori || "Bilgisayar",
         tarih: new Date()
@@ -85,12 +81,10 @@ export async function PUT(request: Request) {
     }
 
   } catch (error) {
-    console.error("Ürün işlem hatası:", error);
     return NextResponse.json({ error: "Sistemsel hata oluştu." }, { status: 500 });
   }
 }
 
-// 3. ÜRÜN SİLME MOTORU
 export async function DELETE(request: Request) {
   try {
     const gelenAnahtar = request.headers.get("x-patron-anahtar");
@@ -101,18 +95,13 @@ export async function DELETE(request: Request) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 
-    if (!id) {
-      return NextResponse.json({ error: "Ürün ID eksik." }, { status: 400 });
-    }
+    if (!id) return NextResponse.json({ error: "Ürün ID eksik." }, { status: 400 });
 
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
-    
     await db.collection("products").deleteOne({ _id: new ObjectId(id) });
-    
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Ürün silinirken hata:", error);
     return NextResponse.json({ error: "Sistem hatası." }, { status: 500 });
   }
 }
