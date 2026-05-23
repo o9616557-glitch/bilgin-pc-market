@@ -10,7 +10,6 @@ export default async function HomePage() {
   try {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
-    // ŞEFİM: Ürünleri kendi MongoDB kasamızdan çekiyoruz
     urunler = await db.collection("products").find({}).toArray();
   } catch (e) {
     console.error("HATA:", e);
@@ -37,14 +36,15 @@ export default async function HomePage() {
             urunler.map((urun: any) => {
               const vitrinResmi = urun.resimler && urun.resimler.length > 0 ? urun.resimler[0] : urun.resim;
               
-              // ŞEFİM: İndirim matematiğini buraya kurduk
               const normalFiyat = Number(urun.regular_price || urun.fiyat || urun.price || 0);
               const gecerliFiyat = Number(urun.indirimliFiyat || urun.price || urun.fiyat || 0);
               const indirimVarMi = normalFiyat > gecerliFiyat;
               const indirimOrani = indirimVarMi ? Math.round(((normalFiyat - gecerliFiyat) / normalFiyat) * 100) : 0;
               
-              // Tükendi mi kontrolü
               const tukendiMi = urun.stokDurumu === "Tükendi" || (urun.stokAdedi !== undefined && urun.stokAdedi <= 0);
+
+              // Havale İndirim Oranını Çekiyoruz
+              const havaleOrani = urun.havaleIndirimi !== undefined ? urun.havaleIndirimi : 5;
 
               return (
                 <Link 
@@ -54,40 +54,52 @@ export default async function HomePage() {
                 >
                   <div style={{ background: "#121214", borderRadius: "20px", border: "1px solid #27272a", padding: "20px", display: "flex", flexDirection: "column", height: "100%", cursor: "pointer", transition: "all 0.3s ease", position: "relative", overflow: "hidden" }}>
                     
-                    {/* ŞEFİM: % İNDİRİM ROZETİ */}
+                    {/* ŞEFİM: Kırmızı yerine Premium Sarı/Turuncu (Amber) İndirim Rozeti! */}
                     {indirimOrani > 0 && !tukendiMi && (
-                      <div style={{ position: "absolute", top: "15px", left: "15px", background: "#ef4444", color: "#fff", padding: "4px 8px", borderRadius: "6px", fontSize: "0.75rem", fontWeight: "900", zIndex: 10, boxShadow: "0 4px 10px rgba(239, 68, 68, 0.4)" }}>
+                      <div style={{ position: "absolute", top: "15px", left: "15px", background: "#f59e0b", color: "#000", padding: "4px 8px", borderRadius: "6px", fontSize: "0.75rem", fontWeight: "900", zIndex: 10, boxShadow: "0 4px 10px rgba(245, 158, 11, 0.4)" }}>
                         %{indirimOrani} İNDİRİM
                       </div>
                     )}
 
+                    {/* ŞEFİM: Kırmızı yerine Sönük Karbon Gri Tükendi Rozeti! */}
                     {tukendiMi && (
-                      <div style={{ position: "absolute", top: "15px", right: "15px", background: "#27272a", color: "#fff", padding: "4px 8px", borderRadius: "6px", fontSize: "0.75rem", fontWeight: "900", zIndex: 10 }}>
+                      <div style={{ position: "absolute", top: "15px", right: "15px", background: "#3f3f46", color: "#fff", padding: "4px 8px", borderRadius: "6px", fontSize: "0.75rem", fontWeight: "900", zIndex: 10 }}>
                         TÜKENDİ
                       </div>
                     )}
 
                     <div style={{ width: "100%", height: "220px", backgroundColor: "#09090b", borderRadius: "14px", border: "1px solid #1f1f22", overflow: "hidden", marginBottom: "16px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                       {vitrinResmi ? (
-                        <img src={vitrinResmi} alt={urun.isim || urun.name} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", filter: tukendiMi ? "grayscale(100%)" : "none", opacity: tukendiMi ? 0.5 : 1 }} />
+                        <img src={vitrinResmi} alt={urun.isim || urun.name} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", filter: tukendiMi ? "grayscale(100%) opacity(50%)" : "none", transition: "0.3s" }} />
                       ) : (
                         <div style={{ color: "#52525b", fontSize: "0.9rem", letterSpacing: "1px" }}>[ GÖRSEL YOK ]</div>
                       )}
                     </div>
 
                     <div style={{ flexGrow: 1, display: "flex", flexDirection: "column", gap: "8px" }}>
-                      <span style={{ color: "#00e5ff", fontSize: "0.7rem", fontWeight: "900", textTransform: "uppercase", letterSpacing: "1px" }}>
-                        {urun.kategori || "Donanım"}
-                      </span>
+                      
+                      {/* ŞEFİM: Kategori ve Havale Rozeti Yan Yana! */}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ color: "#00e5ff", fontSize: "0.7rem", fontWeight: "900", textTransform: "uppercase", letterSpacing: "1px" }}>
+                          {urun.kategori || "Donanım"}
+                        </span>
+                        
+                        {havaleOrani > 0 && !tukendiMi && (
+                          <span style={{ background: "rgba(16, 185, 129, 0.1)", color: "#10b981", fontSize: "0.65rem", padding: "3px 6px", borderRadius: "4px", fontWeight: "900", border: "1px solid rgba(16, 185, 129, 0.2)", letterSpacing: "0.5px" }}>
+                            💳 HAVALE %{havaleOrani}
+                          </span>
+                        )}
+                      </div>
+
                       <h2 style={{ fontSize: "1.1rem", fontWeight: "700", color: "#ffffff", margin: 0, lineHeight: "1.4", minHeight: "50px" }}>
                         {urun.isim || urun.name}
                       </h2>
                       
-                      {/* ŞEFİM: VİTRİNDEKİ FİYAT ŞOVU */}
+                      {/* ŞEFİM: Kırmızı eski fiyat yerine Sönük Gri (Zinc) Eski Fiyat! */}
                       <div style={{ marginTop: "10px" }}>
                         {indirimVarMi ? (
                           <div style={{ display: "flex", flexDirection: "column" }}>
-                            <span style={{ color: "#ef4444", fontSize: "0.9rem", textDecoration: "line-through", opacity: 0.7 }}>
+                            <span style={{ color: "#71717a", fontSize: "0.9rem", textDecoration: "line-through", fontWeight: "600" }}>
                               {normalFiyat.toLocaleString("tr-TR")} TL
                             </span>
                             <span style={{ fontSize: "1.6rem", fontWeight: "900", color: "#00e5ff", textShadow: "0 0 10px rgba(0, 229, 255, 0.4)" }}>
@@ -102,7 +114,7 @@ export default async function HomePage() {
                       </div>
                     </div>
 
-                    <button style={{ width: "100%", padding: "14px", backgroundColor: tukendiMi ? "rgba(239, 68, 68, 0.1)" : "#18181b", color: tukendiMi ? "#ef4444" : "#ffffff", border: `1px solid ${tukendiMi ? "rgba(239, 68, 68, 0.3)" : "#27272a"}`, borderRadius: "10px", cursor: tukendiMi ? "not-allowed" : "pointer", fontWeight: "900", marginTop: "20px", textTransform: "uppercase", letterSpacing: "1px", transition: "0.2s" }}>
+                    <button style={{ width: "100%", padding: "14px", backgroundColor: tukendiMi ? "#27272a" : "#18181b", color: tukendiMi ? "#a1a1aa" : "#ffffff", border: `1px solid ${tukendiMi ? "#3f3f46" : "#27272a"}`, borderRadius: "10px", cursor: tukendiMi ? "not-allowed" : "pointer", fontWeight: "900", marginTop: "20px", textTransform: "uppercase", letterSpacing: "1px", transition: "0.2s" }}>
                       {tukendiMi ? "Stokta Yok" : "Detayları İncele →"}
                     </button>
                   </div>
