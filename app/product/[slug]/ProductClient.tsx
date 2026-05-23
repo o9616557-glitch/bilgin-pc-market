@@ -13,7 +13,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [isFav, setIsFav] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // ŞEFİM: BİLDİRİM STATE'İ
   const [toastMessage, setToastMessage] = useState("");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,17 +23,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [reviews, setReviews] = useState<any[]>([]);
   const [questions, setQuestions] = useState<any[]>([]);
 
-  // FORM GİRDİLERİ
   const [newReviewName, setNewReviewName] = useState("");
   const [newReviewText, setNewReviewText] = useState("");
   const [newReviewRating, setNewReviewRating] = useState(5); 
-  const [newQuestionName, setNewQuestionName] = useState(""); // ŞEFİM: SORU İÇİN İSİM EKLENDİ
+  const [newQuestionName, setNewQuestionName] = useState(""); 
   const [newQuestionText, setNewQuestionText] = useState("");
 
   const pId = product?._id?.toString() || product?.id?.toString() || "urun";
-  const gercekKod = product?.sku || pId.slice(-6).toUpperCase();
 
-  // ŞEFİM: GERÇEK PUAN HESAPLAMA MOTORU
   const totalReviews = reviews.length;
   const avgRating = totalReviews > 0 ? (reviews.reduce((acc, curr) => acc + Number(curr.rating), 0) / totalReviews).toFixed(1) : "0.0";
   
@@ -45,7 +41,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   };
   const ratingPercents = [getRatingPercent(5), getRatingPercent(4), getRatingPercent(3), getRatingPercent(2), getRatingPercent(1)];
 
-  // Bildirim Gösterme Fonksiyonu
   const showToast = (message: string) => {
     setToastMessage(message);
     setTimeout(() => setToastMessage(""), 4000); 
@@ -136,6 +131,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     } catch (e) {}
   };
 
+  const handleShare = async () => {
+    if (navigator.share) {
+      try { await navigator.share({ title: product.isim || product.name || "Bilgin PC Market", text: "Şu efsane ürüne bir bak!", url: window.location.href }); } catch (err) {}
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   const submitReview = async () => {
     if (!newReviewText.trim()) return;
     try {
@@ -187,9 +192,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const resimler = product.images && product.images.length > 0 ? product.images.map((i:any) => i.src) : [product.resim || "https://via.placeholder.com/600"];
 
   return (
-    <div className="min-h-screen bg-[#050814] text-white pb-24 sm:pb-10 font-sans overflow-x-hidden relative">
+    <div className="min-h-screen bg-[#050814] text-white pb-28 sm:pb-10 font-sans overflow-x-hidden relative">
       
-      {/* ŞEFİM: BİLDİRİM KUTUSU TOP-24 VE Z-[9999] İLE HEADER'IN ALTINA EZİLMEYECEK */}
       <div className={`fixed top-24 right-5 z-[9999] bg-[#09090b] border border-[#00e5ff]/50 shadow-[0_0_30px_rgba(0,229,255,0.2)] text-white px-6 py-4 rounded-xl font-bold flex items-center gap-3 transition-all duration-500 transform ${toastMessage ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
         <span className="text-[#00e5ff] text-2xl">✓</span>
         <p className="text-sm">{toastMessage}</p>
@@ -224,7 +228,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             {indirimVarMi && !tukendiMi && (
               <span className="bg-gradient-to-r from-orange-500 to-red-600 text-white text-[10px] sm:text-xs font-black px-2.5 py-1 rounded-md uppercase">🔥 %{indirimOrani} İNDİRİM</span>
             )}
-            <span className="bg-white/5 border border-white/10 text-slate-400 text-[10px] font-black px-2 py-1 rounded-md uppercase ml-auto">KOD: {gercekKod}</span>
+            {/* ŞEFİM: KOD KISMI BURADAN SİLİNDİ */}
           </div>
 
           <h1 className="text-lg sm:text-3xl font-extrabold uppercase tracking-tight text-white leading-snug sm:leading-tight mb-2">
@@ -300,6 +304,29 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
+      {/* ŞEFİM: MOBİL ALT YAPIŞKAN BAR GÜNCELLENDİ (FAVORİ VE PAYLAŞ EKLENDİ) */}
+      <div className="fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-xl border-t border-white/10 p-3 sm:hidden z-[90] pb-safe">
+        <div className="flex items-center gap-2 max-w-full">
+          
+          <button onClick={handleToggleFavorite} className={`w-14 h-14 flex-shrink-0 rounded-xl border flex items-center justify-center text-xl transition-all ${isFav ? 'bg-red-500/10 border-red-500/30 text-red-500' : 'bg-[#09090b] border-white/10 text-white'}`}>
+            {isFav ? "❤️" : "🤍"}
+          </button>
+          
+          <button onClick={handleShare} className="w-14 h-14 flex-shrink-0 rounded-xl border border-white/10 bg-[#09090b] flex items-center justify-center text-white transition-all">
+            {copied ? "✅" : <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>}
+          </button>
+
+          <div className="relative flex-1 h-14">
+            <button type="button" onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`w-full h-full rounded-xl font-black text-[13px] uppercase tracking-widest flex items-center justify-between px-4 ${tukendiMi ? 'bg-zinc-800 text-zinc-600' : 'bg-[#00e5ff] text-black shadow-[0_0_15px_rgba(0,229,255,0.2)]'}`}>
+              <span>{tukendiMi ? "TÜKENDİ" : "SEPETE EKLE"}</span>
+              {!tukendiMi && <span className="text-[10px] font-bold bg-black/10 px-1.5 py-0.5 rounded">{havaleFiyati.toLocaleString("tr-TR")} TL</span>}
+            </button>
+            {addedSuccess && <div className="absolute -top-14 left-1/2 -translate-x-1/2 bg-[#10b981] text-black text-[10px] font-black px-4 py-2 rounded-lg shadow-xl animate-bounce whitespace-nowrap">✅ Eklendi!</div>}
+          </div>
+
+        </div>
+      </div>
+
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex justify-center items-end sm:items-center">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onClick={() => setIsModalOpen(false)}></div>
@@ -327,7 +354,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 <div className="animate-fade-in flex flex-col h-full">
                   <div className="flex flex-col sm:flex-row gap-6 items-center bg-[#050814] border border-white/5 p-6 rounded-2xl mb-6 shrink-0">
                     <div className="flex flex-col items-center justify-center w-full sm:w-1/3 border-b sm:border-b-0 sm:border-r border-white/10 pb-4 sm:pb-0">
-                      {/* ŞEFİM: BURASI ARTIK GERÇEK ORTALAMA PUAN */}
                       <span className="text-5xl font-black text-[#00e5ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.4)]">{avgRating}</span>
                       <div className="text-amber-400 text-lg mt-1 tracking-widest">
                         {Number(avgRating) >= 1 ? "★" : "☆"}
@@ -339,7 +365,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                       <span className="text-xs text-slate-400 mt-2 font-medium">{reviews.length} Değerlendirme</span>
                     </div>
                     <div className="flex flex-col gap-2 w-full sm:w-2/3">
-                      {/* ŞEFİM: BURASI ARTIK GERÇEK YÜZDELİKLER */}
                       {[5, 4, 3, 2, 1].map((star, idx) => {
                         const percent = ratingPercents[idx];
                         return (
@@ -383,19 +408,21 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                       <div key={rev._id} className="bg-[#09090b] p-4 rounded-xl border border-white/5">
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#00e5ff] to-blue-600 flex items-center justify-center text-xs font-black text-white">{rev.name.charAt(0)}</div>
+                            <div className="w-8 h-8 rounded-full bg-[#00e5ff] flex items-center justify-center text-xs font-black text-black">{rev.name.charAt(0)}</div>
                             <div>
-                              <p className="text-white text-xs font-bold">{rev.name}</p>
+                              <p className="text-white text-sm font-extrabold tracking-wide">{rev.name}</p>
                               <div className="text-amber-400 text-[10px]">{"★".repeat(rev.rating)}{"☆".repeat(5 - rev.rating)}</div>
                             </div>
                           </div>
                           <span className="text-slate-500 text-[10px]">{new Date(rev.tarih).toLocaleDateString("tr-TR")}</span>
                         </div>
-                        <p className="text-slate-300 text-xs leading-relaxed">{rev.text}</p>
+                        {/* ŞEFİM: YAZILAR NETLEŞTİRİLDİ */}
+                        <p className="text-slate-100 text-sm leading-relaxed mt-2">{rev.text}</p>
+                        
                         {rev.answer && (
-                          <div className="mt-3 bg-[#050814] p-3 rounded-xl border-l-2 border-[#00e5ff] text-xs">
+                          <div className="mt-3 bg-[#050814] p-3 rounded-xl border-l-2 border-[#00e5ff] text-sm">
                             <span className="text-[#00e5ff] font-black block mb-1">Mağaza Cevabı:</span>
-                            <span className="text-slate-300">{rev.answer}</span>
+                            <span className="text-slate-100">{rev.answer}</span>
                           </div>
                         )}
                       </div>
@@ -414,10 +441,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                     ) : (
                       <div className="bg-[#050814] p-5 rounded-xl border border-[#00e5ff]/20 animate-fade-in">
                         <h4 className="font-bold text-white mb-3 text-sm">Sorunuzu İletin</h4>
-                        
-                        {/* ŞEFİM: SORU KISMINA İSİM KUTUSU EKLENDİ */}
                         <input value={newQuestionName} onChange={(e) => setNewQuestionName(e.target.value)} type="text" placeholder="İsminiz (Sadece baş harfi görünür)" className="w-full bg-[#09090b] border border-white/10 p-3 rounded-lg text-sm mb-3 focus:border-[#00e5ff]/50 outline-none" />
-                        
                         <textarea value={newQuestionText} onChange={(e) => setNewQuestionText(e.target.value)} rows={3} placeholder="Ne öğrenmek istersiniz?" className="w-full bg-[#09090b] border border-white/10 p-3 rounded-lg text-sm mb-3 focus:border-[#00e5ff]/50 outline-none"></textarea>
                         <div className="flex gap-2">
                           <button onClick={() => setShowQuestionForm(false)} className="px-4 py-2 bg-white/5 text-slate-300 rounded-lg text-xs font-bold uppercase">İptal</button>
@@ -433,9 +457,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                         <div className="p-4 bg-[#09090b]">
                           <div className="flex items-center gap-2 mb-2">
                             <span className="bg-slate-700 text-white text-[9px] px-2 py-0.5 rounded font-bold uppercase">Soru</span>
-                            <span className="text-slate-400 text-xs font-medium">{q.name} ({new Date(q.tarih).toLocaleDateString("tr-TR")})</span>
+                            <span className="text-white text-sm font-extrabold tracking-wide">{q.name} <span className="text-slate-500 font-normal text-xs ml-1">({new Date(q.tarih).toLocaleDateString("tr-TR")})</span></span>
                           </div>
-                          <p className="text-slate-300 text-xs">{q.text}</p>
+                          {/* ŞEFİM: YAZILAR NETLEŞTİRİLDİ */}
+                          <p className="text-slate-100 text-sm leading-relaxed">{q.text}</p>
                         </div>
                         {q.answer ? (
                           <div className="p-4 bg-gradient-to-r from-[#00e5ff]/5 to-transparent border-l-2 border-[#00e5ff]">
@@ -443,7 +468,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                               <span className="bg-[#00e5ff] text-black text-[9px] px-2 py-0.5 rounded font-bold uppercase">Cevap</span>
                               <span className="text-[#00e5ff] text-xs font-bold">Bilgin PC Mağazası</span>
                             </div>
-                            <p className="text-slate-300 text-xs">{q.answer}</p>
+                            <p className="text-slate-100 text-sm leading-relaxed">{q.answer}</p>
                           </div>
                         ) : <div className="p-3 text-[10px] text-slate-500 italic text-center">Mağaza henüz cevaplamadı.</div>}
                       </div>
