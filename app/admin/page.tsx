@@ -6,6 +6,9 @@ export default function AdminPaneli() {
   const [girisYapildi, setGirisYapildi] = useState(false);
   const [siparisler, setSiparisler] = useState<any[]>([]);
   const [yukleniyor, setYukleniyor] = useState(true);
+  
+  // ŞEFİM: Hangi siparişin silineceğini tutan yeni hafızamız
+  const [silinecekID, setSilinecekID] = useState<string | null>(null);
 
   const PATRON_SIFRESI = "Bilgin123";
 
@@ -103,13 +106,12 @@ export default function AdminPaneli() {
     }
   };
 
-  // ŞEFİM: SİPARİŞİ KÖKÜNDEN SİLME FONKSİYONU
-  const siparisSil = async (id: string) => {
-    // Yanlışlıkla basılmasın diye önce şefe soruyoruz!
-    if (!window.confirm("Şefim, bu siparişi veritabanından TAMAMEN silmek istediğine emin misin? Bu işlem geri alınamaz!")) return;
+  // ŞEFİM: KÖKÜNDEN SİLME İŞLEMİNİ YAPAN ASIL FONKSİYON
+  const siparisiGercektenSil = async () => {
+    if (!silinecekID) return;
 
     try {
-      const res = await fetch(`/api/admin/siparisler?id=${id}`, {
+      const res = await fetch(`/api/admin/siparisler?id=${silinecekID}`, {
         method: "DELETE",
         headers: { 
           "x-patron-anahtar": PATRON_SIFRESI
@@ -118,8 +120,8 @@ export default function AdminPaneli() {
       const data = await res.json();
       
       if (data.success) {
-        // Silinen siparişi ekrandan anında kaybediyoruz
-        setSiparisler(siparisler.filter(s => s._id !== id));
+        setSiparisler(siparisler.filter(s => s._id !== silinecekID));
+        setSilinecekID(null); // Silme bitince pencereyi kapat
       } else {
         alert("Silme işlemi başarısız!");
       }
@@ -162,7 +164,44 @@ export default function AdminPaneli() {
   }
 
   return (
-    <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "40px 20px" }}>
+    <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "40px 20px", position: "relative" }}>
+      
+      {/* ŞEFİM: İŞTE BİZİM ÖZEL TASARIM UYARI EKRANIMIZ! */}
+      {silinecekID && (
+        <div style={{ 
+          position: "fixed", top: 0, left: 0, width: "100%", height: "100%", 
+          background: "rgba(0, 0, 0, 0.8)", zIndex: 9999, 
+          display: "flex", justifyContent: "center", alignItems: "center",
+          backdropFilter: "blur(5px)" // Arka planı hafifçe buzlandırır
+        }}>
+          <div style={{ 
+            background: "#121214", border: "1px solid #ef4444", 
+            borderRadius: "16px", padding: "30px", maxWidth: "400px", 
+            textAlign: "center", boxShadow: "0 10px 40px rgba(239, 68, 68, 0.2)" 
+          }}>
+            <div style={{ fontSize: "3rem", marginBottom: "10px" }}>⚠️</div>
+            <h3 style={{ color: "#fff", fontSize: "1.4rem", fontWeight: "900", marginBottom: "15px" }}>Siparişi Sil?</h3>
+            <p style={{ color: "#a1a1aa", fontSize: "0.95rem", lineHeight: "1.5", marginBottom: "25px" }}>
+              Şefim, bu siparişi veritabanından TAMAMEN silmek istediğine emin misin? <strong style={{color: "#ef4444"}}>Bu işlem geri alınamaz!</strong>
+            </p>
+            <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+              <button 
+                onClick={() => setSilinecekID(null)} // İptale basarsa ID'yi sıfırla ve pencereyi kapat
+                style={{ flex: 1, background: "#27272a", color: "#fff", border: "none", padding: "12px", borderRadius: "8px", fontWeight: "800", cursor: "pointer", transition: "0.2s" }}
+              >
+                Vazgeç
+              </button>
+              <button 
+                onClick={siparisiGercektenSil} // Evete basarsa silme fonksiyonunu çalıştır
+                style={{ flex: 1, background: "#ef4444", color: "#fff", border: "none", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", boxShadow: "0 4px 15px rgba(239, 68, 68, 0.4)" }}
+              >
+                Evet, Sil
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px", flexWrap: "wrap", gap: "15px" }}>
         <h1 style={{ color: "#fff", fontSize: "2rem", fontWeight: "900", borderLeft: "6px solid #00e5ff", paddingLeft: "15px" }}>
           SİPARİŞ <span style={{ color: "#00e5ff" }}>YÖNETİMİ</span>
@@ -205,9 +244,9 @@ export default function AdminPaneli() {
                       <option value="İptal Edildi">İptal Edildi</option>
                     </select>
                   </div>
-                  {/* ŞEFİM: KIRMIZI ÇÖP TENEKESİ BURADA! */}
+                  {/* ŞEFİM: Sil butonuna basınca tarayıcı kutusu yerine kendi kutumuzu çağırıyoruz */}
                   <button 
-                    onClick={() => siparisSil(siparis._id)}
+                    onClick={() => setSilinecekID(siparis._id)}
                     style={{ background: "rgba(239, 68, 68, 0.1)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.3)", padding: "10px 15px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "5px" }}
                     title="Bu siparişi kalıcı olarak sil"
                   >
