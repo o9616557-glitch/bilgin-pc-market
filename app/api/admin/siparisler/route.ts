@@ -5,15 +5,13 @@ import { ObjectId } from "mongodb";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-// ŞEFİM: İşte arka kapının gizli anahtarı!
 const GIZLI_ANAHTAR = "Bilgin123"; 
 
 export async function GET(request: Request) {
   try {
-    // 1. GÜVENLİK DUVARI: Şifre yoksa kapıdan kov!
     const gelenAnahtar = request.headers.get("x-patron-anahtar");
     if (gelenAnahtar !== GIZLI_ANAHTAR) {
-      return NextResponse.json({ error: "Erişim Engellendi! Dükkanın arkasına girmek yasaktır." }, { status: 401 });
+      return NextResponse.json({ error: "Erişim Engellendi!" }, { status: 401 });
     }
 
     const client = await clientPromise;
@@ -37,7 +35,6 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    // 2. GÜVENLİK DUVARI: Veri değiştirmeye çalışanları engelle!
     const gelenAnahtar = request.headers.get("x-patron-anahtar");
     if (gelenAnahtar !== GIZLI_ANAHTAR) {
       return NextResponse.json({ error: "Erişim Engellendi!" }, { status: 401 });
@@ -64,6 +61,34 @@ export async function PUT(request: Request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Sipariş güncellenirken hata:", error);
+    return NextResponse.json({ error: "Sistem hatası." }, { status: 500 });
+  }
+}
+
+// ŞEFİM: İŞTE YENİ SİLME MOTORUMUZ!
+export async function DELETE(request: Request) {
+  try {
+    const gelenAnahtar = request.headers.get("x-patron-anahtar");
+    if (gelenAnahtar !== GIZLI_ANAHTAR) {
+      return NextResponse.json({ error: "Erişim Engellendi!" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "Sipariş ID eksik." }, { status: 400 });
+    }
+
+    const client = await clientPromise;
+    const db = client.db("bilginpcmarket");
+    
+    // Veritabanından o siparişi kökünden siliyoruz
+    await db.collection("orders").deleteOne({ _id: new ObjectId(id) });
+    
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Sipariş silinirken hata:", error);
     return NextResponse.json({ error: "Sistem hatası." }, { status: 500 });
   }
 }

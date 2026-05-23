@@ -45,7 +45,7 @@ export default function AdminPaneli() {
         headers: { 
           "Pragma": "no-cache", 
           "Cache-Control": "no-cache",
-          "x-patron-anahtar": PATRON_SIFRESI // ŞEFİM: Gizli anahtarı gönderiyoruz!
+          "x-patron-anahtar": PATRON_SIFRESI 
         }
       });
       const data = await res.json();
@@ -65,7 +65,7 @@ export default function AdminPaneli() {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
-          "x-patron-anahtar": PATRON_SIFRESI // Gizli anahtar
+          "x-patron-anahtar": PATRON_SIFRESI
         },
         body: JSON.stringify({ id, yeniDurum })
       });
@@ -87,7 +87,7 @@ export default function AdminPaneli() {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
-          "x-patron-anahtar": PATRON_SIFRESI // Gizli anahtar
+          "x-patron-anahtar": PATRON_SIFRESI
         },
         body: JSON.stringify({ id, musteriMesaji })
       });
@@ -97,6 +97,31 @@ export default function AdminPaneli() {
         alert("Mesajınız müşterinin sipariş takip ekranına gönderildi! 🚀");
       } else {
         alert("Mesaj gönderilemedi!");
+      }
+    } catch (error) {
+      alert("Sistemsel hata oluştu.");
+    }
+  };
+
+  // ŞEFİM: SİPARİŞİ KÖKÜNDEN SİLME FONKSİYONU
+  const siparisSil = async (id: string) => {
+    // Yanlışlıkla basılmasın diye önce şefe soruyoruz!
+    if (!window.confirm("Şefim, bu siparişi veritabanından TAMAMEN silmek istediğine emin misin? Bu işlem geri alınamaz!")) return;
+
+    try {
+      const res = await fetch(`/api/admin/siparisler?id=${id}`, {
+        method: "DELETE",
+        headers: { 
+          "x-patron-anahtar": PATRON_SIFRESI
+        }
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        // Silinen siparişi ekrandan anında kaybediyoruz
+        setSiparisler(siparisler.filter(s => s._id !== id));
+      } else {
+        alert("Silme işlemi başarısız!");
       }
     } catch (error) {
       alert("Sistemsel hata oluştu.");
@@ -165,19 +190,29 @@ export default function AdminPaneli() {
                   <p style={{ color: "#a1a1aa", fontSize: "0.85rem" }}>{new Date(siparis.tarih).toLocaleString("tr-TR")}</p>
                 </div>
                 
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", background: "#09090b", padding: "8px", borderRadius: "10px", border: "1px solid #27272a" }}>
-                  <span style={{ color: durumRengi(siparis.durum), fontWeight: "900", fontSize: "0.9rem", marginRight: "10px" }}>Mevcut: {siparis.durum}</span>
-                  <select 
-                    onChange={(e) => durumGuncelle(siparis._id, e.target.value)}
-                    value={siparis.durum}
-                    style={{ background: "#18181b", color: "#fff", border: "1px solid #27272a", padding: "8px", borderRadius: "6px", outline: "none", cursor: "pointer", fontSize: "0.85rem" }}
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", background: "#09090b", padding: "8px", borderRadius: "10px", border: "1px solid #27272a" }}>
+                    <span style={{ color: durumRengi(siparis.durum), fontWeight: "900", fontSize: "0.9rem", marginRight: "10px" }}>Mevcut: {siparis.durum}</span>
+                    <select 
+                      onChange={(e) => durumGuncelle(siparis._id, e.target.value)}
+                      value={siparis.durum}
+                      style={{ background: "#18181b", color: "#fff", border: "1px solid #27272a", padding: "8px", borderRadius: "6px", outline: "none", cursor: "pointer", fontSize: "0.85rem" }}
+                    >
+                      <option value="Ödeme Bekliyor (Havale)">Ödeme Bekliyor (Havale)</option>
+                      <option value="Ödendi / Hazırlanıyor">Ödendi / Hazırlanıyor</option>
+                      <option value="Kargoya Verildi">Kargoya Verildi</option>
+                      <option value="Tamamlandı">Tamamlandı</option>
+                      <option value="İptal Edildi">İptal Edildi</option>
+                    </select>
+                  </div>
+                  {/* ŞEFİM: KIRMIZI ÇÖP TENEKESİ BURADA! */}
+                  <button 
+                    onClick={() => siparisSil(siparis._id)}
+                    style={{ background: "rgba(239, 68, 68, 0.1)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.3)", padding: "10px 15px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "5px" }}
+                    title="Bu siparişi kalıcı olarak sil"
                   >
-                    <option value="Ödeme Bekliyor (Havale)">Ödeme Bekliyor (Havale)</option>
-                    <option value="Ödendi / Hazırlanıyor">Ödendi / Hazırlanıyor</option>
-                    <option value="Kargoya Verildi">Kargoya Verildi</option>
-                    <option value="Tamamlandı">Tamamlandı</option>
-                    <option value="İptal Edildi">İptal Edildi</option>
-                  </select>
+                    🗑️ Sil
+                  </button>
                 </div>
               </div>
 
