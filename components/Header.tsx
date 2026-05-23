@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useCart } from "@/app/CartContext";
 import { useState, useEffect, useRef } from "react";
-// 🚀 ŞEFİM: OTURUM RADARINI VE ÇIKIŞ YAPMA MOTORUNU BURAYA EKLEDİK
 import { useSession, signOut } from "next-auth/react"; 
 
 export default function Header() {
@@ -13,8 +12,13 @@ export default function Header() {
   const hesabimRef = useRef<HTMLDivElement>(null);
   const sepetAdedi = sepet.reduce((toplam: number, urun: any) => toplam + (urun.adet || 1), 0);
 
-  // 🚀 ŞEFİM: KULLANICI BİLGİLERİNİ ÇEKEN SİHİRLİ SATIR
   const { data: session } = useSession(); 
+
+  // 🚨 ŞEFİM: BURAYA KENDİ GOOGLE E-POSTA ADRESİNİ YAZ! (Örn: "ozkan@gmail.com")
+  const ADMIN_EMAIL = "o9616557gmail.com";
+
+  // Sisteme giren kişi admin mi kontrolü
+  const isAdmin = session?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
   useEffect(() => {
     function disariTiklandi(event: any) {
@@ -50,12 +54,10 @@ export default function Header() {
 
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           
-          {/* HESABIM BUTONU */}
           <div ref={hesabimRef} style={{ position: "relative" }}>
             <button onClick={() => setHesabimAcik(!hesabimAcik)} style={{ display: "flex", alignItems: "center", gap: "6px", background: hesabimAcik ? "rgba(0, 229, 255, 0.1)" : "#18181b", color: hesabimAcik ? "#00e5ff" : "#fff", border: hesabimAcik ? "1px solid rgba(0, 229, 255, 0.5)" : "1px solid #27272a", borderRadius: "10px", padding: "8px 12px", cursor: "pointer", transition: "all 0.2s" }}>
               <span style={{ fontSize: "16px" }}>👤</span>
               <span className="hidden sm:inline" style={{ fontSize: "0.85rem", fontWeight: "600" }}>
-                {/* EĞER GİRİŞ YAPILDIYSA İSMİN İLK KELİMESİNİ (Örn: Özkan), YAPILMADIYSA "Hesabım" YAZAR */}
                 {session?.user?.name ? session.user.name.split(" ")[0] : "Hesabım"}
               </span>
             </button>
@@ -77,7 +79,6 @@ export default function Header() {
                   )}
                 </div>
 
-                {/* EĞER GİRİŞ YAPILMAMIŞSA GİRİŞ/KAYIT BUTONLARINI GÖSTER */}
                 {!session && (
                   <>
                     <Link href="/giris" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#00e5ff", background: "rgba(0, 229, 255, 0.05)", textDecoration: "none", fontSize: "0.85rem", fontWeight: "600", borderRadius: "8px" }}>
@@ -90,11 +91,20 @@ export default function Header() {
                   </>
                 )}
 
+                {/* 👑 ŞEFİM: SADECE SEN GİRİŞ YAPTIĞINDA EN ÜSTTE ALTIN SARISI PANEL BUTONU AÇILIR */}
+                {isAdmin && (
+                  <>
+                    <Link href="/admin" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#fbbf24", background: "rgba(251, 191, 36, 0.05)", border: "1px solid rgba(251, 191, 36, 0.2)", textDecoration: "none", fontSize: "0.85rem", fontWeight: "700", borderRadius: "8px" }}>
+                      <span>👑</span> Yönetim Paneli
+                    </Link>
+                    <div style={{ height: "1px", background: "#27272a", margin: "4px 0" }}></div>
+                  </>
+                )}
+
                 <Link href="/siparislerim" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem", fontWeight: "500", borderRadius: "8px" }}>
                   <span>📦</span> Siparişlerim
                 </Link>
                 
-                {/* 🚀 ŞEFİM: İŞTE UNUTULAN O EFSANE SİPARİŞ TAKİP BUTONU BURADA! */}
                 <Link href="/siparis-takip" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem", fontWeight: "500", borderRadius: "8px" }}>
                   <span>🔍</span> Sipariş Takip
                 </Link>
@@ -106,7 +116,6 @@ export default function Header() {
                   <span>❤️</span> Favorilerim
                 </Link>
 
-                {/* GİRİŞ YAPILDIYSA EN ALTA ÇIKIŞ YAP BUTONU EKLENİR */}
                 {session && (
                   <>
                     <div style={{ height: "1px", background: "#27272a", margin: "4px 0" }}></div>
@@ -120,7 +129,6 @@ export default function Header() {
             )}
           </div>
 
-          {/* SEPET BUTONU */}
           <Link href="/sepet" style={{ position: "relative", textDecoration: "none", display: "flex", alignItems: "center", gap: "6px", background: "#18181b", padding: "8px 14px", height: "42px", boxSizing: "border-box", borderRadius: "10px", border: "1px solid #27272a" }}>
             <span style={{ fontSize: "16px" }}>🛒</span>
             <span className="hidden sm:inline" style={{ fontWeight: "600", color: "#a1a1aa", fontSize: "0.85rem" }}>Sepetim</span>
@@ -134,7 +142,6 @@ export default function Header() {
         </div>
       </div>
 
-      {/* MOBİL MENÜ */}
       {menuAcik && (
         <div className="md:hidden" style={{ background: "#18181b", borderTop: "1px solid #27272a", padding: "16px 20px", display: "flex", flexDirection: "column", gap: "16px" }}>
           <Link href="/" onClick={() => setMenuAcik(false)} style={{ color: "#d4d4d8", textDecoration: "none", fontSize: "1rem", fontWeight: "600" }}>Tüm Bilgisayarlar</Link>
