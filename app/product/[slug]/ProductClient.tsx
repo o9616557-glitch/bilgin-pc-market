@@ -13,7 +13,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [isFav, setIsFav] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // ŞEFİM: BİLDİRİM (TOAST) STATE'İ BURADA!
+  // ŞEFİM: BİLDİRİM STATE'İ
   const [toastMessage, setToastMessage] = useState("");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,18 +24,31 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [reviews, setReviews] = useState<any[]>([]);
   const [questions, setQuestions] = useState<any[]>([]);
 
+  // FORM GİRDİLERİ
   const [newReviewName, setNewReviewName] = useState("");
   const [newReviewText, setNewReviewText] = useState("");
   const [newReviewRating, setNewReviewRating] = useState(5); 
+  const [newQuestionName, setNewQuestionName] = useState(""); // ŞEFİM: SORU İÇİN İSİM EKLENDİ
   const [newQuestionText, setNewQuestionText] = useState("");
 
   const pId = product?._id?.toString() || product?.id?.toString() || "urun";
   const gercekKod = product?.sku || pId.slice(-6).toUpperCase();
 
+  // ŞEFİM: GERÇEK PUAN HESAPLAMA MOTORU
+  const totalReviews = reviews.length;
+  const avgRating = totalReviews > 0 ? (reviews.reduce((acc, curr) => acc + Number(curr.rating), 0) / totalReviews).toFixed(1) : "0.0";
+  
+  const getRatingPercent = (star: number) => {
+    if (totalReviews === 0) return 0;
+    const count = reviews.filter(r => Number(r.rating) === star).length;
+    return Math.round((count / totalReviews) * 100);
+  };
+  const ratingPercents = [getRatingPercent(5), getRatingPercent(4), getRatingPercent(3), getRatingPercent(2), getRatingPercent(1)];
+
   // Bildirim Gösterme Fonksiyonu
   const showToast = (message: string) => {
     setToastMessage(message);
-    setTimeout(() => setToastMessage(""), 4000); // 4 saniye sonra kaybolur
+    setTimeout(() => setToastMessage(""), 4000); 
   };
 
   useEffect(() => {
@@ -147,13 +160,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       const res = await fetch("/api/reviews", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          productId: pId, type: "question", name: "Misafir Müşteri", rating: 5, text: newQuestionText
+          productId: pId, type: "question", name: newQuestionName.trim() ? newQuestionName : "Misafir Kullanıcı", rating: 5, text: newQuestionText
         })
       });
       const data = await res.json();
       if (data.success) {
         showToast("Sorunuz mağazaya iletildi! En kısa sürede cevaplanacaktır.");
-        setNewQuestionText(""); setShowQuestionForm(false);
+        setNewQuestionText(""); setNewQuestionName(""); setShowQuestionForm(false);
       }
     } catch (error) { showToast("Gönderilirken bir hata oluştu."); }
   };
@@ -176,8 +189,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   return (
     <div className="min-h-screen bg-[#050814] text-white pb-24 sm:pb-10 font-sans overflow-x-hidden relative">
       
-      {/* ŞEFİM: JİLET GİBİ KAYARAK GELEN BİLDİRİM KUTUSU */}
-      <div className={`fixed top-5 right-5 z-[200] bg-[#09090b] border border-[#00e5ff]/50 shadow-[0_0_30px_rgba(0,229,255,0.2)] text-white px-6 py-4 rounded-xl font-bold flex items-center gap-3 transition-all duration-500 transform ${toastMessage ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
+      {/* ŞEFİM: BİLDİRİM KUTUSU TOP-24 VE Z-[9999] İLE HEADER'IN ALTINA EZİLMEYECEK */}
+      <div className={`fixed top-24 right-5 z-[9999] bg-[#09090b] border border-[#00e5ff]/50 shadow-[0_0_30px_rgba(0,229,255,0.2)] text-white px-6 py-4 rounded-xl font-bold flex items-center gap-3 transition-all duration-500 transform ${toastMessage ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
         <span className="text-[#00e5ff] text-2xl">✓</span>
         <p className="text-sm">{toastMessage}</p>
       </div>
@@ -219,7 +232,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           </h1>
 
           <div onClick={() => { setActiveTab("reviews"); setIsModalOpen(true); }} className="flex items-center gap-2 mb-5 cursor-pointer group w-fit">
-            <div className="flex text-amber-400 text-[13px] sm:text-sm tracking-widest">★★★★★</div>
+            <div className="flex text-amber-400 text-[13px] sm:text-sm tracking-widest">
+              {Number(avgRating) >= 1 ? "★" : "☆"}
+              {Number(avgRating) >= 2 ? "★" : "☆"}
+              {Number(avgRating) >= 3 ? "★" : "☆"}
+              {Number(avgRating) >= 4 ? "★" : "☆"}
+              {Number(avgRating) >= 5 ? "★" : "☆"}
+            </div>
             <span className="text-slate-400 text-[11px] sm:text-xs font-medium group-hover:text-white transition-colors underline decoration-white/20 underline-offset-4">{reviews.length} Değerlendirme</span>
             <span className="text-slate-600 text-[11px] sm:text-xs">|</span>
             <span className="text-slate-400 text-[11px] sm:text-xs font-medium group-hover:text-white transition-colors underline decoration-white/20 underline-offset-4">{questions.length} Soru Cevap</span>
@@ -281,14 +300,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-xl border-t border-white/10 p-3 sm:hidden z-[90]">
-        <div className="relative">
-          <button type="button" onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`w-full h-14 rounded-xl font-black text-[13px] uppercase tracking-widest flex items-center justify-between px-4 ${tukendiMi ? 'bg-zinc-800 text-zinc-600' : 'bg-[#00e5ff] text-black'}`}>
-            <span>{tukendiMi ? "STOK TÜKENDİ" : "SEPETE EKLE"}</span>
-          </button>
-        </div>
-      </div>
-
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex justify-center items-end sm:items-center">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onClick={() => setIsModalOpen(false)}></div>
@@ -314,6 +325,36 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               
               {activeTab === "reviews" && (
                 <div className="animate-fade-in flex flex-col h-full">
+                  <div className="flex flex-col sm:flex-row gap-6 items-center bg-[#050814] border border-white/5 p-6 rounded-2xl mb-6 shrink-0">
+                    <div className="flex flex-col items-center justify-center w-full sm:w-1/3 border-b sm:border-b-0 sm:border-r border-white/10 pb-4 sm:pb-0">
+                      {/* ŞEFİM: BURASI ARTIK GERÇEK ORTALAMA PUAN */}
+                      <span className="text-5xl font-black text-[#00e5ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.4)]">{avgRating}</span>
+                      <div className="text-amber-400 text-lg mt-1 tracking-widest">
+                        {Number(avgRating) >= 1 ? "★" : "☆"}
+                        {Number(avgRating) >= 2 ? "★" : "☆"}
+                        {Number(avgRating) >= 3 ? "★" : "☆"}
+                        {Number(avgRating) >= 4 ? "★" : "☆"}
+                        {Number(avgRating) >= 5 ? "★" : "☆"}
+                      </div>
+                      <span className="text-xs text-slate-400 mt-2 font-medium">{reviews.length} Değerlendirme</span>
+                    </div>
+                    <div className="flex flex-col gap-2 w-full sm:w-2/3">
+                      {/* ŞEFİM: BURASI ARTIK GERÇEK YÜZDELİKLER */}
+                      {[5, 4, 3, 2, 1].map((star, idx) => {
+                        const percent = ratingPercents[idx];
+                        return (
+                          <div key={idx} className="flex items-center gap-3 text-xs font-bold text-slate-400">
+                            <span className="w-12 text-right">{star} Yıldız</span>
+                            <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
+                              <div className="h-full bg-amber-400 rounded-full transition-all duration-500" style={{ width: `${percent}%` }}></div>
+                            </div>
+                            <span className="w-8">{percent}%</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
                   <div className="mb-6 shrink-0">
                     {!showReviewForm ? (
                       <button onClick={() => setShowReviewForm(true)} className="w-full py-3 bg-[#00e5ff]/10 border border-[#00e5ff]/30 text-[#00e5ff] rounded-xl font-bold text-xs uppercase hover:bg-[#00e5ff]/20">
@@ -351,7 +392,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                           <span className="text-slate-500 text-[10px]">{new Date(rev.tarih).toLocaleDateString("tr-TR")}</span>
                         </div>
                         <p className="text-slate-300 text-xs leading-relaxed">{rev.text}</p>
-                        {/* ŞEFİM: MAĞAZA CEVABI SİTEDE DE GÖRÜNSÜN DİYE EKLENDİ */}
                         {rev.answer && (
                           <div className="mt-3 bg-[#050814] p-3 rounded-xl border-l-2 border-[#00e5ff] text-xs">
                             <span className="text-[#00e5ff] font-black block mb-1">Mağaza Cevabı:</span>
@@ -374,6 +414,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                     ) : (
                       <div className="bg-[#050814] p-5 rounded-xl border border-[#00e5ff]/20 animate-fade-in">
                         <h4 className="font-bold text-white mb-3 text-sm">Sorunuzu İletin</h4>
+                        
+                        {/* ŞEFİM: SORU KISMINA İSİM KUTUSU EKLENDİ */}
+                        <input value={newQuestionName} onChange={(e) => setNewQuestionName(e.target.value)} type="text" placeholder="İsminiz (Sadece baş harfi görünür)" className="w-full bg-[#09090b] border border-white/10 p-3 rounded-lg text-sm mb-3 focus:border-[#00e5ff]/50 outline-none" />
+                        
                         <textarea value={newQuestionText} onChange={(e) => setNewQuestionText(e.target.value)} rows={3} placeholder="Ne öğrenmek istersiniz?" className="w-full bg-[#09090b] border border-white/10 p-3 rounded-lg text-sm mb-3 focus:border-[#00e5ff]/50 outline-none"></textarea>
                         <div className="flex gap-2">
                           <button onClick={() => setShowQuestionForm(false)} className="px-4 py-2 bg-white/5 text-slate-300 rounded-lg text-xs font-bold uppercase">İptal</button>
