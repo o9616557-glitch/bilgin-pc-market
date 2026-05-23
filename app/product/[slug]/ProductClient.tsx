@@ -228,7 +228,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             {indirimVarMi && !tukendiMi && (
               <span className="bg-gradient-to-r from-orange-500 to-red-600 text-white text-[10px] sm:text-xs font-black px-2.5 py-1 rounded-md uppercase">🔥 %{indirimOrani} İNDİRİM</span>
             )}
-            {/* ŞEFİM: KOD KISMI BURADAN SİLİNDİ */}
           </div>
 
           <h1 className="text-lg sm:text-3xl font-extrabold uppercase tracking-tight text-white leading-snug sm:leading-tight mb-2">
@@ -281,8 +280,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </div>
           </div>
 
+          {/* ŞEFİM: MASAÜSTÜ (PC) İÇİN SEPETE EKLE BUTONU */}
           <div className="hidden sm:block relative mt-1 mb-4">
-            <button type="button" onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`w-full h-16 rounded-xl font-black text-lg uppercase tracking-widest transition-all flex items-center justify-between px-6 ${tukendiMi ? 'bg-zinc-800 text-zinc-500' : 'bg-[#00e5ff] text-black shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:bg-[#00c4db]'}`}>
+            <button type="button" onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`w-full h-16 rounded-xl font-black text-lg uppercase tracking-widest transition-all flex items-center justify-between px-6 mb-3 ${tukendiMi ? 'bg-zinc-800 text-zinc-500' : 'bg-[#00e5ff] text-black shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:bg-[#00c4db]'}`}>
               <div className="flex items-center gap-3">
                 {!tukendiMi && <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>}
                 <span>{tukendiMi ? "STOK TÜKENDİ" : "SEPETE EKLE"}</span>
@@ -296,7 +296,17 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             {addedSuccess && <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#10b981] text-black text-xs font-black px-4 py-2 rounded-lg shadow-[0_0_20px_rgba(16,185,129,0.5)] animate-bounce">✅ Başarıyla Sepete Eklendi!</div>}
           </div>
 
-          <div className="mt-2 sm:mt-3">
+          {/* ŞEFİM: MASAÜSTÜ (PC) İÇİN YENİDEN EKLENEN FAVORİ VE PAYLAŞ BUTONLARI */}
+          <div className="hidden sm:flex items-center gap-3 mb-3">
+            <button onClick={handleToggleFavorite} className={`flex-1 py-3 rounded-xl border flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider transition-all ${isFav ? 'bg-red-500/10 border-red-500/30 text-red-500' : 'bg-[#09090b] border-white/10 hover:bg-white/5 text-white'}`}>
+              {isFav ? "❤️ Favorilerde" : "🤍 Favoriye Ekle"}
+            </button>
+            <button onClick={handleShare} className="flex-1 py-3 rounded-xl border border-white/10 bg-[#09090b] hover:bg-white/5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-white transition-all">
+              {copied ? "✅ Kopyalandı" : <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg> Paylaş / Kopyala</>}
+            </button>
+          </div>
+
+          <div className="mt-2 sm:mt-0">
             <button onClick={() => { setActiveTab("reviews"); setIsModalOpen(true); }} className="w-full py-3.5 rounded-xl border border-white/5 bg-[#050814] hover:bg-white/5 flex items-center justify-center gap-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-300 transition-all">
               ⭐ Ürün Yorumları ve Soru Cevap
             </button>
@@ -304,7 +314,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-      {/* ŞEFİM: MOBİL ALT YAPIŞKAN BAR GÜNCELLENDİ (FAVORİ VE PAYLAŞ EKLENDİ) */}
+      {/* ŞEFİM: MOBİL İÇİN ALT YAPIŞKAN BAR (FİYATIN ÜSTÜNE HAVALE YAZISI EKLENDİ) */}
       <div className="fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-xl border-t border-white/10 p-3 sm:hidden z-[90] pb-safe">
         <div className="flex items-center gap-2 max-w-full">
           
@@ -319,7 +329,12 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           <div className="relative flex-1 h-14">
             <button type="button" onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`w-full h-full rounded-xl font-black text-[13px] uppercase tracking-widest flex items-center justify-between px-4 ${tukendiMi ? 'bg-zinc-800 text-zinc-600' : 'bg-[#00e5ff] text-black shadow-[0_0_15px_rgba(0,229,255,0.2)]'}`}>
               <span>{tukendiMi ? "TÜKENDİ" : "SEPETE EKLE"}</span>
-              {!tukendiMi && <span className="text-[10px] font-bold bg-black/10 px-1.5 py-0.5 rounded">{havaleFiyati.toLocaleString("tr-TR")} TL</span>}
+              {!tukendiMi && (
+                <div className="flex flex-col items-end bg-black/10 px-2 py-1 rounded">
+                   <span className="text-[8px] font-bold opacity-80 leading-none mb-0.5">HAVALE</span>
+                   <span className="text-[11px] font-black leading-none">{havaleFiyati.toLocaleString("tr-TR")} TL</span>
+                </div>
+              )}
             </button>
             {addedSuccess && <div className="absolute -top-14 left-1/2 -translate-x-1/2 bg-[#10b981] text-black text-[10px] font-black px-4 py-2 rounded-lg shadow-xl animate-bounce whitespace-nowrap">✅ Eklendi!</div>}
           </div>
@@ -416,7 +431,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                           </div>
                           <span className="text-slate-500 text-[10px]">{new Date(rev.tarih).toLocaleDateString("tr-TR")}</span>
                         </div>
-                        {/* ŞEFİM: YAZILAR NETLEŞTİRİLDİ */}
                         <p className="text-slate-100 text-sm leading-relaxed mt-2">{rev.text}</p>
                         
                         {rev.answer && (
@@ -459,7 +473,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                             <span className="bg-slate-700 text-white text-[9px] px-2 py-0.5 rounded font-bold uppercase">Soru</span>
                             <span className="text-white text-sm font-extrabold tracking-wide">{q.name} <span className="text-slate-500 font-normal text-xs ml-1">({new Date(q.tarih).toLocaleDateString("tr-TR")})</span></span>
                           </div>
-                          {/* ŞEFİM: YAZILAR NETLEŞTİRİLDİ */}
                           <p className="text-slate-100 text-sm leading-relaxed">{q.text}</p>
                         </div>
                         {q.answer ? (
