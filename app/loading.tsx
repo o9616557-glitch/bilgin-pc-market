@@ -2,53 +2,37 @@ export default function Loading() {
   return (
     <div style={{
       display: "flex",
-      flexDirection: "column",
       justifyContent: "center",
       alignItems: "center",
       minHeight: "100vh",
-      backgroundColor: "#0f172a" // Senin temanın koyu lacivert/siyah arka planı
+      backgroundColor: "#0f172a", // Senin Bilgin PC temanın koyu arka planı
+      padding: "20px" // Telefondaki sıkışmayı önleyen padding
     }}>
       <style>{`
-        @keyframes pulse-ring {
-          0% { transform: scale(0.8); opacity: 0.5; }
-          100% { transform: scale(1.3); opacity: 0; }
+        @keyframes spinner-dual-ring {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
-        .neon-loader {
-          position: relative;
-          width: 80px;
-          height: 80px;
+        .modern-loader {
+          display: inline-block;
+          width: 60px; // Responsive boyut
+          height: 60px; // Responsive boyut
         }
-        .neon-loader::before {
+        .modern-loader::after {
           content: "";
-          position: absolute;
-          inset: 0;
+          display: block;
+          width: 100%;
+          height: 100%;
           border-radius: 50%;
-          border: 4px solid #00e5ff;
-          animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-        }
-        .neon-core {
-          position: absolute;
-          inset: 20px;
-          background: #00e5ff;
-          border-radius: 50%;
-          box-shadow: 0 0 20px #00e5ff, 0 0 40px #00e5ff;
-          animation: pulse-ring 1.5s alternate infinite;
+          border: 4px solid #00e5ff; // Senin meşhur Neon Mavi Rengin
+          border-color: #00e5ff transparent #00e5ff transparent;
+          animation: spinner-dual-ring 1.2s linear infinite;
+          box-shadow: 0 0 15px rgba(0, 229, 255, 0.4); // Sleek neon efekt
         }
       `}</style>
 
-      <div className="neon-loader">
-        <div className="neon-core"></div>
-      </div>
-      <h2 style={{
-        marginTop: "30px",
-        color: "#00e5ff",
-        fontWeight: "900",
-        letterSpacing: "4px",
-        fontSize: "1.2rem",
-        textTransform: "uppercase"
-      }}>
-        Dükkan Açılıyor...
-      </h2>
+      {/* ŞEFİM: İşte requested minimalist ve sleek loader iconumuz */}
+      <div className="modern-loader"></div>
     </div>
   );
 }

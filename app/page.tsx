@@ -1,18 +1,23 @@
+// ŞEFİM: 'use client' direktifini sildik çünkü burası veritabanı borusu!
 import clientPromise from "@/lib/mongodb";
 import Link from "next/link";
+
+// ŞEFİM: Sadece bu iki satırı, tam olarak bu sırada bırak. Eskileri sil.
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
 export default async function HomePage() {
   let urunler: any[] = [];
   
   try {
     const client = await clientPromise;
-    const db = client.db("bilginpcmarket"); 
+    const db = client.db("bilginpcmarket");
     urunler = await db.collection("products").find({}).toArray();
   } catch (e) {
     console.error("HATA:", e);
   }
 
+  // ŞEFİM: Vitrin kodları (ProductGrid vb.) buradan aşağıya devam edecek...
   return (
     <main style={{ minHeight: "100vh", backgroundColor: "#09090b", color: "#ededed", padding: "40px 20px", fontFamily: "'Inter', sans-serif" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
