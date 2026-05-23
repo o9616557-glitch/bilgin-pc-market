@@ -19,24 +19,37 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [showQuestionForm, setShowQuestionForm] = useState(false);
 
-  // ŞEFİM: GERÇEK VERİTABANI ALTYAPISI (CANLI HAFIZA)
-  // Ürünün kendi yorumları yoksa, bu örnekleri varsayılan olarak alır.
-  const [reviews, setReviews] = useState(product?.yorumlar || [
-    { id: 1, name: "M*** Y***", rating: 5, date: "2 gün önce", text: "Paketleme çok sağlamdı, kargo ertesi gün elime ulaştı. Performansı muazzam, düşünmeden alabilirsiniz. Bilgin PC ailesine teşekkürler!" },
-    { id: 2, name: "A*** K***", rating: 4, date: "1 hafta önce", text: "Ürün güzel, tek eksiği kutu içeriğinde ekstra kablo olmamasıydı. Yine de fiyatına göre en iyi performans veren model bu." }
-  ]);
-
-  const [questions, setQuestions] = useState(product?.sorular || [
-    { id: 1, user: "B*** E***", date: "3 gün önce", q: "Merhaba, bu ekran kartı 500W güç kaynağı ile sorunsuz çalışır mı?", a: "Merhaba değerli müşterimiz, evet sisteminizde kaliteli bir 500W güç kaynağı varsa bu model için yeterli olacaktır. Bizi tercih ettiğiniz için teşekkür ederiz.", aDate: "3 gün önce" }
-  ]);
+  // CANLI VERİTABANI STATE'LERİ
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [questions, setQuestions] = useState<any[]>([]);
 
   // FORM GİRDİLERİ
   const [newReviewName, setNewReviewName] = useState("");
   const [newReviewText, setNewReviewText] = useState("");
+  const [newReviewRating, setNewReviewRating] = useState(5); // ŞEFİM: YILDIZ SEÇİMİ İÇİN EKLENDİ
   const [newQuestionText, setNewQuestionText] = useState("");
 
   const pId = product?._id?.toString() || product?.id?.toString() || "urun";
   const gercekKod = product?.sku || pId.slice(-6).toUpperCase();
+
+  // ŞEFİM: SADECE ONAYLANMIŞ YORUMLARI VERİTABANINDAN ÇEKME MOTORU
+  useEffect(() => {
+    const fetchCanliYorumlar = async () => {
+      try {
+        const res = await fetch(`/api/reviews?productId=${pId}`);
+        const result = await res.json();
+        if (result.success) {
+          const gelenYorumlar = result.data.filter((item: any) => item.type === "review");
+          const gelenSorular = result.data.filter((item: any) => item.type === "question");
+          setReviews(gelenYorumlar);
+          setQuestions(gelenSorular);
+        }
+      } catch (error) {
+        console.error("Yorumlar çekilemedi");
+      }
+    };
+    fetchCanliYorumlar();
+  }, [pId]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -121,36 +134,58 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     }
   };
 
-  // ŞEFİM: YORUM GÖNDERME MOTORU (Anında ekrana basar)
-  const submitReview = () => {
+  // ŞEFİM: GERÇEK VERİTABANINA YORUM GÖNDERME MOTORU
+  const submitReview = async () => {
     if (!newReviewText.trim()) return;
-    const review = {
-      id: Date.now(),
-      name: newReviewName.trim() ? newReviewName : "Misafir Kullanıcı",
-      rating: 5,
-      date: "Az önce",
-      text: newReviewText
-    };
-    setReviews([review, ...reviews]);
-    setNewReviewText("");
-    setNewReviewName("");
-    setShowReviewForm(false);
+    try {
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: pId,
+          type: "review",
+          name: newReviewName.trim() ? newReviewName : "Misafir Kullanıcı",
+          rating: newReviewRating, // Seçilen yıldız gidiyor
+          text: newReviewText
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Yorumunuz başarıyla alındı! Moderatör onayından sonra yayınlanacaktır.");
+        setNewReviewText("");
+        setNewReviewName("");
+        setNewReviewRating(5);
+        setShowReviewForm(false);
+      }
+    } catch (error) {
+      alert("Gönderilirken bir hata oluştu.");
+    }
   };
 
-  // ŞEFİM: SORU GÖNDERME MOTORU (Anında ekrana basar, cevap bekliyor görünür)
-  const submitQuestion = () => {
+  // ŞEFİM: GERÇEK VERİTABANINA SORU GÖNDERME MOTORU
+  const submitQuestion = async () => {
     if (!newQuestionText.trim()) return;
-    const question = {
-      id: Date.now(),
-      user: "Misafir Kullanıcı",
-      date: "Az önce",
-      q: newQuestionText,
-      a: null, // Henüz cevap yok
-      aDate: null
-    };
-    setQuestions([question, ...questions]);
-    setNewQuestionText("");
-    setShowQuestionForm(false);
+    try {
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: pId,
+          type: "question",
+          name: "Misafir Müşteri",
+          rating: 5,
+          text: newQuestionText
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Sorunuz mağazaya iletildi! En kısa sürede cevaplanacaktır.");
+        setNewQuestionText("");
+        setShowQuestionForm(false);
+      }
+    } catch (error) {
+      alert("Gönderilirken bir hata oluştu.");
+    }
   };
 
   if (!product) return <div className="text-center p-10 text-[#00e5ff] font-bold">Yükleniyor...</div>;
@@ -279,7 +314,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </button>
           </div>
 
-          {/* ŞEFİM: BİRLEŞTİRİLMİŞ TEK BUTON */}
           <div className="mt-2 sm:mt-3">
             <button onClick={() => { setActiveTab("reviews"); setIsModalOpen(true); }} className="w-full py-3.5 rounded-xl border border-white/5 bg-[#050814] hover:bg-white/5 flex items-center justify-center gap-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-300 transition-all">
               ⭐ Ürün Yorumları ve Soru Cevap
@@ -307,7 +341,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-      {/* ŞEFİM: KAYA GİBİ SABİT POPUP */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex justify-center items-end sm:items-center">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onClick={() => setIsModalOpen(false)}></div>
@@ -330,7 +363,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </button>
             </div>
 
-            {/* İÇERİK: min-h ile sabitlendi */}
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar flex flex-col min-h-[400px]">
               
               {activeTab === "reviews" && (
@@ -366,9 +398,20 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                     ) : (
                       <div className="bg-[#050814] p-5 rounded-xl border border-[#00e5ff]/20 animate-fade-in">
                         <h4 className="font-bold text-white mb-4 text-sm">Deneyimini Paylaş</h4>
-                        <div className="flex gap-2 mb-4 text-2xl text-amber-400 cursor-pointer">
-                          <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                        
+                        {/* ŞEFİM: İŞTE O SEÇİLEBİLİR YILDIZLAR */}
+                        <div className="flex gap-2 mb-4 text-3xl cursor-pointer">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <span 
+                              key={star} 
+                              onClick={() => setNewReviewRating(star)}
+                              className={`transition-colors ${star <= newReviewRating ? 'text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]' : 'text-slate-700 hover:text-amber-400/50'}`}
+                            >
+                              ★
+                            </span>
+                          ))}
                         </div>
+
                         <input value={newReviewName} onChange={(e) => setNewReviewName(e.target.value)} type="text" placeholder="İsminiz (Sadece baş harfi görünür)" className="w-full bg-[#09090b] border border-white/10 p-3 rounded-lg text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 mb-3" />
                         <textarea value={newReviewText} onChange={(e) => setNewReviewText(e.target.value)} rows={3} placeholder="Ürün hakkında ne düşünüyorsunuz?" className="w-full bg-[#09090b] border border-white/10 p-3 rounded-lg text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 mb-3"></textarea>
                         <div className="flex gap-2">
@@ -381,7 +424,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
                   <div className="flex flex-col gap-4 pb-10">
                     {reviews.length > 0 ? reviews.map((rev: any) => (
-                      <div key={rev.id} className="bg-[#09090b] p-4 rounded-xl border border-white/5">
+                      <div key={rev._id} className="bg-[#09090b] p-4 rounded-xl border border-white/5">
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex items-center gap-2">
                             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#00e5ff] to-blue-600 flex items-center justify-center text-xs font-black text-white">{rev.name.charAt(0)}</div>
@@ -390,12 +433,12 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                               <div className="text-amber-400 text-[10px] tracking-widest">{"★".repeat(rev.rating)}{"☆".repeat(5 - rev.rating)}</div>
                             </div>
                           </div>
-                          <span className="text-slate-500 text-[10px]">{rev.date}</span>
+                          <span className="text-slate-500 text-[10px]">{new Date(rev.tarih).toLocaleDateString("tr-TR")}</span>
                         </div>
                         <p className="text-slate-300 text-xs leading-relaxed">{rev.text}</p>
                       </div>
                     )) : (
-                      <div className="text-center py-6 text-slate-500 text-sm">İlk yorumu sen yap şefim!</div>
+                      <div className="text-center py-6 text-slate-500 text-sm">Bu ürün için henüz yorum yapılmamış. İlk yorumu sen yap!</div>
                     )}
                   </div>
                 </div>
@@ -423,28 +466,28 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
                   <div className="flex flex-col gap-4 pb-10">
                     {questions.length > 0 ? questions.map((q: any) => (
-                      <div key={q.id} className="bg-[#050814] rounded-xl border border-white/5 overflow-hidden">
+                      <div key={q._id} className="bg-[#050814] rounded-xl border border-white/5 overflow-hidden">
                         <div className="p-4 bg-[#09090b]">
                           <div className="flex items-center gap-2 mb-2">
                             <span className="bg-slate-700 text-white text-[9px] px-2 py-0.5 rounded font-bold uppercase">Soru</span>
-                            <span className="text-slate-400 text-xs font-medium">{q.user} ({q.date})</span>
+                            <span className="text-slate-400 text-xs font-medium">{q.name} ({new Date(q.tarih).toLocaleDateString("tr-TR")})</span>
                           </div>
-                          <p className="text-slate-300 text-xs">{q.q}</p>
+                          <p className="text-slate-300 text-xs">{q.text}</p>
                         </div>
-                        {q.a ? (
+                        {q.answer ? (
                           <div className="p-4 bg-gradient-to-r from-[#00e5ff]/5 to-transparent border-l-2 border-[#00e5ff]">
                             <div className="flex items-center gap-2 mb-2">
                               <span className="bg-[#00e5ff] text-black text-[9px] px-2 py-0.5 rounded font-bold uppercase">Cevap</span>
                               <span className="text-[#00e5ff] text-xs font-bold">Bilgin PC Mağazası</span>
                             </div>
-                            <p className="text-slate-300 text-xs">{q.a}</p>
+                            <p className="text-slate-300 text-xs">{q.answer}</p>
                           </div>
                         ) : (
                           <div className="p-3 text-[10px] text-slate-500 italic text-center">Mağaza henüz cevaplamadı.</div>
                         )}
                       </div>
                     )) : (
-                      <div className="text-center py-6 text-slate-500 text-sm">İlk soruyu sen sor şefim!</div>
+                      <div className="text-center py-6 text-slate-500 text-sm">Bu ürün için henüz soru sorulmamış. İlk soruyu sen sor!</div>
                     )}
                   </div>
                 </div>
