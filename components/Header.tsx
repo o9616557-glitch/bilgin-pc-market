@@ -15,7 +15,7 @@ export default function Header() {
   const { data: session } = useSession(); 
 
   // 🚨 ŞEFİM: BURAYA KENDİ GOOGLE E-POSTA ADRESİNİ YAZ! (Örn: "ozkan@gmail.com")
-  const ADMIN_EMAIL = "o9616557gmail.com";
+  const ADMIN_EMAIL = "o9616557@gmail.com";
 
   // Sisteme giren kişi admin mi kontrolü
   const isAdmin = session?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
