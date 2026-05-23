@@ -5,7 +5,6 @@ import { PhotoProvider } from "react-photo-view";
 import "react-photo-view/dist/react-photo-view.css";
 import { useRouter } from "next/navigation";
 
-// ŞEFİM: Alt bileşenler aynı kalıyor
 import ProductGallery from "./components/ProductGallery";
 import ProductShare from "./components/ProductShare";
 import ProductSpecs from "./components/ProductSpecs";
@@ -72,11 +71,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     setAddingToCart(true);
     const currentCart = JSON.parse(localStorage.getItem("cart") || "[]");
     
-    // ŞEFİM: ID'yi güvene alıyoruz
     const pId = product._id || product.id;
     const existingIndex = currentCart.findIndex((item: any) => Number(item.id) === Number(pId));
     
-    // ŞEFİM: Sepete eklenecek güvenli fiyat!
     const gecerliFiyat = Number(product.indirimliFiyat || product.price || product.fiyat || 0);
 
     if (existingIndex > -1) {
@@ -151,16 +148,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     return <div className="text-center p-10 text-white font-bold">Ürün bilgileri yükleniyor...</div>;
   }
 
-  // ŞEFİM: İŞTE O YENİ EFSANE MATEMATİK
   const urunAdi = product.isim || product.name || "İsimsiz Ürün";
   const normalFiyat = Number(product.regular_price || product.fiyat || product.price || 0);
   const gecerliFiyat = Number(product.indirimliFiyat || product.price || product.fiyat || 0);
   const indirimVarMi = normalFiyat > gecerliFiyat;
   const indirimOrani = indirimVarMi ? Math.round(((normalFiyat - gecerliFiyat) / normalFiyat) * 100) : 0;
   
-  const tukendiMi = product.stokDurumu === "Tükendi" || (product.stokAdedi !== undefined && product.stokAdedi <= 0);
+  // ŞEFİM: BURAYI DA KURŞUN GEÇİRMEZ YAPTIK. BOŞ OLUNCA SIFIR (0) SAYMAYACAK!
+  const stokSifirMi = product.stokAdedi === 0 || product.stokAdedi === "0";
+  const tukendiMi = product.stokDurumu === "Tükendi" || stokSifirMi;
   
-  // Havale Fiyatı Hesaplama
   const havaleYuzdesi = product.havaleIndirimi !== undefined ? Number(product.havaleIndirimi) : 5;
   const havaleIndirimiTutari = (gecerliFiyat * havaleYuzdesi) / 100;
   const havaleFiyati = gecerliFiyat - havaleIndirimiTutari;
@@ -170,7 +167,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       <div className="min-h-[calc(100vh-80px)] bg-[#050814] text-white pt-2 pb-24 md:py-8 px-3 sm:px-6 lg:px-8 font-medium">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 bg-[#0b1329]/60 backdrop-blur-xl border border-white/5 p-4 sm:p-8 rounded-xl shadow-2xl">
           
-          {/* GALERİ */}
           <ProductGallery images={product.resimler || product.images || (product.resim ? [product.resim] : [])} productName={urunAdi} />
           
           <div className="flex flex-col justify-between py-1">
@@ -181,10 +177,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 {tukendiMi ? (
                    <span className="bg-zinc-800/80 border border-zinc-600/50 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">TÜKENDİ</span>
                 ) : (
-                   <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase">STOKTA VAR ({product.stokAdedi || 0})</span>
+                   <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase">
+                     STOKTA VAR {(product.stokAdedi !== null && product.stokAdedi !== undefined && product.stokAdedi !== "" && Number(product.stokAdedi) !== 10) ? `(${product.stokAdedi})` : ""}
+                   </span>
                 )}
                 
-                {/* ŞEFİM: İNDİRİM ROZETİ */}
                 {indirimOrani > 0 && !tukendiMi && (
                   <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-black text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-lg shadow-amber-500/30">
                     🔥 %{indirimOrani} İNDİRİM
@@ -215,7 +212,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 </div>
               </div>
 
-              {/* ŞEFİM: FİYAT ALANI */}
               <div className="bg-[#050814]/50 border border-white/5 p-4 rounded-md mb-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="flex flex-col justify-center">
                    {indirimVarMi ? (

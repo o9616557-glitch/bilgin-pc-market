@@ -55,10 +55,7 @@ export default function AdminPaneli() {
     }
   };
 
-  const cikisYap = () => {
-    sessionStorage.removeItem("patronGiris");
-    setGirisYapildi(false);
-  };
+  const cikisYap = () => { sessionStorage.removeItem("patronGiris"); setGirisYapildi(false); };
 
   const siparisleriGetir = async () => {
     try {
@@ -123,7 +120,7 @@ export default function AdminPaneli() {
   };
 
   const urunSilmeIslemi = async (id: string) => {
-    if (!window.confirm("Bu ürünü silmek istediğine emin misin?")) return;
+    if (!window.confirm("Bu ürünü silmek istediğine emin misin şefim?")) return;
     try {
       const res = await fetch(`/api/admin/products?id=${id}`, { method: "DELETE", headers: { "x-patron-anahtar": PATRON_SIFRESI }});
       if ((await res.json()).success) {
@@ -136,13 +133,15 @@ export default function AdminPaneli() {
   const urunDuzenleModunuAc = (urun: any) => {
     setDuzenlenenUrun(urun);
     setFormIsim(urun.isim || urun.name || "");
-    const orjFiyat = urun.fiyat || urun.regular_price || urun.price || 0;
+    
+    // ŞEFİM: İŞTE O İNDİRİMİ BOZAN HATA BURADAYDI! Artık düzenle dediğinde GERÇEK normal fiyatı gösterecek.
+    const orjFiyat = urun.regular_price || urun.fiyat || urun.price || 0;
     setFormFiyat(orjFiyat.toString());
+    
     setFormIndirimliFiyat(urun.indirimliFiyat ? urun.indirimliFiyat.toString() : ""); 
     setFormHavaleIndirimi(urun.havaleIndirimi !== undefined ? urun.havaleIndirimi.toString() : "5");
     setFormStok(urun.stokDurumu || "Stokta Var");
     
-    // Eski "10" sayılarını göstermiyoruz, sadece senin yazdıkların görünür
     const temizAdet = (urun.stokAdedi !== null && urun.stokAdedi !== undefined && urun.stokAdedi !== "" && Number(urun.stokAdedi) !== 10) ? urun.stokAdedi.toString() : "";
     setFormStokAdedi(temizAdet);
     
@@ -225,7 +224,7 @@ export default function AdminPaneli() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
               <div>
                 <label style={{ color: "#00e5ff", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Stok Adedi (İsteğe Bağlı)</label>
-                <input type="number" value={formStokAdedi} onChange={(e) => setFormStokAdedi(e.target.value)} placeholder="BOŞ BIRAKABİLİRSİN" style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#00e5ff", fontWeight: "900", outline: "none" }} />
+                <input type="number" value={formStokAdedi} onChange={(e) => setFormStokAdedi(e.target.value)} placeholder="Sadece Var yazsın istiyorsan BOŞ BIRAK" style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#00e5ff", fontWeight: "900", outline: "none" }} />
               </div>
               <div><label style={{ color: "#10b981", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Özel Havale İndirimi (%)</label><input type="number" value={formHavaleIndirimi} onChange={(e) => setFormHavaleIndirimi(e.target.value)} min="0" max="100" style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#10b981", fontWeight: "900", outline: "none" }} /></div>
             </div>
@@ -334,7 +333,8 @@ export default function AdminPaneli() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))", gap: "15px" }}>
             {urunler.map((urun, index) => {
               
-              const normalFiyat = Number(urun.fiyat || urun.regular_price || urun.price || 0);
+              // ŞEFİM: BURADA DA GERÇEK NORMAL FİYATI BULUYORUZ Kİ İNDİRİM GÖZÜKSÜN
+              const normalFiyat = Number(urun.regular_price || urun.fiyat || urun.price || 0);
               const indirimliFiyat = urun.indirimliFiyat ? Number(urun.indirimliFiyat) : null;
               const gosterilenFiyat = indirimliFiyat ? indirimliFiyat : normalFiyat;
 

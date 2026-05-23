@@ -35,43 +35,46 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { id, isim, fiyat, stokDurumu, stokAdedi, resim, kategori } = body;
+    
+    // ŞEFİM: İŞTE BURASI! Senin formdan gönderdiğin TÜM VERİLERİ eksiksiz içeri alıyoruz.
+    const { id, isim, fiyat, indirimliFiyat, havaleIndirimi, stokDurumu, stokAdedi, resim, kategori } = body;
 
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
 
-    // ŞEFİM: İŞTE SİHİR BURADA! Eğer kutu boşsa veritabanına null (yok) olarak kaydediyoruz.
+    // Eğer kutu boşsa veritabanına null (yok) olarak kaydediyoruz ki "Stokta Var" yazabilsin
     const islenenStok = (stokAdedi === "" || stokAdedi === null || stokAdedi === undefined) ? null : Number(stokAdedi);
+    
+    // Vitrin fiyatı (indirim varsa o geçerli, yoksa normal fiyat)
+    const anaSiteFiyati = indirimliFiyat ? Number(indirimliFiyat) : Number(fiyat);
+
+    // ŞEFİM: Veritabanına yazılacak KUSURSUZ paket
+    const urunVerisi: any = {
+      name: isim,
+      isim: isim,
+      price: anaSiteFiyati,
+      fiyat: anaSiteFiyati,
+      regular_price: Number(fiyat),
+      indirimliFiyat: indirimliFiyat ? Number(indirimliFiyat) : null,
+      havaleIndirimi: Number(havaleIndirimi || 0),
+      stokDurumu: stokDurumu || "Stokta Var",
+      stokAdedi: islenenStok,
+      resim: resim || "/placeholder.png",
+      kategori: kategori || "Bilgisayar"
+    };
 
     if (id) {
+      // Düzenleme işlemi
       await db.collection("products").updateOne(
         { _id: new ObjectId(id) },
-        { 
-          $set: { 
-            isim, 
-            fiyat: Number(fiyat), 
-            stokDurumu, 
-            stokAdedi: islenenStok, // Boşsa boş kalır, sayıysa sayı olur
-            resim, 
-            kategori 
-          } 
-        }
+        { $set: urunVerisi }
       );
-      return NextResponse.json({ success: true, mesaj: "Ürün güncellendi!" });
+      return NextResponse.json({ success: true, mesaj: "Ürün başarıyla güncellendi!" });
     } else {
+      // Yeni ürün ekleme işlemi
       if (!isim || !fiyat) return NextResponse.json({ error: "İsim/Fiyat zorunlu" }, { status: 400 });
-      
-      const yeniUrun = {
-        isim,
-        fiyat: Number(fiyat),
-        stokDurumu: stokDurumu || "Stokta Var",
-        stokAdedi: islenenStok, // Boşsa boş kalır
-        resim: resim || "/placeholder.png",
-        kategori: kategori || "Bilgisayar",
-        tarih: new Date()
-      };
-
-      await db.collection("products").insertOne(yeniUrun);
+      urunVerisi.tarih = new Date();
+      await db.collection("products").insertOne(urunVerisi);
       return NextResponse.json({ success: true, mesaj: "Yeni ürün eklendi!" });
     }
 
