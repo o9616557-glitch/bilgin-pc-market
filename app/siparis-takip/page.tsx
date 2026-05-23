@@ -99,8 +99,18 @@ function TakipIcerik() {
           {/* ŞEFİM: İŞTE O EFSANE İLERLEME ÇUBUĞU (PROGRESS BAR) */}
           <div style={{ marginBottom: "35px" }}>
             {sonuc.durum.includes("İptal") ? (
-              <div style={{ textAlign: "center", color: "#ef4444", fontWeight: "900", fontSize: "1.1rem", padding: "20px", background: "rgba(239, 68, 68, 0.1)", borderRadius: "10px", border: "1px solid rgba(239, 68, 68, 0.3)" }}>
-                ❌ BU SİPARİŞ İPTAL EDİLMİŞTİR
+              // ŞEFİM: İşte o korkutucu kırmızılığı sarıya/turuncuya çevirdik!
+              <div style={{ 
+                textAlign: "center", 
+                color: "#f59e0b", // Agresif kırmızı yerine yumuşak sarı/turuncu
+                fontWeight: "800", 
+                fontSize: "1rem", 
+                padding: "18px", 
+                background: "rgba(245, 158, 11, 0.05)", // Arka planı da sarımtırak yaptık
+                borderRadius: "10px", 
+                border: "1px solid rgba(245, 158, 11, 0.2)" // Kenarlığı da sarımtırak yaptık
+              }}>
+                🚫 Bu sipariş iptal edilmiştir.
               </div>
             ) : (
               <div style={{ position: "relative", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
