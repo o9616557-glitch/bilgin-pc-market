@@ -1,7 +1,24 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function AdminPaneli() {
+  // 👑 1. GÜVENLİK DUVARI: GOOGLE VIP KONTROLÜ
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  
+  // 🚨 BURAYA KENDİ GOOGLE E-POSTA ADRESİNİ YAZMAYI UNUTMA! (Örn: "ozkan@gmail.com")
+  const ADMIN_EMAIL = "BURAYA_KENDİ_GOOGLE_MAİLİNİ_YAZ"; 
+
+  useEffect(() => {
+    if (status !== "loading") {
+      // Eğer giriş yapılmamışsa veya giren kişi sen değilsen, anasayfaya fırlat!
+      if (!session || session?.user?.email?.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+        router.push("/"); 
+      }
+    }
+  }, [session, status, router]);
   const [sifre, setSifre] = useState("");
   const [girisYapildi, setGirisYapildi] = useState(false);
   const [aktifSekme, setAktifSekme] = useState<"siparisler" | "urunler">("urunler");
