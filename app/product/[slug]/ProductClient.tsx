@@ -192,9 +192,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const resimler = product.images && product.images.length > 0 ? product.images.map((i:any) => i.src) : [product.resim || "https://via.placeholder.com/600"];
 
   return (
-    <div className="min-h-screen bg-[#050814] text-white pb-28 sm:pb-10 font-sans overflow-x-hidden relative">
+    // ŞEFİM: max-w-[100vw] eklendi, sayfa dışına taşma imkansız hale getirildi.
+    <div className="min-h-screen bg-[#050814] text-white pb-28 sm:pb-10 font-sans overflow-x-hidden relative max-w-[100vw]">
       
-      <div className={`fixed top-24 right-5 z-[9999] bg-[#09090b] border border-[#00e5ff]/50 shadow-[0_0_30px_rgba(0,229,255,0.2)] text-white px-6 py-4 rounded-xl font-bold flex items-center gap-3 transition-all duration-500 transform ${toastMessage ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
+      {/* ŞEFİM: BİLDİRİM ANİMASYONU YUKARIDAN AŞAĞI OLARAK DEĞİŞTİRİLDİ (-translate-y-10) */}
+      <div className={`fixed top-24 right-5 z-[9999] bg-[#09090b] border border-[#00e5ff]/50 shadow-[0_0_30px_rgba(0,229,255,0.2)] text-white px-6 py-4 rounded-xl font-bold flex items-center gap-3 transition-all duration-500 transform ${toastMessage ? 'translate-y-0 opacity-100' : '-translate-y-10 opacity-0 pointer-events-none'}`}>
         <span className="text-[#00e5ff] text-2xl">✓</span>
         <p className="text-sm">{toastMessage}</p>
       </div>
@@ -230,7 +232,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             )}
           </div>
 
-          <h1 className="text-lg sm:text-3xl font-extrabold uppercase tracking-tight text-white leading-snug sm:leading-tight mb-2">
+          <h1 className="text-lg sm:text-3xl font-extrabold uppercase tracking-tight text-white leading-snug sm:leading-tight mb-2 break-words">
             {urunAdi}
           </h1>
 
@@ -280,7 +282,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </div>
           </div>
 
-          {/* ŞEFİM: MASAÜSTÜ (PC) İÇİN SEPETE EKLE BUTONU */}
           <div className="hidden sm:block relative mt-1 mb-4">
             <button type="button" onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`w-full h-16 rounded-xl font-black text-lg uppercase tracking-widest transition-all flex items-center justify-between px-6 mb-3 ${tukendiMi ? 'bg-zinc-800 text-zinc-500' : 'bg-[#00e5ff] text-black shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:bg-[#00c4db]'}`}>
               <div className="flex items-center gap-3">
@@ -296,7 +297,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             {addedSuccess && <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#10b981] text-black text-xs font-black px-4 py-2 rounded-lg shadow-[0_0_20px_rgba(16,185,129,0.5)] animate-bounce">✅ Başarıyla Sepete Eklendi!</div>}
           </div>
 
-          {/* ŞEFİM: MASAÜSTÜ (PC) İÇİN YENİDEN EKLENEN FAVORİ VE PAYLAŞ BUTONLARI */}
           <div className="hidden sm:flex items-center gap-3 mb-3">
             <button onClick={handleToggleFavorite} className={`flex-1 py-3 rounded-xl border flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider transition-all ${isFav ? 'bg-red-500/10 border-red-500/30 text-red-500' : 'bg-[#09090b] border-white/10 hover:bg-white/5 text-white'}`}>
               {isFav ? "❤️ Favorilerde" : "🤍 Favoriye Ekle"}
@@ -314,8 +314,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-      {/* ŞEFİM: MOBİL İÇİN ALT YAPIŞKAN BAR (FİYATIN ÜSTÜNE HAVALE YAZISI EKLENDİ) */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-xl border-t border-white/10 p-3 sm:hidden z-[90] pb-safe">
+      <div className="fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-xl border-t border-white/10 p-3 sm:hidden z-[90] pb-safe max-w-[100vw]">
         <div className="flex items-center gap-2 max-w-full">
           
           <button onClick={handleToggleFavorite} className={`w-14 h-14 flex-shrink-0 rounded-xl border flex items-center justify-center text-xl transition-all ${isFav ? 'bg-red-500/10 border-red-500/30 text-red-500' : 'bg-[#09090b] border-white/10 text-white'}`}>
@@ -346,7 +345,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         <div className="fixed inset-0 z-[100] flex justify-center items-end sm:items-center">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onClick={() => setIsModalOpen(false)}></div>
           
-          <div className="relative w-full sm:w-[600px] bg-[#0b1329] border border-[#00e5ff]/20 rounded-t-3xl sm:rounded-3xl flex flex-col h-[85vh] sm:h-[600px]">
+          <div className="relative w-full sm:w-[600px] bg-[#0b1329] border border-[#00e5ff]/20 rounded-t-3xl sm:rounded-3xl flex flex-col h-[85vh] sm:h-[600px] max-w-[100vw]">
             <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto mt-3 sm:hidden shrink-0"></div>
 
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 shrink-0">
@@ -431,12 +430,12 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                           </div>
                           <span className="text-slate-500 text-[10px]">{new Date(rev.tarih).toLocaleDateString("tr-TR")}</span>
                         </div>
-                        <p className="text-slate-100 text-sm leading-relaxed mt-2">{rev.text}</p>
+                        <p className="text-slate-100 text-sm leading-relaxed mt-2 break-words">{rev.text}</p>
                         
                         {rev.answer && (
                           <div className="mt-3 bg-[#050814] p-3 rounded-xl border-l-2 border-[#00e5ff] text-sm">
                             <span className="text-[#00e5ff] font-black block mb-1">Mağaza Cevabı:</span>
-                            <span className="text-slate-100">{rev.answer}</span>
+                            <span className="text-slate-100 break-words">{rev.answer}</span>
                           </div>
                         )}
                       </div>
@@ -473,7 +472,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                             <span className="bg-slate-700 text-white text-[9px] px-2 py-0.5 rounded font-bold uppercase">Soru</span>
                             <span className="text-white text-sm font-extrabold tracking-wide">{q.name} <span className="text-slate-500 font-normal text-xs ml-1">({new Date(q.tarih).toLocaleDateString("tr-TR")})</span></span>
                           </div>
-                          <p className="text-slate-100 text-sm leading-relaxed">{q.text}</p>
+                          <p className="text-slate-100 text-sm leading-relaxed break-words">{q.text}</p>
                         </div>
                         {q.answer ? (
                           <div className="p-4 bg-gradient-to-r from-[#00e5ff]/5 to-transparent border-l-2 border-[#00e5ff]">
@@ -481,7 +480,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                               <span className="bg-[#00e5ff] text-black text-[9px] px-2 py-0.5 rounded font-bold uppercase">Cevap</span>
                               <span className="text-[#00e5ff] text-xs font-bold">Bilgin PC Mağazası</span>
                             </div>
-                            <p className="text-slate-100 text-sm leading-relaxed">{q.answer}</p>
+                            <p className="text-slate-100 text-sm leading-relaxed break-words">{q.answer}</p>
                           </div>
                         ) : <div className="p-3 text-[10px] text-slate-500 italic text-center">Mağaza henüz cevaplamadı.</div>}
                       </div>
