@@ -33,7 +33,6 @@ export default function Header() {
     }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "12px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         
-        {/* SOL KISIM: Hamburger ve Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <button 
             className="mobil-hamburger"
@@ -53,14 +52,12 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* MASAÜSTÜ MENÜ */}
         <nav className="hidden md:flex" style={{ gap: "24px" }}>
           <Link href="/" style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.9rem", fontWeight: "600" }}>Tüm Bilgisayarlar</Link>
           <Link href="/" style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.9rem", fontWeight: "600" }}>Bilgisayar Parçaları</Link>
           <Link href="/" style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.9rem", fontWeight: "600" }}>Aksesuar</Link>
         </nav>
 
-        {/* SAĞ KISIM: Hesabım ve Sepet */}
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           
           {/* HESABIM BUTONU */}
@@ -74,14 +71,13 @@ export default function Header() {
               <span className="hidden sm:inline" style={{ fontSize: "0.85rem", fontWeight: "600" }}>Hesabım</span>
             </button>
 
-            {/* ŞEFİM: YENİ, ŞIK AÇILIR MENÜ BURADA */}
             {hesabimAcik && (
               <div style={{
                 position: "absolute", top: "50px", right: "0", background: "#050814", border: "1px solid #27272a", borderRadius: "12px", width: "220px", padding: "8px", boxShadow: "0 10px 40px rgba(0,0,0,0.8)", display: "flex", flexDirection: "column", gap: "4px"
               }}>
                 <div style={{ padding: "8px 12px", borderBottom: "1px solid #27272a", marginBottom: "4px" }}>
                   <p style={{ color: "#fff", fontSize: "0.8rem", fontWeight: "700" }}>Hoş Geldiniz</p>
-                  <p style={{ color: "#a1a1aa", fontSize: "0.7rem" }}>Bilgin PC Market'e katılın</p>
+                  <p style={{ color: "#a1a1aa", fontSize: "0.7rem" }}>Güvenli alışverişin adresi</p>
                 </div>
 
                 <Link href="/giris" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#00e5ff", background: "rgba(0, 229, 255, 0.05)", textDecoration: "none", fontSize: "0.85rem", fontWeight: "700", borderRadius: "8px", transition: "background 0.2s" }}>
@@ -94,19 +90,23 @@ export default function Header() {
 
                 <div style={{ height: "1px", background: "#27272a", margin: "4px 0" }}></div>
 
-                <Link href="/favoriler" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem", fontWeight: "600", borderRadius: "8px", transition: "background 0.2s" }}>
-                  <span>❤️</span> Favorilerim
+                {/* ŞEFİM: SİPARİŞLERİM VE ADRESLERİM EKLENDİ */}
+                <Link href="/siparislerim" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem", fontWeight: "600", borderRadius: "8px", transition: "background 0.2s" }}>
+                  <span>📦</span> Siparişlerim
                 </Link>
 
-                <Link href="/siparis-takip" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem", fontWeight: "600", borderRadius: "8px", transition: "background 0.2s" }}>
-                  <span>📦</span> Sipariş Takip
+                <Link href="/adreslerim" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem", fontWeight: "600", borderRadius: "8px", transition: "background 0.2s" }}>
+                  <span>📍</span> Adreslerim
+                </Link>
+
+                <Link href="/favoriler" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem", fontWeight: "600", borderRadius: "8px", transition: "background 0.2s" }}>
+                  <span>❤️</span> Favorilerim
                 </Link>
 
               </div>
             )}
           </div>
 
-          {/* SEPET BUTONU */}
           <Link href="/sepet" style={{
             position: "relative", textDecoration: "none", display: "flex", alignItems: "center", gap: "6px", background: "#18181b", padding: "8px 14px", height: "40px", boxSizing: "border-box", borderRadius: "10px", border: "1px solid #27272a"
           }}>
@@ -121,7 +121,6 @@ export default function Header() {
         </div>
       </div>
 
-      {/* MOBİL MENÜ AÇILIR KISIM */}
       {menuAcik && (
         <div className="md:hidden" style={{ background: "#121214", borderTop: "1px solid #27272a", padding: "16px 20px", display: "flex", flexDirection: "column", gap: "16px" }}>
           <Link href="/" onClick={() => setMenuAcik(false)} style={{ color: "#d4d4d8", textDecoration: "none", fontSize: "1rem", fontWeight: "600" }}>Tüm Bilgisayarlar</Link>
