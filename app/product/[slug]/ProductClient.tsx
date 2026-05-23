@@ -1,14 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-// ŞEFİM: İŞTE O SİHİRLİ BAĞLANTI! Dükkanın ana sepet motorunu içeri alıyoruz.
 import { useCart } from "../../CartContext"; 
 
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
-  // ANA MOTORU BURAYA BAĞLADIK
   const { sepeteEkle } = useCart(); 
 
-  const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
   const [addedSuccess, setAddedSuccess] = useState(false);
 
@@ -40,24 +37,19 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     return () => clearInterval(timer);
   }, []);
 
-  // ŞEFİM: BÜTÜN AMELE KODLAR SİLİNDİ, SADECE SENİN SİSTEMİNİN İSTEDİĞİ KOD KALDI!
   const handleAddToCart = () => {
     setAddingToCart(true);
     try {
       const gecerliFiyat = Number(product.indirimliFiyat || product.price || product.fiyat || 0);
-      const urunGorseli = product.resim || "https://via.placeholder.com/400";
+      const urunGorseli = product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/400";
 
-      // Senin CartContext'teki sepeteEkle fonksiyonu adet parametresi almıyor (içeride +1 yapıyor)
-      // O yüzden müşteri kaç adet seçtiyse (quantity), o kadar kez tetikliyoruz ki sayı tam artsın.
-      for(let i = 0; i < quantity; i++) {
-        sepeteEkle({
-          id: String(pId),
-          isim: product.isim || product.name || "İsimsiz Ürün",
-          fiyat: gecerliFiyat,
-          resim: urunGorseli,
-          varyasyon: "Standart Model" // Senin sepet sayfasındaki kodun bunu bekliyor
-        });
-      }
+      sepeteEkle({
+        id: String(pId),
+        isim: product.isim || product.name || "İsimsiz Ürün",
+        fiyat: gecerliFiyat,
+        resim: urunGorseli,
+        varyasyon: "Standart Model"
+      });
 
       setAddedSuccess(true);
       setTimeout(() => { 
@@ -88,95 +80,132 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const havaleYuzdesi = product.havaleIndirimi !== undefined ? Number(product.havaleIndirimi) : 5;
   const havaleFiyati = gecerliFiyat - (gecerliFiyat * havaleYuzdesi) / 100;
 
+  const resimler = product.images && product.images.length > 0 
+    ? product.images.map((i:any) => i.src) 
+    : [product.resim || "https://via.placeholder.com/600"];
+
   return (
-    <div className="min-h-screen bg-[#050814] text-white py-4 sm:py-8 px-2 sm:px-6 lg:px-8 pb-32 sm:pb-10 font-sans">
-      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 bg-[#0b1329]/80 border border-white/5 p-4 sm:p-6 rounded-xl shadow-2xl">
+    <div className="min-h-screen bg-[#050814] text-white pb-24 sm:pb-10 font-sans overflow-x-hidden">
+      
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:gap-10 sm:py-10 sm:px-6">
         
-        <div className="w-full h-[280px] sm:h-[420px] bg-[#09090b] rounded-lg border border-white/5 flex items-center justify-center p-4">
-          <img src={product.resim || "https://via.placeholder.com/400"} alt={urunAdi} className={`max-w-full max-h-full object-contain ${tukendiMi ? 'grayscale opacity-50' : ''}`} />
+        <div className="w-full md:w-1/2 md:rounded-3xl bg-transparent sm:bg-[#09090b] sm:border sm:border-white/5 relative">
+          <div className="flex overflow-x-auto snap-x snap-mandatory w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            {resimler.map((img: string, idx: number) => (
+              <div key={idx} className="w-full flex-shrink-0 snap-center flex justify-center items-center h-[350px] sm:h-[500px] relative">
+                <img 
+                  src={img} 
+                  alt={`${urunAdi} - ${idx + 1}`} 
+                  className={`max-w-full max-h-full object-contain p-4 sm:p-8 ${tukendiMi ? 'grayscale opacity-50' : ''}`} 
+                />
+              </div>
+            ))}
+          </div>
+          
+          {resimler.length > 1 && (
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2 pointer-events-none">
+              {/* ŞEFİM: İşte o kırmızı çizgiyi yok eden düzeltme! any ve number tiplerini açıkça belirttik. */}
+              {resimler.map((resim: any, dotIdx: number) => (
+                <div key={dotIdx} className="w-2 h-2 rounded-full bg-[#00e5ff] opacity-50 shadow-[0_0_5px_#00e5ff]" />
+              ))}
+            </div>
+          )}
         </div>
         
-        <div className="flex flex-col justify-between">
-          <div>
-            <div className="flex flex-wrap items-center gap-2 mb-2">
-              <span className="bg-white/5 border border-white/10 text-slate-400 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase">KOD: {pId.slice(-5).toUpperCase()}</span>
-              {tukendiMi ? (
-                 <span className="bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded-md">TÜKENDİ</span>
+        <div className="w-full md:w-1/2 px-4 sm:px-0 mt-6 sm:mt-0 flex flex-col justify-center">
+          
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            {tukendiMi ? (
+               <span className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-black px-3 py-1 rounded-md tracking-wider">TÜKENDİ</span>
+            ) : (
+               <span className="bg-[#00e5ff]/10 border border-[#00e5ff]/20 text-[#00e5ff] text-xs font-black px-3 py-1 rounded-md tracking-wider">STOKTA VAR {adetGosterilecekMi ? `(${product.stokAdedi})` : ""}</span>
+            )}
+            {indirimVarMi && !tukendiMi && (
+              <span className="bg-gradient-to-r from-orange-500 to-red-600 text-white text-xs font-black px-3 py-1 rounded-md uppercase">🔥 %{indirimOrani} İNDİRİM</span>
+            )}
+          </div>
+
+          <h1 className="text-2xl sm:text-4xl font-extrabold uppercase tracking-tight text-white leading-tight mb-6">
+            {urunAdi}
+          </h1>
+
+          <div className="relative rounded-2xl bg-[#09090b] p-6 mb-6 border border-[#00e5ff]/50 shadow-[0_0_20px_rgba(0,229,255,0.15)] overflow-hidden">
+            <div className="absolute top-0 right-0 w-40 h-40 bg-[#00e5ff] blur-[100px] opacity-20 pointer-events-none"></div>
+            
+            <div className="mb-4">
+              <span className="text-slate-400 text-[11px] font-bold uppercase tracking-widest block mb-1">Kredi Kartı Tek Çekim</span>
+              {indirimVarMi ? (
+                <div className="flex items-center gap-3">
+                  <span className="text-zinc-500 text-sm line-through font-bold">{normalFiyat.toLocaleString("tr-TR")} TL</span>
+                  <span className="text-3xl font-black text-white">{gecerliFiyat.toLocaleString("tr-TR")} TL</span>
+                </div>
               ) : (
-                 <span className="bg-[#00e5ff]/10 border border-[#00e5ff]/20 text-[#00e5ff] text-[10px] font-bold px-2 py-0.5 rounded-md">STOKTA VAR {adetGosterilecekMi ? `(${product.stokAdedi})` : ""}</span>
-              )}
-              {indirimVarMi && !tukendiMi && (
-                <span className="w-fit bg-gradient-to-r from-orange-500 to-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded-md uppercase">🔥 %{indirimOrani} İNDİRİM</span>
+                <span className="text-3xl font-black text-white">{gecerliFiyat.toLocaleString("tr-TR")} TL</span>
               )}
             </div>
 
-            <h1 className="text-lg sm:text-2xl font-extrabold uppercase tracking-tight text-white leading-tight mb-3">{urunAdi}</h1>
-
-            <div className="bg-[#050814]/60 p-3 rounded-lg border border-white/5 text-xs mb-4">
-              <span className="text-slate-400 block font-bold text-[10px]">HIZLI KARGO AVANTAJI</span>
-              <span className="text-slate-200 block mt-0.5">{timeLeft} <strong className="text-[#10b981] font-black">{shippingMessage}</strong></span>
+            <div>
+              <span className="text-[#10b981] text-[11px] font-bold uppercase tracking-widest block mb-1">Havale / EFT Fiyatı</span>
+              <div className="flex items-center gap-2">
+                <span className="text-3xl font-black text-[#10b981] drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]">{havaleFiyati.toLocaleString("tr-TR")} TL</span>
+                {havaleYuzdesi > 0 && (
+                  <span className="bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] text-[10px] font-bold px-2 py-0.5 rounded uppercase">%{havaleYuzdesi} İndirim</span>
+                )}
+              </div>
             </div>
 
-            <div className="bg-[#121214] border border-white/5 p-4 rounded-xl mb-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-              <div>
-                 {indirimVarMi ? (
-                    <div className="flex flex-col">
-                      <span className="text-zinc-500 text-xs line-through font-bold">{normalFiyat.toLocaleString("tr-TR")} TL</span>
-                      <span className="text-xl sm:text-2xl font-black text-[#00e5ff]">{gecerliFiyat.toLocaleString("tr-TR")} TL</span>
-                    </div>
-                 ) : (
-                    <span className="text-xl sm:text-2xl font-black text-white">{gecerliFiyat.toLocaleString("tr-TR")} TL</span>
-                 )}
-              </div>
-              <div className="sm:text-right border-t sm:border-t-0 border-white/5 pt-2 sm:pt-0">
-                <span className="text-[10px] text-slate-400 block font-bold">Havale / EFT ile</span>
-                <span className="text-lg sm:text-xl font-black text-[#10b981]">{havaleFiyati.toLocaleString("tr-TR")} TL</span>
-              </div>
+            <div className="mt-5 pt-4 border-t border-white/10 flex items-center gap-3">
+              <span className="text-xl">💳</span>
+              <span className="text-amber-400 text-sm font-bold tracking-wide">9 ve 12 Taksit İmkanları</span>
             </div>
           </div>
 
-          <div className="hidden sm:flex items-center gap-3 mt-2">
-            <div className="flex items-center justify-between bg-[#050814] border border-white/10 rounded-lg p-1 h-12 min-w-[100px]">
-              <button type="button" onClick={() => setQuantity(q => q > 1 ? q - 1 : 1)} className="w-8 h-full font-bold text-white">-</button>
-              <span className="text-white font-black text-sm">{quantity}</span>
-              <button type="button" onClick={() => setQuantity(q => q + 1)} className="w-8 h-full font-bold text-white">+</button>
+          <div className="flex items-center gap-4 bg-[#09090b] border border-white/5 p-4 rounded-xl mb-6">
+            <div className="text-3xl">🚚</div>
+            <div className="flex flex-col">
+              <span className="text-slate-400 font-bold text-[10px] tracking-widest uppercase">HIZLI KARGO AVANTAJI</span>
+              <span className="text-sm font-medium mt-0.5">{timeLeft} <strong className="text-[#10b981] font-black">{shippingMessage}</strong></span>
             </div>
-            <div className="flex-1 relative">
-              <button type="button" onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`w-full h-12 font-black rounded-lg uppercase text-xs tracking-wider transition-all ${tukendiMi ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-[#00e5ff] text-black hover:bg-[#00c4db]'}`}>
-                {tukendiMi ? "TÜKENDİ" : "Sepete Ekle"}
-              </button>
-              {addedSuccess && (
-                <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#10b981] text-black text-[10px] font-black px-3 py-1 rounded-md shadow-lg animate-bounce">
-                  ✅ Sepete Atıldı!
-                </div>
-              )}
-            </div>
+          </div>
+
+          <div className="hidden sm:block relative mt-2">
+            <button 
+              type="button" 
+              onClick={handleAddToCart} 
+              disabled={addingToCart || tukendiMi} 
+              className={`w-full h-16 rounded-xl font-black text-lg uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-3
+              ${tukendiMi ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-[#00e5ff] text-black shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:bg-[#00c4db] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)]'}`}
+            >
+              {!tukendiMi && <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>}
+              {tukendiMi ? "STOK TÜKENDİ" : "HEMEN SEPETE EKLE"}
+            </button>
+            {addedSuccess && (
+              <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#10b981] text-black text-xs font-black px-4 py-2 rounded-lg shadow-[0_0_20px_rgba(16,185,129,0.5)] animate-bounce whitespace-nowrap">
+                ✅ Başarıyla Sepete Eklendi!
+              </div>
+            )}
           </div>
           
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-[#09090b]/95 backdrop-blur-md border-t border-white/10 p-3 flex justify-between items-center sm:hidden z-50 shadow-2xl">
-        <div className="flex flex-col">
-          <span className="text-[9px] text-slate-400 font-bold uppercase">Havale Fiyatı</span>
-          <span className="text-base font-black text-[#10b981]">{havaleFiyati.toLocaleString("tr-TR")} TL</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 bg-[#050814] border border-white/10 rounded-md p-1 h-9">
-            <button type="button" onClick={() => setQuantity(q => q > 1 ? q - 1 : 1)} className="px-2 font-bold text-white">-</button>
-            <span className="text-white font-black text-xs">{quantity}</span>
-            <button type="button" onClick={() => setQuantity(q => q + 1)} className="px-2 font-bold text-white">+</button>
-          </div>
-          <div className="relative">
-            <button type="button" onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`h-9 px-4 rounded-md font-black text-[11px] uppercase tracking-wider ${tukendiMi ? 'bg-zinc-800 text-zinc-600' : 'bg-[#00e5ff] text-black'}`}>
-              {tukendiMi ? "TÜKENDİ" : "SEPETE AT"}
-            </button>
-            {addedSuccess && (
-              <div className="absolute -top-10 right-0 bg-[#10b981] text-black text-[9px] font-black px-2 py-1 rounded shadow-md animate-bounce whitespace-nowrap">
-                ✅ Eklendi!
-              </div>
-            )}
-          </div>
+      <div className="fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-xl border-t border-white/10 p-4 sm:hidden z-50">
+        <div className="relative">
+          <button 
+            type="button" 
+            onClick={handleAddToCart} 
+            disabled={addingToCart || tukendiMi} 
+            className={`w-full h-14 rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2
+            ${tukendiMi ? 'bg-zinc-800 text-zinc-600' : 'bg-[#00e5ff] text-black shadow-[0_0_20px_rgba(0,229,255,0.3)]'}`}
+          >
+            {!tukendiMi && <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>}
+            {tukendiMi ? "STOK TÜKENDİ" : "HEMEN SEPETE EKLE"}
+          </button>
+          {addedSuccess && (
+            <div className="absolute -top-14 left-1/2 -translate-x-1/2 bg-[#10b981] text-black text-[10px] font-black px-4 py-2 rounded-lg shadow-xl animate-bounce whitespace-nowrap">
+              ✅ Sepete Eklendi!
+            </div>
+          )}
         </div>
       </div>
 
