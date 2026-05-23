@@ -12,11 +12,21 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [timeLeft, setTimeLeft] = useState("");
   const [shippingMessage, setShippingMessage] = useState("");
 
+  const [isFav, setIsFav] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  // ŞEFİM: GERÇEK KOD BURADAN ALINIYOR
   const pId = product?._id?.toString() || product?.id?.toString() || "urun";
+  const gercekKod = product?.sku || pId;
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "instant" });
+      try {
+        const currentFavs = JSON.parse(localStorage.getItem("user_favorites") || "[]");
+        const isProductFav = currentFavs.some((item: any) => String(item.id) === String(pId));
+        setIsFav(isProductFav);
+      } catch (e) {}
     }
   }, [pId]);
 
@@ -63,6 +73,37 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     }
   };
 
+  const handleToggleFavorite = () => {
+    if (typeof window === "undefined") return;
+    try {
+      const currentFavs = JSON.parse(localStorage.getItem("user_favorites") || "[]");
+      const existingIndex = currentFavs.findIndex((item: any) => String(item.id) === String(pId));
+      let updatedFavs = [...currentFavs];
+      
+      if (existingIndex > -1) {
+        updatedFavs.splice(existingIndex, 1);
+        setIsFav(false);
+      } else {
+        updatedFavs.push({
+          id: String(pId),
+          name: product.isim || product.name,
+          price: Number(product.indirimliFiyat || product.price || product.fiyat || 0),
+          image: product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/400",
+          slug: product.slug || pId
+        });
+        setIsFav(true);
+      }
+      localStorage.setItem("user_favorites", JSON.stringify(updatedFavs));
+      window.dispatchEvent(new Event("favoritesUpdated"));
+    } catch (e) {}
+  };
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   if (!product) return <div className="text-center p-10 text-[#00e5ff] font-bold">Yükleniyor...</div>;
 
   const urunAdi = product.isim || product.name || "İsimsiz Ürün";
@@ -89,6 +130,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:gap-10 sm:py-10 sm:px-6">
         
+        {/* SOL TARAF: GÖRSEL SLIDER */}
         <div className="w-full md:w-1/2 md:rounded-3xl bg-transparent sm:bg-[#09090b] sm:border sm:border-white/5 relative">
           <div className="flex overflow-x-auto snap-x snap-mandatory w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {resimler.map((img: string, idx: number) => (
@@ -101,17 +143,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             ))}
           </div>
-          
           {resimler.length > 1 && (
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2 pointer-events-none">
-              {/* ŞEFİM: İşte o kırmızı çizgiyi yok eden düzeltme! any ve number tiplerini açıkça belirttik. */}
-              {resimler.map((resim: any, dotIdx: number) => (
+              {resimler.map((_: any, dotIdx: number) => (
                 <div key={dotIdx} className="w-2 h-2 rounded-full bg-[#00e5ff] opacity-50 shadow-[0_0_5px_#00e5ff]" />
               ))}
             </div>
           )}
         </div>
         
+        {/* SAĞ TARAF: BİLGİLER */}
         <div className="w-full md:w-1/2 px-4 sm:px-0 mt-6 sm:mt-0 flex flex-col justify-center">
           
           <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -123,6 +164,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             {indirimVarMi && !tukendiMi && (
               <span className="bg-gradient-to-r from-orange-500 to-red-600 text-white text-xs font-black px-3 py-1 rounded-md uppercase">🔥 %{indirimOrani} İNDİRİM</span>
             )}
+            {/* ŞEFİM: GERÇEK KOD EKLENDİ */}
+            <span className="bg-white/5 border border-white/10 text-slate-400 text-[10px] font-black px-2 py-1 rounded-md uppercase ml-auto">
+              KOD: {gercekKod}
+            </span>
           </div>
 
           <h1 className="text-2xl sm:text-4xl font-extrabold uppercase tracking-tight text-white leading-tight mb-6">
@@ -168,16 +213,26 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </div>
           </div>
 
+          {/* MASAÜSTÜ SEPETE EKLE BUTONU */}
           <div className="hidden sm:block relative mt-2">
             <button 
               type="button" 
               onClick={handleAddToCart} 
               disabled={addingToCart || tukendiMi} 
-              className={`w-full h-16 rounded-xl font-black text-lg uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-3
+              className={`w-full h-16 rounded-xl font-black text-lg uppercase tracking-widest transition-all duration-300 flex items-center justify-between px-6
               ${tukendiMi ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-[#00e5ff] text-black shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:bg-[#00c4db] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)]'}`}
             >
-              {!tukendiMi && <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>}
-              {tukendiMi ? "STOK TÜKENDİ" : "HEMEN SEPETE EKLE"}
+              <div className="flex items-center gap-3">
+                {/* ŞEFİM: YENİ SEPET (MARKET ARABASI) İKONU */}
+                {!tukendiMi && <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>}
+                <span>{tukendiMi ? "STOK TÜKENDİ" : "SEPETE EKLE"}</span>
+              </div>
+              {/* ŞEFİM: BUTONUN İÇİNDE HAVALE FİYATI */}
+              {!tukendiMi && (
+                 <span className="bg-black/10 border border-black/10 px-3 py-1 rounded-lg text-base">
+                   {havaleFiyati.toLocaleString("tr-TR")} TL
+                 </span>
+              )}
             </button>
             {addedSuccess && (
               <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#10b981] text-black text-xs font-black px-4 py-2 rounded-lg shadow-[0_0_20px_rgba(16,185,129,0.5)] animate-bounce whitespace-nowrap">
@@ -185,21 +240,41 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
             )}
           </div>
+
+          {/* MASAÜSTÜ: PAYLAŞ VE FAVORİ BUTONLARI (Mobilde de ürünün altında kalacak) */}
+          <div className="flex items-center gap-3 mt-4 mb-4 sm:mb-0">
+            <button onClick={handleToggleFavorite} className={`flex-1 py-3.5 rounded-xl border flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider transition-all ${isFav ? 'bg-red-500/10 border-red-500/30 text-red-500' : 'bg-[#09090b] border-white/10 hover:bg-white/5 text-white'}`}>
+              {isFav ? "❤️ Favorilerde" : "🤍 Favoriye Ekle"}
+            </button>
+            <button onClick={copyLink} className="flex-1 py-3.5 rounded-xl border border-white/10 bg-[#09090b] hover:bg-white/5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-white transition-all">
+              {copied ? "✅ Kopyalandı" : "🔗 Bağlantıyı Paylaş"}
+            </button>
+          </div>
           
         </div>
       </div>
 
+      {/* MOBİL YAPIŞKAN ALT BAR */}
       <div className="fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-xl border-t border-white/10 p-4 sm:hidden z-50">
         <div className="relative">
           <button 
             type="button" 
             onClick={handleAddToCart} 
             disabled={addingToCart || tukendiMi} 
-            className={`w-full h-14 rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2
+            className={`w-full h-14 rounded-xl font-black text-[13px] uppercase tracking-widest flex items-center justify-between px-4
             ${tukendiMi ? 'bg-zinc-800 text-zinc-600' : 'bg-[#00e5ff] text-black shadow-[0_0_20px_rgba(0,229,255,0.3)]'}`}
           >
-            {!tukendiMi && <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>}
-            {tukendiMi ? "STOK TÜKENDİ" : "HEMEN SEPETE EKLE"}
+            <div className="flex items-center gap-2">
+              {/* ŞEFİM: YENİ SEPET (MARKET ARABASI) İKONU (MOBİL) */}
+              {!tukendiMi && <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>}
+              <span>{tukendiMi ? "STOK TÜKENDİ" : "SEPETE EKLE"}</span>
+            </div>
+            {/* ŞEFİM: BUTONUN İÇİNDE HAVALE FİYATI (MOBİL) */}
+            {!tukendiMi && (
+               <span className="bg-black/10 border border-black/10 px-2 py-1 rounded-md text-[11px]">
+                 {havaleFiyati.toLocaleString("tr-TR")} TL
+               </span>
+            )}
           </button>
           {addedSuccess && (
             <div className="absolute -top-14 left-1/2 -translate-x-1/2 bg-[#10b981] text-black text-[10px] font-black px-4 py-2 rounded-lg shadow-xl animate-bounce whitespace-nowrap">
