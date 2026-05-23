@@ -1,4 +1,4 @@
-"use client";
+ "use client";
 
 import React, { useState, useEffect } from "react";
 import { useCart } from "../../CartContext"; 
@@ -161,63 +161,77 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           )}
         </div>
         
-        <div className="w-full md:w-1/2 px-4 sm:px-0 mt-6 sm:mt-0 flex flex-col justify-center">
+        <div className="w-full md:w-1/2 px-4 sm:px-0 mt-4 sm:mt-0 flex flex-col justify-center">
           
-          <div className="flex flex-wrap items-center gap-2 mb-4">
+          <div className="flex flex-wrap items-center gap-2 mb-3">
             {tukendiMi ? (
-               <span className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-black px-3 py-1 rounded-md tracking-wider">TÜKENDİ</span>
+               <span className="bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] sm:text-xs font-black px-2.5 py-1 rounded-md tracking-wider">TÜKENDİ</span>
             ) : (
-               <span className="bg-[#00e5ff]/10 border border-[#00e5ff]/20 text-[#00e5ff] text-xs font-black px-3 py-1 rounded-md tracking-wider">STOKTA VAR {adetGosterilecekMi ? `(${product.stokAdedi})` : ""}</span>
+               <span className="bg-[#00e5ff]/10 border border-[#00e5ff]/20 text-[#00e5ff] text-[10px] sm:text-xs font-black px-2.5 py-1 rounded-md tracking-wider">STOKTA VAR {adetGosterilecekMi ? `(${product.stokAdedi})` : ""}</span>
             )}
             {indirimVarMi && !tukendiMi && (
-              <span className="bg-gradient-to-r from-orange-500 to-red-600 text-white text-xs font-black px-3 py-1 rounded-md uppercase">🔥 %{indirimOrani} İNDİRİM</span>
+              <span className="bg-gradient-to-r from-orange-500 to-red-600 text-white text-[10px] sm:text-xs font-black px-2.5 py-1 rounded-md uppercase">🔥 %{indirimOrani} İNDİRİM</span>
             )}
           </div>
 
-          <h1 className="text-2xl sm:text-4xl font-extrabold uppercase tracking-tight text-white leading-tight mb-6">
+          {/* ŞEFİM: Başlık kibarlaştırıldı (mobilde text-lg, masaüstünde text-3xl) */}
+          <h1 className="text-lg sm:text-3xl font-extrabold uppercase tracking-tight text-white leading-snug sm:leading-tight mb-2">
             {urunAdi}
           </h1>
 
-          <div className="relative rounded-2xl bg-[#09090b] p-6 mb-6 border border-[#00e5ff]/50 shadow-[0_0_20px_rgba(0,229,255,0.15)] overflow-hidden">
-            <div className="absolute top-0 right-0 w-40 h-40 bg-[#00e5ff] blur-[100px] opacity-20 pointer-events-none"></div>
+          {/* ŞEFİM: Yıldızlar ve Yorum Özeti Eklendi */}
+          <div className="flex items-center gap-2 mb-5 cursor-pointer group w-fit">
+            <div className="flex text-amber-400 text-[13px] sm:text-sm tracking-widest">
+              ★★★★★
+            </div>
+            <span className="text-slate-400 text-[11px] sm:text-xs font-medium group-hover:text-white transition-colors underline decoration-white/20 underline-offset-4">24 Değerlendirme</span>
+            <span className="text-slate-600 text-[11px] sm:text-xs">|</span>
+            <span className="text-slate-400 text-[11px] sm:text-xs font-medium group-hover:text-white transition-colors underline decoration-white/20 underline-offset-4">8 Soru & Cevap</span>
+          </div>
+
+          {/* ŞEFİM: Fiyat kutusu mobilde daha zarif (p-4) yapıldı */}
+          <div className="relative rounded-2xl bg-[#09090b] p-4 sm:p-6 mb-5 border border-[#00e5ff]/50 shadow-[0_0_20px_rgba(0,229,255,0.15)] overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#00e5ff] blur-[100px] opacity-20 pointer-events-none"></div>
             
             <div className="mb-4">
-              <span className="text-slate-400 text-[11px] font-bold uppercase tracking-widest block mb-1">Kredi Kartı Tek Çekim</span>
+              <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest block mb-1">Kredi Kartı Tek Çekim</span>
               {indirimVarMi ? (
-                <div className="flex items-center gap-3">
-                  <span className="text-zinc-500 text-xs sm:text-sm line-through font-bold">{normalFiyat.toLocaleString("tr-TR")} TL</span>
-                  <span className="text-2xl sm:text-3xl font-black text-white">{gecerliFiyat.toLocaleString("tr-TR")} TL</span>
+                <div className="flex items-end gap-2">
+                  <span className="text-zinc-500 text-xs line-through font-bold mb-0.5">{normalFiyat.toLocaleString("tr-TR")} TL</span>
+                  {/* Fiyatlar kibarlaştırıldı (mobilde text-xl) */}
+                  <span className="text-xl sm:text-3xl font-black text-white leading-none">{gecerliFiyat.toLocaleString("tr-TR")} TL</span>
                 </div>
               ) : (
-                <span className="text-2xl sm:text-3xl font-black text-white">{gecerliFiyat.toLocaleString("tr-TR")} TL</span>
+                <span className="text-xl sm:text-3xl font-black text-white leading-none">{gecerliFiyat.toLocaleString("tr-TR")} TL</span>
               )}
             </div>
 
             <div>
-              <span className="text-[#10b981] text-[11px] font-bold uppercase tracking-widest block mb-1">Havale / EFT Fiyatı</span>
+              <span className="text-[#10b981] text-[10px] font-bold uppercase tracking-widest block mb-1">Havale / EFT Fiyatı</span>
               <div className="flex items-center gap-2">
-                <span className="text-2xl sm:text-3xl font-black text-[#10b981] drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]">{havaleFiyati.toLocaleString("tr-TR")} TL</span>
+                {/* Fiyatlar kibarlaştırıldı (mobilde text-xl) */}
+                <span className="text-xl sm:text-3xl font-black text-[#10b981] drop-shadow-[0_0_10px_rgba(16,185,129,0.3)] leading-none">{havaleFiyati.toLocaleString("tr-TR")} TL</span>
                 {havaleYuzdesi > 0 && (
-                  <span className="bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] text-[10px] font-bold px-2 py-0.5 rounded uppercase">%{havaleYuzdesi} İndirim</span>
+                  <span className="bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] text-[9px] font-bold px-2 py-0.5 rounded uppercase">%{havaleYuzdesi} İndirim</span>
                 )}
               </div>
             </div>
 
-            <div className="mt-5 pt-4 border-t border-white/10 flex items-center gap-3">
-              <span className="text-xl">💳</span>
-              <span className="text-amber-400 text-sm font-bold tracking-wide">9 ve 12 Taksit İmkanları</span>
+            <div className="mt-4 pt-3 border-t border-white/10 flex items-center gap-2">
+              <span className="text-lg">💳</span>
+              <span className="text-amber-400 text-xs sm:text-sm font-bold tracking-wide">9 ve 12 Taksit İmkanları</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 bg-[#09090b] border border-white/5 p-4 rounded-xl mb-6">
-            <div className="text-3xl">🚚</div>
+          <div className="flex items-center gap-4 bg-[#09090b] border border-white/5 p-3 sm:p-4 rounded-xl mb-5">
+            <div className="text-2xl sm:text-3xl">🚚</div>
             <div className="flex flex-col">
-              <span className="text-slate-400 font-bold text-[10px] tracking-widest uppercase">HIZLI KARGO AVANTAJI</span>
-              <span className="text-sm font-medium mt-0.5">{timeLeft} <strong className="text-[#10b981] font-black">{shippingMessage}</strong></span>
+              <span className="text-slate-400 font-bold text-[9px] sm:text-[10px] tracking-widest uppercase">HIZLI KARGO AVANTAJI</span>
+              <span className="text-xs sm:text-sm font-medium mt-0.5">{timeLeft} <strong className="text-[#10b981] font-black">{shippingMessage}</strong></span>
             </div>
           </div>
 
-          <div className="hidden sm:block relative mt-2">
+          <div className="hidden sm:block relative mt-1 mb-4">
             <button 
               type="button" 
               onClick={handleAddToCart} 
@@ -244,30 +258,41 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             )}
           </div>
 
-          <div className="flex items-center gap-3 mt-4 mb-4 sm:mb-0">
-            <button onClick={handleToggleFavorite} className={`flex-1 py-3.5 rounded-xl border flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider transition-all ${isFav ? 'bg-red-500/10 border-red-500/30 text-red-500' : 'bg-[#09090b] border-white/10 hover:bg-white/5 text-white'}`}>
+          {/* Paylaş ve Favori (Kibarlaştırıldı) */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button onClick={handleToggleFavorite} className={`flex-1 py-3 rounded-xl border flex items-center justify-center gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all ${isFav ? 'bg-red-500/10 border-red-500/30 text-red-500' : 'bg-[#09090b] border-white/10 hover:bg-white/5 text-white'}`}>
               {isFav ? "❤️ Favorilerde" : "🤍 Favoriye Ekle"}
             </button>
-            <button onClick={handleShare} className="flex-1 py-3.5 rounded-xl border border-white/10 bg-[#09090b] hover:bg-white/5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-white transition-all">
+            <button onClick={handleShare} className="flex-1 py-3 rounded-xl border border-white/10 bg-[#09090b] hover:bg-white/5 flex items-center justify-center gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-white transition-all">
               {copied ? "✅ Kopyalandı" : (
                 <>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
                   Paylaş / Kopyala
                 </>
               )}
+            </button>
+          </div>
+
+          {/* ŞEFİM: YENİ EKLENEN YORUMLAR VE SORULAR BUTONLARI */}
+          <div className="flex items-center gap-2 sm:gap-3 mt-2 sm:mt-3">
+            <button className="flex-1 py-3 rounded-xl border border-white/5 bg-[#050814] hover:bg-white/5 flex items-center justify-center gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-300 transition-all">
+              ⭐ Ürün Yorumları
+            </button>
+            <button className="flex-1 py-3 rounded-xl border border-white/5 bg-[#050814] hover:bg-white/5 flex items-center justify-center gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-300 transition-all">
+              💬 Soru & Cevap
             </button>
           </div>
           
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-xl border-t border-white/10 p-4 sm:hidden z-50">
+      <div className="fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-xl border-t border-white/10 p-3 sm:hidden z-50">
         <div className="relative">
           <button 
             type="button" 
             onClick={handleAddToCart} 
             disabled={addingToCart || tukendiMi} 
-            className={`w-full h-14 rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-between px-4
+            className={`w-full h-14 rounded-xl font-black text-[13px] uppercase tracking-widest flex items-center justify-between px-4
             ${tukendiMi ? 'bg-zinc-800 text-zinc-600' : 'bg-[#00e5ff] text-black shadow-[0_0_20px_rgba(0,229,255,0.3)]'}`}
           >
             <div className="flex items-center gap-2">
