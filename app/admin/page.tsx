@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 export default function AdminPaneli() {
   const [sifre, setSifre] = useState("");
   const [girisYapildi, setGirisYapildi] = useState(false);
-  const [aktifSekme, setAktifSekme] = useState<"siparisler" | "urunler">("siparisler");
+  const [aktifSekme, setAktifSekme] = useState<"siparisler" | "urunler">("urunler");
   const [yukleniyor, setYukleniyor] = useState(true);
 
   const [bildirim, setBildirim] = useState<{tip: "basari" | "hata", mesaj: string} | null>(null);
@@ -18,11 +18,10 @@ export default function AdminPaneli() {
 
   const [formIsim, setFormIsim] = useState("");
   const [formFiyat, setFormFiyat] = useState("");
+  const [formIndirimliFiyat, setFormIndirimliFiyat] = useState(""); 
+  const [formHavaleIndirimi, setFormHavaleIndirimi] = useState("5"); 
   const [formStok, setFormStok] = useState("Stokta Var");
-  
-  // ŞEFİM: Kutuyu varsayılan olarak BOMBOŞ yaptık. Sen istemedikçe sayı falan yazmaz!
   const [formStokAdedi, setFormStokAdedi] = useState(""); 
-  
   const [formResim, setFormResim] = useState("");
   const [formKategori, setFormKategori] = useState("Bilgisayar");
 
@@ -110,7 +109,7 @@ export default function AdminPaneli() {
     e.preventDefault();
     try {
       const gonderilecekVeri: any = {
-        isim: formIsim, fiyat: formFiyat, stokDurumu: formStok, stokAdedi: formStokAdedi, resim: formResim, kategori: formKategori
+        isim: formIsim, fiyat: formFiyat, indirimliFiyat: formIndirimliFiyat, havaleIndirimi: formHavaleIndirimi, stokDurumu: formStok, stokAdedi: formStokAdedi, resim: formResim, kategori: formKategori
       };
       if (duzenlenenUrun) gonderilecekVeri.id = duzenlenenUrun._id;
 
@@ -124,7 +123,7 @@ export default function AdminPaneli() {
   };
 
   const urunSilmeIslemi = async (id: string) => {
-    if (!window.confirm("Bu ürünü silmek istediğine emin misin şefim?")) return;
+    if (!window.confirm("Bu ürünü silmek istediğine emin misin?")) return;
     try {
       const res = await fetch(`/api/admin/products?id=${id}`, { method: "DELETE", headers: { "x-patron-anahtar": PATRON_SIFRESI }});
       if ((await res.json()).success) {
@@ -137,12 +136,15 @@ export default function AdminPaneli() {
   const urunDuzenleModunuAc = (urun: any) => {
     setDuzenlenenUrun(urun);
     setFormIsim(urun.isim || urun.name || "");
-    const orjFiyat = urun.regular_price || urun.fiyat || urun.price || 0;
+    const orjFiyat = urun.fiyat || urun.regular_price || urun.price || 0;
     setFormFiyat(orjFiyat.toString());
+    setFormIndirimliFiyat(urun.indirimliFiyat ? urun.indirimliFiyat.toString() : ""); 
+    setFormHavaleIndirimi(urun.havaleIndirimi !== undefined ? urun.havaleIndirimi.toString() : "5");
     setFormStok(urun.stokDurumu || "Stokta Var");
     
-    // ŞEFİM: Eğer stok null veya boşsa kutuya hiçbir şey yazma (Boş kalsın)
-    setFormStokAdedi((urun.stokAdedi !== null && urun.stokAdedi !== undefined && urun.stokAdedi !== "") ? urun.stokAdedi.toString() : "");
+    // Eski "10" sayılarını göstermiyoruz, sadece senin yazdıkların görünür
+    const temizAdet = (urun.stokAdedi !== null && urun.stokAdedi !== undefined && urun.stokAdedi !== "" && Number(urun.stokAdedi) !== 10) ? urun.stokAdedi.toString() : "";
+    setFormStokAdedi(temizAdet);
     
     setFormResim(urun.resim || "");
     setFormKategori(urun.kategori || "Bilgisayar");
@@ -151,9 +153,7 @@ export default function AdminPaneli() {
 
   const yeniUrunModunuAc = () => {
     setDuzenlenenUrun(null);
-    setFormIsim(""); setFormFiyat(""); setFormStok("Stokta Var"); 
-    setFormStokAdedi(""); // YENİ ÜRÜNDE KUTU BOMBOŞ!
-    setFormResim(""); setFormKategori("Bilgisayar");
+    setFormIsim(""); setFormFiyat(""); setFormIndirimliFiyat(""); setFormHavaleIndirimi("5"); setFormStok("Stokta Var"); setFormStokAdedi(""); setFormResim(""); setFormKategori("Bilgisayar");
     setYeniUrunModu(true);
   };
 
@@ -163,6 +163,7 @@ export default function AdminPaneli() {
   };
 
   const durumRengi = (durum: string) => {
+    if (!durum) return "#f59e0b";
     if (durum === "Ödendi / Hazırlanıyor" || durum.includes("Başarılı")) return "#10b981"; 
     if (durum === "Kargoya Verildi") return "#00e5ff"; 
     if (durum === "İptal Edildi") return "#ef4444"; 
@@ -217,26 +218,30 @@ export default function AdminPaneli() {
             <div><label style={{ color: "#a1a1aa", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Ürün Adı</label><input type="text" value={formIsim} onChange={(e) => setFormIsim(e.target.value)} required style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }} /></div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              <div><label style={{ color: "#a1a1aa", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Fiyat (TL)</label><input type="number" value={formFiyat} onChange={(e) => setFormFiyat(e.target.value)} required style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }} /></div>
-              <div><label style={{ color: "#a1a1aa", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Kategori</label><input type="text" value={formKategori} onChange={(e) => setFormKategori(e.target.value)} placeholder="Örn: Ekran Kartı" style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }} /></div>
+              <div><label style={{ color: "#a1a1aa", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Normal Fiyat (TL)</label><input type="number" value={formFiyat} onChange={(e) => setFormFiyat(e.target.value)} required style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }} /></div>
+              <div><label style={{ color: "#ffb300", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>İndirimli Fiyat (TL)</label><input type="number" value={formIndirimliFiyat} onChange={(e) => setFormIndirimliFiyat(e.target.value)} placeholder="Yoksa boş bırak" style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#ffb300", outline: "none", fontWeight: "bold" }} /></div>
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
               <div>
-                {/* ŞEFİM: STOK ADEDİ KUTUSU TAMAMEN OPSİYONEL OLDU */}
                 <label style={{ color: "#00e5ff", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Stok Adedi (İsteğe Bağlı)</label>
-                <input type="number" value={formStokAdedi} onChange={(e) => setFormStokAdedi(e.target.value)} placeholder="Sadece Var yazsın istiyorsan BOŞ BIRAK" style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#00e5ff", fontWeight: "900", outline: "none" }} />
+                <input type="number" value={formStokAdedi} onChange={(e) => setFormStokAdedi(e.target.value)} placeholder="BOŞ BIRAKABİLİRSİN" style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#00e5ff", fontWeight: "900", outline: "none" }} />
               </div>
+              <div><label style={{ color: "#10b981", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Özel Havale İndirimi (%)</label><input type="number" value={formHavaleIndirimi} onChange={(e) => setFormHavaleIndirimi(e.target.value)} min="0" max="100" style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#10b981", fontWeight: "900", outline: "none" }} /></div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
               <div>
-                <label style={{ color: "#a1a1aa", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Stok Durumu (Manuel)</label>
-                <select value={formStok} onChange={(e) => setFormStok(e.target.value)} style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none", cursor: "pointer" }}>
+                <label style={{ color: "#a1a1aa", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Stok Durumu</label>
+                <select value={formStok} onChange={(e) => setFormStok(e.target.value)} style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }}>
                   <option value="Stokta Var">Stokta Var</option>
                   <option value="Tükendi">Tükendi</option>
                 </select>
               </div>
+              <div><label style={{ color: "#a1a1aa", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Kategori</label><input type="text" value={formKategori} onChange={(e) => setFormKategori(e.target.value)} style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }} /></div>
             </div>
 
-            <div><label style={{ color: "#a1a1aa", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Resim URL Yolu</label><input type="text" value={formResim} onChange={(e) => setFormResim(e.target.value)} placeholder="https://..." style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }} /></div>
+            <div><label style={{ color: "#a1a1aa", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Resim URL Yolu</label><input type="text" value={formResim} onChange={(e) => setFormResim(e.target.value)} style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }} /></div>
 
             <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
               <button type="button" onClick={formuKapat} style={{ flex: 1, padding: "12px", background: "#27272a", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "800", cursor: "pointer" }}>Kapat</button>
@@ -258,7 +263,6 @@ export default function AdminPaneli() {
 
       {yukleniyor ? <div style={{ textAlign: "center", padding: "50px", color: "#00e5ff", fontWeight: "900" }}>Veriler Çekiliyor Patron...</div> : aktifSekme === "siparisler" ? (
         
-        // ŞEFİM: EKSİKSİZ AÇIK ADRESLİ SİPARİŞ YÖNETİMİ!
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           {siparisler.map((siparis) => (
             <div key={siparis._id} style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px", display: "flex", flexDirection: "column", gap: "20px" }}>
@@ -289,8 +293,6 @@ export default function AdminPaneli() {
                   <p style={{ color: "#fff", fontSize: "0.85rem", lineHeight: "1.6" }}>
                     <strong>{siparis.musteri?.ad} {siparis.musteri?.soyad}</strong><br />
                     📞 {siparis.musteri?.telefon} | ✉️ {siparis.musteri?.eposta}<br />
-                    
-                    {/* ŞEFİM: ADRES SATIRI GERİ GELDİ! */}
                     📍 {siparis.musteri?.adres ? `${siparis.musteri.adres} - ` : ""} {siparis.musteri?.ilce} / {siparis.musteri?.sehir}
                   </p>
                 </div>
@@ -324,7 +326,6 @@ export default function AdminPaneli() {
         </div>
       ) : (
         
-        // ŞEFİM: ÜRÜN YÖNETİMİ
         <div>
           <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "20px" }}>
             <button onClick={yeniUrunModunuAc} style={{ width: "100%", maxWidth: "200px", background: "#00e5ff", color: "#000", border: "none", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", transition: "0.2s" }}>➕ Yeni Ürün Ekle</button>
@@ -333,10 +334,15 @@ export default function AdminPaneli() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))", gap: "15px" }}>
             {urunler.map((urun, index) => {
               
-              // ŞEFİM: 0 GİRERSE OTOMATİK TÜKENDİ SAYIYORUZ!
+              const normalFiyat = Number(urun.fiyat || urun.regular_price || urun.price || 0);
+              const indirimliFiyat = urun.indirimliFiyat ? Number(urun.indirimliFiyat) : null;
+              const gosterilenFiyat = indirimliFiyat ? indirimliFiyat : normalFiyat;
+
               const stokSifirMi = urun.stokAdedi === 0 || urun.stokAdedi === "0";
               const gosterilecekDurum = (urun.stokDurumu === "Tükendi" || stokSifirMi) ? "Tükendi" : "Stokta Var";
-              const durumRengi = gosterilecekDurum === "Tükendi" ? "#ef4444" : "#10b981";
+              const durumRengiCode = gosterilecekDurum === "Tükendi" ? "#ef4444" : "#10b981";
+              
+              const adetGosterilecekMi = urun.stokAdedi !== null && urun.stokAdedi !== undefined && urun.stokAdedi !== "" && Number(urun.stokAdedi) !== 10 && Number(urun.stokAdedi) > 0;
 
               return (
                 <div key={urun._id || index} style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "20px", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "15px", transition: "0.3s" }}>
@@ -345,15 +351,37 @@ export default function AdminPaneli() {
                       <span style={{ background: "#27272a", color: "#a1a1aa", fontSize: "0.7rem", padding: "4px 8px", borderRadius: "4px", textTransform: "uppercase" }}>{urun.kategori || "Genel"}</span>
                       <div style={{display: "flex", alignItems: "center", gap: "6px"}}>
                         
-                        {/* ŞEFİM: EĞER KUTU BOŞSA BURADA "X ADET" YAZISI ASLA ÇIKMAZ! */}
-                        {urun.stokAdedi !== null && urun.stokAdedi !== undefined && urun.stokAdedi !== "" && (
+                        {adetGosterilecekMi && (
                           <span style={{ background: "rgba(0, 229, 255, 0.1)", color: "#00e5ff", fontSize: "0.7rem", padding: "4px 8px", borderRadius: "4px", fontWeight: "900" }}>{urun.stokAdedi} Adet</span>
                         )}
 
-                        <span style={{ color: durumRengi, fontWeight: "800", fontSize: "0.75rem" }}>● {gosterilecekDurum}</span>
+                        <span style={{ color: durumRengiCode, fontWeight: "800", fontSize: "0.75rem" }}>● {gosterilecekDurum}</span>
                       </div>
                     </div>
+                    
                     <h3 style={{ color: "#fff", fontSize: "1rem", fontWeight: "700" }}>{urun.isim || urun.name}</h3>
+
+                    <div style={{ marginTop: "10px" }}>
+                      {indirimliFiyat ? (
+                        <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
+                          <span style={{ color: "#ef4444", fontSize: "0.9rem", textDecoration: "line-through", opacity: 0.6 }}>
+                            {normalFiyat.toLocaleString("tr-TR")} TL
+                          </span>
+                          <span style={{ color: "#00e5ff", fontSize: "1.3rem", fontWeight: "900" }}>
+                            {gosterilenFiyat.toLocaleString("tr-TR")} TL
+                          </span>
+                        </div>
+                      ) : (
+                        <span style={{ color: "#00e5ff", fontSize: "1.3rem", fontWeight: "900" }}>
+                          {gosterilenFiyat.toLocaleString("tr-TR")} TL
+                        </span>
+                      )}
+                      
+                      <div style={{ color: "#10b981", fontSize: "0.75rem", fontWeight: "800", marginTop: "5px" }}>
+                        Havale İndirimi: %{urun.havaleIndirimi !== undefined ? urun.havaleIndirimi : 5}
+                      </div>
+                    </div>
+
                   </div>
                   <div style={{ display: "flex", gap: "10px", borderTop: "1px solid #27272a", paddingTop: "15px" }}>
                     <button onClick={() => urunDuzenleModunuAc(urun)} style={{ flex: 1, background: "rgba(0, 229, 255, 0.1)", color: "#00e5ff", border: "1px solid rgba(0, 229, 255, 0.2)", padding: "8px", borderRadius: "6px", fontWeight: "800", cursor: "pointer", fontSize: "0.85rem", transition: "0.2s" }}>⚙️ Düzenle</button>
