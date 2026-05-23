@@ -16,15 +16,18 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [isFav, setIsFav] = useState(false);
   const [favMessage, setFavMessage] = useState("");
 
-  // ŞEFİM: Eski WordPress Favori kontrolü
+  // ŞEFİM: MongoDB'nin harfli/sayılı o güçlü ID'sini garantiye alıyoruz
+  const pId = product?._id?.toString() || product?.id?.toString() || "";
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "instant" });
       const currentFavs = JSON.parse(localStorage.getItem("user_favorites") || "[]");
-      const isProductFav = currentFavs.some((item: any) => Number(item.id) === Number(product?._id || product?.id));
+      // Number yerine String kullandık ki MongoDB ID'lerinde hata vermesin
+      const isProductFav = currentFavs.some((item: any) => String(item.id) === String(pId));
       setIsFav(isProductFav);
     }
-  }, [product?._id, product?.id]);
+  }, [pId]);
 
   // Kargo Sayacı
   useEffect(() => {
@@ -44,13 +47,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     return () => clearInterval(timer);
   }, []);
 
-  // ŞEFİM: KUSURSUZ SEPETE EKLEME MOTORU (Eski modüller kilitleniyordu, bu asla kilitlenmez)
+  // ŞEFİM: KUSURSUZ SEPET MOTORU!
   const handleAddToCart = () => {
     setAddingToCart(true);
     const currentCart = JSON.parse(localStorage.getItem("cart") || "[]");
     
-    const pId = product._id || product.id;
-    const existingIndex = currentCart.findIndex((item: any) => Number(item.id) === Number(pId));
+    // İŞTE HATA BURADAYDI! Number() yerine String() yaptık, artık asla çökmeyecek!
+    const existingIndex = currentCart.findIndex((item: any) => String(item.id) === String(pId));
     
     const gecerliFiyat = Number(product.indirimliFiyat || product.price || product.fiyat || 0);
     const urunGorseli = product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/400x400?text=Gorsel+Yok";
@@ -59,7 +62,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       currentCart[existingIndex].quantity += quantity;
     } else {
       currentCart.push({ 
-        id: pId, 
+        id: String(pId), 
         name: product.isim || product.name, 
         price: gecerliFiyat, 
         image: urunGorseli, 
@@ -79,11 +82,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     }, 400);
   };
 
-  const handleToggleFavorite = async () => {
+  const handleToggleFavorite = () => {
     if (typeof window === "undefined") return;
     const currentFavs = JSON.parse(localStorage.getItem("user_favorites") || "[]");
-    const pId = product._id || product.id;
-    const existingIndex = currentFavs.findIndex((item: any) => Number(item.id) === Number(pId));
+    const existingIndex = currentFavs.findIndex((item: any) => String(item.id) === String(pId));
 
     let updatedFavs = [...currentFavs];
     if (existingIndex > -1) {
@@ -92,7 +94,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       setFavMessage("💔 Çıkarıldı");
     } else {
       updatedFavs.push({
-        id: pId,
+        id: String(pId),
         name: product.isim || product.name,
         price: Number(product.indirimliFiyat || product.price || product.fiyat || 0),
         image: product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/400",
@@ -128,14 +130,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const havaleIndirimiTutari = (gecerliFiyat * havaleYuzdesi) / 100;
   const havaleFiyati = gecerliFiyat - havaleIndirimiTutari;
 
-  // Görseli sağlama alıyoruz
   const anaGorsel = product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/600x600?text=Gorsel+Bulunamadi";
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-[#050814] text-white py-10 px-4 sm:px-6 lg:px-8 font-medium font-sans">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 bg-[#0b1329]/60 backdrop-blur-2xl border border-[#00e5ff]/10 p-6 sm:p-10 rounded-3xl shadow-[0_0_50px_rgba(0,229,255,0.03)]">
         
-        {/* ŞEFİM: BOZUK ESKİ GALERİ YERİNE, NEON TASARIMLI SIFIR GÖRSEL ALANI */}
+        {/* SOL TARAF: GÖRSEL */}
         <div className="relative w-full h-[350px] sm:h-[500px] bg-[#09090b] rounded-2xl border border-white/5 flex items-center justify-center p-8 overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-tr from-[#00e5ff]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
           <img 
@@ -148,10 +149,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         {/* SAĞ TARAF: BİLGİLER VE SEPET */}
         <div className="flex flex-col justify-center">
           
-          {/* ROZETLER */}
           <div className="flex flex-wrap items-center gap-2 mb-4">
             <span className="bg-white/5 border border-white/10 text-slate-400 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
-              KOD: {product.sku || product._id || "BLGN-001"}
+              KOD: {product.sku || pId.slice(-6).toUpperCase() || "BLGN"}
             </span>
             
             {tukendiMi ? (
@@ -175,7 +175,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             {urunAdi}
           </h1>
 
-          {/* KARGO BİLGİSİ */}
           <div className="flex items-center gap-4 mb-6 bg-[#050814]/80 p-4 rounded-xl border border-white/5">
             <div className="text-3xl text-[#00e5ff]">🚚</div>
             <div className="flex flex-col text-sm">
@@ -184,9 +183,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </div>
           </div>
 
-          {/* FİYAT BÖLÜMÜ */}
           <div className="bg-gradient-to-br from-[#121214] to-[#09090b] border border-[#00e5ff]/20 p-6 rounded-2xl mb-6 grid grid-cols-1 sm:grid-cols-2 gap-6 relative overflow-hidden">
-            {/* Neon Parlaması */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#00e5ff] blur-[100px] opacity-10"></div>
             
             <div className="flex flex-col justify-center relative z-10">
@@ -214,16 +211,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </div>
           </div>
 
-          {/* BUTONLAR */}
           <div className="flex flex-col sm:flex-row items-center gap-4 mt-2">
-            {/* Adet Seçici */}
             <div className="flex items-center justify-between bg-[#050814] border border-white/10 rounded-xl p-2 w-full sm:w-auto min-w-[120px] h-14">
               <button type="button" onClick={() => setQuantity(q => q > 1 ? q - 1 : 1)} className="w-10 h-10 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-lg text-white font-bold transition-colors">-</button>
               <span className="text-white font-black text-lg w-10 text-center">{quantity}</span>
               <button type="button" onClick={() => setQuantity(q => q + 1)} className="w-10 h-10 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-lg text-white font-bold transition-colors">+</button>
             </div>
 
-            {/* Sepete Ekle */}
             <div className="flex-1 w-full relative">
               <button 
                 type="button" 
@@ -238,7 +232,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 {tukendiMi ? "TÜKENDİ" : "Sepete At"}
               </button>
               
-              {/* Başarı Mesajı */}
               {addedSuccess && (
                 <div className="absolute -top-14 left-1/2 -translate-x-1/2 bg-[#10b981] text-black text-xs font-black px-4 py-2 rounded-lg shadow-[0_0_20px_rgba(16,185,129,0.5)] animate-bounce flex items-center gap-2 whitespace-nowrap z-50">
                   <span>✅</span><span>Başarıyla Sepete Eklendi!</span>
@@ -246,7 +239,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               )}
             </div>
 
-            {/* Favori Butonu */}
             <div className="relative w-full sm:w-auto">
               <button 
                 type="button" 
