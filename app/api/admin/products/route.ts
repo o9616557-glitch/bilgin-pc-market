@@ -16,7 +16,6 @@ export async function GET(request: Request) {
 
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
-    
     const urunler = await db.collection("products").find({}).toArray();
     
     return new NextResponse(JSON.stringify({ success: true, urunler }), {
@@ -40,8 +39,8 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    // ŞEFİM: stokAdedi eklendi!
-    const { id, isim, fiyat, stokDurumu, stokAdedi, resim, kategori } = body;
+    // ŞEFİM: indirimliFiyat ve havaleIndirimi eklendi!
+    const { id, isim, fiyat, indirimliFiyat, havaleIndirimi, stokDurumu, stokAdedi, resim, kategori } = body;
 
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
@@ -53,8 +52,10 @@ export async function PUT(request: Request) {
           $set: { 
             isim, 
             fiyat: Number(fiyat), 
+            indirimliFiyat: indirimliFiyat ? Number(indirimliFiyat) : null, // Boşsa iptal et
+            havaleIndirimi: havaleIndirimi ? Number(havaleIndirimi) : 0,    // Boşsa %0 say
             stokDurumu, 
-            stokAdedi: Number(stokAdedi || 0), // Sayı olarak kaydediyoruz
+            stokAdedi: Number(stokAdedi || 0), 
             resim, 
             kategori 
           } 
@@ -69,8 +70,10 @@ export async function PUT(request: Request) {
       const yeniUrun = {
         isim,
         fiyat: Number(fiyat),
+        indirimliFiyat: indirimliFiyat ? Number(indirimliFiyat) : null,
+        havaleIndirimi: havaleIndirimi ? Number(havaleIndirimi) : 0,
         stokDurumu: stokDurumu || "Stokta Var",
-        stokAdedi: Number(stokAdedi || 10), // Varsayılan 10 adet
+        stokAdedi: Number(stokAdedi || 10), 
         resim: resim || "/placeholder.png",
         kategori: kategori || "Bilgisayar",
         tarih: new Date()
@@ -94,7 +97,6 @@ export async function DELETE(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
-
     if (!id) return NextResponse.json({ error: "Ürün ID eksik." }, { status: 400 });
 
     const client = await clientPromise;
