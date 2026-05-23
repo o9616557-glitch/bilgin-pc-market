@@ -15,9 +15,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [isFav, setIsFav] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // ŞEFİM: UPZUN KODU KESTİK. EĞER SKU YOKSA SON 6 HANEYİ ALIR.
   const pId = product?._id?.toString() || product?.id?.toString() || "urun";
-  const gercekKod = product?.sku || pId.slice(-6).toUpperCase();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -98,7 +96,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     } catch (e) {}
   };
 
-  // ŞEFİM: İŞTE GERÇEK PAYLAŞIM MOTORU (TELEFONDA WHATSAPP VB. AÇAR)
   const handleShare = async () => {
     if (navigator.share) {
       try {
@@ -111,7 +108,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         console.error("Paylaşım iptal edildi", err);
       }
     } else {
-      // Bilgisayardaysa veya tarayıcı desteklemiyorsa kopyalar
       navigator.clipboard.writeText(window.location.href);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -144,7 +140,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:gap-10 sm:py-10 sm:px-6">
         
-        {/* SOL TARAF: GÖRSEL SLIDER */}
         <div className="w-full md:w-1/2 md:rounded-3xl bg-transparent sm:bg-[#09090b] sm:border sm:border-white/5 relative">
           <div className="flex overflow-x-auto snap-x snap-mandatory w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {resimler.map((img: string, idx: number) => (
@@ -166,7 +161,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           )}
         </div>
         
-        {/* SAĞ TARAF: BİLGİLER */}
         <div className="w-full md:w-1/2 px-4 sm:px-0 mt-6 sm:mt-0 flex flex-col justify-center">
           
           <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -178,10 +172,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             {indirimVarMi && !tukendiMi && (
               <span className="bg-gradient-to-r from-orange-500 to-red-600 text-white text-xs font-black px-3 py-1 rounded-md uppercase">🔥 %{indirimOrani} İNDİRİM</span>
             )}
-            {/* ŞEFİM: KISA GERÇEK KOD BURADA */}
-            <span className="bg-white/5 border border-white/10 text-slate-400 text-[10px] font-black px-2 py-1 rounded-md uppercase ml-auto">
-              KOD: {gercekKod}
-            </span>
           </div>
 
           <h1 className="text-2xl sm:text-4xl font-extrabold uppercase tracking-tight text-white leading-tight mb-6">
@@ -196,7 +186,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               {indirimVarMi ? (
                 <div className="flex items-center gap-3">
                   <span className="text-zinc-500 text-xs sm:text-sm line-through font-bold">{normalFiyat.toLocaleString("tr-TR")} TL</span>
-                  {/* ŞEFİM: TELEFONDA BİR TIK KÜÇÜLTÜLDÜ (text-2xl) */}
                   <span className="text-2xl sm:text-3xl font-black text-white">{gecerliFiyat.toLocaleString("tr-TR")} TL</span>
                 </div>
               ) : (
@@ -207,7 +196,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             <div>
               <span className="text-[#10b981] text-[11px] font-bold uppercase tracking-widest block mb-1">Havale / EFT Fiyatı</span>
               <div className="flex items-center gap-2">
-                {/* ŞEFİM: TELEFONDA BİR TIK KÜÇÜLTÜLDÜ (text-2xl) */}
                 <span className="text-2xl sm:text-3xl font-black text-[#10b981] drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]">{havaleFiyati.toLocaleString("tr-TR")} TL</span>
                 {havaleYuzdesi > 0 && (
                   <span className="bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] text-[10px] font-bold px-2 py-0.5 rounded uppercase">%{havaleYuzdesi} İndirim</span>
@@ -229,7 +217,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </div>
           </div>
 
-          {/* MASAÜSTÜ SEPETE EKLE BUTONU */}
           <div className="hidden sm:block relative mt-2">
             <button 
               type="button" 
@@ -243,7 +230,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 <span>{tukendiMi ? "STOK TÜKENDİ" : "SEPETE EKLE"}</span>
               </div>
               
-              {/* ŞEFİM: BUTON İÇİ HAVALE YAZISI BURADA */}
               {!tukendiMi && (
                  <div className="bg-black/10 border border-black/10 px-3 py-1 rounded-lg flex flex-col items-end leading-tight">
                    <span className="text-[10px] opacity-80 font-bold tracking-widest">HAVALE İLE</span>
@@ -258,12 +244,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             )}
           </div>
 
-          {/* MASAÜSTÜ: PAYLAŞ VE FAVORİ BUTONLARI */}
           <div className="flex items-center gap-3 mt-4 mb-4 sm:mb-0">
             <button onClick={handleToggleFavorite} className={`flex-1 py-3.5 rounded-xl border flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider transition-all ${isFav ? 'bg-red-500/10 border-red-500/30 text-red-500' : 'bg-[#09090b] border-white/10 hover:bg-white/5 text-white'}`}>
               {isFav ? "❤️ Favorilerde" : "🤍 Favoriye Ekle"}
             </button>
-            {/* ŞEFİM: PAYLAŞMA MOTORU BURAYA BAĞLANDI */}
             <button onClick={handleShare} className="flex-1 py-3.5 rounded-xl border border-white/10 bg-[#09090b] hover:bg-white/5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-white transition-all">
               {copied ? "✅ Kopyalandı" : (
                 <>
@@ -277,7 +261,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-      {/* MOBİL YAPIŞKAN ALT BAR */}
       <div className="fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-xl border-t border-white/10 p-4 sm:hidden z-50">
         <div className="relative">
           <button 
@@ -292,10 +275,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <span>{tukendiMi ? "STOK TÜKENDİ" : "SEPETE EKLE"}</span>
             </div>
             
-            {/* ŞEFİM: BUTON İÇİ HAVALE YAZISI (MOBİL) */}
             {!tukendiMi && (
                <div className="bg-black/10 border border-black/10 px-2 py-1 rounded-md flex flex-col items-end leading-none">
-                 <span className="text-[8px] opacity-80 font-bold tracking-widest mb-0.5">HAVALE</span>
+                 <span className="text-[8px] opacity-80 font-bold tracking-widest mb-0.5">HAVALE İLE</span>
                  <span className="text-[11px]">{havaleFiyati.toLocaleString("tr-TR")} TL</span>
                </div>
             )}
