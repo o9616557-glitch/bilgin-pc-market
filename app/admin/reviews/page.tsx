@@ -20,10 +20,8 @@ export default function AdminReviewsPage() {
   const [replyId, setReplyId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
 
-  // ŞEFİM: Senin kilitli patron anahtarın
   const GIZLI_ANAHTAR = "Bilgin123";
 
-  // Verileri Çekme Motoru
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -41,7 +39,6 @@ export default function AdminReviewsPage() {
 
   useEffect(() => { fetchData(); }, []);
 
-  // Onaylama / Onay Kaldırma Fonksiyonu
   const handleToggleStatus = async (id: string, currentStatus: boolean) => {
     try {
       const res = await fetch("/api/reviews", {
@@ -56,7 +53,6 @@ export default function AdminReviewsPage() {
     } catch (error) { alert("Hata oluştu!"); }
   };
 
-  // Cevap Yazma Fonksiyonu
   const handleSendReply = async (id: string) => {
     if (!replyText.trim()) return;
     try {
@@ -76,7 +72,6 @@ export default function AdminReviewsPage() {
     } catch (error) { alert("Hata oluştu!"); }
   };
 
-  // Silme Fonksiyonu
   const handleDelete = async (id: string) => {
     if (!confirm("Şefim bu yorumu kalıcı olarak çöpe atıyoruz, emin misin?")) return;
     try {
@@ -92,7 +87,6 @@ export default function AdminReviewsPage() {
     <div className="min-h-screen bg-[#050814] text-white p-4 sm:p-8 font-sans">
       <div className="max-w-6xl mx-auto">
         
-        {/* Üst Bar */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
             <Link href="/admin" className="flex items-center gap-2 text-[#00e5ff] mb-2 hover:underline">
@@ -156,7 +150,6 @@ export default function AdminReviewsPage() {
                     </div>
                   </div>
 
-                  {/* Aksiyon Butonları */}
                   <div className="flex md:flex-col gap-2 justify-end md:justify-start">
                     <button 
                       onClick={() => handleToggleStatus(item._id, item.onaylandi)}
@@ -187,7 +180,6 @@ export default function AdminReviewsPage() {
 
                 </div>
 
-                {/* Cevap Yazma Formu (Sadece soru için açılır) */}
                 {replyId === item._id && (
                   <div className="mt-4 pt-4 border-t border-white/5 animate-in slide-in-from-top-2 duration-300">
                     <label className="text-[10px] font-black text-[#00e5ff] uppercase block mb-2 tracking-widest">Müşteriye Cevap Yaz</label>

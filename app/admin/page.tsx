@@ -259,7 +259,7 @@ export default function AdminPaneli() {
         <button onClick={() => setAktifSekme("siparisler")} style={{ flex: "1 1 auto", background: aktifSekme === "siparisler" ? "#00e5ff" : "transparent", color: aktifSekme === "siparisler" ? "#000" : "#a1a1aa", border: aktifSekme === "siparisler" ? "none" : "1px solid #27272a", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", textAlign: "center", transition: "0.2s" }}>📦 Sipariş Yönetimi ({siparisler.length})</button>
         <button onClick={() => setAktifSekme("urunler")} style={{ flex: "1 1 auto", background: aktifSekme === "urunler" ? "#00e5ff" : "transparent", color: aktifSekme === "urunler" ? "#000" : "#a1a1aa", border: aktifSekme === "urunler" ? "none" : "1px solid #27272a", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", textAlign: "center", transition: "0.2s" }}>💻 Ürün Yönetimi ({urunler.length})</button>
       </div>
-
+      <button onClick={() => window.location.href = "/admin/reviews"} style={{ flex: "1 1 auto", background: "rgba(0, 229, 255, 0.1)", color: "#00e5ff", border: "1px solid rgba(0, 229, 255, 0.3)", borderRadius: "8px", padding: "10px 15px", cursor: "pointer", fontWeight: "900", textTransform: "uppercase" }}>⭐ YORUM YÖNETİMİ</button>
       {yukleniyor ? <div style={{ textAlign: "center", padding: "50px", color: "#00e5ff", fontWeight: "900" }}>Veriler Çekiliyor Patron...</div> : aktifSekme === "siparisler" ? (
         
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
