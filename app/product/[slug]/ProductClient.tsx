@@ -1,8 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+// ŞEFİM: İŞTE O SİHİRLİ BAĞLANTI! Dükkanın ana sepet motorunu içeri alıyoruz.
+import { useCart } from "../../CartContext"; 
 
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
+  // ANA MOTORU BURAYA BAĞLADIK
+  const { sepeteEkle } = useCart(); 
+
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
   const [addedSuccess, setAddedSuccess] = useState(false);
@@ -35,47 +40,24 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     return () => clearInterval(timer);
   }, []);
 
+  // ŞEFİM: BÜTÜN AMELE KODLAR SİLİNDİ, SADECE SENİN SİSTEMİNİN İSTEDİĞİ KOD KALDI!
   const handleAddToCart = () => {
     setAddingToCart(true);
     try {
-      let currentCart = [];
-      try {
-        currentCart = JSON.parse(localStorage.getItem("cart") || "[]");
-        if (!Array.isArray(currentCart)) currentCart = [];
-      } catch (e) {
-        currentCart = [];
-      }
-      
-      const existingIndex = currentCart.findIndex((item: any) => String(item.id) === String(pId));
       const gecerliFiyat = Number(product.indirimliFiyat || product.price || product.fiyat || 0);
       const urunGorseli = product.resim || "https://via.placeholder.com/400";
 
-      if (existingIndex > -1) {
-        currentCart[existingIndex].quantity += quantity;
-      } else {
-        currentCart.push({ 
-          id: String(pId), 
-          name: product.isim || product.name, 
-          price: gecerliFiyat, 
-          image: urunGorseli, 
-          slug: product.slug || pId, 
-          quantity: quantity 
+      // Senin CartContext'teki sepeteEkle fonksiyonu adet parametresi almıyor (içeride +1 yapıyor)
+      // O yüzden müşteri kaç adet seçtiyse (quantity), o kadar kez tetikliyoruz ki sayı tam artsın.
+      for(let i = 0; i < quantity; i++) {
+        sepeteEkle({
+          id: String(pId),
+          isim: product.isim || product.name || "İsimsiz Ürün",
+          fiyat: gecerliFiyat,
+          resim: urunGorseli,
+          varyasyon: "Standart Model" // Senin sepet sayfasındaki kodun bunu bekliyor
         });
       }
-
-      localStorage.setItem("cart", JSON.stringify(currentCart));
-
-      window.dispatchEvent(new Event("cartUpdated"));
-      window.dispatchEvent(new Event("cartChange"));
-      window.dispatchEvent(new Event("local-storage"));
-      
-      try {
-        const fakeStorageEvent = new StorageEvent("storage", {
-          key: "cart",
-          newValue: JSON.stringify(currentCart)
-        });
-        window.dispatchEvent(fakeStorageEvent);
-      } catch (e) {}
 
       setAddedSuccess(true);
       setTimeout(() => { 
@@ -84,7 +66,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       }, 2000);
       
     } catch (error) {
-      console.error("Sepete ekleme hatası:", error);
+      console.error(error);
       setAddingToCart(false);
     }
   };
