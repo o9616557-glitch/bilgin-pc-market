@@ -93,6 +93,12 @@ export default function Header() {
                 <Link href="/siparislerim" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem", fontWeight: "500", borderRadius: "8px" }}>
                   <span>📦</span> Siparişlerim
                 </Link>
+                
+                {/* 🚀 ŞEFİM: İŞTE UNUTULAN O EFSANE SİPARİŞ TAKİP BUTONU BURADA! */}
+                <Link href="/siparis-takip" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem", fontWeight: "500", borderRadius: "8px" }}>
+                  <span>🔍</span> Sipariş Takip
+                </Link>
+
                 <Link href="/adreslerim" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem", fontWeight: "500", borderRadius: "8px" }}>
                   <span>🗺️</span> Adreslerim
                 </Link>
@@ -100,7 +106,7 @@ export default function Header() {
                   <span>❤️</span> Favorilerim
                 </Link>
 
-                {/* 🚀 ŞEFİM: GİRİŞ YAPILDIYSA EN ALTA ÇIKIŞ YAP BUTONU EKLENİR */}
+                {/* GİRİŞ YAPILDIYSA EN ALTA ÇIKIŞ YAP BUTONU EKLENİR */}
                 {session && (
                   <>
                     <div style={{ height: "1px", background: "#27272a", margin: "4px 0" }}></div>
