@@ -7,6 +7,8 @@ const addressSchema = new mongoose.Schema({
   city: { type: String, required: true },
   district: { type: String, required: true },
   fullAddress: { type: String, required: true },
+  isDefaultDelivery: { type: Boolean, default: false }, // 🚀 ŞEFİM YENİ EKLENDİ (Teslimat)
+  isDefaultBilling: { type: Boolean, default: false },  // 🚀 ŞEFİM YENİ EKLENDİ (Fatura)
 });
 
 const userSchema = new mongoose.Schema(

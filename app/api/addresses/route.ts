@@ -53,10 +53,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Kullanıcı bulunamadı." }, { status: 404 });
     }
 
-    // Adresi kullanıcı veritabanındaki adreler dizisine ekle
+    // 🚀 ŞEFİM: TAHT OYUNLARI KURALI (Sadece bir varsayılan adres olabilir)
+    // Eğer yeni adres "Varsayılan Teslimat" seçildiyse, eskilerin tacını alıyoruz
+    if (newAddress.isDefaultDelivery) {
+      user.addresses.forEach((addr: any) => { addr.isDefaultDelivery = false; });
+    }
+    // Eğer yeni adres "Fatura Adresi" seçildiyse, eskilerin tacını alıyoruz
+    if (newAddress.isDefaultBilling) {
+      user.addresses.forEach((addr: any) => { addr.isDefaultBilling = false; });
+    }
+
+    // Yeni ve güncel adresi listeye ekle
     user.addresses.push(newAddress);
     await user.save();
-
     return NextResponse.json({ 
       message: "Adres başarıyla eklendi.",
       addresses: user.addresses 
