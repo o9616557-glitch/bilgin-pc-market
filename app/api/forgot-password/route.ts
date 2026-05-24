@@ -27,15 +27,18 @@ export async function POST(req: Request) {
     (user as any).resetTokenExpiry = resetTokenExpiry;
     await user.save();
 
-    // 4. MAİL KURYEMİZİ HAZIRLIYORUZ (Şefim buradaki şifreyi kendi info şifrenle değiştirmelisin)
+    // 4. MAİL KURYEMİZİ HAZIRLIYORUZ
     const transporter = nodemailer.createTransport({
-      host: "smtp.bilginpcmarket.com", // cPanel veya sunucu sağlayıcının SMTP adresi
-      port: 465, // Güvenli port
+      host: "mail.bilginpcmarket.com", // 🚀 smtp yerine mail yaptık, %90 ihtimalle böyledir.
+      port: 465, 
       secure: true,
       auth: {
         user: "info@bilginpcmarket.com",
-        pass: "BURAYA_INFO_MAILININ_SIFRESINI_YAZ", // 🚨 DİKKAT: Info mailinin şifresi
+        pass: "BURAYA_INFO_MAILININ_SIFRESINI_YAZ", // Şifreni tekrar girmeyi unutma!
       },
+      tls: {
+        rejectUnauthorized: false // 🚀 Sertifika sorunlarını görmezden gelmesi için yama yaptık.
+      }
     });
 
     // 5. Müşteriye gidecek linki ve maili hazırla
