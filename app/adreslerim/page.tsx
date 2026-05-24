@@ -91,7 +91,7 @@ export default function AdreslerimPage() {
 
   // Adres Sil
   const handleDeleteAddress = async (id: string) => {
-    if (!confirm("Bu adresi silmek istediğinize emin misiniz?")) return;
+    
 
     const loadingToast = toast.loading("Adres siliniyor...");
 
@@ -229,18 +229,50 @@ export default function AdreslerimPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {addresses.map((address) => (
               <div key={address._id} className="bg-[#09090b] border border-white/10 rounded-2xl p-6 relative group hover:border-[#00e5ff]/30 transition-colors">
-                <div className="flex justify-between items-start mb-4 border-b border-white/10 pb-3">
-                  <div className="flex items-center gap-2 text-[#00e5ff] font-bold">
-                    <MapPin size={18} /> {address.title}
-                  </div>
-                  <button 
-                    onClick={() => handleDeleteAddress(address._id)}
-                    className="text-slate-500 hover:text-rose-500 transition-colors"
-                    title="Adresi Sil"
-                  >
-                    <Trash2 size={18} />
-                  </button>
+                {/* 🚀 ŞEFİM: KARTIN ÜST KISMI (Rozetler ve Düzenle/Sil Butonları) */}
+            <div className="flex justify-between items-start mb-4 border-b border-white/10 pb-3">
+              
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2 text-[#00e5ff] font-bold">
+                  <MapPin size={18} />
+                  <span>{address.title}</span>
                 </div>
+                {/* 🚀 Şık Vitrin Rozetleri */}
+                <div className="flex gap-2 flex-wrap">
+                  {address.isDefaultDelivery && (
+                    <span className="px-2 py-1 bg-[#00e5ff]/10 text-[#00e5ff] text-[10px] rounded border border-[#00e5ff]/20 font-medium tracking-wider">VARSAYILAN TESLİMAT</span>
+                  )}
+                  {address.isDefaultBilling && (
+                    <span className="px-2 py-1 bg-rose-500/10 text-rose-400 text-[10px] rounded border border-rose-500/20 font-medium tracking-wider">FATURA ADRESİ</span>
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                {/* 🚀 Düzenle (Kalem) Butonu */}
+                <button 
+                  onClick={() => {
+                    setFormData(address as any); // Bilgileri forma doldur
+                    setShowForm(true); // Formu aç
+                    window.scrollTo({ top: 0, behavior: 'smooth' }); // Sayfayı yukarı kaydır
+                  }}
+                  className="text-slate-400 hover:text-[#00e5ff] transition-colors"
+                  title="Bu Adresi Düzenle"
+                >
+                  <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                </button>
+
+                {/* Sil (Çöp) Butonu */}
+                <button
+                  onClick={() => handleDeleteAddress(address._id)}
+                  className="text-slate-400 hover:text-rose-500 transition-colors"
+                  title="Adresi Sil"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+
+            </div>
                 
                 <div className="space-y-2 text-sm text-slate-300">
                   <p className="font-bold text-white">{address.fullName}</p>
