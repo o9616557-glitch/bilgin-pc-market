@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
+import Order from "@/models/Order";
 import User from "@/models/User";
 import { getServerSession } from "next-auth";
-// NOT: NextAuth yapılandırma dosyanızın yoluna göre aşağıdaki importu düzenlemeniz gerekebilir.
+// NOT: NextAuth yapılandırma dosyanızın yoluna göre importu düzenlemeyi unutmayın.
 import { authOptions } from "../auth/[...nextauth]/route"; 
 
-// 1. Kullanıcının Favori Listesini Getir (GET)
+// 1. Kullanıcının Geçmiş Siparişlerini Getir (GET)
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -17,19 +18,17 @@ export async function GET() {
       await mongoose.connect(process.env.MONGODB_URI as string);
     }
 
-    const user = await User.findOne({ email: session.user.email });
-    if (!user) {
-      return NextResponse.json({ message: "Kullanıcı bulunamadı." }, { status: 404 });
-    }
+    // Kullanıcının siparişlerini bul ve en yeniden en eskiye (createdAt: -1) doğru sırala
+    const orders = await Order.find({ userEmail: session.user.email }).sort({ createdAt: -1 });
 
-    return NextResponse.json({ favorites: user.favorites || [] }, { status: 200 });
+    return NextResponse.json({ orders }, { status: 200 });
   } catch (error) {
-    console.error("Favoriler Getirilirken Hata:", error);
+    console.error("Siparişler Getirilirken Hata:", error);
     return NextResponse.json({ message: "Sunucu hatası oluştu." }, { status: 500 });
   }
 }
 
-// 2. Favorilere Ürün Ekle veya Çıkar (POST)
+// 2. Yeni Sipariş Oluştur (POST)
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -37,37 +36,44 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Yetkisiz erişim. Lütfen giriş yapın." }, { status: 401 });
     }
 
-    const { productId } = await req.json();
-    if (!productId) {
-      return NextResponse.json({ message: "Ürün ID'si gerekli." }, { status: 400 });
+    const body = await req.json();
+    const { items, totalPrice, shippingAddress, paymentMethod } = body;
+
+    // Temel veri kontrolü
+    if (!items || items.length === 0 || !totalPrice || !shippingAddress) {
+      return NextResponse.json({ message: "Sipariş bilgileri eksik." }, { status: 400 });
     }
 
     if (mongoose.connection.readyState !== 1) {
       await mongoose.connect(process.env.MONGODB_URI as string);
     }
 
+    // Siparişi bağlamak için kullanıcının ObjectId değerini veritabanından alıyoruz
     const user = await User.findOne({ email: session.user.email });
     if (!user) {
       return NextResponse.json({ message: "Kullanıcı bulunamadı." }, { status: 404 });
     }
 
-    // Eğer ürün zaten favorilerde varsa listeden çıkar, yoksa ekle (Toggle mantığı)
-    const favoriteIndex = user.favorites.indexOf(productId);
-    if (favoriteIndex > -1) {
-      user.favorites.splice(favoriteIndex, 1); // Listeden sil
-    } else {
-      user.favorites.push(productId); // Listeye ekle
-    }
+    // Yeni siparişi veritabanına kaydet
+    const newOrder = new Order({
+      userId: user._id,
+      userEmail: session.user.email,
+      items,
+      totalPrice,
+      shippingAddress,
+      paymentMethod: paymentMethod || "Kredi Kartı",
+      status: "Hazırlanıyor"
+    });
 
-    await user.save();
+    await newOrder.save();
 
     return NextResponse.json({ 
-      message: favoriteIndex > -1 ? "Ürün favorilerden çıkarıldı." : "Ürün favorilere eklendi.",
-      favorites: user.favorites 
-    }, { status: 200 });
+      message: "Siparişiniz başarıyla oluşturuldu.",
+      order: newOrder 
+    }, { status: 201 });
 
   } catch (error) {
-    console.error("Favori Güncellenirken Hata:", error);
+    console.error("Sipariş Oluşturulurken Hata:", error);
     return NextResponse.json({ message: "Sunucu hatası oluştu." }, { status: 500 });
   }
 }

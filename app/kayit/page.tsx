@@ -34,7 +34,10 @@ export default function KayitPage() {
 
       if (res.ok) {
         toast.dismiss(loadingToast);
-        toast.success("Kayıt başarılı! Giriş yapabilirsiniz.");
+        
+        // 🚀 ESKİ YAZIYI SİLDİK, YERİNE BU UYARIYI KOYDUK (Ekranda 5 saniye kalacak)
+        toast.success("Kayıt başarılı! Lütfen e-postanıza giderek hesabınızı onaylayın.", { duration: 5000 });
+        
         router.push("/giris");
       } else {
         toast.dismiss(loadingToast);

@@ -1,5 +1,14 @@
 import mongoose from 'mongoose';
 
+const addressSchema = new mongoose.Schema({
+  title: { type: String, required: true }, // Örn: Ev, İş
+  fullName: { type: String, required: true },
+  phone: { type: String, required: true },
+  city: { type: String, required: true },
+  district: { type: String, required: true },
+  fullAddress: { type: String, required: true },
+});
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -15,16 +24,19 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Lütfen bir şifre giriniz'],
     },
-    // 🚀 E-POSTA ONAYI İÇİN EKLENEN YENİ CEPLER
     isVerified: {
       type: Boolean,
-      default: false, // Yeni kayıt olan herkes ilk başta ONAYSIZ (false) başlayacak!
+      default: false,
     },
-    verificationToken: String, // Onay linkindeki gizli bilet
-    
-    // Şifre sıfırlama cepleri (bunlar da kalıyor)
+    verificationToken: String,
     resetToken: String,
     resetTokenExpiry: Date,
+    
+    // YENİ EKLENEN ALANLAR
+    favorites: [{ 
+      type: String // Ürün ID'lerini string olarak tutacağız
+    }],
+    addresses: [addressSchema], // Kullanıcının birden fazla adresi olabilir
   },
   { timestamps: true } 
 );
