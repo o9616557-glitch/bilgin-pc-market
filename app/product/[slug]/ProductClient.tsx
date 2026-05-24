@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useCart } from "../../CartContext"; 
-
+import toast from "react-hot-toast";
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const { sepeteEkle } = useCart(); 
 
@@ -45,7 +45,30 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     setToastMessage(message);
     setTimeout(() => setToastMessage(""), 4000); 
   };
+const handleToggleFavorite = async () => {
+    try {
+      const res = await fetch("/api/favorites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: pId }), 
+      });
 
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success(data.message);
+        setIsFav(!isFav); 
+      } else {
+        if (res.status === 401) {
+          toast.error("Favorilere eklemek için lütfen giriş yapın.");
+        } else {
+          toast.error(data.message || "Bir hata oluştu.");
+        }
+      }
+    } catch (error) {
+      toast.error("Sunucuya bağlanılamadı.");
+    }
+  };
   useEffect(() => {
     const fetchCanliYorumlar = async () => {
       try {
@@ -110,26 +133,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     } catch (error) { setAddingToCart(false); }
   };
 
-  const handleToggleFavorite = () => {
-    if (typeof window === "undefined") return;
-    try {
-      const currentFavs = JSON.parse(localStorage.getItem("user_favorites") || "[]");
-      const existingIndex = currentFavs.findIndex((item: any) => String(item.id) === String(pId));
-      let updatedFavs = [...currentFavs];
-      if (existingIndex > -1) {
-        updatedFavs.splice(existingIndex, 1);
-        setIsFav(false);
-      } else {
-        updatedFavs.push({
-          id: String(pId), name: product.isim || product.name, price: Number(product.indirimliFiyat || product.price || product.fiyat || 0),
-          image: product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/400", slug: product.slug || pId
-        });
-        setIsFav(true);
-      }
-      localStorage.setItem("user_favorites", JSON.stringify(updatedFavs));
-      window.dispatchEvent(new Event("favoritesUpdated"));
-    } catch (e) {}
-  };
+ 
 
   const handleShare = async () => {
     if (navigator.share) {
