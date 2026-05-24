@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-// 🚀 MessageSquare ikonunu Admin Mesajı için ekledik!
 import { Loader2, Trash2, Copy, Check, RefreshCw, MessageSquare } from "lucide-react"; 
 
 export default function SiparislerimPage() {
@@ -12,7 +11,15 @@ export default function SiparislerimPage() {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch("/api/orders");
+      // 🚀 HAFIZA KIRICI: Sayfa yenilemeden "Güncelle" butonunun çalışması için Next.js önbelleğini parçalıyoruz!
+      const res = await fetch(`/api/orders?t=${new Date().getTime()}`, { 
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      
       const data = await res.json();
       if (res.ok) {
         setOrders(data.orders || []);
@@ -33,7 +40,7 @@ export default function SiparislerimPage() {
 
   const handleRefresh = () => {
     setRefreshing(true);
-    fetchOrders();
+    fetchOrders(); 
   };
 
   const handleDeleteOrder = async (orderId: string) => {
@@ -56,6 +63,7 @@ export default function SiparislerimPage() {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
+  // 🚀 TREN MOTORU: Eski sistemindeki bütün kelimeleri (Tamamlandı, Ödendi vs.) tanır.
   const getStepNumber = (order: any) => {
     const s = (order.searchableStatus || order.status || order.durum || "").toLowerCase();
     if (s.includes("teslim") || s.includes("tamam")) return 4;
@@ -113,8 +121,8 @@ export default function SiparislerimPage() {
               const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase();
               const currentStep = getStepNumber(order); 
               
-              // 🚀 SİNSİ MESAJ YAKALAYICI: Admin paneli mesajı hangi isimle yollarsa yollasın yakalar!
-              const adminMesaji = order.mesaj || order.adminMesaj || order.adminMesaji || order.siparisNotu || order.kargoNotu || order.not || order.kargoTakipNo || order.kargoKodu;
+              // 🚀 İŞTE ŞEFİN BULDUĞU ŞİFRE BURADA: 'musteriMesaji' aslanlar gibi en başa eklendi!
+              const adminMesaji = order.musteriMesaji || order.mesaj || order.adminMesaj || order.siparisNotu || order.kargoNotu || order.kargoTakipNo;
 
               return (
                 <div key={order._id} className="border border-slate-800 bg-slate-900/40 rounded-2xl p-6 backdrop-blur-sm relative group hover:border-slate-700/80 transition-all">
@@ -155,7 +163,7 @@ export default function SiparislerimPage() {
                     </div>
                   </div>
 
-                  {/* GÖRSEL KARGO TAKİP MOTURU */}
+                  {/* GÖRSEL KARGO TAKİP MOTORU */}
                   <div className="pt-8 pb-4 px-2 sm:px-8">
                     <div className="relative flex items-center justify-between w-full max-w-3xl mx-auto">
                       <div className="absolute left-0 top-4 w-full h-1 bg-slate-800 -z-10"></div>
@@ -165,7 +173,6 @@ export default function SiparislerimPage() {
                       ></div>
 
                       {steps.map((step) => {
-                        // 🚀 4. ADIM TİK DÜZELTMESİ BURADA! Eğer 4. adımdaysa orası artık tik (✔) olur!
                         const isCompleted = currentStep > step.num || (currentStep === 4 && step.num === 4);
                         const isCurrent = currentStep === step.num && currentStep !== 4;
 
@@ -189,7 +196,7 @@ export default function SiparislerimPage() {
                     </div>
                   </div>
 
-                  {/* 🚀 EFSANE ÖZEL MESAJ KUTUSU: Sadece mesaj varsa görünür */}
+                  {/* 🚀 EFSANE ÖZEL MESAJ KUTUSU: Artık 100% çalışacak! */}
                   {adminMesaji && (
                     <div className="mx-2 sm:mx-8 mb-4 mt-2 bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm">
                       <MessageSquare className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
