@@ -15,6 +15,9 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Lütfen bir şifre giriniz'],
     },
+    // 🚀 ŞİFRE SIFIRLAMA İÇİN EKLENEN YENİ CEPLER
+    resetToken: String,
+    resetTokenExpiry: Date,
   },
   { timestamps: true } 
 );

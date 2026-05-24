@@ -1,113 +1,89 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
+import { Mail, ArrowLeft } from "lucide-react";
+import toast from "react-hot-toast";
 
-export default function ForgotPasswordPage() {
+export default function SifreSifirlaPage() {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isSent, setIsSent] = useState(false);
-  const [error, setError] = useState("");
 
-  useEffect(() => {
-    const resetLoading = () => setIsLoading(false);
-    window.addEventListener("pageshow", resetLoading);
-    return () => window.removeEventListener("pageshow", resetLoading);
-  }, []);
-
-  const handleReset = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
+
+    const loadingToast = toast.loading("Şifre sıfırlama bağlantısı gönderiliyor...");
 
     try {
-      // 🚀 ŞEFİM İŞTE SİHİRLİ DOKUNUŞ:
-      // Next.js API yollarını tamamen baypas edip, tarayıcıdan direkt wp-login.php'ye form fırlatıyoruz.
-      // mode: "no-cors" sayesinde WordPress güvenlik duvarları bu isteği gerçek bir insan formu gibi kabul eder.
-      const formData = new URLSearchParams();
-      formData.append("user_login", email);
-      formData.append("redirect_to", "");
-
-      await fetch("https://bilginpcmarket.com/wp-login.php?action=lostpassword", {
+      const res = await fetch("/api/forgot-password", {
         method: "POST",
-        mode: "no-cors", // Güvenlik engelini aşan gizli anahtar
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: formData.toString(),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
       });
 
-      // no-cors modunda yanıt içeriği okunamaz ama istek başarıyla gönderilir ve mail tetiklenir.
-      setIsSent(true);
+      const data = await res.json();
 
+      if (res.ok) {
+        toast.dismiss(loadingToast);
+        toast.success("Harika! Şifre sıfırlama linki e-postanıza gönderildi.");
+        setEmail(""); // Kutuyu temizle
+      } else {
+        toast.dismiss(loadingToast);
+        toast.error(data.message || "Bir hata oluştu.");
+      }
     } catch (err) {
-      setError("bir bağlantı hatası oluştu. lütfen tekrar deneyin.");
+      toast.dismiss(loadingToast);
+      toast.error("Sunucuya bağlanırken bir hata oluştu.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 bg-[#050810] relative overflow-hidden font-sans">
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Arka Plan Efekti */}
+      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#00e5ff] rounded-full mix-blend-screen filter blur-[150px] opacity-10"></div>
       
-      <div className="w-full max-w-md relative z-10 bg-[#0b1120] p-8 md:p-10 rounded-3xl border border-white/5 shadow-2xl overflow-hidden">
+      <div className="w-full max-w-md bg-[#09090b] border border-white/10 rounded-3xl shadow-[0_0_50px_rgba(0,229,255,0.05)] p-8 relative z-10">
         
-        {isLoading && (
-          <div className="absolute inset-0 bg-[#0b1120]/95 backdrop-blur-md z-50 flex flex-col items-center justify-center space-y-4">
-               <div className="w-10 h-10 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
-               <span className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Talep Gönderiliyor...</span>
+        {/* Geri Dön Linki */}
+        <Link href="/giris" className="inline-flex items-center gap-2 text-slate-400 hover:text-[#00e5ff] transition-colors mb-6 text-sm font-bold uppercase tracking-wider">
+          <ArrowLeft size={16} /> Giriş Yap'a Dön
+        </Link>
+
+        {/* Başlık ve Açıklama */}
+        <h1 className="text-3xl font-black uppercase tracking-tighter mb-2 text-white drop-shadow-[0_0_10px_rgba(0,229,255,0.2)]">
+          ŞİFREMİ UNUTTUM
+        </h1>
+        <p className="text-slate-400 text-sm mb-8 font-medium">
+          Kayıtlı e-posta adresinizi girin. Size yeni bir şifre belirlemeniz için güvenli bir bağlantı göndereceğiz.
+        </p>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="relative mb-2">
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+            <input 
+              type="email" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="E-Posta Adresiniz" 
+              className="w-full bg-[#050814] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#00e5ff]/50 transition-colors"
+              required 
+              disabled={isLoading}
+            />
           </div>
-        )}
 
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-block text-4xl font-black italic tracking-tighter text-white uppercase">
-            BİLGİN<span className="text-blue-500 not-italic">PC</span>
-          </Link>
-          <div className="h-1 w-12 bg-blue-500 mx-auto mt-2 rounded-full shadow-[0_0_15px_#3b82f6]"></div>
-          <h1 className="text-xl font-black text-white uppercase tracking-widest mt-6">Şifre Kurtarma</h1>
-        </div>
+          <button 
+            type="submit" 
+            disabled={isLoading}
+            className="w-full bg-[#00e5ff] text-black rounded-xl py-3.5 font-black uppercase tracking-widest hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? "GÖNDERİLİYOR..." : "SIFIRLAMA LİNKİ GÖNDER"}
+          </button>
+        </form>
 
-        {error && (
-          <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-500 text-xs font-semibold text-center normal-case">
-            {error}
-          </div>
-        )}
-
-        {!isSent ? (
-          <form onSubmit={handleReset} className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">E-Posta Adresi veya Kullanıcı Adı</label>
-              <input 
-                type="text" 
-                required 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                placeholder="posta@adres.com veya kullanıcı adı" 
-                className="w-full bg-[#050810] border border-white/5 rounded-xl px-5 py-4 text-white font-medium focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-slate-900" 
-              />
-            </div>
-
-            <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest text-sm py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(37,99,235,0.2)]">
-              Sıfırlama Linki Gönder
-            </button>
-          </form>
-        ) : (
-          <div className="text-center py-6 space-y-4 animate-in fade-in duration-300">
-            <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 rounded-full flex items-center justify-center mx-auto text-xl font-bold shadow-[0_0_15px_rgba(16,185,129,0.1)]">
-              ✓
-            </div>
-            <p className="text-slate-300 text-sm font-medium px-2 leading-relaxed">
-              şifre sıfırlama talimatları başarıyla gönderildi. lütfen e-posta adresinin gelen kutusunu kontrol et şefim.
-            </p>
-          </div>
-        )}
-
-        <div className="mt-10 pt-6 border-t border-white/5 text-center">
-          <p className="text-[11px] font-medium text-slate-500 uppercase tracking-widest">
-            Hatırladın mı? <Link href="/giris" className="text-white font-black hover:text-blue-500 ml-2 uppercase">Giriş Yap</Link>
-          </p>
-        </div>
       </div>
     </div>
   );
