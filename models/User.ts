@@ -15,7 +15,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Lütfen bir şifre giriniz'],
     },
-    // 🚀 ŞİFRE SIFIRLAMA İÇİN EKLENEN YENİ CEPLER
+    // 🚀 E-POSTA ONAYI İÇİN EKLENEN YENİ CEPLER
+    isVerified: {
+      type: Boolean,
+      default: false, // Yeni kayıt olan herkes ilk başta ONAYSIZ (false) başlayacak!
+    },
+    verificationToken: String, // Onay linkindeki gizli bilet
+    
+    // Şifre sıfırlama cepleri (bunlar da kalıyor)
     resetToken: String,
     resetTokenExpiry: Date,
   },

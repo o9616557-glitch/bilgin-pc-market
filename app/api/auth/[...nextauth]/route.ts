@@ -51,6 +51,11 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Şifre hatalı, lütfen tekrar deneyin.");
         }
 
+        // 🚀 YENİ EKLENEN ONAY GÜVENLİK DUVARI (Kapıdaki Koruma)
+        if (!user.isVerified) {
+          throw new Error("Giriş başarısız! Lütfen e-postanıza giderek hesabınızı onaylayın.");
+        }
+
         // Her şey doğruysa kapıları aç!
         return {
           id: user._id.toString(),
