@@ -2,8 +2,10 @@
 import { useCart } from "../CartContext";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 export default function OdemeSayfasi() {
+  const { data: session } = useSession(); // 🚀 ŞEFİN KİMLİĞİ
   const { sepet } = useCart();
   const [odemeYontemi, setOdemeYontemi] = useState("kart");
   const [yukleniyor, setYukleniyor] = useState(false);
@@ -102,11 +104,12 @@ export default function OdemeSayfasi() {
     setYukleniyor(true);
     setIyzicoFormHtml("");
 
-    const siparisVerisi = {
+   const siparisVerisi = {
       musteri: {
         ...form,
+        eposta: session?.user?.email || form.eposta, // 🚀 İŞTE SİHRİN KOPTUĞU YER! MÜHÜR VURULDU.
         faturaBilgileri: faturaAyni ? form : faturaForm
-      },
+      }, // 🚀 ŞEFİM İŞTE HAYAT KURTARAN VİRGÜL BURADA!
       sepet: sepet.map((item: any) => ({ id: item.id, isim: item.isim, miktar: item.adet, adet: item.adet, fiyat: item.fiyat, varyasyon: item.varyasyon })),
       odemeYontemi,
       toplamTutar: genelToplam
