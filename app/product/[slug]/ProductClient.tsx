@@ -69,6 +69,28 @@ const handleToggleFavorite = async () => {
       toast.error("Sunucuya bağlanılamadı.");
     }
   };
+  // 🚀 SAYFA AÇILDIĞINDA KALBİN RENGİNİ DOĞRU AYARLAYAN KONTROLCÜ
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      try {
+        const res = await fetch("/api/favorites");
+        if (res.ok) {
+          const data = await res.json();
+          const ids = data.favorites || [];
+          
+          if (ids.includes(pId)) {
+            setIsFav(true);
+          } else {
+            setIsFav(false);
+          }
+        }
+      } catch (error) {
+        console.error("Favori durumu çekilemedi");
+      }
+    };
+
+    checkFavoriteStatus();
+  }, [pId]);
   useEffect(() => {
     const fetchCanliYorumlar = async () => {
       try {
