@@ -188,7 +188,7 @@ export default function AdreslerimPage() {
               checked={formData.isDefaultDelivery}
               onChange={(e) => setFormData({ ...formData, isDefaultDelivery: e.target.checked })}
             />
-            Bu benim varsayılan teslimat adresim olsun
+            Bu benim varsayılan teslimat adresim 
           </label>
 
           <label className="flex items-center gap-3 cursor-pointer text-sm text-slate-300 hover:text-white transition-colors">
@@ -198,7 +198,7 @@ export default function AdreslerimPage() {
               checked={formData.isDefaultBilling}
               onChange={(e) => setFormData({ ...formData, isDefaultBilling: e.target.checked })}
             />
-            Fatura adresi olarak da bunu kullan
+            Fatura adresi olarak da bunu kulan
           </label>
         </div>
               <div className="md:col-span-2 flex justify-end mt-2">
