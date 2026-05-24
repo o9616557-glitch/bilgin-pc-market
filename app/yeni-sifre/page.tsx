@@ -1,126 +1,134 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { Lock, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import toast from "react-hot-toast";
 
-// 1. ADIM: İŞLEM MOTORUNU AYRI BİR İSKELETE ALIYORUZ (Vercel'in çökmemesi için)
-function ResetPasswordContent() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-
-  const key = searchParams.get("key") || "";
-  const login = searchParams.get("login") || "";
-
-  const [password, setPassword] = useState("");
+export default function YeniSifrePage() {
+  const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState("");
+  
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token"); // 🚀 Maildeki gizli bileti linkten çekiyoruz
 
+  // Eğer linkte token yoksa kullanıcıyı çakallık yapmasın diye girişe geri şutluyoruz
   useEffect(() => {
-    const resetLoading = () => setIsLoading(false);
-    window.addEventListener("pageshow", resetLoading);
-    return () => window.removeEventListener("pageshow", resetLoading);
-  }, []);
+    if (!token) {
+      toast.error("Geçersiz veya eksik şifre sıfırlama bağlantısı.");
+      router.push("/giris");
+    }
+  }, [token, router]);
 
-  const handleUpdatePassword = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (password !== confirmPassword) {
-      setError("Şifreler birbiriyle eşleşmiyor şefim.");
+    // 1. Şifrelerin uyuşma kontrolü
+    if (newPassword !== confirmPassword) {
+      toast.error("Şifreler birbiriyle uyuşmuyor!");
       return;
     }
 
-    setIsLoading(true);
-    setError("");
+    // 2. Şifre uzunluğu kontrolü
+    if (newPassword.length < 6) {
+      toast.error("Yeni şifreniz en az 6 karakter olmalıdır!");
+      return;
+    }
+
+    setIsLoading(false);
+    const loadingToast = toast.loading("Yeni şifreniz kaydediliyor...");
 
     try {
-      const res = await fetch("https://bilginpcmarket.com/wp-json/bilgin/v1/reset-password", {
+      const res = await fetch("/api/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          key: key,
-          login: login,
-          password: password
-        })
+        body: JSON.stringify({ token, newPassword }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        setIsSuccess(true);
-        setTimeout(() => {
-          router.push("/giris");
-        }, 3000);
+        toast.dismiss(loadingToast);
+        toast.success("Harika! Şifreniz başarıyla güncellendi.");
+        router.push("/giris"); // Başarılıysa giriş sayfasına şutla
       } else {
-        setError(data.message || "Şifre sıfırlanırken bir hata oluştu.");
+        toast.dismiss(loadingToast);
+        toast.error(data.message || "Bir hata oluştu.");
       }
     } catch (err) {
-      setError("Sunucuya bağlanılamadı. Lütfen tekrar deneyin.");
-    } finally {
-      setIsLoading(false);
+      toast.dismiss(loadingToast);
+      toast.error("Sunucuya bağlanırken bir hata oluştu.");
     }
   };
 
   return (
-    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 bg-[#050814] text-white">
-      <div className="w-full max-w-md bg-[#0b1329] border border-white/10 rounded-xl p-6 sm:p-8 shadow-2xl">
-        <h1 className="text-xl sm:text-2xl font-black mb-6 text-center text-blue-400 uppercase tracking-wider">Yeni Şifre Belirle</h1>
+    <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Arka Plan Efekti */}
+      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#00e5ff] rounded-full mix-blend-screen filter blur-[150px] opacity-10"></div>
+      
+      <div className="w-full max-w-md bg-[#09090b] border border-white/10 rounded-3xl shadow-[0_0_50px_rgba(0,229,255,0.05)] p-8 relative z-10">
         
-        {isSuccess ? (
-          <div className="text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-lg text-center font-bold text-sm">
-            ✅ Şifreniz başarıyla güncellendi! Giriş sayfasına yönlendiriliyorsunuz...
-          </div>
-        ) : (
-          <form onSubmit={handleUpdatePassword} className="flex flex-col gap-5">
-            {error && <div className="text-red-400 bg-red-500/10 border border-red-500/20 p-3 rounded-lg text-xs font-bold text-center">{error}</div>}
-            
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Yeni Şifre</label>
-              <input 
-                type={showPassword ? "text" : "password"} 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                required 
-                className="w-full bg-[#050814]/50 border border-white/10 rounded-lg p-3 text-sm focus:outline-none focus:border-blue-500 transition-colors text-slate-200"
-                placeholder="••••••••"
-              />
-            </div>
+        <Link href="/giris" className="inline-flex items-center gap-2 text-slate-400 hover:text-[#00e5ff] transition-colors mb-6 text-sm font-bold uppercase tracking-wider">
+          <ArrowLeft size={16} /> Giriş Yap'a Dön
+        </Link>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Şifre Tekrar</label>
-              <input 
-                type={showPassword ? "text" : "password"} 
-                value={confirmPassword} 
-                onChange={(e) => setConfirmPassword(e.target.value)} 
-                required 
-                className="w-full bg-[#050814]/50 border border-white/10 rounded-lg p-3 text-sm focus:outline-none focus:border-blue-500 transition-colors text-slate-200"
-                placeholder="••••••••"
-              />
-            </div>
+        <h1 className="text-3xl font-black uppercase tracking-tighter mb-2 text-white drop-shadow-[0_0_10px_rgba(0,229,255,0.2)]">
+          YENİ ŞİFRE BELİRLE
+        </h1>
+        <p className="text-slate-400 text-sm mb-8 font-medium">
+          Hesabınız için yeni ve güçlü bir şifre belirleyin.
+        </p>
 
-            <label className="flex items-center gap-2 cursor-pointer w-max group">
-              <input type="checkbox" checked={showPassword} onChange={(e) => setShowPassword(e.target.checked)} className="w-4 h-4 rounded border-white/10 bg-[#050814] text-blue-600 focus:ring-0 cursor-pointer" />
-              <span className="text-xs font-bold text-slate-400 group-hover:text-slate-300 transition-colors">Şifreyi Göster</span>
-            </label>
-
-            <button type="submit" disabled={isLoading} className="mt-2 w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-3 rounded-lg text-xs uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(37,99,235,0.3)]">
-              {isLoading ? "Güncelleniyor..." : "Şifreyi Güncelle"}
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          
+          {/* Yeni Şifre Kutusu */}
+          <div className="relative">
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+            <input 
+              type={showPassword ? "text" : "password"} 
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Yeni Şifreniz (En az 6 hane)" 
+              className="w-full bg-[#050814] border border-white/10 rounded-xl py-3 pl-12 pr-12 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#00e5ff]/50 transition-colors"
+              required 
+            />
+            <button 
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
-          </form>
-        )}
+          </div>
+
+          {/* Şifre Tekrar Kutusu */}
+          <div className="relative mb-2">
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+            <input 
+              type={showPassword ? "text" : "password"} 
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Yeni Şifre Tekrar" 
+              className="w-full bg-[#050814] border border-white/10 rounded-xl py-3 pl-12 pr-12 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#00e5ff]/50 transition-colors"
+              required 
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            disabled={isLoading}
+            className="w-full bg-[#00e5ff] text-black rounded-xl py-3.5 font-black uppercase tracking-widest hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] disabled:opacity-50"
+          >
+            {isLoading ? "GÜNCELLENİYOR..." : "ŞİFREYİ GÜNCELLE"}
+          </button>
+        </form>
+
       </div>
     </div>
-  );
-}
-
-// 2. ADIM: SAYFAYI SUSPENSE (KALKAN) İÇİNDE DIŞARI AKTARIYORUZ
-export default function YeniSifrePage() {
-  return (
-    // Bu Suspense kalkanı sayesinde Vercel derlerken "searchParams okunamıyor" diye çökmez!
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-blue-400 font-black text-sm uppercase tracking-widest bg-[#050814]">Yükleniyor...</div>}>
-      <ResetPasswordContent />
-    </Suspense>
   );
 }
