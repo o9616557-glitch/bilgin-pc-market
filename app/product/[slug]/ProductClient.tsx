@@ -1,5 +1,5 @@
 "use client";
-
+import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { useCart } from "../../CartContext"; 
 import toast from "react-hot-toast";
@@ -142,10 +142,9 @@ const handleToggleFavorite = async () => {
     return () => clearInterval(timer);
   }, []);
 
-  const handleAddToCart = () => {
+ const handleAddToCart = () => {
     setAddingToCart(true);
     try {
-      // 1. Ürünü arka planda sepete atıyoruz
       sepeteEkle({
         id: String(pId),
         isim: product.isim || product.name || "İsimsiz Ürün",
@@ -154,15 +153,20 @@ const handleToggleFavorite = async () => {
         varyasyon: "Standart Model"
       });
       
-      // 2. 🚀 ŞEFİM İŞTE YENİ ŞOFÖRÜMÜZ BURADA! Müşteriyi anında sepete götürüyoruz:
-      window.location.href = "/sepet";
+      toast.success("Ürün sepetinize eklendi! 🛒");
+      
+      setAddedSuccess(true);
+      setTimeout(() => {
+        setAddedSuccess(false);
+      }, 2000);
       
     } catch (error) {
-      setAddingToCart(false);
+      toast.error("Bir hata oluştu, eklenemedi!");
       console.error("Sepete eklenirken hata:", error);
+    } finally {
+      setAddingToCart(false);
     }
   };
-
  
 
   const handleShare = async () => {
