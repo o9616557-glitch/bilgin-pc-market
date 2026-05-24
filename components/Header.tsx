@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-// 🚀 1. HATA ÇÖZÜLDÜ: Kırmızı çizgi gitsin diye Modalı en tepeye tanıttık!
-import SiparisModal from "./SiparisModal";
+import SiparisModal from "./SiparisModal"; 
+// 🚀 FAVORİLER MODALINI BURAYA TANITTIK!
+import FavorilerModal from "./FavorilerModal"; 
 import { useCart } from "@/app/CartContext";
 import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
@@ -15,10 +16,12 @@ export default function Header() {
   const sepetAdedi = sepet.reduce((toplam: number, urun: any) => toplam + (urun.adet || 1), 0);
 
   const { data: session } = useSession();
-  const [isSiparisModalOpen, setIsSiparisModalOpen] = useState(false);
   
-  // ŞEFİM: Kendi e-posta adresin burada
-  const ADMIN_EMAIL = "o9616557@gmail.com";
+  // 🚀 ŞALTERLER (İkisi için de ayrı şalter)
+  const [isSiparisModalOpen, setIsSiparisModalOpen] = useState(false);
+  const [isFavorilerModalOpen, setIsFavorilerModalOpen] = useState(false); 
+
+  const ADMIN_EMAIL = "o9616557@gmail.com"; 
   const isAdmin = session?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
   useEffect(() => {
@@ -31,13 +34,11 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", disariTiklandi);
   }, []);
 
-  // 🚀 2. HATA ÇÖZÜLDÜ: Bütün sistemi tek bir "<>" (Fragment) içine aldık ki Modal Header'ın dışına çıkabilsin!
   return (
     <>
       <header style={{ backgroundColor: "rgba(9, 9, 11, 0.9)", borderBottom: "1px solid #27272a", position: "sticky", top: 0, zIndex: 1000, backdropFilter: "blur(12px)" }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "12px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           
-          {/* LOGO VE HAMBURGER */}
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <button className="mobil-hamburger" onClick={() => setMenuAcik(!menuAcik)} style={{ background: "transparent", border: "none", padding: "0", height: "40px", width: "30px", cursor: "pointer", display: "flex", flexDirection: "column", justifyContent: "center", gap: "6px" }}>
               <span style={{ display: "block", width: "22px", height: "2px", background: "#fff", transition: "all 0.3s", transform: menuAcik ? "rotate(45deg) translate(5px, 5px)" : "none" }}></span>
@@ -58,7 +59,6 @@ export default function Header() {
 
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             
-            {/* HESABIM BUTONU */}
             <div ref={hesabimRef} style={{ position: "relative" }}>
               <button onClick={() => setHesabimAcik(!hesabimAcik)} style={{ display: "flex", alignItems: "center", gap: "6px", background: hesabimAcik ? "rgba(0, 229, 255, 0.1)" : "#18181b", color: hesabimAcik ? "#00e5ff" : "#fff", padding: "8px 12px", borderRadius: "8px", border: "1px solid #27272a", cursor: "pointer", transition: "all 0.2s ease" }}>
                 <span style={{ fontSize: "16px" }}>👤</span>
@@ -107,18 +107,19 @@ export default function Header() {
 
                   {session && (
                     <>
-                      <button onClick={() => { setHesabimAcik(false); setIsSiparisModalOpen(true); }} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem", background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer" }}>
+                      {/* SİPARİŞLERİM MODAL BUTONU */}
+                      <button onClick={() => { setHesabimAcik(false); setIsSiparisModalOpen(true); }} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem", background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer", fontWeight: "600" }}>
                         <span>🛍️</span> Siparişlerim
                       </button>
-
-                      {/* 🚀 3. HATA ÇÖZÜLDÜ: Sipariş Takip buradan tamamen kazındı! */}
-
+                      
                       <Link href="/adreslerim" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem" }}>
                         <span>🗺️</span> Adreslerim
                       </Link>
-                      <Link href="/favorilerim" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem" }}>
+
+                      {/* 🚀 FAVORİLERİM MODAL BUTONU (Link yerine butona çevirdik!) */}
+                      <button onClick={() => { setHesabimAcik(false); setIsFavorilerModalOpen(true); }} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem", background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer" }}>
                         <span>❤️</span> Favorilerim
-                      </Link>
+                      </button>
 
                       <div style={{ height: "1px", background: "#27272a", margin: "4px 0" }}></div>
                       
@@ -127,12 +128,10 @@ export default function Header() {
                       </button>
                     </>
                   )}
-
                 </div>
               )}
             </div>
 
-            {/* SEPET BUTONU */}
             <Link href="/sepet" style={{ position: "relative", textDecoration: "none", display: "flex", alignItems: "center", gap: "6px", background: "#18181b", padding: "8px 14px", height: "42px", boxSizing: "border-box", borderRadius: "8px", border: "1px solid #27272a" }}>
               <span style={{ fontSize: "16px" }}>🛒</span>
               <span className="hidden sm:inline" style={{ fontWeight: "600", color: "#a1a1aa", fontSize: "0.85rem" }}>Sepetim</span>
@@ -143,22 +142,27 @@ export default function Header() {
               )}
             </Link>
           </div>
-
         </div>
 
-        {/* MOBİL (HAMBURGER) MENÜSÜ */}
+        {/* MOBİL MENÜ */}
         {menuAcik && (
           <div className="md:hidden" style={{ background: "#18181b", borderTop: "1px solid #27272a", padding: "16px 20px", display: "flex", flexDirection: "column", gap: "16px" }}>
             <Link href="/" onClick={() => setMenuAcik(false)} style={{ color: "#d4d4d8", textDecoration: "none", fontSize: "1rem", fontWeight: "600" }}>Tüm Bilgisayarlar</Link>
             <Link href="/" onClick={() => setMenuAcik(false)} style={{ color: "#d4d4d8", textDecoration: "none", fontSize: "1rem", fontWeight: "600" }}>Bilgisayar Parçaları</Link>
             <Link href="/" onClick={() => setMenuAcik(false)} style={{ color: "#d4d4d8", textDecoration: "none", fontSize: "1rem", fontWeight: "600" }}>Aksesuar</Link>
             
-            {/* 🚀 Mobildeki menüye de jilet gibi bir "Siparişlerim" Modal butonu ekledik */}
             {session && (
               <>
                 <div style={{ height: "1px", background: "#27272a", margin: "4px 0" }}></div>
-                <button onClick={() => { setMenuAcik(false); setIsSiparisModalOpen(true); }} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 0", color: "#00e5ff", textDecoration: "none", fontSize: "1rem", fontWeight: "600", background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer" }}>
+                
+                {/* 🚀 MOBİL SİPARİŞLERİM BUTONU */}
+                <button onClick={() => { setMenuAcik(false); setIsSiparisModalOpen(true); }} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "6px 0", color: "#00e5ff", textDecoration: "none", fontSize: "1rem", fontWeight: "600", background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer" }}>
                   <span>🛍️</span> Siparişlerim
+                </button>
+
+                {/* 🚀 MOBİL FAVORİLERİM BUTONU */}
+                <button onClick={() => { setMenuAcik(false); setIsFavorilerModalOpen(true); }} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "6px 0", color: "#f472b6", textDecoration: "none", fontSize: "1rem", fontWeight: "600", background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer" }}>
+                  <span>❤️</span> Favorilerim
                 </button>
               </>
             )}
@@ -170,9 +174,9 @@ export default function Header() {
         ` }} />
       </header>
 
-      {/* 🚀 4. HATA ÇÖZÜLDÜ: Modal artık <header> etiketinin tamamen DIŞINDA!
-          Bu sayede hiçbir ürünün altında kalmayacak, ekranı tamamen kaplayacak! */}
+      {/* 🚀 MODALLARIN HER İKİSİ DE BURADA, EN DIŞTA ÖZGÜRCE ÇALIŞIYOR */}
       <SiparisModal isOpen={isSiparisModalOpen} onClose={() => setIsSiparisModalOpen(false)} />
+      <FavorilerModal isOpen={isFavorilerModalOpen} onClose={() => setIsFavorilerModalOpen(false)} />
     </>
   );
 }
