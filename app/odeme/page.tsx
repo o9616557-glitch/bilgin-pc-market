@@ -104,19 +104,28 @@ export default function OdemeSayfasi() {
     setYukleniyor(true);
     setIyzicoFormHtml("");
 
-   const siparisVerisi = {
+   // 🚀 ŞEFİM: APİ REDDETMESİN DİYE HEM ESKİ HEM YENİ TÜM KELİMELERİ BURAYA GÖMÜYORUZ!
+    const siparisVerisi = {
       musteri: {
         ...form,
-        eposta: session?.user?.email || form.eposta, // 🚀 İŞTE SİHRİN KOPTUĞU YER! MÜHÜR VURULDU.
+        eposta: session?.user?.email || form.eposta, // Şefin e-posta mührü
         faturaBilgileri: faturaAyni ? form : faturaForm
-      }, // 🚀 ŞEFİM İŞTE HAYAT KURTARAN VİRGÜL BURADA!
+      },
+      // Sepet kelimeleri (Hangisini isterse dükkan onun olsun)
       sepet: sepet.map((item: any) => ({ id: item.id, isim: item.isim, miktar: item.adet, adet: item.adet, fiyat: item.fiyat, varyasyon: item.varyasyon })),
+      cartItems: sepet.map((item: any) => ({ id: item.id, isim: item.isim, miktar: item.adet, adet: item.adet, fiyat: item.fiyat, varyasyon: item.varyasyon })),
+      items: sepet.map((item: any) => ({ id: item.id, isim: item.isim, miktar: item.adet, adet: item.adet, fiyat: item.fiyat, varyasyon: item.varyasyon })),
+      
       odemeYontemi,
-      toplamTutar: genelToplam
+      
+      // Tutar kelimeleri (API ne ararsa burada bulacak)
+      toplamTutar: genelToplam,
+      totalPrice: genelToplam,
+      genelToplam: genelToplam
     };
 
     try {
-      const response = await fetch("/api/siparis", {
+      const response = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(siparisVerisi)
