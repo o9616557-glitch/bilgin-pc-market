@@ -33,23 +33,23 @@ export default function ProductGrid({ initialProducts }: { initialProducts: any[
     if (!normal || !indirimli || normal <= indirimli) return 0;
     return Math.round(((normal - indirimli) / normal) * 100);
   };
-// 🚀 ŞEFİM: JET HIZINDA SİLME MOTORU (Bekleme Yok)
-  const handleRemoveFavorite = async (e: React.MouseEvent, productId: string) => {
+// 🚀 ŞEFİM: X BUTONU İÇİN JET MOTORU (Sıfır Bekleme - Sihirbazlık)
+  const handleRemoveFavorite = (e: React.MouseEvent, productId: string) => {
     e.preventDefault(); 
-    try {
-      setToastMessage("Favorilerden Çıkarıldı ✕");
-      
-      await fetch("/api/favorites", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId })
-      });
-      
-      window.location.reload(); 
-      
-    } catch (err) {
-      console.error("Favori silme hatası:", err);
-    }
+    
+    // 1. BEKLEMEK YOK: Tıkladığın milisaniye o ürün kartını ekrandan görünmez yapıyoruz!
+    const kart = e.currentTarget.closest('.group') as HTMLElement;
+    if (kart) kart.style.display = 'none';
+
+    // 2. Anında mesajı çakıyoruz
+    setToastMessage("Favorilerden Çıkarıldı ✕");
+    
+    // 3. Kargocu arka planda sessiz sedasız yola çıkıyor (await kullanmıyoruz ki bizi bekletmesin)
+    fetch("/api/favorites", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId })
+    }).catch(err => console.error("Favori silme hatası:", err));
   };
   return (
     <div className="w-full relative">
