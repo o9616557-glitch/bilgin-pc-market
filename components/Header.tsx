@@ -112,7 +112,7 @@ export default function Header() {
                 <Link href="/adreslerim" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem", fontWeight: "500", borderRadius: "8px" }}>
                   <span>🗺️</span> Adreslerim
                 </Link>
-                <Link href="/favoriler" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem", fontWeight: "500", borderRadius: "8px" }}>
+                <Link href="/favorilerim" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem", fontWeight: "500", borderRadius: "8px" }}>
                   <span>❤️</span> Favorilerim
                 </Link>
 
