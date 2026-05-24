@@ -25,6 +25,7 @@ export async function POST(request: Request) {
     const db = client.db("bilginpcmarket");
     const siparisKodu = `BPC-${Math.floor(100000 + Math.random() * 900000)}`;
 
+    // 🚀 ŞEFİM: E-POSTA MÜHRÜNÜ VE VİTRİN KELİMELERİNİ EKLİYORUZ
     const yeniSiparis = {
       siparisKodu,
       musteri,
@@ -32,7 +33,14 @@ export async function POST(request: Request) {
       odemeYontemi,
       toplamTutar,
       durum: odemeYontemi === "havale" ? "Havale Bekliyor" : "Ödeme Bekliyor",
-      tarih: new Date()
+      tarih: new Date(),
+      
+      // 🚀 İŞTE SİPARİŞLERİM SAYFASININ ASIL ARADIĞI SİHİRLİ MÜHÜRLER!
+      userEmail: musteri?.eposta || musteri?.email || "",
+      email: musteri?.eposta || musteri?.email || "",
+      items: sepet, 
+      totalPrice: toplamTutar,
+      status: odemeYontemi === "havale" ? "Havale Bekliyor" : "Ödeme Bekliyor"
     };
     
     await db.collection("orders").insertOne(yeniSiparis);
