@@ -45,28 +45,28 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     setToastMessage(message);
     setTimeout(() => setToastMessage(""), 4000); 
   };
-const handleToggleFavorite = async () => {
+// 🚀 ŞEFİM: KÜSÜRATSIZ JET MOTORU (Optimistic UI)
+  const handleToggleFavorite = async () => {
+    // 1. KARGOCUYU BEKLEMEK YOK: Bastığın milisaniye rengi değiştiriyoruz!
+    const oncekiDurum = isFav;
+    setIsFav(!oncekiDurum); 
+
     try {
+      // 2. Biz ekranda rengi değiştirmişken, kargocu arka planda gizlice yola çıkıyor
       const res = await fetch("/api/favorites", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId: pId }), 
+        body: JSON.stringify({ productId: String(product._id || product.id) })
       });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        toast.success(data.message);
-        setIsFav(!isFav); 
-      } else {
-        if (res.status === 401) {
-          toast.error("Favorilere eklemek için lütfen giriş yapın.");
-        } else {
-          toast.error(data.message || "Bir hata oluştu.");
-        }
+      // 3. Eğer kargocunun yolda başına bir iş gelirse (hata), çaktırmadan kalbi eski haline çevir
+      if (!res.ok) {
+        setIsFav(oncekiDurum);
+        toast.error("Favori işlemi başarısız oldu!");
       }
     } catch (error) {
-      toast.error("Sunucuya bağlanılamadı.");
+      setIsFav(oncekiDurum);
+      console.error("Favori hatası:", error);
     }
   };
   // 🚀 SAYFA AÇILDIĞINDA KALBİN RENGİNİ DOĞRU AYARLAYAN KONTROLCÜ
