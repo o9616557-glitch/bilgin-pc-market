@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Loader2, Trash2, Copy, Check, RefreshCw } from "lucide-react"; 
+// 🚀 MessageSquare ikonunu Admin Mesajı için ekledik!
+import { Loader2, Trash2, Copy, Check, RefreshCw, MessageSquare } from "lucide-react"; 
 
 export default function SiparislerimPage() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -55,20 +56,11 @@ export default function SiparislerimPage() {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  // 🚀 TREN MOTORU TAMİR EDİLDİ: Artık API'den gelen bütün kelimeleri aynı anda tarıyor!
   const getStepNumber = (order: any) => {
     const s = (order.searchableStatus || order.status || order.durum || "").toLowerCase();
-    
-    // Eski kodda "Tamamlandı" kelimesi 4. adıma denk geliyor
     if (s.includes("teslim") || s.includes("tamam")) return 4;
-    
-    // Eski kodda "Kargo" kelimesi 3. adıma denk geliyor
     if (s.includes("kargo") || s.includes("gönder")) return 3;
-    
-    // Eski kodda "Hazırlanıyor", "Ödendi" ve "Başarılı" kelimeleri 2. adıma denk geliyor
     if (s.includes("hazırla") || s.includes("öden") || s.includes("başarılı") || s.includes("onay") || s.includes("kabul")) return 2;
-    
-    // Hiçbiri değilse 1. Adım (Sipariş Alındı)
     return 1; 
   };
 
@@ -119,12 +111,14 @@ export default function SiparislerimPage() {
           <div className="grid grid-cols-1 gap-8">
             {orders.map((order: any) => {
               const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase();
-              const currentStep = getStepNumber(order); // 🚀 TREN BURADAN GÜÇ ALIYOR
+              const currentStep = getStepNumber(order); 
+              
+              // 🚀 SİNSİ MESAJ YAKALAYICI: Admin paneli mesajı hangi isimle yollarsa yollasın yakalar!
+              const adminMesaji = order.mesaj || order.adminMesaj || order.adminMesaji || order.siparisNotu || order.kargoNotu || order.not || order.kargoTakipNo || order.kargoKodu;
 
               return (
                 <div key={order._id} className="border border-slate-800 bg-slate-900/40 rounded-2xl p-6 backdrop-blur-sm relative group hover:border-slate-700/80 transition-all">
                   
-                  {/* SİLME BUTONU (Havale yazısına değmesin diye tam köşede) */}
                   <button
                     onClick={() => handleDeleteOrder(order._id)}
                     className="absolute top-4 right-4 p-2.5 text-slate-500 hover:text-red-400 bg-slate-800/50 hover:bg-red-500/10 rounded-xl border border-transparent hover:border-red-500/20 transition-all opacity-80 group-hover:opacity-100 z-20"
@@ -133,7 +127,6 @@ export default function SiparislerimPage() {
                     <Trash2 className="w-5 h-5" />
                   </button>
 
-                  {/* 🚀 ÜST BİLGİLER: pr-20 vererek Havale yazısına kocaman bir hava boşluğu (margin) bıraktık! */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800/50 pr-20">
                     <div>
                       <p className="text-xs text-slate-500 mt-1 flex items-center gap-2">
@@ -163,7 +156,7 @@ export default function SiparislerimPage() {
                   </div>
 
                   {/* GÖRSEL KARGO TAKİP MOTURU */}
-                  <div className="py-8 px-2 sm:px-8 border-b border-slate-800/50">
+                  <div className="pt-8 pb-4 px-2 sm:px-8">
                     <div className="relative flex items-center justify-between w-full max-w-3xl mx-auto">
                       <div className="absolute left-0 top-4 w-full h-1 bg-slate-800 -z-10"></div>
                       <div 
@@ -172,8 +165,10 @@ export default function SiparislerimPage() {
                       ></div>
 
                       {steps.map((step) => {
-                        const isCompleted = currentStep > step.num;
-                        const isCurrent = currentStep === step.num;
+                        // 🚀 4. ADIM TİK DÜZELTMESİ BURADA! Eğer 4. adımdaysa orası artık tik (✔) olur!
+                        const isCompleted = currentStep > step.num || (currentStep === 4 && step.num === 4);
+                        const isCurrent = currentStep === step.num && currentStep !== 4;
+
                         return (
                           <div key={step.num} className="flex flex-col items-center gap-3 relative z-10">
                             <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm border-2 transition-all duration-500 ${
@@ -194,8 +189,18 @@ export default function SiparislerimPage() {
                     </div>
                   </div>
 
-                  {/* Ürün Listesi */}
-                  <div className="mt-6 space-y-4">
+                  {/* 🚀 EFSANE ÖZEL MESAJ KUTUSU: Sadece mesaj varsa görünür */}
+                  {adminMesaji && (
+                    <div className="mx-2 sm:mx-8 mb-4 mt-2 bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm">
+                      <MessageSquare className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-xs text-blue-300 font-bold uppercase tracking-wider mb-1">Mağaza Mesajı / Kargo Notu</p>
+                        <p className="text-sm text-slate-200">{adminMesaji}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="border-t border-slate-800/50 mt-4 pt-6 space-y-4">
                     {order.items?.map((item: any, idx: number) => (
                       <div key={idx} className="flex items-center justify-between gap-4 text-sm">
                         <div className="flex items-center gap-3">
@@ -214,8 +219,7 @@ export default function SiparislerimPage() {
                     ))}
                   </div>
 
-                  {/* Genel Toplam */}
-                  <div className="mt-6 pt-4 border-t border-slate-800/50 flex justify-between items-center bg-slate-800/20 p-4 rounded-xl">
+                  <div className="mt-6 pt-4 flex justify-between items-center bg-slate-800/20 p-4 rounded-xl">
                     <span className="text-xs text-slate-400 uppercase tracking-wider font-bold">Genel Toplam</span>
                     <span className="text-xl font-black text-white">
                       {Number(order.totalPrice).toLocaleString("tr-TR")} TL
