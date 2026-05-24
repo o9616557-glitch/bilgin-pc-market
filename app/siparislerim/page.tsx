@@ -8,10 +8,12 @@ export default function SiparislerimPage() {
   const [refreshing, setRefreshing] = useState(false); 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  
+  // 🚀 MODERN SİLME EKRANI İÇİN YENİ HAFIZA (Hangi siparişin silineceğini tutar)
+  const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
 
   const fetchOrders = async () => {
     try {
-      // 🚀 HAFIZA KIRICI: Sayfa yenilemeden "Güncelle" butonunun çalışması için Next.js önbelleğini parçalıyoruz!
       const res = await fetch(`/api/orders?t=${new Date().getTime()}`, { 
         cache: 'no-store',
         headers: {
@@ -43,17 +45,27 @@ export default function SiparislerimPage() {
     fetchOrders(); 
   };
 
-  const handleDeleteOrder = async (orderId: string) => {
-    if (!confirm("Bu siparişi kalıcı olarak silmek istediğinize emin misiniz?")) return;
+  // 🚀 ARTIK İLKEL TARAYICI KUTUSU YOK! Sadece silecek ID'yi hafızaya alıp bizim şık ekranı açtırıyoruz.
+  const handleDeleteClick = (orderId: string) => {
+    setOrderToDelete(orderId);
+  };
+
+  // 🚀 BİZİM ŞIK EKRANDA "EVET, SİL" BUTONUNA BASILINCA ÇALIŞACAK GERÇEK SİLME MOTORU
+  const confirmDelete = async () => {
+    if (!orderToDelete) return;
+    
     try {
-      const res = await fetch(`/api/orders?id=${orderId}`, { method: "DELETE" });
+      const res = await fetch(`/api/orders?id=${orderToDelete}`, { method: "DELETE" });
       if (res.ok) {
-        setOrders(orders.filter((order) => order._id !== orderId));
+        setOrders(orders.filter((order) => order._id !== orderToDelete));
+        setOrderToDelete(null); // Silince şık ekranı kapat
       } else {
-        alert("Sipariş silinirken arka planda bir hata oluştu.");
+        setErrorMsg("Sipariş silinirken bir hata oluştu.");
+        setOrderToDelete(null);
       }
     } catch (error) {
-      alert("Bağlantı hatası sebebiyle silinemedi.");
+      setErrorMsg("Bağlantı hatası sebebiyle silinemedi.");
+      setOrderToDelete(null);
     }
   };
 
@@ -63,7 +75,6 @@ export default function SiparislerimPage() {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  // 🚀 TREN MOTORU: Eski sistemindeki bütün kelimeleri (Tamamlandı, Ödendi vs.) tanır.
   const getStepNumber = (order: any) => {
     const s = (order.searchableStatus || order.status || order.durum || "").toLowerCase();
     if (s.includes("teslim") || s.includes("tamam")) return 4;
@@ -88,7 +99,7 @@ export default function SiparislerimPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050B14] text-white p-4 sm:p-8">
+    <div className="min-h-screen bg-[#050B14] text-white p-4 sm:p-8 relative">
       <div className="max-w-5xl mx-auto">
         
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
@@ -106,8 +117,9 @@ export default function SiparislerimPage() {
         </div>
 
         {errorMsg && (
-            <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl text-red-400 text-sm mb-6">
-                {errorMsg}
+            <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl text-red-400 text-sm mb-6 flex justify-between items-center">
+                <span>{errorMsg}</span>
+                <button onClick={() => setErrorMsg(null)} className="text-red-400 hover:text-red-300">✕</button>
             </div>
         )}
 
@@ -121,14 +133,13 @@ export default function SiparislerimPage() {
               const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase();
               const currentStep = getStepNumber(order); 
               
-              // 🚀 İŞTE ŞEFİN BULDUĞU ŞİFRE BURADA: 'musteriMesaji' aslanlar gibi en başa eklendi!
               const adminMesaji = order.musteriMesaji || order.mesaj || order.adminMesaj || order.siparisNotu || order.kargoNotu || order.kargoTakipNo;
 
               return (
                 <div key={order._id} className="border border-slate-800 bg-slate-900/40 rounded-2xl p-6 backdrop-blur-sm relative group hover:border-slate-700/80 transition-all">
                   
                   <button
-                    onClick={() => handleDeleteOrder(order._id)}
+                    onClick={() => handleDeleteClick(order._id)}
                     className="absolute top-4 right-4 p-2.5 text-slate-500 hover:text-red-400 bg-slate-800/50 hover:bg-red-500/10 rounded-xl border border-transparent hover:border-red-500/20 transition-all opacity-80 group-hover:opacity-100 z-20"
                     title="Siparişi Sil"
                   >
@@ -163,7 +174,6 @@ export default function SiparislerimPage() {
                     </div>
                   </div>
 
-                  {/* GÖRSEL KARGO TAKİP MOTORU */}
                   <div className="pt-8 pb-4 px-2 sm:px-8">
                     <div className="relative flex items-center justify-between w-full max-w-3xl mx-auto">
                       <div className="absolute left-0 top-4 w-full h-1 bg-slate-800 -z-10"></div>
@@ -196,7 +206,6 @@ export default function SiparislerimPage() {
                     </div>
                   </div>
 
-                  {/* 🚀 EFSANE ÖZEL MESAJ KUTUSU: Artık 100% çalışacak! */}
                   {adminMesaji && (
                     <div className="mx-2 sm:mx-8 mb-4 mt-2 bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm">
                       <MessageSquare className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
@@ -238,7 +247,42 @@ export default function SiparislerimPage() {
             })}
           </div>
         )}
+
       </div>
+
+      {/* 🚀 İŞTE EFSANE TASARIMLI SİLME ONAY EKRANI BURADA */}
+      {orderToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#050B14]/80 backdrop-blur-sm p-4">
+          <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl max-w-sm w-full shadow-[0_0_40px_rgba(0,0,0,0.5)] transform transition-all text-center">
+            
+            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-red-500/10 mx-auto mb-6 border border-red-500/20">
+              <Trash2 className="w-8 h-8 text-red-500" />
+            </div>
+            
+            <h3 className="text-xl font-black text-white mb-3">Siparişi Sil</h3>
+            <p className="text-sm text-slate-400 mb-8 leading-relaxed">
+              Bu siparişi kalıcı olarak silmek istediğinize emin misiniz? <br/> <span className="text-red-400 font-bold mt-1 inline-block">Bu işlem geri alınamaz!</span>
+            </p>
+            
+            <div className="flex gap-4">
+              <button 
+                onClick={() => setOrderToDelete(null)}
+                className="flex-1 py-3 rounded-xl font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-700"
+              >
+                İptal Et
+              </button>
+              <button 
+                onClick={confirmDelete}
+                className="flex-1 py-3 rounded-xl font-black text-white bg-red-500 hover:bg-red-600 transition-all shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:shadow-[0_0_25px_rgba(239,68,68,0.5)] border border-red-400/50"
+              >
+                Evet, Sil
+              </button>
+            </div>
+            
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
