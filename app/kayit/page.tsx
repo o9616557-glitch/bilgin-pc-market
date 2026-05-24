@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation"; // 🚀 YÖNLENDİRME İÇİN EKLENDİ
 import { Mail, Lock, User, ArrowLeft, ShieldCheck } from "lucide-react";
 import { signIn } from "next-auth/react";
 
@@ -9,13 +10,39 @@ export default function KayitPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  
+  const router = useRouter(); // 🚀 Sayfa değiştirmek için motoru çalıştırdık
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Şefim, kayıt API'sini (Veritabanı) bağladığımızda bu buton çalışacak.");
+
+    try {
+      // 1. Formdaki verileri paketleyip az önce yazdığımız API'ye (Veritabanına) yolluyoruz
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      // 2. Eğer veritabanı "Tamam kaydettim" derse (res.ok)
+      if (res.ok) {
+        alert("Harika! Kayıt başarıyla oluşturuldu. Giriş sayfasına yönlendiriliyorsunuz...");
+        router.push("/giris"); // Kayıt başarılıysa direkt giriş sayfasına şutla!
+      } else {
+        // 3. Eğer e-posta zaten varsa veya başka hata çıkarsa mesajı göster
+        const data = await res.json();
+        alert("HATA: " + data.message);
+      }
+    } catch (err) {
+      alert("Sunucuya bağlanırken bir hata oluştu. Lütfen tekrar deneyin.");
+    }
   };
 
   return (
+// ... BURADAN AŞAĞISI SENİN TASARIMIN, HİÇ DOKUNMA AYNEN KALSIN ...
+  
     <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-[#00e5ff] rounded-full mix-blend-screen filter blur-[150px] opacity-10"></div>
 

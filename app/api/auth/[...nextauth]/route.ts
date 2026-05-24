@@ -1,24 +1,25 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
-import clientPromise from "@/lib/mongodb";
 import bcrypt from "bcryptjs";
+import mongoose from "mongoose";
+import User from "@/models/User"; // Az önce oluşturduğumuz şablonu çağırıyoruz
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     // 1. GOOGLE BAĞLANTI ADAPTÖRÜ
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
-    
+
     // 2. FACEBOOK BAĞLANTI ADAPTÖRÜ
     FacebookProvider({
       clientId: process.env.FACEBOOK_CLIENT_ID as string,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
     }),
-    
+
     // 3. E-POSTA VE ŞİFRE ADAPTÖRÜ
     CredentialsProvider({
       name: "Credentials",
@@ -30,21 +31,27 @@ export const authOptions = {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Lütfen e-posta ve şifrenizi girin.");
         }
-        
-        const client = await clientPromise;
-        const db = client.db("bilginpcmarket");
-        const user = await db.collection("users").findOne({ email: credentials.email });
+
+        // Mongoose ile veritabanına bağlanıyoruz (Kayıt API'si ile birebir aynı)
+        if (mongoose.connection.readyState !== 1) {
+          await mongoose.connect(process.env.MONGODB_URI as string);
+        }
+
+        // Kullanıcıyı veritabanında bul
+        const user = await User.findOne({ email: credentials.email });
 
         if (!user) {
           throw new Error("Bu e-posta ile kayıtlı bir kullanıcı bulunamadı.");
         }
 
+        // Şifreyi çöz ve karşılaştır
         const isPasswordMatch = await bcrypt.compare(credentials.password, user.password);
-        
+
         if (!isPasswordMatch) {
           throw new Error("Şifre hatalı, lütfen tekrar deneyin.");
         }
 
+        // Her şey doğruysa kapıları aç!
         return {
           id: user._id.toString(),
           name: user.name,
@@ -54,12 +61,12 @@ export const authOptions = {
     })
   ],
   session: {
-    strategy: "jwt" as const,
+    strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 Gün açık kalır
   },
   secret: process.env.NEXTAUTH_SECRET || "BilginPcMarketGizliAnahtar2026",
   pages: {
-    signIn: "/giris",
+    signIn: "/giris", // Hata olursa veya giriş gerekirse buraya atar
   },
   
   // 🚀 ŞEFİM İŞTE HAYAT KURTARAN GÜMRÜK KAPISI BURASI!
@@ -79,7 +86,7 @@ export const authOptions = {
     }
   },
   // Hata olursa Vercel loglarında kabak gibi göstersin diye radar açtık
-  debug: true, 
+  debug: true,
 };
 
 // NextAuth'un çalışması için zorunlu dışa aktarım (Export) işlemi
