@@ -1,12 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
+// 🚀 RefreshCw ikonunu Güncelleme butonu için ekledik!
+import { Loader2, Trash2, Copy, Check, RefreshCw } from "lucide-react"; 
 
 export default function SiparislerimPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  // 🚀 Butona basıldığında dönme efekti için yeni state
+  const [refreshing, setRefreshing] = useState(false); 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
-  // Siparişleri sunucudan çeker
   const fetchOrders = async () => {
     try {
       const res = await fetch("/api/orders");
@@ -20,6 +24,7 @@ export default function SiparislerimPage() {
       setErrorMsg("Bağlantı hatası oluştu.");
     } finally {
       setLoading(false);
+      setRefreshing(false); // Güncelleme bitince dönmeyi durdur
     }
   };
 
@@ -27,17 +32,17 @@ export default function SiparislerimPage() {
     fetchOrders();
   }, []);
 
-  // 🚀 ŞEFİM SİLME TETİKLEYİCİSİ: Tıklayınca hem veritabanından siler hem ekrandan uçurur
+  // 🚀 MANUEL GÜNCELLEME MOTORU (Admin panelinden değişeni anında çeker)
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchOrders();
+  };
+
   const handleDeleteOrder = async (orderId: string) => {
-    if (!confirm("Bu siparişi tamamen silmek istediğinize emin misiniz?")) return;
-
+    if (!confirm("Bu siparişi kalıcı olarak silmek istediğinize emin misiniz?")) return;
     try {
-      const res = await fetch(`/api/orders?id=${orderId}`, {
-        method: "DELETE",
-      });
-
+      const res = await fetch(`/api/orders?id=${orderId}`, { method: "DELETE" });
       if (res.ok) {
-        // Ekrondaki listeden anında kaldırır
         setOrders(orders.filter((order) => order._id !== orderId));
       } else {
         alert("Sipariş silinirken arka planda bir hata oluştu.");
@@ -47,10 +52,32 @@ export default function SiparislerimPage() {
     }
   };
 
+  const handleCopy = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(null), 2000);
+  };
+
+  // 🚀 KARGO DURUMUNU ADIMLARA ÇEVİREN SİHİRLİ FONKSİYON
+  const getStepNumber = (status: string) => {
+    const s = (status || "").toLowerCase();
+    if (s.includes("teslim") || s.includes("tamam")) return 4;
+    if (s.includes("kargo")) return 3;
+    if (s.includes("hazırla")) return 2;
+    return 1; // Default: Sipariş Alındı / Bekliyor
+  };
+
+  const steps = [
+    { num: 1, label: "SİPARİŞ ALINDI" },
+    { num: 2, label: "HAZIRLANIYOR" },
+    { num: 3, label: "KARGODA" },
+    { num: 4, label: "TESLİM EDİLDİ" },
+  ];
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#050B14] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+        <Loader2 className="animate-spin text-cyan-500 h-10 w-10" />
       </div>
     );
   }
@@ -58,14 +85,27 @@ export default function SiparislerimPage() {
   return (
     <div className="min-h-screen bg-[#050B14] text-white p-4 sm:p-8">
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-2xl font-black uppercase tracking-wider mb-8 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">
-          Siparişlerim
-        </h1>
+        
+        {/* 🚀 ÜST BAŞLIK VE GÜNCELLE BUTONU YAN YANA */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+          <h1 className="text-2xl font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+            Siparişlerim
+          </h1>
+          
+          <button 
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-cyan-400 px-4 py-2 rounded-xl font-bold text-sm transition-all border border-slate-700 hover:border-cyan-500/50"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
+            {refreshing ? "Güncelleniyor..." : "Durumları Güncelle"}
+          </button>
+        </div>
 
         {errorMsg && (
-          <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl text-red-400 text-sm mb-6">
-            {errorMsg}
-          </div>
+            <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl text-red-400 text-sm mb-6">
+                {errorMsg}
+            </div>
         )}
 
         {orders.length === 0 ? (
@@ -73,79 +113,127 @@ export default function SiparislerimPage() {
             <p className="text-slate-400 text-sm">Henüz kayıtlı bir siparişiniz bulunmuyor.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6">
-            {orders.map((order: any) => (
-              <div 
-                key={order._id} 
-                className="border border-slate-800 bg-slate-900/40 rounded-2xl p-6 backdrop-blur-sm relative hover:border-slate-700/80 transition-all group"
-              >
-                {/* 🚀 ŞEFİN SİLME SİMGESİ (KARTIN SAĞ ÜST KÖŞESİNDE) */}
-                <button
-                  onClick={() => handleDeleteOrder(order._id)}
-                  className="absolute top-4 right-4 p-2 text-slate-500 hover:text-red-400 bg-slate-800/30 hover:bg-red-500/10 rounded-xl border border-transparent hover:border-red-500/20 transition-all opacity-80 group-hover:opacity-100"
-                  title="Siparişi Sil"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.34 6.614m-5.788 0L8.26 9m4.343-4.484-1.313-1.313m0 0L8.928 3.5M10.612 3.5h2.776m-4.777 0h6.778m-11.33 0L4.5 18.75a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25L19.5 7.5m-15 0h15" />
-                  </svg>
-                </button>
+          <div className="grid grid-cols-1 gap-8">
+            {orders.map((order: any) => {
+              const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase();
+              
+              // 🚀 SİPARİŞİN ŞU ANKİ ADIMINI HESAPLA (Admin panelinden ne gelirse ona göre ayarlar)
+              const currentStep = getStepNumber(order.status || order.durum);
 
-                {/* Üst Bilgiler */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800/50 pr-8">
-                  <div>
-                    {/* BPC Kodu Öncelikli Sipariş Numarası */}
-                    <p className="text-xs text-slate-500 mt-1">
-                      Sipariş No: <span className="text-slate-300 font-bold">{order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase()}</span>
-                    </p>
-                    <p className="text-xs text-slate-500 mt-1">
-                      Tarih: <span className="text-slate-400">{new Date(order.createdAt).toLocaleDateString("tr-TR")}</span>
-                    </p>
-                  </div>
+              return (
+                <div key={order._id} className="border border-slate-800 bg-slate-900/40 rounded-2xl p-6 backdrop-blur-sm relative group hover:border-slate-700/80 transition-all">
+                  
+                  {/* SİLME BUTONU */}
+                  <button
+                    onClick={() => handleDeleteOrder(order._id)}
+                    className="absolute top-4 right-4 p-2.5 text-slate-500 hover:text-red-400 bg-slate-800/50 hover:bg-red-500/10 rounded-xl border border-transparent hover:border-red-500/20 transition-all opacity-80 group-hover:opacity-100 z-20"
+                    title="Siparişi Sil"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
 
-                  {/* Durum Rozeti */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs bg-slate-800 text-slate-400 px-3 py-1.5 rounded-lg border border-slate-700 font-medium">
-                      {order.paymentMethod || "Havale / EFT"}
-                    </span>
-                    <span className="text-xs bg-blue-500/10 text-blue-400 border border-blue-500/20 px-3 py-1.5 rounded-lg font-bold">
-                      {order.status || "Hazırlanıyor"}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Ürün Listesi */}
-                <div className="mt-4 space-y-4">
-                  {order.items?.map((item: any, idx: number) => (
-                    <div key={idx} className="flex items-center justify-between gap-4 text-sm">
-                      <div className="flex items-center gap-3">
-                        {item.image && (
-                          <img 
-                            src={item.image} 
-                            alt={item.title} 
-                            className="w-10 h-10 object-cover rounded-xl bg-slate-800 border border-slate-700/50"
-                          />
-                        )}
-                        <div>
-                          <p className="font-bold text-slate-200">{item.title}</p>
-                          <p className="text-xs text-slate-500">{item.quantity} Adet</p>
-                        </div>
-                      </div>
-                      <p className="font-black text-slate-300">
-                        {Number(item.price * item.quantity).toLocaleString("tr-TR")} TL
+                  {/* Üst Bilgiler */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800/50 pr-8">
+                    <div>
+                      <p className="text-xs text-slate-500 mt-1 flex items-center gap-2">
+                        Sipariş No: <span className="text-slate-300 font-bold">{currentSiparisKodu}</span>
+                        <button 
+                          onClick={() => handleCopy(currentSiparisKodu)}
+                          className="text-slate-400 hover:text-cyan-400 transition-colors bg-slate-800/50 p-1.5 rounded-md"
+                          title="Kodu Kopyala"
+                        >
+                          {copiedCode === currentSiparisKodu ? (
+                            <Check className="w-3.5 h-3.5 text-green-400" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      </p>
+                      <p className="text-xs text-slate-500 mt-2">
+                        Tarih: <span className="text-slate-400">{new Date(order.createdAt).toLocaleDateString("tr-TR")}</span>
                       </p>
                     </div>
-                  ))}
-                </div>
 
-                {/* Genel Toplam */}
-                <div className="mt-6 pt-4 border-t border-slate-800/50 flex justify-between items-center">
-                  <span className="text-xs text-slate-500 uppercase tracking-wider font-bold">Genel Toplam</span>
-                  <span className="text-lg font-black text-blue-400">
-                    {Number(order.totalPrice).toLocaleString("tr-TR")} TL
-                  </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 font-bold">
+                        {order.paymentMethod || "Havale / EFT"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* 🚀 EFSANE KISIM: GÖRSEL KARGO TAKİP MOTURU */}
+                  <div className="py-8 px-2 sm:px-8 border-b border-slate-800/50">
+                    <div className="relative flex items-center justify-between w-full max-w-3xl mx-auto">
+                      
+                      {/* Arka Plan Çizgisi (Gri) */}
+                      <div className="absolute left-0 top-4 w-full h-1 bg-slate-800 -z-10"></div>
+                      
+                      {/* Aktif Çizgi (Mavi) - Bulunduğu adıma kadar dolar */}
+                      <div 
+                        className="absolute left-0 top-4 h-1 bg-cyan-400 -z-10 transition-all duration-700 ease-in-out shadow-[0_0_10px_rgba(34,211,238,0.5)]" 
+                        style={{ width: `${((currentStep - 1) / 3) * 100}%` }}
+                      ></div>
+
+                      {/* Adım Yuvarlakları ve Yazıları */}
+                      {steps.map((step) => {
+                        const isCompleted = currentStep > step.num;
+                        const isCurrent = currentStep === step.num;
+                        const isPending = currentStep < step.num;
+
+                        return (
+                          <div key={step.num} className="flex flex-col items-center gap-3 relative z-10">
+                            {/* Yuvarlak Kısım */}
+                            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm border-2 transition-all duration-500 ${
+                              isCompleted ? "bg-cyan-500 border-cyan-400 text-[#050B14] shadow-[0_0_15px_rgba(34,211,238,0.5)]" : 
+                              isCurrent ? "bg-[#050B14] border-cyan-400 text-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.3)]" : 
+                              "bg-slate-900 border-slate-700 text-slate-500"
+                            }`}>
+                              {isCompleted ? <Check className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={3} /> : step.num}
+                            </div>
+                            
+                            {/* Yazı Kısmı */}
+                            <span className={`text-[9px] sm:text-[11px] font-black tracking-wider text-center max-w-[80px] sm:max-w-none transition-colors duration-500 ${
+                              isCompleted || isCurrent ? "text-slate-200" : "text-slate-600"
+                            }`}>
+                              {step.label}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Ürün Listesi */}
+                  <div className="mt-6 space-y-4">
+                    {order.items?.map((item: any, idx: number) => (
+                      <div key={idx} className="flex items-center justify-between gap-4 text-sm">
+                        <div className="flex items-center gap-3">
+                          {item.image && (
+                            <img src={item.image} alt={item.title} className="w-12 h-12 object-cover rounded-xl bg-slate-800 border border-slate-700/50"/>
+                          )}
+                          <div>
+                            <p className="font-bold text-slate-200">{item.title}</p>
+                            <p className="text-xs text-slate-500 mt-1">{item.quantity} Adet</p>
+                          </div>
+                        </div>
+                        <p className="font-black text-cyan-400 text-base">
+                          {Number(item.price * item.quantity).toLocaleString("tr-TR")} TL
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Genel Toplam */}
+                  <div className="mt-6 pt-4 border-t border-slate-800/50 flex justify-between items-center bg-slate-800/20 p-4 rounded-xl">
+                    <span className="text-xs text-slate-400 uppercase tracking-wider font-bold">Genel Toplam</span>
+                    <span className="text-xl font-black text-white">
+                      {Number(order.totalPrice).toLocaleString("tr-TR")} TL
+                    </span>
+                  </div>
+                  
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
