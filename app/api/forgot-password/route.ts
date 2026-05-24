@@ -18,34 +18,31 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Bu e-posta adresi ile kayıtlı kullanıcı bulunamadı." }, { status: 404 });
     }
 
-    // 2. Rastgele 64 karakterli gizli bilet (token) üret
+    // 2. Rastgele gizli bilet (token) üret
     const resetToken = crypto.randomBytes(32).toString("hex");
-    const resetTokenExpiry = Date.now() + 3600000; // Tam 1 saat (3.600.000 ms) geçerli
+    const resetTokenExpiry = Date.now() + 3600000; // 1 saat geçerli
 
-    // 3. Bileti veritabanına kaydet (🚀 TypeScript hatasını çözen sihirli yama: as any)
+    // 3. Bileti veritabanına kaydet
     (user as any).resetToken = resetToken;
     (user as any).resetTokenExpiry = resetTokenExpiry;
     await user.save();
 
-    // 4. MAİL KURYEMİZİ HAZIRLIYORUZ
+    // 4. MAİL KURYEMİZİ HAZIRLIYORUZ (🚀 GMAIL MOTORU TAKILDI)
     const transporter = nodemailer.createTransport({
-      host: "mail.bilginpcmarket.com", // 🚀 smtp yerine mail yaptık, %90 ihtimalle böyledir.
-      port: 465, 
+      host: "smtp.gmail.com",
+      port: 465,
       secure: true,
       auth: {
-        user: "info@bilginpcmarket.com",
-        pass: "BURAYA_INFO_MAILININ_SIFRESINI_YAZ", // Şifreni tekrar girmeyi unutma!
+        user: "o9616557@gmail.com", // Sefimin geçici Gmail adresi
+        pass: "vfph bxkd gzsv enpg", // 🚨 DİKKAT: Normal şifren değil, Google'dan aldığın 16 haneli kod!
       },
-      tls: {
-        rejectUnauthorized: false // 🚀 Sertifika sorunlarını görmezden gelmesi için yama yaptık.
-      }
     });
 
     // 5. Müşteriye gidecek linki ve maili hazırla
     const resetUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/yeni-sifre?token=${resetToken}`;
     
     const mailOptions = {
-      from: '"Bilgin PC Market" <info@bilginpcmarket.com>',
+      from: '"Bilgin PC Market" <o9616557@gmail.com>', // Gönderen yine şefimin maili
       to: email,
       subject: "Şifre Sıfırlama Talebi - Bilgin PC Market",
       html: `
