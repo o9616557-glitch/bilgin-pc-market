@@ -179,16 +179,7 @@ export default function AdreslerimPage() {
                 <label className="text-xs text-slate-400 font-bold uppercase">Açık Adres</label>
                 <textarea name="fullAddress" value={formData.fullAddress} onChange={handleInputChange} required rows={3} className="bg-[#050814] border border-white/10 rounded-lg p-3 text-sm focus:border-[#00e5ff]/50 outline-none transition-colors resize-none"></textarea>
               </div>
-              
-              <div className="md:col-span-2 flex justify-end mt-2">
-                <button type="submit" disabled={isSubmitting} className="bg-[#00e5ff] text-black px-8 py-3 rounded-xl font-black uppercase tracking-widest hover:bg-[#00c4db] transition-all disabled:opacity-50">
-                  {isSubmitting ? "KAYDEDİLİYOR..." : "ADRESİ KAYDET"}
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-{/* 🚀 ŞEFİM: KASADA OTOMATİK DOLDURMA KUTUCUKLARI */}
+              {/* 🚀 ŞEFİM: KASADA OTOMATİK DOLDURMA KUTUCUKLARI */}
         <div className="md:col-span-2 flex flex-col md:flex-row gap-6 mt-2 mb-4">
           <label className="flex items-center gap-3 cursor-pointer text-sm text-slate-300 hover:text-white transition-colors">
             <input 
@@ -210,6 +201,14 @@ export default function AdreslerimPage() {
             Fatura adresi olarak da bunu kullan
           </label>
         </div>
+              <div className="md:col-span-2 flex justify-end mt-2">
+                <button type="submit" disabled={isSubmitting} className="bg-[#00e5ff] text-black px-8 py-3 rounded-xl font-black uppercase tracking-widest hover:bg-[#00c4db] transition-all disabled:opacity-50">
+                  {isSubmitting ? "KAYDEDİLİYOR..." : "ADRESİ KAYDET"}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
 
         {/* Adres Listesi */}
         {isLoading ? (
