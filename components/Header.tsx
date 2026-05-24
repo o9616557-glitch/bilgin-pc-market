@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import SiparisModal from "./SiparisModal";
 import { useCart } from "@/app/CartContext";
 import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react"; 
-
 export default function Header() {
   const { sepet } = useCart();
   const [menuAcik, setMenuAcik] = useState(false);
@@ -13,7 +13,7 @@ export default function Header() {
   const sepetAdedi = sepet.reduce((toplam: number, urun: any) => toplam + (urun.adet || 1), 0);
 
   const { data: session } = useSession(); 
-
+const [isSiparisModalOpen, setIsSiparisModalOpen] = useState(false);
   // 🚨 ŞEFİM: BURAYA KENDİ GOOGLE E-POSTA ADRESİNİ YAZ! (Örn: "ozkan@gmail.com")
   const ADMIN_EMAIL = "o9616557@gmail.com";
 
@@ -101,9 +101,12 @@ export default function Header() {
                   </>
                 )}
 
-                <Link href="/siparislerim" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem", fontWeight: "500", borderRadius: "8px" }}>
-                  <span>📦</span> Siparişlerim
-                </Link>
+                <button 
+  onClick={() => { setHesabimAcik(false); setIsSiparisModalOpen(true); }} 
+  style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem", background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer" }}
+>
+  <span>🛍️</span> Siparişlerim
+</button>
                 
                 <Link href="/siparis-takip" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem", fontWeight: "500", borderRadius: "8px" }}>
                   <span>🔍</span> Sipariş Takip
@@ -153,6 +156,8 @@ export default function Header() {
       <style dangerouslySetInnerHTML={{ __html: `
         @media (min-width: 768px) { .mobil-hamburger { display: none !important; } }
       ` }} />
+      <SiparisModal isOpen={isSiparisModalOpen} onClose={() => setIsSiparisModalOpen(false)} />
+
     </header>
   );
 }
