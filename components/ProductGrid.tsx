@@ -11,35 +11,37 @@ export default function ProductGrid({ initialProducts }: { initialProducts: any[
     try {
       const storedCart = localStorage.getItem("user_cart");
       let cart = storedCart ? JSON.parse(storedCart) : [];
-      const existingItem = cart.find((item: any) => item.id === product._id || item.id === product.id);
+      const productId = String(product._id || product.id);
+      const existingItem = cart.find((item: any) => String(item.id) === productId);
 
-      // ŞEFİM: Sepete atarken indirimli fiyat varsa onu, yoksa normal fiyatı alıyoruz!
-      const gecerliFiyat = product.indirimliFiyat ? Number(product.indirimliFiyat) : Number(product.price || product.fiyat);
+      const gecerliFiyat = Number(product.indirimliFiyat || product.price || product.fiyat || 0);
 
       if (existingItem) {
-        existingItem.quantity += 1;
+        // Ürün zaten varsa sayısını 1 artır
+        existingItem.adet = (existingItem.adet || existingItem.quantity || 1) + 1;
       } else {
+        // 🚀 ŞEFİN ANA MOTORUYLA BİREBİR AYNI KELİMELER!
         cart.push({
-          id: product._id || product.id,
-          name: product.name || product.isim,
-          price: gecerliFiyat,
-          image: product.images?.[0]?.src || product.resim || "https://via.placeholder.com/300",
-          slug: product.slug || product._id,
-          quantity: 1
+          id: productId,
+          isim: product.isim || product.name || "İsimsiz Ürün",
+          fiyat: gecerliFiyat,
+          resim: product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/300",
+          varyasyon: "Standart Model",
+          adet: 1
         });
       }
 
       localStorage.setItem("user_cart", JSON.stringify(cart));
       window.dispatchEvent(new Event("cart_updated"));
       window.dispatchEvent(new Event("storage"));
-      
+
       setToastMessage("Sepete eklendi ✓");
       setTimeout(() => setToastMessage(""), 3000);
+      
     } catch (err) {
       console.error("Sepet hatası:", err);
     }
   };
-
   // İndirim oranını hesaplayan ufak bir patron matematiği
   const indirimOraniHesapla = (normal: number, indirimli: number) => {
     if (!normal || !indirimli || normal <= indirimli) return 0;
