@@ -145,14 +145,22 @@ const handleToggleFavorite = async () => {
   const handleAddToCart = () => {
     setAddingToCart(true);
     try {
+      // 1. Ürünü arka planda sepete atıyoruz
       sepeteEkle({
-        id: String(pId), isim: product.isim || product.name || "İsimsiz Ürün",
+        id: String(pId),
+        isim: product.isim || product.name || "İsimsiz Ürün",
         fiyat: Number(product.indirimliFiyat || product.price || product.fiyat || 0),
-        resim: product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/400", varyasyon: "Standart Model"
+        resim: product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/400", 
+        varyasyon: "Standart Model"
       });
-      setAddedSuccess(true);
-      setTimeout(() => { setAddingToCart(false); setAddedSuccess(false); }, 2000);
-    } catch (error) { setAddingToCart(false); }
+      
+      // 2. 🚀 ŞEFİM İŞTE YENİ ŞOFÖRÜMÜZ BURADA! Müşteriyi anında sepete götürüyoruz:
+      window.location.href = "/sepet";
+      
+    } catch (error) {
+      setAddingToCart(false);
+      console.error("Sepete eklenirken hata:", error);
+    }
   };
 
  
