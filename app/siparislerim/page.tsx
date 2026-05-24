@@ -119,7 +119,7 @@ export default function SiparislerimPage() {
                     <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(order.status)}`}>
                       {order.status}
                     </span>
-                    <p className="text-xs text-slate-500 mt-2">Sipariş No: <span className="text-slate-300">{order._id.slice(-8).toUpperCase()}</span></p>
+                    <p className="text-xs text-slate-500 mt-2">Sipariş No: <span className="text-slate-300">{(order as any).siparisKodu || (order as any).orderNumber || order._id.slice(-8).toUpperCase()}</span></p>
                   </div>
                 </div>
 
