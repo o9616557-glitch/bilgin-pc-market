@@ -1,20 +1,26 @@
 import { NextResponse } from "next/server";
-import clientPromise from "@/lib/mongodb"; // Senin resimdeki bağlantı köprün
+import clientPromise from "@/lib/mongodb"; // MongoDB köprümüzü bağlıyoruz
 
-export async function GET() {
+export async function GET(
+  request: Request,
+  context: { params: Promise<{ slug: string }> }
+) {
   try {
+    const { slug } = await context.params;
+    
     // Veritabanına bağlan
     const client = await clientPromise;
-    const db = client.db("bilginpcmarket"); // Senin veritabanı adın
-
-    // "products" koleksiyonundaki BÜTÜN ürünleri dizi (array) olarak çek
-    const products = await db.collection("products").find({}).toArray();
-
-    // Ürünleri Favoriler sayfasına gönder
-    return NextResponse.json({ products });
+    const db = client.db("bilginpcmarket"); // Veritabanı adın
     
+    // "products" koleksiyonunda slug'ı eşleşen ürünü bul
+    const urun = await db.collection("products").findOne({ slug: slug });
+
+    if (urun) {
+      return NextResponse.json(urun);
+    }
+
+    return NextResponse.json({ error: "Ürün bulunamadı" }, { status: 404 });
   } catch (error) {
-    console.error("API Hatası:", error);
     return NextResponse.json({ error: "Sunucu hatası" }, { status: 500 });
   }
 }
