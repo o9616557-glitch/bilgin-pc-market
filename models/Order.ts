@@ -1,49 +1,45 @@
 import mongoose from 'mongoose';
 
+// 🚀 SİHİR 1: Ürün kalıbını esnettik (isim, adet, miktar... İçinde ne varsa silmeden kabul edecek)
 const orderItemSchema = new mongoose.Schema({
-  productId: { type: String, required: true }, // Ürün ID'si
-  title: { type: String, required: true },     // Ürün Adı
-  image: { type: String, required: true },     // Ürün Görseli
-  price: { type: Number, required: true },     // Ürün Birim Fiyatı
-  quantity: { type: Number, required: true },  // Adet
-});
+  productId: { type: String, required: false },
+  title: { type: String, required: false },
+  image: { type: String, required: false },
+  price: { type: Number, required: false },
+  quantity: { type: Number, required: false },
+}, { strict: false }); 
 
-const orderSchema = new mongoose.Schema(
-  {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    },
-    userEmail: {
-      type: String,
-      required: true,
-    },
-    items: [orderItemSchema], // Sipariş edilen ürünlerin listesi
-    totalPrice: {
-      type: Number,
-      required: true,
-    },
-    shippingAddress: {
-      title: String,
-      fullName: String,
-      phone: String,
-      city: String,
-      district: String,
-      fullAddress: String,
-    },
-    paymentMethod: {
-      type: String,
-      default: 'Iyzico / Kredi Kartı',
-    },
-    status: {
-      type: String,
-      enum: ['Hazırlanıyor', 'Kargoya Verildi', 'Teslim Edildi', 'İptal Edildi'],
-      default: 'Hazırlanıyor',
-    },
+// 🚀 SİHİR 2: Ana Sipariş Kalıbı
+const orderSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: false, // Havale siparişinde ID yoksa sistemi çökertmesin diye kapattık
   },
-  { timestamps: true } // Sipariş tarihini otomatik tutar
-);
+  userEmail: {
+    type: String,
+    required: false,
+  },
+  items: [orderItemSchema], // Sipariş ürünleri
+  totalPrice: {
+    type: Number,
+    required: false,
+  },
+  shippingAddress: {
+    type: Object, // İçine "musteri" de gelse, "shippingAddress" de gelse itiraz etmeden alacak
+  },
+  paymentMethod: {
+    type: String,
+    default: 'Havale / EFT',
+  },
+  status: {
+    type: String,
+    default: 'Hazırlanıyor',
+  },
+}, {
+  timestamps: true,
+  strict: false // 🚀 NÜKLEER SİHİR: Veritabanındaki hiçbir Türkçe/İngilizce kelimeyi gizleme, hepsini Siparişlerim sayfasına yolla!
+});
 
 const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
 
