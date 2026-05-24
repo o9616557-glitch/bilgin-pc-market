@@ -5,29 +5,50 @@ import Link from "next/link";
 import { HeartCrack, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 
+// 🚀 SENİN VİTRİN BİLEŞENİNİ BURAYA ÇAĞIRDIK
+import ProductGrid from "@/components/ProductGrid"; 
+
 export default function FavorilerimPage() {
-  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+  const [favoriteProducts, setFavoriteProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchFavorites = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch("/api/favorites");
-        const data = await res.json();
+        // 1. Önce kullanıcının favori ID'lerini veritabanından çekiyoruz
+        const favRes = await fetch("/api/favorites");
+        const favData = await favRes.json();
 
-        if (res.ok) {
-          setFavoriteIds(data.favorites);
-        } else if (res.status === 401) {
+        if (favRes.ok) {
+          const ids = favData.favorites || [];
+
+          if (ids.length > 0) {
+            // 2. BÜTÜN ÜRÜNLERİ ÇEKİYORUZ 
+            // ⚠️ ŞEFİM DİKKAT: Sistemindeki tüm ürünleri getiren API adresin "/api/products" değilse, aşağıdaki adresi kendine göre düzelt!
+            const prodRes = await fetch("/api/products");
+            const prodData = await prodRes.json();
+            
+            // Gelen verinin yapısına göre ürün dizisini alıyoruz (bazen direkt dizi gelir, bazen obje içinde)
+            const allProducts = prodData.products || prodData || [];
+
+            // 3. Tüm ürünlerin içinden sadece kullanıcının favori ID'sine sahip olanları ayıklıyoruz
+            const matchedProducts = allProducts.filter((urun: any) => 
+              ids.includes(urun._id?.toString()) || ids.includes(urun.id?.toString())
+            );
+            
+            setFavoriteProducts(matchedProducts); // Vitrine gönderilecek ürünler hazır!
+          }
+        } else if (favRes.status === 401) {
           toast.error("Favorilerinizi görmek için giriş yapmalısınız.");
         }
       } catch (error) {
-        toast.error("Favoriler yüklenirken hata oluştu.");
+        toast.error("Veriler yüklenirken hata oluştu.");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchFavorites();
+    fetchData();
   }, []);
 
   return (
@@ -41,28 +62,24 @@ export default function FavorilerimPage() {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <Loader2 className="w-10 h-10 text-[#00e5ff] animate-spin" />
-            <p className="text-slate-400">Favorileriniz yükleniyor...</p>
+            <p className="text-slate-400">Favori ürünleriniz vitrine diziliyor...</p>
           </div>
-        ) : favoriteIds.length === 0 ? (
+        ) : favoriteProducts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 bg-[#09090b] border border-white/10 rounded-3xl">
             <HeartCrack className="w-16 h-16 text-slate-600 mb-4" />
             <h2 className="text-xl font-bold mb-2">Favori Ürününüz Yok</h2>
             <p className="text-slate-400 mb-6">Henüz beğendiğiniz bir ürün bulunmuyor.</p>
-            <Link href="/" className="bg-[#00e5ff] text-black px-8 py-3 rounded-xl font-black uppercase tracking-widest hover:bg-[#00c4db] transition-all">
+            <Link href="/" className="bg-[#00e5ff] text-black px-8 py-3 rounded-xl font-black uppercase tracking-widest hover:bg-[#00c4db] transition-all shadow-[0_0_15px_rgba(0,229,255,0.2)]">
               Alışverişe Başla
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Burada normalde ürün datalarınızı map fonksiyonu ile döneceksiniz.
-              Örnek kullanım:
-              favoriteIds.map((id) => <UrunKarti key={id} productId={id} />)
-            */}
-            <div className="bg-[#09090b] p-6 rounded-2xl border border-white/10 text-center text-slate-400">
-              <p>Veritabanında {favoriteIds.length} adet favori ürün ID'si bulundu.</p>
-              <p className="text-sm mt-2">Bu ID'leri kullanarak ürün kartlarınızı burada listeleyebilirsiniz.</p>
-            </div>
+          
+          // 🚀 İŞTE SENİN EFSANE VİTRİNİN BURADA DEVREYE GİRİYOR!
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+             <ProductGrid initialProducts={favoriteProducts} />
           </div>
+
         )}
 
       </div>
