@@ -9,7 +9,6 @@ export default function SiparislerimPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   
-  // 🚀 MODERN SİLME EKRANI İÇİN YENİ HAFIZA (Hangi siparişin silineceğini tutar)
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
 
   const fetchOrders = async () => {
@@ -45,20 +44,17 @@ export default function SiparislerimPage() {
     fetchOrders(); 
   };
 
-  // 🚀 ARTIK İLKEL TARAYICI KUTUSU YOK! Sadece silecek ID'yi hafızaya alıp bizim şık ekranı açtırıyoruz.
   const handleDeleteClick = (orderId: string) => {
     setOrderToDelete(orderId);
   };
 
-  // 🚀 BİZİM ŞIK EKRANDA "EVET, SİL" BUTONUNA BASILINCA ÇALIŞACAK GERÇEK SİLME MOTORU
   const confirmDelete = async () => {
     if (!orderToDelete) return;
-    
     try {
       const res = await fetch(`/api/orders?id=${orderToDelete}`, { method: "DELETE" });
       if (res.ok) {
         setOrders(orders.filter((order) => order._id !== orderToDelete));
-        setOrderToDelete(null); // Silince şık ekranı kapat
+        setOrderToDelete(null); 
       } else {
         setErrorMsg("Sipariş silinirken bir hata oluştu.");
         setOrderToDelete(null);
@@ -183,20 +179,19 @@ export default function SiparislerimPage() {
                       ></div>
 
                       {steps.map((step) => {
-                        const isCompleted = currentStep > step.num || (currentStep === 4 && step.num === 4);
-                        const isCurrent = currentStep === step.num && currentStep !== 4;
+                        // 🚀 ŞEFİN İSTEDİĞİ MANTIK: Sipariş o adımdaysa veya o adımı geçtiyse DİREKT TİK (✔) AT!
+                        const isCompleted = currentStep >= step.num;
 
                         return (
                           <div key={step.num} className="flex flex-col items-center gap-3 relative z-10">
                             <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm border-2 transition-all duration-500 ${
                               isCompleted ? "bg-cyan-500 border-cyan-400 text-[#050B14] shadow-[0_0_15px_rgba(34,211,238,0.5)]" : 
-                              isCurrent ? "bg-[#050B14] border-cyan-400 text-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.3)]" : 
                               "bg-slate-900 border-slate-700 text-slate-500"
                             }`}>
                               {isCompleted ? <Check className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={3} /> : step.num}
                             </div>
                             <span className={`text-[9px] sm:text-[11px] font-black tracking-wider text-center max-w-[80px] sm:max-w-none transition-colors duration-500 ${
-                              isCompleted || isCurrent ? "text-slate-200" : "text-slate-600"
+                              isCompleted ? "text-slate-200" : "text-slate-600"
                             }`}>
                               {step.label}
                             </span>
@@ -250,7 +245,7 @@ export default function SiparislerimPage() {
 
       </div>
 
-      {/* 🚀 İŞTE EFSANE TASARIMLI SİLME ONAY EKRANI BURADA */}
+      {/* ŞEFİN İSTEDİĞİ MODERN SİLME EKRANI */}
       {orderToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#050B14]/80 backdrop-blur-sm p-4">
           <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl max-w-sm w-full shadow-[0_0_40px_rgba(0,0,0,0.5)] transform transition-all text-center">
