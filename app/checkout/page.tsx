@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-
+import { useSession } from "next-auth/react";
 export default function CheckoutPage() {
+  const { data: session } = useSession(); // 🚀 SİHİRLİ BİLGİ: GİRİŞ YAPAN KULLANICIYI YAKALA
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -33,7 +34,10 @@ export default function CheckoutPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             cartItems: parsedCart,
-            customerDetails: fallbackCustomer,
+            customerDetails: {
+                ...fallbackCustomer,
+                email: session?.user?.email || fallbackCustomer.email
+              },
             totalPrice: calculatedTotal
           })
         });
