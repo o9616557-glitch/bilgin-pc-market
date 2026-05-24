@@ -8,7 +8,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 
 // =================================================================
-// 1. SİPARİŞLERİ EKRANA GETİRME MOTORU (SİYAH EKRAN KORUMALI)
+// 1. SİPARİŞLERİ EKRANA GETİRME MOTORU (İÇİ DIŞI FULL KORUMALI)
 // =================================================================
 export async function GET() {
   try {
@@ -22,7 +22,6 @@ export async function GET() {
 
     const userEmail = session.user.email;
 
-    // Bütün mailleri ve bütün odaları tarayan radar
     const rawOrders = await db.collection("orders").find({
       $or: [
         { userEmail: userEmail },
@@ -32,15 +31,28 @@ export async function GET() {
       ]
     }).sort({ _id: -1 }).toArray();
 
-    // 🚀 NÜKLEER KORUMA: Vitrin sayfası (Siyah Ekran) çökmesin diye eski Türkçe kelimeleri standartlaştırıyoruz!
-    const safeOrders = rawOrders.map((order) => ({
-      ...order,
-      _id: order._id.toString(), // MongoDB ID'sini stringe çevirir (Çökmeyi önler)
-      items: order.items || order.sepet || order.cartItems || [], // Hayat kurtaran satır: Sepeti Items yapar!
-      totalPrice: order.totalPrice || order.toplamTutar || order.genelToplam || 0,
-      createdAt: order.createdAt || order.tarih || new Date().toISOString(),
-      shippingAddress: order.shippingAddress || order.musteri || order.customerDetails || {}
-    }));
+    // 🚀 NÜKLEER KORUMA SEVİYE 2: Sepetin İÇİNDEKİ kelimeleri de İngilizce'ye (Vitrin diline) çeviriyoruz!
+    const safeOrders = rawOrders.map((order) => {
+      const rawItems = order.items || order.sepet || order.cartItems || [];
+      
+      const safeItems = rawItems.map((item: any) => ({
+        ...item,
+        title: item.title || item.isim || item.name || "Ürün", // isim -> title
+        quantity: item.quantity || item.adet || item.miktar || 1, // adet -> quantity
+        price: Number(item.price || item.fiyat || 0), // fiyat -> price
+        image: item.image || item.resim || "https://app.bilginpcmarket.com/placeholder.png" // Görsel yoksa boş kalmasın
+      }));
+
+      return {
+        ...order,
+        _id: order._id.toString(),
+        items: safeItems,
+        totalPrice: Number(order.totalPrice || order.toplamTutar || order.genelToplam || 0),
+        createdAt: order.createdAt || order.tarih || new Date().toISOString(),
+        shippingAddress: order.shippingAddress || order.musteri || order.customerDetails || {},
+        status: order.status || order.durum || "Hazırlanıyor" // durum -> status
+      };
+    });
 
     return NextResponse.json({ orders: safeOrders }, { status: 200 });
   } catch (error) {
@@ -50,7 +62,7 @@ export async function GET() {
 }
 
 // =================================================================
-// 2. YENİ SİPARİŞ OLUŞTURMA MOTORU (ŞEFİN ORİJİNAL KODU - GERİ GELDİ!)
+// 2. YENİ SİPARİŞ OLUŞTURMA MOTORU (ŞEFİN ORİJİNAL KODU)
 // =================================================================
 export async function POST(req: Request) {
   try {
@@ -61,7 +73,6 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     
-    // ŞEFİM: ESNEK YAKALAMA
     const items = body.items || body.cartItems || [];
     const totalPrice = body.totalPrice || body.genelToplam || 0;
     const addressData = body.shippingAddress || body.musteri || body.customerDetails || {};
@@ -80,7 +91,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Kullanıcı bulunamadı." }, { status: 404 });
     }
 
-    // Yeni siparişi veritabanına kaydet
     const newOrder = new Order({
       userId: user._id,
       userEmail: session.user.email,
