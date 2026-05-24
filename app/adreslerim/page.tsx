@@ -242,7 +242,7 @@ export default function AdreslerimPage() {
                         <span className="px-2 py-1 bg-[#00e5ff]/10 text-[#00e5ff] text-[10px] rounded border border-[#00e5ff]/20 font-medium tracking-wider">VARS. TESLİMAT</span>
                       )}
                       {address.isDefaultBilling && (
-                        <span className="px-2 py-1 bg-rose-500/10 text-rose-400 text-[10px] rounded border border-rose-500/20 font-medium tracking-wider">FATURA ADRESİ</span>
+                        <span className="px-2 py-1 bg-amber-500/10 text-amber-400 text-[10px] rounded border border-amber-500/20 font-medium tracking-wider">FATURA ADRESİ</span>
                       )}
                     </div>
                   </div>
