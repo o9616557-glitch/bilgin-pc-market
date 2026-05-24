@@ -19,7 +19,61 @@ export default function OdemeSayfasi() {
   const [faturaForm, setFaturaForm] = useState({
     ad: "", soyad: "", telefon: "", adres: "", sehir: "", ilce: ""
   });
+// 🚀 ŞEFİM: KASADA OTOMATİK ADRES DOLDURMA (JET MOTORU)
+  useEffect(() => {
+    const fetchKayitliAdresler = async () => {
+      try {
+        const res = await fetch("/api/addresses");
+        if (res.ok) {
+          const data = await res.json();
+          const adresler = data.addresses || [];
 
+          // 1. Varsa "Varsayılan Teslimat" adresini bul ve kutuları doldur!
+          const varsayilanTeslimat = adresler.find((a: any) => a.isDefaultDelivery);
+          if (varsayilanTeslimat) {
+            // İsim ve Soyismi ayırıyoruz (Örn: "Özkan Bilgin" -> ad: "Özkan", soyad: "Bilgin")
+            const nameParts = varsayilanTeslimat.fullName.trim().split(" ");
+            const soyad = nameParts.length > 1 ? nameParts.pop() : "";
+            const ad = nameParts.join(" ");
+
+            setForm((prev: any) => ({
+              ...prev,
+              ad: ad,
+              soyad: soyad,
+              telefon: varsayilanTeslimat.phone,
+              sehir: varsayilanTeslimat.city,
+              ilce: varsayilanTeslimat.district,
+              adres: varsayilanTeslimat.fullAddress,
+            }));
+          }
+
+          // 2. Varsa "Varsayılan Fatura" adresini bul ve fatura kutularını doldur!
+          const varsayilanFatura = adresler.find((a: any) => a.isDefaultBilling);
+          if (varsayilanFatura) {
+            const nameParts = varsayilanFatura.fullName.trim().split(" ");
+            const soyad = nameParts.length > 1 ? nameParts.pop() : "";
+            const ad = nameParts.join(" ");
+
+            setFaturaForm({
+              ad: ad,
+              soyad: soyad,
+              telefon: varsayilanFatura.phone,
+              sehir: varsayilanFatura.city,
+              ilce: varsayilanFatura.district,
+              adres: varsayilanFatura.fullAddress,
+            });
+            
+            // Fatura adresi farklıysa "Fatura Aynı" tikini otomatik kaldır ki müşteri görsün
+            setFaturaAyni(false); 
+          }
+        }
+      } catch (error) {
+        console.error("Adresleri çekerken hata oluştu:", error);
+      }
+    };
+
+    fetchKayitliAdresler();
+  }, []);
   const araToplam = sepet.reduce((toplam: number, urun: any) => toplam + (urun.fiyat * urun.adet), 0);
   const kargo = araToplam > 5000 ? 0 : 150;
   const havaleIndirimi = araToplam * 0.05;
