@@ -20,6 +20,7 @@
     "postman-request": "^2.88.1-postman.48",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "react-hot-toast": "^2.6.0",
     "react-photo-view": "^1.2.7"
   },
   "devDependencies": {

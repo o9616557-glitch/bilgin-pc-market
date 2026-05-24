@@ -1,3 +1,4 @@
+import { Toaster } from "react-hot-toast";
 import AuthProvider from "@/components/AuthProvider";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -26,24 +27,30 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // ŞEFİM DİKKAT: Buradaki h-full silindi, yapışkan menü serbest bırakıldı!
     <html lang="tr">
-      {/* overflow-x-hidden: Sağa sola kaymayı sonsuza dek kilitler! */}
-      {/* min-h-screen: Ekranı tam kaplar ama menünün seninle inmesine izin verir! */}
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-[#050814] overflow-x-hidden`}>
         
-        {/* 🚀 ŞEFİM: ANA ŞALTERİ BURAYA TAKTIK! ARTIK SİTENİN HER YERİNDE GOOGLE RADARI ÇALIŞACAK */}
+        {/* 🚀 BİLDİRİM MOTORU: Tüm sitede çalışması için en üste taktık */}
+        <Toaster 
+          position="top-right" 
+          toastOptions={{
+            style: {
+              background: '#09090b',
+              color: '#fff',
+              border: '1px solid rgba(255,255,255,0.1)'
+            }
+          }} 
+        />
+
+        {/* 🚀 ANA ŞALTER */}
         <AuthProvider>
           <CartProvider>
-            {/* Bu menü artık sen aşağı indikçe seninle gelecek */}
             <Header />
-
             <main className="flex-grow w-full">
               {children}
             </main>
           </CartProvider>
         </AuthProvider>
-
       </body>
     </html>
   );
