@@ -1,12 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
-// 🚀 RefreshCw ikonunu Güncelleme butonu için ekledik!
 import { Loader2, Trash2, Copy, Check, RefreshCw } from "lucide-react"; 
 
 export default function SiparislerimPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  // 🚀 Butona basıldığında dönme efekti için yeni state
   const [refreshing, setRefreshing] = useState(false); 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
@@ -24,7 +22,7 @@ export default function SiparislerimPage() {
       setErrorMsg("Bağlantı hatası oluştu.");
     } finally {
       setLoading(false);
-      setRefreshing(false); // Güncelleme bitince dönmeyi durdur
+      setRefreshing(false);
     }
   };
 
@@ -32,7 +30,6 @@ export default function SiparislerimPage() {
     fetchOrders();
   }, []);
 
-  // 🚀 MANUEL GÜNCELLEME MOTORU (Admin panelinden değişeni anında çeker)
   const handleRefresh = () => {
     setRefreshing(true);
     fetchOrders();
@@ -58,13 +55,21 @@ export default function SiparislerimPage() {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  // 🚀 KARGO DURUMUNU ADIMLARA ÇEVİREN SİHİRLİ FONKSİYON
-  const getStepNumber = (status: string) => {
-    const s = (status || "").toLowerCase();
+  // 🚀 TREN MOTORU TAMİR EDİLDİ: Artık API'den gelen bütün kelimeleri aynı anda tarıyor!
+  const getStepNumber = (order: any) => {
+    const s = (order.searchableStatus || order.status || order.durum || "").toLowerCase();
+    
+    // Eski kodda "Tamamlandı" kelimesi 4. adıma denk geliyor
     if (s.includes("teslim") || s.includes("tamam")) return 4;
-    if (s.includes("kargo")) return 3;
-    if (s.includes("hazırla")) return 2;
-    return 1; // Default: Sipariş Alındı / Bekliyor
+    
+    // Eski kodda "Kargo" kelimesi 3. adıma denk geliyor
+    if (s.includes("kargo") || s.includes("gönder")) return 3;
+    
+    // Eski kodda "Hazırlanıyor", "Ödendi" ve "Başarılı" kelimeleri 2. adıma denk geliyor
+    if (s.includes("hazırla") || s.includes("öden") || s.includes("başarılı") || s.includes("onay") || s.includes("kabul")) return 2;
+    
+    // Hiçbiri değilse 1. Adım (Sipariş Alındı)
+    return 1; 
   };
 
   const steps = [
@@ -86,12 +91,10 @@ export default function SiparislerimPage() {
     <div className="min-h-screen bg-[#050B14] text-white p-4 sm:p-8">
       <div className="max-w-5xl mx-auto">
         
-        {/* 🚀 ÜST BAŞLIK VE GÜNCELLE BUTONU YAN YANA */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
           <h1 className="text-2xl font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
             Siparişlerim
           </h1>
-          
           <button 
             onClick={handleRefresh}
             disabled={refreshing}
@@ -116,14 +119,12 @@ export default function SiparislerimPage() {
           <div className="grid grid-cols-1 gap-8">
             {orders.map((order: any) => {
               const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase();
-              
-              // 🚀 SİPARİŞİN ŞU ANKİ ADIMINI HESAPLA (Admin panelinden ne gelirse ona göre ayarlar)
-              const currentStep = getStepNumber(order.status || order.durum);
+              const currentStep = getStepNumber(order); // 🚀 TREN BURADAN GÜÇ ALIYOR
 
               return (
                 <div key={order._id} className="border border-slate-800 bg-slate-900/40 rounded-2xl p-6 backdrop-blur-sm relative group hover:border-slate-700/80 transition-all">
                   
-                  {/* SİLME BUTONU */}
+                  {/* SİLME BUTONU (Havale yazısına değmesin diye tam köşede) */}
                   <button
                     onClick={() => handleDeleteOrder(order._id)}
                     className="absolute top-4 right-4 p-2.5 text-slate-500 hover:text-red-400 bg-slate-800/50 hover:bg-red-500/10 rounded-xl border border-transparent hover:border-red-500/20 transition-all opacity-80 group-hover:opacity-100 z-20"
@@ -132,8 +133,8 @@ export default function SiparislerimPage() {
                     <Trash2 className="w-5 h-5" />
                   </button>
 
-                  {/* Üst Bilgiler */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800/50 pr-8">
+                  {/* 🚀 ÜST BİLGİLER: pr-20 vererek Havale yazısına kocaman bir hava boşluğu (margin) bıraktık! */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800/50 pr-20">
                     <div>
                       <p className="text-xs text-slate-500 mt-1 flex items-center gap-2">
                         Sipariş No: <span className="text-slate-300 font-bold">{currentSiparisKodu}</span>
@@ -161,28 +162,20 @@ export default function SiparislerimPage() {
                     </div>
                   </div>
 
-                  {/* 🚀 EFSANE KISIM: GÖRSEL KARGO TAKİP MOTURU */}
+                  {/* GÖRSEL KARGO TAKİP MOTURU */}
                   <div className="py-8 px-2 sm:px-8 border-b border-slate-800/50">
                     <div className="relative flex items-center justify-between w-full max-w-3xl mx-auto">
-                      
-                      {/* Arka Plan Çizgisi (Gri) */}
                       <div className="absolute left-0 top-4 w-full h-1 bg-slate-800 -z-10"></div>
-                      
-                      {/* Aktif Çizgi (Mavi) - Bulunduğu adıma kadar dolar */}
                       <div 
                         className="absolute left-0 top-4 h-1 bg-cyan-400 -z-10 transition-all duration-700 ease-in-out shadow-[0_0_10px_rgba(34,211,238,0.5)]" 
                         style={{ width: `${((currentStep - 1) / 3) * 100}%` }}
                       ></div>
 
-                      {/* Adım Yuvarlakları ve Yazıları */}
                       {steps.map((step) => {
                         const isCompleted = currentStep > step.num;
                         const isCurrent = currentStep === step.num;
-                        const isPending = currentStep < step.num;
-
                         return (
                           <div key={step.num} className="flex flex-col items-center gap-3 relative z-10">
-                            {/* Yuvarlak Kısım */}
                             <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm border-2 transition-all duration-500 ${
                               isCompleted ? "bg-cyan-500 border-cyan-400 text-[#050B14] shadow-[0_0_15px_rgba(34,211,238,0.5)]" : 
                               isCurrent ? "bg-[#050B14] border-cyan-400 text-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.3)]" : 
@@ -190,8 +183,6 @@ export default function SiparislerimPage() {
                             }`}>
                               {isCompleted ? <Check className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={3} /> : step.num}
                             </div>
-                            
-                            {/* Yazı Kısmı */}
                             <span className={`text-[9px] sm:text-[11px] font-black tracking-wider text-center max-w-[80px] sm:max-w-none transition-colors duration-500 ${
                               isCompleted || isCurrent ? "text-slate-200" : "text-slate-600"
                             }`}>
