@@ -58,19 +58,24 @@ export default function ProductGrid({ initialProducts }: { initialProducts: any[
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
         {initialProducts?.map((product: any) => {
           
-          // Veritabanı ile uyumluluk için isim/fiyat/resim tanımlarını garantiliyoruz
-          const urunAdi = product.isim || product.name || "İsimsiz Ürün";
-          const normalFiyat = Number(product.fiyat || product.price || 0);
-          const indirimliFiyat = product.indirimliFiyat ? Number(product.indirimliFiyat) : null;
-          const urunResmi = product.resim || product.images?.[0]?.src || "https://via.placeholder.com/300";
-          const urunLinki = `/product/${product.slug || product._id}`;
-          
-          // Stok durumu hesabı (Eğer stokAdedi 0 ise veya durumu Tükendi ise)
-          const tukendiMi = product.stokDurumu === "Tükendi" || (product.stokAdedi !== undefined && product.stokAdedi <= 0);
+          // 🚀 ŞEFİN ANASAYFA MATEMATİĞİ (Birebir Aynı Kuruş/İndirim)
+    const urunAdi = product.isim || product.name || "İsimsiz Ürün";
+    const urunResmi = product.resim || (product.images?.[0]?.src) || "https://via.placeholder.com/300";
+    const urunLinki = `/product/${product.slug || product._id}`;
 
-          // İndirim var mı? Varsa % kaç?
-          const indirimOrani = indirimliFiyat ? indirimOraniHesapla(normalFiyat, indirimliFiyat) : 0;
+    // Anasayfadaki "regular_price" mantığını vitrine entegre ediyoruz
+    const rawNormalFiyat = Number(product.regular_price || product.fiyat || product.price || 0);
+    const rawGecerliFiyat = Number(product.indirimliFiyat || product.price || product.fiyat || 0);
+    const indirimVarMi = rawNormalFiyat > rawGecerliFiyat;
 
+    // Vitrinin tasarımını hiç bozmadan fiyatları jilet gibi oturtuyoruz:
+    const normalFiyat = rawNormalFiyat;
+    const indirimliFiyat = indirimVarMi ? rawGecerliFiyat : null; 
+    const indirimOrani = indirimVarMi ? Math.round(((rawNormalFiyat - rawGecerliFiyat) / rawNormalFiyat) * 100) : 0;
+
+    // Anasayfadaki stok koruma sistemini (0 veya "0" kontrolü) ekliyoruz
+    const stokSifirMi = product.stokAdedi === 0 || product.stokAdedi === "0";
+    const tukendiMi = product.stokDurumu === "Tükendi" || stokSifirMi;
           return (
             <Link
               href={urunLinki}
