@@ -1,0 +1,64 @@
+"use client";
+
+import React, { useState } from "react";
+import { Heart } from "lucide-react";
+import toast from "react-hot-toast";
+
+interface FavoriteButtonProps {
+  productId: string;
+  initialIsFavorite?: boolean; // Sayfa ilk yüklendiğinde favori mi değil mi?
+}
+
+export default function FavoriteButton({ productId, initialIsFavorite = false }: FavoriteButtonProps) {
+  const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const toggleFavorite = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Link yönlendirmesini engeller (ürün detayına gitmemesi için)
+    setIsLoading(true);
+
+    try {
+      const res = await fetch("/api/favorites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setIsFavorite(!isFavorite); // Durumu tersine çevir
+        toast.success(data.message);
+      } else {
+        if (res.status === 401) {
+          toast.error("Favorilere eklemek için lütfen giriş yapın.");
+        } else {
+          toast.error(data.message || "Bir hata oluştu.");
+        }
+      }
+    } catch (error) {
+      toast.error("Sunucuya bağlanılamadı.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <button
+      onClick={toggleFavorite}
+      disabled={isLoading}
+      className={`p-2 rounded-full border transition-all ${
+        isFavorite 
+          ? "bg-[#00e5ff]/10 border-[#00e5ff] text-[#00e5ff]" 
+          : "bg-[#09090b]/50 border-white/10 text-slate-400 hover:border-white/30 hover:text-white"
+      } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+      aria-label="Favorilere Ekle"
+    >
+      <Heart 
+        size={20} 
+        fill={isFavorite ? "#00e5ff" : "none"} 
+        className={isFavorite ? "drop-shadow-[0_0_8px_rgba(0,229,255,0.8)]" : ""}
+      />
+    </button>
+  );
+}
