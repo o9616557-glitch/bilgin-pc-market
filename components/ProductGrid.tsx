@@ -33,7 +33,27 @@ export default function ProductGrid({ initialProducts }: { initialProducts: any[
     if (!normal || !indirimli || normal <= indirimli) return 0;
     return Math.round(((normal - indirimli) / normal) * 100);
   };
-
+// 🚀 ŞEFİM: FAVORİDEN SİLME MOTORU
+  const handleRemoveFavorite = async (e: React.MouseEvent, productId: string) => {
+    e.preventDefault(); // Ürünün içine yanlışlıkla girmesini engeller
+    try {
+      const res = await fetch("/api/favorites", {
+        method: "POST", // Ana sistemindeki favori motorunu tetikler
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId })
+      });
+      
+      if (res.ok) {
+        setToastMessage("Favorilerden Çıkarıldı ✕");
+        // Ürünü ekrandan anında uçurmak için sayfayı yumuşakça tazeler
+        setTimeout(() => {
+          window.location.reload(); 
+        }, 800);
+      }
+    } catch (err) {
+      console.error("Favori silme hatası:", err);
+    }
+  };
   return (
     <div className="w-full relative">
       {toastMessage && (
@@ -76,7 +96,14 @@ export default function ProductGrid({ initialProducts }: { initialProducts: any[
                   %{indirimOrani} İNDİRİM
                 </div>
               )}
-
+{/* 🚀 ŞEFİM: FAVORİDEN ÇIKARMA (X) BUTONU (Sağ Üst Köşe) */}
+          <button 
+            onClick={(e) => handleRemoveFavorite(e, String(product._id || product.id))}
+            className="absolute top-3 right-3 z-30 bg-red-600/80 hover:bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-all shadow-lg"
+            title="Favorilerden Çıkar"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
               <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
               <div className="relative w-full aspect-square rounded-xl overflow-hidden mb-4 flex items-center justify-center p-3 md:p-4 bg-gradient-to-b from-[#050810] to-transparent border border-white/[0.03]">
