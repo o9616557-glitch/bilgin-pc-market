@@ -2,61 +2,42 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Mail, Lock, ArrowRight, UserCircle2, ArrowLeft, CheckCircle2 } from "lucide-react";
-import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { Mail, Lock, ArrowLeft, ArrowRight, UserCircle2 } from "lucide-react";
+import { signIn } from "next-auth/react";
 
 export default function GirisPage() {
-  const { data: session, status } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  
+  const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Şefim, API bağlantısı yapıldığında bu buton NextAuth ile veritabanına gidecek.");
+
+    try {
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (res?.error) {
+        alert("HATA: " + res.error);
+      } else {
+        alert("Giriş başarılı! Mağazaya yönlendiriliyorsunuz...");
+        router.push("/");
+        router.refresh();
+      }
+    } catch (err) {
+      alert("Sunucuya bağlanırken bir hata oluştu.");
+    }
   };
 
-  // 1. DURUM: MOTOR YÜKLENİRKEN MİNİK BİR ANİMASYON ÇIKAR
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen bg-[#050814] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00e5ff]"></div>
-      </div>
-    );
-  }
-
-  // 2. DURUM: EĞER KULLANICI GİRİŞ YAPMIŞSA BU NEON "HOŞ GELDİN" EKRANI ÇIKAR! 🚀
-  if (status === "authenticated") {
-    return (
-      <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center p-4 relative overflow-hidden">
-        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#00e5ff] rounded-full mix-blend-screen filter blur-[150px] opacity-10"></div>
-        <div className="w-full max-w-md bg-[#09090b] border border-[#00e5ff]/30 rounded-3xl shadow-[0_0_50px_rgba(0,229,255,0.15)] p-8 relative z-10 text-center">
-          
-          <div className="w-20 h-20 bg-[#00e5ff]/10 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 size={40} className="text-[#00e5ff]" />
-          </div>
-          
-          <h1 className="text-3xl font-black uppercase tracking-tighter mb-2 text-white">
-            GİRİŞ BAŞARILI
-          </h1>
-          
-          <p className="text-slate-400 text-sm mb-8 font-medium">
-            Hoş geldin, <span className="text-[#00e5ff] font-bold text-lg">{session.user?.name || "Değerli Müşterimiz"}</span>!<br/> Bilgin PC Market'e başarıyla giriş yaptın.
-          </p>
-          
-          <Link href="/" className="w-full inline-flex items-center justify-center bg-[#00e5ff] text-black rounded-xl py-4 font-black uppercase tracking-widest hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)]">
-            ALIŞVERİŞE BAŞLA <ArrowRight size={18} className="ml-2" />
-          </Link>
-
-        </div>
-      </div>
-    );
-  }
-
-  // 3. DURUM: EĞER GİRİŞ YAPILMAMIŞSA STANDART GİRİŞ FORMU ÇIKAR (Eski kodumuz)
   return (
     <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#00e5ff] rounded-full mix-blend-screen filter blur-[150px] opacity-10"></div>
-
+      
       <div className="w-full max-w-md bg-[#09090b] border border-white/10 rounded-3xl shadow-[0_0_50px_rgba(0,229,255,0.05)] p-8 relative z-10">
         <Link href="/" className="inline-flex items-center gap-2 text-slate-400 hover:text-[#00e5ff] transition-colors mb-6 text-sm font-bold uppercase tracking-wider">
           <ArrowLeft size={16} /> Mağazaya Dön
@@ -70,19 +51,19 @@ export default function GirisPage() {
         <div className="flex gap-3 mb-6">
           <button 
             type="button" 
-            onClick={() => signIn('google', { callbackUrl: '/giris' })} 
+            onClick={() => signIn('google', { callbackUrl: '/' })} 
             className="flex-1 hover:bg-white/10 border border-white/10 py-3 rounded-xl flex items-center justify-center gap-2 transition-all group"
           >
-            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1 2.53-2 3.46v2.87h3.18c1.86-1.71 2.94-4.23 2.94-7.34z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.18-2.87c-.98.66-2.23 1.05-4.1 1.05-3.16 0-5.84-2.14-6.8-5.01H1.93v2.92C3.76 20.08 7.55 23 12 23z" fill="#34A853"/><path d="M5.2 13.51c-.24-.71-.38-1.47-.38-2.26s.14-1.55.38-2.26V6.07H1.93C1.34 7.25 1 8.58 1 10s.34 2.75.93 3.93l3.27-2.42z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.55 1 3.76 3.92 1.93 7.5l3.27 2.42c.96-2.87 3.64-5.01 6.8-5.01z" fill="#EA4335"/></svg>
             <span className="text-sm font-bold text-white">Google</span>
           </button>
-
+          
           <button 
             type="button" 
-            onClick={() => signIn('facebook', { callbackUrl: '/giris' })} 
+            onClick={() => signIn('facebook', { callbackUrl: '/' })} 
             className="flex-1 hover:bg-white/10 border border-white/10 py-3 rounded-xl flex items-center justify-center gap-2 transition-all group text-[#1877F2]"
           >
-            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
             <span className="text-sm font-bold text-white">Facebook</span>
           </button>
         </div>
@@ -96,24 +77,24 @@ export default function GirisPage() {
         <form onSubmit={handleLogin} className="flex flex-col gap-4 mb-6">
           <div className="relative">
             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-            <input
-              type="email"
+            <input 
+              type="email" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="E-Posta Adresiniz"
+              placeholder="E-Posta Adresiniz" 
               className="w-full bg-[#050814] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#00e5ff]/50 transition-colors"
-              required
+              required 
             />
           </div>
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-            <input
-              type="password"
+            <input 
+              type="password" 
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Şifreniz"
+              placeholder="Şifreniz" 
               className="w-full bg-[#050814] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#00e5ff]/50 transition-colors"
-              required
+              required 
             />
           </div>
           <button type="submit" className="w-full bg-[#00e5ff] text-black rounded-xl py-3.5 font-black uppercase tracking-widest hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] mt-2">
@@ -128,12 +109,11 @@ export default function GirisPage() {
         </div>
 
         <div className="pt-6 border-t border-white/10">
-          <Link href="/" className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 flex items-center justify-center gap-2 text-slate-300 hover:text-white hover:bg-white/10 transition-all font-bold text-sm uppercase group">
+          <Link href="/" className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 flex items-center justify-center gap-2 text-slate-300 hover:text-white hover:bg-white/10 transition-all font-bold text-sm group">
             <UserCircle2 size={18} className="text-slate-400 group-hover:text-white transition-colors" />
             Üye Olmadan Devam Et <ArrowRight size={16} className="text-slate-500 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
-
       </div>
     </div>
   );
