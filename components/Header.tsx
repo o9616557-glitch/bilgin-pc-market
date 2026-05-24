@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 import SiparisModal from "./SiparisModal"; 
-// 🚀 FAVORİLER MODALINI BURAYA TANITTIK!
-import FavorilerModal from "./FavorilerModal"; 
 import { useCart } from "@/app/CartContext";
 import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
@@ -17,9 +15,8 @@ export default function Header() {
 
   const { data: session } = useSession();
   
-  // 🚀 ŞALTERLER (İkisi için de ayrı şalter)
+  // 🚀 Sadece Siparişlerim için şalter kaldı
   const [isSiparisModalOpen, setIsSiparisModalOpen] = useState(false);
-  const [isFavorilerModalOpen, setIsFavorilerModalOpen] = useState(false); 
 
   const ADMIN_EMAIL = "o9616557@gmail.com"; 
   const isAdmin = session?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
@@ -116,10 +113,10 @@ export default function Header() {
                         <span>🗺️</span> Adreslerim
                       </Link>
 
-                      {/* 🚀 FAVORİLERİM MODAL BUTONU (Link yerine butona çevirdik!) */}
-                      <button onClick={() => { setHesabimAcik(false); setIsFavorilerModalOpen(true); }} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem", background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer" }}>
+                      {/* 🚀 FAVORİLERİM NORMAL SAYFA LİNKİ (Eski haline döndü) */}
+                      <Link href="/favorilerim" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#d4d4d8", textDecoration: "none", fontSize: "0.85rem" }}>
                         <span>❤️</span> Favorilerim
-                      </button>
+                      </Link>
 
                       <div style={{ height: "1px", background: "#27272a", margin: "4px 0" }}></div>
                       
@@ -155,15 +152,15 @@ export default function Header() {
               <>
                 <div style={{ height: "1px", background: "#27272a", margin: "4px 0" }}></div>
                 
-                {/* 🚀 MOBİL SİPARİŞLERİM BUTONU */}
+                {/* MOBİL SİPARİŞLERİM BUTONU */}
                 <button onClick={() => { setMenuAcik(false); setIsSiparisModalOpen(true); }} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "6px 0", color: "#00e5ff", textDecoration: "none", fontSize: "1rem", fontWeight: "600", background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer" }}>
                   <span>🛍️</span> Siparişlerim
                 </button>
 
-                {/* 🚀 MOBİL FAVORİLERİM BUTONU */}
-                <button onClick={() => { setMenuAcik(false); setIsFavorilerModalOpen(true); }} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "6px 0", color: "#f472b6", textDecoration: "none", fontSize: "1rem", fontWeight: "600", background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer" }}>
+                {/* 🚀 MOBİL FAVORİLERİM NORMAL SAYFA LİNKİ (Eski haline döndü) */}
+                <Link href="/favorilerim" onClick={() => setMenuAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "6px 0", color: "#f472b6", textDecoration: "none", fontSize: "1rem", fontWeight: "600" }}>
                   <span>❤️</span> Favorilerim
-                </button>
+                </Link>
               </>
             )}
           </div>
@@ -174,9 +171,8 @@ export default function Header() {
         ` }} />
       </header>
 
-      {/* 🚀 MODALLARIN HER İKİSİ DE BURADA, EN DIŞTA ÖZGÜRCE ÇALIŞIYOR */}
+      {/* SADECE SİPARİŞLERİM MODALI KALDI */}
       <SiparisModal isOpen={isSiparisModalOpen} onClose={() => setIsSiparisModalOpen(false)} />
-      <FavorilerModal isOpen={isFavorilerModalOpen} onClose={() => setIsFavorilerModalOpen(false)} />
     </>
   );
 }
