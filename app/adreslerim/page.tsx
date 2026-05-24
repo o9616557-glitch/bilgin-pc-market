@@ -13,6 +13,8 @@ interface Address {
   city: string;
   district: string;
   fullAddress: string;
+  isDefaultDelivery?: boolean; // 🚀 ŞEFİM YENİ EKLENDİ
+  isDefaultBilling?: boolean;  // 🚀 ŞEFİM YENİ EKLENDİ
 }
 
 export default function AdreslerimPage() {
@@ -21,7 +23,6 @@ export default function AdreslerimPage() {
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Yeni Adres Formu State'i
   const [formData, setFormData] = useState({
     title: "",
     fullName: "",
@@ -29,6 +30,8 @@ export default function AdreslerimPage() {
     city: "",
     district: "",
     fullAddress: "",
+    isDefaultDelivery: false, // 🚀 ŞEFİM YENİ EKLENDİ
+    isDefaultBilling: false,  // 🚀 ŞEFİM YENİ EKLENDİ
   });
 
   // Adresleri Veritabanından Çek
@@ -73,7 +76,7 @@ export default function AdreslerimPage() {
         toast.success("Adres başarıyla eklendi.");
         setAddresses(data.addresses); // Listeyi güncelle
         setShowForm(false); // Formu kapat
-        setFormData({ title: "", fullName: "", phone: "", city: "", district: "", fullAddress: "" }); // Formu temizle
+        setFormData({ title: "", fullName: "", phone: "", city: "", district: "", fullAddress: "", isDefaultDelivery: false, isDefaultBilling: false }); // Formu temizle
       } else {
         toast.dismiss(loadingToast);
         toast.error(data.message || "Adres eklenirken bir hata oluştu.");
@@ -185,6 +188,28 @@ export default function AdreslerimPage() {
             </form>
           </div>
         )}
+{/* 🚀 ŞEFİM: KASADA OTOMATİK DOLDURMA KUTUCUKLARI */}
+        <div className="md:col-span-2 flex flex-col md:flex-row gap-6 mt-2 mb-4">
+          <label className="flex items-center gap-3 cursor-pointer text-sm text-slate-300 hover:text-white transition-colors">
+            <input 
+              type="checkbox" 
+              className="w-5 h-5 rounded border-white/10 bg-[#050B14] checked:bg-[#00e5ff] focus:ring-[#00e5ff] cursor-pointer"
+              checked={formData.isDefaultDelivery}
+              onChange={(e) => setFormData({ ...formData, isDefaultDelivery: e.target.checked })}
+            />
+            Bu benim varsayılan teslimat adresim olsun
+          </label>
+
+          <label className="flex items-center gap-3 cursor-pointer text-sm text-slate-300 hover:text-white transition-colors">
+            <input 
+              type="checkbox" 
+              className="w-5 h-5 rounded border-white/10 bg-[#050B14] checked:bg-[#00e5ff] focus:ring-[#00e5ff] cursor-pointer"
+              checked={formData.isDefaultBilling}
+              onChange={(e) => setFormData({ ...formData, isDefaultBilling: e.target.checked })}
+            />
+            Fatura adresi olarak da bunu kullan
+          </label>
+        </div>
 
         {/* Adres Listesi */}
         {isLoading ? (
