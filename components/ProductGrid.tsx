@@ -33,23 +33,20 @@ export default function ProductGrid({ initialProducts }: { initialProducts: any[
     if (!normal || !indirimli || normal <= indirimli) return 0;
     return Math.round(((normal - indirimli) / normal) * 100);
   };
-// 🚀 ŞEFİM: FAVORİDEN SİLME MOTORU
+// 🚀 ŞEFİM: JET HIZINDA SİLME MOTORU (Bekleme Yok)
   const handleRemoveFavorite = async (e: React.MouseEvent, productId: string) => {
-    e.preventDefault(); // Ürünün içine yanlışlıkla girmesini engeller
+    e.preventDefault(); 
     try {
-      const res = await fetch("/api/favorites", {
-        method: "POST", // Ana sistemindeki favori motorunu tetikler
+      setToastMessage("Favorilerden Çıkarıldı ✕");
+      
+      await fetch("/api/favorites", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productId })
       });
       
-      if (res.ok) {
-        setToastMessage("Favorilerden Çıkarıldı ✕");
-        // Ürünü ekrandan anında uçurmak için sayfayı yumuşakça tazeler
-        setTimeout(() => {
-          window.location.reload(); 
-        }, 800);
-      }
+      window.location.reload(); 
+      
     } catch (err) {
       console.error("Favori silme hatası:", err);
     }
@@ -96,10 +93,10 @@ export default function ProductGrid({ initialProducts }: { initialProducts: any[
                   %{indirimOrani} İNDİRİM
                 </div>
               )}
-{/* 🚀 ŞEFİM: FAVORİDEN ÇIKARMA (X) BUTONU (Sağ Üst Köşe) */}
+{/* 🚀 ŞEFİM: ŞIK VE ASİL 'X' BUTONU (Koyu Gri/Siyah) */}
           <button 
             onClick={(e) => handleRemoveFavorite(e, String(product._id || product.id))}
-            className="absolute top-3 right-3 z-30 bg-red-600/80 hover:bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-all shadow-lg"
+            className="absolute top-3 right-3 z-30 bg-gray-800/70 hover:bg-black text-white w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-all shadow-lg"
             title="Favorilerden Çıkar"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
