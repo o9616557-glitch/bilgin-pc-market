@@ -2,38 +2,24 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-
+import { useCart } from "@/app/CartContext";
 export default function ProductGrid({ initialProducts }: { initialProducts: any[] }) {
   const [toastMessage, setToastMessage] = useState("");
+  
+  // 🚀 ŞEFİM İŞTE EKSİK OLAN ANA KABLO BU! Asıl sepetin beynini buraya bağladık:
+  const { sepeteEkle } = useCart();
 
   const handleAddToCart = (e: React.MouseEvent, product: any) => {
     e.preventDefault();
     try {
-      const storedCart = localStorage.getItem("user_cart");
-      let cart = storedCart ? JSON.parse(storedCart) : [];
-      const productId = String(product._id || product.id);
-      const existingItem = cart.find((item: any) => String(item.id) === productId);
-
-      const gecerliFiyat = Number(product.indirimliFiyat || product.price || product.fiyat || 0);
-
-      if (existingItem) {
-        // Ürün zaten varsa sayısını 1 artır
-        existingItem.adet = (existingItem.adet || existingItem.quantity || 1) + 1;
-      } else {
-        // 🚀 ŞEFİN ANA MOTORUYLA BİREBİR AYNI KELİMELER!
-        cart.push({
-          id: productId,
-          isim: product.isim || product.name || "İsimsiz Ürün",
-          fiyat: gecerliFiyat,
-          resim: product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/300",
-          varyasyon: "Standart Model",
-          adet: 1
-        });
-      }
-
-      localStorage.setItem("user_cart", JSON.stringify(cart));
-      window.dispatchEvent(new Event("cart_updated"));
-      window.dispatchEvent(new Event("storage"));
+      // Artık kafamıza göre değil, ana motorun kurallarıyla sepete atıyoruz
+      sepeteEkle({
+        id: String(product._id || product.id),
+        isim: product.isim || product.name || "İsimsiz Ürün",
+        fiyat: Number(product.indirimliFiyat || product.price || product.fiyat || 0),
+        resim: product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/300",
+        varyasyon: "Standart Model"
+      });
 
       setToastMessage("Sepete eklendi ✓");
       setTimeout(() => setToastMessage(""), 3000);
