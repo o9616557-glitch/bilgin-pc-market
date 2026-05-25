@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 
 export default function OdemeSayfasi() {
   const { data: session } = useSession(); // 🚀 ŞEFİN KİMLİĞİ
-  const { sepet } = useCart();
+ const { sepet, sepetiBosalt } = useCart();
   const [odemeYontemi, setOdemeYontemi] = useState("kart");
   const [yukleniyor, setYukleniyor] = useState(false);
   const [iyzicoFormHtml, setIyzicoFormHtml] = useState<string>("");
@@ -134,12 +134,15 @@ export default function OdemeSayfasi() {
       const data = await response.json();
 
       if (data.success) {
-  if (data.odemeYontemi === "havale") {
-    window.location.href = "/siparis-basarili?kodu=" + data.siparisKodu;
-  } else {
-    setIyzicoFormHtml(data.checkoutFormContent);
-  }
-} else {
+        // Hangi yöntem olursa olsun, ödeme başarılıysa sepeti boşalt!
+        sepetiBosalt();
+
+        if (data.odemeYontemi === "havale") {
+          window.location.href = "/siparis-basarili?kodu=" + data.sipariskodu;
+        } else {
+          setIyzicoFormHtml(data.checkoutFormContent);
+        }
+      } else {
         alert("Hata oluştu: " + data.error);
       }
     } catch (hata) {
