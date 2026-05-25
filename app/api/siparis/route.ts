@@ -49,14 +49,20 @@ export async function POST(request: Request) {
       try {
         const nodemailer = require("nodemailer"); // Yukarıya eklemeye gerek kalmadan direkt burada çağırıyoruz
         
-        const transporter = nodemailer.createTransport({
-          service: "gmail",
+       const transporter = nodemailer.createTransport({
+          host: "smtp.gmail.com",
+          port: 465,
+          secure: true, // 465 portu için true olmalı (Garantili SSL tüneli)
           auth: {
-            user: process.env.EMAIL_USER, // Şifre sıfırlamada kullandığın Gmail adresin (.env dosyasındaki)
-            pass: process.env.EMAIL_PASS, // O Gmail'in uygulama şifresi
+            user: process.env.EMAIL_USER, 
+            pass: process.env.EMAIL_PASS, 
           },
+          tls: {
+            // Sunucu bazlı güvenlik duvarı takılmalarını zorla aşmak için:
+            rejectUnauthorized: false 
+          }
         });
-
+        
         // Müşteri mailini yakalıyoruz
         const musteriMaili = musteri?.eposta || musteri?.email;
 
