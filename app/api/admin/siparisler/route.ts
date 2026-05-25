@@ -118,7 +118,7 @@ export async function PUT(request: Request) {
         };
 
         // Maili arka planda fırlatıyoruz ki senin admin ekranında hiçbir takılma veya yavaşlama olmasın
-        transporter.sendMail(mailSecenekleri).catch((err: any) => console.log("Admin mail gönderme hatası:", err));
+       await transporter.sendMail(mailSecenekleri).catch((err: any) => console.log("Admin mail gönderme hatası:", err));
       }
     }
 
