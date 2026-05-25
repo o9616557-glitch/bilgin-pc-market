@@ -14,7 +14,7 @@ export default function SepetSayfasi() {
     return (
       <div style={{ minHeight: "80vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px", textAlign: "center" }}>
         <span style={{ fontSize: "5rem", marginBottom: "20px" }}>🛒</span>
-        <h2 style={{ color: "#fff", fontSize: "2rem", fontWeight: "900", marginBottom: "10px" }}>Sepetiniz şu an boş.</h2>
+        <h2 style={{ color: "#fff", fontSize: "2rem", fontWeight: "900", marginBottom: "10px" }}>Sepetiniz şu an boş</h2>
         <p style={{ color: "#a1a1aa", marginBottom: "30px" }}>İhtiyacınıza en uygun hazır bilgisayar modellerini veya sisteminizi güçlendirecek yüksek performanslı bilgisayar bileşenlerini inceleyerek alışverişe başlayabilirsiniz.</p>
         <Link href="/" style={{ background: "#00e5ff", color: "#000", padding: "15px 40px", borderRadius: "12px", fontWeight: "900", textDecoration: "none", textTransform: "uppercase" }}>Alışverişe Başla</Link>
       </div>
