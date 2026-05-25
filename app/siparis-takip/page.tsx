@@ -8,14 +8,40 @@ export default function SiparisTakipPage() {
   const [siparis, setSiparis] = useState<any>(null);
   const [hata, setHata] = useState("");
   const [yukleniyor, setYukleniyor] = useState(false);
-  const [kopyalandi, setKopyalandi] = useState(false); // Kopyalama animasyonu için
+  const [kopyalandi, setKopyalandi] = useState(false);
 
   const adimlar = ["Sipariş Alındı", "Hazırlanıyor", "Kargoya Verildi", "Teslim Edildi"];
 
+  // Türkçe karakter toleranslı akıllı kelime temizleyici
+  const durumTemizle = (durum: string) => {
+    if (!durum) return "";
+    return durum.toLowerCase()
+      .replace(/ı/g, 'i')
+      .replace(/ş/g, 's')
+      .replace(/ğ/g, 'g')
+      .replace(/ç/g, 'c')
+      .replace(/ü/g, 'u')
+      .replace(/ö/g, 'o')
+      .trim();
+  };
+
+  // Veritabanından gelen duruma göre trenin hangi durakta duracağını bulan motor
   const aktifAdimBul = (durum: string) => {
-    if (!durum) return 0;
-    const index = adimlar.findIndex(a => a.toLowerCase() === durum.toLowerCase());
-    return index !== -1 ? index : 0;
+    const d = durumTemizle(durum);
+    if (d.includes("alindi") || d.includes("onay") || d.includes("yeni") || d.includes("verildi")) {
+      if (d.includes("kargo")) return 2; // "kargoya verildi" ise direkt 2. adıma atla
+      return 0;
+    }
+    if (d.includes("hazir")) return 1;
+    if (d.includes("kargo")) return 2;
+    if (d.includes("teslim") || d.includes("bitti") || d.includes("tamam")) return 3;
+    return 0;
+  };
+
+  // Siparişin iptal edilip edilmediğini kontrol eden motor
+  const iptalEdildiMi = (durum: string) => {
+    const d = durumTemizle(durum);
+    return d.includes("iptal") || d.includes("red");
   };
 
   const sorgula = async (e: React.FormEvent) => {
@@ -51,12 +77,14 @@ export default function SiparisTakipPage() {
     }
   };
 
-  // Kopyalama Fonksiyonu
   const koduKopyala = (siparisKodu: string) => {
     navigator.clipboard.writeText(siparisKodu);
     setKopyalandi(true);
-    setTimeout(() => setKopyalandi(false), 2000); // 2 saniye sonra tiki geri al
+    setTimeout(() => setKopyalandi(false), 2000);
   };
+
+  // Veritabanından gelebilecek tüm mesaj/not ihtimallerini yakalıyoruz
+  const magazaMesaji = siparis?.mesaj || siparis?.not || siparis?.adminNotu || siparis?.aciklama || siparis?.siparisMesaji;
 
   return (
     <div className="min-h-screen bg-[#050814] text-white flex flex-col items-center pt-24 px-4 pb-12 relative overflow-hidden">
@@ -99,44 +127,62 @@ export default function SiparisTakipPage() {
         {siparis && (
           <div className="mt-6 pt-6 md:pt-8 border-t border-white/10 animate-fade-in-up">
             
-            {/* TREN ÇUBUĞU - MOBİL İÇİN ALT BOŞLUK (pb-12) EKLENDİ */}
-            <div className="mb-8 mt-4 relative px-0 md:px-2 pb-12 md:pb-16">
-              <div className="absolute left-0 top-5 md:top-6 w-full h-1 bg-gray-800 rounded-full"></div>
-              
-              <div 
-                className="absolute left-0 top-5 md:top-6 h-1 bg-[#00e5ff] rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_#00e5ff]"
-                style={{ width: `${(aktifAdimBul(siparis.durum) / (adimlar.length - 1)) * 100}%` }}
-              ></div>
-
-              <div className="relative flex justify-between items-center z-10">
-                {adimlar.map((adim, index) => {
-                  const aktifAdimNo = aktifAdimBul(siparis.durum);
-                  const tamamlandiMi = index <= aktifAdimNo;
-                  const suAnkiMi = index === aktifAdimNo;
-
-                  return (
-                    <div key={index} className="flex flex-col items-center relative group w-10 md:w-12">
-                      <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-lg md:text-xl shadow-lg transition-all duration-500 z-10 ${
-                        tamamlandiMi ? "bg-[#00e5ff] text-black scale-110" : "bg-gray-800 text-gray-500"
-                      } ${suAnkiMi ? "ring-4 ring-[#00e5ff]/30 animate-pulse" : ""}`}>
-                        {index === 0 && "🛒"}
-                        {index === 1 && "📦"}
-                        {index === 2 && "🚚"}
-                        {index === 3 && "✅"}
-                      </div>
-                      {/* Yazılar artık SİMGEYE GÖRE ORTALANIYOR (-translate-x-1/2) */}
-                      <span className={`absolute top-[120%] left-1/2 -translate-x-1/2 mt-2 w-20 text-[9px] md:text-xs font-bold text-center leading-tight ${
-                        tamamlandiMi ? "text-[#00e5ff]" : "text-gray-500"
-                      }`}>
-                        {adim}
-                      </span>
-                    </div>
-                  );
-                })}
+            {/* PANELDE YAZILAN MESAJ BURADA GÖZÜKECEK 📢 */}
+            {magazaMesaji && (
+              <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 text-amber-300 rounded-xl text-xs md:text-sm shadow-[0_0_15px_rgba(245,158,11,0.05)]">
+                <p className="font-black text-amber-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                  <span>📢</span> Mağaza Bildirimi:
+                </p>
+                <p className="font-medium leading-relaxed">{magazaMesaji}</p>
               </div>
-            </div>
+            )}
 
-            {/* SİPARİŞ KODU VE KOPYALAMA BUTONU */}
+            {/* DURUM İPTAL EDİLDİ İSE ÇIKACAK ÖZEL EKRAN */}
+            {iptalEdildiMi(siparis.durum) ? (
+              <div className="mb-8 p-6 bg-red-500/10 border border-red-500/20 rounded-xl text-center shadow-[0_0_20px_rgba(239,68,68,0.1)]">
+                <span className="text-4xl block mb-2">🚫</span>
+                <h3 className="text-lg font-black text-red-400 uppercase tracking-tight">Sipariş İptal Edildi</h3>
+                <p className="text-slate-400 text-xs mt-1">Bu sipariş iptal edilmiş veya geri çevrilmiştir. Detaylar için destek hattıyla görüşebilirsiniz.</p>
+              </div>
+            ) : (
+              /* NORMAL TREN ÇUBUĞU (HAZIRLANIYOR, KARGO, TESLİM DURAKLARI) */
+              <div className="mb-8 mt-4 relative px-0 md:px-2 pb-12 md:pb-16">
+                <div className="absolute left-0 top-5 md:top-6 w-full h-1 bg-gray-800 rounded-full"></div>
+                
+                <div 
+                  className="absolute left-0 top-5 md:top-6 h-1 bg-[#00e5ff] rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_#00e5ff]"
+                  style={{ width: `${(aktifAdimBul(siparis.durum) / (adimlar.length - 1)) * 100}%` }}
+                ></div>
+
+                <div className="relative flex justify-between items-center z-10">
+                  {adimlar.map((adim, index) => {
+                    const aktifAdimNo = aktifAdimBul(siparis.durum);
+                    const tamamlandiMi = index <= aktifAdimNo;
+                    const suAnkiMi = index === aktifAdimNo;
+
+                    return (
+                      <div key={index} className="flex flex-col items-center relative group w-10 md:w-12">
+                        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-lg md:text-xl shadow-lg transition-all duration-500 z-10 ${
+                          tamamlandiMi ? "bg-[#00e5ff] text-black scale-110" : "bg-gray-800 text-gray-500"
+                        } ${suAnkiMi ? "ring-4 ring-[#00e5ff]/30 animate-pulse" : ""}`}>
+                          {index === 0 && "🛒"}
+                          {index === 1 && "📦"}
+                          {index === 2 && "🚚"}
+                          {index === 3 && "✅"}
+                        </div>
+                        <span className={`absolute top-[120%] left-1/2 -translate-x-1/2 mt-2 w-20 text-[9px] md:text-xs font-bold text-center leading-tight ${
+                          tamamlandiMi ? "text-[#00e5ff]" : "text-gray-500"
+                        }`}>
+                          {adim}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* SİPARİŞ KODU VE DETAYLAR */}
             <div className="bg-[#121215] rounded-xl p-4 md:p-5 border border-white/5 mt-4 md:mt-8">
               <div className="flex justify-between items-center border-b border-white/5 pb-4 mb-4">
                 <div>
@@ -153,20 +199,19 @@ export default function SiparisTakipPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-slate-400 text-[10px] md:text-xs uppercase tracking-wider mb-1">Tutar</p>
-                  <p className="text-lg md:text-xl font-bold text-[#00e5ff]">
-                    {siparis.toplamTutar ? `${siparis.toplamTutar} ₺` : "Ödendi"}
+                  <p className="text-slate-400 text-[10px] md:text-xs uppercase tracking-wider mb-1">Durum</p>
+                  <p className={`text-sm md:text-base font-black uppercase ${iptalEdildiMi(siparis.durum) ? 'text-red-400' : 'text-[#00e5ff]'}`}>
+                    {siparis.durum || "Hazırlanıyor"}
                   </p>
                 </div>
               </div>
 
-              {/* ÜRÜN RESİMLERİ (GERÇEK RESİM) VE DETAYLAR */}
+              {/* ÜRÜN RESİMLERİ VE PAKET İÇERİĞİ */}
               {siparis.items && siparis.items.length > 0 && (
                 <div className="mt-4">
                   <p className="text-slate-400 text-[10px] md:text-xs uppercase tracking-wider mb-3">Paket İçeriği</p>
                   <div className="space-y-2 md:space-y-3 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
                     {siparis.items.map((urun: any, i: number) => {
-                      // Veritabanındaki resim yolunu garantilemek için olası tüm isimleri deniyoruz
                       const gercekResim = urun.resim || urun.gorsel || urun.image || urun.urunResmi;
                       
                       return (
