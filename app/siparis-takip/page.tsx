@@ -12,36 +12,18 @@ export default function SiparisTakipPage() {
 
   const adimlar = ["Sipariş Alındı", "Hazırlanıyor", "Kargoya Verildi", "Teslim Edildi"];
 
-  // Türkçe karakter toleranslı akıllı kelime temizleyici
-  const durumTemizle = (durum: string) => {
-    if (!durum) return "";
-    return durum.toLowerCase()
-      .replace(/ı/g, 'i')
-      .replace(/ş/g, 's')
-      .replace(/ğ/g, 'g')
-      .replace(/ç/g, 'c')
-      .replace(/ü/g, 'u')
-      .replace(/ö/g, 'o')
-      .trim();
-  };
-
-  // Veritabanından gelen duruma göre trenin hangi durakta duracağını bulan motor
+  // 🎯 KÖR DÖVÜŞÜ BİTTİ: Admin panelinden gelen BİREBİR isimlerle eşleşme motoru!
   const aktifAdimBul = (durum: string) => {
-    const d = durumTemizle(durum);
-    if (d.includes("alindi") || d.includes("onay") || d.includes("yeni") || d.includes("verildi")) {
-      if (d.includes("kargo")) return 2;
-      return 0;
-    }
-    if (d.includes("hazir")) return 1;
-    if (d.includes("kargo")) return 2;
-    if (d.includes("teslim") || d.includes("bitti") || d.includes("tamam")) return 3;
-    return 0;
+    if (!durum) return 0; // Varsayılan Sipariş Alındı
+    if (durum === "Ödendi / Hazırlanıyor") return 1;
+    if (durum === "Kargoya Verildi") return 2;
+    if (durum === "Teslim Edildi" || durum.toLowerCase().includes("teslim")) return 3;
+    return 0; 
   };
 
-  // Siparişin iptal edilip edilmediğini kontrol eden motor
   const iptalEdildiMi = (durum: string) => {
-    const d = durumTemizle(durum);
-    return d.includes("iptal") || d.includes("red");
+    if (!durum) return false;
+    return durum === "İptal Edildi";
   };
 
   const sorgula = async (e: React.FormEvent) => {
@@ -83,8 +65,8 @@ export default function SiparisTakipPage() {
     setTimeout(() => setKopyalandi(false), 2000);
   };
 
-  // İŞTE SİHİRLİ DOKUNUŞ BURADA: musteriMesaji eklendi!
-  const magazaMesaji = siparis?.musteriMesaji || siparis?.mesaj || siparis?.not || siparis?.adminNotu || siparis?.aciklama || siparis?.siparisMesaji;
+  // MESAJ ALANI: Bütün ihtimalleri yakalıyoruz
+  const magazaMesaji = siparis?.musteriMesaji || siparis?.mesaj || siparis?.not || siparis?.adminNotu || siparis?.aciklama;
 
   return (
     <div className="min-h-screen bg-[#050814] text-white flex flex-col items-center pt-24 px-4 pb-12 relative overflow-hidden">
@@ -159,12 +141,15 @@ export default function SiparisTakipPage() {
                     const aktifAdimNo = aktifAdimBul(siparis.durum);
                     const tamamlandiMi = index <= aktifAdimNo;
                     const suAnkiMi = index === aktifAdimNo;
+                    
+                    // 🛑 ŞEFİM İSTEDİ: Teslim edildiyse (index 3) yanıp sönmeyi durduruyoruz!
+                    const yanipSonme = suAnkiMi && index !== 3 ? "ring-4 ring-[#00e5ff]/30 animate-pulse" : "";
 
                     return (
                       <div key={index} className="flex flex-col items-center relative group w-10 md:w-12">
                         <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-lg md:text-xl shadow-lg transition-all duration-500 z-10 ${
                           tamamlandiMi ? "bg-[#00e5ff] text-black scale-110" : "bg-gray-800 text-gray-500"
-                        } ${suAnkiMi ? "ring-4 ring-[#00e5ff]/30 animate-pulse" : ""}`}>
+                        } ${yanipSonme}`}>
                           {index === 0 && "🛒"}
                           {index === 1 && "📦"}
                           {index === 2 && "🚚"}
