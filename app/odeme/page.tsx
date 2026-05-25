@@ -138,7 +138,7 @@ export default function OdemeSayfasi() {
         sepetiBosalt();
 
         if (data.odemeYontemi === "havale") {
-          window.location.href = "/siparis-basarili?kodu=" + data.siparis.sipariskodu;
+          window.location.href = "/siparis-basarili?kodu=" + data.siparis.siparisKodu;
         } else {
           setIyzicoFormHtml(data.checkoutFormContent);
         }
