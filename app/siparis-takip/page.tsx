@@ -29,7 +29,7 @@ export default function SiparisTakipPage() {
   const aktifAdimBul = (durum: string) => {
     const d = durumTemizle(durum);
     if (d.includes("alindi") || d.includes("onay") || d.includes("yeni") || d.includes("verildi")) {
-      if (d.includes("kargo")) return 2; // "kargoya verildi" ise direkt 2. adıma atla
+      if (d.includes("kargo")) return 2;
       return 0;
     }
     if (d.includes("hazir")) return 1;
@@ -83,8 +83,8 @@ export default function SiparisTakipPage() {
     setTimeout(() => setKopyalandi(false), 2000);
   };
 
-  // Veritabanından gelebilecek tüm mesaj/not ihtimallerini yakalıyoruz
-  const magazaMesaji = siparis?.mesaj || siparis?.not || siparis?.adminNotu || siparis?.aciklama || siparis?.siparisMesaji;
+  // İŞTE SİHİRLİ DOKUNUŞ BURADA: musteriMesaji eklendi!
+  const magazaMesaji = siparis?.musteriMesaji || siparis?.mesaj || siparis?.not || siparis?.adminNotu || siparis?.aciklama || siparis?.siparisMesaji;
 
   return (
     <div className="min-h-screen bg-[#050814] text-white flex flex-col items-center pt-24 px-4 pb-12 relative overflow-hidden">
@@ -145,7 +145,7 @@ export default function SiparisTakipPage() {
                 <p className="text-slate-400 text-xs mt-1">Bu sipariş iptal edilmiş veya geri çevrilmiştir. Detaylar için destek hattıyla görüşebilirsiniz.</p>
               </div>
             ) : (
-              /* NORMAL TREN ÇUBUĞU (HAZIRLANIYOR, KARGO, TESLİM DURAKLARI) */
+              /* NORMAL TREN ÇUBUĞU */
               <div className="mb-8 mt-4 relative px-0 md:px-2 pb-12 md:pb-16">
                 <div className="absolute left-0 top-5 md:top-6 w-full h-1 bg-gray-800 rounded-full"></div>
                 
