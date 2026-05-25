@@ -128,17 +128,19 @@ export default function SiparisTakipPage() {
             {magazaMesaji && (
               <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 text-amber-300 rounded-xl text-xs md:text-sm shadow-[0_0_15px_rgba(245,158,11,0.05)]">
                 <p className="font-black text-amber-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                  <span>📢</span> Mağaza Bildirimi:
+                  <span>📢</span> Mağaza Bildirimi
                 </p>
                 <p className="font-medium leading-relaxed">{magazaMesaji}</p>
               </div>
             )}
 
-            {iptalEdildiMi(siparis.durum) ? (
+           {iptalEdildiMi(siparis.durum) ? (
               <div className="mb-8 p-6 bg-slate-800/40 border border-slate-600/30 rounded-xl text-center shadow-[0_0_20px_rgba(148,163,184,0.05)]">
                 <span className="text-4xl block mb-2 opacity-80">✖️</span>
                 <h3 className="text-lg font-black text-slate-300 uppercase tracking-tight">Sipariş İptal Edildi</h3>
-                <p className="text-slate-500 text-xs mt-1">Bu sipariş iptal edilmiş veya mağaza tarafından geri çevrilmiştir.</p>
+                <p className="text-slate-400 text-xs mt-2 leading-relaxed">
+                  Bu sipariş iptal edilmiş veya mağaza tarafından onaylanmamış görünüyor. Detaylı bilgi almak veya süreçle ilgili sorularınız için <a href="tel:08503055968" className="text-[#00e5ff] font-bold hover:underline">0850 305 59 68</a> numaralı hattan doğrudan mağazamızla iletişime geçebilirsiniz. Size yardımcı olmaktan mutluluk duyarız!
+                </p>
               </div>
             ) : (
               <div className="mb-8 mt-4 relative px-0 md:px-2 pb-12 md:pb-16">
