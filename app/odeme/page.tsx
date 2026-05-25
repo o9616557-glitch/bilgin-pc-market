@@ -138,13 +138,16 @@ export default function OdemeSayfasi() {
           const gercekSiparis = data.siparis || data; 
           const kod = gercekSiparis.siparisKodu || gercekSiparis.sipariskodu || "SP-BASARILI";
           
-          // Önce sepeti temizliyoruz
-          sepetiBosalt();
-          
-          // Hiç bekletmeden ışık hızında yönlendiriyoruz
+          // 1. ÖNCE ışık hızında başarı sayfasına yönlendiriyoruz
           window.location.replace("/siparis-basarili?kodu=" + kod);
+          
+          // 2. SONRA sepeti arka planda çaktırmadan boşaltıyoruz (Yarım saniye gecikmeli)
+          setTimeout(() => {
+            sepetiBosalt();
+          }, 500);
+
         } else {
-          // Kredi kartı ise sepeti iyzico formu yüklenirken boşalt
+          // Kredi kartı ise formu yüklerken sorun olmaz, direkt boşalt
           sepetiBosalt();
           setIyzicoFormHtml(data.checkoutFormContent);
         }
