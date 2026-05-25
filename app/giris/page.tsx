@@ -49,10 +49,7 @@ export default function GirisPage() {
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#00e5ff] rounded-full mix-blend-screen filter blur-[150px] opacity-10"></div>
       
       <div className="w-full max-w-md bg-[#09090b] border border-white/10 rounded-3xl shadow-[0_0_50px_rgba(0,229,255,0.05)] p-8 relative z-10">
-        <Link href="/" className="inline-flex items-center gap-2 text-slate-400 hover:text-[#00e5ff] transition-colors mb-6 text-sm font-bold uppercase tracking-wider">
-          <ArrowLeft size={16} /> Mağazaya Dön
-        </Link>
-
+        
         <h1 className="text-3xl font-black uppercase tracking-tighter mb-2 text-white drop-shadow-[0_0_10px_rgba(0,229,255,0.2)]">
           GİRİŞ YAP
         </h1>
