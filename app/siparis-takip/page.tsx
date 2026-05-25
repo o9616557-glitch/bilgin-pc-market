@@ -9,6 +9,16 @@ export default function SiparisTakipPage() {
   const [hata, setHata] = useState("");
   const [yukleniyor, setYukleniyor] = useState(false);
 
+  // Kargo Treninin İstasyonları
+  const adimlar = ["Sipariş Alındı", "Hazırlanıyor", "Kargoya Verildi", "Teslim Edildi"];
+
+  // Mevcut duruma göre trenin nerede olduğunu buluyoruz
+  const aktifAdimBul = (durum: string) => {
+    if (!durum) return 0;
+    const index = adimlar.findIndex(a => a.toLowerCase() === durum.toLowerCase());
+    return index !== -1 ? index : 0; // Bulamazsa ilk istasyonda varsay
+  };
+
   const sorgula = async (e: React.FormEvent) => {
     e.preventDefault();
     setHata("");
@@ -22,7 +32,6 @@ export default function SiparisTakipPage() {
     setYukleniyor(true);
 
     try {
-      // Arka plandaki motorla (API) iletişime geçiyoruz
       const res = await fetch("/api/siparis-takip", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -32,86 +41,141 @@ export default function SiparisTakipPage() {
       const data = await res.json();
 
       if (data.success || data.siparis) {
-        // Sipariş bulunduysa ekrana bas
         setSiparis(data.siparis || data);
       } else {
         setHata(data.error || "Bu koda ait bir sipariş bulunamadı. (Örn: SP-12345)");
       }
     } catch (err) {
-      setHata("Sistemsel bir bağlantı hatası oluştu. Lütfen tekrar deneyin.");
+      setHata("Bağlantı hatası oluştu. Lütfen tekrar deneyin.");
     } finally {
       setYukleniyor(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center pt-20 px-4">
-      <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+    <div className="min-h-screen bg-[#050814] text-white flex flex-col items-center pt-24 px-4 pb-12 relative overflow-hidden">
+      {/* Arka Plan Efektleri */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#00e5ff] blur-[120px] opacity-20 rounded-full pointer-events-none"></div>
+      
+      <div className="w-full max-w-2xl bg-[#09090b] border border-white/10 rounded-2xl shadow-2xl p-6 md:p-10 relative z-10">
         
-        {/* Üst Başlık */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">Sipariş Takibi 📦</h1>
-          <p className="text-gray-500 text-sm">
-            Sipariş durumunu öğrenmek için kodunuzu girin.
+          <h1 className="text-3xl font-black uppercase tracking-tighter mb-2">
+            Kargo <span className="text-[#00e5ff]">Takİp</span>
+          </h1>
+          <p className="text-slate-400 text-sm font-medium">
+            Siparişinizin anlık durumunu öğrenmek için kodunuzu girin.
           </p>
         </div>
 
         {/* Sorgulama Formu */}
-        <form onSubmit={sorgula} className="space-y-4">
-          <div>
-            <input
-              type="text"
-              value={kodu}
-              onChange={(e) => setKodu(e.target.value)}
-              placeholder="Sipariş Kodu (Örn: SP-12345)"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-            />
-          </div>
+        <form onSubmit={sorgula} className="flex flex-col md:flex-row gap-3 mb-8">
+          <input
+            type="text"
+            value={kodu}
+            onChange={(e) => setKodu(e.target.value)}
+            placeholder="Sipariş Kodu (Örn: SP-12345)"
+            className="flex-1 bg-[#121215] border border-white/10 rounded-xl px-5 py-4 text-white placeholder-slate-500 focus:outline-none focus:border-[#00e5ff] transition-colors"
+          />
           <button
             type="submit"
             disabled={yukleniyor}
-            className="w-full bg-black text-white font-semibold py-3 rounded-lg hover:bg-gray-800 transition disabled:opacity-70"
+            className="bg-[#00e5ff] hover:bg-[#00c4db] text-black font-bold py-4 px-8 rounded-xl transition-all disabled:opacity-50 whitespace-nowrap"
           >
-            {yukleniyor ? "Sorgulanıyor..." : "Siparişi Sorgula"}
+            {yukleniyor ? "Aranıyor..." : "Sorgula 🔍"}
           </button>
         </form>
 
-        {/* Hata Mesajı */}
         {hata && (
-          <div className="mt-6 p-4 bg-red-50 text-red-600 text-sm text-center rounded-lg font-medium">
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl text-center text-sm">
             {hata}
           </div>
         )}
 
-        {/* Sonuç Ekranı */}
+        {/* EFSANE SONUÇ EKRANI (TREN VE RESİMLER) */}
         {siparis && (
-          <div className="mt-8 border-t pt-6 space-y-4">
-            <h3 className="text-lg font-bold text-gray-800 border-b pb-2">Sipariş Detayı</h3>
+          <div className="mt-8 pt-8 border-t border-white/10 animate-fade-in-up">
             
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Sipariş Kodu:</span>
-              <span className="font-semibold text-gray-800">{siparis.siparisKodu}</span>
+            {/* TREN / İLERLEME ÇUBUĞU (TIMELINE) */}
+            <div className="mb-12 mt-4 relative px-2">
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-gray-800 rounded-full"></div>
+              
+              {/* Dolu Çizgi */}
+              <div 
+                className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-[#00e5ff] rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_#00e5ff]"
+                style={{ width: `${(aktifAdimBul(siparis.durum) / (adimlar.length - 1)) * 100}%` }}
+              ></div>
+
+              <div className="relative flex justify-between items-center z-10">
+                {adimlar.map((adim, index) => {
+                  const aktifAdimNo = aktifAdimBul(siparis.durum);
+                  const tamamlandiMi = index <= aktifAdimNo;
+                  const suAnkiMi = index === aktifAdimNo;
+
+                  return (
+                    <div key={index} className="flex flex-col items-center group">
+                      <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-xl shadow-lg transition-all duration-500 ${
+                        tamamlandiMi ? "bg-[#00e5ff] text-black scale-110" : "bg-gray-800 text-gray-500"
+                      } ${suAnkiMi ? "ring-4 ring-[#00e5ff]/30 animate-pulse" : ""}`}>
+                        {index === 0 && "🛒"}
+                        {index === 1 && "📦"}
+                        {index === 2 && "🚚"} {/* İşte senin TREN/KAMYON :) */}
+                        {index === 3 && "✅"}
+                      </div>
+                      <span className={`mt-3 text-[10px] md:text-xs font-bold text-center absolute top-12 w-20 md:w-24 -ml-10 md:-ml-12 ${
+                        tamamlandiMi ? "text-[#00e5ff]" : "text-gray-500"
+                      }`}>
+                        {adim}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* SİPARİŞ DETAYLARI VE ÜRÜN RESMİ */}
+            <div className="bg-[#121215] rounded-xl p-5 border border-white/5 mt-16">
+              <div className="flex justify-between items-center border-b border-white/5 pb-4 mb-4">
+                <div>
+                  <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Sipariş Kodu</p>
+                  <p className="text-xl font-bold text-white">{siparis.siparisKodu}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Tutar</p>
+                  <p className="text-xl font-bold text-[#00e5ff]">
+                    {siparis.toplamTutar ? `${siparis.toplamTutar} ₺` : "Ödendi"}
+                  </p>
+                </div>
+              </div>
+
+              {/* İçindeki Ürünler (Eğer veri tabanında ürün varsa resmiyle gösterir) */}
+              {siparis.items && siparis.items.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-slate-400 text-xs uppercase tracking-wider mb-3">Paket İçeriği</p>
+                  <div className="space-y-3">
+                    {siparis.items.map((urun: any, i: number) => (
+                      <div key={i} className="flex items-center gap-4 bg-[#0a0a0c] p-3 rounded-lg border border-white/5">
+                        {urun.resim ? (
+                          <img src={urun.resim} alt={urun.isim} className="w-12 h-12 rounded-md object-cover border border-white/10" />
+                        ) : (
+                          <div className="w-12 h-12 rounded-md bg-gray-800 flex items-center justify-center text-xl">💻</div>
+                        )}
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-white truncate">{urun.isim || "Ürün"}</p>
+                          <p className="text-xs text-slate-500">{urun.adet} Adet</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
             
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Durum:</span>
-              <span className="font-semibold px-2 py-1 bg-blue-100 text-blue-700 rounded-md">
-                {siparis.durum || "Hazırlanıyor"}
-              </span>
-            </div>
-            
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Tutar:</span>
-              <span className="font-bold text-green-600">
-                {siparis.toplamTutar ? `${siparis.toplamTutar} TL` : "Ödendi"}
-              </span>
-            </div>
           </div>
         )}
 
-        {/* Mağazaya Dön Linki */}
         <div className="mt-8 text-center">
-          <Link href="/" className="text-blue-600 hover:underline text-sm font-medium">
+          <Link href="/" className="text-slate-400 hover:text-[#00e5ff] text-sm font-medium transition-colors">
             &larr; Mağazaya Geri Dön
           </Link>
         </div>
