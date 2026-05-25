@@ -49,20 +49,21 @@ export async function PUT(request: Request) {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
 
-    // 1. SİHİRLİ DOKUNUŞ: Önce siparişi bulalım ki kime mail atacağımızı bilelim
+    // 1. Önce siparişi bulalım ki mail atacağımız müşterinin bilgilerini çekelim
+    const ObjectId = require("mongodb").ObjectId;
     const siparis = await db.collection("orders").findOne({ _id: new ObjectId(id) });
 
     const guncellenecekler: any = {};
     if (yeniDurum !== undefined) guncellenecekler.durum = yeniDurum;
     if (musteriMesaji !== undefined) guncellenecekler.musteriMesaji = musteriMesaji;
 
-    // 2. Veritabanında güncelleme yapıyoruz (Senin orijinal kodun)
+    // 2. Veritabanında güncelleme yapıyoruz
     await db.collection("orders").updateOne(
       { _id: new ObjectId(id) },
       { $set: guncellenecekler }
     );
 
-    // 🚀 3. POSTACI DEVREDE: Eğer durum değiştiyse ve önemli bir aşamaysa mail fırlat!
+    // 🚀 3. AKILLI POSTACI MÜHÜRÜ: Sadece senin onay verdiğin durumlarda tetiklenir!
     if (siparis && yeniDurum && (yeniDurum === "Ödendi / Hazırlanıyor" || yeniDurum === "Kargoya Verildi" || yeniDurum === "İptal Edildi")) {
       const nodemailer = require("nodemailer");
       const transporter = nodemailer.createTransport({
@@ -71,27 +72,28 @@ export async function PUT(request: Request) {
         secure: true,
         auth: {
           user: "o9616557@gmail.com",
-          pass: "vfph bxkd gzsv enpg",
+          pass: "vfph bxkd gzsv enpg", // Senin tıkır tıkır çalışan gizli uygulama şifren
         },
         tls: { rejectUnauthorized: false }
       });
 
-      // Müşteri mailini siparişten akıllıca çekiyoruz
+      // Müşteri mailini sipariş kayıtlarından güvenli bir şekilde cımbızlıyoruz
       const musteriMaili = siparis.userEmail || siparis.email || siparis.musteri?.eposta || siparis.musteri?.email;
 
       if (musteriMaili) {
         let baslik = "Siparişinizin Durumu Güncellendi";
         let altMesaj = `Siparişinizin durumu <strong>${yeniDurum}</strong> olarak güncellenmiştir.`;
 
+        // Duruma göre dinamik başlık ve kurumsal açıklamalar
         if (yeniDurum === "Ödendi / Hazırlanıyor") {
           baslik = "Ödemeniz Onaylandı! 🚀";
-          altMesaj = "Ödemeniz başarıyla tarafımıza ulaşmış ve siparişiniz hazırlık aşamasına geçmiştir. Ürünleriniz özenle paketleniyor!";
+          altMesaj = "Ödemeniz başarıyla tarafımıza ulaşmış ve siparişiniz hazırlık aşamasına geçmiştir. Ürünleriniz uzman ekibimiz tarafından özenle paketleniyor! En kısa sürede kargoya teslim edilecektir.";
         } else if (yeniDurum === "Kargoya Verildi") {
           baslik = "Siparişiniz Kargoya Verildi! 🚚";
-          altMesaj = "Paketiniz yola çıkmıştır! Sipariş takip kodunuzla kargo durumunuzu anlık olarak sitemizden sorgulayabilirsiniz.";
+          altMesaj = "Beklenen an geldi! Paketiniz başarıyla yola çıkmıştır. Sipariş takip kodunuzu sitemizdeki <strong>'Sipariş Takip'</strong> ekranına yazarak kargonuzun nerede olduğunu anlık olarak izleyebilirsiniz.";
         } else if (yeniDurum === "İptal Edildi") {
           baslik = "Siparişiniz İptal Edildi ✖️";
-          altMesaj = "Siparişiniz mağazamız tarafından iptal edilmiştir. Eğer bir hata olduğunu düşünüyorsanız müşteri hizmetlerimizle iletişime geçebilirsiniz.";
+          altMesaj = "Siparişiniz mağazamız tarafından iptal edilmiştir. İptal süreci veya ücret iadeniz hakkında detaylı bilgi almak için dükkanımızla doğrudan iletişime geçebilirsiniz.";
         }
 
         const mailSecenekleri = {
@@ -100,22 +102,23 @@ export async function PUT(request: Request) {
           subject: baslik,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #09090b; color: #ffffff; padding: 40px 30px; border-radius: 12px; border: 1px solid #27272a; text-align: center;">
-              <h2 style="color: #00e5ff; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px;">${baslik}</h2>
-              <p style="color: #a1a1aa; font-size: 16px; line-height: 1.6; margin-bottom: 10px;">Merhaba <strong style="color: #fff;">${siparis.musteri?.ad || siparis.musteri?.isim || "Değerli Müşterimiz"}</strong>,</p>
-              <p style="color: #a1a1aa; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">${altMesaj}</p>
+              <h2 style="color: #00e5ff; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; font-size: 24px;">${baslik}</h2>
+              <p style="color: #a1a1aa; font-size: 16px; line-height: 1.6; margin-bottom: 12px;">Merhaba <strong style="color: #fff;">${siparis.musteri?.ad || siparis.musteri?.isim || "Değerli Müşterimiz"}</strong>,</p>
+              <p style="color: #a1a1aa; font-size: 15px; line-height: 1.6; margin-bottom: 30px; padding: 0 10px;">${altMesaj}</p>
               
-              <div style="background-color: #121215; padding: 20px; border-radius: 8px; margin: 0 auto 30px auto; border: 1px solid #27272a; max-width: 300px; box-shadow: 0 0 15px rgba(0, 229, 255, 0.05);">
-                <p style="color: #a1a1aa; font-size: 12px; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px;">Sipariş Kodu</p>
-                <h1 style="color: #ffffff; margin: 0; font-size: 28px; letter-spacing: 2px;">${siparis.siparisKodu || "BPC-Sipariş"}</h1>
+              <div style="background-color: #121215; padding: 20px; border-radius: 8px; margin: 0 auto 30px auto; border: 1px solid #27272a; max-width: 320px; box-shadow: 0 0 15px rgba(0, 229, 255, 0.05);">
+                <p style="color: #a1a1aa; font-size: 11px; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 1px;">Sipariş Takip Kodunuz</p>
+                <h1 style="color: #ffffff; margin: 0; font-size: 26px; letter-spacing: 2px; font-weight: bold;">${siparis.siparisKodu || "BPC-SIPARIS"}</h1>
               </div>
               
-              <p style="color: #a1a1aa; font-size: 14px;">Bizi tercih ettiğiniz için teşekkür ederiz!<br><br><strong style="color: #00e5ff;">Bilgin PC Market</strong></p>
+              <p style="color: #71717a; font-size: 13px; line-height: 1.5; margin-bottom: 25px;">Siparişinizle ilgili tüm sorularınız için destek hattımız üzerinden bizimle doğrudan iletişime geçebilirsiniz.</p>
+              <p style="color: #a1a1aa; font-size: 14px; margin: 0;">Bizi tercih ettiğiniz için teşekkür ederiz!<br><br><strong style="color: #00e5ff; font-size: 16px; letter-spacing: 0.5px;">Bilgin PC Market</strong></p>
             </div>
           `,
         };
 
-        // Maili arka planda atıyoruz ki senin admin panelin hiç donmasın!
-        transporter.sendMail(mailSecenekleri).catch((err: any) => console.log("Admin mail yollama hatası:", err));
+        // Maili arka planda fırlatıyoruz ki senin admin ekranında hiçbir takılma veya yavaşlama olmasın
+        transporter.sendMail(mailSecenekleri).catch((err: any) => console.log("Admin mail gönderme hatası:", err));
       }
     }
 
