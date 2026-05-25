@@ -43,9 +43,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setSepet(yeni);
     localStorage.setItem("bilgin-sepet", JSON.stringify(yeni));
   };
-
+const sepetiBosalt = () => {
+    setSepet([]);
+    localStorage.setItem("bilgin-sepet", "[]");
+  };
   return (
-    <CartContext.Provider value={{ sepet, sepeteEkle, sepettenSil, adetGuncelle }}>
+    <CartContext.Provider value={{ sepet, sepeteEkle, sepettenSil, adetGuncelle, sepetiBosalt}}>
       {children}
     </CartContext.Provider>
   );
