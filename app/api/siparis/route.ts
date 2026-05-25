@@ -51,14 +51,13 @@ export async function POST(request: Request) {
         
         const transporter = nodemailer.createTransport({
           host: "smtp.gmail.com",
-          port: 465, // Garantili Google kapısı
+          port: 465,
           secure: true,
           auth: {
-            user: "o9616557@gmail.com", // Şefin gönderici adresi
-            // NOT: Şifre sıfırlamada .env dosyasında şifrenin adı neyse onu yaz (Örn: EMAIL_PASS veya SMTP_PASSWORD)
-            pass: process.env.EMAIL_PASS, 
+            user: "o9616557@gmail.com", 
+            pass: "vfph bxkd gzsv enpg", // 🎯 İŞTE GİZLİ ANAHTAR! Şifre sıfırlamadaki aynı şifre!
           },
-          tls: { rejectUnauthorized: false } // Güvenlik duvarını deler
+          tls: { rejectUnauthorized: false }
         });
 
         // 🎯 TEST KEMERİ: Müşteri maili yoksa (üyesizse) maili direkt ŞEFİN KENDİSİNE at!
@@ -89,7 +88,6 @@ export async function POST(request: Request) {
         console.error("Postacı motoru çalışamadı:", mailHatasi);
       }
       // 🚀 POSTACI İŞİNİ BİTİRDİ!
-
 // 🚀 DİJİTAL POSTACI DEVREDE! (Sipariş veritabanına yazıldığı an mail atıyoruz)
       try {
         const nodemailer = require("nodemailer"); // Yukarıya eklemeye gerek kalmadan direkt burada çağırıyoruz
