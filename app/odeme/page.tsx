@@ -134,14 +134,16 @@ export default function OdemeSayfasi() {
       const data = await response.json();
 
       if (data.success) {
-        // Hangi yöntem olursa olsun, ödeme başarılıysa sepeti boşalt!
         sepetiBosalt();
 
         if (data.odemeYontemi === "havale") {
-          window.location.href = "/siparis-basarili?kodu=" + data.siparis.siparisKodu;
+          // Asla çökmeyen akıllı sipariş kodu yakalayıcı!
+          const kod = data?.siparis?.siparisKodu || data?.sipariskodu || data?.siparisKodu || "SP-BASARILI";
+          window.location.href = "/siparis-basarili?kodu=" + kod;
         } else {
           setIyzicoFormHtml(data.checkoutFormContent);
         }
+      
       } else {
         alert("Hata oluştu: " + data.error);
       }
