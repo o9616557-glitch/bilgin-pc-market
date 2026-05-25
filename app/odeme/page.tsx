@@ -133,13 +133,19 @@ export default function OdemeSayfasi() {
 
       const data = await response.json();
 
-      if (data.success) {
-  if (data.odemeYontemi === "havale") {
-    window.location.href = "/siparis-basarili?kodu=" + data.siparisKodu;
-  } else {
-    setIyzicoFormHtml(data.checkoutFormContent);
-  }
-} else {
+     if (data.success) {
+        // GÖLGE TAKTİĞİ: Sepeti arka planda sessizce imha et!
+        localStorage.removeItem("bilgin-sepet");
+
+        if (data.odemeYontemi === "havale") {
+          const gercekSiparis = data.siparis || data; 
+          const kod = gercekSiparis.siparisKodu || gercekSiparis.sipariskodu || "SP-BASARILI";
+          
+          window.location.replace("/siparis-basarili?kodu=" + kod);
+        } else {
+          setIyzicoFormHtml(data.checkoutFormContent);
+        }
+      } else {
         alert("Hata oluştu: " + data.error);
       }
     } catch (hata) {
