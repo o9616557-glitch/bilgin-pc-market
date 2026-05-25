@@ -134,6 +134,7 @@ export default function OdemeSayfasi() {
       const data = await response.json();
 
       if (data.success) {
+        localStorage.removeItem("bilgin-sepet");
   if (data.odemeYontemi === "havale") {
     window.location.href = "/siparis-basarili?kodu=" + data.siparisKodu;
   } else {
