@@ -137,13 +137,15 @@ export default function OdemeSayfasi() {
         sepetiBosalt();
 
         if (data.odemeYontemi === "havale") {
-          // Asla çökmeyen akıllı sipariş kodu yakalayıcı!
-          const kod = data?.siparis?.siparisKodu || data?.sipariskodu || data?.siparisKodu || "SP-BASARILI";
+          // Sistemden gelen yanıtı güvene alıyoruz
+          const gercekSiparis = data.siparis || data; 
+          const kod = gercekSiparis.siparisKodu || gercekSiparis.sipariskodu || "SP-BASARILI";
+          
           window.location.href = "/siparis-basarili?kodu=" + kod;
         } else {
           setIyzicoFormHtml(data.checkoutFormContent);
         }
-      
+    
       } else {
         alert("Hata oluştu: " + data.error);
       }
