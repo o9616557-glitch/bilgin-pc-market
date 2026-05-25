@@ -134,15 +134,18 @@ export default function OdemeSayfasi() {
       const data = await response.json();
 
       if (data.success) {
-        sepetiBosalt();
-
         if (data.odemeYontemi === "havale") {
-          // Sistemden gelen yanıtı güvene alıyoruz
           const gercekSiparis = data.siparis || data; 
           const kod = gercekSiparis.siparisKodu || gercekSiparis.sipariskodu || "SP-BASARILI";
           
-          window.location.href = "/siparis-basarili?kodu=" + kod;
+          // Önce sepeti temizliyoruz
+          sepetiBosalt();
+          
+          // Hiç bekletmeden ışık hızında yönlendiriyoruz
+          window.location.replace("/siparis-basarili?kodu=" + kod);
         } else {
+          // Kredi kartı ise sepeti iyzico formu yüklenirken boşalt
+          sepetiBosalt();
           setIyzicoFormHtml(data.checkoutFormContent);
         }
     
