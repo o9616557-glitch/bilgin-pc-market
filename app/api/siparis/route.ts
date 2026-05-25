@@ -46,6 +46,7 @@ export async function POST(request: Request) {
     await db.collection("orders").insertOne(yeniSiparis);
 
 
+
       // 🛑 BURADAKİ POSTACI / NODEMAILER KODLARINI TAMAMEN SİLDİK, ARTIK BURASI MAİL ATMAYACAK!
 
       if (odemeYontemi === "havale") {
@@ -55,7 +56,60 @@ export async function POST(request: Request) {
           mesaj: "Siparişiniz alındı. Havale onayı bekleniyor."
         });
       }
-      
+      // 🚀 POSTACI İŞİNİ BİTİRDİ!
+// 🚀 DİJİTAL POSTACI DEVREDE! (Sipariş veritabanına yazıldığı an mail atıyoruz)
+      try {
+        const nodemailer = require("nodemailer"); // Yukarıya eklemeye gerek kalmadan direkt burada çağırıyoruz
+        
+       const transporter = nodemailer.createTransport({
+          host: "smtp.gmail.com",
+          port: 465,
+          secure: true, // 465 portu için true olmalı (Garantili SSL tüneli)
+          auth: {
+            user: process.env.EMAIL_USER, 
+            pass: process.env.EMAIL_PASS, 
+          },
+          tls: {
+            // Sunucu bazlı güvenlik duvarı takılmalarını zorla aşmak için:
+            rejectUnauthorized: false 
+          }
+        });
+
+        // Müşteri mailini yakalıyoruz
+        const musteriMaili = musteri?.eposta || musteri?.email;
+
+        if (musteriMaili) {
+          const mailSecenekleri = {
+            from: `"Bilgin PC Market" <${process.env.EMAIL_USER}>`,
+            to: musteriMaili,
+            subject: "Siparişiniz Alındı! 📦 (Sipariş Kodunuz İçeridedir)",
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #09090b; color: #ffffff; padding: 30px; border-radius: 12px; border: 1px solid #27272a;">
+                <h2 style="color: #00e5ff; text-align: center; text-transform: uppercase; letter-spacing: 1px;">Siparişiniz Alındı! 🎉</h2>
+                <p style="color: #a1a1aa; font-size: 16px; line-height: 1.5;">Merhaba <strong style="color: #fff;">${musteri?.ad || "Değerli Müşterimiz"}</strong>,</p>
+                <p style="color: #a1a1aa; font-size: 16px; line-height: 1.5;">Siparişiniz sistemimize başarıyla ulaştı ve hazırlık aşamasına alındı. Siparişinizin anlık durumunu, aşağıdaki takip kodunuz ile sitemizdeki <strong>"Sipariş Takip"</strong> ekranından dilediğiniz zaman kontrol edebilirsiniz.</p>
+                
+                <div style="background-color: #121215; padding: 25px; border-radius: 8px; text-align: center; margin: 30px 0; border: 1px solid #27272a; box-shadow: 0 0 15px rgba(0, 229, 255, 0.05);">
+                  <p style="color: #a1a1aa; font-size: 12px; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px;">Sipariş Takip Kodunuz</p>
+                  <h1 style="color: #ffffff; margin: 0; font-size: 32px; letter-spacing: 3px;">${siparisKodu}</h1>
+                </div>
+                
+                <p style="color: #a1a1aa; font-size: 14px; text-align: center;">Bizi tercih ettiğiniz için teşekkür ederiz!<br><br><strong style="color: #00e5ff;">Bilgin PC Market</strong></p>
+              </div>
+            `,
+          };
+
+          // Maili arka planda fırlatıyoruz ki müşteri ekranda beklemesin!
+          transporter.sendMail(mailSecenekleri).catch((err: any) => console.error("Mail gönderilemedi:", err));
+        }
+      } catch (mailHatasi) {
+        console.error("Postacı motoru çalışamadı:", mailHatasi);
+      }
+      // 🚀 POSTACI İŞİNİ BİTİRDİ VE MERKEZE DÖNDÜ!
+
+    if (odemeYontemi === "havale") {
+      return NextResponse.json({ success: true, odemeYontemi: "havale", siparisKodu });
+    }
 
     let sepetUrunleri = sepet.map((item: any) => ({
       id: item.id,
