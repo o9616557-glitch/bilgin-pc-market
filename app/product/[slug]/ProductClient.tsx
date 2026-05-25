@@ -153,8 +153,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         varyasyon: "Standart Model"
       });
       
-      toast.success("Ürün sepetinize eklendi! 🛒");
-      
       setAddedSuccess(true);
       setTimeout(() => {
         setAddedSuccess(false);
