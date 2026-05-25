@@ -1,415 +1,244 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 
-export default function AdminPaneli() {
-  // 👑 1. GÜVENLİK DUVARI: GOOGLE VIP KONTROLÜ
-  const { data: session, status } = useSession();
-  const router = useRouter();
-  
-  // 🚨 BURAYA KENDİ GOOGLE E-POSTA ADRESİNİ YAZMAYI UNUTMA! (Örn: "ozkan@gmail.com")
-  const ADMIN_EMAIL = "o9616557@gmail.com"; 
+import { useState } from "react";
+import Link from "next/link";
 
-  useEffect(() => {
-    if (status !== "loading") {
-      // Eğer giriş yapılmamışsa veya giren kişi sen değilsen, anasayfaya fırlat!
-      if (!session || session?.user?.email?.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-        router.push("/"); 
-      }
+export default function SiparisTakipPage() {
+  const [kodu, setKodu] = useState("");
+  const [siparis, setSiparis] = useState<any>(null);
+  const [hata, setHata] = useState("");
+  const [yukleniyor, setYukleniyor] = useState(false);
+  const [kopyalandi, setKopyalandi] = useState(false);
+
+  const adimlar = ["Sipariş Alındı", "Hazırlanıyor", "Kargoya Verildi", "Teslim Edildi"];
+
+  // 🛡️ SÜPER ÇELİK YELEK MOTORU: Olası tüm harf hatalarını ve varyasyonları yakalar!
+  const aktifAdimBul = (durum: string) => {
+    if (!durum) return 0; 
+    const d = durum.toLowerCase();
+    
+    // 3. Durak (Son Aşama: Teslim Edildi / Tamamlandı / Tamalandı)
+    if (
+      durum === "Teslim Edildi" || 
+      d.includes("teslim") || 
+      d.includes("tamam") || 
+      d.includes("tamal") || // 🎯 Şefimin yakaladığı o gizli harf hatası için özel koruma!
+      d.includes("bit") ||
+      d.includes("son")
+    ) {
+      return 3;
     }
-  }, [session, status, router]);
-  const [sifre, setSifre] = useState("");
-  const [girisYapildi, setGirisYapildi] = useState(false);
-  const [aktifSekme, setAktifSekme] = useState<"siparisler" | "urunler">("urunler");
-  const [yukleniyor, setYukleniyor] = useState(true);
+    
+    // 2. Durak (Kargoya Verildi)
+    if (durum === "Kargoya Verildi" || d.includes("kargo")) return 2;
+    
+    // 1. Durak (Ödendi / Hazırlanıyor)
+    if (durum === "Ödendi / Hazırlanıyor" || d.includes("hazır") || d.includes("odendi")) return 1;
+    
+    return 0; // Hiçbiri değilse ilk durak
+  };
 
-  const [bildirim, setBildirim] = useState<{tip: "basari" | "hata", mesaj: string} | null>(null);
+  const iptalEdildiMi = (durum: string) => {
+    if (!durum) return false;
+    return durum === "İptal Edildi" || durum.toLowerCase().includes("iptal");
+  };
 
-  const [siparisler, setSiparisler] = useState<any[]>([]);
-  const [silinecekSiparisID, setSilinecekSiparisID] = useState<string | null>(null);
+  const sorgula = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setHata("");
+    setSiparis(null);
 
-  const [urunler, setUrunler] = useState<any[]>([]);
-  const [duzenlenenUrun, setDuzenlenenUrun] = useState<any | null>(null);
-  const [yeniUrunModu, setYeniUrunModu] = useState(false);
+    if (!kodu) {
+      setHata("Lütfen sipariş kodunuzu girin.");
+      return;
+    }
 
-  const [formIsim, setFormIsim] = useState("");
-  const [formFiyat, setFormFiyat] = useState("");
-  const [formIndirimliFiyat, setFormIndirimliFiyat] = useState(""); 
-  const [formHavaleIndirimi, setFormHavaleIndirimi] = useState("5"); 
-  const [formStok, setFormStok] = useState("Stokta Var");
-  const [formStokAdedi, setFormStokAdedi] = useState(""); 
-  const [formResim, setFormResim] = useState("");
-  const [formKategori, setFormKategori] = useState("Bilgisayar");
+    setYukleniyor(true);
 
-  const PATRON_SIFRESI = "Bilgin123";
+    try {
+      const res = await fetch("/api/siparis-takip", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ siparisKodu: kodu }),
+      });
 
-  useEffect(() => {
-    const patronGirdiMi = sessionStorage.getItem("patronGiris");
-    if (patronGirdiMi === "basarili") {
-      setGirisYapildi(true);
-      verileriYukle();
-    } else {
+      const data = await res.json();
+
+      if (data.success || data.siparis) {
+        setSiparis(data.siparis || data);
+      } else {
+        setHata(data.error || "Bu koda ait bir sipariş bulunamadı. (Örn: SP-12345)");
+      }
+    } catch (err) {
+      setHata("Bağlantı hatası oluştu. Lütfen tekrar deneyin.");
+    } finally {
       setYukleniyor(false);
     }
-  }, []);
-
-  const verileriYukle = async () => {
-    setYukleniyor(true);
-    await siparisleriGetir();
-    await urunleriGetir();
-    setYukleniyor(false);
   };
 
-  const girisYap = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (sifre === PATRON_SIFRESI) {
-      sessionStorage.setItem("patronGiris", "basarili"); 
-      setGirisYapildi(true);
-      verileriYukle();
-    } else {
-      setBildirim({tip: "hata", mesaj: "Hatalı Şifre!"});
-    }
+  const koduKopyala = (siparisKodu: string) => {
+    navigator.clipboard.writeText(siparisKodu);
+    setKopyalandi(true);
+    setTimeout(() => setKopyalandi(false), 2000);
   };
 
-  const cikisYap = () => { sessionStorage.removeItem("patronGiris"); setGirisYapildi(false); };
-
-  const siparisleriGetir = async () => {
-    try {
-      const res = await fetch(`/api/admin/siparisler?v=${Date.now()}`, { headers: { "x-patron-anahtar": PATRON_SIFRESI }});
-      const data = await res.json();
-      if (data.success) setSiparisler(data.siparisler);
-    } catch (e) {}
-  };
-
-  const durumGuncelle = async (id: string, yeniDurum: string) => {
-    try {
-      const res = await fetch("/api/admin/siparisler", { method: "PUT", headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI }, body: JSON.stringify({ id, yeniDurum }) });
-      if ((await res.json()).success) {
-        setSiparisler(siparisler.map(s => s._id === id ? { ...s, durum: yeniDurum } : s));
-        setBildirim({tip: "basari", mesaj: "Durum Güncellendi!"});
-      }
-    } catch (e) {}
-  };
-
-  const mesajGuncelle = async (id: string, musteriMesaji: string) => {
-    try {
-      const res = await fetch("/api/admin/siparisler", { method: "PUT", headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI }, body: JSON.stringify({ id, musteriMesaji }) });
-      if ((await res.json()).success) setBildirim({tip: "basari", mesaj: "Mesaj İletildi!"});
-    } catch (e) {}
-  };
-
-  const siparisSilmeIslemi = async () => {
-    if (!silinecekSiparisID) return;
-    try {
-      const res = await fetch(`/api/admin/siparisler?id=${silinecekSiparisID}`, { method: "DELETE", headers: { "x-patron-anahtar": PATRON_SIFRESI }});
-      if ((await res.json()).success) {
-        setSiparisler(siparisler.filter(s => s._id !== silinecekSiparisID));
-        setSilinecekSiparisID(null);
-        setBildirim({tip: "basari", mesaj: "Silindi!"});
-      }
-    } catch (e) {}
-  };
-
-  const urunleriGetir = async () => {
-    try {
-      const res = await fetch(`/api/admin/products?v=${Date.now()}`, { headers: { "x-patron-anahtar": PATRON_SIFRESI }});
-      const data = await res.json();
-      if (data.success) setUrunler(data.urunler);
-    } catch (e) {}
-  };
-
-  const urunKaydet = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const gonderilecekVeri: any = {
-        isim: formIsim, fiyat: formFiyat, indirimliFiyat: formIndirimliFiyat, havaleIndirimi: formHavaleIndirimi, stokDurumu: formStok, stokAdedi: formStokAdedi, resim: formResim, kategori: formKategori
-      };
-      if (duzenlenenUrun) gonderilecekVeri.id = duzenlenenUrun._id;
-
-      const res = await fetch("/api/admin/products", { method: "PUT", headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI }, body: JSON.stringify(gonderilecekVeri) });
-      if ((await res.json()).success) {
-        setBildirim({tip: "basari", mesaj: "Ürün Kaydedildi!"});
-        formuKapat();
-        urunleriGetir();
-      }
-    } catch (e) { setBildirim({tip: "hata", mesaj: "Hata oluştu."}); }
-  };
-
-  const urunSilmeIslemi = async (id: string) => {
-    if (!window.confirm("Bu ürünü silmek istediğine emin misin şefim?")) return;
-    try {
-      const res = await fetch(`/api/admin/products?id=${id}`, { method: "DELETE", headers: { "x-patron-anahtar": PATRON_SIFRESI }});
-      if ((await res.json()).success) {
-        setUrunler(urunler.filter(u => u._id !== id));
-        setBildirim({tip: "basari", mesaj: "Silindi!"});
-      }
-    } catch (e) {}
-  };
-
-  const urunDuzenleModunuAc = (urun: any) => {
-    setDuzenlenenUrun(urun);
-    setFormIsim(urun.isim || urun.name || "");
-    
-    // ŞEFİM: İŞTE O İNDİRİMİ BOZAN HATA BURADAYDI! Artık düzenle dediğinde GERÇEK normal fiyatı gösterecek.
-    const orjFiyat = urun.regular_price || urun.fiyat || urun.price || 0;
-    setFormFiyat(orjFiyat.toString());
-    
-    setFormIndirimliFiyat(urun.indirimliFiyat ? urun.indirimliFiyat.toString() : ""); 
-    setFormHavaleIndirimi(urun.havaleIndirimi !== undefined ? urun.havaleIndirimi.toString() : "5");
-    setFormStok(urun.stokDurumu || "Stokta Var");
-    
-    const temizAdet = (urun.stokAdedi !== null && urun.stokAdedi !== undefined && urun.stokAdedi !== "" && Number(urun.stokAdedi) !== 10) ? urun.stokAdedi.toString() : "";
-    setFormStokAdedi(temizAdet);
-    
-    setFormResim(urun.resim || "");
-    setFormKategori(urun.kategori || "Bilgisayar");
-    setYeniUrunModu(true);
-  };
-
-  const yeniUrunModunuAc = () => {
-    setDuzenlenenUrun(null);
-    setFormIsim(""); setFormFiyat(""); setFormIndirimliFiyat(""); setFormHavaleIndirimi("5"); setFormStok("Stokta Var"); setFormStokAdedi(""); setFormResim(""); setFormKategori("Bilgisayar");
-    setYeniUrunModu(true);
-  };
-
-  const formuKapat = () => {
-    setYeniUrunModu(false);
-    setDuzenlenenUrun(null);
-  };
-
-  const durumRengi = (durum: string) => {
-    if (!durum) return "#f59e0b";
-    if (durum === "Ödendi / Hazırlanıyor" || durum.includes("Başarılı")) return "#10b981"; 
-    if (durum === "Kargoya Verildi") return "#00e5ff"; 
-    if (durum === "İptal Edildi") return "#ef4444"; 
-    return "#f59e0b"; 
-  };
-
-  if (yukleniyor && !girisYapildi) return <div style={{ textAlign: "center", padding: "100px", color: "#00e5ff" }}>Yükleniyor...</div>;
-
-  if (!girisYapildi) {
-    return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh", padding: "20px" }}>
-        {bildirim && <div style={{ position: "fixed", top: 20, right: 20, background: "#121214", border: `1px solid ${bildirim.tip === "basari" ? "#00e5ff" : "#ef4444"}`, borderRadius: "10px", padding: "15px 25px", color: "#fff", zIndex: 99999 }}>{bildirim.mesaj}</div>}
-        <form onSubmit={girisYap} style={{ background: "#121214", border: "1px solid #27272a", padding: "40px", borderRadius: "20px", textAlign: "center", width: "100%", maxWidth: "400px" }}>
-          <h2 style={{ color: "#fff", marginBottom: "25px", fontWeight: "900" }}>Patron Girişi</h2>
-          <input type="password" value={sifre} onChange={(e) => setSifre(e.target.value)} placeholder="Şifreyi Girin..." style={{ width: "100%", padding: "15px", background: "#09090b", border: "1px solid #27272a", borderRadius: "10px", color: "#fff", marginBottom: "20px", outline: "none" }} required />
-          <button type="submit" style={{ width: "100%", padding: "15px", background: "#00e5ff", color: "#000", border: "none", borderRadius: "10px", fontWeight: "900", cursor: "pointer" }}>Kilidi Aç</button>
-        </form>
-      </div>
-    );
-  }
+  const magazaMesaji = siparis?.musteriMesaji || siparis?.mesaj || siparis?.not || siparis?.adminNotu || siparis?.aciklama;
 
   return (
-    <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
+    <div className="min-h-screen bg-[#050814] text-white flex flex-col items-center pt-24 px-4 pb-12 relative overflow-hidden">
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#00e5ff] blur-[120px] opacity-20 rounded-full pointer-events-none"></div>
       
-      {bildirim && (
-        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0, 0, 0, 0.7)", zIndex: 99999, display: "flex", justifyContent: "center", alignItems: "center", backdropFilter: "blur(4px)" }}>
-          <div style={{ background: "#121214", border: `1px solid ${bildirim.tip === "basari" ? "#00e5ff" : "#ef4444"}`, borderRadius: "16px", padding: "30px", maxWidth: "400px", width: "90%", textAlign: "center" }}>
-            <h3 style={{ color: "#fff", fontWeight: "900", marginBottom: "15px" }}>{bildirim.tip === "basari" ? "Başarılı" : "Hata"}</h3>
-            <p style={{ color: "#a1a1aa", marginBottom: "25px" }}>{bildirim.mesaj}</p>
-            <button onClick={() => setBildirim(null)} style={{ width: "100%", background: bildirim.tip === "basari" ? "#00e5ff" : "#ef4444", color: bildirim.tip === "basari" ? "#000" : "#fff", border: "none", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer" }}>Tamam</button>
-          </div>
+      <div className="w-full max-w-2xl bg-[#09090b] border border-white/10 rounded-2xl shadow-2xl p-5 md:p-10 relative z-10">
+        
+        <div className="text-center mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tighter mb-2">
+            Kargo <span className="text-[#00e5ff]">Takİp</span>
+          </h1>
+          <p className="text-slate-400 text-xs md:text-sm font-medium px-2">
+            Siparişinizin anlık durumunu öğrenmek için kodunuzu girin.
+          </p>
         </div>
-      )}
 
-      {silinecekSiparisID && (
-        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0, 0, 0, 0.8)", zIndex: 9999, display: "flex", justifyContent: "center", alignItems: "center" }}>
-          <div style={{ background: "#121214", border: "1px solid #ef4444", borderRadius: "16px", padding: "30px", maxWidth: "400px", textAlign: "center", width: "90%" }}>
-            <h3 style={{ color: "#fff", fontWeight: "900", marginBottom: "15px" }}>Siparişi Sil?</h3>
-            <div style={{ display: "flex", gap: "10px" }}>
-              <button onClick={() => setSilinecekSiparisID(null)} style={{ flex: 1, background: "#27272a", color: "#fff", border: "none", padding: "12px", borderRadius: "8px", fontWeight: "800", cursor: "pointer" }}>Vazgeç</button>
-              <button onClick={siparisSilmeIslemi} style={{ flex: 1, background: "#ef4444", color: "#fff", border: "none", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer" }}>Evet, Sil</button>
-            </div>
+        <form onSubmit={sorgula} className="flex flex-col md:flex-row gap-3 mb-6 md:mb-8">
+          <input
+            type="text"
+            value={kodu}
+            onChange={(e) => setKodu(e.target.value)}
+            placeholder="Sipariş Kodu (Örn: SP-12345)"
+            className="flex-1 bg-[#121215] border border-white/10 rounded-xl px-4 py-3 md:py-4 text-white placeholder-slate-500 focus:outline-none focus:border-[#00e5ff] transition-colors text-sm md:text-base"
+          />
+          <button
+            type="submit"
+            disabled={yukleniyor}
+            className="bg-[#00e5ff] hover:bg-[#00c4db] text-black font-bold py-3 md:py-4 px-8 rounded-xl transition-all disabled:opacity-50 whitespace-nowrap text-sm md:text-base"
+          >
+            {yukleniyor ? "Aranıyor..." : "Sorgula 🔍"}
+          </button>
+        </form>
+
+        {hata && (
+          <div className="mb-6 p-3 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl text-center text-xs md:text-sm">
+            {hata}
           </div>
-        </div>
-      )}
+        )}
 
-      {yeniUrunModu && (
-        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0, 0, 0, 0.85)", zIndex: 9999, display: "flex", justifyContent: "center", alignItems: "center", backdropFilter: "blur(5px)" }}>
-          <form onSubmit={urunKaydet} style={{ background: "#121214", border: "1px solid #00e5ff", borderRadius: "16px", padding: "20px", maxWidth: "520px", width: "90%", display: "flex", flexDirection: "column", gap: "12px", maxHeight: "95vh", overflowY: "auto" }}>
-            <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: "900", borderBottom: "1px solid #27272a", paddingBottom: "10px", margin: 0 }}>{duzenlenenUrun ? "⚙️ ÜRÜNÜ DÜZENLE" : "🚀 YENİ ÜRÜN EKLE"}</h3>
+        {siparis && (
+          <div className="mt-6 pt-6 md:pt-8 border-t border-white/10 animate-fade-in-up">
             
-            <div><label style={{ color: "#a1a1aa", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Ürün Adı</label><input type="text" value={formIsim} onChange={(e) => setFormIsim(e.target.value)} required style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }} /></div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              <div><label style={{ color: "#a1a1aa", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Normal Fiyat (TL)</label><input type="number" value={formFiyat} onChange={(e) => setFormFiyat(e.target.value)} required style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }} /></div>
-              <div><label style={{ color: "#ffb300", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>İndirimli Fiyat (TL)</label><input type="number" value={formIndirimliFiyat} onChange={(e) => setFormIndirimliFiyat(e.target.value)} placeholder="Yoksa boş bırak" style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#ffb300", outline: "none", fontWeight: "bold" }} /></div>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              <div>
-                <label style={{ color: "#00e5ff", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Stok Adedi (İsteğe Bağlı)</label>
-                <input type="number" value={formStokAdedi} onChange={(e) => setFormStokAdedi(e.target.value)} placeholder="Sadece Var yazsın istiyorsan BOŞ BIRAK" style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#00e5ff", fontWeight: "900", outline: "none" }} />
+            {magazaMesaji && (
+              <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 text-amber-300 rounded-xl text-xs md:text-sm shadow-[0_0_15px_rgba(245,158,11,0.05)]">
+                <p className="font-black text-amber-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                  <span>📢</span> Mağaza Bildirimi:
+                </p>
+                <p className="font-medium leading-relaxed">{magazaMesaji}</p>
               </div>
-              <div><label style={{ color: "#10b981", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Özel Havale İndirimi (%)</label><input type="number" value={formHavaleIndirimi} onChange={(e) => setFormHavaleIndirimi(e.target.value)} min="0" max="100" style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#10b981", fontWeight: "900", outline: "none" }} /></div>
-            </div>
+            )}
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              <div>
-                <label style={{ color: "#a1a1aa", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Stok Durumu</label>
-                <select value={formStok} onChange={(e) => setFormStok(e.target.value)} style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }}>
-                  <option value="Stokta Var">Stokta Var</option>
-                  <option value="Tükendi">Tükendi</option>
-                </select>
+            {iptalEdildiMi(siparis.durum) ? (
+              <div className="mb-8 p-6 bg-slate-800/40 border border-slate-600/30 rounded-xl text-center shadow-[0_0_20px_rgba(148,163,184,0.05)]">
+                <span className="text-4xl block mb-2 opacity-80">✖️</span>
+                <h3 className="text-lg font-black text-slate-300 uppercase tracking-tight">Sipariş İptal Edildi</h3>
+                <p className="text-slate-500 text-xs mt-1">Bu sipariş iptal edilmiş veya mağaza tarafından geri çevrilmiştir.</p>
               </div>
-              <div><label style={{ color: "#a1a1aa", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Kategori</label><input type="text" value={formKategori} onChange={(e) => setFormKategori(e.target.value)} style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }} /></div>
-            </div>
-
-            <div><label style={{ color: "#a1a1aa", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Resim URL Yolu</label><input type="text" value={formResim} onChange={(e) => setFormResim(e.target.value)} style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }} /></div>
-
-            <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-              <button type="button" onClick={formuKapat} style={{ flex: 1, padding: "12px", background: "#27272a", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "800", cursor: "pointer" }}>Kapat</button>
-              <button type="submit" style={{ flex: 1, padding: "12px", background: "#00e5ff", color: "#000", border: "none", borderRadius: "8px", fontWeight: "900", cursor: "pointer" }}>Kaydet</button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px", flexWrap: "wrap", gap: "15px" }}>
-        <h1 style={{ color: "#fff", fontSize: "2rem", fontWeight: "900", borderLeft: "6px solid #00e5ff", paddingLeft: "15px" }}>PATRON <span style={{ color: "#00e5ff" }}>PANELİ</span></h1>
-        <button onClick={cikisYap} style={{ background: "rgba(239, 68, 68, 0.1)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.3)", padding: "10px 15px", borderRadius: "8px", cursor: "pointer", fontWeight: "700" }}>Çıkış</button>
-      </div>
-
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginBottom: "30px", borderBottom: "1px solid #27272a", paddingBottom: "15px" }}>
-        <button onClick={() => setAktifSekme("siparisler")} style={{ flex: "1 1 auto", background: aktifSekme === "siparisler" ? "#00e5ff" : "transparent", color: aktifSekme === "siparisler" ? "#000" : "#a1a1aa", border: aktifSekme === "siparisler" ? "none" : "1px solid #27272a", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", textAlign: "center", transition: "0.2s" }}>📦 Sipariş Yönetimi ({siparisler.length})</button>
-        <button onClick={() => setAktifSekme("urunler")} style={{ flex: "1 1 auto", background: aktifSekme === "urunler" ? "#00e5ff" : "transparent", color: aktifSekme === "urunler" ? "#000" : "#a1a1aa", border: aktifSekme === "urunler" ? "none" : "1px solid #27272a", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", textAlign: "center", transition: "0.2s" }}>💻 Ürün Yönetimi ({urunler.length})</button>
-      </div>
-      <button onClick={() => window.location.href = "/admin/reviews"} style={{ flex: "1 1 auto", background: "rgba(0, 229, 255, 0.1)", color: "#00e5ff", border: "1px solid rgba(0, 229, 255, 0.3)", borderRadius: "8px", padding: "10px 15px", cursor: "pointer", fontWeight: "900", textTransform: "uppercase" }}>⭐ YORUM YÖNETİMİ</button>
-      {yukleniyor ? <div style={{ textAlign: "center", padding: "50px", color: "#00e5ff", fontWeight: "900" }}>Veriler Çekiliyor Patron...</div> : aktifSekme === "siparisler" ? (
-        
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          {siparisler.map((siparis) => (
-            <div key={siparis._id} style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px", display: "flex", flexDirection: "column", gap: "20px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "15px", borderBottom: "1px solid #27272a", paddingBottom: "15px" }}>
-                <div style={{ width: "100%", maxWidth: "300px" }}>
-                  <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "5px" }}>{siparis.siparisKodu}</h3>
-                  <p style={{ color: "#a1a1aa", fontSize: "0.85rem" }}>{new Date(siparis.tarih).toLocaleString("tr-TR")}</p>
-                </div>
+            ) : (
+              <div className="mb-8 mt-4 relative px-0 md:px-2 pb-12 md:pb-16">
+                <div className="absolute left-0 top-5 md:top-6 w-full h-1 bg-gray-800 rounded-full"></div>
                 
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", width: "100%", flex: 1, justifyContent: "flex-end" }}>
-                  <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px", background: "#09090b", padding: "8px", borderRadius: "10px", border: "1px solid #27272a", flex: "1 1 auto" }}>
-                    <span style={{ color: durumRengi(siparis.durum), fontWeight: "900", fontSize: "0.85rem", whiteSpace: "nowrap" }}>Mevcut: {siparis.durum}</span>
-                    <select onChange={(e) => durumGuncelle(siparis._id, e.target.value)} value={siparis.durum} style={{ flex: 1, minWidth: "120px", background: "#18181b", color: "#fff", border: "1px solid #27272a", padding: "8px", borderRadius: "6px", cursor: "pointer", fontSize: "0.85rem", outline: "none" }}>
-                      <option value="Ödeme Bekliyor (Havale)">Ödeme Bekliyor (Havale)</option>
-                      <option value="Ödendi / Hazırlanıyor">Ödendi / Hazırlanıyor</option>
-                      <option value="Kargoya Verildi">Kargoya Verildi</option>
-                      <option value="Tamamlandı">Tamamlandı</option>
-                      <option value="İptal Edildi">İptal Edildi</option>
-                    </select>
-                  </div>
-                  <button onClick={() => setSilinecekSiparisID(siparis._id)} style={{ background: "rgba(239, 68, 68, 0.1)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.3)", padding: "10px 15px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", flex: "0 0 auto", transition: "0.2s" }}>🗑️ Sil</button>
-                </div>
-              </div>
+                <div 
+                  className="absolute left-0 top-5 md:top-6 h-1 bg-[#00e5ff] rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_#00e5ff]"
+                  style={{ width: `${(aktifAdimBul(siparis.durum) / (adimlar.length - 1)) * 100}%` }}
+                ></div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "20px" }}>
-                <div>
-                  <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "5px" }}>Müşteri Bilgileri</p>
-                  <p style={{ color: "#fff", fontSize: "0.85rem", lineHeight: "1.6" }}>
-                    <strong>{siparis.musteri?.ad} {siparis.musteri?.soyad}</strong><br />
-                    📞 {siparis.musteri?.telefon} | ✉️ {siparis.musteri?.eposta}<br />
-                    📍 {siparis.musteri?.adres ? `${siparis.musteri.adres} - ` : ""} {siparis.musteri?.ilce} / {siparis.musteri?.sehir}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "5px" }}>Ödeme Detayı</p>
-                  <p style={{ color: "#fff", fontSize: "0.85rem", lineHeight: "1.6" }}>
-                    Yöntem: <strong>{siparis.odemeYontemi === "kart" ? "Kredi Kartı" : "Havale / EFT"}</strong><br />
-                    Tutar: <strong style={{ color: "#00e5ff", fontSize: "1.1rem" }}>{Number((siparis.toplamTutar) || (siparis.Tutar) || 0).toLocaleString("tr-TR")} TL</strong>
-                  </p>
-                </div>
-                <div>
-                  <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "5px" }}>Satın Alınanlar</p>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                    {siparis.sepet?.map((urun: any, i: number) => (
-                      <div key={i} style={{ color: "#fff", fontSize: "0.8rem", background: "#09090b", padding: "8px 10px", borderRadius: "6px", border: "1px solid #27272a" }}>
-                        <span style={{ color: "#00e5ff", fontWeight: "800", marginRight: "5px" }}>{urun.adet}x</span> {urun.isim || urun.name}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ marginTop: "10px", borderTop: "1px solid #27272a", paddingTop: "15px" }}>
-                <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "8px", fontWeight: "700" }}>💬 Müşteriye İletilecek Mesaj</p>
-                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                  <input type="text" defaultValue={siparis.musteriMesaji || ""} onBlur={(e) => mesajGuncelle(siparis._id, e.target.value)} placeholder="Müşteriye sipariş takip ekranında görünecek bir mesaj yazın ve dışarı tıklayın..." style={{ flex: "1 1 200px", padding: "12px 15px", background: "rgba(0, 229, 255, 0.05)", color: "#00e5ff", border: "1px solid rgba(0, 229, 255, 0.3)", borderRadius: "8px", outline: "none", fontSize: "0.85rem" }} />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        
-        <div>
-          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "20px" }}>
-            <button onClick={yeniUrunModunuAc} style={{ width: "100%", maxWidth: "200px", background: "#00e5ff", color: "#000", border: "none", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", transition: "0.2s" }}>➕ Yeni Ürün Ekle</button>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))", gap: "15px" }}>
-            {urunler.map((urun, index) => {
-              
-              // ŞEFİM: BURADA DA GERÇEK NORMAL FİYATI BULUYORUZ Kİ İNDİRİM GÖZÜKSÜN
-              const normalFiyat = Number(urun.regular_price || urun.fiyat || urun.price || 0);
-              const indirimliFiyat = urun.indirimliFiyat ? Number(urun.indirimliFiyat) : null;
-              const gosterilenFiyat = indirimliFiyat ? indirimliFiyat : normalFiyat;
-
-              const stokSifirMi = urun.stokAdedi === 0 || urun.stokAdedi === "0";
-              const gosterilecekDurum = (urun.stokDurumu === "Tükendi" || stokSifirMi) ? "Tükendi" : "Stokta Var";
-              const durumRengiCode = gosterilecekDurum === "Tükendi" ? "#ef4444" : "#10b981";
-              
-              const adetGosterilecekMi = urun.stokAdedi !== null && urun.stokAdedi !== undefined && urun.stokAdedi !== "" && Number(urun.stokAdedi) !== 10 && Number(urun.stokAdedi) > 0;
-
-              return (
-                <div key={urun._id || index} style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "20px", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "15px", transition: "0.3s" }}>
-                  <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px", flexWrap: "wrap", gap: "10px" }}>
-                      <span style={{ background: "#27272a", color: "#a1a1aa", fontSize: "0.7rem", padding: "4px 8px", borderRadius: "4px", textTransform: "uppercase" }}>{urun.kategori || "Genel"}</span>
-                      <div style={{display: "flex", alignItems: "center", gap: "6px"}}>
-                        
-                        {adetGosterilecekMi && (
-                          <span style={{ background: "rgba(0, 229, 255, 0.1)", color: "#00e5ff", fontSize: "0.7rem", padding: "4px 8px", borderRadius: "4px", fontWeight: "900" }}>{urun.stokAdedi} Adet</span>
-                        )}
-
-                        <span style={{ color: durumRengiCode, fontWeight: "800", fontSize: "0.75rem" }}>● {gosterilecekDurum}</span>
-                      </div>
-                    </div>
+                <div className="relative flex justify-between items-center z-10">
+                  {adimlar.map((adim, index) => {
+                    const aktifAdimNo = aktifAdimBul(siparis.durum);
+                    const tamamlandiMi = index <= aktifAdimNo;
+                    const suAnkiMi = index === aktifAdimNo;
                     
-                    <h3 style={{ color: "#fff", fontSize: "1rem", fontWeight: "700" }}>{urun.isim || urun.name}</h3>
+                    // Son adımda (Teslim) pır pır edip yanıp sönmeyi durduruyoruz, sabit kalıyor!
+                    const yanipSonme = suAnkiMi && index !== 3 ? "ring-4 ring-[#00e5ff]/30 animate-pulse" : "";
 
-                    <div style={{ marginTop: "10px" }}>
-                      {indirimliFiyat ? (
-                        <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
-                          <span style={{ color: "#ef4444", fontSize: "0.9rem", textDecoration: "line-through", opacity: 0.6 }}>
-                            {normalFiyat.toLocaleString("tr-TR")} TL
-                          </span>
-                          <span style={{ color: "#00e5ff", fontSize: "1.3rem", fontWeight: "900" }}>
-                            {gosterilenFiyat.toLocaleString("tr-TR")} TL
-                          </span>
+                    return (
+                      <div key={index} className="flex flex-col items-center relative group w-10 md:w-12">
+                        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-lg md:text-xl shadow-lg transition-all duration-500 z-10 ${
+                          tamamlandiMi ? "bg-[#00e5ff] text-black scale-110" : "bg-gray-800 text-gray-500"
+                        } ${yanipSonme}`}>
+                          {index === 0 && "🛒"}
+                          {index === 1 && "📦"}
+                          {index === 2 && "🚚"}
+                          {index === 3 && "✅"}
                         </div>
-                      ) : (
-                        <span style={{ color: "#00e5ff", fontSize: "1.3rem", fontWeight: "900" }}>
-                          {gosterilenFiyat.toLocaleString("tr-TR")} TL
+                        <span className={`absolute top-[120%] left-1/2 -translate-x-1/2 mt-2 w-20 text-[9px] md:text-xs font-bold text-center leading-tight ${
+                          tamamlandiMi ? "text-[#00e5ff]" : "text-gray-500"
+                        }`}>
+                          {adim}
                         </span>
-                      )}
-                      
-                      <div style={{ color: "#10b981", fontSize: "0.75rem", fontWeight: "800", marginTop: "5px" }}>
-                        Havale İndirimi: %{urun.havaleIndirimi !== undefined ? urun.havaleIndirimi : 5}
                       </div>
-                    </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
-                  </div>
-                  <div style={{ display: "flex", gap: "10px", borderTop: "1px solid #27272a", paddingTop: "15px" }}>
-                    <button onClick={() => urunDuzenleModunuAc(urun)} style={{ flex: 1, background: "rgba(0, 229, 255, 0.1)", color: "#00e5ff", border: "1px solid rgba(0, 229, 255, 0.2)", padding: "8px", borderRadius: "6px", fontWeight: "800", cursor: "pointer", fontSize: "0.85rem", transition: "0.2s" }}>⚙️ Düzenle</button>
-                    <button onClick={() => urunSilmeIslemi(urun._id)} style={{ background: "rgba(239, 68, 68, 0.1)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.2)", padding: "8px 12px", borderRadius: "6px", fontWeight: "800", cursor: "pointer", fontSize: "0.85rem", transition: "0.2s" }}>🗑️ Sil</button>
+            <div className="bg-[#121215] rounded-xl p-4 md:p-5 border border-white/5 mt-4 md:mt-8">
+              <div className="flex justify-between items-center border-b border-white/5 pb-4 mb-4">
+                <div>
+                  <p className="text-slate-400 text-[10px] md:text-xs uppercase tracking-wider mb-1">Sipariş Kodu</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-lg md:text-xl font-bold text-white tracking-wide">{siparis.siparisKodu}</p>
+                    <button 
+                      onClick={() => koduKopyala(siparis.siparisKodu)}
+                      className="p-1.5 md:p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors flex items-center justify-center"
+                      title="Kodu Kopyala"
+                    >
+                      {kopyalandi ? <span className="text-green-400 text-sm">✅</span> : <span className="text-slate-300 text-sm">📋</span>}
+                    </button>
                   </div>
                 </div>
-              );
-            })}
+                <div className="text-right">
+                  <p className="text-slate-400 text-[10px] md:text-xs uppercase tracking-wider mb-1">Durum</p>
+                  <p className={`text-sm md:text-base font-black uppercase ${iptalEdildiMi(siparis.durum) ? 'text-slate-300' : 'text-[#00e5ff]'}`}>
+                    {siparis.durum || "Hazırlanıyor"}
+                  </p>
+                </div>
+              </div>
+
+              {siparis.items && siparis.items.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-slate-400 text-[10px] md:text-xs uppercase tracking-wider mb-3">Paket İçeriği</p>
+                  <div className="space-y-2 md:space-y-3 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
+                    {siparis.items.map((urun: any, i: number) => {
+                      const gercekResim = urun.resim || urun.gorsel || urun.image || urun.urunResmi;
+                      
+                      return (
+                        <div key={i} className="flex items-center gap-3 md:gap-4 bg-[#0a0a0c] p-2 md:p-3 rounded-lg border border-white/5">
+                          {gercekResim ? (
+                            <img src={gercekResim} alt={urun.isim} className="w-12 h-12 md:w-16 md:h-16 rounded-md object-cover border border-white/10 bg-black/50" />
+                          ) : (
+                            <div className="w-12 h-12 md:w-16 md:h-16 rounded-md bg-gray-800 flex items-center justify-center text-lg md:text-xl">🛍️</div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs md:text-sm font-semibold text-white truncate" title={urun.isim}>{urun.isim || "Ürün"}</p>
+                            <p className="text-[10px] md:text-xs text-slate-500 mt-0.5">{urun.adet} Adet</p>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+            
           </div>
+        )}
+
+        <div className="mt-6 md:mt-8 text-center">
+          <Link href="/" className="text-slate-400 hover:text-[#00e5ff] text-xs md:text-sm font-medium transition-colors">
+            &larr; Mağazaya Geri Dön
+          </Link>
         </div>
-      )}
+
+      </div>
     </div>
   );
 }
