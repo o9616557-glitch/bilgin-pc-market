@@ -12,18 +12,35 @@ export default function SiparisTakipPage() {
 
   const adimlar = ["Sipariş Alındı", "Hazırlanıyor", "Kargoya Verildi", "Teslim Edildi"];
 
-  // 🎯 KÖR DÖVÜŞÜ BİTTİ: Admin panelinden gelen BİREBİR isimlerle eşleşme motoru!
+  // 🛡️ SÜPER ÇELİK YELEK MOTORU: Olası tüm harf hatalarını ve varyasyonları yakalar!
   const aktifAdimBul = (durum: string) => {
-    if (!durum) return 0; // Varsayılan Sipariş Alındı
-    if (durum === "Ödendi / Hazırlanıyor") return 1;
-    if (durum === "Kargoya Verildi") return 2;
-    if (durum === "Teslim Edildi" || durum.toLowerCase().includes("teslim")) return 3;
-    return 0; 
+    if (!durum) return 0; 
+    const d = durum.toLowerCase();
+    
+    // 3. Durak (Son Aşama: Teslim Edildi / Tamamlandı / Tamalandı)
+    if (
+      durum === "Teslim Edildi" || 
+      d.includes("teslim") || 
+      d.includes("tamam") || 
+      d.includes("tamal") || // 🎯 Şefimin yakaladığı o gizli harf hatası için özel koruma!
+      d.includes("bit") ||
+      d.includes("son")
+    ) {
+      return 3;
+    }
+    
+    // 2. Durak (Kargoya Verildi)
+    if (durum === "Kargoya Verildi" || d.includes("kargo")) return 2;
+    
+    // 1. Durak (Ödendi / Hazırlanıyor)
+    if (durum === "Ödendi / Hazırlanıyor" || d.includes("hazır") || d.includes("odendi")) return 1;
+    
+    return 0; // Hiçbiri değilse ilk durak
   };
 
   const iptalEdildiMi = (durum: string) => {
     if (!durum) return false;
-    return durum === "İptal Edildi";
+    return durum === "İptal Edildi" || durum.toLowerCase().includes("iptal");
   };
 
   const sorgula = async (e: React.FormEvent) => {
@@ -65,7 +82,6 @@ export default function SiparisTakipPage() {
     setTimeout(() => setKopyalandi(false), 2000);
   };
 
-  // MESAJ ALANI: Bütün ihtimalleri yakalıyoruz
   const magazaMesaji = siparis?.musteriMesaji || siparis?.mesaj || siparis?.not || siparis?.adminNotu || siparis?.aciklama;
 
   return (
@@ -109,7 +125,6 @@ export default function SiparisTakipPage() {
         {siparis && (
           <div className="mt-6 pt-6 md:pt-8 border-t border-white/10 animate-fade-in-up">
             
-            {/* PANELDE YAZILAN MESAJ BURADA GÖZÜKECEK 📢 */}
             {magazaMesaji && (
               <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 text-amber-300 rounded-xl text-xs md:text-sm shadow-[0_0_15px_rgba(245,158,11,0.05)]">
                 <p className="font-black text-amber-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
@@ -119,15 +134,13 @@ export default function SiparisTakipPage() {
               </div>
             )}
 
-            {/* DURUM İPTAL EDİLDİ İSE ÇIKACAK ÖZEL EKRAN */}
             {iptalEdildiMi(siparis.durum) ? (
-              <div className="mb-8 p-6 bg-red-500/10 border border-red-500/20 rounded-xl text-center shadow-[0_0_20px_rgba(239,68,68,0.1)]">
-                <span className="text-4xl block mb-2">🚫</span>
-                <h3 className="text-lg font-black text-red-400 uppercase tracking-tight">Sipariş İptal Edildi</h3>
-                <p className="text-slate-400 text-xs mt-1">Bu sipariş iptal edilmiş veya geri çevrilmiştir. Detaylar için destek hattıyla görüşebilirsiniz.</p>
+              <div className="mb-8 p-6 bg-slate-800/40 border border-slate-600/30 rounded-xl text-center shadow-[0_0_20px_rgba(148,163,184,0.05)]">
+                <span className="text-4xl block mb-2 opacity-80">✖️</span>
+                <h3 className="text-lg font-black text-slate-300 uppercase tracking-tight">Sipariş İptal Edildi</h3>
+                <p className="text-slate-500 text-xs mt-1">Bu sipariş iptal edilmiş veya mağaza tarafından geri çevrilmiştir.</p>
               </div>
             ) : (
-              /* NORMAL TREN ÇUBUĞU */
               <div className="mb-8 mt-4 relative px-0 md:px-2 pb-12 md:pb-16">
                 <div className="absolute left-0 top-5 md:top-6 w-full h-1 bg-gray-800 rounded-full"></div>
                 
@@ -142,7 +155,7 @@ export default function SiparisTakipPage() {
                     const tamamlandiMi = index <= aktifAdimNo;
                     const suAnkiMi = index === aktifAdimNo;
                     
-                    // 🛑 ŞEFİM İSTEDİ: Teslim edildiyse (index 3) yanıp sönmeyi durduruyoruz!
+                    // Son adımda (Teslim) pır pır edip yanıp sönmeyi durduruyoruz, sabit kalıyor!
                     const yanipSonme = suAnkiMi && index !== 3 ? "ring-4 ring-[#00e5ff]/30 animate-pulse" : "";
 
                     return (
@@ -167,7 +180,6 @@ export default function SiparisTakipPage() {
               </div>
             )}
 
-            {/* SİPARİŞ KODU VE DETAYLAR */}
             <div className="bg-[#121215] rounded-xl p-4 md:p-5 border border-white/5 mt-4 md:mt-8">
               <div className="flex justify-between items-center border-b border-white/5 pb-4 mb-4">
                 <div>
@@ -185,13 +197,12 @@ export default function SiparisTakipPage() {
                 </div>
                 <div className="text-right">
                   <p className="text-slate-400 text-[10px] md:text-xs uppercase tracking-wider mb-1">Durum</p>
-                  <p className={`text-sm md:text-base font-black uppercase ${iptalEdildiMi(siparis.durum) ? 'text-red-400' : 'text-[#00e5ff]'}`}>
+                  <p className={`text-sm md:text-base font-black uppercase ${iptalEdildiMi(siparis.durum) ? 'text-slate-300' : 'text-[#00e5ff]'}`}>
                     {siparis.durum || "Hazırlanıyor"}
                   </p>
                 </div>
               </div>
 
-              {/* ÜRÜN RESİMLERİ VE PAKET İÇERİĞİ */}
               {siparis.items && siparis.items.length > 0 && (
                 <div className="mt-4">
                   <p className="text-slate-400 text-[10px] md:text-xs uppercase tracking-wider mb-3">Paket İçeriği</p>
