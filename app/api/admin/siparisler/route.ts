@@ -120,6 +120,43 @@ export async function PUT(request: Request) {
             <span style="font-size: 14px; vertical-align: middle;">📋</span> Kodu kopyalamak için üzerine basılı tutun
           </p>
         </div>
+        <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 30px; text-align: center;">
+          
+          <h3 style="color: #ffffff; font-size: 18px; margin-bottom: 8px; letter-spacing: 0.5px;">Yardıma mı İhtiyacınız Var?</h3>
+          <p style="color: #a1a1aa; font-size: 13px; line-height: 1.6; margin-top: 0; margin-bottom: 25px; padding: 0 10px;">
+            Siparişinizle ilgili en ufak bir sorunuzda veya talebinizde hiç endişelenmeyin. Uzman ekibimiz size destek olmak için bir mesaj uzağınızda!
+          </p>
+
+          <div style="background-color: rgba(255, 255, 255, 0.03); border: 1px solid rgba(0, 229, 255, 0.15); border-radius: 12px; padding: 20px; text-align: left; max-width: 350px; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            
+            <div style="margin-bottom: 14px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 10px;">
+              <span style="font-size: 16px; margin-right: 8px;">💬</span>
+              <span style="color: #e4e4e7; font-size: 14px; font-weight: bold;">WhatsApp Destek:</span> 
+              <span style="color: #10b981; font-weight: 900; font-size: 14px; float: right;">0532 734 50 23</span>
+            </div>
+
+            <div style="margin-bottom: 14px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 10px;">
+              <span style="font-size: 16px; margin-right: 8px;">📞</span>
+              <span style="color: #e4e4e7; font-size: 14px; font-weight: bold;">Müşteri Hizm:</span> 
+              <span style="color: #00e5ff; font-weight: 900; font-size: 14px; float: right;">0850 305 59 68</span>
+            </div>
+
+            <div style="margin-bottom: 14px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 10px;">
+              <span style="font-size: 16px; margin-right: 8px;">✉️</span>
+              <span style="color: #e4e4e7; font-size: 14px; font-weight: bold;">E-posta:</span> 
+              <a href="mailto:info@bilginpcmarket.com" style="color: #a1a1aa; font-size: 13px; text-decoration: none; float: right;">info@bilginpcmarket.com</a>
+            </div>
+
+            <div style="margin-bottom: 0;">
+              <span style="font-size: 16px; margin-right: 8px;">🌐</span>
+              <span style="color: #e4e4e7; font-size: 14px; font-weight: bold;">Web:</span> 
+              <a href="https://www.bilginpcmarket.com" style="color: #a1a1aa; font-size: 13px; text-decoration: none; float: right;">www.bilginpcmarket.com</a>
+            </div>
+
+          </div>
+        </div>
+      
+      </div>
     `
   };
 
