@@ -49,11 +49,13 @@ export async function POST(req: Request) {
 
     let user = await User.findOne({ email: session.user.email });
     
-    // 🚀 SİHİRLİ DOKUNUŞ 2: Kullanıcı DB'de yoksa (Google kullanıcısıysa), onu anında veritabanına kaydet!
+   // 🚀 SİHİRLİ DOKUNUŞ 2: Kullanıcı DB'de yoksa (Google kullanıcısıysa)
     if (!user) {
       user = new User({
         email: session.user.email,
         name: session.user.name || "Google Kullanıcısı",
+        // VERİTABANI KIZMASIN DİYE RASTGELE SAHTE BİR ŞİFRE VERİYORUZ:
+        password: "google_" + Math.random().toString(36).slice(-8), 
         favorites: []
       });
       // Veritabanına bu yeni adamı ekledik!
