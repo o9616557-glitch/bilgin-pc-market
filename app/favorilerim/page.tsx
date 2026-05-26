@@ -208,7 +208,7 @@ export default function FavorilerSayfasi() {
             
             <h3 className="text-xl font-black text-white mb-2">Favoriyi Sil</h3>
             <p className="text-slate-300 text-sm mb-2">Bu ürünü favorilerinizden çıkarmak istediğinize emin misiniz?</p>
-            <p className="text-red-500 text-sm font-bold mb-8">Bu işlem geri alınamaz!</p>
+           
             
             <div className="flex w-full gap-3">
               <button 
