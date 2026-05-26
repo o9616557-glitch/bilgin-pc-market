@@ -73,7 +73,7 @@ export default function Header() {
 
                   {/* 🚀 KARGO TAKİP BUTONU (ÜYE OLSUN YA DA OLMASIN HER ZAMAN EN ÜSTTE) */}
                   <Link href="/siparis-takip" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#00e5ff", background: "rgba(0, 229, 255, 0.05)", textDecoration: "none", fontSize: "0.85rem", borderRadius: "8px", fontWeight: "bold", marginBottom: "4px" }}>
-                    <span>📦</span> Kargo / Sipariş Takip
+                    <span>📦</span> Sipariş Takip
                   </Link>
 
                   <div style={{ height: "1px", background: "#27272a", margin: "4px 0" }}></div>
