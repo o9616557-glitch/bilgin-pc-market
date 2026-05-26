@@ -93,15 +93,15 @@ export default function SiparisTakipPage() {
         {/* BAŞLIK VE MODERN AÇIKLAMA KISMI */}
         <div className="text-center mb-8 md:mb-10">
           <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tighter mb-4">
-            SİPARİŞ <span className="text-[#00e5ff]">TAKİP</span>
+            SPARİŞ <span className="text-[#00e5ff]">TAKİP</span>
           </h1>
           
           <div className="max-w-2xl mx-auto">
             <p className="text-slate-300 text-sm md:text-base font-medium leading-relaxed mb-3">
-              Siparişiniz sistemimize düştüğü andan itibaren uzman ekibimiz tarafından özenle hazırlanır ve paketlenir. 
+              Siparişiniz sistemimize düştüğünde özenle hazırlanır ve paketlenir. 
             </p>
             <p className="text-[#a1a1aa] text-xs md:text-sm">
-              <strong className="text-white">E-posta adresinize gönderilen</strong> sipariş kodunuzu aşağıya girerek; ürününüzün atölyemizden çıkıp kapınıza gelene kadar olan tüm yolculuğunu anlık olarak izleyebilirsiniz.
+              <strong className="text-white">E-posta adresinize gönderilen</strong> Siparişinizin güncel durumunu, sipariş kodunuz ile aşağıdan kolayca takip edebilirsiniz.
             </p>
           </div>
         </div>
