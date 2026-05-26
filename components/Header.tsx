@@ -1,8 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import SiparisModal from "./SiparisModal";
-import FavorilerModal from "./FavorilerModal"; // 🚀 YENİ POPUP EKLENDİ
 import { useCart } from "@/app/CartContext";
 import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
@@ -12,17 +10,17 @@ export default function Header() {
   const [menuAcik, setMenuAcik] = useState(false);
   const [hesabimAcik, setHesabimAcik] = useState(false);
   const hesabimRef = useRef<HTMLDivElement>(null);
+  
+  // Sepetteki toplam ürün sayısını hesapla
   const sepetAdedi = sepet.reduce((toplam: number, urun: any) => toplam + (urun.adet || 1), 0);
 
   const { data: session } = useSession();
 
-  // 🚀 ŞALTERLER BURADA
-  const [isSiparisModalOpen, setIsSiparisModalOpen] = useState(false);
-  const [isFavorilerModalOpen, setIsFavorilerModalOpen] = useState(false);
-
+  // Admin kontrolü (Kendi mailini buraya yaz)
   const ADMIN_EMAIL = "o9616557@gmail.com";
   const isAdmin = session?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
+  // Dışarı tıklayınca Hesabım menüsünü kapat
   useEffect(() => {
     function disariTiklandi(event: any) {
       if (hesabimRef.current && !hesabimRef.current.contains(event.target)) {
@@ -61,7 +59,7 @@ export default function Header() {
           {/* SAĞ TARAF (Hesabım & Sepet) */}
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
 
-            {/* HESABIM POPUP MENÜSÜ */}
+            {/* HESABIM MENÜSÜ */}
             <div ref={hesabimRef} style={{ position: "relative" }}>
               <button onClick={() => setHesabimAcik(!hesabimAcik)} style={{ display: "flex", alignItems: "center", gap: "6px", background: hesabimAcik ? "rgba(0, 229, 255, 0.1)" : "#18181b", color: "#fff", border: "1px solid #27272a", padding: "8px 16px", borderRadius: "8px", cursor: "pointer", transition: "all 0.2s" }}>
                 <span style={{ fontSize: "16px" }}>👤</span>
@@ -87,18 +85,19 @@ export default function Header() {
                         <p style={{ color: "#00e5ff", fontSize: "0.8rem", fontWeight: "600", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{session.user?.name || session.user?.email}</p>
                       </div>
 
-                      <button onClick={() => { setHesabimAcik(false); setIsSiparisModalOpen(true); }} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer", fontSize: "0.85rem" }}>
+                      {/* 🚀 SİPARİŞLERİM (Artık Normal Sayfaya Gider) */}
+                      <Link href="/siparislerim" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
                         <span>📋</span> Siparişlerim
-                      </button>
+                      </Link>
 
                       <Link href="/adreslerim" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
                         <span>📍</span> Adreslerim
                       </Link>
 
-                      {/* 🚀 YENİ FAVORİLER BUTONU (Link yerine Button oldu) */}
-                      <button onClick={() => { setHesabimAcik(false); setIsFavorilerModalOpen(true); }} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer", fontSize: "0.85rem" }}>
+                      {/* 🚀 FAVORİLERİM (Artık Normal Sayfaya Gider) */}
+                      <Link href="/favoriler" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
                         <span>❤️</span> Favorilerim
-                      </button>
+                      </Link>
 
                       <div style={{ height: "1px", background: "#27272a", margin: "4px 0" }}></div>
 
@@ -155,10 +154,6 @@ export default function Header() {
           @media (min-width: 768px) { .mobil-hamburger { display: none !important; } }
         `}} />
       </header>
-
-      {/* POPUP (MODAL) ÇAĞIRILMA YERLERİ */}
-      <SiparisModal isOpen={isSiparisModalOpen} onClose={() => setIsSiparisModalOpen(false)} />
-      <FavorilerModal isOpen={isFavorilerModalOpen} onClose={() => setIsFavorilerModalOpen(false)} />
     </>
   );
 }
