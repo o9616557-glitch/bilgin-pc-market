@@ -81,41 +81,46 @@ export async function PUT(request: Request) {
       const musteriMaili = siparis.userEmail || siparis.email || siparis.musteri?.eposta || siparis.musteri?.email;
 
       if (musteriMaili) {
-        let baslik = "Siparişinizin Durumu Güncellendi";
-        let altMesaj = `Siparişinizin durumu <strong>${yeniDurum}</strong> olarak güncellenmiştir.`;
+  let baslik = "SİPARİŞ DURUMUNUZ GÜNCELLENDİ";
+  let altMesaj = `Siparişinizin durumu <strong>${yeniDurum}</strong> olarak güncellenmiştir.`;
 
-        // Duruma göre dinamik başlık ve kurumsal açıklamalar
-        if (yeniDurum === "Ödendi / Hazırlanıyor") {
-          baslik = "Ödemeniz Onaylandı! 🚀";
-          altMesaj = "Ödemeniz başarıyla tarafımıza ulaşmış ve siparişiniz hazırlık aşamasına geçmiştir. Ürünleriniz uzman ekibimiz tarafından özenle paketleniyor! En kısa sürede kargoya teslim edilecektir.";
-        } else if (yeniDurum === "Kargoya Verildi") {
-          baslik = "Siparişiniz Kargoya Verildi! 🚚";
-          altMesaj = "Beklenen an geldi! Paketiniz başarıyla yola çıkmıştır. Sipariş takip kodunuzu sitemizdeki <strong>'Sipariş Takip'</strong> ekranına yazarak kargonuzun nerede olduğunu anlık olarak izleyebilirsiniz.";
-        } else if (yeniDurum === "İptal Edildi") {
-          baslik = "Siparişiniz İptal Edildi ✖️";
-          altMesaj = "Siparişiniz mağazamız tarafından iptal edilmiştir. İptal süreci veya ücret iadeniz hakkında detaylı bilgi almak için dükkanımızla doğrudan iletişime geçebilirsiniz.";
-        }
+  // 🚀 HARF BOZULMASINI ÖNLEMEK İÇİN BAŞLIKLARI DİREKT BÜYÜK YAZDIK
+  if (yeniDurum === "Ödendi / Hazırlanıyor") {
+    baslik = "SİPARİŞİNİZ ONAYLANDI 🚀";
+    altMesaj = "Ödemeniz başarıyla tarafımıza ulaşmış ve siparişiniz hazırlık aşamasına geçmiştir. Ürünleriniz uzman ekibimiz tarafından özenle paketleniyor! En kısa sürede kargoya teslim edilecektir.";
+  } else if (yeniDurum === "Kargoya Verildi") {
+    baslik = "SİPARİŞİNİZ KARGOYA VERİLDİ 📦";
+    altMesaj = "Beklenen an geldi! Paketiniz başarıyla yola çıkmıştır. Sipariş takip kodunuzu sitemizdeki <strong>Sipariş Takip</strong> ekranına yazarak kargonuzun nerede olduğunu anlık olarak izleyebilirsiniz.";
+  } else if (yeniDurum === "İptal Edildi") {
+    baslik = "SİPARİŞİNİZ İPTAL EDİLDİ ❌";
+    altMesaj = "Siparişiniz mağazamız tarafından iptal edilmiştir. İptal süreci veya ücret iadeniz hakkında detaylı bilgi almak için dükkanımızla doğrudan iletişime geçebilirsiniz.";
+  }
 
-        const mailSecenekleri = {
-          from: `"Bilgin PC Market" <o9616557@gmail.com>`,
-          to: musteriMaili,
-          subject: baslik,
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #09090b; color: #ffffff; padding: 40px 30px; border-radius: 12px; border: 1px solid #27272a; text-align: center;">
-              <h2 style="color: #00e5ff; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; font-size: 24px;">${baslik}</h2>
-              <p style="color: #a1a1aa; font-size: 16px; line-height: 1.6; margin-bottom: 12px;">Merhaba <strong style="color: #fff;">${siparis.musteri?.ad || siparis.musteri?.isim || "Değerli Müşterimiz"}</strong>,</p>
-              <p style="color: #a1a1aa; font-size: 15px; line-height: 1.6; margin-bottom: 30px; padding: 0 10px;">${altMesaj}</p>
-              
-              <div style="background-color: #121215; padding: 20px; border-radius: 8px; margin: 0 auto 30px auto; border: 1px solid #27272a; max-width: 320px; box-shadow: 0 0 15px rgba(0, 229, 255, 0.05);">
-                <p style="color: #a1a1aa; font-size: 11px; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 1px;">Sipariş Takip Kodunuz</p>
-                <h1 style="color: #ffffff; margin: 0; font-size: 26px; letter-spacing: 2px; font-weight: bold;">${siparis.siparisKodu || "BPC-SIPARIS"}</h1>
-              </div>
-              
-              <p style="color: #71717a; font-size: 13px; line-height: 1.5; margin-bottom: 25px;">Siparişinizle ilgili tüm sorularınız için destek hattımız üzerinden bizimle doğrudan iletişime geçebilirsiniz.</p>
-              <p style="color: #a1a1aa; font-size: 14px; margin: 0;">Bizi tercih ettiğiniz için teşekkür ederiz!<br><br><strong style="color: #00e5ff; font-size: 16px; letter-spacing: 0.5px;">Bilgin PC Market</strong></p>
-            </div>
-          `,
-        };
+  const mailSecenekleri = {
+    from: '"Bilgin PC Market" <o9616557@gmail.com>', // Kendi mailin kalsın
+    to: musteriMaili,
+    subject: baslik,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #03050a; color: #ffffff; padding: 40px 30px; border-radius: 16px; border: 1px solid rgba(0, 229, 255, 0.1); box-shadow: 0 10px 40px rgba(0,0,0,0.8);">
+        
+        <h2 style="color: #00e5ff; letter-spacing: 1px; margin-bottom: 24px; font-size: 26px; font-weight: 900; text-shadow: 0 0 10px rgba(0,229,255,0.4); text-align: center;">${baslik}</h2>
+        
+        <p style="color: #e4e4e7; font-size: 16px; line-height: 1.6; margin-bottom: 16px; text-align: center;">Merhaba <strong style="color: #fff;">${siparis.musteri?.ad || siparis.musteri?.isim || "Değerli Müşterimiz"}</strong>,</p>
+        
+        <p style="color: #a1a1aa; font-size: 15px; line-height: 1.6; margin-bottom: 35px; padding: 0 15px; text-align: center;">${altMesaj}</p>
+
+        <div style="background-color: rgba(255, 255, 255, 0.05); padding: 25px; border-radius: 12px; margin: 0 auto 35px auto; border: 1px solid rgba(255, 255, 255, 0.1); max-width: 320px; text-align: center;">
+          <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 8px; letter-spacing: 1px;">SİPARİŞ TAKİP KODUNUZ</p>
+          <h1 style="color: #ffffff; margin: 0; font-size: 28px; letter-spacing: 3px; font-weight: 900;">${siparis.siparisKodu || "BPC-SIPARIS"}</h1>
+        </div>
+
+        <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 25px; text-align: center;">
+          <p style="color: #71717a; font-size: 13px; line-height: 1.5; margin: 0;">Siparişinizle ilgili tüm sorularınız için destek hattımız üzerinden bizimle doğrudan iletişime geçebilirsiniz.</p>
+        </div>
+
+      </div>
+    `
+  };
 
         // Maili arka planda fırlatıyoruz ki senin admin ekranında hiçbir takılma veya yavaşlama olmasın
        await transporter.sendMail(mailSecenekleri).catch((err: any) => console.log("Admin mail gönderme hatası:", err));
