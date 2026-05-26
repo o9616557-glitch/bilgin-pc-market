@@ -96,7 +96,6 @@ export default function FavorilerSayfasi() {
   };
 
   return (
-    // ÜST BOŞLUK DÜZELTİLDİ (pt-8)
     <div className="min-h-screen bg-[#050814] text-white pt-8 md:pt-12 pb-12 px-4 relative overflow-hidden">
       
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#00e5ff] blur-[150px] opacity-15 pointer-events-none"></div>
@@ -137,10 +136,8 @@ export default function FavorilerSayfasi() {
               const isAdded = sepeteEklenenler.includes(urun._id || urun.id);
 
               return (
-                // 🚀 ANA KART DÜZENİ: Güneşe dayanıklı koyu gri ve belirgin kenarlık aynen korundu!
                 <div key={index} className="border border-slate-600 bg-[#121215] rounded-2xl p-4 sm:p-6 transition-all hover:border-[#00e5ff]/50 shadow-[0_4px_20px_rgba(0,0,0,0.4)] flex flex-col sm:flex-row sm:items-center gap-4">
                   
-                  {/* Ürün Resmi (mt-6 silindi, mt-0 yapıldı) */}
                   <div className="w-full sm:w-28 h-36 sm:h-28 bg-[#18181b] rounded-xl border border-slate-700 p-2 flex items-center justify-center shrink-0 mt-0">
                     <img 
                       src={urun.resim || "/placeholder.jpg"} 
@@ -149,10 +146,8 @@ export default function FavorilerSayfasi() {
                     />
                   </div>
 
-                  {/* 🚀 ÜRÜN BİLGİLERİ VE ÇÖP KUTUSU DÜZENİ GÜNCELLENDİ: Yan yana yerleştirildi, mutlak (absolute) konum silindi! */}
                   <div className="flex-1 flex flex-row items-center justify-between text-left gap-4 w-full">
                       
-                      {/* İsim ve Fiyat (Artık pr-8 yok, metin rahat) */}
                       <div className="flex flex-col flex-1">
                           <h3 className="text-base font-bold text-white mb-2 leading-snug pr-0">{urun.isim}</h3>
                           <div className="text-2xl font-black text-[#00e5ff] tracking-tight whitespace-nowrap">
@@ -160,17 +155,16 @@ export default function FavorilerSayfasi() {
                           </div>
                       </div>
 
-                      {/* 🚀 ÇÖP TENEKESİ BUTONU (Metnin yanında, aynı flex satırında) */}
+                      {/* 🚀 ÇÖP TENEKESİ: Kırmızı kaldırıldı, premium koyu gri/beyaz hover yapıldı */}
                       <button 
                         onClick={() => setProductToDelete(urun)} 
-                        className="p-2.5 text-red-400 bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 rounded-xl transition-all shrink-0"
+                        className="p-2.5 text-slate-400 bg-slate-800/50 border border-slate-700 hover:bg-slate-700 hover:text-white rounded-xl transition-all shrink-0"
                         title="Favorilerden Çıkar"
                       >
                         <Trash2 className="w-5 h-5" />
                       </button>
                   </div>
 
-                  {/* SEPETE EKLE BUTONU */}
                   <div className="w-full sm:w-auto mt-2 sm:mt-0">
                     <button 
                       onClick={() => handleSepeteEkle(urun)}
@@ -197,18 +191,20 @@ export default function FavorilerSayfasi() {
 
       </div>
 
-      {/* SİLME ONAY KUTUSU (Popup Kırmızı Ekran) */}
+      {/* SİLME ONAY KUTUSU */}
       {productToDelete && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="bg-[#121215] border border-slate-600 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-2xl">
             
-            <div className="w-16 h-16 rounded-full border border-red-500/50 flex items-center justify-center mb-4 bg-red-500/10">
-              <Trash2 className="w-8 h-8 text-red-500" />
+            {/* 🚀 ONAY KUTUSUNDAKİ ÇÖP İKONU: Kırmızıdan metalik griye çevrildi */}
+            <div className="w-16 h-16 rounded-full border border-slate-600 flex items-center justify-center mb-4 bg-slate-800/50">
+              <Trash2 className="w-8 h-8 text-slate-300" />
             </div>
             
             <h3 className="text-xl font-black text-white mb-2">Favoriyi Sil</h3>
-            <p className="text-slate-300 text-sm mb-2">Bu ürünü favorilerinizden çıkarmak istediğinize emin misiniz?</p>
-           
+            
+            {/* 🚀 GEREKSİZ UYARI YAZISI SİLİNDİ, Boşluk (mb-8) buraya alındı */}
+            <p className="text-slate-300 text-sm mb-8">Bu ürünü favorilerinizden çıkarmak istediğinize emin misiniz?</p>
             
             <div className="flex w-full gap-3">
               <button 
