@@ -1,3 +1,4 @@
+// app/favorilerim/page.tsx dosyası
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -10,11 +11,14 @@ export default function FavorilerSayfasi() {
   const [favoriteProducts, setFavoriteProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
+  // SİLME İŞLEMİ İÇİN ŞALTER VE HAFIZA
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
 
+  // SEPET MOTORU VE ANİMASYON HAFIZASI
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
 
+  // 🚀 SAYFA AÇILDIĞINDA VERİLERİ ÇEKEN MOTOR
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -51,17 +55,20 @@ export default function FavorilerSayfasi() {
     fetchData();
   }, []);
 
+  // 🚀 SENİN SİSTEMİNİN ÖZEL SİLME ŞİFRESİ (POST METODLU TOGGLE SİSTEMİ)
   const handleDeleteFavorite = async () => {
     if (!productToDelete) return;
 
     const targetId = String(productToDelete._id || productToDelete.id);
     
+    // 1. Kullanıcı beklemesin diye ekrandan anında düşür
     setFavoriteProducts(prev => prev.filter(p => String(p._id || p.id) !== targetId));
     setProductToDelete(null);
 
+    // 2. Veritabanına senin o çalışan gizli şifrenle emri gönder
     try {
       const res = await fetch("/api/favorites", {
-        method: "POST", 
+        method: "POST", // Senin sistem POST ile siliyordu, aynen korundu
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productId: targetId })
       });
@@ -76,6 +83,7 @@ export default function FavorilerSayfasi() {
     }
   };
 
+  // 🚀 SEPETE EKLEME VE ANİMASYON MOTORU
   const handleSepeteEkle = (urun: any) => {
     const targetId = urun._id || urun.id;
 
@@ -96,85 +104,93 @@ export default function FavorilerSayfasi() {
   };
 
   return (
-    // 🚀 BOŞLUK DÜZELTİLDİ: pt-24 yerine pt-8 veya pt-10 kullanıldı!
-    <div className="min-h-screen bg-[#050814] text-white pt-8 md:pt-12 pb-12 px-4 relative overflow-hidden">
+    // PREMIUM DIŞ TASARIM (image_21.png modeline benzeyen)
+    <div className="min-h-screen bg-[#050814] text-white pt-24 pb-12 px-4 relative overflow-hidden">
       
+      {/* ARKADAKİ NEON MAVİ PARLAMA EFEKTİ (Gamer/Teknoloji Teması) */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#00e5ff] blur-[150px] opacity-15 pointer-events-none"></div>
 
       <div className="max-w-3xl mx-auto relative z-10">
         
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-700 pb-6 mb-8 mt-2">
+        {/* ÜST GEZİNTİ BARBARI VE BAŞLIK */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-800/60 pb-6 mb-8">
           <div>
-            <Link href="/" className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-[#00e5ff] transition-all mb-2 font-medium">
+            <Link href="/" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-[#00e5ff] transition-all mb-2 font-medium">
               <ArrowLeft className="w-4 h-4" /> Mağazaya Geri Dön
             </Link>
-            <h1 className="text-3xl font-black uppercase tracking-tighter text-white drop-shadow-md">
+            <h1 className="text-3xl font-black uppercase tracking-tighter text-white">
               FAVORİ <span className="text-[#00e5ff]">ÜRÜNLERİM</span>
             </h1>
           </div>
-          <div className="text-white text-sm font-semibold bg-[#121215] border border-slate-600 py-2 px-4 rounded-xl self-start sm:self-center shadow-sm">
+          <div className="text-slate-400 text-sm font-semibold bg-[#09090b] border border-white/5 py-2 px-4 rounded-xl self-start sm:self-center">
             Toplam: <span className="text-[#00e5ff] font-black">{favoriteProducts.length}</span> Ürün
           </div>
         </div>
 
+        {/* ANA İÇERİK ALANI */}
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-4 bg-[#121215] border border-slate-700 rounded-2xl">
+          <div className="flex flex-col items-center justify-center py-24 gap-4 bg-[#09090b] border border-white/5 rounded-2xl">
             <Loader2 className="w-10 h-10 text-[#00e5ff] animate-spin" />
-            <p className="text-slate-300 font-medium">Favori ürünleriniz vitrine diziliyor...</p>
+            <p className="text-slate-400 font-medium">Favori ürünleriniz vitrine diziliyor...</p>
           </div>
         ) : favoriteProducts.length === 0 ? (
-          <div className="text-center p-12 bg-[#121215] border border-slate-700 rounded-2xl shadow-lg">
-            <HeartCrack className="w-16 h-16 text-slate-500 mx-auto mb-4" />
-            <h2 className="text-xl font-bold mb-2 text-white">Henüz Favori Ürününüz Yok</h2>
+          <div className="text-center p-12 bg-[#09090b] border border-white/5 rounded-2xl shadow-inner">
+            <HeartCrack className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+            <h2 className="text-xl font-bold mb-2">Henüz Favori Ürününüz Yok</h2>
             <p className="text-slate-400 mb-8 font-medium">Beğendiğiniz donanımları kalbe basarak buraya ekleyebilirsiniz.</p>
             <Link href="/" className="inline-block bg-[#00e5ff] text-black px-8 py-3 rounded-xl font-black uppercase tracking-wider hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)]">
               Alışverişe Başla
             </Link>
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
+          // 🚀 TEK SÜTUNLU PREMIUM LİSTE (Tıpkı Siparişlerim Gibi)
+          <div className="flex flex-col gap-4 pb-10">
             {favoriteProducts.map((urun: any, index: number) => {
               const isAdded = sepeteEklenenler.includes(urun._id || urun.id);
 
               return (
-                // 🚀 KONTRAST DÜZELTİLDİ: bg-[#121215] (Daha açık siyah) ve border-slate-600 (Görünür gri kenarlık) eklendi!
-                <div key={index} className="border border-slate-600 bg-[#121215] rounded-2xl p-4 sm:p-6 relative transition-all hover:border-[#00e5ff]/50 shadow-[0_4px_20px_rgba(0,0,0,0.4)] flex flex-col sm:flex-row sm:items-center gap-4">
+                // 🚀 ANA KART DÜZENİ GÜNCELLENDİ: Çöp kutusunun yer açmak için relative kaldı, padding pr-12 kaldırıldı.
+                <div key={index} className="border border-slate-800/50 bg-slate-900/30 rounded-2xl p-4 sm:p-6 transition-all hover:border-[#00e5ff]/30 shadow-lg flex flex-col sm:flex-row sm:items-center gap-4 relative">
                   
-                  {/* ÇÖP TENEKESİ BUTONU (Kırmızı daha belirgin yapıldı) */}
-                  <button 
-                    onClick={() => setProductToDelete(urun)} 
-                    className="absolute top-4 right-4 p-2 text-red-400 bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 rounded-xl transition-all z-10"
-                    title="Favorilerden Çıkar"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-
-                  {/* Ürün Resmi (Arka planı daha belirgin) */}
-                  <div className="w-full sm:w-28 h-36 sm:h-28 bg-[#18181b] rounded-xl border border-slate-700 p-2 flex items-center justify-center shrink-0 mt-6 sm:mt-0">
+                  {/* Ürün Resmi */}
+                  <div className="w-full sm:w-24 h-32 sm:h-24 bg-[#09090b] rounded-lg border border-slate-800/50 p-2 flex items-center justify-center shrink-0">
                     <img 
                       src={urun.resim || "/placeholder.jpg"} 
                       alt={urun.isim} 
-                      className="w-full h-full object-contain drop-shadow-lg" 
+                      className="w-full h-full object-contain" 
                     />
                   </div>
 
-                  {/* Ürün Bilgileri */}
-                  <div className="flex-1 text-left">
-                    <h3 className="text-base font-bold text-white mb-2 leading-snug pr-8 sm:pr-0">{urun.isim}</h3>
-                    <div className="text-2xl font-black text-[#00e5ff] tracking-tight">
-                      {urun.fiyat.toLocaleString("tr-TR")} <span className="text-sm font-medium text-slate-400">TL</span>
-                    </div>
+                  {/* 🚀 ÜRÜN BİLGİLERİ VE ÇÖP KUTUSU DÜZENİ GÜNCELLENDİ: Yan yana yerleştirildi. */}
+                  <div className="flex-1 flex flex-row items-center justify-between text-center sm:text-left gap-4">
+                      
+                      {/* İsim ve Fiyat */}
+                      <div className="flex flex-col flex-1">
+                          <h3 className="text-sm sm:text-base font-bold text-white mb-2 leading-snug pr-8 sm:pr-0">{urun.isim}</h3>
+                          <div className="text-xl sm:text-2xl font-black text-[#00e5ff] tracking-tight">
+                              {urun.fiyat.toLocaleString("tr-TR")} TL
+                          </div>
+                      </div>
+
+                      {/* 🚀 ÇÖP TENEKESİ BUTONU (Artık absolute değil, içeriğin yanında) */}
+                      <button 
+                        onClick={() => setProductToDelete(urun)} 
+                        className="p-2 sm:p-2.5 text-slate-500 hover:text-red-400 bg-slate-800/30 hover:bg-red-500/10 rounded-xl transition-all"
+                        title="Favorilerden Çıkar"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
                   </div>
 
-                  {/* SEPETE EKLE BUTONU */}
+                  {/* Sepete Ekle Butonu */}
                   <div className="w-full sm:w-auto mt-2 sm:mt-0">
                     <button 
                       onClick={() => handleSepeteEkle(urun)}
                       disabled={isAdded}
-                      className={`w-full sm:w-auto flex items-center justify-center gap-2 text-sm font-black uppercase tracking-wider py-3.5 px-6 rounded-xl transition-all duration-300 ${
+                      className={`w-full sm:w-auto flex items-center justify-center gap-2 text-sm font-bold py-3 px-6 rounded-xl transition-all duration-300 ${
                         isAdded 
-                          ? "bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)] border-none" 
-                          : "bg-[#00e5ff]/10 text-[#00e5ff] hover:bg-[#00e5ff] hover:text-black border border-[#00e5ff]/30" 
+                          ? "bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]" 
+                          : "bg-[#00e5ff]/10 text-[#00e5ff] hover:bg-[#00e5ff] hover:text-black" 
                       }`}
                     >
                       {isAdded ? (
@@ -193,29 +209,29 @@ export default function FavorilerSayfasi() {
 
       </div>
 
-      {/* SİLME ONAY KUTUSU (Popup Kırmızı Ekran) */}
+      {/* 🚨 SİLME ONAY KUTUSU (Popup Kırmızı Ekran) */}
       {productToDelete && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-[#121215] border border-slate-600 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-2xl">
+          <div className="bg-[#121215] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-2xl">
             
-            <div className="w-16 h-16 rounded-full border border-red-500/50 flex items-center justify-center mb-4 bg-red-500/10">
+            <div className="w-16 h-16 rounded-full border border-red-500/30 flex items-center justify-center mb-4 bg-red-500/10">
               <Trash2 className="w-8 h-8 text-red-500" />
             </div>
             
             <h3 className="text-xl font-black text-white mb-2">Favoriyi Sil</h3>
-            <p className="text-slate-300 text-sm mb-2">Bu ürünü favorilerinizden çıkarmak istediğinize emin misiniz?</p>
+            <p className="text-slate-400 text-sm mb-2">Bu ürünü favorilerinizden çıkarmak istediğinize emin misiniz?</p>
             <p className="text-red-500 text-sm font-bold mb-8">Bu işlem geri alınamaz!</p>
             
             <div className="flex w-full gap-3">
               <button 
                 onClick={() => setProductToDelete(null)} 
-                className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-3.5 rounded-xl transition-all border border-slate-600"
+                className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 rounded-xl transition-all"
               >
                 İptal
               </button>
               <button 
                 onClick={handleDeleteFavorite} 
-                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg"
+                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 rounded-xl transition-all"
               >
                 Evet, Sil
               </button>
