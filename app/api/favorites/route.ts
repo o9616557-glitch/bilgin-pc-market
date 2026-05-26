@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
-import User from "@/models/User";
+import User from "@/models/User"; // Kendi model yoluna göre kontrol et
 import { getServerSession } from "next-auth";
-// NOT: NextAuth yapılandırma dosyanızın yoluna göre aşağıdaki importu düzenlemeniz gerekebilir.
-import { authOptions } from "../auth/[...nextauth]/route"; 
+import { authOptions } from "../auth/[...nextauth]/route"; // Kendi authOptions yoluna göre kontrol et
 
 // 1. Kullanıcının Favori Listesini Getir (GET)
 export async function GET() {
@@ -18,12 +17,14 @@ export async function GET() {
     }
 
     const user = await User.findOne({ email: session.user.email });
+    
+    // 🚀 SİHİRLİ DOKUNUŞ 1: Kullanıcı DB'de yoksa (Google ile yeni girdiyse) hata verme, boş favori listesi dön.
     if (!user) {
-      return NextResponse.json({ message: "Kullanıcı bulunamadı." }, { status: 404 });
+      return NextResponse.json({ favorites: [] }, { status: 200 });
     }
 
     return NextResponse.json({ favorites: user.favorites || [] }, { status: 200 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Favoriler Getirilirken Hata:", error);
     return NextResponse.json({ message: "Sunucu hatası oluştu." }, { status: 500 });
   }
@@ -46,12 +47,19 @@ export async function POST(req: Request) {
       await mongoose.connect(process.env.MONGODB_URI as string);
     }
 
-    const user = await User.findOne({ email: session.user.email });
+    let user = await User.findOne({ email: session.user.email });
+    
+    // 🚀 SİHİRLİ DOKUNUŞ 2: Kullanıcı DB'de yoksa (Google kullanıcısıysa), onu anında veritabanına kaydet!
     if (!user) {
-      return NextResponse.json({ message: "Kullanıcı bulunamadı." }, { status: 404 });
+      user = new User({
+        email: session.user.email,
+        name: session.user.name || "Google Kullanıcısı",
+        favorites: []
+      });
+      // Veritabanına bu yeni adamı ekledik!
     }
 
-    // Eğer ürün zaten favorilerde varsa listeden çıkar, yoksa ekle (Toggle mantığı)
+    // Eğer ürün zaten favorilerde varsa listeden çıkar, yoksa ekle (Toggle mantığı - KORUNDU)
     const favoriteIndex = user.favorites.indexOf(productId);
     if (favoriteIndex > -1) {
       user.favorites.splice(favoriteIndex, 1); // Listeden sil
@@ -61,12 +69,12 @@ export async function POST(req: Request) {
 
     await user.save();
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: favoriteIndex > -1 ? "Ürün favorilerden çıkarıldı." : "Ürün favorilere eklendi.",
-      favorites: user.favorites 
+      favorites: user.favorites
     }, { status: 200 });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Favori Güncellenirken Hata:", error);
     return NextResponse.json({ message: "Sunucu hatası oluştu." }, { status: 500 });
   }
