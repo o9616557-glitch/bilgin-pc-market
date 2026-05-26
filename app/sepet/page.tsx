@@ -6,13 +6,13 @@ import Link from "next/link";
 export default function SepetSayfasi() {
   const { sepet, sepettenSil, adetGuncelle } = useCart();
 
-  // 🚀 ŞEFİN ORİJİNAL MOTORU (Matematik ve hesaplamalara hiç dokunulmadı!)
+  // 🚀 ŞEFİN ORİJİNAL MOTORU
   const araToplam = sepet.reduce((toplam: number, urun: any) => toplam + (urun.fiyat * urun.adet), 0);
   const kargo = araToplam > 5000 ? 0 : 150;
-  const havaleIndirimi = (araToplam * 0.05); // Motor kısmında duruyor
+  const havaleIndirimi = (araToplam * 0.05);
   const genelToplam = araToplam + kargo;
 
-  // EĞER SEPET BOŞ İSE GÖRÜNECEK JİLET GİBİ EKRAN
+  // EĞER SEPET BOŞ İSE
   if (sepet.length === 0) {
     return (
       <div className="min-h-[80vh] bg-[#050814] text-white flex flex-col items-center justify-center relative overflow-hidden px-4">
@@ -49,7 +49,7 @@ export default function SepetSayfasi() {
           </p>
         </div>
 
-        {/* ANA İSKELET (Mobilde alt alta, PC'de yan yana) */}
+        {/* ANA İSKELET */}
         <div className="flex flex-col lg:flex-row gap-8">
           
           {/* SOL TARAF: ÜRÜNLER LİSTESİ */}
@@ -69,15 +69,18 @@ export default function SepetSayfasi() {
                 {/* Ürün Detayları */}
                 <div className="flex-1 flex flex-col text-center sm:text-left w-full">
                   <h3 className="font-bold text-lg md:text-xl text-white mb-1 leading-tight">{urun.isim}</h3>
-                  {urun.varyasyon && (
+                  
+                  {/* 🚀 AKILLI VARYASYON FİLTRESİ (Standart yazıyorsa gizler) */}
+                  {urun.varyasyon && !urun.varyasyon.toLowerCase().includes("standart") && (
                     <p className="text-[#00e5ff] text-sm font-semibold mb-2">{urun.varyasyon}</p>
                   )}
+
                   <div className="text-xl font-black mt-2 sm:mt-auto">
                     {(urun.fiyat * urun.adet).toLocaleString("tr-TR")} <span className="text-sm text-slate-400 font-medium">TL</span>
                   </div>
                 </div>
 
-                {/* Butonlar ve Kontroller (Orijinal parametreler korundu) */}
+                {/* Butonlar ve Kontroller */}
                 <div className="flex flex-row sm:flex-col items-center justify-between sm:justify-center gap-4 w-full sm:w-auto mt-4 sm:mt-0">
                   
                   {/* Artı/Eksi Kontrolü */}
@@ -97,7 +100,7 @@ export default function SepetSayfasi() {
                     </button>
                   </div>
 
-                  {/* Sil Butonu (Orijinal silme motoruna bağlı) */}
+                  {/* Sil Butonu */}
                   <button 
                     onClick={() => sepettenSil(urun.id, urun.varyasyon)} 
                     className="text-red-400 hover:text-white text-sm font-bold bg-red-500/10 hover:bg-red-500/30 py-2.5 px-4 rounded-lg transition-all w-full sm:w-auto"
