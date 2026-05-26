@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import SiparisModal from "./SiparisModal";
+import FavorilerModal from "./FavorilerModal";
 import { useCart } from "@/app/CartContext";
 import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
@@ -17,6 +18,7 @@ export default function Header() {
 
   // Sadece Siparişlerim için şalter kaldı
   const [isSiparisModalOpen, setIsSiparisModalOpen] = useState(false);
+const [isFavorilerModalOpen, setIsFavorilerModalOpen] = useState(false);
 
   const ADMIN_EMAIL = "o9616557@gmail.com";
   const isAdmin = session?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
@@ -94,9 +96,9 @@ export default function Header() {
                         <span>📍</span> Adreslerim
                       </Link>
 
-                      <Link href="/favorilerim" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
-                        <span>❤️</span> Favorilerim
-                      </Link>
+                     <button onClick={() => { setHesabimAcik(false); setIsFavorilerModalOpen(true); }} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer", fontSize: "0.85rem" }}>
+    <span>❤️</span> Favorilerim
+  </button>
 
                       <div style={{ height: "1px", background: "#27272a", margin: "4px 0" }}></div>
 
@@ -157,6 +159,8 @@ export default function Header() {
 
       {/* SİPARİŞLERİM MODALI */}
       <SiparisModal isOpen={isSiparisModalOpen} onClose={() => setIsSiparisModalOpen(false)} />
+        FavorilerModal isOpen={isFavorilerModalOpen} onClose={() => setIsFavorilerModalOpen(false)}
     </>
+    
   );
 }
