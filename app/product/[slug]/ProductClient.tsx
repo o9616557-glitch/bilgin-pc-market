@@ -60,10 +60,19 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       });
 
       // 3. Eğer kargocunun yolda başına bir iş gelirse (hata), çaktırmadan kalbi eski haline çevir
-      if (!res.ok) {
-        setIsFav(oncekiDurum);
-        toast.error("Favori işlemi başarısız oldu!");
-      }
+    if (res.status === 401) {
+      setIsFav(oncekiDurum); // Adam giriş yapmamışsa kalbi hemen eski (boş) haline çevir
+      toast.error("Favorilere eklemek için lütfen giriş yapın. 🔒", {
+        style: { background: '#121215', color: '#fff', border: '1px solid #334155', borderRadius: '12px' },
+        iconTheme: { primary: '#00e5ff', secondary: '#000' },
+      });
+      return; // İşlemi burada sessizce kes!
+    }
+
+    if (!res.ok) {
+      setIsFav(oncekiDurum);
+      toast.error("Bir sorun oluştu, lütfen tekrar deneyin.");
+    }
     } catch (error) {
       setIsFav(oncekiDurum);
       console.error("Favori hatası:", error);
