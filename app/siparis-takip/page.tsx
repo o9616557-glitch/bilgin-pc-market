@@ -90,15 +90,21 @@ export default function SiparisTakipPage() {
       
       <div className="w-full max-w-2xl bg-[#09090b] border border-white/10 rounded-2xl shadow-2xl p-5 md:p-10 relative z-10">
         
-        <div className="text-center mb-6 md:mb-8">
-          <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tighter mb-2">
-            SİPARİŞ <span className="text-[#00e5ff]">Takİp</span>
+        {/* BAŞLIK VE MODERN AÇIKLAMA KISMI */}
+        <div className="text-center mb-8 md:mb-10">
+          <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tighter mb-4">
+            SİPARİŞ <span className="text-[#00e5ff]">TAKİP</span>
           </h1>
-          <p className="text-slate-400 text-xs md:text-sm font-medium px-2">
-            Siparişinizin anlık durumunu öğrenmek için kodunuzu girin.
-          </p>
+          
+          <div className="max-w-2xl mx-auto">
+            <p className="text-slate-300 text-sm md:text-base font-medium leading-relaxed mb-3">
+              Siparişiniz sistemimize düştüğü andan itibaren uzman ekibimiz tarafından özenle hazırlanır ve paketlenir. 
+            </p>
+            <p className="text-[#a1a1aa] text-xs md:text-sm">
+              <strong className="text-white">E-posta adresinize gönderilen</strong> sipariş kodunuzu aşağıya girerek; ürününüzün atölyemizden çıkıp kapınıza gelene kadar olan tüm yolculuğunu anlık olarak izleyebilirsiniz.
+            </p>
+          </div>
         </div>
-
         <form onSubmit={sorgula} className="flex flex-col md:flex-row gap-3 mb-6 md:mb-8">
           <input
             type="text"
