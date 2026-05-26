@@ -98,7 +98,7 @@ export default function SiparisTakipPage() {
           
           <div className="max-w-2xl mx-auto">
             <p className="text-slate-300 text-sm md:text-base font-medium leading-relaxed mb-3">
-              Siparişiniz sistemimize düştüğünde özenle hazırlanır ve paketlenir. 
+              Siparişiniz sistemimize ulaştığında. En kısa sürede işleme alınacaktır.
             </p>
             <p className="text-[#a1a1aa] text-xs md:text-sm">
               <strong className="text-white">E-posta adresinize gönderilen</strong> Siparişinizin güncel durumunu, sipariş kodunuz ile aşağıdan kolayca takip edebilirsiniz.
