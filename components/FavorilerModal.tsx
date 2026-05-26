@@ -2,17 +2,17 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { HeartCrack, Loader2 } from "lucide-react";
+import { HeartCrack, Loader2, X, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
-
-// 🚀 Artık ProductGrid'i kullanmayacağız, bunu import etmeye gerek yok.
-// import ProductGrid from "@/components/ProductGrid";
 
 export default function FavorilerModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [favoriteProducts, setFavoriteProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // SİLME İŞLEMİ İÇİN ŞALTER VE HAFIZA
+  const [productToDelete, setProductToDelete] = useState<any | null>(null);
 
-  // 🚀 ŞEFİN VERİ ÇEKME MOTORU (Aynen korundu)
+  // ŞEFİN VİTRİN MOTORU
   useEffect(() => {
     if (!isOpen) return; 
 
@@ -41,7 +41,7 @@ export default function FavorilerModal({ isOpen, onClose }: { isOpen: boolean; o
         } else if (favRes.status === 401) {
           toast.error("Favorilerinizi görmek için giriş yapmalısınız.");
         }
-      } catch (error) {
+      } catch (error: any) { // 🚀 TypeScript Hatası İçin Düzeltildi
         toast.error("Veriler yüklenirken hata oluştu.");
       } finally {
         setIsLoading(false);
@@ -51,95 +51,149 @@ export default function FavorilerModal({ isOpen, onClose }: { isOpen: boolean; o
     fetchData();
   }, [isOpen]);
 
+  // ÜRÜN SİLME MOTORU
+  const handleDeleteFavorite = async () => {
+    if (!productToDelete) return;
+
+    // 1. Önce müşteriye çaktırmadan ekrandan anında siliyoruz (Işık hızı)
+    const targetId = productToDelete._id || productToDelete.id;
+    setFavoriteProducts(prev => prev.filter(p => (p._id || p.id) !== targetId));
+    setProductToDelete(null); // Onay kutusunu kapat
+
+    // 2. Arka planda veritabanına silme emrini gönderiyoruz
+    try {
+      await fetch("/api/favorites", {
+        method: "DELETE", // Kendi API yapına göre burayı PUT vs yapabilirsin
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: targetId })
+      });
+      toast.success("Ürün favorilerden çıkarıldı.");
+    } catch (error: any) { // 🚀 İŞTE KIRMIZI ÇİZGİYİ YOK EDEN SİHİRLİ KELİME
+      toast.error("Silinirken bir hata oluştu.");
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
-    // 🎨 YENİ TASARIM BAŞLIYOR (image_21.png modeline benzeyen)
-    
-    // ARKAPLAN KARARTMASI VE BULANIKLIK EFEKTİ (image_17.png'deki gibi)
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
+    // MOBİLDE TAM EKRAN, PC'DE POPUP (Siparişlerim Modeli)
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#050814] md:bg-slate-900/80 md:backdrop-blur-sm p-0 md:p-4">
       
-      {/* ANA POPUP KUTUSU (Dar ve dikey, Apple/image_21.png tarzı) */}
-      <div className="w-full max-w-2xl bg-[#09090b] border border-white/10 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,1)] relative flex flex-col max-h-[90vh]">
+      {/* ANA KUTU */}
+      <div className="w-full h-full md:h-auto md:max-h-[90vh] md:max-w-3xl bg-[#09090b] md:border md:border-slate-800/50 md:rounded-2xl shadow-2xl flex flex-col relative overflow-hidden">
         
-        {/* Kapat (X) Butonu (image_21.png'deki gibi sağ üstte) */}
-        <button 
-          onClick={onClose} 
-          className="absolute top-4 right-6 text-slate-400 hover:text-white text-4xl font-black transition-all z-50"
-        >
-          &times;
-        </button>
-
-        {/* İÇERİK ALANI (Aşağı kaydırılabilir) */}
-        <div className="p-6 md:p-10 overflow-y-auto text-white w-full h-full relative z-10">
-          
-          {/* BAŞLIK (image_21.png gibi mavi vurgulu) */}
-          <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tighter mb-8 text-white drop-shadow-[0_0_10px_rgba(0,229,255,0.3)]">
-            FAVORİ <span className="text-[#00e5ff]">ÜRÜNLERİM</span>
+        {/* ÜST BAŞLIK VE KAPAT BUTONU (Sayfaya Yapışık) */}
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-800/50 bg-[#09090b] sticky top-0 z-20">
+          <h1 className="text-xl sm:text-2xl font-black uppercase tracking-wider text-[#00e5ff]">
+            FAVORİLERİM
           </h1>
+          <div className="flex items-center gap-2 sm:gap-4">
+            <button onClick={onClose} className="p-2 sm:p-2.5 bg-slate-800/50 hover:bg-slate-700/50 rounded-xl transition-all text-slate-400 hover:text-white">
+              <X className="w-6 h-6 sm:w-5 sm:h-5" />
+            </button>
+          </div>
+        </div>
 
-          {/* YÜKLENİYOR DURUMU */}
+        {/* İÇERİK KISMI (Aşağı Kaydırılabilir) */}
+        <div className="overflow-y-auto p-4 sm:p-6 flex-1 text-white relative">
+          
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-20 gap-4">
-              <Loader2 className="w-10 h-10 text-[#00e5ff] animate-spin" />
-              <p className="text-slate-400 font-medium">Favori ürünleriniz vitrine diziliyor...</p>
+            <div className="h-full flex flex-col items-center justify-center py-20">
+              <Loader2 className="animate-spin text-[#00e5ff] h-10 w-10 mb-4" />
+              <p className="text-slate-400">Vitrin hazırlanıyor...</p>
             </div>
-
-          // FAVORİ BOŞ DURUMU
           ) : favoriteProducts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 bg-[#09090b] border border-white/5 rounded-2xl shadow-inner">
-              <HeartCrack className="w-16 h-16 text-slate-600 mb-4" />
-              <h2 className="text-xl font-bold mb-2 text-white">Favori Ürününüz Yok</h2>
-              <p className="text-slate-400 mb-8 font-medium">Henüz beğendiğiniz bir ürün bulunmuyor.</p>
+            <div className="text-center p-12 bg-slate-800/20 border border-slate-700/50 rounded-2xl mt-4">
+              <HeartCrack className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+              <p className="text-slate-400 mb-6">Henüz beğendiğiniz bir ürün bulunmuyor.</p>
               <Link 
                 href="/" 
                 onClick={onClose}
-                className="bg-[#00e5ff] text-black px-8 py-3 rounded-xl font-black uppercase tracking-wider hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.3)] hover:shadow-[0_0_30px_rgba(0,229,255,0.5)]"
+                className="bg-[#00e5ff] text-black px-6 py-3 rounded-xl font-bold hover:bg-[#00c4db] transition-all"
               >
                 Alışverişe Başla
               </Link>
             </div>
-
-          // ÜRÜNLER VARSA VİTRİNİ GÖSTER
           ) : (
-            // 🚀 TEK SÜTUNLU DİKEY DÜZEN (Izgara kaldırıldı)
-            <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 pr-1">
-                {favoriteProducts.map((urun: any, index: number) => (
-                    // 🚀 TEK ÜRÜN KARTI (image_21.png'den esinlenerek)
-                    <div key={index} className="flex flex-col sm:flex-row items-center bg-[#121215] border border-white/10 rounded-xl p-4 gap-4 transition-all hover:border-[#00e5ff]/30 relative shadow-lg">
-                        
-                        {/* Ürün Resmi */}
-                        <div className="w-full sm:w-28 h-40 sm:h-28 shrink-0 bg-[#09090b] rounded-lg overflow-hidden border border-white/5 flex items-center justify-center p-2 shadow-inner">
-                          <img 
-                            src={urun.resim || "/placeholder.jpg"} 
-                            alt={urun.isim} 
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
+            <div className="flex flex-col gap-4 pb-10">
+              {favoriteProducts.map((urun: any, index: number) => (
+                
+                // TEKİL ÜRÜN KARTI
+                <div key={index} className="border border-slate-800/50 bg-slate-900/30 rounded-2xl p-4 sm:p-6 relative transition-all hover:border-[#00e5ff]/30">
+                  
+                  {/* ÇÖP TENEKESİ BUTONU (Sağ Üstte) */}
+                  <button 
+                    onClick={() => setProductToDelete(urun)} 
+                    className="absolute top-4 right-4 p-2 sm:p-2.5 text-slate-500 hover:text-red-400 bg-slate-800/30 hover:bg-red-500/10 rounded-xl transition-all"
+                    title="Favoriden Çıkar"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
 
-                        {/* Ürün Detayları */}
-                        <div className="flex-1 flex flex-col text-center sm:text-left">
-                            <h3 className="font-bold text-lg md:text-xl text-white mb-1 leading-tight tracking-tight">{urun.isim}</h3>
-                            <div className="text-2xl font-black mt-2 sm:mt-auto tracking-tight">
-                                {urun.fiyat.toLocaleString("tr-TR")} TL
-                            </div>
-                        </div>
-
-                        {/* Favori İşlem Butonları (Resim image_21.png'de yok ama favoriler için şart) */}
-                        <div className="flex flex-row sm:flex-col items-center gap-3 w-full sm:w-auto mt-4 sm:mt-0 justify-center">
-                            <button className="flex-1 sm:w-auto bg-[#00e5ff]/10 text-[#00e5ff] hover:bg-[#00e5ff] hover:text-black text-xs md:text-sm font-black py-2.5 px-5 rounded-lg transition-all whitespace-nowrap uppercase tracking-wider">
-                                Sepete Ekle
-                            </button>
-                            <button className="text-red-400 hover:text-white text-sm font-bold p-1 transition-all whitespace-nowrap">
-                                Kaldır
-                            </button>
-                        </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 mt-8 sm:mt-0 pr-12">
+                    {/* Ürün Resmi */}
+                    <div className="w-full sm:w-24 h-32 sm:h-24 bg-[#09090b] rounded-lg border border-slate-800/50 p-2 flex items-center justify-center shrink-0">
+                      <img 
+                        src={urun.resim || "/placeholder.jpg"} 
+                        alt={urun.isim} 
+                        className="w-full h-full object-contain"
+                      />
                     </div>
-                ))}
+
+                    {/* Ürün Bilgisi */}
+                    <div className="flex-1">
+                      <h3 className="text-sm sm:text-base font-bold text-white mb-2 leading-snug">{urun.isim}</h3>
+                      <div className="text-xl sm:text-2xl font-black text-[#00e5ff] tracking-tight">
+                        {urun.fiyat.toLocaleString("tr-TR")} TL
+                      </div>
+                    </div>
+
+                    {/* Sepete Ekle Butonu */}
+                    <div className="w-full sm:w-auto mt-2 sm:mt-0">
+                      <button className="w-full sm:w-auto bg-[#00e5ff]/10 text-[#00e5ff] hover:bg-[#00e5ff] hover:text-black text-sm font-bold py-3 px-6 rounded-xl transition-all">
+                        Sepete Ekle
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+              ))}
             </div>
           )}
-
         </div>
+
+        {/* SİLME ONAY KUTUSU (Kırmızı Uyarı) */}
+        {productToDelete && (
+          <div className="absolute inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="bg-[#121215] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-2xl">
+              
+              <div className="w-16 h-16 rounded-full border border-red-500/30 flex items-center justify-center mb-4 bg-red-500/10">
+                <Trash2 className="w-8 h-8 text-red-500" />
+              </div>
+              
+              <h3 className="text-xl font-black text-white mb-2">Favoriyi Sil</h3>
+              <p className="text-slate-400 text-sm mb-2">Bu ürünü favorilerinizden çıkarmak istediğinize emin misiniz?</p>
+              <p className="text-red-500 text-sm font-bold mb-8">Bu işlem geri alınamaz!</p>
+              
+              <div className="flex w-full gap-3">
+                <button 
+                  onClick={() => setProductToDelete(null)} 
+                  className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 rounded-xl transition-all"
+                >
+                  İptal
+                </button>
+                <button 
+                  onClick={handleDeleteFavorite} 
+                  className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 rounded-xl transition-all"
+                >
+                  Evet, Sil
+                </button>
+              </div>
+              
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );
