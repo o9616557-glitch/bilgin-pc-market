@@ -109,16 +109,17 @@ export async function PUT(request: Request) {
         
         <p style="color: #a1a1aa; font-size: 15px; line-height: 1.6; margin-bottom: 35px; padding: 0 15px; text-align: center;">${altMesaj}</p>
 
-        <div style="background-color: rgba(255, 255, 255, 0.05); padding: 25px; border-radius: 12px; margin: 0 auto 35px auto; border: 1px solid rgba(255, 255, 255, 0.1); max-width: 320px; text-align: center;">
-          <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 8px; letter-spacing: 1px;">SİPARİŞ TAKİP KODUNUZ</p>
-          <h1 style="color: #ffffff; margin: 0; font-size: 28px; letter-spacing: 3px; font-weight: 900;">${siparis.siparisKodu || "BPC-SIPARIS"}</h1>
+        <div style="background-color: rgba(255, 255, 255, 0.05); padding: 25px; border-radius: 12px; margin: 0 auto 35px auto; border: 1px dashed rgba(0, 229, 255, 0.4); max-width: 320px; text-align: center;">
+          <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 12px; letter-spacing: 1px;">SİPARİŞ TAKİP KODUNUZ</p>
+          
+          <div style="background-color: #000000; padding: 12px 20px; border-radius: 8px; display: inline-block; border: 1px solid rgba(0,229,255,0.2); user-select: all; -webkit-user-select: all;">
+            <h1 style="color: #00e5ff; margin: 0; font-size: 26px; letter-spacing: 2px; font-weight: 900; display: inline-block;">${siparis.siparisKodu || "BPC-SIPARIS"}</h1>
+          </div>
+          
+          <p style="color: #71717a; font-size: 12px; margin-top: 15px; margin-bottom: 0;">
+            <span style="font-size: 14px; vertical-align: middle;">📋</span> Kodu kopyalamak için üzerine basılı tutun
+          </p>
         </div>
-
-        <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 25px; text-align: center;">
-          <p style="color: #71717a; font-size: 13px; line-height: 1.5; margin: 0;">Siparişinizle ilgili tüm sorularınız için destek hattımız üzerinden bizimle doğrudan iletişime geçebilirsiniz.</p>
-        </div>
-
-      </div>
     `
   };
 
