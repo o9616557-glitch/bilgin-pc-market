@@ -26,7 +26,7 @@ export default function SepetSayfasi() {
         <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#00e5ff] blur-[160px] opacity-20 pointer-events-none"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#00e5ff] blur-[150px] opacity-10 pointer-events-none"></div>
         
-        {/* 🧊 ŞEFFAF CAM TASARIM (Geri getirildi!) */}
+        {/* 🧊 ŞEFFAF CAM TASARIM */}
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-10 md:p-16 shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col items-center relative z-10 max-w-lg w-full text-center">
           <div className="text-7xl mb-6 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">🛒</div>
           <h2 className="text-2xl md:text-3xl font-black mb-4 uppercase tracking-wider text-white">
@@ -48,7 +48,8 @@ export default function SepetSayfasi() {
   // 📦 2. BÖLÜM: EĞER SEPET DOLU İSE (ŞEFFAF CAM)
   // ==========================================
   return (
-    <div className="min-h-screen bg-[#03050a] text-white pt-24 pb-12 px-4 relative overflow-hidden">
+    // 🚀 ÜST BOŞLUK DÜZELTİLDİ: pt-24 silindi, pt-8 yapıldı! (Menüyle arası daraldı)
+    <div className="min-h-screen bg-[#03050a] text-white pt-8 md:pt-12 pb-12 px-4 relative overflow-hidden">
       
       {/* ARKADAKİ NEON MAVİ PARLAMA EFEKTLERİ */}
       <div className="absolute top-[-5%] left-[-5%] w-[50%] h-[50%] bg-[#00e5ff] blur-[160px] opacity-20 pointer-events-none"></div>
@@ -59,12 +60,9 @@ export default function SepetSayfasi() {
         {/* ⬅️ SOL TARAF: ÜRÜNLER LİSTESİ */}
         <div className="flex-1 flex flex-col gap-4">
           
-          {/* 🚀 ÜST BAŞLIK: Boşluklar daraltıldı, jilet gibi hizalandı (KORUNDU) */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-white/10 pb-4 mb-4 gap-4">
+          {/* 🚀 ÜST BAŞLIK: Gereksiz "Alışverişe Devam Et" yazısı silindi! Sadece başlık kaldı. */}
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-white/10 pb-4 mb-4 gap-4 mt-2">
             <div className="flex flex-col gap-1.5">
-              <Link href="/" className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-400 hover:text-[#00e5ff] transition-all">
-                <ArrowLeft className="w-4 h-4" /> Alışverişe Devam Et
-              </Link>
               <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter text-white drop-shadow-md">
                 ALIŞVERİŞ <span className="text-[#00e5ff]">SEPETİM</span>
               </h1>
@@ -78,7 +76,7 @@ export default function SepetSayfasi() {
 
           {/* DÖNGÜ: Sepetteki ürünleri tek tek yazar */}
           {sepet.map((urun: any, index: number) => (
-            // 🧊 KART TASARIMI: Şeffaf Cam Geri Döndü (bg-white/5)
+            // 🧊 KART TASARIMI: Şeffaf Cam
             <div key={index} className="flex flex-col sm:flex-row items-center bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 gap-4 transition-all hover:border-[#00e5ff]/40 shadow-xl hover:shadow-[0_0_30px_rgba(0,229,255,0.2)] relative">
               
               {/* Ürün Resmi */}
@@ -113,7 +111,7 @@ export default function SepetSayfasi() {
                   </button>
                 </div>
 
-                {/* 🚀 🗑️ SİL BUTONU: O beğendiğin şekli bozulmayan kare tasarım korundu! */}
+                {/* 🗑️ SİL BUTONU: Şekli bozulmayan kare tasarım */}
                 <button 
                   onClick={() => sepettenSil(urun.id, urun.varyasyon)} 
                   className="w-11 h-11 flex items-center justify-center text-slate-400 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 rounded-xl transition-all shrink-0"
@@ -130,7 +128,7 @@ export default function SepetSayfasi() {
         {/* ➡️ SAĞ TARAF: SİPARİŞ ÖZETİ KUTUSU */}
         <div className="w-full lg:w-[380px] shrink-0">
           
-          {/* 🧊 SİPARİŞ ÖZETİ: Şeffaf Cam Geri Döndü */}
+          {/* 🧊 SİPARİŞ ÖZETİ: Şeffaf Cam */}
           <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 lg:p-8 sticky top-24 shadow-2xl">
             
             <h2 className="font-black text-xl mb-6 pb-4 border-b border-white/10 text-white uppercase tracking-wide">
