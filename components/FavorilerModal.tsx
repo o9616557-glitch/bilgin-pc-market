@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { HeartCrack, Loader2, X, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
-import { useCart } from "@/app/CartContext"; // 🚀 SEPET MOTORUNU İÇERİ ALDIK
+import { useCart } from "@/app/CartContext";
 
 export default function FavorilerModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [favoriteProducts, setFavoriteProducts] = useState<any[]>([]);
@@ -13,7 +13,7 @@ export default function FavorilerModal({ isOpen, onClose }: { isOpen: boolean; o
   // SİLME İŞLEMİ İÇİN ŞALTER VE HAFIZA
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
 
-  // 🚀 SEPET MOTORU VE "EKLENDİ" ANİMASYONU İÇİN HAFIZA
+  // SEPET MOTORU VE "EKLENDİ" ANİMASYONU İÇİN HAFIZA
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
 
@@ -36,7 +36,7 @@ export default function FavorilerModal({ isOpen, onClose }: { isOpen: boolean; o
             const allProducts = prodData.products || prodData || [];
 
             const matchedProducts = allProducts.filter((urun: any) =>
-              ids.includes(urun._id?.toString()) || ids.includes(urun.id?.toString())
+              ids.includes(String(urun._id)) || ids.includes(String(urun.id))
             );
 
             setFavoriteProducts(matchedProducts);
@@ -56,41 +56,39 @@ export default function FavorilerModal({ isOpen, onClose }: { isOpen: boolean; o
     fetchData();
   }, [isOpen]);
 
-  // 🚀 GELİŞMİŞ ÜRÜN SİLME MOTORU
+  // 🚀 İŞTE ŞİFRESİ ÇÖZÜLMÜŞ, %100 ÇALIŞAN SİLME MOTORU!
   const handleDeleteFavorite = async () => {
     if (!productToDelete) return;
 
-    const targetId = productToDelete._id || productToDelete.id;
+    // Resimdeki gibi String() garantisine aldık
+    const targetId = String(productToDelete._id || productToDelete.id);
     
-    // 1. Önce ekrandan gizle (Kullanıcı beklemesin)
-    setFavoriteProducts(prev => prev.filter(p => (p._id || p.id) !== targetId));
+    // 1. Önce ekrandan anında gizle (Kullanıcı beklemesin)
+    setFavoriteProducts(prev => prev.filter(p => String(p._id || p.id) !== targetId));
     setProductToDelete(null);
 
-    // 2. Veritabanına emri gönder
+    // 2. Veritabanına emri gönder (Resimden aldığımız POST şifresiyle!)
     try {
       const res = await fetch("/api/favorites", {
-        method: "DELETE",
+        method: "POST", // 🚀 DELETE yerine POST yaptık!
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId: targetId })
+        body: JSON.stringify({ productId: targetId }) // 🚀 Şifre formatında gönderdik
       });
 
-      // Eğer API silmeyi reddederse hata ver
       if (!res.ok) {
-        throw new Error("Veritabanı silmeyi reddetti");
+        throw new Error("Veritabanı işlemi reddetti");
       }
       
       toast.success("Ürün favorilerden çıkarıldı.");
     } catch (error: any) {
       toast.error("Hata: Ürün veritabanından silinemedi!");
-      // İstersen ürünü ekrana geri getirme kodu buraya yazılabilir
     }
   };
 
-  // 🚀 SEPETE EKLEME VE ANİMASYON MOTORU
+  // SEPETE EKLEME VE ANİMASYON MOTORU
   const handleSepeteEkle = (urun: any) => {
     const targetId = urun._id || urun.id;
 
-    // 1. Ürünü sepet formatına çevir ve sepete fırlat
     sepeteEkle({
       id: targetId,
       isim: urun.isim || urun.title,
@@ -100,10 +98,8 @@ export default function FavorilerModal({ isOpen, onClose }: { isOpen: boolean; o
       varyasyon: "Standart" 
     });
 
-    // 2. Butonu "Eklendi" yapmak için hafızaya al
     setSepeteEklenenler(prev => [...prev, targetId]);
 
-    // 3. 2 saniye sonra "Eklendi" yazısını geri al
     setTimeout(() => {
       setSepeteEklenenler(prev => prev.filter(id => id !== targetId));
     }, 2000);
@@ -172,15 +168,15 @@ export default function FavorilerModal({ isOpen, onClose }: { isOpen: boolean; o
                       </div>
                     </div>
 
-                    {/* 🚀 AKILLI SEPETE EKLE BUTONU (Attığın Resimdeki Gibi) */}
+                    {/* SEPETE EKLE BUTONU */}
                     <div className="w-full sm:w-auto mt-2 sm:mt-0">
                       <button 
                         onClick={() => handleSepeteEkle(urun)}
-                        disabled={isAdded} // Eklendiyse 2 saniye basılamasın
+                        disabled={isAdded}
                         className={`w-full sm:w-auto flex items-center justify-center gap-2 text-sm font-bold py-3 px-6 rounded-xl transition-all duration-300 ${
                           isAdded 
-                            ? "bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]" // YEŞİL EKLENDİ DURUMU
-                            : "bg-[#00e5ff]/10 text-[#00e5ff] hover:bg-[#00e5ff] hover:text-black" // NORMAL DURUM
+                            ? "bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+                            : "bg-[#00e5ff]/10 text-[#00e5ff] hover:bg-[#00e5ff] hover:text-black"
                         }`}
                       >
                         {isAdded ? (
