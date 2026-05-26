@@ -1,58 +1,92 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { HeartCrack, Loader2 } from "lucide-react";
+import toast from "react-hot-toast";
+
+// 🚀 SENİN VİTRİN BİLEŞENİNİ BURAYA ÇAĞIRDIK
+import ProductGrid from "@/components/ProductGrid"; 
 
 export default function FavorilerModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  
+  // Şalter kapalıyken arka planda gizli beklemesi için bu satır şart:
   if (!isOpen) return null;
 
+  // ... (BURADAN AŞAĞISI SENİN KENDİ YAZDIĞIN HAZIR FAVORİ KODLARIN OLARAK DEVAM EDECEK)
+  const [favoriteProducts, setFavoriteProducts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // 1. Önce kullanıcının favori ID'lerini veritabanından çekiyoruz
+        const favRes = await fetch("/api/favorites");
+        const favData = await favRes.json();
+
+        if (favRes.ok) {
+          const ids = favData.favorites || [];
+
+          if (ids.length > 0) {
+            // 2. BÜTÜN ÜRÜNLERİ ÇEKİYORUZ 
+            // ⚠️ ŞEFİM DİKKAT: Sistemindeki tüm ürünleri getiren API adresin "/api/products" değilse, aşağıdaki adresi kendine göre düzelt!
+            const prodRes = await fetch("/api/products");
+            const prodData = await prodRes.json();
+            
+            // Gelen verinin yapısına göre ürün dizisini alıyoruz (bazen direkt dizi gelir, bazen obje içinde)
+            const allProducts = prodData.products || prodData || [];
+
+            // 3. Tüm ürünlerin içinden sadece kullanıcının favori ID'sine sahip olanları ayıklıyoruz
+            const matchedProducts = allProducts.filter((urun: any) => 
+              ids.includes(urun._id?.toString()) || ids.includes(urun.id?.toString())
+            );
+            
+            setFavoriteProducts(matchedProducts); // Vitrine gönderilecek ürünler hazır!
+          }
+        } else if (favRes.status === 401) {
+          toast.error("Favorilerinizi görmek için giriş yapmalısınız.");
+        }
+      } catch (error) {
+        toast.error("Veriler yüklenirken hata oluştu.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
-    // ARKAPLAN KARARTMASI VE BULANIKLIK EFEKTİ
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      
-      {/* ANA POPUP KUTUSU */}
-      <div className="w-full max-w-xl bg-[#09090b] border border-white/10 rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.8)] overflow-hidden relative">
+    <div className="min-h-screen bg-[#050814] text-white p-6 md:p-12 relative overflow-hidden">
+      <div className="max-w-6xl mx-auto relative z-10">
         
-        {/* Kapat (X) Butonu */}
-        <button onClick={onClose} className="absolute top-4 right-5 text-slate-400 hover:text-white text-3xl font-black transition-all z-10">
-          &times;
-        </button>
+        <h1 className="text-3xl font-black uppercase tracking-tighter mb-8 text-white drop-shadow-[0_0_10px_rgba(0,229,255,0.2)] border-b border-white/10 pb-4">
+          FAVORİLERİM
+        </h1>
 
-        <div className="p-6 md:p-8">
-          {/* BAŞLIK */}
-          <h2 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter mb-2">
-            FAVORİ <span className="text-[#00e5ff]">ÜRÜNLERİM</span>
-          </h2>
-          <p className="text-slate-400 text-sm mb-6 border-b border-white/10 pb-4">
-            Gözüne kestirdiğin ve beğendiğin ürünler burada listelenir.
-          </p>
-
-          {/* FAVORİ ÜRÜNLER LİSTESİ (Şimdilik Demo, buraya kendi sistemini bağlayabilirsin) */}
-          <div className="flex flex-col gap-3 max-h-[50vh] overflow-y-auto pr-2">
-            
-            {/* ÖRNEK ÜRÜN KUTUSU */}
-            <div className="flex items-center gap-4 bg-[#121215] border border-white/5 rounded-xl p-3 hover:border-[#00e5ff]/30 transition-all">
-              <div className="w-16 h-16 bg-black rounded-lg border border-white/10 flex items-center justify-center text-2xl">💻</div>
-              <div className="flex-1">
-                <h3 className="text-white font-bold text-sm md:text-base leading-tight">Gaming Oyuncu Kasası</h3>
-                <p className="text-[#00e5ff] font-black text-sm mt-1">15.000 TL</p>
-              </div>
-              <button className="bg-[#00e5ff]/10 text-[#00e5ff] hover:bg-[#00e5ff] hover:text-black text-xs font-bold py-2 px-4 rounded-lg transition-all">
-                İncele
-              </button>
-            </div>
-            
-            {/* FAVORİLER BOŞSA ÇIKACAK YAZI İÇİN YER */}
-            {/* <div className="text-center py-8 text-slate-500 font-medium">Henüz favorilere eklenmiş bir ürün yok.</div> */}
-
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+            <Loader2 className="w-10 h-10 text-[#00e5ff] animate-spin" />
+            <p className="text-slate-400">Favori ürünleriniz vitrine diziliyor...</p>
+          </div>
+        ) : favoriteProducts.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 bg-[#09090b] border border-white/10 rounded-3xl">
+            <HeartCrack className="w-16 h-16 text-slate-600 mb-4" />
+            <h2 className="text-xl font-bold mb-2">Favori Ürününüz Yok</h2>
+            <p className="text-slate-400 mb-6">Henüz beğendiğiniz bir ürün bulunmuyor.</p>
+            <Link href="/" className="bg-[#00e5ff] text-black px-8 py-3 rounded-xl font-black uppercase tracking-widest hover:bg-[#00c4db] transition-all shadow-[0_0_15px_rgba(0,229,255,0.2)]">
+              Alışverişe Başla
+            </Link>
+          </div>
+        ) : (
+          
+          // 🚀 İŞTE SENİN EFSANE VİTRİNİN BURADA DEVREYE GİRİYOR!
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+             <ProductGrid initialProducts={favoriteProducts} />
           </div>
 
-          {/* ALT KISIM KAPANIŞ */}
-          <div className="mt-6 pt-4 border-t border-white/10 text-center">
-             <button onClick={onClose} className="text-slate-400 hover:text-white text-sm transition-all font-medium">
-               Kapat ve Alışverişe Devam Et
-             </button>
-          </div>
-        </div>
+        )}
+
       </div>
     </div>
   );
