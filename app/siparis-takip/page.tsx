@@ -92,7 +92,7 @@ export default function SiparisTakipPage() {
         
         <div className="text-center mb-6 md:mb-8">
           <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tighter mb-2">
-            Kargo <span className="text-[#00e5ff]">Takİp</span>
+            SİPARİŞ <span className="text-[#00e5ff]">Takİp</span>
           </h1>
           <p className="text-slate-400 text-xs md:text-sm font-medium px-2">
             Siparişinizin anlık durumunu öğrenmek için kodunuzu girin.
