@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import SiparisModal from "./SiparisModal";
-import FavorilerModal from "./FavorilerModal";
+import FavorilerModal from "./FavorilerModal"; // 🚀 YENİ POPUP EKLENDİ
 import { useCart } from "@/app/CartContext";
 import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
@@ -16,9 +16,9 @@ export default function Header() {
 
   const { data: session } = useSession();
 
-  // Sadece Siparişlerim için şalter kaldı
+  // 🚀 ŞALTERLER BURADA
   const [isSiparisModalOpen, setIsSiparisModalOpen] = useState(false);
-const [isFavorilerModalOpen, setIsFavorilerModalOpen] = useState(false);
+  const [isFavorilerModalOpen, setIsFavorilerModalOpen] = useState(false);
 
   const ADMIN_EMAIL = "o9616557@gmail.com";
   const isAdmin = session?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
@@ -73,14 +73,13 @@ const [isFavorilerModalOpen, setIsFavorilerModalOpen] = useState(false);
               {hesabimAcik && (
                 <div style={{ position: "absolute", top: "50px", right: "0", background: "#09090b", border: "1px solid #27272a", borderRadius: "12px", width: "220px", padding: "8px", boxShadow: "0 10px 40px rgba(0,0,0,0.5)" }}>
 
-                  {/* 🚀 KARGO TAKİP BUTONU (ÜYE OLSUN YA DA OLMASIN HER ZAMAN EN ÜSTTE) */}
+                  {/* KARGO TAKİP BUTONU */}
                   <Link href="/siparis-takip" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#00e5ff", background: "rgba(0, 229, 255, 0.05)", textDecoration: "none", fontSize: "0.85rem", borderRadius: "8px", fontWeight: "bold", marginBottom: "4px" }}>
-                    <span>📦</span> Sipariş Takip
+                    <span>📦</span> Kargo / Sipariş Takip
                   </Link>
 
                   <div style={{ height: "1px", background: "#27272a", margin: "4px 0" }}></div>
 
-                  {/* KULLANICI GİRİŞ YAPMIŞSA */}
                   {session ? (
                     <>
                       <div style={{ padding: "8px 12px", borderBottom: "1px solid #27272a", marginBottom: "4px" }}>
@@ -96,9 +95,10 @@ const [isFavorilerModalOpen, setIsFavorilerModalOpen] = useState(false);
                         <span>📍</span> Adreslerim
                       </Link>
 
-                     <button onClick={() => { setHesabimAcik(false); setIsFavorilerModalOpen(true); }} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer", fontSize: "0.85rem" }}>
-    <span>❤️</span> Favorilerim
-  </button>
+                      {/* 🚀 YENİ FAVORİLER BUTONU (Link yerine Button oldu) */}
+                      <button onClick={() => { setHesabimAcik(false); setIsFavorilerModalOpen(true); }} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer", fontSize: "0.85rem" }}>
+                        <span>❤️</span> Favorilerim
+                      </button>
 
                       <div style={{ height: "1px", background: "#27272a", margin: "4px 0" }}></div>
 
@@ -116,7 +116,6 @@ const [isFavorilerModalOpen, setIsFavorilerModalOpen] = useState(false);
                       </button>
                     </>
                   ) : (
-                    /* KULLANICI GİRİŞ YAPMAMIŞSA */
                     <>
                       <Link href="/giris" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#ffffff", background: "rgba(0, 229, 255, 0.1)", textDecoration: "none", fontSize: "0.85rem", borderRadius: "8px" }}>
                         <span>🔑</span> Giriş Yap
@@ -143,7 +142,7 @@ const [isFavorilerModalOpen, setIsFavorilerModalOpen] = useState(false);
           </div>
         </div>
 
-        {/* 🚀 MOBİL MENÜ (HAMBURGER) - TERTEMİZ, SADECE ÜRÜN KATALOGLARI! */}
+        {/* MOBİL MENÜ */}
         {menuAcik && (
           <div className="md:hidden" style={{ background: "#18181b", borderTop: "1px solid #27272a", padding: "16px 20px", display: "flex", flexDirection: "column", gap: "16px" }}>
             <Link href="/" onClick={() => setMenuAcik(false)} style={{ color: "#d4d4d8", textDecoration: "none", fontSize: "1rem", fontWeight: "600" }}>Tüm Bilgisayarlar</Link>
@@ -157,10 +156,9 @@ const [isFavorilerModalOpen, setIsFavorilerModalOpen] = useState(false);
         `}} />
       </header>
 
-      {/* SİPARİŞLERİM MODALI */}
+      {/* POPUP (MODAL) ÇAĞIRILMA YERLERİ */}
       <SiparisModal isOpen={isSiparisModalOpen} onClose={() => setIsSiparisModalOpen(false)} />
-        FavorilerModal isOpen={isFavorilerModalOpen} onClose={() => setIsFavorilerModalOpen(false)}
+      <FavorilerModal isOpen={isFavorilerModalOpen} onClose={() => setIsFavorilerModalOpen(false)} />
     </>
-    
   );
 }
