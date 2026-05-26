@@ -95,7 +95,7 @@ export default function Header() {
                       </Link>
 
                       {/* 🚀 FAVORİLERİM (Artık Normal Sayfaya Gider) */}
-                      <Link href="/favoriler" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
+                      <Link href="/favorilerim" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
                         <span>❤️</span> Favorilerim
                       </Link>
 
