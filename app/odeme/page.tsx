@@ -151,272 +151,269 @@ export default function OdemeSayfasi() {
     }
   };
 
+  // ==========================================
+  // 🛒 1. BÖLÜM: EĞER SEPET BOŞ İSE (MAT SİYAH)
+  // ==========================================
   if (sepet.length === 0) {
     return (
-      <div style={{ minHeight: "80vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px", textAlign: "center" }}>
-        <h2 style={{ color: "#fff", fontSize: "2rem", fontWeight: "900", marginBottom: "20px" }}>Ödeme İçin Sepetinizde Ürün Olmalı</h2>
-        <Link href="/" style={{ background: "#00e5ff", color: "#000", padding: "15px 40px", borderRadius: "12px", fontWeight: "900", textDecoration: "none" }}>Alışverişe Başla</Link>
+      <div className="min-h-[80vh] bg-[#050814] text-white flex flex-col items-center justify-center px-4">
+        <div className="bg-[#09090b] border border-slate-800 rounded-3xl p-10 md:p-16 flex flex-col items-center max-w-lg w-full text-center shadow-2xl">
+          <h2 className="text-2xl md:text-3xl font-black mb-4 uppercase tracking-wider text-white">
+            Ödeme İçin Sepetinizde <span className="text-[#00e5ff]">Ürün Olmalı</span>
+          </h2>
+          <Link href="/" className="bg-[#00e5ff] text-black font-black py-4 px-10 rounded-xl hover:bg-[#00c4db] transition-all uppercase tracking-wide mt-4">
+            Alışverişe Başla
+          </Link>
+        </div>
       </div>
     );
   }
 
+ // 🧮 🚀 ŞEFİN DİNAMİK HAVALE HESAPLAMA MOTORU
+  const toplamHavaleIndirimi = sepet.reduce((toplam: number, urun: any) => {
+    const urunOrani = urun.havaleIndirimOrani !== undefined ? urun.havaleIndirimOrani : 5; // Üründe oran yoksa standart %5 al
+    const urunToplamFiyat = urun.fiyat * urun.adet;
+    return toplam + (urunToplamFiyat * urunOrani) / 100;
+  }, 0);
+  // Eğer ödeme yöntemi havale ise genel toplamdan bu dinamik indirimi düşüyoruz
+  const odenecekSonTutar = odemeYontemi === "havale" ? (genelToplam - toplamHavaleIndirimi) : genelToplam;
+
+
+  // ==========================================
+  // 💳 2. BÖLÜM: ÖDEME FORMU VE SİPARİŞ ÖZETİ
+  // ==========================================
   return (
-    <div className="ana-konteynir" style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
-      <h1 style={{ color: "#fff", fontSize: "2rem", fontWeight: "900", marginBottom: "30px", borderLeft: "6px solid #00e5ff", paddingLeft: "15px", marginTop: "20px" }}>
-        KASA / <span style={{ color: "#00e5ff" }}>ÖDEME</span>
-      </h1>
-
-      <div style={{ display: "flex", flexDirection: "row", gap: "30px" }} className="odeme-konteynir">
+    <div className="min-h-screen bg-[#050814] text-white pb-12 pt-8 md:pt-12">
+      <div className="ana-konteynir" style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
         
-        <div style={{ flex: "2", display: "flex", flexDirection: "column", gap: "20px" }}>
+        <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter text-white drop-shadow-md mb-8 border-l-4 border-[#00e5ff] pl-4">
+          KASA / <span className="text-[#00e5ff]">ÖDEME</span>
+        </h1>
+
+        <div className="odeme-konteynir" style={{ display: "flex", gap: "30px" }}>
           
-          <form onSubmit={siparisTamamla} className="form-kutu" style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px" }}>
-            
-            <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
-              <span>📍</span> Teslimat Bilgileri
-            </h3>
-            
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginBottom: "15px" }} className="form-grid-2">
-              <div>
-                <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Adınız *</label>
-                <input type="text" name="ad" value={form.ad} onChange={inputDegis} required style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
-              </div>
-              <div>
-                <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Soyadınız *</label>
-                <input type="text" name="soyad" value={form.soyad} onChange={inputDegis} required style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
-              </div>
-            </div>
+          {/* ⬅️ SOL TARAF: FORM KUTUSU */}
+          <div style={{ flex: "2", display: "flex", flexDirection: "column", gap: "20px" }}>
+            <form onSubmit={siparisTamamla} className="bg-[#09090b] border border-slate-800/50 rounded-3xl p-6 sm:p-8">
+              <h3 className="text-lg font-black text-white mb-6 flex items-center gap-2">
+                <span className="text-[#00e5ff]">📍</span> Teslimat Bilgileri
+              </h3>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginBottom: "15px" }} className="form-grid-2">
-              <div>
-                <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Telefon Numarası *</label>
-                <input type="tel" name="telefon" placeholder="05xx xxx xx xx" value={form.telefon} onChange={inputDegis} required style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
-              </div>
-              <div>
-                <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>E-Posta Adresi *</label>
-                <input type="email" name="eposta" value={form.eposta} onChange={inputDegis} required style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
-              </div>
-            </div>
-
-            <div style={{ marginBottom: "15px" }}>
-              <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Açık Adres *</label>
-              <textarea rows={3} name="adres" value={form.adres} onChange={inputDegis} required placeholder="Mahalle, sokak, kapı numarası, daire..." style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none", resize: "none" }}></textarea>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginBottom: "25px" }} className="form-grid-2">
-              <div>
-                <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Şehir *</label>
-                <input type="text" name="sehir" value={form.sehir} onChange={inputDegis} required style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
-              </div>
-              <div>
-                <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>İlçe *</label>
-                <input type="text" name="ilce" value={form.ilce} onChange={inputDegis} required style={{ width: "100%", background: "#09090b", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
-              </div>
-            </div>
-
-            <hr style={{ borderColor: "#27272a", marginBottom: "20px" }} />
-
-            <div style={{ marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
-              <input 
-                type="checkbox" 
-                id="faturaAyni" 
-                checked={faturaAyni} 
-                onChange={(e) => setFaturaAyni(e.target.checked)} 
-                style={{ width: "18px", height: "18px", cursor: "pointer", accentColor: "#00e5ff" }} 
-              />
-              <label htmlFor="faturaAyni" style={{ color: "#d4d4d8", cursor: "pointer", fontSize: "0.95rem" }}>Fatura/Teslimat adresim yukarıdaki ile aynıdır.</label>
-            </div>
-
-            {!faturaAyni && (
-              <div className="form-kutu" style={{ background: "#09090b", border: "1px solid #27272a", borderRadius: "12px", padding: "20px", marginBottom: "25px" }}>
-                <h4 style={{ color: "#00e5ff", marginBottom: "15px", fontSize: "1rem" }}>Farklı Adres Bilgileri</h4>
-                
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginBottom: "15px" }} className="form-grid-2">
-                  <div>
-                    <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Adınız *</label>
-                    <input type="text" name="ad" value={faturaForm.ad} onChange={faturaInputDegis} required={!faturaAyni} style={{ width: "100%", background: "#121214", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
-                  </div>
-                  <div>
-                    <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Soyadınız *</label>
-                    <input type="text" name="soyad" value={faturaForm.soyad} onChange={faturaInputDegis} required={!faturaAyni} style={{ width: "100%", background: "#121214", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
-                  </div>
+              <div className="form-grid-2" style={{ display: "grid", gap: "15px", marginBottom: "15px" }}>
+                <div>
+                  <label className="text-slate-400 text-sm block mb-1.5">Adınız *</label>
+                  <input type="text" name="ad" value={form.ad} onChange={inputDegis} required className="w-full bg-[#121215] border border-slate-800 rounded-xl p-3.5 text-white outline-none focus:border-[#00e5ff] transition-all" />
                 </div>
-
-                <div style={{ marginBottom: "15px" }}>
-                  <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Telefon Numarası *</label>
-                  <input type="tel" name="telefon" value={faturaForm.telefon} onChange={faturaInputDegis} required={!faturaAyni} style={{ width: "100%", background: "#121214", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+                <div>
+                  <label className="text-slate-400 text-sm block mb-1.5">Soyadınız *</label>
+                  <input type="text" name="soyad" value={form.soyad} onChange={inputDegis} required className="w-full bg-[#121215] border border-slate-800 rounded-xl p-3.5 text-white outline-none focus:border-[#00e5ff] transition-all" />
                 </div>
+              </div>
 
-                <div style={{ marginBottom: "15px" }}>
-                  <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Açık Adres *</label>
-                  <textarea rows={2} name="adres" value={faturaForm.adres} onChange={faturaInputDegis} required={!faturaAyni} style={{ width: "100%", background: "#121214", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none", resize: "none" }}></textarea>
+              <div className="form-grid-2" style={{ display: "grid", gap: "15px", marginBottom: "15px" }}>
+                <div>
+                  <label className="text-slate-400 text-sm block mb-1.5">Telefon Numarası *</label>
+                  <input type="tel" name="telefon" placeholder="05xx xxx xx xx" value={form.telefon} onChange={inputDegis} required className="w-full bg-[#121215] border border-slate-800 rounded-xl p-3.5 text-white outline-none focus:border-[#00e5ff] transition-all" />
                 </div>
+                <div>
+                  <label className="text-slate-400 text-sm block mb-1.5">E-Posta Adresi *</label>
+                  <input type="email" name="eposta" value={form.eposta} onChange={inputDegis} required className="w-full bg-[#121215] border border-slate-800 rounded-xl p-3.5 text-white outline-none focus:border-[#00e5ff] transition-all" />
+                </div>
+              </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }} className="form-grid-2">
-                  <div>
-                    <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>Şehir *</label>
-                    <input type="text" name="sehir" value={faturaForm.sehir} onChange={faturaInputDegis} required={!faturaAyni} style={{ width: "100%", background: "#121214", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+              <div style={{ marginBottom: "15px" }}>
+                <label className="text-slate-400 text-sm block mb-1.5">Açık Adres *</label>
+                <textarea rows={3} name="adres" value={form.adres} onChange={inputDegis} required placeholder="Mahalle, sokak, kapı numarası..." className="w-full bg-[#121215] border border-slate-800 rounded-xl p-3.5 text-white outline-none focus:border-[#00e5ff] transition-all"></textarea>
+              </div>
+
+              <div className="form-grid-2" style={{ display: "grid", gap: "15px", marginBottom: "25px" }}>
+                <div>
+                  <label className="text-slate-400 text-sm block mb-1.5">Şehir *</label>
+                  <input type="text" name="sehir" value={form.sehir} onChange={inputDegis} required className="w-full bg-[#121215] border border-slate-800 rounded-xl p-3.5 text-white outline-none focus:border-[#00e5ff] transition-all" />
+                </div>
+                <div>
+                  <label className="text-slate-400 text-sm block mb-1.5">İlçe *</label>
+                  <input type="text" name="ilce" value={form.ilce} onChange={inputDegis} required className="w-full bg-[#121215] border border-slate-800 rounded-xl p-3.5 text-white outline-none focus:border-[#00e5ff] transition-all" />
+                </div>
+              </div>
+
+              <hr className="border-slate-800 mb-5" />
+
+              <div className="flex items-center gap-2 mb-5">
+                <input type="checkbox" id="faturaAyni" checked={faturaAyni} onChange={(e) => setFaturaAyni(e.target.checked)} className="w-5 h-5 cursor-pointer accent-[#00e5ff]" />
+                <label htmlFor="faturaAyni" className="text-slate-400 text-sm cursor-pointer">Fatura/Teslimat adresim yukarıdaki ile aynıdır.</label>
+              </div>
+
+              {!faturaAyni && (
+                <div className="bg-[#121215] border border-slate-800 rounded-2xl p-5 mb-6">
+                  <h4 className="text-[#00e5ff] font-bold mb-4">Farklı Adres Bilgileri</h4>
+                  <div className="form-grid-2" style={{ display: "grid", gap: "15px", marginBottom: "15px" }}>
+                    <div>
+                      <label className="text-slate-400 text-sm block mb-1.5">Adınız *</label>
+                      <input type="text" name="ad" value={faturaForm.ad} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-slate-800 rounded-xl p-3.5 text-white outline-none focus:border-[#00e5ff] transition-all" />
+                    </div>
+                    <div>
+                      <label className="text-slate-400 text-sm block mb-1.5">Soyadınız *</label>
+                      <input type="text" name="soyad" value={faturaForm.soyad} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-slate-800 rounded-xl p-3.5 text-white outline-none focus:border-[#00e5ff] transition-all" />
+                    </div>
                   </div>
-                  <div>
-                    <label style={{ color: "#a1a1aa", fontSize: "0.85rem", display: "block", marginBottom: "6px" }}>İlçe *</label>
-                    <input type="text" name="ilce" value={faturaForm.ilce} onChange={faturaInputDegis} required={!faturaAyni} style={{ width: "100%", background: "#121214", border: "1px solid #27272a", borderRadius: "8px", padding: "12px", color: "#fff", outline: "none" }} />
+                  <div style={{ marginBottom: "15px" }}>
+                    <label className="text-slate-400 text-sm block mb-1.5">Telefon Numarası *</label>
+                    <input type="tel" name="telefon" value={faturaForm.telefon} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-slate-800 rounded-xl p-3.5 text-white outline-none focus:border-[#00e5ff] transition-all" />
+                  </div>
+                  <div style={{ marginBottom: "15px" }}>
+                    <label className="text-slate-400 text-sm block mb-1.5">Açık Adres *</label>
+                    <textarea rows={2} name="adres" value={faturaForm.adres} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-slate-800 rounded-xl p-3.5 text-white outline-none focus:border-[#00e5ff] transition-all"></textarea>
+                  </div>
+                  <div className="form-grid-2" style={{ display: "grid", gap: "15px" }}>
+                    <div>
+                      <label className="text-slate-400 text-sm block mb-1.5">Şehir *</label>
+                      <input type="text" name="sehir" value={faturaForm.sehir} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-slate-800 rounded-xl p-3.5 text-white outline-none focus:border-[#00e5ff] transition-all" />
+                    </div>
+                    <div>
+                      <label className="text-slate-400 text-sm block mb-1.5">İlçe *</label>
+                      <input type="text" name="ilce" value={faturaForm.ilce} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-slate-800 rounded-xl p-3.5 text-white outline-none focus:border-[#00e5ff] transition-all" />
+                    </div>
                   </div>
                 </div>
+              )}
+
+              <hr className="border-slate-800 mb-6" />
+
+              {/* ÖDEME YÖNTEMİ SEÇİMİ */}
+              <h3 className="text-lg font-black text-white mb-4">Ödeme Yöntemi</h3>
+              <div className="flex gap-4 mb-6">
+                <button 
+                  type="button" 
+                  onClick={() => { setIyzicoFormHtml(""); setOdemeYontemi("kart"); }} 
+                  className={`flex-1 py-3.5 rounded-xl font-bold transition-all border ${odemeYontemi === "kart" ? "bg-[#00e5ff] text-black border-[#00e5ff]" : "bg-[#121215] text-slate-400 border-slate-800 hover:border-slate-600"}`}
+                >
+                  Kredi / Banka Kartı
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => { setIyzicoFormHtml(""); setOdemeYontemi("havale"); }} 
+                  className={`flex-1 py-3.5 rounded-xl font-bold transition-all border ${odemeYontemi === "havale" ? "bg-[#00e5ff] text-black border-[#00e5ff]" : "bg-[#121215] text-slate-400 border-slate-800 hover:border-slate-600"}`}
+                >
+                  Havale / EFT
+                </button>
               </div>
-            )}
 
-            <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
-              <span>💳</span> Ödeme Yöntemi
-            </h3>
-            <div style={{ display: "flex", gap: "10px", marginBottom: "25px" }}>
-              <button type="button" onClick={() => { setIyzicoFormHtml(""); setOdemeYontemi("kart"); }} style={{ flex: 1, padding: "14px", borderRadius: "10px", cursor: "pointer", fontWeight: "700", background: odemeYontemi === "kart" ? "rgba(0, 229, 255, 0.1)" : "#09090b", color: odemeYontemi === "kart" ? "#00e5ff" : "#a1a1aa", border: odemeYontemi === "kart" ? "1px solid #00e5ff" : "1px solid #27272a" }}>Kredi / Banka Kartı</button>
-              <button type="button" onClick={() => { setIyzicoFormHtml(""); setOdemeYontemi("havale"); }} style={{ flex: 1, padding: "14px", borderRadius: "10px", cursor: "pointer", fontWeight: "700", background: odemeYontemi === "havale" ? "rgba(16, 185, 129, 0.1)" : "#09090b", color: odemeYontemi === "havale" ? "#10b981" : "#a1a1aa", border: odemeYontemi === "havale" ? "1px solid #10b981" : "1px solid #27272a" }}>Havale / EFT (%5 İndirimli)</button>
-            </div>
-
-            {odemeYontemi === "havale" && (
-              <div style={{ background: "#09090b", border: "1px solid #27272a", borderRadius: "12px", padding: "16px", color: "#d4d4d8", fontSize: "0.9rem", lineHeight: "1.6", marginBottom: "20px" }}>
-                <p style={{ color: "#10b981", fontWeight: "700", marginBottom: "10px" }} >💡 Havale Ödeme Talimatı:</p>
-                Açıklama kısmına adınızı yazarak IBAN hesabımıza gönderim yapabilirsiniz:
-                <div style={{ marginTop: "15px", borderTop: "1px solid #27272a", paddingTop: "12px", fontFamily: "monospace" }}>
-                  <strong>Banka:</strong> Bilgin PC Akıllı Banka<br />
-                  <strong>Alıcı:</strong> BİLGİN PC MARKET LTD. ŞTİ.<br />
-                  <strong>IBAN:</strong> TR99 0001 0002 0003 0004 0005 06
+              {/* 🚀 KESİLEN YAZI DÜZELTİLDİ: HAVALE TALİMATLARI BİLGİ KUTUSU */}
+              {odemeYontemi === "havale" && (
+                <div className="bg-[#121215] border border-slate-800 rounded-2xl p-5 text-slate-400 text-sm mb-6 leading-relaxed w-full block clear-both overflow-hidden">
+                  <p className="text-[#10b981] font-bold mb-3 flex items-center gap-1.5">💡 Havale / EFT Ödeme Talimatı:</p>
+                  <div className="text-slate-300 mb-3 font-medium">
+                    Lütfen transferi gerçekleştirirken açıklama alanına sadece <span className="text-[#00e5ff] font-bold underline">adınızı ve soyadınızı</span> yazınız. Siparişiniz kontrol edildikten sonra anında onaylanacaktır.
+                  </div>
+                  <div className="mt-4 border-t border-slate-800/80 pt-3 font-mono text-xs sm:text-sm flex flex-col gap-1.5 bg-black/20 p-3 rounded-xl">
+                    <div><strong>Banka:</strong> Akıllı Banka (Bilgin PC Özel)</div>
+                    <div><strong>Alıcı:</strong> BİLGİN PC MARKET LTD. ŞTİ.</div>
+                    <div className="break-all select-all"><strong>IBAN:</strong> <span className="text-white font-bold bg-slate-900 px-1 py-0.5 rounded border border-slate-800">TR99 0001 0002 0003 0004 0005 06</span></div>
+                  </div>
                 </div>
+              )}
+
+              <div className="flex items-start gap-3 bg-[#121215] border border-slate-800 p-4 rounded-xl mb-6">
+                <input type="checkbox" id="sozlesmeKabul" checked={sozlesmeKabul} onChange={(e) => setSozlesmeKabul(e.target.checked)} className="w-5 h-5 mt-0.5 cursor-pointer accent-[#00e5ff]" />
+                <label htmlFor="sozlesmeKabul" className="text-slate-400 text-sm cursor-pointer leading-snug">
+                  Ön Bilgilendirme Formu'nu, <span className="text-[#00e5ff] underline">Mesafeli Satış Sözleşmesi</span>'ni ve <span className="text-[#00e5ff] underline">KVKK Aydınlatma Metni</span>'ni okudum, onaylıyorum.
+                </label>
               </div>
-            )}
 
-            <div style={{ marginBottom: "25px", display: "flex", alignItems: "flex-start", gap: "10px", background: "rgba(0, 229, 255, 0.05)", padding: "15px", borderRadius: "10px", border: "1px solid rgba(0, 229, 255, 0.2)" }}>
-              <input 
-                type="checkbox" 
-                id="sozlesmeKabul" 
-                checked={sozlesmeKabul} 
-                onChange={(e) => setSozlesmeKabul(e.target.checked)} 
-                style={{ width: "20px", height: "20px", cursor: "pointer", accentColor: "#00e5ff", marginTop: "2px" }} 
-              />
-              <label htmlFor="sozlesmeKabul" style={{ color: "#d4d4d8", cursor: "pointer", fontSize: "0.85rem", lineHeight: "1.5" }}>
-                Ön Bilgilendirme Formu'nu, <span style={{ color: "#00e5ff", textDecoration: "underline" }}>Mesafeli Satış Sözleşmesi</span>'ni ve <span style={{ color: "#00e5ff", textDecoration: "underline" }}>KVKK Aydınlatma Metni</span>'ni okudum, anladım ve onaylıyorum.
-              </label>
-            </div>
+              {!iyzicoFormHtml && (
+                <button 
+                  type="submit" 
+                  disabled={yukleniyor || !sozlesmeKabul} 
+                  style={{ opacity: (yukleniyor || !sozlesmeKabul) ? 0.5 : 1 }}
+                  className="w-full bg-[#00e5ff] hover:bg-[#00c4db] text-black font-black uppercase tracking-wider py-4 rounded-xl text-lg transition-all"
+                >
+                  {yukleniyor ? "Lütfen Bekleyin..." : (!sozlesmeKabul ? "Sözleşmeyi Onaylayın" : (odemeYontemi === "havale" ? "Siparişi Onayla" : "Kart Ödemesine İlerle"))}
+                </button>
+              )}
+            </form>
 
-            {!iyzicoFormHtml && (
-              <button 
-                type="submit" 
-                disabled={yukleniyor || !sozlesmeKabul} 
-                style={{ 
-                  width: "100%", padding: "16px", color: "#000", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "1.05rem", 
-                  cursor: (yukleniyor || !sozlesmeKabul) ? "not-allowed" : "pointer", 
-                  background: odemeYontemi === "havale" ? "linear-gradient(45deg, #10b981, #059669)" : "linear-gradient(45deg, #00e5ff, #007acc)",
-                  opacity: (yukleniyor || !sozlesmeKabul) ? 0.5 : 1
-                }}>
-                {yukleniyor ? "Lütfen Bekleyin..." : (!sozlesmeKabul ? "Sözleşmeyi Onaylayın" : (odemeYontemi === "havale" ? "Siparişi Onayla" : "Kart Ödemesine İlerle"))}
-              </button>
-            )}
-          </form>
-
-          {/* ŞEFİM: BEYAZ EKRAN ÜST BOŞLUĞU SIFIRLANDI VE X BUTONU İÇERİ/ÜSTE ALINDI */}
-          <div style={{ 
-            display: (odemeYontemi === "kart" && iyzicoFormHtml) ? "flex" : "none", 
-            position: "fixed", 
-            top: 0, 
-            left: 0, 
-            width: "100%", 
-            height: "100%", 
-            background: "#ffffff", 
-            zIndex: 999999, 
-            flexDirection: "column", 
-            alignItems: "center", 
-            justifyContent: "flex-start", // En tepeden başlatır
-            overflowY: "auto"
-          }}>
-            {/* X Butonu tam sağ üst köşede, formun üzerine denk gelecek şekilde! */}
-            <button 
-              type="button"
-              onClick={() => {
+            {/* IYZICO MODAL */}
+            <div style={{
+              display: (odemeYontemi === "kart" && iyzicoFormHtml) ? "flex" : "none",
+              position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "#ffffff", zIndex: 999999,
+              flexDirection: "column", alignItems: "center", justifyContent: "flex-start", overflowY: "auto"
+            }}>
+              <button type="button" onClick={() => {
                 setIyzicoFormHtml("");
                 const kutu = document.getElementById("iyzipay-checkout-form");
                 if (kutu) kutu.innerHTML = "";
-                if (typeof window !== "undefined") {
-                  (window as any).iyziInit = undefined;
-                }
-              }} 
-              style={{ 
-                position: "fixed", 
-                top: "10px", // Yukarıya sıfırlandı
-                right: "10px", // Sağa iyice yanaştı
-                background: "#f4f4f5", 
-                color: "#000", 
-                border: "2px solid #e4e4e7", 
-                borderRadius: "50%", 
-                width: "40px", 
-                height: "40px", 
-                fontSize: "1.2rem", 
-                cursor: "pointer", 
-                fontWeight: "bold", 
-                display: "flex", 
-                alignItems: "center", 
-                justifyContent: "center",
-                boxShadow: "0 4px 15px rgba(0,0,0,0.3)", 
-                zIndex: 2147483647 // Her şeyin ama her şeyin üzerinde durur
-              }}>
-              ✕
-            </button>
-            
-            <div style={{ width: "100%", maxWidth: "600px", background: "#ffffff", padding: "0" }}>
-              <div id="iyzipay-checkout-form" className="responsive"></div>
+                if (typeof window !== "undefined") { (window as any).iyziInit = undefined; }
+              }} style={{ position: "fixed", top: "10px", right: "10px", background: "#f4f4f5", color: "#000", border: "2px solid #e4e4e7", borderRadius: "50%", width: "40px", height: "40px", fontSize: "1.2rem", cursor: "pointer", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2147483647 }}>X</button>
+              <div id="iyzipay-checkout-form" className="w-full max-w-2xl mt-16 p-4"></div>
             </div>
+
           </div>
 
-        </div>
+          {/* ➡️ SAĞ TARAF: SİPARİŞ ÖZETI */}
+          <div style={{ flex: "1" }} className="w-full lg:w-[380px] shrink-0">
+            <div className="bg-[#09090b] border border-slate-800/50 rounded-3xl p-6 lg:p-8 sticky top-24">
+              <h2 className="font-black text-xl mb-6 pb-4 border-b border-slate-800 text-white uppercase tracking-wide">
+                Sipariş <span className="text-[#00e5ff]">Özetiniz</span>
+              </h2>
 
-        {/* SAĞ PANEL: SİPARİŞ ÖZETİ */}
-        <div style={{ flex: "1" }}>
-          <div style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "20px", padding: "24px", position: "sticky", top: "100px" }}>
-            <h2 style={{ color: "#fff", fontSize: "1.3rem", fontWeight: "800", marginBottom: "20px" }}>Sipariş Özetiniz</h2>
-            
-            <div style={{ maxHeight: "200px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px", marginBottom: "20px" }}>
-              {sepet.map((urun: any, idx: number) => (
-                <div key={idx} style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                  <img src={urun.resim} alt={urun.isim} style={{ width: "45px", height: "45px", objectFit: "cover", borderRadius: "6px" }} />
-                  <div style={{ flex: "1", minWidth: 0 }}>
-                    <h4 style={{ color: "#fff", fontSize: "0.85rem", fontWeight: "700", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>{urun.isim}</h4>
-                    <p style={{ color: "#a1a1aa", fontSize: "0.75rem" }}>{urun.adet} Adet x {urun.varyasyon || "Standart"}</p>
-                  </div>
-                  <span style={{ color: "#fff", fontSize: "0.85rem", fontWeight: "700" }}>{(urun.fiyat * urun.adet).toLocaleString()} TL</span>
+              <div style={{ maxHeight: "280px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px", marginBottom: "20px" }}>
+                {sepet.map((urun: any, index: number) => {
+                  const indOrani = urun.havaleIndirimOrani !== undefined ? urun.havaleIndirimOrani : 5;
+                  return (
+                    <div key={index} className="bg-[#121215] border border-slate-800 p-2 rounded-xl flex items-center gap-3">
+                      <img src={urun.resim} alt={urun.isim} className="w-11 h-11 object-cover rounded-lg bg-[#09090b]" />
+                      <div style={{ flex: "1", minWidth: 0 }}>
+                        <h4 className="text-white text-sm font-bold truncate">{urun.isim}</h4>
+                        <p className="text-slate-400 text-xs">{urun.adet} Adet x {urun.varyasyon || "Standart"}</p>
+                        {/* Havale yöntemi seçildiğinde hangi üründen yüzde kaç indirim düştüğünü ufakça fısıldar */}
+                        {odemeYontemi === "havale" && (
+                          <span className="text-[#10b981] text-[10px] font-bold bg-[#10b981]/10 px-1.5 py-0.5 rounded border border-[#10b981]/20 mt-0.5 inline-block">%{indOrani} Havale İndirimi</span>
+                        )}
+                      </div>
+                      <span className="text-white text-sm font-bold">{(urun.fiyat * urun.adet).toLocaleString()} TL</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="flex justify-between text-slate-400 mb-3 text-sm border-t border-slate-800 pt-4">
+                <span>Ara Toplam</span>
+                <span className="text-white font-bold">{araToplam.toLocaleString("tr-TR")} TL</span>
+              </div>
+
+              <div className="flex justify-between text-slate-400 mb-3 text-sm">
+                <span>Kargo</span>
+                <span>{kargo === 0 ? <span className="text-[#00e5ff] font-bold">BEDAVA</span> : <span className="text-white font-bold">{kargo} TL</span>}</span>
+              </div>
+
+              {/* 🚀 DİNAMİK YAZILAN YER: Toplam indirim tutarı artık sabit değil, sepetin içindeki oranların toplamı! */}
+              {odemeYontemi === "havale" && (
+                <div className="flex justify-between text-[#10b981] mb-3 text-sm font-bold bg-[#10b981]/5 p-2 rounded-lg border border-[#10b981]/10">
+                  <span>Havale İndirimi</span>
+                  <span>-{toplamHavaleIndirimi.toLocaleString("tr-TR")} TL</span>
                 </div>
-              ))}
-            </div>
+              )}
 
-            <div style={{ borderTop: "1px solid #27272a", paddingTop: "15px", display: "flex", justifyContent: "space-between", marginBottom: "10px", color: "#a1a1aa", fontSize: "0.9rem" }}>
-              <span>Ara Toplam</span> <span style={{ color: "#fff" }}>{araToplam.toLocaleString()} TL</span>
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px", color: "#a1a1aa", fontSize: "0.9rem" }}>
-              <span>Kargo</span> <span style={{ color: kargo === 0 ? "#10b981" : "#fff" }}>{kargo === 0 ? "BEDAVA" : kargo + " TL"}</span>
-            </div>
-            {odemeYontemi === "havale" && (
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px", color: "#10b981", fontSize: "0.9rem", fontWeight: "700" }}>
-                <span>%5 Havale İndirimi</span> <span>-{havaleIndirimi.toLocaleString()} TL</span>
-              </div>
-            )}
-            <div style={{ borderTop: "1px solid #27272a", paddingTop: "15px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-                <span style={{ color: "#fff", fontWeight: "600" }}>ÖDENECEK TUTAR</span>
-                <span style={{ color: odemeYontemi === "havale" ? "#10b981" : "#00e5ff", fontSize: "1.8rem", fontWeight: "900" }}>{genelToplam.toLocaleString()} TL</span>
+              <div className="flex justify-between items-center text-white font-black border-t border-slate-800 pt-5 mt-2">
+                <span className="text-lg">ÖDENECEK TUTAR</span>
+                <span className="text-2xl text-[#00e5ff]">
+                  {odenecekSonTutar.toLocaleString("tr-TR")} <span className="text-sm text-slate-400 font-bold">TL</span>
+                </span>
               </div>
             </div>
           </div>
-        </div>
 
+        </div>
       </div>
 
-      {/* ŞEFİM: MOBİLDE BOŞLUKLARI SİLEN SİHİRLİ KODLAR BURADA EKLENDİ! */}
-      <style dangerouslySetInnerHTML={{__html: `
+   <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 992px) { .odeme-konteynir { flex-direction: column !important; } }
-        @media (max-width: 550px) { 
-          .form-grid-2 { grid-template-columns: 1fr !important; } 
+        @media (max-width: 550px) {
+          .form-grid-2 { grid-template-columns: 1fr !important; }
           .ana-konteynir { padding: 10px !important; }
-          .form-kutu { padding: 15px !important; }
         }
       `}} />
     </div>
   );
-}
+} // 🚀 İŞTE EKSİK OLAN VE HATAYI ÇÖZECEK ANAHTAR BU!
