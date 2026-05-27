@@ -360,7 +360,37 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-{/* 🚀 DİNAMİK TEKNİK BİLGİLER TABLOSU (KUTU TASARIMI VE TIKLANABİLİR) */}
+{/* 🚀 BİNGO: EFSANE 3'LÜ AKSİYON BUTONLARI */}
+        <div className="grid grid-cols-3 gap-3 my-8">
+          
+          {/* 1. KARŞILAŞTIR BUTONU */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              karsilastirmayaEkle(product);
+              setPopupAcik(true);
+            }}
+            className="flex flex-col items-center justify-center gap-2 bg-[#121215] border border-slate-800 hover:border-[#00e5ff] hover:bg-[#00e5ff]/10 text-slate-400 hover:text-[#00e5ff] p-4 rounded-2xl transition-all group shadow-sm hover:shadow-[0_0_15px_rgba(0,229,255,0.2)]"
+          >
+            <Scale className="w-6 h-6 sm:w-7 sm:h-7 group-hover:scale-110 transition-transform" />
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-center">Karşılaştır</span>
+          </button>
+
+          {/* 2. FPS TESTİ BUTONU */}
+          <a href="#oyun-testi" className="flex flex-col items-center justify-center gap-2 bg-[#121215] border border-slate-800 hover:border-orange-500 hover:bg-orange-500/10 text-slate-400 hover:text-orange-500 p-4 rounded-2xl transition-all group shadow-sm hover:shadow-[0_0_15px_rgba(249,115,22,0.2)]">
+            <Gamepad2 className="w-6 h-6 sm:w-7 sm:h-7 group-hover:scale-110 transition-transform" />
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-center">FPS Testi</span>
+          </a>
+
+          {/* 3. YORUMLAR BUTONU */}
+          <a href="#yorumlar" className="flex flex-col items-center justify-center gap-2 bg-[#121215] border border-slate-800 hover:border-emerald-500 hover:bg-emerald-500/10 text-slate-400 hover:text-emerald-500 p-4 rounded-2xl transition-all group shadow-sm hover:shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+            <MessageSquare className="w-6 h-6 sm:w-7 sm:h-7 group-hover:scale-110 transition-transform" />
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-center">Yorumlar</span>
+          </a>
+
+        </div>
+
+        33{/* 🚀 DİNAMİK TEKNİK BİLGİLER TABLOSU (KUTU TASARIMI VE TIKLANABİLİR) */}
         {product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 && (
           <div className="mt-8 mb-24 bg-[#09090b] border border-slate-800 rounded-3xl p-5 sm:p-8 shadow-lg">
             
