@@ -91,27 +91,29 @@ export default function Footer() {
           <div className="flex flex-col gap-4">
             <h3 className="text-white font-black text-lg uppercase tracking-wider mb-2">Bize Ulaşın</h3>
             
-            {/* 🚀 BİNGO: w-max class'ı ile boyutları kilitledik! Sünme bitti. */}
-            <a href="https://wa.me/905534061955" target="_blank" rel="noopener noreferrer" className="w-max flex items-center gap-3 bg-[#10b981]/10 border border-[#10b981]/30 hover:bg-[#10b981]/20 transition-all p-3 rounded-xl group">
-              <MessageCircle className="w-6 h-6 text-[#10b981]" />
-              <div className="flex flex-col">
-                <span className="text-white font-bold text-sm">WhatsApp Destek</span>
-                <span className="text-[#10b981] text-[11px] font-bold uppercase tracking-wider">Hızlı Yanıt</span>
-              </div>
-            </a>
+            {/* 🚀 BİNGO: Butonları "grid grid-cols-2" ile yan yana sabitledik! */}
+            <div className="grid grid-cols-2 gap-3 w-full">
+              <a href="https://wa.me/905000000000" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-[#10b981]/10 border border-[#10b981]/30 hover:bg-[#10b981]/20 transition-all p-3 rounded-xl group w-full">
+                <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 text-[#10b981] shrink-0" />
+                <div className="flex flex-col overflow-hidden">
+                  <span className="text-white font-bold text-xs sm:text-sm truncate">WhatsApp</span>
+                  <span className="text-[#10b981] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider truncate">Destek</span>
+                </div>
+              </a>
+              
+              <a href="https://instagram.com/bilginpc" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-[#e1306c]/10 border border-[#e1306c]/30 hover:bg-[#e1306c]/20 transition-all p-3 rounded-xl group w-full">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-[#e1306c] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                </svg>
+                <div className="flex flex-col overflow-hidden">
+                  <span className="text-white font-bold text-xs sm:text-sm truncate">Instagram</span>
+                  <span className="text-[#e1306c] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider truncate">Takip Et</span>
+                </div>
+              </a>
+            </div>
             
-            {/* 🚀 BİNGO: w-max eklendi! */}
-            <a href="https://instagram.com/bilginpc" target="_blank" rel="noopener noreferrer" className="w-max flex items-center gap-3 bg-[#e1306c]/10 border border-[#e1306c]/30 hover:bg-[#e1306c]/20 transition-all p-3 rounded-xl group">
-              <svg width="24" height="24" className="text-[#e1306c] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-              </svg>
-              <div className="flex flex-col">
-                <span className="text-white font-bold text-sm">Instagram'da Biz</span>
-                <span className="text-[#e1306c] text-[11px] font-bold uppercase tracking-wider">Takip Et</span>
-              </div>
-            </a>
           </div>
 
         </div>
