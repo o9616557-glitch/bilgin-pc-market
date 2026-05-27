@@ -352,11 +352,18 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </button>
           </div>
 
-          <div className="mt-2 sm:mt-0">
-            <button onClick={() => { setActiveTab("reviews"); setIsModalOpen(true); }} className="w-full py-3.5 rounded-xl border border-white/5 bg-[#050814] hover:bg-white/5 flex items-center justify-center gap-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-300 transition-all">
-              ⭐ Ürün Yorumları ve Soru Cevap
-            </button>
-          </div>
+      {/* 3. YORUMLAR (TIKLAYINCA YORUM POPUP AÇAR) */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              setActiveTab("reviews"); 
+              setIsModalOpen(true);
+            }}
+            className="flex flex-col items-center justify-center gap-1 bg-[#00e5ff]/5 border border-[#00e5ff]/30 hover:border-[#00e5ff] text-slate-300 hover:text-[#00e5ff] p-3 rounded-xl transition-all shadow-[0_0_10px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] backdrop-blur-sm group"
+          >
+            <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
+            <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-tighter text-center">Yorumlar</span>
+          </button>
         </div>
       </div>
 
@@ -402,34 +409,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
         </div>
 
-        {/* 🚀 TEKNİK BİLGİLER KUTULARI */}
-        {product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 && (
-          <div id="teknik-ozellikler" className="mt-8 mb-24 bg-[#09090b] border border-slate-800 rounded-3xl p-5 sm:p-8 shadow-2xl relative overflow-hidden">
-            
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#00e5ff] blur-[100px] opacity-10 pointer-events-none"></div>
-
-            <h3 className="text-lg sm:text-xl font-black text-white uppercase tracking-wide flex items-center gap-3 mb-6 border-b border-slate-800 pb-4">
-              <Settings2 className="w-6 h-6 text-[#00e5ff]" /> Cihazın Teknik Genetiği
-            </h3>
-            
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-              {Object.entries(product.teknik_ozellikler).map(([anahtar, deger]) => (
-                <button 
-                  key={anahtar}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setTeknikPopupAcik(true); // 🚀 BİNGO: Kutular da Teknik Popup'ı açar!
-                  }}
-                  className="flex flex-col justify-center items-start text-left p-3 sm:p-4 bg-[#121215] border border-slate-800 hover:border-[#00e5ff] rounded-none transition-all group shadow-sm hover:shadow-[0_0_15px_rgba(0,229,255,0.2)]"
-                >
-                  <span className="text-slate-500 font-bold text-[10px] sm:text-xs uppercase tracking-wider mb-1 group-hover:text-slate-300 transition-colors">{anahtar}</span>
-                  <span className="text-white font-medium text-xs sm:text-sm group-hover:text-[#00e5ff] transition-colors">{deger as string}</span>
-                </button>
-              ))}
-            </div>
-
-          </div>
-        )}
+       
+        )
 
         {/* 🚀 YEPYENİ: SADECE BU ÜRÜNE ÖZEL TEKNİK BİLGİLER PENCERESİ (POPUP) */}
         {teknikPopupAcik && (
