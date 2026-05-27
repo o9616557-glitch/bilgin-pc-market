@@ -46,7 +46,7 @@ export default function Footer() {
               <Info className="w-4 h-4" /> Hakkımızda
             </Link>
             <Link href="/gizlilik-politikasi" className="text-slate-400 hover:text-[#00e5ff] transition-colors text-sm font-medium flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4" /> merhaba Gizlilik Politikası
+              <ShieldCheck className="w-4 h-4" /> Gizlilik Politikası
             </Link>
             <Link href="/mesafeli-satis" className="text-slate-400 hover:text-[#00e5ff] transition-colors text-sm font-medium flex items-center gap-2">
               <FileText className="w-4 h-4" /> Mesafeli Satış Sözleşmesi
