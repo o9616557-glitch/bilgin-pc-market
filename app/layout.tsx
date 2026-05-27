@@ -6,6 +6,9 @@ import "./globals.css";
 import Header from "@/components/Header";
 import { CartProvider } from "./CartContext";
 
+// 🚀 1. BİNGO: FOOTER'I BURADAN İÇERİ ÇAĞIRDIK
+import Footer from "@/components/Footer"; 
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -30,25 +33,30 @@ export default function RootLayout({
     <html lang="tr">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-[#050814] overflow-x-hidden`}>
         
-        {/* 🚀 BİLDİRİM MOTORU: Tüm sitede çalışması için en üste taktık */}
+        {/* 🚀 BİLDİRİM MOTORU */}
         <Toaster 
-          position="top-right" 
+          position="top-right"
           toastOptions={{
             style: {
               background: '#09090b',
               color: '#fff',
               border: '1px solid rgba(255,255,255,0.1)'
             }
-          }} 
+          }}
         />
 
         {/* 🚀 ANA ŞALTER */}
         <AuthProvider>
           <CartProvider>
             <Header />
+            
             <main className="flex-grow w-full">
               {children}
             </main>
+            
+            {/* 🚀 2. BİNGO: SİTENİN EN ALTINA (MAİN'İN BİTTİĞİ YERE) FOOTER'I MÜHÜRLEDİK! */}
+            <Footer />
+            
           </CartProvider>
         </AuthProvider>
       </body>
