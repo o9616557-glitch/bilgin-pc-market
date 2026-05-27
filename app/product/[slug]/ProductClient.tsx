@@ -4,11 +4,11 @@ import React, { useState, useEffect } from "react";
 import { useCart } from "../../CartContext"; 
 import toast from "react-hot-toast";
 import { useCompare } from "@/app/CompareContext";
-import { Scale, Gamepad2, MessageSquare, Settings2 } from "lucide-react";
-
+import { Scale, Gamepad2, MessageSquare, Settings2, X } from "lucide-react";
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const { sepeteEkle } = useCart(); 
   const { karsilastirmayaEkle, setPopupAcik } = useCompare();
+  const [teknikPopupAcik, setTeknikPopupAcik] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
   const [addedSuccess, setAddedSuccess] = useState(false);
   const [timeLeft, setTimeLeft] = useState("");
@@ -360,10 +360,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-⁴{/* 🚀 ŞEFİM BİNGO: NEON DENİZ MAVİSİ 4'LÜ AKSİYON BARINI GÜNCELLEDİK */}
+{/* 🚀 NEON DENİZ MAVİSİ 4'LÜ AKSİYON BARI */}
         <div className="grid grid-cols-4 gap-2 my-6 px-1">
           
-          {/* 1. KARŞILAŞTIR */}
+          {/* 1. KARŞILAŞTIR (Bu Karşılaştırmayı Açar) */}
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -388,12 +388,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-tighter text-center">Yorumlar</span>
           </a>
 
-          {/* 4. TEKNİK BİLGİLER (TIKLAYINCA POPUP AÇAR) */}
+          {/* 4. TEKNİK BİLGİLER (SADECE TEKNİK POPUP AÇAR) */}
           <button
             onClick={(e) => {
               e.preventDefault();
-              karsilastirmayaEkle(product);
-              setPopupAcik(true); // 🚀 BİNGO: Şefimin istediği gibi Popup'ı ateşler!
+              setTeknikPopupAcik(true); // 🚀 BİNGO: Sadece Teknik Bilgiler penceresini tetikler!
             }}
             className="flex flex-col items-center justify-center gap-1 bg-[#00e5ff]/5 border border-[#00e5ff]/30 hover:border-[#00e5ff] text-slate-300 hover:text-[#00e5ff] p-3 rounded-xl transition-all shadow-[0_0_10px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] backdrop-blur-sm group"
           >
@@ -403,7 +402,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
         </div>
 
-        {/* 🚀 TEKNİK BİLGİLER KUTULARI (GÖRSEL ŞÖLEN) */}
+        {/* 🚀 TEKNİK BİLGİLER KUTULARI */}
         {product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 && (
           <div id="teknik-ozellikler" className="mt-8 mb-24 bg-[#09090b] border border-slate-800 rounded-3xl p-5 sm:p-8 shadow-2xl relative overflow-hidden">
             
@@ -419,8 +418,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   key={anahtar}
                   onClick={(e) => {
                     e.preventDefault();
-                    karsilastirmayaEkle(product);
-                    setPopupAcik(true);
+                    setTeknikPopupAcik(true); // 🚀 BİNGO: Kutular da Teknik Popup'ı açar!
                   }}
                   className="flex flex-col justify-center items-start text-left p-3 sm:p-4 bg-[#121215] border border-slate-800 hover:border-[#00e5ff] rounded-none transition-all group shadow-sm hover:shadow-[0_0_15px_rgba(0,229,255,0.2)]"
                 >
@@ -433,6 +431,44 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           </div>
         )}
 
+        {/* 🚀 YEPYENİ: SADECE BU ÜRÜNE ÖZEL TEKNİK BİLGİLER PENCERESİ (POPUP) */}
+        {teknikPopupAcik && (
+          <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="bg-[#09090b] border border-[#00e5ff]/50 rounded-3xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-[0_0_50px_rgba(0,229,255,0.2)] relative">
+              
+              {/* Başlık */}
+              <div className="flex justify-between items-center p-5 border-b border-slate-800 shrink-0">
+                <h2 className="text-xl font-black text-white uppercase tracking-wide flex items-center gap-2">
+                  <Settings2 className="w-6 h-6 text-[#00e5ff]" /> 
+                  TEKNİK ÖZELLİKLER
+                </h2>
+                <button onClick={() => setTeknikPopupAcik(false)} className="text-slate-400 hover:text-white bg-[#121215] border border-slate-700 hover:bg-red-500/20 hover:border-red-500 rounded-xl p-2.5 transition-all">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Liste İçeriği */}
+              <div className="p-5 sm:p-6 overflow-y-auto flex-grow">
+                <div className="flex flex-col gap-2">
+                  {product.teknik_ozellikler && Object.entries(product.teknik_ozellikler).map(([anahtar, deger]) => (
+                    <div key={anahtar} className="flex justify-between items-center py-3 border-b border-slate-800/50 hover:bg-slate-800/40 px-3 rounded-lg transition-colors">
+                      <span className="text-[#00e5ff] font-bold text-xs sm:text-sm uppercase tracking-wide w-1/2">{anahtar}</span>
+                      <span className="text-white font-medium text-sm text-right w-1/2">{deger as string}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Alt Buton */}
+              <div className="p-5 border-t border-slate-800 shrink-0 bg-[#050814] rounded-b-3xl text-center">
+                <button onClick={() => setTeknikPopupAcik(false)} className="w-full bg-[#00e5ff] text-black font-black px-6 py-3 rounded-xl hover:bg-[#00c4db] transition-all uppercase tracking-wider text-sm shadow-[0_0_15px_rgba(0,229,255,0.3)]">
+                  Kapat
+                </button>
+              </div>
+
+            </div>
+          </div>
+        )}
       <div className="fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-xl border-t border-white/10 p-3 sm:hidden z-[90] pb-safe max-w-[100vw]">
         <div className="flex items-center gap-2 max-w-full">
           
