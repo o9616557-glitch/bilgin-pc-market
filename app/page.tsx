@@ -18,7 +18,6 @@ export default async function HomePage() {
   return (
     <main className="min-h-screen bg-[#050814] text-[#ededed] font-sans pb-20">
       
-      {/* 🚀 1. BÖLÜM: KAHRAMAN (HERO) ALANI - Sitenin Vitrini */}
       <section className="relative overflow-hidden bg-[#09090b] border-b border-slate-800/80 pt-24 pb-32 mb-16">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#00e5ff] blur-[150px] opacity-10 pointer-events-none"></div>
         <div className="absolute bottom-0 right-0 w-[500px] h-[300px] bg-[#10b981] blur-[150px] opacity-10 pointer-events-none"></div>
@@ -64,7 +63,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 🚀 2. BÖLÜM: ÜRÜN VİTRİNİ */}
       <div id="vitrin" className="max-w-6xl mx-auto px-4 sm:px-6 pt-10">
         
         <div className="flex items-end justify-between mb-10 border-b border-slate-800/80 pb-4">
@@ -89,7 +87,6 @@ export default async function HomePage() {
               const havaleOrani = urun.havaleIndirimi !== undefined ? urun.havaleIndirimi : 5;
 
               return (
-                {/* 🚀 BİNGO: Tırnaklar tamamen kaldırıldı, Google Çeviri bozamayacak! */}
                 <Link href={"/product/" + (urun.slug || urun._id)} key={urun._id.toString()} className="group outline-none">
                   <div className="bg-[#09090b] rounded-2xl border border-slate-800 p-4 flex flex-col h-full relative overflow-hidden transition-all duration-300 group-hover:border-[#00e5ff]/40 group-hover:shadow-[0_0_30px_rgba(0,229,255,0.05)] group-hover:-translate-y-1">
                     
@@ -112,7 +109,7 @@ export default async function HomePage() {
                         <img 
                           src={vitrinResmi} 
                           alt={urun.isim || urun.name} 
-                          className={w-full h-full object-contain transition-transform duration-500 group-hover:scale-110 ${tukendiMi ? "grayscale opacity-40" : ""}} 
+                          className={"w-full h-full object-contain transition-transform duration-500 group-hover:scale-110 " + (tukendiMi ? "grayscale opacity-40" : "")} 
                         />
                       ) : ( 
                         <div className="text-slate-600 text-xs font-bold tracking-widest uppercase">Görsel Yok</div> 
@@ -153,11 +150,7 @@ export default async function HomePage() {
                       </div>
                     </div>
 
-                    <div className={`mt-4 w-full py-3 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
-                      tukendiMi 
-                        ? "bg-slate-800/50 text-slate-500 border border-slate-700/50" 
-                        : "bg-[#121215] text-slate-300 border border-slate-700 group-hover:bg-[#00e5ff] group-hover:text-black group-hover:border-[#00e5ff] shadow-[0_0_15px_rgba(0,0,0,0)] group-hover:shadow-[0_0_15px_rgba(0,229,255,0.3)]"
-                    }`}>
+                    <div className={"mt-4 w-full py-3 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all " + (tukendiMi ? "bg-slate-800/50 text-slate-500 border border-slate-700/50" : "bg-[#121215] text-slate-300 border border-slate-700 group-hover:bg-[#00e5ff] group-hover:text-black group-hover:border-[#00e5ff] shadow-[0_0_15px_rgba(0,0,0,0)] group-hover:shadow-[0_0_15px_rgba(0,229,255,0.3)]")}>
                       {tukendiMi ? (
                         <span>Stokta Yok</span>
                       ) : (
