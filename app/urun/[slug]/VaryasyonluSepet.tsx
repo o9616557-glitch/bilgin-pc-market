@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useCart } from "../../CartContext"; // SEPET BEYNİNİ İÇERİ ALDIK!
+import { useCart } from "../../CartContext"; 
 
 export default function VaryasyonluSepet({ urun }: { urun: any }) {
   console.log("🕵️‍♂️ VERİTABANINDAN GELEN HAM ÜRÜN:", urun);
@@ -8,16 +8,14 @@ export default function VaryasyonluSepet({ urun }: { urun: any }) {
     urun.varyasyonlar && urun.varyasyonlar.length > 0 ? urun.varyasyonlar[0] : null
   );
 
-  // SEPET KANCAMIZI ÇAĞIRDIK
   const { sepeteEkle } = useCart(); 
 
   const anaFiyat = seciliVaryasyon ? Number(seciliVaryasyon.fiyat) : Number(urun.fiyat) || 0;
   
-  // 🚀 VİTRİNDEKİ İNDİRİM HESABI DİNAMİKLEŞTİRİLDİ
+  // 🚀 EKRANDA 45 YAZDIRAN SAĞLAM RAKAM BURASI
   const indirimOrani = urun.havaleIndirimi || 5; 
   const havaleFiyati = (anaFiyat * (1 - (indirimOrani / 100))).toFixed(0);
 
- // BUTONA BASILINCA ÇALIŞACAK SİHİRLİ FONKSİYON
   const sepeteFirlat = () => {
     const eklenecekUrun = {
       id: urun._id.toString(),
@@ -25,8 +23,8 @@ export default function VaryasyonluSepet({ urun }: { urun: any }) {
       resim: urun.resimler && urun.resimler.length > 0 ? urun.resimler[0] : "",
       fiyat: anaFiyat,
       varyasyon: seciliVaryasyon ? seciliVaryasyon.model_adi : null,
-      // 🚀 BİNGO: BAGAJA İNDİRİM ORANINI DA KOYDUK! EKSİK OLAN BUYDU!
-      havaleIndirimi: urun.havaleIndirimi, 
+      // 🚀 BİNGO: Riske girmedik, ekranda çalışan 45 rakamını direkt çantaya yapıştırdık!
+      havaleIndirimi: indirimOrani, 
     };
     sepeteEkle(eklenecekUrun); 
   };
@@ -73,7 +71,6 @@ export default function VaryasyonluSepet({ urun }: { urun: any }) {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", borderTop: "1px solid #27272a", paddingTop: "16px" }}>
           <div>
-            {/* 🚀 SABİT %5 YAZISI DİNAMİK HALE GETİRİLDİ */}
             <span style={{ fontSize: "0.8rem", color: "#10b981", fontWeight: "700", display: "block" }}>%{indirimOrani} Havale İndirimi</span>
             <div style={{ fontSize: "1.2rem", fontWeight: "800", color: "#10b981" }}>
               {Number(havaleFiyati).toLocaleString()} TL
