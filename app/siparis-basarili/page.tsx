@@ -82,7 +82,7 @@ function BasariliIcerik() {
         </div>
 
         <p style={{ color: "#71717a", fontSize: "0.8rem", marginBottom: "30px", lineHeight: "1.4" }}>
-          Bu kodu kullanarak sitemizdeki "Sipariş Takip" bölümünden kargonuzun durumunu anlık olarak öğrenebilirsiniz.
+          Bu kodu kullanarak sitemizdeki "Sipariş Takip" bölümünden kargonuzun durumunu öğrenebilirsiniz.
         </p>
 
         <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
