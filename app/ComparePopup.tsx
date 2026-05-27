@@ -7,7 +7,7 @@ export default function ComparePopup() {
 
   if (!popupAcik) return null;
 
-  // 🚀 BİNGO: Seçilen ürünlerin içindeki tüm farklı teknik özellikleri otomatik toplayan akıllı motor!
+  // 🚀 BİNGO: Seçilen ürünlerin içindeki tüm teknik özellikleri otomatik toplayan akıllı motor!
   const tumOzellikAnahtarlari: string[] = [];
   karsilastirilanlar.forEach((urun) => {
     if (urun.teknik_ozellikler) {
@@ -20,7 +20,7 @@ export default function ComparePopup() {
   });
 
   return (
-    <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/80 backdrop-blur-md p-2 sm:p-4">
+    <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/80 backdrop-blur-md p-2 sm:p-4 animate-in fade-in duration-200">
       <div className="bg-[#09090b] border border-slate-800 rounded-3xl w-full max-w-6xl max-h-[90vh] flex flex-col shadow-[0_0_50px_rgba(0,229,255,0.1)] relative">
         
         {/* Üst Başlık */}
@@ -41,10 +41,9 @@ export default function ComparePopup() {
           {karsilastirilanlar.length === 0 ? (
             <div className="text-center py-20 text-slate-500 font-bold uppercase tracking-widest">[ Karşılaştırılacak Ürün Seçilmedi ]</div>
           ) : (
-            <div className="grid gap-4 overflow-x-auto pb-4" style={{ gridTemplateColumns: "180px repeat(" + karsilastirilanlar.length + ", minmax(240px, 1fr))" }}>
+            <div className="grid gap-4 overflow-x-auto pb-4" style={{ gridTemplateColumns: "repeat(" + karsilastirilanlar.length + ", minmax(240px, 1fr))" }}>
               
               {/* ANA GÖRSEL VE VİTRİN SATIRI */}
-              <div className="flex items-center text-slate-500 font-black text-xs uppercase tracking-wider border-b border-slate-800/50 pb-4">ÜRÜN VİTRİNİ</div>
               {karsilastirilanlar.map((urun, idx) => {
                 const fiyat = Number(urun.indirimliFiyat || urun.fiyat || urun.price || 0);
                 const resim = urun.resimler ? urun.resimler[0] : urun.resim;
@@ -64,22 +63,24 @@ export default function ComparePopup() {
 
               {/* DİNAMİK TEKNİK ÖZELLİK SATIRLARI (Veritabanından ne gelirse otomatik basar) */}
               {tumOzellikAnahtarlari.map((ozellikAdi) => (
-                <>
-                  {/* Sol Sütun: Özelliğin Adı (Örn: CUDA Çekirdeği) */}
-                  <div className="flex items-center text-slate-400 font-bold text-xs uppercase bg-[#121215]/50 p-3 rounded-xl border border-slate-800/40">
+                <div key={ozellikAdi} className="col-span-full">
+                  {/* Başlık Artık Üstte: (Örn: CUDA Çekirdeği) */}
+                  <div className="text-slate-400 font-bold text-xs uppercase bg-[#121215]/50 p-3 rounded-xl border border-slate-800/40 mb-2">
                     {ozellikAdi}
                   </div>
                   
-                  {/* Sağ Sütunlar: Ürünlerin o özelliğe ait değerleri */}
-                  {karsilastirilanlar.map((urun, idx) => {
-                    const deger = urun.teknik_ozellikler ? urun.teknik_ozellikler[ozellikAdi] : null;
-                    return (
-                      <div key={idx} className="bg-[#121215] border border-slate-800/50 p-3 rounded-xl text-xs sm:text-sm text-white font-medium flex items-center">
-                        {deger || "-"}
-                      </div>
-                    );
-                  })}
-                </>
+                  {/* Değerler: Jilet gibi KARE kutularda yan yana diziliyor */}
+                  <div className={"grid gap-4 " + (karsilastirilanlar.length === 2 ? "grid-cols-2" : "grid-cols-3")}>
+                    {karsilastirilanlar.map((urun, idx) => {
+                      const deger = urun.teknik_ozellikler ? urun.teknik_ozellikler[ozellikAdi] : null;
+                      return (
+                        <div key={idx} className="bg-[#121215] border border-slate-800/50 p-3 rounded-none text-xs sm:text-sm text-white font-medium flex items-center">
+                          {deger || "-"}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               ))}
 
             </div>
