@@ -183,7 +183,7 @@ export default function OdemeSayfasi() {
   }, 0);
 
   const odenecekSonTutar = odemeYontemi === "havale" ? (genelToplam - toplamHavaleIndirimi) : genelToplam;
-
+  console.log("🕵️‍♂️ SEPETİN RÖNTGENİ:", sepet);
   // 📋 IBAN KOPYALAMA MOTORU (EKSİĞİ BURAYA TAMAMLADIK)
   const ibanKopyala = () => {
     navigator.clipboard.writeText("TR99 0001 0002 0003 0004 0005 06"); 
