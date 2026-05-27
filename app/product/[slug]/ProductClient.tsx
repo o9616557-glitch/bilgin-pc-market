@@ -360,7 +360,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-⁴{/* 🚀 ŞEFİM BİNGO: NEON DENİZ MAVİSİ 4'LÜ AKSİYON BARINI ATEŞLEDİK */}
+⁴{/* 🚀 ŞEFİM BİNGO: NEON DENİZ MAVİSİ 4'LÜ AKSİYON BARINI GÜNCELLEDİK */}
         <div className="grid grid-cols-4 gap-2 my-6 px-1">
           
           {/* 1. KARŞILAŞTIR */}
@@ -373,34 +373,40 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             className="flex flex-col items-center justify-center gap-1 bg-[#00e5ff]/5 border border-[#00e5ff]/30 hover:border-[#00e5ff] text-slate-300 hover:text-[#00e5ff] p-3 rounded-xl transition-all shadow-[0_0_10px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] backdrop-blur-sm group"
           >
             <Scale className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
-            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-tighter text-center">Karşılaştır</span>
+            <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-tighter text-center">Karşılaştır</span>
           </button>
 
           {/* 2. FPS TESTİ */}
           <a href="#fps-testi" className="flex flex-col items-center justify-center gap-1 bg-[#00e5ff]/5 border border-[#00e5ff]/30 hover:border-[#00e5ff] text-slate-300 hover:text-[#00e5ff] p-3 rounded-xl transition-all shadow-[0_0_10px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] backdrop-blur-sm group">
             <Gamepad2 className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
-            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-tighter text-center">FPS Testi</span>
+            <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-tighter text-center">FPS Testi</span>
           </a>
 
           {/* 3. YORUMLAR */}
           <a href="#yorumlar" className="flex flex-col items-center justify-center gap-1 bg-[#00e5ff]/5 border border-[#00e5ff]/30 hover:border-[#00e5ff] text-slate-300 hover:text-[#00e5ff] p-3 rounded-xl transition-all shadow-[0_0_10px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] backdrop-blur-sm group">
             <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
-            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-tighter text-center">Yorumlar</span>
+            <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-tighter text-center">Yorumlar</span>
           </a>
 
-          {/* 4. TEKNİK BİLGİLER (YENİ) */}
-          <a href="#teknik-ozellikler" className="flex flex-col items-center justify-center gap-1 bg-[#00e5ff]/5 border border-[#00e5ff]/30 hover:border-[#00e5ff] text-slate-300 hover:text-[#00e5ff] p-3 rounded-xl transition-all shadow-[0_0_10px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] backdrop-blur-sm group">
+          {/* 4. TEKNİK BİLGİLER (TIKLAYINCA POPUP AÇAR) */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              karsilastirmayaEkle(product);
+              setPopupAcik(true); // 🚀 BİNGO: Şefimin istediği gibi Popup'ı ateşler!
+            }}
+            className="flex flex-col items-center justify-center gap-1 bg-[#00e5ff]/5 border border-[#00e5ff]/30 hover:border-[#00e5ff] text-slate-300 hover:text-[#00e5ff] p-3 rounded-xl transition-all shadow-[0_0_10px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] backdrop-blur-sm group"
+          >
             <Settings2 className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
-            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-tighter text-center">Teknik</span>
-          </a>
+            <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-tighter text-center leading-none">Teknik<br/>Bilgiler</span>
+          </button>
 
         </div>
 
-        {/* 🚀 ŞEFİM BİNGO: TEKNİK BİLGİLER KUTULARI DA NEON MAVİYE BÜRÜNDÜ */}
+        {/* 🚀 TEKNİK BİLGİLER KUTULARI (GÖRSEL ŞÖLEN) */}
         {product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 && (
           <div id="teknik-ozellikler" className="mt-8 mb-24 bg-[#09090b] border border-slate-800 rounded-3xl p-5 sm:p-8 shadow-2xl relative overflow-hidden">
             
-            {/* Arka planda hafif bir deniz mavisi ışıma */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#00e5ff] blur-[100px] opacity-10 pointer-events-none"></div>
 
             <h3 className="text-lg sm:text-xl font-black text-white uppercase tracking-wide flex items-center gap-3 mb-6 border-b border-slate-800 pb-4">
@@ -426,7 +432,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
           </div>
         )}
-        
+
       <div className="fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-xl border-t border-white/10 p-3 sm:hidden z-[90] pb-safe max-w-[100vw]">
         <div className="flex items-center gap-2 max-w-full">
           
