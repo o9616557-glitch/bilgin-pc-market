@@ -1,25 +1,22 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation"; 
-// 🚀 Globe (İnternet) ikonunu içeri aldık
 import { Phone, Mail, MessageCircle, ShieldCheck, FileText, Info, RefreshCcw, Smartphone, Globe } from "lucide-react";
 
 export default function Footer() {
   const pathname = usePathname(); 
 
-  // Müşteri Sepette veya Ödemede ise Footer'ı tamamen GİZLE!
   if (pathname === "/sepet" || pathname === "/odeme") {
     return null;
   }
 
   return (
-    <footer className="bg-[#050814] border-t border-slate-800/80 pt-16 pb-8  relative overflow-hidden">
+    <footer className="bg-[#09090b] border-t border-slate-800/80 pt-16 pb-8 relative overflow-hidden shadow-[0_-15px_40px_rgba(0,229,255,0.03)] mt-auto">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-[#00e5ff] to-transparent opacity-20"></div>
       
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           
-          {/* 1. SÜTUN: MARKA VE UYGULAMA */}
           <div className="flex flex-col gap-6">
             <div>
               <h2 className="text-2xl font-black text-white uppercase tracking-wider mb-2">
@@ -32,7 +29,7 @@ export default function Footer() {
             
             <div>
               <span className="text-white font-bold text-sm uppercase tracking-wider block mb-3">Uygulamamızı İndirin</span>
-              <a href="#" className="flex items-center gap-3 bg-[#09090b] border border-slate-700 hover:border-[#00e5ff]/50 transition-all p-3 rounded-xl group w-max">
+              <a href="#" className="flex items-center gap-3 bg-[#121215] border border-slate-700 hover:border-[#00e5ff]/50 transition-all p-3 rounded-xl group w-max">
                 <Smartphone className="w-8 h-8 text-[#00e5ff] group-hover:scale-110 transition-transform" />
                 <div className="flex flex-col">
                   <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-1">Hemen İndir</span>
@@ -42,7 +39,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* 2. SÜTUN: KURUMSAL */}
           <div className="flex flex-col gap-4">
             <h3 className="text-white font-black text-lg uppercase tracking-wider mb-2">Kurumsal</h3>
             <Link href="/hakkimizda" className="text-slate-400 hover:text-[#00e5ff] transition-colors text-sm font-medium flex items-center gap-2">
@@ -59,12 +55,10 @@ export default function Footer() {
             </Link>
           </div>
 
-          {/* 3. SÜTUN: İLETİŞİM (ŞEFİN RESMİ BİLGİLERİ GÜNCELLENDİ) */}
           <div className="flex flex-col gap-4">
             <h3 className="text-white font-black text-lg uppercase tracking-wider mb-2">İletişim</h3>
-            
             <div className="flex items-center gap-3 text-slate-400 text-sm font-medium">
-              <div className="w-8 h-8 rounded-full bg-[#121215] flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-full bg-[#121215] flex items-center justify-center shrink-0 border border-slate-800">
                 <Phone className="w-4 h-4 text-[#00e5ff]" />
               </div>
               <div className="flex flex-col">
@@ -72,9 +66,8 @@ export default function Footer() {
                 <span className="text-white">0850 123 45 67</span>
               </div>
             </div>
-            
             <div className="flex items-center gap-3 text-slate-400 text-sm font-medium">
-              <div className="w-8 h-8 rounded-full bg-[#121215] flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-full bg-[#121215] flex items-center justify-center shrink-0 border border-slate-800">
                 <Mail className="w-4 h-4 text-[#00e5ff]" />
               </div>
               <div className="flex flex-col">
@@ -82,10 +75,8 @@ export default function Footer() {
                 <span className="text-white">info@bilginpcmarket.com</span>
               </div>
             </div>
-
-            {/* 🚀 WEB SİTEMİZ EKLENDİ */}
             <div className="flex items-center gap-3 text-slate-400 text-sm font-medium">
-              <div className="w-8 h-8 rounded-full bg-[#121215] flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-full bg-[#121215] flex items-center justify-center shrink-0 border border-slate-800">
                 <Globe className="w-4 h-4 text-[#00e5ff]" />
               </div>
               <div className="flex flex-col">
@@ -95,13 +86,10 @@ export default function Footer() {
                 </a>
               </div>
             </div>
-
           </div>
 
-          {/* 4. SÜTUN: SOSYAL MEDYA VE DESTEK */}
           <div className="flex flex-col gap-4">
             <h3 className="text-white font-black text-lg uppercase tracking-wider mb-2">Bize Ulaşın</h3>
-            
             <a href="https://wa.me/905000000000" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-[#10b981]/10 border border-[#10b981]/30 hover:bg-[#10b981]/20 transition-all p-3 rounded-xl group">
               <MessageCircle className="w-6 h-6 text-[#10b981]" />
               <div className="flex flex-col">
@@ -109,7 +97,6 @@ export default function Footer() {
                 <span className="text-[#10b981] text-[11px] font-bold uppercase tracking-wider">Hızlı Yanıt</span>
               </div>
             </a>
-
             <a href="https://instagram.com/bilginpc" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-[#e1306c]/10 border border-[#e1306c]/30 hover:bg-[#e1306c]/20 transition-all p-3 rounded-xl group">
               <svg width="24" height="24" className="text-[#e1306c] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
@@ -125,7 +112,6 @@ export default function Footer() {
 
         </div>
 
-        {/* ALT ÇİZGİ VE COPYRIGHT */}
         <div className="border-t border-slate-800/80 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-slate-500 text-xs font-medium text-center md:text-left">
             © {new Date().getFullYear()} Bilgin PC Market Tüm Hakları Saklıdır.
