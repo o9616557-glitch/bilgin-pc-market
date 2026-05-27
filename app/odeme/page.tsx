@@ -314,7 +314,7 @@ export default function OdemeSayfasi() {
                   disabled={yukleniyor} 
                   className={`w-full font-black uppercase tracking-wider py-4 rounded-xl text-lg transition-all ${odemeYontemi === "havale" ? "bg-[#10b981] hover:bg-[#14532d] text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]" : "bg-[#00e5ff] hover:bg-[#00c4db] text-black shadow-[0_0_15px_rgba(0,229,255,0.3)]"}`}
                 >
-                  {yukleniyor ? "Bekleyin..." : (odemeYontemi === "havale" ? "Havale İle Siparişi Onayla" : "Kart İle Ödemeye İlerle")}
+                  {yukleniyor ? "Lütfen Bekleyin..." : (odemeYontemi === "havale" ? "Havale İle Siparişi Onayla" : "Kart İle Ödemeye İlerle")}
                 </button>
               )}
             </form>
