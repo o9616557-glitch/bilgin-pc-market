@@ -16,7 +16,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const varMi = eskiSepet.find((i) => i.id === urun.id && i.varyasyon === urun.varyasyon);
       let yeni;
       if (varMi) {
-        yeni = eskiSepet.map((i) => i.id === urun.id && i.varyasyon === urun.varyasyon ? { ...i, adet: i.adet + 1 } : i);
+        // 🚀 BİNGO: Ürün zaten sepette varsa sadece adeti artırma, YENİ İNDİRİM ORANI GİBİ GÜNCEL BİLGİLERİ DE ÜSTÜNE YAZ (...urun eklendi)!
+        yeni = eskiSepet.map((i) => i.id === urun.id && i.varyasyon === urun.varyasyon ? { ...i, ...urun, adet: i.adet + 1 } : i);
       } else {
         yeni = [...eskiSepet, { ...urun, adet: 1 }];
       }
@@ -43,10 +44,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setSepet(yeni);
     localStorage.setItem("bilgin-sepet", JSON.stringify(yeni));
   };
-const sepetiBosalt = () => {
+
+  const sepetiBosalt = () => {
     setSepet([]);
     localStorage.setItem("bilgin-sepet", "[]");
   };
+
   return (
     <CartContext.Provider value={{ sepet, sepeteEkle, sepettenSil, adetGuncelle, sepetiBosalt}}>
       {children}
