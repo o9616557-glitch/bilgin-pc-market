@@ -3,16 +3,16 @@ import { useCart } from "../CartContext";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { CreditCard, Banknote } from "lucide-react"; 
 
 export default function OdemeSayfasi() {
-  const { data: session } = useSession(); // 🚀 ŞEFİN KİMLİĞİ
+  const { data: session } = useSession(); 
   const { sepet } = useCart();
   const [odemeYontemi, setOdemeYontemi] = useState("kart");
   const [yukleniyor, setYukleniyor] = useState(false);
   const [iyzicoFormHtml, setIyzicoFormHtml] = useState<string>("");
   const [ibanKopyalandi, setIbanKopyalandi] = useState(false); 
   const [faturaAyni, setFaturaAyni] = useState(true);
-  const [sozlesmeKabul, setSozlesmeKabul] = useState(false);
 
   const [form, setForm] = useState({
     ad: "", soyad: "", telefon: "", eposta: "", adres: "", sehir: "", ilce: ""
@@ -22,7 +22,7 @@ export default function OdemeSayfasi() {
     ad: "", soyad: "", telefon: "", adres: "", sehir: "", ilce: ""
   });
 
-  // 🚀 ŞEFİM: KASADA OTOMATİK ADRES DOLDURMA (JET MOTORU)
+  // Otomatik Adres Doldurma Motoru
   useEffect(() => {
     const fetchKayitliAdresler = async () => {
       try {
@@ -52,27 +52,23 @@ export default function OdemeSayfasi() {
             setFaturaAyni(false); 
           }
         }
-      } catch (error) {
-        console.error("Adresleri çekerken hata oluştu:", error);
-      }
+      } catch (error) {}
     };
     fetchKayitliAdresler();
   }, []);
 
-  // ==========================================
-  // 🚀 İŞTE SENİN İSTEDİĞİN O KUSURSUZ HESAPLAMA MOTORU! (BÜTÜN 5'LER SİLİNDİ)
-  // ==========================================
+  // MATEMATİKSEL MOTORLAR
   const araToplam = sepet.reduce((toplam: number, urun: any) => toplam + (urun.fiyat * urun.adet), 0);
   const kargo = (araToplam > 5000 || araToplam === 0) ? 0 : 150;
   
-  // DİREKT ÜRÜNDEN GERÇEK İNDİRİMİ ÇEKİYORUZ!
   const toplamHavaleIndirimi = sepet.reduce((toplam: number, urun: any) => {
-    const oran = (urun.havaleIndirimi !== undefined && urun.havaleIndirimi !== null) ? Number(urun.havaleIndirimi) : 0; // Yoksa 0 al, %5 ezberini bitirdik!
+    const oran = (urun.havaleIndirimi !== undefined && urun.havaleIndirimi !== null) ? Number(urun.havaleIndirimi) : 0; 
     return toplam + ((urun.fiyat * urun.adet) * oran) / 100;
   }, 0);
 
-  // TEK VE KESİN TUTAR:
-  const odenecekSonTutar = odemeYontemi === "havale" ? (araToplam - toplamHavaleIndirimi + kargo) : (araToplam + kargo);
+  const genelToplam = araToplam + kargo; 
+  const havaleliToplam = genelToplam - toplamHavaleIndirimi; 
+  const odenecekSonTutar = odemeYontemi === "havale" ? havaleliToplam : genelToplam;
 
   const inputDegis = (e: any) => { setForm({ ...form, [e.target.name]: e.target.value }); };
   const faturaInputDegis = (e: any) => { setFaturaForm({ ...faturaForm, [e.target.name]: e.target.value }); };
@@ -88,7 +84,6 @@ export default function OdemeSayfasi() {
 
   const siparisTamamla = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     setYukleniyor(true);
     setIyzicoFormHtml("");
 
@@ -102,7 +97,6 @@ export default function OdemeSayfasi() {
       cartItems: sepet.map((item: any) => ({ id: item.id, isim: item.isim, miktar: item.adet, adet: item.adet, fiyat: item.fiyat, varyasyon: item.varyasyon })),
       items: sepet.map((item: any) => ({ id: item.id, isim: item.isim, miktar: item.adet, adet: item.adet, fiyat: item.fiyat, varyasyon: item.varyasyon })),
       odemeYontemi,
-      // 🚀 VERİTABANINA GERÇEK İNDİRİMLİ TUTARI GÖNDERİYORUZ
       toplamTutar: odenecekSonTutar,
       totalPrice: odenecekSonTutar,
       genelToplam: odenecekSonTutar
@@ -126,7 +120,6 @@ export default function OdemeSayfasi() {
         alert("Hata oluştu: " + data.error);
       }
     } catch (hata) {
-      console.error(hata);
       alert("Sistemsel bir hata meydana geldi.");
     } finally {
       setYukleniyor(false);
@@ -167,10 +160,10 @@ export default function OdemeSayfasi() {
           {/* ⬅️ SOL TARAF: FORM KUTUSU */}
           <div style={{ flex: "2", display: "flex", flexDirection: "column", gap: "20px" }}>
             <form onSubmit={siparisTamamla} className="bg-[#09090b] border border-slate-800/50 rounded-3xl p-6 sm:p-8">
+              
               <h3 className="text-lg font-black text-white mb-6 flex items-center gap-2">
                 <span className="text-[#00e5ff]">📍</span> Teslimat Bilgileri
               </h3>
-
               <div className="form-grid-2" style={{ display: "grid", gap: "15px", marginBottom: "15px" }}>
                 <div>
                   <label className="text-slate-400 text-sm block mb-1.5">Adınız *</label>
@@ -181,7 +174,6 @@ export default function OdemeSayfasi() {
                   <input type="text" name="soyad" value={form.soyad} onChange={inputDegis} required className="w-full bg-[#121215] border border-slate-800 rounded-xl p-3.5 text-white outline-none focus:border-[#00e5ff] transition-all" />
                 </div>
               </div>
-
               <div className="form-grid-2" style={{ display: "grid", gap: "15px", marginBottom: "15px" }}>
                 <div>
                   <label className="text-slate-400 text-sm block mb-1.5">Telefon Numarası *</label>
@@ -192,12 +184,10 @@ export default function OdemeSayfasi() {
                   <input type="email" name="eposta" value={form.eposta} onChange={inputDegis} required className="w-full bg-[#121215] border border-slate-800 rounded-xl p-3.5 text-white outline-none focus:border-[#00e5ff] transition-all" />
                 </div>
               </div>
-
               <div style={{ marginBottom: "15px" }}>
                 <label className="text-slate-400 text-sm block mb-1.5">Açık Adres *</label>
                 <textarea rows={3} name="adres" value={form.adres} onChange={inputDegis} required placeholder="Mahalle, sokak, kapı numarası..." className="w-full bg-[#121215] border border-slate-800 rounded-xl p-3.5 text-white outline-none focus:border-[#00e5ff] transition-all"></textarea>
               </div>
-
               <div className="form-grid-2" style={{ display: "grid", gap: "15px", marginBottom: "25px" }}>
                 <div>
                   <label className="text-slate-400 text-sm block mb-1.5">Şehir *</label>
@@ -213,7 +203,7 @@ export default function OdemeSayfasi() {
 
               <div className="flex items-center gap-2 mb-5">
                 <input type="checkbox" id="faturaAyni" checked={faturaAyni} onChange={(e) => setFaturaAyni(e.target.checked)} className="w-5 h-5 cursor-pointer accent-[#00e5ff]" />
-                <label htmlFor="faturaAyni" className="text-slate-400 text-sm cursor-pointer">Fatura/Teslimat adresim yukarıdaki ile aynıdır.</label>
+                <label htmlFor="faturaAyni" className="text-slate-400 text-sm cursor-pointer">Fatura/Teslimat adresim aynıdır.</label>
               </div>
 
               {!faturaAyni && (
@@ -230,7 +220,7 @@ export default function OdemeSayfasi() {
                     </div>
                   </div>
                   <div style={{ marginBottom: "15px" }}>
-                    <label className="text-slate-400 text-sm block mb-1.5">Telefon Numarası *</label>
+                    <label className="text-slate-400 text-sm block mb-1.5">Telefon *</label>
                     <input type="tel" name="telefon" value={faturaForm.telefon} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-slate-800 rounded-xl p-3.5 text-white outline-none focus:border-[#00e5ff] transition-all" />
                   </div>
                   <div style={{ marginBottom: "15px" }}>
@@ -252,26 +242,31 @@ export default function OdemeSayfasi() {
 
               <hr className="border-slate-800 mb-6" />
 
+              {/* --- ÖDEME YÖNTEMİ SEÇİMİ --- */}
               <h3 className="text-lg font-black text-white mb-4">Ödeme Yöntemi</h3>
               <div className="flex gap-4 mb-6">
                 <button 
                   type="button" 
                   onClick={() => { setIyzicoFormHtml(""); setOdemeYontemi("kart"); }} 
-                  className={`flex-1 py-3.5 rounded-xl font-bold transition-all border ${odemeYontemi === "kart" ? "bg-[#00e5ff] text-black border-[#00e5ff]" : "bg-[#121215] text-slate-400 border-slate-800 hover:border-slate-600"}`}
+                  className={`flex-1 py-3.5 rounded-xl font-bold transition-all border flex flex-col items-center justify-center gap-1 ${odemeYontemi === "kart" ? "bg-[#00e5ff]/10 text-[#00e5ff] border-[#00e5ff]" : "bg-[#121215] text-slate-400 border-slate-800 hover:border-slate-600"}`}
                 >
+                  <CreditCard className="w-5 h-5 mb-1" />
                   Kredi / Banka Kartı
+                  <span className={`text-[10px] ${odemeYontemi === "kart" ? "text-white" : "text-slate-500"}`}>Tek Çekim veya Taksit</span>
                 </button>
                 <button 
                   type="button" 
                   onClick={() => { setIyzicoFormHtml(""); setOdemeYontemi("havale"); }} 
-                  className={`flex-1 py-3.5 rounded-xl font-bold transition-all border ${odemeYontemi === "havale" ? "bg-[#00e5ff] text-black border-[#00e5ff]" : "bg-[#121215] text-slate-400 border-slate-800 hover:border-slate-600"}`}
+                  className={`flex-1 py-3.5 rounded-xl font-bold transition-all border flex flex-col items-center justify-center gap-1 ${odemeYontemi === "havale" ? "bg-[#10b981]/10 text-[#10b981] border-[#10b981]" : "bg-[#121215] text-slate-400 border-slate-800 hover:border-slate-600"}`}
                 >
+                  <Banknote className="w-5 h-5 mb-1" />
                   Havale / EFT
+                  <span className={`text-[10px] ${odemeYontemi === "havale" ? "text-white" : "text-slate-500"}`}>Özel Nakit İndirimi</span>
                 </button>
               </div>
 
               {odemeYontemi === "havale" && (
-                <div className="bg-[#121215] border border-slate-800 rounded-2xl p-5 text-slate-400 text-sm mb-6 leading-relaxed w-full block clear-both overflow-hidden">
+                <div className="bg-[#121215] border border-slate-800 rounded-2xl p-5 text-slate-400 text-sm mb-6 leading-relaxed w-full">
                   <p className="text-[#10b981] font-bold mb-3 flex items-center gap-1.5">💡 Havale / EFT Ödeme Talimatı:</p>
                   <div className="text-slate-300 mb-3 font-medium">
                     Lütfen transferi gerçekleştirirken açıklama alanına sadece <span className="text-[#00e5ff] font-bold underline">adınızı ve soyadınızı</span> yazınız.
@@ -279,7 +274,6 @@ export default function OdemeSayfasi() {
                   <div className="mt-4 border-t border-slate-800/80 pt-3 font-mono text-xs sm:text-sm flex flex-col gap-1.5 bg-black/20 p-3 rounded-xl">
                     <div><strong>Banka:</strong> Akıllı Banka (Bilgin PC Özel)</div>
                     <div><strong>Alıcı:</strong> BİLGİN PC MARKET LTD. ŞTİ.</div>
-                    
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-1 pt-1 border-t border-slate-800/40">
                       <div className="break-all select-all">
                         <strong>IBAN:</strong> <span className="text-white font-bold bg-slate-900 px-1 py-0.5 rounded border border-slate-800">TR99 0001 0002 0003 0004 0005 06</span>
@@ -292,14 +286,14 @@ export default function OdemeSayfasi() {
                         {ibanKopyalandi ? "✓ Kopyalandı" : "📋 İBAN Kopyala"}
                       </button>
                     </div>
-
                   </div>
                 </div>
               )}
 
+              {/* 🚀 ŞEFİM: GİZLİLİK SÖZLEŞMESİ BURAYA MÜHÜRLENDİ */}
               <div className="bg-[#121215] border border-slate-800 p-4 rounded-xl mb-6 text-center">
                 <p className="text-slate-400 text-xs sm:text-sm leading-snug">
-                  Siparişi onaylayarak <span className="text-[#00e5ff] cursor-pointer hover:underline">Ön Bilgilendirme Formu</span>'nu, <span className="text-[#00e5ff] cursor-pointer hover:underline">Mesafeli Satış Sözleşmesi</span>'ni ve <span className="text-[#00e5ff] cursor-pointer hover:underline">KVKK Aydınlatma Metni</span>'ni okuyup kabul etmiş sayılırsınız.
+                  Siparişi onaylayarak <span className="text-[#00e5ff] cursor-pointer hover:underline">Ön Bilgilendirme Formu</span>'nu, <span className="text-[#00e5ff] cursor-pointer hover:underline">Mesafeli Satış Sözleşmesi</span>'ni ve <span className="text-[#00e5ff] cursor-pointer hover:underline">Gizlilik Sözleşmesi</span>'ni okuyup kabul etmiş sayılırsınız.
                 </p>
               </div>
 
@@ -307,10 +301,9 @@ export default function OdemeSayfasi() {
                 <button 
                   type="submit" 
                   disabled={yukleniyor} 
-                  style={{ opacity: yukleniyor ? 0.5 : 1 }}
-                  className="w-full bg-[#00e5ff] hover:bg-[#00c4db] text-black font-black uppercase tracking-wider py-4 rounded-xl text-lg transition-all shadow-[0_0_15px_rgba(0,229,255,0.3)]"
+                  className={`w-full font-black uppercase tracking-wider py-4 rounded-xl text-lg transition-all ${odemeYontemi === "havale" ? "bg-[#10b981] hover:bg-[#14532d] text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]" : "bg-[#00e5ff] hover:bg-[#00c4db] text-black shadow-[0_0_15px_rgba(0,229,255,0.3)]"}`}
                 >
-                  {yukleniyor ? "Lütfen Bekleyin..." : (odemeYontemi === "havale" ? "Siparişi Onayla" : "Kart Ödemesine İlerle")}
+                  {yukleniyor ? "Bekleyin..." : (odemeYontemi === "havale" ? "Havale İle Siparişi Onayla" : "Kart İle Ödemeye İlerle")}
                 </button>
               )}
             </form>
@@ -331,25 +324,21 @@ export default function OdemeSayfasi() {
 
           </div>
 
-          {/* ➡️ SAĞ TARAF: SİPARİŞ ÖZETİ */}
+          {/* ➡️ SAĞ TARAF: SİPARİŞ ÖZETİ (ŞEFİN YENİ AKILLI SİSTEMİ) */}
           <div style={{ flex: "1" }} className="w-full lg:w-[380px] shrink-0">
             <div className="bg-[#09090b] border border-slate-800/50 rounded-3xl p-6 lg:p-8 sticky top-24">
               <h2 className="font-black text-xl mb-6 pb-4 border-b border-slate-800 text-white uppercase tracking-wide">
                 Sipariş <span className="text-[#00e5ff]">Özetiniz</span>
               </h2>
 
-              <div style={{ maxHeight: "280px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px", marginBottom: "20px" }}>
+              <div style={{ maxHeight: "250px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px", marginBottom: "20px", paddingRight: "5px" }}>
                 {sepet.map((urun: any, index: number) => {
-                  const indOrani = (urun.havaleIndirimi !== undefined && urun.havaleIndirimi !== null) ? Number(urun.havaleIndirimi) : 0;
                   return (
                     <div key={index} className="bg-[#121215] border border-slate-800 p-2 rounded-xl flex items-center gap-3">
-                      <img src={urun.resim} alt={urun.isim} className="w-11 h-11 object-cover rounded-lg bg-[#09090b]" />
+                      <img src={urun.resim} alt={urun.isim} className="w-12 h-12 object-cover rounded-lg bg-[#09090b]" />
                       <div style={{ flex: "1", minWidth: 0 }}>
                         <h4 className="text-white text-sm font-bold truncate">{urun.isim}</h4>
-                        <p className="text-slate-400 text-xs">{urun.adet} Adet x {urun.varyasyon || "Standart"}</p>
-                        {odemeYontemi === "havale" && indOrani > 0 && (
-                          <span className="text-[#10b981] text-[10px] font-bold bg-[#10b981]/10 px-1.5 py-0.5 rounded border border-[#10b981]/20 mt-0.5 inline-block">%{indOrani} Havale İndirimi</span>
-                        )}
+                        <p className="text-slate-400 text-[10px]">{urun.adet} Adet x {urun.varyasyon || "Standart"}</p>
                       </div>
                       <span className="text-white text-sm font-bold">{(urun.fiyat * urun.adet).toLocaleString()} TL</span>
                     </div>
@@ -357,29 +346,51 @@ export default function OdemeSayfasi() {
                 })}
               </div>
 
-              <div className="flex justify-between text-slate-400 mb-3 text-sm border-t border-slate-800 pt-4">
-                <span>Ara Toplam</span>
-                <span className="text-white font-bold">{araToplam.toLocaleString("tr-TR")} TL</span>
-              </div>
+              {/* 🚀 AKILLI AYRIM MOTORU BAŞLADI */}
+              {odemeYontemi === "kart" ? (
+                <>
+                  {/* KREDİ KARTI SEÇİLDİYSE HESAPLAR VE DETAYLAR GELİR */}
+                  <div className="flex justify-between text-slate-400 mb-3 text-sm border-t border-slate-800 pt-4">
+                    <span>Ara Toplam</span>
+                    <span className="text-white font-bold">{araToplam.toLocaleString("tr-TR")} TL</span>
+                  </div>
 
-              <div className="flex justify-between text-slate-400 mb-3 text-sm">
-                <span>Kargo</span>
-                <span>{kargo === 0 ? <span className="text-[#00e5ff] font-bold">BEDAVA</span> : <span className="text-white font-bold">{kargo} TL</span>}</span>
-              </div>
+                  <div className="flex justify-between text-slate-400 mb-5 text-sm">
+                    <span>Kargo</span>
+                    <span>{kargo === 0 ? <span className="text-[#00e5ff] font-bold">BEDAVA</span> : <span className="text-white font-bold">{kargo} TL</span>}</span>
+                  </div>
 
-              {odemeYontemi === "havale" && toplamHavaleIndirimi > 0 && (
-                <div className="flex justify-between text-[#10b981] mb-3 text-sm font-bold bg-[#10b981]/5 p-2 rounded-lg border border-[#10b981]/10">
-                  <span>Havale İndirimi</span>
-                  <span>-{toplamHavaleIndirimi.toLocaleString("tr-TR")} TL</span>
-                </div>
+                  <div className="border rounded-2xl p-4 mb-3 bg-[#121215] border-[#00e5ff]/50 shadow-[0_0_15px_rgba(0,229,255,0.1)] flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 shrink-0">
+                      <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-[#00e5ff]" />
+                      <span className="font-black text-sm sm:text-base text-white whitespace-nowrap">Kredi Kartı Tek Çekim</span>
+                    </div>
+                    <div className="text-xl sm:text-2xl font-black text-right text-[#00e5ff] whitespace-nowrap">
+                      {genelToplam.toLocaleString("tr-TR")} TL
+                    </div>
+                  </div>
+
+                  <div className="bg-[#00e5ff]/10 border border-[#00e5ff]/30 rounded-xl p-3 flex items-center justify-center gap-2 text-center">
+                    <span className="text-lg">===</span>
+                    <span className="text-xs font-bold tracking-wide uppercase text-[#00e5ff]">3 - 6 - 9 - 12 Taksit Seçenekleri!</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* 🚀 BİNGO: HAVALE SEÇİLDİYSE SADECE HAVALE FİYATI YAZAR, BAŞKA HİÇBİR KALABALIK YOKTUR! */}
+                  <div className="border rounded-2xl p-5 mt-4 relative overflow-hidden flex items-center justify-between gap-2 bg-[#10b981]/10 border-[#10b981]/50 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-[#10b981] blur-[50px] opacity-20 pointer-events-none"></div>
+                    <div className="flex items-center gap-2 relative z-10 shrink-0">
+                      <Banknote className="w-5 h-5 sm:w-6 sm:h-6 text-[#10b981]" />
+                      <span className="font-black text-sm sm:text-base text-[#10b981] whitespace-nowrap">Havale / EFT Toplam</span>
+                    </div>
+                    <div className="text-xl sm:text-2xl font-black text-right text-[#10b981] drop-shadow-[0_0_10px_rgba(16,185,129,0.3)] relative z-10 whitespace-nowrap">
+                      {havaleliToplam.toLocaleString("tr-TR")} TL
+                    </div>
+                  </div>
+                </>
               )}
 
-              <div className="flex justify-between items-center text-white font-black border-t border-white/10 pt-5 mt-2">
-                <span className="text-lg">ÖDENECEK TUTAR</span>
-                <span className="text-2xl text-[#00e5ff]">
-                  {odenecekSonTutar.toLocaleString("tr-TR")} <span className="text-sm text-slate-400 font-bold">TL</span>
-                </span>
-              </div>
             </div>
           </div>
 
