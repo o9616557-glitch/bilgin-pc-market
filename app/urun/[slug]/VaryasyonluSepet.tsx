@@ -17,7 +17,7 @@ export default function VaryasyonluSepet({ urun }: { urun: any }) {
   const indirimOrani = urun.havaleIndirimi || 5; 
   const havaleFiyati = (anaFiyat * (1 - (indirimOrani / 100))).toFixed(0);
 
-  // BUTONA BASILINCA ÇALIŞACAK SİHİRLİ FONKSİYON
+ // BUTONA BASILINCA ÇALIŞACAK SİHİRLİ FONKSİYON
   const sepeteFirlat = () => {
     const eklenecekUrun = {
       id: urun._id.toString(),
@@ -25,10 +25,10 @@ export default function VaryasyonluSepet({ urun }: { urun: any }) {
       resim: urun.resimler && urun.resimler.length > 0 ? urun.resimler[0] : "",
       fiyat: anaFiyat,
       varyasyon: seciliVaryasyon ? seciliVaryasyon.model_adi : null,
-      // 🚀 İŞTE YILLARDIR ARADIĞIMIZ O EKSİK ŞALTER BURAYA TAKILDI!
-      havaleIndirimi: urun.havaleIndirimi,
+      // 🚀 BİNGO: BAGAJA İNDİRİM ORANINI DA KOYDUK! EKSİK OLAN BUYDU!
+      havaleIndirimi: urun.havaleIndirimi, 
     };
-    sepeteEkle(eklenecekUrun); // Sepet beynine ürünü gönder!
+    sepeteEkle(eklenecekUrun); 
   };
 
   return (
