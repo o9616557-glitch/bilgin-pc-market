@@ -92,7 +92,7 @@ export default function Footer() {
             <h3 className="text-white font-black text-lg uppercase tracking-wider mb-2">Bize Ulaşın</h3>
             
             {/* 🚀 BİNGO: w-max class'ı ile boyutları kilitledik! Sünme bitti. */}
-            <a href="https://wa.me/905327345023" target="_blank" rel="noopener noreferrer" className="w-max flex items-center gap-3 bg-[#10b981]/10 border border-[#10b981]/30 hover:bg-[#10b981]/20 transition-all p-3 rounded-xl group">
+            <a href="https://wa.me/905534061955" target="_blank" rel="noopener noreferrer" className="w-max flex items-center gap-3 bg-[#10b981]/10 border border-[#10b981]/30 hover:bg-[#10b981]/20 transition-all p-3 rounded-xl group">
               <MessageCircle className="w-6 h-6 text-[#10b981]" />
               <div className="flex flex-col">
                 <span className="text-white font-bold text-sm">WhatsApp Destek</span>
