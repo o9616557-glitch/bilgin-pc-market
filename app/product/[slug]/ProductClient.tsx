@@ -390,7 +390,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
         </div>
 
-        33{/* 🚀 DİNAMİK TEKNİK BİLGİLER TABLOSU (KUTU TASARIMI VE TIKLANABİLİR) */}
+        {/* 🚀 DİNAMİK TEKNİK BİLGİLER TABLOSU (KUTU TASARIMI VE TIKLANABİLİR) */}
         {product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 && (
           <div className="mt-8 mb-24 bg-[#09090b] border border-slate-800 rounded-3xl p-5 sm:p-8 shadow-lg">
             
