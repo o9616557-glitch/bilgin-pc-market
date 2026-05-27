@@ -370,7 +370,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 {/* 🚀 NEON DENİZ MAVİSİ 4'LÜ AKSİYON BARI */}
         <div className="grid grid-cols-4 gap-2 my-6 px-1">
           
-          {/* 1. KARŞILAŞTIR (Bu Karşılaştırmayı Açar) */}
+          {/* 1. KARŞILAŞTIR */}
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -389,17 +389,23 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-tighter text-center">FPS Testi</span>
           </a>
 
-          {/* 3. YORUMLAR */}
-          <a href="#yorumlar" className="flex flex-col items-center justify-center gap-1 bg-[#00e5ff]/5 border border-[#00e5ff]/30 hover:border-[#00e5ff] text-slate-300 hover:text-[#00e5ff] p-3 rounded-xl transition-all shadow-[0_0_10px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] backdrop-blur-sm group">
+          {/* 3. YORUMLAR (🚀 ŞEFİM BİNGO: SENİN ORİJİNAL KODUNLA BİREBİR AYNI) */}
+          <button
+            onClick={() => {
+              setActiveTab("reviews"); 
+              setIsModalOpen(true);
+            }}
+            className="flex flex-col items-center justify-center gap-1 bg-[#00e5ff]/5 border border-[#00e5ff]/30 hover:border-[#00e5ff] text-slate-300 hover:text-[#00e5ff] p-3 rounded-xl transition-all shadow-[0_0_10px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] backdrop-blur-sm group"
+          >
             <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
             <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-tighter text-center">Yorumlar</span>
-          </a>
+          </button>
 
-          {/* 4. TEKNİK BİLGİLER (SADECE TEKNİK POPUP AÇAR) */}
+          {/* 4. TEKNİK BİLGİLER */}
           <button
             onClick={(e) => {
               e.preventDefault();
-              setTeknikPopupAcik(true); // 🚀 BİNGO: Sadece Teknik Bilgiler penceresini tetikler!
+              setTeknikPopupAcik(true);
             }}
             className="flex flex-col items-center justify-center gap-1 bg-[#00e5ff]/5 border border-[#00e5ff]/30 hover:border-[#00e5ff] text-slate-300 hover:text-[#00e5ff] p-3 rounded-xl transition-all shadow-[0_0_10px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] backdrop-blur-sm group"
           >
@@ -408,8 +414,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           </button>
 
         </div>
-
-       
+      
         )
 
         {/* 🚀 YEPYENİ: SADECE BU ÜRÜNE ÖZEL TEKNİK BİLGİLER PENCERESİ (POPUP) */}
