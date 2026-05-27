@@ -339,21 +339,22 @@ export default function OdemeSayfasi() {
                 </div>
               )}
 
-              <div className="flex items-start gap-3 bg-[#121215] border border-slate-800 p-4 rounded-xl mb-6">
-                <input type="checkbox" id="sozlesmeKabul" checked={sozlesmeKabul} onChange={(e) => setSozlesmeKabul(e.target.checked)} className="w-5 h-5 mt-0.5 cursor-pointer accent-[#00e5ff]" />
-                <label htmlFor="sozlesmeKabul" className="text-slate-400 text-sm cursor-pointer leading-snug">
-                  Ön Bilgilendirme Formu'nu, <span className="text-[#00e5ff] underline">Mesafeli Satış Sözleşmesi</span>'ni ve <span className="text-[#00e5ff] underline">KVKK Aydınlatma Metni</span>'ni okudum, onaylıyorum.
-                </label>
+              {/* 🚀 MODERN SÖZLEŞME METNİ (TIK ZORUNLULUĞU KALDIRILDI) */}
+              <div className="bg-[#121215] border border-slate-800 p-4 rounded-xl mb-6 text-center">
+                <p className="text-slate-400 text-xs sm:text-sm leading-snug">
+                  Siparişi onaylayarak <span className="text-[#00e5ff] cursor-pointer hover:underline">Ön Bilgilendirme Formu</span>'nu, <span className="text-[#00e5ff] cursor-pointer hover:underline">Mesafeli Satış Sözleşmesi</span>'ni ve <span className="text-[#00e5ff] cursor-pointer hover:underline">KVKK Aydınlatma Metni</span>'ni okuyup kabul etmiş sayılırsınız.
+                </p>
               </div>
 
+              {/* ONAY BUTONU (SÖZLEŞME KİLİDİ KALDIRILDI) */}
               {!iyzicoFormHtml && (
                 <button 
                   type="submit" 
-                  disabled={yukleniyor || !sozlesmeKabul} 
-                  style={{ opacity: (yukleniyor || !sozlesmeKabul) ? 0.5 : 1 }}
-                  className="w-full bg-[#00e5ff] hover:bg-[#00c4db] text-black font-black uppercase tracking-wider py-4 rounded-xl text-lg transition-all"
+                  disabled={yukleniyor} 
+                  style={{ opacity: yukleniyor ? 0.5 : 1 }}
+                  className="w-full bg-[#00e5ff] hover:bg-[#00c4db] text-black font-black uppercase tracking-wider py-4 rounded-xl text-lg transition-all shadow-[0_0_15px_rgba(0,229,255,0.3)]"
                 >
-                  {yukleniyor ? "Lütfen Bekleyin..." : (!sozlesmeKabul ? "Sözleşmeyi Onaylayın" : (odemeYontemi === "havale" ? "Siparişi Onayla" : "Kart Ödemesine İlerle"))}
+                  {yukleniyor ? "Lütfen Bekleyin..." : (odemeYontemi === "havale" ? "Siparişi Onayla" : "Kart Ödemesine İlerle")}
                 </button>
               )}
             </form>
