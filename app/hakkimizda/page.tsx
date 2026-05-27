@@ -1,92 +1,115 @@
 "use client";
-
-import React from 'react';
-import Link from 'next/link';
+import React from "react";
+import Link from "next/link";
+import { ShieldCheck, Cpu, Zap, Users, ArrowRight } from "lucide-react";
 
 export default function HakkimizdaPage() {
   return (
-    <div className="bg-[#0b1120] min-h-screen text-white font-sans flex flex-col selection:bg-blue-500/30">
-      
-      {/* ÜST MENÜ */}
-      <nav className="flex items-center justify-between px-6 md:px-10 py-4 border-b border-white/5 bg-[#0b1120]/90 backdrop-blur-xl sticky top-0 z-50">
-        <Link href="/" className="text-lg md:text-xl font-black tracking-tighter uppercase italic group">
-          BİLGİN <span className="text-blue-600 underline decoration-2 underline-offset-4 group-hover:text-blue-400 transition-colors">PC MARKET</span>
-        </Link>
-        <Link href="/" className="bg-white/5 border border-white/10 px-6 py-2 rounded-full text-[10px] font-black uppercase hover:bg-blue-600 transition-all active:scale-95">
-          ← ANA SAYFAYA DÖN
-        </Link>
-      </nav>
-
-      <main className="max-w-[1100px] mx-auto px-6 py-12 md:py-20 flex-grow">
+    <div className="min-h-screen bg-[#050814] text-white pt-12 pb-20 px-4">
+      <div className="max-w-4xl mx-auto">
         
-        {/* ÜST BAŞLIK ALANI */}
-        <div className="space-y-6 mb-16 text-center md:text-left">
-          <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 text-blue-400 px-4 py-1.5 rounded-full">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em]">YENİ NESİL TEKNOLOJİ DURAĞI</span>
-          </div>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter uppercase leading-none">
-            TEKNOLOJİYE <br /> <span className="text-blue-600">YENİ BİR BAKIŞ.</span>
+        {/* BAŞLIK ALANI */}
+        <div className="text-center mb-16 relative">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[#00e5ff] blur-[120px] opacity-20 pointer-events-none"></div>
+          {/* 🚀 ŞEFİN BULDUĞU HATA DÜZELTİLDİ: h1 ile açıldı, h1 ile kapandı! */}
+          <h1 className="text-4xl sm:text-5xl font-black uppercase tracking-wider text-white mb-4 relative z-10">
+            BİZ <span className="text-[#00e5ff]">KİMİZ?</span>
           </h1>
-          <p className="text-slate-400 text-base md:text-lg max-w-2xl font-medium leading-relaxed">
-            Bilgin PC Market, performans tutkunları için kurulmuş, modern donanım mimarilerini saf güçle birleştiren bir teknoloji platformudur.
+          <p className="text-slate-400 font-medium text-base sm:text-lg max-w-xl mx-auto leading-relaxed relative z-10">
+            Performans tutkunları için donanımın sınırlarını zorlayan, işi mutfağında öğrenmiş bir ekibiz.
           </p>
         </div>
 
-        {/* ÖZEL BİLGİ KARTLARI */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-          
-          {/* Teknoloji Anlayışımız */}
-          <div className="p-8 md:p-12 bg-white/[0.03] border border-white/5 rounded-[3rem] space-y-6">
-            <div className="w-14 h-14 bg-blue-600/20 rounded-2xl flex items-center justify-center text-3xl">⚙️</div>
-            <h3 className="text-2xl font-black uppercase tracking-tighter italic">TEKNOLOJİ ANLAYIŞIMIZ</h3>
-            <p className="text-slate-300 leading-relaxed font-medium text-sm md:text-base">
-              Dünya hızla değişiyor. Biz sadece kutulu ürün satmıyoruz; en doğru donanım eşleşmelerini analiz ediyor, performans mimarisini en baştan kurguluyoruz.
+        {/* HİKAYEMİZ KUTUSU */}
+        <div className="bg-[#09090b] border border-slate-800/80 rounded-3xl p-6 sm:p-10 mb-12 relative overflow-hidden shadow-2xl">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#00e5ff] blur-[100px] opacity-10 pointer-events-none"></div>
+          <h2 className="text-2xl font-black uppercase tracking-wide text-white mb-6 flex items-center gap-3">
+            <span className="text-[#00e5ff]">🚀</span> HİKAYEMİZ
+          </h2>
+          <div className="text-slate-300 space-y-4 text-sm sm:text-base leading-relaxed font-medium">
+            <p>
+              Bilgin PC Market olarak, sadece bir e-ticaret sitesi değil; bilgisayar donanımına, hız aşırtmaya (overclock) ve yüksek performansa gönül vermiş bir topluluğun merkezini kurmak için yola çıktık.
+            </p>
+            <p>
+              Sektördeki en büyük eksikliğin, "kutuyu satıp arkasını dönen" satıcılar olduğunu gördük. Biz bu algıyı yıkmak, her bütçeye en doğru, en optimize ve en canavar performanslı bileşenleri ulaştırmak için dükkanımızı açtık. Sizin kurduğunuz o sistemleri biz kendi bilgisayarımız gibi heyecanla inceliyor ve paketliyoruz.
             </p>
           </div>
+        </div>
 
-          {/* Sunduğumuz Çözümler */}
-          <div className="p-8 md:p-12 bg-blue-600 border border-blue-500 rounded-[3rem] space-y-8 shadow-2xl shadow-blue-600/20">
-            <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center text-3xl text-white">🚀</div>
-            <h3 className="text-2xl font-black uppercase tracking-tighter text-white italic">SUNDUĞUMUZ ÇÖZÜMLER</h3>
-            <div className="space-y-4">
-              {[
-                "Yeni nesil ekran kartları",
-                "Güncel işlemci platformları",
-                "Yüksek hızlı SSD depolama çözümleri",
-                "Performans odaklı bilgisayar sistemleri"
-              ].map((item, i) => (
-                <div key={i} className="flex items-center gap-4 text-blue-50 font-medium text-sm border-b border-white/10 pb-3">
-                  <span className="w-2 h-2 bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.8)]"></span>
-                  {item}
-                </div>
-              ))}
+        {/* BİZİ AYIRAN ÖZELLİKLER (GRID TASARIM) */}
+        <h2 className="text-xl sm:text-2xl font-black uppercase tracking-wide text-center text-white mb-8">
+          NEDEN BİLGİN <span className="text-[#00e5ff]">PC MARKET?</span>
+        </h2>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-16">
+          
+          {/* ÖZELLİK 1 */}
+          <div className="bg-[#09090b] border border-slate-850 p-6 rounded-2xl flex gap-4 items-start transition-all hover:border-[#00e5ff]/30">
+            <div className="w-12 h-12 rounded-xl bg-[#00e5ff]/10 border border-[#00e5ff]/20 flex items-center justify-center shrink-0">
+              <Cpu className="w-6 h-6 text-[#00e5ff]" />
+            </div>
+            <div>
+              <h4 className="text-white font-bold text-lg mb-1">Gerçek Donanım Uzmanlığı</h4>
+              <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                Biz sadece ürün satmıyoruz. Hangi işlemci hangi ana kartla coşar, hangi RAM oyunlarda darboğazı bitirir milimetrik olarak biliyoruz.
+              </p>
             </div>
           </div>
-        </div>
 
-        {/* PRENSİPLERİMİZ */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { n: "01", t: "ŞEFFAFLIK", d: "Net ve şeffaf satış politikası ile ne aldığınızı her zaman bilirsiniz." },
-            { n: "02", t: "GARANTİ", d: "Tüm ürünlerimiz distribütör garantili ve %100 orijinaldir." },
-            { n: "03", t: "VİZYON", d: "Geleceğin donanım standartlarını bugünden dükkanınıza getiriyoruz." }
-          ].map((p, i) => (
-            <div key={i} className="p-8 border border-white/5 rounded-[2rem] space-y-4 bg-white/[0.02] hover:bg-white/[0.04] transition-all">
-              <div className="text-blue-500 font-black text-xs tracking-widest uppercase">{p.n}. {p.t}</div>
-              <p className="text-sm text-slate-400 font-medium leading-relaxed">{p.d}</p>
+          {/* ÖZELLİK 2 */}
+          <div className="bg-[#09090b] border border-slate-850 p-6 rounded-2xl flex gap-4 items-start transition-all hover:border-[#00e5ff]/30">
+            <div className="w-12 h-12 rounded-xl bg-[#10b981]/10 border border-[#10b981]/20 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-6 h-6 text-[#10b981]" />
             </div>
-          ))}
+            <div>
+              <h4 className="text-white font-bold text-lg mb-1">%100 Orijinal & Distribütör Garantisi</h4>
+              <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                Sitemizdeki her vida, her fan, her ekran kartı tamamen yetkili distribütör garantilidir. Sahte veya faturasız mala dükkanımızda yer yoktur.
+              </p>
+            </div>
+          </div>
+
+          {/* ÖZELLİK 3 */}
+          <div className="bg-[#09090b] border border-slate-850 p-6 rounded-2xl flex gap-4 items-start transition-all hover:border-[#00e5ff]/30">
+            <div className="w-12 h-12 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0">
+              <Zap className="w-6 h-6 text-orange-400" />
+            </div>
+            <div>
+              <h4 className="text-white font-bold text-lg mb-1">Jet Hızıyla Kargo</h4>
+              <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                Donanım bekletmeye gelmez, iyi biliriz. Saat 16:00'dan önce verdiğiniz siparişler aynı gün korumalı paketlerle kargoya verilir.
+              </p>
+            </div>
+          </div>
+
+          {/* ÖZELLİK 4 */}
+          <div className="bg-[#09090b] border border-slate-850 p-6 rounded-2xl flex gap-4 items-start transition-all hover:border-[#00e5ff]/30">
+            <div className="w-12 h-12 rounded-xl bg-purple-550/10 border border-purple-550/20 flex items-center justify-center shrink-0">
+              <Users className="w-6 h-6 text-purple-400" />
+            </div>
+            <div>
+              <h4 className="text-white font-bold text-lg mb-1">Satış Sonrası Tam Destek</h4>
+              <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                Siparişi teslim aldığınızda işimiz bitmiyor. Montajda, kurulumda veya bir sorun yaşadığınızda WhatsApp ekibimizle her zaman yanınızdayız.
+              </p>
+            </div>
+          </div>
+
         </div>
 
-      </main>
+        {/* EYLEM ÇAĞRISI KUTUSU */}
+        <div className="bg-gradient-to-r from-[#09090b] to-[#121215] border border-slate-800 rounded-3xl p-8 text-center relative overflow-hidden shadow-xl">
+          <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-[#00e5ff] blur-[100px] opacity-10 pointer-events-none"></div>
+          <h3 className="text-xl sm:text-2xl font-black uppercase mb-3">SİSTEMİNİ YÜKSELTMEYE <span className="text-[#00e5ff]">HAZIR MISIN?</span></h3>
+          <p className="text-slate-400 text-xs sm:text-sm mb-6 max-w-md mx-auto">
+            En yeni ekran kartları, canavar işlemciler ve en hızlı SSD modelleri mağazada seni bekliyor.
+          </p>
+          <Link href="/" className="inline-flex items-center gap-2 bg-[#00e5ff] text-black font-black uppercase tracking-wider px-8 py-3.5 rounded-xl hover:bg-[#00c4db] transition-all text-sm shadow-[0_0_15px_rgba(0,229,255,0.2)]">
+            Alışverişe Başla <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
 
-      {/* FOOTER */}
-      <footer className="border-t border-white/5 py-12 px-6 text-center mt-auto">
-        <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.3em]">
-          © 2026 BİLGİN PC MARKET – PERFORMANS BURADA BAŞLAR.
-        </p>
-      </footer>
-
+      </div>
     </div>
   );
 }
