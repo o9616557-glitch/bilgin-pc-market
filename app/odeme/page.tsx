@@ -10,7 +10,7 @@ export default function OdemeSayfasi() {
   const [odemeYontemi, setOdemeYontemi] = useState("kart");
   const [yukleniyor, setYukleniyor] = useState(false);
   const [iyzicoFormHtml, setIyzicoFormHtml] = useState<string>("");
-
+  const [ibanKopyalandi, setIbanKopyalandi] = useState(false); 
   const [faturaAyni, setFaturaAyni] = useState(true);
   const [sozlesmeKabul, setSozlesmeKabul] = useState(false);
 
@@ -169,15 +169,27 @@ export default function OdemeSayfasi() {
     );
   }
 
- // 🧮 🚀 ŞEFİN DİNAMİK HAVALE HESAPLAMA MOTORU
+ // ==========================================
+  // 🧮 🚀 ŞEFİN DİNAMİK HAVALE HESAPLAMA MOTORU (KİLİT KIRILDI!)
+  // ==========================================
   const toplamHavaleIndirimi = sepet.reduce((toplam: number, urun: any) => {
-    const urunOrani = urun.havaleIndirimOrani !== undefined ? urun.havaleIndirimOrani : 5; // Üründe oran yoksa standart %5 al
+    // 🚀 BİNGO: Veritabanındaki gerçek şifre 'havaleIndirimi' buraya eklendi!
+    const urunOrani = (urun.havaleIndirimi !== undefined && urun.havaleIndirimi !== null && urun.havaleIndirimi !== "") 
+                      ? Number(urun.havaleIndirimi) 
+                      : 5; 
+                      
     const urunToplamFiyat = urun.fiyat * urun.adet;
     return toplam + (urunToplamFiyat * urunOrani) / 100;
   }, 0);
-  // Eğer ödeme yöntemi havale ise genel toplamdan bu dinamik indirimi düşüyoruz
+
   const odenecekSonTutar = odemeYontemi === "havale" ? (genelToplam - toplamHavaleIndirimi) : genelToplam;
 
+  // 📋 IBAN KOPYALAMA MOTORU (EKSİĞİ BURAYA TAMAMLADIK)
+  const ibanKopyala = () => {
+    navigator.clipboard.writeText("TR99 0001 0002 0003 0004 0005 06"); 
+    setIbanKopyalandi(true);
+    setTimeout(() => setIbanKopyalandi(false), 2000); // 2 saniye sonra "Kopyalandı" yazısını eski haline çevirir
+  };
 
   // ==========================================
   // 💳 2. BÖLÜM: ÖDEME FORMU VE SİPARİŞ ÖZETİ
@@ -280,7 +292,6 @@ export default function OdemeSayfasi() {
 
               <hr className="border-slate-800 mb-6" />
 
-              {/* ÖDEME YÖNTEMİ SEÇİMİ */}
               <h3 className="text-lg font-black text-white mb-4">Ödeme Yöntemi</h3>
               <div className="flex gap-4 mb-6">
                 <button 
@@ -299,17 +310,31 @@ export default function OdemeSayfasi() {
                 </button>
               </div>
 
-              {/* 🚀 KESİLEN YAZI DÜZELTİLDİ: HAVALE TALİMATLARI BİLGİ KUTUSU */}
+              {/* 🚀 KOPYALAMA BUTONLU HAVALE TALİMATLARI KUTUSU */}
               {odemeYontemi === "havale" && (
                 <div className="bg-[#121215] border border-slate-800 rounded-2xl p-5 text-slate-400 text-sm mb-6 leading-relaxed w-full block clear-both overflow-hidden">
                   <p className="text-[#10b981] font-bold mb-3 flex items-center gap-1.5">💡 Havale / EFT Ödeme Talimatı:</p>
                   <div className="text-slate-300 mb-3 font-medium">
-                    Lütfen transferi gerçekleştirirken açıklama alanına sadece <span className="text-[#00e5ff] font-bold underline">adınızı ve soyadınızı</span> yazınız. Siparişiniz kontrol edildikten sonra anında onaylanacaktır.
+                    Lütfen transferi gerçekleştirirken açıklama alanına sadece <span className="text-[#00e5ff] font-bold underline">adınızı ve soyadınızı</span> yazınız.
                   </div>
                   <div className="mt-4 border-t border-slate-800/80 pt-3 font-mono text-xs sm:text-sm flex flex-col gap-1.5 bg-black/20 p-3 rounded-xl">
                     <div><strong>Banka:</strong> Akıllı Banka (Bilgin PC Özel)</div>
                     <div><strong>Alıcı:</strong> BİLGİN PC MARKET LTD. ŞTİ.</div>
-                    <div className="break-all select-all"><strong>IBAN:</strong> <span className="text-white font-bold bg-slate-900 px-1 py-0.5 rounded border border-slate-800">TR99 0001 0002 0003 0004 0005 06</span></div>
+                    
+                    {/* 📋 SİHİRLİ İBAN KOPYALAMA ALANI */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-1 pt-1 border-t border-slate-800/40">
+                      <div className="break-all select-all">
+                        <strong>IBAN:</strong> <span className="text-white font-bold bg-slate-900 px-1 py-0.5 rounded border border-slate-800">TR99 0001 0002 0003 0004 0005 06</span>
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={ibanKopyala}
+                        className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all shrink-0 ${ibanKopyalandi ? "bg-[#10b981] text-white" : "bg-[#00e5ff] text-black hover:bg-[#00c4db]"}`}
+                      >
+                        {ibanKopyalandi ? "✓ Kopyalandı" : "📋 İBAN Kopyala"}
+                      </button>
+                    </div>
+
                   </div>
                 </div>
               )}
@@ -350,7 +375,7 @@ export default function OdemeSayfasi() {
 
           </div>
 
-          {/* ➡️ SAĞ TARAF: SİPARİŞ ÖZETI */}
+          {/* ➡️ SAĞ TARAF: SİPARİŞ ÖZETİ */}
           <div style={{ flex: "1" }} className="w-full lg:w-[380px] shrink-0">
             <div className="bg-[#09090b] border border-slate-800/50 rounded-3xl p-6 lg:p-8 sticky top-24">
               <h2 className="font-black text-xl mb-6 pb-4 border-b border-slate-800 text-white uppercase tracking-wide">
@@ -366,7 +391,6 @@ export default function OdemeSayfasi() {
                       <div style={{ flex: "1", minWidth: 0 }}>
                         <h4 className="text-white text-sm font-bold truncate">{urun.isim}</h4>
                         <p className="text-slate-400 text-xs">{urun.adet} Adet x {urun.varyasyon || "Standart"}</p>
-                        {/* Havale yöntemi seçildiğinde hangi üründen yüzde kaç indirim düştüğünü ufakça fısıldar */}
                         {odemeYontemi === "havale" && (
                           <span className="text-[#10b981] text-[10px] font-bold bg-[#10b981]/10 px-1.5 py-0.5 rounded border border-[#10b981]/20 mt-0.5 inline-block">%{indOrani} Havale İndirimi</span>
                         )}
@@ -387,7 +411,6 @@ export default function OdemeSayfasi() {
                 <span>{kargo === 0 ? <span className="text-[#00e5ff] font-bold">BEDAVA</span> : <span className="text-white font-bold">{kargo} TL</span>}</span>
               </div>
 
-              {/* 🚀 DİNAMİK YAZILAN YER: Toplam indirim tutarı artık sabit değil, sepetin içindeki oranların toplamı! */}
               {odemeYontemi === "havale" && (
                 <div className="flex justify-between text-[#10b981] mb-3 text-sm font-bold bg-[#10b981]/5 p-2 rounded-lg border border-[#10b981]/10">
                   <span>Havale İndirimi</span>
@@ -395,7 +418,7 @@ export default function OdemeSayfasi() {
                 </div>
               )}
 
-              <div className="flex justify-between items-center text-white font-black border-t border-slate-800 pt-5 mt-2">
+              <div className="flex justify-between items-center text-white font-black border-t border-white/10 pt-5 mt-2">
                 <span className="text-lg">ÖDENECEK TUTAR</span>
                 <span className="text-2xl text-[#00e5ff]">
                   {odenecekSonTutar.toLocaleString("tr-TR")} <span className="text-sm text-slate-400 font-bold">TL</span>
@@ -407,7 +430,7 @@ export default function OdemeSayfasi() {
         </div>
       </div>
 
-   <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 992px) { .odeme-konteynir { flex-direction: column !important; } }
         @media (max-width: 550px) {
           .form-grid-2 { grid-template-columns: 1fr !important; }
@@ -416,4 +439,4 @@ export default function OdemeSayfasi() {
       `}} />
     </div>
   );
-} // 🚀 İŞTE EKSİK OLAN VE HATAYI ÇÖZECEK ANAHTAR BU!
+}
