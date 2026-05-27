@@ -3,23 +3,22 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/app/CartContext"; 
-import { Trash2, ArrowLeft } from "lucide-react"; 
+import { Trash2, ArrowLeft, CreditCard, Banknote } from "lucide-react"; 
 
 export default function SepetSayfasi() {
   const { sepet, sepetiTemizle, sepettenSil, adetGuncelle } = useCart();
   const [urunToDelete, setUrunToDelete] = useState<any | null>(null);
 
   const araToplam = sepet.reduce((toplam: number, urun: any) => toplam + (urun.fiyat * urun.adet), 0);
-  const kargo = araToplam > 5000 || araToplam === 0 ? 0 : 150;
+  const kargo = (araToplam > 5000 || araToplam === 0) ? 0 : 150;
   
-  // 🚀 ŞEFİN ESERİ: HAVALE İNDİRİMİNİ BURADA DA ÇEKİYORUZ! (Yoksa 0 hesaplar, 5 devri bitti!)
   const toplamHavaleIndirimi = sepet.reduce((toplam: number, urun: any) => {
     const oran = (urun.havaleIndirimi !== undefined && urun.havaleIndirimi !== null) ? Number(urun.havaleIndirimi) : 0;
     return toplam + ((urun.fiyat * urun.adet) * oran) / 100;
   }, 0);
 
   const genelToplam = araToplam + kargo;
-  const havaleliToplam = genelToplam - toplamHavaleIndirimi; // Havale seçilirse düşecek son tutar
+  const havaleliToplam = genelToplam - toplamHavaleIndirimi;
 
   if (sepet.length === 0) {
     return (
@@ -29,9 +28,6 @@ export default function SepetSayfasi() {
           <h2 className="text-2xl md:text-3xl font-black mb-4 uppercase tracking-wider text-white">
             Sepetin <span className="text-[#00e5ff]">Boş</span>
           </h2>
-          <p className="text-slate-400 mb-8 font-medium text-sm md:text-base leading-relaxed">
-            İhtiyacınıza en uygun bilgisayar donanımlarını keşfetmek için mağazaya göz atın.
-          </p>
           <Link href="/" className="bg-[#00e5ff] text-black font-black py-4 px-10 rounded-xl hover:bg-[#00c4db] transition-all duration-300 uppercase tracking-wide w-full sm:w-auto">
             Mağazaya Geri Dön
           </Link>
@@ -44,7 +40,7 @@ export default function SepetSayfasi() {
     <div className="min-h-screen bg-[#050814] text-white pt-8 md:pt-12 pb-12 px-4">
       <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8">
         
-        {/* SOL TARAF */}
+        {/* SOL TARAF: ÜRÜN LİSTESİ */}
         <div className="flex-1 flex flex-col gap-4">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-slate-800 pb-4 mb-4 gap-4 mt-2">
             <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter text-white">
@@ -59,6 +55,8 @@ export default function SepetSayfasi() {
 
           {sepet.map((urun: any, index: number) => {
             const urunIndirimOrani = (urun.havaleIndirimi !== undefined && urun.havaleIndirimi !== null) ? Number(urun.havaleIndirimi) : 0;
+            const urunToplamFiyat = urun.fiyat * urun.adet;
+            const urunHavaleFiyat = urunToplamFiyat - (urunToplamFiyat * urunIndirimOrani / 100);
 
             return (
               <div key={index} className="flex flex-col sm:flex-row items-center bg-[#09090b] border border-slate-800/50 rounded-2xl p-4 gap-4 transition-all hover:border-[#00e5ff]/30">
@@ -70,14 +68,17 @@ export default function SepetSayfasi() {
                   {urun.varyasyon && !urun.varyasyon.toLowerCase().includes("standart") && (
                     <p className="text-[#00e5ff] text-xs font-semibold mb-2 bg-[#00e5ff]/10 inline-block self-center sm:self-start px-2 py-0.5 rounded border border-[#00e5ff]/20">{urun.varyasyon}</p>
                   )}
-                  {/* Ürün kartında da küçük bir havale etiketi şık durur */}
-                  {urunIndirimOrani > 0 && (
-                    <span className="text-[#10b981] text-[10px] font-bold bg-[#10b981]/10 px-2 py-0.5 rounded border border-[#10b981]/20 mt-1 inline-block self-center sm:self-start mb-2">
-                      %{urunIndirimOrani} Havale İndirimi
-                    </span>
-                  )}
-                  <div className="text-xl font-black mt-1 sm:mt-auto tracking-tight text-white">
-                    {(urun.fiyat * urun.adet).toLocaleString("tr-TR")} <span className="text-sm text-slate-400 font-medium">TL</span>
+                  
+                  {/* Fiyatın altında havale detayını da gösteriyoruz */}
+                  <div className="mt-2 sm:mt-auto flex flex-col">
+                    <div className="text-lg font-black tracking-tight text-white">
+                      {urunToplamFiyat.toLocaleString("tr-TR")} <span className="text-xs text-slate-400 font-medium">TL (Kart)</span>
+                    </div>
+                    {urunIndirimOrani > 0 && (
+                      <div className="text-[#10b981] text-sm font-bold mt-0.5">
+                        {urunHavaleFiyat.toLocaleString("tr-TR")} <span className="text-xs opacity-80">TL (Havale)</span>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="flex flex-row items-center justify-between sm:justify-end gap-3 w-full sm:w-auto mt-4 sm:mt-0 pt-4 sm:pt-0 border-t border-slate-800/50 sm:border-none">
@@ -95,47 +96,56 @@ export default function SepetSayfasi() {
           })}
         </div>
 
-        {/* SAĞ TARAF: SİPARİŞ ÖZETİ */}
+        {/* SAĞ TARAF: SİPARİŞ ÖZETİ (KUSURSUZ TASARIM) */}
         <div className="w-full lg:w-[380px] shrink-0">
           <div className="bg-[#09090b] border border-slate-800/50 rounded-3xl p-6 lg:p-8 sticky top-24">
             <h2 className="font-black text-xl mb-6 pb-4 border-b border-slate-800 text-white uppercase tracking-wide">
               Sipariş <span className="text-[#00e5ff]">Özeti</span>
             </h2>
             
-            <div className="flex justify-between text-slate-400 mb-4 font-medium text-sm lg:text-base">
+            <div className="flex justify-between text-slate-400 mb-4 font-medium text-sm">
               <span>Ara Toplam</span>
               <span className="text-white font-bold">{araToplam.toLocaleString("tr-TR")} TL</span>
             </div>
             
-            <div className="flex justify-between text-slate-400 mb-6 font-medium text-sm lg:text-base">
+            <div className="flex justify-between text-slate-400 mb-6 font-medium text-sm">
               <span>Kargo Ücreti</span>
               <span>{kargo === 0 ? <span className="text-[#00e5ff] font-bold">Ücretsiz</span> : <span className="text-white font-bold">{kargo} TL</span>}</span>
             </div>
 
-            {/* 🚀 SENİN İSTEDİĞİN O EFSANE YER: ARA TOPLAMIN ALTINA YAPIŞTIRDIK! */}
-            {toplamHavaleIndirimi > 0 && (
-              <div className="flex justify-between text-[#10b981] mb-6 font-medium text-sm lg:text-base bg-[#10b981]/10 p-3 rounded-xl border border-[#10b981]/20">
-                <span>Havale İndirimi</span>
-                <span className="font-bold">-{toplamHavaleIndirimi.toLocaleString("tr-TR")} TL</span>
+            {/* 💳 KREDİ KARTI BÖLÜMÜ */}
+            <div className="bg-[#121215] border border-slate-800 rounded-2xl p-4 mb-4">
+              <div className="flex items-center gap-2 mb-1">
+                <CreditCard className="w-5 h-5 text-white" />
+                <span className="text-white font-black text-lg">Kredi Kartı Toplam</span>
               </div>
-            )}
-
-            <div className="flex justify-between items-center text-white font-black border-t border-slate-800 pt-6 mb-2">
-              <span className="text-lg">Genel Toplam</span>
-              <span className="text-2xl lg:text-3xl text-white">{genelToplam.toLocaleString("tr-TR")} <span className="text-base text-slate-400 font-bold">TL</span></span>
+              <p className="text-[11px] text-slate-400 mb-2 font-medium">Tek Çekim veya 9/12'ye varan taksit seçenekleriyle</p>
+              <div className="text-2xl font-black text-white text-right">
+                {genelToplam.toLocaleString("tr-TR")} TL
+              </div>
             </div>
 
-            {/* HAVALEYİ SEÇERSEN NE KADAR ÖDEYECEĞİNİ DE GÖSTERELİM Kİ GÖZÜNE SOKALIM */}
+            {/* 💸 HAVALE / EFT BÖLÜMÜ */}
             {toplamHavaleIndirimi > 0 && (
-              <div className="flex justify-between items-center text-[#00e5ff] font-black mb-8 border-t border-slate-800/50 pt-4">
-                <span className="text-sm uppercase tracking-wider text-slate-300">Havale / EFT İle</span>
-                <span className="text-xl lg:text-2xl text-[#00e5ff]">{havaleliToplam.toLocaleString("tr-TR")} <span className="text-sm text-[#00e5ff] font-bold">TL</span></span>
+              <div className="bg-[#10b981]/10 border border-[#10b981]/30 rounded-2xl p-4 mb-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-[#10b981] blur-[50px] opacity-20 pointer-events-none"></div>
+                <div className="flex items-center gap-2 mb-1">
+                  <Banknote className="w-5 h-5 text-[#10b981]" />
+                  <span className="text-[#10b981] font-black text-lg">Havale / EFT Toplam</span>
+                </div>
+                <p className="text-[11px] text-[#10b981]/80 mb-2 font-bold uppercase tracking-wider">Özel Nakit İndirimi Uygulandı</p>
+                <div className="text-3xl font-black text-[#10b981] text-right drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]">
+                  {havaleliToplam.toLocaleString("tr-TR")} TL
+                </div>
+                <div className="text-right text-[11px] text-[#10b981] font-bold mt-1">
+                  Kazancınız: {toplamHavaleIndirimi.toLocaleString("tr-TR")} TL
+                </div>
               </div>
             )}
 
-            <Link href="/odeme" className="block w-full mt-4">
-              <button className="w-full bg-[#00e5ff] text-black font-black uppercase tracking-wider py-4 rounded-xl text-lg hover:bg-[#00c4db] transition-all">
-                Alışverişi Tamamla
+            <Link href="/odeme" className="block w-full">
+              <button className="w-full bg-[#00e5ff] text-black font-black uppercase tracking-wider py-4 rounded-xl text-lg hover:bg-[#00c4db] transition-all shadow-[0_0_15px_rgba(0,229,255,0.2)]">
+                Güvenli Ödemeye Geç
               </button>
             </Link>
             
