@@ -18,9 +18,15 @@ export default async function HomePage() {
   return (
     <main className="min-h-screen bg-[#050814] text-[#ededed] font-sans pb-20">
       
-      <section className="relative overflow-hidden bg-[#09090b] border-b border-slate-800/80 pt-24 pb-32 mb-16">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#00e5ff] blur-[150px] opacity-10 pointer-events-none"></div>
-        <div className="absolute bottom-0 right-0 w-[500px] h-[300px] bg-[#10b981] blur-[150px] opacity-10 pointer-events-none"></div>
+      {/* 🚀 1. BÖLÜM: KAHRAMAN (HERO) ALANI - Sitenin Vitrini */}
+      {/* ŞEFİM BİNGO: overflow-hidden kaldırıldı, üst boşluk (pt-40) artırıldı! */}
+      <section className="relative bg-[#09090b] border-b border-slate-800/80 pt-40 pb-28 mb-20">
+        
+        {/* Neon ışıklar sayfayı bozmasın diye kendi içlerinde hapsedildi */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#00e5ff] blur-[150px] opacity-10"></div>
+          <div className="absolute bottom-0 right-0 w-[500px] h-[300px] bg-[#10b981] blur-[150px] opacity-10"></div>
+        </div>
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#00e5ff]/10 border border-[#00e5ff]/20 text-[#00e5ff] text-sm font-bold uppercase tracking-wider mb-8">
@@ -42,14 +48,15 @@ export default async function HomePage() {
             <a href="#vitrin" className="w-full sm:w-auto bg-[#00e5ff] text-black font-black uppercase tracking-wider px-8 py-4 rounded-xl hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.3)] hover:shadow-[0_0_30px_rgba(0,229,255,0.5)] hover:-translate-y-1 flex items-center justify-center gap-2">
               Ürünleri Keşfet <ArrowRight className="w-5 h-5" />
             </a>
-            <Link href="/hakkimizda" className="w-full sm:w-auto bg-[#121215] text-white font-bold uppercase tracking-wider px-8 py-4 rounded-xl border border-slate-700 hover:border-slate-500 hover:bg-[#1a1a1f] transition-all flex items-center justify-center gap-2">
+            <Link href="/hakkimizda" className="w-full sm:w-auto bg-[#121215] text-white font-bold uppercase tracking-wider px-8 py-4 rounded-xl border border-slate-700 hover:border-slate-500 hover:bg-[#1a1a1f] transition-all flex items-center justify-center gap-2 z-20">
               Biz Kimiz?
             </Link>
           </div>
         </div>
         
-        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-full max-w-4xl px-4 hidden md:block">
-          <div className="grid grid-cols-3 gap-4 bg-[#09090b] border border-slate-800 p-4 rounded-2xl shadow-2xl">
+        {/* ŞEFİM BİNGO: Artık kutu kesilmeyecek, pırıl pırıl ortada duracak! */}
+        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-full max-w-4xl px-4 hidden md:block z-20">
+          <div className="grid grid-cols-3 gap-4 bg-[#09090b] border border-slate-800 p-5 rounded-2xl shadow-[0_15px_30px_rgba(0,0,0,0.5)]">
             <div className="flex items-center justify-center gap-3 text-slate-300">
               <ShieldCheck className="w-6 h-6 text-[#10b981]" /> <span className="font-bold text-sm uppercase tracking-wide">Distribütör Garantili</span>
             </div>
@@ -63,6 +70,7 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* 🚀 2. BÖLÜM: ÜRÜN VİTRİNİ */}
       <div id="vitrin" className="max-w-6xl mx-auto px-4 sm:px-6 pt-10">
         
         <div className="flex items-end justify-between mb-10 border-b border-slate-800/80 pb-4">
