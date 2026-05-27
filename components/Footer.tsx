@@ -1,19 +1,19 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation"; // 🚀 1. RADARI İÇERİ ALDIK
-import { Phone, Mail, MessageCircle, ShieldCheck, FileText, Info, RefreshCcw, Smartphone } from "lucide-react";
+import { usePathname } from "next/navigation"; 
+// 🚀 Globe (İnternet) ikonunu içeri aldık
+import { Phone, Mail, MessageCircle, ShieldCheck, FileText, Info, RefreshCcw, Smartphone, Globe } from "lucide-react";
 
 export default function Footer() {
-  const pathname = usePathname(); // 🚀 2. RADARI ÇALIŞTIRDIK (Şu an hangi sayfadayız?)
+  const pathname = usePathname(); 
 
-  // 🚀 3. BİNGO: Müşteri Sepette veya Ödemede ise Footer'ı tamamen GİZLE!
+  // Müşteri Sepette veya Ödemede ise Footer'ı tamamen GİZLE!
   if (pathname === "/sepet" || pathname === "/odeme") {
     return null;
   }
 
   return (
     <footer className="bg-[#050814] border-t border-slate-800/80 pt-16 pb-8 mt-10 relative overflow-hidden">
-      {/* Arka plan ışık efekti */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-[#00e5ff] to-transparent opacity-20"></div>
       
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -30,7 +30,6 @@ export default function Footer() {
               </p>
             </div>
             
-            {/* Google Play Butonu */}
             <div>
               <span className="text-white font-bold text-sm uppercase tracking-wider block mb-3">Uygulamamızı İndirin</span>
               <a href="#" className="flex items-center gap-3 bg-[#09090b] border border-slate-700 hover:border-[#00e5ff]/50 transition-all p-3 rounded-xl group w-max">
@@ -60,9 +59,10 @@ export default function Footer() {
             </Link>
           </div>
 
-          {/* 3. SÜTUN: İLETİŞİM */}
+          {/* 3. SÜTUN: İLETİŞİM (ŞEFİN RESMİ BİLGİLERİ GÜNCELLENDİ) */}
           <div className="flex flex-col gap-4">
             <h3 className="text-white font-black text-lg uppercase tracking-wider mb-2">İletişim</h3>
+            
             <div className="flex items-center gap-3 text-slate-400 text-sm font-medium">
               <div className="w-8 h-8 rounded-full bg-[#121215] flex items-center justify-center shrink-0">
                 <Phone className="w-4 h-4 text-[#00e5ff]" />
@@ -72,22 +72,36 @@ export default function Footer() {
                 <span className="text-white">0850 123 45 67</span>
               </div>
             </div>
+            
             <div className="flex items-center gap-3 text-slate-400 text-sm font-medium">
               <div className="w-8 h-8 rounded-full bg-[#121215] flex items-center justify-center shrink-0">
                 <Mail className="w-4 h-4 text-[#00e5ff]" />
               </div>
               <div className="flex flex-col">
-                <span className="text-xs text-slate-500">E-Posta Desteği</span>
-                <span className="text-white">destek@bilginpc.com</span>
+                <span className="text-xs text-slate-500">Kurumsal E-Posta</span>
+                <span className="text-white">info@bilginpcmarket.com</span>
               </div>
             </div>
+
+            {/* 🚀 WEB SİTEMİZ EKLENDİ */}
+            <div className="flex items-center gap-3 text-slate-400 text-sm font-medium">
+              <div className="w-8 h-8 rounded-full bg-[#121215] flex items-center justify-center shrink-0">
+                <Globe className="w-4 h-4 text-[#00e5ff]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs text-slate-500">Web Sitemiz</span>
+                <a href="https://bilginpcmarket.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#00e5ff] transition-colors">
+                  bilginpcmarket.com
+                </a>
+              </div>
+            </div>
+
           </div>
 
           {/* 4. SÜTUN: SOSYAL MEDYA VE DESTEK */}
           <div className="flex flex-col gap-4">
             <h3 className="text-white font-black text-lg uppercase tracking-wider mb-2">Bize Ulaşın</h3>
             
-            {/* WhatsApp Butonu */}
             <a href="https://wa.me/905000000000" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-[#10b981]/10 border border-[#10b981]/30 hover:bg-[#10b981]/20 transition-all p-3 rounded-xl group">
               <MessageCircle className="w-6 h-6 text-[#10b981]" />
               <div className="flex flex-col">
@@ -96,9 +110,8 @@ export default function Footer() {
               </div>
             </a>
 
-            {/* Instagram Butonu (SVG) */}
             <a href="https://instagram.com/bilginpc" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-[#e1306c]/10 border border-[#e1306c]/30 hover:bg-[#e1306c]/20 transition-all p-3 rounded-xl group">
-              <svg className="w-6 h-6 text-[#e1306c]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="24" height="24" className="text-[#e1306c] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                 <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
                 <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
