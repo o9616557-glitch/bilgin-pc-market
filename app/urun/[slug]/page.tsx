@@ -40,6 +40,16 @@ export default async function UrunDetaySayfasi({ params }: { params: any }) {
     resimListesi = [urun.resim];
   }
 
+  // =========================================================================
+  // 🚀 BİNGO: SUNUCUDAN İSTEMCİYE GEÇERKEN VERİ KAYBINI ÖNLEYEN KÖPRÜ (GÜMRÜK)
+  // =========================================================================
+  const temizUrun = {
+    ...urun,
+    _id: urun._id.toString(), // MongoDB ID'sini güvenli metne çevirdik
+    // İndirim oranını yolda kaybolmasın diye zorla ve kesin bir rakam olarak paketliyoruz:
+    havaleIndirimi: (urun.havaleIndirimi !== undefined && urun.havaleIndirimi !== null) ? Number(urun.havaleIndirimi) : 5
+  };
+
   return (
     <main style={{ minHeight: "100vh", backgroundColor: "#09090b", color: "#ededed", padding: "20px", fontFamily: "'Inter', sans-serif" }}>
       
@@ -89,8 +99,8 @@ export default async function UrunDetaySayfasi({ params }: { params: any }) {
               </div>
             </div>
 
-            {/* ŞEFİM: ESKİ STATİK FİYAT KODUNU SİLDİK, YERİNE YENİ AKILLI VARYASYON DOSYAMIZI KOYDUK */}
-            <VaryasyonluSepet urun={urun} />
+            {/* ŞEFİM: ESKİ HATALI 'urun' YERİNE GÜVENLİ VE EKSİKSİZ 'temizUrun' PAKETİNİ YOLLADIK! */}
+            <VaryasyonluSepet urun={temizUrun} />
 
           </div>
         </div>
