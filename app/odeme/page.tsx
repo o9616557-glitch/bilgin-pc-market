@@ -254,6 +254,7 @@ export default function OdemeSayfasi() {
 
               <hr className="border-slate-800 mb-6" />
 
+              {/* --- ÖDEME YÖNTEMİ SEÇİMİ --- */}
               <h3 className="text-lg font-black text-white mb-4">Ödeme Yöntemi</h3>
               <div className="flex gap-4 mb-6">
                 <button 
@@ -318,11 +319,11 @@ export default function OdemeSayfasi() {
               )}
             </form>
 
-            {/* 🚀 İYZİCO KUTUSUNUN ÜST BOŞLUĞU DÜZELTİLDİ (mt-10 ve px-2) */}
+            {/* 🚀 İYZİCO BEYAZ EKRANI: TAMAMEN ZORLA YUKARI ÇEKİLDİ VE ESNEME KALDIRILDI */}
             <div style={{
-              display: (odemeYontemi === "kart" && iyzicoFormHtml) ? "flex" : "none",
+              display: (odemeYontemi === "kart" && iyzicoFormHtml) ? "block" : "none",
               position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "#ffffff", zIndex: 999999,
-              flexDirection: "column", alignItems: "center", justifyContent: "flex-start", overflowY: "auto"
+              overflowY: "auto", paddingTop: "50px" 
             }}>
               <button type="button" onClick={() => {
                 setIyzicoFormHtml("");
@@ -331,7 +332,8 @@ export default function OdemeSayfasi() {
                 if (typeof window !== "undefined") { (window as any).iyziInit = undefined; }
               }} style={{ position: "fixed", top: "10px", right: "10px", background: "#f4f4f5", color: "#000", border: "2px solid #e4e4e7", borderRadius: "50%", width: "36px", height: "36px", fontSize: "1rem", cursor: "pointer", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2147483647 }}>X</button>
               
-              <div id="iyzipay-checkout-form" className="w-full max-w-2xl mt-10 sm:mt-16 px-2 sm:px-4"></div>
+              {/* 🚀 İYZİCO FORMUNUN KENDİSİ (BOŞLUKSUZ) */}
+              <div id="iyzipay-checkout-form" className="w-full max-w-2xl mx-auto px-2 sm:px-4"></div>
             </div>
 
           </div>
