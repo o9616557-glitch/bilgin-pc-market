@@ -40,7 +40,7 @@ export default function SepetSayfasi() {
     <div className="min-h-screen bg-[#050814] text-white pt-8 md:pt-12 pb-12 px-4">
       <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8">
         
-        {/* SOL TARAF: ÜRÜN LİSTESİ */}
+        {/* SOL TARAF: ÜRÜN LİSTESİ (TERTEMİZ, KAFA KARIŞTIRMAYAN TASARIM) */}
         <div className="flex-1 flex flex-col gap-4">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-slate-800 pb-4 mb-4 gap-4 mt-2">
             <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter text-white">
@@ -54,9 +54,7 @@ export default function SepetSayfasi() {
           </div>
 
           {sepet.map((urun: any, index: number) => {
-            const urunIndirimOrani = (urun.havaleIndirimi !== undefined && urun.havaleIndirimi !== null) ? Number(urun.havaleIndirimi) : 0;
             const urunToplamFiyat = urun.fiyat * urun.adet;
-            const urunHavaleFiyat = urunToplamFiyat - (urunToplamFiyat * urunIndirimOrani / 100);
 
             return (
               <div key={index} className="flex flex-col sm:flex-row items-center bg-[#09090b] border border-slate-800/50 rounded-2xl p-4 gap-4 transition-all hover:border-[#00e5ff]/30">
@@ -69,16 +67,9 @@ export default function SepetSayfasi() {
                     <p className="text-[#00e5ff] text-xs font-semibold mb-2 bg-[#00e5ff]/10 inline-block self-center sm:self-start px-2 py-0.5 rounded border border-[#00e5ff]/20">{urun.varyasyon}</p>
                   )}
                   
-                  {/* Fiyatın altında havale detayını da gösteriyoruz */}
-                  <div className="mt-2 sm:mt-auto flex flex-col">
-                    <div className="text-lg font-black tracking-tight text-white">
-                      {urunToplamFiyat.toLocaleString("tr-TR")} <span className="text-xs text-slate-400 font-medium">TL (Kart)</span>
-                    </div>
-                    {urunIndirimOrani > 0 && (
-                      <div className="text-[#10b981] text-sm font-bold mt-0.5">
-                        {urunHavaleFiyat.toLocaleString("tr-TR")} <span className="text-xs opacity-80">TL (Havale)</span>
-                      </div>
-                    )}
+                  {/* ŞEFİM: BURASI SADELEŞTİ. SADECE NET FİYAT YAZIYOR! */}
+                  <div className="text-xl font-black mt-2 sm:mt-auto tracking-tight text-white">
+                    {urunToplamFiyat.toLocaleString("tr-TR")} <span className="text-sm text-slate-400 font-medium">TL</span>
                   </div>
                 </div>
                 <div className="flex flex-row items-center justify-between sm:justify-end gap-3 w-full sm:w-auto mt-4 sm:mt-0 pt-4 sm:pt-0 border-t border-slate-800/50 sm:border-none">
@@ -96,7 +87,7 @@ export default function SepetSayfasi() {
           })}
         </div>
 
-        {/* SAĞ TARAF: SİPARİŞ ÖZETİ (KUSURSUZ TASARIM) */}
+        {/* SAĞ TARAF: SİPARİŞ ÖZETİ (SATIŞ STRATEJİSİ) */}
         <div className="w-full lg:w-[380px] shrink-0">
           <div className="bg-[#09090b] border border-slate-800/50 rounded-3xl p-6 lg:p-8 sticky top-24">
             <h2 className="font-black text-xl mb-6 pb-4 border-b border-slate-800 text-white uppercase tracking-wide">
@@ -114,15 +105,22 @@ export default function SepetSayfasi() {
             </div>
 
             {/* 💳 KREDİ KARTI BÖLÜMÜ */}
-            <div className="bg-[#121215] border border-slate-800 rounded-2xl p-4 mb-4">
+            <div className="bg-[#121215] border border-slate-800 rounded-2xl p-4 mb-3">
               <div className="flex items-center gap-2 mb-1">
                 <CreditCard className="w-5 h-5 text-white" />
-                <span className="text-white font-black text-lg">Kredi Kartı Toplam</span>
+                <span className="text-white font-black text-lg">Kredi Kartı Tek Çekim</span>
               </div>
-              <p className="text-[11px] text-slate-400 mb-2 font-medium">Tek Çekim veya 9/12'ye varan taksit seçenekleriyle</p>
-              <div className="text-2xl font-black text-white text-right">
+              <div className="text-2xl font-black text-white text-right mt-2">
                 {genelToplam.toLocaleString("tr-TR")} TL
               </div>
+            </div>
+
+            {/* 🚀 AYRI KUTU: TAKSİT AVANTAJI */}
+            <div className="bg-[#00e5ff]/10 border border-[#00e5ff]/30 rounded-xl p-3 mb-5 flex items-center justify-center gap-2 text-center">
+              <span className="text-lg">💳</span>
+              <span className="text-[#00e5ff] text-xs sm:text-sm font-bold tracking-wide uppercase">
+                3 - 6 - 9 - 12 Taksit Seçenekleri!
+              </span>
             </div>
 
             {/* 💸 HAVALE / EFT BÖLÜMÜ */}
