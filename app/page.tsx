@@ -20,7 +20,6 @@ export default async function HomePage() {
       
       {/* 🚀 1. BÖLÜM: KAHRAMAN (HERO) ALANI - Sitenin Vitrini */}
       <section className="relative overflow-hidden bg-[#09090b] border-b border-slate-800/80 pt-24 pb-32 mb-16">
-        {/* Arka Plan Neon Işıkları */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#00e5ff] blur-[150px] opacity-10 pointer-events-none"></div>
         <div className="absolute bottom-0 right-0 w-[500px] h-[300px] bg-[#10b981] blur-[150px] opacity-10 pointer-events-none"></div>
 
@@ -50,7 +49,6 @@ export default async function HomePage() {
           </div>
         </div>
         
-        {/* Alt Kısım Özellik Barları */}
         <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-full max-w-4xl px-4 hidden md:block">
           <div className="grid grid-cols-3 gap-4 bg-[#09090b] border border-slate-800 p-4 rounded-2xl shadow-2xl">
             <div className="flex items-center justify-center gap-3 text-slate-300">
@@ -66,7 +64,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 🚀 2. BÖLÜM: ÜRÜN VİTRİNİ (Motoru Korumalı Kısım) */}
+      {/* 🚀 2. BÖLÜM: ÜRÜN VİTRİNİ */}
       <div id="vitrin" className="max-w-6xl mx-auto px-4 sm:px-6 pt-10">
         
         <div className="flex items-end justify-between mb-10 border-b border-slate-800/80 pb-4">
@@ -81,7 +79,6 @@ export default async function HomePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {urunler.length > 0 ? (
             urunler.map((urun: any) => {
-              // 🛠️ MOTOR KISMI (Buraya Dokunulmadı)
               const vitrinResmi = urun.resimler && urun.resimler.length > 0 ? urun.resimler[0] : urun.resim;
               const normalFiyat = Number(urun.regular_price || urun.fiyat || urun.price || 0);
               const gecerliFiyat = Number(urun.indirimliFiyat || urun.price || urun.fiyat || 0);
@@ -95,24 +92,20 @@ export default async function HomePage() {
                 <Link href={/product/${urun.slug || urun._id}} key={urun._id.toString()} className="group outline-none">
                   <div className="bg-[#09090b] rounded-2xl border border-slate-800 p-4 flex flex-col h-full relative overflow-hidden transition-all duration-300 group-hover:border-[#00e5ff]/40 group-hover:shadow-[0_0_30px_rgba(0,229,255,0.05)] group-hover:-translate-y-1">
                     
-                    {/* Arka Plan Hafif Parlaması (Hover) */}
                     <div className="absolute top-0 right-0 w-32 h-32 bg-[#00e5ff] blur-[80px] opacity-0 group-hover:opacity-10 transition-opacity pointer-events-none"></div>
 
-                    {/* İndirim Rozeti */}
                     {indirimOrani > 0 && !tukendiMi && (
                       <div className="absolute top-3 left-3 bg-gradient-to-r from-orange-500 to-red-500 text-white px-2.5 py-1 rounded-lg text-[10px] font-black tracking-wider uppercase z-10 shadow-lg border border-red-400/30">
                         %{indirimOrani} İNDİRİM
                       </div>
                     )}
 
-                    {/* Tükendi Rozeti */}
                     {tukendiMi && (
                       <div className="absolute top-3 right-3 bg-red-500/10 text-red-500 border border-red-500/20 px-2.5 py-1 rounded-lg text-[10px] font-black tracking-wider uppercase z-10 backdrop-blur-md">
                         TÜKENDİ
                       </div>
                     )}
 
-                    {/* Ürün Görseli */}
                     <div className="w-full aspect-square bg-[#121215] rounded-xl border border-slate-800/80 overflow-hidden mb-4 relative flex items-center justify-center p-4">
                       {vitrinResmi ? (
                         <img 
@@ -125,10 +118,7 @@ export default async function HomePage() {
                       )}
                     </div>
 
-                    {/* Ürün Bilgileri */}
                     <div className="flex flex-col flex-grow">
-                      
-                      {/* Kategori ve Havale İndirimi */}
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider bg-slate-800/50 px-2 py-0.5 rounded-md">
                           {urun.kategori || "Donanım"}
@@ -140,12 +130,10 @@ export default async function HomePage() {
                         )}
                       </div>
 
-                      {/* Ürün İsmi */}
                       <h3 className="text-white font-bold text-sm sm:text-base leading-snug line-clamp-2 mb-4 group-hover:text-[#00e5ff] transition-colors">
                         {urun.isim || urun.name}
                       </h3>
                       
-                      {/* Fiyat Alanı */}
                       <div className="mt-auto pt-4 border-t border-slate-800/80">
                         {indirimVarMi ? (
                           <div className="flex flex-col">
@@ -164,14 +152,15 @@ export default async function HomePage() {
                       </div>
                     </div>
 
-                    {/* İncele Butonu (Görsel olarak) */}
                     <div className={`mt-4 w-full py-3 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
                       tukendiMi 
                         ? "bg-slate-800/50 text-slate-500 border border-slate-700/50" 
                         : "bg-[#121215] text-slate-300 border border-slate-700 group-hover:bg-[#00e5ff] group-hover:text-black group-hover:border-[#00e5ff] shadow-[0_0_15px_rgba(0,0,0,0)] group-hover:shadow-[0_0_15px_rgba(0,229,255,0.3)]"
                     }`}>
-                      {tukendiMi ? "Stokta Yok" : (
-                        <>İncele <ArrowRight className="w-4 h-4" /></>
+                      {tukendiMi ? (
+                        <span>Stokta Yok</span>
+                      ) : (
+                        <span className="flex items-center gap-2">İncele <ArrowRight className="w-4 h-4" /></span>
                       )}
                     </div>
 
@@ -193,7 +182,6 @@ export default async function HomePage() {
   );
 }
 
-// Havale İkonu için küçük bir yardımcı component (lucide-react'tan çekmek yerine sayfa içi)
 function BanknoteIcon(props: any) {
   return (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
