@@ -56,7 +56,6 @@ export default function OdemeSayfasi() {
     fetchKayitliAdresler();
   }, []);
 
-  // 🚀 ŞEFİN DİNAMİK FİYAT MOTORU (HAVALE SEÇİLİNCE HER ŞEY İNDİRİMLİ OLUR)
   const hesaplaTutar = () => {
     let hesaplananAraToplam = 0;
 
@@ -64,7 +63,6 @@ export default function OdemeSayfasi() {
       const indirimOrani = (urun.havaleIndirimi !== undefined && urun.havaleIndirimi !== null) ? Number(urun.havaleIndirimi) : 0;
       let urunFiyati = Number(urun.fiyat);
 
-      // Eğer yöntem havale ise, ürünün kendi fiyatı da anında düşer!
       if (odemeYontemi === "havale" && indirimOrani > 0) {
         urunFiyati = urunFiyati - (urunFiyati * indirimOrani) / 100;
       }
@@ -96,7 +94,6 @@ export default function OdemeSayfasi() {
     setYukleniyor(true);
     setIyzicoFormHtml("");
 
-    // Veritabanına da güncel seçilmiş tutarları gönderiyoruz
     const siparisVerisi = {
       musteri: {
         ...form,
@@ -257,7 +254,6 @@ export default function OdemeSayfasi() {
 
               <hr className="border-slate-800 mb-6" />
 
-              {/* --- ÖDEME YÖNTEMİ SEÇİMİ --- */}
               <h3 className="text-lg font-black text-white mb-4">Ödeme Yöntemi</h3>
               <div className="flex gap-4 mb-6">
                 <button 
@@ -305,7 +301,6 @@ export default function OdemeSayfasi() {
                 </div>
               )}
 
-              {/* 🚀 GİZLİLİK VE SATIŞ SÖZLEŞMELERİ BURADA */}
               <div className="bg-[#121215] border border-slate-800 p-4 rounded-xl mb-6 text-center">
                 <p className="text-slate-400 text-xs sm:text-sm leading-snug">
                   Siparişi onaylayarak <span className="text-[#00e5ff] cursor-pointer hover:underline">Ön Bilgilendirme Formu</span>'nu, <span className="text-[#00e5ff] cursor-pointer hover:underline">Mesafeli Satış Sözleşmesi</span>'ni ve <span className="text-[#00e5ff] cursor-pointer hover:underline font-bold">Gizlilik Sözleşmesi</span>'ni okuyup kabul etmiş sayılırsınız.
@@ -318,11 +313,12 @@ export default function OdemeSayfasi() {
                   disabled={yukleniyor} 
                   className={`w-full font-black uppercase tracking-wider py-4 rounded-xl text-lg transition-all ${odemeYontemi === "havale" ? "bg-[#10b981] hover:bg-[#14532d] text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]" : "bg-[#00e5ff] hover:bg-[#00c4db] text-black shadow-[0_0_15px_rgba(0,229,255,0.3)]"}`}
                 >
-                  {yukleniyor ? "Lütfen Bekleyin..." : (odemeYontemi === "havale" ? "Havale İle Siparişi Onayla" : "Kart İle Ödemeye İlerle")}
+                  {yukleniyor ? "Bekleyin..." : (odemeYontemi === "havale" ? "Havale İle Siparişi Onayla" : "Kart İle Ödemeye İlerle")}
                 </button>
               )}
             </form>
 
+            {/* 🚀 İYZİCO KUTUSUNUN ÜST BOŞLUĞU DÜZELTİLDİ (mt-10 ve px-2) */}
             <div style={{
               display: (odemeYontemi === "kart" && iyzicoFormHtml) ? "flex" : "none",
               position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "#ffffff", zIndex: 999999,
@@ -333,13 +329,14 @@ export default function OdemeSayfasi() {
                 const kutu = document.getElementById("iyzipay-checkout-form");
                 if (kutu) kutu.innerHTML = "";
                 if (typeof window !== "undefined") { (window as any).iyziInit = undefined; }
-              }} style={{ position: "fixed", top: "10px", right: "10px", background: "#f4f4f5", color: "#000", border: "2px solid #e4e4e7", borderRadius: "50%", width: "40px", height: "40px", fontSize: "1.2rem", cursor: "pointer", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2147483647 }}>X</button>
-              <div id="iyzipay-checkout-form" className="w-full max-w-2xl mt-16 p-4"></div>
+              }} style={{ position: "fixed", top: "10px", right: "10px", background: "#f4f4f5", color: "#000", border: "2px solid #e4e4e7", borderRadius: "50%", width: "36px", height: "36px", fontSize: "1rem", cursor: "pointer", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2147483647 }}>X</button>
+              
+              <div id="iyzipay-checkout-form" className="w-full max-w-2xl mt-10 sm:mt-16 px-2 sm:px-4"></div>
             </div>
 
           </div>
 
-          {/* ➡️ SAĞ TARAF: SİPARİŞ ÖZETİ (ŞEFİN DİNAMİK TASARIMI - TAŞMA KESİNLİKLE YOK) */}
+          {/* ➡️ SAĞ TARAF: SİPARİŞ ÖZETİ */}
           <div style={{ flex: "1" }} className="w-full lg:w-[380px] shrink-0">
             <div className="bg-[#09090b] border border-slate-800/50 rounded-3xl p-6 lg:p-8 sticky top-24">
               <h2 className="font-black text-xl mb-6 pb-4 border-b border-slate-800 text-white uppercase tracking-wide">
@@ -348,8 +345,6 @@ export default function OdemeSayfasi() {
 
               <div style={{ maxHeight: "250px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px", marginBottom: "20px", paddingRight: "5px" }}>
                 {sepet.map((urun: any, index: number) => {
-                  
-                  // Ürün listesindeki fiyatı da kullanıcının seçimine göre anında değiştiriyoruz
                   const indirimOrani = (urun.havaleIndirimi !== undefined && urun.havaleIndirimi !== null) ? Number(urun.havaleIndirimi) : 0;
                   let guncelFiyat = Number(urun.fiyat);
                   if (odemeYontemi === "havale" && indirimOrani > 0) {
@@ -379,7 +374,6 @@ export default function OdemeSayfasi() {
                 <span>{kargo === 0 ? <span className="text-[#00e5ff] font-bold">BEDAVA</span> : <span className="text-white font-bold">{kargo} TL</span>}</span>
               </div>
 
-              {/* 🚀 AKILLI AYRIM: KART SEÇİLİYSE KART KUTUSU, HAVALE SEÇİLİYSE HAVALE KUTUSU! TAŞMA (OVERFLOW) ÖNLENDİ */}
               {odemeYontemi === "kart" ? (
                 <>
                   <div className="border rounded-2xl p-4 mb-4 transition-all relative bg-[#121215] border-[#00e5ff]/50 shadow-[0_0_15px_rgba(0,229,255,0.1)]">
