@@ -360,45 +360,53 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-{/* 🚀 BİNGO: EFSANE 3'LÜ AKSİYON BUTONLARI */}
-        <div className="grid grid-cols-3 gap-3 my-8">
+⁴{/* 🚀 ŞEFİM BİNGO: NEON DENİZ MAVİSİ 4'LÜ AKSİYON BARINI ATEŞLEDİK */}
+        <div className="grid grid-cols-4 gap-2 my-6 px-1">
           
-          {/* 1. KARŞILAŞTIR BUTONU */}
+          {/* 1. KARŞILAŞTIR */}
           <button
             onClick={(e) => {
               e.preventDefault();
               karsilastirmayaEkle(product);
               setPopupAcik(true);
             }}
-            className="flex flex-col items-center justify-center gap-2 bg-[#121215] border border-slate-800 hover:border-[#00e5ff] hover:bg-[#00e5ff]/10 text-slate-400 hover:text-[#00e5ff] p-4 rounded-2xl transition-all group shadow-sm hover:shadow-[0_0_15px_rgba(0,229,255,0.2)]"
+            className="flex flex-col items-center justify-center gap-1 bg-[#00e5ff]/5 border border-[#00e5ff]/30 hover:border-[#00e5ff] text-slate-300 hover:text-[#00e5ff] p-3 rounded-xl transition-all shadow-[0_0_10px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] backdrop-blur-sm group"
           >
-            <Scale className="w-6 h-6 sm:w-7 sm:h-7 group-hover:scale-110 transition-transform" />
-            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-center">Karşılaştır</span>
+            <Scale className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
+            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-tighter text-center">Karşılaştır</span>
           </button>
 
-          {/* 2. FPS TESTİ BUTONU */}
-          <a href="#oyun-testi" className="flex flex-col items-center justify-center gap-2 bg-[#121215] border border-slate-800 hover:border-orange-500 hover:bg-orange-500/10 text-slate-400 hover:text-orange-500 p-4 rounded-2xl transition-all group shadow-sm hover:shadow-[0_0_15px_rgba(249,115,22,0.2)]">
-            <Gamepad2 className="w-6 h-6 sm:w-7 sm:h-7 group-hover:scale-110 transition-transform" />
-            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-center">FPS Testi</span>
+          {/* 2. FPS TESTİ */}
+          <a href="#fps-testi" className="flex flex-col items-center justify-center gap-1 bg-[#00e5ff]/5 border border-[#00e5ff]/30 hover:border-[#00e5ff] text-slate-300 hover:text-[#00e5ff] p-3 rounded-xl transition-all shadow-[0_0_10px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] backdrop-blur-sm group">
+            <Gamepad2 className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
+            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-tighter text-center">FPS Testi</span>
           </a>
 
-          {/* 3. YORUMLAR BUTONU */}
-          <a href="#yorumlar" className="flex flex-col items-center justify-center gap-2 bg-[#121215] border border-slate-800 hover:border-emerald-500 hover:bg-emerald-500/10 text-slate-400 hover:text-emerald-500 p-4 rounded-2xl transition-all group shadow-sm hover:shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-            <MessageSquare className="w-6 h-6 sm:w-7 sm:h-7 group-hover:scale-110 transition-transform" />
-            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-center">Yorumlar</span>
+          {/* 3. YORUMLAR */}
+          <a href="#yorumlar" className="flex flex-col items-center justify-center gap-1 bg-[#00e5ff]/5 border border-[#00e5ff]/30 hover:border-[#00e5ff] text-slate-300 hover:text-[#00e5ff] p-3 rounded-xl transition-all shadow-[0_0_10px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] backdrop-blur-sm group">
+            <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
+            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-tighter text-center">Yorumlar</span>
+          </a>
+
+          {/* 4. TEKNİK BİLGİLER (YENİ) */}
+          <a href="#teknik-ozellikler" className="flex flex-col items-center justify-center gap-1 bg-[#00e5ff]/5 border border-[#00e5ff]/30 hover:border-[#00e5ff] text-slate-300 hover:text-[#00e5ff] p-3 rounded-xl transition-all shadow-[0_0_10px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] backdrop-blur-sm group">
+            <Settings2 className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
+            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-tighter text-center">Teknik</span>
           </a>
 
         </div>
 
-        {/* 🚀 DİNAMİK TEKNİK BİLGİLER TABLOSU (KUTU TASARIMI VE TIKLANABİLİR) */}
+        {/* 🚀 ŞEFİM BİNGO: TEKNİK BİLGİLER KUTULARI DA NEON MAVİYE BÜRÜNDÜ */}
         {product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 && (
-          <div className="mt-8 mb-24 bg-[#09090b] border border-slate-800 rounded-3xl p-5 sm:p-8 shadow-lg">
+          <div id="teknik-ozellikler" className="mt-8 mb-24 bg-[#09090b] border border-slate-800 rounded-3xl p-5 sm:p-8 shadow-2xl relative overflow-hidden">
             
+            {/* Arka planda hafif bir deniz mavisi ışıma */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#00e5ff] blur-[100px] opacity-10 pointer-events-none"></div>
+
             <h3 className="text-lg sm:text-xl font-black text-white uppercase tracking-wide flex items-center gap-3 mb-6 border-b border-slate-800 pb-4">
               <Settings2 className="w-6 h-6 text-[#00e5ff]" /> Cihazın Teknik Genetiği
             </h3>
             
-            {/* 🚀 ŞEFİM BİNGO: Özellikler kutu kutu oldu, tıklayınca popup açıyor ve meşhur rengimizle parlıyor! */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
               {Object.entries(product.teknik_ozellikler).map(([anahtar, deger]) => (
                 <button 
@@ -406,9 +414,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   onClick={(e) => {
                     e.preventDefault();
                     karsilastirmayaEkle(product);
-                    setPopupAcik(true); // Tıklandığı an efsane neon popup'ı açar!
+                    setPopupAcik(true);
                   }}
-                  className="flex flex-col justify-center items-start text-left p-3 sm:p-4 bg-[#121215] border border-slate-800 hover:border-[#00e5ff] rounded-xl transition-all group shadow-sm hover:shadow-[0_0_15px_rgba(0,229,255,0.2)]"
+                  className="flex flex-col justify-center items-start text-left p-3 sm:p-4 bg-[#121215] border border-slate-800 hover:border-[#00e5ff] rounded-none transition-all group shadow-sm hover:shadow-[0_0_15px_rgba(0,229,255,0.2)]"
                 >
                   <span className="text-slate-500 font-bold text-[10px] sm:text-xs uppercase tracking-wider mb-1 group-hover:text-slate-300 transition-colors">{anahtar}</span>
                   <span className="text-white font-medium text-xs sm:text-sm group-hover:text-[#00e5ff] transition-colors">{deger as string}</span>
@@ -418,7 +426,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
           </div>
         )}
-
+        
       <div className="fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-xl border-t border-white/10 p-3 sm:hidden z-[90] pb-safe max-w-[100vw]">
         <div className="flex items-center gap-2 max-w-full">
           
