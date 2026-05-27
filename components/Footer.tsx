@@ -11,7 +11,7 @@ export default function Footer() {
   }
 
   return (
-    <footer className="bg-[#09090b] border-t border-slate-800/80 pt-16 pb-8 relative overflow-hidden shadow-[0_-15px_40px_rgba(0,229,255,0.03)] mt-auto">
+    <footer className="bg-[#09090b] border-t border-slate-800/80 pt-16 pb-28 md:pb-12 relative overflow-hidden shadow-[0_-15px_40px_rgba(0,229,255,0.03)] mt-auto">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-[#00e5ff] to-transparent opacity-20"></div>
       
       <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
@@ -22,8 +22,9 @@ export default function Footer() {
               <h2 className="text-2xl font-black text-white uppercase tracking-wider mb-2">
                 BİLGİN <span className="text-[#00e5ff]">PC</span>
               </h2>
+              {/* 🚀 ŞEFİM: Sıradan sloganlar silindi, yerine modern ve kurumsal tanım yazıldı */}
               <p className="text-slate-400 text-sm leading-relaxed">
-                Oyuncuların ve profesyonellerin bir numaralı donanım adresi. En iyi fiyat, en hızlı kargo garantisiyle.
+                Yüksek performanslı bilgisayar bileşenleri ve yeni nesil donanım çözümleri. Güvenli alışveriş altyapısı ve kurumsal destekle hizmetinizdeyiz.
               </p>
             </div>
             
