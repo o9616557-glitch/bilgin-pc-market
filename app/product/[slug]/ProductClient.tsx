@@ -469,28 +469,42 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex justify-center items-end sm:items-center">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onClick={() => setIsModalOpen(false)}></div>
-          
-          <div className="relative w-full sm:w-[600px] bg-[#0b1329] border border-[#00e5ff]/20 rounded-t-3xl sm:rounded-3xl flex flex-col h-[85vh] sm:h-[600px] max-w-[100vw]">
-            <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto mt-3 sm:hidden shrink-0"></div>
-
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 shrink-0">
-              <h3 className="font-black text-lg uppercase tracking-wider text-white">Müşteri Deneyimi</h3>
-              <button onClick={() => setIsModalOpen(false)} className="w-8 h-8 rounded-full bg-white/5 text-slate-400 hover:text-white flex items-center justify-center">✕</button>
-            </div>
-
-            <div className="flex border-b border-white/5 shrink-0">
-              <button onClick={() => setActiveTab("reviews")} className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider border-b-2 ${activeTab === "reviews" ? "border-[#00e5ff] text-[#00e5ff] bg-[#00e5ff]/5" : "border-transparent text-slate-400"}`}>
-                ⭐ Yorumlar ({reviews.length})
-              </button>
-              <button onClick={() => setActiveTab("qa")} className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider border-b-2 ${activeTab === "qa" ? "border-[#00e5ff] text-[#00e5ff] bg-[#00e5ff]/5" : "border-transparent text-slate-400"}`}>
-                💬 Soru ve Cevap ({questions.length})
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar flex flex-col min-h-[400px]">
+          <div className="fixed inset-0 z-[999999] flex justify-center items-end sm:items-center bg-black/80 backdrop-blur-md transition-all animate-in fade-in duration-200">
+            
+            {/* Arka plan tıklaması (Kapatmak için) */}
+            <div className="absolute inset-0" onClick={() => setIsModalOpen(false)}></div>
+            
+            <div className="relative w-full sm:w-[800px] bg-[#09090b] border border-[#00e5ff]/50 rounded-t-3xl sm:rounded-3xl flex flex-col max-h-[90vh] sm:max-h-[85vh] overflow-hidden shadow-[0_0_50px_rgba(0,229,255,0.2)]">
               
+              {/* Üst Başlık */}
+              <div className="flex items-center justify-between px-6 py-5 border-b border-slate-800 shrink-0 bg-[#050814]">
+                <h2 className="font-black text-xl uppercase tracking-wider text-white flex items-center gap-2">
+                  <MessageSquare className="w-6 h-6 text-[#00e5ff]" />
+                  MÜŞTERİ DENEYİMİ
+                </h2>
+                <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-white bg-[#121215] border border-slate-700 hover:bg-red-500/20 hover:border-red-500 rounded-xl p-2.5 transition-all z-10">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Sekmeler (🚀 BİNGO: HATALI KELİMELER SİLİNDİ!) */}
+              <div className="flex border-b border-slate-800 shrink-0 bg-[#121215]/50">
+                <button 
+                  onClick={() => setActiveTab("reviews")} 
+                  className={flex-1 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all ${activeTab === "reviews" ? "text-[#00e5ff] border-b-2 border-[#00e5ff] bg-[#00e5ff]/10" : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/30"}}
+                >
+                  ⭐ Yorumlar
+                </button>
+                <button 
+                  onClick={() => setActiveTab("qa")} 
+                  className={flex-1 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all ${activeTab === "qa" ? "text-[#00e5ff] border-b-2 border-[#00e5ff] bg-[#00e5ff]/10" : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/30"}}
+                >
+                  💬 Soru ve Cevap
+                </button>
+              </div>
+
+              {/* İçerik Alanı Başlangıcı */}
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar flex flex-col min-h-[400px] text-slate-300 bg-[#09090b]">
               {activeTab === "reviews" && (
                 <div className="animate-fade-in flex flex-col h-full">
                   <div className="flex flex-col sm:flex-row gap-6 items-center bg-[#050814] border border-white/5 p-6 rounded-2xl mb-6 shrink-0">
