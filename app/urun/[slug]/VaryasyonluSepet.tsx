@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useCart } from "../../CartContext"; // SEPET BEYNİNİ İÇERİ ALDIK!
 
 export default function VaryasyonluSepet({ urun }: { urun: any }) {
+  console.log("🕵️‍♂️ VERİTABANINDAN GELEN HAM ÜRÜN:", urun);
   const [seciliVaryasyon, setSeciliVaryasyon] = useState(
     urun.varyasyonlar && urun.varyasyonlar.length > 0 ? urun.varyasyonlar[0] : null
   );
