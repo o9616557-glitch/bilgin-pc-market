@@ -3,7 +3,8 @@ import { useCart } from "../CartContext";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { CreditCard, Banknote } from "lucide-react"; 
+// 🚀 Çarpı (X) ikonunu içeri aldık
+import { CreditCard, Banknote, X } from "lucide-react"; 
 
 export default function OdemeSayfasi() {
   const { data: session } = useSession(); 
@@ -13,6 +14,9 @@ export default function OdemeSayfasi() {
   const [iyzicoFormHtml, setIyzicoFormHtml] = useState<string>("");
   const [ibanKopyalandi, setIbanKopyalandi] = useState(false); 
   const [faturaAyni, setFaturaAyni] = useState(true);
+  
+  // 🚀 BİNGO: POPUP (MODAL) MOTORU
+  const [acikSozlesme, setAcikSozlesme] = useState<"mesafeli" | "gizlilik" | null>(null);
 
   const [form, setForm] = useState({
     ad: "", soyad: "", telefon: "", eposta: "", adres: "", sehir: "", ilce: ""
@@ -160,7 +164,7 @@ export default function OdemeSayfasi() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050814] text-white pb-12 pt-8 md:pt-12">
+    <div className="min-h-screen bg-[#050814] text-white pb-12 pt-8 md:pt-12 relative">
       <div className="ana-konteynir" style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
         
         <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter text-white drop-shadow-md mb-8 border-l-4 border-[#00e5ff] pl-4">
@@ -169,7 +173,6 @@ export default function OdemeSayfasi() {
 
         <div className="odeme-konteynir" style={{ display: "flex", gap: "30px" }}>
           
-          {/* ⬅️ SOL TARAF: FORM KUTUSU */}
           <div style={{ flex: "2", display: "flex", flexDirection: "column", gap: "20px" }}>
             <form onSubmit={siparisTamamla} className="bg-[#09090b] border border-slate-800/50 rounded-3xl p-6 sm:p-8">
               
@@ -301,10 +304,10 @@ export default function OdemeSayfasi() {
                 </div>
               )}
 
-              {/* 🚀 BİNGO: GERÇEK VE SADELEŞTİRİLMİŞ LİNKLER (YENİ SEKMEYE GİDER) */}
+              {/* 🚀 BİNGO: ARTIK LİNKLER BAŞKA SAYFAYA GİTMEZ, PENCERE (MODAL) AÇAR! */}
               <div className="bg-[#121215] border border-slate-800 p-4 rounded-xl mb-6 text-center">
                 <p className="text-slate-400 text-xs sm:text-sm leading-snug">
-                  Siparişi onaylayarak <Link href="/mesafeli-satis" target="_blank" className="text-[#00e5ff] hover:underline">Mesafeli Satış Sözleşmesi</Link>'ni ve <Link href="/gizlilik-politikasi" target="_blank" className="text-[#00e5ff] font-bold hover:underline">Gizlilik Politikası</Link>'nı okuyup kabul etmiş sayılırsınız.
+                  Siparişi onaylayarak <span onClick={() => setAcikSozlesme("mesafeli")} className="text-[#00e5ff] hover:underline cursor-pointer">Mesafeli Satış Sözleşmesi</span>'ni ve <span onClick={() => setAcikSozlesme("gizlilik")} className="text-[#00e5ff] font-bold hover:underline cursor-pointer">Gizlilik Politikası</span>'nı okuyup kabul etmiş sayılırsınız.
                 </p>
               </div>
 
@@ -336,7 +339,6 @@ export default function OdemeSayfasi() {
 
           </div>
 
-          {/* ➡️ SAĞ TARAF: SİPARİŞ ÖZETİ */}
           <div style={{ flex: "1" }} className="w-full lg:w-[380px] shrink-0">
             <div className="bg-[#09090b] border border-slate-800/50 rounded-3xl p-6 lg:p-8 sticky top-24">
               <h2 className="font-black text-xl mb-6 pb-4 border-b border-slate-800 text-white uppercase tracking-wide">
@@ -415,6 +417,56 @@ export default function OdemeSayfasi() {
 
         </div>
       </div>
+
+      {/* 🚀 BİNGO: POPUP PENCERELERİ (Ekranda Kalır, Sayfa Değişmez) */}
+      {acikSozlesme && (
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-[#09090b] border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl relative">
+            
+            {/* Üst Başlık ve Kapat Butonu */}
+            <div className="flex justify-between items-center p-5 border-b border-slate-800 shrink-0">
+              <h2 className="text-xl font-black text-white uppercase tracking-wide flex items-center gap-2">
+                <span className="text-[#00e5ff]">📄</span> 
+                {acikSozlesme === "mesafeli" ? "Mesafeli Satış Sözleşmesi" : "Gizlilik Politikası"}
+              </h2>
+              <button onClick={() => setAcikSozlesme(null)} className="text-slate-400 hover:text-white bg-[#121215] border border-slate-700 hover:bg-slate-800 p-2 rounded-lg transition-all">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* İçerik Alanı (Kaydırılabilir) */}
+            <div className="p-6 overflow-y-auto text-slate-300 text-sm leading-relaxed space-y-4">
+              {acikSozlesme === "mesafeli" ? (
+                <>
+                  <h4 className="text-white font-bold mb-2">MADDE 1 - TARAFLAR</h4>
+                  <p><strong>SATICI:</strong> BİLGİN PC MARKET LTD. ŞTİ. <br/><strong>ALICI:</strong> bilginpcmarket.com e-ticaret sitesinden sipariş veren kullanıcıdır.</p>
+                  <h4 className="text-white font-bold mt-4 mb-2">MADDE 2 - TESLİMAT ŞARTLARI</h4>
+                  <p>Siparişleriniz onaylandıktan sonra yasal 30 günlük süreyi aşmamak kaydıyla, belirttiğiniz teslimat adresine kargo firması aracılığıyla ulaştırılır.</p>
+                  <h4 className="text-white font-bold mt-4 mb-2">MADDE 3 - CAYMA HAKKI</h4>
+                  <p>Tüketici, ürünü teslim aldığı tarihten itibaren 14 (ondört) gün içinde herhangi bir gerekçe göstermeksizin sözleşmeden cayma hakkına sahiptir. Özel montaj yapılmış ürünlerde cayma hakkı geçersizdir.</p>
+                </>
+              ) : (
+                <>
+                  <h4 className="text-white font-bold mb-2">1. Toplanan Veriler</h4>
+                  <p>Alışveriş deneyiminizi kusursuz hale getirmek için yalnızca ad, soyad, e-posta, teslimat adresi gibi temel verileri topluyoruz. Gereksiz hiçbir veri sistemlerimizde tutulmaz.</p>
+                  <h4 className="text-white font-bold mt-4 mb-2">2. Ödeme Güvenliği</h4>
+                  <p>Kredi kartı bilgileriniz hiçbir şekilde sunucularımızda saklanmaz veya kaydedilmez. Tüm ödeme işlemleri İyzico altyapısı üzerinden 256-bit şifreleme ile gerçekleşir.</p>
+                  <h4 className="text-white font-bold mt-4 mb-2">3. Üçüncü Kişilerle Paylaşım</h4>
+                  <p>Müşteri verileriniz asla satılamaz, kiralanamaz veya ticari amaçla üçüncü şahıslarla paylaşılamaz. (Kargo firmaları gibi zorunlu teslimat ortakları hariçtir).</p>
+                </>
+              )}
+            </div>
+
+            {/* Alt Onay Butonu */}
+            <div className="p-4 border-t border-slate-800 flex justify-end shrink-0 bg-[#050814] rounded-b-2xl">
+              <button onClick={() => setAcikSozlesme(null)} className="bg-[#00e5ff] text-black font-black px-6 py-2.5 rounded-xl hover:bg-[#00c4db] transition-all text-sm uppercase tracking-wider">
+                Okudum, Kapat
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
       <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 992px) { .odeme-konteynir { flex-direction: column !important; } }
