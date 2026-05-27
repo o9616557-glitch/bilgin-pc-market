@@ -1,13 +1,14 @@
 "use client";
 import { useCompare } from "./CompareContext"; 
 import { X, MinusCircle } from "lucide-react";
+import Link from "next/link"; // 🚀 BİNGO: Sayfa geçiş motoru eklendi!
 
 export default function ComparePopup() {
   const { karsilastirilanlar, karsilastirmadanCikar, popupAcik, setPopupAcik, karsilastirmayiTemizle } = useCompare();
 
   if (!popupAcik) return null;
 
-  // 🚀 BİNGO: Seçilen ürünlerin içindeki tüm teknik özellikleri toplayan motor
+  // Teknik özellikleri toplayan motor
   const tumOzellikAnahtarlari: string[] = [];
   karsilastirilanlar.forEach((urun) => {
     if (urun.teknik_ozellikler) {
@@ -19,8 +20,8 @@ export default function ComparePopup() {
     }
   });
 
-  // 🚀 BİNGO: Ürün sayısına göre sütunları otomatik ayarlayan şanzıman!
-  const sutunSinifi = karsilastirilanlar.length === 1 ? "grid-cols-1" : karsilastirilanlar.length === 2 ? "grid-cols-2" : "grid-cols-3";
+  // 🚀 BİNGO: 1 ürünse tam ekran yapar, 2 veya 3 ürünse asla sıkıştırmaz, sağa sola kaydırma (scroll) açar!
+  const sutunGenisligi = karsilastirilanlar.length === 1 ? "100%" : (karsilastirilanlar.length * 280) + "px";
 
   return (
     <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/80 backdrop-blur-md p-2 sm:p-4 animate-in fade-in duration-200">
@@ -39,29 +40,35 @@ export default function ComparePopup() {
           </button>
         </div>
 
-        {/* Karşılaştırma Alanı */}
-        <div className="p-4 sm:p-6 overflow-y-auto flex-grow space-y-6">
+        {/* Karşılaştırma Alanı (Sağa Sola Kaydırma Motoru Burada) */}
+        <div className="p-4 sm:p-6 overflow-x-auto overflow-y-auto flex-grow">
           {karsilastirilanlar.length === 0 ? (
             <div className="text-center py-20 text-slate-500 font-bold uppercase tracking-widest">[ Karşılaştırılacak Ürün Seçilmedi ]</div>
           ) : (
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6" style={{ minWidth: sutunGenisligi }}>
               
               {/* ANA GÖRSEL VE VİTRİN SATIRI */}
-              {/* 🚀 TRANSLATE-SAVAR ÇÖZÜM: Tırnaklar gitti, artı işareti geldi! */}
-              <div className={"grid gap-4 " + sutunSinifi}>
+              <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(" + karsilastirilanlar.length + ", 1fr)" }}>
                 {karsilastirilanlar.map((urun, idx) => {
                   const fiyat = Number(urun.indirimliFiyat || urun.fiyat || urun.price || 0);
                   const resim = urun.resimler ? urun.resimler[0] : urun.resim;
                   return (
-                    <div key={idx} className="bg-[#121215] border border-slate-800/80 rounded-2xl p-4 flex flex-col relative border-b-2 border-b-[#00e5ff]/20">
-                      <button onClick={() => karsilastirmadanCikar(urun._id || urun.id)} className="absolute top-2 right-2 text-slate-500 hover:text-red-500 transition-colors">
+                    <div key={idx} className="bg-[#121215] border border-slate-800/80 rounded-2xl flex flex-col relative border-b-2 border-b-[#00e5ff]/20 overflow-hidden group">
+                      
+                      {/* Ürünü Kaldır Butonu (Linkin dışında ki yanlışlıkla basılmasın) */}
+                      <button onClick={() => karsilastirmadanCikar(urun._id || urun.id)} className="absolute top-2 right-2 text-slate-500 hover:text-red-500 transition-colors z-10 bg-[#09090b] p-1.5 rounded-xl border border-slate-700">
                         <MinusCircle className="w-5 h-5" />
                       </button>
-                      <div className="h-28 w-full bg-[#09090b] rounded-xl p-2 flex items-center justify-center mb-3 border border-slate-800">
-                        {resim ? <img src={resim} alt="urun" className="max-h-full object-contain" /> : <span className="text-xs text-slate-600">Görsel Yok</span>}
-                      </div>
-                      <h3 className="text-white font-bold text-xs sm:text-sm line-clamp-2 mb-2 h-10 leading-tight">{urun.isim || urun.name}</h3>
-                      <div className="text-[#00e5ff] font-black text-base sm:text-lg mt-auto">{fiyat.toLocaleString("tr-TR")} TL</div>
+                      
+                      {/* 🚀 BİNGO: Tıklanabilir Ürün Kartı (Ürün sayfasına götürür) */}
+                      <Link href={"/product/" + (urun.slug || urun._id)} onClick={() => setPopupAcik(false)} className="p-4 flex flex-col flex-grow hover:bg-slate-800/40 transition-colors cursor-pointer">
+                        <div className="h-32 w-full bg-[#09090b] rounded-xl p-2 flex items-center justify-center mb-4 border border-slate-800">
+                          {resim ? <img src={resim} alt="urun" className="max-h-full object-contain group-hover:scale-110 transition-transform duration-300" /> : <span className="text-xs text-slate-600">Görsel Yok</span>}
+                        </div>
+                        <h3 className="text-white font-bold text-sm sm:text-base mb-2 leading-snug group-hover:text-[#00e5ff] transition-colors">{urun.isim || urun.name}</h3>
+                        <div className="text-[#00e5ff] font-black text-xl mt-auto">{fiyat.toLocaleString("tr-TR")} TL</div>
+                      </Link>
+
                     </div>
                   );
                 })}
@@ -69,19 +76,18 @@ export default function ComparePopup() {
 
               {/* DİNAMİK TEKNİK ÖZELLİK SATIRLARI */}
               {tumOzellikAnahtarlari.map((ozellikAdi) => (
-                <div key={ozellikAdi} className="col-span-full">
+                <div key={ozellikAdi}>
                   {/* Başlık */}
                   <div className="text-slate-400 font-bold text-xs uppercase bg-[#121215]/50 p-3 rounded-xl border border-slate-800/40 mb-2">
                     {ozellikAdi}
                   </div>
                   
-                  {/* Kare Değerler ve Dinamik Sütun */}
-                  {/* 🚀 TRANSLATE-SAVAR ÇÖZÜM */}
-                  <div className={"grid gap-4 " + sutunSinifi}>
+                  {/* 🚀 BİNGO: Kare Şeklinde Teknik Değerler (Sıkışmaz, Kayar) */}
+                  <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(" + karsilastirilanlar.length + ", 1fr)" }}>
                     {karsilastirilanlar.map((urun, idx) => {
                       const deger = urun.teknik_ozellikler ? urun.teknik_ozellikler[ozellikAdi] : null;
                       return (
-                        <div key={idx} className="bg-[#121215] border border-slate-700 p-3 rounded-md text-xs sm:text-sm text-white font-medium flex items-center min-h-[48px] shadow-sm">
+                        <div key={idx} className="bg-[#121215] border border-slate-700 p-3 rounded-sm text-xs sm:text-sm text-white font-medium flex items-center min-h-[48px] shadow-sm hover:border-[#00e5ff]/50 transition-colors">
                           {deger || "-"}
                         </div>
                       );
