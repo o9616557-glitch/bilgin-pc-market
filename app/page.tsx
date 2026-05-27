@@ -89,7 +89,8 @@ export default async function HomePage() {
               const havaleOrani = urun.havaleIndirimi !== undefined ? urun.havaleIndirimi : 5;
 
               return (
-                <Link href={/product/${urun.slug || urun._id}} key={urun._id.toString()} className="group outline-none">
+                {/* 🚀 BİNGO: Tırnaklar tamamen kaldırıldı, Google Çeviri bozamayacak! */}
+                <Link href={"/product/" + (urun.slug || urun._id)} key={urun._id.toString()} className="group outline-none">
                   <div className="bg-[#09090b] rounded-2xl border border-slate-800 p-4 flex flex-col h-full relative overflow-hidden transition-all duration-300 group-hover:border-[#00e5ff]/40 group-hover:shadow-[0_0_30px_rgba(0,229,255,0.05)] group-hover:-translate-y-1">
                     
                     <div className="absolute top-0 right-0 w-32 h-32 bg-[#00e5ff] blur-[80px] opacity-0 group-hover:opacity-10 transition-opacity pointer-events-none"></div>
