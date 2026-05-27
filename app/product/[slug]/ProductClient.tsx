@@ -487,17 +487,17 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 </button>
               </div>
 
-              {/* Sekmeler (🚀 BİNGO: HATALI KELİMELER SİLİNDİ!) */}
+              {/* Sekmeler (Google Çeviriye karşı zırhlandırıldı!) */}
               <div className="flex border-b border-slate-800 shrink-0 bg-[#121215]/50">
                 <button 
                   onClick={() => setActiveTab("reviews")} 
-                  className={flex-1 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all ${activeTab === "reviews" ? "text-[#00e5ff] border-b-2 border-[#00e5ff] bg-[#00e5ff]/10" : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/30"}}
+                  className={"flex-1 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all " + (activeTab === "reviews" ? "text-[#00e5ff] border-b-2 border-[#00e5ff] bg-[#00e5ff]/10" : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/30")}
                 >
                   ⭐ Yorumlar
                 </button>
                 <button 
                   onClick={() => setActiveTab("qa")} 
-                  className={flex-1 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all ${activeTab === "qa" ? "text-[#00e5ff] border-b-2 border-[#00e5ff] bg-[#00e5ff]/10" : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/30"}}
+                  className={"flex-1 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all " + (activeTab === "qa" ? "text-[#00e5ff] border-b-2 border-[#00e5ff] bg-[#00e5ff]/10" : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/30")}
                 >
                   💬 Soru ve Cevap
                 </button>
