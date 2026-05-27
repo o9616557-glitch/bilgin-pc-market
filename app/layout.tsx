@@ -5,9 +5,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import { CartProvider } from "./CartContext";
-
-// 🚀 1. BİNGO: FOOTER'I BURADAN İÇERİ ÇAĞIRDIK
 import Footer from "@/components/Footer"; 
+import { CompareProvider } from "./CompareContext";
+import ComparePopup from "./ComparePopup";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,9 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="tr">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-[#050814] overflow-x-hidden`}>
-        
-        {/* 🚀 BİLDİRİM MOTORU */}
+      <body className={geistSans.variable + " " + geistMono.variable + " antialiased min-h-screen flex flex-col bg-[#050814] overflow-x-hidden"}>
         <Toaster 
           position="top-right"
           toastOptions={{
@@ -44,19 +42,16 @@ export default function RootLayout({
             }
           }}
         />
-
-        {/* 🚀 ANA ŞALTER */}
         <AuthProvider>
           <CartProvider>
-            <Header />
-            
-            <main className="flex-grow w-full">
-              {children}
-            </main>
-            
-            {/* 🚀 2. BİNGO: SİTENİN EN ALTINA (MAİN'İN BİTTİĞİ YERE) FOOTER'I MÜHÜRLEDİK! */}
-            <Footer />
-            
+            <CompareProvider>
+              <Header />
+              <main className="flex-grow w-full">
+                {children}
+              </main>
+              <Footer />
+              <ComparePopup />
+            </CompareProvider>
           </CartProvider>
         </AuthProvider>
       </body>
