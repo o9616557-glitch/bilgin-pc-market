@@ -13,7 +13,7 @@ export default function Footer() {
   }
 
   return (
-    <footer className="bg-[#050814] border-t border-slate-800/80 pt-16 pb-8 mt-10 relative overflow-hidden">
+    <footer className="bg-[#050814] border-t border-slate-800/80 pt-16 pb-8  relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-[#00e5ff] to-transparent opacity-20"></div>
       
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
