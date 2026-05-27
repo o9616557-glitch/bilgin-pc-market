@@ -469,13 +469,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       </div>
 
       {isModalOpen && (
-          <div className="fixed inset-0 z-[999999] flex justify-center items-end sm:items-center bg-black/80 backdrop-blur-md transition-all animate-in fade-in duration-200">
-            
-            {/* Arka plan tıklaması (Kapatmak için) */}
-            <div className="absolute inset-0" onClick={() => setIsModalOpen(false)}></div>
-            
-            <div className="relative w-full sm:w-[800px] bg-[#09090b] border border-[#00e5ff]/50 rounded-t-3xl sm:rounded-3xl flex flex-col max-h-[90vh] sm:max-h-[85vh] overflow-hidden shadow-[0_0_50px_rgba(0,229,255,0.2)]">
-              
+          <div className="fixed inset-0 z-[999999] flex justify-center items-center p-4 bg-black/80 backdrop-blur-md transition-all animate-in fade-in duration-200">
+  {/* Arka plan tıklaması */}
+  <div className="absolute inset-0" onClick={() => setIsModalOpen(false)}></div>
+  <div className="relative w-full sm:w-[600px] mx-auto bg-[#09090b] border border-[#00e5ff]/50 rounded-3xl flex flex-col max-h-[85vh] overflow-hidden shadow-[0_0_50px_rgba(0,229,255,0.2)]">
               {/* Üst Başlık */}
               <div className="flex items-center justify-between px-6 py-5 border-b border-slate-800 shrink-0 bg-[#050814]">
                 <h2 className="font-black text-xl uppercase tracking-wider text-white flex items-center gap-2">
