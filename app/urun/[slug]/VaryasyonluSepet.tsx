@@ -30,7 +30,10 @@ export default function VaryasyonluSepet({ urun }: { urun: any }) {
   };
 
   return (
-    <>
+    
+    <><div style={{ background: "red", color: "white", padding: "20px", fontSize: "16px", fontWeight: "bold", wordBreak: "break-all" }}>
+        {JSON.stringify(urun, null, 2)}
+      </div>
       {urun.varyasyonlar && urun.varyasyonlar.length > 0 && (
         <div style={{ marginBottom: "20px" }}>
           <span style={{ fontSize: "0.9rem", color: "#a1a1aa", display: "block", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "1px" }}>Model Seçimi:</span>
