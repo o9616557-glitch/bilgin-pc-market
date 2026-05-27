@@ -254,7 +254,6 @@ export default function OdemeSayfasi() {
 
               <hr className="border-slate-800 mb-6" />
 
-              {/* --- ÖDEME YÖNTEMİ SEÇİMİ --- */}
               <h3 className="text-lg font-black text-white mb-4">Ödeme Yöntemi</h3>
               <div className="flex gap-4 mb-6">
                 <button 
@@ -302,9 +301,10 @@ export default function OdemeSayfasi() {
                 </div>
               )}
 
+              {/* 🚀 BİNGO: GERÇEK VE SADELEŞTİRİLMİŞ LİNKLER (YENİ SEKMEYE GİDER) */}
               <div className="bg-[#121215] border border-slate-800 p-4 rounded-xl mb-6 text-center">
                 <p className="text-slate-400 text-xs sm:text-sm leading-snug">
-                  Siparişi onaylayarak <span className="text-[#00e5ff] cursor-pointer hover:underline">Ön Bilgilendirme Formu</span>'nu, <span className="text-[#00e5ff] cursor-pointer hover:underline">Mesafeli Satış Sözleşmesi</span>'ni ve <span className="text-[#00e5ff] cursor-pointer hover:underline font-bold">Gizlilik Sözleşmesi</span>'ni okuyup kabul etmiş sayılırsınız.
+                  Siparişi onaylayarak <Link href="/mesafeli-satis" target="_blank" className="text-[#00e5ff] hover:underline">Mesafeli Satış Sözleşmesi</Link>'ni ve <Link href="/gizlilik-politikasi" target="_blank" className="text-[#00e5ff] font-bold hover:underline">Gizlilik Politikası</Link>'nı okuyup kabul etmiş sayılırsınız.
                 </p>
               </div>
 
@@ -314,12 +314,11 @@ export default function OdemeSayfasi() {
                   disabled={yukleniyor} 
                   className={`w-full font-black uppercase tracking-wider py-4 rounded-xl text-lg transition-all ${odemeYontemi === "havale" ? "bg-[#10b981] hover:bg-[#14532d] text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]" : "bg-[#00e5ff] hover:bg-[#00c4db] text-black shadow-[0_0_15px_rgba(0,229,255,0.3)]"}`}
                 >
-                  {yukleniyor ? "Lütfen Bekleyin..." : (odemeYontemi === "havale" ? "Havale İle Siparişi Onayla" : "Kart İle Ödemeye İlerle")}
+                  {yukleniyor ? "Bekleyin..." : (odemeYontemi === "havale" ? "Havale İle Siparişi Onayla" : "Kart İle Ödemeye İlerle")}
                 </button>
               )}
             </form>
 
-            {/* 🚀 İYZİCO BEYAZ EKRANI: TAMAMEN ZORLA YUKARI ÇEKİLDİ VE ESNEME KALDIRILDI */}
             <div style={{
               display: (odemeYontemi === "kart" && iyzicoFormHtml) ? "block" : "none",
               position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "#ffffff", zIndex: 999999,
@@ -332,7 +331,6 @@ export default function OdemeSayfasi() {
                 if (typeof window !== "undefined") { (window as any).iyziInit = undefined; }
               }} style={{ position: "fixed", top: "10px", right: "10px", background: "#f4f4f5", color: "#000", border: "2px solid #e4e4e7", borderRadius: "50%", width: "36px", height: "36px", fontSize: "1rem", cursor: "pointer", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2147483647 }}>X</button>
               
-              {/* 🚀 İYZİCO FORMUNUN KENDİSİ (BOŞLUKSUZ) */}
               <div id="iyzipay-checkout-form" className="w-full max-w-2xl mx-auto px-2 sm:px-4"></div>
             </div>
 
