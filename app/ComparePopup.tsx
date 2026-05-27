@@ -7,7 +7,7 @@ export default function ComparePopup() {
 
   if (!popupAcik) return null;
 
-  // 🚀 BİNGO: Seçilen ürünlerin içindeki tüm teknik özellikleri otomatik toplayan akıllı motor!
+  // 🚀 BİNGO: Seçilen ürünlerin içindeki tüm teknik özellikleri toplayan motor
   const tumOzellikAnahtarlari: string[] = [];
   karsilastirilanlar.forEach((urun) => {
     if (urun.teknik_ozellikler) {
@@ -18,6 +18,9 @@ export default function ComparePopup() {
       });
     }
   });
+
+  // 🚀 BİNGO: Ürün sayısına göre sütunları otomatik ayarlayan şanzıman!
+  const sutunSinifi = karsilastirilanlar.length === 1 ? "grid-cols-1" : karsilastirilanlar.length === 2 ? "grid-cols-2" : "grid-cols-3";
 
   return (
     <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/80 backdrop-blur-md p-2 sm:p-4 animate-in fade-in duration-200">
@@ -41,40 +44,44 @@ export default function ComparePopup() {
           {karsilastirilanlar.length === 0 ? (
             <div className="text-center py-20 text-slate-500 font-bold uppercase tracking-widest">[ Karşılaştırılacak Ürün Seçilmedi ]</div>
           ) : (
-            <div className="grid gap-4 overflow-x-auto pb-4" style={{ gridTemplateColumns: "repeat(" + karsilastirilanlar.length + ", minmax(240px, 1fr))" }}>
+            <div className="flex flex-col gap-6">
               
               {/* ANA GÖRSEL VE VİTRİN SATIRI */}
-              {karsilastirilanlar.map((urun, idx) => {
-                const fiyat = Number(urun.indirimliFiyat || urun.fiyat || urun.price || 0);
-                const resim = urun.resimler ? urun.resimler[0] : urun.resim;
-                return (
-                  <div key={idx} className="bg-[#121215] border border-slate-800/80 rounded-2xl p-4 flex flex-col relative border-b-2 border-b-[#00e5ff]/20">
-                    <button onClick={() => karsilastirmadanCikar(urun._id || urun.id)} className="absolute top-2 right-2 text-slate-500 hover:text-red-500 transition-colors">
-                      <MinusCircle className="w-5 h-5" />
-                    </button>
-                    <div className="h-28 w-full bg-[#09090b] rounded-xl p-2 flex items-center justify-center mb-3 border border-slate-800">
-                      {resim ? <img src={resim} alt="urun" className="max-h-full object-contain" /> : <span className="text-xs text-slate-600">Görsel Yok</span>}
+              {/* 🚀 TRANSLATE-SAVAR ÇÖZÜM: Tırnaklar gitti, artı işareti geldi! */}
+              <div className={"grid gap-4 " + sutunSinifi}>
+                {karsilastirilanlar.map((urun, idx) => {
+                  const fiyat = Number(urun.indirimliFiyat || urun.fiyat || urun.price || 0);
+                  const resim = urun.resimler ? urun.resimler[0] : urun.resim;
+                  return (
+                    <div key={idx} className="bg-[#121215] border border-slate-800/80 rounded-2xl p-4 flex flex-col relative border-b-2 border-b-[#00e5ff]/20">
+                      <button onClick={() => karsilastirmadanCikar(urun._id || urun.id)} className="absolute top-2 right-2 text-slate-500 hover:text-red-500 transition-colors">
+                        <MinusCircle className="w-5 h-5" />
+                      </button>
+                      <div className="h-28 w-full bg-[#09090b] rounded-xl p-2 flex items-center justify-center mb-3 border border-slate-800">
+                        {resim ? <img src={resim} alt="urun" className="max-h-full object-contain" /> : <span className="text-xs text-slate-600">Görsel Yok</span>}
+                      </div>
+                      <h3 className="text-white font-bold text-xs sm:text-sm line-clamp-2 mb-2 h-10 leading-tight">{urun.isim || urun.name}</h3>
+                      <div className="text-[#00e5ff] font-black text-base sm:text-lg mt-auto">{fiyat.toLocaleString("tr-TR")} TL</div>
                     </div>
-                    <h3 className="text-white font-bold text-xs sm:text-sm line-clamp-2 mb-2 h-10 leading-tight">{urun.isim || urun.name}</h3>
-                    <div className="text-[#00e5ff] font-black text-base sm:text-lg mt-auto">{fiyat.toLocaleString("tr-TR")} TL</div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
 
-              {/* DİNAMİK TEKNİK ÖZELLİK SATIRLARI (Veritabanından ne gelirse otomatik basar) */}
+              {/* DİNAMİK TEKNİK ÖZELLİK SATIRLARI */}
               {tumOzellikAnahtarlari.map((ozellikAdi) => (
                 <div key={ozellikAdi} className="col-span-full">
-                  {/* Başlık Artık Üstte: (Örn: CUDA Çekirdeği) */}
+                  {/* Başlık */}
                   <div className="text-slate-400 font-bold text-xs uppercase bg-[#121215]/50 p-3 rounded-xl border border-slate-800/40 mb-2">
                     {ozellikAdi}
                   </div>
                   
-                  {/* Değerler: Jilet gibi KARE kutularda yan yana diziliyor */}
-                  <div className={"grid gap-4 " + (karsilastirilanlar.length === 2 ? "grid-cols-2" : "grid-cols-3")}>
+                  {/* Kare Değerler ve Dinamik Sütun */}
+                  {/* 🚀 TRANSLATE-SAVAR ÇÖZÜM */}
+                  <div className={"grid gap-4 " + sutunSinifi}>
                     {karsilastirilanlar.map((urun, idx) => {
                       const deger = urun.teknik_ozellikler ? urun.teknik_ozellikler[ozellikAdi] : null;
                       return (
-                        <div key={idx} className="bg-[#121215] border border-slate-800/50 p-3 rounded-none text-xs sm:text-sm text-white font-medium flex items-center">
+                        <div key={idx} className="bg-[#121215] border border-slate-700 p-3 rounded-md text-xs sm:text-sm text-white font-medium flex items-center min-h-[48px] shadow-sm">
                           {deger || "-"}
                         </div>
                       );
