@@ -22,7 +22,6 @@ export default function OdemeSayfasi() {
     ad: "", soyad: "", telefon: "", adres: "", sehir: "", ilce: ""
   });
 
-  // Otomatik Adres Doldurma Motoru
   useEffect(() => {
     const fetchKayitliAdresler = async () => {
       try {
@@ -57,18 +56,28 @@ export default function OdemeSayfasi() {
     fetchKayitliAdresler();
   }, []);
 
-  // MATEMATİKSEL MOTORLAR
-  const araToplam = sepet.reduce((toplam: number, urun: any) => toplam + (urun.fiyat * urun.adet), 0);
-  const kargo = (araToplam > 5000 || araToplam === 0) ? 0 : 150;
-  
-  const toplamHavaleIndirimi = sepet.reduce((toplam: number, urun: any) => {
-    const oran = (urun.havaleIndirimi !== undefined && urun.havaleIndirimi !== null) ? Number(urun.havaleIndirimi) : 0; 
-    return toplam + ((urun.fiyat * urun.adet) * oran) / 100;
-  }, 0);
+  // 🚀 ŞEFİN DİNAMİK FİYAT MOTORU (HAVALE SEÇİLİNCE HER ŞEY İNDİRİMLİ OLUR)
+  const hesaplaTutar = () => {
+    let hesaplananAraToplam = 0;
 
-  const genelToplam = araToplam + kargo; 
-  const havaleliToplam = genelToplam - toplamHavaleIndirimi; 
-  const odenecekSonTutar = odemeYontemi === "havale" ? havaleliToplam : genelToplam;
+    sepet.forEach((urun: any) => {
+      const indirimOrani = (urun.havaleIndirimi !== undefined && urun.havaleIndirimi !== null) ? Number(urun.havaleIndirimi) : 0;
+      let urunFiyati = Number(urun.fiyat);
+
+      // Eğer yöntem havale ise, ürünün kendi fiyatı da anında düşer!
+      if (odemeYontemi === "havale" && indirimOrani > 0) {
+        urunFiyati = urunFiyati - (urunFiyati * indirimOrani) / 100;
+      }
+      hesaplananAraToplam += urunFiyati * urun.adet;
+    });
+
+    const hesaplananKargo = (hesaplananAraToplam > 5000 || hesaplananAraToplam === 0) ? 0 : 150;
+    const hesaplananGenelToplam = hesaplananAraToplam + hesaplananKargo;
+
+    return { araToplam: hesaplananAraToplam, kargo: hesaplananKargo, genelToplam: hesaplananGenelToplam };
+  };
+
+  const { araToplam, kargo, genelToplam } = hesaplaTutar();
 
   const inputDegis = (e: any) => { setForm({ ...form, [e.target.name]: e.target.value }); };
   const faturaInputDegis = (e: any) => { setFaturaForm({ ...faturaForm, [e.target.name]: e.target.value }); };
@@ -87,19 +96,25 @@ export default function OdemeSayfasi() {
     setYukleniyor(true);
     setIyzicoFormHtml("");
 
+    // Veritabanına da güncel seçilmiş tutarları gönderiyoruz
     const siparisVerisi = {
       musteri: {
         ...form,
         eposta: session?.user?.email || form.eposta,
         faturaBilgileri: faturaAyni ? form : faturaForm
       },
-      sepet: sepet.map((item: any) => ({ id: item.id, isim: item.isim, miktar: item.adet, adet: item.adet, fiyat: item.fiyat, varyasyon: item.varyasyon })),
-      cartItems: sepet.map((item: any) => ({ id: item.id, isim: item.isim, miktar: item.adet, adet: item.adet, fiyat: item.fiyat, varyasyon: item.varyasyon })),
-      items: sepet.map((item: any) => ({ id: item.id, isim: item.isim, miktar: item.adet, adet: item.adet, fiyat: item.fiyat, varyasyon: item.varyasyon })),
+      sepet: sepet.map((item: any) => {
+        const indirimOrani = (item.havaleIndirimi !== undefined && item.havaleIndirimi !== null) ? Number(item.havaleIndirimi) : 0;
+        let sonFiyat = Number(item.fiyat);
+        if (odemeYontemi === "havale" && indirimOrani > 0) {
+          sonFiyat = sonFiyat - (sonFiyat * indirimOrani) / 100;
+        }
+        return { id: item.id, isim: item.isim, miktar: item.adet, adet: item.adet, fiyat: sonFiyat, varyasyon: item.varyasyon };
+      }),
       odemeYontemi,
-      toplamTutar: odenecekSonTutar,
-      totalPrice: odenecekSonTutar,
-      genelToplam: odenecekSonTutar
+      toplamTutar: genelToplam,
+      totalPrice: genelToplam,
+      genelToplam: genelToplam
     };
 
     try {
@@ -266,7 +281,7 @@ export default function OdemeSayfasi() {
               </div>
 
               {odemeYontemi === "havale" && (
-                <div className="bg-[#121215] border border-slate-800 rounded-2xl p-5 text-slate-400 text-sm mb-6 leading-relaxed w-full">
+                <div className="bg-[#121215] border border-[#10b981]/30 rounded-2xl p-5 text-slate-400 text-sm mb-6 leading-relaxed w-full">
                   <p className="text-[#10b981] font-bold mb-3 flex items-center gap-1.5">💡 Havale / EFT Ödeme Talimatı:</p>
                   <div className="text-slate-300 mb-3 font-medium">
                     Lütfen transferi gerçekleştirirken açıklama alanına sadece <span className="text-[#00e5ff] font-bold underline">adınızı ve soyadınızı</span> yazınız.
@@ -290,10 +305,10 @@ export default function OdemeSayfasi() {
                 </div>
               )}
 
-              {/* 🚀 ŞEFİM: GİZLİLİK SÖZLEŞMESİ BURAYA MÜHÜRLENDİ */}
+              {/* 🚀 GİZLİLİK VE SATIŞ SÖZLEŞMELERİ BURADA */}
               <div className="bg-[#121215] border border-slate-800 p-4 rounded-xl mb-6 text-center">
                 <p className="text-slate-400 text-xs sm:text-sm leading-snug">
-                  Siparişi onaylayarak <span className="text-[#00e5ff] cursor-pointer hover:underline">Ön Bilgilendirme Formu</span>'nu, <span className="text-[#00e5ff] cursor-pointer hover:underline">Mesafeli Satış Sözleşmesi</span>'ni ve <span className="text-[#00e5ff] cursor-pointer hover:underline">Gizlilik Sözleşmesi</span>'ni okuyup kabul etmiş sayılırsınız.
+                  Siparişi onaylayarak <span className="text-[#00e5ff] cursor-pointer hover:underline">Ön Bilgilendirme Formu</span>'nu, <span className="text-[#00e5ff] cursor-pointer hover:underline">Mesafeli Satış Sözleşmesi</span>'ni ve <span className="text-[#00e5ff] cursor-pointer hover:underline font-bold">Gizlilik Sözleşmesi</span>'ni okuyup kabul etmiş sayılırsınız.
                 </p>
               </div>
 
@@ -324,7 +339,7 @@ export default function OdemeSayfasi() {
 
           </div>
 
-          {/* ➡️ SAĞ TARAF: SİPARİŞ ÖZETİ (ŞEFİN YENİ AKILLI SİSTEMİ) */}
+          {/* ➡️ SAĞ TARAF: SİPARİŞ ÖZETİ (ŞEFİN DİNAMİK TASARIMI - TAŞMA KESİNLİKLE YOK) */}
           <div style={{ flex: "1" }} className="w-full lg:w-[380px] shrink-0">
             <div className="bg-[#09090b] border border-slate-800/50 rounded-3xl p-6 lg:p-8 sticky top-24">
               <h2 className="font-black text-xl mb-6 pb-4 border-b border-slate-800 text-white uppercase tracking-wide">
@@ -333,6 +348,14 @@ export default function OdemeSayfasi() {
 
               <div style={{ maxHeight: "250px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px", marginBottom: "20px", paddingRight: "5px" }}>
                 {sepet.map((urun: any, index: number) => {
+                  
+                  // Ürün listesindeki fiyatı da kullanıcının seçimine göre anında değiştiriyoruz
+                  const indirimOrani = (urun.havaleIndirimi !== undefined && urun.havaleIndirimi !== null) ? Number(urun.havaleIndirimi) : 0;
+                  let guncelFiyat = Number(urun.fiyat);
+                  if (odemeYontemi === "havale" && indirimOrani > 0) {
+                    guncelFiyat = guncelFiyat - (guncelFiyat * indirimOrani) / 100;
+                  }
+
                   return (
                     <div key={index} className="bg-[#121215] border border-slate-800 p-2 rounded-xl flex items-center gap-3">
                       <img src={urun.resim} alt={urun.isim} className="w-12 h-12 object-cover rounded-lg bg-[#09090b]" />
@@ -340,52 +363,54 @@ export default function OdemeSayfasi() {
                         <h4 className="text-white text-sm font-bold truncate">{urun.isim}</h4>
                         <p className="text-slate-400 text-[10px]">{urun.adet} Adet x {urun.varyasyon || "Standart"}</p>
                       </div>
-                      <span className="text-white text-sm font-bold">{(urun.fiyat * urun.adet).toLocaleString()} TL</span>
+                      <span className="text-white text-sm font-bold">{(guncelFiyat * urun.adet).toLocaleString()} TL</span>
                     </div>
                   );
                 })}
               </div>
 
-              {/* 🚀 AKILLI AYRIM MOTORU BAŞLADI */}
+              <div className="flex justify-between text-slate-400 mb-3 text-sm border-t border-slate-800 pt-4">
+                <span>Ara Toplam</span>
+                <span className="text-white font-bold">{araToplam.toLocaleString("tr-TR")} TL</span>
+              </div>
+
+              <div className="flex justify-between text-slate-400 mb-5 text-sm">
+                <span>Kargo</span>
+                <span>{kargo === 0 ? <span className="text-[#00e5ff] font-bold">BEDAVA</span> : <span className="text-white font-bold">{kargo} TL</span>}</span>
+              </div>
+
+              {/* 🚀 AKILLI AYRIM: KART SEÇİLİYSE KART KUTUSU, HAVALE SEÇİLİYSE HAVALE KUTUSU! TAŞMA (OVERFLOW) ÖNLENDİ */}
               {odemeYontemi === "kart" ? (
                 <>
-                  {/* KREDİ KARTI SEÇİLDİYSE HESAPLAR VE DETAYLAR GELİR */}
-                  <div className="flex justify-between text-slate-400 mb-3 text-sm border-t border-slate-800 pt-4">
-                    <span>Ara Toplam</span>
-                    <span className="text-white font-bold">{araToplam.toLocaleString("tr-TR")} TL</span>
-                  </div>
-
-                  <div className="flex justify-between text-slate-400 mb-5 text-sm">
-                    <span>Kargo</span>
-                    <span>{kargo === 0 ? <span className="text-[#00e5ff] font-bold">BEDAVA</span> : <span className="text-white font-bold">{kargo} TL</span>}</span>
-                  </div>
-
-                  <div className="border rounded-2xl p-4 mb-3 bg-[#121215] border-[#00e5ff]/50 shadow-[0_0_15px_rgba(0,229,255,0.1)] flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 shrink-0">
-                      <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-[#00e5ff]" />
-                      <span className="font-black text-sm sm:text-base text-white whitespace-nowrap">Kredi Kartı Tek Çekim</span>
-                    </div>
-                    <div className="text-xl sm:text-2xl font-black text-right text-[#00e5ff] whitespace-nowrap">
-                      {genelToplam.toLocaleString("tr-TR")} TL
+                  <div className="border rounded-2xl p-4 mb-4 transition-all relative bg-[#121215] border-[#00e5ff]/50 shadow-[0_0_15px_rgba(0,229,255,0.1)]">
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2 text-[#00e5ff]">
+                        <CreditCard className="w-5 h-5 sm:w-6 sm:h-6" />
+                        <span className="font-black text-sm sm:text-base">Kredi Kartı Tek Çekim</span>
+                      </div>
+                      <div className="text-2xl sm:text-3xl font-black text-right text-[#00e5ff]">
+                        {genelToplam.toLocaleString("tr-TR")} TL
+                      </div>
                     </div>
                   </div>
 
-                  <div className="bg-[#00e5ff]/10 border border-[#00e5ff]/30 rounded-xl p-3 flex items-center justify-center gap-2 text-center">
+                  <div className="bg-[#00e5ff]/10 border border-[#00e5ff]/30 rounded-xl p-3 flex items-center justify-center gap-2 text-center text-[#00e5ff]">
                     <span className="text-lg">===</span>
-                    <span className="text-xs font-bold tracking-wide uppercase text-[#00e5ff]">3 - 6 - 9 - 12 Taksit Seçenekleri!</span>
+                    <span className="text-[11px] sm:text-xs font-bold tracking-wide uppercase">3 - 6 - 9 - 12 Taksit Seçenekleri!</span>
                   </div>
                 </>
               ) : (
                 <>
-                  {/* 🚀 BİNGO: HAVALE SEÇİLDİYSE SADECE HAVALE FİYATI YAZAR, BAŞKA HİÇBİR KALABALIK YOKTUR! */}
-                  <div className="border rounded-2xl p-5 mt-4 relative overflow-hidden flex items-center justify-between gap-2 bg-[#10b981]/10 border-[#10b981]/50 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+                  <div className="border rounded-2xl p-4 mb-4 transition-all relative overflow-hidden bg-[#10b981]/10 border-[#10b981]/50 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-[#10b981] blur-[50px] opacity-20 pointer-events-none"></div>
-                    <div className="flex items-center gap-2 relative z-10 shrink-0">
-                      <Banknote className="w-5 h-5 sm:w-6 sm:h-6 text-[#10b981]" />
-                      <span className="font-black text-sm sm:text-base text-[#10b981] whitespace-nowrap">Havale / EFT Toplam</span>
-                    </div>
-                    <div className="text-xl sm:text-2xl font-black text-right text-[#10b981] drop-shadow-[0_0_10px_rgba(16,185,129,0.3)] relative z-10 whitespace-nowrap">
-                      {havaleliToplam.toLocaleString("tr-TR")} TL
+                    <div className="flex flex-col gap-2 relative z-10">
+                      <div className="flex items-center gap-2 text-[#10b981]">
+                        <Banknote className="w-5 h-5 sm:w-6 sm:h-6" />
+                        <span className="font-black text-sm sm:text-base">Havale / EFT Toplam</span>
+                      </div>
+                      <div className="text-2xl sm:text-3xl font-black text-right text-[#10b981] drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]">
+                        {genelToplam.toLocaleString("tr-TR")} TL
+                      </div>
                     </div>
                   </div>
                 </>
