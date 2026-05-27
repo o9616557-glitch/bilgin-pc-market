@@ -21,7 +21,8 @@ export default function OdemeSayfasi() {
   const [faturaForm, setFaturaForm] = useState({
     ad: "", soyad: "", telefon: "", adres: "", sehir: "", ilce: ""
   });
-// 🚀 ŞEFİM: KASADA OTOMATİK ADRES DOLDURMA (JET MOTORU)
+
+  // 🚀 ŞEFİM: KASADA OTOMATİK ADRES DOLDURMA (JET MOTORU)
   useEffect(() => {
     const fetchKayitliAdresler = async () => {
       try {
@@ -30,42 +31,24 @@ export default function OdemeSayfasi() {
           const data = await res.json();
           const adresler = data.addresses || [];
 
-          // 1. Varsa "Varsayılan Teslimat" adresini bul ve kutuları doldur!
           const varsayilanTeslimat = adresler.find((a: any) => a.isDefaultDelivery);
           if (varsayilanTeslimat) {
-            // İsim ve Soyismi ayırıyoruz (Örn: "Özkan Bilgin" -> ad: "Özkan", soyad: "Bilgin")
             const nameParts = varsayilanTeslimat.fullName.trim().split(" ");
             const soyad = nameParts.length > 1 ? nameParts.pop() : "";
             const ad = nameParts.join(" ");
-
             setForm((prev: any) => ({
-              ...prev,
-              ad: ad,
-              soyad: soyad,
-              telefon: varsayilanTeslimat.phone,
-              sehir: varsayilanTeslimat.city,
-              ilce: varsayilanTeslimat.district,
-              adres: varsayilanTeslimat.fullAddress,
+              ...prev, ad: ad, soyad: soyad, telefon: varsayilanTeslimat.phone, sehir: varsayilanTeslimat.city, ilce: varsayilanTeslimat.district, adres: varsayilanTeslimat.fullAddress,
             }));
           }
 
-          // 2. Varsa "Varsayılan Fatura" adresini bul ve fatura kutularını doldur!
           const varsayilanFatura = adresler.find((a: any) => a.isDefaultBilling);
           if (varsayilanFatura) {
             const nameParts = varsayilanFatura.fullName.trim().split(" ");
             const soyad = nameParts.length > 1 ? nameParts.pop() : "";
             const ad = nameParts.join(" ");
-
             setFaturaForm({
-              ad: ad,
-              soyad: soyad,
-              telefon: varsayilanFatura.phone,
-              sehir: varsayilanFatura.city,
-              ilce: varsayilanFatura.district,
-              adres: varsayilanFatura.fullAddress,
+              ad: ad, soyad: soyad, telefon: varsayilanFatura.phone, sehir: varsayilanFatura.city, ilce: varsayilanFatura.district, adres: varsayilanFatura.fullAddress,
             });
-            
-            // Fatura adresi farklıysa "Fatura Aynı" tikini otomatik kaldır ki müşteri görsün
             setFaturaAyni(false); 
           }
         }
@@ -73,13 +56,23 @@ export default function OdemeSayfasi() {
         console.error("Adresleri çekerken hata oluştu:", error);
       }
     };
-
     fetchKayitliAdresler();
   }, []);
+
+  // ==========================================
+  // 🚀 İŞTE SENİN İSTEDİĞİN O KUSURSUZ HESAPLAMA MOTORU! (BÜTÜN 5'LER SİLİNDİ)
+  // ==========================================
   const araToplam = sepet.reduce((toplam: number, urun: any) => toplam + (urun.fiyat * urun.adet), 0);
-  const kargo = araToplam > 5000 ? 0 : 150;
-  const havaleIndirimi = araToplam * 0.05;
-  const genelToplam = odemeYontemi === "havale" ? (araToplam - havaleIndirimi + kargo) : (araToplam + kargo);
+  const kargo = (araToplam > 5000 || araToplam === 0) ? 0 : 150;
+  
+  // DİREKT ÜRÜNDEN GERÇEK İNDİRİMİ ÇEKİYORUZ!
+  const toplamHavaleIndirimi = sepet.reduce((toplam: number, urun: any) => {
+    const oran = (urun.havaleIndirimi !== undefined && urun.havaleIndirimi !== null) ? Number(urun.havaleIndirimi) : 0; // Yoksa 0 al, %5 ezberini bitirdik!
+    return toplam + ((urun.fiyat * urun.adet) * oran) / 100;
+  }, 0);
+
+  // TEK VE KESİN TUTAR:
+  const odenecekSonTutar = odemeYontemi === "havale" ? (araToplam - toplamHavaleIndirimi + kargo) : (araToplam + kargo);
 
   const inputDegis = (e: any) => { setForm({ ...form, [e.target.name]: e.target.value }); };
   const faturaInputDegis = (e: any) => { setFaturaForm({ ...faturaForm, [e.target.name]: e.target.value }); };
@@ -88,7 +81,6 @@ export default function OdemeSayfasi() {
     if (iyzicoFormHtml) {
       const gonderilenScript = document.getElementById("iyzico-script");
       if (gonderilenScript) gonderilenScript.remove();
-      
       const icerik = document.createRange().createContextualFragment(iyzicoFormHtml);
       document.getElementById("iyzipay-checkout-form")?.appendChild(icerik);
     }
@@ -96,32 +88,24 @@ export default function OdemeSayfasi() {
 
   const siparisTamamla = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!sozlesmeKabul) {
-      alert("Lütfen Mesafeli Satış Sözleşmesi ve KVKK metnini onaylayın.");
-      return;
-    }
     
     setYukleniyor(true);
     setIyzicoFormHtml("");
 
-   // 🚀 ŞEFİM: APİ REDDETMESİN DİYE HEM ESKİ HEM YENİ TÜM KELİMELERİ BURAYA GÖMÜYORUZ!
     const siparisVerisi = {
       musteri: {
         ...form,
-        eposta: session?.user?.email || form.eposta, // Şefin e-posta mührü
+        eposta: session?.user?.email || form.eposta,
         faturaBilgileri: faturaAyni ? form : faturaForm
       },
-      // Sepet kelimeleri (Hangisini isterse dükkan onun olsun)
       sepet: sepet.map((item: any) => ({ id: item.id, isim: item.isim, miktar: item.adet, adet: item.adet, fiyat: item.fiyat, varyasyon: item.varyasyon })),
       cartItems: sepet.map((item: any) => ({ id: item.id, isim: item.isim, miktar: item.adet, adet: item.adet, fiyat: item.fiyat, varyasyon: item.varyasyon })),
       items: sepet.map((item: any) => ({ id: item.id, isim: item.isim, miktar: item.adet, adet: item.adet, fiyat: item.fiyat, varyasyon: item.varyasyon })),
-      
       odemeYontemi,
-      
-      // Tutar kelimeleri (API ne ararsa burada bulacak)
-      toplamTutar: genelToplam,
-      totalPrice: genelToplam,
-      genelToplam: genelToplam
+      // 🚀 VERİTABANINA GERÇEK İNDİRİMLİ TUTARI GÖNDERİYORUZ
+      toplamTutar: odenecekSonTutar,
+      totalPrice: odenecekSonTutar,
+      genelToplam: odenecekSonTutar
     };
 
     try {
@@ -130,17 +114,15 @@ export default function OdemeSayfasi() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(siparisVerisi)
       });
-
       const data = await response.json();
-
       if (data.success) {
         localStorage.removeItem("bilgin-sepet");
-  if (data.odemeYontemi === "havale") {
-    window.location.href = "/siparis-basarili?kodu=" + data.siparisKodu;
-  } else {
-    setIyzicoFormHtml(data.checkoutFormContent);
-  }
-} else {
+        if (data.odemeYontemi === "havale") {
+          window.location.href = "/siparis-basarili?kodu=" + data.siparisKodu;
+        } else {
+          setIyzicoFormHtml(data.checkoutFormContent);
+        }
+      } else {
         alert("Hata oluştu: " + data.error);
       }
     } catch (hata) {
@@ -151,9 +133,6 @@ export default function OdemeSayfasi() {
     }
   };
 
-  // ==========================================
-  // 🛒 1. BÖLÜM: EĞER SEPET BOŞ İSE (MAT SİYAH)
-  // ==========================================
   if (sepet.length === 0) {
     return (
       <div className="min-h-[80vh] bg-[#050814] text-white flex flex-col items-center justify-center px-4">
@@ -169,31 +148,12 @@ export default function OdemeSayfasi() {
     );
   }
 
- // ==========================================
-  // 🧮 🚀 ŞEFİN DİNAMİK HAVALE HESAPLAMA MOTORU (KİLİT KIRILDI!)
-  // ==========================================
-  const toplamHavaleIndirimi = sepet.reduce((toplam: number, urun: any) => {
-    // 🚀 BİNGO: Veritabanındaki gerçek şifre 'havaleIndirimi' buraya eklendi!
-    const urunOrani = (urun.havaleIndirimi !== undefined && urun.havaleIndirimi !== null && urun.havaleIndirimi !== "") 
-                      ? Number(urun.havaleIndirimi) 
-                      : 5; 
-                      
-    const urunToplamFiyat = urun.fiyat * urun.adet;
-    return toplam + (urunToplamFiyat * urunOrani) / 100;
-  }, 0);
-
-  const odenecekSonTutar = odemeYontemi === "havale" ? (genelToplam - toplamHavaleIndirimi) : genelToplam;
-  console.log("🕵️‍♂️ SEPETİN RÖNTGENİ:", sepet);
-  // 📋 IBAN KOPYALAMA MOTORU (EKSİĞİ BURAYA TAMAMLADIK)
   const ibanKopyala = () => {
     navigator.clipboard.writeText("TR99 0001 0002 0003 0004 0005 06"); 
     setIbanKopyalandi(true);
-    setTimeout(() => setIbanKopyalandi(false), 2000); // 2 saniye sonra "Kopyalandı" yazısını eski haline çevirir
+    setTimeout(() => setIbanKopyalandi(false), 2000);
   };
 
-  // ==========================================
-  // 💳 2. BÖLÜM: ÖDEME FORMU VE SİPARİŞ ÖZETİ
-  // ==========================================
   return (
     <div className="min-h-screen bg-[#050814] text-white pb-12 pt-8 md:pt-12">
       <div className="ana-konteynir" style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
@@ -310,7 +270,6 @@ export default function OdemeSayfasi() {
                 </button>
               </div>
 
-              {/* 🚀 KOPYALAMA BUTONLU HAVALE TALİMATLARI KUTUSU */}
               {odemeYontemi === "havale" && (
                 <div className="bg-[#121215] border border-slate-800 rounded-2xl p-5 text-slate-400 text-sm mb-6 leading-relaxed w-full block clear-both overflow-hidden">
                   <p className="text-[#10b981] font-bold mb-3 flex items-center gap-1.5">💡 Havale / EFT Ödeme Talimatı:</p>
@@ -321,7 +280,6 @@ export default function OdemeSayfasi() {
                     <div><strong>Banka:</strong> Akıllı Banka (Bilgin PC Özel)</div>
                     <div><strong>Alıcı:</strong> BİLGİN PC MARKET LTD. ŞTİ.</div>
                     
-                    {/* 📋 SİHİRLİ İBAN KOPYALAMA ALANI */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-1 pt-1 border-t border-slate-800/40">
                       <div className="break-all select-all">
                         <strong>IBAN:</strong> <span className="text-white font-bold bg-slate-900 px-1 py-0.5 rounded border border-slate-800">TR99 0001 0002 0003 0004 0005 06</span>
@@ -339,14 +297,12 @@ export default function OdemeSayfasi() {
                 </div>
               )}
 
-              {/* 🚀 MODERN SÖZLEŞME METNİ (TIK ZORUNLULUĞU KALDIRILDI) */}
               <div className="bg-[#121215] border border-slate-800 p-4 rounded-xl mb-6 text-center">
                 <p className="text-slate-400 text-xs sm:text-sm leading-snug">
                   Siparişi onaylayarak <span className="text-[#00e5ff] cursor-pointer hover:underline">Ön Bilgilendirme Formu</span>'nu, <span className="text-[#00e5ff] cursor-pointer hover:underline">Mesafeli Satış Sözleşmesi</span>'ni ve <span className="text-[#00e5ff] cursor-pointer hover:underline">KVKK Aydınlatma Metni</span>'ni okuyup kabul etmiş sayılırsınız.
                 </p>
               </div>
 
-              {/* ONAY BUTONU (SÖZLEŞME KİLİDİ KALDIRILDI) */}
               {!iyzicoFormHtml && (
                 <button 
                   type="submit" 
@@ -359,7 +315,6 @@ export default function OdemeSayfasi() {
               )}
             </form>
 
-            {/* IYZICO MODAL */}
             <div style={{
               display: (odemeYontemi === "kart" && iyzicoFormHtml) ? "flex" : "none",
               position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "#ffffff", zIndex: 999999,
@@ -385,14 +340,14 @@ export default function OdemeSayfasi() {
 
               <div style={{ maxHeight: "280px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px", marginBottom: "20px" }}>
                 {sepet.map((urun: any, index: number) => {
-                  const indOrani = urun.havaleIndirimOrani !== undefined ? urun.havaleIndirimOrani : 5;
+                  const indOrani = (urun.havaleIndirimi !== undefined && urun.havaleIndirimi !== null) ? Number(urun.havaleIndirimi) : 0;
                   return (
                     <div key={index} className="bg-[#121215] border border-slate-800 p-2 rounded-xl flex items-center gap-3">
                       <img src={urun.resim} alt={urun.isim} className="w-11 h-11 object-cover rounded-lg bg-[#09090b]" />
                       <div style={{ flex: "1", minWidth: 0 }}>
                         <h4 className="text-white text-sm font-bold truncate">{urun.isim}</h4>
                         <p className="text-slate-400 text-xs">{urun.adet} Adet x {urun.varyasyon || "Standart"}</p>
-                        {odemeYontemi === "havale" && (
+                        {odemeYontemi === "havale" && indOrani > 0 && (
                           <span className="text-[#10b981] text-[10px] font-bold bg-[#10b981]/10 px-1.5 py-0.5 rounded border border-[#10b981]/20 mt-0.5 inline-block">%{indOrani} Havale İndirimi</span>
                         )}
                       </div>
@@ -412,7 +367,7 @@ export default function OdemeSayfasi() {
                 <span>{kargo === 0 ? <span className="text-[#00e5ff] font-bold">BEDAVA</span> : <span className="text-white font-bold">{kargo} TL</span>}</span>
               </div>
 
-              {odemeYontemi === "havale" && (
+              {odemeYontemi === "havale" && toplamHavaleIndirimi > 0 && (
                 <div className="flex justify-between text-[#10b981] mb-3 text-sm font-bold bg-[#10b981]/5 p-2 rounded-lg border border-[#10b981]/10">
                   <span>Havale İndirimi</span>
                   <span>-{toplamHavaleIndirimi.toLocaleString("tr-TR")} TL</span>
