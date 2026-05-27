@@ -11,7 +11,10 @@ export default function VaryasyonluSepet({ urun }: { urun: any }) {
   const { sepeteEkle } = useCart(); 
 
   const anaFiyat = seciliVaryasyon ? Number(seciliVaryasyon.fiyat) : Number(urun.fiyat) || 0;
-  const havaleFiyati = (anaFiyat * 0.95).toFixed(0);
+  
+  // 🚀 VİTRİNDEKİ İNDİRİM HESABI DİNAMİKLEŞTİRİLDİ
+  const indirimOrani = urun.havaleIndirimi || 5; 
+  const havaleFiyati = (anaFiyat * (1 - (indirimOrani / 100))).toFixed(0);
 
   // BUTONA BASILINCA ÇALIŞACAK SİHİRLİ FONKSİYON
   const sepeteFirlat = () => {
@@ -21,6 +24,8 @@ export default function VaryasyonluSepet({ urun }: { urun: any }) {
       resim: urun.resimler && urun.resimler.length > 0 ? urun.resimler[0] : "",
       fiyat: anaFiyat,
       varyasyon: seciliVaryasyon ? seciliVaryasyon.model_adi : null,
+      // 🚀 İŞTE YILLARDIR ARADIĞIMIZ O EKSİK ŞALTER BURAYA TAKILDI!
+      havaleIndirimi: urun.havaleIndirimi,
     };
     sepeteEkle(eklenecekUrun); // Sepet beynine ürünü gönder!
   };
@@ -67,7 +72,8 @@ export default function VaryasyonluSepet({ urun }: { urun: any }) {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", borderTop: "1px solid #27272a", paddingTop: "16px" }}>
           <div>
-            <span style={{ fontSize: "0.8rem", color: "#10b981", fontWeight: "700", display: "block" }}>%5 Havale İndirimi</span>
+            {/* 🚀 SABİT %5 YAZISI DİNAMİK HALE GETİRİLDİ */}
+            <span style={{ fontSize: "0.8rem", color: "#10b981", fontWeight: "700", display: "block" }}>%{indirimOrani} Havale İndirimi</span>
             <div style={{ fontSize: "1.2rem", fontWeight: "800", color: "#10b981" }}>
               {Number(havaleFiyati).toLocaleString()} TL
             </div>
@@ -80,7 +86,6 @@ export default function VaryasyonluSepet({ urun }: { urun: any }) {
         </div>
       </div>
 
-      {/* onClick={sepeteFirlat} KODU EKLENDİ! */}
       <button onClick={sepeteFirlat} className="masaustu-sepet" style={{ width: "100%", padding: "18px", fontSize: "1.2rem", fontWeight: "900", background: "linear-gradient(45deg, #00e5ff, #007acc)", color: "#000", border: "none", borderRadius: "12px", cursor: "pointer", textTransform: "uppercase", letterSpacing: "1px" }}>
         Sepete Ekle
       </button>
@@ -92,7 +97,6 @@ export default function VaryasyonluSepet({ urun }: { urun: any }) {
           <span style={{ fontSize: "0.75rem", color: "#a1a1aa", display: "block" }}>Toplam Tutar</span>
           <span style={{ fontSize: "1.3rem", fontWeight: "900", color: "#00e5ff" }}>{anaFiyat.toLocaleString()} TL</span>
         </div>
-        {/* onClick={sepeteFirlat} KODU MOBİLE DE EKLENDİ! */}
         <button onClick={sepeteFirlat} style={{ padding: "12px 24px", background: "linear-gradient(45deg, #00e5ff, #007acc)", color: "#000", border: "none", borderRadius: "8px", fontWeight: "900", cursor: "pointer" }}>
           Sepete Ekle
         </button>
