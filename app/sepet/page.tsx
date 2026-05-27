@@ -40,7 +40,7 @@ export default function SepetSayfasi() {
     <div className="min-h-screen bg-[#050814] text-white pt-8 md:pt-12 pb-12 px-4">
       <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8">
         
-        {/* SOL TARAF: ÜRÜN LİSTESİ */}
+        {/* SOL TARAF: ÜRÜN LİSTESİ (SADECE NET FİYAT) */}
         <div className="flex-1 flex flex-col gap-4">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-slate-800 pb-4 mb-4 gap-4 mt-2">
             <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter text-white">
@@ -67,6 +67,7 @@ export default function SepetSayfasi() {
                     <p className="text-[#00e5ff] text-xs font-semibold mb-2 bg-[#00e5ff]/10 inline-block self-center sm:self-start px-2 py-0.5 rounded border border-[#00e5ff]/20">{urun.varyasyon}</p>
                   )}
                   
+                  {/* SADECE ÜRÜNÜN NORMAL FİYATI */}
                   <div className="text-xl font-black mt-2 sm:mt-auto tracking-tight text-white">
                     {urunToplamFiyat.toLocaleString("tr-TR")} <span className="text-sm text-slate-400 font-medium">TL</span>
                   </div>
@@ -86,7 +87,7 @@ export default function SepetSayfasi() {
           })}
         </div>
 
-        {/* SAĞ TARAF: SİPARİŞ ÖZETİ (TERTEMİZ VE YAN YANA TASARIM) */}
+        {/* SAĞ TARAF: SİPARİŞ ÖZETİ (TERTEMİZ VE TAŞMAYI ÖNLEYEN TASARIM) */}
         <div className="w-full lg:w-[380px] shrink-0">
           <div className="bg-[#09090b] border border-slate-800/50 rounded-3xl p-6 lg:p-8 sticky top-24">
             <h2 className="font-black text-xl mb-6 pb-4 border-b border-slate-800 text-white uppercase tracking-wide">
@@ -105,19 +106,21 @@ export default function SepetSayfasi() {
 
             <div className="flex justify-between items-center text-white font-black border-t border-slate-800 pt-6 mb-5">
               <span className="text-lg">Toplam</span>
-              <span className="text-2xl lg:text-3xl text-white whitespace-nowrap">{genelToplam.toLocaleString("tr-TR")} <span className="text-base text-slate-400 font-bold">TL</span></span>
+              <span className="text-2xl lg:text-3xl text-white">{genelToplam.toLocaleString("tr-TR")} <span className="text-base text-slate-400 font-bold">TL</span></span>
             </div>
 
-            {/* 🚀 HAVALE BÖLÜMÜ (MÜKEMMEL YAN YANA YERLEŞİM) */}
+            {/* 🚀 HAVALE / EFT BÖLÜMÜ (TAŞMAYI ÖNLEYEN FERAH ALT-ÜST TASARIM) */}
             {toplamHavaleIndirimi > 0 && (
-              <div className="bg-[#10b981]/10 border border-[#10b981]/30 rounded-2xl p-4 mb-6 relative overflow-hidden flex items-center justify-between gap-2">
+              <div className="bg-[#10b981]/10 border border-[#10b981]/30 rounded-2xl p-5 mb-6 relative overflow-hidden transition-all shadow-[0_0_15px_rgba(16,185,129,0.1)]">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-[#10b981] blur-[50px] opacity-20 pointer-events-none"></div>
-                <div className="flex items-center gap-2 relative z-10 shrink-0">
-                  <Banknote className="w-5 h-5 sm:w-6 sm:h-6 text-[#10b981]" />
-                  <span className="text-[#10b981] font-black text-sm sm:text-base whitespace-nowrap">Havale / EFT İle</span>
-                </div>
-                <div className="text-xl sm:text-2xl font-black text-[#10b981] text-right drop-shadow-[0_0_10px_rgba(16,185,129,0.3)] relative z-10 whitespace-nowrap">
-                  {havaleliToplam.toLocaleString("tr-TR")} TL
+                <div className="flex flex-col gap-2 relative z-10">
+                  <div className="flex items-center gap-2 text-[#10b981]">
+                    <Banknote className="w-5 h-5 sm:w-6 sm:h-6" />
+                    <span className="font-black text-sm sm:text-base">Havale / EFT İle</span>
+                  </div>
+                  <div className="text-2xl sm:text-3xl font-black text-[#10b981] text-right drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]">
+                    {havaleliToplam.toLocaleString("tr-TR")} TL
+                  </div>
                 </div>
               </div>
             )}
