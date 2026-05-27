@@ -61,8 +61,19 @@ export default function IadeVeGarantiPage() {
           
           <div className="space-y-6 text-slate-300 text-sm sm:text-base leading-relaxed font-medium">
             
+            {/* 🚀 ŞEFİN EKLETTİĞİ YENİ MADDE: ARIZA DURUMU */}
+            <div className="bg-[#00e5ff]/5 border border-[#00e5ff]/20 p-5 rounded-2xl">
+              <h4 className="text-[#00e5ff] font-bold mb-2 text-lg">1. Ürün Arızalı/Kusurlu Çıkarsa Ne Olur? (DOA ve Garanti Süreci)</h4>
+              <p className="text-slate-300 mb-3">
+                Kargodan teslim aldığınız ürün ilk kullanımda <strong>fabrikasyon arızalı (DOA - Dead on Arrival)</strong> çıkarsa, durumu hemen tarafımıza bildirip ürünü bize veya yetkili servise geri gönderiyorsunuz. Teknik servisimiz "kullanıcı hatası olmadığını" onayladığı an, sizi hiç bekletmeden <strong>birebir yenisiyle değişim</strong> veya <strong>tam para iadesi</strong> yapıyoruz.
+              </p>
+              <p className="text-slate-400 text-sm">
+                Eğer ürün garanti süresi (2 Yıl) içerisinde sonradan bozulursa, ürünü doğrudan markanın resmi Türkiye yetkili servisine gönderirsiniz. Yasal azami tamir süresi 20 iş günüdür. Servis raporuna göre ürün onarılır, onarılamıyorsa yenisiyle değiştirilir veya iadesi sağlanır. Biz bu sürecin her adımında size destek olmak için yanınızdayız.
+              </p>
+            </div>
+
             <div>
-              <h4 className="text-white font-bold mb-2">1. İade Edilemeyecek Ürünler Nelerdir?</h4>
+              <h4 className="text-white font-bold mb-2">2. İade Edilemeyecek Ürünler Nelerdir?</h4>
               <ul className="list-disc pl-5 text-slate-400 space-y-2 mt-2">
                 <li>Montajı yapılmış, vida izi kalmış ana kart, ekran kartı ve benzeri donanımlar.</li>
                 <li>İşlemci (CPU) gibi pimleri hassas olan ve kutusu açılmış bileşenler.</li>
@@ -72,20 +83,20 @@ export default function IadeVeGarantiPage() {
             </div>
 
             <div>
-              <h4 className="text-white font-bold mb-2">2. Kullanıcı Hatası ve Garanti Dışı Durumlar</h4>
+              <h4 className="text-white font-bold mb-2">3. Kullanıcı Hatası ve Garanti Dışı Durumlar</h4>
               <p className="text-slate-400">
                 Yanlış montaj nedeniyle kırılan işlemci pinleri, aşırı hız aşırtma (overclock) sonucu yanan parçalar, sıvı teması, voltaj dalgalanmalarından kaynaklı güç kaynağı hasarları ve fiziksel darbeler tamamen <strong>kullanıcı hatası</strong> kapsamındadır ve garanti dışı kalır.
               </p>
             </div>
 
             <div>
-              <h4 className="text-white font-bold mb-2">3. İade Süreci Nasıl İşler?</h4>
-              <p className="text-slate-400 mb-2">İade etmek istediğiniz ürün için adımlar şunlardır:</p>
+              <h4 className="text-white font-bold mb-2">4. İade Süreci Nasıl İşler?</h4>
+              <p className="text-slate-400 mb-2">İade etmek veya servise göndermek istediğiniz ürün için adımlar şunlardır:</p>
               <ol className="list-decimal pl-5 text-slate-400 space-y-1">
-                <li>Müşteri hizmetlerimizle (info@bilginpcmarket.com veya WhatsApp) iletişime geçip iade kodu alın.</li>
+                <li>Müşteri hizmetlerimizle (info@bilginpcmarket.com veya WhatsApp) iletişime geçip iade/servis kodu alın.</li>
                 <li>Ürünü faturası, tüm aksesuarları ve kutu içeriği eksiksiz olacak şekilde güvenli bir koliye koyun. (Orijinal kutuya kargo bandı yapıştırılması iadeyi geçersiz kılar).</li>
-                <li>Anlaşmalı kargo firmamız ile tarafımıza gönderin.</li>
-                <li>Ürün teknik ekibimiz tarafından incelendikten sonra, şarta uyuyorsa 1-3 iş günü içinde ücret iadeniz yapılır.</li>
+                <li>Anlaşmalı kargo firmamız ile tarafımıza veya yönlendirilen servise gönderin.</li>
+                <li>Ürün teknik ekibimiz tarafından incelendikten sonra, şarta uyuyorsa 1-3 iş günü içinde ücret iadeniz veya değişiminiz yapılır.</li>
               </ol>
             </div>
 
