@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { useCart } from "../../CartContext"; 
 import toast from "react-hot-toast";
+
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const { sepeteEkle } = useCart(); 
 
@@ -45,28 +46,25 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     setToastMessage(message);
     setTimeout(() => setToastMessage(""), 4000); 
   };
-// 🚀 ŞEFİM: KÜSÜRATSIZ JET MOTORU (Optimistic UI)
+
   const handleToggleFavorite = async () => {
-    // 1. KARGOCUYU BEKLEMEK YOK: Bastığın milisaniye rengi değiştiriyoruz!
     const oncekiDurum = isFav;
     setIsFav(!oncekiDurum); 
 
     try {
-      // 2. Biz ekranda rengi değiştirmişken, kargocu arka planda gizlice yola çıkıyor
       const res = await fetch("/api/favorites", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productId: String(product._id || product.id) })
       });
 
-      // 3. Eğer kargocunun yolda başına bir iş gelirse (hata), çaktırmadan kalbi eski haline çevir
     if (res.status === 401) {
-      setIsFav(oncekiDurum); // Adam giriş yapmamışsa kalbi hemen eski (boş) haline çevir
+      setIsFav(oncekiDurum); 
       toast.error("Favorilere eklemek için lütfen giriş yapın. 🔒", {
         style: { background: '#121215', color: '#fff', border: '1px solid #334155', borderRadius: '12px' },
         iconTheme: { primary: '#00e5ff', secondary: '#000' },
       });
-      return; // İşlemi burada sessizce kes!
+      return; 
     }
 
     if (!res.ok) {
@@ -78,7 +76,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       console.error("Favori hatası:", error);
     }
   };
-  // 🚀 SAYFA AÇILDIĞINDA KALBİN RENGİNİ DOĞRU AYARLAYAN KONTROLCÜ
+
   useEffect(() => {
     const checkFavoriteStatus = async () => {
       try {
@@ -100,6 +98,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
     checkFavoriteStatus();
   }, [pId]);
+
   useEffect(() => {
     const fetchCanliYorumlar = async () => {
       try {
@@ -151,15 +150,23 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     return () => clearInterval(timer);
   }, []);
 
- const handleAddToCart = () => {
+  const urunAdi = product.isim || product.name || "İsimsiz Ürün";
+  const normalFiyat = Number(product.regular_price || product.fiyat || product.price || 0);
+  const indirimliFiyat = product.indirimliFiyat ? Number(product.indirimliFiyat) : null;
+  const gecerliFiyat = indirimliFiyat ? indirimliFiyat : normalFiyat;
+  const havaleYuzdesi = product.havaleIndirimi !== undefined ? Number(product.havaleIndirimi) : 5;
+
+  const handleAddToCart = () => {
     setAddingToCart(true);
     try {
       sepeteEkle({
         id: String(pId),
-        isim: product.isim || product.name || "İsimsiz Ürün",
-        fiyat: Number(product.indirimliFiyat || product.price || product.fiyat || 0),
+        isim: urunAdi,
+        fiyat: gecerliFiyat,
         resim: product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/400", 
-        varyasyon: "Standart Model"
+        varyasyon: "Standart Model",
+        // 🚀 BİNGO! EKSİK OLAN PARÇA BURASIYDI! ARTIK ÇANTAYA GİRİYOR!
+        havaleIndirimi: havaleYuzdesi
       });
       
       setAddedSuccess(true);
@@ -174,11 +181,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       setAddingToCart(false);
     }
   };
- 
-
+  
   const handleShare = async () => {
     if (navigator.share) {
-      try { await navigator.share({ title: product.isim || product.name || "Bilgin PC Market", text: "Şu efsane ürüne bir bak!", url: window.location.href }); } catch (err) {}
+      try { await navigator.share({ title: urunAdi, text: "Şu efsane ürüne bir bak!", url: window.location.href }); } catch (err) {}
     } else {
       navigator.clipboard.writeText(window.location.href);
       setCopied(true);
@@ -223,24 +229,17 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
   if (!product) return <div className="text-center p-10 text-[#00e5ff] font-bold">Yükleniyor...</div>;
 
-  const urunAdi = product.isim || product.name || "İsimsiz Ürün";
-  const normalFiyat = Number(product.regular_price || product.fiyat || product.price || 0);
-  const indirimliFiyat = product.indirimliFiyat ? Number(product.indirimliFiyat) : null;
-  const gecerliFiyat = indirimliFiyat ? indirimliFiyat : normalFiyat;
   const indirimVarMi = indirimliFiyat !== null && normalFiyat > indirimliFiyat;
   const indirimOrani = indirimVarMi ? Math.round(((normalFiyat - gecerliFiyat) / normalFiyat) * 100) : 0;
   const stokSifirMi = product.stokAdedi === 0 || product.stokAdedi === "0";
   const tukendiMi = product.stokDurumu === "Tükendi" || stokSifirMi;
   const adetGosterilecekMi = product.stokAdedi !== null && product.stokAdedi !== undefined && product.stokAdedi !== "" && Number(product.stokAdedi) > 0;
-  const havaleYuzdesi = product.havaleIndirimi !== undefined ? Number(product.havaleIndirimi) : 5;
   const havaleFiyati = gecerliFiyat - (gecerliFiyat * havaleYuzdesi) / 100;
   const resimler = product.images && product.images.length > 0 ? product.images.map((i:any) => i.src) : [product.resim || "https://via.placeholder.com/600"];
 
   return (
-    // ŞEFİM: max-w-[100vw] eklendi, sayfa dışına taşma imkansız hale getirildi.
     <div className="min-h-screen bg-[#050814] text-white pb-28 sm:pb-10 font-sans overflow-x-hidden relative max-w-[100vw]">
       
-      {/* ŞEFİM: BİLDİRİM ANİMASYONU YUKARIDAN AŞAĞI OLARAK DEĞİŞTİRİLDİ (-translate-y-10) */}
       <div className={`fixed top-24 right-5 z-[9999] bg-[#09090b] border border-[#00e5ff]/50 shadow-[0_0_30px_rgba(0,229,255,0.2)] text-white px-6 py-4 rounded-xl font-bold flex items-center gap-3 transition-all duration-500 transform ${toastMessage ? 'translate-y-0 opacity-100' : '-translate-y-10 opacity-0 pointer-events-none'}`}>
         <span className="text-[#00e5ff] text-2xl">✓</span>
         <p className="text-sm">{toastMessage}</p>
