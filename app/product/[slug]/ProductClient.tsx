@@ -4,37 +4,39 @@ import React, { useState, useEffect } from "react";
 import { useCart } from "../../CartContext"; 
 import toast from "react-hot-toast";
 import { useCompare } from "@/app/CompareContext";
-import { Settings2, X, Scale } from "lucide-react"; // Scale (Terazi) ikonu eklendi
+import { Settings2, X, Scale, Gamepad2 } from "lucide-react";
 
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const { sepeteEkle } = useCart(); 
-  const { karsilastirmayaEkle } = useCompare(); // Karşılaştırma motoru aktif!
+  
+  // KARŞILAŞTIRMA MOTORU VE PENCERESİ EKLENDİ
+  const { karsilastirmayaEkle, setPopupAcik } = useCompare(); 
   
   // 🚀 ZIRHLI HAFIZALAR
   const [activeTab, setActiveTab] = useState("reviews");
-  const [seciliCozunurluk, setSeciliCozunurluk] = useState("1080p");
+  const [seciliCozunurluk, setSeciliCozunurluk] = useState("1080P");
   const [seciliIslemci, setSeciliIslemci] = useState("i5");
 
   const fpsVerileri: any = {
     Valorant: {
-      i5: { "1080p": "450+", "2K": "320+", "4K": "180+" },
-      i7: { "1080p": "540+", "2K": "390+", "4K": "210+" },
-      i9: { "1080p": "620+", "2K": "460+", "4K": "260+" }
+      i5: { "1080P": "450+", "2K": "320+", "4K": "180+" },
+      i7: { "1080P": "540+", "2K": "390+", "4K": "210+" },
+      i9: { "1080P": "620+", "2K": "460+", "4K": "260+" }
     },
     CS2: {
-      i5: { "1080p": "380+", "2K": "260+", "4K": "140+" },
-      i7: { "1080p": "460+", "2K": "310+", "4K": "180+" },
-      i9: { "1080p": "550+", "2K": "380+", "4K": "230+" }
+      i5: { "1080P": "380+", "2K": "260+", "4K": "140+" },
+      i7: { "1080P": "460+", "2K": "310+", "4K": "180+" },
+      i9: { "1080P": "550+", "2K": "380+", "4K": "230+" }
     },
     GTAV: {
-      i5: { "1080p": "165+", "2K": "120+", "4K": "70+" },
-      i7: { "1080p": "190+", "2K": "145+", "4K": "85+" },
-      i9: { "1080p": "220+", "2K": "170+", "4K": "105+" }
+      i5: { "1080P": "165+", "2K": "120+", "4K": "70+" },
+      i7: { "1080P": "190+", "2K": "145+", "4K": "85+" },
+      i9: { "1080P": "220+", "2K": "170+", "4K": "105+" }
     },
     PUBG: {
-      i5: { "1080p": "210+", "2K": "150+", "4K": "90+" },
-      i7: { "1080p": "250+", "2K": "180+", "4K": "110+" },
-      i9: { "1080p": "290+", "2K": "220+", "4K": "135+" }
+      i5: { "1080P": "210+", "2K": "150+", "4K": "90+" },
+      i7: { "1080P": "250+", "2K": "180+", "4K": "110+" },
+      i9: { "1080P": "290+", "2K": "220+", "4K": "135+" }
     }
   };
 
@@ -79,10 +81,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     } catch (error) { setIsFav(oncekiDurum); }
   };
 
-  // KARŞILAŞTIRMA BUTONU İŞLEVİ
+  // ⚖️ KARŞILAŞTIRMA HEM EKLER HEM POPUP'I AÇAR!
   const handleCompare = () => {
     karsilastirmayaEkle(product);
-    showToast("Karşılaştırma listesine eklendi!");
+    if (typeof setPopupAcik === "function") {
+      setPopupAcik(true); // BU KOD GLOBAL KARŞILAŞTIRMA PENCERESİNİ ŞAK DİYE AÇAR
+    }
+    showToast("⚖️ Karşılaştırma penceresi açılıyor...");
   };
 
   useEffect(() => {
@@ -176,7 +181,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const resimler = product.images && product.images.length > 0 ? product.images.map((i:any) => i.src) : [product.resim || "https://via.placeholder.com/600"];
 
   return (
-    <div className="min-h-screen bg-[#050814] text-white pb-32 sm:pb-10 font-sans overflow-x-hidden relative max-w-[100vw]">
+    <div className="min-h-screen bg-[#050814] text-white pb-40 sm:pb-10 font-sans overflow-x-hidden relative max-w-[100vw]">
       
       {/* BAŞARI MESAJI TOAST */}
       <div className={`fixed top-24 right-5 z-[9999] bg-[#09090b] border border-[#00e5ff]/50 shadow-[0_0_30px_rgba(0,229,255,0.2)] text-white px-6 py-4 rounded-xl font-bold flex items-center gap-3 transition-all duration-300 transform ${toastMessage ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0 pointer-events-none"}`}>
@@ -271,12 +276,12 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             {addedSuccess && <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#10b981] text-black text-xs font-black px-4 py-2 rounded-lg shadow-[0_0_20px_rgba(16,185,129,0.5)] animate-bounce">✅ Başarıyla Sepete Eklendi!</div>}
           </div>
 
-          {/* ⚖️ MASAÜSTÜ: FAVORİ, KARŞILAŞTIR VE PAYLAŞ BUTONLARI EKLENDİ */}
+          {/* MASAÜSTÜ: FAVORİ, KARŞILAŞTIR VE PAYLAŞ */}
           <div className="hidden sm:flex items-center gap-3 mb-3">
             <button onClick={handleToggleFavorite} className={`flex-1 py-3 rounded-xl border flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider transition-all ${isFav ? "bg-red-500/10 border-red-500/30 text-red-500" : "bg-[#09090b] border-white/10 hover:bg-white/5 text-white"}`}>
               {isFav ? "❤️ Favorilerde" : "🤍 Favoriye Ekle"}
             </button>
-            <button onClick={handleCompare} className="flex-1 py-3 rounded-xl border border-white/10 bg-[#09090b] hover:bg-white/5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-white transition-all">
+            <button onClick={handleCompare} className="flex-1 py-3 rounded-xl border border-white/10 bg-[#09090b] hover:bg-white/5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-[#00e5ff] transition-all">
               ⚖️ Karşılaştır
             </button>
             <button onClick={handleShare} className="flex-1 py-3 rounded-xl border border-white/10 bg-[#09090b] hover:bg-white/5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-white transition-all">
@@ -298,23 +303,29 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-      {/* 📱 MOBİL SABİT ALT BAR - KARŞILAŞTIRMA (TERAZİ) EKLENDİ */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-md border-t border-slate-800 p-3 z-[50] flex gap-2">
-        <button onClick={handleToggleFavorite} className="w-12 h-12 flex items-center justify-center bg-[#121215] border border-slate-700 hover:border-[#00e5ff] rounded-xl text-white transition-colors text-lg">
-          {isFav ? "❤️" : "🤍"}
-        </button>
-        <button onClick={handleCompare} className="w-12 h-12 flex items-center justify-center bg-[#121215] border border-slate-700 hover:border-[#00e5ff] rounded-xl text-white transition-colors text-lg">
-          ⚖️
-        </button>
-        <button onClick={handleShare} className="w-12 h-12 flex items-center justify-center bg-[#121215] border border-slate-700 hover:border-[#00e5ff] rounded-xl text-white transition-colors text-lg">
-          📤
-        </button>
-        <button type="button" onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`flex-1 font-black uppercase tracking-wider rounded-xl flex flex-col items-center justify-center transition-all ${tukendiMi ? "bg-zinc-800 text-zinc-500" : "bg-[#00e5ff] text-black shadow-[0_0_15px_rgba(0,229,255,0.3)] hover:bg-[#00c4db]"}`}>
-           <span className="text-sm">{tukendiMi ? "TÜKENDİ" : "SEPETE EKLE"}</span>
+      {/* 📱 YENİ NESİL KONTROL MERKEZİ GİBİ MOBİL ALT BAR */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-md border-t border-slate-800 p-2 z-[50] flex flex-col gap-2 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+        
+        {/* Üst Satır: Kaydırılabilir Yatay Menü (Tüm Simgeler) */}
+        <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+           <button onClick={() => { setActiveTab("reviews"); setTeknikPopupAcik(true); }} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">⭐</span><span className="text-[10px] font-black uppercase tracking-wider">Yorumlar</span></button>
+           <button onClick={() => { setActiveTab("questions"); setTeknikPopupAcik(true); }} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">💬</span><span className="text-[10px] font-black uppercase tracking-wider">Sorular</span></button>
+           <button onClick={() => { setActiveTab("tech"); setTeknikPopupAcik(true); }} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">⚙️</span><span className="text-[10px] font-black uppercase tracking-wider">Teknik</span></button>
+           <button onClick={() => { setActiveTab("fps"); setTeknikPopupAcik(true); }} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">🎮</span><span className="text-[10px] font-black uppercase tracking-wider">FPS</span></button>
+           <div className="w-[1px] h-5 bg-white/10 shrink-0 mx-0.5"></div>
+           <button onClick={handleCompare} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-[#00e5ff]/30 rounded-xl text-[#00e5ff] hover:bg-[#00e5ff]/10 transition-colors"><span className="text-sm">⚖️</span><span className="text-[10px] font-black uppercase tracking-wider">Kıyasla</span></button>
+           <button onClick={handleToggleFavorite} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-red-500 transition-colors"><span className="text-sm">{isFav ? "❤️" : "🤍"}</span><span className="text-[10px] font-black uppercase tracking-wider">Favori</span></button>
+           <button onClick={handleShare} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">📤</span><span className="text-[10px] font-black uppercase tracking-wider">Paylaş</span></button>
+        </div>
+
+        {/* Alt Satır: Dev Sepete Ekle Butonu */}
+        <button type="button" onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`w-full h-14 font-black uppercase tracking-wider rounded-xl flex items-center justify-between px-5 transition-all ${tukendiMi ? "bg-zinc-800 text-zinc-500" : "bg-[#00e5ff] text-black shadow-[0_0_15px_rgba(0,229,255,0.3)] hover:bg-[#00c4db]"}`}>
+           <span className="text-base">{tukendiMi ? "TÜKENDİ" : "SEPETE EKLE"}</span>
+           {!tukendiMi && <div className="flex flex-col items-end leading-tight"><span className="text-[9px] opacity-80 font-black">HAVALE İLE</span><span className="text-sm font-black">{havaleFiyati.toLocaleString("tr-TR")} TL</span></div>}
         </button>
       </div>
 
-      {/* 💎 KİBAR VE MODERN 4 SEKMELİ POPUP (ADMİN CEVAPLI) */}
+      {/* 💎 KİBAR VE MODERN 4 SEKMELİ POPUP */}
       {teknikPopupAcik && (
         <div className="fixed inset-0 z-[999999] flex justify-center items-center p-4 bg-black/80 backdrop-blur-md transition-all">
           <div className="absolute inset-0" onClick={() => setTeknikPopupAcik(false)}></div>
@@ -340,7 +351,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
             <div className="custom-scrollbar overflow-y-auto p-4 sm:p-6 flex-none h-[65vh] sm:h-[500px] flex flex-col text-slate-300 bg-[#09090b]">
                
-               {/* ADMİN CEVAPLI YORUMLAR */}
                {activeTab === "reviews" && (
                   <div className="space-y-4">
                     {reviews.length === 0 ? <p className="text-center py-5 text-slate-500 font-medium">Bu ürüne henüz yorum yapılmamış.</p> : reviews.map((rev, i) => (
@@ -361,7 +371,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   </div>
                )}
 
-               {/* ADMİN CEVAPLI SORU CEVAP */}
                {activeTab === "questions" && (
                   <div className="space-y-4">
                     {questions.length === 0 ? <p className="text-center py-5 text-slate-500 font-medium">Henüz soru sorulmamış.</p> : questions.map((q, i) => (
