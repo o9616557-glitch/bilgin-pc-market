@@ -501,7 +501,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </div>
 
               {/* İçerik Alanı Başlangıcı */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar flex flex-col min-h-[400px] text-slate-300 bg-[#09090b]">
+              <div className="custom-scrollbar overflow-y-auto p-4 sm:p-6 flex-none h-[60vh] sm:h-[450px] flex flex-col text-slate-300 bg-[#09090b]">
               {activeTab === "reviews" && (
                 <div className="animate-fade-in flex flex-col h-full">
                   <div className="flex flex-col sm:flex-row gap-6 items-center bg-[#050814] border border-white/5 p-6 rounded-2xl mb-6 shrink-0">
