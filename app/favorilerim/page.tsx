@@ -2,13 +2,16 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { HeartCrack, ArrowLeft, Trash2, ShoppingCart } from "lucide-react";
+import { HeartCrack, ArrowLeft, Trash2, ShoppingCart, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/app/CartContext";
 
 export default function FavorilerSayfasi() {
   const [favoriteProducts, setFavoriteProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // 🚀 YENİ: Kaç hayalet (iskelet) göstereceğimizi hafızada tutuyoruz
+  const [expectedCount, setExpectedCount] = useState<number>(0); 
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
 
   const { sepeteEkle } = useCart();
@@ -18,11 +21,9 @@ export default function FavorilerSayfasi() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [favRes, prodRes] = await Promise.all([
-          fetch("/api/favorites"),
-          fetch("/api/products")
-        ]);
-
+        // ADIM 1: Sadece favori ID'lerini hızlıca soruyoruz
+        const favRes = await fetch("/api/favorites");
+        
         if (favRes.status === 401) {
           toast.error("Favorilerinizi görmek için giriş yapmalısınız. 🔒");
           setFavoriteProducts([]);
@@ -30,20 +31,30 @@ export default function FavorilerSayfasi() {
           return;
         }
 
-        if (favRes.ok && prodRes.ok) {
+        if (favRes.ok) {
           const favData = await favRes.json();
-          const prodData = await prodRes.json();
-
           const ids = favData.favorites || [];
-          const allProducts = prodData.products || prodData || [];
+          
+          // ADIM 2: Kaç ürün varsa o kadar hayalet göstermek için sayıyı kaydediyoruz!
+          setExpectedCount(ids.length);
 
-          if (ids.length > 0) {
+          // Eğer hiç favori yoksa, sistemi burada durdur ve anında boş ekranı göster!
+          if (ids.length === 0) {
+            setFavoriteProducts([]);
+            setIsLoading(false);
+            return;
+          }
+
+          // ADIM 3: Favori varsa, ürünlerin detaylarını çek (bu sırada ekranda tam sayı kadar hayalet görünecek)
+          const prodRes = await fetch("/api/products");
+          if (prodRes.ok) {
+            const prodData = await prodRes.json();
+            const allProducts = prodData.products || prodData || [];
+
             const matchedProducts = allProducts.filter((urun: any) =>
               ids.includes(String(urun._id)) || ids.includes(String(urun.id))
             );
             setFavoriteProducts(matchedProducts);
-          } else {
-            setFavoriteProducts([]);
           }
         }
       } catch (error: any) {
@@ -91,7 +102,6 @@ export default function FavorilerSayfasi() {
     });
 
     setSepeteEklenenler(prev => [...prev, targetId]);
-    // ŞEFİM: Yukarıdan fırlayan bildirim mesajını buradan sildim, sadece buton yeşil olacak!
 
     setTimeout(() => {
       setSepeteEklenenler(prev => prev.filter(id => id !== targetId));
@@ -101,13 +111,13 @@ export default function FavorilerSayfasi() {
   return (
     <div className="min-h-screen bg-[#050814] text-white pt-12 pb-24 px-4 relative overflow-hidden font-sans">
       
-      {/* 🔮 SİTEYE UYGUN KÜRESEL SİBER NEON ARKA PLAN IŞIKLARI */}
+      {/* SİBER NEON ARKA PLAN IŞIKLARI */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#00e5ff] blur-[150px] opacity-10 pointer-events-none"></div>
       <div className="absolute bottom-[10%] right-[-10%] w-[400px] h-[400px] bg-[#0088ff] blur-[150px] opacity-5 pointer-events-none"></div>
 
       <div className="max-w-4xl mx-auto relative z-10">
         
-        {/* KAPORTA ÜST PANEL */}
+        {/* ÜST PANEL */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-800 pb-6 mb-10">
           <div>
             <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-3">
@@ -122,29 +132,38 @@ export default function FavorilerSayfasi() {
           </div>
         </div>
 
-        {/* 🚀 TRENDYOL/AMAZON STİLİ "HAYALET EKRAN (SKELETON)" YÜKLEMESİ */}
+        {/* 🚀 AKILLI HAYALET YÜKLEME EKRANI */}
         {isLoading ? (
-          <div className="flex flex-col gap-4">
-            {[1, 2, 3].map((iskelet) => (
-              <div key={iskelet} className="border border-slate-800/50 bg-[#09090b] rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-5 relative overflow-hidden">
-                <div className="w-full sm:w-24 h-24 bg-slate-800/40 rounded-xl animate-pulse shrink-0"></div>
-                <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
-                  <div className="flex flex-col flex-1 min-w-0 w-full">
-                    <div className="h-4 bg-slate-800/40 rounded-md w-3/4 mb-3 animate-pulse"></div>
-                    <div className="h-6 bg-slate-800/40 rounded-md w-1/3 animate-pulse"></div>
-                  </div>
-                  <div className="flex items-center gap-3 shrink-0 w-full sm:w-auto pt-4 sm:pt-0">
-                    <div className="w-10 h-10 bg-slate-800/40 rounded-xl animate-pulse"></div>
-                    <div className="h-11 w-full sm:w-32 bg-slate-800/40 rounded-xl animate-pulse"></div>
+          expectedCount > 0 ? (
+            // Eğer favori varsa, tam sayısı kadar (expectedCount) hayalet kutu çiz
+            <div className="flex flex-col gap-4">
+              {Array.from({ length: expectedCount }).map((_, index) => (
+                <div key={index} className="border border-slate-800/50 bg-[#09090b]/50 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-5 relative overflow-hidden">
+                  <div className="w-full sm:w-24 h-24 bg-slate-800/40 rounded-xl animate-pulse shrink-0"></div>
+                  <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
+                    <div className="flex flex-col flex-1 min-w-0 w-full">
+                      <div className="h-4 bg-slate-800/40 rounded-md w-3/4 mb-3 animate-pulse"></div>
+                      <div className="h-6 bg-slate-800/40 rounded-md w-1/3 animate-pulse"></div>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0 w-full sm:w-auto pt-4 sm:pt-0">
+                      <div className="w-10 h-10 bg-slate-800/40 rounded-xl animate-pulse"></div>
+                      <div className="h-11 w-full sm:w-32 bg-slate-800/40 rounded-xl animate-pulse"></div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            // İlk bağlantı anında (henüz kaç favori olduğu bilinmiyorken) sadece küçük bir dönüş efekti
+            <div className="flex justify-center py-20">
+              <Loader2 className="w-8 h-8 text-[#00e5ff] animate-spin" />
+            </div>
+          )
         ) : favoriteProducts.length === 0 ? (
-          /* BOŞ VİTRİN KAPORTASI */
-          <div className="text-center p-16 bg-[#09090b] border border-slate-800/80 rounded-3xl shadow-2xl relative">
-            <div className="w-20 h-20 rounded-full bg-[#121215] border border-slate-800 flex items-center justify-center mx-auto mb-6 shadow-inner">
+          
+          /* 🚀 TAMAMEN BOŞ ARKA PLANLI VİTRİN EKRANI */
+          <div className="text-center p-10 sm:p-16 bg-transparent relative">
+            <div className="w-20 h-20 rounded-full bg-[#121215]/50 border border-slate-800/50 flex items-center justify-center mx-auto mb-6 shadow-inner">
               <HeartCrack className="w-10 h-10 text-slate-600" />
             </div>
             <h2 className="text-xl font-black uppercase tracking-wide mb-2 text-white">Henüz Favori Öğe Yok</h2>
@@ -153,8 +172,9 @@ export default function FavorilerSayfasi() {
               Donanımları İncele
             </Link>
           </div>
+
         ) : (
-          /* HARİKA LİSTELEME KAPORTASI */
+          /* ÜRÜNLER LİSTESİ */
           <div className="flex flex-col gap-4">
             {favoriteProducts.map((urun: any, index: number) => {
               const isAdded = sepeteEklenenler.includes(urun._id || urun.id);
