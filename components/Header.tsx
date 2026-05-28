@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useCart } from "@/app/CartContext";
 import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
-
+import { usePathname } from "next/navigation";
 export default function Header() {
+  const pathname = usePathname();
   const { sepet } = useCart();
   const [menuAcik, setMenuAcik] = useState(false);
   const [hesabimAcik, setHesabimAcik] = useState(false);
@@ -30,6 +31,16 @@ export default function Header() {
     document.addEventListener("mousedown", disariTiklandi);
     return () => document.removeEventListener("mousedown", disariTiklandi);
   }, []);
+
+if (
+  pathname?.includes("/giris") || 
+  pathname?.includes("/kayit") || 
+  pathname?.includes("/login") || 
+  pathname?.includes("/register") ||
+  pathname?.includes("/sepet")
+) {
+  return null;
+}
 
   return (
     <>
