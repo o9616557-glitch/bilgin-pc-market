@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { HeartCrack, Loader2, ArrowLeft, Trash2, ShoppingCart } from "lucide-react";
+import { HeartCrack, ArrowLeft, Trash2, ShoppingCart } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/app/CartContext";
 
@@ -18,7 +18,6 @@ export default function FavorilerSayfasi() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // 🚀 ÇİFT SİLİNDİR MOTOR: İki adresi de aynı anda tetikliyoruz
         const [favRes, prodRes] = await Promise.all([
           fetch("/api/favorites"),
           fetch("/api/products")
@@ -33,7 +32,7 @@ export default function FavorilerSayfasi() {
 
         if (favRes.ok && prodRes.ok) {
           const favData = await favRes.json();
-          const prodData = await prodRes.json(); // 🎯 Hata buradaydı, doğru yere bağlandı!
+          const prodData = await prodRes.json();
 
           const ids = favData.favorites || [];
           const allProducts = prodData.products || prodData || [];
@@ -92,7 +91,7 @@ export default function FavorilerSayfasi() {
     });
 
     setSepeteEklenenler(prev => [...prev, targetId]);
-    toast.success("Ürün sepetinize eklendi! 🛒");
+    // ŞEFİM: Yukarıdan fırlayan bildirim mesajını buradan sildim, sadece buton yeşil olacak!
 
     setTimeout(() => {
       setSepeteEklenenler(prev => prev.filter(id => id !== targetId));
@@ -108,7 +107,7 @@ export default function FavorilerSayfasi() {
 
       <div className="max-w-4xl mx-auto relative z-10">
         
-        {/* KAPORTA ÜST PANEL: SİTE TEMASINA UYGUN HİZALAMA */}
+        {/* KAPORTA ÜST PANEL */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-800 pb-6 mb-10">
           <div>
             <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-3">
@@ -123,12 +122,24 @@ export default function FavorilerSayfasi() {
           </div>
         </div>
 
-        {/* YÜKLENİYOR SİMÜLASYONU */}
+        {/* 🚀 TRENDYOL/AMAZON STİLİ "HAYALET EKRAN (SKELETON)" YÜKLEMESİ */}
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-32 gap-4 bg-[#09090b] border border-slate-800/80 rounded-2xl relative overflow-hidden shadow-2xl">
-            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#00e5ff] to-transparent animate-pulse"></div>
-            <Loader2 className="w-12 h-12 text-[#00e5ff] animate-spin" />
-            <p className="text-slate-400 text-sm font-bold uppercase tracking-widest animate-pulse">Kişisel Vitrininiz Hazırlanıyor...</p>
+          <div className="flex flex-col gap-4">
+            {[1, 2, 3].map((iskelet) => (
+              <div key={iskelet} className="border border-slate-800/50 bg-[#09090b] rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-5 relative overflow-hidden">
+                <div className="w-full sm:w-24 h-24 bg-slate-800/40 rounded-xl animate-pulse shrink-0"></div>
+                <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
+                  <div className="flex flex-col flex-1 min-w-0 w-full">
+                    <div className="h-4 bg-slate-800/40 rounded-md w-3/4 mb-3 animate-pulse"></div>
+                    <div className="h-6 bg-slate-800/40 rounded-md w-1/3 animate-pulse"></div>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0 w-full sm:w-auto pt-4 sm:pt-0">
+                    <div className="w-10 h-10 bg-slate-800/40 rounded-xl animate-pulse"></div>
+                    <div className="h-11 w-full sm:w-32 bg-slate-800/40 rounded-xl animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : favoriteProducts.length === 0 ? (
           /* BOŞ VİTRİN KAPORTASI */
@@ -143,7 +154,7 @@ export default function FavorilerSayfasi() {
             </Link>
           </div>
         ) : (
-          /* HARİKA LİSTELEME KAPORTASI (BİLGİN PC MARKET STİLİ) */
+          /* HARİKA LİSTELEME KAPORTASI */
           <div className="flex flex-col gap-4">
             {favoriteProducts.map((urun: any, index: number) => {
               const isAdded = sepeteEklenenler.includes(urun._id || urun.id);
@@ -171,10 +182,9 @@ export default function FavorilerSayfasi() {
                           </div>
                       </div>
 
-                      {/* Sağ İşlem Alanı (Sil Butonu ve Sepet Butonu Yan Yana) */}
+                      {/* Sağ İşlem Alanı */}
                       <div className="flex items-center gap-3 shrink-0 w-full sm:w-auto justify-between sm:justify-end border-t border-slate-800/50 sm:border-none pt-4 sm:pt-0">
                           
-                          {/* Çöp Kovası: Tamamen Yeni Kaportaya Uygun Metalik Tasarım */}
                           <button 
                             onClick={() => setProductToDelete(urun)} 
                             className="p-3 text-slate-400 bg-[#121215] border border-slate-800 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-500 rounded-xl transition-all shadow-md"
@@ -183,7 +193,6 @@ export default function FavorilerSayfasi() {
                             <Trash2 className="w-4 h-4" />
                           </button>
 
-                          {/* Sepete Ekleme Mekanizması */}
                           <button 
                             onClick={() => handleSepeteEkle(urun)}
                             disabled={isAdded}
