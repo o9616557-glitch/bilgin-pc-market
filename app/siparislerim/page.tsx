@@ -161,9 +161,9 @@ export default function SiparislerimPage() {
               const currentStep = getStepNumber(order); 
               const adminMesaji = order.musteriMesaji || order.mesaj || order.adminMesaj || order.siparisNotu || order.kargoNotu || order.kargoTakipNo;
               
-              // 🚀 AKILLI İPTAL DEDEKTÖRÜ: Eski sistemin neresine yazılırsa yazılsın "iptal" kelimesini yakalar
-              const durumKontrol = (order.durum || "") + " " + (order.status || "") + " " + (order.searchableStatus || "");
-              const isCancelled = durumKontrol.toLowerCase().includes("iptal");
+              // 🚀 X-RAY İPTAL DEDEKTÖRÜ: API'den gelen verinin sağına soluna değil, DİREKT ORİJİNAL KAYNAĞA bakıyoruz!
+              const hamDurum = String(order.durum || "") + " " + String(order.status || "");
+              const isCancelled = hamDurum.toLowerCase().includes("iptal");
 
               return (
                 <div key={order._id} className="group border border-slate-800 bg-[#09090b] rounded-2xl p-6 transition-all duration-300 hover:border-[#00e5ff]/40 shadow-xl hover:shadow-[0_0_25px_rgba(0,229,255,0.03)] relative overflow-hidden">
