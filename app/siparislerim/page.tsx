@@ -200,13 +200,16 @@ export default function SiparislerimPage() {
                     </div>
                   </div>
 
-                  {/* SİBER İLERLEME ÇUBUĞU */}
+                  {/* SİBER İLERLEME ÇUBUĞU (HİZALAMA DÜZELTİLDİ: items-start) */}
                   <div className="pt-8 pb-6 px-2 sm:px-8">
-                    <div className="relative flex items-center justify-between w-full max-w-3xl mx-auto">
-                      <div className="absolute left-0 top-4 w-full h-1 bg-[#121215] border-y border-slate-800 -z-10 rounded-full"></div>
+                    <div className="relative flex items-start justify-between w-full max-w-3xl mx-auto">
                       
+                      {/* Arka Plan Çizgisi */}
+                      <div className="absolute left-0 top-4 sm:top-5 -translate-y-1/2 w-full h-1 bg-[#121215] border-y border-slate-800 -z-10 rounded-full"></div>
+                      
+                      {/* İlerleme (Aktif) Çizgisi */}
                       <div 
-                        className="absolute left-0 top-4 h-1 bg-gradient-to-r from-[#00e5ff] to-[#0088ff] -z-10 transition-all duration-700 ease-in-out shadow-[0_0_15px_rgba(0,229,255,0.6)] rounded-full" 
+                        className="absolute left-0 top-4 sm:top-5 -translate-y-1/2 h-1 bg-gradient-to-r from-[#00e5ff] to-[#0088ff] -z-10 transition-all duration-700 ease-in-out shadow-[0_0_15px_rgba(0,229,255,0.6)] rounded-full" 
                         style={{ width: (((currentStep - 1) / 3) * 100) + "%" }}
                       ></div>
 
@@ -214,14 +217,14 @@ export default function SiparislerimPage() {
                         const isCompleted = currentStep >= step.num;
 
                         return (
-                          <div key={step.num} className="flex flex-col items-center gap-3 relative z-10">
-                            <div className={"w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-black text-xs sm:text-sm border-2 transition-all duration-500 " + (
+                          <div key={step.num} className="flex flex-col items-center gap-3 relative z-10 w-20 sm:w-24">
+                            <div className={"w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-black text-xs sm:text-sm border-2 transition-all duration-500 shrink-0 " + (
                               isCompleted ? "bg-[#00e5ff] border-[#00e5ff] text-black shadow-[0_0_20px_rgba(0,229,255,0.4)]" : 
                               "bg-[#09090b] border-slate-700 text-slate-500"
                             )}>
                               {isCompleted ? <Check className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={4} /> : step.num}
                             </div>
-                            <span className={"text-[9px] sm:text-[10px] font-black tracking-widest uppercase text-center max-w-[80px] sm:max-w-none transition-colors duration-500 " + (
+                            <span className={"text-[9px] sm:text-[10px] font-black tracking-widest uppercase text-center w-full transition-colors duration-500 " + (
                               isCompleted ? "text-slate-200" : "text-slate-600"
                             )}>
                               {step.label}
