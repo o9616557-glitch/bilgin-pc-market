@@ -10,22 +10,41 @@ export default function SiparislerimPage() {
   const [refreshing, setRefreshing] = useState(false); 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch("/api/orders?t=" + new Date().getTime(), { cache: "no-store" });
+      const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache",
+          "Pragma": "no-cache"
+        }
+      });
+      
       const data = await res.json();
-      if (res.ok) setOrders(data.orders || []);
+      if (res.ok) {
+        setOrders(data.orders || []);
+      } else {
+        setErrorMsg(data.message || "Siparişler yüklenemedi.");
+      }
     } catch (error) {
-      setErrorMsg("Bağlantı hatası.");
+      setErrorMsg("Bağlantı hatası oluştu.");
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
 
-  useEffect(() => { fetchOrders(); }, []);
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchOrders(); 
+  };
 
   const handleDeleteClick = (orderId: string) => {
     setOrderToDelete(orderId);
@@ -39,11 +58,11 @@ export default function SiparislerimPage() {
         setOrders(orders.filter((order) => order._id !== orderToDelete));
         setOrderToDelete(null); 
       } else {
-        setErrorMsg("Sipariş silinirken hata oluştu.");
+        setErrorMsg("Sipariş silinirken bir hata oluştu.");
         setOrderToDelete(null);
       }
     } catch (error) {
-      setErrorMsg("Bağlantı hatası.");
+      setErrorMsg("Bağlantı hatası sebebiyle silinemedi.");
       setOrderToDelete(null);
     }
   };
@@ -55,112 +74,254 @@ export default function SiparislerimPage() {
   };
 
   const getStepNumber = (order: any) => {
-    const s = (order.durum || order.status || "").toLowerCase();
-    if (s.includes("iptal")) return 5;
+    const s = (order.searchableStatus || order.status || order.durum || "").toLowerCase();
     if (s.includes("teslim") || s.includes("tamam")) return 4;
     if (s.includes("kargo") || s.includes("gönder")) return 3;
-    if (s.includes("hazırla") || s.includes("öden") || s.includes("başarılı")) return 2;
-    return 1;
+    if (s.includes("hazırla") || s.includes("öden") || s.includes("başarılı") || s.includes("onay") || s.includes("kabul")) return 2;
+    return 1; 
   };
+
+  const steps = [
+    { num: 1, label: "SİPARİŞ ALINDI" },
+    { num: 2, label: "HAZIRLANIYOR" },
+    { num: 3, label: "KARGODA" },
+    { num: 4, label: "TESLİM EDİLDİ" },
+  ];
 
   return (
     <div className="min-h-screen bg-[#050814] text-white pt-12 pb-24 px-4 relative overflow-hidden font-sans">
-      {/* SİBER IŞIKLAR */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#00e5ff] blur-[150px] opacity-10 pointer-events-none"></div>
       
+      {/* SİBER NEON ARKA PLAN IŞIKLARI */}
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#00e5ff] blur-[150px] opacity-10 pointer-events-none"></div>
+      <div className="absolute bottom-[10%] right-[-10%] w-[400px] h-[400px] bg-[#0088ff] blur-[150px] opacity-5 pointer-events-none"></div>
+
       <div className="max-w-4xl mx-auto relative z-10">
-        <h1 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#00e5ff] to-[#0088ff] mb-10 drop-shadow-[0_0_15px_rgba(0,229,255,0.2)]">
-          Sipariş Geçmişim
-        </h1>
         
+        {/* ÜST PANEL */}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-800 pb-6 mb-10">
+          <div>
+            <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-3">
+              Mağazaya Geri Dön
+            </Link>
+            <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-white">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00e5ff] to-[#0088ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.2)]">SİPARİŞ</span> GEÇMİŞİM
+            </h1>
+          </div>
+          <button 
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="flex items-center gap-2 bg-[#09090b] hover:bg-[#121215] text-[#00e5ff] px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all border border-slate-800/80 hover:border-[#00e5ff]/50 shadow-lg hover:shadow-[0_0_20px_rgba(0,229,255,0.2)]"
+          >
+            <RefreshCw className={"w-4 h-4 " + (refreshing ? "animate-spin" : "")} />
+            {refreshing ? "Güncelleniyor..." : "Durumları Güncelle"}
+          </button>
+        </div>
+
+        {errorMsg && (
+            <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl text-red-400 text-sm mb-6 flex justify-between items-center shadow-lg">
+                <span className="font-medium">{errorMsg}</span>
+                <button onClick={() => setErrorMsg(null)} className="text-red-400 hover:text-red-300 transition-colors">✕</button>
+            </div>
+        )}
+
+        {/* TEK HAYALETLİ YÜKLEME EKRANI */}
         {loading ? (
-          <div className="text-cyan-400 font-bold uppercase tracking-widest animate-pulse">Yükleniyor...</div>
+          <div className="flex flex-col gap-4">
+            <div className="border border-slate-800/50 bg-[#09090b]/50 rounded-2xl p-6 sm:p-8 flex flex-col gap-6 relative overflow-hidden animate-pulse">
+              <div className="flex justify-between items-center border-b border-slate-800/50 pb-4">
+                <div className="h-4 bg-slate-800/40 rounded-md w-1/3"></div>
+                <div className="h-6 bg-slate-800/40 rounded-md w-1/4"></div>
+              </div>
+              <div className="h-10 bg-slate-800/40 rounded-md w-full my-4"></div>
+              <div className="flex justify-between items-center pt-4 border-t border-slate-800/50">
+                <div className="h-12 bg-slate-800/40 rounded-xl w-1/2"></div>
+                <div className="h-8 bg-slate-800/40 rounded-md w-1/4"></div>
+              </div>
+            </div>
+          </div>
+        ) : orders.length === 0 ? (
+          
+          /* BOŞ ARKA PLANLI EKRAN */
+          <div className="text-center p-10 sm:p-16 bg-transparent relative">
+            <div className="w-20 h-20 rounded-full bg-[#121215]/50 border border-slate-800/50 flex items-center justify-center mx-auto mb-6 shadow-inner">
+              <PackageOpen className="w-10 h-10 text-slate-600" />
+            </div>
+            <h2 className="text-xl font-black uppercase tracking-wide mb-2 text-white">Henüz Siparişiniz Yok</h2>
+            <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">Sistemde kayıtlı herhangi bir donanım siparişiniz bulunmuyor. Yeni nesil parçalar vitrinde sizi bekliyor.</p>
+            <Link href="/" className="inline-block bg-[#00e5ff] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:-translate-y-0.5">
+              Alışverişe Başla
+            </Link>
+          </div>
+
         ) : (
-          <div className="grid gap-6">
-            {orders.map((order) => {
-              const step = getStepNumber(order);
-              const siparisKodu = order._id.slice(-8).toUpperCase();
+          /* SİPARİŞ KARTLARI LİSTESİ */
+          <div className="grid grid-cols-1 gap-6">
+            {orders.map((order: any) => {
+              const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase();
+              const currentStep = getStepNumber(order); 
+              const adminMesaji = order.musteriMesaji || order.mesaj || order.adminMesaj || order.siparisNotu || order.kargoNotu || order.kargoTakipNo;
+              
+              // 🚀 ŞEFİM İŞTE HATAMI BURADA DÜZELTTİM: "İptal" bilgisini her yere aynı anda bakarak yakalıyoruz!
+              const hamDurum = String(order.durum || "") + " " + String(order.status || "") + " " + String(order.searchableStatus || "");
+              const isCancelled = hamDurum.toLowerCase().includes("iptal");
 
               return (
-                <div key={order._id} className="group border border-slate-800 bg-[#09090b] rounded-2xl p-6 sm:p-8 shadow-xl relative transition-all hover:border-[#00e5ff]/30">
+                <div key={order._id} className="group border border-slate-800 bg-[#09090b] rounded-2xl p-6 transition-all duration-300 hover:border-[#00e5ff]/40 shadow-xl hover:shadow-[0_0_25px_rgba(0,229,255,0.03)] relative overflow-hidden">
                   
-                  {/* SİLME İKONU */}
                   <button
                     onClick={() => handleDeleteClick(order._id)}
-                    className="absolute top-4 right-4 p-2 text-slate-500 hover:text-red-500 bg-[#121215] border border-slate-800 rounded-lg transition-all z-20"
+                    className="absolute top-4 right-4 p-2.5 text-slate-500 hover:text-red-500 bg-[#121215] border border-slate-800 hover:border-red-500/30 hover:bg-red-500/10 rounded-xl transition-all shadow-md z-20"
                     title="Siparişi Sil"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
 
-                  {/* SİPARİŞ NO VE KOPYALAMA İKONU */}
-                  <div className="flex items-center gap-3 mb-6 pr-10">
-                    <span className="text-xs font-black text-slate-500 tracking-widest uppercase">SİPARİŞ NO:</span>
-                    <span className="text-lg font-black text-[#00e5ff] tracking-wider">{siparisKodu}</span>
-                    <button 
-                      onClick={() => handleCopy(siparisKodu)} 
-                      className="p-1.5 bg-[#121215] border border-slate-800 rounded-lg text-slate-400 hover:text-[#00e5ff] transition-all"
-                      title="Kodu Kopyala"
-                    >
-                      {copiedCode === siparisKodu ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                    </button>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800/80 pr-16">
+                    <div>
+                      <p className="text-xs text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2 font-bold">
+                        SİPARİŞ NO: <span className="text-[#00e5ff] font-black">{currentSiparisKodu}</span>
+                        <button 
+                          onClick={() => handleCopy(currentSiparisKodu)}
+                          className="text-slate-400 hover:text-[#00e5ff] transition-colors bg-[#121215] border border-slate-800 p-1.5 rounded-lg"
+                          title="Kodu Kopyala"
+                        >
+                          {copiedCode === currentSiparisKodu ? (
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      </p>
+                      <p className="text-xs text-slate-500 font-medium">
+                        Tarih: <span className="text-slate-300">{new Date(order.createdAt).toLocaleDateString("tr-TR")}</span>
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] bg-[#121215] text-slate-300 px-3 py-1.5 rounded-lg border border-slate-800 font-black uppercase tracking-wider">
+                        {order.paymentMethod || "Havale / EFT"}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* DURUM ALANI */}
-                  {step === 5 ? (
-                    <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl flex items-center justify-center gap-2 text-amber-500 font-black uppercase text-sm tracking-widest mb-6">
-                      <Info className="w-5 h-5" /> SİPARİŞ İPTAL EDİLDİ
-                    </div>
-                  ) : (
-                    <div className="relative flex justify-between w-full mx-auto mb-6">
-                       <div className="text-cyan-400 font-bold uppercase text-xs tracking-widest bg-[#121215] border border-slate-800 px-4 py-2 rounded-lg">
-                         Durum: {order.durum || order.status || "İşleniyor"}
-                       </div>
+                  {/* SİBER İLERLEME ÇUBUĞU VEYA SARI İPTAL UYARISI */}
+                  <div className="pt-8 pb-6 px-2 sm:px-8">
+                    {isCancelled ? (
+                      /* 🎯 SAKİN VE PROFESYONEL TURUNCU/SARI BİLGİ KUTUSU */
+                      <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl flex items-center justify-center gap-2 text-amber-500 font-black tracking-widest text-xs sm:text-sm uppercase shadow-inner">
+                        <Info className="w-5 h-5" /> SİPARİŞ İPTAL EDİLDİ
+                      </div>
+                    ) : (
+                      /* NORMAL ADIMLAR */
+                      <div className="relative flex items-start justify-between w-full max-w-3xl mx-auto">
+                        <div className="absolute left-0 top-4 sm:top-5 -translate-y-1/2 w-full h-1 bg-[#121215] border-y border-slate-800 -z-10 rounded-full"></div>
+                        <div 
+                          className="absolute left-0 top-4 sm:top-5 -translate-y-1/2 h-1 bg-gradient-to-r from-[#00e5ff] to-[#0088ff] -z-10 transition-all duration-700 ease-in-out shadow-[0_0_15px_rgba(0,229,255,0.6)] rounded-full" 
+                          style={{ width: (((currentStep - 1) / 3) * 100) + "%" }}
+                        ></div>
+
+                        {steps.map((step) => {
+                          const isCompleted = currentStep >= step.num;
+
+                          return (
+                            <div key={step.num} className="flex flex-col items-center gap-3 relative z-10 w-20 sm:w-24">
+                              <div className={"w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-black text-xs sm:text-sm border-2 transition-all duration-500 shrink-0 " + (
+                                isCompleted ? "bg-[#00e5ff] border-[#00e5ff] text-black shadow-[0_0_20px_rgba(0,229,255,0.4)]" : 
+                                "bg-[#09090b] border-slate-700 text-slate-500"
+                              )}>
+                                {isCompleted ? <Check className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={4} /> : step.num}
+                              </div>
+                              <span className={"text-[9px] sm:text-[10px] font-black tracking-widest uppercase text-center w-full transition-colors duration-500 " + (
+                                isCompleted ? "text-slate-200" : "text-slate-600"
+                              )}>
+                                {step.label}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {adminMesaji && (
+                    <div className="mb-6 bg-[#0088ff]/10 border border-[#0088ff]/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm">
+                      <MessageSquare className="w-5 h-5 text-[#00e5ff] flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-[10px] text-[#00e5ff] font-black uppercase tracking-widest mb-1">Mağaza Mesajı / Kargo Notu</p>
+                        <p className="text-sm text-slate-200 font-medium leading-relaxed">{adminMesaji}</p>
+                      </div>
                     </div>
                   )}
 
-                  {/* ÜRÜN RESMİ VE BAŞLIKLARI (HATA YARATAN KISIM GÜVENLİ HALE GETİRİLDİ) */}
-                  {order.items && order.items.length > 0 && (
-                    <div className="border-t border-slate-800/80 pt-4 mt-2 space-y-3">
-                      {order.items.map((item: any, idx: number) => (
-                        <div key={idx} className="flex items-center gap-4 bg-[#121215] border border-slate-800/50 p-3 rounded-xl">
+                  <div className="border-t border-slate-800/80 pt-6 space-y-4">
+                    {order.items?.map((item: any, idx: number) => (
+                      <div key={idx} className="flex items-center justify-between gap-4 text-sm bg-[#121215] p-3 rounded-xl border border-slate-800/50">
+                        <div className="flex items-center gap-4">
                           {item.image ? (
-                            <img src={item.image} alt={item.title} className="w-12 h-12 object-contain rounded-lg border border-slate-700 bg-[#09090b] p-1" />
+                            <img src={item.image} alt={item.title} className="w-14 h-14 object-contain rounded-lg bg-[#09090b] border border-slate-800 p-1"/>
                           ) : (
-                            <div className="w-12 h-12 rounded-lg border border-slate-700 bg-[#09090b] flex items-center justify-center">
+                            <div className="w-14 h-14 rounded-lg bg-[#09090b] border border-slate-800 flex items-center justify-center">
                               <PackageOpen className="w-5 h-5 text-slate-600" />
                             </div>
                           )}
-                          <div className="flex-1">
-                            <p className="font-bold text-slate-200 text-sm line-clamp-1">{item.title}</p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <span className="text-xs font-bold text-slate-500 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">{item.quantity} Adet</span>
-                              <span className="text-xs font-black text-[#00e5ff]">{item.price ? item.price + " TL" : ""}</span>
-                            </div>
+                          <div>
+                            <p className="font-bold text-slate-200 line-clamp-1">{item.title}</p>
+                            <p className="text-xs text-slate-500 mt-1 font-bold uppercase tracking-wider">{item.quantity} Adet</p>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
+                        <p className="font-black text-[#00e5ff] text-base whitespace-nowrap">
+                          {Number(item.price * item.quantity).toLocaleString("tr-TR")} TL
+                        </p>
+                      </div>
+                    ))}
+                  </div>
 
+                  <div className="mt-6 flex justify-between items-center bg-[#121215] border border-slate-800/80 p-5 rounded-xl shadow-inner">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Genel Toplam</span>
+                    <span className="text-2xl font-black text-white tracking-tight">
+                      {Number(order.totalPrice).toLocaleString("tr-TR")} <span className="text-sm text-slate-500">TL</span>
+                    </span>
+                  </div>
+                  
                 </div>
               );
             })}
           </div>
         )}
+
       </div>
 
-      {/* SİLME ONAY MODALI */}
+      {/* SİLME ONAY MODAL PANELİ */}
       {orderToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-          <div className="bg-[#09090b] border border-slate-800 rounded-3xl p-6 w-full max-w-sm text-center shadow-[0_0_50px_rgba(0,0,0,0.8)]">
-            <Trash2 className="w-12 h-12 text-red-500 mx-auto mb-4 bg-[#121215] rounded-full p-2 border border-slate-800" />
-            <h3 className="text-lg font-black uppercase text-white mb-2">Siparişi Sil</h3>
-            <p className="text-sm text-slate-400 mb-6 font-medium">Bu siparişi kalıcı olarak silmek istiyor musunuz?</p>
-            <div className="flex gap-3">
-              <button onClick={() => setOrderToDelete(null)} className="flex-1 py-3 bg-[#121215] hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-bold uppercase transition-all">İptal</button>
-              <button onClick={confirmDelete} className="flex-1 py-3 bg-red-600 hover:bg-red-500 rounded-xl text-white text-xs font-black uppercase transition-all shadow-lg">Evet, Sil</button>
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="bg-[#09090b] border border-slate-800/80 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-[0_0_50px_rgba(0,0,0,0.8)] relative overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-red-500/50 to-transparent"></div>
+            
+            <div className="w-14 h-14 rounded-full border border-slate-800 flex items-center justify-center mb-4 bg-[#121215] shadow-inner">
+              <Trash2 className="w-6 h-6 text-slate-400" />
             </div>
+            
+            <h3 className="text-lg font-black text-white uppercase tracking-wider mb-2">Siparişi Sil</h3>
+            <p className="text-slate-400 text-sm mb-6 font-medium leading-relaxed">
+              Bu siparişi kalıcı olarak silmek istediğinize emin misiniz?
+              <span className="block text-red-400 font-bold mt-2">Bu işlem geri alınamaz!</span>
+            </p>
+            
+            <div className="flex w-full gap-3">
+              <button 
+                onClick={() => setOrderToDelete(null)}
+                className="flex-1 bg-[#121215] border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-white font-bold py-3.5 rounded-xl transition-all text-xs uppercase tracking-wider"
+              >
+                İptal
+              </button>
+              <button 
+                onClick={confirmDelete}
+                className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-bold py-3.5 rounded-xl transition-all text-xs uppercase tracking-wider shadow-[0_0_15px_rgba(239,68,68,0.3)]"
+              >
+                Evet, Sil
+              </button>
+            </div>
+            
           </div>
         </div>
       )}
