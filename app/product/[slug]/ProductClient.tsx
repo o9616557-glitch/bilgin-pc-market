@@ -79,7 +79,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     } catch (error) { setIsFav(oncekiDurum); }
   };
 
-  // ⚖️ KARŞILAŞTIRMA SESSİZLEŞTİRİLDİ
   const handleCompare = () => {
     karsilastirmayaEkle(product);
     setTimeout(() => {
@@ -421,18 +420,21 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                         <div className="flex flex-col sm:flex-row gap-4 justify-between bg-[#121215]/80 backdrop-blur-md p-4 rounded-2xl border border-white/5 mt-2">
                           <div className="w-full sm:w-auto">
                             <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2">İşlemci Düzeyi:</span>
-                            <div className="flex bg-[#09090b] p-1 rounded-xl border border-white/5">
-                              {/* INTEL VE RYZEN İSİMLERİ BİRLEŞTİRİLDİ */}
-                              {[{ id: "i5", label: "INTEL i5 / RYZEN 5" }, { id: "i7", label: "INTEL i7 / RYZEN 7" }, { id: "i9", label: "INTEL i9 / RYZEN 9" }].map((islemci) => (
-                                <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as "i5" | "i7" | "i9")} className={"flex-1 px-3 py-2 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all " + (seciliIslemci === islemci.id ? "bg-[#00e5ff]/20 border border-[#00e5ff] text-white" : "text-slate-400")}>{islemci.label}</button>
+                            <div className="flex bg-[#09090b] p-1 rounded-xl border border-white/5 gap-1">
+                              {/* INTEL VE RYZEN ALT ALTA YAZILDI */}
+                              {[{ id: "i5", top: "INTEL i5", bottom: "RYZEN 5" }, { id: "i7", top: "INTEL i7", bottom: "RYZEN 7" }, { id: "i9", top: "INTEL i9", bottom: "RYZEN 9" }].map((islemci) => (
+                                <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as "i5" | "i7" | "i9")} className={"flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-lg transition-all " + (seciliIslemci === islemci.id ? "bg-[#00e5ff]/20 border border-[#00e5ff] text-white" : "text-slate-400 border border-transparent")}>
+                                  <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider">{islemci.top}</span>
+                                  <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider opacity-70 mt-0.5">{islemci.bottom}</span>
+                                </button>
                               ))}
                             </div>
                           </div>
                           <div className="w-full sm:w-auto">
                             <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2">Çözünürlük:</span>
-                            <div className="flex bg-[#09090b] p-1 rounded-xl border border-white/5">
+                            <div className="flex bg-[#09090b] p-1 rounded-xl border border-white/5 h-full items-center">
                               {["1080P", "2K", "4K"].map((res) => (
-                                <button key={res} onClick={() => setSeciliCozunurluk(res as "1080P" | "2K" | "4K")} className={"flex-1 px-4 py-2 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all " + (seciliCozunurluk === res ? "bg-[#00e5ff] text-black" : "text-slate-400")}>{res}</button>
+                                <button key={res} onClick={() => setSeciliCozunurluk(res as "1080P" | "2K" | "4K")} className={"flex-1 h-full flex items-center justify-center px-4 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all " + (seciliCozunurluk === res ? "bg-[#00e5ff] text-black" : "text-slate-400")}>{res}</button>
                               ))}
                             </div>
                           </div>
@@ -448,7 +450,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                           ))}
                         </div>
 
-                        {/* MÜŞTERİ HUKUKİ/PSİKOLOJİK UYARISI - KIRMIZI DEĞİL MAVİ/GRİ YAPILDI */}
+                        {/* MÜŞTERİ HUKUKİ/PSİKOLOJİK UYARISI - MAVİ/GRİ YAPILDI */}
                         <div className="bg-[#00e5ff]/5 border border-[#00e5ff]/20 p-4 rounded-xl flex gap-3 items-start mt-6">
                           <span className="text-[#00e5ff] text-xl">ℹ️</span>
                           <p className="text-slate-400 text-[10px] sm:text-xs font-medium leading-relaxed opacity-90">
