@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useCart } from "../../CartContext"; 
 import toast from "react-hot-toast";
 import { useCompare } from "@/app/CompareContext";
-import { X, Cpu } from "lucide-react";
+import { X, Gamepad2 } from "lucide-react"; // Cpu yerine Gamepad2 geri getirildi
 
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const { sepeteEkle } = useCart(); 
@@ -287,9 +287,12 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             <button onClick={handleToggleFavorite} className={`flex-1 py-3 rounded-xl border flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider transition-all ${isFav ? "bg-red-500/10 border-red-500/30 text-red-500" : "bg-[#09090b] border-white/10 hover:bg-white/5 text-white"}`}>
               {isFav ? "❤️ Favorilerde" : "🤍 Favoriye Ekle"}
             </button>
-            <button onClick={handleCompare} className="flex-1 py-3 rounded-xl border border-white/10 bg-[#09090b] hover:bg-white/5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-[#00e5ff] transition-all">
+            
+            {/* 🎯 MASAÜSTÜ KARŞILAŞTIRMA BUTONU RENGİ DÜZELTİLDİ (MAVİ YERİNE BEYAZ/GRİ YAPILDI) */}
+            <button onClick={handleCompare} className="flex-1 py-3 rounded-xl border border-white/10 bg-[#09090b] hover:bg-white/5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-white transition-all">
               ⚖️ Karşılaştır
             </button>
+
             <button onClick={handleShare} className="flex-1 py-3 rounded-xl border border-white/10 bg-[#09090b] hover:bg-white/5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-white transition-all">
               {copied ? "🟩 Kopyalandı" : "📤 Paylaş / Kopyala"}
             </button>
@@ -357,10 +360,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             {/* İÇERİK EKRANI (AŞAĞI KAYDIRMA KİLİDİ KIRILDI) */}
             <div className="overflow-y-auto flex-1 p-4 sm:p-6 flex flex-col text-slate-300 bg-[#09090b] relative">
                
-               {/* 🚀 ÇOK DAHA MODERN SİSTEM ÇEKİRDEĞİ FİLİGRANI */}
+               {/* 🚀 EFSANE GAMING ARKAPLAN SÜSLEMESİ GERİ GELDİ */}
                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none flex flex-col items-center justify-center z-0">
-                  <Cpu className="w-48 h-48 sm:w-64 sm:h-64 text-[#00e5ff] mb-4" />
-                  <span className="text-4xl sm:text-5xl font-black tracking-[0.4em] text-[#00e5ff] uppercase ml-4 font-mono">V15_CORE</span>
+                  <Gamepad2 className="w-48 h-48 sm:w-64 sm:h-64 text-[#00e5ff] mb-4" />
+                  <span className="text-5xl sm:text-6xl font-black tracking-[0.5em] text-[#00e5ff] uppercase ml-4">GAMING</span>
                </div>
 
                {/* GERÇEK İÇERİKLER */}
@@ -375,7 +378,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                             </div>
                             <p className="text-sm text-slate-400 mb-2">{rev.text}</p>
                             
-                            {/* 🎯 İŞTE BÜYÜK SIR: "rev.answer" EKLENDİ! */}
                             {(rev.answer || rev.reply || rev.adminReply || rev.cevap) && (
                               <div className="ml-4 p-3 bg-[#00e5ff]/5 border-l-2 border-[#00e5ff] rounded-r-lg mt-2">
                                 <span className="font-black text-[#00e5ff] text-[10px] uppercase block mb-1">Yetkili Cevabı:</span>
@@ -394,7 +396,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                             <span className="font-bold text-white block mb-1">❓ {q.name || "Müşteri"}:</span>
                             <p className="text-sm text-slate-300 mb-3">{q.text}</p>
                             
-                            {/* 🎯 İŞTE BÜYÜK SIR: "q.answer" EKLENDİ! */}
                             {(q.answer || q.reply || q.adminReply || q.cevap) && (
                               <div className="ml-4 p-3 bg-[#00e5ff]/5 border-l-2 border-[#00e5ff] rounded-r-lg mt-2">
                                 <span className="font-black text-[#00e5ff] text-[10px] uppercase block mb-1">Yetkili Cevabı:</span>
@@ -418,32 +419,32 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                  ) : activeTab === "tech" && <p className="text-center py-10 text-slate-500 font-medium">Teknik detay bulunamadı.</p>}
 
                  {activeTab === "fps" && (
-                      <div className="space-y-6">
+                      <div className="space-y-4 mt-2">
                         
-                        <div className="flex flex-col sm:flex-row gap-4 justify-between bg-[#121215]/80 backdrop-blur-md p-4 rounded-2xl border border-white/5 mt-2">
-                          <div className="w-full sm:w-auto">
-                            <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2">İşlemci Düzeyi:</span>
-                            <div className="flex bg-[#09090b] p-1 rounded-xl border border-white/5 gap-1">
-                              {/* 🎯 INTEL VE RYZEN ALT ALTA (ÇOK DAHA OKUNUR) */}
-                              {[{ id: "i5", top: "INTEL i5", bottom: "RYZEN 5" }, { id: "i7", top: "INTEL i7", bottom: "RYZEN 7" }, { id: "i9", top: "INTEL i9", bottom: "RYZEN 9" }].map((islemci) => (
-                                <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as "i5" | "i7" | "i9")} className={"flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-lg transition-all " + (seciliIslemci === islemci.id ? "bg-[#00e5ff]/20 border border-[#00e5ff] text-white" : "text-slate-400 border border-transparent")}>
-                                  <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider">{islemci.top}</span>
-                                  <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider opacity-70 mt-0.5">{islemci.bottom}</span>
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                          <div className="w-full sm:w-auto">
-                            <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2">Çözünürlük:</span>
-                            <div className="flex bg-[#09090b] p-1 rounded-xl border border-white/5 h-full items-center">
-                              {["1080P", "2K", "4K"].map((res) => (
-                                <button key={res} onClick={() => setSeciliCozunurluk(res as "1080P" | "2K" | "4K")} className={"flex-1 h-full flex items-center justify-center px-4 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all " + (seciliCozunurluk === res ? "bg-[#00e5ff] text-black" : "text-slate-400")}>{res}</button>
-                              ))}
-                            </div>
+                        {/* 🎯 TELEFONDAKİ GİBİ ALT ALTA TASARIM (İŞLEMCİ VE ÇÖZÜNÜRLÜK AYRI SATIRLARDA) */}
+                        <div>
+                          <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2">İşlemci Düzeyi:</span>
+                          <div className="flex gap-2 sm:gap-3">
+                            {/* 🎯 INTEL VE RYZEN YAZILARI BİREBİR AYNI BOYUT, AYNI OPASİTE */}
+                            {[{ id: "i5", top: "INTEL i5", bottom: "RYZEN 5" }, { id: "i7", top: "INTEL i7", bottom: "RYZEN 7" }, { id: "i9", top: "INTEL i9", bottom: "RYZEN 9" }].map((islemci) => (
+                              <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as "i5" | "i7" | "i9")} className={"flex-1 flex flex-col items-center justify-center py-2.5 px-2 rounded-xl border transition-all " + (seciliIslemci === islemci.id ? "bg-[#121215] border-[#00e5ff] text-[#00e5ff] shadow-[0_0_15px_rgba(0,229,255,0.2)]" : "bg-[#050814] border-white/5 text-slate-400 hover:text-white")}>
+                                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider">{islemci.top}</span>
+                                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider mt-0.5">{islemci.bottom}</span>
+                              </button>
+                            ))}
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                        <div>
+                          <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2 mt-4">Çözünürlük:</span>
+                          <div className="flex bg-[#050814] p-1.5 rounded-xl border border-white/5">
+                            {["1080P", "2K", "4K"].map((res) => (
+                              <button key={res} onClick={() => setSeciliCozunurluk(res as "1080P" | "2K" | "4K")} className={"flex-1 py-3 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all " + (seciliCozunurluk === res ? "bg-[#00e5ff] text-black shadow-[0_0_15px_rgba(0,229,255,0.3)]" : "text-slate-400 hover:text-white")}>{res}</button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-6">
                           {[{ ad: "Valorant", kod: "Valorant" }, { ad: "CS:2", kod: "CS2" }, { ad: "GTA V", kod: "GTAV" }, { ad: "PUBG", kod: "PUBG" }].map((oyun) => (
                             <div key={oyun.kod} className="bg-[#09090b]/80 backdrop-blur-md border border-[#00e5ff]/20 hover:border-[#00e5ff]/50 rounded-2xl p-5 flex flex-col items-center justify-center transition-all">
                               <span className="text-slate-400 font-black text-[10px] tracking-widest uppercase mb-2">{oyun.ad}</span>
