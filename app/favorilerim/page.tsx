@@ -19,14 +19,24 @@ export default function FavorilerSayfasi() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const favRes = await fetch("/api/favorites");
-        const favData = await favRes.json();
+        // 🚀 BİNGO: İKİ VERİYİ AYNI ANDA ÇEKİYORUZ! (Sıra beklemek yok, hız x2)
+        const [favRes, prodRes] = await Promise.all([
+          fetch("/api/favorites"),
+          fetch("/api/products")
+        ]);
 
-        if (favRes.ok) {
+        if (favRes.status === 401) {
+          toast.error("Favorilerinizi görmek için giriş yapmalısınız.");
+          setFavoriteProducts([]);
+          setIsLoading(false);
+          return;
+        }
+
+        if (favRes.ok && prodRes.ok) {
+          const favData = await favRes.json();
           const ids = favData.favorites || [];
 
           if (ids.length > 0) {
-            const prodRes = await fetch("/api/products");
             const prodData = await prodRes.json();
             const allProducts = prodData.products || prodData || [];
 
@@ -38,8 +48,6 @@ export default function FavorilerSayfasi() {
           } else {
             setFavoriteProducts([]);
           }
-        } else if (favRes.status === 401) {
-          toast.error("Favorilerinizi görmek için giriş yapmalısınız.");
         }
       } catch (error: any) {
         toast.error("Veriler yüklenirken hata oluştu.");
@@ -155,7 +163,6 @@ export default function FavorilerSayfasi() {
                           </div>
                       </div>
 
-                      {/* 🚀 ÇÖP TENEKESİ: Kırmızı kaldırıldı, premium koyu gri/beyaz hover yapıldı */}
                       <button 
                         onClick={() => setProductToDelete(urun)} 
                         className="p-2.5 text-slate-400 bg-slate-800/50 border border-slate-700 hover:bg-slate-700 hover:text-white rounded-xl transition-all shrink-0"
@@ -196,14 +203,12 @@ export default function FavorilerSayfasi() {
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="bg-[#121215] border border-slate-600 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-2xl">
             
-            {/* 🚀 ONAY KUTUSUNDAKİ ÇÖP İKONU: Kırmızıdan metalik griye çevrildi */}
             <div className="w-16 h-16 rounded-full border border-slate-600 flex items-center justify-center mb-4 bg-slate-800/50">
               <Trash2 className="w-8 h-8 text-slate-300" />
             </div>
             
             <h3 className="text-xl font-black text-white mb-2">Favoriyi Sil</h3>
             
-            {/* 🚀 GEREKSİZ UYARI YAZISI SİLİNDİ, Boşluk (mb-8) buraya alındı */}
             <p className="text-slate-300 text-sm mb-8">Bu ürünü favorilerinizden çıkarmak istediğinize emin misiniz?</p>
             
             <div className="flex w-full gap-3">
