@@ -53,11 +53,11 @@ export default function KayitPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center p-0 sm:p-4 relative overflow-hidden">
       {/* Arka Plan Efekti */}
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#00e5ff] rounded-full mix-blend-screen filter blur-[150px] opacity-10"></div>
       
-      <div className="w-full max-w-md bg-[#09090b] border border-white/10 rounded-3xl shadow-[0_0_50px_rgba(0,229,255,0.05)] p-8 relative z-10">
+      <div className="w-full max-w-md bg-[#09090b] border-none sm:border border-white/10 rounded-none sm:rounded-2xl p-6 sm:p-8 min-h-screen sm:min-h-[auto] flex flex-col justify-center shadow-2xl relative z-10">
         
         <h1 className="text-3xl font-black uppercase tracking-tighter mb-2 text-white drop-shadow-[0_0_10px_rgba(0,229,255,0.2)]">
           YENİ KAYIT
