@@ -354,8 +354,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </button>
             </div>
 
-            {/* İÇERİK EKRANI VE SİBER/MODERN ARKAPLAN FİLİGRANI */}
-            <div className="custom-scrollbar overflow-y-auto flex-1 p-4 sm:p-6 flex flex-col text-slate-300 bg-[#09090b] relative">
+            {/* İÇERİK EKRANI (AŞAĞI KAYDIRMA KİLİDİ KIRILDI) */}
+            <div className="overflow-y-auto flex-1 p-4 sm:p-6 flex flex-col text-slate-300 bg-[#09090b] relative">
                
                {/* 🚀 ÇOK DAHA MODERN SİSTEM ÇEKİRDEĞİ FİLİGRANI */}
                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none flex flex-col items-center justify-center z-0">
@@ -363,8 +363,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   <span className="text-4xl sm:text-5xl font-black tracking-[0.4em] text-[#00e5ff] uppercase ml-4 font-mono">V15_CORE</span>
                </div>
 
-               {/* GERÇEK İÇERİKLER (Z-10 İLE ÖNDE DURUYOR) */}
-               <div className="relative z-10">
+               {/* GERÇEK İÇERİKLER */}
+               <div className="relative z-10 pb-10">
                  {activeTab === "reviews" && (
                     <div className="space-y-4">
                       {reviews.length === 0 ? <p className="text-center py-5 text-slate-500 font-medium">Bu ürüne henüz yorum yapılmamış.</p> : reviews.map((rev, i) => (
@@ -374,11 +374,12 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                                <span className="text-amber-400 text-xs">{"★".repeat(Number(rev.rating))}{"☆".repeat(5 - Number(rev.rating))}</span>
                             </div>
                             <p className="text-sm text-slate-400 mb-2">{rev.text}</p>
-                            {/* ADMİN CEVABI İÇİN İHTİMALLER GENİŞLETİLDİ */}
-                            {(rev.reply || rev.adminReply || rev.cevap || rev.adminCevap) && (
+                            
+                            {/* 🎯 İŞTE BÜYÜK SIR: "rev.answer" EKLENDİ! */}
+                            {(rev.answer || rev.reply || rev.adminReply || rev.cevap) && (
                               <div className="ml-4 p-3 bg-[#00e5ff]/5 border-l-2 border-[#00e5ff] rounded-r-lg mt-2">
                                 <span className="font-black text-[#00e5ff] text-[10px] uppercase block mb-1">Yetkili Cevabı:</span>
-                                <p className="text-sm text-slate-300">{rev.reply || rev.adminReply || rev.cevap || rev.adminCevap}</p>
+                                <p className="text-sm text-slate-300">{rev.answer || rev.reply || rev.adminReply || rev.cevap}</p>
                               </div>
                             )}
                          </div>
@@ -392,10 +393,12 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                          <div key={i} className="mb-4 pb-4 border-b border-white/5">
                             <span className="font-bold text-white block mb-1">❓ {q.name || "Müşteri"}:</span>
                             <p className="text-sm text-slate-300 mb-3">{q.text}</p>
-                            {(q.reply || q.adminReply || q.cevap || q.adminCevap) && (
+                            
+                            {/* 🎯 İŞTE BÜYÜK SIR: "q.answer" EKLENDİ! */}
+                            {(q.answer || q.reply || q.adminReply || q.cevap) && (
                               <div className="ml-4 p-3 bg-[#00e5ff]/5 border-l-2 border-[#00e5ff] rounded-r-lg mt-2">
                                 <span className="font-black text-[#00e5ff] text-[10px] uppercase block mb-1">Yetkili Cevabı:</span>
-                                <p className="text-sm text-slate-300">{q.reply || q.adminReply || q.cevap || q.adminCevap}</p>
+                                <p className="text-sm text-slate-300">{q.answer || q.reply || q.adminReply || q.cevap}</p>
                               </div>
                             )}
                          </div>
@@ -421,7 +424,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                           <div className="w-full sm:w-auto">
                             <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2">İşlemci Düzeyi:</span>
                             <div className="flex bg-[#09090b] p-1 rounded-xl border border-white/5 gap-1">
-                              {/* INTEL VE RYZEN ALT ALTA YAZILDI */}
+                              {/* 🎯 INTEL VE RYZEN ALT ALTA (ÇOK DAHA OKUNUR) */}
                               {[{ id: "i5", top: "INTEL i5", bottom: "RYZEN 5" }, { id: "i7", top: "INTEL i7", bottom: "RYZEN 7" }, { id: "i9", top: "INTEL i9", bottom: "RYZEN 9" }].map((islemci) => (
                                 <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as "i5" | "i7" | "i9")} className={"flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-lg transition-all " + (seciliIslemci === islemci.id ? "bg-[#00e5ff]/20 border border-[#00e5ff] text-white" : "text-slate-400 border border-transparent")}>
                                   <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider">{islemci.top}</span>
@@ -450,7 +453,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                           ))}
                         </div>
 
-                        {/* MÜŞTERİ HUKUKİ/PSİKOLOJİK UYARISI - MAVİ/GRİ YAPILDI */}
+                        {/* MÜŞTERİ HUKUKİ/PSİKOLOJİK UYARISI */}
                         <div className="bg-[#00e5ff]/5 border border-[#00e5ff]/20 p-4 rounded-xl flex gap-3 items-start mt-6">
                           <span className="text-[#00e5ff] text-xl">ℹ️</span>
                           <p className="text-slate-400 text-[10px] sm:text-xs font-medium leading-relaxed opacity-90">
