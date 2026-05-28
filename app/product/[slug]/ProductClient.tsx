@@ -385,14 +385,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
 
 
-      {/* 💎 KİBAR VE MODERN 4 SEKMELİ POPUP (SADECE VERİ GÖSTERİR, FORM YOKTUR) */}
-      {/* ========================================================================= */}
-      {teknikPopupAcik && (
-        <div className="fixed inset-0 z-[999999] flex justify-center items-center p-4 bg-black/80 backdrop-blur-md transition-all animate-in fade-in duration-200">
-          <div className="absolute inset-0" onClick={() => setTeknikPopupAcik(false)}></div>
-          
-          <div className="relative w-full sm:w-[700px] mx-auto bg-[#09090b] border border-[#00e5ff]/30 rounded-3xl flex flex-col overflow-hidden shadow-[0_0_40px_rgba(0,229,255,0.1)]">
-            
        {/* ========================================================================= */}
       {/* 💎 KİBAR VE MODERN 4 SEKMELİ POPUP (SADECE OKUMA VE ADMİN CEVAPLI) */}
       {/* ========================================================================= */}
