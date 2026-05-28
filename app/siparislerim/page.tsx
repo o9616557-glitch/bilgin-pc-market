@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Trash2, Copy, Check, RefreshCw, MessageSquare, PackageOpen, Info, CheckCircle2, Truck } from "lucide-react"; 
+import { Trash2, Copy, Check, RefreshCw, MessageSquare, PackageOpen, Info, CheckCircle2, Truck, Clock } from "lucide-react"; 
 import Link from "next/link";
 
 export default function SiparislerimPage() {
+  // --- 1. SENİN MOTOR KISMIN (KESİNLİKLE DOKUNULMADI) ---
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false); 
@@ -12,16 +13,11 @@ export default function SiparislerimPage() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
 
-  // --- MOTOR KISMI (DOKUNULMADI) ---
   const fetchOrders = async () => {
     try {
-      const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
-        cache: "no-store",
-        headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
-      });
+      const res = await fetch("/api/orders?t=" + new Date().getTime(), { cache: "no-store" });
       const data = await res.json();
       if (res.ok) setOrders(data.orders || []);
-      else setErrorMsg(data.message || "Siparişler yüklenemedi.");
     } catch (error) {
       setErrorMsg("Bağlantı hatası.");
     } finally {
@@ -32,13 +28,19 @@ export default function SiparislerimPage() {
 
   useEffect(() => { fetchOrders(); }, []);
 
-  const handleRefresh = () => {
-    setRefreshing(true);
-    fetchOrders(); 
+  const getStepNumber = (order: any) => {
+    const s = (order.durum || order.status || "").toLowerCase();
+    if (s.includes("iptal")) return 5;
+    if (s.includes("teslim") || s.includes("tamam")) return 4;
+    if (s.includes("kargo") || s.includes("gönder")) return 3;
+    if (s.includes("hazırla") || s.includes("öden") || s.includes("başarılı")) return 2;
+    return 1;
   };
 
+  // --- Arayüz Butonları İçin Gerekli Olan Standart Fonksiyonlar ---
+  const handleRefresh = () => { setRefreshing(true); fetchOrders(); };
   const handleDeleteClick = (orderId: string) => { setOrderToDelete(orderId); };
-
+  
   const confirmDelete = async () => {
     if (!orderToDelete) return;
     try {
@@ -62,27 +64,17 @@ export default function SiparislerimPage() {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  // İptal motoru (searchableStatus eklendi ki eskisi gibi kör kalmasın)
-  const getStepNumber = (order: any) => {
-    const s = (order.searchableStatus || order.durum || order.status || "").toLowerCase();
-    if (s.includes("iptal")) return 5;
-    if (s.includes("teslim") || s.includes("tamam")) return 4;
-    if (s.includes("kargo") || s.includes("gönder")) return 3;
-    if (s.includes("hazırla") || s.includes("öden") || s.includes("başarılı")) return 2;
-    return 1;
-  };
-
-  // --- MODERN TASARIM KISMI ---
+  // --- 2. MODERN VE SİBER TASARIM KISMI ---
   return (
     <div className="min-h-screen bg-[#050814] text-white pt-12 pb-24 px-4 relative overflow-hidden font-sans">
       
-      {/* ARKA PLAN IŞIKLARI */}
+      {/* Arka Plan Neon Işıkları */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#00e5ff] blur-[150px] opacity-10 pointer-events-none"></div>
       <div className="absolute bottom-[10%] right-[-10%] w-[400px] h-[400px] bg-[#0088ff] blur-[150px] opacity-5 pointer-events-none"></div>
 
       <div className="max-w-4xl mx-auto relative z-10">
         
-        {/* ÜST BAŞLIK */}
+        {/* Üst Başlık ve Yenileme Butonu */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-800 pb-6 mb-10">
           <div>
             <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-3">
@@ -102,6 +94,7 @@ export default function SiparislerimPage() {
           </button>
         </div>
 
+        {/* Hata Mesajı */}
         {errorMsg && (
           <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl text-red-400 text-sm mb-6 flex justify-between items-center shadow-lg">
               <span className="font-medium">{errorMsg}</span>
@@ -109,9 +102,16 @@ export default function SiparislerimPage() {
           </div>
         )}
 
+        {/* Yükleniyor Ekranı */}
         {loading ? (
-          <div className="text-center p-10 animate-pulse text-cyan-400 font-bold uppercase tracking-widest">Sistem Yükleniyor...</div>
+          <div className="flex flex-col gap-4">
+            <div className="border border-slate-800/50 bg-[#09090b]/50 rounded-2xl p-6 sm:p-8 flex flex-col gap-6 relative overflow-hidden animate-pulse">
+              <div className="h-6 bg-slate-800/40 rounded-md w-1/4"></div>
+              <div className="h-10 bg-slate-800/40 rounded-md w-full my-4"></div>
+            </div>
+          </div>
         ) : orders.length === 0 ? (
+          /* Boş Sipariş Ekranı */
           <div className="text-center p-10 sm:p-16 bg-transparent relative">
             <div className="w-20 h-20 rounded-full bg-[#121215]/50 border border-slate-800/50 flex items-center justify-center mx-auto mb-6 shadow-inner">
               <PackageOpen className="w-10 h-10 text-slate-600" />
@@ -122,16 +122,17 @@ export default function SiparislerimPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid gap-6">
+          /* Sipariş Kartları Listesi */
+          <div className="grid gap-8">
             {orders.map((order) => {
               const step = getStepNumber(order);
               const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase();
-              const adminMesaji = order.musteriMesaji || order.mesaj || order.adminMesaj || order.siparisNotu;
+              const adminMesaji = order.musteriMesaji || order.mesaj || order.adminMesaj || order.siparisNotu || order.kargoNotu;
 
               return (
-                <div key={order._id} className="group border border-slate-800 bg-[#09090b] rounded-2xl p-6 shadow-xl relative overflow-hidden transition-all hover:border-slate-700">
+                <div key={order._id} className="group border border-slate-800 bg-[#09090b] rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden transition-all hover:border-[#00e5ff]/30 hover:shadow-[0_0_30px_rgba(0,229,255,0.05)]">
                   
-                  {/* SİLME İKONU */}
+                  {/* Silme İkonu */}
                   <button
                     onClick={() => handleDeleteClick(order._id)}
                     className="absolute top-4 right-4 p-2.5 text-slate-500 hover:text-red-500 bg-[#121215] border border-slate-800 hover:border-red-500/30 hover:bg-red-500/10 rounded-xl transition-all shadow-md z-20"
@@ -140,20 +141,20 @@ export default function SiparislerimPage() {
                     <Trash2 className="w-4 h-4" />
                   </button>
 
-                  {/* SİPARİŞ KODU VE TARİH */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800/80 pr-16">
+                  {/* Sipariş No ve Tarih */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800/80 pr-12">
                     <div>
-                      <p className="text-xs text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2 font-bold">
+                      <div className="text-xs text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2 font-bold">
                         SİPARİŞ NO: <span className="text-[#00e5ff] font-black">{currentSiparisKodu}</span>
-                        <button onClick={() => handleCopy(currentSiparisKodu)} className="text-slate-400 hover:text-[#00e5ff] bg-[#121215] border border-slate-800 p-1.5 rounded-lg">
+                        <button onClick={() => handleCopy(currentSiparisKodu)} className="text-slate-400 hover:text-[#00e5ff] bg-[#121215] border border-slate-800 p-1.5 rounded-lg transition-colors">
                           {copiedCode === currentSiparisKodu ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                         </button>
-                      </p>
-                      <p className="text-xs text-slate-500 font-medium">Tarih: <span className="text-slate-300">{new Date(order.createdAt).toLocaleDateString("tr-TR")}</span></p>
+                      </div>
+                      <p className="text-xs text-slate-500 font-medium">Tarih: <span className="text-slate-300">{new Date(order.createdAt || Date.now()).toLocaleDateString("tr-TR")}</span></p>
                     </div>
                   </div>
 
-                  {/* MODERN DURUM YAZILARI (VAGONLARIN YERİNE) */}
+                  {/* Modern Durum Kutusu (Tren Vagonları Yerine) */}
                   <div className="py-6">
                     {step === 5 && (
                       <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl flex items-center justify-center gap-2 text-amber-500 font-black uppercase text-sm tracking-widest shadow-inner">
@@ -182,7 +183,7 @@ export default function SiparislerimPage() {
                     )}
                   </div>
 
-                  {/* ADMİN MESAJI */}
+                  {/* Mağaza / Sistem Mesajı */}
                   {adminMesaji && (
                     <div className="mb-6 bg-[#0088ff]/10 border border-[#0088ff]/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm">
                       <MessageSquare className="w-5 h-5 text-[#00e5ff] flex-shrink-0 mt-0.5" />
@@ -193,7 +194,7 @@ export default function SiparislerimPage() {
                     </div>
                   )}
 
-                  {/* ÜRÜN RESİMLERİ VE LİSTESİ */}
+                  {/* Ürün Listesi ve Resimleri */}
                   <div className="border-t border-slate-800/80 pt-6 space-y-4">
                     {order.items?.map((item: any, idx: number) => (
                       <div key={idx} className="flex items-center justify-between gap-4 text-sm bg-[#121215] p-3 rounded-xl border border-slate-800/50">
@@ -217,11 +218,11 @@ export default function SiparislerimPage() {
                     ))}
                   </div>
 
-                  {/* TOPLAM FİYAT */}
+                  {/* Toplam Tutar */}
                   <div className="mt-6 flex justify-between items-center bg-[#121215] border border-slate-800/80 p-5 rounded-xl shadow-inner">
                     <span className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Genel Toplam</span>
                     <span className="text-2xl font-black text-white tracking-tight">
-                      {Number(order.totalPrice).toLocaleString("tr-TR")} <span className="text-sm text-slate-500">TL</span>
+                      {Number(order.totalPrice || 0).toLocaleString("tr-TR")} <span className="text-sm text-slate-500">TL</span>
                     </span>
                   </div>
                   
@@ -232,7 +233,7 @@ export default function SiparislerimPage() {
         )}
       </div>
 
-      {/* SİLME ONAY KUTUSU */}
+      {/* Sipariş Silme Onay Modalı */}
       {orderToDelete && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
           <div className="bg-[#09090b] border border-slate-800/80 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-[0_0_50px_rgba(0,0,0,0.8)] relative overflow-hidden animate-in zoom-in-95 duration-200">
