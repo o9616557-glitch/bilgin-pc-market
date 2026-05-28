@@ -460,9 +460,30 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   Oyun Performans Testi
                 </h3>
                 {/* 🚀 BİNGO: İŞLEMCİ İSİMLERİ BURADA KABAK GİBİ YAZIYOR */}
-                <div className="inline-flex items-center gap-2 bg-[#121215] border border-white/10 px-3 py-1.5 rounded-lg">
-                   <span className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider">Test Sistemi:</span>
-                   <span className="text-[#00e5ff] text-[10px] sm:text-xs font-black uppercase tracking-wider">Intel Core i5 / AMD Ryzen 5</span>
+                {/* 🚀 BİNGO: MODERN, ŞIK VE NEON 3'LÜ İŞLEMCİ ROZETLERİ */}
+                <div className="flex flex-col mt-3">
+                  <span className="text-slate-500 text-[9px] font-black uppercase tracking-widest mb-1.5">FPS Testinde Kullanılan İşlemciler:</span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    
+                    {/* 1. INTEL (Mavi Neon) */}
+                    <div className="flex items-center gap-1.5 bg-gradient-to-r from-blue-900/30 to-[#121215] border border-blue-500/30 px-3 py-1 rounded-md shadow-[0_0_10px_rgba(59,130,246,0.1)]">
+                       <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
+                       <span className="text-blue-100 text-[10px] font-black tracking-wider uppercase">i5 13400F</span>
+                    </div>
+
+                    {/* 2. AMD RYZEN (Kırmızı Neon) */}
+                    <div className="flex items-center gap-1.5 bg-gradient-to-r from-red-900/30 to-[#121215] border border-red-500/30 px-3 py-1 rounded-md shadow-[0_0_10px_rgba(239,68,68,0.1)]">
+                       <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></div>
+                       <span className="text-red-100 text-[10px] font-black tracking-wider uppercase">Ryzen 5 7500F</span>
+                    </div>
+
+                    {/* 3. HIGH-END (Deniz Mavisi Neon) */}
+                    <div className="flex items-center gap-1.5 bg-gradient-to-r from-[#00e5ff]/20 to-[#121215] border border-[#00e5ff]/30 px-3 py-1 rounded-md shadow-[0_0_10px_rgba(0,229,255,0.15)]">
+                       <div className="w-1.5 h-1.5 rounded-full bg-[#00e5ff] animate-pulse"></div>
+                       <span className="text-[#00e5ff] text-[10px] font-black tracking-wider uppercase">i7 14700K</span>
+                    </div>
+
+                  </div>
                 </div>
               </div>
 
@@ -525,6 +546,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
             </div>
           </div>
+
 
       <div className="fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-xl border-t border-white/10 p-3 sm:hidden z-[90] pb-safe max-w-[100vw]">
         <div className="flex items-center gap-2 max-w-full">
