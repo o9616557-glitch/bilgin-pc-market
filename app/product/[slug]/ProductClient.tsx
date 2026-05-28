@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useCart } from "../../CartContext"; 
 import toast from "react-hot-toast";
 import { useCompare } from "@/app/CompareContext";
-import { X, Gamepad2 } from "lucide-react";
+import { X, Cpu } from "lucide-react";
 
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const { sepeteEkle } = useCart(); 
@@ -15,7 +15,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [seciliCozunurluk, setSeciliCozunurluk] = useState("1080P");
   const [seciliIslemci, setSeciliIslemci] = useState("i5");
 
-  // İşlemci kategorileri: i5(Tier 5), i7(Tier 7), i9(Tier 9) olarak baz alındı
   const fpsVerileri: any = {
     Valorant: {
       i5: { "1080P": "450+", "2K": "320+", "4K": "180+" },
@@ -80,7 +79,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     } catch (error) { setIsFav(oncekiDurum); }
   };
 
-  // ⚖️ KARŞILAŞTIRMA PENCERESİNİ TETİKLER
+  // ⚖️ KARŞILAŞTIRMA SESSİZLEŞTİRİLDİ
   const handleCompare = () => {
     karsilastirmayaEkle(product);
     setTimeout(() => {
@@ -316,7 +315,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-      {/* 📱 YENİ NESİL KONTROL MERKEZİ GİBİ MOBİL ALT BAR (GÖRÜNÜR KAYDIRMA ÇUBUĞU EKLENDİ) */}
+      {/* 📱 YENİ NESİL KONTROL MERKEZİ GİBİ MOBİL ALT BAR */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-md border-t border-slate-800 p-2 z-[50] flex flex-col gap-2 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
         
         {/* KAYDIRILABİLİR ALAN VE NEON SCROLLBAR */}
@@ -338,7 +337,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </button>
       </div>
 
-      {/* 💎 MOBİLDE TAM EKRAN, X SAĞDA, ARKASI KLASİK "GAMING" FİLİGRANLI POPUP */}
+      {/* 💎 MOBİLDE TAM EKRAN, SİBER/MODERN ARKAPLANLI POPUP */}
       {teknikPopupAcik && (
         <div className="fixed inset-0 z-[999999] flex justify-center items-center p-0 sm:p-4 bg-black/80 backdrop-blur-md transition-all">
           <div className="absolute inset-0 hidden sm:block" onClick={() => setTeknikPopupAcik(false)}></div>
@@ -356,13 +355,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </button>
             </div>
 
-            {/* İÇERİK EKRANI VE GAMING FİLİGRANI */}
+            {/* İÇERİK EKRANI VE SİBER/MODERN ARKAPLAN FİLİGRANI */}
             <div className="custom-scrollbar overflow-y-auto flex-1 p-4 sm:p-6 flex flex-col text-slate-300 bg-[#09090b] relative">
                
-               {/* 🚀 EFSANE ARKAPLAN SÜSLEMESİ (Şeffaf Oyun Kolu ve Yazı) */}
+               {/* 🚀 ÇOK DAHA MODERN SİSTEM ÇEKİRDEĞİ FİLİGRANI */}
                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none flex flex-col items-center justify-center z-0">
-                  <Gamepad2 className="w-48 h-48 sm:w-64 sm:h-64 text-[#00e5ff] mb-4" />
-                  <span className="text-5xl sm:text-6xl font-black tracking-[0.5em] text-[#00e5ff] uppercase ml-4">GAMING</span>
+                  <Cpu className="w-48 h-48 sm:w-64 sm:h-64 text-[#00e5ff] mb-4" />
+                  <span className="text-4xl sm:text-5xl font-black tracking-[0.4em] text-[#00e5ff] uppercase ml-4 font-mono">V15_CORE</span>
                </div>
 
                {/* GERÇEK İÇERİKLER (Z-10 İLE ÖNDE DURUYOR) */}
@@ -376,10 +375,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                                <span className="text-amber-400 text-xs">{"★".repeat(Number(rev.rating))}{"☆".repeat(5 - Number(rev.rating))}</span>
                             </div>
                             <p className="text-sm text-slate-400 mb-2">{rev.text}</p>
-                            {(rev.reply || rev.adminReply) && (
+                            {/* ADMİN CEVABI İÇİN İHTİMALLER GENİŞLETİLDİ */}
+                            {(rev.reply || rev.adminReply || rev.cevap || rev.adminCevap) && (
                               <div className="ml-4 p-3 bg-[#00e5ff]/5 border-l-2 border-[#00e5ff] rounded-r-lg mt-2">
                                 <span className="font-black text-[#00e5ff] text-[10px] uppercase block mb-1">Yetkili Cevabı:</span>
-                                <p className="text-sm text-slate-300">{rev.reply || rev.adminReply}</p>
+                                <p className="text-sm text-slate-300">{rev.reply || rev.adminReply || rev.cevap || rev.adminCevap}</p>
                               </div>
                             )}
                          </div>
@@ -393,10 +393,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                          <div key={i} className="mb-4 pb-4 border-b border-white/5">
                             <span className="font-bold text-white block mb-1">❓ {q.name || "Müşteri"}:</span>
                             <p className="text-sm text-slate-300 mb-3">{q.text}</p>
-                            {(q.reply || q.adminReply) && (
+                            {(q.reply || q.adminReply || q.cevap || q.adminCevap) && (
                               <div className="ml-4 p-3 bg-[#00e5ff]/5 border-l-2 border-[#00e5ff] rounded-r-lg mt-2">
                                 <span className="font-black text-[#00e5ff] text-[10px] uppercase block mb-1">Yetkili Cevabı:</span>
-                                <p className="text-sm text-slate-300">{q.reply || q.adminReply}</p>
+                                <p className="text-sm text-slate-300">{q.reply || q.adminReply || q.cevap || q.adminCevap}</p>
                               </div>
                             )}
                          </div>
@@ -423,7 +423,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                             <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2">İşlemci Düzeyi:</span>
                             <div className="flex bg-[#09090b] p-1 rounded-xl border border-white/5">
                               {/* INTEL VE RYZEN İSİMLERİ BİRLEŞTİRİLDİ */}
-                              {[{ id: "i5", label: "i5 / RYZEN 5" }, { id: "i7", label: "i7 / RYZEN 7" }, { id: "i9", label: "i9 / RYZEN 9" }].map((islemci) => (
+                              {[{ id: "i5", label: "INTEL i5 / RYZEN 5" }, { id: "i7", label: "INTEL i7 / RYZEN 7" }, { id: "i9", label: "INTEL i9 / RYZEN 9" }].map((islemci) => (
                                 <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as "i5" | "i7" | "i9")} className={"flex-1 px-3 py-2 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all " + (seciliIslemci === islemci.id ? "bg-[#00e5ff]/20 border border-[#00e5ff] text-white" : "text-slate-400")}>{islemci.label}</button>
                               ))}
                             </div>
@@ -448,11 +448,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                           ))}
                         </div>
 
-                        {/* MÜŞTERİ HUKUKİ/PSİKOLOJİK UYARISI */}
-                        <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl flex gap-3 items-start mt-6">
-                          <span className="text-red-500 text-xl">⚠️</span>
-                          <p className="text-red-400 text-[10px] sm:text-xs font-medium leading-relaxed opacity-90">
-                            <strong className="font-black tracking-wider block mb-1">MÜŞTERİ BİLGİLENDİRMESİ:</strong> 
+                        {/* MÜŞTERİ HUKUKİ/PSİKOLOJİK UYARISI - KIRMIZI DEĞİL MAVİ/GRİ YAPILDI */}
+                        <div className="bg-[#00e5ff]/5 border border-[#00e5ff]/20 p-4 rounded-xl flex gap-3 items-start mt-6">
+                          <span className="text-[#00e5ff] text-xl">ℹ️</span>
+                          <p className="text-slate-400 text-[10px] sm:text-xs font-medium leading-relaxed opacity-90">
+                            <strong className="font-black text-[#00e5ff] tracking-wider block mb-1">MÜŞTERİ BİLGİLENDİRMESİ:</strong> 
                             Yukarıdaki FPS değerleri ortalama test sonuçlarıdır. Oyun içi haritaya, anlık çatışma sahnelerine, arka planda çalışan uygulamalara ve ortam sıcaklığına göre FPS değerlerinde dalgalanmalar olabilir. Kesin taahhüt değildir.
                           </p>
                         </div>
