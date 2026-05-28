@@ -79,12 +79,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     } catch (error) { setIsFav(oncekiDurum); }
   };
 
+  // ⚖️ KARŞILAŞTIRMA TETİKLEYİCİSİ GÜÇLENDİRİLDİ
   const handleCompare = () => {
     karsilastirmayaEkle(product);
-    if (typeof setPopupAcik === "function") {
-      setPopupAcik(true); 
-    }
-    showToast("⚖️ Karşılaştırma listesine eklendi!");
+    showToast("⚖️ Karşılaştırmaya Eklendi!");
+    // Sistemin algılaması için ufak bir bekleme (timeout) ile açılış gönderildi
+    setTimeout(() => {
+      if (typeof setPopupAcik === "function") {
+        setPopupAcik(true); 
+      }
+    }, 100);
   };
 
   useEffect(() => {
@@ -167,7 +171,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     }
   };
 
-  // POPUP BAŞLIĞINI DİNAMİK YAPMAK İÇİN
   const getPopupTitle = () => {
     if (activeTab === "reviews") return { icon: "⭐", text: "Müşteri Yorumları" };
     if (activeTab === "questions") return { icon: "💬", text: "Soru ve Cevaplar" };
@@ -287,40 +290,25 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             <button onClick={handleToggleFavorite} className={`flex-1 py-3 rounded-xl border flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider transition-all ${isFav ? "bg-red-500/10 border-red-500/30 text-red-500" : "bg-[#09090b] border-white/10 hover:bg-white/5 text-white"}`}>
               {isFav ? "❤️ Favorilerde" : "🤍 Favoriye Ekle"}
             </button>
-            <button onClick={handleCompare} className="flex-1 py-3 rounded-xl border border-white/10 bg-[#09090b] hover:bg-white/5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-[#00e5ff] transition-all">
+            <button onClick={handleCompare} className="flex-1 py-3 rounded-xl border border-white/10 bg-[#09090b] hover:bg-white/5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-white transition-all">
               ⚖️ Karşılaştır
             </button>
             <button onClick={handleShare} className="flex-1 py-3 rounded-xl border border-white/10 bg-[#09090b] hover:bg-white/5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-white transition-all">
-              {copied ? "🟩 Kopyalandı" : "📤 Paylaş"}
-            </button>
-          </div>
-
-          {/* MASAÜSTÜ: POPUPLARI AÇAN 4'LÜ HIZLI BUTON */}
-          <div className="hidden sm:grid grid-cols-4 gap-2 mb-6 z-10 relative">
-            <button onClick={(e) => { e.preventDefault(); setActiveTab("tech"); setTeknikPopupAcik(true); }} className="flex flex-col items-center justify-center gap-1.5 bg-[#121215] border border-white/10 hover:border-[#00e5ff]/50 text-slate-300 hover:text-white p-3 rounded-xl transition-all">
-              <span className="text-xl">⚙️</span><span className="text-[10px] font-black uppercase tracking-widest">Teknik</span>
-            </button>
-            <button onClick={(e) => { e.preventDefault(); setActiveTab("fps"); setTeknikPopupAcik(true); }} className="flex flex-col items-center justify-center gap-1.5 bg-[#121215] border border-white/10 hover:border-[#00e5ff]/50 text-slate-300 hover:text-white p-3 rounded-xl transition-all">
-              <span className="text-xl">🎮</span><span className="text-[10px] font-black uppercase tracking-widest">FPS Testi</span>
-            </button>
-            <button onClick={(e) => { e.preventDefault(); setActiveTab("reviews"); setTeknikPopupAcik(true); }} className="flex flex-col items-center justify-center gap-1.5 bg-[#121215] border border-white/10 hover:border-[#00e5ff]/50 text-slate-300 hover:text-white p-3 rounded-xl transition-all">
-              <span className="text-xl">⭐</span><span className="text-[10px] font-black uppercase tracking-widest">Yorumlar</span>
-            </button>
-            <button onClick={(e) => { e.preventDefault(); setActiveTab("questions"); setTeknikPopupAcik(true); }} className="flex flex-col items-center justify-center gap-1.5 bg-[#121215] border border-white/10 hover:border-[#00e5ff]/50 text-slate-300 hover:text-white p-3 rounded-xl transition-all">
-              <span className="text-xl">💬</span><span className="text-[10px] font-black uppercase tracking-widest">Sorular</span>
+              {copied ? "🟩 Kopyalandı" : "📤 Paylaş / Kopyala"}
             </button>
           </div>
 
         </div>
       </div>
 
-      {/* 📱 YENİ NESİL KONTROL MERKEZİ GİBİ MOBİL ALT BAR (SIRALAMA DÜZENLENDİ) */}
+      {/* 📱 YENİ NESİL KONTROL MERKEZİ GİBİ MOBİL ALT BAR (KIYASLA AYNI RENK YAPILDI) */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-md border-t border-slate-800 p-2 z-[50] flex flex-col gap-2 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
         <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
            <button onClick={() => { setActiveTab("tech"); setTeknikPopupAcik(true); }} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">⚙️</span><span className="text-[10px] font-black uppercase tracking-wider">Teknik</span></button>
            <button onClick={() => { setActiveTab("fps"); setTeknikPopupAcik(true); }} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">🎮</span><span className="text-[10px] font-black uppercase tracking-wider">FPS</span></button>
            <div className="w-[1px] h-5 bg-white/10 shrink-0 mx-0.5"></div>
-           <button onClick={handleCompare} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-[#00e5ff]/30 rounded-xl text-[#00e5ff] hover:bg-[#00e5ff]/10 transition-colors"><span className="text-sm">⚖️</span><span className="text-[10px] font-black uppercase tracking-wider">Kıyasla</span></button>
+           {/* KIYASLA BUTONU DİĞERLERİYLE AYNI YAPILDI */}
+           <button onClick={handleCompare} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">⚖️</span><span className="text-[10px] font-black uppercase tracking-wider">Kıyasla</span></button>
            <button onClick={handleToggleFavorite} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-red-500 transition-colors"><span className="text-sm">{isFav ? "❤️" : "🤍"}</span><span className="text-[10px] font-black uppercase tracking-wider">Favori</span></button>
            <div className="w-[1px] h-5 bg-white/10 shrink-0 mx-0.5"></div>
            <button onClick={() => { setActiveTab("reviews"); setTeknikPopupAcik(true); }} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">⭐</span><span className="text-[10px] font-black uppercase tracking-wider">Yorumlar</span></button>
@@ -333,116 +321,125 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </button>
       </div>
 
-      {/* 💎 MOBİLDE EKRANI TAM KAPLAYAN (FULLSCREEN), X TUŞU SOL ÜSTTE OLAN POPUP */}
+      {/* 💎 MOBİLDE TAM EKRAN, X SAĞDA, ARKASI HAVALI FİLİGRANLI POPUP */}
       {teknikPopupAcik && (
         <div className="fixed inset-0 z-[999999] flex justify-center items-center p-0 sm:p-4 bg-black/80 backdrop-blur-md transition-all">
           <div className="absolute inset-0 hidden sm:block" onClick={() => setTeknikPopupAcik(false)}></div>
           
           <div className="relative w-full h-full sm:h-auto sm:w-[700px] mx-auto bg-[#09090b] sm:border sm:border-[#00e5ff]/30 sm:rounded-3xl flex flex-col overflow-hidden shadow-[0_0_40px_rgba(0,229,255,0.1)]">
             
-            {/* BAŞLIK VE X TUŞU (X SOLDAN KAPATILIYOR) */}
-            <div className="flex items-center gap-4 px-4 sm:px-6 py-4 sm:py-5 border-b border-white/5 shrink-0 bg-[#121215] relative overflow-hidden">
-              <button onClick={() => setTeknikPopupAcik(false)} className="text-slate-400 hover:text-white bg-[#09090b] border border-white/5 hover:bg-red-500/20 hover:border-red-500 rounded-xl p-2.5 transition-all z-10">
-                <X className="w-6 h-6" />
-              </button>
-              <h2 className="text-lg sm:text-xl font-black text-white uppercase tracking-wider flex items-center gap-2 relative z-10">
+            {/* BAŞLIK VE SAĞDA X TUŞU */}
+            <div className="flex justify-between items-center px-4 sm:px-6 py-4 sm:py-5 border-b border-white/5 shrink-0 bg-[#121215] relative z-20">
+              <h2 className="text-lg sm:text-xl font-black text-white uppercase tracking-wider flex items-center gap-2">
                 <span className="text-[#00e5ff] text-xl sm:text-2xl">{getPopupTitle().icon}</span> 
                 {getPopupTitle().text}
               </h2>
+              <button onClick={() => setTeknikPopupAcik(false)} className="text-slate-400 hover:text-white bg-[#09090b] border border-white/5 hover:bg-red-500/20 hover:border-red-500 rounded-xl p-2.5 transition-all">
+                <X className="w-6 h-6" />
+              </button>
             </div>
 
-            {/* SEKMELER SİLİNDİ - İÇERİK EKRANI DİREKT KAPLIYOR */}
-            <div className="custom-scrollbar overflow-y-auto flex-1 p-4 sm:p-6 flex flex-col text-slate-300 bg-[#09090b]">
+            {/* İÇERİK EKRANI VE ARKAPLAN FİLİGRANI (WATERMARK) */}
+            <div className="custom-scrollbar overflow-y-auto flex-1 p-4 sm:p-6 flex flex-col text-slate-300 bg-[#09090b] relative">
                
-               {activeTab === "reviews" && (
-                  <div className="space-y-4">
-                    {reviews.length === 0 ? <p className="text-center py-5 text-slate-500 font-medium">Bu ürüne henüz yorum yapılmamış.</p> : reviews.map((rev, i) => (
-                       <div key={i} className="mb-4 pb-4 border-b border-white/5">
-                          <div className="flex justify-between items-center mb-2">
-                             <span className="font-bold text-white">{rev.name || "İsimsiz"}</span>
-                             <span className="text-amber-400 text-xs">{"★".repeat(Number(rev.rating))}{"☆".repeat(5 - Number(rev.rating))}</span>
-                          </div>
-                          <p className="text-sm text-slate-400 mb-2">{rev.text}</p>
-                          {(rev.reply || rev.adminReply) && (
-                            <div className="ml-4 p-3 bg-[#00e5ff]/5 border-l-2 border-[#00e5ff] rounded-r-lg mt-2">
-                              <span className="font-black text-[#00e5ff] text-[10px] uppercase block mb-1">Yetkili Cevabı:</span>
-                              <p className="text-sm text-slate-300">{rev.reply || rev.adminReply}</p>
+               {/* 🚀 EFSANE ARKAPLAN SÜSLEMESİ (Şeffaf Oyun Kolu ve Yazı) */}
+               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none flex flex-col items-center justify-center z-0">
+                  <Gamepad2 className="w-48 h-48 sm:w-64 sm:h-64 text-[#00e5ff] mb-4" />
+                  <span className="text-5xl sm:text-6xl font-black tracking-[0.5em] text-[#00e5ff] uppercase ml-4">GAMING</span>
+               </div>
+
+               {/* GERÇEK İÇERİKLER (Z-10 İLE ÖNDE DURUYOR) */}
+               <div className="relative z-10">
+                 {activeTab === "reviews" && (
+                    <div className="space-y-4">
+                      {reviews.length === 0 ? <p className="text-center py-5 text-slate-500 font-medium">Bu ürüne henüz yorum yapılmamış.</p> : reviews.map((rev, i) => (
+                         <div key={i} className="mb-4 pb-4 border-b border-white/5">
+                            <div className="flex justify-between items-center mb-2">
+                               <span className="font-bold text-white">{rev.name || "İsimsiz"}</span>
+                               <span className="text-amber-400 text-xs">{"★".repeat(Number(rev.rating))}{"☆".repeat(5 - Number(rev.rating))}</span>
                             </div>
-                          )}
-                       </div>
-                    ))}
-                  </div>
-               )}
+                            <p className="text-sm text-slate-400 mb-2">{rev.text}</p>
+                            {(rev.reply || rev.adminReply) && (
+                              <div className="ml-4 p-3 bg-[#00e5ff]/5 border-l-2 border-[#00e5ff] rounded-r-lg mt-2">
+                                <span className="font-black text-[#00e5ff] text-[10px] uppercase block mb-1">Yetkili Cevabı:</span>
+                                <p className="text-sm text-slate-300">{rev.reply || rev.adminReply}</p>
+                              </div>
+                            )}
+                         </div>
+                      ))}
+                    </div>
+                 )}
 
-               {activeTab === "questions" && (
-                  <div className="space-y-4">
-                    {questions.length === 0 ? <p className="text-center py-5 text-slate-500 font-medium">Henüz soru sorulmamış.</p> : questions.map((q, i) => (
-                       <div key={i} className="mb-4 pb-4 border-b border-white/5">
-                          <span className="font-bold text-white block mb-1">❓ {q.name || "Müşteri"}:</span>
-                          <p className="text-sm text-slate-300 mb-3">{q.text}</p>
-                          {(q.reply || q.adminReply) && (
-                            <div className="ml-4 p-3 bg-[#00e5ff]/5 border-l-2 border-[#00e5ff] rounded-r-lg mt-2">
-                              <span className="font-black text-[#00e5ff] text-[10px] uppercase block mb-1">Yetkili Cevabı:</span>
-                              <p className="text-sm text-slate-300">{q.reply || q.adminReply}</p>
+                 {activeTab === "questions" && (
+                    <div className="space-y-4">
+                      {questions.length === 0 ? <p className="text-center py-5 text-slate-500 font-medium">Henüz soru sorulmamış.</p> : questions.map((q, i) => (
+                         <div key={i} className="mb-4 pb-4 border-b border-white/5">
+                            <span className="font-bold text-white block mb-1">❓ {q.name || "Müşteri"}:</span>
+                            <p className="text-sm text-slate-300 mb-3">{q.text}</p>
+                            {(q.reply || q.adminReply) && (
+                              <div className="ml-4 p-3 bg-[#00e5ff]/5 border-l-2 border-[#00e5ff] rounded-r-lg mt-2">
+                                <span className="font-black text-[#00e5ff] text-[10px] uppercase block mb-1">Yetkili Cevabı:</span>
+                                <p className="text-sm text-slate-300">{q.reply || q.adminReply}</p>
+                              </div>
+                            )}
+                         </div>
+                      ))}
+                    </div>
+                 )}
+
+                 {activeTab === "tech" && product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 ? (
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                         {Object.entries(product.teknik_ozellikler).map(([anahtar, deger]) => (
+                            <div key={anahtar} className="flex justify-between items-center py-3 border-b border-white/5 px-3 rounded-lg bg-black/40 backdrop-blur-sm">
+                              <span className="text-slate-400 font-bold text-[10px] sm:text-xs uppercase w-1/2">{anahtar}</span>
+                              <span className="text-white font-medium text-xs sm:text-sm w-1/2 text-right">{deger as string}</span>
                             </div>
-                          )}
-                       </div>
-                    ))}
-                  </div>
-               )}
+                         ))}
+                     </div>
+                 ) : activeTab === "tech" && <p className="text-center py-10 text-slate-500 font-medium">Teknik detay bulunamadı.</p>}
 
-               {activeTab === "tech" && product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 ? (
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                       {Object.entries(product.teknik_ozellikler).map(([anahtar, deger]) => (
-                          <div key={anahtar} className="flex justify-between items-center py-3 border-b border-white/5 px-3 rounded-lg">
-                            <span className="text-slate-500 font-bold text-[10px] sm:text-xs uppercase w-1/2">{anahtar}</span>
-                            <span className="text-white font-medium text-xs sm:text-sm w-1/2 text-right">{deger as string}</span>
+                 {activeTab === "fps" && (
+                      <div className="space-y-6">
+                        <div className="bg-[#00e5ff]/5 border border-[#00e5ff]/30 p-4 rounded-xl flex gap-3 items-start">
+                          <span className="text-[#00e5ff] text-xl">ℹ️</span>
+                          <p className="text-[#00e5ff] text-[11px] sm:text-xs font-medium leading-relaxed opacity-90">
+                            <strong className="font-black tracking-wider">ÖNEMLİ NOT:</strong> FPS değerleri laboratuvar test sonuçlarıdır.
+                          </p>
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-4 justify-between bg-[#121215]/80 backdrop-blur-md p-4 rounded-2xl border border-white/5">
+                          <div className="w-full sm:w-auto">
+                            <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2">İşlemci:</span>
+                            <div className="flex bg-[#09090b] p-1 rounded-xl border border-white/5">
+                              {[{ id: "i5", label: "i5 / R5" }, { id: "i7", label: "i7 / R7" }, { id: "i9", label: "i9 / R9" }].map((islemci) => (
+                                <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as "i5" | "i7" | "i9")} className={"flex-1 px-3 py-2 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all " + (seciliIslemci === islemci.id ? "bg-[#00e5ff]/20 border border-[#00e5ff] text-white" : "text-slate-400")}>{islemci.label}</button>
+                              ))}
+                            </div>
                           </div>
-                       ))}
-                   </div>
-               ) : activeTab === "tech" && <p className="text-center py-10 text-slate-500 font-medium">Teknik detay bulunamadı.</p>}
-
-               {activeTab === "fps" && (
-                    <div className="space-y-6">
-                      <div className="bg-[#00e5ff]/5 border border-[#00e5ff]/30 p-4 rounded-xl flex gap-3 items-start">
-                        <span className="text-[#00e5ff] text-xl">ℹ️</span>
-                        <p className="text-[#00e5ff] text-[11px] sm:text-xs font-medium leading-relaxed opacity-90">
-                          <strong className="font-black tracking-wider">ÖNEMLİ NOT:</strong> FPS değerleri laboratuvar test sonuçlarıdır.
-                        </p>
-                      </div>
-                      <div className="flex flex-col sm:flex-row gap-4 justify-between bg-[#121215] p-4 rounded-2xl border border-white/5">
-                        <div className="w-full sm:w-auto">
-                          <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2">İşlemci:</span>
-                          <div className="flex bg-[#09090b] p-1 rounded-xl border border-white/5">
-                            {[{ id: "i5", label: "i5 / R5" }, { id: "i7", label: "i7 / R7" }, { id: "i9", label: "i9 / R9" }].map((islemci) => (
-                              <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as "i5" | "i7" | "i9")} className={"flex-1 px-3 py-2 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all " + (seciliIslemci === islemci.id ? "bg-[#00e5ff]/20 border border-[#00e5ff] text-white" : "text-slate-400")}>{islemci.label}</button>
-                            ))}
+                          <div className="w-full sm:w-auto">
+                            <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2">Çözünürlük:</span>
+                            <div className="flex bg-[#09090b] p-1 rounded-xl border border-white/5">
+                              {["1080p", "2K", "4K"].map((res) => (
+                                <button key={res} onClick={() => setSeciliCozunurluk(res as "1080p" | "2K" | "4K")} className={"flex-1 px-4 py-2 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all " + (seciliCozunurluk === res ? "bg-[#00e5ff] text-black" : "text-slate-400")}>{res}</button>
+                              ))}
+                            </div>
                           </div>
                         </div>
-                        <div className="w-full sm:w-auto">
-                          <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2">Çözünürlük:</span>
-                          <div className="flex bg-[#09090b] p-1 rounded-xl border border-white/5">
-                            {["1080p", "2K", "4K"].map((res) => (
-                              <button key={res} onClick={() => setSeciliCozunurluk(res as "1080p" | "2K" | "4K")} className={"flex-1 px-4 py-2 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all " + (seciliCozunurluk === res ? "bg-[#00e5ff] text-black" : "text-slate-400")}>{res}</button>
-                            ))}
-                          </div>
+                        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                          {[{ ad: "Valorant", kod: "Valorant" }, { ad: "CS:2", kod: "CS2" }, { ad: "GTA V", kod: "GTAV" }, { ad: "PUBG", kod: "PUBG" }].map((oyun) => (
+                            <div key={oyun.kod} className="bg-[#09090b]/80 backdrop-blur-md border border-[#00e5ff]/20 hover:border-[#00e5ff]/50 rounded-2xl p-5 flex flex-col items-center justify-center transition-all">
+                              <span className="text-slate-400 font-black text-[10px] tracking-widest uppercase mb-2">{oyun.ad}</span>
+                              <span className="text-3xl font-black text-white">{(fpsVerileri as any)[oyun.kod]?.[seciliIslemci]?.[seciliCozunurluk] || "0"}</span>
+                              <span className="text-[#00e5ff] text-[10px] font-bold mt-1.5 uppercase">FPS</span>
+                            </div>
+                          ))}
                         </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                        {[{ ad: "Valorant", kod: "Valorant" }, { ad: "CS:2", kod: "CS2" }, { ad: "GTA V", kod: "GTAV" }, { ad: "PUBG", kod: "PUBG" }].map((oyun) => (
-                          <div key={oyun.kod} className="bg-[#09090b] border border-[#00e5ff]/40 rounded-2xl p-5 flex flex-col items-center justify-center">
-                            <span className="text-slate-400 font-black text-[10px] tracking-widest uppercase mb-2">{oyun.ad}</span>
-                            <span className="text-3xl font-black text-white">{(fpsVerileri as any)[oyun.kod]?.[seciliIslemci]?.[seciliCozunurluk] || "0"}</span>
-                            <span className="text-[#00e5ff] text-[10px] font-bold mt-1.5 uppercase">FPS</span>
-                          </div>
-                        ))}
-                      </div>
-                   </div>
-               )}
+                     </div>
+                 )}
+               </div>
             </div>
 
-            {/* SADECE MASAÜSTÜNDE GÖRÜNEN ALT KAPATMA (Mobilde ekran zaten tam, çarpı solda) */}
-            <div className="hidden sm:block p-4 sm:p-5 border-t border-white/5 shrink-0 bg-[#121215] rounded-b-3xl z-10">
+            {/* SADECE MASAÜSTÜNDE GÖRÜNEN ALT KAPATMA BUTONU */}
+            <div className="hidden sm:block p-4 sm:p-5 border-t border-white/5 shrink-0 bg-[#121215] rounded-b-3xl z-20">
               <button onClick={() => setTeknikPopupAcik(false)} className="w-full bg-[#00e5ff] text-black font-black px-8 py-4 sm:py-3 rounded-xl hover:bg-[#00c4db] transition-all uppercase tracking-wider text-sm shadow-[0_0_15px_rgba(0,229,255,0.3)]">Kapat</button>
             </div>
           </div>
