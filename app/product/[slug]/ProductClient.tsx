@@ -45,7 +45,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [toastMessage, setToastMessage] = useState("");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"reviews" | "qa" | "fps">("reviews");
+  const [activeTab, setActiveTab] = useState("reviews");
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [showQuestionForm, setShowQuestionForm] = useState(false);
 
@@ -383,51 +383,19 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
 
 
-{/* 🚀 NEON DENİZ MAVİSİ 4'LÜ AKSİYON BARI */}
-        <div className="grid grid-cols-4 gap-2 my-6 px-1">
-          
-          {/* 1. KARŞILAŞTIR */}
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              karsilastirmayaEkle(product);
-              setPopupAcik(true);
-            }}
-            className="flex flex-col items-center justify-center gap-1 bg-[#00e5ff]/5 border border-[#00e5ff]/30 hover:border-[#00e5ff] text-slate-300 hover:text-[#00e5ff] p-3 rounded-xl transition-all shadow-[0_0_10px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] backdrop-blur-sm group"
-          >
-            <Scale className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
-            <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-tighter text-center">Karşılaştır</span>
-          </button>
-
-         <button onClick={(e) => { e.preventDefault(); setActiveTab("fps"); setTeknikPopupAcik(true); }} className="flex flex-col items-center justify-center gap-1 bg-[#00e5ff]/5 border border-[#00e5ff]/30 hover:border-[#00e5ff] text-slate-300 hover:text-[#00e5ff] p-3 rounded-xl transition-all shadow-[0_0_10px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] backdrop-blur-sm group z-10">
-  <Gamepad2 className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
-  <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-tighter text-center leading-none">FPS Testi</span>
-</button>
-          {/* 3. YORUMLAR (🚀 ŞEFİM BİNGO: SENİN ORİJİNAL KODUNLA BİREBİR AYNI) */}
-          <button
-            onClick={() => {
-              setActiveTab("reviews"); 
-              setIsModalOpen(true);
-            }}
-            className="flex flex-col items-center justify-center gap-1 bg-[#00e5ff]/5 border border-[#00e5ff]/30 hover:border-[#00e5ff] text-slate-300 hover:text-[#00e5ff] p-3 rounded-xl transition-all shadow-[0_0_10px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] backdrop-blur-sm group"
-          >
-            <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
-            <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-tighter text-center">Yorumlar</span>
-          </button>
-
-          {/* 4. TEKNİK BİLGİLER */}
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              setTeknikPopupAcik(true);
-            }}
-            className="flex flex-col items-center justify-center gap-1 bg-[#00e5ff]/5 border border-[#00e5ff]/30 hover:border-[#00e5ff] text-slate-300 hover:text-[#00e5ff] p-3 rounded-xl transition-all shadow-[0_0_10px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] backdrop-blur-sm group"
-          >
-            <Settings2 className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
-            <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-tighter text-center leading-none">Teknik<br/>Bilgiler</span>
-          </button>
-
-        </div>
+{/* ========================================================================= */}
+          {/* 🏎‍🟀 🚀 FERRARİ FİŞEK BUTONU (ANA MERKEZ) */}
+          {/* ========================================================================= */}
+          <div className="my-6 z-10 relative">
+            <button
+              onClick={(e) => { e.preventDefault(); setActiveTab("reviews"); setTeknikPopupAcik(true); }}
+              className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-red-600 via-orange-500 to-red-600 text-white p-5 rounded-2xl transition-all shadow-[0_0_30px_rgba(239,68,68,0.3)] hover:shadow-[0_0_50px_rgba(239,68,68,0.6)] hover:scale-[1.02] font-black uppercase tracking-widest group overflow-hidden relative"
+            >
+              <div className="absolute inset-0 bg-white/20 w-full translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out skew-x-12"></div>
+              <span className="text-2xl sm:text-3xl">🏎‍🟀 🚀</span>
+              <span className="text-xs sm:text-sm">Tüm Özellikler & Müşteri Deneyimi</span>
+            </button>
+          </div>
         
         {/* ========================================================================= */}
       {/* 🚀 JİLET GİBİ MAT SİYAH, 3 SEKMELİ (YORUM/TEKNİK/FPS) POPUP */}
