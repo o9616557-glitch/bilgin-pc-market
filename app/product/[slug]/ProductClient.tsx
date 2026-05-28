@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useCart } from "../../CartContext"; 
 import toast from "react-hot-toast";
 import { useCompare } from "@/app/CompareContext";
-import { X, Gamepad2, Cpu } from "lucide-react"; // Modern Cpu ikonu eklendi
+import { X, Gamepad2 } from "lucide-react";
 
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const { sepeteEkle } = useCart(); 
@@ -15,25 +15,26 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [seciliCozunurluk, setSeciliCozunurluk] = useState("1080P");
   const [seciliIslemci, setSeciliIslemci] = useState("i5");
 
+  // İşlemci kategorileri: i5(Tier 5), i7(Tier 7), i9(Tier 9) olarak baz alındı
   const fpsVerileri: any = {
     Valorant: {
       i5: { "1080P": "450+", "2K": "320+", "4K": "180+" },
-      r7: { "1080P": "510+", "2K": "360+", "4K": "195+" },
+      i7: { "1080P": "540+", "2K": "390+", "4K": "210+" },
       i9: { "1080P": "620+", "2K": "460+", "4K": "260+" }
     },
     CS2: {
       i5: { "1080P": "380+", "2K": "260+", "4K": "140+" },
-      r7: { "1080P": "410+", "2K": "290+", "4K": "160+" },
+      i7: { "1080P": "460+", "2K": "310+", "4K": "180+" },
       i9: { "1080P": "550+", "2K": "380+", "4K": "230+" }
     },
     GTAV: {
       i5: { "1080P": "165+", "2K": "120+", "4K": "70+" },
-      r7: { "1080P": "180+", "2K": "135+", "4K": "80+" },
+      i7: { "1080P": "190+", "2K": "145+", "4K": "85+" },
       i9: { "1080P": "220+", "2K": "170+", "4K": "105+" }
     },
     PUBG: {
       i5: { "1080P": "210+", "2K": "150+", "4K": "90+" },
-      r7: { "1080P": "235+", "2K": "175+", "4K": "105+" },
+      i7: { "1080P": "250+", "2K": "180+", "4K": "110+" },
       i9: { "1080P": "290+", "2K": "220+", "4K": "135+" }
     }
   };
@@ -79,7 +80,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     } catch (error) { setIsFav(oncekiDurum); }
   };
 
-  // ⚖️ KARŞILAŞTIRMA SESSİZLEŞTİRİLDİ (SADECE PENCEREYİ AÇAR)
+  // ⚖️ KARŞILAŞTIRMA PENCERESİNİ TETİKLER
   const handleCompare = () => {
     karsilastirmayaEkle(product);
     setTimeout(() => {
@@ -315,7 +316,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-      {/* 📱 YENİ NESİL KONTROL MERKEZİ GİBİ MOBİL ALT BAR */}
+      {/* 📱 YENİ NESİL KONTROL MERKEZİ GİBİ MOBİL ALT BAR (GÖRÜNÜR KAYDIRMA ÇUBUĞU EKLENDİ) */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-md border-t border-slate-800 p-2 z-[50] flex flex-col gap-2 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
         
         {/* KAYDIRILABİLİR ALAN VE NEON SCROLLBAR */}
@@ -337,7 +338,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </button>
       </div>
 
-      {/* 💎 MOBİLDE TAM EKRAN, YEPYENİ MODERN ARKAPLANLI POPUP */}
+      {/* 💎 MOBİLDE TAM EKRAN, X SAĞDA, ARKASI KLASİK "GAMING" FİLİGRANLI POPUP */}
       {teknikPopupAcik && (
         <div className="fixed inset-0 z-[999999] flex justify-center items-center p-0 sm:p-4 bg-black/80 backdrop-blur-md transition-all">
           <div className="absolute inset-0 hidden sm:block" onClick={() => setTeknikPopupAcik(false)}></div>
@@ -355,13 +356,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </button>
             </div>
 
-            {/* İÇERİK EKRANI VE SİBER/MODERN ARKAPLAN FİLİGRANI */}
+            {/* İÇERİK EKRANI VE GAMING FİLİGRANI */}
             <div className="custom-scrollbar overflow-y-auto flex-1 p-4 sm:p-6 flex flex-col text-slate-300 bg-[#09090b] relative">
                
-               {/* 🚀 ÇOK DAHA MODERN SİSTEM ÇEKİRDEĞİ FİLİGRANI */}
+               {/* 🚀 EFSANE ARKAPLAN SÜSLEMESİ (Şeffaf Oyun Kolu ve Yazı) */}
                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none flex flex-col items-center justify-center z-0">
-                  <Cpu className="w-48 h-48 sm:w-64 sm:h-64 text-[#00e5ff] mb-4" />
-                  <span className="text-4xl sm:text-5xl font-black tracking-[0.4em] text-[#00e5ff] uppercase ml-4 font-mono">V15_CORE</span>
+                  <Gamepad2 className="w-48 h-48 sm:w-64 sm:h-64 text-[#00e5ff] mb-4" />
+                  <span className="text-5xl sm:text-6xl font-black tracking-[0.5em] text-[#00e5ff] uppercase ml-4">GAMING</span>
                </div>
 
                {/* GERÇEK İÇERİKLER (Z-10 İLE ÖNDE DURUYOR) */}
@@ -416,19 +417,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
                  {activeTab === "fps" && (
                       <div className="space-y-6">
-                        <div className="bg-[#00e5ff]/5 border border-[#00e5ff]/30 p-4 rounded-xl flex gap-3 items-start">
-                          <span className="text-[#00e5ff] text-xl">ℹ️</span>
-                          <p className="text-[#00e5ff] text-[11px] sm:text-xs font-medium leading-relaxed opacity-90">
-                            <strong className="font-black tracking-wider">ÖNEMLİ NOT:</strong> FPS değerleri laboratuvar test sonuçlarıdır.
-                          </p>
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-between bg-[#121215]/80 backdrop-blur-md p-4 rounded-2xl border border-white/5">
+                        
+                        <div className="flex flex-col sm:flex-row gap-4 justify-between bg-[#121215]/80 backdrop-blur-md p-4 rounded-2xl border border-white/5 mt-2">
                           <div className="w-full sm:w-auto">
-                            <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2">İşlemci:</span>
+                            <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2">İşlemci Düzeyi:</span>
                             <div className="flex bg-[#09090b] p-1 rounded-xl border border-white/5">
-                              {/* RYZEN 7 VE CORE i İSİMLENDİRMELERİ GÜNCELLENDİ */}
-                              {[{ id: "i5", label: "CORE i5" }, { id: "r7", label: "RYZEN 7" }, { id: "i9", label: "CORE i9" }].map((islemci) => (
-                                <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as "i5" | "r7" | "i9")} className={"flex-1 px-3 py-2 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all " + (seciliIslemci === islemci.id ? "bg-[#00e5ff]/20 border border-[#00e5ff] text-white" : "text-slate-400")}>{islemci.label}</button>
+                              {/* INTEL VE RYZEN İSİMLERİ BİRLEŞTİRİLDİ */}
+                              {[{ id: "i5", label: "i5 / RYZEN 5" }, { id: "i7", label: "i7 / RYZEN 7" }, { id: "i9", label: "i9 / RYZEN 9" }].map((islemci) => (
+                                <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as "i5" | "i7" | "i9")} className={"flex-1 px-3 py-2 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all " + (seciliIslemci === islemci.id ? "bg-[#00e5ff]/20 border border-[#00e5ff] text-white" : "text-slate-400")}>{islemci.label}</button>
                               ))}
                             </div>
                           </div>
@@ -441,6 +437,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                             </div>
                           </div>
                         </div>
+
                         <div className="grid grid-cols-2 gap-3 sm:gap-4">
                           {[{ ad: "Valorant", kod: "Valorant" }, { ad: "CS:2", kod: "CS2" }, { ad: "GTA V", kod: "GTAV" }, { ad: "PUBG", kod: "PUBG" }].map((oyun) => (
                             <div key={oyun.kod} className="bg-[#09090b]/80 backdrop-blur-md border border-[#00e5ff]/20 hover:border-[#00e5ff]/50 rounded-2xl p-5 flex flex-col items-center justify-center transition-all">
@@ -449,6 +446,15 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                               <span className="text-[#00e5ff] text-[10px] font-bold mt-1.5 uppercase">FPS</span>
                             </div>
                           ))}
+                        </div>
+
+                        {/* MÜŞTERİ HUKUKİ/PSİKOLOJİK UYARISI */}
+                        <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl flex gap-3 items-start mt-6">
+                          <span className="text-red-500 text-xl">⚠️</span>
+                          <p className="text-red-400 text-[10px] sm:text-xs font-medium leading-relaxed opacity-90">
+                            <strong className="font-black tracking-wider block mb-1">MÜŞTERİ BİLGİLENDİRMESİ:</strong> 
+                            Yukarıdaki FPS değerleri ortalama test sonuçlarıdır. Oyun içi haritaya, anlık çatışma sahnelerine, arka planda çalışan uygulamalara ve ortam sıcaklığına göre FPS değerlerinde dalgalanmalar olabilir. Kesin taahhüt değildir.
+                          </p>
                         </div>
                      </div>
                  )}
