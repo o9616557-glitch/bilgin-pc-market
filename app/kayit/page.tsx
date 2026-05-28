@@ -59,6 +59,14 @@ export default function KayitPage() {
       
       <div className="w-full max-w-md bg-[#09090b] border-none sm:border border-white/10 rounded-none sm:rounded-2xl p-6 sm:p-8 min-h-screen sm:min-h-[auto] flex flex-col justify-center shadow-2xl relative z-10">
         
+{/* BİLGİN PC LOGO YAZISI */}
+<div className="flex flex-col items-center justify-center text-center w-full mb-8 mt-4 sm:mt-0">
+  <h1 className="text-3xl sm:text-4xl font-black uppercase tracking-[0.15em] text-transparent bg-clip-text bg-gradient-to-r from-[#00e5ff] to-[#0088ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.3)]">
+    BİLGİN PC
+  </h1>
+  <div className="h-[2px] w-12 bg-gradient-to-r from-transparent via-[#00e5ff] to-transparent mt-2"></div>
+</div>
+
         <h1 className="text-3xl font-black uppercase tracking-tighter mb-2 text-white drop-shadow-[0_0_10px_rgba(0,229,255,0.2)]">
           YENİ KAYIT
         </h1>
