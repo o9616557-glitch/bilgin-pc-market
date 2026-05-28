@@ -124,7 +124,7 @@ export default function SiparislerimPage() {
             </div>
         )}
 
-        {/* YÜKLEME EKRANI */}
+        {/* TEK HAYALETLİ YÜKLEME EKRANI */}
         {loading ? (
           <div className="flex flex-col gap-4">
             <div className="border border-slate-800/50 bg-[#09090b]/50 rounded-2xl p-6 sm:p-8 flex flex-col gap-6 relative overflow-hidden animate-pulse">
@@ -147,8 +147,8 @@ export default function SiparislerimPage() {
               <PackageOpen className="w-10 h-10 text-slate-600" />
             </div>
             <h2 className="text-xl font-black uppercase tracking-wide mb-2 text-white">Henüz Siparişiniz Yok</h2>
-            <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">Sistemde kayıtlı herhangi bir donanım siparişiniz bulunmuyor.</p>
-            <Link href="/" className="inline-block bg-[#00e5ff] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)]">
+            <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">Sistemde kayıtlı herhangi bir donanım siparişiniz bulunmuyor. Yeni nesil parçalar vitrinde sizi bekliyor.</p>
+            <Link href="/" className="inline-block bg-[#00e5ff] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:-translate-y-0.5">
               Alışverişe Başla
             </Link>
           </div>
@@ -161,7 +161,7 @@ export default function SiparislerimPage() {
               const currentStep = getStepNumber(order); 
               const adminMesaji = order.musteriMesaji || order.mesaj || order.adminMesaj || order.siparisNotu || order.kargoNotu || order.kargoTakipNo;
               
-              // 🚀 X-RAY İPTAL DEDEKTÖRÜ BURADA (DÜZELTİLDİ VE GERİ GELDİ)
+              // 🚀 ŞEFİM İŞTE HATAMI BURADA DÜZELTTİM: "İptal" bilgisini her yere aynı anda bakarak yakalıyoruz!
               const hamDurum = String(order.durum || "") + " " + String(order.status || "") + " " + String(order.searchableStatus || "");
               const isCancelled = hamDurum.toLowerCase().includes("iptal");
 
