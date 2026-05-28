@@ -9,6 +9,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const { sepeteEkle } = useCart(); 
   const { karsilastirmayaEkle, setPopupAcik } = useCompare();
   const [teknikPopupAcik, setTeknikPopupAcik] = useState(false);
+  const [islemciSeviyesi, setIslemciSeviyesi] = useState<"Düşük" | "Orta" | "Yüksek">("Orta");
   const [addingToCart, setAddingToCart] = useState(false);
   const [addedSuccess, setAddedSuccess] = useState(false);
   const [timeLeft, setTimeLeft] = useState("");
@@ -355,6 +356,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
+
+
 {/* 🚀 NEON DENİZ MAVİSİ 4'LÜ AKSİYON BARI */}
         <div className="grid grid-cols-4 gap-2 my-6 px-1">
           
@@ -441,6 +444,86 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </div>
           </div>
         )}
+
+{/* ========================================================================= */}
+          {/* 🎮 EKRAN KARTI DARBOĞAZ VE FPS TESTİ (İşlemci Şalterli) */}
+          {/* ========================================================================= */}
+          <div id="fps-testi" className="mt-4 mb-6 bg-[#09090b] border border-[#00e5ff]/20 rounded-3xl p-5 sm:p-6 relative overflow-hidden shadow-[0_0_30px_rgba(0,229,255,0.05)]">
+            
+            {/* Arka plan ışıması */}
+            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-[#00e5ff] blur-[80px] opacity-10 pointer-events-none"></div>
+
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-white/5 pb-4">
+              <div>
+                <h3 className="text-lg sm:text-xl font-black text-white uppercase tracking-wider flex items-center gap-2">
+                  <Gamepad2 className="w-6 h-6 text-[#00e5ff]" /> 
+                  Sistem Uyumu & FPS Testi
+                </h3>
+                <p className="text-slate-500 text-[10px] sm:text-xs mt-1.5 font-medium leading-relaxed max-w-md">
+                  * Bu ekran kartını evinizdeki <strong className="text-[#00e5ff]">işlemcinin gücüne göre</strong> eşleştirdiğinizde alacağınız ortalama FPS değerleri.
+                </p>
+              </div>
+
+              {/* İŞLEMCİ SEVİYESİ ŞALTERİ (Düşük - Orta - Yüksek) */}
+              <div className="flex bg-[#121215] p-1 rounded-xl border border-white/5 shrink-0 self-stretch sm:self-auto z-10 relative">
+                {["Düşük", "Orta", "Yüksek"].map((lvl) => (
+                  <button
+                    key={lvl}
+                    onClick={() => setIslemciSeviyesi(lvl as "Düşük" | "Orta" | "Yüksek")}
+                    className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
+                      islemciSeviyesi === lvl 
+                        ? "bg-[#00e5ff] text-black shadow-[0_0_15px_rgba(0,229,255,0.4)]" 
+                        : "text-slate-500 hover:text-white"
+                    }`}
+                  >
+                    {lvl} CPU
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* OYUN KARTLARI */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 relative z-10">
+              
+              {/* VALORANT */}
+              <div className="bg-[#121215] border border-white/5 hover:border-[#00e5ff]/50 rounded-2xl p-4 flex flex-col items-center justify-center transition-colors group">
+                <span className="text-slate-400 font-black text-[10px] tracking-widest uppercase mb-2">Valorant</span>
+                <span className="text-2xl font-black text-white group-hover:text-[#00e5ff] transition-colors leading-none">
+                  {islemciSeviyesi === "Yüksek" ? "450+" : islemciSeviyesi === "Orta" ? "280+" : "160+"}
+                </span>
+                <span className="text-[#00e5ff] text-[9px] font-bold mt-1 uppercase">FPS (1080p)</span>
+              </div>
+
+              {/* CS2 */}
+              <div className="bg-[#121215] border border-white/5 hover:border-[#00e5ff]/50 rounded-2xl p-4 flex flex-col items-center justify-center transition-colors group">
+                <span className="text-slate-400 font-black text-[10px] tracking-widest uppercase mb-2">CS:2</span>
+                <span className="text-2xl font-black text-white group-hover:text-[#00e5ff] transition-colors leading-none">
+                  {islemciSeviyesi === "Yüksek" ? "380+" : islemciSeviyesi === "Orta" ? "240+" : "120+"}
+                </span>
+                <span className="text-[#00e5ff] text-[9px] font-bold mt-1 uppercase">FPS (1080p)</span>
+              </div>
+
+              {/* GTA V */}
+              <div className="bg-[#121215] border border-white/5 hover:border-[#00e5ff]/50 rounded-2xl p-4 flex flex-col items-center justify-center transition-colors group">
+                <span className="text-slate-400 font-black text-[10px] tracking-widest uppercase mb-2">GTA V</span>
+                <span className="text-2xl font-black text-white group-hover:text-[#00e5ff] transition-colors leading-none">
+                  {islemciSeviyesi === "Yüksek" ? "165+" : islemciSeviyesi === "Orta" ? "110+" : "65+"}
+                </span>
+                <span className="text-[#00e5ff] text-[9px] font-bold mt-1 uppercase">FPS (Ultra)</span>
+              </div>
+
+              {/* PUBG */}
+              <div className="bg-[#121215] border border-white/5 hover:border-[#00e5ff]/50 rounded-2xl p-4 flex flex-col items-center justify-center transition-colors group">
+                <span className="text-slate-400 font-black text-[10px] tracking-widest uppercase mb-2">PUBG</span>
+                <span className="text-2xl font-black text-white group-hover:text-[#00e5ff] transition-colors leading-none">
+                  {islemciSeviyesi === "Yüksek" ? "210+" : islemciSeviyesi === "Orta" ? "130+" : "75+"}
+                </span>
+                <span className="text-[#00e5ff] text-[9px] font-bold mt-1 uppercase">FPS (Ultra)</span>
+              </div>
+
+            </div>
+          </div>
+
       <div className="fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-xl border-t border-white/10 p-3 sm:hidden z-[90] pb-safe max-w-[100vw]">
         <div className="flex items-center gap-2 max-w-full">
           
