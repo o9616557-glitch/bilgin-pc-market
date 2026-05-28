@@ -444,25 +444,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </div>
           </div>
         )}
-{/* ========================================================================= */}
-          {/* 🎮 EKRAN KARTI DARBOĞAZ VE FPS TESTİ (İşlemci Şalterli) */}
-          {/* ========================================================================= */}
 
-          <div id="fps-testi" className="mt-4 mb-6 bg-[#09090b] border border-[#00e5ff]/20 rounded-3xl p-5 sm:p-6 relative overflow-hidden shadow-[0_0_30px_rgba(0,229,255,0.05)]">
-            
-            {/* Arka plan ışıması */}
-            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-[#00e5ff] blur-[80px] opacity-10 pointer-events-none"></div>
-
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-white/5 pb-4">
-              <div>
-                <h3 className="text-lg sm:text-xl font-black text-white uppercase tracking-wider flex items-center gap-2">
-                  <Gamepad2 className="w-6 h-6 text-[#00e5ff]" /> 
-                  Sistem Uyumu & FPS Testi
-                </h3>
-                <p className="text-slate-500 text-[10px] sm:text-xs mt-1.5 font-medium leading-relaxed max-w-md">
-                  * Bu ekran kartını evinizdeki <strong className="text-[#00e5ff]">işlemcinin gücüne göre</strong> eşleştirdiğinizde alacağınız ortalama FPS değerleri.
-                </p>
-              </div>
 {/* ========================================================================= */}
           {/* 🎮 EKRAN KARTI FPS TESTİ (Direkt Açık - 1080p/2K/4K Şalterli) */}
           {/* ========================================================================= */}
