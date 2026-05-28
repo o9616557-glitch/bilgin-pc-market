@@ -16,7 +16,7 @@ export default function Header() {
 
   const { data: session } = useSession();
 
-  // Admin kontrolü (Kendi mailini buraya yaz)
+  // Admin kontrolü
   const ADMIN_EMAIL = "o9616557@gmail.com";
   const isAdmin = session?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
@@ -44,7 +44,6 @@ export default function Header() {
               <span style={{ display: "block", width: "22px", height: "2px", background: "#fff", transition: "all 0.3s", transform: menuAcik ? "rotate(-45deg) translate(6px, -6px)" : "none" }}></span>
             </button>
 
-            {/* 🚀 BİNGO: ANA LOGOYA TELEPATİK (PREFETCH) MOTOR TAKILDI! */}
             <Link href="/" prefetch={true} style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
               <span style={{ fontSize: "1.5rem", fontWeight: "900", color: "#ffffff", letterSpacing: "-1px", lineHeight: "1" }}>BİLGİN <span style={{ color: "#00e5ff" }}>PC</span></span>
             </Link>
@@ -52,7 +51,6 @@ export default function Header() {
 
           {/* ORTA: MASAÜSTÜ MENÜ */}
           <nav className="hidden md:flex" style={{ gap: "24px" }}>
-            {/* 🚀 BİNGO: MENÜDEKİ ANA SAYFA LİNKLERİNE DE NİTRO TAKILDI */}
             <Link href="/" prefetch={true} style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.9rem", fontWeight: "600" }}>Tüm Bilgisayarlar</Link>
             <Link href="/" prefetch={true} style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.9rem", fontWeight: "600" }}>Bilgisayar Parçaları</Link>
             <Link href="/" prefetch={true} style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.9rem", fontWeight: "600" }}>Aksesuar</Link>
@@ -73,7 +71,7 @@ export default function Header() {
               {hesabimAcik && (
                 <div style={{ position: "absolute", top: "50px", right: "0", background: "#09090b", border: "1px solid #27272a", borderRadius: "12px", width: "220px", padding: "8px", boxShadow: "0 10px 40px rgba(0,0,0,0.5)" }}>
 
-                  {/* KARGO TAKİP BUTONU */}
+                  {/* KARGO TAKİP BUTONU (NİTROLUNDU) */}
                   <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#00e5ff", background: "rgba(0, 229, 255, 0.05)", textDecoration: "none", fontSize: "0.85rem", borderRadius: "8px", fontWeight: "bold", marginBottom: "4px" }}>
                     <span>📦</span> Kargo / Sipariş Takip
                   </Link>
@@ -87,16 +85,17 @@ export default function Header() {
                         <p style={{ color: "#00e5ff", fontSize: "0.8rem", fontWeight: "600", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{session.user?.name || session.user?.email}</p>
                       </div>
 
-                      {/* 🚀 SİPARİŞLERİM (Artık Normal Sayfaya Gider) */}
+                      {/* 🚀 BİNGO: SİPARİŞLERİM SAYFASINA PREFETCH MOTORU TAKILDI! */}
                       <Link href="/siparislerim" prefetch={true} onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
                         <span>📋</span> Siparişlerim
                       </Link>
 
+                      {/* 🚀 BİNGO: ADRESLERİM SAYFASINA PREFETCH MOTORU TAKILDI! */}
                       <Link href="/adreslerim" prefetch={true} onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
                         <span>📍</span> Adreslerim
                       </Link>
 
-                      {/* 🚀 FAVORİLERİM (Artık Normal Sayfaya Gider) */}
+                      {/* 🚀 BİNGO: FAVORİLERİM SAYFASINA PREFETCH MOTORU TAKILDI! */}
                       <Link href="/favorilerim" prefetch={true} onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
                         <span>❤️</span> Favorilerim
                       </Link>
@@ -146,7 +145,6 @@ export default function Header() {
         {/* MOBİL MENÜ */}
         {menuAcik && (
           <div className="md:hidden" style={{ background: "#18181b", borderTop: "1px solid #27272a", padding: "16px 20px", display: "flex", flexDirection: "column", gap: "16px" }}>
-            {/* 🚀 BİNGO: MOBİL MENÜDEKİ LİNKLERE DE NİTRO TAKILDI */}
             <Link href="/" prefetch={true} onClick={() => setMenuAcik(false)} style={{ color: "#d4d4d8", textDecoration: "none", fontSize: "1rem", fontWeight: "600" }}>Tüm Bilgisayarlar</Link>
             <Link href="/" prefetch={true} onClick={() => setMenuAcik(false)} style={{ color: "#d4d4d8", textDecoration: "none", fontSize: "1rem", fontWeight: "600" }}>Bilgisayar Parçaları</Link>
             <Link href="/" prefetch={true} onClick={() => setMenuAcik(false)} style={{ color: "#d4d4d8", textDecoration: "none", fontSize: "1rem", fontWeight: "600" }}>Aksesuar</Link>
