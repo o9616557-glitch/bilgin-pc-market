@@ -15,26 +15,27 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [seciliCozunurluk, setSeciliCozunurluk] = useState("1080P");
   const [seciliIslemci, setSeciliIslemci] = useState("i5");
 
+  // RYZEN 7 OLARAK GÜNCELLENDİ
   const fpsVerileri: any = {
     Valorant: {
       i5: { "1080P": "450+", "2K": "320+", "4K": "180+" },
-      i7: { "1080P": "540+", "2K": "390+", "4K": "210+" },
-      i9: { "1080P": "620+", "2K": "460+", "4K": "260+" }
+      r7: { "1080P": "510+", "2K": "360+", "4K": "195+" },
+      i7: { "1080P": "620+", "2K": "460+", "4K": "260+" }
     },
     CS2: {
       i5: { "1080P": "380+", "2K": "260+", "4K": "140+" },
-      i7: { "1080P": "460+", "2K": "310+", "4K": "180+" },
-      i9: { "1080P": "550+", "2K": "380+", "4K": "230+" }
+      r7: { "1080P": "410+", "2K": "290+", "4K": "160+" },
+      i7: { "1080P": "550+", "2K": "380+", "4K": "230+" }
     },
     GTAV: {
       i5: { "1080P": "165+", "2K": "120+", "4K": "70+" },
-      i7: { "1080P": "190+", "2K": "145+", "4K": "85+" },
-      i9: { "1080P": "220+", "2K": "170+", "4K": "105+" }
+      r7: { "1080P": "180+", "2K": "135+", "4K": "80+" },
+      i7: { "1080P": "220+", "2K": "170+", "4K": "105+" }
     },
     PUBG: {
       i5: { "1080P": "210+", "2K": "150+", "4K": "90+" },
-      i7: { "1080P": "250+", "2K": "180+", "4K": "110+" },
-      i9: { "1080P": "290+", "2K": "220+", "4K": "135+" }
+      r7: { "1080P": "235+", "2K": "175+", "4K": "105+" },
+      i7: { "1080P": "290+", "2K": "220+", "4K": "135+" }
     }
   };
 
@@ -79,14 +80,31 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     } catch (error) { setIsFav(oncekiDurum); }
   };
 
+  // ⚖️ KARŞILAŞTIRMA VE DEV UYARI MESAJI EKLENDİ
   const handleCompare = () => {
     karsilastirmayaEkle(product);
-    showToast("⚖️ Karşılaştırmaya Eklendi!");
+    
+    // Ekranda çıkacak kocaman neon uyarı
+    toast("LÜTFEN İKİNCİ ÜRÜNÜ SEÇİN", {
+      duration: 5000,
+      icon: "👆",
+      style: {
+        background: "#09090b",
+        color: "#00e5ff",
+        border: "2px solid #00e5ff",
+        padding: "16px 24px",
+        fontSize: "14px",
+        fontWeight: "900",
+        textTransform: "uppercase",
+        boxShadow: "0 0 30px rgba(0,229,255,0.3)"
+      },
+    });
+
     setTimeout(() => {
       if (typeof setPopupAcik === "function") {
         setPopupAcik(true); 
       }
-    }, 100);
+    }, 300);
   };
 
   useEffect(() => {
@@ -296,6 +314,22 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </button>
           </div>
 
+          {/* MASAÜSTÜ: POPUPLARI AÇAN 4'LÜ HIZLI BUTON */}
+          <div className="hidden sm:grid grid-cols-4 gap-2 mb-6 z-10 relative">
+            <button onClick={(e) => { e.preventDefault(); setActiveTab("tech"); setTeknikPopupAcik(true); }} className="flex flex-col items-center justify-center gap-1.5 bg-[#121215] border border-white/10 hover:border-[#00e5ff]/50 text-slate-300 hover:text-white p-3 rounded-xl transition-all">
+              <span className="text-xl">⚙️</span><span className="text-[10px] font-black uppercase tracking-widest">Teknik</span>
+            </button>
+            <button onClick={(e) => { e.preventDefault(); setActiveTab("fps"); setTeknikPopupAcik(true); }} className="flex flex-col items-center justify-center gap-1.5 bg-[#121215] border border-white/10 hover:border-[#00e5ff]/50 text-slate-300 hover:text-white p-3 rounded-xl transition-all">
+              <span className="text-xl">🎮</span><span className="text-[10px] font-black uppercase tracking-widest">FPS Testi</span>
+            </button>
+            <button onClick={(e) => { e.preventDefault(); setActiveTab("reviews"); setTeknikPopupAcik(true); }} className="flex flex-col items-center justify-center gap-1.5 bg-[#121215] border border-white/10 hover:border-[#00e5ff]/50 text-slate-300 hover:text-white p-3 rounded-xl transition-all">
+              <span className="text-xl">⭐</span><span className="text-[10px] font-black uppercase tracking-widest">Yorumlar</span>
+            </button>
+            <button onClick={(e) => { e.preventDefault(); setActiveTab("questions"); setTeknikPopupAcik(true); }} className="flex flex-col items-center justify-center gap-1.5 bg-[#121215] border border-white/10 hover:border-[#00e5ff]/50 text-slate-300 hover:text-white p-3 rounded-xl transition-all">
+              <span className="text-xl">💬</span><span className="text-[10px] font-black uppercase tracking-widest">Sorular</span>
+            </button>
+          </div>
+
         </div>
       </div>
 
@@ -410,16 +444,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                           <div className="w-full sm:w-auto">
                             <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2">İşlemci:</span>
                             <div className="flex bg-[#09090b] p-1 rounded-xl border border-white/5">
-                              {[{ id: "i5", label: "i5 / R5" }, { id: "i7", label: "i7 / R7" }, { id: "i9", label: "i9 / R9" }].map((islemci) => (
-                                <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as "i5" | "i7" | "i9")} className={"flex-1 px-3 py-2 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all " + (seciliIslemci === islemci.id ? "bg-[#00e5ff]/20 border border-[#00e5ff] text-white" : "text-slate-400")}>{islemci.label}</button>
+                              {[{ id: "i5", label: "i5 / R5" }, { id: "r7", label: "RYZEN 7" }, { id: "i9", label: "i9 / R9" }].map((islemci) => (
+                                <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as "i5" | "r7" | "i9")} className={"flex-1 px-3 py-2 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all " + (seciliIslemci === islemci.id ? "bg-[#00e5ff]/20 border border-[#00e5ff] text-white" : "text-slate-400")}>{islemci.label}</button>
                               ))}
                             </div>
                           </div>
                           <div className="w-full sm:w-auto">
                             <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2">Çözünürlük:</span>
                             <div className="flex bg-[#09090b] p-1 rounded-xl border border-white/5">
-                              {["1080p", "2K", "4K"].map((res) => (
-                                <button key={res} onClick={() => setSeciliCozunurluk(res as "1080p" | "2K" | "4K")} className={"flex-1 px-4 py-2 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all " + (seciliCozunurluk === res ? "bg-[#00e5ff] text-black" : "text-slate-400")}>{res}</button>
+                              {["1080P", "2K", "4K"].map((res) => (
+                                <button key={res} onClick={() => setSeciliCozunurluk(res as "1080P" | "2K" | "4K")} className={"flex-1 px-4 py-2 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all " + (seciliCozunurluk === res ? "bg-[#00e5ff] text-black" : "text-slate-400")}>{res}</button>
                               ))}
                             </div>
                           </div>
