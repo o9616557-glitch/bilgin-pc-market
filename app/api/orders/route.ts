@@ -40,8 +40,8 @@ export async function GET() {
         image: item.image || item.resim || "https://app.bilginpcmarket.com/placeholder.png"
       }));
 
-      // 🚀 NÜKLEER TARAYICI: Admin paneli nereye yazarsa yazsın kaybetmemek için tüm durum kelimelerini birleştiriyoruz!
-      const butunDurumlar = `${order.durum || ""} ${order.status || ""} ${order.paymentMethod || ""}`;
+      // Ters tırnak kullanmadan, bozulmayacak şekilde birleştiriyoruz
+      const butunDurumlar = (order.durum || "") + " " + (order.status || "") + " " + (order.paymentMethod || "");
 
       return {
         ...order,
@@ -50,9 +50,11 @@ export async function GET() {
         totalPrice: Number(order.totalPrice || order.toplamTutar || order.genelToplam || 0),
         createdAt: order.createdAt || order.tarih || new Date().toISOString(),
         shippingAddress: order.shippingAddress || order.musteri || order.customerDetails || {},
-        // 🚀 Trenin (Vagonun) okuması için bu kelime deposunu yolluyoruz
         searchableStatus: butunDurumlar,
-        status: order.status || order.durum || "Hazırlanıyor"
+        
+        // 🚀 İŞTE BÜTÜN SORUNU ÇÖZEN NOKTA BURASI! 
+        // Önce patronun yazdığı 'durum'a bakacak, bulamazsa eski 'status'a bakacak.
+        status: order.durum || order.status || "Hazırlanıyor"
       };
     });
 
@@ -62,7 +64,6 @@ export async function GET() {
     return NextResponse.json({ message: "Sunucu hatası oluştu." }, { status: 500 });
   }
 }
-
 // =================================================================
 // 2. YENİ SİPARİŞ OLUŞTURMA MOTORU
 // =================================================================
