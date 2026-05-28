@@ -22,7 +22,6 @@ export default function Footer() {
               <h2 className="text-2xl font-black text-white uppercase tracking-wider mb-2">
                 BİLGİN <span className="text-[#00e5ff]">PC</span>
               </h2>
-              {/* 🚀 ŞEFİM: Sıradan sloganlar silindi, yerine modern ve kurumsal tanım yazıldı */}
               <p className="text-slate-400 text-sm leading-relaxed">
                 Yüksek performanslı bilgisayar bileşenleri ve yeni nesil donanım çözümleri. Güvenli alışveriş altyapısı ve kurumsal destekle hizmetinizdeyiz.
               </p>
@@ -91,24 +90,30 @@ export default function Footer() {
 
           <div className="flex flex-col gap-4">
             <h3 className="text-white font-black text-lg uppercase tracking-wider mb-2">Bize Ulaşın</h3>
-            <a href="https://wa.me/905000000000" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-[#10b981]/10 border border-[#10b981]/30 hover:bg-[#10b981]/20 transition-all p-3 rounded-xl group">
-              <MessageCircle className="w-6 h-6 text-[#10b981]" />
-              <div className="flex flex-col">
-                <span className="text-white font-bold text-sm">WhatsApp Destek</span>
-                <span className="text-[#10b981] text-[11px] font-bold uppercase tracking-wider">Hızlı Yanıt</span>
-              </div>
-            </a>
-            <a href="https://instagram.com/bilginpc" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-[#e1306c]/10 border border-[#e1306c]/30 hover:bg-[#e1306c]/20 transition-all p-3 rounded-xl group">
-              <svg width="24" height="24" className="text-[#e1306c] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-              </svg>
-              <div className="flex flex-col">
-                <span className="text-white font-bold text-sm">Instagram'da Biz</span>
-                <span className="text-[#e1306c] text-[11px] font-bold uppercase tracking-wider">Takip Et</span>
-              </div>
-            </a>
+            
+            {/* 🚀 BİNGO: Butonları "grid grid-cols-2" ile yan yana sabitledik! */}
+            <div className="grid grid-cols-2 gap-3 w-full">
+              <a href="https://wa.me/905000000000" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-[#10b981]/10 border border-[#10b981]/30 hover:bg-[#10b981]/20 transition-all p-3 rounded-xl group w-full">
+                <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 text-[#10b981] shrink-0" />
+                <div className="flex flex-col overflow-hidden">
+                  <span className="text-white font-bold text-xs sm:text-sm truncate">WhatsApp</span>
+                  <span className="text-[#10b981] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider truncate">Destek</span>
+                </div>
+              </a>
+              
+              <a href="https://instagram.com/bilginpc" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-[#e1306c]/10 border border-[#e1306c]/30 hover:bg-[#e1306c]/20 transition-all p-3 rounded-xl group w-full">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-[#e1306c] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                </svg>
+                <div className="flex flex-col overflow-hidden">
+                  <span className="text-white font-bold text-xs sm:text-sm truncate">Instagram</span>
+                  <span className="text-[#e1306c] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider truncate">Takip Et</span>
+                </div>
+              </a>
+            </div>
+            
           </div>
 
         </div>
@@ -117,7 +122,7 @@ export default function Footer() {
           <p className="text-slate-500 text-xs font-medium text-center md:text-left">
             © {new Date().getFullYear()} Bilgin PC Market Tüm Hakları Saklıdır.
           </p>
-          <div className="flex items-center gap-3 opacity-50 grayscale">
+          <div className="flex items-center justify-center md:justify-start gap-3 opacity-50 grayscale">
             <img src="https://iyzico.com/assets/images/iyzico-logo.svg" alt="iyzico" className="h-6 object-contain filter invert brightness-0" />
             <span className="text-slate-600 text-xl">|</span>
             <span className="text-slate-500 text-xs font-bold uppercase tracking-widest">Güvenli Alışveriş</span>
