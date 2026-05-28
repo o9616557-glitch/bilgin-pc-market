@@ -9,7 +9,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const { sepeteEkle } = useCart(); 
   const { karsilastirmayaEkle, setPopupAcik } = useCompare();
   const [teknikPopupAcik, setTeknikPopupAcik] = useState(false);
-  const [islemciSeviyesi, setIslemciSeviyesi] = useState<"Düşük" | "Orta" | "Yüksek">("Orta");
+   const [seciliCozunurluk, setSeciliCozunurluk] = useState<"1080p" | "2K" | "4K">("1080p");
   const [addingToCart, setAddingToCart] = useState(false);
   const [addedSuccess, setAddedSuccess] = useState(false);
   const [timeLeft, setTimeLeft] = useState("");
@@ -444,10 +444,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </div>
           </div>
         )}
-
 {/* ========================================================================= */}
           {/* 🎮 EKRAN KARTI DARBOĞAZ VE FPS TESTİ (İşlemci Şalterli) */}
           {/* ========================================================================= */}
+
           <div id="fps-testi" className="mt-4 mb-6 bg-[#09090b] border border-[#00e5ff]/20 rounded-3xl p-5 sm:p-6 relative overflow-hidden shadow-[0_0_30px_rgba(0,229,255,0.05)]">
             
             {/* Arka plan ışıması */}
@@ -463,62 +463,82 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   * Bu ekran kartını evinizdeki <strong className="text-[#00e5ff]">işlemcinin gücüne göre</strong> eşleştirdiğinizde alacağınız ortalama FPS değerleri.
                 </p>
               </div>
+{/* ========================================================================= */}
+          {/* 🎮 EKRAN KARTI FPS TESTİ (Direkt Açık - 1080p/2K/4K Şalterli) */}
+          {/* ========================================================================= */}
+          <div id="fps-testi" className="mt-8 mb-6 bg-[#09090b] border border-[#00e5ff]/20 rounded-3xl p-5 sm:p-6 relative overflow-hidden shadow-[0_0_30px_rgba(0,229,255,0.05)]">
+            
+            {/* Arka plan ışıması */}
+            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-[#00e5ff] blur-[80px] opacity-10 pointer-events-none"></div>
 
-              {/* İŞLEMCİ SEVİYESİ ŞALTERİ (Düşük - Orta - Yüksek) */}
-              <div className="flex bg-[#121215] p-1 rounded-xl border border-white/5 shrink-0 self-stretch sm:self-auto z-10 relative">
-                {["Düşük", "Orta", "Yüksek"].map((lvl) => (
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-4 border-b border-white/5 pb-5">
+              <div>
+                <h3 className="text-lg sm:text-xl font-black text-white uppercase tracking-wider flex items-center gap-2 mb-2">
+                  <Gamepad2 className="w-6 h-6 text-[#00e5ff]" /> 
+                  Oyun Performans Testi
+                </h3>
+                {/* 🚀 BİNGO: İŞLEMCİ İSİMLERİ BURADA KABAK GİBİ YAZIYOR */}
+                <div className="inline-flex items-center gap-2 bg-[#121215] border border-white/10 px-3 py-1.5 rounded-lg">
+                   <span className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider">Test Sistemi:</span>
+                   <span className="text-[#00e5ff] text-[10px] sm:text-xs font-black uppercase tracking-wider">Intel Core i5 / AMD Ryzen 5</span>
+                </div>
+              </div>
+
+              {/* 🚀 BİNGO: 1080p - 2K - 4K ŞALTERİ GERİ GELDİ */}
+              <div className="flex bg-[#121215] p-1 rounded-xl border border-white/5 shrink-0 self-stretch sm:self-auto z-10 relative mt-2 sm:mt-0">
+                {["1080p", "2K", "4K"].map((res) => (
                   <button
-                    key={lvl}
-                    onClick={() => setIslemciSeviyesi(lvl as "Düşük" | "Orta" | "Yüksek")}
-                    className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
-                      islemciSeviyesi === lvl 
+                    key={res}
+                    onClick={() => setSeciliCozunurluk(res as "1080p" | "2K" | "4K")}
+                    className={`flex-1 sm:flex-none px-5 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
+                      seciliCozunurluk === res 
                         ? "bg-[#00e5ff] text-black shadow-[0_0_15px_rgba(0,229,255,0.4)]" 
                         : "text-slate-500 hover:text-white"
                     }`}
                   >
-                    {lvl} CPU
+                    {res}
                   </button>
                 ))}
               </div>
             </div>
 
             {/* OYUN KARTLARI */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 relative z-10">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 relative z-10 mt-2">
               
               {/* VALORANT */}
               <div className="bg-[#121215] border border-white/5 hover:border-[#00e5ff]/50 rounded-2xl p-4 flex flex-col items-center justify-center transition-colors group">
                 <span className="text-slate-400 font-black text-[10px] tracking-widest uppercase mb-2">Valorant</span>
                 <span className="text-2xl font-black text-white group-hover:text-[#00e5ff] transition-colors leading-none">
-                  {islemciSeviyesi === "Yüksek" ? "450+" : islemciSeviyesi === "Orta" ? "280+" : "160+"}
+                  {seciliCozunurluk === "1080p" ? "450+" : seciliCozunurluk === "2K" ? "320+" : "180+"}
                 </span>
-                <span className="text-[#00e5ff] text-[9px] font-bold mt-1 uppercase">FPS (1080p)</span>
+                <span className="text-[#00e5ff] text-[9px] font-bold mt-1 uppercase opacity-80">FPS</span>
               </div>
 
               {/* CS2 */}
               <div className="bg-[#121215] border border-white/5 hover:border-[#00e5ff]/50 rounded-2xl p-4 flex flex-col items-center justify-center transition-colors group">
                 <span className="text-slate-400 font-black text-[10px] tracking-widest uppercase mb-2">CS:2</span>
                 <span className="text-2xl font-black text-white group-hover:text-[#00e5ff] transition-colors leading-none">
-                  {islemciSeviyesi === "Yüksek" ? "380+" : islemciSeviyesi === "Orta" ? "240+" : "120+"}
+                  {seciliCozunurluk === "1080p" ? "380+" : seciliCozunurluk === "2K" ? "260+" : "140+"}
                 </span>
-                <span className="text-[#00e5ff] text-[9px] font-bold mt-1 uppercase">FPS (1080p)</span>
+                <span className="text-[#00e5ff] text-[9px] font-bold mt-1 uppercase opacity-80">FPS</span>
               </div>
 
               {/* GTA V */}
               <div className="bg-[#121215] border border-white/5 hover:border-[#00e5ff]/50 rounded-2xl p-4 flex flex-col items-center justify-center transition-colors group">
                 <span className="text-slate-400 font-black text-[10px] tracking-widest uppercase mb-2">GTA V</span>
                 <span className="text-2xl font-black text-white group-hover:text-[#00e5ff] transition-colors leading-none">
-                  {islemciSeviyesi === "Yüksek" ? "165+" : islemciSeviyesi === "Orta" ? "110+" : "65+"}
+                  {seciliCozunurluk === "1080p" ? "165+" : seciliCozunurluk === "2K" ? "120+" : "70+"}
                 </span>
-                <span className="text-[#00e5ff] text-[9px] font-bold mt-1 uppercase">FPS (Ultra)</span>
+                <span className="text-[#00e5ff] text-[9px] font-bold mt-1 uppercase opacity-80">FPS</span>
               </div>
 
               {/* PUBG */}
               <div className="bg-[#121215] border border-white/5 hover:border-[#00e5ff]/50 rounded-2xl p-4 flex flex-col items-center justify-center transition-colors group">
                 <span className="text-slate-400 font-black text-[10px] tracking-widest uppercase mb-2">PUBG</span>
                 <span className="text-2xl font-black text-white group-hover:text-[#00e5ff] transition-colors leading-none">
-                  {islemciSeviyesi === "Yüksek" ? "210+" : islemciSeviyesi === "Orta" ? "130+" : "75+"}
+                  {seciliCozunurluk === "1080p" ? "210+" : seciliCozunurluk === "2K" ? "150+" : "90+"}
                 </span>
-                <span className="text-[#00e5ff] text-[9px] font-bold mt-1 uppercase">FPS (Ultra)</span>
+                <span className="text-[#00e5ff] text-[9px] font-bold mt-1 uppercase opacity-80">FPS</span>
               </div>
 
             </div>
