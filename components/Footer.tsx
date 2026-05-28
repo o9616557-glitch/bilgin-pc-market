@@ -6,10 +6,16 @@ import { Phone, Mail, MessageCircle, ShieldCheck, FileText, Info, RefreshCcw, Sm
 export default function Footer() {
   const pathname = usePathname(); 
 
-  if (pathname === "/sepet" || pathname === "/odeme") {
+ if (
+    pathname?.includes("/sepet") || 
+    pathname?.includes("/odeme") || 
+    pathname?.includes("/giris") || 
+    pathname?.includes("/kayit") || 
+    pathname?.includes("/login") || 
+    pathname?.includes("/register")
+  ) {
     return null;
   }
-
   return (
     <footer className="bg-[#09090b] border-t border-slate-800/80 pt-16 pb-28 md:pb-12 relative overflow-hidden shadow-[0_-15px_40px_rgba(0,229,255,0.03)] mt-auto">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-[#00e5ff] to-transparent opacity-20"></div>
