@@ -79,11 +79,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     } catch (error) { setIsFav(oncekiDurum); }
   };
 
-  // ⚖️ KARŞILAŞTIRMA TETİKLEYİCİSİ GÜÇLENDİRİLDİ
   const handleCompare = () => {
     karsilastirmayaEkle(product);
     showToast("⚖️ Karşılaştırmaya Eklendi!");
-    // Sistemin algılaması için ufak bir bekleme (timeout) ile açılış gönderildi
     setTimeout(() => {
       if (typeof setPopupAcik === "function") {
         setPopupAcik(true); 
@@ -290,7 +288,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             <button onClick={handleToggleFavorite} className={`flex-1 py-3 rounded-xl border flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider transition-all ${isFav ? "bg-red-500/10 border-red-500/30 text-red-500" : "bg-[#09090b] border-white/10 hover:bg-white/5 text-white"}`}>
               {isFav ? "❤️ Favorilerde" : "🤍 Favoriye Ekle"}
             </button>
-            <button onClick={handleCompare} className="flex-1 py-3 rounded-xl border border-white/10 bg-[#09090b] hover:bg-white/5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-white transition-all">
+            <button onClick={handleCompare} className="flex-1 py-3 rounded-xl border border-white/10 bg-[#09090b] hover:bg-white/5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-[#00e5ff] transition-all">
               ⚖️ Karşılaştır
             </button>
             <button onClick={handleShare} className="flex-1 py-3 rounded-xl border border-white/10 bg-[#09090b] hover:bg-white/5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-white transition-all">
@@ -301,13 +299,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-      {/* 📱 YENİ NESİL KONTROL MERKEZİ GİBİ MOBİL ALT BAR (KIYASLA AYNI RENK YAPILDI) */}
+      {/* 📱 YENİ NESİL KONTROL MERKEZİ GİBİ MOBİL ALT BAR (GÖRÜNÜR KAYDIRMA ÇUBUĞU EKLENDİ) */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-md border-t border-slate-800 p-2 z-[50] flex flex-col gap-2 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
-        <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        
+        {/* KAYDIRILABİLİR ALAN VE NEON SCROLLBAR */}
+        <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-2 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-[#121215] [&::-webkit-scrollbar-thumb]:bg-[#00e5ff]/50 [&::-webkit-scrollbar-thumb]:rounded-full">
            <button onClick={() => { setActiveTab("tech"); setTeknikPopupAcik(true); }} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">⚙️</span><span className="text-[10px] font-black uppercase tracking-wider">Teknik</span></button>
            <button onClick={() => { setActiveTab("fps"); setTeknikPopupAcik(true); }} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">🎮</span><span className="text-[10px] font-black uppercase tracking-wider">FPS</span></button>
            <div className="w-[1px] h-5 bg-white/10 shrink-0 mx-0.5"></div>
-           {/* KIYASLA BUTONU DİĞERLERİYLE AYNI YAPILDI */}
            <button onClick={handleCompare} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">⚖️</span><span className="text-[10px] font-black uppercase tracking-wider">Kıyasla</span></button>
            <button onClick={handleToggleFavorite} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-red-500 transition-colors"><span className="text-sm">{isFav ? "❤️" : "🤍"}</span><span className="text-[10px] font-black uppercase tracking-wider">Favori</span></button>
            <div className="w-[1px] h-5 bg-white/10 shrink-0 mx-0.5"></div>
@@ -315,6 +314,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
            <button onClick={() => { setActiveTab("questions"); setTeknikPopupAcik(true); }} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">💬</span><span className="text-[10px] font-black uppercase tracking-wider">Sorular</span></button>
            <button onClick={handleShare} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">📤</span><span className="text-[10px] font-black uppercase tracking-wider">Paylaş</span></button>
         </div>
+        
         <button type="button" onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`w-full h-14 font-black uppercase tracking-wider rounded-xl flex items-center justify-between px-5 transition-all ${tukendiMi ? "bg-zinc-800 text-zinc-500" : "bg-[#00e5ff] text-black shadow-[0_0_15px_rgba(0,229,255,0.3)] hover:bg-[#00c4db]"}`}>
            <span className="text-base">{tukendiMi ? "TÜKENDİ" : "SEPETE EKLE"}</span>
            {!tukendiMi && <div className="flex flex-col items-end leading-tight"><span className="text-[9px] opacity-80 font-black">HAVALE İLE</span><span className="text-sm font-black">{havaleFiyati.toLocaleString("tr-TR")} TL</span></div>}
