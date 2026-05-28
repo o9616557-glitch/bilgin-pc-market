@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useCart } from "../../CartContext"; 
 import toast from "react-hot-toast";
 import { useCompare } from "@/app/CompareContext";
-import { X, Gamepad2 } from "lucide-react"; // Cpu yerine Gamepad2 geri getirildi
+import { X, Gamepad2 } from "lucide-react";
 
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const { sepeteEkle } = useCart(); 
@@ -287,12 +287,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             <button onClick={handleToggleFavorite} className={`flex-1 py-3 rounded-xl border flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider transition-all ${isFav ? "bg-red-500/10 border-red-500/30 text-red-500" : "bg-[#09090b] border-white/10 hover:bg-white/5 text-white"}`}>
               {isFav ? "❤️ Favorilerde" : "🤍 Favoriye Ekle"}
             </button>
-            
-            {/* 🎯 MASAÜSTÜ KARŞILAŞTIRMA BUTONU RENGİ DÜZELTİLDİ (MAVİ YERİNE BEYAZ/GRİ YAPILDI) */}
             <button onClick={handleCompare} className="flex-1 py-3 rounded-xl border border-white/10 bg-[#09090b] hover:bg-white/5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-white transition-all">
               ⚖️ Karşılaştır
             </button>
-
             <button onClick={handleShare} className="flex-1 py-3 rounded-xl border border-white/10 bg-[#09090b] hover:bg-white/5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-white transition-all">
               {copied ? "🟩 Kopyalandı" : "📤 Paylaş / Kopyala"}
             </button>
@@ -346,6 +343,12 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           
           <div className="relative w-full h-full sm:h-auto sm:w-[700px] mx-auto bg-[#09090b] sm:border sm:border-[#00e5ff]/30 sm:rounded-3xl flex flex-col overflow-hidden shadow-[0_0_40px_rgba(0,229,255,0.1)]">
             
+            {/* 🚀 EFSANE GAMING ARKAPLAN SÜSLEMESİ (ARTIK TAMAMEN SABİT) */}
+            <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-0 overflow-hidden opacity-[0.03]">
+               <Gamepad2 className="w-48 h-48 sm:w-64 sm:h-64 text-[#00e5ff] mb-4" />
+               <span className="text-5xl sm:text-6xl font-black tracking-[0.5em] text-[#00e5ff] uppercase ml-4">GAMING</span>
+            </div>
+
             {/* BAŞLIK VE SAĞDA X TUŞU */}
             <div className="flex justify-between items-center px-4 sm:px-6 py-4 sm:py-5 border-b border-white/5 shrink-0 bg-[#121215] relative z-20">
               <h2 className="text-lg sm:text-xl font-black text-white uppercase tracking-wider flex items-center gap-2">
@@ -357,17 +360,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </button>
             </div>
 
-            {/* İÇERİK EKRANI (AŞAĞI KAYDIRMA KİLİDİ KIRILDI) */}
-            <div className="overflow-y-auto flex-1 p-4 sm:p-6 flex flex-col text-slate-300 bg-[#09090b] relative">
+            {/* İÇERİK EKRANI (Arkaplanı transparan yapıldı, böylece sabit filigran arkadan görünür) */}
+            <div className="overflow-y-auto flex-1 p-4 sm:p-6 flex flex-col text-slate-300 bg-transparent relative z-10">
                
-               {/* 🚀 EFSANE GAMING ARKAPLAN SÜSLEMESİ GERİ GELDİ */}
-               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none flex flex-col items-center justify-center z-0">
-                  <Gamepad2 className="w-48 h-48 sm:w-64 sm:h-64 text-[#00e5ff] mb-4" />
-                  <span className="text-5xl sm:text-6xl font-black tracking-[0.5em] text-[#00e5ff] uppercase ml-4">GAMING</span>
-               </div>
-
                {/* GERÇEK İÇERİKLER */}
-               <div className="relative z-10 pb-10">
+               <div className="pb-10">
                  {activeTab === "reviews" && (
                     <div className="space-y-4">
                       {reviews.length === 0 ? <p className="text-center py-5 text-slate-500 font-medium">Bu ürüne henüz yorum yapılmamış.</p> : reviews.map((rev, i) => (
@@ -421,11 +418,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                  {activeTab === "fps" && (
                       <div className="space-y-4 mt-2">
                         
-                        {/* 🎯 TELEFONDAKİ GİBİ ALT ALTA TASARIM (İŞLEMCİ VE ÇÖZÜNÜRLÜK AYRI SATIRLARDA) */}
                         <div>
                           <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2">İşlemci Düzeyi:</span>
                           <div className="flex gap-2 sm:gap-3">
-                            {/* 🎯 INTEL VE RYZEN YAZILARI BİREBİR AYNI BOYUT, AYNI OPASİTE */}
                             {[{ id: "i5", top: "INTEL i5", bottom: "RYZEN 5" }, { id: "i7", top: "INTEL i7", bottom: "RYZEN 7" }, { id: "i9", top: "INTEL i9", bottom: "RYZEN 9" }].map((islemci) => (
                               <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as "i5" | "i7" | "i9")} className={"flex-1 flex flex-col items-center justify-center py-2.5 px-2 rounded-xl border transition-all " + (seciliIslemci === islemci.id ? "bg-[#121215] border-[#00e5ff] text-[#00e5ff] shadow-[0_0_15px_rgba(0,229,255,0.2)]" : "bg-[#050814] border-white/5 text-slate-400 hover:text-white")}>
                                 <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider">{islemci.top}</span>
@@ -454,7 +449,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                           ))}
                         </div>
 
-                        {/* MÜŞTERİ HUKUKİ/PSİKOLOJİK UYARISI */}
                         <div className="bg-[#00e5ff]/5 border border-[#00e5ff]/20 p-4 rounded-xl flex gap-3 items-start mt-6">
                           <span className="text-[#00e5ff] text-xl">ℹ️</span>
                           <p className="text-slate-400 text-[10px] sm:text-xs font-medium leading-relaxed opacity-90">
