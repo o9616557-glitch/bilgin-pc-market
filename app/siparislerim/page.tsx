@@ -74,12 +74,11 @@ export default function SiparislerimPage() {
   };
 
   const getStepNumber = (order: any) => {
-    const s = (order.durum || order.status || "").toLowerCase();
-    if (s.includes("iptal")) return 5; 
+    const s = (order.searchableStatus || order.status || order.durum || "").toLowerCase();
     if (s.includes("teslim") || s.includes("tamam")) return 4;
     if (s.includes("kargo") || s.includes("gönder")) return 3;
-    if (s.includes("hazırla") || s.includes("öden") || s.includes("başarılı")) return 2;
-    return 1;
+    if (s.includes("hazırla") || s.includes("öden") || s.includes("başarılı") || s.includes("onay") || s.includes("kabul")) return 2;
+    return 1; 
   };
 
   const steps = [
@@ -125,7 +124,7 @@ export default function SiparislerimPage() {
             </div>
         )}
 
-        {/* TEK HAYALETLİ YÜKLEME EKRANI */}
+        {/* YÜKLEME EKRANI */}
         {loading ? (
           <div className="flex flex-col gap-4">
             <div className="border border-slate-800/50 bg-[#09090b]/50 rounded-2xl p-6 sm:p-8 flex flex-col gap-6 relative overflow-hidden animate-pulse">
@@ -148,8 +147,8 @@ export default function SiparislerimPage() {
               <PackageOpen className="w-10 h-10 text-slate-600" />
             </div>
             <h2 className="text-xl font-black uppercase tracking-wide mb-2 text-white">Henüz Siparişiniz Yok</h2>
-            <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">Sistemde kayıtlı herhangi bir donanım siparişiniz bulunmuyor. Yeni nesil parçalar vitrinde sizi bekliyor.</p>
-            <Link href="/" className="inline-block bg-[#00e5ff] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:-translate-y-0.5">
+            <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">Sistemde kayıtlı herhangi bir donanım siparişiniz bulunmuyor.</p>
+            <Link href="/" className="inline-block bg-[#00e5ff] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)]">
               Alışverişe Başla
             </Link>
           </div>
@@ -162,12 +161,13 @@ export default function SiparislerimPage() {
               const currentStep = getStepNumber(order); 
               const adminMesaji = order.musteriMesaji || order.mesaj || order.adminMesaj || order.siparisNotu || order.kargoNotu || order.kargoTakipNo;
               
-              const isCancelled = currentStep === 5;
+              // 🚀 X-RAY İPTAL DEDEKTÖRÜ BURADA (DÜZELTİLDİ VE GERİ GELDİ)
+              const hamDurum = String(order.durum || "") + " " + String(order.status || "") + " " + String(order.searchableStatus || "");
+              const isCancelled = hamDurum.toLowerCase().includes("iptal");
 
               return (
                 <div key={order._id} className="group border border-slate-800 bg-[#09090b] rounded-2xl p-6 transition-all duration-300 hover:border-[#00e5ff]/40 shadow-xl hover:shadow-[0_0_25px_rgba(0,229,255,0.03)] relative overflow-hidden">
                   
-                  {/* SİLME BUTONU */}
                   <button
                     onClick={() => handleDeleteClick(order._id)}
                     className="absolute top-4 right-4 p-2.5 text-slate-500 hover:text-red-500 bg-[#121215] border border-slate-800 hover:border-red-500/30 hover:bg-red-500/10 rounded-xl transition-all shadow-md z-20"
@@ -180,7 +180,6 @@ export default function SiparislerimPage() {
                     <div>
                       <p className="text-xs text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2 font-bold">
                         SİPARİŞ NO: <span className="text-[#00e5ff] font-black">{currentSiparisKodu}</span>
-                        {/* KOPYALAMA BUTONU */}
                         <button 
                           onClick={() => handleCopy(currentSiparisKodu)}
                           className="text-slate-400 hover:text-[#00e5ff] transition-colors bg-[#121215] border border-slate-800 p-1.5 rounded-lg"
@@ -244,7 +243,6 @@ export default function SiparislerimPage() {
                     )}
                   </div>
 
-                  {/* ADMİN MESAJI */}
                   {adminMesaji && (
                     <div className="mb-6 bg-[#0088ff]/10 border border-[#0088ff]/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm">
                       <MessageSquare className="w-5 h-5 text-[#00e5ff] flex-shrink-0 mt-0.5" />
@@ -255,7 +253,6 @@ export default function SiparislerimPage() {
                     </div>
                   )}
 
-                  {/* ÜRÜN RESİMLERİ VE LİSTESİ */}
                   <div className="border-t border-slate-800/80 pt-6 space-y-4">
                     {order.items?.map((item: any, idx: number) => (
                       <div key={idx} className="flex items-center justify-between gap-4 text-sm bg-[#121215] p-3 rounded-xl border border-slate-800/50">
@@ -279,7 +276,6 @@ export default function SiparislerimPage() {
                     ))}
                   </div>
 
-                  {/* TOPLAM FİYAT */}
                   <div className="mt-6 flex justify-between items-center bg-[#121215] border border-slate-800/80 p-5 rounded-xl shadow-inner">
                     <span className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Genel Toplam</span>
                     <span className="text-2xl font-black text-white tracking-tight">
