@@ -2,28 +2,28 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { HeartCrack, ArrowLeft, Trash2, ShoppingCart, Loader2 } from "lucide-react";
+import { HeartCrack, ArrowLeft, Trash2, ShoppingCart } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/app/CartContext";
 
 export default function FavorilerSayfasi() {
   const [favoriteProducts, setFavoriteProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
-  // 🚀 YENİ: Kaç hayalet (iskelet) göstereceğimizi hafızada tutuyoruz
-  const [expectedCount, setExpectedCount] = useState<number>(0); 
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
 
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
 
+  // 🚀 MOTOR: Tek seferde sorusuz sualsiz veriyi çeker.
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // ADIM 1: Sadece favori ID'lerini hızlıca soruyoruz
-        const favRes = await fetch("/api/favorites");
-        
+        const [favRes, prodRes] = await Promise.all([
+          fetch("/api/favorites"),
+          fetch("/api/products")
+        ]);
+
         if (favRes.status === 401) {
           toast.error("Favorilerinizi görmek için giriş yapmalısınız. 🔒");
           setFavoriteProducts([]);
@@ -31,30 +31,20 @@ export default function FavorilerSayfasi() {
           return;
         }
 
-        if (favRes.ok) {
+        if (favRes.ok && prodRes.ok) {
           const favData = await favRes.json();
+          const prodData = await prodRes.json();
+
           const ids = favData.favorites || [];
-          
-          // ADIM 2: Kaç ürün varsa o kadar hayalet göstermek için sayıyı kaydediyoruz!
-          setExpectedCount(ids.length);
+          const allProducts = prodData.products || prodData || [];
 
-          // Eğer hiç favori yoksa, sistemi burada durdur ve anında boş ekranı göster!
-          if (ids.length === 0) {
-            setFavoriteProducts([]);
-            setIsLoading(false);
-            return;
-          }
-
-          // ADIM 3: Favori varsa, ürünlerin detaylarını çek (bu sırada ekranda tam sayı kadar hayalet görünecek)
-          const prodRes = await fetch("/api/products");
-          if (prodRes.ok) {
-            const prodData = await prodRes.json();
-            const allProducts = prodData.products || prodData || [];
-
+          if (ids.length > 0) {
             const matchedProducts = allProducts.filter((urun: any) =>
               ids.includes(String(urun._id)) || ids.includes(String(urun.id))
             );
             setFavoriteProducts(matchedProducts);
+          } else {
+            setFavoriteProducts([]);
           }
         }
       } catch (error: any) {
@@ -132,33 +122,23 @@ export default function FavorilerSayfasi() {
           </div>
         </div>
 
-        {/* 🚀 AKILLI HAYALET YÜKLEME EKRANI */}
+        {/* 🚀 TEK HAYALETLİ YÜKLEME EKRANI (Hızlı ve Seri) */}
         {isLoading ? (
-          expectedCount > 0 ? (
-            // Eğer favori varsa, tam sayısı kadar (expectedCount) hayalet kutu çiz
-            <div className="flex flex-col gap-4">
-              {Array.from({ length: expectedCount }).map((_, index) => (
-                <div key={index} className="border border-slate-800/50 bg-[#09090b]/50 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-5 relative overflow-hidden">
-                  <div className="w-full sm:w-24 h-24 bg-slate-800/40 rounded-xl animate-pulse shrink-0"></div>
-                  <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
-                    <div className="flex flex-col flex-1 min-w-0 w-full">
-                      <div className="h-4 bg-slate-800/40 rounded-md w-3/4 mb-3 animate-pulse"></div>
-                      <div className="h-6 bg-slate-800/40 rounded-md w-1/3 animate-pulse"></div>
-                    </div>
-                    <div className="flex items-center gap-3 shrink-0 w-full sm:w-auto pt-4 sm:pt-0">
-                      <div className="w-10 h-10 bg-slate-800/40 rounded-xl animate-pulse"></div>
-                      <div className="h-11 w-full sm:w-32 bg-slate-800/40 rounded-xl animate-pulse"></div>
-                    </div>
-                  </div>
+          <div className="flex flex-col gap-4">
+            <div className="border border-slate-800/50 bg-[#09090b]/50 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-5 relative overflow-hidden">
+              <div className="w-full sm:w-24 h-24 bg-slate-800/40 rounded-xl animate-pulse shrink-0"></div>
+              <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
+                <div className="flex flex-col flex-1 min-w-0 w-full">
+                  <div className="h-4 bg-slate-800/40 rounded-md w-3/4 mb-3 animate-pulse"></div>
+                  <div className="h-6 bg-slate-800/40 rounded-md w-1/3 animate-pulse"></div>
                 </div>
-              ))}
+                <div className="flex items-center gap-3 shrink-0 w-full sm:w-auto pt-4 sm:pt-0">
+                  <div className="w-10 h-10 bg-slate-800/40 rounded-xl animate-pulse"></div>
+                  <div className="h-11 w-full sm:w-32 bg-slate-800/40 rounded-xl animate-pulse"></div>
+                </div>
+              </div>
             </div>
-          ) : (
-            // İlk bağlantı anında (henüz kaç favori olduğu bilinmiyorken) sadece küçük bir dönüş efekti
-            <div className="flex justify-center py-20">
-              <Loader2 className="w-8 h-8 text-[#00e5ff] animate-spin" />
-            </div>
-          )
+          </div>
         ) : favoriteProducts.length === 0 ? (
           
           /* 🚀 TAMAMEN BOŞ ARKA PLANLI VİTRİN EKRANI */
