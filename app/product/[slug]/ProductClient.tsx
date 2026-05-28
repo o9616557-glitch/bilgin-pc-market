@@ -45,7 +45,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [toastMessage, setToastMessage] = useState("");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("reviews");
+ const [activeTab, setActiveTab] = useState("reviews");
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [showQuestionForm, setShowQuestionForm] = useState(false);
 
@@ -383,134 +383,194 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
 
 
+{/* 🚀 NEON DENİZ MAVİSİ 4'LÜ AKSİYON BARI */}
+        <div className="grid grid-cols-4 gap-2 my-6 px-1">
+          
+          {/* 1. KARŞILAŞTIR */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              karsilastirmayaEkle(product);
+              setPopupAcik(true);
+            }}
+            className="flex flex-col items-center justify-center gap-1 bg-[#00e5ff]/5 border border-[#00e5ff]/30 hover:border-[#00e5ff] text-slate-300 hover:text-[#00e5ff] p-3 rounded-xl transition-all shadow-[0_0_10px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] backdrop-blur-sm group"
+          >
+            <Scale className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
+            <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-tighter text-center">Karşılaştır</span>
+          </button>
 
+         <button onClick={(e) => { e.preventDefault(); setActiveTab("fps"); setTeknikPopupAcik(true); }} className="flex flex-col items-center justify-center gap-1 bg-[#00e5ff]/5 border border-[#00e5ff]/30 hover:border-[#00e5ff] text-slate-300 hover:text-[#00e5ff] p-3 rounded-xl transition-all shadow-[0_0_10px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] backdrop-blur-sm group z-10">
+  <Gamepad2 className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
+  <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-tighter text-center leading-none">FPS Testi</span>
+</button>
+          {/* 3. YORUMLAR (🚀 ŞEFİM BİNGO: SENİN ORİJİNAL KODUNLA BİREBİR AYNI) */}
+          <button
+            onClick={() => {
+              setActiveTab("reviews"); 
+              setIsModalOpen(true);
+            }}
+            className="flex flex-col items-center justify-center gap-1 bg-[#00e5ff]/5 border border-[#00e5ff]/30 hover:border-[#00e5ff] text-slate-300 hover:text-[#00e5ff] p-3 rounded-xl transition-all shadow-[0_0_10px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] backdrop-blur-sm group"
+          >
+            <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
+            <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-tighter text-center">Yorumlar</span>
+          </button>
 
-       {/* ========================================================================= */}
-      {/* 💎 KİBAR VE MODERN 4 SEKMELİ POPUP (SADECE OKUMA VE ADMİN CEVAPLI) */}
+          {/* 4. TEKNİK BİLGİLER */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              setTeknikPopupAcik(true);
+            }}
+            className="flex flex-col items-center justify-center gap-1 bg-[#00e5ff]/5 border border-[#00e5ff]/30 hover:border-[#00e5ff] text-slate-300 hover:text-[#00e5ff] p-3 rounded-xl transition-all shadow-[0_0_10px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] backdrop-blur-sm group"
+          >
+            <Settings2 className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
+            <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-tighter text-center leading-none">Teknik<br/>Bilgiler</span>
+          </button>
+
+        </div>
+        
+        {/* ========================================================================= */}
+      {/* 🚀 JİLET GİBİ MAT SİYAH, 3 SEKMELİ (YORUM/TEKNİK/FPS) POPUP */}
       {/* ========================================================================= */}
       {teknikPopupAcik && (
-        <div className="fixed inset-0 z-[999999] flex justify-center items-center p-4 bg-black/80 backdrop-blur-md transition-all">
+        <div className="fixed inset-0 z-[999999] flex justify-center items-center p-4 bg-black/80 backdrop-blur-md transition-all animate-in fade-in duration-200">
           <div className="absolute inset-0" onClick={() => setTeknikPopupAcik(false)}></div>
           
-          <div className="relative w-full sm:w-[700px] mx-auto bg-[#09090b] border border-[#00e5ff]/30 rounded-3xl flex flex-col overflow-hidden shadow-[0_0_40px_rgba(0,229,255,0.1)]">
+          <div className="relative w-full sm:w-[700px] mx-auto bg-[#09090b] border border-[#00e5ff]/50 rounded-3xl flex flex-col overflow-hidden shadow-[0_0_50px_rgba(0,229,255,0.2)]">
             
             {/* BAŞLIK */}
             <div className="flex justify-between items-center px-6 py-5 border-b border-white/5 shrink-0 bg-[#121215] relative overflow-hidden">
-              <h2 className="text-lg font-black text-white uppercase tracking-wider flex items-center gap-2 relative z-10">
-                <span className="text-[#00e5ff] text-xl">⚡</span> 
-                Sistem ve Kullanıcı Deneyimi
+              <div className="absolute -top-10 -right-10 w-24 h-24 bg-[#00e5ff]/10 blur-[60px] opacity-20 pointer-events-none"></div>
+              <h2 className="text-xl font-black text-white uppercase tracking-wider flex items-center gap-2 relative z-10">
+                {activeTab === "fps" ? <Gamepad2 className="w-6 h-6 text-[#00e5ff]" /> : activeTab === "reviews" ? <MessageSquare className="w-6 h-6 text-[#00e5ff]" /> : <Settings2 className="w-6 h-6 text-[#00e5ff]" />} 
+                {activeTab === "fps" ? "OYUN PERFORMANSI" : activeTab === "reviews" ? "MÜŞTERİ DENEYİMİ" : "CİHAZ GENETİĞİ"}
               </h2>
               <button onClick={() => setTeknikPopupAcik(false)} className="text-slate-400 hover:text-white bg-[#09090b] border border-white/5 hover:bg-red-500/20 hover:border-red-500 rounded-xl p-2.5 transition-all z-10">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* 4'LÜ KAYDIRMALI SEKMELER */}
-            <div className="flex overflow-x-auto whitespace-nowrap border-b border-white/5 shrink-0 bg-[#09090b] relative z-10 custom-scrollbar">
-              <button onClick={() => setActiveTab("reviews")} className={"px-6 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all " + (activeTab === "reviews" ? "text-[#00e5ff] border-b-2 border-[#00e5ff] bg-[#00e5ff]/5" : "text-slate-500 hover:text-slate-300")}>⭐ Yorumlar</button>
-              <button onClick={() => setActiveTab("questions")} className={"px-6 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all " + (activeTab === "questions" ? "text-[#00e5ff] border-b-2 border-[#00e5ff] bg-[#00e5ff]/5" : "text-slate-500 hover:text-slate-300")}>💬 Soru & Cevap</button>
-              <button onClick={() => setActiveTab("tech")} className={"px-6 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all " + (activeTab === "tech" ? "text-[#00e5ff] border-b-2 border-[#00e5ff] bg-[#00e5ff]/5" : "text-slate-500 hover:text-slate-300")}>⚙️ Teknik Bilgiler</button>
-              <button onClick={() => setActiveTab("fps")} className={"px-6 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all " + (activeTab === "fps" ? "text-[#00e5ff] border-b-2 border-[#00e5ff] bg-[#00e5ff]/5" : "text-slate-500 hover:text-slate-300")}>🎮 FPS Testi</button>
+            {/* SEKMELER (FPS Eklendi) */}
+            <div className="flex border-b border-white/5 shrink-0 bg-[#09090b] relative z-10">
+              <button onClick={() => setActiveTab("reviews")} className={"flex-1 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all " + (activeTab === "reviews" ? "text-[#00e5ff] border-b-2 border-[#00e5ff] bg-[#00e5ff]/5" : "text-slate-500 hover:text-slate-300")}>⭐ Yorumlar</button>
+              <button onClick={() => setActiveTab("qa")} className={"flex-1 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all " + (activeTab === "qa" ? "text-[#00e5ff] border-b-2 border-[#00e5ff] bg-[#00e5ff]/5" : "text-slate-500 hover:text-slate-300")}>💬 Teknik</button>
+              <button onClick={() => setActiveTab("fps")} className={"flex-1 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all " + (activeTab === "fps" ? "text-[#00e5ff] border-b-2 border-[#00e5ff] bg-[#00e5ff]/5" : "text-slate-500 hover:text-slate-300")}>🎮 FPS Testi</button>
             </div>
 
-            {/* İÇERİK ALANI */}
+            {/* İÇERİK ALANI (Boyu Kısalmaz) */}
             <div className="custom-scrollbar overflow-y-auto p-4 sm:p-6 flex-none h-[65vh] sm:h-[500px] flex flex-col text-slate-300 bg-[#09090b]">
-               
-               {/* 1. YORUMLAR SEKMESİ */}
-               {activeTab === "reviews" && (
-                  <div className="space-y-4">
-                    {reviews.length === 0 ? <p className="text-center py-5 text-slate-500 font-medium">Bu ürüne henüz yorum yapılmamış.</p> : reviews.map((rev, i) => (
-                       <div key={i} className="mb-4 pb-4 border-b border-white/5">
-                          <div className="flex justify-between items-center mb-2">
-                             <span className="font-bold text-white">{rev.name || "İsimsiz"}</span>
-                             <span className="text-amber-400 text-xs">{"★".repeat(Number(rev.rating))}{"☆".repeat(5 - Number(rev.rating))}</span>
-                          </div>
-                          <p className="text-sm text-slate-400 mb-2">{rev.text}</p>
-                          {(rev.reply || rev.adminReply) && (
-                            <div className="ml-4 p-3 bg-[#00e5ff]/5 border-l-2 border-[#00e5ff] rounded-r-lg mt-2">
-                              <span className="font-black text-[#00e5ff] text-[10px] uppercase block mb-1">Yetkili Cevabı:</span>
-                              <p className="text-sm text-slate-300">{rev.reply || rev.adminReply}</p>
+              
+              {/* --- YORUMLAR SEKMESİ --- */}
+              {activeTab === "reviews" && (
+                 <div className="space-y-4">
+                    {reviews.length === 0 ? (
+                      <p className="text-center py-10 text-slate-500 font-medium">Bu ürüne henüz yorum yapılmamış.</p>
+                    ) : (
+                      reviews.map((rev, i) => (
+                         <div key={i} className="mb-4 pb-4 border-b border-white/5">
+                            <div className="flex justify-between items-center mb-2">
+                               <span className="font-bold text-white">{rev.name || "İsimsiz"}</span>
+                               <span className="text-amber-400 text-xs">{"★".repeat(Number(rev.rating))}{"☆".repeat(5 - Number(rev.rating))}</span>
                             </div>
-                          )}
-                       </div>
-                    ))}
-                  </div>
-               )}
+                            <p className="text-sm text-slate-400">{rev.text}</p>
+                         </div>
+                      ))
+                    )}
+                 </div>
+              )}
 
-               {/* 2. SORU VE CEVAP SEKMESİ */}
-               {activeTab === "questions" && (
-                  <div className="space-y-4">
-                    {questions.length === 0 ? <p className="text-center py-5 text-slate-500 font-medium">Henüz soru sorulmamış.</p> : questions.map((q, i) => (
-                       <div key={i} className="mb-4 pb-4 border-b border-white/5">
-                          <span className="font-bold text-white block mb-1">❓ {q.name || "Müşteri"}:</span>
-                          <p className="text-sm text-slate-300 mb-3">{q.text}</p>
-                          {(q.reply || q.adminReply) && (
-                            <div className="ml-4 p-3 bg-[#00e5ff]/5 border-l-2 border-[#00e5ff] rounded-r-lg mt-2">
-                              <span className="font-black text-[#00e5ff] text-[10px] uppercase block mb-1">Yetkili Cevabı:</span>
-                              <p className="text-sm text-slate-300">{q.reply || q.adminReply}</p>
-                            </div>
-                          )}
-                       </div>
-                    ))}
-                  </div>
-               )}
-
-               {/* 3. TEKNİK BİLGİLER SEKMESİ */}
-               {activeTab === "tech" && product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 ? (
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                       {Object.entries(product.teknik_ozellikler).map(([anahtar, deger]) => (
-                          <div key={anahtar} className="flex justify-between items-center py-3 border-b border-white/5 px-3 rounded-lg">
-                            <span className="text-slate-500 font-bold text-[10px] sm:text-xs uppercase w-1/2">{anahtar}</span>
-                            <span className="text-white font-medium text-xs sm:text-sm w-1/2 text-right">{deger as string}</span>
-                          </div>
-                       ))}
-                   </div>
-               ) : activeTab === "tech" && <p className="text-center py-10 text-slate-500 font-medium">Teknik detay bulunamadı.</p>}
-
-               {/* 4. FPS TESTİ SEKMESİ */}
-               {activeTab === "fps" && (
-                    <div className="space-y-6">
-                      <div className="bg-[#00e5ff]/5 border border-[#00e5ff]/30 p-4 rounded-xl flex gap-3 items-start">
-                        <span className="text-[#00e5ff] text-xl">ℹ️</span>
-                        <p className="text-[#00e5ff] text-[11px] sm:text-xs font-medium leading-relaxed opacity-90">
-                          <strong className="font-black tracking-wider">ÖNEMLİ NOT:</strong> FPS değerleri laboratuvar test sonuçlarıdır.
-                        </p>
-                      </div>
-                      <div className="flex flex-col sm:flex-row gap-4 justify-between bg-[#121215] p-4 rounded-2xl border border-white/5">
-                        <div className="w-full sm:w-auto">
-                          <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2">İşlemci:</span>
-                          <div className="flex bg-[#09090b] p-1 rounded-xl border border-white/5">
-                            {[{ id: "i5", label: "i5 / R5" }, { id: "i7", label: "i7 / R7" }, { id: "i9", label: "i9 / R9" }].map((islemci) => (
-                              <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as "i5" | "i7" | "i9")} className={"flex-1 px-3 py-2 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all " + (seciliIslemci === islemci.id ? "bg-[#00e5ff]/20 border border-[#00e5ff] text-white" : "text-slate-400")}>{islemci.label}</button>
-                            ))}
-                          </div>
+              {/* --- TEKNİK BİLGİLER SEKMESİ --- */}
+              {activeTab === "qa" && product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 ? (
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                     {Object.entries(product.teknik_ozellikler).map(([anahtar, deger]) => (
+                        <div key={anahtar} className="flex justify-between items-center py-3 border-b border-white/5 hover:bg-white/5 px-3 rounded-lg transition-colors group">
+                          <span className="text-slate-500 font-bold text-[10px] sm:text-xs uppercase tracking-wider group-hover:text-[#00e5ff] transition-colors w-1/2 text-left">{anahtar}</span>
+                          <span className="text-white font-medium text-xs sm:text-sm transition-colors w-1/2 text-right">{deger as string}</span>
                         </div>
-                        <div className="w-full sm:w-auto">
-                          <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2">Çözünürlük:</span>
-                          <div className="flex bg-[#09090b] p-1 rounded-xl border border-white/5">
-                            {["1080p", "2K", "4K"].map((res) => (
-                              <button key={res} onClick={() => setSeciliCozunurluk(res as "1080p" | "2K" | "4K")} className={"flex-1 px-4 py-2 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all " + (seciliCozunurluk === res ? "bg-[#00e5ff] text-black" : "text-slate-400")}>{res}</button>
-                            ))}
-                          </div>
+                     ))}
+                 </div>
+              ) : activeTab === "qa" && (
+                 <p className="text-center py-10 text-slate-500 font-medium">Bu ürün için teknik detay bulunamadı.</p>
+              )}
+
+              {/* --- 🚀 YENİ: FPS TESTİ SEKMESİ --- */}
+              {activeTab === "fps" && (
+                 <div className="space-y-6">
+                    
+                    {/* HUKUKİ / MÜŞTERİ UYARI METNİ */}
+                    <div className="bg-[#00e5ff]/5 border border-[#00e5ff]/30 p-4 rounded-xl flex gap-3 items-start">
+                      <span className="text-[#00e5ff] text-xl">ℹ️</span>
+                      <p className="text-[#00e5ff] text-[11px] sm:text-xs font-medium leading-relaxed opacity-90">
+                        <strong className="font-black tracking-wider">ÖNEMLİ NOT:</strong> Buradaki FPS değerleri laboratuvar ortamında kaydedilmiş ortalama test sonuçlarıdır. Oyunların aldığı güncellemeler, anlık sunucu yoğunluğu ve arka planda çalışan uygulamalara bağlı olarak <strong className="text-white font-bold">±%5 ile %10 arasında</strong> değişiklik gösterebilir.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center bg-[#121215] p-4 rounded-2xl border border-white/5">
+                      
+                      {/* ŞALTER 1: İŞLEMCİ SINIFI */}
+                      <div className="w-full sm:w-auto">
+                        <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2">Eşleşen İşlemci Sınıfı:</span>
+                        <div className="flex bg-[#09090b] p-1 rounded-xl border border-white/5">
+                          {[{ id: "i5", label: "i5 / R5" }, { id: "i7", label: "i7 / R7" }, { id: "i9", label: "i9 / R9" }].map((islemci) => (
+                            <button
+                              key={islemci.id}
+                              onClick={() => setSeciliIslemci(islemci.id as "i5" | "i7" | "i9")}
+                              className={`flex-1 px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-black uppercase tracking-wider transition-all ${
+                                seciliIslemci === islemci.id 
+                                  ? "bg-gradient-to-r from-[#00e5ff]/20 to-transparent border border-[#00e5ff] text-white shadow-[0_0_10px_rgba(0,229,255,0.4)]" 
+                                  : "text-slate-400 hover:text-white"
+                              }`}
+                            >
+                              {islemci.label}
+                            </button>
+                          ))}
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                        {[{ ad: "Valorant", kod: "Valorant" }, { ad: "CS:2", kod: "CS2" }, { ad: "GTA V", kod: "GTAV" }, { ad: "PUBG", kod: "PUBG" }].map((oyun) => (
-                          <div key={oyun.kod} className="bg-[#09090b] border border-[#00e5ff]/40 rounded-2xl p-5 flex flex-col items-center justify-center">
-                            <span className="text-slate-400 font-black text-[10px] tracking-widest uppercase mb-2">{oyun.ad}</span>
-                            <span className="text-3xl font-black text-white">{(fpsVerileri as any)[oyun.kod]?.[seciliIslemci]?.[seciliCozunurluk] || "0"}</span>
-                            <span className="text-[#00e5ff] text-[10px] font-bold mt-1.5 uppercase">FPS</span>
-                          </div>
-                        ))}
+
+                      {/* ŞALTER 2: ÇÖZÜNÜRLÜK */}
+                      <div className="w-full sm:w-auto">
+                        <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2">Çözünürlük:</span>
+                        <div className="flex bg-[#09090b] p-1 rounded-xl border border-white/5">
+                          {["1080p", "2K", "4K"].map((res) => (
+                            <button
+                              key={res}
+                              onClick={() => setSeciliCozunurluk(res as "1080p" | "2K" | "4K")}
+                              className={`flex-1 px-4 sm:px-5 py-2 rounded-lg text-[10px] sm:text-xs font-black uppercase tracking-wider transition-all ${
+                                seciliCozunurluk === res 
+                                  ? "bg-[#00e5ff] text-black shadow-[0_0_10px_rgba(0,229,255,0.4)]" 
+                                  : "text-slate-400 hover:text-white"
+                              }`}
+                            >
+                              {res}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                   </div>
-               )}
+                    </div>
+
+                    {/* NEON PARLAYAN OYUN KARTLARI (Deniz Mavisi Sınırlar) */}
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4 relative z-10">
+                      
+                      {[{ ad: "Valorant", kod: "Valorant" }, { ad: "CS:2", kod: "CS2" }, { ad: "GTA V", kod: "GTAV" }, { ad: "PUBG", kod: "PUBG" }].map((oyun) => (
+                        <div key={oyun.kod} className="bg-[#09090b] border border-[#00e5ff]/40 shadow-[0_0_15px_rgba(0,229,255,0.15)] hover:shadow-[0_0_25px_rgba(0,229,255,0.3)] hover:border-[#00e5ff] rounded-2xl p-5 flex flex-col items-center justify-center transition-all group">
+                          <span className="text-slate-400 font-black text-[10px] sm:text-xs tracking-widest uppercase mb-2">{oyun.ad}</span>
+                          <span className="text-3xl sm:text-4xl font-black text-white group-hover:text-[#00e5ff] transition-colors leading-none">
+                            {fpsVerileri[oyun.kod as keyof typeof fpsVerileri][seciliIslemci][seciliCozunurluk]}
+                          </span>
+                          <span className="text-[#00e5ff] text-[10px] font-bold mt-1.5 uppercase opacity-90">FPS</span>
+                        </div>
+                      ))}
+                    </div>
+                    
+                 </div>
+              )}
+
             </div>
 
-            {/* ALT KAPATMA BUTONU */}
             <div className="p-4 sm:p-5 border-t border-white/5 shrink-0 bg-[#121215] rounded-b-3xl z-10">
               <button onClick={() => setTeknikPopupAcik(false)} className="w-full bg-[#00e5ff] text-black font-black px-8 py-4 sm:py-3 rounded-xl hover:bg-[#00c4db] transition-all uppercase tracking-wider text-sm shadow-[0_0_15px_rgba(0,229,255,0.3)]">Anladım, Kapat</button>
             </div>
+
           </div>
         </div>
       )}
