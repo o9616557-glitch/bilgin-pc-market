@@ -44,16 +44,18 @@ export default function Header() {
               <span style={{ display: "block", width: "22px", height: "2px", background: "#fff", transition: "all 0.3s", transform: menuAcik ? "rotate(-45deg) translate(6px, -6px)" : "none" }}></span>
             </button>
 
-            <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
+            {/* 🚀 BİNGO: ANA LOGOYA TELEPATİK (PREFETCH) MOTOR TAKILDI! */}
+            <Link href="/" prefetch={true} style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
               <span style={{ fontSize: "1.5rem", fontWeight: "900", color: "#ffffff", letterSpacing: "-1px", lineHeight: "1" }}>BİLGİN <span style={{ color: "#00e5ff" }}>PC</span></span>
             </Link>
           </div>
 
           {/* ORTA: MASAÜSTÜ MENÜ */}
           <nav className="hidden md:flex" style={{ gap: "24px" }}>
-            <Link href="/" style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.9rem", fontWeight: "600" }}>Tüm Bilgisayarlar</Link>
-            <Link href="/" style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.9rem", fontWeight: "600" }}>Bilgisayar Parçaları</Link>
-            <Link href="/" style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.9rem", fontWeight: "600" }}>Aksesuar</Link>
+            {/* 🚀 BİNGO: MENÜDEKİ ANA SAYFA LİNKLERİNE DE NİTRO TAKILDI */}
+            <Link href="/" prefetch={true} style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.9rem", fontWeight: "600" }}>Tüm Bilgisayarlar</Link>
+            <Link href="/" prefetch={true} style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.9rem", fontWeight: "600" }}>Bilgisayar Parçaları</Link>
+            <Link href="/" prefetch={true} style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.9rem", fontWeight: "600" }}>Aksesuar</Link>
           </nav>
 
           {/* SAĞ TARAF (Hesabım & Sepet) */}
@@ -72,7 +74,7 @@ export default function Header() {
                 <div style={{ position: "absolute", top: "50px", right: "0", background: "#09090b", border: "1px solid #27272a", borderRadius: "12px", width: "220px", padding: "8px", boxShadow: "0 10px 40px rgba(0,0,0,0.5)" }}>
 
                   {/* KARGO TAKİP BUTONU */}
-                  <Link href="/siparis-takip" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#00e5ff", background: "rgba(0, 229, 255, 0.05)", textDecoration: "none", fontSize: "0.85rem", borderRadius: "8px", fontWeight: "bold", marginBottom: "4px" }}>
+                  <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#00e5ff", background: "rgba(0, 229, 255, 0.05)", textDecoration: "none", fontSize: "0.85rem", borderRadius: "8px", fontWeight: "bold", marginBottom: "4px" }}>
                     <span>📦</span> Kargo / Sipariş Takip
                   </Link>
 
@@ -86,16 +88,16 @@ export default function Header() {
                       </div>
 
                       {/* 🚀 SİPARİŞLERİM (Artık Normal Sayfaya Gider) */}
-                      <Link href="/siparislerim" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
+                      <Link href="/siparislerim" prefetch={true} onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
                         <span>📋</span> Siparişlerim
                       </Link>
 
-                      <Link href="/adreslerim" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
+                      <Link href="/adreslerim" prefetch={true} onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
                         <span>📍</span> Adreslerim
                       </Link>
 
                       {/* 🚀 FAVORİLERİM (Artık Normal Sayfaya Gider) */}
-                      <Link href="/favorilerim" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
+                      <Link href="/favorilerim" prefetch={true} onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
                         <span>❤️</span> Favorilerim
                       </Link>
 
@@ -116,10 +118,10 @@ export default function Header() {
                     </>
                   ) : (
                     <>
-                      <Link href="/giris" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#ffffff", background: "rgba(0, 229, 255, 0.1)", textDecoration: "none", fontSize: "0.85rem", borderRadius: "8px" }}>
+                      <Link href="/giris" prefetch={true} onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#ffffff", background: "rgba(0, 229, 255, 0.1)", textDecoration: "none", fontSize: "0.85rem", borderRadius: "8px" }}>
                         <span>🔑</span> Giriş Yap
                       </Link>
-                      <Link href="/kayit" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#fff", textDecoration: "none", fontSize: "0.85rem" }}>
+                      <Link href="/kayit" prefetch={true} onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#fff", textDecoration: "none", fontSize: "0.85rem" }}>
                         <span>📝</span> Yeni Kayıt
                       </Link>
                     </>
@@ -129,7 +131,7 @@ export default function Header() {
             </div>
 
             {/* SEPETİM BUTONU */}
-            <Link href="/sepet" style={{ position: "relative", textDecoration: "none", display: "flex", alignItems: "center", gap: "6px", background: "#18181b", padding: "8px 14px", height: "42px", boxSizing: "border-box", borderRadius: "8px", border: "1px solid #27272a", color: "#fff" }}>
+            <Link href="/sepet" prefetch={true} style={{ position: "relative", textDecoration: "none", display: "flex", alignItems: "center", gap: "6px", background: "#18181b", padding: "8px 14px", height: "42px", boxSizing: "border-box", borderRadius: "8px", border: "1px solid #27272a", color: "#fff" }}>
               <span style={{ fontSize: "16px" }}>🛒</span>
               <span className="hidden sm:inline" style={{ fontWeight: "600", color: "#a1a1aa", fontSize: "0.85rem" }}>Sepetim</span>
               {sepetAdedi > 0 && (
@@ -144,9 +146,10 @@ export default function Header() {
         {/* MOBİL MENÜ */}
         {menuAcik && (
           <div className="md:hidden" style={{ background: "#18181b", borderTop: "1px solid #27272a", padding: "16px 20px", display: "flex", flexDirection: "column", gap: "16px" }}>
-            <Link href="/" onClick={() => setMenuAcik(false)} style={{ color: "#d4d4d8", textDecoration: "none", fontSize: "1rem", fontWeight: "600" }}>Tüm Bilgisayarlar</Link>
-            <Link href="/" onClick={() => setMenuAcik(false)} style={{ color: "#d4d4d8", textDecoration: "none", fontSize: "1rem", fontWeight: "600" }}>Bilgisayar Parçaları</Link>
-            <Link href="/" onClick={() => setMenuAcik(false)} style={{ color: "#d4d4d8", textDecoration: "none", fontSize: "1rem", fontWeight: "600" }}>Aksesuar</Link>
+            {/* 🚀 BİNGO: MOBİL MENÜDEKİ LİNKLERE DE NİTRO TAKILDI */}
+            <Link href="/" prefetch={true} onClick={() => setMenuAcik(false)} style={{ color: "#d4d4d8", textDecoration: "none", fontSize: "1rem", fontWeight: "600" }}>Tüm Bilgisayarlar</Link>
+            <Link href="/" prefetch={true} onClick={() => setMenuAcik(false)} style={{ color: "#d4d4d8", textDecoration: "none", fontSize: "1rem", fontWeight: "600" }}>Bilgisayar Parçaları</Link>
+            <Link href="/" prefetch={true} onClick={() => setMenuAcik(false)} style={{ color: "#d4d4d8", textDecoration: "none", fontSize: "1rem", fontWeight: "600" }}>Aksesuar</Link>
           </div>
         )}
 
