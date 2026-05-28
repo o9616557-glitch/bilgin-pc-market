@@ -161,8 +161,9 @@ export default function SiparislerimPage() {
               const currentStep = getStepNumber(order); 
               const adminMesaji = order.musteriMesaji || order.mesaj || order.adminMesaj || order.siparisNotu || order.kargoNotu || order.kargoTakipNo;
               
-              // 🚀 İPTAL KONTROLÜ
-              const isCancelled = (order.searchableStatus || order.status || order.durum || "").toLowerCase().includes("iptal");
+              // 🚀 AKILLI İPTAL DEDEKTÖRÜ: Eski sistemin neresine yazılırsa yazılsın "iptal" kelimesini yakalar
+              const durumKontrol = (order.durum || "") + " " + (order.status || "") + " " + (order.searchableStatus || "");
+              const isCancelled = durumKontrol.toLowerCase().includes("iptal");
 
               return (
                 <div key={order._id} className="group border border-slate-800 bg-[#09090b] rounded-2xl p-6 transition-all duration-300 hover:border-[#00e5ff]/40 shadow-xl hover:shadow-[0_0_25px_rgba(0,229,255,0.03)] relative overflow-hidden">
@@ -203,15 +204,15 @@ export default function SiparislerimPage() {
                     </div>
                   </div>
 
-                  {/* SİBER İLERLEME ÇUBUĞU / İPTAL UYARISI */}
+                  {/* SİBER İLERLEME ÇUBUĞU VEYA SARI İPTAL UYARISI */}
                   <div className="pt-8 pb-6 px-2 sm:px-8">
                     {isCancelled ? (
-                      /* 🎯 2. ŞIK: SAKİN VE PROFESYONEL TURUNCU/SARI BİLGİ KUTUSU */
+                      /* 🎯 SAKİN VE PROFESYONEL TURUNCU/SARI BİLGİ KUTUSU */
                       <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl flex items-center justify-center gap-2 text-amber-500 font-black tracking-widest text-xs sm:text-sm uppercase shadow-inner">
                         <Info className="w-5 h-5" /> SİPARİŞ İPTAL EDİLDİ
                       </div>
                     ) : (
-                      /* NORMAL ADIMLAR (Hizalama Düzeltilmiş Hali) */
+                      /* NORMAL ADIMLAR */
                       <div className="relative flex items-start justify-between w-full max-w-3xl mx-auto">
                         <div className="absolute left-0 top-4 sm:top-5 -translate-y-1/2 w-full h-1 bg-[#121215] border-y border-slate-800 -z-10 rounded-full"></div>
                         <div 
