@@ -40,18 +40,8 @@ export async function GET() {
         image: item.image || item.resim || "https://app.bilginpcmarket.com/placeholder.png"
       }));
 
-      // 🚀 KESİN ÇÖZÜM: Admin paneli iptali nereye yazmış olursa olsun, tüm kelimeleri tek torbada topluyoruz!
-      const butunDurumlar = (
-        (order.durum || "") + " " + 
-        (order.status || "") + " " + 
-        (order.paymentMethod || "") + " " +
-        (order.adminMesaj || "") + " " +
-        (order.musteriMesaji || "") + " " +
-        (order.siparisNotu || "")
-      ).toLowerCase();
-
-      // İptal kelimesi geçiyorsa durumu kesin ve net olarak belirliyoruz!
-      const finalStatus = butunDurumlar.includes("iptal") ? "İptal Edildi" : (order.status || order.durum || "Hazırlanıyor");
+      // 🚀 NÜKLEER TARAYICI: Admin paneli nereye yazarsa yazsın kaybetmemek için tüm durum kelimelerini birleştiriyoruz!
+      const butunDurumlar = `${order.durum || ""} ${order.status || ""} ${order.paymentMethod || ""}`;
 
       return {
         ...order,
@@ -60,9 +50,9 @@ export async function GET() {
         totalPrice: Number(order.totalPrice || order.toplamTutar || order.genelToplam || 0),
         createdAt: order.createdAt || order.tarih || new Date().toISOString(),
         shippingAddress: order.shippingAddress || order.musteri || order.customerDetails || {},
-        // 🚀 Siparişlerim sayfasındaki motorun şaşmadan okuyacağı net veriler:
+        // 🚀 Trenin (Vagonun) okuması için bu kelime deposunu yolluyoruz
         searchableStatus: butunDurumlar,
-        status: finalStatus
+        status: order.status || order.durum || "Hazırlanıyor"
       };
     });
 
