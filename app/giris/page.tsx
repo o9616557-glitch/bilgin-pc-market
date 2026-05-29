@@ -50,11 +50,19 @@ export default function GirisPage() {
       
      <div className="w-full max-w-md bg-[#09090b] border-none md:border border-white/10 rounded-none md:rounded-2xl p-6 md:p-8 min-h-[100dvh] md:min-h-[auto] flex flex-col justify-center shadow-2xl relative z-10 box-border overflow-y-auto">
      
-        <h1 className="text-3xl font-black uppercase tracking-tighter mb-2 text-white drop-shadow-[0_0_10px_rgba(0,229,255,0.2)]">
-          GİRİŞ YAP
-        </h1>
-        <p className="text-slate-400 text-sm mb-8 font-medium">Güvenli alışveriş ve sipariş takibi için hesabınıza giriş yapın.</p>
+       {/* BİLGİN PC LOGO (Orijinal İki Renkli Tasarım) */}
+          <div className="flex flex-col items-center justify-center w-full mb-8 shrink-0 mt-8 md:mt-0">
+            <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tight drop-shadow-[0_0_10px_rgba(0,0,0,0.5)]">
+              <span className="text-white">BİLGİN</span>
+              <span className="text-[#00e5ff]">PC</span>
+            </div>
+            <div className="h-[2px] w-12 bg-[#00e5ff]/50 mt-2"></div>
+          </div>
 
+          {/* GİRİŞ YAP BAŞLIĞI (Büyütüldü ve Ezilmesi Engellendi) */}
+          <h1 className="text-4xl sm:text-5xl font-black uppercase tracking-tighter mb-3 text-white">
+            GİRİŞ YAP
+          </h1>
         {/* SOSYAL MEDYA BUTONLARI */}
         <div className="flex gap-3 mb-6">
           <button 
