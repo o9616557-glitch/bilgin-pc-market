@@ -1,11 +1,13 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/app/CartContext"; 
 import { Trash2, ArrowLeft, Banknote } from "lucide-react"; 
 
 export default function SepetSayfasi() {
+  const router = useRouter();
   const { sepet, sepetiTemizle, sepettenSil, adetGuncelle } = useCart();
   const [urunToDelete, setUrunToDelete] = useState<any | null>(null);
 
@@ -47,10 +49,12 @@ export default function SepetSayfasi() {
       <div className="flex items-center justify-between border-b border-slate-800 bg-[#09090b]/90 backdrop-blur-md px-4 sm:px-8 py-4 sticky top-0 z-50 shadow-lg mb-8">
         
         {/* Sol: Mağazaya Güvenli Dönüş Kapısı */}
-        <Link href="/" className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-400 hover:text-[#00e5ff] transition-colors uppercase tracking-wider">
-          <ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">Mağazaya Dön</span>
-        </Link>
-
+        <button 
+  onClick={() => router.back()} 
+  className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-400 hover:text-[#00e5ff] transition-colors uppercase tracking-wider bg-transparent border-none cursor-pointer p-0"
+>
+  <ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">Geri Dön</span>
+</button>
         {/* Orta: Tıklanabilir Logo */}
         <Link href="/" className="font-black text-xl sm:text-2xl tracking-tight text-white hover:opacity-80 transition-opacity">
           BİLGİN <span className="text-[#00e5ff]">PC</span>
