@@ -183,8 +183,8 @@ export default function OdemeSayfasi() {
       {/* ANA İÇERİK BAŞLANGICI */}
       <div className="ana-konteynir" style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
         
-       <h1 className="text-lg sm:text-xl font-bold uppercase tracking-wide text-slate-300 drop-shadow-md mb-8 border-l-4 border-[#00e5ff] pl-4">
-  KASA / <span className="text-white font-black">ÖDEME</span>
+       <h1 className="text-lg sm:text-xl font-bold uppercase tracking-wide text-white drop-shadow-md mb-8 border-l-4 border-[#00e5ff] pl-4">
+  KASA / <span className="text-[#00e5ff] font-black">ÖDEME</span>
 </h1>
 
         <div className="odeme-konteynir" style={{ display: "flex", gap: "30px" }}>
