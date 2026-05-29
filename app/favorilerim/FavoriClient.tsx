@@ -102,7 +102,11 @@ export default function FavoriClient({ initialFavorites }: Props) {
               <HeartCrack className="w-10 h-10 text-slate-500" />
             </div>
             <h2 className="text-xl font-black uppercase tracking-wide mb-2 text-white">Henüz Favori Öğe Yok</h2>
-            <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">İlginizi çeken donanımları favori ikonuna tıklayarak favori listenize ekleyebilir, dilediğiniz zaman kolayca ulaşabilirsiniz.</p>
+            <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed flex items-center justify-center flex-wrap gap-x-1">
+  İlginizi çeken donanımları 
+  <Heart className="w-4 h-4 text-[#00e5ff] fill-transparent" />
+  ikonuna tıklayarak favori listenize ekleyebilir, dilediğiniz zaman kolayca ulaşabilirsiniz.
+</p>
             <Link href="/" prefetch={true} className="inline-block bg-[#00e5ff] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:-translate-y-0.5">
               Donanımları İncele
             </Link>
@@ -142,11 +146,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
           <div className="bg-[#09090b] border border-slate-800/80 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-[0_0_50px_rgba(0,0,0,0.8)] relative overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="w-14 h-14 rounded-full border border-slate-800 flex items-center justify-center mb-4 bg-[#121215] shadow-inner"><Trash2 className="w-6 h-6 text-slate-400" /></div>
             <h3 className="text-lg font-black text-white uppercase tracking-wider mb-2">Öğeyi Kaldır</h3>
-            <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed flex items-center justify-center flex-wrap gap-x-1">
-  İlginizi çeken donanımları 
-  <Heart className="w-4 h-4 text-[#00e5ff] fill-transparent" />
-  ikonuna tıklayarak favori listenize ekleyebilir, dilediğiniz zaman kolayca ulaşabilirsiniz.
-</p>
+            <p className="text-slate-400 text-sm mb-8 font-medium leading-relaxed">Bu donanımı favori listenizden kalıcı olarak silmek istediğinize emin misiniz?</p>
             <div className="flex w-full gap-3">
               <button onClick={() => setProductToDelete(null)} className="flex-1 bg-[#121215] border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-white font-bold py-3.5 rounded-xl transition-all text-xs uppercase tracking-wider">İptal</button>
               <button onClick={handleDeleteFavorite} className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-bold py-3.5 rounded-xl transition-all text-xs uppercase tracking-wider shadow-lg">Evet, Kaldır</button>
