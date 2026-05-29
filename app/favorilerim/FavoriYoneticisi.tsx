@@ -5,33 +5,32 @@ import Link from "next/link";
 import { HeartCrack, ArrowLeft, Trash2, ShoppingCart } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/app/CartContext";
-import { useRouter } from "next/navigation";
 
 interface Props {
   initialFavorites: any[];
 }
 
 export default function FavoriYoneticisi({ initialFavorites }: Props) {
-  const router = useRouter();
   const [favoriteProducts, setFavoriteProducts] = useState<any[]>(initialFavorites);
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
 
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
 
-  // 🚀 RADAR SAKİNLEŞTİRİLDİ: Sadece yeni veri geldiğinde sessizce günceller,
-  // fazladan yenileme yapıp ekranı kırpmaz (hayalet ürünü engeller).
+  // Sadece yeni veri geldiğinde sessizce listeyi günceller
   useEffect(() => {
     setFavoriteProducts(initialFavorites);
   }, [initialFavorites]);
 
-  // Favorilerden Çıkarma İşlemi
+  // 🚀 HAYALET ÜRÜN SORUNU ÇÖZÜLDÜ:
+  // router.refresh() komutlarını sildik. Artık ürün ekrandan anında silinecek ve
+  // arka planda sunucu "acaba sildim mi?" diye tekrar sayfayı kırpmayacak!
   const handleDeleteFavorite = async () => {
     if (!productToDelete) return;
 
     const targetId = String(productToDelete._id || productToDelete.id);
     
-    // Optimistic UI: Ekrandan anında sil
+    // Ekrandan anında sil (Optimistic UI - Hayalet ürün olmaz)
     setFavoriteProducts(prev => prev.filter(p => String(p._id || p.id) !== targetId));
     setProductToDelete(null);
 
@@ -44,14 +43,11 @@ export default function FavoriYoneticisi({ initialFavorites }: Props) {
 
       if (!res.ok) throw new Error("Veritabanı reddetti");
       toast.success("Ürün favorilerden kaldırıldı. 🤍");
-      router.refresh(); 
     } catch (error: any) {
       toast.error("Sistem hatası: Veritabanından silinemedi!");
-      router.refresh(); 
     }
   };
 
-  // Sepete Ekleme İşlemi
   const handleSepeteEkle = (urun: any) => {
     const targetId = urun._id || urun.id;
 
@@ -83,7 +79,7 @@ export default function FavoriYoneticisi({ initialFavorites }: Props) {
         {/* ÜST PANEL */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-800 pb-6 mb-10">
           <div>
-            {/* 🚀 JET MOTORU EKLENDİ: prefetch={true} sayesinde anasayfa önceden yüklenir */}
+            {/* 🚀 GERİ DÖNÜŞ BUTONU HIZLANDIRILDI: prefetch={true} eklendi */}
             <Link href="/" prefetch={true} className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-3">
               <ArrowLeft className="w-4 h-4" /> Mağazaya Geri Dön
             </Link>
@@ -97,20 +93,18 @@ export default function FavoriYoneticisi({ initialFavorites }: Props) {
         </div>
 
         {favoriteProducts.length === 0 ? (
-          /* TAMAMEN BOŞ ARKA PLANLI VİTRİN EKRANI */
           <div className="text-center p-10 sm:p-16 bg-transparent relative animate-in fade-in zoom-in duration-300">
             <div className="w-20 h-20 rounded-full bg-[#121215]/50 border border-slate-800/50 flex items-center justify-center mx-auto mb-6 shadow-inner">
               <HeartCrack className="w-10 h-10 text-slate-500" />
             </div>
             <h2 className="text-xl font-black uppercase tracking-wide mb-2 text-white">Henüz Favori Öğe Yok</h2>
             <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">Sistemde beğendiğiniz canavar donanımları kalbe basarak bu gizli bölgeye toplayabilirsiniz.</p>
-            {/* 🚀 BİR JET MOTORU DA BURAYA: prefetch={true} */}
+            {/* 🚀 BOŞ EKRANDAKİ BUTON DA HIZLANDIRILDI */}
             <Link href="/" prefetch={true} className="inline-block bg-[#00e5ff] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:-translate-y-0.5">
               Donanımları İncele
             </Link>
           </div>
         ) : (
-          /* ÜRÜNLER LİSTESİ */
           <div className="flex flex-col gap-4">
             {favoriteProducts.map((urun: any, index: number) => {
               const isAdded = sepeteEklenenler.includes(urun._id || urun.id);
@@ -118,7 +112,6 @@ export default function FavoriYoneticisi({ initialFavorites }: Props) {
               return (
                 <div key={index} className="group border border-slate-800 bg-[#09090b] rounded-2xl p-4 sm:p-5 transition-all duration-300 hover:border-[#00e5ff]/40 shadow-xl hover:shadow-[0_0_25px_rgba(0,229,255,0.03)] flex flex-col sm:flex-row sm:items-center gap-5 relative overflow-hidden">
                   
-                  {/* Görsel Kutusu */}
                   <div className="w-full sm:w-24 h-24 bg-[#121215] rounded-xl border border-slate-800 p-3 flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105">
                     <img 
                       src={urun.resim || "/placeholder.jpg"} 
@@ -127,7 +120,6 @@ export default function FavoriYoneticisi({ initialFavorites }: Props) {
                     />
                   </div>
 
-                  {/* İsim ve Fiyat Bilgisi */}
                   <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-left w-full">
                       <div className="flex flex-col flex-1 min-w-0">
                           <h3 className="text-sm sm:text-base font-bold text-white mb-1.5 leading-snug truncate group-hover:text-[#00e5ff] transition-colors">
@@ -138,7 +130,6 @@ export default function FavoriYoneticisi({ initialFavorites }: Props) {
                           </div>
                       </div>
 
-                      {/* Sağ İşlem Alanı */}
                       <div className="flex items-center gap-3 shrink-0 w-full sm:w-auto justify-between sm:justify-end border-t border-slate-800/50 sm:border-none pt-4 sm:pt-0">
                           
                           <button 
@@ -176,7 +167,6 @@ export default function FavoriYoneticisi({ initialFavorites }: Props) {
 
       </div>
 
-      {/* SİLME ONAY MODAL PANELİ */}
       {productToDelete && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
           <div className="bg-[#09090b] border border-slate-800/80 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-[0_0_50px_rgba(0,0,0,0.8)] relative overflow-hidden animate-in zoom-in-95 duration-200">
