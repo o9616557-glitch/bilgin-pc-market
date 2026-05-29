@@ -45,11 +45,17 @@ export default function GirisPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center p-0 md:p-4 relative overflow-hidden">
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#00e5ff] rounded-full mix-blend-screen filter blur-[150px] opacity-10"></div>
       
-      <div className="w-full max-w-md bg-[#09090b] border border-white/10 rounded-3xl shadow-[0_0_50px_rgba(0,229,255,0.05)] p-8 relative z-10">
-        
+     <div className="w-full max-w-md bg-[#09090b] border-none md:border border-white/10 rounded-none md:rounded-2xl p-6 md:p-8 min-h-[100dvh] md:min-h-[auto] flex flex-col justify-center shadow-2xl relative z-10 box-border overflow-y-auto">
+     {/* BİLGİN PC LOGO */}
+          <div className="flex flex-col items-center justify-center w-full mb-8 shrink-0 mt-8 md:mt-0">
+            <span className="text-2xl font-black uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-[#00e5ff] to-[#0088ff] drop-shadow-[0_0_10px_rgba(0,229,255,0.2)]">
+              BİLGİN PC
+            </span>
+            <div className="h-[2px] w-12 bg-gradient-to-r from-transparent via-[#00e5ff] to-transparent mt-2"></div>
+          </div>
         <h1 className="text-3xl font-black uppercase tracking-tighter mb-2 text-white drop-shadow-[0_0_10px_rgba(0,229,255,0.2)]">
           GİRİŞ YAP
         </h1>
