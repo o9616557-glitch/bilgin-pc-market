@@ -32,16 +32,8 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", disariTiklandi);
   }, []);
 
-if (
-  pathname?.includes("/giris") || 
-  pathname?.includes("/kayit") || 
-  pathname?.includes("/login") || 
-  pathname?.includes("/register") ||
-  pathname?.includes("/sepet")
-) {
-  return null;
-}
 
+  
   return (
     <>
       <header style={{ backgroundColor: "rgba(9, 9, 11, 0.9)", borderBottom: "1px solid #27272a", position: "sticky", top: 0, zIndex: 1000, backdropFilter: "blur(12px)" }}>
@@ -107,14 +99,9 @@ if (
                       </Link>
 
                       {/* 🚀 BİNGO: FAVORİLERİM SAYFASINA PREFETCH MOTORU TAKILDI! */}
-                      <Link 
-                     href="/favorilerim" 
-                     prefetch={false} 
-                     onClick={() => setHesabimAcik(false)}
-                     className="text-slate-300 hover:text-white transition-colors"
-                     >
-                      <span>❤️</span> <span>Favorilerim</span>
-                     </Link>
+                      <Link href="/favorilerim" prefetch={true} onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
+                        <span>❤️</span> Favorilerim
+                      </Link>
 
                       <div style={{ height: "1px", background: "#27272a", margin: "4px 0" }}></div>
 
