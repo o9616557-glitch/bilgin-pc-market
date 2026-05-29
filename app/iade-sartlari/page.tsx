@@ -1,0 +1,1 @@
+export default function Iade() { return <div>İade Şartları</div>; }
