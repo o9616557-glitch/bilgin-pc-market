@@ -61,10 +61,10 @@ export default function GirisPage() {
 
           {/* GİRİŞ YAP BAŞLIĞI VE ALT YAZISI (Eski Kibar Haline Döndü, Hiçbir Şey Silinmedi) */}
           <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter mb-2 text-white">
-            GİRİŞ YAP
+            Giriş Yap
           </h1>
           <p className="text-slate-400 text-sm mb-8 font-medium">
-            Hesabınıza giriş yaparak alışverişe devam edin.
+            Güvenli alışverişi ve sipariş takibi için hesabınıza giriş yapın.Eger hesabınız yoksa hızlıca kayıt olabilirsiniz.
           </p>
         {/* SOSYAL MEDYA BUTONLARI */}
         <div className="flex gap-3 mb-6">
