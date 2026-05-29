@@ -97,7 +97,7 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
   };
 
  return (
-  <div className="max-w-4xl mx-auto w-full relative z-10 mt-7 sm:mt-0">
+  <div className="max-w-4xl mx-auto w-full relative z-10 mt-8 sm:mt-0">
       {/* 🚀 ÜST BAŞLIK VE ÇİZGİ KISMI (Favoriler ile %100 Aynı) */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-800 pb-6 mb-10">
         <div>
