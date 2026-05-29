@@ -28,9 +28,13 @@ export default function SepetSayfasi() {
           <h2 className="text-2xl md:text-3xl font-black mb-4 uppercase tracking-wider text-white">
             Sepetin <span className="text-[#00e5ff]">Boş</span>
           </h2>
-          <Link href="/" className="bg-[#00e5ff] text-black font-black py-4 px-10 rounded-xl hover:bg-[#00c4db] transition-all duration-300 uppercase tracking-wide w-full sm:w-auto">
-            Mağazaya Geri Dön
-          </Link>
+         <Link 
+  href="/" 
+  prefetch={true} 
+  className="bg-[#00e5ff] text-black font-black py-4 px-10 rounded-xl hover:bg-white hover:scale-105 transition-all duration-100 active:scale-95 mt-4"
+>
+  Mağazaya Geri Dön
+</Link>
         </div>
       </div>
     );
