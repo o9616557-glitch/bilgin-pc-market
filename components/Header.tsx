@@ -107,9 +107,9 @@ if (
                       </Link>
 
                       {/* 🚀 BİNGO: FAVORİLERİM SAYFASINA PREFETCH MOTORU TAKILDI! */}
-                      <Link href="/favorilerim" prefetch={true} onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
-                        <span>❤️</span> Favorilerim
-                      </Link>
+                      <a href="/favorilerim" onClick={() => setHesabimAcik(false)}>
+  <span>🤍</span> <span> Favorilerim</span>
+</a>
 
                       <div style={{ height: "1px", background: "#27272a", margin: "4px 0" }}></div>
 
