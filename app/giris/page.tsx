@@ -60,8 +60,8 @@ export default function GirisPage() {
           </div>
 
           {/* GİRİŞ YAP BAŞLIĞI VE ALT YAZISI (Eski Kibar Haline Döndü, Hiçbir Şey Silinmedi) */}
-         <h1 className="text-2xl sm:text-3xl font-black tracking-tighter mb-2 text-white">
-            Giriş Yap
+         <h1 className="text-lg sm:text-xl font-bold uppercase tracking-wide text-white drop-shadow-md mb-2 border-l-4 border-[#00e5ff] pl-4">
+           GİRİŞ <span className="text-[#00e5ff] font-black">YAP</span>
           </h1>
           <p className="text-slate-400 text-sm mb-8 font-medium">
             Güvenli alışveriş ve sipariş takibi için hesabınıza giriş yapın.Eger hesabınız yoksa hızlıca kayıt olabilirsiniz.
