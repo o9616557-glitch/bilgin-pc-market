@@ -5,7 +5,6 @@ import { MapPin, Plus, Trash2, ArrowLeft, MapPinOff } from "lucide-react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-const [addressToDelete, setAddressToDelete] = useState<any>(null);
 interface Address {
   _id: string;
   title: string;
@@ -23,6 +22,7 @@ interface Props {
 }
 
 export default function AdresYoneticisi({ initialAddresses }: Props) {
+  const [addressToDelete, setAddressToDelete] = useState<any>(null);
   const router = useRouter();
   const [addresses, setAddresses] = useState<Address[]>(initialAddresses);
   const [showForm, setShowForm] = useState(false);
