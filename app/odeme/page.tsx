@@ -346,7 +346,18 @@ export default function OdemeSayfasi() {
                 </button>
               )}
             </form>
-
+          {/* 🚀 ZARİF TAKSİT BİLGİLENDİRME KUTUSU */}
+          <div className="mt-5 flex items-start gap-3 p-4 rounded-xl bg-[#00e5ff]/5 border border-[#00e5ff]/20">
+            <div className="text-[#00e5ff] mt-0.5 shrink-0">
+              {/* Kredi Kartı İkonu */}
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/>
+              </svg>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-medium">
+              <span className="text-white font-bold">9 ve 12 aya varan taksit ayrıcalığı!</span> Bankanıza ve kartınıza özel sunulan tüm taksit seçeneklerini, bir sonraki güvenli ödeme adımında görüntüleyebilir ve size en uygun planı seçebilirsiniz.
+            </p>
+          </div>
             <div style={{
               display: (odemeYontemi === "kart" && iyzicoFormHtml) ? "block" : "none",
               position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "#ffffff", zIndex: 999999,
