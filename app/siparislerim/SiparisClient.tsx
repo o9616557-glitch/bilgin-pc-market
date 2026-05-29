@@ -17,10 +17,17 @@ export default function SiparisClient({ initialOrders }: Props) {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
 
-  // 🚀 SİHİRLİ BAĞLANTI: Sayfa açıldığı an sessizce güncel veriyi çeker
+  // 🚀 KUSURSUZ RADAR: Sunucudan veri geldikçe anında listeyi günceller.
   useEffect(() => {
-    router.refresh();
-  }, [router]);
+    if (initialOrders.length > 0) {
+      setOrders(initialOrders);
+    }
+  }, [initialOrders]);
+
+  // Her ihtimale karşı: Sayfa ilk açıldığında arka plandan sessizce güncel kontrolü yapar (Beyaz ekran çıkarmaz)
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
   // Manuel Yenileme Butonu İçin
   const fetchOrders = async () => {

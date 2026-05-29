@@ -9,13 +9,16 @@ export default async function SiparislerimServer() {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
     
-    // Güvenlik (Çerez) başlıklarını API'ye aktarıyoruz ki kimin siparişi olduğunu bilsin
+    // 🚀 İŞTE EKSİK KABLO BURASIYDI: Kullanıcının giriş yaptığını (çerezleri) alıyoruz!
     const reqHeaders = await headers();
+    const cookieHeader = reqHeaders.get("cookie") || "";
     
-    // Veritabanından siparişleri çekerken HAYALET EKRAN DEVREYE GİRER!
+    // API'ye giderken "Ben giriş yapmış biriyim, al bu da çerezim" diyoruz.
     const res = await fetch(`${baseUrl}/api/orders`, {
       cache: "no-store",
-      headers: reqHeaders
+      headers: {
+        "cookie": cookieHeader
+      }
     });
 
     if (res.ok) {
@@ -26,6 +29,5 @@ export default async function SiparislerimServer() {
     console.error("Siparişler sunucudan çekilirken hata:", error);
   }
 
-  // Veriler gelince hayalet kapanır ve arayüz ekrana basılır
   return <SiparisClient initialOrders={initialOrders} />;
 }
