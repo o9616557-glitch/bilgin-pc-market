@@ -48,9 +48,9 @@ export default function GirisPage() {
     <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center p-0 md:p-4 relative overflow-hidden">
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#00e5ff] rounded-full mix-blend-screen filter blur-[150px] opacity-10"></div>
       
-     <div className="w-full max-w-md bg-[#09090b] border-none md:border border-white/10 rounded-none md:rounded-2xl p-6 md:p-8 min-h-[100dvh] md:min-h-[auto] flex flex-col justify-center shadow-2xl relative z-10 box-border overflow-y-auto">
-     
-       {/* BİLGİN PC LOGO (Orijinal İki Renkli Tasarım) */}
+     <div className="w-full max-w-md bg-[#09090b] border-none md:border border-white/10 rounded-none md:rounded-2xl p-6 md:p-8 min-h-screen md:min-h-[auto] flex flex-col justify-center shadow-2xl relative z-10">
+        
+        {/* BİLGİN PC LOGO (Orijinal İki Renkli Tasarım) */}
           <div className="flex flex-col items-center justify-center w-full mb-8 shrink-0 mt-8 md:mt-0">
             <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tight drop-shadow-[0_0_10px_rgba(0,0,0,0.5)]">
               <span className="text-white">BİLGİN</span>
@@ -59,10 +59,13 @@ export default function GirisPage() {
             <div className="h-[2px] w-12 bg-[#00e5ff]/50 mt-2"></div>
           </div>
 
-          {/* GİRİŞ YAP BAŞLIĞI (Büyütüldü ve Ezilmesi Engellendi) */}
-          <h1 className="text-4xl sm:text-5xl font-black uppercase tracking-tighter mb-3 text-white">
+          {/* GİRİŞ YAP BAŞLIĞI VE ALT YAZISI (Eski Kibar Haline Döndü, Hiçbir Şey Silinmedi) */}
+          <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter mb-2 text-white">
             GİRİŞ YAP
           </h1>
+          <p className="text-slate-400 text-sm mb-8 font-medium">
+            Hesabınıza giriş yaparak alışverişe devam edin.
+          </p>
         {/* SOSYAL MEDYA BUTONLARI */}
         <div className="flex gap-3 mb-6">
           <button 
