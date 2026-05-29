@@ -39,6 +39,10 @@ useEffect(() => {
   const handleAddAddress = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    // 🔥 IŞIK HIZI KAPANIŞI: Veritabanını beklemeden formu anında kapat ve yukarı kaydır!
+    setShowForm(false);
+    setEditingId(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
     const loadingToast = toast.loading(editingId ? "Adres güncelleniyor..." : "Adres ekleniyor...");
 
     try {
