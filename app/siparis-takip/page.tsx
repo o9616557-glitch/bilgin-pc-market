@@ -61,20 +61,20 @@ export default function SiparisTakipPage() {
   const magazaMesaji = siparis?.musteriMesaji || siparis?.mesaj || siparis?.not || siparis?.adminNotu || siparis?.aciklama;
 
   return (
-    <div className="min-h-screen bg-[#050814] text-white pt-28 pb-12 px-4 relative overflow-hidden flex flex-col items-center">
+    <div className="min-h-screen bg-[#050814] text-white pt-20 pb-12 px-4 relative overflow-hidden flex flex-col items-center">
       
-      {/* 🔥 Arka Plan Uzay Mavisi Parlaması (Geri Geldi!) */}
+      {/* 🔥 Arka Plan Uzay Mavisi Parlaması */}
       <div className="absolute top-[-5%] left-1/2 -translate-x-1/2 w-[70%] h-[40%] bg-[#00e5ff] blur-[150px] opacity-15 rounded-full pointer-events-none z-0"></div>
 
       <div className="w-full max-w-4xl mx-auto relative z-10">
         
-        {/* 🚀 ÜST BAŞLIK VE GERİ DÖNÜŞ */}
-        <div className="flex flex-col gap-4 border-b border-slate-800 pb-8 mb-10">
+        {/* 🚀 ÜST BAŞLIK VE GERİ DÖNÜŞ (Biraz yukarı çekildi) */}
+        <div className="flex flex-col gap-3 border-b border-slate-800 pb-6 mb-8">
           <div>
-            <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-4">
+            <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-3">
               <ArrowLeft className="w-4 h-4" /> Mağazaya Geri Dön
             </Link>
-            <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tight text-white mb-4">
+            <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tight text-white mb-3">
               SİPARİŞ <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00e5ff] to-[#0088ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.2)]">TAKİBİ</span>
             </h1>
             <p className="text-slate-400 text-sm md:text-base font-medium leading-relaxed max-w-2xl">
@@ -92,7 +92,7 @@ export default function SiparisTakipPage() {
                 type="text"
                 value={kodu}
                 onChange={(e) => setKodu(e.target.value)}
-                placeholder="Sipariş Kodu (Örn: BPC-118312)" /* 🔥 Yazı düzeltildi */
+                placeholder="Sipariş Kodu (Örn: BPC-118312)"
                 className="w-full bg-[#050B14] border border-white/5 rounded-xl pl-12 pr-4 py-4 text-white placeholder-slate-500 focus:outline-none focus:border-[#00e5ff]/40 transition-all font-bold tracking-wider"
               />
             </div>
@@ -139,12 +139,16 @@ export default function SiparisTakipPage() {
                 </p>
               </div>
             ) : (
-              /* 🛤️ SİPARİŞ YOLU (STEPPER) */
+              /* 🛤️ SİPARİŞ YOLU (Çizgi kalınlaştırıldı ve belirginleştirildi!) */
               <div className="mb-12 bg-[#09090b] border border-white/5 rounded-3xl p-8 md:p-12 relative overflow-hidden shadow-2xl">
                 <div className="relative flex justify-between items-start">
-                  <div className="absolute left-0 top-6 md:top-8 w-full h-1 bg-slate-800/50 rounded-full"></div>
+                  
+                  {/* Arka Plan Çizgisi (Koyu ve Kalın) */}
+                  <div className="absolute left-0 top-[21px] md:top-[29px] w-full h-[6px] bg-slate-800 rounded-full"></div>
+                  
+                  {/* İlerleme Çizgisi (Neon ve Kalın) */}
                   <div 
-                    className="absolute left-0 top-6 md:top-8 h-1 bg-gradient-to-r from-[#00e5ff] to-[#0088ff] rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_#00e5ff]"
+                    className="absolute left-0 top-[21px] md:top-[29px] h-[6px] bg-gradient-to-r from-[#00e5ff] to-[#0088ff] rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_#00e5ff]"
                     style={{ width: `${(aktifAdimBul(siparis.durum) / (adimlar.length - 1)) * 100}%` }}
                   ></div>
 
@@ -156,7 +160,7 @@ export default function SiparisTakipPage() {
                     return (
                       <div key={index} className="flex flex-col items-center relative z-10 w-1/4">
                         <div className={`w-12 h-12 md:w-16 md:h-16 rounded-2xl flex items-center justify-center transition-all duration-500 ${
-                          tamamlandiMi ? "bg-[#00e5ff] text-black shadow-[0_0_20px_rgba(0,229,255,0.4)] rotate-0" : "bg-slate-900 text-slate-600 border border-slate-800"
+                          tamamlandiMi ? "bg-[#00e5ff] text-black shadow-[0_0_20px_rgba(0,229,255,0.4)] rotate-0" : "bg-slate-900 text-slate-600 border border-slate-700"
                         } ${suAnkiMi && index !== 3 ? "animate-pulse" : ""}`}>
                           {index === 0 && <ShoppingCart size={24} />}
                           {index === 1 && <Package size={24} />}
@@ -221,17 +225,23 @@ export default function SiparisTakipPage() {
                  )}
               </div>
 
-              <div className="bg-gradient-to-br from-[#09090b] to-[#050814] border border-white/5 rounded-3xl p-8 shadow-xl flex flex-col justify-center items-center text-center">
-                 <div className="w-16 h-16 rounded-full bg-[#00e5ff]/10 flex items-center justify-center mb-6">
-                   <Package className="text-[#00e5ff] w-8 h-8" />
+              {/* 🟢 WHATSAPP DESTEK KARTI (Sıfırdan tasarlandı!) */}
+              <div className="bg-gradient-to-br from-[#09090b] to-[#050814] border border-white/5 rounded-3xl p-8 shadow-xl flex flex-col justify-center items-center text-center relative overflow-hidden group">
+                 {/* Üstteki İnce Yeşil Çizgi Parıltısı */}
+                 <div className="absolute top-0 left-0 w-full h-1 bg-[#25D366]"></div>
+                 
+                 <div className="w-16 h-16 rounded-full bg-[#25D366]/10 flex items-center justify-center mb-5 border border-[#25D366]/20 group-hover:scale-110 transition-transform duration-500">
+                   {/* Phone iconu lucide-react'tan çekiliyor (Eğer hata verirse MessageCircle kullanabilirsin) */}
+              
                  </div>
-                 <h3 className="text-lg font-black text-white uppercase tracking-tight mb-2">Yardıma mı ihtiyacın var?</h3>
-                 <p className="text-slate-500 text-xs font-medium leading-relaxed mb-8 px-4">
-                   Siparişinizle ilgili her türlü soru için destek ekibimize ulaşabilirsiniz.
+                 <h3 className="text-lg font-black text-white uppercase tracking-tight mb-1">WhatsApp Destek</h3>
+                 <p className="text-slate-300 text-base md:text-lg font-black tracking-widest mb-4">0 532 734 50 23</p>
+                 <p className="text-slate-500 text-[10px] md:text-xs font-medium leading-relaxed mb-6 px-2 uppercase tracking-wide">
+                   Siparişinizle ilgili her türlü sorunuz için bize ulaşın.
                  </p>
-                 <Link href="/iletisim" className="w-full py-4 bg-white/5 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all border border-white/10">
+                 <a href="https://wa.me/905327345023" target="_blank" rel="noopener noreferrer" className="w-full py-4 bg-[#25D366] hover:bg-[#20b858] text-black text-[10px] md:text-xs font-black uppercase tracking-[0.2em] rounded-xl transition-all shadow-[0_0_20px_rgba(37,211,102,0.2)] hover:shadow-[0_0_30px_rgba(37,211,102,0.4)] hover:-translate-y-0.5 flex justify-center items-center gap-2">
                    DESTEK MERKEZİ
-                 </Link>
+                 </a>
               </div>
 
             </div>
@@ -252,9 +262,8 @@ export default function SiparisTakipPage() {
           }
           .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: rgba(0, 229, 255, 0.3);
-       }
-   
- `}</style>
+          }
+        `}</style>
       </div>
     </div>
   );
