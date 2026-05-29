@@ -158,16 +158,7 @@ export default function SepetSayfasi() {
               </button>
             </Link>
             
-           <div className="text-center mt-6">
-  <Link 
-    href="/" 
-    prefetch={true} 
-    className="inline-flex items-center justify-center gap-2 text-slate-400 hover:text-white text-sm transition-all duration-100 active:scale-95"
-  >
-    <ArrowLeft className="w-4 h-4 transition-transform duration-100 group-hover:-translate-x-1" /> 
-    Alışverişe Devam Et
-  </Link>
-</div>
+          
           </div>
         </div>
       </div>
