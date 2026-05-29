@@ -114,8 +114,8 @@ export default function SiparisClient({ initialOrders }: Props) {
             <Link href="/" prefetch={true} className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-3">
               Mağazaya Geri Dön
             </Link>
-            <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-white">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00e5ff] to-[#0088ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.2)]">SİPARİŞ</span> GEÇMİŞİM
+           <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-white">
+              SİPARİŞ <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00e5ff] to-[#0088ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.2)]">GEÇMİŞİM</span>
             </h1>
           </div>
           <button 
