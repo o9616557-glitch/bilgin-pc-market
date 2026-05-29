@@ -210,11 +210,30 @@ export default function AdreslerimPage() {
           </div>
         )}
 
-        {/* Yükleniyor / Boş Liste / Adres Kartları */}
+        {/* Yükleniyor (Hayalet Skeleton Ekranı) */}
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <Loader2 className="w-10 h-10 text-[#00e5ff] animate-spin" />
-            <p className="text-slate-400">Adresleriniz yükleniyor...</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-[#09090b] border border-white/5 rounded-2xl p-6 animate-pulse">
+                {/* Üst Kısım (Başlık ve İkonlar) */}
+                <div className="flex justify-between items-start mb-4 border-b border-white/5 pb-3">
+                  <div className="flex flex-col gap-2">
+                    <div className="w-32 h-5 bg-[#121215] rounded-md"></div>
+                    <div className="w-20 h-4 bg-[#121215] rounded-md"></div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="w-5 h-5 bg-[#121215] rounded-md"></div>
+                    <div className="w-5 h-5 bg-[#121215] rounded-md"></div>
+                  </div>
+                </div>
+                {/* Alt Kısım (Adres Metinleri) */}
+                <div className="space-y-3 mt-4">
+                  <div className="w-3/4 h-4 bg-[#121215] rounded-md"></div>
+                  <div className="w-1/2 h-4 bg-[#121215] rounded-md"></div>
+                  <div className="w-full h-10 bg-[#121215] rounded-md mt-4"></div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : addresses.length === 0 && !showForm ? (
           <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4 mt-8 animate-in fade-in zoom-in duration-300">
