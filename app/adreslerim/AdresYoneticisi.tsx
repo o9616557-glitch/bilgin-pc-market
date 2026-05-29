@@ -97,9 +97,9 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
   };
 
  return (
-    <>
+    <div className="max-w-4xl mx-auto w-full relative z-10">
       {/* 🚀 ÜST BAŞLIK VE ÇİZGİ KISMI (Favoriler ile %100 Aynı) */}
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-800 pb-6 mb-10 pt-12">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-800 pb-6 mb-10">
         <div>
           <Link href="/" prefetch={true} className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-3">
             <ArrowLeft className="w-4 h-4" /> Mağazaya Geri Dön
@@ -110,8 +110,8 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
         </div>
 
         <div className="text-slate-300 text-xs font-black uppercase tracking-wider bg-[#09090b] border border-slate-800/80 py-3 px-5 rounded-xl shadow-lg">
-            Kayıtlı: <span className="text-[#00e5ff] font-black text-sm">{addresses.length}</span> Adres
-          </div>
+          Kayıtlı: <span className="text-[#00e5ff] font-black text-sm">{addresses.length}</span> Adres
+        </div>
       </div>
 
       {/* Form Alanı */}
@@ -220,8 +220,8 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
               </div>
             </div>
           ))}
-        </div>
+       </div>
       )}
-    </>
-    );
+    </div>
+  );
 }
