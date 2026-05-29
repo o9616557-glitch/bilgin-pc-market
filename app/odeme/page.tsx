@@ -165,7 +165,7 @@ export default function OdemeSayfasi() {
   };
 
  return (
-    <div className="min-h-screen bg-[#050814] text-white pb-12 pt-8 md:pt-12 relative">
+   <div className="min-h-screen bg-[#050814] text-white pb-12 relative">
       
       {/* 🚀 MİNİMAL GÜVENLİ ÖDEME BARI */}
       <div className="flex items-center justify-between border-b border-slate-800 bg-[#09090b]/90 backdrop-blur-md px-4 sm:px-8 py-4 sticky top-0 z-50 shadow-lg mb-8">
