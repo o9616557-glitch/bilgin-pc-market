@@ -11,7 +11,7 @@ export default function Header() {
 
   // 🚀 İŞTE GİZLEME MOTORU: Bu sayfalarda üst menü (Header) ASLA görünmez!
   // Eğer url isimlerin farklıysa buradaki listeyi kendine göre güncelleyebilirsin.
-  const gizlenecekSayfalar = ["/siparislerim", "/odeme", "/giris", "/kayit", "/checkout"];
+  const gizlenecekSayfalar = ["/sepet", "/siparislerim", "/odeme", "/giris", "/kayit", "/checkout"];
   if (gizlenecekSayfalar.includes(pathname)) {
     return null; 
   }
