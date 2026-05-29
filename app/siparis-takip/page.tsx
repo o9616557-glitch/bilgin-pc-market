@@ -92,7 +92,7 @@ export default function SiparisTakipPage() {
                 type="text"
                 value={kodu}
                 onChange={(e) => setKodu(e.target.value)}
-                placeholder="Sipariş Kodu (Örn: SP-12345)" /* 🔥 Yazı düzeltildi */
+                placeholder="Sipariş Kodu (Örn: BPC-118312)" /* 🔥 Yazı düzeltildi */
                 className="w-full bg-[#050B14] border border-white/5 rounded-xl pl-12 pr-4 py-4 text-white placeholder-slate-500 focus:outline-none focus:border-[#00e5ff]/40 transition-all font-bold tracking-wider"
               />
             </div>
