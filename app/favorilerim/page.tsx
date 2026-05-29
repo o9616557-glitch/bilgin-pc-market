@@ -6,6 +6,9 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import FavoriYoneticisi from "./FavoriYoneticisi";
 
+// 🚀 BÜYÜLÜ SATIR: Sayfayı hafızadan (cache) okumayı yasaklar, her girişte en güncel veriyi çeker!
+export const dynamic = "force-dynamic";
+
 export default async function FavorilerSayfasi() {
   // 1. Kullanıcı giriş yapmış mı kontrol et
   const session = await getServerSession(authOptions);
@@ -27,7 +30,6 @@ export default async function FavorilerSayfasi() {
 
   // 4. Eğer favorisi varsa, ürünleri API'den çek
   if (favoriteIds.length > 0) {
-    // Kurşun geçirmez URL taktiği (hata veren headers komutları tamamen çöpe atıldı)
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
     
     try {
