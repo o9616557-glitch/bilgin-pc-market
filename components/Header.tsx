@@ -5,9 +5,7 @@ import { useCart } from "@/app/CartContext";
 import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
-import { useRouter } from "next/navigation";
 export default function Header() {
-  const router = useRouter(); 
   const pathname = usePathname();
   const { sepet } = useCart();
   const [menuAcik, setMenuAcik] = useState(false);
@@ -100,17 +98,11 @@ export default function Header() {
                         <span>📍</span> Adreslerim
                       </Link>
 
-                     <button 
-  onClick={(e) => {
-    e.preventDefault();
-    setHesabimAcik(false); // 1. Açılır menüyü kapat
-    router.push("/favorilerim"); // 2. Favoriler sayfasına git
-    router.refresh(); // 🚀 3. BÜYÜLÜ KOD: Gittiğin an eski hafızayı çöpe at, taze veriyi çek!
-  }}
-  className="flex items-center gap-1 text-slate-300 hover:text-white transition-colors bg-transparent border-none cursor-pointer p-0 m-0 text-base"
->
-  <span>❤️</span> <span>Favorilerim</span>
-</button>
+                      {/* 🚀 BİNGO: FAVORİLERİM SAYFASINA PREFETCH MOTORU TAKILDI! */}
+                      <Link href="/favorilerim" prefetch={true} onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
+                        <span>❤️</span> Favorilerim
+                      </Link>
+
                       <div style={{ height: "1px", background: "#27272a", margin: "4px 0" }}></div>
 
                       {isAdmin && (
