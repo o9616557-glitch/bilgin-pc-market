@@ -57,14 +57,24 @@ export default function KayitPage() {
       {/* Arka Plan Efekti */}
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#00e5ff] rounded-full mix-blend-screen filter blur-[150px] opacity-10"></div>
       
-      <div className="w-full max-w-md bg-[#09090b] border-none sm:border border-white/10 rounded-none sm:rounded-2xl p-6 sm:p-8 min-h-screen sm:min-h-[auto] flex flex-col justify-center shadow-2xl relative z-10">
-        
+      <div className="w-full max-w-md bg-[#09090b] border-none sm:border border-white/10 rounded-none sm:rounded-2xl p-6 sm:p-8 min-h-[100dvh] sm:min-h-[auto] flex flex-col justify-center shadow-2xl relative z-10 box-border overflow-y-auto">
 
-        <h1 className="text-3xl font-black uppercase tracking-tighter mb-2 text-white drop-shadow-[0_0_10px_rgba(0,229,255,0.2)]">
-          YENİ KAYIT
-        </h1>
-        <p className="text-slate-400 text-sm mb-8 font-medium">Bilgin PC Market'e üye olun, hızlı ve güvenli alışverişin tadını çıkarın.</p>
+  {/* BİLGİN PC LOGO (Orijinal İki Renkli Tasarım) */}
+  <div className="flex flex-col items-center justify-center w-full mb-8 shrink-0 mt-8 sm:mt-0">
+    <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tight drop-shadow-[0_0_10px_rgba(0,0,0,0.5)]">
+      <span className="text-white">BİLGİN</span>
+      <span className="text-[#00e5ff]">PC</span>
+    </div>
+    <div className="h-[2px] w-12 bg-[#00e5ff]/50 mt-2"></div>
+  </div>
 
+  {/* YENİ KAYIT BAŞLIĞI VE ALT YAZISI (uppercase silindi, kibarlaştırıldı) */}
+  <h1 className="text-2xl sm:text-3xl font-black tracking-tighter mb-2 text-white">
+    Yeni Kayıt
+  </h1>
+  <p className="text-slate-400 text-sm mb-8 font-medium">
+    Bilgin PC Market'e katılın ve avantajlardan yararlanın.
+  </p>
         {/* SOSYAL MEDYA BUTONLARI */}
         <div className="flex gap-3 mb-6">
           <button 
