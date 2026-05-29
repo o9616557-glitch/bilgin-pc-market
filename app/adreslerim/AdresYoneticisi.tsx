@@ -58,7 +58,7 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
         setShowForm(false);
         setEditingId(null);
         setFormData(formBaslangic);
-        router.refresh(); // Sayfayı arkadan yenile ki güncel liste gelsin
+        window.location.reload(); // Sayfayı arkadan yenile ki güncel liste gelsin
       } else {
         toast.dismiss(loadingToast);
         toast.error(data.message || "İşlem başarısız oldu.");
@@ -76,10 +76,10 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
     try {
       await fetch(`/api/addresses?id=${id}`, { method: "DELETE" });
       toast.success("Adres silindi.");
-      router.refresh();
+     window.location.reload();
     } catch (error) {
       toast.error("Silme işlemi başarısız.");
-      router.refresh(); // Hata olursa listeyi geri getir
+      window.location.reload(); // Hata olursa listeyi geri getir
     }
   };
 
