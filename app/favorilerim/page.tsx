@@ -33,7 +33,8 @@ export default async function FavorilerSayfasi() {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
     
     try {
-      const res = await fetch(`${baseUrl}/api/products`, { cache: 'no-store' });
+      const res = await fetch(`${baseUrl}/api/products`
+        , { cache: 'no-store' });
       if (res.ok) {
         const prodData = await res.json();
         const allProducts = prodData.products || prodData || [];
