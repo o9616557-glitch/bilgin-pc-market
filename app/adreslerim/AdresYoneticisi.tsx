@@ -183,7 +183,7 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
             <MapPin className="w-10 h-10 text-slate-500" />
           </div>
           <h2 className="text-xl sm:text-2xl font-black uppercase text-white mb-3 tracking-wide">HENÜZ KAYITLI ADRES YOK</h2>
-          <p className="text-slate-400 text-sm font-medium max-w-md mb-8 leading-relaxed">Sistemde teslimat veya fatura adresiniz bulunmuyor. Donanımları size ulaştırabilmemiz için hemen yeni bir adres ekleyin.</p>
+          <p className="text-slate-400 text-sm font-medium max-w-md mb-8 leading-relaxed">Sistemde teslimat veya fatura adresiniz bulunmuyor. Donanımları size ulaştırabilmemiz için yeni bir adres ekleyin.</p>
           <button onClick={() => setShowForm(true)} className="bg-[#00e5ff] text-black font-black uppercase tracking-wide py-4 px-10 rounded-xl hover:bg-white hover:scale-105 transition-all duration-100 active:scale-95 shadow-[0_0_20px_rgba(0,229,255,0.15)]">
             YENİ ADRES EKLE
           </button>
