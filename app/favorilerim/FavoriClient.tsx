@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react"; // 🚀 useEffect buraya eklendi
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { HeartCrack, ArrowLeft, Trash2, ShoppingCart } from "lucide-react";
 import toast from "react-hot-toast";
@@ -19,24 +19,25 @@ export default function FavoriClient({ initialFavorites }: Props) {
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
 
-  // 🚀 SİHİRLİ BAĞLANTI 1: Sunucudan yeni veri geldikçe ekrandaki listeyi günceller
+  // 🚀 RADAR GÜÇLENDİRİLDİ: Sadece veriler gerçekten değiştiyse listeyi günceller.
+  // Bu sayede animasyonların veya yazıların üst üste binip titreşmesi %100 engellenir.
   useEffect(() => {
-    setFavoriteProducts(initialFavorites);
+    setFavoriteProducts((prev) => {
+      if (JSON.stringify(prev) === JSON.stringify(initialFavorites)) return prev;
+      return initialFavorites;
+    });
   }, [initialFavorites]);
 
-  // 🚀 SİHİRLİ BAĞLANTI 2 (KESİN ÇÖZÜM):
-  // Sayfaya ayak basıldığı AN Next.js'in tarayıcı hafızasını arkadan dürtüp 
-  // güncel veriyi sunucudan zorla çeker. Beyaz ekran yaptırmaz, F5 attırmaz!
   useEffect(() => {
     router.refresh();
   }, [router]);
 
-  // Optimistic UI: Kullanıcı sil'e bastığı an ekrandan uçur, arkadan veritabanını güncelle.
   const handleDeleteFavorite = async () => {
     if (!productToDelete) return;
 
     const targetId = String(productToDelete._id || productToDelete.id);
     
+    // Anında sil
     setFavoriteProducts(prev => prev.filter(p => String(p._id || p.id) !== targetId));
     setProductToDelete(null);
 
@@ -95,7 +96,8 @@ export default function FavoriClient({ initialFavorites }: Props) {
         </div>
 
         {favoriteProducts.length === 0 ? (
-          <div className="text-center p-10 sm:p-16 bg-transparent relative animate-in fade-in zoom-in duration-300">
+          /* 🚀 BOŞ EKRAN - Göz yoran animasyon kaldırıldı, sabit ve net. */
+          <div className="text-center p-10 sm:p-16 bg-transparent relative">
             <div className="w-20 h-20 rounded-full bg-[#121215]/50 border border-slate-800/50 flex items-center justify-center mx-auto mb-6 shadow-inner">
               <HeartCrack className="w-10 h-10 text-slate-500" />
             </div>
