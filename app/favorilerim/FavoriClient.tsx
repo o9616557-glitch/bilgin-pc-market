@@ -143,14 +143,14 @@ export default function FavoriClient({ initialFavorites }: Props) {
             <div className="w-14 h-14 rounded-full border border-slate-800 flex items-center justify-center mb-4 bg-[#121215] shadow-inner"><Trash2 className="w-6 h-6 text-slate-400" /></div>
             <h3 className="text-lg font-black text-white uppercase tracking-wider mb-2">Öğeyi Kaldır</h3>
             <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">
-             İlginizi çeken donanımları 
-           <span className="inline-flex items-center justify-center mx-1.5 translate-y-[3px]">
-             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#00e5ff]">
-             <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-            </svg>
-           </span>
-            kalp ikonuna tıklayarak favori listenize ekleyebilir, dilediğiniz zaman kolayca ulaşabilirsiniz.
-             </p>
+  İlginizi çeken donanımları 
+  <span className="inline-flex items-center justify-center mx-1.5 translate-y-[3px]">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#00e5ff]">
+      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+    </svg>
+  </span>
+  kalp ikonuna tıklayarak favori listenize ekleyebilir, dilediğiniz zaman kolayca ulaşabilirsiniz.
+</p>
             <div className="flex w-full gap-3">
               <button onClick={() => setProductToDelete(null)} className="flex-1 bg-[#121215] border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-white font-bold py-3.5 rounded-xl transition-all text-xs uppercase tracking-wider">İptal</button>
               <button onClick={handleDeleteFavorite} className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-bold py-3.5 rounded-xl transition-all text-xs uppercase tracking-wider shadow-lg">Evet, Kaldır</button>
