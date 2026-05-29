@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // 🚀 useEffect buraya eklendi
 import Link from "next/link";
 import { HeartCrack, ArrowLeft, Trash2, ShoppingCart } from "lucide-react";
 import toast from "react-hot-toast";
@@ -18,6 +18,18 @@ export default function FavoriClient({ initialFavorites }: Props) {
 
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
+
+  // 🚀 SİHİRLİ BAĞLANTI 1: Sunucudan yeni veri geldikçe ekrandaki listeyi günceller
+  useEffect(() => {
+    setFavoriteProducts(initialFavorites);
+  }, [initialFavorites]);
+
+  // 🚀 SİHİRLİ BAĞLANTI 2 (KESİN ÇÖZÜM):
+  // Sayfaya ayak basıldığı AN Next.js'in tarayıcı hafızasını arkadan dürtüp 
+  // güncel veriyi sunucudan zorla çeker. Beyaz ekran yaptırmaz, F5 attırmaz!
+  useEffect(() => {
+    router.refresh();
+  }, [router]);
 
   // Optimistic UI: Kullanıcı sil'e bastığı an ekrandan uçur, arkadan veritabanını güncelle.
   const handleDeleteFavorite = async () => {
@@ -37,8 +49,6 @@ export default function FavoriClient({ initialFavorites }: Props) {
 
       if (!res.ok) throw new Error("Veritabanı reddetti");
       toast.success("Ürün favorilerden kaldırıldı. 🤍");
-      
-      // Arka plandaki sunucuyu sessizce dürt, yeni listeyi hafızaya alsın (hayalet ekran çıkmaz)
       router.refresh(); 
     } catch (error: any) {
       toast.error("Sistem hatası: Veritabanından silinemedi!");
