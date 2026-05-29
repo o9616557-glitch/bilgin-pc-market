@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { ArrowLeft, Search, Copy, Check, Package, Truck, ShoppingCart, CheckCircle, Info } from "lucide-react";
 
 export default function SiparisTakipPage() {
   const [kodu, setKodu] = useState("");
@@ -12,30 +13,13 @@ export default function SiparisTakipPage() {
 
   const adimlar = ["Sipariş Alındı", "Hazırlanıyor", "Kargoya Verildi", "Teslim Edildi"];
 
-  // 🛡️ SÜPER ÇELİK YELEK MOTORU: Olası tüm harf hatalarını ve varyasyonları yakalar!
   const aktifAdimBul = (durum: string) => {
     if (!durum) return 0; 
     const d = durum.toLowerCase();
-    
-    // 3. Durak (Son Aşama: Teslim Edildi / Tamamlandı / Tamalandı)
-    if (
-      durum === "Teslim Edildi" || 
-      d.includes("teslim") || 
-      d.includes("tamam") || 
-      d.includes("tamal") || // 🎯 Şefimin yakaladığı o gizli harf hatası için özel koruma!
-      d.includes("bit") ||
-      d.includes("son")
-    ) {
-      return 3;
-    }
-    
-    // 2. Durak (Kargoya Verildi)
+    if (durum === "Teslim Edildi" || d.includes("teslim") || d.includes("tamam") || d.includes("tamal") || d.includes("bit") || d.includes("son")) return 3;
     if (durum === "Kargoya Verildi" || d.includes("kargo")) return 2;
-    
-    // 1. Durak (Ödendi / Hazırlanıyor)
     if (durum === "Ödendi / Hazırlanıyor" || d.includes("hazır") || d.includes("odendi")) return 1;
-    
-    return 0; // Hiçbiri değilse ilk durak
+    return 0;
   };
 
   const iptalEdildiMi = (durum: string) => {
@@ -47,30 +31,22 @@ export default function SiparisTakipPage() {
     e.preventDefault();
     setHata("");
     setSiparis(null);
-
-    if (!kodu) {
-      setHata("Lütfen sipariş kodunuzu girin.");
-      return;
-    }
-
+    if (!kodu) { setHata("Lütfen sipariş kodunuzu girin."); return; }
     setYukleniyor(true);
-
     try {
       const res = await fetch("/api/siparis-takip", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ siparisKodu: kodu }),
       });
-
       const data = await res.json();
-
       if (data.success || data.siparis) {
         setSiparis(data.siparis || data);
       } else {
-        setHata(data.error || "Bu koda ait bir sipariş bulunamadı. (Örn: SP-12345)");
+        setHata(data.error || "Bu koda ait bir sipariş bulunamadı.");
       }
     } catch (err) {
-      setHata("Bağlantı hatası oluştu. Lütfen tekrar deneyin.");
+      setHata("Bağlantı hatası oluştu.");
     } finally {
       setYukleniyor(false);
     }
@@ -85,168 +61,196 @@ export default function SiparisTakipPage() {
   const magazaMesaji = siparis?.musteriMesaji || siparis?.mesaj || siparis?.not || siparis?.adminNotu || siparis?.aciklama;
 
   return (
-    <div className="min-h-screen bg-[#050814] text-white flex flex-col items-center pt-24 px-4 pb-12 relative overflow-hidden">
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#00e5ff] blur-[120px] opacity-20 rounded-full pointer-events-none"></div>
+    <div className="w-full max-w-4xl mx-auto relative z-10 px-4">
       
-      <div className="w-full max-w-2xl bg-[#09090b] border border-white/10 rounded-2xl shadow-2xl p-5 md:p-10 relative z-10">
-        
-        {/* BAŞLIK VE MODERN AÇIKLAMA KISMI */}
-        <div className="text-center mb-8 md:mb-10">
-          <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tighter mb-4">
-            SPARİŞ <span className="text-[#00e5ff]">TAKİP</span>
+      {/* 🚀 ÜST BAŞLIK VE GERİ DÖNÜŞ */}
+      <div className="flex flex-col gap-4 border-b border-slate-800 pb-8 mb-10">
+        <div>
+          <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-4">
+            <ArrowLeft className="w-4 h-4" /> Mağazaya Geri Dön
+          </Link>
+          <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tight text-white mb-4">
+            SİPARİŞ <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00e5ff] to-[#0088ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.2)]">TAKİBİ</span>
           </h1>
-          
-          <div className="max-w-2xl mx-auto">
-            <p className="text-slate-300 text-sm md:text-base font-medium leading-relaxed mb-3">
-              Siparişiniz sistemimize ulaştığında. En kısa sürede işleme alınacaktır.
-            </p>
-            <p className="text-[#a1a1aa] text-xs md:text-sm">
-              <strong className="text-white">E-posta adresinize gönderilen</strong> Siparişinizin güncel durumunu, sipariş kodunuz ile aşağıdan kolayca takip edebilirsiniz.
-            </p>
-          </div>
+          <p className="text-slate-400 text-sm md:text-base font-medium leading-relaxed max-w-2xl">
+            Siparişinizin güncel durumunu, e-posta adresinize gönderilen <span className="text-white font-bold">sipariş kodu</span> ile anlık olarak takip edebilirsiniz.
+          </p>
         </div>
-        <form onSubmit={sorgula} className="flex flex-col md:flex-row gap-3 mb-6 md:mb-8">
-          <input
-            type="text"
-            value={kodu}
-            onChange={(e) => setKodu(e.target.value)}
-            placeholder="Sipariş Kodu (Örn: SP-12345)"
-            className="flex-1 bg-[#121215] border border-white/10 rounded-xl px-4 py-3 md:py-4 text-white placeholder-slate-500 focus:outline-none focus:border-[#00e5ff] transition-colors text-sm md:text-base"
-          />
+      </div>
+
+      {/* 🔍 ARAMA FORMU */}
+      <div className="bg-[#09090b] border border-white/10 rounded-2xl p-2 mb-10 shadow-2xl">
+        <form onSubmit={sorgula} className="flex flex-col sm:flex-row gap-2">
+          <div className="flex-1 relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" />
+            <input
+              type="text"
+              value={kodu}
+              onChange={(e) => setKodu(e.target.value)}
+              placeholder="Örn: SP-12345"
+              className="w-full bg-[#050B14] border border-white/5 rounded-xl pl-12 pr-4 py-4 text-white placeholder-slate-600 focus:outline-none focus:border-[#00e5ff]/40 transition-all font-bold tracking-wider"
+            />
+          </div>
           <button
             type="submit"
             disabled={yukleniyor}
-            className="bg-[#00e5ff] hover:bg-[#00c4db] text-black font-bold py-3 md:py-4 px-8 rounded-xl transition-all disabled:opacity-50 whitespace-nowrap text-sm md:text-base"
+            className="bg-[#00e5ff] hover:bg-[#00c4db] text-black font-black uppercase tracking-widest text-xs px-10 py-4 sm:py-0 rounded-xl transition-all disabled:opacity-50 shadow-[0_0_20px_rgba(0,229,255,0.2)]"
           >
-            {yukleniyor ? "Aranıyor..." : "Sorgula 🔍"}
+            {yukleniyor ? "ARANIYOR..." : "SORGULA"}
           </button>
         </form>
+      </div>
 
-        {hata && (
-          <div className="mb-6 p-3 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl text-center text-xs md:text-sm">
-            {hata}
-          </div>
-        )}
+      {hata && (
+        <div className="mb-10 p-5 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-2xl text-center text-sm font-bold flex items-center justify-center gap-3 animate-in fade-in slide-in-from-top-4">
+          <Info className="w-5 h-5" /> {hata}
+        </div>
+      )}
 
-        {siparis && (
-          <div className="mt-6 pt-6 md:pt-8 border-t border-white/10 animate-fade-in-up">
-            
-            {magazaMesaji && (
-              <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 text-amber-300 rounded-xl text-xs md:text-sm shadow-[0_0_15px_rgba(245,158,11,0.05)]">
-                <p className="font-black text-amber-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                  <span>📢</span> Mağaza Bildirimi
-                </p>
-                <p className="font-medium leading-relaxed">{magazaMesaji}</p>
+      {/* 📦 SONUÇ ALANI */}
+      {siparis && (
+        <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
+          
+          {/* Müşteri Bildirimi */}
+          {magazaMesaji && (
+            <div className="mb-8 p-5 bg-amber-500/10 border border-amber-500/20 text-amber-200 rounded-2xl shadow-lg relative overflow-hidden group">
+              <div className="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
+              <p className="font-black text-amber-500 uppercase tracking-widest text-[10px] mb-2 flex items-center gap-2">
+                <Info size={14} /> MAĞAZA BİLDİRİMİ
+              </p>
+              <p className="font-bold text-sm leading-relaxed">{magazaMesaji}</p>
+            </div>
+          )}
+
+          {/* İPTAL DURUMU */}
+          {iptalEdildiMi(siparis.durum) ? (
+            <div className="mb-10 p-10 bg-[#121215] border border-slate-800 rounded-3xl text-center">
+              <div className="w-20 h-20 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto mb-6">
+                <span className="text-4xl text-rose-500 font-black">×</span>
               </div>
-            )}
-
-           {iptalEdildiMi(siparis.durum) ? (
-              <div className="mb-8 p-6 bg-slate-800/40 border border-slate-600/30 rounded-xl text-center shadow-[0_0_20px_rgba(148,163,184,0.05)]">
-                <span className="text-4xl block mb-2 opacity-80">✖️</span>
-                <h3 className="text-lg font-black text-slate-300 uppercase tracking-tight">Sipariş İptal Edildi</h3>
-                <p className="text-slate-400 text-xs mt-2 leading-relaxed">
-                  Bu sipariş iptal edilmiş veya mağaza tarafından onaylanmamış görünüyor. Detaylı bilgi almak veya süreçle ilgili sorularınız için <a href="tel:08503055968" className="text-[#00e5ff] font-bold hover:underline">0850 305 59 68</a> numaralı hattan doğrudan mağazamızla iletişime geçebilirsiniz. Size yardımcı olmaktan mutluluk duyarız!
-                </p>
-              </div>
-            ) : (
-              <div className="mb-8 mt-4 relative px-0 md:px-2 pb-12 md:pb-16">
-                <div className="absolute left-0 top-5 md:top-6 w-full h-1 bg-gray-800 rounded-full"></div>
-                
+              <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-3">Sipariş İptal Edildi</h3>
+              <p className="text-slate-400 text-sm max-w-md mx-auto leading-relaxed">
+                Bu sipariş iptal edilmiş görünüyor. Sorularınız için <span className="text-[#00e5ff] font-bold">0850 305 59 68</span> numaralı hattan bize ulaşabilirsiniz.
+              </p>
+            </div>
+          ) : (
+            /* 🛤️ SİPARİŞ YOLU (STEPPER) */
+            <div className="mb-12 bg-[#09090b] border border-white/5 rounded-3xl p-8 md:p-12 relative overflow-hidden shadow-2xl">
+              <div className="relative flex justify-between items-start">
+                {/* Arka Plan Çizgisi */}
+                <div className="absolute left-0 top-6 md:top-8 w-full h-1 bg-slate-800/50 rounded-full"></div>
+                {/* İlerleme Çizgisi */}
                 <div 
-                  className="absolute left-0 top-5 md:top-6 h-1 bg-[#00e5ff] rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_#00e5ff]"
+                  className="absolute left-0 top-6 md:top-8 h-1 bg-gradient-to-r from-[#00e5ff] to-[#0088ff] rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_#00e5ff]"
                   style={{ width: `${(aktifAdimBul(siparis.durum) / (adimlar.length - 1)) * 100}%` }}
                 ></div>
 
-                <div className="relative flex justify-between items-center z-10">
-                  {adimlar.map((adim, index) => {
-                    const aktifAdimNo = aktifAdimBul(siparis.durum);
-                    const tamamlandiMi = index <= aktifAdimNo;
-                    const suAnkiMi = index === aktifAdimNo;
-                    
-                    // Son adımda (Teslim) pır pır edip yanıp sönmeyi durduruyoruz, sabit kalıyor!
-                    const yanipSonme = suAnkiMi && index !== 3 ? "ring-4 ring-[#00e5ff]/30 animate-pulse" : "";
-
-                    return (
-                      <div key={index} className="flex flex-col items-center relative group w-10 md:w-12">
-                        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-lg md:text-xl shadow-lg transition-all duration-500 z-10 ${
-                          tamamlandiMi ? "bg-[#00e5ff] text-black scale-110" : "bg-gray-800 text-gray-500"
-                        } ${yanipSonme}`}>
-                          {index === 0 && "🛒"}
-                          {index === 1 && "📦"}
-                          {index === 2 && "🚚"}
-                          {index === 3 && "✅"}
-                        </div>
-                        <span className={`absolute top-[120%] left-1/2 -translate-x-1/2 mt-2 w-20 text-[9px] md:text-xs font-bold text-center leading-tight ${
-                          tamamlandiMi ? "text-[#00e5ff]" : "text-gray-500"
-                        }`}>
-                          {adim}
-                        </span>
+                {adimlar.map((adim, index) => {
+                  const aktifAdimNo = aktifAdimBul(siparis.durum);
+                  const tamamlandiMi = index <= aktifAdimNo;
+                  const suAnkiMi = index === aktifAdimNo;
+                  
+                  return (
+                    <div key={index} className="flex flex-col items-center relative z-10 w-1/4">
+                      <div className={`w-12 h-12 md:w-16 md:h-16 rounded-2xl flex items-center justify-center transition-all duration-500 ${
+                        tamamlandiMi ? "bg-[#00e5ff] text-black shadow-[0_0_20px_rgba(0,229,255,0.4)] rotate-0" : "bg-slate-900 text-slate-600 border border-slate-800"
+                      } ${suAnkiMi && index !== 3 ? "animate-pulse" : ""}`}>
+                        {index === 0 && <ShoppingCart size={24} />}
+                        {index === 1 && <Package size={24} />}
+                        {index === 2 && <Truck size={24} />}
+                        {index === 3 && <CheckCircle size={24} />}
                       </div>
-                    );
-                  })}
-                </div>
+                      <span className={`mt-4 text-[10px] md:text-xs font-black uppercase tracking-widest text-center px-2 ${
+                        tamamlandiMi ? "text-white" : "text-slate-600"
+                      }`}>
+                        {adim}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-            )}
-
-            <div className="bg-[#121215] rounded-xl p-4 md:p-5 border border-white/5 mt-4 md:mt-8">
-              <div className="flex justify-between items-center border-b border-white/5 pb-4 mb-4">
-                <div>
-                  <p className="text-slate-400 text-[10px] md:text-xs uppercase tracking-wider mb-1">Sipariş Kodu</p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-lg md:text-xl font-bold text-white tracking-wide">{siparis.siparisKodu}</p>
-                    <button 
-                      onClick={() => koduKopyala(siparis.siparisKodu)}
-                      className="p-1.5 md:p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors flex items-center justify-center"
-                      title="Kodu Kopyala"
-                    >
-                      {kopyalandi ? <span className="text-green-400 text-sm">✅</span> : <span className="text-slate-300 text-sm">📋</span>}
-                    </button>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-slate-400 text-[10px] md:text-xs uppercase tracking-wider mb-1">Durum</p>
-                  <p className={`text-sm md:text-base font-black uppercase ${iptalEdildiMi(siparis.durum) ? 'text-slate-300' : 'text-[#00e5ff]'}`}>
-                    {siparis.durum || "Hazırlanıyor"}
-                  </p>
-                </div>
-              </div>
-
-              {siparis.items && siparis.items.length > 0 && (
-                <div className="mt-4">
-                  <p className="text-slate-400 text-[10px] md:text-xs uppercase tracking-wider mb-3">Paket İçeriği</p>
-                  <div className="space-y-2 md:space-y-3 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
-                    {siparis.items.map((urun: any, i: number) => {
-                      const gercekResim = urun.resim || urun.gorsel || urun.image || urun.urunResmi;
-                      
-                      return (
-                        <div key={i} className="flex items-center gap-3 md:gap-4 bg-[#0a0a0c] p-2 md:p-3 rounded-lg border border-white/5">
-                          {gercekResim ? (
-                            <img src={gercekResim} alt={urun.isim} className="w-12 h-12 md:w-16 md:h-16 rounded-md object-cover border border-white/10 bg-black/50" />
-                          ) : (
-                            <div className="w-12 h-12 md:w-16 md:h-16 rounded-md bg-gray-800 flex items-center justify-center text-lg md:text-xl">🛍️</div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs md:text-sm font-semibold text-white truncate" title={urun.isim}>{urun.isim || "Ürün"}</p>
-                            <p className="text-[10px] md:text-xs text-slate-500 mt-0.5">{urun.adet} Adet</p>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              )}
             </div>
+          )}
+
+          {/* 📄 SİPARİŞ DETAY KARTI */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             
+            <div className="md:col-span-2 bg-[#09090b] border border-white/5 rounded-3xl p-8 shadow-xl flex flex-col justify-center">
+               <div className="flex justify-between items-center mb-8 border-b border-white/5 pb-6">
+                  <div>
+                    <p className="text-slate-500 text-[10px] uppercase tracking-[0.2em] font-black mb-2">Takip No</p>
+                    <div className="flex items-center gap-3">
+                      <h2 className="text-2xl md:text-3xl font-black text-white tracking-tighter">{siparis.siparisKodu}</h2>
+                      <button onClick={() => koduKopyala(siparis.siparisKodu)} className="p-2 bg-white/5 hover:bg-white/10 rounded-xl transition-all">
+                        {kopyalandi ? <Check className="text-green-400 w-4 h-4" /> : <Copy className="text-slate-400 w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-slate-500 text-[10px] uppercase tracking-[0.2em] font-black mb-2">Güncel Durum</p>
+                    <p className={`text-sm md:text-lg font-black uppercase tracking-widest ${iptalEdildiMi(siparis.durum) ? 'text-slate-400' : 'text-[#00e5ff]'}`}>
+                      {siparis.durum || "HAZIRLANIYOR"}
+                    </p>
+                  </div>
+               </div>
+
+               {siparis.items && siparis.items.length > 0 && (
+                <div>
+                  <p className="text-slate-500 text-[10px] uppercase tracking-[0.2em] font-black mb-4">PAKET İÇERİĞİ</p>
+                  <div className="space-y-3 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
+                    {siparis.items.map((urun: any, i: number) => (
+                      <div key={i} className="flex items-center gap-4 bg-[#050B14] p-3 rounded-2xl border border-white/5 group hover:border-[#00e5ff]/20 transition-all">
+                        <div className="w-16 h-16 rounded-xl overflow-hidden bg-black flex-shrink-0 border border-white/5">
+                          {urun.resim || urun.gorsel || urun.image ? (
+                            <img src={urun.resim || urun.gorsel || urun.image} alt="" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-xl">🛍️</div>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-black text-white leading-tight mb-1">{urun.isim || "Ürün"}</p>
+                          <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">{urun.adet} ADET</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+               )}
+            </div>
+
+            <div className="bg-gradient-to-br from-[#09090b] to-[#050814] border border-white/5 rounded-3xl p-8 shadow-xl flex flex-col justify-center items-center text-center">
+               <div className="w-16 h-16 rounded-full bg-[#00e5ff]/10 flex items-center justify-center mb-6">
+                 <Package className="text-[#00e5ff] w-8 h-8" />
+               </div>
+               <h3 className="text-lg font-black text-white uppercase tracking-tight mb-2">Yardıma mı ihtiyacın var?</h3>
+               <p className="text-slate-500 text-xs font-medium leading-relaxed mb-8 px-4">
+                 Siparişinizle ilgili her türlü soru için destek ekibimize ulaşabilirsiniz.
+               </p>
+               <Link href="/iletisim" className="w-full py-4 bg-white/5 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all border border-white/10">
+                 DESTEK MERKEZİ
+               </Link>
+            </div>
+
           </div>
-        )}
-
-        <div className="mt-6 md:mt-8 text-center">
-          <Link href="/" className="text-slate-400 hover:text-[#00e5ff] text-xs md:text-sm font-medium transition-colors">
-            &larr; Mağazaya Geri Dön
-          </Link>
         </div>
-
-      </div>
+      )}
+      
+      {/* 🔹 Alt Stil Eklemeleri */}
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.02);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(0, 229, 255, 0.1);
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(0, 229, 255, 0.3);
+        }
+      `}</style>
     </div>
   );
 }
