@@ -5,32 +5,32 @@ import Link from "next/link";
 import { HeartCrack, ArrowLeft, Trash2, ShoppingCart } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/app/CartContext";
+import { useRouter } from "next/navigation"; // 🚀 SÜPÜRGE MOTORU İÇE AKTARILDI
 
 interface Props {
   initialFavorites: any[];
 }
 
 export default function FavoriYoneticisi({ initialFavorites }: Props) {
+  const router = useRouter(); // 🚀 SÜPÜRGE TANIMLANDI
   const [favoriteProducts, setFavoriteProducts] = useState<any[]>(initialFavorites);
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
 
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
 
-  // Sadece yeni veri geldiğinde sessizce listeyi günceller
+  // Radarımız aynı sakinlikte çalışmaya devam ediyor (Hayalet ürün yaratmaz)
   useEffect(() => {
     setFavoriteProducts(initialFavorites);
   }, [initialFavorites]);
 
-  // 🚀 HAYALET ÜRÜN SORUNU ÇÖZÜLDÜ:
-  // router.refresh() komutlarını sildik. Artık ürün ekrandan anında silinecek ve
-  // arka planda sunucu "acaba sildim mi?" diye tekrar sayfayı kırpmayacak!
+  // Favorilerden Çıkarma İşlemi
   const handleDeleteFavorite = async () => {
     if (!productToDelete) return;
 
     const targetId = String(productToDelete._id || productToDelete.id);
     
-    // Ekrandan anında sil (Optimistic UI - Hayalet ürün olmaz)
+    // 1. AŞAMA: Ekrandan anında sil (Kullanıcı beklemez)
     setFavoriteProducts(prev => prev.filter(p => String(p._id || p.id) !== targetId));
     setProductToDelete(null);
 
@@ -42,9 +42,16 @@ export default function FavoriYoneticisi({ initialFavorites }: Props) {
       });
 
       if (!res.ok) throw new Error("Veritabanı reddetti");
+      
       toast.success("Ürün favorilerden kaldırıldı. 🤍");
+      
+      // 🚀 2. AŞAMA (BÜYÜLÜ KOD): Veritabanından silindikten hemen sonra 
+      // Next.js'in o inatçı önbelleğini zorla sildiriyoruz! Çıkıp girince geri gelmez.
+      router.refresh(); 
+
     } catch (error: any) {
       toast.error("Sistem hatası: Veritabanından silinemedi!");
+      router.refresh(); 
     }
   };
 
@@ -79,7 +86,6 @@ export default function FavoriYoneticisi({ initialFavorites }: Props) {
         {/* ÜST PANEL */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-800 pb-6 mb-10">
           <div>
-            {/* 🚀 GERİ DÖNÜŞ BUTONU HIZLANDIRILDI: prefetch={true} eklendi */}
             <Link href="/" prefetch={true} className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-3">
               <ArrowLeft className="w-4 h-4" /> Mağazaya Geri Dön
             </Link>
@@ -99,7 +105,6 @@ export default function FavoriYoneticisi({ initialFavorites }: Props) {
             </div>
             <h2 className="text-xl font-black uppercase tracking-wide mb-2 text-white">Henüz Favori Öğe Yok</h2>
             <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">Sistemde beğendiğiniz canavar donanımları kalbe basarak bu gizli bölgeye toplayabilirsiniz.</p>
-            {/* 🚀 BOŞ EKRANDAKİ BUTON DA HIZLANDIRILDI */}
             <Link href="/" prefetch={true} className="inline-block bg-[#00e5ff] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:-translate-y-0.5">
               Donanımları İncele
             </Link>
