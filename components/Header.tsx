@@ -5,8 +5,17 @@ import { useCart } from "@/app/CartContext";
 import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
+
 export default function Header() {
   const pathname = usePathname();
+
+  // 🚀 İŞTE GİZLEME MOTORU: Bu sayfalarda üst menü (Header) ASLA görünmez!
+  // Eğer url isimlerin farklıysa buradaki listeyi kendine göre güncelleyebilirsin.
+  const gizlenecekSayfalar = ["/siparislerim", "/odeme", "/giris", "/kayit", "/checkout"];
+  if (gizlenecekSayfalar.includes(pathname)) {
+    return null; 
+  }
+
   const { sepet } = useCart();
   const [menuAcik, setMenuAcik] = useState(false);
   const [hesabimAcik, setHesabimAcik] = useState(false);
@@ -32,8 +41,6 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", disariTiklandi);
   }, []);
 
-
-  
   return (
     <>
       <header style={{ backgroundColor: "rgba(9, 9, 11, 0.9)", borderBottom: "1px solid #27272a", position: "sticky", top: 0, zIndex: 1000, backdropFilter: "blur(12px)" }}>
@@ -88,17 +95,14 @@ export default function Header() {
                         <p style={{ color: "#00e5ff", fontSize: "0.8rem", fontWeight: "600", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{session.user?.name || session.user?.email}</p>
                       </div>
 
-                      {/* 🚀 BİNGO: SİPARİŞLERİM SAYFASINA PREFETCH MOTORU TAKILDI! */}
                       <Link href="/siparislerim" prefetch={true} onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
                         <span>📋</span> Siparişlerim
                       </Link>
 
-                      {/* 🚀 BİNGO: ADRESLERİM SAYFASINA PREFETCH MOTORU TAKILDI! */}
                       <Link href="/adreslerim" prefetch={true} onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
                         <span>📍</span> Adreslerim
                       </Link>
 
-                      {/* 🚀 BİNGO: FAVORİLERİM SAYFASINA PREFETCH MOTORU TAKILDI! */}
                       <Link href="/favorilerim" prefetch={true} onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
                         <span>❤️</span> Favorilerim
                       </Link>
