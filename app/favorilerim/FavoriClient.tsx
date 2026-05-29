@@ -6,7 +6,7 @@ import { HeartCrack, ArrowLeft, Trash2, ShoppingCart } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/app/CartContext";
 import { useRouter } from "next/navigation";
-
+import { Heart } from "lucide-react";
 interface Props {
   initialFavorites: any[];
 }
@@ -142,14 +142,10 @@ export default function FavoriClient({ initialFavorites }: Props) {
           <div className="bg-[#09090b] border border-slate-800/80 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-[0_0_50px_rgba(0,0,0,0.8)] relative overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="w-14 h-14 rounded-full border border-slate-800 flex items-center justify-center mb-4 bg-[#121215] shadow-inner"><Trash2 className="w-6 h-6 text-slate-400" /></div>
             <h3 className="text-lg font-black text-white uppercase tracking-wider mb-2">Öğeyi Kaldır</h3>
-            <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">
+            <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed flex items-center justify-center flex-wrap gap-x-1">
   İlginizi çeken donanımları 
-  <span className="inline-flex items-center justify-center mx-1.5 translate-y-[3px]">
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#00e5ff]">
-      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-    </svg>
-  </span>
-  kalp ikonuna tıklayarak favori listenize ekleyebilir, dilediğiniz zaman kolayca ulaşabilirsiniz.
+  <Heart className="w-4 h-4 text-[#00e5ff] fill-transparent" />
+  ikonuna tıklayarak favori listenize ekleyebilir, dilediğiniz zaman kolayca ulaşabilirsiniz.
 </p>
             <div className="flex w-full gap-3">
               <button onClick={() => setProductToDelete(null)} className="flex-1 bg-[#121215] border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-white font-bold py-3.5 rounded-xl transition-all text-xs uppercase tracking-wider">İptal</button>
