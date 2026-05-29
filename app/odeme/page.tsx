@@ -168,15 +168,24 @@ export default function OdemeSayfasi() {
    <div className="min-h-screen bg-[#050814] text-white pb-12 relative">
       
       {/* 🚀 MİNİMAL GÜVENLİ ÖDEME BARI */}
-      <div className="flex items-center justify-between border-b border-slate-800 bg-[#09090b]/90 backdrop-blur-md px-4 sm:px-8 py-4 sticky top-0 z-50 shadow-lg mb-8">
-        <Link href="/sepet" className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-400 hover:text-[#00e5ff] transition-colors uppercase tracking-wider">
-          <ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">Sepete Dön</span>
-        </Link>
-        <Link href="/" className="font-black text-xl sm:text-2xl tracking-tight text-white hover:opacity-80 transition-opacity">
-          BİLGİN <span className="text-[#00e5ff]">PC</span>
-        </Link>
-        <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] sm:text-xs font-black uppercase tracking-widest bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20">
-          <span>🔒</span> <span className="hidden sm:inline">Güvenli Ödeme</span>
+      {/* 🚀 MİNİMAL GÜVENLİ ÖDEME BARI (Ortalanmış Yeni Versiyon) */}
+      <div className="border-b border-slate-800 bg-[#09090b]/90 backdrop-blur-md sticky top-0 z-50 shadow-lg mb-8">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-4 flex items-center justify-between">
+          
+          {/* Sol: Sepete Dönüş Kapısı */}
+          <Link href="/sepet" className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-400 hover:text-[#00e5ff] transition-colors uppercase tracking-wider">
+            <ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">Sepete Dön</span>
+          </Link>
+
+          {/* Orta: Tıklanabilir Logo */}
+          <Link href="/" className="font-black text-xl sm:text-2xl tracking-tight text-white hover:opacity-80 transition-opacity">
+            BİLGİN <span className="text-[#00e5ff]">PC</span>
+          </Link>
+
+          {/* Sağ: Güvenlik Rozeti */}
+          <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] sm:text-xs font-black uppercase tracking-widest bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20">
+            <span>🔒</span> <span className="hidden sm:inline">Güvenli Ödeme</span>
+          </div>
         </div>
       </div>
 
