@@ -109,19 +109,9 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
           </h1>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-3">
-          <div className="text-slate-300 text-xs font-black uppercase tracking-wider bg-[#09090b] border border-slate-800/80 py-3 px-5 rounded-xl shadow-lg w-full sm:w-auto text-center">
+        <div className="text-slate-300 text-xs font-black uppercase tracking-wider bg-[#09090b] border border-slate-800/80 py-3 px-5 rounded-xl shadow-lg">
             Kayıtlı: <span className="text-[#00e5ff] font-black text-sm">{addresses.length}</span> Adres
           </div>
-          {!showForm && (
-            <button
-              onClick={() => { setFormData(formBaslangic); setEditingId(null); setShowForm(true); }}
-              className="w-full sm:w-auto flex justify-center items-center gap-2 bg-[#00e5ff] text-black px-6 py-3 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_15px_rgba(0,229,255,0.2)]"
-            >
-              <Plus size={16} /> YENİ EKLE
-            </button>
-          )}
-        </div>
       </div>
 
       {/* Form Alanı */}
