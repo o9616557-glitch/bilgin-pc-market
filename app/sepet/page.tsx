@@ -47,9 +47,9 @@ export default function SepetSayfasi() {
         {/* SOL TARAF: ÜRÜN LİSTESİ (SADECE NET FİYAT) */}
         <div className="flex-1 flex flex-col gap-4">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-slate-800 pb-4 mb-4 gap-4 mt-2">
-            <h1 className="text-lg sm:text-xl font-bold uppercase tracking-wide text-slate-300 drop-shadow-md mb-8 border-l-4 border-[#00e5ff] pl-4">
-  ALIŞVERİŞ / <span className="text-white font-black">SEPETİM</span>
-</h1>
+            <h1 className="text-lg sm:text-xl font-bold uppercase tracking-wide text-white drop-shadow-md mb-8 border-l-4 border-[#00e5ff] pl-4">
+            ALIŞVERİŞ <span className="text-[#00e5ff] font-black">SEPETİM</span>
+          </h1>
             {sepetiTemizle && (
               <button onClick={sepetiTemizle} className="text-sm font-semibold text-slate-400 hover:text-red-400 bg-slate-800/50 border border-slate-700/50 py-2 px-4 rounded-xl transition-all">
                 Sepeti Temizle
