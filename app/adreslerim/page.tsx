@@ -233,6 +233,7 @@ export default function AdreslerimPage() {
             </div>
           </div>
         ) : addresses.length === 0 && !showForm ? (
+          
           <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4 mt-8 animate-in fade-in zoom-in duration-300">
             
             {/* Soluk İkon Kutusu (Sitenin Orijinal Saydam Siyah Rengi) */}
