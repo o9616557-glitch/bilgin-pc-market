@@ -190,55 +190,58 @@ useEffect(() => {
         </div>
       )}
 
-    {/* 🚀 Adres Listesi veya Boş Durum (Sadece form kapalıyken görünür) */}
-      {!showForm && (
-        addresses.length === 0 ? (
-          <div className="text-center p-10 sm:p-16 bg-transparent relative">
-            <div className="w-20 h-20 rounded-full bg-[#121215]/50 border border-slate-800/50 flex items-center justify-center mx-auto mb-6 shadow-inner">
-              <MapPin className="w-10 h-10 text-slate-500" />
-            </div>
-            <h2 className="text-xl font-black uppercase tracking-wide mb-2 text-white">Kayıtlı Adres Yok</h2>
-            <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">
-              Hesabınıza henüz bir adres eklemediniz. Daha hızlı ve güvenli alışveriş deneyimi için hemen yeni bir adres oluşturabilirsiniz.
-            </p>
-            <button onClick={() => setShowForm(true)} className="inline-block bg-[#00e5ff] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:-translate-y-0.5">
-              Yeni Adres Ekle
-            </button>
+   {/* 🚀 BOŞ DURUM (Hiç adres yoksa ve form kapalıysa görünür) */}
+      {addresses.length === 0 && !showForm && (
+        <div className="text-center p-10 sm:p-16 bg-transparent relative">
+          <div className="w-20 h-20 rounded-full bg-[#121215]/50 border border-slate-800/50 flex items-center justify-center mx-auto mb-6 shadow-inner">
+            <MapPin className="w-10 h-10 text-slate-500" />
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {addresses.map((address) => (
-              <div key={address._id} className="bg-[#09090b] border border-white/10 rounded-2xl p-6 relative group hover:border-[#00e5ff]/30 transition-colors">
-                <div className="flex justify-between items-start mb-4 border-b border-white/10 pb-3">
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-center gap-2 text-[#00e5ff] font-bold">
-                      <MapPin size={18} />
-                      <span>{address.title}</span>
-                    </div>
-                    <div className="flex gap-2 flex-wrap">
-                      {address.isDefaultDelivery && <span className="px-2 py-1 bg-[#00e5ff]/10 text-[#00e5ff] text-[10px] rounded border border-[#00e5ff]/20 font-medium tracking-wider">VARS. TESLİMAT</span>}
-                      {address.isDefaultBilling && <span className="px-2 py-1 bg-amber-500/10 text-amber-400 text-[10px] rounded border border-amber-500/20 font-medium tracking-wider">FATURA ADRESİ</span>}
-                    </div>
+          <h2 className="text-xl font-black uppercase tracking-wide mb-2 text-white">Kayıtlı Adres Yok</h2>
+          <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">
+            Hesabınıza henüz bir adres eklemediniz. Daha hızlı ve güvenli alışveriş deneyimi için hemen yeni bir adres oluşturabilirsiniz.
+          </p>
+          <button onClick={() => setShowForm(true)} className="inline-block bg-[#00e5ff] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:-translate-y-0.5">
+            Yeni Adres Ekle
+          </button>
+        </div>
+      )}
+
+      {/* 🚀 ADRES LİSTESİ (Düzenlenen adres hariç diğerlerini her zaman gösterir) */}
+      {addresses.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {addresses
+            .filter((address) => address._id !== editingId) /* 🔥 SİHİRLİ FİLTRE: Düzenleneni aşağıdan gizle! */
+            .map((address) => (
+            <div key={address._id} className="bg-[#09090b] border border-white/10 rounded-2xl p-6 relative group hover:border-[#00e5ff]/30 transition-colors">
+              <div className="flex justify-between items-start mb-4 border-b border-white/10 pb-3">
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2 text-[#00e5ff] font-bold">
+                    <MapPin size={18} />
+                    <span>{address.title}</span>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <button onClick={() => handleEditClick(address)} className="text-slate-400 hover:text-[#00e5ff] transition-colors" title="Bu Adresi Düzenle">
-                      <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                    </button>
-                    <button onClick={() => setAddressToDelete(address._id)} className="text-slate-400 hover:text-rose-500 transition-colors" title="Adresi Sil">
-                      <Trash2 size={18} />
-                    </button>
+                  <div className="flex gap-2 flex-wrap">
+                    {address.isDefaultDelivery && <span className="px-2 py-1 bg-[#00e5ff]/10 text-[#00e5ff] text-[10px] rounded border border-[#00e5ff]/20 font-medium tracking-wider">VARS. TESLİMAT</span>}
+                    {address.isDefaultBilling && <span className="px-2 py-1 bg-amber-500/10 text-amber-400 text-[10px] rounded border border-amber-500/20 font-medium tracking-wider">FATURA ADRESİ</span>}
                   </div>
                 </div>
-                <div className="space-y-2 text-sm text-slate-300">
-                  <p className="font-bold text-white">{address.fullName}</p>
-                  <p className="text-slate-400">{address.phone}</p>
-                  <p className="mt-2 line-clamp-2" title={address.fullAddress}>{address.fullAddress}</p>
-                  <p className="text-[#00e5ff]/80 font-medium">{address.district} / {address.city}</p>
+                <div className="flex items-center gap-4">
+                  <button onClick={() => handleEditClick(address)} className="text-slate-400 hover:text-[#00e5ff] transition-colors" title="Bu Adresi Düzenle">
+                    <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                  </button>
+                  <button onClick={() => setAddressToDelete(address._id)} className="text-slate-400 hover:text-rose-500 transition-colors" title="Adresi Sil">
+                    <Trash2 size={18} />
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
-        )
+              <div className="space-y-2 text-sm text-slate-300">
+                <p className="font-bold text-white">{address.fullName}</p>
+                <p className="text-slate-400">{address.phone}</p>
+                <p className="mt-2 line-clamp-2" title={address.fullAddress}>{address.fullAddress}</p>
+                <p className="text-[#00e5ff]/80 font-medium">{address.district} / {address.city}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
       {/* 🚀 SİLME ONAY EKRANI (MODAL) */}
