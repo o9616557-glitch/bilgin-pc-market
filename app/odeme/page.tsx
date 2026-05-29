@@ -1,4 +1,5 @@
 "use client";
+import { ArrowLeft } from "lucide-react";
 import { useCart } from "../CartContext";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -163,8 +164,23 @@ export default function OdemeSayfasi() {
     setTimeout(() => setIbanKopyalandi(false), 2000);
   };
 
-  return (
+ return (
     <div className="min-h-screen bg-[#050814] text-white pb-12 pt-8 md:pt-12 relative">
+      
+      {/* 🚀 MİNİMAL GÜVENLİ ÖDEME BARI */}
+      <div className="flex items-center justify-between border-b border-slate-800 bg-[#09090b]/90 backdrop-blur-md px-4 sm:px-8 py-4 sticky top-0 z-50 shadow-lg mb-8">
+        <Link href="/sepet" className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-400 hover:text-[#00e5ff] transition-colors uppercase tracking-wider">
+          <ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">Sepete Dön</span>
+        </Link>
+        <Link href="/" className="font-black text-xl sm:text-2xl tracking-tight text-white hover:opacity-80 transition-opacity">
+          BİLGİN <span className="text-[#00e5ff]">PC</span>
+        </Link>
+        <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] sm:text-xs font-black uppercase tracking-widest bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20">
+          <span>🔒</span> <span className="hidden sm:inline">Güvenli Ödeme</span>
+        </div>
+      </div>
+
+      {/* ANA İÇERİK BAŞLANGICI */}
       <div className="ana-konteynir" style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
         
         <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter text-white drop-shadow-md mb-8 border-l-4 border-[#00e5ff] pl-4">
