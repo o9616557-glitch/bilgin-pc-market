@@ -40,9 +40,32 @@ export default function SepetSayfasi() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-[#050814] text-white pt-8 md:pt-12 pb-12 px-4">
-      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8">
+ return (
+    <div className="min-h-screen bg-[#050814] text-white pb-12 relative">
+      
+      {/* 🚀 MİNİMAL GÜVENLİ SEPET BARI */}
+      <div className="flex items-center justify-between border-b border-slate-800 bg-[#09090b]/90 backdrop-blur-md px-4 sm:px-8 py-4 sticky top-0 z-50 shadow-lg mb-8">
+        
+        {/* Sol: Mağazaya Güvenli Dönüş Kapısı */}
+        <Link href="/" className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-400 hover:text-[#00e5ff] transition-colors uppercase tracking-wider">
+          <ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">Mağazaya Dön</span>
+        </Link>
+
+        {/* Orta: Tıklanabilir Logo */}
+        <Link href="/" className="font-black text-xl sm:text-2xl tracking-tight text-white hover:opacity-80 transition-opacity">
+          BİLGİN <span className="text-[#00e5ff]">PC</span>
+        </Link>
+
+        {/* Sağ: Güvenlik Rozeti */}
+        <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] sm:text-xs font-black uppercase tracking-widest bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20">
+          <span>🔒</span> <span className="hidden sm:inline">Güvenli Alışveriş</span>
+        </div>
+      </div>
+
+      {/* 🚀 BUNDAN SONRASI SENİN ORİJİNAL KODUNLA DEVAM EDECEK */}
+      <div className="ana-konteynir" style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
+        
+        {/* Az önce yaptığımız o şık ALIŞVERİŞ SEPETİM başlığı burada olacak... */}
         
         {/* SOL TARAF: ÜRÜN LİSTESİ (SADECE NET FİYAT) */}
         <div className="flex-1 flex flex-col gap-4">
