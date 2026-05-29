@@ -219,22 +219,22 @@ export default function AdreslerimPage() {
         ) : addresses.length === 0 && !showForm ? (
           <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4 mt-8 animate-in fade-in zoom-in duration-300">
             
-            {/* Soluk İkon Kutusu */}
-            <div className="w-24 h-24 rounded-full bg-[#09090b] border border-white/5 flex items-center justify-center mb-6 shadow-inner">
-              <MapPin className="w-10 h-10 text-slate-600" />
+            {/* Soluk İkon Kutusu (Sitenin Orijinal Saydam Siyah Rengi) */}
+            <div className="w-24 h-24 rounded-full bg-[#121215]/50 border border-slate-800/50 flex items-center justify-center mb-6 shadow-inner">
+              <MapPin className="w-10 h-10 text-slate-500" />
             </div>
 
-            {/* Kalın Beyaz Başlık */}
-            <h2 className="text-2xl sm:text-3xl font-black uppercase text-white mb-4 tracking-wider">
+            {/* Başlık (Bir tık ufaltıldı ve kibarlaştırıldı) */}
+            <h2 className="text-xl sm:text-2xl font-black uppercase text-white mb-3 tracking-wide">
               HENÜZ KAYITLI ADRES YOK
             </h2>
 
             {/* Gri Bilgi Yazısı */}
-            <p className="text-slate-400 text-sm sm:text-base font-medium max-w-md mb-8 leading-relaxed">
+            <p className="text-slate-400 text-sm font-medium max-w-md mb-8 leading-relaxed">
               Sistemde teslimat veya fatura adresiniz bulunmuyor. Canavar donanımları size ulaştırabilmemiz için hemen yeni bir adres ekleyin.
             </p>
 
-            {/* Neon Mavi Buton (Tam Senin Görselindeki Gibi) */}
+            {/* Neon Mavi Buton */}
             <button 
               onClick={() => setShowForm(true)}
               className="bg-[#00e5ff] text-black font-black uppercase tracking-wide py-4 px-10 rounded-xl hover:bg-white hover:scale-105 transition-all duration-100 active:scale-95 shadow-[0_0_20px_rgba(0,229,255,0.15)]"
