@@ -178,7 +178,7 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
 
       {/* Adres Listesi veya Boş Durum */}
       {addresses.length === 0 && !showForm ? (
-       <div className="flex flex-col items-center justify-center min-h-[50vh] text-center p-4 sm:p-16 bg-transparent relative mt-4">
+     <div className="text-center p-10 sm:p-16 bg-transparent relative">
   <div className="w-20 h-20 rounded-full bg-[#121215]/50 border border-slate-800/50 flex items-center justify-center mx-auto mb-6 shadow-inner">
     <MapPin className="w-10 h-10 text-slate-500" />
   </div>
