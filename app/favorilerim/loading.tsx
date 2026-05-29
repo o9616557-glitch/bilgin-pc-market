@@ -11,8 +11,8 @@ export default function Loading() {
 
       <div className="max-w-4xl mx-auto relative z-10">
         
-        {/* ÜST PANEL SKELETON (HAYALETİ) */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-800 pb-6 mb-10">
+        {/* ÜST PANEL SKELETON */}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-700 pb-6 mb-10">
           <div>
             <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 opacity-50">
               <ArrowLeft className="w-4 h-4" /> Mağazaya Geri Dön
@@ -21,35 +21,31 @@ export default function Loading() {
               FAVORİ <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00e5ff] to-[#0088ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.2)]">ÜRÜNLERİM</span>
             </h1>
           </div>
-          {/* Ürün Sayısı Yazan Yerin Hayaleti */}
-          <div className="w-32 h-11 bg-slate-800/40 rounded-xl animate-pulse shadow-lg"></div>
+          {/* Aydınlatılmış Ürün Sayısı Hayaleti */}
+          <div className="w-32 h-11 bg-slate-500/50 rounded-xl animate-pulse shadow-lg"></div>
         </div>
 
-        {/* 🚀 ÜRÜNLERİN HAYALET (SKELETON) KUTULARI */}
+        {/* 🚀 SADECE 1 TANE HAYALET KUTU (Aydınlatılmış Renkler) */}
         <div className="flex flex-col gap-4">
-          {/* Ekrana 3 tane sahte hayalet kutu basıyoruz ki dolgun dursun */}
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="border border-slate-800/50 bg-[#09090b]/50 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-5 relative overflow-hidden">
-              
-              {/* Resim Alanı Hayaleti */}
-              <div className="w-full sm:w-24 h-24 bg-slate-800/40 rounded-xl animate-pulse shrink-0"></div>
-              
-              <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
-                <div className="flex flex-col flex-1 min-w-0 w-full">
-                  {/* Başlık ve Fiyat Hayaleti */}
-                  <div className="h-4 bg-slate-800/40 rounded-md w-3/4 mb-3 animate-pulse"></div>
-                  <div className="h-6 bg-slate-800/40 rounded-md w-1/3 animate-pulse"></div>
-                </div>
-                
-                {/* Butonların Hayaleti */}
-                <div className="flex items-center gap-3 shrink-0 w-full sm:w-auto pt-4 sm:pt-0">
-                  <div className="w-12 h-12 bg-slate-800/40 rounded-xl animate-pulse"></div>
-                  <div className="h-12 w-full sm:w-36 bg-slate-800/40 rounded-xl animate-pulse"></div>
-                </div>
+          <div className="border border-slate-700 bg-slate-800/30 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-5 relative overflow-hidden">
+            
+            {/* Ürün Görseli Hayaleti */}
+            <div className="w-full sm:w-24 h-24 bg-slate-500/50 rounded-xl animate-pulse shrink-0"></div>
+            
+            <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
+              <div className="flex flex-col flex-1 min-w-0 w-full">
+                {/* Yazı Hayaletleri */}
+                <div className="h-4 bg-slate-500/50 rounded-md w-3/4 mb-3 animate-pulse"></div>
+                <div className="h-6 bg-slate-500/50 rounded-md w-1/3 animate-pulse"></div>
               </div>
-
+              
+              <div className="flex items-center gap-3 shrink-0 w-full sm:w-auto pt-4 sm:pt-0">
+                {/* Buton Hayaletleri */}
+                <div className="w-12 h-12 bg-slate-500/50 rounded-xl animate-pulse"></div>
+                <div className="h-12 w-full sm:w-36 bg-slate-500/50 rounded-xl animate-pulse"></div>
+              </div>
             </div>
-          ))}
+          </div>
         </div>
 
       </div>
