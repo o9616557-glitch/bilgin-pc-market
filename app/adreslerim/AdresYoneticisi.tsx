@@ -5,7 +5,7 @@ import { MapPin, Plus, Trash2, ArrowLeft, MapPinOff } from "lucide-react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-
+const [addressToDelete, setAddressToDelete] = useState<any>(null);
 interface Address {
   _id: string;
   title: string;
@@ -97,8 +97,8 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
   };
 
  return (
-  <div className="max-w-4xl mx-auto w-full relative z-10 mt-6 sm:mt-0">
-      {/* 🚀 ÜST BAŞLIK VE ÇİZGİ KISMI (Favoriler ile %100 Aynı) */}
+    <div className="w-full max-w-4xl mx-auto relative z-10">
+      {/* 🚀 ÜST BAŞLIK VE YENİ EKLE BUTONU */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-800 pb-6 mb-10">
         <div>
           <Link href="/" prefetch={true} className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-3">
@@ -109,8 +109,19 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
           </h1>
         </div>
 
-        <div className="text-slate-300 text-xs font-black uppercase tracking-wider bg-[#09090b] border border-slate-800/80 py-3 px-5 rounded-xl shadow-lg">
-          Kayıtlı: <span className="text-[#00e5ff] font-black text-sm">{addresses.length}</span> Adres
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="text-slate-300 text-xs font-black uppercase tracking-wider bg-[#09090b] border border-slate-800/80 py-3 px-5 rounded-xl shadow-lg w-full sm:w-auto text-center">
+            Kayıtlı: <span className="text-[#00e5ff] font-black text-sm">{addresses.length}</span> Adres
+          </div>
+          {/* 🔥 BUTON GERİ GELDİ */}
+          {!showForm && (
+            <button
+              onClick={() => { setFormData(formBaslangic); setEditingId(null); setShowForm(true); }}
+              className="w-full sm:w-auto flex justify-center items-center gap-2 bg-[#00e5ff] text-black px-6 py-3 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_15px_rgba(0,229,255,0.2)]"
+            >
+              <Plus size={16} /> YENİ EKLE
+            </button>
+          )}
         </div>
       </div>
 
@@ -207,7 +218,8 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
                   <button onClick={() => handleEditClick(address)} className="text-slate-400 hover:text-[#00e5ff] transition-colors" title="Bu Adresi Düzenle">
                     <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                   </button>
-                  <button onClick={() => handleDeleteAddress(address._id)} className="text-slate-400 hover:text-rose-500 transition-colors" title="Adresi Sil">
+                  {/* 🔥 SİLME BUTONU ARTIK DİREKT SİLMİYOR, EKRANI AÇIYOR */}
+                  <button onClick={() => setAddressToDelete(address._id)} className="text-slate-400 hover:text-rose-500 transition-colors" title="Adresi Sil">
                     <Trash2 size={18} />
                   </button>
                 </div>
@@ -220,7 +232,29 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
               </div>
             </div>
           ))}
-       </div>
+        </div>
+      )}
+
+      {/* 🚀 SİLME ONAY EKRANI (MODAL) */}
+      {addressToDelete && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+          <div className="bg-[#09090b] border border-slate-800/80 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-[0_0_50px_rgba(0,0,0,0.8)] relative overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="w-14 h-14 rounded-full border border-slate-800 flex items-center justify-center mb-4 bg-[#121215] shadow-inner">
+              <Trash2 className="w-6 h-6 text-slate-400" />
+            </div>
+            <h3 className="text-lg font-black text-white uppercase tracking-wider mb-2">Adresi Sil</h3>
+            <p className="text-slate-400 text-sm mb-8 font-medium leading-relaxed">Bu adresi kalıcı olarak silmek istediğinize emin misiniz?</p>
+            <div className="flex w-full gap-3">
+              <button onClick={() => setAddressToDelete(null)} className="flex-1 bg-[#121215] border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-white font-bold py-3.5 rounded-xl transition-all text-xs uppercase tracking-wider">İptal</button>
+              <button 
+                onClick={() => { handleDeleteAddress(addressToDelete); setAddressToDelete(null); }} 
+                className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-bold py-3.5 rounded-xl transition-all text-xs uppercase tracking-wider shadow-lg"
+              >
+                Evet, Sil
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
