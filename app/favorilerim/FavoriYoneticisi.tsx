@@ -19,14 +19,11 @@ export default function FavoriYoneticisi({ initialFavorites }: Props) {
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
 
-  // 🚀 İŞTE EKSİK OLAN SİHİRLİ BAĞLANTI (RADAR):
-  // Sunucu arka planda güncel listeyi yolladığında, ekrandaki listeyi anında tazeler!
+  // 🚀 RADAR SAKİNLEŞTİRİLDİ: Sadece yeni veri geldiğinde sessizce günceller,
+  // fazladan yenileme yapıp ekranı kırpmaz (hayalet ürünü engeller).
   useEffect(() => {
     setFavoriteProducts(initialFavorites);
-    
-    // İşlem garanti olsun diye Next.js'i bir kere de arka planda dürtüyoruz
-    router.refresh();
-  }, [initialFavorites, router]);
+  }, [initialFavorites]);
 
   // Favorilerden Çıkarma İşlemi
   const handleDeleteFavorite = async () => {
@@ -86,7 +83,8 @@ export default function FavoriYoneticisi({ initialFavorites }: Props) {
         {/* ÜST PANEL */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-800 pb-6 mb-10">
           <div>
-            <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-3">
+            {/* 🚀 JET MOTORU EKLENDİ: prefetch={true} sayesinde anasayfa önceden yüklenir */}
+            <Link href="/" prefetch={true} className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-3">
               <ArrowLeft className="w-4 h-4" /> Mağazaya Geri Dön
             </Link>
             <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-white">
@@ -106,7 +104,8 @@ export default function FavoriYoneticisi({ initialFavorites }: Props) {
             </div>
             <h2 className="text-xl font-black uppercase tracking-wide mb-2 text-white">Henüz Favori Öğe Yok</h2>
             <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">Sistemde beğendiğiniz canavar donanımları kalbe basarak bu gizli bölgeye toplayabilirsiniz.</p>
-            <Link href="/" className="inline-block bg-[#00e5ff] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:-translate-y-0.5">
+            {/* 🚀 BİR JET MOTORU DA BURAYA: prefetch={true} */}
+            <Link href="/" prefetch={true} className="inline-block bg-[#00e5ff] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:-translate-y-0.5">
               Donanımları İncele
             </Link>
           </div>
