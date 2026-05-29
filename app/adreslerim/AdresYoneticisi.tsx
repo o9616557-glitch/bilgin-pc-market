@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { MapPin, Plus, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-
+import { MapPinOff } from "lucide-react";
 interface Address {
   _id: string;
   title: string;
@@ -118,7 +118,7 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
 
       {/* Form Alanı */}
       {showForm && (
-        <div className="bg-[#09090b] border border-white/10 rounded-2xl p-6 mb-8 animate-in fade-in slide-in-from-top-4">
+        <div className="bg-[#080d1a] border border-white/10 rounded-2xl p-6 mb-8 animate-in fade-in slide-in-from-top-4">
           <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
             <h2 className="text-xl font-bold flex items-center gap-2 text-[#00e5ff]">
               <MapPin /> {editingId ? "Adresi Düzenle" : "Yeni Adres Bilgileri"}
@@ -159,11 +159,11 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
             <div className="md:col-span-2 flex flex-col md:flex-row gap-6 mt-2 mb-4">
               <label className="flex items-center gap-3 cursor-pointer text-sm text-slate-300 hover:text-white transition-colors">
                 <input type="checkbox" className="w-5 h-5 rounded border-white/10 bg-[#050B14] checked:bg-[#00e5ff] focus:ring-[#00e5ff] cursor-pointer" checked={formData.isDefaultDelivery} onChange={(e) => setFormData({ ...formData, isDefaultDelivery: e.target.checked })} />
-                Bu benim varsayılan teslimat adresim olsun
+                Bu benim varsayılan teslimat adresim 
               </label>
               <label className="flex items-center gap-3 cursor-pointer text-sm text-slate-300 hover:text-white transition-colors">
                 <input type="checkbox" className="w-5 h-5 rounded border-white/10 bg-[#050B14] checked:bg-[#00e5ff] focus:ring-[#00e5ff] cursor-pointer" checked={formData.isDefaultBilling} onChange={(e) => setFormData({ ...formData, isDefaultBilling: e.target.checked })} />
-                Fatura adresi olarak da bunu kullan
+                Bu benim fatura adresim
               </label>
             </div>
 
@@ -178,16 +178,18 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
 
       {/* Adres Listesi veya Boş Durum */}
       {addresses.length === 0 && !showForm ? (
-        <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4 mt-8 animate-in fade-in zoom-in duration-300">
-          <div className="w-24 h-24 rounded-full bg-[#121215]/50 border border-slate-800/50 flex items-center justify-center mb-6 shadow-inner">
-            <MapPin className="w-10 h-10 text-slate-500" />
-          </div>
-          <h2 className="text-xl sm:text-2xl font-black uppercase text-white mb-3 tracking-wide">HENÜZ KAYITLI ADRES YOK</h2>
-          <p className="text-slate-400 text-sm font-medium max-w-md mb-8 leading-relaxed">Sistemde teslimat veya fatura adresiniz bulunmuyor. Donanımları size ulaştırabilmemiz için yeni bir adres ekleyin.</p>
-          <button onClick={() => setShowForm(true)} className="bg-[#00e5ff] text-black font-black uppercase tracking-wide py-4 px-10 rounded-xl hover:bg-white hover:scale-105 transition-all duration-100 active:scale-95 shadow-[0_0_20px_rgba(0,229,255,0.15)]">
-            YENİ ADRES EKLE
-          </button>
-        </div>
+        <div className="text-center p-10 sm:p-16 bg-transparent relative">
+  <div className="w-20 h-20 rounded-full bg-[#121215]/50 border border-slate-800/50 flex items-center justify-center mx-auto mb-6 shadow-inner">
+    <MapPin className="w-10 h-10 text-slate-500" />
+  </div>
+  <h2 className="text-xl font-black uppercase tracking-wide mb-2 text-white">Kayıtlı Adres Yok</h2>
+  <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">
+    Hesabınıza henüz bir adres eklemediniz. Daha hızlı ve güvenli alışveriş deneyimi için hemen yeni bir adres oluşturabilirsiniz.
+  </p>
+  <button onClick={() => setShowForm(true)} className="inline-block bg-[#00e5ff] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:-translate-y-0.5">
+    Yeni Adres Ekle
+  </button>
+</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {addresses.map((address) => (
