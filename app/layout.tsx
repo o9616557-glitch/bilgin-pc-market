@@ -8,7 +8,6 @@ import { CartProvider } from "./CartContext";
 import Footer from "@/components/Footer"; 
 import { CompareProvider } from "./CompareContext";
 import ComparePopup from "./ComparePopup";
-import AkilliAsistan from "@/components/AkilliAsistan";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -51,7 +50,6 @@ export default function RootLayout({
               </main>
               <Footer />
               <ComparePopup />
-              <AkilliAsistan />
             </CompareProvider>
           </CartProvider>
         </AuthProvider>
