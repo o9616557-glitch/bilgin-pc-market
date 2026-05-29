@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import User from "@/models/User"; // Kendi model yoluna göre kontrol et
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route"; // Kendi authOptions yoluna göre kontrol et
+import { revalidatePath } from "next/cache"; // 🚀 1. ŞOK DALGASI İÇİN İTHAL EDİLDİ
 
 // 1. Kullanıcının Favori Listesini Getir (GET)
 export async function GET() {
@@ -70,6 +71,10 @@ export async function POST(req: Request) {
     }
 
     await user.save();
+
+    // 🚀 İŞTE ATOM BOMBASI BURASI: 
+    // Ürün veritabanına kaydedildiği salise, Favorilerim sayfasının önbelleğini (cache) imha eder.
+    revalidatePath("/favorilerim");
 
     return NextResponse.json({
       message: favoriteIndex > -1 ? "Ürün favorilerden çıkarıldı." : "Ürün favorilere eklendi.",
