@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { MapPin, Plus, Trash2, ArrowLeft, MapPinOff } from "lucide-react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
@@ -28,7 +28,9 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-
+useEffect(() => {
+    setAddresses(initialAddresses);
+  }, [initialAddresses]);
   const formBaslangic = {
     title: "", fullName: "", phone: "", city: "", district: "", fullAddress: "", isDefaultDelivery: false, isDefaultBilling: false
   };
@@ -58,7 +60,8 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
         setShowForm(false);
         setEditingId(null);
         setFormData(formBaslangic);
-        window.location.reload(); // Sayfayı arkadan yenile ki güncel liste gelsin
+       router.refresh(); // Arka planda veriyi günceller (hayalet ekran yapmaz)
+  window.scrollTo({ top: 0, behavior: "smooth" }); // Ekranı jilet gibi yumuşakça en üste kaydırır // Sayfayı arkadan yenile ki güncel liste gelsin
       } else {
         toast.dismiss(loadingToast);
         toast.error(data.message || "İşlem başarısız oldu.");
@@ -76,10 +79,12 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
     try {
       await fetch(`/api/addresses?id=${id}`, { method: "DELETE" });
       toast.success("Adres silindi.");
-     window.location.reload();
+     router.refresh(); // Arka planda veriyi günceller (hayalet ekran yapmaz)
+  window.scrollTo({ top: 0, behavior: "smooth" }); // Ekranı jilet gibi yumuşakça en üste kaydırır
     } catch (error) {
       toast.error("Silme işlemi başarısız.");
-      window.location.reload(); // Hata olursa listeyi geri getir
+      router.refresh(); // Arka planda veriyi günceller (hayalet ekran yapmaz)
+  window.scrollTo({ top: 0, behavior: "smooth" }); // Ekranı jilet gibi yumuşakça en üste kaydırır// Hata olursa listeyi geri getir
     }
   };
 
