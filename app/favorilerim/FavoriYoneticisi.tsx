@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { HeartCrack, ArrowLeft, Trash2, ShoppingCart } from "lucide-react";
 import toast from "react-hot-toast";
@@ -18,6 +18,15 @@ export default function FavoriYoneticisi({ initialFavorites }: Props) {
 
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
+
+  // 🚀 İŞTE EKSİK OLAN SİHİRLİ BAĞLANTI (RADAR):
+  // Sunucu arka planda güncel listeyi yolladığında, ekrandaki listeyi anında tazeler!
+  useEffect(() => {
+    setFavoriteProducts(initialFavorites);
+    
+    // İşlem garanti olsun diye Next.js'i bir kere de arka planda dürtüyoruz
+    router.refresh();
+  }, [initialFavorites, router]);
 
   // Favorilerden Çıkarma İşlemi
   const handleDeleteFavorite = async () => {
@@ -38,10 +47,10 @@ export default function FavoriYoneticisi({ initialFavorites }: Props) {
 
       if (!res.ok) throw new Error("Veritabanı reddetti");
       toast.success("Ürün favorilerden kaldırıldı. 🤍");
-      router.refresh(); // Arka planda sunucuyu güncel tut
+      router.refresh(); 
     } catch (error: any) {
       toast.error("Sistem hatası: Veritabanından silinemedi!");
-      router.refresh(); // Hata olursa listeyi geri getir
+      router.refresh(); 
     }
   };
 
