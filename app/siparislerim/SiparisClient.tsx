@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Trash2, Copy, Check, RefreshCw, MessageSquare, PackageOpen, Info } from "lucide-react"; 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
+import { PackageX } from "lucide-react";
 interface Props {
   initialOrders: any[];
 }
@@ -102,7 +102,7 @@ export default function SiparisClient({ initialOrders }: Props) {
   ];
 
   return (
-    <div className="min-h-screen bg-[#050814] text-white pt-12 pb-24 px-4 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-[#070b1a] text-white pt-12 pb-24 px-4 relative overflow-hidden font-sans">
       
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#00e5ff] blur-[150px] opacity-10 pointer-events-none"></div>
       <div className="absolute bottom-[10%] right-[-10%] w-[400px] h-[400px] bg-[#0088ff] blur-[150px] opacity-5 pointer-events-none"></div>
@@ -136,17 +136,20 @@ export default function SiparisClient({ initialOrders }: Props) {
         )}
 
         {orders.length === 0 ? (
-          <div className="text-center p-10 sm:p-16 bg-transparent relative animate-in fade-in zoom-in duration-300">
-            <div className="w-20 h-20 rounded-full bg-[#121215]/50 border border-slate-800/50 flex items-center justify-center mx-auto mb-6 shadow-inner">
-              <PackageOpen className="w-10 h-10 text-slate-600" />
-            </div>
-            <h2 className="text-xl font-black uppercase tracking-wide mb-2 text-white">Henüz Siparişiniz Yok</h2>
-            <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">Sistemde kayıtlı herhangi bir donanım siparişiniz bulunmuyor. İhtiyacınız olan ürünleri keşfetmek ve alışverişe başlamak için mağazamızı inceleyebilirsiniz.</p>
-            <Link href="/" prefetch={true} className="inline-block bg-[#00e5ff] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:-translate-y-0.5">
-              Alışverişe Başla
-            </Link>
-          </div>
-        ) : (
+  <div className="text-center p-10 sm:p-16 bg-transparent relative">
+    {/* 🚀 BOŞ EKRAN - SİPARİŞLERİM */}
+    <div className="w-20 h-20 rounded-full bg-[#121215]/50 border border-slate-800/50 flex items-center justify-center mx-auto mb-6 shadow-inner">
+      <PackageX className="w-10 h-10 text-slate-500" />
+    </div>
+    <h2 className="text-xl font-black uppercase tracking-wide mb-2 text-white">Henüz Siparişiniz Yok</h2>
+    <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">
+      Sipariş geçmişiniz şu an boş görünüyor. Size en uygun teknolojileri keşfetmek için mağazamızı inceleyebilirsiniz.
+    </p>
+    <Link href="/" prefetch={true} className="inline-block bg-[#00e5ff] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:-translate-y-0.5">
+      Alışverişe Başla
+    </Link>
+  </div>
+) : (
           <div className="grid grid-cols-1 gap-6">
             {orders.map((order: any) => {
               const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase();
