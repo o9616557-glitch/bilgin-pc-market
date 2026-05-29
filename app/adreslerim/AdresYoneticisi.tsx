@@ -133,13 +133,10 @@ useEffect(() => {
       {/* Form Alanı */}
       {showForm && (
         <div className="bg-[#080d1a] border border-white/10 rounded-2xl p-6 mb-8 animate-in fade-in slide-in-from-top-4">
-          <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+         <div className="mb-6 border-b border-white/10 pb-4">
             <h2 className="text-xl font-bold flex items-center gap-2 text-[#00e5ff]">
               <MapPin /> {editingId ? "Adresi Düzenle" : "Yeni Adres Bilgileri"}
             </h2>
-            <button onClick={() => setShowForm(false)} className="text-slate-400 hover:text-white transition-colors text-sm font-medium">
-              İptal Et
-            </button>
           </div>
 
           <form onSubmit={handleAddAddress} className="grid grid-cols-1 md:grid-cols-2 gap-4">
