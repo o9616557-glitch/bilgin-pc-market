@@ -5,32 +5,61 @@ import Link from "next/link";
 import { HeartCrack, ArrowLeft, Trash2, ShoppingCart } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/app/CartContext";
-import { useRouter } from "next/navigation"; // 🚀 SÜPÜRGE MOTORU İÇE AKTARILDI
 
 interface Props {
   initialFavorites: any[];
 }
 
 export default function FavoriYoneticisi({ initialFavorites }: Props) {
-  const router = useRouter(); // 🚀 SÜPÜRGE TANIMLANDI
+  // Sayfa ilk açıldığında sunucunun verdiği ilk veriyi alıyoruz
   const [favoriteProducts, setFavoriteProducts] = useState<any[]>(initialFavorites);
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
 
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
 
-  // Radarımız aynı sakinlikte çalışmaya devam ediyor (Hayalet ürün yaratmaz)
+  // 🚀 İŞTE KOPUK KABLOYU BAĞLAYAN ÇELİK HALAT (RADAR MOTORU)
+  // Bu motor, sen Favorilerim sayfasına her girdiğinde arka planda sessizce çalışır,
+  // Next.js'in eski hafızasını ezip en taze ürünleri doğrudan veritabanından çeker.
   useEffect(() => {
-    setFavoriteProducts(initialFavorites);
-  }, [initialFavorites]);
+    const tazeVeriyiGetir = async () => {
+      try {
+        // Hem favori ID'lerini hem de tüm ürünleri eşzamanlı olarak arka planda çekiyoruz
+        const [favRes, prodRes] = await Promise.all([
+          fetch("/api/favorites", { cache: "no-store" }),
+          fetch("/api/products", { cache: "no-store" })
+        ]);
 
-  // Favorilerden Çıkarma İşlemi
+        if (favRes.ok && prodRes.ok) {
+          const favData = await favRes.json();
+          const prodData = await prodRes.json();
+
+          const ids = favData.favorites || [];
+          const allProducts = prodData.products || prodData || [];
+
+          // Taze ID'ler ile taze ürünleri eşleştiriyoruz
+          const matchedProducts = allProducts.filter((urun: any) =>
+            ids.includes(String(urun._id)) || ids.includes(String(urun.id))
+          );
+
+          // Ekrana şak diye en güncel listeyi basıyoruz!
+          setFavoriteProducts(matchedProducts);
+        }
+      } catch (error) {
+        console.error("Taze veri çekilirken kabloda pürüz oluştu:", error);
+      }
+    };
+
+    tazeVeriyiGetir();
+  }, []); // Sayfa her yüklendiğinde bu motor bir kez ateşlenir
+
+  // Favorilerden Çıkarma İşlemi (Hayalet engellendi)
   const handleDeleteFavorite = async () => {
     if (!productToDelete) return;
 
     const targetId = String(productToDelete._id || productToDelete.id);
     
-    // 1. AŞAMA: Ekrandan anında sil (Kullanıcı beklemez)
+    // Ekrandan anında siliyoruz (Kullanıcı beklemez)
     setFavoriteProducts(prev => prev.filter(p => String(p._id || p.id) !== targetId));
     setProductToDelete(null);
 
@@ -42,19 +71,13 @@ export default function FavoriYoneticisi({ initialFavorites }: Props) {
       });
 
       if (!res.ok) throw new Error("Veritabanı reddetti");
-      
       toast.success("Ürün favorilerden kaldırıldı. 🤍");
-      
-      // 🚀 2. AŞAMA (BÜYÜLÜ KOD): Veritabanından silindikten hemen sonra 
-      // Next.js'in o inatçı önbelleğini zorla sildiriyoruz! Çıkıp girince geri gelmez.
-      router.refresh(); 
-
     } catch (error: any) {
       toast.error("Sistem hatası: Veritabanından silinemedi!");
-      router.refresh(); 
     }
   };
 
+  // Sepete Ekleme İşlemi
   const handleSepeteEkle = (urun: any) => {
     const targetId = urun._id || urun.id;
 
@@ -86,6 +109,7 @@ export default function FavoriYoneticisi({ initialFavorites }: Props) {
         {/* ÜST PANEL */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-800 pb-6 mb-10">
           <div>
+            {/* 🚀 JET MOTORU TIKLAMALARI (prefetch) AKTİF */}
             <Link href="/" prefetch={true} className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-3">
               <ArrowLeft className="w-4 h-4" /> Mağazaya Geri Dön
             </Link>
@@ -172,6 +196,7 @@ export default function FavoriYoneticisi({ initialFavorites }: Props) {
 
       </div>
 
+      {/* SİLME ONAY MODALI */}
       {productToDelete && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
           <div className="bg-[#09090b] border border-slate-800/80 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-[0_0_50px_rgba(0,0,0,0.8)] relative overflow-hidden animate-in zoom-in-95 duration-200">
