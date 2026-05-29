@@ -144,13 +144,20 @@ export default function GirisPage() {
           </p>
         </div>
 
-        <div className="pt-6 border-t border-white/10">
-          <Link href="/" className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 flex items-center justify-center gap-2 text-slate-300 hover:text-white hover:bg-white/10 transition-all font-bold text-sm group">
-            <UserCircle2 size={18} className="text-slate-400 group-hover:text-white transition-colors" />
-            Üye Olmadan Devam Et <ArrowRight size={16} className="text-slate-500 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
-      </div>
+     <div className="pt-6 border-t border-white/10 mt-6">
+      <Link 
+        href="/" 
+        prefetch={true} 
+        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 flex items-center justify-center gap-2 group hover:bg-white/10 transition-all duration-100 active:scale-95"
+      >
+        <UserCircle2 size={18} className="text-slate-400 group-hover:text-[#00e5ff] transition-colors duration-100" />
+        <span className="text-slate-300 group-hover:text-white font-medium transition-colors duration-100">
+          Üye Olmadan Devam Et
+        </span>
+        <ArrowRight size={16} className="text-slate-500 group-hover:translate-x-1 group-hover:text-[#00e5ff] transition-all duration-100" />
+      </Link>
+    </div>
+    </div>
     </div>
   );
 }
