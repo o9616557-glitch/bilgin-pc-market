@@ -431,11 +431,7 @@ export default function OdemeSayfasi() {
                       </div>
                     </div>
                   </div>
-
-                  <div className="bg-[#00e5ff]/10 border border-[#00e5ff]/30 rounded-xl p-3 flex items-center justify-center gap-2 text-center text-[#00e5ff]">
-                    <span className="text-lg">===</span>
-                    <span className="text-[11px] sm:text-xs font-bold tracking-wide uppercase">3 - 6 - 9 - 12 Taksit Seçenekleri!</span>
-                  </div>
+                
                 </>
               ) : (
                 <>
