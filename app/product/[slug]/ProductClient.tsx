@@ -151,7 +151,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   // 🚀 YORUM GÖNDERME MOTORU (İsimli Versiyon)
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!reviewName.trim()) return showToast("Lütfen adınızı girin!");
+    
     if (!reviewText.trim()) return showToast("Lütfen bir yorum yazın!");
     setIsSubmitting(true);
     try {
@@ -177,7 +177,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   // 🚀 SORU GÖNDERME MOTORU (İsimli Versiyon)
   const handleSubmitQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!questionName.trim()) return showToast("Lütfen adınızı girin!");
+    
     if (!questionText.trim()) return showToast("Lütfen bir soru yazın!");
     setIsSubmitting(true);
     try {
