@@ -20,8 +20,6 @@ export default function ComparePopup() {
     }
   });
 
-  // 🚀 ŞEFİM İŞTE BURASI: Ürün sayısı kaç olursa olsun hep SOLA yaslanır (start).
-  // Genişlikler hem mobil hem PC için sabitlendi, alt satırlar üsttekilerle milimetrik aynı hizada kalır.
   const getGridStyle = () => {
     return { 
       gridTemplateColumns: `repeat(${karsilastirilanlar.length}, minmax(160px, 240px))`, 
@@ -69,8 +67,8 @@ export default function ComparePopup() {
             {karsilastirilanlar.length === 0 ? (
               <div className="text-center py-20 text-slate-500 font-bold uppercase tracking-widest">[ Karşılaştırılacak Ürün Seçilmedi ]</div>
             ) : (
-              // 🚀 `w-fit` yapılarak tüm tablonun genişliği içerik kadar sınırlandı, böylece sola yaslanma tam oturdu.
-              <div className="flex flex-col gap-6 w-fit mx-0">
+              // 🚀 ŞEFİM İŞTE BURASI: w-fit yerine w-full yapıldı, soldaki gereksiz boşluk/kayma engellendi.
+              <div className="flex flex-col gap-6 w-full">
                 
                 {/* ANA GÖRSEL VE VİTRİN SATIRI */}
                 <div className="grid gap-3 sm:gap-4 w-full" style={getGridStyle()}>
@@ -114,7 +112,8 @@ export default function ComparePopup() {
                 {tumOzellikAnahtarlari.map((ozellikAdi) => (
                   <div key={ozellikAdi} className="mt-2 w-full">
                     
-                    <div className="text-[#00e5ff] font-black text-[11px] sm:text-xs uppercase tracking-widest mb-2 pl-1 text-left">
+                    {/* 🚀 ŞEFİM İŞTE BURASI: pl-1 (sol ufak boşluk) tamamen silindi, sıfıra sıfır sola dayandı. */}
+                    <div className="text-[#00e5ff] font-black text-[11px] sm:text-xs uppercase tracking-widest mb-2 text-left">
                       {ozellikAdi}
                     </div>
                     
