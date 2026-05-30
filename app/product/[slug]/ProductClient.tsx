@@ -14,7 +14,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [activeTab, setActiveTab] = useState("reviews");
   const [seciliCozunurluk, setSeciliCozunurluk] = useState("1080P");
   const [seciliIslemci, setSeciliIslemci] = useState("i5");
-
+const [reviewName, setReviewName] = useState("");
+  const [questionName, setQuestionName] = useState("");
   const fpsVerileri: any = {
     Valorant: {
       i5: { "1080P": "450+", "2K": "320+", "4K": "180+" },
@@ -148,20 +149,22 @@ const [reviewText, setReviewText] = useState("");
   const havaleYuzdesi = product.havaleIndirimi !== undefined ? Number(product.havaleIndirimi) : 5;
 
   const handleAddToCart = () => {
-    // 🚀 YORUM GÖNDERME MOTORU
+  // 🚀 YORUM GÖNDERME MOTORU (İsimli Versiyon)
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!reviewName.trim()) return showToast("Lütfen adınızı girin!");
     if (!reviewText.trim()) return showToast("Lütfen bir yorum yazın!");
     setIsSubmitting(true);
     try {
       const res = await fetch("/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId: pId, type: "review", text: reviewText, rating: reviewRating }),
+        body: JSON.stringify({ productId: pId, type: "review", name: reviewName, text: reviewText, rating: reviewRating }),
       });
       if (res.ok) {
         showToast("Yorumunuz onaya gönderildi! 🚀");
         setReviewText("");
+        setReviewName("");
         setReviewRating(5);
       } else {
         showToast("Bir hata oluştu, giriş yaptığınızdan emin olun.");
@@ -172,20 +175,22 @@ const [reviewText, setReviewText] = useState("");
     setIsSubmitting(false);
   };
 
-  // 🚀 SORU GÖNDERME MOTORU
+  // 🚀 SORU GÖNDERME MOTORU (İsimli Versiyon)
   const handleSubmitQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!questionName.trim()) return showToast("Lütfen adınızı girin!");
     if (!questionText.trim()) return showToast("Lütfen bir soru yazın!");
     setIsSubmitting(true);
     try {
       const res = await fetch("/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId: pId, type: "question", text: questionText }),
+        body: JSON.stringify({ productId: pId, type: "question", name: questionName, text: questionText }),
       });
       if (res.ok) {
         showToast("Sorunuz onaya gönderildi! 🚀");
         setQuestionText("");
+        setQuestionName("");
       } else {
         showToast("Bir hata oluştu, giriş yaptığınızdan emin olun.");
       }
@@ -194,6 +199,9 @@ const [reviewText, setReviewText] = useState("");
     }
     setIsSubmitting(false);
   };
+
+  // 🛒 SEPETE EKLEME MOTORU (Kazara silinen başlığı geri getirdik)
+  const handleAddToCart = () => {
     setAddingToCart(true);
     try {
       sepeteEkle({
@@ -207,6 +215,7 @@ const [reviewText, setReviewText] = useState("");
     finally { setAddingToCart(false); }
   };
   
+  // 📤 PAYLAŞMA MOTORU
   const handleShare = async () => {
     if (navigator.share) {
       try { await navigator.share({ title: urunAdi, text: "Şu efsane ürüne bir bak!", url: window.location.href }); } catch (err) {}
@@ -215,53 +224,6 @@ const [reviewText, setReviewText] = useState("");
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
-  };
-
-// 🚀 YORUM GÖNDERME MOTORU
-  const handleSubmitReview = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!reviewText.trim()) return showToast("Lütfen bir yorum yazın!");
-    setIsSubmitting(true);
-    try {
-      const res = await fetch("/api/reviews", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId: pId, type: "review", text: reviewText, rating: reviewRating }),
-      });
-      if (res.ok) {
-        showToast("Yorumunuz onaya gönderildi! 🚀");
-        setReviewText("");
-        setReviewRating(5);
-      } else {
-        showToast("Bir hata oluştu, giriş yaptığınızdan emin olun.");
-      }
-    } catch (error) {
-      showToast("Bağlantı hatası oluştu!");
-    }
-    setIsSubmitting(false);
-  };
-
-  // 🚀 SORU GÖNDERME MOTORU
-  const handleSubmitQuestion = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!questionText.trim()) return showToast("Lütfen bir soru yazın!");
-    setIsSubmitting(true);
-    try {
-      const res = await fetch("/api/reviews", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId: pId, type: "question", text: questionText }),
-      });
-      if (res.ok) {
-        showToast("Sorunuz onaya gönderildi! 🚀");
-        setQuestionText("");
-      } else {
-        showToast("Bir hata oluştu, giriş yaptığınızdan emin olun.");
-      }
-    } catch (error) {
-      showToast("Bağlantı hatası oluştu!");
-    }
-    setIsSubmitting(false);
   };
   
   const getPopupTitle = () => {
@@ -591,5 +553,7 @@ const [reviewText, setReviewText] = useState("");
       )}
 
     </div>
+    
   );
+}
 }
