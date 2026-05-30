@@ -19,31 +19,38 @@ export default function ComparePopup() {
     }
   });
 
-  // Her ürün (ister 1 tane olsun ister 5 tane) her zaman tam olarak 260px olacak ve sola yaslanacak.
-  const urunGenisligi = "260px"; 
+  // 🚀 ŞEFİM İŞTE BURASI: Akıllı Elastik Izgara (Grid) Sistemi
+  // 1 ürün varsa ortalar ve ekrana oturtur. 2 veya 3 ürün varsa boşluk bırakmaz, ekranı eşit böler.
+  const getGridStyle = () => {
+    if (karsilastirilanlar.length === 1) {
+      return { gridTemplateColumns: "minmax(260px, 350px)", justifyContent: "center" };
+    }
+    return { gridTemplateColumns: `repeat(${karsilastirilanlar.length}, minmax(260px, 1fr))` };
+  };
 
   return (
     <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/80 backdrop-blur-md p-2 sm:p-4 animate-in fade-in duration-200">
       <div className="bg-[#09090b] border border-slate-800 rounded-3xl w-full max-w-6xl max-h-[90vh] flex flex-col shadow-[0_0_50px_rgba(0,229,255,0.1)] relative">
         
         {/* Üst Başlık */}
-        <div className="flex justify-between items-center p-5 border-b border-slate-800 shrink-0">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wide flex items-center gap-2">
+        <div className="flex justify-between items-start sm:items-center p-4 sm:p-5 border-b border-slate-800 shrink-0">
+          <div className="flex flex-col pr-4">
+            <h2 className="text-lg sm:text-2xl font-black text-white uppercase tracking-wide flex items-center gap-2">
               <span className="text-[#00e5ff]">⚖️</span> TEKNİK KARŞILAŞTIRMA
             </h2>
             
-            {/* 🚀 ŞEFİM İŞTE BURASI: Modern ve zarif 3 ürün limiti uyarısı */}
-            <div className="flex items-center gap-3 mt-1.5">
-              <p className="text-slate-400 text-xs">{karsilastirilanlar.length} ürün yan yana kıyaslanıyor</p>
-              <span className="bg-[#00e5ff]/10 border border-[#00e5ff]/20 text-[#00e5ff] text-[9px] sm:text-[10px] px-2 py-0.5 rounded-md font-bold tracking-widest uppercase">
-                En fazla 3 adet seçilebilir
-              </span>
+            {/* 🚀 ŞEFİM İŞTE BURASI: Kutu olmadan, düz, asil ve çarpıya değmeyen yazı */}
+            <div className="mt-1 sm:mt-2">
+              <p className="text-slate-400 text-[10px] sm:text-xs">
+                {karsilastirilanlar.length} ürün yan yana kıyaslanıyor 
+                <span className="text-slate-500 ml-1 font-medium">(En fazla 3 adet seçilebilir)</span>
+              </p>
             </div>
             
           </div>
-          <button onClick={() => setPopupAcik(false)} className="text-slate-400 hover:text-white bg-[#121215] border border-slate-700 hover:bg-red-500/20 hover:border-red-500 rounded-xl p-2.5 transition-all">
-            <X className="w-6 h-6" />
+          
+          <button onClick={() => setPopupAcik(false)} className="text-slate-400 hover:text-white bg-[#121215] border border-slate-700 hover:bg-red-500/20 hover:border-red-500 rounded-xl p-2.5 transition-all shrink-0">
+            <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
 
@@ -52,10 +59,10 @@ export default function ComparePopup() {
           {karsilastirilanlar.length === 0 ? (
             <div className="text-center py-20 text-slate-500 font-bold uppercase tracking-widest">[ Karşılaştırılacak Ürün Seçilmedi ]</div>
           ) : (
-            <div className="flex flex-col gap-6 w-max min-w-full">
+            <div className="flex flex-col gap-6 w-full min-w-max mx-auto">
               
               {/* ANA GÖRSEL VE VİTRİN SATIRI */}
-              <div className="grid gap-3 sm:gap-4" style={{ gridTemplateColumns: `repeat(${karsilastirilanlar.length}, ${urunGenisligi})`, justifyContent: "start" }}>
+              <div className="grid gap-3 sm:gap-4 w-full" style={getGridStyle()}>
                 {karsilastirilanlar.map((urun, idx) => {
                   const fiyat = Number(urun.indirimliFiyat || urun.fiyat || urun.price || 0);
                   const resim = urun.resimler && urun.resimler.length > 0 ? urun.resimler[0] : urun.resim;
@@ -70,7 +77,7 @@ export default function ComparePopup() {
                       <Link href={"/product/" + (urun.slug || urun._id)} onClick={() => setPopupAcik(false)} className="p-3 sm:p-4 flex flex-col flex-grow hover:bg-slate-800/40 transition-colors cursor-pointer">
                         <div className="h-24 sm:h-32 w-full bg-[#09090b] rounded-xl p-2 flex items-center justify-center mb-3 sm:mb-4 border border-slate-800 overflow-hidden">
                           
-                          {/* 🚀 ŞEFİM İŞTE BURASI: Kırık resim koruması eklendi (onError) */}
+                          {/* 🚀 Kırık resim koruması (Görsel Yok uyarısı) */}
                           {resim ? (
                             <img 
                               src={resim} 
@@ -97,13 +104,13 @@ export default function ComparePopup() {
 
               {/* DİNAMİK TEKNİK ÖZELLİK SATIRLARI */}
               {tumOzellikAnahtarlari.map((ozellikAdi) => (
-                <div key={ozellikAdi} className="mt-2">
+                <div key={ozellikAdi} className="mt-2 w-full">
                   
                   <div className="text-[#00e5ff] font-black text-[11px] sm:text-xs uppercase tracking-widest mb-2 pl-1">
                     {ozellikAdi}
                   </div>
                   
-                  <div className="grid gap-3 sm:gap-4" style={{ gridTemplateColumns: `repeat(${karsilastirilanlar.length}, ${urunGenisligi})`, justifyContent: "start" }}>
+                  <div className="grid gap-3 sm:gap-4 w-full" style={getGridStyle()}>
                     {karsilastirilanlar.map((urun, idx) => {
                       const deger = urun.teknik_ozellikler ? urun.teknik_ozellikler[ozellikAdi] : null;
                       return (
