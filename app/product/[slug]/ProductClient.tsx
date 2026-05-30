@@ -10,7 +10,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const { sepeteEkle } = useCart(); 
   const { karsilastirmayaEkle, setPopupAcik } = useCompare(); 
   
-  // 🚀 ZIRHLI HAFIZALAR (MOTOR: HİÇBİRİNE DOKUNULMADI)
+  // 🚀 ZIRHLI HAFIZALAR (MOTOR)
   const [activeTab, setActiveTab] = useState("reviews");
   const [seciliCozunurluk, setSeciliCozunurluk] = useState("1080P");
   const [seciliIslemci, setSeciliIslemci] = useState("i5");
@@ -127,7 +127,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-slate-950 text-slate-100 pb-40 sm:pb-10 font-sans overflow-x-hidden relative max-w-[100vw]">
       {/* BAŞARI MESAJI TOAST */}
-      <div className={`fixed top-24 right-5 z-[9999999] bg-slate-900/90 backdrop-blur-md border border-[#00e5ff]/50 shadow-[0_0_30px_rgba(0,229,255,0.2)] text-white px-6 py-4 rounded-xl font-bold flex items-center gap-3 transition-all duration-300 transform ${toastMessage ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0 pointer-events-none"}`}>
+      <div className={`fixed top-24 right-5 z-[9999999] bg-slate-900/90 backdrop-blur-md border border-[#00e5ff]/50 shadow-[0_0_30px_rgba(0,229,255,0.2)] text-white px-6 py-4 rounded-xl font-bold flex items-center gap-3 transition-all duration-500 transform ${toastMessage ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0 pointer-events-none"}`}>
         <span className="text-[#00e5ff] text-2xl drop-shadow-[0_0_10px_rgba(0,229,255,0.8)]">✓</span>
         <p className="text-sm tracking-wide">{toastMessage}</p>
       </div>
@@ -136,7 +136,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         
         {/* SOL: GÖRSELLER */}
         <div className="w-full md:w-1/2 md:rounded-3xl bg-transparent sm:bg-slate-900/20 sm:backdrop-blur-sm sm:border sm:border-slate-800/60 relative shadow-2xl">
-          <div className="flex overflow-x-auto snap-x snap-mandatory w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div className="flex overflow-x-auto snap-x snap-mandatory w-full scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {resimler.map((img: string, idx: number) => (
               <div key={idx} className="w-full flex-shrink-0 snap-center flex justify-center items-center h-[350px] sm:h-[500px] relative">
                 <img src={img} alt={urunAdi + " - " + (idx + 1)} className={`max-w-full max-h-full object-contain p-4 sm:p-8 drop-shadow-2xl transition-all duration-500 hover:scale-105 ${tukendiMi ? "grayscale opacity-50" : ""}`} />
@@ -165,7 +165,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           </h1>
 
           {/* YILDIZLAR */}
-          <div onClick={() => { setActiveTab("reviews"); setTeknikPopupAcik(true); }} className="flex items-center gap-2 mb-6 cursor-pointer group w-fit bg-slate-900/30 border border-slate-800/60 px-3 py-1.5 rounded-lg hover:bg-slate-800/50 transition-all">
+          <div onClick={() => { setActiveTab("reviews"); setTeknikPopupAcik(true); }} className="flex items-center gap-2 mb-6 cursor-pointer group w-fit bg-slate-900/30 border border-slate-800/60 px-3 py-1.5 rounded-lg hover:bg-slate-800/50 transition-all duration-300">
             <div className="flex text-amber-400 text-[14px] sm:text-base tracking-widest drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]">
               {Number(avgRating) >= 1 ? "★" : "☆"}{Number(avgRating) >= 2 ? "★" : "☆"}{Number(avgRating) >= 3 ? "★" : "☆"}{Number(avgRating) >= 4 ? "★" : "☆"}{Number(avgRating) >= 5 ? "★" : "☆"}
             </div>
@@ -206,7 +206,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
           {/* MASAÜSTÜ SEPETE EKLE */}
           <div className="hidden sm:block relative mt-2 mb-6">
-            <button type="button" onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`w-full h-16 rounded-2xl font-black text-lg uppercase tracking-widest transition-all duration-300 flex items-center justify-between px-6 mb-3 ${tukendiMi ? "bg-slate-800/50 text-slate-500 cursor-not-allowed border border-slate-700" : "bg-gradient-to-r from-[#00e5ff] to-[#00b4d8] text-slate-950 shadow-[0_0_20px_rgba(0,229,255,0.3)] hover:shadow-[0_0_30px_rgba(0,229,255,0.5)] hover:scale-[1.02]"}`}>
+            <button type="button" onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`w-full h-16 rounded-2xl font-black text-lg uppercase tracking-widest transition-all duration-500 flex items-center justify-between px-6 mb-3 ${tukendiMi ? "bg-slate-800/50 text-slate-500 cursor-not-allowed border border-slate-700" : "bg-gradient-to-r from-[#00e5ff] to-[#00b4d8] text-slate-950 shadow-[0_0_20px_rgba(0,229,255,0.3)] hover:shadow-[0_0_30px_rgba(0,229,255,0.5)] hover:scale-[1.02]"}`}>
               <div className="flex items-center gap-3">
                 {!tukendiMi && <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>}
                 <span>{tukendiMi ? "STOK TÜKENDİ" : "SEPETE EKLE"}</span>
@@ -222,13 +222,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
           {/* MASAÜSTÜ: FAVORİ, KARŞILAŞTIR VE PAYLAŞ */}
           <div className="hidden sm:flex items-center gap-3 mb-6">
-            <button onClick={handleToggleFavorite} className={`flex-1 py-3.5 rounded-xl border flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${isFav ? "bg-red-500/10 border-red-500/30 text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.15)]" : "bg-slate-900/40 border-slate-700 hover:bg-slate-800/80 text-slate-300 hover:text-white"}`}>
+            <button onClick={handleToggleFavorite} className={`flex-1 py-3.5 rounded-xl border flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 ease-in-out ${isFav ? "bg-red-500/10 border-red-500/30 text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.15)]" : "bg-slate-900/40 border-slate-700 hover:bg-slate-800/80 text-slate-300 hover:text-white"}`}>
               {isFav ? "❤️ Favorilerde" : "🤍 Favoriye Ekle"}
             </button>
-            <button onClick={handleCompare} className="flex-1 py-3.5 rounded-xl border border-slate-700 bg-slate-900/40 hover:bg-slate-800/80 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-300 hover:text-white transition-all duration-300">
+            <button onClick={handleCompare} className="flex-1 py-3.5 rounded-xl border border-slate-700 bg-slate-900/40 hover:bg-slate-800/80 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-300 hover:text-white transition-all duration-300 ease-in-out">
               ⚖️ Karşılaştır
             </button>
-            <button onClick={handleShare} className="flex-1 py-3.5 rounded-xl border border-slate-700 bg-slate-900/40 hover:bg-slate-800/80 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-300 hover:text-white transition-all duration-300">
+            <button onClick={handleShare} className="flex-1 py-3.5 rounded-xl border border-slate-700 bg-slate-900/40 hover:bg-slate-800/80 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-300 hover:text-white transition-all duration-300 ease-in-out">
               {copied ? "🟩 Kopyalandı" : "📤 Paylaş / Kopyala"}
             </button>
           </div>
@@ -241,9 +241,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               { id: "reviews", icon: "⭐", label: "Yorumlar" },
               { id: "questions", icon: "💬", label: "Sorular" }
             ].map((btn) => (
-              <button key={btn.id} onClick={(e) => { e.preventDefault(); setActiveTab(btn.id); setTeknikPopupAcik(true); }} className="group flex flex-col items-center justify-center gap-2 bg-slate-900/40 border border-slate-700 hover:border-[#00e5ff]/50 hover:bg-slate-800/60 text-slate-400 hover:text-[#00e5ff] py-4 rounded-2xl transition-all duration-300 shadow-lg">
-                <span className="text-2xl group-hover:scale-110 transition-transform">{btn.icon}</span>
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-300 group-hover:text-white">{btn.label}</span>
+              <button key={btn.id} onClick={(e) => { e.preventDefault(); setActiveTab(btn.id); setTeknikPopupAcik(true); }} className="group flex flex-col items-center justify-center gap-2 bg-slate-900/40 border border-slate-700 hover:border-[#00e5ff]/50 hover:bg-slate-800/60 text-slate-400 hover:text-[#00e5ff] py-4 rounded-2xl transition-all duration-500 ease-in-out shadow-lg">
+                <span className="text-2xl group-hover:scale-110 transition-transform duration-500">{btn.icon}</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-300 group-hover:text-white transition-colors duration-500">{btn.label}</span>
               </button>
             ))}
           </div>
@@ -255,18 +255,18 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-slate-950/85 backdrop-blur-xl border-t border-slate-800/80 p-3 z-[50] flex flex-col gap-3 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
         
         {/* KAYDIRILABİLİR ALAN */}
-        <div className="flex items-center gap-2.5 overflow-x-auto whitespace-nowrap pb-1 [&::-webkit-scrollbar]:hidden">
-           <button onClick={() => { setActiveTab("tech"); setTeknikPopupAcik(true); }} className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-xl text-slate-200 hover:border-[#00e5ff] transition-colors"><span className="text-sm">⚙️</span><span className="text-[11px] font-black uppercase tracking-wider">Teknik</span></button>
-           <button onClick={() => { setActiveTab("fps"); setTeknikPopupAcik(true); }} className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-xl text-slate-200 hover:border-[#00e5ff] transition-colors"><span className="text-sm">🎮</span><span className="text-[11px] font-black uppercase tracking-wider">FPS</span></button>
+        <div className="flex items-center gap-2.5 overflow-x-auto scroll-smooth whitespace-nowrap pb-1 [&::-webkit-scrollbar]:hidden">
+           <button onClick={() => { setActiveTab("tech"); setTeknikPopupAcik(true); }} className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-xl text-slate-200 hover:border-[#00e5ff] transition-all duration-300"><span className="text-sm">⚙️</span><span className="text-[11px] font-black uppercase tracking-wider">Teknik</span></button>
+           <button onClick={() => { setActiveTab("fps"); setTeknikPopupAcik(true); }} className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-xl text-slate-200 hover:border-[#00e5ff] transition-all duration-300"><span className="text-sm">🎮</span><span className="text-[11px] font-black uppercase tracking-wider">FPS</span></button>
            <div className="w-[1px] h-6 bg-slate-700 shrink-0 mx-1"></div>
-           <button onClick={handleCompare} className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-xl text-slate-200 hover:border-[#00e5ff] transition-colors"><span className="text-sm">⚖️</span><span className="text-[11px] font-black uppercase tracking-wider">Kıyasla</span></button>
-           <button onClick={handleToggleFavorite} className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-xl text-slate-200 hover:border-red-500 transition-colors"><span className="text-sm">{isFav ? "❤️" : "🤍"}</span><span className="text-[11px] font-black uppercase tracking-wider">Favori</span></button>
+           <button onClick={handleCompare} className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-xl text-slate-200 hover:border-[#00e5ff] transition-all duration-300"><span className="text-sm">⚖️</span><span className="text-[11px] font-black uppercase tracking-wider">Kıyasla</span></button>
+           <button onClick={handleToggleFavorite} className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-xl text-slate-200 hover:border-red-500 transition-all duration-300"><span className="text-sm">{isFav ? "❤️" : "🤍"}</span><span className="text-[11px] font-black uppercase tracking-wider">Favori</span></button>
            <div className="w-[1px] h-6 bg-slate-700 shrink-0 mx-1"></div>
-           <button onClick={() => { setActiveTab("reviews"); setTeknikPopupAcik(true); }} className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-xl text-slate-200 hover:border-[#00e5ff] transition-colors"><span className="text-sm">⭐</span><span className="text-[11px] font-black uppercase tracking-wider">Yorumlar</span></button>
-           <button onClick={() => { setActiveTab("questions"); setTeknikPopupAcik(true); }} className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-xl text-slate-200 hover:border-[#00e5ff] transition-colors"><span className="text-sm">💬</span><span className="text-[11px] font-black uppercase tracking-wider">Sorular</span></button>
+           <button onClick={() => { setActiveTab("reviews"); setTeknikPopupAcik(true); }} className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-xl text-slate-200 hover:border-[#00e5ff] transition-all duration-300"><span className="text-sm">⭐</span><span className="text-[11px] font-black uppercase tracking-wider">Yorumlar</span></button>
+           <button onClick={() => { setActiveTab("questions"); setTeknikPopupAcik(true); }} className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-xl text-slate-200 hover:border-[#00e5ff] transition-all duration-300"><span className="text-sm">💬</span><span className="text-[11px] font-black uppercase tracking-wider">Sorular</span></button>
         </div>
         
-        <button type="button" onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`w-full h-14 font-black uppercase tracking-wider rounded-xl flex items-center justify-between px-5 transition-all ${tukendiMi ? "bg-slate-800 text-slate-500 border border-slate-700" : "bg-gradient-to-r from-[#00e5ff] to-[#00b4d8] text-slate-950 shadow-[0_0_20px_rgba(0,229,255,0.4)]"}`}>
+        <button type="button" onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`w-full h-14 font-black uppercase tracking-wider rounded-xl flex items-center justify-between px-5 transition-all duration-500 ${tukendiMi ? "bg-slate-800 text-slate-500 border border-slate-700" : "bg-gradient-to-r from-[#00e5ff] to-[#00b4d8] text-slate-950 shadow-[0_0_20px_rgba(0,229,255,0.4)]"}`}>
            <span className="text-base">{tukendiMi ? "TÜKENDİ" : "SEPETE EKLE"}</span>
            {!tukendiMi && <div className="flex flex-col items-end leading-tight"><span className="text-[9px] opacity-90 font-black">HAVALE İLE</span><span className="text-sm font-black">{havaleFiyati.toLocaleString("tr-TR")} TL</span></div>}
         </button>
@@ -274,7 +274,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
       {/* 💎 MODERN BUZLU CAM POPUP */}
       {teknikPopupAcik && (
-        <div className="fixed inset-0 z-[999999] flex justify-center items-center p-0 sm:p-4 bg-slate-950/70 backdrop-blur-md transition-all">
+        <div className="fixed inset-0 z-[999999] flex justify-center items-center p-0 sm:p-4 bg-slate-950/70 backdrop-blur-md transition-all duration-500">
           <div className="absolute inset-0 hidden sm:block" onClick={() => setTeknikPopupAcik(false)}></div>
           
           <div className="relative w-full h-full sm:max-h-[85vh] sm:w-[750px] mx-auto bg-slate-900/80 backdrop-blur-2xl sm:border sm:border-slate-700 sm:rounded-3xl flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
@@ -285,18 +285,18 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                <span className="text-5xl sm:text-6xl font-black tracking-[0.5em] text-white uppercase ml-4">GAMING</span>
             </div>
 
-            {/* BAŞLIK VE X TUŞU */}
-            <div className="flex justify-between items-center px-5 sm:px-8 py-4 sm:py-6 border-b border-slate-700/50 shrink-0 bg-slate-900/50 relative z-20">
+            {/* BAŞLIK VE X TUŞU (DAHA KOYU VE BELİRGİN HEADER) */}
+            <div className="flex justify-between items-center px-5 sm:px-8 py-4 sm:py-6 border-b border-slate-700/80 shrink-0 bg-slate-950/95 shadow-lg relative z-30">
               <h2 className="text-lg sm:text-xl font-black text-white uppercase tracking-wider flex items-center gap-3 drop-shadow-md">
                 <span className="text-[#00e5ff] text-2xl drop-shadow-[0_0_8px_rgba(0,229,255,0.5)]">{getPopupTitle().icon}</span> 
                 {getPopupTitle().text}
               </h2>
-              <button onClick={() => setTeknikPopupAcik(false)} className="text-slate-400 hover:text-white bg-slate-800/50 border border-slate-700 hover:bg-red-500/20 hover:border-red-500 rounded-xl p-2.5 transition-all duration-300">
+              <button onClick={() => setTeknikPopupAcik(false)} className="text-slate-400 hover:text-white bg-slate-800/80 border border-slate-700 hover:bg-red-500/20 hover:border-red-500 rounded-xl p-2.5 transition-all duration-300">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="overflow-y-auto flex-1 p-5 sm:p-8 flex flex-col text-slate-200 bg-transparent relative z-10 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full">
+            <div className="scroll-smooth overflow-y-auto flex-1 p-5 sm:p-8 flex flex-col text-slate-200 bg-transparent relative z-10 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full">
                <div className="pb-10">
                   
                   {/* 1. YORUMLAR SEKMESİ */}
@@ -306,17 +306,17 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                            <h3 className="text-[#00e5ff] font-black text-sm uppercase tracking-wider mb-4 drop-shadow-sm">Değerlendirme Yap</h3>
                            <div className="flex gap-2 mb-5">
                               {[1, 2, 3, 4, 5].map((star) => (
-                                 <button type="button" key={star} onClick={() => setReviewRating(star)} className={`text-2xl sm:text-3xl transition-all hover:scale-110 ${reviewRating >= star ? "text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]" : "text-slate-600 hover:text-amber-400/50"}`}>★</button>
+                                 <button type="button" key={star} onClick={() => setReviewRating(star)} className={`text-2xl sm:text-3xl transition-all duration-300 hover:scale-110 ${reviewRating >= star ? "text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]" : "text-slate-600 hover:text-amber-400/50"}`}>★</button>
                               ))}
                            </div>
-                           <input type="text" value={reviewName} onChange={(e) => setReviewName(e.target.value)} placeholder="Adınız Soyadınız" className="w-full bg-slate-950/60 border border-slate-700 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 mb-3 transition-all placeholder-slate-500" />
-                           <textarea value={reviewText} onChange={(e) => setReviewText(e.target.value)} placeholder="Bu donanım hakkında ne düşünüyorsun? Performansı nasıl?" className="w-full bg-slate-950/60 border border-slate-700 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 min-h-[120px] mb-4 resize-none transition-all placeholder-slate-500" required />
-                           <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-[#00e5ff] text-slate-950 font-black uppercase tracking-widest text-xs px-8 py-3.5 rounded-xl hover:bg-[#00c4db] transition-all disabled:opacity-50 hover:shadow-[0_0_20px_rgba(0,229,255,0.4)]">
+                           <input type="text" value={reviewName} onChange={(e) => setReviewName(e.target.value)} placeholder="Adınız Soyadınız" className="w-full bg-slate-950/60 border border-slate-700 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 mb-3 transition-all duration-300 placeholder-slate-500" />
+                           <textarea value={reviewText} onChange={(e) => setReviewText(e.target.value)} placeholder="Bu donanım hakkında ne düşünüyorsun? Performansı nasıl?" className="w-full bg-slate-950/60 border border-slate-700 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 min-h-[120px] mb-4 resize-none transition-all duration-300 placeholder-slate-500" required />
+                           <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-[#00e5ff] text-slate-950 font-black uppercase tracking-widest text-xs px-8 py-3.5 rounded-xl hover:bg-[#00c4db] transition-all duration-500 disabled:opacity-50 hover:shadow-[0_0_20px_rgba(0,229,255,0.4)]">
                               {isSubmitting ? "Gönderiliyor..." : "Yorumu Gönder"}
                            </button>
                         </form>
 
-                        {reviews.length === 0 ? <p className="text-center py-8 text-slate-400 font-medium bg-slate-800/20 rounded-2xl border border-slate-700/50">Bu ürüne henüz yorum yapılmamış. İlk yorumu sen yap!</p> : reviews.map((rev, i) => (
+                        {reviews.length === 0 ? <p className="text-center py-8 text-slate-400 font-medium bg-slate-800/20 rounded-2xl border border-slate-700/50 transition-all duration-500">Bu ürüne henüz yorum yapılmamış. İlk yorumu sen yap!</p> : reviews.map((rev, i) => (
                            <div key={i} className="mb-5 pb-5 border-b border-slate-700/50 relative z-10">
                               <div className="flex justify-between items-center mb-2">
                                  <span className="font-bold text-white text-base">{rev.name || "İsimsiz"}</span>
@@ -339,13 +339,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                      <div className="space-y-6">
                         <form onSubmit={handleSubmitQuestion} className="mb-8 bg-slate-800/40 backdrop-blur-md border border-slate-700/50 p-6 rounded-2xl relative z-20 shadow-lg">
                            <h3 className="text-[#00e5ff] font-black text-sm uppercase tracking-wider mb-4 drop-shadow-sm">Soru Sor</h3>
-                           <input type="text" value={questionName} onChange={(e) => setQuestionName(e.target.value)} placeholder="Adınız Soyadınız" className="w-full bg-slate-950/60 border border-slate-700 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 mb-3 transition-all placeholder-slate-500" />
-                           <textarea value={questionText} onChange={(e) => setQuestionText(e.target.value)} placeholder="Bu ürünle ilgili merak ettiğin bir şey mi var? Bize sor..." className="w-full bg-slate-950/60 border border-slate-700 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 min-h-[120px] mb-4 resize-none transition-all placeholder-slate-500" required />
-                           <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-[#00e5ff] text-slate-950 font-black uppercase tracking-widest text-xs px-8 py-3.5 rounded-xl hover:bg-[#00c4db] transition-all disabled:opacity-50 hover:shadow-[0_0_20px_rgba(0,229,255,0.4)]">
+                           <input type="text" value={questionName} onChange={(e) => setQuestionName(e.target.value)} placeholder="Adınız Soyadınız" className="w-full bg-slate-950/60 border border-slate-700 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 mb-3 transition-all duration-300 placeholder-slate-500" />
+                           <textarea value={questionText} onChange={(e) => setQuestionText(e.target.value)} placeholder="Bu ürünle ilgili merak ettiğin bir şey mi var? Bize sor..." className="w-full bg-slate-950/60 border border-slate-700 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 min-h-[120px] mb-4 resize-none transition-all duration-300 placeholder-slate-500" required />
+                           <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-[#00e5ff] text-slate-950 font-black uppercase tracking-widest text-xs px-8 py-3.5 rounded-xl hover:bg-[#00c4db] transition-all duration-500 disabled:opacity-50 hover:shadow-[0_0_20px_rgba(0,229,255,0.4)]">
                               {isSubmitting ? "Gönderiliyor..." : "Soruyu Gönder"}
                            </button>
                         </form>
-                        {questions.length === 0 ? <p className="text-center py-8 text-slate-400 font-medium bg-slate-800/20 rounded-2xl border border-slate-700/50">Henüz soru sorulmamış. İlk soran sen ol!</p> : questions.map((q, i) => (
+                        {questions.length === 0 ? <p className="text-center py-8 text-slate-400 font-medium bg-slate-800/20 rounded-2xl border border-slate-700/50 transition-all duration-500">Henüz soru sorulmamış. İlk soran sen ol!</p> : questions.map((q, i) => (
                            <div key={i} className="mb-5 pb-5 border-b border-slate-700/50 relative z-10">
                               <span className="font-bold text-white text-base block mb-2">❓ {q.name || "Müşteri"}:</span>
                               <p className="text-sm text-slate-300 mb-4 leading-relaxed">{q.text}</p>
@@ -364,7 +364,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   {activeTab === "tech" && product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 ? (
                      <div className="grid grid-cols-1 gap-0">
                         {Object.entries(product.teknik_ozellikler).map(([anahtar, deger]) => (
-                           <div key={anahtar} className="flex justify-between items-center py-4 px-4 border-b border-slate-700/50 hover:bg-slate-800/30 transition-colors rounded-lg">
+                           <div key={anahtar} className="flex justify-between items-center py-4 px-4 border-b border-slate-700/50 hover:bg-slate-800/30 transition-colors duration-300 rounded-lg">
                               <span className="text-slate-400 font-bold text-[11px] sm:text-xs uppercase w-1/2 tracking-wider">{anahtar}</span>
                               <span className="text-slate-100 font-semibold text-xs sm:text-sm w-1/2 text-right">{deger as string}</span>
                            </div>
@@ -379,7 +379,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                            <span className="text-slate-400 text-[11px] font-black uppercase tracking-widest block mb-3">İşlemci Düzeyi:</span>
                            <div className="flex gap-2 sm:gap-3">
                               {[{ id: "i5", top: "INTEL i5", bottom: "RYZEN 5" }, { id: "i7", top: "INTEL i7", bottom: "RYZEN 7" }, { id: "i9", top: "INTEL i9", bottom: "RYZEN 9" }].map((islemci) => (
-                                 <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as "i5" | "i7" | "i9")} className={"flex-1 flex flex-col items-center justify-center py-3 px-2 rounded-xl border transition-all duration-300 " + (seciliIslemci === islemci.id ? "bg-slate-800 border-[#00e5ff] text-[#00e5ff] shadow-[0_0_15px_rgba(0,229,255,0.2)]" : "bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-600 hover:text-white")}>
+                                 <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as "i5" | "i7" | "i9")} className={"flex-1 flex flex-col items-center justify-center py-3 px-2 rounded-xl border transition-all duration-500 ease-in-out " + (seciliIslemci === islemci.id ? "bg-slate-800 border-[#00e5ff] text-[#00e5ff] shadow-[0_0_15px_rgba(0,229,255,0.2)]" : "bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-600 hover:text-white")}>
                                     <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider">{islemci.top}</span>
                                     <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider mt-1 opacity-80">{islemci.bottom}</span>
                                  </button>
@@ -389,18 +389,18 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
                         <div>
                            <span className="text-slate-400 text-[11px] font-black uppercase tracking-widest block mb-3 mt-5">Çözünürlük:</span>
-                           <div className="flex bg-slate-950/60 p-1.5 rounded-xl border border-slate-800">
+                           <div className="flex bg-slate-950/60 p-1.5 rounded-xl border border-slate-800 transition-all duration-500">
                               {["1080P", "2K", "4K"].map((res) => (
-                                 <button key={res} onClick={() => setSeciliCozunurluk(res as "1080P" | "2K" | "4K")} className={"flex-1 py-3 rounded-lg text-[11px] sm:text-xs font-black uppercase transition-all duration-300 " + (seciliCozunurluk === res ? "bg-[#00e5ff] text-slate-950 shadow-[0_0_15px_rgba(0,229,255,0.4)]" : "text-slate-400 hover:text-white")}>{res}</button>
+                                 <button key={res} onClick={() => setSeciliCozunurluk(res as "1080P" | "2K" | "4K")} className={"flex-1 py-3 rounded-lg text-[11px] sm:text-xs font-black uppercase transition-all duration-500 ease-in-out " + (seciliCozunurluk === res ? "bg-[#00e5ff] text-slate-950 shadow-[0_0_15px_rgba(0,229,255,0.4)] scale-105" : "text-slate-400 hover:text-white")}>{res}</button>
                               ))}
                            </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4 sm:gap-5 mt-8">
                            {[{ ad: "Valorant", kod: "Valorant" }, { ad: "CS:2", kod: "CS2" }, { ad: "GTA V", kod: "GTAV" }, { ad: "PUBG", kod: "PUBG" }].map((oyun) => (
-                              <div key={oyun.kod} className="bg-slate-800/30 backdrop-blur-md border border-slate-700/50 hover:border-[#00e5ff]/50 rounded-2xl p-6 flex flex-col items-center justify-center transition-all duration-300 shadow-lg group">
-                                 <span className="text-slate-400 font-black text-[11px] tracking-widest uppercase mb-3 group-hover:text-slate-200 transition-colors">{oyun.ad}</span>
-                                 <span className="text-4xl font-black text-white drop-shadow-md">{(fpsVerileri as any)[oyun.kod]?.[seciliIslemci]?.[seciliCozunurluk] || "0"}</span>
+                              <div key={oyun.kod} className="bg-slate-800/30 backdrop-blur-md border border-slate-700/50 hover:border-[#00e5ff]/50 rounded-2xl p-6 flex flex-col items-center justify-center transition-all duration-500 ease-in-out shadow-lg group">
+                                 <span className="text-slate-400 font-black text-[11px] tracking-widest uppercase mb-3 group-hover:text-slate-200 transition-colors duration-500">{oyun.ad}</span>
+                                 <span className="text-4xl font-black text-white drop-shadow-md transition-all duration-500 ease-in-out">{(fpsVerileri as any)[oyun.kod]?.[seciliIslemci]?.[seciliCozunurluk] || "0"}</span>
                                  <span className="text-[#00e5ff] text-[11px] font-bold mt-2 uppercase tracking-widest">FPS</span>
                               </div>
                            ))}
@@ -419,8 +419,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </div>
 
             {/* SADECE MASAÜSTÜNDE GÖRÜNEN ALT KAPATMA BUTONU */}
-            <div className="hidden sm:block p-5 border-t border-slate-700/50 shrink-0 bg-slate-900/80 rounded-b-3xl z-20 backdrop-blur-xl">
-              <button onClick={() => setTeknikPopupAcik(false)} className="w-full bg-slate-800 text-slate-200 border border-slate-600 font-black px-8 py-4 rounded-xl hover:bg-slate-700 hover:text-white transition-all uppercase tracking-widest text-sm shadow-lg">Kapat</button>
+            <div className="hidden sm:block p-5 border-t border-slate-700/80 shrink-0 bg-slate-950/95 rounded-b-3xl z-30 shadow-[0_-10px_20px_rgba(0,0,0,0.2)]">
+              <button onClick={() => setTeknikPopupAcik(false)} className="w-full bg-slate-800 text-slate-200 border border-slate-600 font-black px-8 py-4 rounded-xl hover:bg-slate-700 hover:text-white transition-all duration-300 uppercase tracking-widest text-sm shadow-lg">Kapat</button>
             </div>
           </div>
         </div>
