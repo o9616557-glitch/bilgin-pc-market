@@ -19,13 +19,14 @@ export default function ComparePopup() {
     }
   });
 
-  // 🚀 ŞEFİM İŞTE BURASI: Kartlar küçültüldü! 
-  // Minimum 180px'e kadar düşecekler, böylece 2. ürün telefonda çok daha rahat sığacak.
+  // 🚀 ŞEFİM İŞTE BURASI: Kartlar iyice daraltıldı ve HER ZAMAN SOLA YASLANDI!
   const getGridStyle = () => {
-    if (karsilastirilanlar.length === 1) {
-      return { gridTemplateColumns: "minmax(200px, 250px)", justifyContent: "center" };
-    }
-    return { gridTemplateColumns: `repeat(${karsilastirilanlar.length}, minmax(180px, 240px))`, justifyContent: "start" };
+    // Ürün 1 tane de olsa 3 tane de olsa hep sola yaslanır (justifyContent: "start")
+    // Genişlikler iyice kibarlaştırıldı: min 160px, max 220px. Ekranı gereksiz işgal etmeyecek.
+    return { 
+      gridTemplateColumns: `repeat(${karsilastirilanlar.length}, minmax(160px, 220px))`, 
+      justifyContent: "start" 
+    };
   };
 
   return (
