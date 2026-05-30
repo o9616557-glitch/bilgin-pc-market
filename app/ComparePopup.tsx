@@ -20,24 +20,23 @@ export default function ComparePopup() {
     }
   });
 
-  // 🚀 ŞEFİM İŞTE BURASI: Ürünler artık sola değil, TAM ORTAYA (center) hizalanacak!
+  // 🚀 ŞEFİM İŞTE BURASI: Ürün sayısı kaç olursa olsun hep SOLA yaslanır (start).
+  // Genişlikler hem mobil hem PC için sabitlendi, alt satırlar üsttekilerle milimetrik aynı hizada kalır.
   const getGridStyle = () => {
     return { 
       gridTemplateColumns: `repeat(${karsilastirilanlar.length}, minmax(160px, 240px))`, 
-      justifyContent: "center" 
+      justifyContent: "start" 
     };
   };
 
   return (
-    // 🚀 GÜÇ SEVİYESİ (z-[99999]) YÜKSELTİLDİ! Sitenin ana menüsü artık altta kalacak.
     <div className="fixed inset-0 z-[99999] flex justify-center items-center p-0 sm:p-4 bg-black/80 backdrop-blur-md transition-all">
       
-      {/* PENCERENİN ÜSTÜNDE ÇIKACAK BİLDİRİM (TOAST) GÜCÜ (999999) */}
       <Toaster position="top-center" containerStyle={{ zIndex: 999999 }} />
       
       <div className="absolute inset-0 hidden sm:block" onClick={() => setPopupAcik(false)}></div>
       
-      {/* 🚀 PENCERE BOYUTU: sm:max-w-4xl yapılarak bilgisayarda bir tık daraltıldı ve jilet gibi oldu! */}
+      {/* PENCERE BOYUTU */}
       <div className="relative w-full h-full sm:max-h-[85vh] sm:max-w-4xl mx-auto bg-[#09090b]/60 backdrop-blur-2xl sm:border sm:border-[#00e5ff]/30 sm:rounded-3xl flex flex-col overflow-hidden shadow-[0_0_40px_rgba(0,229,255,0.15)]">
         
         {/* HEADER (TAVAN) */}
@@ -70,7 +69,8 @@ export default function ComparePopup() {
             {karsilastirilanlar.length === 0 ? (
               <div className="text-center py-20 text-slate-500 font-bold uppercase tracking-widest">[ Karşılaştırılacak Ürün Seçilmedi ]</div>
             ) : (
-              <div className="flex flex-col gap-6 w-full min-w-max mx-auto">
+              // 🚀 `w-fit` yapılarak tüm tablonun genişliği içerik kadar sınırlandı, böylece sola yaslanma tam oturdu.
+              <div className="flex flex-col gap-6 w-fit mx-0">
                 
                 {/* ANA GÖRSEL VE VİTRİN SATIRI */}
                 <div className="grid gap-3 sm:gap-4 w-full" style={getGridStyle()}>
@@ -96,7 +96,7 @@ export default function ComparePopup() {
                                   e.currentTarget.onerror = null; 
                                   e.currentTarget.src = "https://via.placeholder.com/300x300/121215/475569?text=Gorsel+Yok";
                                 }}
-                            />
+                              />
                             ) : (
                               <span className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">Görsel Yok</span>
                             )}
@@ -114,7 +114,7 @@ export default function ComparePopup() {
                 {tumOzellikAnahtarlari.map((ozellikAdi) => (
                   <div key={ozellikAdi} className="mt-2 w-full">
                     
-                    <div className="text-[#00e5ff] font-black text-[11px] sm:text-xs uppercase tracking-widest mb-2 pl-1 text-center sm:text-left">
+                    <div className="text-[#00e5ff] font-black text-[11px] sm:text-xs uppercase tracking-widest mb-2 pl-1 text-left">
                       {ozellikAdi}
                     </div>
                     
@@ -122,7 +122,7 @@ export default function ComparePopup() {
                       {karsilastirilanlar.map((urun, idx) => {
                         const deger = urun.teknik_ozellikler ? urun.teknik_ozellikler[ozellikAdi] : null;
                         return (
-                          <div key={idx} className="bg-[#121215]/80 border border-white/10 p-2 sm:p-3 rounded-md text-xs sm:text-sm text-white font-medium flex items-center justify-center sm:justify-start min-h-[40px] sm:min-h-[48px] shadow-sm hover:border-[#00e5ff]/50 transition-colors">
+                          <div key={idx} className="bg-[#121215]/80 border border-white/10 p-2 sm:p-3 rounded-md text-xs sm:text-sm text-white font-medium flex items-center justify-start min-h-[40px] sm:min-h-[48px] shadow-sm hover:border-[#00e5ff]/50 transition-colors">
                             {deger || "-"}
                           </div>
                         );
