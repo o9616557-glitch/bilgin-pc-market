@@ -1,6 +1,6 @@
 "use client";
 import { useCompare } from "./CompareContext"; 
-import { X, MinusCircle } from "lucide-react";
+import { X, MinusCircle, Trash2 } from "lucide-react";
 import Link from "next/link"; 
 
 export default function ComparePopup() {
@@ -29,27 +29,36 @@ export default function ComparePopup() {
   return (
     <div className="fixed inset-0 z-[99] flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-200">
       
-      {/* 🚀 KUTU: Telefonda da oval köşeli, asil ve ekranın %95'ini kaplayan yapı */}
-      <div className="bg-[#050814] border border-slate-800 rounded-2xl sm:rounded-3xl w-full h-[95vh] sm:h-auto max-w-6xl sm:max-h-[90vh] flex flex-col shadow-[0_0_50px_rgba(0,229,255,0.1)] relative overflow-hidden">
+      {/* 🚀 KUTU: Alt panel yok, sayfa gibi aşağı akacak */}
+      <div className="bg-[#050814] border border-slate-800 rounded-2xl sm:rounded-3xl w-full h-[95vh] max-w-6xl flex flex-col shadow-[0_0_50px_rgba(0,229,255,0.1)] relative overflow-hidden">
         
-        {/* 🚀 HEADER (TAVAN): Tıpkı fotoğraftaki gibi tertemiz, sadece başlık ve X tuşu */}
+        {/* 🚀 TERTEMİZ HEADER: Sadece başlık, temizle butonu (ufak) ve X kapatma tuşu */}
         <div className="flex justify-between items-center p-4 sm:p-5 border-b border-slate-800 shrink-0 bg-[#09090b]">
           <h2 className="text-base sm:text-xl font-black text-white uppercase tracking-widest flex items-center gap-2">
             <span className="text-[#00e5ff] text-xl sm:text-2xl">⚖️</span> TEKNİK KARŞILAŞTIRMA
           </h2>
-          <button onClick={() => setPopupAcik(false)} className="text-slate-400 hover:text-white bg-[#121215] border border-slate-700 hover:bg-red-500/20 hover:border-red-500 rounded-xl p-2 transition-all shrink-0">
-            <X className="w-5 h-5 sm:w-6 sm:h-6" />
-          </button>
+          
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Alt paneli sildiğimiz için Listeyi Temizle butonunu şık bir çöp kutusu olarak yukarı aldık */}
+            {karsilastirilanlar.length > 0 && (
+              <button onClick={karsilastirmayiTemizle} className="text-slate-500 hover:text-red-500 bg-[#121215] border border-slate-700 hover:bg-red-500/10 hover:border-red-500/50 rounded-xl p-2 transition-all shrink-0" title="Listeyi Temizle">
+                <Trash2 className="w-5 h-5 sm:w-6 sm:h-6" />
+              </button>
+            )}
+            <button onClick={() => setPopupAcik(false)} className="text-slate-400 hover:text-white bg-[#121215] border border-slate-700 hover:bg-red-500/20 hover:border-red-500 rounded-xl p-2 transition-all shrink-0">
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+          </div>
         </div>
 
-        {/* İçerik Alanı */}
+        {/* İçerik Alanı (Sayfa gibi aşağı kayar, altı tamamen sıfır) */}
         <div className="p-4 sm:p-6 overflow-x-auto overflow-y-auto flex-grow bg-[#050814]">
           {karsilastirilanlar.length === 0 ? (
             <div className="text-center py-20 text-slate-500 font-bold uppercase tracking-widest">[ Karşılaştırılacak Ürün Seçilmedi ]</div>
           ) : (
-            <div className="flex flex-col gap-6 w-full min-w-max mx-auto">
+            <div className="flex flex-col gap-6 w-full min-w-max mx-auto pb-10">
               
-              {/* Bilgilendirme Yazısı (Header'dan buraya alındı) */}
+              {/* Bilgilendirme Yazısı */}
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-slate-400 text-xs font-medium">{karsilastirilanlar.length} ürün kıyaslanıyor</span>
                 <span className="bg-[#00e5ff]/10 border border-[#00e5ff]/20 text-[#00e5ff] px-2 py-0.5 rounded text-[9px] font-bold tracking-widest uppercase">Max 3 Adet</span>
@@ -117,15 +126,6 @@ export default function ComparePopup() {
             </div>
           )}
         </div>
-
-        {/* Alt Panel */}
-        <div className="p-4 sm:p-5 border-t border-slate-800 shrink-0 bg-[#09090b] flex justify-between items-center">
-          <button onClick={karsilastirmayiTemizle} className="text-slate-500 text-xs sm:text-sm hover:text-red-400 font-bold underline transition-colors">Listeyi Temizle</button>
-          <button onClick={() => setPopupAcik(false)} className="bg-[#00e5ff] text-black font-black px-6 py-2.5 sm:px-8 sm:py-3 rounded-xl hover:bg-[#00c4db] transition-all uppercase tracking-wider text-xs sm:text-sm shadow-[0_0_15px_rgba(0,229,255,0.3)]">
-            Kapat 
-          </button>
-        </div>
-
       </div>
     </div>
   );
