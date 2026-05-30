@@ -19,13 +19,14 @@ export default function ComparePopup() {
     }
   });
 
-  // 🚀 ŞEFİM İŞTE BURASI: Akıllı Elastik Izgara (Grid) Sistemi
-  // 1 ürün varsa ortalar ve ekrana oturtur. 2 veya 3 ürün varsa boşluk bırakmaz, ekranı eşit böler.
+  // 🚀 ŞEFİM İŞTE BURASI: Artık ürünler dev gibi genişlemeyecek!
   const getGridStyle = () => {
     if (karsilastirilanlar.length === 1) {
-      return { gridTemplateColumns: "minmax(260px, 350px)", justifyContent: "center" };
+      // Tek Ürün: Ekranda tam merkeze oturur, kenarları kırpılır, dev gibi olmaz (max 280px).
+      return { gridTemplateColumns: "minmax(220px, 280px)", justifyContent: "center" };
     }
-    return { gridTemplateColumns: `repeat(${karsilastirilanlar.length}, minmax(260px, 1fr))` };
+    // 2 veya 3 Ürün: Ekranı kaplamak için sünmezler! Her biri max 280px olur ve yan yana asilce dururlar.
+    return { gridTemplateColumns: `repeat(${karsilastirilanlar.length}, minmax(240px, 280px))`, justifyContent: "start" };
   };
 
   return (
@@ -39,7 +40,6 @@ export default function ComparePopup() {
               <span className="text-[#00e5ff]">⚖️</span> TEKNİK KARŞILAŞTIRMA
             </h2>
             
-            {/* 🚀 ŞEFİM İŞTE BURASI: Kutu olmadan, düz, asil ve çarpıya değmeyen yazı */}
             <div className="mt-1 sm:mt-2">
               <p className="text-slate-400 text-[10px] sm:text-xs">
                 {karsilastirilanlar.length} ürün yan yana kıyaslanıyor 
@@ -77,7 +77,6 @@ export default function ComparePopup() {
                       <Link href={"/product/" + (urun.slug || urun._id)} onClick={() => setPopupAcik(false)} className="p-3 sm:p-4 flex flex-col flex-grow hover:bg-slate-800/40 transition-colors cursor-pointer">
                         <div className="h-24 sm:h-32 w-full bg-[#09090b] rounded-xl p-2 flex items-center justify-center mb-3 sm:mb-4 border border-slate-800 overflow-hidden">
                           
-                          {/* 🚀 Kırık resim koruması (Görsel Yok uyarısı) */}
                           {resim ? (
                             <img 
                               src={resim} 
