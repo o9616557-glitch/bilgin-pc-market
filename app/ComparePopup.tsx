@@ -101,7 +101,7 @@ export default function ComparePopup() {
         <div className="p-4 sm:p-5 border-t border-slate-800 shrink-0 bg-[#050814] rounded-b-3xl flex justify-between items-center">
           <button onClick={karsilastirmayiTemizle} className="text-slate-500 text-xs sm:text-sm hover:text-red-400 font-bold underline transition-colors">Listeyi Temizle</button>
           <button onClick={() => setPopupAcik(false)} className="bg-[#00e5ff] text-black font-black px-6 py-2.5 sm:px-8 sm:py-3 rounded-xl hover:bg-[#00c4db] transition-all uppercase tracking-wider text-xs sm:text-sm shadow-[0_0_15px_rgba(0,229,255,0.3)]">
-            Kapat ve Dön
+            Kapat 
           </button>
         </div>
 
