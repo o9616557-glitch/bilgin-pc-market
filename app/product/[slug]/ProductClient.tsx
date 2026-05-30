@@ -244,7 +244,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const resimler = product.images && product.images.length > 0 ? product.images.map((i:any) => i.src) : [product.resim || "https://via.placeholder.com/600"];
 
  return (
-    <div className="min-h-screen bg-[#050814] text-white pb-5 sm:pb-10 font-sans overflow-x-hidden relative max-w-[100vw]">
+    <div className="min-h-screen bg-[#050814] text-white pb-9 sm:pb-10 font-sans overflow-x-hidden relative max-w-[100vw]">
       {/* BAŞARI MESAJI TOAST */}
       <div className={`fixed top-24 right-5 z-[9999999] bg-[#09090b] border border-[#00e5ff]/50 shadow-[0_0_30px_rgba(0,229,255,0.2)] text-white px-6 py-4 rounded-xl font-bold flex items-center gap-3 transition-all duration-300 transform ${toastMessage ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0 pointer-events-none"}`}>
         <span className="text-[#00e5ff] text-2xl">✓</span>
