@@ -32,7 +32,15 @@ export default function ComparePopup() {
             <h2 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wide flex items-center gap-2">
               <span className="text-[#00e5ff]">⚖️</span> TEKNİK KARŞILAŞTIRMA
             </h2>
-            <p className="text-slate-400 text-xs mt-1">{karsilastirilanlar.length} ürün yan yana kıyaslanıyor</p>
+            
+            {/* 🚀 ŞEFİM İŞTE BURASI: Modern ve zarif 3 ürün limiti uyarısı */}
+            <div className="flex items-center gap-3 mt-1.5">
+              <p className="text-slate-400 text-xs">{karsilastirilanlar.length} ürün yan yana kıyaslanıyor</p>
+              <span className="bg-[#00e5ff]/10 border border-[#00e5ff]/20 text-[#00e5ff] text-[9px] sm:text-[10px] px-2 py-0.5 rounded-md font-bold tracking-widest uppercase">
+                En fazla 3 adet seçilebilir
+              </span>
+            </div>
+            
           </div>
           <button onClick={() => setPopupAcik(false)} className="text-slate-400 hover:text-white bg-[#121215] border border-slate-700 hover:bg-red-500/20 hover:border-red-500 rounded-xl p-2.5 transition-all">
             <X className="w-6 h-6" />
@@ -50,7 +58,8 @@ export default function ComparePopup() {
               <div className="grid gap-3 sm:gap-4" style={{ gridTemplateColumns: `repeat(${karsilastirilanlar.length}, ${urunGenisligi})`, justifyContent: "start" }}>
                 {karsilastirilanlar.map((urun, idx) => {
                   const fiyat = Number(urun.indirimliFiyat || urun.fiyat || urun.price || 0);
-                  const resim = urun.resimler ? urun.resimler[0] : urun.resim;
+                  const resim = urun.resimler && urun.resimler.length > 0 ? urun.resimler[0] : urun.resim;
+                  
                   return (
                     <div key={idx} className="bg-[#121215] border border-slate-800/80 rounded-2xl flex flex-col relative border-b-2 border-b-[#00e5ff]/20 overflow-hidden group">
                       
@@ -59,8 +68,23 @@ export default function ComparePopup() {
                       </button>
                       
                       <Link href={"/product/" + (urun.slug || urun._id)} onClick={() => setPopupAcik(false)} className="p-3 sm:p-4 flex flex-col flex-grow hover:bg-slate-800/40 transition-colors cursor-pointer">
-                        <div className="h-24 sm:h-32 w-full bg-[#09090b] rounded-xl p-2 flex items-center justify-center mb-3 sm:mb-4 border border-slate-800">
-                          {resim ? <img src={resim} alt="urun" className="max-h-full object-contain group-hover:scale-110 transition-transform duration-300" /> : <span className="text-xs text-slate-600">Görsel Yok</span>}
+                        <div className="h-24 sm:h-32 w-full bg-[#09090b] rounded-xl p-2 flex items-center justify-center mb-3 sm:mb-4 border border-slate-800 overflow-hidden">
+                          
+                          {/* 🚀 ŞEFİM İŞTE BURASI: Kırık resim koruması eklendi (onError) */}
+                          {resim ? (
+                            <img 
+                              src={resim} 
+                              alt={urun.isim || "ürün"} 
+                              className="max-h-full object-contain group-hover:scale-110 transition-transform duration-300" 
+                              onError={(e) => {
+                                e.currentTarget.onerror = null; 
+                                e.currentTarget.src = "https://via.placeholder.com/300x300/121215/475569?text=Gorsel+Yok";
+                              }}
+                            />
+                          ) : (
+                            <span className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">Görsel Yok</span>
+                          )}
+
                         </div>
                         <h3 className="text-white font-bold text-xs sm:text-sm mb-2 leading-snug group-hover:text-[#00e5ff] transition-colors">{urun.isim || urun.name}</h3>
                         <div className="text-[#00e5ff] font-black text-lg sm:text-xl mt-auto">{fiyat.toLocaleString("tr-TR")} TL</div>
@@ -75,7 +99,6 @@ export default function ComparePopup() {
               {tumOzellikAnahtarlari.map((ozellikAdi) => (
                 <div key={ozellikAdi} className="mt-2">
                   
-                  {/* 🚀 ŞEFİM İŞTE BURASI: Kutu silindi, sadece şık bir metin yapıldı */}
                   <div className="text-[#00e5ff] font-black text-[11px] sm:text-xs uppercase tracking-widest mb-2 pl-1">
                     {ozellikAdi}
                   </div>
