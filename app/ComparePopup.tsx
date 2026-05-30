@@ -19,8 +19,9 @@ export default function ComparePopup() {
     }
   });
 
-  // 🚀 ŞEFİM BİNGO: Genişlik tam %19 daraltıldı! (280px -> 226px)
-  const sutunGenisligi = karsilastirilanlar.length === 1 ? "100%" : (karsilastirilanlar.length * 226) + "px";
+  // 🚀 ŞEFİM BİNGO: Ürünler tek başınayken lahmacun gibi uzamasın diye sabit ölçü verdik!
+  // Her ürün (ister 1 tane olsun ister 5 tane) her zaman tam olarak 260px olacak ve sola yaslanacak.
+  const urunGenisligi = "260px"; 
 
   return (
     <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/80 backdrop-blur-md p-2 sm:p-4 animate-in fade-in duration-200">
@@ -44,10 +45,10 @@ export default function ComparePopup() {
           {karsilastirilanlar.length === 0 ? (
             <div className="text-center py-20 text-slate-500 font-bold uppercase tracking-widest">[ Karşılaştırılacak Ürün Seçilmedi ]</div>
           ) : (
-            <div className="flex flex-col gap-6" style={{ minWidth: sutunGenisligi }}>
+            <div className="flex flex-col gap-6 w-max min-w-full">
               
               {/* ANA GÖRSEL VE VİTRİN SATIRI */}
-              <div className="grid gap-3 sm:gap-4" style={{ gridTemplateColumns: "repeat(" + karsilastirilanlar.length + ", 1fr)" }}>
+              <div className="grid gap-3 sm:gap-4" style={{ gridTemplateColumns: `repeat(${karsilastirilanlar.length}, ${urunGenisligi})`, justifyContent: "start" }}>
                 {karsilastirilanlar.map((urun, idx) => {
                   const fiyat = Number(urun.indirimliFiyat || urun.fiyat || urun.price || 0);
                   const resim = urun.resimler ? urun.resimler[0] : urun.resim;
@@ -74,11 +75,11 @@ export default function ComparePopup() {
               {/* DİNAMİK TEKNİK ÖZELLİK SATIRLARI */}
               {tumOzellikAnahtarlari.map((ozellikAdi) => (
                 <div key={ozellikAdi}>
-                  <div className="text-slate-400 font-bold text-xs uppercase bg-[#121215]/50 p-2 sm:p-3 rounded-xl border border-slate-800/40 mb-2">
+                  <div className="text-slate-400 font-bold text-xs uppercase bg-[#121215]/50 p-2 sm:p-3 rounded-xl border border-slate-800/40 mb-2 w-max pr-10">
                     {ozellikAdi}
                   </div>
                   
-                  <div className="grid gap-3 sm:gap-4" style={{ gridTemplateColumns: "repeat(" + karsilastirilanlar.length + ", 1fr)" }}>
+                  <div className="grid gap-3 sm:gap-4" style={{ gridTemplateColumns: `repeat(${karsilastirilanlar.length}, ${urunGenisligi})`, justifyContent: "start" }}>
                     {karsilastirilanlar.map((urun, idx) => {
                       const deger = urun.teknik_ozellikler ? urun.teknik_ozellikler[ozellikAdi] : null;
                       return (
