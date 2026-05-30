@@ -398,7 +398,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           <div className="absolute inset-0 hidden sm:block" onClick={() => setTeknikPopupAcik(false)}></div>
           
 <div className="relative w-full h-full sm:max-h-[90vh] sm:w-[700px] mx-auto bg-[#09090b]/60 backdrop-blur-2xl sm:border sm:border-[#00e5ff]/30 sm:rounded-3xl flex flex-col overflow-hidden shadow-[0_0_40px_rgba(0,229,255,0.15)]">
-            
             {/* 🚀 EFSANE GAMING ARKAPLAN SÜSLEMESİ */}
             <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-0 overflow-hidden opacity-[0.03]">
                <Gamepad2 className="w-48 h-48 sm:w-64 sm:h-64 text-[#00e5ff] mb-4" />
