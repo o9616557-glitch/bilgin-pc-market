@@ -14,8 +14,23 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [activeTab, setActiveTab] = useState("reviews");
   const [seciliCozunurluk, setSeciliCozunurluk] = useState("1080P");
   const [seciliIslemci, setSeciliIslemci] = useState("i5");
-const [reviewName, setReviewName] = useState("");
+  const [reviewName, setReviewName] = useState("");
   const [questionName, setQuestionName] = useState("");
+  const [reviewText, setReviewText] = useState("");
+  const [reviewRating, setReviewRating] = useState(5);
+  const [questionText, setQuestionText] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [reviews, setReviews] = useState([] as any[]);
+  const [questions, setQuestions] = useState([] as any[]);
+  const [teknikPopupAcik, setTeknikPopupAcik] = useState(false);
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [addedSuccess, setAddedSuccess] = useState(false);
+  const [timeLeft, setTimeLeft] = useState("");
+  const [shippingMessage, setShippingMessage] = useState("");
+  const [isFav, setIsFav] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
   const fpsVerileri: any = {
     Valorant: {
       i5: { "1080P": "450+", "2K": "320+", "4K": "180+" },
@@ -38,21 +53,6 @@ const [reviewName, setReviewName] = useState("");
       i9: { "1080P": "290+", "2K": "220+", "4K": "135+" }
     }
   };
-
-  const [teknikPopupAcik, setTeknikPopupAcik] = useState(false);
-  const [addingToCart, setAddingToCart] = useState(false);
-  const [addedSuccess, setAddedSuccess] = useState(false);
-  const [timeLeft, setTimeLeft] = useState("");
-  const [shippingMessage, setShippingMessage] = useState("");
-  const [isFav, setIsFav] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-const [reviewText, setReviewText] = useState("");
-  const [reviewRating, setReviewRating] = useState(5);
-  const [questionText, setQuestionText] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [reviews, setReviews] = useState([] as any[]);
-  const [questions, setQuestions] = useState([] as any[]);
 
   const pId = product?._id?.toString() || product?.id?.toString() || "urun";
   const totalReviews = reviews.length;
@@ -148,7 +148,6 @@ const [reviewText, setReviewText] = useState("");
   const gecerliFiyat = indirimliFiyat ? indirimliFiyat : normalFiyat;
   const havaleYuzdesi = product.havaleIndirimi !== undefined ? Number(product.havaleIndirimi) : 5;
 
-  const handleAddToCart = () => {
   // 🚀 YORUM GÖNDERME MOTORU (İsimli Versiyon)
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -200,7 +199,7 @@ const [reviewText, setReviewText] = useState("");
     setIsSubmitting(false);
   };
 
-  // 🛒 SEPETE EKLEME MOTORU (Kazara silinen başlığı geri getirdik)
+  // 🛒 SEPETE EKLEME MOTORU 
   const handleAddToCart = () => {
     setAddingToCart(true);
     try {
@@ -247,7 +246,7 @@ const [reviewText, setReviewText] = useState("");
  return (
     <div className="min-h-screen bg-[#050814] text-white pb-40 sm:pb-10 font-sans overflow-x-hidden relative max-w-[100vw]">
       {/* BAŞARI MESAJI TOAST */}
-      <div className={`fixed top-24 right-5 z-[9999999] bg-[#09090b] ... bg-[#09090b] border border-[#00e5ff]/50 shadow-[0_0_30px_rgba(0,229,255,0.2)] text-white px-6 py-4 rounded-xl font-bold flex items-center gap-3 transition-all duration-300 transform ${toastMessage ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0 pointer-events-none"}`}>
+      <div className={`fixed top-24 right-5 z-[9999999] bg-[#09090b] border border-[#00e5ff]/50 shadow-[0_0_30px_rgba(0,229,255,0.2)] text-white px-6 py-4 rounded-xl font-bold flex items-center gap-3 transition-all duration-300 transform ${toastMessage ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0 pointer-events-none"}`}>
         <span className="text-[#00e5ff] text-2xl">✓</span>
         <p className="text-sm">{toastMessage}</p>
       </div>
@@ -400,7 +399,7 @@ const [reviewText, setReviewText] = useState("");
           
          <div className="relative w-full h-full sm:max-h-[90vh] sm:w-[700px] mx-auto bg-[#09090b] sm:border sm:border-[#00e5ff]/30 sm:rounded-3xl flex flex-col overflow-hidden shadow-[0_0_40px_rgba(0,229,255,0.1)]">
             
-            {/* 🚀 EFSANE GAMING ARKAPLAN SÜSLEMESİ (ARTIK TAMAMEN SABİT) */}
+            {/* 🚀 EFSANE GAMING ARKAPLAN SÜSLEMESİ */}
             <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-0 overflow-hidden opacity-[0.03]">
                <Gamepad2 className="w-48 h-48 sm:w-64 sm:h-64 text-[#00e5ff] mb-4" />
                <span className="text-5xl sm:text-6xl font-black tracking-[0.5em] text-[#00e5ff] uppercase ml-4">GAMING</span>
@@ -417,134 +416,130 @@ const [reviewText, setReviewText] = useState("");
               </button>
             </div>
 
-           {/* İÇERİK EKRANI (Arkaplanı transparan yapıldı, böylece sabit... */}
-<div className="overflow-y-auto flex-1 p-4 sm:p-6 flex flex-col text-slate-300 bg-transparent relative z-10">
+           <div className="overflow-y-auto flex-1 p-4 sm:p-6 flex flex-col text-slate-300 bg-transparent relative z-10">
+               <div className="pb-10">
+                  
+                  {/* 1. YORUMLAR SEKMESİ */}
+                  {activeTab === "reviews" && (
+                     <div className="space-y-4">
+                        <form onSubmit={handleSubmitReview} className="mb-8 bg-[#121215]/80 backdrop-blur-md border border-white/10 p-5 rounded-2xl relative z-20 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+                           <h3 className="text-[#00e5ff] font-black text-sm uppercase tracking-wider mb-3">Değerlendirme Yap</h3>
+                           <div className="flex gap-1 mb-4">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                 <button type="button" key={star} onClick={() => setReviewRating(star)} className={`text-2xl sm:text-3xl transition-all hover:scale-110 ${reviewRating >= star ? "text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]" : "text-slate-700 hover:text-amber-400/50"}`}>
+                                    ★
+                                 </button>
+                              ))}
+                           </div>
+                           
+                           <input type="text" value={reviewName} onChange={(e) => setReviewName(e.target.value)} placeholder="Adınız Soyadınız" className="w-full bg-[#050814] border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 mb-3 transition-all" required />
+                           <textarea value={reviewText} onChange={(e) => setReviewText(e.target.value)} placeholder="Bu donanım hakkında ne düşünüyorsun? Performansı nasıl?" className="w-full bg-[#050814] border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 min-h-[100px] mb-4 resize-none transition-all" required />
+                           
+                           <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-[#00e5ff] text-black font-black uppercase tracking-widest text-xs px-8 py-3 rounded-xl hover:bg-[#00c4db] transition-all disabled:opacity-50 hover:shadow-[0_0_15px_rgba(0,229,255,0.4)]">
+                              {isSubmitting ? "Gönderiliyor..." : "Yorumu Gönder"}
+                           </button>
+                        </form>
 
-   {/* GERÇEK İÇERİKLER */}
-   <div className="pb-10">
-      
-      {/* 1. YORUMLAR SEKMESİ */}
-      {activeTab === "reviews" && (
-                    <div className="space-y-4">
-                       <form onSubmit={handleSubmitReview} className="mb-8 bg-[#121215]/80 backdrop-blur-md border border-white/10 p-5 rounded-2xl relative z-20 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
-   <h3 className="text-[#00e5ff] font-black text-sm uppercase tracking-wider mb-3">Değerlendirme Yap</h3>
-   <div className="flex gap-1 mb-4">
-      {[1, 2, 3, 4, 5].map((star) => (
-         <button type="button" key={star} onClick={() => setReviewRating(star)} className={`text-2xl sm:text-3xl transition-all hover:scale-110 ${reviewRating >= star ? "text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]" : "text-slate-700 hover:text-amber-400/50"}`}>
-            ★
-         </button>
-      ))}
-   </div>
-   
-   <input type="text" value={reviewName} onChange={(e) => setReviewName(e.target.value)} placeholder="Adınız Soyadınız" className="w-full bg-[#050814] border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 mb-3 transition-all" required />
-   <textarea value={reviewText} onChange={(e) => setReviewText(e.target.value)} placeholder="Bu donanım hakkında ne düşünüyorsun? Performansı nasıl?" className="w-full bg-[#050814] border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 min-h-[100px] mb-4 resize-none transition-all" required />
-   
-   <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-[#00e5ff] text-black font-black uppercase tracking-widest text-xs px-8 py-3 rounded-xl hover:bg-[#00c4db] transition-all disabled:opacity-50 hover:shadow-[0_0_15px_rgba(0,229,255,0.4)]">
-      {isSubmitting ? "Gönderiliyor..." : "Yorumu Gönder"}
-   </button>
-</form>
+                        {reviews.length === 0 ? <p className="text-center py-5 text-slate-500 font-medium">Bu ürüne henüz yorum yapılmamış. İlk yorumu sen yap!</p> : reviews.map((rev, i) => (
+                           <div key={i} className="mb-4 pb-4 border-b border-white/5 relative z-10">
+                              <div className="flex justify-between items-center mb-2">
+                                 <span className="font-bold text-white">{rev.name || "İsimsiz"}</span>
+                                 <span className="text-amber-400 text-xs drop-shadow-[0_0_5px_rgba(251,191,36,0.3)]">{"★".repeat(Number(rev.rating))}{"☆".repeat(5 - Number(rev.rating))}</span>
+                              </div>
+                              <p className="text-sm text-slate-400 mb-2">{rev.text}</p>
+                              {(rev.answer || rev.reply || rev.adminReply || rev.cevap) && (
+                                 <div className="ml-4 p-3 bg-[#00e5ff]/5 border-l-2 border-[#00e5ff] rounded-r-lg mt-2">
+                                    <span className="font-black text-[#00e5ff] text-[10px] uppercase block mb-1">Yetkili Cevabı:</span>
+                                    <p className="text-sm text-slate-300">{rev.answer || rev.reply || rev.adminReply || rev.cevap}</p>
+                                 </div>
+                              )}
+                           </div>
+                        ))}
+                     </div>
+                  )}
 
-                       {reviews.length === 0 ? <p className="text-center py-5 text-slate-500 font-medium">Bu ürüne henüz yorum yapılmamış. İlk yorumu sen yap!</p> : reviews.map((rev, i) => (
-                          <div key={i} className="mb-4 pb-4 border-b border-white/5 relative z-10">
-                             <div className="flex justify-between items-center mb-2">
-                                <span className="font-bold text-white">{rev.name || "İsimsiz"}</span>
-                                <span className="text-amber-400 text-xs drop-shadow-[0_0_5px_rgba(251,191,36,0.3)]">{"★".repeat(Number(rev.rating))}{"☆".repeat(5 - Number(rev.rating))}</span>
-                             </div>
-                             <p className="text-sm text-slate-400 mb-2">{rev.text}</p>
-                             {(rev.answer || rev.reply || rev.adminReply || rev.cevap) && (
-                                <div className="ml-4 p-3 bg-[#00e5ff]/5 border-l-2 border-[#00e5ff] rounded-r-lg mt-2">
-                                   <span className="font-black text-[#00e5ff] text-[10px] uppercase block mb-1">Yetkili Cevabı:</span>
-                                   <p className="text-sm text-slate-300">{rev.answer || rev.reply || rev.adminReply || rev.cevap}</p>
-                                </div>
-                             )}
-                          </div>
-                       ))}
-                    </div>
-                 )}
+                  {/* 2. SORULAR SEKMESİ */}
+                  {activeTab === "questions" && (
+                     <div className="space-y-4">
+                        <form onSubmit={handleSubmitQuestion} className="mb-8 bg-[#121215]/80 backdrop-blur-md border border-white/10 p-5 rounded-2xl relative z-20 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+                           <h3 className="text-[#00e5ff] font-black text-sm uppercase tracking-wider mb-3">Soru Sor</h3>
+                           <input type="text" value={questionName} onChange={(e) => setQuestionName(e.target.value)} placeholder="Adınız Soyadınız" className="w-full bg-[#050814] border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 mb-3 transition-all" required />
+                           <textarea value={questionText} onChange={(e) => setQuestionText(e.target.value)} placeholder="Bu ürünle ilgili merak ettiğin bir şey mi var? Bize sor..." className="w-full bg-[#050814] border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 min-h-[100px] mb-4 resize-none transition-all" required />
+                           
+                           <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-[#00e5ff] text-black font-black uppercase tracking-widest text-xs px-8 py-3 rounded-xl hover:bg-[#00c4db] transition-all disabled:opacity-50 hover:shadow-[0_0_15px_rgba(0,229,255,0.4)]">
+                              {isSubmitting ? "Gönderiliyor..." : "Soruyu Gönder"}
+                           </button>
+                        </form>
+                        {questions.length === 0 ? <p className="text-center py-5 text-slate-500 font-medium">Henüz soru sorulmamış. İlk soran sen ol!</p> : questions.map((q, i) => (
+                           <div key={i} className="mb-4 pb-4 border-b border-white/5 relative z-10">
+                              <span className="font-bold text-white block mb-1">❓ {q.name || "Müşteri"}:</span>
+                              <p className="text-sm text-slate-300 mb-3">{q.text}</p>
+                              {(q.answer || q.reply || q.adminReply || q.cevap) && (
+                                 <div className="ml-4 p-3 bg-[#00e5ff]/5 border-l-2 border-[#00e5ff] rounded-r-lg mt-2">
+                                    <span className="font-black text-[#00e5ff] text-[10px] uppercase block mb-1">Yetkili Cevabı:</span>
+                                    <p className="text-sm text-slate-300">{q.answer || q.reply || q.adminReply || q.cevap}</p>
+                                 </div>
+                              )}
+                           </div>
+                        ))}
+                     </div>
+                  )}
 
-                 {/* 2. SORULAR SEKMESİ */}
-                 {activeTab === "questions" && (
-                    <div className="space-y-4">
-                      <form onSubmit={handleSubmitQuestion} className="mb-8 bg-[#121215]/80 backdrop-blur-md border border-white/10 p-5 rounded-2xl relative z-20 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
-   <h3 className="text-[#00e5ff] font-black text-sm uppercase tracking-wider mb-3">Soru Sor</h3>
-   
-   <input type="text" value={questionName} onChange={(e) => setQuestionName(e.target.value)} placeholder="Adınız Soyadınız" className="w-full bg-[#050814] border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 mb-3 transition-all" required />
-   <textarea value={questionText} onChange={(e) => setQuestionText(e.target.value)} placeholder="Bu ürünle ilgili merak ettiğin bir şey mi var? Bize sor..." className="w-full bg-[#050814] border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 min-h-[100px] mb-4 resize-none transition-all" required />
-   
-   <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-[#00e5ff] text-black font-black uppercase tracking-widest text-xs px-8 py-3 rounded-xl hover:bg-[#00c4db] transition-all disabled:opacity-50 hover:shadow-[0_0_15px_rgba(0,229,255,0.4)]">
-      {isSubmitting ? "Gönderiliyor..." : "Soruyu Gönder"}
-   </button>
-</form>
-                       {questions.length === 0 ? <p className="text-center py-5 text-slate-500 font-medium">Henüz soru sorulmamış. İlk soran sen ol!</p> : questions.map((q, i) => (
-                          <div key={i} className="mb-4 pb-4 border-b border-white/5 relative z-10">
-                             <span className="font-bold text-white block mb-1">❓ {q.name || "Müşteri"}:</span>
-                             <p className="text-sm text-slate-300 mb-3">{q.text}</p>
-                             {(q.answer || q.reply || q.adminReply || q.cevap) && (
-                                <div className="ml-4 p-3 bg-[#00e5ff]/5 border-l-2 border-[#00e5ff] rounded-r-lg mt-2">
-                                   <span className="font-black text-[#00e5ff] text-[10px] uppercase block mb-1">Yetkili Cevabı:</span>
-                                   <p className="text-sm text-slate-300">{q.answer || q.reply || q.adminReply || q.cevap}</p>
-                                </div>
-                             )}
-                          </div>
-                       ))}
-                    </div>
-                 )}
-
-                 {/* 3. TEKNİK BİLGİLER */}
-                 {activeTab === "tech" && product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 ? (
+                  {/* 3. TEKNİK BİLGİLER */}
+                  {activeTab === "tech" && product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 ? (
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                         {Object.entries(product.teknik_ozellikler).map(([anahtar, deger]) => (
-                            <div key={anahtar} className="flex justify-between items-center py-3 border-b border-white/5 px-3 rounded-lg bg-black/40 backdrop-blur-sm">
+                        {Object.entries(product.teknik_ozellikler).map(([anahtar, deger]) => (
+                           <div key={anahtar} className="flex justify-between items-center py-3 border-b border-white/5 px-3 rounded-lg bg-black/40 backdrop-blur-sm">
                               <span className="text-slate-400 font-bold text-[10px] sm:text-xs uppercase w-1/2">{anahtar}</span>
                               <span className="text-white font-medium text-xs sm:text-sm w-1/2 text-right">{deger as string}</span>
-                            </div>
-                         ))}
+                           </div>
+                        ))}
                      </div>
-                 ) : activeTab === "tech" && <p className="text-center py-10 text-slate-500 font-medium">Teknik detay bulunamadı.</p>}
+                  ) : activeTab === "tech" && <p className="text-center py-10 text-slate-500 font-medium">Teknik detay bulunamadı.</p>}
 
-                 {/* 4. FPS TESTİ */}
-                 {activeTab === "fps" && (
-                      <div className="space-y-4 mt-2">
+                  {/* 4. FPS TESTİ */}
+                  {activeTab === "fps" && (
+                     <div className="space-y-4 mt-2">
                         <div>
-                          <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2">İşlemci Düzeyi:</span>
-                          <div className="flex gap-2 sm:gap-3">
-                            {[{ id: "i5", top: "INTEL i5", bottom: "RYZEN 5" }, { id: "i7", top: "INTEL i7", bottom: "RYZEN 7" }, { id: "i9", top: "INTEL i9", bottom: "RYZEN 9" }].map((islemci) => (
-                              <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as "i5" | "i7" | "i9")} className={"flex-1 flex flex-col items-center justify-center py-2.5 px-2 rounded-xl border transition-all " + (seciliIslemci === islemci.id ? "bg-[#121215] border-[#00e5ff] text-[#00e5ff] shadow-[0_0_15px_rgba(0,229,255,0.2)]" : "bg-[#050814] border-white/5 text-slate-400 hover:text-white")}>
-                                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider">{islemci.top}</span>
-                                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider mt-0.5">{islemci.bottom}</span>
-                              </button>
-                            ))}
-                          </div>
+                           <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2">İşlemci Düzeyi:</span>
+                           <div className="flex gap-2 sm:gap-3">
+                              {[{ id: "i5", top: "INTEL i5", bottom: "RYZEN 5" }, { id: "i7", top: "INTEL i7", bottom: "RYZEN 7" }, { id: "i9", top: "INTEL i9", bottom: "RYZEN 9" }].map((islemci) => (
+                                 <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as "i5" | "i7" | "i9")} className={"flex-1 flex flex-col items-center justify-center py-2.5 px-2 rounded-xl border transition-all " + (seciliIslemci === islemci.id ? "bg-[#121215] border-[#00e5ff] text-[#00e5ff] shadow-[0_0_15px_rgba(0,229,255,0.2)]" : "bg-[#050814] border-white/5 text-slate-400 hover:text-white")}>
+                                    <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider">{islemci.top}</span>
+                                    <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider mt-0.5">{islemci.bottom}</span>
+                                 </button>
+                              ))}
+                           </div>
                         </div>
 
                         <div>
-                          <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2 mt-4">Çözünürlük:</span>
-                          <div className="flex bg-[#050814] p-1.5 rounded-xl border border-white/5">
-                            {["1080P", "2K", "4K"].map((res) => (
-                              <button key={res} onClick={() => setSeciliCozunurluk(res as "1080P" | "2K" | "4K")} className={"flex-1 py-3 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all " + (seciliCozunurluk === res ? "bg-[#00e5ff] text-black shadow-[0_0_15px_rgba(0,229,255,0.3)]" : "text-slate-400 hover:text-white")}>{res}</button>
-                            ))}
-                          </div>
+                           <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-2 mt-4">Çözünürlük:</span>
+                           <div className="flex bg-[#050814] p-1.5 rounded-xl border border-white/5">
+                              {["1080P", "2K", "4K"].map((res) => (
+                                 <button key={res} onClick={() => setSeciliCozunurluk(res as "1080P" | "2K" | "4K")} className={"flex-1 py-3 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all " + (seciliCozunurluk === res ? "bg-[#00e5ff] text-black shadow-[0_0_15px_rgba(0,229,255,0.3)]" : "text-slate-400 hover:text-white")}>{res}</button>
+                              ))}
+                           </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-6">
-                          {[{ ad: "Valorant", kod: "Valorant" }, { ad: "CS:2", kod: "CS2" }, { ad: "GTA V", kod: "GTAV" }, { ad: "PUBG", kod: "PUBG" }].map((oyun) => (
-                            <div key={oyun.kod} className="bg-[#09090b]/80 backdrop-blur-md border border-[#00e5ff]/20 hover:border-[#00e5ff]/50 rounded-2xl p-5 flex flex-col items-center justify-center transition-all">
-                              <span className="text-slate-400 font-black text-[10px] tracking-widest uppercase mb-2">{oyun.ad}</span>
-                              <span className="text-3xl font-black text-white">{(fpsVerileri as any)[oyun.kod]?.[seciliIslemci]?.[seciliCozunurluk] || "0"}</span>
-                              <span className="text-[#00e5ff] text-[10px] font-bold mt-1.5 uppercase">FPS</span>
-                            </div>
-                          ))}
+                           {[{ ad: "Valorant", kod: "Valorant" }, { ad: "CS:2", kod: "CS2" }, { ad: "GTA V", kod: "GTAV" }, { ad: "PUBG", kod: "PUBG" }].map((oyun) => (
+                              <div key={oyun.kod} className="bg-[#09090b]/80 backdrop-blur-md border border-[#00e5ff]/20 hover:border-[#00e5ff]/50 rounded-2xl p-5 flex flex-col items-center justify-center transition-all">
+                                 <span className="text-slate-400 font-black text-[10px] tracking-widest uppercase mb-2">{oyun.ad}</span>
+                                 <span className="text-3xl font-black text-white">{(fpsVerileri as any)[oyun.kod]?.[seciliIslemci]?.[seciliCozunurluk] || "0"}</span>
+                                 <span className="text-[#00e5ff] text-[10px] font-bold mt-1.5 uppercase">FPS</span>
+                              </div>
+                           ))}
                         </div>
 
                         <div className="bg-[#00e5ff]/5 border border-[#00e5ff]/20 p-4 rounded-xl flex gap-3 items-start mt-6">
-                          <span className="text-[#00e5ff] text-xl">ℹ️</span>
-                          <p className="text-slate-400 text-[10px] sm:text-xs font-medium leading-relaxed opacity-90">
-                          <strong className="font-black text-[#00e5ff] tracking-wider block mb-1">MÜŞTERİ BİLGİLENDİRMESİ:</strong> 
-                            Yukarıdaki FPS değerleri ortalama test sonuçlarıdır. Oyun içi haritaya, anlık çatışma sahnelerine, arka planda çalışan uygulamalara ve ortam sıcaklığına göre FPS değerlerinde dalgalanmalar olabilir. Kesin taahhüt değildir.
-                          </p>
+                           <span className="text-[#00e5ff] text-xl">ℹ️</span>
+                           <p className="text-slate-400 text-[10px] sm:text-xs font-medium leading-relaxed opacity-90">
+                           <strong className="font-black text-[#00e5ff] tracking-wider block mb-1">MÜŞTERİ BİLGİLENDİRMESİ:</strong> 
+                              Yukarıdaki FPS değerleri ortalama test sonuçlarıdır. Oyun içi haritaya, anlık çatışma sahnelerine, arka planda çalışan uygulamalara ve ortam sıcaklığına göre FPS değerlerinde dalgalanmalar olabilir. Kesin taahhüt değildir.
+                           </p>
                         </div>
                      </div>
-                 )}
+                  )}
                </div>
             </div>
 
@@ -557,7 +552,5 @@ const [reviewText, setReviewText] = useState("");
       )}
 
     </div>
-    
   );
-}
 }
