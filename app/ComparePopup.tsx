@@ -2,6 +2,7 @@
 import { useCompare } from "./CompareContext"; 
 import { X, MinusCircle, Trash2 } from "lucide-react";
 import Link from "next/link"; 
+import { Toaster } from "react-hot-toast"; // 🚀 BİLDİRİMİ EN ÜSTE ZORLAMAK İÇİN EKLEDİK
 
 export default function ComparePopup() {
   const { karsilastirilanlar, karsilastirmadanCikar, popupAcik, setPopupAcik, karsilastirmayiTemizle } = useCompare();
@@ -27,14 +28,18 @@ export default function ComparePopup() {
   };
 
   return (
-    // 🚀 DIŞ KATMAN: Diğer popup'taki gibi siyahlık ve saydamlık eklendi.
-    <div className="fixed inset-0 z-[999999] flex justify-center items-center p-0 sm:p-4 bg-black/80 backdrop-blur-md transition-all">
+    <div className="fixed inset-0 z-[50] flex justify-center items-center p-0 sm:p-4 bg-black/80 backdrop-blur-md transition-all">
+      
+      {/* 🚀 ŞEFİM İŞTE GİZLİ SİLAH: Bu pencereye özel, ultra yüksek z-index'li bildirim motoru. 
+          Artık hiçbir yazı bu pencerenin altında gizlenemez! */}
+      <Toaster position="top-center" containerStyle={{ zIndex: 99999999 }} />
+      
       <div className="absolute inset-0 hidden sm:block" onClick={() => setPopupAcik(false)}></div>
       
-      {/* 🚀 ANA KUTU (KAPORTA): Diğer popup ile %100 aynı (buzlu cam, neon gölge) */}
+      {/* ANA KUTU (PENCERE) */}
       <div className="relative w-full h-full sm:max-h-[90vh] sm:max-w-6xl mx-auto bg-[#09090b]/60 backdrop-blur-2xl sm:border sm:border-[#00e5ff]/30 sm:rounded-3xl flex flex-col overflow-hidden shadow-[0_0_40px_rgba(0,229,255,0.15)]">
         
-        {/* 🚀 HEADER (TAVAN): Diğer popup ile aynı renk (bg-[#121215]) ve aynı tasarım */}
+        {/* HEADER (TAVAN) */}
         <div className="flex justify-between items-center px-4 sm:px-6 py-4 sm:py-5 border-b border-white/5 shrink-0 bg-[#121215] relative z-20">
           <div className="flex flex-col">
             <h2 className="text-lg sm:text-xl font-black text-white uppercase tracking-wider flex items-center gap-2">
@@ -58,7 +63,7 @@ export default function ComparePopup() {
           </div>
         </div>
 
-        {/* 🚀 İÇERİK ALANI: Saydam (bg-transparent) yapı diğerine uyarlandı */}
+        {/* İÇERİK ALANI */}
         <div className="overflow-y-auto overflow-x-auto flex-1 p-4 sm:p-6 flex flex-col text-slate-300 bg-transparent relative z-10">
           <div className="pb-10">
             {karsilastirilanlar.length === 0 ? (
@@ -90,7 +95,7 @@ export default function ComparePopup() {
                                   e.currentTarget.onerror = null; 
                                   e.currentTarget.src = "https://via.placeholder.com/300x300/121215/475569?text=Gorsel+Yok";
                                 }}
-                              />
+                            />
                             ) : (
                               <span className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">Görsel Yok</span>
                             )}
@@ -130,7 +135,7 @@ export default function ComparePopup() {
           </div>
         </div>
 
-        {/* 🚀 FOOTER (TABAN): Diğer popup ile birebir aynı "Sadece Masaüstünde Görünün Kapat Butonu" */}
+        {/* FOOTER (TABAN) */}
         <div className="hidden sm:block p-4 sm:p-5 border-t border-white/5 shrink-0 bg-[#121215] rounded-b-3xl z-20">
           <button onClick={() => setPopupAcik(false)} className="w-full bg-[#00e5ff] text-black font-black px-8 py-4 sm:py-3 rounded-xl hover:bg-[#00c4db] transition-all uppercase tracking-wider text-sm shadow-[0_0_15px_rgba(0,229,255,0.3)]">
             Kapat
