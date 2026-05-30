@@ -102,7 +102,7 @@ export default function SiparisClient({ initialOrders }: Props) {
   ];
 
   return (
-    <div className="min-h-screen bg-[#070b1a] text-white pt-12 pb-24 px-4 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-[#070b1a] text-white pt-10 md:pt-8 pb-24 px-4 relative overflow-hidden font-sans">
       
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#00e5ff] blur-[150px] opacity-10 pointer-events-none"></div>
       <div className="absolute bottom-[10%] right-[-10%] w-[400px] h-[400px] bg-[#0088ff] blur-[150px] opacity-5 pointer-events-none"></div>
