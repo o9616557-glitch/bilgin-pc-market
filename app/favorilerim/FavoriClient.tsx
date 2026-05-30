@@ -90,7 +90,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
               FAVORİ <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00e5ff] to-[#0088ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.2)]">ÜRÜNLERİM</span>
             </h1>
           </div>
-          <div className="text-slate-300 text-xs font-black uppercase tracking-wider bg-[#09090b] border border-slate-800/80 py-2 px-5 rounded-xl shadow-lg">
+          <div className="text-slate-300 text-xs font-black uppercase tracking-wider bg-[#09090b] border border-slate-800/80 py-3 px-5 rounded-xl shadow-lg">
             Listelenen: <span className="text-[#00e5ff] font-black text-sm">{favoriteProducts.length}</span> Donanım
           </div>
         </div>
