@@ -23,31 +23,30 @@ export function CompareProvider({ children }: { children: ReactNode }) {
     setKarsilastirilanlar((prev) => {
       // 1. ZIRH: Zaten ekliyse şık bir uyarı ver ve ekleme
       if (prev.find((u) => (u._id || u.id) === (urun._id || urun.id))) {
-        toast("Bu ürün zaten karşılaştırma listesinde! ⚖️", {
-          style: { background: "#121215", color: "#fff", border: "1px solid #334155", borderRadius: "12px", fontSize: "14px", fontWeight: "bold" },
+        toast("Bu ürün zaten listede! ⚖️", {
+          style: { background: "#09090b", color: "#fff", border: "1px solid #00e5ff", borderRadius: "12px", fontSize: "14px", fontWeight: "bold" },
           icon: "👀",
         });
         return prev;
       }
       
-      // 2. ZIRH: Maksimum 3 ürün (İlkel alert silindi, VIP Toast eklendi!)
+      // 2. ZIRH: Maksimum 3 ürün (Kırmızı söküldü, Neon Mavi ve Asil Uyarı Takıldı!)
       if (prev.length >= 3) {
-        toast.error("En fazla 3 ürün karşılaştırabilirsiniz!", {
+        toast("En fazla 3 ürün seçilebilir!", {
           style: { 
             background: "#09090b", 
             color: "#fff", 
-            border: "1px solid #ef4444", 
+            border: "1px solid #00e5ff", // Kırmızı yerine neon mavi!
             borderRadius: "12px",
             fontSize: "14px",
             fontWeight: "bold",
-            boxShadow: "0 0 20px rgba(239, 68, 68, 0.2)"
+            boxShadow: "0 0 20px rgba(0, 229, 255, 0.2)", // Tatlı mavi parlama
           },
-          iconTheme: { primary: "#ef4444", secondary: "#fff" },
+          icon: "⚠️",
         });
         return prev;
       }
       
-      // Başarıyla eklenirse (Opsiyonel olarak buraya da yeşil eklendi bildirimi koyabiliriz ama darlamayalım müşteriyi)
       return [...prev, urun];
     });
   };
