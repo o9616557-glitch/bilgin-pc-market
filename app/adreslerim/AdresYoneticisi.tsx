@@ -106,7 +106,7 @@ useEffect(() => {
   };
 
  return (
-    <div className="w-full max-w-4xl mx-auto relative z-10 pt-6 md:pt7">
+    <div className="w-full max-w-4xl mx-auto relative z-10 pt-6 md:pt-8">
       {/* 🚀 ÜST BAŞLIK VE YENİ EKLE BUTONU */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-800 pb-6 mb-10">
         <div>
