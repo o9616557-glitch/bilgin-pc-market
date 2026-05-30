@@ -428,20 +428,22 @@ const [reviewText, setReviewText] = useState("");
       {activeTab === "reviews" && (
                     <div className="space-y-4">
                        <form onSubmit={handleSubmitReview} className="mb-8 bg-[#121215]/80 backdrop-blur-md border border-white/10 p-5 rounded-2xl relative z-20 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
-                          <h3 className="text-[#00e5ff] font-black text-sm uppercase tracking-wider mb-3">Değerlendirme Yap</h3>
-                          <div className="flex gap-1 mb-4">
-                             {[1, 2, 3, 4, 5].map((star) => (
-                                <button type="button" key={star} onClick={() => setReviewRating(star)} className={`text-2xl sm:text-3xl transition-all hover:scale-110 ${reviewRating >= star ? "text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]" : "text-slate-700 hover:text-amber-400/50"}`}>
-                                   ★
-                                </button>
-                             ))}
-                          </div>
-                          <input type="text" value={reviewName} onChange={(e) => setReviewName(e.target.value)} placeholder="Adınız Soyadınız" className="w-full bg-[#050814] border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 mb-3 transition-all" required />
-                          <textarea value={reviewText} onChange={(e) => setReviewText(e.target.value)} placeholder="Bu donanım hakkında ne düşünüyorsun? Performansı nasıl?" className="w-full bg-[#050814] border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 min-h-[100px] mb-4 resize-none transition-all" />
-                          <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-[#00e5ff] text-black font-black uppercase tracking-widest text-xs px-8 py-3 rounded-xl hover:bg-[#00c4db] transition-all disabled:opacity-50 hover:shadow-[0_0_15px_rgba(0,229,255,0.4)]">
-                             {isSubmitting ? "Gönderiliyor..." : "Yorumu Gönder"}
-                          </button>
-                       </form>
+   <h3 className="text-[#00e5ff] font-black text-sm uppercase tracking-wider mb-3">Değerlendirme Yap</h3>
+   <div className="flex gap-1 mb-4">
+      {[1, 2, 3, 4, 5].map((star) => (
+         <button type="button" key={star} onClick={() => setReviewRating(star)} className={`text-2xl sm:text-3xl transition-all hover:scale-110 ${reviewRating >= star ? "text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]" : "text-slate-700 hover:text-amber-400/50"}`}>
+            ★
+         </button>
+      ))}
+   </div>
+   
+   <input type="text" value={reviewName} onChange={(e) => setReviewName(e.target.value)} placeholder="Adınız Soyadınız" className="w-full bg-[#050814] border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 mb-3 transition-all" required />
+   <textarea value={reviewText} onChange={(e) => setReviewText(e.target.value)} placeholder="Bu donanım hakkında ne düşünüyorsun? Performansı nasıl?" className="w-full bg-[#050814] border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 min-h-[100px] mb-4 resize-none transition-all" required />
+   
+   <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-[#00e5ff] text-black font-black uppercase tracking-widest text-xs px-8 py-3 rounded-xl hover:bg-[#00c4db] transition-all disabled:opacity-50 hover:shadow-[0_0_15px_rgba(0,229,255,0.4)]">
+      {isSubmitting ? "Gönderiliyor..." : "Yorumu Gönder"}
+   </button>
+</form>
 
                        {reviews.length === 0 ? <p className="text-center py-5 text-slate-500 font-medium">Bu ürüne henüz yorum yapılmamış. İlk yorumu sen yap!</p> : reviews.map((rev, i) => (
                           <div key={i} className="mb-4 pb-4 border-b border-white/5 relative z-10">
@@ -464,15 +466,16 @@ const [reviewText, setReviewText] = useState("");
                  {/* 2. SORULAR SEKMESİ */}
                  {activeTab === "questions" && (
                     <div className="space-y-4">
-                       <form onSubmit={handleSubmitQuestion} className="mb-8 bg-[#121215]/80 backdrop-blur-md border border-white/10 p-5 rounded-2xl relative z-20 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
-                          <h3 className="text-[#00e5ff] font-black text-sm uppercase tracking-wider mb-3">Soru Sor</h3>
-                          <input type="text" value={questionName} onChange={(e) => setQuestionName(e.target.value)} placeholder="Adınız Soyadınız" className="w-full bg-[#050814] border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 mb-3 transition-all" required />
-                          <textarea value={questionText} onChange={(e) => setQuestionText(e.target.value)} placeholder="Bu ürünle ilgili merak ettiğin bir şey mi var? Bize sor..." className="w-full bg-[#050814] border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 min-h-[100px] mb-4 resize-none transition-all" />
-                          <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-[#00e5ff] text-black font-black uppercase tracking-widest text-xs px-8 py-3 rounded-xl hover:bg-[#00c4db] transition-all disabled:opacity-50 hover:shadow-[0_0_15px_rgba(0,229,255,0.4)]">
-                             {isSubmitting ? "Gönderiliyor..." : "Soruyu Gönder"}
-                          </button>
-                       </form>
-
+                      <form onSubmit={handleSubmitQuestion} className="mb-8 bg-[#121215]/80 backdrop-blur-md border border-white/10 p-5 rounded-2xl relative z-20 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+   <h3 className="text-[#00e5ff] font-black text-sm uppercase tracking-wider mb-3">Soru Sor</h3>
+   
+   <input type="text" value={questionName} onChange={(e) => setQuestionName(e.target.value)} placeholder="Adınız Soyadınız" className="w-full bg-[#050814] border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 mb-3 transition-all" required />
+   <textarea value={questionText} onChange={(e) => setQuestionText(e.target.value)} placeholder="Bu ürünle ilgili merak ettiğin bir şey mi var? Bize sor..." className="w-full bg-[#050814] border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 min-h-[100px] mb-4 resize-none transition-all" required />
+   
+   <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-[#00e5ff] text-black font-black uppercase tracking-widest text-xs px-8 py-3 rounded-xl hover:bg-[#00c4db] transition-all disabled:opacity-50 hover:shadow-[0_0_15px_rgba(0,229,255,0.4)]">
+      {isSubmitting ? "Gönderiliyor..." : "Soruyu Gönder"}
+   </button>
+</form>
                        {questions.length === 0 ? <p className="text-center py-5 text-slate-500 font-medium">Henüz soru sorulmamış. İlk soran sen ol!</p> : questions.map((q, i) => (
                           <div key={i} className="mb-4 pb-4 border-b border-white/5 relative z-10">
                              <span className="font-bold text-white block mb-1">❓ {q.name || "Müşteri"}:</span>
