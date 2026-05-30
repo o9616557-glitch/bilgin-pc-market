@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/app/CartContext"; 
-import { Trash2, ArrowLeft, Banknote } from "lucide-react"; 
+import { Trash2, ShoppingCart, ArrowLeft, Banknote } from "lucide-react"; 
 
 export default function SepetSayfasi() {
   const router = useRouter();
@@ -23,24 +23,37 @@ export default function SepetSayfasi() {
   const havaleliToplam = genelToplam - toplamHavaleIndirimi;
 
   if (sepet.length === 0) {
-    return (
-      <div className="min-h-[80vh] bg-[#050814] text-white flex flex-col items-center justify-center px-4">
-        <div className="bg-[#09090b] border border-slate-800 rounded-3xl p-10 md:p-16 flex flex-col items-center max-w-lg w-full text-center shadow-2xl">
-          <div className="text-7xl mb-6">🛒</div>
-          <h2 className="text-2xl md:text-3xl font-black mb-4 uppercase tracking-wider text-white">
-            Sepetin <span className="text-[#00e5ff]">Boş</span>
-          </h2>
-          <Link 
-            href="/" 
-            prefetch={true} 
-            className="bg-[#00e5ff] text-black font-black py-4 px-10 rounded-xl hover:bg-white hover:scale-105 transition-all duration-100 active:scale-95 mt-4"
-          >
-            Mağazaya Geri Dön
-          </Link>
+  return (
+    <div className="min-h-[80vh] bg-[#050814] flex flex-col items-center justify-center px-4 relative z-10">
+      <div className="text-center p-10 sm:p-16 bg-transparent relative flex flex-col items-center">
+        
+        {/* JİLET İKON KUTUSU */}
+        <div className="w-20 h-20 rounded-full bg-[#121215]/80 border border-slate-800/50 flex items-center justify-center mb-6 shadow-inner">
+           <ShoppingCart className="w-10 h-10 text-slate-500" />
         </div>
+        
+        {/* YENİ BAŞLIK VE METİN */}
+        <h2 className="text-xl md:text-2xl font-black uppercase tracking-wide mb-3 text-white">
+          SEPETİNİZ HENÜZ <span className="text-[#00e5ff]">BOŞ</span>
+        </h2>
+        
+        <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">
+          Sepetinizde henüz hiçbir donanım bulunmuyor. Sisteminizi güçlendirecek en iyi teknolojileri keşfetmek için mağazamıza göz atabilirsiniz.
+        </p>
+        
+        {/* SİBER BUTON */}
+        <Link
+          href="/"
+          prefetch={true}
+          className="bg-[#00e5ff] text-black px-8 py-4 rounded-xl font-black text-sm uppercase tracking-wider hover:bg-[#00c4db] transition-all hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(0,229,255,0.2)] hover:shadow-[0_0_25px_rgba(0,229,255,0.4)]"
+        >
+          ALIŞVERİŞE BAŞLA
+        </Link>
+        
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   return (
     <div className="min-h-screen bg-[#050814] text-white pb-12 relative">
