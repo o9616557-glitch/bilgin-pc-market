@@ -88,7 +88,7 @@ export default function Footer() {
               <div className="flex flex-col">
                 <span className="text-xs text-slate-500">Web Sitemiz</span>
                 <a href="https://bilginpcmarket.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#00e5ff] transition-colors">
-                  bilginpcmarket.com
+                  www.bilginpcmarket.com
                 </a>
               </div>
             </div>
