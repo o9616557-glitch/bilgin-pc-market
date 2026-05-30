@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Trash2, Copy, Check, RefreshCw, MessageSquare, PackageOpen, Info } from "lucide-react"; 
+import { Trash2, Copy, Check, RefreshCw, ArrowLeft, MessageSquare, PackageOpen, Info } from "lucide-react"; 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PackageX } from "lucide-react";
@@ -111,9 +111,9 @@ export default function SiparisClient({ initialOrders }: Props) {
         
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-800 pb-6 mb-10">
           <div>
-            <Link href="/" prefetch={true} className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-3">
-              Mağazaya Geri Dön
-            </Link>
+   <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-3">
+  <ArrowLeft className="w-4 h-4" /> MAĞAZAYA GERİ DÖN
+</Link>
            <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-white">
               SİPARİŞ <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00e5ff] to-[#0088ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.2)]">GEÇMİŞİM</span>
             </h1>
