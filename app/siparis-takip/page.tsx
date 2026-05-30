@@ -61,7 +61,8 @@ export default function SiparisTakipPage() {
   const magazaMesaji = siparis?.musteriMesaji || siparis?.mesaj || siparis?.not || siparis?.adminNotu || siparis?.aciklama;
 
  return (
-    <div className="min-h-screen bg-[#050814] text-white pt-20 pb-12 px-4 relative overflow-hidden flex flex-col items-center">
+    
+    <div className="min-h-screen bg-[#050814] text-white pt-8 md:pt-12 pb-12 px-4 relative overflow-hidden flex flex-col items-center">
       
       {/* 🔥 Arka Plan Uzay Mavisi Parlaması */}
       <div className="absolute top-[-5%] left-1/2 -translate-x-1/2 w-[70%] h-[40%] bg-[#00e5ff] blur-[150px] opacity-15 rounded-full pointer-events-none z-0"></div>
