@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useState, ReactNode } from "react";
+import toast from "react-hot-toast";
 
 type Urun = any;
 
@@ -20,13 +21,33 @@ export function CompareProvider({ children }: { children: ReactNode }) {
 
   const karsilastirmayaEkle = (urun: Urun) => {
     setKarsilastirilanlar((prev) => {
-      // Zaten ekliyse ekleme
-      if (prev.find((u) => (u._id || u.id) === (urun._id || urun.id))) return prev;
-      // Maksimum 3 ürün karşılaştırılabilir (telefonda patlamaması için)
-      if (prev.length >= 3) {
-        alert("En fazla 3 ürün karşılaştırabilirsiniz.");
+      // 1. ZIRH: Zaten ekliyse şık bir uyarı ver ve ekleme
+      if (prev.find((u) => (u._id || u.id) === (urun._id || urun.id))) {
+        toast("Bu ürün zaten karşılaştırma listesinde! ⚖️", {
+          style: { background: "#121215", color: "#fff", border: "1px solid #334155", borderRadius: "12px", fontSize: "14px", fontWeight: "bold" },
+          icon: "👀",
+        });
         return prev;
       }
+      
+      // 2. ZIRH: Maksimum 3 ürün (İlkel alert silindi, VIP Toast eklendi!)
+      if (prev.length >= 3) {
+        toast.error("En fazla 3 ürün karşılaştırabilirsiniz!", {
+          style: { 
+            background: "#09090b", 
+            color: "#fff", 
+            border: "1px solid #ef4444", 
+            borderRadius: "12px",
+            fontSize: "14px",
+            fontWeight: "bold",
+            boxShadow: "0 0 20px rgba(239, 68, 68, 0.2)"
+          },
+          iconTheme: { primary: "#ef4444", secondary: "#fff" },
+        });
+        return prev;
+      }
+      
+      // Başarıyla eklenirse (Opsiyonel olarak buraya da yeşil eklendi bildirimi koyabiliriz ama darlamayalım müşteriyi)
       return [...prev, urun];
     });
   };
