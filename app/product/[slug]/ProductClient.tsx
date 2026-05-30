@@ -397,7 +397,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         <div className="fixed inset-0 z-[999999] flex justify-center items-center p-0 sm:p-4 bg-black/80 backdrop-blur-md transition-all">
           <div className="absolute inset-0 hidden sm:block" onClick={() => setTeknikPopupAcik(false)}></div>
           
-         <div className="relative w-full h-full sm:max-h-[90vh] sm:w-[700px] mx-auto bg-[#09090b] sm:border sm:border-[#00e5ff]/30 sm:rounded-3xl flex flex-col overflow-hidden shadow-[0_0_40px_rgba(0,229,255,0.1)]">
+<div className="relative w-full h-full sm:max-h-[90vh] sm:w-[700px] mx-auto bg-[#09090b]/60 backdrop-blur-2xl sm:border sm:border-[#00e5ff]/30 sm:rounded-3xl flex flex-col overflow-hidden shadow-[0_0_40px_rgba(0,229,255,0.15)]">
             
             {/* 🚀 EFSANE GAMING ARKAPLAN SÜSLEMESİ */}
             <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-0 overflow-hidden opacity-[0.03]">
