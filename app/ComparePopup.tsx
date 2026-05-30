@@ -19,7 +19,6 @@ export default function ComparePopup() {
     }
   });
 
-  // 🚀 ŞEFİM BİNGO: Ürünler tek başınayken lahmacun gibi uzamasın diye sabit ölçü verdik!
   // Her ürün (ister 1 tane olsun ister 5 tane) her zaman tam olarak 260px olacak ve sola yaslanacak.
   const urunGenisligi = "260px"; 
 
@@ -74,8 +73,10 @@ export default function ComparePopup() {
 
               {/* DİNAMİK TEKNİK ÖZELLİK SATIRLARI */}
               {tumOzellikAnahtarlari.map((ozellikAdi) => (
-                <div key={ozellikAdi}>
-                  <div className="text-slate-400 font-bold text-xs uppercase bg-[#121215]/50 p-2 sm:p-3 rounded-xl border border-slate-800/40 mb-2 w-max pr-10">
+                <div key={ozellikAdi} className="mt-2">
+                  
+                  {/* 🚀 ŞEFİM İŞTE BURASI: Kutu silindi, sadece şık bir metin yapıldı */}
+                  <div className="text-[#00e5ff] font-black text-[11px] sm:text-xs uppercase tracking-widest mb-2 pl-1">
                     {ozellikAdi}
                   </div>
                   
