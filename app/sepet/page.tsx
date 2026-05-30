@@ -24,7 +24,7 @@ export default function SepetSayfasi() {
 
   if (sepet.length === 0) {
   return (
-    <div className="min-h-[80vh] bg-[#050814] flex flex-col items-center justify-center px-4 relative z-10">
+    <div className="min-h-screen bg-[#050814] flex flex-col items-center justify-center px-4 relative z-10">
       <div className="text-center p-10 sm:p-16 bg-transparent relative flex flex-col items-center">
         
         {/* JİLET İKON KUTUSU */}
