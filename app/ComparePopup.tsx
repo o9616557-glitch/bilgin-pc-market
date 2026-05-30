@@ -2,7 +2,7 @@
 import { useCompare } from "./CompareContext"; 
 import { X, MinusCircle, Trash2 } from "lucide-react";
 import Link from "next/link"; 
-import { Toaster } from "react-hot-toast"; // 🚀 BİLDİRİMİ EN ÜSTE ZORLAMAK İÇİN EKLEDİK
+import { Toaster } from "react-hot-toast"; 
 
 export default function ComparePopup() {
   const { karsilastirilanlar, karsilastirmadanCikar, popupAcik, setPopupAcik, karsilastirmayiTemizle } = useCompare();
@@ -20,24 +20,25 @@ export default function ComparePopup() {
     }
   });
 
+  // 🚀 ŞEFİM İŞTE BURASI: Ürünler artık sola değil, TAM ORTAYA (center) hizalanacak!
   const getGridStyle = () => {
     return { 
-      gridTemplateColumns: `repeat(${karsilastirilanlar.length}, minmax(160px, 220px))`, 
-      justifyContent: "start" 
+      gridTemplateColumns: `repeat(${karsilastirilanlar.length}, minmax(160px, 240px))`, 
+      justifyContent: "center" 
     };
   };
 
   return (
-    <div className="fixed inset-0 z-[50] flex justify-center items-center p-0 sm:p-4 bg-black/80 backdrop-blur-md transition-all">
+    // 🚀 GÜÇ SEVİYESİ (z-[99999]) YÜKSELTİLDİ! Sitenin ana menüsü artık altta kalacak.
+    <div className="fixed inset-0 z-[99999] flex justify-center items-center p-0 sm:p-4 bg-black/80 backdrop-blur-md transition-all">
       
-      {/* 🚀 ŞEFİM İŞTE GİZLİ SİLAH: Bu pencereye özel, ultra yüksek z-index'li bildirim motoru. 
-          Artık hiçbir yazı bu pencerenin altında gizlenemez! */}
-      <Toaster position="top-center" containerStyle={{ zIndex: 99999999 }} />
+      {/* PENCERENİN ÜSTÜNDE ÇIKACAK BİLDİRİM (TOAST) GÜCÜ (999999) */}
+      <Toaster position="top-center" containerStyle={{ zIndex: 999999 }} />
       
       <div className="absolute inset-0 hidden sm:block" onClick={() => setPopupAcik(false)}></div>
       
-      {/* ANA KUTU (PENCERE) */}
-      <div className="relative w-full h-full sm:max-h-[90vh] sm:max-w-6xl mx-auto bg-[#09090b]/60 backdrop-blur-2xl sm:border sm:border-[#00e5ff]/30 sm:rounded-3xl flex flex-col overflow-hidden shadow-[0_0_40px_rgba(0,229,255,0.15)]">
+      {/* 🚀 PENCERE BOYUTU: sm:max-w-4xl yapılarak bilgisayarda bir tık daraltıldı ve jilet gibi oldu! */}
+      <div className="relative w-full h-full sm:max-h-[85vh] sm:max-w-4xl mx-auto bg-[#09090b]/60 backdrop-blur-2xl sm:border sm:border-[#00e5ff]/30 sm:rounded-3xl flex flex-col overflow-hidden shadow-[0_0_40px_rgba(0,229,255,0.15)]">
         
         {/* HEADER (TAVAN) */}
         <div className="flex justify-between items-center px-4 sm:px-6 py-4 sm:py-5 border-b border-white/5 shrink-0 bg-[#121215] relative z-20">
@@ -113,7 +114,7 @@ export default function ComparePopup() {
                 {tumOzellikAnahtarlari.map((ozellikAdi) => (
                   <div key={ozellikAdi} className="mt-2 w-full">
                     
-                    <div className="text-[#00e5ff] font-black text-[11px] sm:text-xs uppercase tracking-widest mb-2 pl-1">
+                    <div className="text-[#00e5ff] font-black text-[11px] sm:text-xs uppercase tracking-widest mb-2 pl-1 text-center sm:text-left">
                       {ozellikAdi}
                     </div>
                     
@@ -121,7 +122,7 @@ export default function ComparePopup() {
                       {karsilastirilanlar.map((urun, idx) => {
                         const deger = urun.teknik_ozellikler ? urun.teknik_ozellikler[ozellikAdi] : null;
                         return (
-                          <div key={idx} className="bg-[#121215]/80 border border-white/10 p-2 sm:p-3 rounded-md text-xs sm:text-sm text-white font-medium flex items-center min-h-[40px] sm:min-h-[48px] shadow-sm hover:border-[#00e5ff]/50 transition-colors">
+                          <div key={idx} className="bg-[#121215]/80 border border-white/10 p-2 sm:p-3 rounded-md text-xs sm:text-sm text-white font-medium flex items-center justify-center sm:justify-start min-h-[40px] sm:min-h-[48px] shadow-sm hover:border-[#00e5ff]/50 transition-colors">
                             {deger || "-"}
                           </div>
                         );
