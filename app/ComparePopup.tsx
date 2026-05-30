@@ -19,14 +19,13 @@ export default function ComparePopup() {
     }
   });
 
-  // 🚀 ŞEFİM İŞTE BURASI: Artık ürünler dev gibi genişlemeyecek!
+  // 🚀 ŞEFİM İŞTE BURASI: Kartlar küçültüldü! 
+  // Minimum 180px'e kadar düşecekler, böylece 2. ürün telefonda çok daha rahat sığacak.
   const getGridStyle = () => {
     if (karsilastirilanlar.length === 1) {
-      // Tek Ürün: Ekranda tam merkeze oturur, kenarları kırpılır, dev gibi olmaz (max 280px).
-      return { gridTemplateColumns: "minmax(220px, 280px)", justifyContent: "center" };
+      return { gridTemplateColumns: "minmax(200px, 250px)", justifyContent: "center" };
     }
-    // 2 veya 3 Ürün: Ekranı kaplamak için sünmezler! Her biri max 280px olur ve yan yana asilce dururlar.
-    return { gridTemplateColumns: `repeat(${karsilastirilanlar.length}, minmax(240px, 280px))`, justifyContent: "start" };
+    return { gridTemplateColumns: `repeat(${karsilastirilanlar.length}, minmax(180px, 240px))`, justifyContent: "start" };
   };
 
   return (
@@ -54,7 +53,7 @@ export default function ComparePopup() {
           </button>
         </div>
 
-        {/* Karşılaştırma Alanı (Sağa Sola Kaydırma Motoru) */}
+        {/* Karşılaştırma Alanı */}
         <div className="p-4 sm:p-6 overflow-x-auto overflow-y-auto flex-grow">
           {karsilastirilanlar.length === 0 ? (
             <div className="text-center py-20 text-slate-500 font-bold uppercase tracking-widest">[ Karşılaştırılacak Ürün Seçilmedi ]</div>
