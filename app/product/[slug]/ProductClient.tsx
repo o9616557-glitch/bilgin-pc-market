@@ -370,18 +370,18 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-      {/* 🚀 İŞTE CERRAH OPERASYONU: ÜRÜN AÇIKLAMASI VE RESİMLERİ BURAYA GELDİ */}
+      {/* 🚀 İŞTE CERRAH OPERASYONU: BOŞLUKLAR TIRAŞLANDI */}
       {product.aciklama && (
-        <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 mt-10 mb-20 border-t border-white/10 pt-16">
-          <h3 className="text-2xl sm:text-3xl font-black text-[#00e5ff] uppercase tracking-wider mb-8 flex items-center gap-3">
+        <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 mt-10 mb-4 border-t border-white/10 pt-8">
+          <h3 className="text-2xl sm:text-3xl font-black text-[#00e5ff] uppercase tracking-wider mb-6 flex items-center gap-3">
             <span className="text-3xl">📝</span> Ürün Detayları ve İnceleme
           </h3>
           <div 
             className="prose prose-invert max-w-none text-slate-300 line-clamp-none 
-                       [&_h2]:text-2xl [&_h2]:sm:text-3xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mt-10 [&_h2]:mb-4
-                       [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-[#00e5ff] [&_h3]:mt-8 [&_h3]:mb-3
-                       [&_p]:text-base [&_p]:leading-relaxed [&_p]:text-slate-300 [&_p]:mb-6
-                       [&_img]:w-full [&_img]:max-w-5xl [&_img]:mx-auto [&_img]:rounded-2xl [&_img]:border [&_img]:border-[#00e5ff]/20 [&_img]:my-12 [&_img]:shadow-[0_0_40px_rgba(0,229,255,0.15)]"
+                       [&_h2]:text-2xl [&_h2]:sm:text-3xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mt-8 [&_h2]:mb-4
+                       [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-[#00e5ff] [&_h3]:mt-6 [&_h3]:mb-3
+                       [&_p]:text-base [&_p]:leading-relaxed [&_p]:text-slate-300 [&_p]:mb-4
+                       [&_img]:w-full [&_img]:max-w-5xl [&_img]:mx-auto [&_img]:rounded-2xl [&_img]:border [&_img]:border-[#00e5ff]/20 [&_img]:my-8 [&_img]:shadow-[0_0_40px_rgba(0,229,255,0.15)]"
             dangerouslySetInnerHTML={{ __html: product.aciklama }}
           />
         </div>
