@@ -489,7 +489,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   {activeTab === "tech" && product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 ? (
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                         {Object.entries(product.teknik_ozellikler).map(([anahtar, deger]) => (
-                           <div key={anahtar} className="flex justify-between items-center py-3 border-b border-white/10">
+                           <div key={anahtar} className="flex justify-between items-center py-3 px-3 border-b border-white/10">
                               <span className="text-slate-400 font-bold text-[10px] sm:text-xs uppercase w-1/2">{anahtar}</span>
                               <span className="text-white font-medium text-xs sm:text-sm w-1/2 text-right">{deger as string}</span>
                            </div>
