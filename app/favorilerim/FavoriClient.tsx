@@ -90,7 +90,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
               FAVORİ <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00e5ff] to-[#0088ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.2)]">ÜRÜNLERİM</span>
             </h1>
           </div>
-         <div className="flex items-center justify-start gap-2 bg-[#09090b] text-slate-300 px-5 py-2 rounded-xl font-bold text-xs uppercase tracking-wider border border-slate-800/80 shadow-sm w-full">
+         <div className="flex items-center justify-start gap-2 bg-[#09090b] text-slate-300 px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-wider border border-slate-800/80 shadow-sm w-full md:w-auto">
   LİSTELENEN: <span className="text-[#00e5ff] font-black text-sm">0</span> DONANIM
 </div>
         </div>
