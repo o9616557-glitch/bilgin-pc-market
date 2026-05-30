@@ -21,26 +21,28 @@ export function CompareProvider({ children }: { children: ReactNode }) {
 
   const karsilastirmayaEkle = (urun: Urun) => {
     setKarsilastirilanlar((prev) => {
-      // 1. ZIRH: Zaten ekliyse şık bir uyarı ver ve ekleme
+      // 1. ZIRH: Zaten ekliyse TEPEDEN inen şık uyarı
       if (prev.find((u) => (u._id || u.id) === (urun._id || urun.id))) {
         toast("Bu ürün zaten listede! ⚖️", {
+          position: "top-center", // 🚀 ŞEFİM İŞTE BURASI: Bildirim artık tepeden inecek!
           style: { background: "#09090b", color: "#fff", border: "1px solid #00e5ff", borderRadius: "12px", fontSize: "14px", fontWeight: "bold" },
           icon: "👀",
         });
         return prev;
       }
       
-      // 2. ZIRH: Maksimum 3 ürün (Kırmızı söküldü, Neon Mavi ve Asil Uyarı Takıldı!)
+      // 2. ZIRH: Maksimum 3 ürün için TEPEDEN inen neon uyarı
       if (prev.length >= 3) {
         toast("En fazla 3 ürün seçilebilir!", {
+          position: "top-center", // 🚀 ŞEFİM İŞTE BURASI: Bildirim artık tepeden inecek!
           style: { 
             background: "#09090b", 
             color: "#fff", 
-            border: "1px solid #00e5ff", // Kırmızı yerine neon mavi!
+            border: "1px solid #00e5ff", 
             borderRadius: "12px",
             fontSize: "14px",
             fontWeight: "bold",
-            boxShadow: "0 0 20px rgba(0, 229, 255, 0.2)", // Tatlı mavi parlama
+            boxShadow: "0 0 20px rgba(0, 229, 255, 0.2)",
           },
           icon: "⚠️",
         });
