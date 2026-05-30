@@ -370,6 +370,23 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
+      {/* 🚀 İŞTE CERRAH OPERASYONU: ÜRÜN AÇIKLAMASI VE RESİMLERİ BURAYA GELDİ */}
+      {product.aciklama && (
+        <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 mt-10 mb-20 border-t border-white/10 pt-16">
+          <h3 className="text-2xl sm:text-3xl font-black text-[#00e5ff] uppercase tracking-wider mb-8 flex items-center gap-3">
+            <span className="text-3xl">📝</span> Ürün Detayları ve İnceleme
+          </h3>
+          <div 
+            className="prose prose-invert max-w-none text-slate-300 line-clamp-none 
+                       [&_h2]:text-2xl [&_h2]:sm:text-3xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mt-10 [&_h2]:mb-4
+                       [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-[#00e5ff] [&_h3]:mt-8 [&_h3]:mb-3
+                       [&_p]:text-base [&_p]:leading-relaxed [&_p]:text-slate-300 [&_p]:mb-6
+                       [&_img]:w-full [&_img]:max-w-5xl [&_img]:mx-auto [&_img]:rounded-2xl [&_img]:border [&_img]:border-[#00e5ff]/20 [&_img]:my-12 [&_img]:shadow-[0_0_40px_rgba(0,229,255,0.15)]"
+            dangerouslySetInnerHTML={{ __html: product.aciklama }}
+          />
+        </div>
+      )}
+
       {/* 📱 YENİ NESİL KONTROL MERKEZİ GİBİ MOBİL ALT BAR */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-md border-t border-slate-800 p-2 z-[50] flex flex-col gap-2 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
         
@@ -397,7 +414,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         <div className="fixed inset-0 z-[999999] flex justify-center items-center p-0 sm:p-4 bg-black/80 backdrop-blur-md transition-all">
           <div className="absolute inset-0 hidden sm:block" onClick={() => setTeknikPopupAcik(false)}></div>
           
-<div className="relative w-full h-full sm:max-h-[90vh] sm:w-[700px] mx-auto bg-[#09090b]/60 backdrop-blur-2xl sm:border sm:border-[#00e5ff]/30 sm:rounded-3xl flex flex-col overflow-hidden shadow-[0_0_40px_rgba(0,229,255,0.15)]">
+          <div className="relative w-full h-full sm:max-h-[90vh] sm:w-[700px] mx-auto bg-[#09090b]/60 backdrop-blur-2xl sm:border sm:border-[#00e5ff]/30 sm:rounded-3xl flex flex-col overflow-hidden shadow-[0_0_40px_rgba(0,229,255,0.15)]">
             
             {/* 🚀 EFSANE GAMING ARKAPLAN SÜSLEMESİ */}
             <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-0 overflow-hidden opacity-[0.03]">
