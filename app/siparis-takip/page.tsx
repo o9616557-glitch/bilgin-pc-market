@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Search, Copy, Check, Package, Truck, ShoppingCart, CheckCircle, Info } from "lucide-react";
+import { ArrowLeft, Search, Copy, Check, Package, Truck, ShoppingCart, CheckCircle, Info, CalendarDays } from "lucide-react";
 
 export default function SiparisTakipPage() {
   const [kodu, setKodu] = useState("");
@@ -13,18 +13,22 @@ export default function SiparisTakipPage() {
 
   const adimlar = ["Sipariş Alındı", "Hazırlanıyor", "Kargoya Verildi", "Teslim Edildi"];
 
-  const aktifAdimBul = (durum: string) => {
-    if (!durum) return 0; 
-    const d = durum.toLowerCase();
-    if (durum === "Teslim Edildi" || d.includes("teslim") || d.includes("tamam") || d.includes("tamal") || d.includes("bit") || d.includes("son")) return 3;
-    if (durum === "Kargoya Verildi" || d.includes("kargo")) return 2;
-    if (durum === "Ödendi / Hazırlanıyor" || d.includes("hazır") || d.includes("odendi")) return 1;
+  // 🚀 NÜKLEER RADAR 1: Aktif Adımı Bulma
+  const aktifAdimBul = (s: any) => {
+    if (!s) return 0; 
+    const herSey = JSON.stringify(s).toLowerCase();
+    
+    if (herSey.includes("teslim") || herSey.includes("tamam") || herSey.includes("bit") || herSey.includes("son")) return 3;
+    if (herSey.includes("kargo") || herSey.includes("gönder")) return 2;
+    if (herSey.includes("hazırla") || herSey.includes("öden") || herSey.includes("başarılı") || herSey.includes("onay")) return 1;
     return 0;
   };
 
-  const iptalEdildiMi = (durum: string) => {
-    if (!durum) return false;
-    return durum === "İptal Edildi" || durum.toLowerCase().includes("iptal");
+  // 🚀 NÜKLEER RADAR 2: İptal / Red / İade Kontrolü
+  const iptalEdildiMi = (s: any) => {
+    if (!s) return false;
+    const herSey = JSON.stringify(s).toLowerCase();
+    return herSey.includes("iptal") || herSey.includes("red") || herSey.includes("iade");
   };
 
   const sorgula = async (e: React.FormEvent) => {
@@ -59,17 +63,22 @@ export default function SiparisTakipPage() {
   };
 
   const magazaMesaji = siparis?.musteriMesaji || siparis?.mesaj || siparis?.not || siparis?.adminNotu || siparis?.aciklama;
+  
+  // 🚀 TARİH MOTORU
+  const siparisTarihi = siparis?.createdAt || siparis?.tarih;
+  const formatliTarih = siparisTarihi 
+    ? new Date(siparisTarihi).toLocaleDateString("tr-TR", { day: '2-digit', month: 'long', year: 'numeric' }) 
+    : "";
 
- return (
-    
-   <div className="min-h-screen bg-[#050814] text-white pt-12 md:pt-12 pb-12 px-4 ... relative overflow-hidden flex flex-col items-center">
+  return (
+    <div className="min-h-screen bg-[#050814] text-white pt-12 md:pt-12 pb-12 px-4 relative overflow-hidden flex flex-col items-center">
       
       {/* 🔥 Arka Plan Uzay Mavisi Parlaması */}
       <div className="absolute top-[-5%] left-1/2 -translate-x-1/2 w-[70%] h-[40%] bg-[#00e5ff] blur-[150px] opacity-15 rounded-full pointer-events-none z-0"></div>
 
       <div className="w-full max-w-4xl mx-auto relative z-10">
         
-        {/* 🚀 ÜST BAŞLIK VE GERİ DÖNÜŞ (Çizgi artık belirgin: border-white/20) */}
+        {/* 🚀 ÜST BAŞLIK VE GERİ DÖNÜŞ */}
         <div className="flex flex-col gap-3 border-b border-white/20 pb-6 mb-8">
           <div>
             <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-3">
@@ -129,14 +138,14 @@ export default function SiparisTakipPage() {
             )}
 
             {/* İPTAL DURUMU */}
-            {iptalEdildiMi(siparis.durum) ? (
+            {iptalEdildiMi(siparis) ? (
               <div className="mb-10 p-10 bg-[#121215] border border-slate-800 rounded-3xl text-center">
                 <div className="w-20 h-20 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto mb-6">
                   <span className="text-4xl text-rose-500 font-black">×</span>
                 </div>
                 <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-3">Sipariş İptal Edildi</h3>
                 <p className="text-slate-400 text-sm max-w-md mx-auto leading-relaxed">
-                  Bu sipariş iptal edilmiş görünüyor. Sorularınız için <span className="text-[#00e5ff] font-bold">0850 305 59 68</span> numaralı hattan bize ulaşabilirsiniz.
+                  Bu sipariş iptal edilmiş veya reddedilmiş görünüyor. Sorularınız için <span className="text-[#00e5ff] font-bold">0850 305 59 68</span> numaralı hattan bize ulaşabilirsiniz.
                 </p>
               </div>
             ) : (
@@ -150,11 +159,11 @@ export default function SiparisTakipPage() {
                   {/* İlerleme Çizgisi */}
                   <div 
                     className="absolute left-0 top-[21px] md:top-[29px] h-[6px] bg-gradient-to-r from-[#00e5ff] to-[#0088ff] rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_#00e5ff]"
-                    style={{ width: `${(aktifAdimBul(siparis.durum) / (adimlar.length - 1)) * 100}%` }}
+                    style={{ width: `${(aktifAdimBul(siparis) / (adimlar.length - 1)) * 100}%` }}
                   ></div>
 
                   {adimlar.map((adim, index) => {
-                    const aktifAdimNo = aktifAdimBul(siparis.durum);
+                    const aktifAdimNo = aktifAdimBul(siparis);
                     const tamamlandiMi = index <= aktifAdimNo;
                     const suAnkiMi = index === aktifAdimNo;
                     
@@ -184,7 +193,7 @@ export default function SiparisTakipPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
               
               <div className="md:col-span-2 bg-[#09090b] border border-white/5 rounded-3xl p-8 shadow-xl flex flex-col justify-center">
-                 <div className="flex justify-between items-center mb-8 border-b border-white/5 pb-6">
+                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-white/5 pb-6 gap-6">
                     <div>
                       <p className="text-slate-500 text-[10px] uppercase tracking-[0.2em] font-black mb-2">Takip No</p>
                       <div className="flex items-center gap-3">
@@ -193,11 +202,20 @@ export default function SiparisTakipPage() {
                           {kopyalandi ? <Check className="text-green-400 w-4 h-4" /> : <Copy className="text-slate-400 w-4 h-4" />}
                         </button>
                       </div>
+                      
+                      {/* 🚀 TARİH KISMI BURAYA EKLENDİ */}
+                      {formatliTarih && (
+                        <div className="flex items-center gap-2 mt-3 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                          <CalendarDays className="w-4 h-4 text-[#00e5ff]" />
+                          <span>Sipariş Tarihi: <span className="text-white">{formatliTarih}</span></span>
+                        </div>
+                      )}
+                      
                     </div>
-                    <div className="text-right">
+                    <div className="text-left md:text-right">
                       <p className="text-slate-500 text-[10px] uppercase tracking-[0.2em] font-black mb-2">Güncel Durum</p>
-                      <p className={`text-sm md:text-lg font-black uppercase tracking-widest ${iptalEdildiMi(siparis.durum) ? 'text-slate-400' : 'text-[#00e5ff]'}`}>
-                        {siparis.durum || "HAZIRLANIYOR"}
+                      <p className={`text-sm md:text-lg font-black uppercase tracking-widest ${iptalEdildiMi(siparis) ? 'text-slate-400' : 'text-[#00e5ff]'}`}>
+                        {iptalEdildiMi(siparis) ? "İPTAL EDİLDİ" : (siparis.durum || "HAZIRLANIYOR")}
                       </p>
                     </div>
                  </div>
@@ -226,18 +244,16 @@ export default function SiparisTakipPage() {
                  )}
               </div>
 
-              {/* 🟢 WHATSAPP DESTEK KARTI (Kusursuzlaştırıldı) */}
+              {/* 🟢 WHATSAPP DESTEK KARTI */}
               <div className="bg-gradient-to-br from-[#09090b] to-[#050814] border border-white/5 rounded-3xl p-8 shadow-xl flex flex-col justify-center items-center text-center relative overflow-hidden group">
                  <div className="absolute top-0 left-0 w-full h-1 bg-[#25D366]"></div>
                  
                  <div className="w-16 h-16 rounded-full bg-[#25D366]/10 flex items-center justify-center mb-5 border border-[#25D366]/20 group-hover:scale-110 transition-transform duration-500">
-                   {/* 🔥 Garantili Orijinal WhatsApp İkonu (Asla kaybolmaz) */}
                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-8 h-8 fill-[#25D366]">
                       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.82 9.82 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
                    </svg>
                  </div>
                  <h3 className="text-lg font-black text-white uppercase tracking-tight mb-3">WhatsApp Destek</h3>
-                 {/* 🔥 Numara silindi, sadece açıklama kaldı */}
                  <p className="text-slate-500 text-[10px] md:text-xs font-medium leading-relaxed mb-6 px-2 uppercase tracking-wide">
                    Siparişinizle ilgili her türlü sorunuz için bize ulaşın.
                  </p>
