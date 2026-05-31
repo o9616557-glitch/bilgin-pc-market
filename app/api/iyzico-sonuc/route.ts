@@ -18,7 +18,8 @@ export async function POST(request: Request) {
     const siparisKodu = url.searchParams.get("siparisKodu");
 
     if (!token || !siparisKodu) {
-      return NextResponse.redirect(new URL("/odeme?hata=eksik_bilgi", request.url));
+      // 🚀 303 EKLENDİ (POST methodunu GET'e çevirerek sayfayı açtırır)
+      return NextResponse.redirect(new URL("/odeme?hata=eksik_bilgi", request.url), 303);
     }
 
     const sonuc: any = await new Promise((resolve, reject) => {
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
       });
     });
 
-    // 🚀 BANKA PARAYI ÇEKTİ, ONAYLADI! (Şimdi Mail Zamanı)
+    // 🚀 BANKA PARAYI ÇEKTİ, ONAYLADI!
     if (sonuc.paymentStatus === "SUCCESS") {
       const client = await clientPromise;
       const db = client.db("bilginpcmarket");
@@ -39,7 +40,7 @@ export async function POST(request: Request) {
         { $set: { durum: "Ödendi - Hazırlanıyor", odemeId: sonuc.paymentId } }
       );
 
-      // 🎯 DİJİTAL POSTACI DEVREDE: KART ONAYLANDI MAİLİ
+      // 🎯 KART ONAYLANDI MAİLİ
       try {
         const siparis = await db.collection("orders").findOne({ siparisKodu: siparisKodu });
         const musteriMaili = siparis?.email || siparis?.userEmail || siparis?.musteri?.eposta || "o9616557@gmail.com";
@@ -80,11 +81,14 @@ export async function POST(request: Request) {
         transporter.sendMail(mailSecenekleri).catch((err: any) => console.log(err));
       } catch (mailHatasi) { }
 
-      return NextResponse.redirect(new URL(`/siparis-basarili?kodu=${siparisKodu}`, request.url));
+      // 🚀 303 EKLENDİ! Artık Sipariş Başarılı sayfasına jilet gibi geçecek.
+      return NextResponse.redirect(new URL(`/siparis-basarili?kodu=${siparisKodu}`, request.url), 303);
     } else {
-      return NextResponse.redirect(new URL("/odeme?hata=odeme_reddedildi", request.url));
+      // 🚀 303 EKLENDİ
+      return NextResponse.redirect(new URL("/odeme?hata=odeme_reddedildi", request.url), 303);
     }
   } catch (error) {
-    return NextResponse.redirect(new URL("/odeme?hata=sistem_hatasi", request.url));
+    // 🚀 303 EKLENDİ
+    return NextResponse.redirect(new URL("/odeme?hata=sistem_hatasi", request.url), 303);
   }
 }
