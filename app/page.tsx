@@ -1,13 +1,13 @@
 import clientPromise from "@/lib/mongodb";
 import Link from "next/link";
-import { ArrowRight, Cpu, Zap, ShieldCheck } from "lucide-react";
+import { ArrowRight, Cpu, Zap, Crosshair, Sparkles } from "lucide-react";
 import CompareButton from "./CompareButton"; 
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function HomePage() {
-  // 1. VERİTABANINDAN ÜRÜNLERİ ÇEKME İŞLEMİ
+  // VERİTABANI BAĞLANTISI (Burası senin sağlam backendin, dokunmadık)
   let urunler: any[] = [];
   try {
     const client = await clientPromise;
@@ -18,120 +18,74 @@ export default async function HomePage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#050814] text-[#ededed] font-sans pb-20 overflow-hidden">
+    <main className="min-h-screen bg-[#03050a] text-white font-sans pb-24 overflow-hidden selection:bg-[#00e5ff] selection:text-black">
       
-      {/* ==================== 1. EFSANEVİ HERO (GİRİŞ) VİTRİNİ ==================== */}
-      <section className="relative w-full bg-[#0b0f19] border-b border-slate-800/80 min-h-[85vh] flex items-center pt-20 pb-24">
+      {/* ==================== 1. ULTRA MODERN HERO (GİRİŞ) ==================== */}
+      <section className="relative w-full min-h-[90vh] flex items-center justify-center pt-20 pb-24 border-b border-white/5">
         
-        {/* Arka Plan Atmosfer Işıkları */}
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-600/20 rounded-full blur-[150px] pointer-events-none animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-[#00e5ff]/10 rounded-full blur-[120px] pointer-events-none" />
+        {/* Fütüristik Arka Plan Efektleri */}
+        <div className="absolute top-1/4 left-1/4 w-[40vw] h-[40vw] bg-[#00e5ff] rounded-full mix-blend-screen filter blur-[150px] opacity-[0.07] animate-pulse pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-[35vw] h-[35vw] bg-[#7000ff] rounded-full mix-blend-screen filter blur-[150px] opacity-[0.07] pointer-events-none" />
         
-        {/* İnce Izgara (Grid) Deseni */}
-        <div className="absolute inset-0 bg-[url('https://transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none"></div>
+        {/* Holografik Izgara Deseni */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_10%,transparent_100%)] pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            
-            {/* Sol Taraf - Metin ve Butonlar */}
-            <div className="text-left space-y-8">
-              
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/80 border border-slate-700/50 backdrop-blur-md">
-                <span className="flex h-2.5 w-2.5 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00e5ff] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#00e5ff]"></span>
-                </span>
-                <span className="text-xs md:text-sm font-bold text-slate-300 tracking-wide uppercase flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-[#00e5ff]" /> Yeni Nesil Stoklarda
-                </span>
-              </div>
-
-              <h1 className="text-5xl md:text-7xl font-black text-white leading-[1.1] tracking-tight uppercase">
-                Performansın <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-[#00e5ff] to-blue-500 animate-gradient-x drop-shadow-[0_0_20px_rgba(0,229,255,0.3)]">
-                  Zirvesine Ulaşın
-                </span>
-              </h1>
-
-              <p className="text-lg md:text-xl text-slate-400 leading-relaxed max-w-xl font-medium">
-                E-spor arenasında sınırları zorlamak isteyenler için en güçlü bileşenler Bilgin PC Market'te. Sektörü kasıp kavuran <strong className="text-[#00e5ff]">RX 9070</strong>, amiral gemisi <strong className="text-blue-500">RTX 5090</strong> ve performansı zirveye taşıyan <strong className="text-purple-400">Ryzen 9 9950X3D</strong> gibi efsanelerle sisteminizi hemen şimdi yükseltin.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <a href="#vitrin" className="group relative inline-flex items-center justify-center px-8 py-4 font-black text-slate-900 transition-all duration-200 bg-[#00e5ff] rounded-xl hover:bg-[#00c4db] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00e5ff] shadow-[0_0_20px_rgba(0,229,255,0.4)] hover:shadow-[0_0_30px_rgba(0,229,255,0.6)] hover:-translate-y-1 uppercase tracking-wider overflow-hidden">
-                  <span className="relative z-10 flex items-center gap-2">Ürünleri Keşfet <ArrowRight className="w-5 h-5" /></span>
-                </a>
-                
-                <Link href="/hakkimizda" className="inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-200 bg-slate-900/80 border border-slate-700 rounded-xl hover:bg-slate-800 hover:border-slate-500 backdrop-blur-md uppercase tracking-wider">
-                  Biz Kimiz?
-                </Link>
-              </div>
-              
-              <div className="flex flex-wrap items-center gap-6 pt-6 border-t border-slate-800/80">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-[#10b981]" />
-                  <span className="text-xs text-slate-400 font-bold uppercase tracking-wide">Distribütör Garantili</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-orange-400" />
-                  <span className="text-xs text-slate-400 font-bold uppercase tracking-wide">Aynı Gün Kargo</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Cpu className="w-5 h-5 text-[#00e5ff]" />
-                  <span className="text-xs text-slate-400 font-bold uppercase tracking-wide">%100 Orijinal Ürün</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Sağ Taraf - Vitrin Görseli (Cam Efektli Kutu İçinde) */}
-            <div className="relative hidden lg:block">
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-gradient-to-tr from-blue-600/30 to-[#00e5ff]/30 rounded-full blur-3xl animate-pulse"></div>
-              
-              <div className="relative bg-slate-900/40 border border-slate-700/50 backdrop-blur-xl rounded-3xl p-6 shadow-2xl transform hover:scale-[1.02] transition-transform duration-500">
-                <div className="absolute -top-4 -right-4 bg-gradient-to-r from-red-600 to-orange-500 text-white text-xs font-black px-4 py-2 rounded-full uppercase tracking-widest shadow-lg shadow-red-500/50">
-                  Yeni Nesil
-                </div>
-                
-                <div className="w-full h-80 bg-slate-950/80 rounded-2xl border border-slate-800 flex items-center justify-center overflow-hidden relative">
-                   <Cpu className="w-32 h-32 text-slate-700/50" />
-                   <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
-                </div>
-                
-                <div className="mt-6 space-y-2">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-xl font-black text-white uppercase tracking-wide">Extreme Performans Serisi</h3>
-                    <div className="flex gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#00e5ff] shadow-[0_0_10px_rgba(0,229,255,0.8)]"></span>
-                      <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]"></span>
-                      <span className="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.8)]"></span>
-                    </div>
-                  </div>
-                  <p className="text-sm text-slate-400 font-medium">En güncel mimari, maksimum FPS, sıfır darboğaz.</p>
-                </div>
-              </div>
-            </div>
-
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full text-center flex flex-col items-center">
+          
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl mb-10 hover:border-[#00e5ff]/50 transition-colors cursor-default">
+            <Sparkles className="w-4 h-4 text-[#00e5ff]" />
+            <span className="text-xs font-black tracking-[0.2em] uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">
+              Yeni Nesil Donanım Mimarisi
+            </span>
           </div>
+
+          <h1 className="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9] mb-8">
+            Performansın <br/>
+            <span className="relative inline-block mt-2">
+              <span className="absolute -inset-2 bg-[#00e5ff]/20 blur-2xl rounded-full"></span>
+              <span className="relative text-transparent bg-clip-text bg-gradient-to-br from-white via-[#00e5ff] to-blue-600">
+                Zirve Noktası
+              </span>
+            </span>
+          </h1>
+
+          <p className="text-gray-400 text-lg md:text-xl max-w-2xl font-medium tracking-wide mb-12">
+            RX 9070, RTX 5090 ve 9950X3D gibi oyunun kurallarını değiştiren amiral gemisi donanımlar Bilgin PC Market güvencesiyle stoklarda.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center gap-6">
+            <a href="#vitrin" className="group relative px-10 py-5 bg-white text-black font-black uppercase tracking-[0.1em] overflow-hidden rounded-none hover:scale-105 transition-transform duration-300">
+              <div className="absolute inset-0 w-0 bg-[#00e5ff] transition-all duration-[250ms] ease-out group-hover:w-full"></div>
+              <span className="relative flex items-center gap-3">
+                Donanımları Keşfet <Crosshair className="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" />
+              </span>
+            </a>
+          </div>
+
         </div>
       </section>
 
-      {/* ==================== 2. VERİTABANINDAN GELEN ÜRÜNLER (VİTRİN) ==================== */}
-      <div id="vitrin" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20">
+      {/* ==================== 2. PREMIUM ÜRÜN VİTRİNİ ==================== */}
+      <div id="vitrin" className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-32">
         
-        <div className="flex items-end justify-between mb-12 border-b border-slate-800/80 pb-6 relative">
-          <div className="absolute bottom-0 left-0 w-32 h-1 bg-[#00e5ff] shadow-[0_0_10px_rgba(0,229,255,0.5)]"></div>
-          <div>
-            <h2 className="text-3xl md:text-4xl font-black uppercase tracking-wide text-white">
-              Popüler <span className="text-[#00e5ff]">Ürünler</span>
+        {/* Modern Başlık Alanı */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+          <div className="relative">
+            <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-1 h-12 bg-[#00e5ff]"></div>
+            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tight text-white pl-4">
+              Premium <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-500 to-gray-700">Katalog</span>
             </h2>
-            <p className="text-slate-400 text-sm md:text-base mt-2 font-medium">300'den fazla tepe model donanım parçası stoklarımızda seni bekliyor.</p>
+          </div>
+          <div className="text-sm font-bold tracking-widest text-gray-500 uppercase flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-[#00e5ff] animate-ping"></div>
+            Canlı Stok: {urunler.length} Ürün
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {/* ULTRA MODERN GRID YAPISI */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {urunler.length > 0 ? (
             urunler.map((urun: any) => {
-              // Senin yazdığın veri eşleştirme mantığı
               const vitrinResmi = urun.resimler && urun.resimler.length > 0 ? urun.resimler[0] : urun.resim;
               const normalFiyat = Number(urun.regular_price || urun.fiyat || urun.price || 0);
               const gecerliFiyat = Number(urun.indirimliFiyat || urun.price || urun.fiyat || 0);
@@ -139,122 +93,99 @@ export default async function HomePage() {
               const indirimOrani = indirimVarMi ? Math.round(((normalFiyat - gecerliFiyat) / normalFiyat) * 100) : 0;
               const stokSifirMi = urun.stokAdedi === 0 || urun.stokAdedi === "0";
               const tukendiMi = urun.stokDurumu === "Tükendi" || stokSifirMi;
-              const havaleOrani = urun.havaleIndirimi !== undefined ? urun.havaleIndirimi : 5;
 
               return (
                 <Link 
                   href={"/product/" + (urun.slug || urun._id)} 
                   key={urun._id.toString()} 
                   prefetch={true} 
-                  className="group outline-none block h-full"
+                  className="group relative block w-full h-[480px] bg-[#070b14] rounded-3xl overflow-hidden border border-white/5 hover:border-[#00e5ff]/30 transition-all duration-500 hover:shadow-[0_0_40px_-10px_rgba(0,229,255,0.15)]"
                 >
-                  <div className="bg-[#0b0f19] rounded-2xl border border-slate-800 p-5 flex flex-col h-full relative overflow-hidden transition-all duration-300 group-hover:border-[#00e5ff]/50 group-hover:shadow-[0_0_30px_rgba(0,229,255,0.1)] group-hover:-translate-y-2">
-                    
-                    {/* Kart İçi Glow Efekti */}
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#00e5ff] blur-[80px] opacity-0 group-hover:opacity-20 transition-opacity duration-500 pointer-events-none"></div>
+                  {/* Kart İçi Glow ve Arka Plan Efekti */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-[#00e5ff]/0 to-[#00e5ff]/[0.03] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-                    {/* İndirim ve Tükendi Rozetleri */}
+                  {/* Sol Üst - Rozetler */}
+                  <div className="absolute top-5 left-5 z-20 flex flex-col gap-2">
                     {indirimOrani > 0 && !tukendiMi && (
-                      <div className="absolute top-4 left-4 bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1.5 rounded-lg text-[11px] font-black tracking-wider uppercase z-10 shadow-lg shadow-red-500/20 border border-red-400/30">
-                        %{indirimOrani} İNDİRİM
-                      </div>
+                      <span className="bg-[#00e5ff]/10 text-[#00e5ff] border border-[#00e5ff]/20 px-3 py-1 rounded-full text-[10px] font-black tracking-widest backdrop-blur-md">
+                        %{indirimOrani} OFF
+                      </span>
                     )}
-
                     {tukendiMi && (
-                      <div className="absolute top-4 right-4 bg-red-900/80 text-white border border-red-500 px-3 py-1.5 rounded-lg text-[11px] font-black tracking-wider uppercase z-10 backdrop-blur-md shadow-lg shadow-red-900/50">
-                        TÜKENDİ
-                      </div>
+                      <span className="bg-red-500/10 text-red-500 border border-red-500/20 px-3 py-1 rounded-full text-[10px] font-black tracking-widest backdrop-blur-md">
+                        STOKTA YOK
+                      </span>
                     )}
+                  </div>
 
-                    {/* Ürün Görseli */}
-                    <div className="w-full aspect-square bg-[#050814] rounded-xl border border-slate-800 overflow-hidden mb-5 relative flex items-center justify-center p-4">
-                      {vitrinResmi ? (
-                        <img 
-                          src={vitrinResmi} 
-                          alt={urun.isim || urun.name} 
-                          className={"w-full h-full object-contain transition-transform duration-500 group-hover:scale-110 " + (tukendiMi ? "grayscale opacity-40" : "")} 
-                        />
-                      ) : ( 
-                        <div className="flex flex-col items-center justify-center text-slate-700">
-                          <Cpu className="w-10 h-10 mb-2 opacity-50" />
-                          <div className="text-[10px] font-black tracking-widest uppercase">Görsel Yok</div>
-                        </div> 
-                      )}
-                      
-                      {!tukendiMi && <CompareButton urun={urun} />}
+                  {/* Sağ Üst - Karşılaştırma Butonu (Componentini buraya gömüyoruz) */}
+                  {!tukendiMi && (
+                    <div className="absolute top-5 right-5 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <CompareButton urun={urun} />
                     </div>
+                  )}
 
-                    {/* Ürün Bilgileri */}
-                    <div className="flex flex-col flex-grow">
-                      <div className="flex justify-between items-center mb-3">
-                        <span className="text-slate-400 text-[11px] font-black uppercase tracking-wider bg-slate-800/80 px-2.5 py-1 rounded-md border border-slate-700/50">
-                          {urun.kategori || "Donanım"}
-                        </span>
-                        {havaleOrani > 0 && !tukendiMi && (
-                          <span className="text-[#10b981] text-[10px] font-black uppercase tracking-wider bg-[#10b981]/10 border border-[#10b981]/30 px-2 py-1 rounded-md flex items-center gap-1.5">
-                            <BanknoteIcon className="w-3.5 h-3.5" /> %{havaleOrani} İndirim
+                  {/* Ürün Görseli Alanı - Tamamen Şeffaf ve Büyük */}
+                  <div className="relative w-full h-[60%] pt-12 p-8 flex items-center justify-center">
+                    {/* Görsel arkası radar aydınlatması */}
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.04)_0%,transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                    
+                    {vitrinResmi ? (
+                      <img 
+                        src={vitrinResmi} 
+                        alt={urun.isim || urun.name} 
+                        className={"w-full h-full object-contain filter drop-shadow-[0_15px_20px_rgba(0,0,0,0.5)] transition-all duration-700 ease-out group-hover:scale-110 group-hover:-translate-y-2 " + (tukendiMi ? "grayscale opacity-20" : "")} 
+                      />
+                    ) : ( 
+                      <Cpu className="w-16 h-16 text-white/10" />
+                    )}
+                  </div>
+
+                  {/* Alt Kısım - Metin ve Fiyat */}
+                  <div className="absolute bottom-0 left-0 w-full h-[40%] p-6 flex flex-col justify-end bg-gradient-to-t from-[#03050a] via-[#03050a]/90 to-transparent z-10">
+                    
+                    <span className="text-gray-500 text-[10px] font-bold tracking-[0.2em] uppercase mb-2">
+                      {urun.kategori || "BİLEŞEN"}
+                    </span>
+                    
+                    <h3 className="text-gray-200 font-bold text-lg leading-tight mb-4 group-hover:text-white transition-colors line-clamp-2">
+                      {urun.isim || urun.name}
+                    </h3>
+
+                    <div className="flex items-end justify-between mt-auto">
+                      <div>
+                        {indirimVarMi && (
+                          <span className="block text-gray-600 line-through text-xs font-bold mb-0.5">
+                            {normalFiyat.toLocaleString("tr-TR")} ₺
                           </span>
                         )}
+                        <span className="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 group-hover:from-[#00e5ff] group-hover:to-white transition-all duration-500">
+                          {gecerliFiyat.toLocaleString("tr-TR")} ₺
+                        </span>
                       </div>
-
-                      <h3 className="text-white font-bold text-base leading-snug line-clamp-2 mb-4 group-hover:text-[#00e5ff] transition-colors">
-                        {urun.isim || urun.name}
-                      </h3>
                       
-                      {/* Fiyat Alanı */}
-                      <div className="mt-auto pt-4 border-t border-slate-800/80">
-                        {indirimVarMi ? (
-                          <div className="flex flex-col">
-                            <span className="text-slate-500 text-xs font-bold line-through mb-1">
-                              {normalFiyat.toLocaleString("tr-TR")} TL
-                            </span>
-                            <span className="text-2xl font-black text-[#00e5ff] tracking-tight">
-                              {gecerliFiyat.toLocaleString("tr-TR")} TL
-                            </span>
-                          </div>
-                        ) : (
-                          <div className="text-2xl font-black text-white tracking-tight">
-                            {gecerliFiyat.toLocaleString("tr-TR")} TL
-                          </div>
-                        )}
+                      {/* Cyberpunk Tarzı Yön Butonu */}
+                      <div className={"w-12 h-12 rounded-full border flex items-center justify-center transition-all duration-300 " + (tukendiMi ? "bg-white/5 border-white/5 text-gray-700" : "bg-white/5 border-white/10 text-white group-hover:bg-[#00e5ff] group-hover:border-[#00e5ff] group-hover:text-black")}>
+                        <ArrowRight className={"w-5 h-5 transition-transform duration-300 " + (tukendiMi ? "" : "-rotate-45 group-hover:rotate-0")} />
                       </div>
                     </div>
-
-                    {/* Buton */}
-                    <div className={"mt-5 w-full py-3.5 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-300 " + (tukendiMi ? "bg-slate-900 text-slate-600 border border-slate-800 cursor-not-allowed" : "bg-[#050814] text-slate-300 border border-slate-700 group-hover:bg-[#00e5ff] group-hover:text-slate-900 group-hover:border-[#00e5ff] shadow-lg group-hover:shadow-[0_0_20px_rgba(0,229,255,0.4)]")}>
-                      {tukendiMi ? (
-                        <span>Stokta Yok</span>
-                      ) : (
-                        <span className="flex items-center gap-2">Hemen İncele <ArrowRight className="w-4 h-4" /></span>
-                      )}
-                    </div>
-
                   </div>
+
                 </Link>
               )
             })
           ) : ( 
-            <div className="col-span-full py-24 flex flex-col items-center justify-center bg-[#0b0f19] border border-slate-800 rounded-3xl shadow-2xl">
-              <div className="w-24 h-24 bg-slate-900 rounded-full flex items-center justify-center mb-6 border border-slate-800">
-                <Cpu className="w-12 h-12 text-slate-600" />
+            <div className="col-span-full py-32 flex flex-col items-center justify-center border border-dashed border-white/10 rounded-3xl bg-white/[0.01]">
+              <div className="w-20 h-20 bg-white/5 rounded-2xl flex items-center justify-center mb-6 rotate-12">
+                <Cpu className="w-10 h-10 text-gray-500" />
               </div>
-              <h3 className="text-2xl font-black text-white uppercase tracking-widest mb-3">Vitrin Şu An Boş</h3>
-              <p className="text-slate-400 font-medium">Veritabanından ürünler yükleniyor veya henüz eklenmedi.</p>
+              <h3 className="text-2xl font-black text-gray-400 uppercase tracking-widest mb-2">Sistem Çevrimdışı</h3>
+              <p className="text-gray-600 font-medium">Veri akışı bekleniyor veya stok verisi yok.</p>
             </div> 
           )}
         </div>
 
       </div>
     </main>
-  );
-}
-
-function BanknoteIcon(props: any) {
-  return (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect width="20" height="12" x="2" y="6" rx="2"/>
-      <circle cx="12" cy="12" r="2"/>
-      <path d="M6 12h.01M18 12h.01"/>
-    </svg>
   );
 }
