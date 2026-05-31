@@ -32,18 +32,11 @@ export default function SiparisClient({ initialOrders }: Props) {
     try {
       const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
         cache: "no-store",
-        headers: {
-          "Cache-Control": "no-cache",
-          "Pragma": "no-cache"
-        }
+        headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
       });
-      
       const data = await res.json();
-      if (res.ok) {
-        setOrders(data.orders || []);
-      } else {
-        setErrorMsg(data.message || "Siparişler güncellenemedi.");
-      }
+      if (res.ok) setOrders(data.orders || []);
+      else setErrorMsg(data.message || "Siparişler güncellenemedi.");
     } catch (error) {
       setErrorMsg("Bağlantı hatası oluştu.");
     } finally {
@@ -80,16 +73,20 @@ export default function SiparisClient({ initialOrders }: Props) {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  // 🚀 NÜKLEER RADAR: Siparişin içindeki HER ŞEYİ tarar! 
-  const getStepNumber = (order: any) => {
-    const herSey = JSON.stringify(order).toLowerCase();
-    
-    // Nereye yazılırsa yazılsın İptal kelimesini bulur!
-    if (herSey.includes("iptal") || herSey.includes("red") || herSey.includes("iade")) return 0;
-    if (herSey.includes("teslim") || herSey.includes("tamam")) return 4;
-    if (herSey.includes("kargo") || herSey.includes("gönder")) return 3;
-    if (herSey.includes("hazırla") || herSey.includes("öden") || herSey.includes("başarılı") || herSey.includes("onay") || herSey.includes("kabul")) return 2;
-    return 1; 
+  // 🚀 SENİN SİPARİŞ TAKİP SAYFASINDA ÇALIŞAN KENDİ MOTORUN!
+  const aktifAdimBul = (durum: string) => {
+    if (!durum) return 0; 
+    const d = durum.toLowerCase();
+    if (durum === "Teslim Edildi" || d.includes("teslim") || d.includes("tamam") || d.includes("tamal") || d.includes("bit") || d.includes("son")) return 3;
+    if (durum === "Kargoya Verildi" || d.includes("kargo")) return 2;
+    if (durum === "Ödendi / Hazırlanıyor" || d.includes("hazır") || d.includes("odendi")) return 1;
+    return 0;
+  };
+
+  // 🚀 SENİN SİPARİŞ TAKİP SAYFASINDA ÇALIŞAN İPTAL MOTORUN!
+  const iptalEdildiMi = (durum: string) => {
+    if (!durum) return false;
+    return durum === "İptal Edildi" || durum.toLowerCase().includes("iptal");
   };
 
   const steps = [
@@ -150,12 +147,12 @@ export default function SiparisClient({ initialOrders }: Props) {
           <div className="grid grid-cols-1 gap-6">
             {orders.map((order: any) => {
               const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase();
-              const currentStep = getStepNumber(order); 
               const adminMesaji = order.musteriMesaji || order.mesaj || order.adminMesaj || order.siparisNotu || order.kargoNotu || order.kargoTakipNo;
               
-              // 🚀 NÜKLEER KONTROL
-              const herSey = JSON.stringify(order).toLowerCase();
-              const isCancelled = herSey.includes("iptal") || herSey.includes("red") || herSey.includes("iade");
+              // SENİN MOTORUNLA KONTROL EDİYORUZ
+              const durumMetni = order.durum || order.status || "";
+              const isCancelled = iptalEdildiMi(durumMetni);
+              const currentStep = aktifAdimBul(durumMetni) + 1; // Senin motor 0'dan başlıyor, tasarım 1'den
 
               return (
                 <div key={order._id} className="group border border-slate-800 bg-[#09090b] rounded-2xl p-6 transition-all duration-300 hover:border-[#00e5ff]/40 shadow-xl hover:shadow-[0_0_25px_rgba(0,229,255,0.03)] relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
