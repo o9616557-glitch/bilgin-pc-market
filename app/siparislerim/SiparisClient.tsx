@@ -18,7 +18,6 @@ export default function SiparisClient({ initialOrders }: Props) {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
 
-  // 🚀 KUSURSUZ RADAR: Sunucudan veri geldikçe anında listeyi günceller.
   useEffect(() => {
     if (initialOrders.length > 0) {
       setOrders(initialOrders);
@@ -65,11 +64,8 @@ export default function SiparisClient({ initialOrders }: Props) {
     if (!orderToDelete) return;
     try {
       setOrders(orders.filter((order) => order._id !== orderToDelete));
-      
       const res = await fetch("/api/orders?id=" + orderToDelete, { method: "DELETE" });
-      if (!res.ok) {
-        setErrorMsg("Sipariş silinirken bir hata oluştu.");
-      }
+      if (!res.ok) setErrorMsg("Sipariş silinirken bir hata oluştu.");
       setOrderToDelete(null);
       router.refresh();
     } catch (error) {
@@ -84,17 +80,15 @@ export default function SiparisClient({ initialOrders }: Props) {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  // 🚀 YENİ AKILLI RADAR: İptal kelimesini görürse diğer her şeyi görmezden gelir!
+  // 🚀 NÜKLEER RADAR: Siparişin içindeki HER ŞEYİ tarar! 
   const getStepNumber = (order: any) => {
-    const s = (order.searchableStatus || order.status || order.durum || "").toLowerCase();
+    const herSey = JSON.stringify(order).toLowerCase();
     
-    // ÖNCE İPTALİ KONTROL ET (Örn: "Kargo iptal" yazsa bile direkt iptale alır)
-    if (s.includes("iptal") || s.includes("red") || s.includes("iade")) return 0;
-    
-    // İptal değilse normal adımlara bak
-    if (s.includes("teslim") || s.includes("tamam")) return 4;
-    if (s.includes("kargo") || s.includes("gönder")) return 3;
-    if (s.includes("hazırla") || s.includes("öden") || s.includes("başarılı") || s.includes("onay") || s.includes("kabul")) return 2;
+    // Nereye yazılırsa yazılsın İptal kelimesini bulur!
+    if (herSey.includes("iptal") || herSey.includes("red") || herSey.includes("iade")) return 0;
+    if (herSey.includes("teslim") || herSey.includes("tamam")) return 4;
+    if (herSey.includes("kargo") || herSey.includes("gönder")) return 3;
+    if (herSey.includes("hazırla") || herSey.includes("öden") || herSey.includes("başarılı") || herSey.includes("onay") || herSey.includes("kabul")) return 2;
     return 1; 
   };
 
@@ -115,10 +109,10 @@ export default function SiparisClient({ initialOrders }: Props) {
         
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-800 pb-6 mb-10">
           <div>
-   <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-3">
-  <ArrowLeft className="w-4 h-4" /> MAĞAZAYA GERİ DÖN
-</Link>
-           <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-white">
+            <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-3">
+              <ArrowLeft className="w-4 h-4" /> MAĞAZAYA GERİ DÖN
+            </Link>
+            <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-white">
               SİPARİŞ <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00e5ff] to-[#0088ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.2)]">GEÇMİŞİM</span>
             </h1>
           </div>
@@ -140,29 +134,28 @@ export default function SiparisClient({ initialOrders }: Props) {
         )}
 
         {orders.length === 0 ? (
-  <div className="text-center p-10 sm:p-16 bg-transparent relative">
-    <div className="w-20 h-20 rounded-full bg-[#121215]/50 border border-slate-800/50 flex items-center justify-center mx-auto mb-6 shadow-inner">
-      <PackageX className="w-10 h-10 text-slate-500" />
-    </div>
-    <h2 className="text-xl font-black uppercase tracking-wide mb-2 text-white">Henüz Siparişiniz Yok</h2>
-    <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">
-      Sipariş geçmişiniz şu an boş görünüyor. Size en uygun teknolojileri keşfetmek için mağazamızı inceleyebilirsiniz.
-    </p>
-    <Link href="/" prefetch={true} className="inline-block bg-[#00e5ff] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:-translate-y-0.5">
-      Alışverişe Başla
-    </Link>
-  </div>
-) : (
+          <div className="text-center p-10 sm:p-16 bg-transparent relative">
+            <div className="w-20 h-20 rounded-full bg-[#121215]/50 border border-slate-800/50 flex items-center justify-center mx-auto mb-6 shadow-inner">
+              <PackageX className="w-10 h-10 text-slate-500" />
+            </div>
+            <h2 className="text-xl font-black uppercase tracking-wide mb-2 text-white">Henüz Siparişiniz Yok</h2>
+            <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">
+              Sipariş geçmişiniz şu an boş görünüyor. Size en uygun teknolojileri keşfetmek için mağazamızı inceleyebilirsiniz.
+            </p>
+            <Link href="/" prefetch={true} className="inline-block bg-[#00e5ff] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:-translate-y-0.5">
+              Alışverişe Başla
+            </Link>
+          </div>
+        ) : (
           <div className="grid grid-cols-1 gap-6">
             {orders.map((order: any) => {
               const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase();
               const currentStep = getStepNumber(order); 
               const adminMesaji = order.musteriMesaji || order.mesaj || order.adminMesaj || order.siparisNotu || order.kargoNotu || order.kargoTakipNo;
               
-              const hamDurum = String(order.durum || "") + " " + String(order.status || "") + " " + String(order.searchableStatus || "");
-              
-              // 🚀 GÜÇLENDİRİLMİŞ İPTAL MOTORU
-              const isCancelled = hamDurum.toLowerCase().includes("iptal") || hamDurum.toLowerCase().includes("red") || hamDurum.toLowerCase().includes("iade");
+              // 🚀 NÜKLEER KONTROL
+              const herSey = JSON.stringify(order).toLowerCase();
+              const isCancelled = herSey.includes("iptal") || herSey.includes("red") || herSey.includes("iade");
 
               return (
                 <div key={order._id} className="group border border-slate-800 bg-[#09090b] rounded-2xl p-6 transition-all duration-300 hover:border-[#00e5ff]/40 shadow-xl hover:shadow-[0_0_25px_rgba(0,229,255,0.03)] relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -182,13 +175,8 @@ export default function SiparisClient({ initialOrders }: Props) {
                         <button 
                           onClick={() => handleCopy(currentSiparisKodu)}
                           className="text-slate-400 hover:text-[#00e5ff] transition-colors bg-[#121215] border border-slate-800 p-1.5 rounded-lg"
-                          title="Kodu Kopyala"
                         >
-                          {copiedCode === currentSiparisKodu ? (
-                            <Check className="w-3.5 h-3.5 text-emerald-400" />
-                          ) : (
-                            <Copy className="w-3.5 h-3.5" />
-                          )}
+                          {copiedCode === currentSiparisKodu ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                         </button>
                       </p>
                       <p className="text-xs text-slate-500 font-medium">
@@ -205,7 +193,6 @@ export default function SiparisClient({ initialOrders }: Props) {
 
                   <div className="pt-8 pb-6 px-2 sm:px-8">
                     {isCancelled ? (
-                      // 🚀 JİLET GİBİ KIRMIZI İPTAL TASARIMI 
                       <div className="bg-red-500/10 border border-red-500/30 p-5 rounded-xl flex items-center justify-center gap-3 text-red-500 font-black tracking-widest text-sm sm:text-base uppercase shadow-[0_0_20px_rgba(239,68,68,0.15)]">
                         <PackageX className="w-6 h-6" /> SİPARİŞ İPTAL EDİLDİ
                       </div>
@@ -219,7 +206,6 @@ export default function SiparisClient({ initialOrders }: Props) {
 
                         {steps.map((step) => {
                           const isCompleted = currentStep >= step.num;
-
                           return (
                             <div key={step.num} className="flex flex-col items-center gap-3 relative z-10 w-20 sm:w-24">
                               <div className={"w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-black text-xs sm:text-sm border-2 transition-all duration-500 shrink-0 " + (
@@ -288,7 +274,6 @@ export default function SiparisClient({ initialOrders }: Props) {
 
       </div>
 
-      {/* SİLME ONAY MODAL PANELİ */}
       {orderToDelete && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
           <div className="bg-[#09090b] border border-slate-800/80 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-[0_0_50px_rgba(0,0,0,0.8)] relative overflow-hidden animate-in zoom-in-95 duration-200">
