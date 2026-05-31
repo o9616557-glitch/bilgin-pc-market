@@ -17,7 +17,7 @@ export default function Footer() {
     return null;
   }
   return (
-    <footer className="bg-[#09090b] border-t border-slate-800/80 pt-16 pb-28 md:pb-12 relative overflow-hidden shadow-[0_-15px_40px_rgba(0,229,255,0.03)] mt-auto">
+    <footer className="bg-[#09090b] border-t border-slate-800/80 pt-16 pb-8 relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-[#00e5ff] to-transparent opacity-20"></div>
       
       <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
@@ -128,7 +128,7 @@ export default function Footer() {
           <p className="text-slate-500 text-xs font-medium text-center md:text-left">
             © {new Date().getFullYear()} Bilgin PC Market Tüm Hakları Saklıdır.
           </p>
-          <div className="flex items-center justify-center md:justify-start gap-3 opacity-15 grayscale">
+          <div className="flex items-center justify-center md:justify-start gap-3 opacity-50 grayscale">
             <img src="https://iyzico.com/assets/images/iyzico-logo.svg" alt="iyzico" className="h-6 object-contain filter invert brightness-0" />
             <span className="text-slate-600 text-xl">|</span>
             <span className="text-slate-500 text-xs font-bold uppercase tracking-widest">Güvenli Alışveriş</span>
