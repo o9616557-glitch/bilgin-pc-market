@@ -4,11 +4,13 @@ import { useCart } from "../CartContext";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 // 🚀 Çarpı (X) ikonunu içeri aldık
 import { CreditCard, Banknote, X } from "lucide-react"; 
 
 export default function OdemeSayfasi() {
   const { data: session } = useSession(); 
+  const router = useRouter();
   const { sepet } = useCart();
   const [odemeYontemi, setOdemeYontemi] = useState("kart");
   const [yukleniyor, setYukleniyor] = useState(false);
