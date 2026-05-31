@@ -1,34 +1,41 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
+    <!-- Arka plan için gece mavisinden siyaha gradient (Derinlik) -->
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#1e293b" />
       <stop offset="100%" stop-color="#020617" />
     </linearGradient>
-
-    <filter id="shadow3d">
-      <feDropShadow dx="0" dy="15" stdDeviation="15" flood-color="#000000" flood-opacity="0.9"/>
-    </filter>
-
-    <linearGradient id="neonFrame" x1="0%" y1="0%" x2="100%" y2="100%">
+    
+    <!-- Neon Mavi Işık Rengi -->
+    <linearGradient id="neonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#00f2fe" />
       <stop offset="100%" stop-color="#4facfe" />
     </linearGradient>
 
-    <linearGradient id="alevEfekti" x1="-100%" y1="0%" x2="0%" y2="0%">
-      <stop offset="0%" stop-color="#1e293b" />
-      <stop offset="50%" stop-color="#38bdf8" />
-      <stop offset="100%" stop-color="#1e293b" />
-      <animate attributeName="x1" from="-100%" to="100%" dur="2.5s" repeatCount="indefinite" />
-      <animate attributeName="x2" from="0%" to="200%" dur="2.5s" repeatCount="indefinite" />
-    </linearGradient>
+    <!-- 3D Gölge Efekti -->
+    <filter id="shadow3d">
+      <feDropShadow dx="0" dy="15" stdDeviation="15" flood-color="#000000" flood-opacity="0.9"/>
+    </filter>
+
+    <!-- Neon Parlama (Glow) Efekti -->
+    <filter id="neonGlow">
+      <feGaussianBlur stdDeviation="12" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
 
-  <rect width="512" height="512" fill="none" />
-
+  <!-- Yuvarlatılmış Köşeli Ana Kasa (Sivrilikleri Yok Eder, 3D Gölge İçerir) -->
   <rect x="24" y="24" width="464" height="464" rx="100" ry="100" fill="url(#bgGrad)" filter="url(#shadow3d)" />
 
-  <rect x="34" y="34" width="444" height="444" rx="90" ry="90" fill="none" stroke="url(#neonFrame)" stroke-width="3" opacity="0.6" />
+  <!-- Dış Çerçeve (Premium Oyuncu Hissi İçin İnce Neon Çizgi) -->
+  <rect x="34" y="34" width="444" height="444" rx="90" ry="90" fill="none" stroke="url(#neonGrad)" stroke-width="3" opacity="0.6" />
 
-  <text x="49%" y="48%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="900" font-size="250" font-style="italic" fill="url(#alevEfekti)">B</text>
-  <text x="50%" y="80%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="800" font-size="44" fill="url(#alevEfekti)" letter-spacing="7">BİLGİN PC</text>
+  <!-- 3D Neon B Harfi -->
+  <text x="49%" y="48%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="900" font-size="250" font-style="italic" fill="url(#neonGrad)" filter="url(#neonGlow)">B</text>
+
+  <!-- Şık ve Kalın Alt Yazı -->
+  <text x="50%" y="80%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="800" font-size="44" fill="#ffffff" letter-spacing="7">BİLGİN PC</text>
 </svg>
