@@ -43,6 +43,8 @@ export async function POST(request: Request) {
       try {
         const siparis = await db.collection("orders").findOne({ siparisKodu: siparisKodu });
         const musteriMaili = siparis?.email || siparis?.userEmail || siparis?.musteri?.eposta || "o9616557@gmail.com";
+        const musteri = siparis?.musteri || {};
+        const toplamTutar = siparis?.toplamTutar || siparis?.totalPrice || 0;
 
         const nodemailer = require("nodemailer");
         const transporter = nodemailer.createTransport({
@@ -55,12 +57,25 @@ export async function POST(request: Request) {
           from: `"Bilgin PC Market" <o9616557@gmail.com>`,
           to: musteriMaili,
           subject: "Ödemeniz Başarılı! 🚀 (Siparişiniz Hazırlanıyor)",
-          html: `<div style="background-color: #09090b; color: #fff; padding: 30px; border-radius: 12px; text-align: center;">
-            <h2 style="color: #00e5ff;">Ödemeniz Alındı! 🎉</h2>
-            <p>Merhaba, ödemeniz Iyzico tarafından onaylandı ve siparişiniz hazırlık aşamasına geçirildi.</p>
-            <h1 style="color: #ffffff; letter-spacing: 3px;">${siparisKodu}</h1>
-            <p>Bizi tercih ettiğiniz için teşekkür ederiz!<br>Bilgin PC Market</p>
-          </div>`
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #09090b; color: #ffffff; padding: 30px; border-radius: 12px; border: 1px solid #27272a;">
+              <h2 style="color: #00e5ff; text-align: center; text-transform: uppercase;">Ödemeniz Alındı! 🎉</h2>
+              <p>Merhaba <strong style="color: #fff;">${musteri?.ad || ""} ${musteri?.soyad || ""}</strong>,</p>
+              <p>Ödemeniz Iyzico tarafından başarıyla onaylandı. Siparişiniz şu an <strong>Hazırlanıyor</strong> aşamasına geçmiştir.</p>
+              
+              <div style="background-color: #121215; padding: 25px; border-radius: 8px; margin: 25px 0; border: 1px solid #27272a; box-shadow: 0 0 15px rgba(0, 229, 255, 0.05);">
+                <h3 style="color: #00e5ff; margin-top: 0; border-bottom: 1px solid #27272a; padding-bottom: 10px;">Sipariş Detayları</h3>
+                <p style="color: #a1a1aa; font-size: 14px;"><strong>Sipariş Kodu:</strong> <span style="color: #fff;">${siparisKodu}</span></p>
+                <p style="color: #a1a1aa; font-size: 14px;"><strong>Ad Soyad:</strong> <span style="color: #fff;">${musteri?.ad || ""} ${musteri?.soyad || ""}</span></p>
+                <p style="color: #a1a1aa; font-size: 14px;"><strong>Telefon:</strong> <span style="color: #fff;">${musteri?.telefon || "-"}</span></p>
+                <p style="color: #a1a1aa; font-size: 14px;"><strong>Şehir / İlçe:</strong> <span style="color: #fff;">${musteri?.sehir || ""} / ${musteri?.ilce || ""}</span></p>
+                <p style="color: #a1a1aa; font-size: 14px;"><strong>Teslimat Adresi:</strong> <span style="color: #fff;">${musteri?.adres || "-"}</span></p>
+                <p style="color: #a1a1aa; font-size: 14px;"><strong>Ödenen Tutar:</strong> <span style="color: #00e5ff; font-weight: bold; font-size: 18px;">${toplamTutar} TL</span></p>
+              </div>
+              
+              <p style="color: #a1a1aa; font-size: 14px; text-align: center;">Bizi tercih ettiğiniz için teşekkür ederiz!<br><br><strong style="color: #00e5ff;">Bilgin PC Market</strong></p>
+            </div>
+          `
         };
         transporter.sendMail(mailSecenekleri).catch((err: any) => console.log(err));
       } catch (mailHatasi) { }
