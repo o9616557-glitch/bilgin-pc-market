@@ -31,9 +31,11 @@ export default function RootLayout({
   return (
     <html lang="tr">
       <body className={geistSans.variable + " " + geistMono.variable + " antialiased min-h-screen flex flex-col bg-[#050814] overflow-x-hidden"}>
-      <Toaster
+     <Toaster
   position="top-right"
-  containerStyle={{ zIndex: 999999 }}
+  containerStyle={{
+    zIndex: 2147483647
+  }}
   toastOptions={{
     style: {
       background: '#09090b',
