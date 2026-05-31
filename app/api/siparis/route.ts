@@ -178,7 +178,7 @@ export async function POST(request: Request) {
       currency: "TRY",
       basketId: siparisKodu,
       paymentGroup: "PRODUCT",
-      callbackUrl: `${siteUrl}/api/iyzico-sonuc?siparisKodu=${siparisKodu}`,
+     callbackUrl:` https://www.bilginpcmarket.com/api/iyzico-sonuc?siparisKodu=${siparisKodu}`,
       enabledInstallments: [1, 2, 3, 6, 9],
       buyer: {
         id: "MUSTERI-123", // Sabitlendi
