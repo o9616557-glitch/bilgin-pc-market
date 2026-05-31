@@ -1,116 +1,112 @@
-"use client";
 import React from "react";
-import { FileText, Scale, ShoppingBag, Truck } from "lucide-react";
 
-export default function MesafeliSatisPage() {
+export const metadata = {
+  title: "Mesafeli Satış Sözleşmesi | Bilgin PC Market",
+  description: "Bilgin PC Market - 6502 Sayılı Tüketicinin Korunması Hakkında Kanun kapsamında Mesafeli Satış Sözleşmesi.",
+};
+
+export default function MesafeliSatisSozlesmesiPage() {
   return (
-    <div className="min-h-screen bg-[#050814] text-white pt-12 pb-20 px-4">
-      <div className="max-w-4xl mx-auto">
-        
-        {/* BAŞLIK ALANI */}
-        <div className="text-center mb-16 relative">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[#00e5ff] blur-[120px] opacity-20 pointer-events-none"></div>
-          <div className="flex justify-center mb-6 relative z-10">
-            <div className="w-20 h-20 bg-[#00e5ff]/10 border border-[#00e5ff]/30 rounded-full flex items-center justify-center">
-              <FileText className="w-10 h-10 text-[#00e5ff]" />
+    <div className="min-h-screen bg-[#0b0f19] text-slate-300 font-sans selection:bg-cyan-500 selection:text-slate-900 overflow-hidden relative pb-20">
+      
+      {/* Arka Plan Dekoratif Işıklar (Glow Effect) */}
+      <div className="absolute top-[10%] left-[-10%] w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[10%] right-[-10%] w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-[150px] pointer-events-none" />
+
+      {/* 1. HERO BÖLÜMÜ */}
+      <section className="relative max-w-5xl mx-auto px-4 pt-24 pb-12 text-center z-10 border-b border-slate-800/80">
+        <span className="text-xs font-bold tracking-widest text-cyan-400 uppercase bg-cyan-500/10 border border-cyan-500/20 px-3 py-1 rounded-full">
+          Yasal Metinler
+        </span>
+        <h1 className="mt-6 text-3xl md:text-5xl font-black tracking-tight text-white uppercase">
+          Mesafeli Satış <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400">Sözleşmesi</span>
+        </h1>
+        <p className="mt-6 text-sm md:text-base text-slate-400 max-w-3xl mx-auto leading-relaxed">
+          İşbu sözleşme, 6502 Sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği hükümleri gereğince tarafların hak ve yükümlülüklerini düzenlemektedir.
+        </p>
+      </section>
+
+      {/* 2. SÖZLEŞME METNİ BÖLÜMÜ */}
+      <section className="max-w-4xl mx-auto px-4 pt-12 z-10 relative">
+        <div className="bg-slate-900/50 border border-slate-800 p-6 md:p-10 rounded-2xl backdrop-blur-md space-y-10 shadow-2xl">
+          
+          {/* Madde 1: Taraflar */}
+          <div>
+            <h2 className="text-xl font-bold text-white mb-4 border-b border-slate-800 pb-2">1. TARAFLAR</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-slate-950/50 p-4 rounded-lg border border-slate-800/80">
+                <h3 className="text-cyan-400 font-bold mb-2 text-sm uppercase">1.1. Satıcı Bilgileri</h3>
+                <ul className="text-sm text-slate-400 space-y-1">
+                  <li><strong className="text-slate-300">Ünvanı:</strong> [Şirketinizin Resmi Ticari Ünvanı]</li>
+                  <li><strong className="text-slate-300">Adres:</strong> [Fiziksel Adresiniz / Operasyon Merkezi]</li>
+                  <li><strong className="text-slate-300">Telefon:</strong> [Telefon Numaranız]</li>
+                  <li><strong className="text-slate-300">E-posta:</strong> destek@bilginpcmarket.com</li>
+                  <li><strong className="text-slate-300">Mersis No:</strong> [Varsa Mersis Numaranız]</li>
+                </ul>
+              </div>
+              <div className="bg-slate-950/50 p-4 rounded-lg border border-slate-800/80">
+                <h3 className="text-cyan-400 font-bold mb-2 text-sm uppercase">1.2. Alıcı Bilgileri</h3>
+                <p className="text-sm text-slate-400 leading-relaxed">
+                  Siparişi veren, ödeme sayfasında bilgileri yer alan ve platform üzerinden alışveriş yapan tüketiciyi ifade eder.
+                </p>
+              </div>
             </div>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-wider text-white mb-4 relative z-10">
-            MESAFELİ <span className="text-[#00e5ff]">SATIŞ SÖZLEŞMESİ</span>
-          </h1>
-          <p className="text-slate-400 font-medium text-base sm:text-lg max-w-xl mx-auto leading-relaxed relative z-10">
-            Tüketici Kanunu'na uygun olarak hazırlanan, hem sizin hem de bizim haklarımızı güvence altına alan yasal sözleşmedir.
-          </p>
-        </div>
 
-        {/* ÖNE ÇIKAN MADDELER (GRID) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-          
-          <div className="bg-[#09090b] border border-slate-800/80 rounded-3xl p-8 relative overflow-hidden transition-all hover:border-[#00e5ff]/40">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 bg-[#10b981]/10 rounded-xl flex items-center justify-center shrink-0">
-                <Truck className="w-6 h-6 text-[#10b981]" />
-              </div>
-              <h3 className="text-lg font-bold text-white uppercase tracking-wide">Teslimat Şartları</h3>
-            </div>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              Siparişleriniz onaylandıktan sonra yasal 30 günlük süreyi aşmamak kaydıyla, belirttiğiniz teslimat adresine kargo firması aracılığıyla güvenli ve sigortalı olarak ulaştırılır.
+          {/* Madde 2: Konu */}
+          <div>
+            <h2 className="text-xl font-bold text-white mb-4 border-b border-slate-800 pb-2">2. KONU</h2>
+            <p className="text-slate-400 text-sm md:text-base leading-relaxed">
+              İşbu sözleşmenin konusu, ALICI'nın SATICI'ya ait Bilgin PC Market internet sitesinden elektronik ortamda siparişini yaptığı, sözleşmede ve ödeme sayfasında nitelikleri ile satış fiyatı belirtilen donanım ve elektronik ürünün/ürünlerin satışı ve teslimi ile ilgili olarak yasal mevzuat hükümleri gereğince tarafların hak ve yükümlülüklerinin saptanmasıdır.
             </p>
           </div>
 
-          <div className="bg-[#09090b] border border-slate-800/80 rounded-3xl p-8 relative overflow-hidden transition-all hover:border-[#00e5ff]/40">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center shrink-0">
-                <Scale className="w-6 h-6 text-orange-400" />
-              </div>
-              <h3 className="text-lg font-bold text-white uppercase tracking-wide">Cayma Hakkı</h3>
-            </div>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              Tüketici, ürünü teslim aldığı tarihten itibaren 14 (ondört) gün içinde herhangi bir gerekçe göstermeksizin ve cezai şart ödemeksizin sözleşmeden cayma hakkına sahiptir.
+          {/* Madde 3: Teslimat */}
+          <div>
+            <h2 className="text-xl font-bold text-white mb-4 border-b border-slate-800 pb-2">3. TESLİMAT ŞARTLARI</h2>
+            <p className="text-slate-400 text-sm md:text-base leading-relaxed mb-3">
+              Ürün, yasal 30 günlük süreyi aşmamak koşulu ile her bir ürün için ALICI'nın yerleşim yerinin uzaklığına bağlı olarak internet sitesinde ön bilgiler kısmında açıklanan süre zarfında ALICI veya gösterdiği adresteki kişi/kuruluşa teslim edilir.
+            </p>
+            <p className="text-slate-400 text-sm md:text-base leading-relaxed text-red-400/80 bg-red-900/10 p-3 rounded border border-red-900/30">
+              <strong>Önemli:</strong> ALICI, kargo paketini teslim alırken hasar kontrolü yapmakla ve koli üzerinde ezilme, yırtılma veya ıslanma gibi olağandışı bir durum tespit etmesi halinde ürünü teslim almayarak kargo yetkilisine tutanak tutturmakla yükümlüdür.
             </p>
           </div>
 
-        </div>
-
-        {/* SÖZLEŞME METNİ */}
-        <div className="bg-[#09090b] border border-slate-800/80 rounded-3xl p-6 sm:p-10 mb-12 shadow-xl">
-          <div className="flex items-center gap-3 mb-6 border-b border-slate-800 pb-4">
-            <ShoppingBag className="w-6 h-6 text-[#00e5ff]" />
-            <h2 className="text-xl font-black uppercase text-white tracking-wide">Sözleşme Maddeleri</h2>
-          </div>
-          
-          <div className="space-y-6 text-slate-300 text-sm sm:text-base leading-relaxed font-medium">
+          {/* Madde 4: Cayma Hakkı (Burası Donanım İçin Çok Kritik) */}
+          <div>
+            <h2 className="text-xl font-bold text-white mb-4 border-b border-slate-800 pb-2">4. CAYMA HAKKI VE İSTİSNALARI</h2>
+            <p className="text-slate-400 text-sm md:text-base leading-relaxed mb-4">
+              ALICI, satın aldığı ürünün kendisine veya gösterdiği adresteki kişi/kuruluşa teslim tarihinden itibaren 14 (on dört) gün içerisinde hiçbir hukuki ve cezai sorumluluk üstlenmeksizin ve hiçbir gerekçe göstermeksizin malı reddederek sözleşmeden cayma hakkına sahiptir. 
+            </p>
             
-            <div>
-              <h4 className="text-white font-bold mb-2">MADDE 1 - TARAFLAR</h4>
-              <p className="text-slate-400 text-sm">
-                <strong>SATICI:</strong> BİLGİN PC MARKET LTD. ŞTİ.<br />
-                <strong>E-Posta:</strong> info@bilginpcmarket.com<br />
-                <strong>Web:</strong> bilginpcmarket.com<br />
-                <strong>ALICI:</strong> bilginpcmarket.com e-ticaret sitesinden sipariş veren ve fatura/teslimat bilgilerini dolduran kullanıcıdır.
+            <div className="bg-slate-900 border border-blue-500/30 p-5 rounded-xl">
+              <h3 className="text-blue-400 font-bold mb-3 flex items-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                Cayma Hakkının Kullanılamayacağı Durumlar
+              </h3>
+              <p className="text-slate-400 text-sm mb-3">
+                Bilgisayar donanımları yüksek hassasiyet içeren elektronik bileşenlerdir. Aşağıdaki durumlarda yasa gereği cayma hakkı kullanılamaz:
               </p>
+              <ul className="space-y-2 text-sm text-slate-400 list-disc pl-5">
+                <li>Ambalajı, güvenlik bandı, mührü, paketi gibi koruyucu unsurları açılmış olan elektronik aletler ve bilgisayar bileşenleri.</li>
+                <li>İşlemci (CPU) ve Anakart gibi montajı yapıldıktan sonra "ikinci el" statüsüne düşen, statik elektrik riski taşıyan ürünler (Pinlerin montaj izi taşıması durumu).</li>
+                <li>Termal macunu sürülmüş veya soğutucu montajı yapılmış bileşenler.</li>
+                <li>Lisans gerektiren yazılımlar ve dijital aktivasyon kodları içeren ürünler.</li>
+              </ul>
             </div>
-
-            <div>
-              <h4 className="text-white font-bold mb-2">MADDE 2 - SÖZLEŞMENİN KONUSU</h4>
-              <p className="text-slate-400 text-sm">
-                İşbu sözleşmenin konusu, ALICI'nın SATICI'ya ait bilgisayar donanımı ve bileşenleri satan e-ticaret sitesinden elektronik ortamda siparişini verdiği, sözleşmede nitelikleri ve satış fiyatı belirtilen ürünün satışı ve teslimi ile ilgili olarak 6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği hükümleri gereğince tarafların hak ve yükümlülüklerinin saptanmasıdır.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="text-white font-bold mb-2">MADDE 3 - ÜRÜN VE ÖDEME BİLGİLERİ</h4>
-              <p className="text-slate-400 text-sm">
-                Ürünlerin cinsi, miktarı, marka/modeli, adedi, satış bedeli ve ödeme şekli siparişin sonlandırıldığı andaki bilgilerden oluşmaktadır. Havale veya Kredi Kartı ile yapılan ödemelerde, banka onayının ardından sipariş işleme alınır. Havale ödemelerinde 3 iş günü içinde yapılmayan transferlerin siparişleri otomatik iptal edilir.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="text-white font-bold mb-2">MADDE 4 - GENEL HÜKÜMLER</h4>
-              <p className="text-slate-400 text-sm">
-                4.1- ALICI, sözleşme konusu ürünün temel nitelikleri, satış fiyatı ve ödeme şekli ile teslimata ilişkin ön bilgileri okuyup bilgi sahibi olduğunu ve elektronik ortamda gerekli teyidi verdiğini beyan eder.<br />
-                4.2- Sözleşme konusu ürün, yasal 30 günlük süreyi aşmamak koşulu ile her bir ürün için ALICI'nın yerleşim yerinin uzaklığına bağlı olarak internet sitesinde ön bilgiler içinde açıklanan süre içinde ALICI veya gösterdiği adresteki kişi/kuruluşa teslim edilir.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="text-white font-bold mb-2">MADDE 5 - CAYMA HAKKI İSTİSNALARI</h4>
-              <p className="text-slate-400 text-sm">
-                ALICI'nın özel istek ve talepleri uyarınca üretilen veya üzerinde değişiklik ya da ilaveler yapılarak kişiye özel hale getirilen ürünlerde (Örn: ALICI'nın talebiyle özel toplanan, montajı yapılan ve test edilen hazır sistem bilgisayarlar) ve ambalajı açılmış, jelatini sökülmüş yazılım/donanım ürünlerinde mevzuat gereği cayma hakkı kullanılamaz.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="text-white font-bold mb-2">MADDE 6 - YETKİLİ MAHKEME</h4>
-              <p className="text-slate-400 text-sm">
-                İşbu sözleşmenin uygulanmasında, Gümrük ve Ticaret Bakanlığınca ilan edilen değere kadar Tüketici Hakem Heyetleri ile SATICI'nın yerleşim yerindeki Tüketici Mahkemeleri yetkilidir. Sipariş gerçekleştiğinde ALICI işbu sözleşmenin tüm koşullarını kabul etmiş sayılır.
-              </p>
-            </div>
-
           </div>
-        </div>
 
-      </div>
+          {/* Madde 5: Uyuşmazlık Çözümü */}
+          <div>
+            <h2 className="text-xl font-bold text-white mb-4 border-b border-slate-800 pb-2">5. UYUŞMAZLIKLARIN ÇÖZÜMÜ</h2>
+            <p className="text-slate-400 text-sm md:text-base leading-relaxed">
+              İşbu sözleşmenin uygulanmasında doğabilecek uyuşmazlıklarda, Gümrük ve Ticaret Bakanlığınca ilan edilen değere kadar Tüketici Hakem Heyetleri ile ALICI'nın veya SATICI'nın yerleşim yerindeki Tüketici Mahkemeleri yetkilidir.
+            </p>
+          </div>
+
+        </div>
+      </section>
+
     </div>
   );
 }
