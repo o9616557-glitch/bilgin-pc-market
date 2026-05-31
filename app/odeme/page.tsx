@@ -177,13 +177,13 @@ export default function OdemeSayfasi() {
           {/* Sol: Sepete Dönüş Kapısı */}
         <button 
   type="button"
-  onClick={() => router.replace('/sepet')} 
-  className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors cursor-pointer"
+  onPointerDown={() => router.replace('/sepet')} 
+  className="relative z-50 flex items-center gap-2 text-slate-400 hover:text-white transition-colors cursor-pointer"
 >
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg className="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
   </svg>
-  <span className="font-medium">Sepete Dön</span>
+  <span className="font-medium pointer-events-none">Sepete Dön</span>
 </button>
           {/* Orta: Tıklanabilir Logo */}
           <Link href="/" className="font-black text-xl sm:text-2xl tracking-tight text-white hover:opacity-80 transition-opacity">
