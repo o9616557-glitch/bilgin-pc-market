@@ -31,16 +31,17 @@ export default function RootLayout({
   return (
     <html lang="tr">
       <body className={geistSans.variable + " " + geistMono.variable + " antialiased min-h-screen flex flex-col bg-[#050814] overflow-x-hidden"}>
-        <Toaster 
-          position="top-right"
-          toastOptions={{
-            style: {
-              background: '#09090b',
-              color: '#fff',
-              border: '1px solid rgba(255,255,255,0.1)'
-            }
-          }}
-        />
+        <Toaster
+  position="top-right"
+  containerStyle={{ zIndex: 999999 }}
+  toastOptions={{
+    style: {
+      background: '#09090b',
+      color: '#fff',
+      border: '1px solid rgba(255,255,255,0.1)'
+    }
+  }}
+/>
         <AuthProvider>
           <CartProvider>
             <CompareProvider>
