@@ -17,7 +17,7 @@ export default function Footer() {
     return null;
   }
   return (
-    <footer className="bg-[#09090b] border-t border-slate-800/80 pt-16 pb-8 relative overflow-hidden">
+    <footer className={`bg-[#09090b] border-t border-slate-800/80 pt-16 relative overflow-hidden flex flex-col items-center ${pathname?.includes('/product') ? 'pb-28 md:pb-8' : 'pb-8'}`}>
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-[#00e5ff] to-transparent opacity-20"></div>
       
       <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
