@@ -173,7 +173,7 @@ export default function OdemeSayfasi() {
         <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-4 flex items-center justify-between">
           
           {/* Sol: Sepete Dönüş Kapısı */}
-         <Link href="/sepet" replace className="flex items-center gap-2 text-slate-400 active:text-white transition-colors">
+         <Link href="/sepet" replace className="flex items-center gap-2 text-slate-400 cursor-pointer">
             <ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">Sepete Dön</span>
           </Link>
 
