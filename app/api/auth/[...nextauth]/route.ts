@@ -4,7 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
-import User from "@/models/User"; // Az önce oluşturduğumuz şablonu çağırıyoruz
+import User from "@/models/User"; 
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -28,72 +28,44 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Sifre", type: "password" }
       },
       async authorize(credentials) {
+        // A. Boş giriş kontrolü
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Lütfen e-posta ve şifrenizi girin.");
+          throw new Error("Lütfen e-posta ve şifre girin.");
         }
 
-        // Mongoose ile veritabanına bağlanıyoruz (Kayıt API'si ile birebir aynı)
+        // B. MongoDB Bağlantı Kontrolü (Eğer bağlı değilse bağlanır)
         if (mongoose.connection.readyState !== 1) {
           await mongoose.connect(process.env.MONGODB_URI as string);
         }
 
-        // Kullanıcıyı veritabanında bul
+        // C. Kullanıcıyı Veritabanında Bulma
         const user = await User.findOne({ email: credentials.email });
-
         if (!user) {
-          throw new Error("Bu e-posta ile kayıtlı bir kullanıcı bulunamadı.");
+          throw new Error("Bu e-posta adresiyle kayıtlı kullanıcı bulunamadı.");
         }
 
-        // Şifreyi çöz ve karşılaştır
+        // D. Şifre Doğrulama (bcrypt ile)
         const isPasswordMatch = await bcrypt.compare(credentials.password, user.password);
-
         if (!isPasswordMatch) {
           throw new Error("Şifre hatalı, lütfen tekrar deneyin.");
         }
 
-        // 🚀 YENİ EKLENEN ONAY GÜVENLİK DUVARI (Kapıdaki Koruma)
-        if (!user.isVerified) {
-          throw new Error("Giriş başarısız! Lütfen e-postanıza giderek hesabınızı onaylayın.");
-        }
-
-        // Her şey doğruysa kapıları aç!
-        return {
-          id: user._id.toString(),
-          name: user.name,
-          email: user.email
-        };
+        // E. Her şey başarılıysa kullanıcı bilgisini döndür
+        return user;
       }
     })
   ],
   session: {
-    strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 Gün açık kalır
+    strategy: "jwt", // App Router'da JWT stratejisi en sağlıklısıdır
   },
-  secret: process.env.NEXTAUTH_SECRET || "BilginPcMarketGizliAnahtar2026",
+  secret: process.env.NEXTAUTH_SECRET, // Güvenlik anahtarın (.env dosyasında olmalı)
   pages: {
-    signIn: "/giris", // Hata olursa veya giriş gerekirse buraya atar
-  },
-  
-  // 🚀 ŞEFİM İŞTE HAYAT KURTARAN GÜMRÜK KAPISI BURASI!
-  callbacks: {
-    async jwt({ token, user }: any) {
-      if (user) {
-        token.id = user.id;
-      }
-      return token;
-    },
-    async session({ session, token }: any) {
-      if (session.user) {
-        // @ts-ignore
-        session.user.id = token.id;
-      }
-      return session;
-    }
-  },
-  // Hata olursa Vercel loglarında kabak gibi göstersin diye radar açtık
-  debug: true,
+    signIn: '/login', // Eğer özel bir giriş sayfan varsa buraya yönlendirir
+  }
 };
 
-// NextAuth'un çalışması için zorunlu dışa aktarım (Export) işlemi
+// 🚀 İŞTE EKSİK OLAN HAYATİ KISIM (APP ROUTER MOTORU)
 const handler = NextAuth(authOptions);
+
+// Next.js App Router'ın API'yi okuyabilmesi için GET ve POST olarak dışa aktarıyoruz
 export { handler as GET, handler as POST };

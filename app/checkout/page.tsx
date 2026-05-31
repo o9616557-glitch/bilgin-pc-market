@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-
+import Link from "next/link";
 export default function CheckoutPage() {
   // 🚀 ŞEFİM: "status" eklendi. Bu sayede oturumun yüklenip yüklenmediğini bileceğiz.
   const { data: session, status } = useSession(); 
@@ -81,9 +81,9 @@ export default function CheckoutPage() {
           <div className="w-16 h-16 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-black">!</div>
           <h3 className="text-red-400 font-bold mb-2">Ödeme Başlatılamadı</h3>
           <p className="text-slate-300 text-sm">{errorMsg}</p>
-          <a href="/sepet" className="mt-6 inline-block bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 px-6 rounded-lg text-sm transition-colors">
-            Sepete Dön
-          </a>
+          <Link href="/sepet" replace className="mt-6 inline-block bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 px-6 rounded-xl transition-all">
+  Sepete Dön
+</Link>
         </div>
       )}
     </div>
