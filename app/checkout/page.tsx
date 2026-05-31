@@ -81,8 +81,20 @@ export default function CheckoutPage() {
           <div className="w-16 h-16 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-black">!</div>
           <h3 className="text-red-400 font-bold mb-2">Ödeme Başlatılamadı</h3>
           <p className="text-slate-300 text-sm">{errorMsg}</p>
-          <Link href="/sepet" replace className="mt-6 inline-block bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 px-6 rounded-xl transition-all">
-  Sepete Dön
+          {/* 🚀 GARANTİLİ SEPETE DÖN BUTONU */}
+<Link 
+  href="/sepet" 
+  className="group flex items-center gap-2 w-fit mb-6 px-4 py-2 bg-[#121215] border border-white/10 rounded-xl text-slate-400 hover:text-[#00e5ff] hover:border-[#00e5ff]/50 transition-all shadow-sm"
+>
+  <svg 
+    className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" 
+    fill="none" 
+    stroke="currentColor" 
+    viewBox="0 0 24 24"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+  </svg>
+  <span className="font-bold text-sm tracking-wide uppercase">Sepete Dön</span>
 </Link>
         </div>
       )}
