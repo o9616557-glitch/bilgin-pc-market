@@ -567,7 +567,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           </div>
         </div>
       )}
-
+{/* spacer: Yapışkan barın altındaki yazıları kurtaran görünmez takoz */}
+<div className="h-24 w-full md:h-0 pointer-events-none"></div>
     </div>
   );
 }
