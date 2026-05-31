@@ -7,8 +7,12 @@ import { ObjectId } from "mongodb";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 
+// 🚀 VERCEL ÖNBELLEK KİLİDİNİ PARÇALAMA EMİRLERİ (Her saniye güncel veri çeker)
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 // =================================================================
-// 1. SİPARİŞLERİ EKRANA GETİRME MOTORU
+// 1. SİPARİŞLERİ EKRANA GETİRME MOTORU (GÜNCELLENDİ 🎯)
 // =================================================================
 export async function GET() {
   try {
@@ -40,8 +44,16 @@ export async function GET() {
         image: item.image || item.resim || "https://app.bilginpcmarket.com/placeholder.png"
       }));
 
-      // 🚀 NÜKLEER TARAYICI: Admin paneli nereye yazarsa yazsın kaybetmemek için tüm durum kelimelerini birleştiriyoruz!
-      const butunDurumlar = `${order.durum || ""} ${order.status || ""} ${order.paymentMethod || ""}`;
+      // 🚀 AKILLI MÜHÜR MOTORU: Admin nereye ne yazdıysa hepsini birleştirip tarıyoruz
+      const hamDurumMetni = `${order.durum || ""} ${order.status || ""} ${order.paymentMethod || ""}`.toLowerCase();
+      
+      // Varsayılan durum ataması
+      let sonDurum = order.durum || order.status || "Hazırlanıyor";
+      
+      // Eğer herhangi bir hücrede iptal kelimesi geçiyorsa durumu zorla "İptal Edildi" yap!
+      if (hamDurumMetni.includes("iptal") || hamDurumMetni.includes("red") || hamDurumMetni.includes("iade")) {
+        sonDurum = "İptal Edildi";
+      }
 
       return {
         ...order,
@@ -50,9 +62,9 @@ export async function GET() {
         totalPrice: Number(order.totalPrice || order.toplamTutar || order.genelToplam || 0),
         createdAt: order.createdAt || order.tarih || new Date().toISOString(),
         shippingAddress: order.shippingAddress || order.musteri || order.customerDetails || {},
-        // 🚀 Trenin (Vagonun) okuması için bu kelime deposunu yolluyoruz
-        searchableStatus: butunDurumlar,
-        status: order.status || order.durum || "Hazırlanıyor"
+        searchableStatus: hamDurumMetni,
+        status: sonDurum, // Artık kilitlenen eski durumların önceliği kırıldı!
+        durum: sonDurum
       };
     });
 
