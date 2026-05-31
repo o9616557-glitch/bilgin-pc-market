@@ -108,7 +108,7 @@ export default function FavorilerModal({ isOpen, onClose }: { isOpen: boolean; o
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#050814] md:bg-slate-900/80 md:backdrop-blur-sm p-0 md:p-4">
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-[#050814] md:bg-slate-900/80 md:backdrop-blur-sm p-0 md:p-4">
       
       <div className="w-full h-full md:h-auto md:max-h-[90vh] md:max-w-3xl bg-[#09090b] md:border md:border-slate-800/50 md:rounded-2xl shadow-2xl flex flex-col relative overflow-hidden">
         
