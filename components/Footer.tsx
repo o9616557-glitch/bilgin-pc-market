@@ -128,7 +128,7 @@ export default function Footer() {
           <p className="text-slate-500 text-xs font-medium text-center md:text-left">
             © {new Date().getFullYear()} Bilgin PC Market Tüm Hakları Saklıdır.
           </p>
-          <div className="flex items-center justify-center md:justify-start gap-3 opacity-50 grayscale">
+          <div className="flex items-center justify-center md:justify-start gap-3 opacity-15 grayscale">
             <img src="https://iyzico.com/assets/images/iyzico-logo.svg" alt="iyzico" className="h-6 object-contain filter invert brightness-0" />
             <span className="text-slate-600 text-xl">|</span>
             <span className="text-slate-500 text-xs font-bold uppercase tracking-widest">Güvenli Alışveriş</span>
