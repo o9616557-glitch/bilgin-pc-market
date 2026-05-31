@@ -21,9 +21,11 @@ export default function ComparePopup() {
   });
 
   const getGridStyle = () => {
+    // 3 ürün varsa alanı tam doldur (1fr), yoksa normal boyutta (240px) bırak.
+    const maksimumGenislik = karsilastirilanlar.length === 3 ? "1fr" : "240px";
+    
     return { 
-      // 1fr özelliği sayesinde kalan tüm boşluğu eşit olarak paylaşırlar
-      gridTemplateColumns: `repeat(${karsilastirilanlar.length}, minmax(160px, 1fr))`, 
+      gridTemplateColumns: `repeat(${karsilastirilanlar.length}, minmax(160px, ${maksimumGenislik}))`, 
       justifyContent: "start" 
     };
   };
