@@ -1,0 +1,19 @@
+{
+  "name": "Bilgin PC Market",
+  "short_name": "BilginPC",
+  "description": "Bilgin PC Market - Yüksek Performanslı Donanım Mağazası",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#020617",
+  "theme_color": "#38bdf8",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+    
+  ]
+}
