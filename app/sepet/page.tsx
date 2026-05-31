@@ -63,12 +63,13 @@ export default function SepetSayfasi() {
         <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-4 flex items-center justify-between">
           
           {/* Sol: Mağazaya Güvenli Dönüş Kapısı */}
-          <button 
-            onClick={() => router.back()} 
-            className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-400 hover:text-[#00e5ff] transition-colors uppercase tracking-wider bg-transparent border-none cursor-pointer p-0"
-          >
-            <ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">Geri Dön</span>
-          </button>
+         <Link 
+  href="/" 
+  className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-400 hover:text-white transition-colors"
+>
+  <ArrowLeft className="w-4 h-4" /> 
+  <span className="hidden sm:inline">Mağazaya Dön</span>
+</Link>
           
           {/* Orta: Tıklanabilir Logo */}
           <Link href="/" className="font-black text-xl sm:text-2xl tracking-tight text-white hover:opacity-80 transition-opacity">
