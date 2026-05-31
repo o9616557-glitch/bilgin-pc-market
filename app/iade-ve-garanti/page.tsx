@@ -1,109 +1,111 @@
-"use client";
 import React from "react";
-import { RefreshCcw, ShieldAlert, Box, CheckCircle } from "lucide-react";
+
+export const metadata = {
+  title: "İade ve Garanti Şartları | Bilgin PC Market",
+  description: "Bilgin PC Market - Ürün iade koşulları, cayma hakkı ve resmi Türkiye distribütör garanti süreçleri.",
+};
 
 export default function IadeVeGarantiPage() {
   return (
-    <div className="min-h-screen bg-[#050814] text-white pt-12 pb-20 px-4">
-      <div className="max-w-4xl mx-auto">
-        
-        {/* BAŞLIK ALANI */}
-        <div className="text-center mb-16 relative">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[#00e5ff] blur-[120px] opacity-20 pointer-events-none"></div>
-          <div className="flex justify-center mb-6 relative z-10">
-            <div className="w-20 h-20 bg-[#00e5ff]/10 border border-[#00e5ff]/30 rounded-full flex items-center justify-center">
-              <RefreshCcw className="w-10 h-10 text-[#00e5ff]" />
-            </div>
-          </div>
-          <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-wider text-white mb-4 relative z-10">
-            İADE VE <span className="text-[#00e5ff]">GARANTİ</span> ŞARTLARI
-          </h1>
-          <p className="text-slate-400 font-medium text-base sm:text-lg max-w-xl mx-auto leading-relaxed relative z-10">
-            Satın aldığınız her donanım %100 orijinal olup, resmi distribütör güvencesi altındadır. Memnuniyetiniz bizim için her şeyden önemlidir.
-          </p>
-        </div>
+    <div className="min-h-screen bg-[#0b0f19] text-slate-300 font-sans selection:bg-cyan-500 selection:text-slate-900 overflow-hidden relative pb-20">
+      
+      {/* Arka Plan Dekoratif Işıklar (Glow Effect) */}
+      <div className="absolute top-[20%] right-[-10%] w-[400px] h-[400px] bg-cyan-600/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[150px] pointer-events-none" />
 
-        {/* BİLGİLENDİRME KUTULARI (GRID) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+      {/* 1. HERO BÖLÜMÜ */}
+      <section className="relative max-w-5xl mx-auto px-4 pt-24 pb-12 text-center z-10 border-b border-slate-800/80">
+        <span className="text-xs font-bold tracking-widest text-cyan-400 uppercase bg-cyan-500/10 border border-cyan-500/20 px-3 py-1 rounded-full">
+          Müşteri Hizmetleri
+        </span>
+        <h1 className="mt-6 text-3xl md:text-5xl font-black tracking-tight text-white uppercase">
+          İade ve Garanti <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400">Şartları</span>
+        </h1>
+        <p className="mt-6 text-sm md:text-base text-slate-400 max-w-3xl mx-auto leading-relaxed">
+          Satın aldığınız tüm donanımlar %100 Orijinal ve Resmi Türkiye Distribütör Garantisi altındadır. Servis ve iade süreçlerimizin detaylarını aşağıda bulabilirsiniz.
+        </p>
+      </section>
+
+      {/* 2. İÇERİK BÖLÜMÜ */}
+      <section className="max-w-4xl mx-auto px-4 pt-12 z-10 relative">
+        <div className="grid grid-cols-1 gap-10">
           
-          <div className="bg-[#09090b] border border-slate-800/80 rounded-3xl p-8 relative overflow-hidden transition-all hover:border-[#00e5ff]/40 shadow-lg">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center shrink-0">
-                <Box className="w-6 h-6 text-orange-400" />
-              </div>
-              <h3 className="text-lg font-bold text-white uppercase tracking-wide">14 Gün İade Hakkı</h3>
-            </div>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              Kullanılmamış, kutusu açılmamış, jelatini yırtılmamış ve tekrar satılabilirlik özelliğini yitirmemiş ürünlerinizi, teslim tarihinden itibaren 14 gün içerisinde hiçbir gerekçe göstermeden iade edebilirsiniz.
-            </p>
-          </div>
-
-          <div className="bg-[#09090b] border border-slate-800/80 rounded-3xl p-8 relative overflow-hidden transition-all hover:border-[#00e5ff]/40 shadow-lg">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 bg-[#10b981]/10 rounded-xl flex items-center justify-center shrink-0">
-                <ShieldAlert className="w-6 h-6 text-[#10b981]" />
-              </div>
-              <h3 className="text-lg font-bold text-white uppercase tracking-wide">Distribütör Garantisi</h3>
-            </div>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              Bilgin PC Market'te satılan tüm ürünler, aksi belirtilmedikçe en az 24 Ay (2 Yıl) resmi Türkiye distribütörü garantisi altındadır. Arıza durumunda ürünleriniz yetkili servislerde ücretsiz onarılır.
-            </p>
-          </div>
-
-        </div>
-
-        {/* METİN ALANI (ŞARTLAR VE İSTİSNALAR) */}
-        <div className="bg-[#09090b] border border-slate-800/80 rounded-3xl p-6 sm:p-10 mb-12 shadow-xl">
-          <div className="flex items-center gap-3 mb-6 border-b border-slate-800 pb-4">
-            <CheckCircle className="w-6 h-6 text-[#00e5ff]" />
-            <h2 className="text-xl font-black uppercase text-white tracking-wide">Önemli Kurallar ve İstisnalar</h2>
-          </div>
-          
-          <div className="space-y-6 text-slate-300 text-sm sm:text-base leading-relaxed font-medium">
-            
-            {/* 🚀 ŞEFİN EKLETTİĞİ YENİ MADDE: ARIZA DURUMU */}
-            <div className="bg-[#00e5ff]/5 border border-[#00e5ff]/20 p-5 rounded-2xl">
-              <h4 className="text-[#00e5ff] font-bold mb-2 text-lg">1. Ürün Arızalı/Kusurlu Çıkarsa Ne Olur? (DOA ve Garanti Süreci)</h4>
-              <p className="text-slate-300 mb-3">
-                Kargodan teslim aldığınız ürün ilk kullanımda <strong>fabrikasyon arızalı (DOA - Dead on Arrival)</strong> çıkarsa, durumu hemen tarafımıza bildirip ürünü bize veya yetkili servise geri gönderiyorsunuz. Teknik servisimiz "kullanıcı hatası olmadığını" onayladığı an, sizi hiç bekletmeden <strong>birebir yenisiyle değişim</strong> veya <strong>tam para iadesi</strong> yapıyoruz.
+          {/* Garanti Şartları Kartı */}
+          <div className="bg-slate-900/50 border border-slate-800 p-6 md:p-10 rounded-2xl backdrop-blur-md shadow-xl">
+            <h2 className="text-2xl font-black text-white mb-6 flex items-center gap-3 uppercase tracking-wide border-b border-slate-800 pb-4">
+              <svg className="w-7 h-7 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+              Garanti Kapsamı ve İşleyişi
+            </h2>
+            <div className="space-y-4 text-slate-400 text-sm md:text-base leading-relaxed">
+              <p>
+                Platformumuzda satılan tüm ürünler ithalatçı veya üretici firmaların yetkili servisleri tarafından <strong>en az 2 (iki) yıl garanti</strong> kapsamındadır.
               </p>
-              <p className="text-slate-400 text-sm">
-                Eğer ürün garanti süresi (2 Yıl) içerisinde sonradan bozulursa, ürünü doğrudan markanın resmi Türkiye yetkili servisine gönderirsiniz. Yasal azami tamir süresi 20 iş günüdür. Servis raporuna göre ürün onarılır, onarılamıyorsa yenisiyle değiştirilir veya iadesi sağlanır. Biz bu sürecin her adımında size destek olmak için yanınızdayız.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="text-white font-bold mb-2">2. İade Edilemeyecek Ürünler Nelerdir?</h4>
-              <ul className="list-disc pl-5 text-slate-400 space-y-2 mt-2">
-                <li>Montajı yapılmış, vida izi kalmış ana kart, ekran kartı ve benzeri donanımlar.</li>
-                <li>İşlemci (CPU) gibi pimleri hassas olan ve kutusu açılmış bileşenler.</li>
-                <li>Koruma bandı, güvenlik etiketi sökülmüş SSD, RAM veya yazılım lisansları.</li>
-                <li>Sizin isteğiniz üzerine özel olarak toplanan (hazır sistem) bilgisayarlar.</li>
+              <ul className="list-none space-y-3 pl-2">
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-500 mt-1">▹</span>
+                  <span><strong>Arıza Durumunda:</strong> Ürününüzde garanti süresi içerisinde oluşan teknik arızalarda, doğrudan faturanız ile birlikte markanın Türkiye'deki yetkili servisine başvurabilirsiniz. Bu, sürecin en hızlı şekilde çözülmesini sağlar.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-500 mt-1">▹</span>
+                  <span><strong>Kullanıcı Hatası İstisnaları:</strong> Aşırı hız aşırtma (overclock) sonucu oluşan yanmalar, işlemci pinlerindeki fiziksel yamulma veya kırılmalar, yetkisiz kişilerce ürünün içinin açılması (garanti bandının yırtılması), kripto para madenciliği (mining) amaçlı modlanmış BIOS kurulumları garanti kapsamı dışındadır.</span>
+                </li>
               </ul>
             </div>
-
-            <div>
-              <h4 className="text-white font-bold mb-2">3. Kullanıcı Hatası ve Garanti Dışı Durumlar</h4>
-              <p className="text-slate-400">
-                Yanlış montaj nedeniyle kırılan işlemci pinleri, aşırı hız aşırtma (overclock) sonucu yanan parçalar, sıvı teması, voltaj dalgalanmalarından kaynaklı güç kaynağı hasarları ve fiziksel darbeler tamamen <strong>kullanıcı hatası</strong> kapsamındadır ve garanti dışı kalır.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="text-white font-bold mb-2">4. İade Süreci Nasıl İşler?</h4>
-              <p className="text-slate-400 mb-2">İade etmek veya servise göndermek istediğiniz ürün için adımlar şunlardır:</p>
-              <ol className="list-decimal pl-5 text-slate-400 space-y-1">
-                <li>Müşteri hizmetlerimizle (info@bilginpcmarket.com veya WhatsApp) iletişime geçip iade/servis kodu alın.</li>
-                <li>Ürünü faturası, tüm aksesuarları ve kutu içeriği eksiksiz olacak şekilde güvenli bir koliye koyun. (Orijinal kutuya kargo bandı yapıştırılması iadeyi geçersiz kılar).</li>
-                <li>Anlaşmalı kargo firmamız ile tarafımıza veya yönlendirilen servise gönderin.</li>
-                <li>Ürün teknik ekibimiz tarafından incelendikten sonra, şarta uyuyorsa 1-3 iş günü içinde ücret iadeniz veya değişiminiz yapılır.</li>
-              </ol>
-            </div>
-
           </div>
-        </div>
 
-      </div>
+          {/* İade Şartları Kartı */}
+          <div className="bg-slate-900/50 border border-slate-800 p-6 md:p-10 rounded-2xl backdrop-blur-md shadow-xl">
+            <h2 className="text-2xl font-black text-white mb-6 flex items-center gap-3 uppercase tracking-wide border-b border-slate-800 pb-4">
+              <svg className="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z"></path></svg>
+              İade ve Cayma Hakkı
+            </h2>
+            <div className="space-y-4 text-slate-400 text-sm md:text-base leading-relaxed">
+              <p>
+                Satın almış olduğunuz ürünü, teslim tarihinden itibaren <strong>14 (on dört) gün</strong> içerisinde herhangi bir gerekçe göstermeksizin ve cezai şart ödemeksizin iade edebilirsiniz. Ancak iadenin kabul edilebilmesi için yasa gereği aşağıdaki şartların sağlanması zorunludur:
+              </p>
+              
+              <div className="bg-slate-950/50 p-5 rounded-xl border border-red-500/20 mt-4">
+                <h3 className="text-red-400 font-bold mb-3">Elektronik Bileşenlerde İade Red Sebepleri:</h3>
+                <ul className="list-disc pl-5 space-y-2 text-sm">
+                  <li>Ürünün orijinal kutusunun, koruyucu jelatininin, mühür veya güvenlik bantlarının açılmış/yırtılmış olması.</li>
+                  <li>Anakart, işlemci, ekran kartı ve bellek (RAM) gibi ürünlerin montajının yapılmış, soketlere takılmış veya sistemde çalıştırılmış olması (İkinci el statüsüne düşen elektronik bileşenler iade alınamaz).</li>
+                  <li>Termal macunu sürülmüş işlemci veya soğutucular.</li>
+                  <li>Orijinal faturasının ve tüm kutu içeriğinin (kablolar, vidalar, kitapçıklar) eksik veya hasarlı olması.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* İade Adımları */}
+          <div className="bg-gradient-to-r from-slate-900 to-blue-950/30 border border-slate-800 p-6 md:p-10 rounded-2xl backdrop-blur-md shadow-xl">
+            <h2 className="text-xl font-bold text-white mb-6 uppercase tracking-wide">İade Süreci Nasıl İşler?</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+              <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-slate-800 -z-10 -translate-y-1/2"></div>
+              
+              <div className="bg-[#0b0f19] border border-slate-800 p-5 rounded-xl text-center relative">
+                <div className="w-10 h-10 mx-auto bg-blue-600 text-white rounded-full flex items-center justify-center font-bold mb-3 shadow-[0_0_15px_rgba(37,99,235,0.5)]">1</div>
+                <h3 className="text-white font-bold text-sm mb-2">Talebinizi İletin</h3>
+                <p className="text-slate-500 text-xs">Müşteri panelinizden veya destek mailimiz üzerinden iade talebi oluşturun.</p>
+              </div>
+
+              <div className="bg-[#0b0f19] border border-slate-800 p-5 rounded-xl text-center relative">
+                <div className="w-10 h-10 mx-auto bg-cyan-500 text-slate-900 rounded-full flex items-center justify-center font-bold mb-3 shadow-[0_0_15px_rgba(6,182,212,0.5)]">2</div>
+                <h3 className="text-white font-bold text-sm mb-2">Kargoya Teslim Edin</h3>
+                <p className="text-slate-500 text-xs">Size verilecek iade kodu ile ürünü anlaşmalı kargo firmasına sağlamca paketleyerek teslim edin.</p>
+              </div>
+
+              <div className="bg-[#0b0f19] border border-slate-800 p-5 rounded-xl text-center relative">
+                <div className="w-10 h-10 mx-auto bg-green-500 text-slate-900 rounded-full flex items-center justify-center font-bold mb-3 shadow-[0_0_15px_rgba(34,197,94,0.5)]">3</div>
+                <h3 className="text-white font-bold text-sm mb-2">İade Onayı ve Ödeme</h3>
+                <p className="text-slate-500 text-xs">Ürün teknik ekibimizce kontrol edildikten sonra onaylanır ve ücret iadeniz bankanıza iletilir.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
     </div>
   );
 }
