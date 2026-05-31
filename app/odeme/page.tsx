@@ -311,11 +311,11 @@ export default function OdemeSayfasi() {
                     Lütfen transferi gerçekleştirirken açıklama alanına sadece <span className="text-[#00e5ff] font-bold underline">adınızı ve soyadınızı</span> yazınız.
                   </div>
                   <div className="mt-4 border-t border-slate-800/80 pt-3 font-mono text-xs sm:text-sm flex flex-col gap-1.5 bg-black/20 p-3 rounded-xl">
-                    <div><strong>Banka:</strong> Akıllı Banka (Bilgin PC Özel)</div>
-                    <div><strong>Alıcı:</strong> BİLGİN PC MARKET LTD. ŞTİ.</div>
+                    <div><strong>Banka:</strong> Yapı Kredi</div>
+                    <div><strong>Alıcı:</strong> Özkan BİLGİN</div>
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-1 pt-1 border-t border-slate-800/40">
                       <div className="break-all select-all">
-                        <strong>IBAN:</strong> <span className="text-white font-bold bg-slate-900 px-1 py-0.5 rounded border border-slate-800">TR99 0001 0002 0003 0004 0005 06</span>
+                        <strong>IBAN:</strong> <span className="text-white font-bold bg-slate-900 px-1 py-0.5 rounded border border-slate-800">TR14 0006 7010 0000 0043 3005 49</span>
                       </div>
                       <button 
                         type="button" 
