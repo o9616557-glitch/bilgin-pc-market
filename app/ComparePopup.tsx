@@ -30,7 +30,7 @@ export default function ComparePopup() {
   return (
     <div className="fixed inset-0 z-[9999] flex justify-center items-center p-0 sm:p-4 bg-black/80 backdrop-blur-md transition-all">
       
-      <Toaster position="top-center" containerStyle={{ zIndex: 999999 }} />
+      
       
       <div className="absolute inset-0 hidden sm:block" onClick={() => setPopupAcik(false)}></div>
       
