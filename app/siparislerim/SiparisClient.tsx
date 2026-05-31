@@ -5,6 +5,7 @@ import { Trash2, Copy, Check, RefreshCw, ArrowLeft, MessageSquare, PackageOpen, 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PackageX } from "lucide-react";
+
 interface Props {
   initialOrders: any[];
 }
@@ -24,12 +25,10 @@ export default function SiparisClient({ initialOrders }: Props) {
     }
   }, [initialOrders]);
 
-  // Her ihtimale karşı: Sayfa ilk açıldığında arka plandan sessizce güncel kontrolü yapar (Beyaz ekran çıkarmaz)
   useEffect(() => {
     fetchOrders();
   }, []);
 
-  // Manuel Yenileme Butonu İçin
   const fetchOrders = async () => {
     try {
       const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
@@ -65,7 +64,6 @@ export default function SiparisClient({ initialOrders }: Props) {
   const confirmDelete = async () => {
     if (!orderToDelete) return;
     try {
-      // Optimistic UI: Kullanıcı beklemesin diye ekrandan anında sil
       setOrders(orders.filter((order) => order._id !== orderToDelete));
       
       const res = await fetch("/api/orders?id=" + orderToDelete, { method: "DELETE" });
@@ -73,7 +71,7 @@ export default function SiparisClient({ initialOrders }: Props) {
         setErrorMsg("Sipariş silinirken bir hata oluştu.");
       }
       setOrderToDelete(null);
-      router.refresh(); // Arka planı tazele
+      router.refresh();
     } catch (error) {
       setErrorMsg("Bağlantı hatası sebebiyle silinemedi.");
       setOrderToDelete(null);
@@ -86,8 +84,14 @@ export default function SiparisClient({ initialOrders }: Props) {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
+  // 🚀 YENİ AKILLI RADAR: İptal kelimesini görürse diğer her şeyi görmezden gelir!
   const getStepNumber = (order: any) => {
     const s = (order.searchableStatus || order.status || order.durum || "").toLowerCase();
+    
+    // ÖNCE İPTALİ KONTROL ET (Örn: "Kargo iptal" yazsa bile direkt iptale alır)
+    if (s.includes("iptal") || s.includes("red") || s.includes("iade")) return 0;
+    
+    // İptal değilse normal adımlara bak
     if (s.includes("teslim") || s.includes("tamam")) return 4;
     if (s.includes("kargo") || s.includes("gönder")) return 3;
     if (s.includes("hazırla") || s.includes("öden") || s.includes("başarılı") || s.includes("onay") || s.includes("kabul")) return 2;
@@ -137,7 +141,6 @@ export default function SiparisClient({ initialOrders }: Props) {
 
         {orders.length === 0 ? (
   <div className="text-center p-10 sm:p-16 bg-transparent relative">
-    {/* 🚀 BOŞ EKRAN - SİPARİŞLERİM */}
     <div className="w-20 h-20 rounded-full bg-[#121215]/50 border border-slate-800/50 flex items-center justify-center mx-auto mb-6 shadow-inner">
       <PackageX className="w-10 h-10 text-slate-500" />
     </div>
@@ -157,7 +160,9 @@ export default function SiparisClient({ initialOrders }: Props) {
               const adminMesaji = order.musteriMesaji || order.mesaj || order.adminMesaj || order.siparisNotu || order.kargoNotu || order.kargoTakipNo;
               
               const hamDurum = String(order.durum || "") + " " + String(order.status || "") + " " + String(order.searchableStatus || "");
-              const isCancelled = hamDurum.toLowerCase().includes("iptal");
+              
+              // 🚀 GÜÇLENDİRİLMİŞ İPTAL MOTORU
+              const isCancelled = hamDurum.toLowerCase().includes("iptal") || hamDurum.toLowerCase().includes("red") || hamDurum.toLowerCase().includes("iade");
 
               return (
                 <div key={order._id} className="group border border-slate-800 bg-[#09090b] rounded-2xl p-6 transition-all duration-300 hover:border-[#00e5ff]/40 shadow-xl hover:shadow-[0_0_25px_rgba(0,229,255,0.03)] relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -200,8 +205,9 @@ export default function SiparisClient({ initialOrders }: Props) {
 
                   <div className="pt-8 pb-6 px-2 sm:px-8">
                     {isCancelled ? (
-                      <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl flex items-center justify-center gap-2 text-amber-500 font-black tracking-widest text-xs sm:text-sm uppercase shadow-inner">
-                        <Info className="w-5 h-5" /> SİPARİŞ İPTAL EDİLDİ
+                      // 🚀 JİLET GİBİ KIRMIZI İPTAL TASARIMI 
+                      <div className="bg-red-500/10 border border-red-500/30 p-5 rounded-xl flex items-center justify-center gap-3 text-red-500 font-black tracking-widest text-sm sm:text-base uppercase shadow-[0_0_20px_rgba(239,68,68,0.15)]">
+                        <PackageX className="w-6 h-6" /> SİPARİŞ İPTAL EDİLDİ
                       </div>
                     ) : (
                       <div className="relative flex items-start justify-between w-full max-w-3xl mx-auto">
