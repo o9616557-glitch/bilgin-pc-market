@@ -74,7 +74,7 @@ export default function OdemeSayfasi() {
       hesaplananAraToplam += urunFiyati * urun.adet;
     });
 
-    const hesaplananKargo = (hesaplananAraToplam > 5000 || hesaplananAraToplam === 0) ? 0 : 150;
+    const hesaplananKargo = (hesaplananAraToplam > 5000 || hesaplananAraToplam === 0) ? 0 : 1;
     const hesaplananGenelToplam = hesaplananAraToplam + hesaplananKargo;
 
     return { araToplam: hesaplananAraToplam, kargo: hesaplananKargo, genelToplam: hesaplananGenelToplam };
