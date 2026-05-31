@@ -88,7 +88,7 @@ export async function POST(request: Request) {
     }));
 
     const araToplam = sepet.reduce((top: number, u: any) => top + (u.fiyat * u.adet), 0);
-    const kargoUcreti = araToplam > 5000 ? 0 : 150;
+    const kargoUcreti = araToplam > 5000 ? 0 : 1;
     
     if (kargoUcreti > 0) {
       sepetUrunleri.push({ id: "KARGO-01", name: "Teslimat Bedeli", category1: "Hizmet", itemType: "VIRTUAL", price: kargoUcreti.toString() });
