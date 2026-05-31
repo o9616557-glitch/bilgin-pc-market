@@ -99,7 +99,7 @@ export default function OdemeSayfasi() {
     setYukleniyor(true);
     setIyzicoFormHtml("");
 
-    const siparisVerisi = {
+   const siparisVerisi = {
       musteri: {
         ...form,
         eposta: session?.user?.email || form.eposta,
@@ -111,7 +111,16 @@ export default function OdemeSayfasi() {
         if (odemeYontemi === "havale" && indirimOrani > 0) {
           sonFiyat = sonFiyat - (sonFiyat * indirimOrani) / 100;
         }
-        return { id: item.id, isim: item.isim, miktar: item.adet, adet: item.adet, fiyat: sonFiyat, varyasyon: item.varyasyon };
+        // 👇 İşte resim kablosunun bağlandığı, hatasız olan o kısım:
+        return { 
+          id: item.id, 
+          isim: item.isim, 
+          miktar: item.adet, 
+          adet: item.adet, 
+          fiyat: sonFiyat, 
+          varyasyon: item.varyasyon, 
+          resim: item.resim || item.image || "/placeholder.jpg" 
+        };
       }),
       odemeYontemi,
       toplamTutar: genelToplam,
