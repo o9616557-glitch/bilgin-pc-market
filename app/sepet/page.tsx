@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/app/CartContext"; 
-import { Trash2, ShoppingCart, ArrowLeft, Banknote } from "lucide-react"; 
+// 🚀 1. ADIM: Home (Ev) ikonu lucide-react import listesine eklendi
+import { Trash2, ShoppingCart, ArrowLeft, Banknote, Home } from "lucide-react"; 
 
 export default function SepetSayfasi() {
   const router = useRouter();
@@ -58,25 +59,29 @@ export default function SepetSayfasi() {
   return (
     <div className="min-h-screen bg-[#050814] text-white pb-12 relative">
       
-      {/* 🚀 MİNİMAL GÜVENLİ SEPET BARI (Artık Alt İçerikle Aynı Hizada) */}
+      {/* 🚀 MİNİMAL GÜVENLİ SEPET BARI */}
       <div className="border-b border-slate-800 bg-[#09090b]/90 backdrop-blur-md sticky top-0 z-50 shadow-lg mb-8">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-4 flex items-center justify-between">
           
-          {/* Sol: Mağazaya Güvenli Dönüş Kapısı */}
-     {/* Sol: Mağazaya Güvenli Dönüş Kapısı */}
-        <Link 
-          href="/" 
-          className="flex items-center justify-center p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all duration-200"
-          title="Ana Sayfaya Dön"
-        >
-          {/* 🏠 Jilet Gibi Ev Simgesi (Ortadaki BİLGİN PC ile aynı motora bağlandı) */}
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-          </svg>
-        </Link>
+          {/* 🚀 2. ADIM: AKILLI GERİ DÖNÜŞ BUTONU (Mobil/PC Duyarlı) */}
+          <Link 
+            href="/" 
+            className="group flex items-center transition-all"
+            title="Ana Sayfaya Dön"
+          >
+            {/* 📱 SADECE MOBİL VE TABLET (Ekran küçülünce devreye girer) */}
+            <div className="md:hidden flex items-center justify-center p-2 rounded-lg text-slate-400 group-hover:text-white group-hover:bg-slate-800/50 transition-all duration-200">
+              <Home className="w-6 h-6" />
+            </div>
+
+            {/* 💻 SADECE BİLGİSAYAR (Ekran büyüyünce devreye girer) */}
+            <div className="hidden md:flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 group-hover:text-[#00e5ff] transition-all">
+              <ArrowLeft className="w-5 h-5" /> MAĞAZAYA GERİ DÖN
+            </div>
+          </Link>
           
           {/* Orta: Tıklanabilir Logo */}
-          <Link href="/" className="font-black text-xl sm:text-2xl tracking-tight text-white hover:opacity-80 transition-opacity">
+          <Link href="/" className="font-black text-xl sm:text-2xl tracking-tight text-white hover:opacity-80 transition-opacity absolute left-1/2 -translate-x-1/2">
             BİLGİN <span className="text-[#00e5ff]">PC</span>
           </Link>
 
@@ -87,7 +92,7 @@ export default function SepetSayfasi() {
         </div>
       </div>
 
-      {/* 🚀 ANA İÇERİK (YAN YANA DİZİLİM MOTORU EKLENDİ) */}
+      {/* 🚀 ANA İÇERİK */}
       <div className="ana-konteynir" style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 20px" }}>
         
         {/* ALIŞVERİŞ SEPETİM BAŞLIĞI */}
@@ -102,7 +107,7 @@ export default function SepetSayfasi() {
           )}
         </div>
 
-        {/* 🚀 İŞTE IZGARA YAPISI (Masaüstü Yan Yana, Mobil Alt Alta) */}
+        {/* 🚀 IZGARA YAPISI */}
         <div className="flex flex-col lg:flex-row gap-8 items-start">
           
           {/* SOL TARAF: ÜRÜN LİSTESİ */}
@@ -140,7 +145,7 @@ export default function SepetSayfasi() {
             })}
           </div>
 
-          {/* SAĞ TARAF: SİPARİŞ ÖZETİ (Sabit Durur) */}
+          {/* SAĞ TARAF: SİPARİŞ ÖZETİ */}
           <div className="w-full lg:w-1/3 sticky top-28">
             <div className="bg-[#09090b] border border-slate-800/50 rounded-3xl p-6 lg:p-8">
               <h2 className="font-black text-xl mb-6 pb-4 border-b border-slate-800 text-white uppercase tracking-wide">
