@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Gelişmiş Efektler ve Renk Geçişleri Tanımları -->
+  <defs>
+    <!-- Arka plan için koyu lacivertten siyaha renk geçişi -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+    
+    <!-- B Harfi için parlak turkuazdan maviye renk geçişi -->
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f2fe" />
+      <stop offset="100%" stop-color="#4facfe" />
+    </linearGradient>
+
+    <!-- Neon Işık Parlama Efekti (Glow) -->
+    <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  
+  <!-- Dinamik Arka Plan -->
+  <rect width="512" height="512" fill="url(#bgGradient)" />
+  
+  <!-- Anakart / Donanım Çizgileri (Dekoratif) -->
+  <path d="M 0 120 L 180 120 L 240 180 L 512 180" stroke="#1e293b" stroke-width="6" fill="none" />
+  <path d="M 0 380 L 320 380 L 380 440 L 512 440" stroke="#1e293b" stroke-width="6" fill="none" />
+  
+  <!-- Merkezdeki Büyük B Harfi (Parlama Efektli ve İtalik - Hız Hissi) -->
+  <text x="48%" y="45%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="280" font-style="italic" fill="url(#textGradient)" filter="url(#neonGlow)">B</text>
+  
+  <!-- Alt Kısımdaki BİLGİN PC Yazısı (Kalın ve Teknolojik Görünüm) -->
+  <text x="50%" y="82%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="54" fill="#f8fafc" letter-spacing="8">BİLGİN PC</text>
+</svg>
