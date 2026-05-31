@@ -18,9 +18,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Bilgin PC Market",
-  description: "Yüksek performanslı oyuncu bilgisayarları ve bileşenleri.",
+export const viewport = {
+  themeColor: "#050814",
 };
 
 export default function RootLayout({
