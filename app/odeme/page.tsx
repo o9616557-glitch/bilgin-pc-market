@@ -175,10 +175,16 @@ export default function OdemeSayfasi() {
         <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-4 flex items-center justify-between">
           
           {/* Sol: Sepete Dönüş Kapısı */}
-         <Link href="/sepet" replace className="flex items-center gap-2 text-slate-400 cursor-pointer">
-            <ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">Sepete Dön</span>
-          </Link>
-
+        <button 
+  type="button"
+  onClick={() => router.replace('/sepet')} 
+  className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors cursor-pointer"
+>
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+  </svg>
+  <span className="font-medium">Sepete Dön</span>
+</button>
           {/* Orta: Tıklanabilir Logo */}
           <Link href="/" className="font-black text-xl sm:text-2xl tracking-tight text-white hover:opacity-80 transition-opacity">
             BİLGİN <span className="text-[#00e5ff]">PC</span>
