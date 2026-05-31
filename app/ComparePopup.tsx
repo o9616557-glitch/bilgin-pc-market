@@ -28,7 +28,7 @@ export default function ComparePopup() {
   };
 
   return (
-    <div className="fixed inset-0 z-[99999] flex justify-center items-center p-0 sm:p-4 bg-black/80 backdrop-blur-md transition-all">
+    <div className="fixed inset-0 z-[100] flex justify-center items-center p-0 sm:p-4 bg-black/80 backdrop-blur-md transition-all">
       
       <Toaster position="top-center" containerStyle={{ zIndex: 999999 }} />
       
