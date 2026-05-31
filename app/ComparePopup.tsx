@@ -22,11 +22,11 @@ export default function ComparePopup() {
 
   const getGridStyle = () => {
     return { 
-      gridTemplateColumns: `repeat(${karsilastirilanlar.length}, minmax(160px, 240px))`, 
+      // 1fr özelliği sayesinde kalan tüm boşluğu eşit olarak paylaşırlar
+      gridTemplateColumns: `repeat(${karsilastirilanlar.length}, minmax(160px, 1fr))`, 
       justifyContent: "start" 
     };
   };
-
   return (
     <div className="fixed inset-0 z-[9999] flex justify-center items-center p-0 sm:p-4 bg-black/80 backdrop-blur-md transition-all">
       
