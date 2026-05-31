@@ -63,17 +63,17 @@ export default function SepetSayfasi() {
         <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-4 flex items-center justify-between">
           
           {/* Sol: Mağazaya Güvenli Dönüş Kapısı */}
-        <button 
-  type="button"
-  onClick={(e) => {
-    e.preventDefault();
-    router.back();
-  }}
-  className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-400 hover:text-white transition-colors cursor-pointer"
+        2%<Link 
+  href="/" 
+  className="flex items-center gap-2 p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all duration-200"
+  title="Mağazaya Dön"
 >
-  <ArrowLeft className="w-4 h-4 pointer-events-none" /> 
-  <span className="hidden sm:inline pointer-events-none">Geri</span>
-</button>
+  {/* 🏠 Jilet Gibi Modern Ana Sayfa / Mağaza Simgesi */}
+  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+  </svg>
+  <span className="text-sm font-medium hidden sm:inline">Mağazaya Dön</span>
+</Link>
           
           {/* Orta: Tıklanabilir Logo */}
           <Link href="/" className="font-black text-xl sm:text-2xl tracking-tight text-white hover:opacity-80 transition-opacity">
