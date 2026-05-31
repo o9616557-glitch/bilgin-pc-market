@@ -73,7 +73,6 @@ export default function SiparisClient({ initialOrders }: Props) {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  // 🚀 SENİN SİPARİŞ TAKİP SAYFASINDA ÇALIŞAN KENDİ MOTORUN!
   const aktifAdimBul = (durum: string) => {
     if (!durum) return 0; 
     const d = durum.toLowerCase();
@@ -83,7 +82,6 @@ export default function SiparisClient({ initialOrders }: Props) {
     return 0;
   };
 
-  // 🚀 SENİN SİPARİŞ TAKİP SAYFASINDA ÇALIŞAN İPTAL MOTORUN!
   const iptalEdildiMi = (durum: string) => {
     if (!durum) return false;
     return durum === "İptal Edildi" || durum.toLowerCase().includes("iptal");
@@ -149,10 +147,9 @@ export default function SiparisClient({ initialOrders }: Props) {
               const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase();
               const adminMesaji = order.musteriMesaji || order.mesaj || order.adminMesaj || order.siparisNotu || order.kargoNotu || order.kargoTakipNo;
               
-              // SENİN MOTORUNLA KONTROL EDİYORUZ
               const durumMetni = order.durum || order.status || "";
               const isCancelled = iptalEdildiMi(durumMetni);
-              const currentStep = aktifAdimBul(durumMetni) + 1; // Senin motor 0'dan başlıyor, tasarım 1'den
+              const currentStep = aktifAdimBul(durumMetni) + 1; 
 
               return (
                 <div key={order._id} className="group border border-slate-800 bg-[#09090b] rounded-2xl p-6 transition-all duration-300 hover:border-[#00e5ff]/40 shadow-xl hover:shadow-[0_0_25px_rgba(0,229,255,0.03)] relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -190,8 +187,12 @@ export default function SiparisClient({ initialOrders }: Props) {
 
                   <div className="pt-8 pb-6 px-2 sm:px-8">
                     {isCancelled ? (
-                      <div className="bg-red-500/10 border border-red-500/30 p-5 rounded-xl flex items-center justify-center gap-3 text-red-500 font-black tracking-widest text-sm sm:text-base uppercase shadow-[0_0_20px_rgba(239,68,68,0.15)]">
-                        <PackageX className="w-6 h-6" /> SİPARİŞ İPTAL EDİLDİ
+                      /* 🚀 YENİ KİBAR VE MODERN İPTAL TASARIMI */
+                      <div className="bg-[#121215] border border-slate-800/80 p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-center gap-4 text-slate-300 font-bold tracking-widest text-sm uppercase shadow-inner">
+                        <div className="w-10 h-10 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shrink-0">
+                          <span className="text-xl text-rose-500 font-black mb-1">×</span>
+                        </div>
+                        <span className="text-center">SİPARİŞ İPTAL EDİLDİ</span>
                       </div>
                     ) : (
                       <div className="relative flex items-start justify-between w-full max-w-3xl mx-auto">
