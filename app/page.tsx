@@ -1,196 +1,108 @@
-import clientPromise from "@/lib/mongodb";
 import Link from "next/link";
-import { ArrowRight, Cpu, Zap, ShieldCheck } from "lucide-react";
-import CompareButton from "./CompareButton"; 
+import React from "react";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-
-export default async function HomePage() {
-  let urunler: any[] = [];
-  try {
-    const client = await clientPromise;
-    const db = client.db("bilginpcmarket");
-    urunler = await db.collection("products").find({}).toArray();
-  } catch (e) { 
-    console.error("HATA:", e); 
-  }
-
+export default function AnaSayfaHero() {
   return (
-    <main className="min-h-screen bg-[#050814] text-[#ededed] font-sans pb-20">
+    <div className="relative w-full bg-[#0b0f19] overflow-hidden min-h-[90vh] flex items-center">
       
-      <section className="relative overflow-hidden bg-[#09090b] border-b border-slate-800/80 pt-24 pb-32 mb-16">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#00e5ff] blur-[150px] opacity-10 pointer-events-none"></div>
-        <div className="absolute bottom-0 right-0 w-[500px] h-[300px] bg-[#10b981] blur-[150px] opacity-10 pointer-events-none"></div>
+      {/* Arka Plan Atmosfer Işıkları */}
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-600/20 rounded-full blur-[150px] pointer-events-none animate-pulse" />
+      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
+      
+      {/* İnce Izgara (Grid) Deseni - Teknolojik bir hava katar */}
+      <div className="absolute inset-0 bg-[url('https://transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none"></div>
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#00e5ff]/10 border border-[#00e5ff]/20 text-[#00e5ff] text-sm font-bold uppercase tracking-wider mb-8">
-            <Zap className="w-4 h-4 fill-current" /> Yeni Nesil Donanım Merkezi
-          </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black uppercase tracking-tight mb-6 leading-tight">
-            Performansın <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-[#00e5ff] to-[#0088ff] drop-shadow-[0_0_20px_rgba(0,229,255,0.3)]">
-              Zirvesine Ulaşın
-            </span>
-          </h1>
-          
-          <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
-            Oyun bilgisayarları, üst düzey bileşenler ve profesyonel donanım çözümlerinde en iyi fiyat garantisiyle Bilgin PC Market yanınızda.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="#vitrin" className="w-full sm:w-auto bg-[#00e5ff] text-black font-black uppercase tracking-wider px-8 py-4 rounded-xl hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.3)] hover:shadow-[0_0_30px_rgba(0,229,255,0.5)] hover:-translate-y-1 flex items-center justify-center gap-2">
-              Ürünleri Keşfet <ArrowRight className="w-5 h-5" />
-            </a>
-            <Link href="/hakkimizda" className="w-full sm:w-auto bg-[#121215] text-white font-bold uppercase tracking-wider px-8 py-4 rounded-xl border border-slate-700 hover:border-slate-500 hover:bg-[#1a1a1f] transition-all flex items-center justify-center gap-2">
-              Biz Kimiz?
-            </Link>
-          </div>
-        </div>
-        
-        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-full max-w-4xl px-4 hidden md:block">
-          <div className="grid grid-cols-3 gap-4 bg-[#09090b] border border-slate-800 p-4 rounded-2xl shadow-2xl">
-            <div className="flex items-center justify-center gap-3 text-slate-300">
-              <ShieldCheck className="w-6 h-6 text-[#10b981]" /> <span className="font-bold text-sm uppercase tracking-wide">Distribütör Garantili</span>
+          {/* Sol Taraf - Metin ve Butonlar */}
+          <div className="text-left space-y-8">
+            
+            {/* Üst Rozet */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/80 border border-slate-700/50 backdrop-blur-md">
+              <span className="flex h-2.5 w-2.5 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500"></span>
+              </span>
+              <span className="text-xs md:text-sm font-semibold text-slate-300 tracking-wide uppercase">
+                Yeni Nesil Stoklarda
+              </span>
             </div>
-            <div className="flex items-center justify-center gap-3 text-slate-300 border-x border-slate-800">
-              <Zap className="w-6 h-6 text-orange-400" /> <span className="font-bold text-sm uppercase tracking-wide">Aynı Gün Kargo</span>
+
+            {/* Ana Başlık */}
+            <h1 className="text-5xl md:text-7xl font-black text-white leading-[1.1] tracking-tight uppercase">
+              Oyunun Kurallarını <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500 animate-gradient-x">
+                Yeniden Yaz.
+              </span>
+            </h1>
+
+            {/* Alt Başlık (Donanım Vurgusu) */}
+            <p className="text-lg md:text-xl text-slate-400 leading-relaxed max-w-xl">
+              E-spor arenasında sınırları zorlamak isteyenler için en güçlü bileşenler Bilgin PC Market'te. Sektörü kasıp kavuran <strong className="text-cyan-400">RX 9070</strong>, amiral gemisi <strong className="text-blue-500">RTX 5090</strong> ve performansı zirveye taşıyan <strong className="text-purple-400">Ryzen 9 9950X3D</strong> gibi efsanelerle sisteminizi hemen şimdi yükseltin.
+            </p>
+
+            {/* Butonlar */}
+            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <Link href="/kategori/ekran-karti" className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-200 bg-cyan-600 rounded-xl hover:bg-cyan-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-600 shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] uppercase tracking-wider overflow-hidden">
+                <span className="relative z-10">Ekran Kartlarını İncele</span>
+                <div className="absolute inset-0 h-full w-0 bg-white/20 transition-all duration-300 ease-out group-hover:w-full z-0"></div>
+              </Link>
+              
+              <Link href="/kategori/islemci" className="inline-flex items-center justify-center px-8 py-4 font-bold text-slate-300 transition-all duration-200 bg-slate-900/80 border border-slate-700 rounded-xl hover:text-white hover:bg-slate-800 hover:border-slate-600 backdrop-blur-md uppercase tracking-wider">
+                İşlemcilere Göz At
+              </Link>
             </div>
-            <div className="flex items-center justify-center gap-3 text-slate-300">
-              <Cpu className="w-6 h-6 text-[#00e5ff]" /> <span className="font-bold text-sm uppercase tracking-wide">%100 Orijinal Ürün</span>
+            
+            {/* Güven Rozetleri */}
+            <div className="flex items-center gap-6 pt-6 border-t border-slate-800/80">
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span className="text-xs text-slate-400 font-medium">Resmi Distribütör Garantisi</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                <span className="text-xs text-slate-400 font-medium">Güvenli Alışveriş</span>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      <div id="vitrin" className="max-w-6xl mx-auto px-4 sm:px-6 pt-10">
-        
-        <div className="flex items-end justify-between mb-10 border-b border-slate-800/80 pb-4">
-          <div>
-            <h2 className="text-3xl font-black uppercase tracking-wide text-white">
-              Popüler <span className="text-[#00e5ff]">Ürünler</span>
-            </h2>
-            <p className="text-slate-400 text-sm mt-1">Stoktaki en yeni ve en çok satan donanımlar.</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {urunler.length > 0 ? (
-            urunler.map((urun: any) => {
-              const vitrinResmi = urun.resimler && urun.resimler.length > 0 ? urun.resimler[0] : urun.resim;
-              const normalFiyat = Number(urun.regular_price || urun.fiyat || urun.price || 0);
-              const gecerliFiyat = Number(urun.indirimliFiyat || urun.price || urun.fiyat || 0);
-              const indirimVarMi = normalFiyat > gecerliFiyat;
-              const indirimOrani = indirimVarMi ? Math.round(((normalFiyat - gecerliFiyat) / normalFiyat) * 100) : 0;
-              const stokSifirMi = urun.stokAdedi === 0 || urun.stokAdedi === "0";
-              const tukendiMi = urun.stokDurumu === "Tükendi" || stokSifirMi;
-              const havaleOrani = urun.havaleIndirimi !== undefined ? urun.havaleIndirimi : 5;
-
-              return (
-                <Link 
-                  href={"/product/" + (urun.slug || urun._id)} 
-                  key={urun._id.toString()} 
-                  prefetch={true} 
-                  className="group outline-none"
-                >
-                  <div className="bg-[#09090b] rounded-2xl border border-slate-800 p-4 flex flex-col h-full relative overflow-hidden transition-all duration-300 group-hover:border-[#00e5ff]/40 group-hover:shadow-[0_0_30px_rgba(0,229,255,0.05)] group-hover:-translate-y-1">
-                    
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#00e5ff] blur-[80px] opacity-0 group-hover:opacity-10 transition-opacity pointer-events-none"></div>
-
-                    {indirimOrani > 0 && !tukendiMi && (
-                      <div className="absolute top-3 left-3 bg-gradient-to-r from-orange-500 to-red-500 text-white px-2.5 py-1 rounded-lg text-[10px] font-black tracking-wider uppercase z-10 shadow-lg border border-red-400/30">
-                        %{indirimOrani} İNDİRİM
-                      </div>
-                    )}
-
-                    {tukendiMi && (
-                      <div className="absolute top-3 right-3 bg-red-500/10 text-red-500 border border-red-500/20 px-2.5 py-1 rounded-lg text-[10px] font-black tracking-wider uppercase z-10 backdrop-blur-md">
-                        TÜKENDİ
-                      </div>
-                    )}
-
-                    <div className="w-full aspect-square bg-[#121215] rounded-xl border border-slate-800/80 overflow-hidden mb-4 relative flex items-center justify-center p-4">
-                      {vitrinResmi ? (
-                        <img 
-                          src={vitrinResmi} 
-                          alt={urun.isim || urun.name} 
-                          className={"w-full h-full object-contain transition-transform duration-500 group-hover:scale-110 " + (tukendiMi ? "grayscale opacity-40" : "")} 
-                        />
-                      ) : ( 
-                        <div className="text-slate-600 text-xs font-bold tracking-widest uppercase">Görsel Yok</div> 
-                      )}
-                      
-                      {!tukendiMi && <CompareButton urun={urun} />}
-                      
-                    </div>
-
-                    <div className="flex flex-col flex-grow">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider bg-slate-800/50 px-2 py-0.5 rounded-md">
-                          {urun.kategori || "Donanım"}
-                        </span>
-                        {havaleOrani > 0 && !tukendiMi && (
-                          <span className="text-[#10b981] text-[10px] font-bold uppercase tracking-wider bg-[#10b981]/10 border border-[#10b981]/20 px-2 py-0.5 rounded-md flex items-center gap-1">
-                            <BanknoteIcon className="w-3 h-3" /> %{havaleOrani} İndirim
-                          </span>
-                        )}
-                      </div>
-
-                      <h3 className="text-white font-bold text-sm sm:text-base leading-snug line-clamp-2 mb-4 group-hover:text-[#00e5ff] transition-colors">
-                        {urun.isim || urun.name}
-                      </h3>
-                      
-                      <div className="mt-auto pt-4 border-t border-slate-800/80">
-                        {indirimVarMi ? (
-                          <div className="flex flex-col">
-                            <span className="text-slate-500 text-xs font-bold line-through mb-0.5">
-                              {normalFiyat.toLocaleString("tr-TR")} TL
-                            </span>
-                            <span className="text-xl font-black text-[#00e5ff]">
-                              {gecerliFiyat.toLocaleString("tr-TR")} TL
-                            </span>
-                          </div>
-                        ) : (
-                          <div className="text-xl font-black text-white">
-                            {gecerliFiyat.toLocaleString("tr-TR")} TL
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className={"mt-4 w-full py-3 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all " + (tukendiMi ? "bg-slate-800/50 text-slate-500 border border-slate-700/50" : "bg-[#121215] text-slate-300 border border-slate-700 group-hover:bg-[#00e5ff] group-hover:text-black group-hover:border-[#00e5ff] shadow-[0_0_15px_rgba(0,0,0,0)] group-hover:shadow-[0_0_15px_rgba(0,229,255,0.3)]")}>
-                      {tukendiMi ? (
-                        <span>Stokta Yok</span>
-                      ) : (
-                        <span className="flex items-center gap-2">İncele <ArrowRight className="w-4 h-4" /></span>
-                      )}
-                    </div>
-
+          {/* Sağ Taraf - Vitrin Görseli (Cam Efektli Kutu İçinde) */}
+          <div className="relative hidden lg:block">
+            {/* Arkadaki dönen/parlayan efekt çemberi */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-gradient-to-tr from-blue-600/30 to-cyan-500/30 rounded-full blur-3xl animate-pulse"></div>
+            
+            {/* Ürün Kartı Çerçevesi */}
+            <div className="relative bg-slate-900/40 border border-slate-700/50 backdrop-blur-xl rounded-3xl p-6 shadow-2xl transform hover:scale-[1.02] transition-transform duration-500">
+              <div className="absolute -top-4 -right-4 bg-red-600 text-white text-xs font-black px-4 py-2 rounded-full uppercase tracking-widest shadow-lg shadow-red-500/50">
+                Sınırlı Stok
+              </div>
+              
+              {/* BURAYA KENDİ EKRAN KARTI GÖRSELİNİ EKLEYEBİLİRSİN */}
+              <div className="w-full h-80 bg-slate-950/50 rounded-2xl border border-slate-800 flex items-center justify-center overflow-hidden relative">
+                 {/* Gerçek bir sitende buraya <img src="/ekran-karti.png" /> gelecek */}
+                 <span className="text-slate-600 font-bold uppercase tracking-widest">[ Amiral Gemisi Donanım Görseli ]</span>
+                 
+                 {/* Görselin üstüne düşen teknolojik ışık yansıması */}
+                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
+              </div>
+              
+              <div className="mt-6 space-y-2">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xl font-bold text-white uppercase tracking-wide">Extreme Performans Serisi</h3>
+                  <div className="flex gap-1">
+                    <span className="w-2 h-2 rounded-full bg-cyan-500"></span>
+                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                    <span className="w-2 h-2 rounded-full bg-purple-500"></span>
                   </div>
-                </Link>
-              )
-            })
-          ) : ( 
-            <div className="col-span-full py-20 flex flex-col items-center justify-center bg-[#09090b] border border-slate-800 rounded-3xl">
-              <Cpu className="w-16 h-16 text-slate-600 mb-4" />
-              <h3 className="text-xl font-black text-white uppercase tracking-wider mb-2">Vitrin Şu An Boş</h3>
-              <p className="text-slate-400">Yakında yeni nesil donanımlarla karşınızda olacağız.</p>
-            </div> 
-          )}
+                </div>
+                <p className="text-sm text-slate-400">En güncel mimari, maksimum FPS, sıfır darboğaz.</p>
+              </div>
+            </div>
+          </div>
+
         </div>
-
       </div>
-    </main>
-  );
-}
-
-function BanknoteIcon(props: any) {
-  return (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect width="20" height="12" x="2" y="6" rx="2"/>
-      <circle cx="12" cy="12" r="2"/>
-      <path d="M6 12h.01M18 12h.01"/>
-    </svg>
+    </div>
   );
 }
