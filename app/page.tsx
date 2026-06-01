@@ -67,7 +67,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ==================== 2. ÖZEL AYRICALIKLAR ("Kaydırarak Keşfet" Yazısı Silindi) ==================== */}
+      {/* ==================== 2. ÖZEL AYRICALIKLAR ==================== */}
       <section className="max-w-[1400px] mx-auto px-0 sm:px-6 lg:px-8 pt-8 pb-4">
         
         <div className="flex items-center justify-between px-4 sm:px-0 mb-6">
@@ -77,7 +77,6 @@ export default async function HomePage() {
               Özel <span className="text-gray-500">Ayrıcalıklar</span>
             </h2>
           </div>
-          {/* Kaydırarak Keşfet yazısı buradan tamamen kaldırıldı */}
         </div>
 
         <div className="flex flex-nowrap overflow-x-auto gap-6 pb-4 px-4 sm:px-0 snap-x snap-mandatory scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#10b981] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
@@ -130,80 +129,78 @@ export default async function HomePage() {
             </div>
           </div>
 
-          {/* KART 5 */}
-          <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-black border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#ef4444] transition-colors duration-500">
-            <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800&auto=format&fit=crop" alt="VIP Destek" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 group-hover:scale-110 transition-all duration-700" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent"></div>
-            <div className="relative z-10 transform group-hover:-translate-y-2 transition-transform duration-500">
-              <div className="text-[#ef4444] font-black text-4xl tracking-tighter mb-2 drop-shadow-[0_0_15px_rgba(239,68,68,0.2)]">VIP<span className="text-white text-2xl">DESTEK</span></div>
-              <h3 className="text-white font-black text-base uppercase tracking-widest mb-3 group-hover:text-[#ef4444] transition-colors">Birebir İletişim</h3>
-              <div className="w-8 h-1 bg-[#ef4444] mb-3 transition-all duration-500 group-hover:w-full"></div>
-              <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100">Kurulum, yazılım veya donanım yükseltme işlemlerinde, sizi robotlara bağlamadan doğrudan teknik destek sağlıyoruz.</p>
-            </div>
-          </div>
-
         </div>
       </section>
 
-      {/* ==================== 3. YENİ BÖLÜM: KATEGORİLER (Güç Merkezleri) ==================== */}
-      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
-        <div className="flex items-center gap-4 mb-6">
+      {/* ==================== 3. YENİ BÖLÜM: DEV KATEGORİLER (Ayrıcalıklar İle Aynı Boyut ve Kaydırma) ==================== */}
+      <section className="max-w-[1400px] mx-auto px-0 sm:px-6 lg:px-8 pt-8 pb-4">
+        
+        <div className="flex items-center gap-4 mb-6 px-4 sm:px-0">
           <div className="w-1.5 h-8 bg-white shadow-[0_0_10px_rgba(255,255,255,0.3)]"></div>
           <h2 className="text-xl sm:text-3xl font-black uppercase tracking-tight text-white">
             Hızlı <span className="text-gray-500">Erişim</span>
           </h2>
         </div>
 
-        {/* 5'li Şık Kategori Kartları */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="flex flex-nowrap overflow-x-auto gap-6 pb-4 px-4 sm:px-0 snap-x snap-mandatory scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#10b981] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
           
-          {/* Kategori 1 */}
-          <Link href="/kategori/hazir-sistemler" className="group relative h-32 sm:h-40 bg-black/40 border border-white/10 rounded-none overflow-hidden cursor-pointer transition-all duration-300 hover:border-[#10b981] flex items-end p-4">
-            <img src="https://images.unsplash.com/photo-1587202372634-32705e3bf49c?q=80&w=400&auto=format&fit=crop" alt="Hazır Sistemler" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 group-hover:scale-110 transition-all duration-700 grayscale group-hover:grayscale-0" />
+          {/* DEV KATEGORİ 1: HAZIR SİSTEMLER */}
+          <Link href="/kategori/hazir-sistemler" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-black border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#10b981] transition-colors duration-500">
+            <img src="https://images.unsplash.com/photo-1587202372634-32705e3bf49c?q=80&w=800&auto=format&fit=crop" alt="Hazır Sistemler" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 group-hover:scale-110 transition-all duration-700 grayscale group-hover:grayscale-0" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
-            <div className="relative z-10 w-full transform group-hover:-translate-y-1 transition-transform duration-300">
-              <h3 className="text-white font-bold text-xs sm:text-sm uppercase tracking-wider group-hover:text-[#10b981] transition-colors">Hazır Sistemler</h3>
-              <div className="w-6 h-0.5 bg-[#10b981] mt-2 group-hover:w-full transition-all duration-500"></div>
+            <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
+              <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#10b981] transition-colors">Hazır Sistemler</h3>
+              <div className="w-12 h-1 bg-[#10b981] mt-3 group-hover:w-full transition-all duration-500"></div>
             </div>
           </Link>
 
-          {/* Kategori 2 */}
-          <Link href="/kategori/ekran-kartlari" className="group relative h-32 sm:h-40 bg-black/40 border border-white/10 rounded-none overflow-hidden cursor-pointer transition-all duration-300 hover:border-[#10b981] flex items-end p-4">
-            <img src="https://images.unsplash.com/photo-1591488320449-011701bb6704?q=80&w=400&auto=format&fit=crop" alt="Ekran Kartları" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 group-hover:scale-110 transition-all duration-700 grayscale group-hover:grayscale-0" />
+          {/* DEV KATEGORİ 2: EKRAN KARTLARI */}
+          <Link href="/kategori/ekran-kartlari" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-black border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#10b981] transition-colors duration-500">
+            <img src="https://images.unsplash.com/photo-1591488320449-011701bb6704?q=80&w=800&auto=format&fit=crop" alt="Ekran Kartları" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 group-hover:scale-110 transition-all duration-700 grayscale group-hover:grayscale-0" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
-            <div className="relative z-10 w-full transform group-hover:-translate-y-1 transition-transform duration-300">
-              <h3 className="text-white font-bold text-xs sm:text-sm uppercase tracking-wider group-hover:text-[#10b981] transition-colors">Ekran Kartları</h3>
-              <div className="w-6 h-0.5 bg-[#10b981] mt-2 group-hover:w-full transition-all duration-500"></div>
+            <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
+              <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#10b981] transition-colors">Ekran Kartları</h3>
+              <div className="w-12 h-1 bg-[#10b981] mt-3 group-hover:w-full transition-all duration-500"></div>
             </div>
           </Link>
 
-          {/* Kategori 3 */}
-          <Link href="/kategori/islemci-anakart" className="group relative h-32 sm:h-40 bg-black/40 border border-white/10 rounded-none overflow-hidden cursor-pointer transition-all duration-300 hover:border-[#10b981] flex items-end p-4">
-            <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=400&auto=format&fit=crop" alt="İşlemci & Anakart" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 group-hover:scale-110 transition-all duration-700 grayscale group-hover:grayscale-0" />
+          {/* DEV KATEGORİ 3: SADECE İŞLEMCİLER */}
+          <Link href="/kategori/islemciler" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-black border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#10b981] transition-colors duration-500">
+            <img src="https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?q=80&w=800&auto=format&fit=crop" alt="İşlemciler" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 group-hover:scale-110 transition-all duration-700 grayscale group-hover:grayscale-0" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
-            <div className="relative z-10 w-full transform group-hover:-translate-y-1 transition-transform duration-300">
-              <h3 className="text-white font-bold text-xs sm:text-sm uppercase tracking-wider group-hover:text-[#10b981] transition-colors">İşlemci & Anakart</h3>
-              <div className="w-6 h-0.5 bg-[#10b981] mt-2 group-hover:w-full transition-all duration-500"></div>
+            <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
+              <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#10b981] transition-colors">İşlemciler</h3>
+              <div className="w-12 h-1 bg-[#10b981] mt-3 group-hover:w-full transition-all duration-500"></div>
             </div>
           </Link>
 
-          {/* Kategori 4 */}
-          <Link href="/kategori/sogutma-kasa" className="group relative h-32 sm:h-40 bg-black/40 border border-white/10 rounded-none overflow-hidden cursor-pointer transition-all duration-300 hover:border-[#10b981] flex items-end p-4">
-            <img src="https://images.unsplash.com/photo-1600861194802-a2b11076bc8f?q=80&w=400&auto=format&fit=crop" alt="Soğutma & Kasa" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 group-hover:scale-110 transition-all duration-700 grayscale group-hover:grayscale-0" />
+          {/* DEV KATEGORİ 4: SADECE ANAKARTLAR */}
+          <Link href="/kategori/anakartlar" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-black border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#10b981] transition-colors duration-500">
+            <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop" alt="Anakartlar" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 group-hover:scale-110 transition-all duration-700 grayscale group-hover:grayscale-0" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
-            <div className="relative z-10 w-full transform group-hover:-translate-y-1 transition-transform duration-300">
-              <h3 className="text-white font-bold text-xs sm:text-sm uppercase tracking-wider group-hover:text-[#10b981] transition-colors">Soğutma & Kasa</h3>
-              <div className="w-6 h-0.5 bg-[#10b981] mt-2 group-hover:w-full transition-all duration-500"></div>
+            <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
+              <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#10b981] transition-colors">Anakartlar</h3>
+              <div className="w-12 h-1 bg-[#10b981] mt-3 group-hover:w-full transition-all duration-500"></div>
             </div>
           </Link>
 
-          {/* Kategori 5 */}
-          <Link href="/kategori/profesyonel-monitor" className="group relative h-32 sm:h-40 bg-black/40 border border-white/10 rounded-none overflow-hidden cursor-pointer transition-all duration-300 hover:border-[#10b981] flex items-end p-4">
-            <img src="https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?q=80&w=400&auto=format&fit=crop" alt="Profesyonel Monitörler" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 group-hover:scale-110 transition-all duration-700 grayscale group-hover:grayscale-0" />
+          {/* DEV KATEGORİ 5: SADECE SIVI SOĞUTMA (Yeni Görsel) */}
+          <Link href="/kategori/sivi-sogutma" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-black border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#10b981] transition-colors duration-500">
+            <img src="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?q=80&w=800&auto=format&fit=crop" alt="Sıvı Soğutma" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 group-hover:scale-110 transition-all duration-700 grayscale group-hover:grayscale-0" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
-            <div className="relative z-10 w-full transform group-hover:-translate-y-1 transition-transform duration-300">
-              <h3 className="text-white font-bold text-xs sm:text-sm uppercase tracking-wider group-hover:text-[#10b981] transition-colors">Prof. Monitörler</h3>
-              <div className="w-6 h-0.5 bg-[#10b981] mt-2 group-hover:w-full transition-all duration-500"></div>
+            <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
+              <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#10b981] transition-colors">Sıvı Soğutma</h3>
+              <div className="w-12 h-1 bg-[#10b981] mt-3 group-hover:w-full transition-all duration-500"></div>
+            </div>
+          </Link>
+
+          {/* DEV KATEGORİ 6: PROFESYONEL MONİTÖRLER (Aydınlık Görsel) */}
+          <Link href="/kategori/profesyonel-monitor" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-black border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#10b981] transition-colors duration-500">
+            <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800&auto=format&fit=crop" alt="Profesyonel Monitörler" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 group-hover:scale-110 transition-all duration-700 grayscale group-hover:grayscale-0" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+            <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
+              <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#10b981] transition-colors">Prof. Monitörler</h3>
+              <div className="w-12 h-1 bg-[#10b981] mt-3 group-hover:w-full transition-all duration-500"></div>
             </div>
           </Link>
 
