@@ -83,7 +83,8 @@ export default async function HomePage() {
           <div className="flex flex-nowrap overflow-x-auto gap-4 pb-4 px-[7.5vw] sm:px-[10vw] lg:px-8 snap-x snap-mandatory scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#00d2ff] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
 
             <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#10b981] transition-colors duration-500">
-              <img src="https://images.unsplash.com/photo-1616588589676-62b3bd4ff6d2?q=80&w=800&auto=format&fit=crop" alt="Havale İndirimi" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-60 transition-all duration-700" />
+              {/* HELLO Yazılı resim silindi, yeni teknoloji resmi eklendi */}
+              <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800&auto=format&fit=crop" alt="Havale İndirimi" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-60 transition-all duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent"></div>
               <div className="relative z-10 transform group-hover:-translate-y-2 transition-transform duration-500">
                 <div className="text-[#10b981] font-black text-5xl tracking-tighter mb-1 drop-shadow-[0_0_15px_rgba(16,185,129,0.2)]">%15</div>
@@ -235,7 +236,7 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* ==================== 4. KALİTE & GÜVEN (Yazılar Gerçekçi Oldu) ==================== */}
+      {/* ==================== 4. KALİTE & GÜVEN ==================== */}
       <section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center bg-[#121212] border border-white/10 p-8 lg:p-12 relative overflow-hidden shadow-[5px_5px_0px_rgba(0,0,0,0.8)]">
           
@@ -271,7 +272,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ==================== 5. HIZLI ERİŞİM (Kategori Kartları Işıklandırıldı, "1080" Silindi) ==================== */}
+      {/* ==================== 5. HIZLI ERİŞİM ==================== */}
       <section className="max-w-[1400px] mx-auto pt-8 pb-12">
         
         <div className="flex items-center gap-4 mb-6 px-6 lg:px-8">
@@ -282,7 +283,6 @@ export default async function HomePage() {
         </div>
 
         <div className="w-full">
-          {/* Opacity ve Brightness sorunları çözüldü, kartlar çok daha aydınlık */}
           <div className="flex flex-nowrap overflow-x-auto gap-4 pb-4 px-[7.5vw] sm:px-[10vw] lg:px-8 snap-x snap-mandatory scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#00d2ff] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
             
             <Link href="/kategori/hazir-sistemler" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#00d2ff] transition-colors duration-500">
@@ -294,9 +294,9 @@ export default async function HomePage() {
               </div>
             </Link>
 
-            {/* "1080" YAZAN RESİM DEĞİŞTİRİLDİ - YENİ EKRAN KARTI GÖRSELİ */}
+            {/* HELLO ve "1080" yazmayan yeni, temiz bir donanım resmi eklendi */}
             <Link href="/kategori/ekran-kartlari" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#00d2ff] transition-colors duration-500">
-              <img src="https://images.unsplash.com/photo-1616588589676-62b3bd4ff6d2?q=80&w=800&auto=format&fit=crop" alt="Ekran Kartları" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 grayscale group-hover:grayscale-0" />
+              <img src="https://images.unsplash.com/photo-1591488320449-011701bb6704?q=80&w=800&auto=format&fit=crop" alt="Ekran Kartları" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 grayscale group-hover:grayscale-0" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
                 <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors drop-shadow-md">Ekran Kartları</h3>
@@ -344,12 +344,12 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ==================== 6. BİLGİN PC BİLGİLENDİRME (Dürüst, Samimi ve Güven Veren Esnaf Dili) ==================== */}
+      {/* ==================== 6. BİLGİN PC BİLGİLENDİRME (Yeni güvenilir resim) ==================== */}
       <section className="relative w-full py-20 sm:py-28 bg-[#0a0a0a] border-t border-white/10 overflow-hidden flex items-center justify-center">
         
-        {/* Arka Plan Görseli (Eski 1080 resmi silindi, yeni temiz teknoloji resmi kondu, daha aydınlık yapıldı) */}
+        {/* Güvenilir ve çok daha net anakart resmi. 1080 yazmıyor! */}
         <div className="absolute inset-0 z-0 opacity-40">
-          <img src="https://images.unsplash.com/photo-1600861194802-a2b11076bc8f?q=80&w=2000&auto=format&fit=crop" alt="Bilgin PC Arka Plan" className="w-full h-full object-cover grayscale" />
+          <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2000&auto=format&fit=crop" alt="Bilgin PC Arka Plan" className="w-full h-full object-cover grayscale" />
           <div className="absolute inset-0 bg-[#0a0a0a]/70"></div>
         </div>
         
