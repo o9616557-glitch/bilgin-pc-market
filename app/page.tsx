@@ -1,6 +1,6 @@
 import clientPromise from "@/lib/mongodb";
 import Link from "next/link";
-import { ArrowRight, Cpu, Crosshair, Sparkles, Star } from "lucide-react";
+import { ArrowRight, Cpu, Crosshair, Sparkles, Star, GitCompare } from "lucide-react";
 import CompareButton from "./CompareButton"; 
 
 export const dynamic = "force-dynamic";
@@ -108,21 +108,25 @@ export default async function HomePage() {
               const havaleFiyati = gecerliFiyat - (gecerliFiyat * (havaleOrani / 100));
 
               return (
-                <Link 
-                  href={"/product/" + (urun.slug || urun._id)} 
+                <div 
                   key={urun._id.toString()} 
-                  prefetch={true} 
-                  // Mobil genişlik %85 (1 tam, 1 çeyrek kart gösterir). PC'de tam genişlik.
                   className="group relative flex flex-col w-[85vw] sm:w-[45vw] lg:w-full flex-shrink-0 snap-start bg-[#18181b] rounded-none border border-[#3f3f46] shadow-[10px_10px_0px_rgba(0,0,0,0.3)] hover:shadow-[15px_15px_0px_rgba(212,175,55,0.15)] lg:hover:-translate-y-1 transition-all duration-300"
                 >
 
                   {/* 1. ÜST KISIM (GÖRSEL VE BUTONLAR) */}
                   <div className="relative w-full aspect-[4/3] p-6 flex items-center justify-center bg-black/40 border-b border-[#3f3f46]">
                     
-                    {/* Karşılaştırma Butonu (Güvenli alana çekildi, taşma yapmaz) */}
+                    {/* BELİRGİN KARŞILAŞTIRMA BUTONU (Sol Üstte) */}
                     {!tukendiMi && (
-                      <div className="absolute top-3 right-3 z-30 opacity-100 transition-all duration-300 group-hover:scale-110">
-                        <CompareButton urun={urun} />
+                      <div className="absolute top-3 left-3 z-30">
+                        <div className="flex items-center gap-2 bg-[#18181b]/80 backdrop-blur-sm border border-[#3f3f46] px-3 py-1.5 cursor-pointer hover:border-[#d4af37] hover:text-[#d4af37] transition-all duration-300 text-gray-400 group/compare">
+                          <GitCompare className="w-4 h-4" />
+                          <span className="text-[10px] font-black uppercase tracking-wider hidden sm:block group-hover/compare:text-[#d4af37]">Karşılaştır</span>
+                          {/* Arka planda senin orijinal CompareButton'unu görünmez tetikleyici olarak sarmalıyoruz ki sistemin bozulmasın */}
+                          <div className="absolute inset-0 opacity-0 w-full h-full">
+                            <CompareButton urun={urun} />
+                          </div>
+                        </div>
                       </div>
                     )}
 
@@ -133,72 +137,89 @@ export default async function HomePage() {
                     )}
 
                     {/* Resim */}
-                    {vitrinResmi ? (
-                      <img 
-                        src={vitrinResmi} 
-                        alt={urun.isim || urun.name} 
-                        className={"w-full h-full object-contain filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)] transition-transform duration-700 ease-out group-hover:scale-110 " + (tukendiMi ? "grayscale opacity-20" : "")} 
-                      />
-                    ) : ( 
-                      <Cpu className="w-16 h-16 text-white/10" />
-                    )}
+                    <Link href={"/product/" + (urun.slug || urun._id)} prefetch={true} className="w-full h-full flex items-center justify-center">
+                      {vitrinResmi ? (
+                        <img 
+                          src={vitrinResmi} 
+                          alt={urun.isim || urun.name} 
+                          className={"w-full h-full object-contain filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)] transition-transform duration-700 ease-out group-hover:scale-110 " + (tukendiMi ? "grayscale opacity-20" : "")} 
+                        />
+                      ) : ( 
+                        <Cpu className="w-16 h-16 text-white/10" />
+                      )}
+                    </Link>
                   </div>
 
                   {/* 2. ALT KISIM (METİNLER VE FİYAT) */}
                   <div className="flex flex-col flex-grow p-5 sm:p-6 relative z-10 bg-transparent">
                     
-                    {/* Ürün İsmi */}
-                    <h3 className="text-gray-100 font-bold text-sm sm:text-base uppercase tracking-wider leading-snug line-clamp-2 mb-2 group-hover:text-[#d4af37] transition-colors">
-                      {urun.isim || urun.name}
-                    </h3>
+                    {/* Ürün İsmi (ALTIN RENGİ - ESKİSİ GİBİ) */}
+                    <Link href={"/product/" + (urun.slug || urun._id)}>
+                      <h3 className="text-[#d4af37] font-bold text-sm sm:text-base uppercase tracking-wider leading-snug line-clamp-2 mb-2 hover:text-white transition-colors">
+                        {urun.isim || urun.name}
+                      </h3>
+                    </Link>
 
                     {/* Yıldızlar ve Yorum Sayısı */}
                     <div className="flex items-center gap-1 mb-4">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <Star key={star} className="w-3.5 h-3.5 fill-[#d4af37] text-[#d4af37]" />
                       ))}
-                      <span className="text-gray-500 text-xs ml-2 font-medium">(24)</span>
+                      <span className="text-gray-500 text-xs ml-2 font-medium">(Yorumlar)</span>
                     </div>
 
-                    {/* Fiyatlandırma Alanı */}
-                    <div className="border-t border-[#3f3f46] pt-4 mt-auto">
+                    {/* FİYAT VE 3D ROZET ALANI (Yan Yana) */}
+                    <div className="border-t border-[#3f3f46] pt-4 mt-auto flex justify-between items-end">
                       
-                      {/* Eski Fiyat ve Yeni "Son Sistem İndirimi" Rozeti Yanyana */}
-                      <div className="flex items-center gap-3 mb-1 min-h-[24px]">
+                      {/* Sol Taraf: Fiyatlar */}
+                      <div className="flex flex-col">
                         {indirimVarMi && (
-                          <>
-                            <div className="text-[#a1a1aa] line-through text-xs sm:text-sm font-medium">
-                              {normalFiyat.toLocaleString("tr-TR")} ₺
-                            </div>
-                            <div className="bg-[#d4af37]/10 border border-[#d4af37]/30 text-[#d4af37] px-2 py-0.5 text-[9px] sm:text-[10px] font-black tracking-widest uppercase">
-                              %{indirimOrani} Son Sistem İndirimi
-                            </div>
-                          </>
+                          <div className="text-[#a1a1aa] line-through text-xs sm:text-sm font-medium mb-1">
+                            {normalFiyat.toLocaleString("tr-TR")} ₺
+                          </div>
+                        )}
+                        <div className="text-2xl sm:text-3xl font-black text-white leading-none">
+                          {gecerliFiyat.toLocaleString("tr-TR")} <span className="text-base font-normal text-[#a1a1aa]">₺</span>
+                        </div>
+                        {havaleOrani > 0 && !tukendiMi && (
+                          <div className="text-[#10b981] text-xs font-bold flex items-center gap-1.5 mt-2">
+                            <BanknoteIcon className="w-4 h-4" /> 
+                            Havale/EFT: {havaleFiyati.toLocaleString("tr-TR", {maximumFractionDigits: 2})} ₺
+                          </div>
                         )}
                       </div>
-                      
-                      {/* Yeni Fiyat */}
-                      <div className="text-2xl sm:text-3xl font-black text-white leading-none mb-2">
-                        {gecerliFiyat.toLocaleString("tr-TR")} <span className="text-base font-normal text-[#a1a1aa]">₺</span>
-                      </div>
-                      
-                      {/* Havale Fiyatı */}
-                      {havaleOrani > 0 && !tukendiMi && (
-                        <div className="text-[#10b981] text-xs font-bold flex items-center gap-1.5 mt-2">
-                          <BanknoteIcon className="w-4 h-4" /> 
-                          Havale/EFT: {havaleFiyati.toLocaleString("tr-TR", {maximumFractionDigits: 2})} ₺
+
+                      {/* Sağ Taraf: 3 Boyutlu Kırmızı Kurdele Rozeti */}
+                      {indirimVarMi && !tukendiMi && (
+                        <div className="relative flex flex-col items-center ml-2">
+                          {/* Rozet Ana Gövdesi (Tırtıklı hissi veren keskin sekizgen form) */}
+                          <div className="relative bg-gradient-to-br from-[#ff1a1a] to-[#b30000] w-14 h-14 sm:w-16 sm:h-16 flex flex-col items-center justify-center shadow-[0_5px_15px_rgba(220,38,38,0.5)] z-10 border-2 border-[#ff4d4d]" style={{ clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)' }}>
+                            <span className="text-white text-lg sm:text-xl font-black leading-none drop-shadow-md">
+                              %{indirimOrani}
+                            </span>
+                            <span className="text-white text-[7px] sm:text-[8px] font-bold uppercase tracking-widest mt-0.5 text-center px-1 drop-shadow-md">
+                              Son Sistem
+                            </span>
+                          </div>
+                          {/* Kurdele Kuyrukları (Aşağı sarkan 3D hisli parçalar) */}
+                          <div className="absolute -bottom-3 flex justify-between w-10 sm:w-12 z-0">
+                            <div className="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[16px] border-t-[#800000] drop-shadow-lg"></div>
+                            <div className="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[16px] border-t-[#800000] drop-shadow-lg"></div>
+                          </div>
                         </div>
                       )}
                     </div>
 
-                    {/* Sırıtmayan İncele Butonu (Koyu Füme & Altın Hover) */}
-                    <div className={"w-full text-center py-3 mt-5 text-xs sm:text-sm font-bold uppercase border transition-all duration-300 " + (tukendiMi ? "bg-[#18181b] border-[#27272a] text-[#71717a] cursor-not-allowed" : "bg-[#18181b] border-[#3f3f46] text-gray-300 group-hover:border-[#d4af37] group-hover:text-[#d4af37]")}>
-                      {tukendiMi ? "Tükendi" : "İncele"}
-                    </div>
+                    {/* İncele Butonu */}
+                    <Link href={"/product/" + (urun.slug || urun._id)} className="block w-full">
+                      <div className={"w-full text-center py-3 mt-6 text-xs sm:text-sm font-bold uppercase border transition-all duration-300 " + (tukendiMi ? "bg-[#18181b] border-[#27272a] text-[#71717a] cursor-not-allowed" : "bg-[#18181b] border-[#3f3f46] text-gray-300 hover:border-[#d4af37] hover:text-[#d4af37]")}>
+                        {tukendiMi ? "Tükendi" : "İncele"}
+                      </div>
+                    </Link>
 
                   </div>
 
-                </Link>
+                </div>
               )
             })
           ) : ( 
