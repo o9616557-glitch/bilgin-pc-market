@@ -75,7 +75,7 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-{/* ==================== 3. YENİ NESİL KAMPANYA VE FIRSATLAR (5'li Kaydırmalı) ==================== */}
+{/* ==================== 3. YENİ NESİL KAMPANYA VE FIRSATLAR (Geniş & Kaydırmalı) ==================== */}
       <section className="max-w-[1400px] mx-auto px-0 sm:px-6 lg:px-8 pt-12 pb-24">
         
         {/* Banner Başlığı */}
@@ -86,18 +86,18 @@ export default async function HomePage() {
               Özel <span className="text-gray-500">Ayrıcalıklar</span>
             </h2>
           </div>
-          <div className="text-gray-500 text-[10px] font-black tracking-[0.2em] uppercase flex items-center gap-2 animate-pulse">
-            Kaydır <ArrowRight className="w-4 h-4" />
+          <div className="text-gray-500 text-[10px] sm:text-xs font-black tracking-[0.2em] uppercase flex items-center gap-2 animate-pulse">
+            Kaydırarak Keşfet <ArrowRight className="w-4 h-4" />
           </div>
         </div>
 
-        {/* 5'Lİ KAYDIRMALI KONTEYNER (Scrollbar gizli, Snap özellikli) */}
-        <div className="flex overflow-x-auto gap-4 pb-8 px-4 sm:px-0 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {/* KAYDIRMALI KONTEYNER (PC'de 3'lü genişlik, sağa doğru kayar) */}
+        <div className="flex overflow-x-auto gap-6 pb-8 px-4 sm:px-0 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 
           {/* 1. KAMPANYA: HAVALE İNDİRİMİ */}
-          <div className="group relative flex-none w-[75vw] sm:w-[280px] lg:w-[calc(20%-0.8rem)] h-[380px] bg-black border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-5 cursor-pointer hover:border-[#10b981] transition-colors duration-500">
+          <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-black border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#10b981] transition-colors duration-500">
             <img 
-              src="https://images.unsplash.com/photo-1616588589676-62b3bd4ff6d2?q=80&w=600&auto=format&fit=crop" 
+              src="https://images.unsplash.com/photo-1616588589676-62b3bd4ff6d2?q=80&w=800&auto=format&fit=crop" 
               alt="Havale İndirimi" 
               className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-60 group-hover:scale-110 transition-all duration-700" 
             />
@@ -107,20 +107,20 @@ export default async function HomePage() {
               <div className="text-[#10b981] font-black text-5xl tracking-tighter mb-1 drop-shadow-[0_0_15px_rgba(16,185,129,0.2)]">
                 %15
               </div>
-              <h3 className="text-white font-black text-sm sm:text-base uppercase tracking-widest mb-3 group-hover:text-[#10b981] transition-colors">
+              <h3 className="text-white font-black text-base uppercase tracking-widest mb-3 group-hover:text-[#10b981] transition-colors">
                 Havale İndirimi
               </h3>
               <div className="w-8 h-1 bg-[#10b981] mb-3 transition-all duration-500 group-hover:w-full"></div>
-              <p className="text-gray-400 text-[11px] sm:text-xs font-medium leading-relaxed opacity-80 group-hover:opacity-100">
-                Sepet tutarı fark etmeksizin, banka transferi ile yapacağınız ödemelerde sistem anında net indirim uygular.
+              <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100">
+                Sepet tutarı fark etmeksizin, banka transferi ile yapacağınız tüm ödemelerde sistem anında net indirim uygular.
               </p>
             </div>
           </div>
 
           {/* 2. KAMPANYA: AYNI GÜN KARGO */}
-          <div className="group relative flex-none w-[75vw] sm:w-[280px] lg:w-[calc(20%-0.8rem)] h-[380px] bg-black border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-5 cursor-pointer hover:border-white transition-colors duration-500">
+          <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-black border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-white transition-colors duration-500">
             <img 
-              src="https://images.unsplash.com/photo-1587202372634-32705e3bf49c?q=80&w=600&auto=format&fit=crop" 
+              src="https://images.unsplash.com/photo-1587202372634-32705e3bf49c?q=80&w=800&auto=format&fit=crop" 
               alt="Hızlı Kargo" 
               className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 group-hover:scale-110 transition-all duration-700 grayscale" 
             />
@@ -130,20 +130,20 @@ export default async function HomePage() {
               <div className="text-white font-black text-4xl tracking-tighter mb-2">
                 JET<span className="text-gray-600">HIZI</span>
               </div>
-              <h3 className="text-white font-black text-sm sm:text-base uppercase tracking-widest mb-3 group-hover:text-gray-300 transition-colors">
+              <h3 className="text-white font-black text-base uppercase tracking-widest mb-3 group-hover:text-gray-300 transition-colors">
                 Aynı Gün Kargo
               </h3>
               <div className="w-8 h-1 bg-white mb-3 transition-all duration-500 group-hover:w-full"></div>
-              <p className="text-gray-400 text-[11px] sm:text-xs font-medium leading-relaxed opacity-80 group-hover:opacity-100">
-                Saat 16:00'a kadar verilen tüm amiral gemisi siparişleri, özel korumalı paketlemeyle aynı gün yola çıkar.
+              <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100">
+                Saat 16:00'a kadar verilen tüm amiral gemisi donanım siparişleri, özel korumalı paketlemeyle aynı gün yola çıkar.
               </p>
             </div>
           </div>
 
           {/* 3. KAMPANYA: PROFESYONEL MONTAJ */}
-          <div className="group relative flex-none w-[75vw] sm:w-[280px] lg:w-[calc(20%-0.8rem)] h-[380px] bg-black border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-5 cursor-pointer hover:border-[#d4af37] transition-colors duration-500">
+          <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-black border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#d4af37] transition-colors duration-500">
             <img 
-              src="https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?q=80&w=600&auto=format&fit=crop" 
+              src="https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?q=80&w=800&auto=format&fit=crop" 
               alt="Montaj ve Test" 
               className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-50 group-hover:scale-110 transition-all duration-700 sepia-[.3]" 
             />
@@ -153,22 +153,22 @@ export default async function HomePage() {
               <div className="text-[#d4af37] font-black text-4xl tracking-tighter mb-2 drop-shadow-[0_0_15px_rgba(212,175,55,0.2)]">
                 PRO<span className="text-white">TEST</span>
               </div>
-              <h3 className="text-white font-black text-sm sm:text-base uppercase tracking-widest mb-3 group-hover:text-[#d4af37] transition-colors">
+              <h3 className="text-white font-black text-base uppercase tracking-widest mb-3 group-hover:text-[#d4af37] transition-colors">
                 Ücretsiz Montaj
               </h3>
               <div className="w-8 h-1 bg-[#d4af37] mb-3 transition-all duration-500 group-hover:w-full"></div>
-              <p className="text-gray-400 text-[11px] sm:text-xs font-medium leading-relaxed opacity-80 group-hover:opacity-100">
+              <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100">
                 Sistemleriniz teknisyenlerimiz tarafından birleştirilir. 24 saatlik stres testlerinden geçtikten sonra size ulaşır.
               </p>
             </div>
           </div>
 
-          {/* 4. KAMPANYA: DİSTRİBÜTÖR GARANTİSİ (YENİ) */}
-          <div className="group relative flex-none w-[75vw] sm:w-[280px] lg:w-[calc(20%-0.8rem)] h-[380px] bg-black border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-5 cursor-pointer hover:border-[#3b82f6] transition-colors duration-500">
+          {/* 4. KAMPANYA: DİSTRİBÜTÖR GARANTİSİ (Resim Linki Yenilendi) */}
+          <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-black border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#3b82f6] transition-colors duration-500">
             <img 
-              src="https://images.unsplash.com/photo-1555617981-0f7243b2f2e5?q=80&w=600&auto=format&fit=crop" 
+              src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop" 
               alt="Resmi Garanti" 
-              className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 group-hover:scale-110 transition-all duration-700 hue-rotate-180" 
+              className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 group-hover:scale-110 transition-all duration-700" 
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent"></div>
             
@@ -176,22 +176,22 @@ export default async function HomePage() {
               <div className="text-[#3b82f6] font-black text-4xl tracking-tighter mb-2 drop-shadow-[0_0_15px_rgba(59,130,246,0.2)]">
                 %100<span className="text-white text-2xl">TR</span>
               </div>
-              <h3 className="text-white font-black text-sm sm:text-base uppercase tracking-widest mb-3 group-hover:text-[#3b82f6] transition-colors">
+              <h3 className="text-white font-black text-base uppercase tracking-widest mb-3 group-hover:text-[#3b82f6] transition-colors">
                 Resmi Garanti
               </h3>
               <div className="w-8 h-1 bg-[#3b82f6] mb-3 transition-all duration-500 group-hover:w-full"></div>
-              <p className="text-gray-400 text-[11px] sm:text-xs font-medium leading-relaxed opacity-80 group-hover:opacity-100">
-                Mağazamızdaki tüm ürünler Türkiye resmi distribütör garantilidir. İthalatçı garantili veya kutusuz ürün satılmaz.
+              <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100">
+                Mağazamızdaki tüm ürünler Türkiye resmi distribütör garantilidir. İthalatçı garantili veya kutusuz ürün asla satılmaz.
               </p>
             </div>
           </div>
 
-          {/* 5. KAMPANYA: VIP TEKNİK DESTEK (YENİ) */}
-          <div className="group relative flex-none w-[75vw] sm:w-[280px] lg:w-[calc(20%-0.8rem)] h-[380px] bg-black border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-5 cursor-pointer hover:border-[#ef4444] transition-colors duration-500">
+          {/* 5. KAMPANYA: VIP TEKNİK DESTEK (Resim Linki Yenilendi) */}
+          <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-black border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#ef4444] transition-colors duration-500">
             <img 
-              src="https://images.unsplash.com/photo-1603732551658-5fabbafa84f3?q=80&w=600&auto=format&fit=crop" 
+              src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800&auto=format&fit=crop" 
               alt="VIP Destek" 
-              className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 group-hover:scale-110 transition-all duration-700 saturate-200" 
+              className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 group-hover:scale-110 transition-all duration-700" 
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent"></div>
             
@@ -199,12 +199,12 @@ export default async function HomePage() {
               <div className="text-[#ef4444] font-black text-5xl tracking-tighter mb-1 drop-shadow-[0_0_15px_rgba(239,68,68,0.2)]">
                 7/24
               </div>
-              <h3 className="text-white font-black text-sm sm:text-base uppercase tracking-widest mb-3 group-hover:text-[#ef4444] transition-colors">
+              <h3 className="text-white font-black text-base uppercase tracking-widest mb-3 group-hover:text-[#ef4444] transition-colors">
                 VIP Teknik Destek
               </h3>
               <div className="w-8 h-1 bg-[#ef4444] mb-3 transition-all duration-500 group-hover:w-full"></div>
-              <p className="text-gray-400 text-[11px] sm:text-xs font-medium leading-relaxed opacity-80 group-hover:opacity-100">
-                Kurulum, yazılım güncelleme veya donanım yükseltme işlemlerinde satış sonrası anında canlı destek hattı.
+              <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100">
+                Kurulum, yazılım güncelleme veya donanım yükseltme işlemlerinde satış sonrası anında kesintisiz canlı destek hattı.
               </p>
             </div>
           </div>
