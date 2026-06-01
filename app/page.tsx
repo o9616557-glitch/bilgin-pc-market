@@ -1,6 +1,6 @@
 import clientPromise from "@/lib/mongodb";
 import Link from "next/link";
-import { ArrowRight, Cpu, Zap, Crosshair, Sparkles } from "lucide-react";
+import { ArrowRight, Cpu, Crosshair, Sparkles, CreditCard } from "lucide-react";
 import CompareButton from "./CompareButton"; 
 
 export const dynamic = "force-dynamic";
@@ -118,7 +118,6 @@ export default async function HomePage() {
                   href={"/product/" + (urun.slug || urun._id)} 
                   key={urun._id.toString()} 
                   prefetch={true} 
-                  // KART ANA YAPISI: Flex-col ile yazı ve resmi ayırıyoruz, taşma bitiyor!
                   className="group relative flex flex-col w-full h-full bg-white/[0.02] backdrop-blur-2xl rounded-3xl overflow-hidden border border-white/10 hover:border-[#00e5ff]/40 transition-all duration-500 hover:shadow-[0_0_40px_-10px_rgba(0,229,255,0.2)]"
                 >
                   {/* Kart İçi Cam Parlama Efekti */}
@@ -127,13 +126,27 @@ export default async function HomePage() {
                   {/* 1. ÜST KISIM (GÖRSEL VE ROZETLER) */}
                   <div className="relative w-full aspect-square sm:aspect-[4/3] p-6 flex items-center justify-center bg-black/20 border-b border-white/5">
                     
-                    {/* Rozetler (Mobilde de rahat sığar) */}
-                    <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
+                    {/* Rozetler Alanı */}
+                    <div className="absolute top-4 left-4 z-20 flex flex-col items-start gap-2">
+                      
+                      {/* 🚀 YENİ EKLENEN "PEŞİN FİYATINA 9 TAKSİT" ROZETİ */}
+                      {!tukendiMi && (
+                        <div className="flex items-center gap-1.5 bg-[#a3e635]/10 text-[#a3e635] border border-[#a3e635]/30 px-2 sm:px-2.5 py-1 rounded-lg backdrop-blur-md shadow-lg shadow-[#a3e635]/5 hover:bg-[#a3e635]/20 transition-colors">
+                          <CreditCard className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                          <span className="text-[8px] sm:text-[9px] font-black tracking-widest uppercase">
+                            Peşin Fiyatına 9 Taksit
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Mevcut İndirim Rozeti */}
                       {indirimOrani > 0 && !tukendiMi && (
                         <span className="bg-[#00e5ff]/10 text-[#00e5ff] border border-[#00e5ff]/20 px-2 sm:px-3 py-1 rounded-lg text-[9px] sm:text-[10px] font-black tracking-widest backdrop-blur-md shadow-lg shadow-[#00e5ff]/10">
                           %{indirimOrani} İNDİRİM
                         </span>
                       )}
+
+                      {/* Mevcut Tükendi Rozeti */}
                       {tukendiMi && (
                         <span className="bg-red-500/10 text-red-500 border border-red-500/20 px-2 sm:px-3 py-1 rounded-lg text-[9px] sm:text-[10px] font-black tracking-widest backdrop-blur-md">
                           STOKTA YOK
@@ -141,7 +154,7 @@ export default async function HomePage() {
                       )}
                     </div>
 
-                    {/* Karşılaştırma Butonu (Mobilde hep görünür, PC'de hep görünür ama hoverda parlar) */}
+                    {/* Karşılaştırma Butonu */}
                     {!tukendiMi && (
                       <div className="absolute top-4 right-4 z-30 opacity-100 transition-all duration-300 group-hover:scale-110">
                         <CompareButton urun={urun} />
@@ -160,7 +173,7 @@ export default async function HomePage() {
                     )}
                   </div>
 
-                  {/* 2. ALT KISIM (METİNLER VE FİYAT - Asla Taşmaz) */}
+                  {/* 2. ALT KISIM (METİNLER VE FİYAT) */}
                   <div className="flex flex-col flex-grow p-5 sm:p-6 bg-transparent relative z-10">
                     
                     {/* Kategori ve Havale İndirimi */}
@@ -175,12 +188,12 @@ export default async function HomePage() {
                       )}
                     </div>
                     
-                    {/* Ürün İsmi (Hata yapmaması için max-2 satır) */}
+                    {/* Ürün İsmi */}
                     <h3 className="text-gray-200 font-bold text-sm sm:text-base leading-snug line-clamp-2 mb-4 group-hover:text-white transition-colors">
                       {urun.isim || urun.name}
                     </h3>
 
-                    {/* Fiyat ve Buton (En alta yaslanır) */}
+                    {/* Fiyat ve Buton */}
                     <div className="flex items-end justify-between mt-auto pt-4 border-t border-white/5">
                       <div className="flex flex-col">
                         {indirimVarMi && (
