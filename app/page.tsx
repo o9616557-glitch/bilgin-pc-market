@@ -226,6 +226,91 @@ export default async function HomePage() {
         </div>
 
       </div>
+      {/* ==================== 3. KAMPANYA VE FIRSATLAR (Banner Alanı) ==================== */}
+      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-24">
+        
+        {/* Banner Başlığı */}
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-1.5 h-8 bg-white shadow-[0_0_10px_rgba(255,255,255,0.3)]"></div>
+          <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">
+            Özel <span className="text-gray-500">Ayrıcalıklar</span>
+          </h2>
+        </div>
+
+        {/* 3'lü Banner Izgarası */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          {/* 1. KAMPANYA: HAVALE İNDİRİMİ */}
+          <div className="group relative h-[280px] w-full bg-black border border-white/10 overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#10b981]/50 transition-colors duration-500">
+            {/* Arka Plan Resmi (Buraya kendi kampanya resmini koyabilirsin) */}
+            <img 
+              src="https://images.unsplash.com/photo-1616588589676-62b3bd4ff6d2?q=80&w=1000&auto=format&fit=crop" 
+              alt="Havale İndirimi" 
+              className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-50 group-hover:scale-110 transition-all duration-700" 
+            />
+            {/* Siyah Karartma Efekti (Yazıların okunması için) */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+            
+            {/* İçerik */}
+            <div className="relative z-10">
+              <div className="text-[#10b981] font-black text-5xl tracking-tighter mb-2 drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]">
+                %15
+              </div>
+              <h3 className="text-white font-black text-lg uppercase tracking-widest mb-2 group-hover:text-[#10b981] transition-colors">
+                Havale & EFT İndirimi
+              </h3>
+              <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed">
+                Sepet tutarı fark etmeksizin, banka transferi ile yapacağınız tüm ödemelerde sistem tarafından anında %15 net indirim uygulanır. Gizli şart yok.
+              </p>
+            </div>
+          </div>
+
+          {/* 2. KAMPANYA: AYNI GÜN KARGO */}
+          <div className="group relative h-[280px] w-full bg-black border border-white/10 overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-white/40 transition-colors duration-500">
+            <img 
+              src="https://images.unsplash.com/photo-1587202372634-32705e3bf49c?q=80&w=1000&auto=format&fit=crop" 
+              alt="Hızlı Kargo" 
+              className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-50 group-hover:scale-110 transition-all duration-700 grayscale" 
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+            
+            <div className="relative z-10">
+              <div className="text-white font-black text-4xl tracking-tighter mb-3">
+                JET<span className="text-gray-500">HIZI</span>
+              </div>
+              <h3 className="text-white font-black text-lg uppercase tracking-widest mb-2 group-hover:text-gray-300 transition-colors">
+                Aynı Gün VIP Kargo
+              </h3>
+              <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed">
+                Hafta içi saat 16:00'a kadar verilen tüm amiral gemisi sistem ve donanım siparişleri, özel korumalı paketlemeyle aynı gün yola çıkar.
+              </p>
+            </div>
+          </div>
+
+          {/* 3. KAMPANYA: PROFESYONEL MONTAJ */}
+          <div className="group relative h-[280px] w-full bg-black border border-white/10 overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#d4af37]/50 transition-colors duration-500">
+            <img 
+              src="https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?q=80&w=1000&auto=format&fit=crop" 
+              alt="Montaj ve Test" 
+              className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-50 group-hover:scale-110 transition-all duration-700 sepia-[.3]" 
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+            
+            <div className="relative z-10">
+              <div className="text-[#d4af37] font-black text-4xl tracking-tighter mb-3 drop-shadow-[0_0_10px_rgba(212,175,55,0.3)]">
+                PRO<span className="text-white">TEST</span>
+              </div>
+              <h3 className="text-white font-black text-lg uppercase tracking-widest mb-2 group-hover:text-[#d4af37] transition-colors">
+                Ücretsiz Montaj & Test
+              </h3>
+              <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed">
+                Toplama bilgisayar siparişleriniz teknisyenlerimiz tarafından profesyonelce birleştirilir. 24 saatlik stres testlerinden geçtikten sonra size ulaşır.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </section>
     </main>
   );
 }
