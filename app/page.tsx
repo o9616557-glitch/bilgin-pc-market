@@ -1,6 +1,6 @@
 import clientPromise from "@/lib/mongodb";
 import Link from "next/link";
-import { ArrowRight, Cpu, Crosshair, Sparkles, Star, GitCompare, ShieldCheck, Zap } from "lucide-react";
+import { Cpu, Crosshair, Sparkles, Star, GitCompare, ShieldCheck, Zap } from "lucide-react";
 import CompareButton from "./CompareButton"; 
 
 export const dynamic = "force-dynamic";
@@ -30,23 +30,23 @@ export default async function HomePage() {
               <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-none bg-white/[0.03] border border-white/10 backdrop-blur-md">
                 <Sparkles className="w-4 h-4 text-white" />
                 <span className="text-[11px] sm:text-xs font-black tracking-[0.2em] uppercase text-gray-300">
-                  Yeni Nesil Sistemler
+                  Profesyonel Donanım
                 </span>
               </div>
 
               <h1 className="text-5xl sm:text-7xl md:text-8xl font-black uppercase tracking-tighter leading-[0.95] text-white">
-                Saf Gücün <br/>
-                <span className="text-[#00d2ff] drop-shadow-[0_0_15px_rgba(0,210,255,0.3)]">Merkezi</span>
+                Doğru Parça <br/>
+                <span className="text-[#00d2ff] drop-shadow-[0_0_15px_rgba(0,210,255,0.3)]">Doğru Fiyat</span>
               </h1>
 
               <p className="text-gray-400 text-base sm:text-lg md:text-xl max-w-xl font-medium tracking-wide">
-                Tepe model donanımlar, kusursuz mimari ve e-sporcuların tercihi olan efsanevi parçalar şimdi stoklarda.
+                Bütçenize uygun hazır sistemler, güncel ekran kartları ve kaliteli bilgisayar bileşenleri Bilgin PC Market güvencesiyle stoklarımızda.
               </p>
 
               <div className="pt-4">
                 <a href="#vitrin" className="group relative inline-flex w-full sm:w-auto px-8 py-4 sm:px-10 sm:py-5 bg-white/5 backdrop-blur-md text-white font-black uppercase tracking-[0.1em] overflow-hidden rounded-none border border-white/20 hover:border-[#00d2ff] hover:text-[#00d2ff] transition-all duration-300 text-center items-center justify-center">
                   <span className="relative flex items-center justify-center gap-3">
-                    Kataloğu İncele <Crosshair className="w-5 h-5 transition-transform duration-500" />
+                    Ürünleri İncele <Crosshair className="w-5 h-5 transition-transform duration-500" />
                   </span>
                 </a>
               </div>
@@ -55,10 +55,10 @@ export default async function HomePage() {
             <div className="relative hidden lg:block">
               <div className="relative bg-zinc-900/60 backdrop-blur-xl border border-white/10 rounded-none p-6 shadow-2xl">
                 <div className="absolute -top-[1px] -right-[1px] bg-white text-black text-[10px] font-black px-4 py-2 rounded-none uppercase tracking-widest z-20">
-                  Amiral Gemisi
+                  Öne Çıkanlar
                 </div>
                 <div className="w-full h-[350px] bg-black/60 rounded-none border border-white/5 flex items-center justify-center overflow-hidden relative p-8 group">
-                   <img src="/amiral.png" alt="Amiral Gemisi" className="w-full h-full object-contain filter drop-shadow-[0_15px_20px_rgba(0,0,0,0.8)] transition-transform duration-700 group-hover:scale-105 z-10 relative" />
+                   <img src="/amiral.png" alt="Öne Çıkan Ekran Kartı" className="w-full h-full object-contain filter drop-shadow-[0_15px_20px_rgba(0,0,0,0.8)] transition-transform duration-700 group-hover:scale-105 z-10 relative" />
                 </div>
               </div>
             </div>
@@ -67,70 +67,63 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ==================== 2. ÖZEL AYRICALIKLAR ==================== */}
-      <section className="max-w-[1400px] mx-auto px-0 sm:px-6 lg:px-8 pt-8 pb-4">
+      {/* ==================== 2. ÖZEL AYRICALIKLAR (Kartlar Ortalandı) ==================== */}
+      <section className="max-w-[1400px] mx-auto pt-8 pb-4">
         
-        <div className="flex items-center justify-between px-4 sm:px-0 mb-6">
+        <div className="flex items-center justify-between px-6 lg:px-8 mb-6">
           <div className="flex items-center gap-4">
             <div className="w-1.5 h-8 bg-white shadow-[0_0_10px_rgba(255,255,255,0.3)]"></div>
             <h2 className="text-xl sm:text-3xl font-black uppercase tracking-tight text-white">
-              Özel <span className="text-gray-500">Ayrıcalıklar</span>
+              Neden <span className="text-gray-500">Biz?</span>
             </h2>
           </div>
         </div>
 
-        <div className="relative w-full">
-          {/* Ayrıcalıklar Sinematik Kenar Karartmaları */}
-          <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-r from-black to-transparent z-30 pointer-events-none"></div>
-          <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-l from-black to-transparent z-30 pointer-events-none"></div>
-          
-          <div className="flex flex-nowrap overflow-x-auto gap-6 pb-4 px-4 sm:px-8 snap-x snap-mandatory scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#00d2ff] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
+        <div className="w-full">
+          {/* snap-center ile kartlar ortada durur, yanlardan diğerleri gözükür */}
+          <div className="flex flex-nowrap overflow-x-auto gap-4 pb-4 px-[7.5vw] sm:px-[10vw] lg:px-8 snap-x snap-mandatory scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#00d2ff] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
 
-            {/* KART 1 */}
-            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#10b981] transition-colors duration-500">
-              <img src="https://images.unsplash.com/photo-1616588589676-62b3bd4ff6d2?q=80&w=800&auto=format&fit=crop" alt="Havale İndirimi" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-60 group-hover:scale-110 transition-all duration-700" />
+            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 snap-center overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#10b981] transition-colors duration-500">
+              <img src="https://images.unsplash.com/photo-1616588589676-62b3bd4ff6d2?q=80&w=800&auto=format&fit=crop" alt="Havale İndirimi" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-60 transition-all duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent"></div>
               <div className="relative z-10 transform group-hover:-translate-y-2 transition-transform duration-500">
                 <div className="text-[#10b981] font-black text-5xl tracking-tighter mb-1 drop-shadow-[0_0_15px_rgba(16,185,129,0.2)]">%15</div>
                 <h3 className="text-white font-black text-base uppercase tracking-widest mb-3 group-hover:text-[#10b981] transition-colors">Havale İndirimi</h3>
                 <div className="w-8 h-1 bg-[#10b981] mb-3 transition-all duration-500 group-hover:w-full"></div>
-                <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100">Sepet tutarı fark etmeksizin, banka transferi ile yapacağınız tüm ödemelerde sistem anında net indirim uygular.</p>
+                <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100">Banka transferi ile yapacağınız ödemelerde sistem anında net indirim uygular.</p>
               </div>
             </div>
 
-            {/* KART 2 */}
-            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-white transition-colors duration-500">
-              <img src="https://images.unsplash.com/photo-1587202372634-32705e3bf49c?q=80&w=800&auto=format&fit=crop" alt="Hızlı Kargo" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 group-hover:scale-110 transition-all duration-700 grayscale" />
+            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 snap-center overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-white transition-colors duration-500">
+              <img src="https://images.unsplash.com/photo-1587202372634-32705e3bf49c?q=80&w=800&auto=format&fit=crop" alt="Hızlı Kargo" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 transition-all duration-700 grayscale" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent"></div>
               <div className="relative z-10 transform group-hover:-translate-y-2 transition-transform duration-500">
-                <div className="text-white font-black text-4xl tracking-tighter mb-2">JET<span className="text-gray-600">HIZI</span></div>
-                <h3 className="text-white font-black text-base uppercase tracking-widest mb-3 group-hover:text-gray-300 transition-colors">Hızlı Teslimat</h3>
+                <div className="text-white font-black text-4xl tracking-tighter mb-2">HIZLI<span className="text-gray-600">TESLİMAT</span></div>
+                <h3 className="text-white font-black text-base uppercase tracking-widest mb-3 group-hover:text-gray-300 transition-colors">Özenli Paketleme</h3>
                 <div className="w-8 h-1 bg-white mb-3 transition-all duration-500 group-hover:w-full"></div>
-                <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100">Saat 16:00'a kadar onaylanan donanım siparişleriniz, darbelere karşı özel korumalı paketlemeyle aynı gün kargoya teslim edilir.</p>
+                <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100">Siparişleriniz kargo sürecinde zarar görmemesi için ekstra korumalı şekilde paketlenir ve hızlıca kargoya verilir.</p>
               </div>
             </div>
 
-            {/* KART 3 */}
-            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#d4af37] transition-colors duration-500">
-              <img src="https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?q=80&w=800&auto=format&fit=crop" alt="Montaj ve Test" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-50 group-hover:scale-110 transition-all duration-700 sepia-[.3]" />
+            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 snap-center overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#d4af37] transition-colors duration-500">
+              <img src="https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?q=80&w=800&auto=format&fit=crop" alt="Montaj ve Test" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-50 transition-all duration-700 sepia-[.3]" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent"></div>
               <div className="relative z-10 transform group-hover:-translate-y-2 transition-transform duration-500">
-                <div className="text-[#d4af37] font-black text-4xl tracking-tighter mb-2 drop-shadow-[0_0_15px_rgba(212,175,55,0.2)]">PRO<span className="text-white">TEST</span></div>
-                <h3 className="text-white font-black text-base uppercase tracking-widest mb-3 group-hover:text-[#d4af37] transition-colors">Ücretsiz Montaj</h3>
+                <div className="text-[#d4af37] font-black text-4xl tracking-tighter mb-2 drop-shadow-[0_0_15px_rgba(212,175,55,0.2)]">ÜCRETSİZ<span className="text-white">MONTAJ</span></div>
+                <h3 className="text-white font-black text-base uppercase tracking-widest mb-3 group-hover:text-[#d4af37] transition-colors">Test ve Kurulum</h3>
                 <div className="w-8 h-1 bg-[#d4af37] mb-3 transition-all duration-500 group-hover:w-full"></div>
-                <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100">Sipariş ettiğiniz sistemler titizlikle toplanır. 24 saatlik stres testlerinden sorunsuz geçtikten sonra tarafınıza ulaştırılır.</p>
+                <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100">Bizden aldığınız sistemler titizlikle toplanır. Gerekli tüm performans testlerinden geçtikten sonra size teslim edilir.</p>
               </div>
             </div>
 
-            {/* KART 4 */}
-            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#3b82f6] transition-colors duration-500">
-              <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop" alt="Resmi Garanti" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 group-hover:scale-110 transition-all duration-700" />
+            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 snap-center overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#3b82f6] transition-colors duration-500">
+              <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop" alt="Resmi Garanti" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 transition-all duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent"></div>
               <div className="relative z-10 transform group-hover:-translate-y-2 transition-transform duration-500">
-                <div className="text-[#3b82f6] font-black text-4xl tracking-tighter mb-2 drop-shadow-[0_0_15px_rgba(59,130,246,0.2)]">%100<span className="text-white text-2xl">TR</span></div>
-                <h3 className="text-white font-black text-base uppercase tracking-widest mb-3 group-hover:text-[#3b82f6] transition-colors">Resmi Garanti</h3>
+                <div className="text-[#3b82f6] font-black text-4xl tracking-tighter mb-2 drop-shadow-[0_0_15px_rgba(59,130,246,0.2)]">RESMİ<span className="text-white text-2xl">GARANTİ</span></div>
+                <h3 className="text-white font-black text-base uppercase tracking-widest mb-3 group-hover:text-[#3b82f6] transition-colors">Güvenilir Alışveriş</h3>
                 <div className="w-8 h-1 bg-[#3b82f6] mb-3 transition-all duration-500 group-hover:w-full"></div>
-                <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100">Mağazamızdaki tüm ürünler Türkiye resmi distribütör garantilidir. İthalatçı garantili veya kutusuz sıfır ürün satışımız yoktur.</p>
+                <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100">Mağazamızdaki tüm ürünler Türkiye resmi distribütör garantilidir. İkinci el veya kutusuz ürün satışımız yoktur.</p>
               </div>
             </div>
 
@@ -138,14 +131,14 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ==================== 3. PREMIUM ÜRÜN VİTRİNİ (Sinematik Odak "Karanlık" Efekti Eklendi) ==================== */}
-      <div id="vitrin" className="max-w-[1400px] mx-auto px-0 sm:px-6 lg:px-8 pt-10 pb-8">
+      {/* ==================== 3. PREMIUM ÜRÜN VİTRİNİ (Kartlar Ortalandı) ==================== */}
+      <div id="vitrin" className="max-w-[1400px] mx-auto pt-10 pb-8">
         
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-6 px-4 sm:px-0">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-6 px-6 lg:px-8">
           <div className="relative">
             <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-1 h-10 bg-[#00d2ff]"></div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-white pl-4">
-              Premium <span className="text-gray-400">Vitrin</span>
+              Güncel <span className="text-gray-400">Ürünler</span>
             </h2>
           </div>
           <div className="text-xs font-bold tracking-widest text-gray-400 uppercase flex items-center gap-2">
@@ -154,12 +147,9 @@ export default async function HomePage() {
           </div>
         </div>
 
-        {/* SİNEMATİK ODAK KAPLAMASI (Sağdan ve Soldan Siyah Geçiş) */}
-        <div className="relative w-full">
-          <div className="absolute left-0 top-0 bottom-0 w-12 sm:w-28 bg-gradient-to-r from-black via-black/80 to-transparent z-30 pointer-events-none"></div>
-          <div className="absolute right-0 top-0 bottom-0 w-12 sm:w-28 bg-gradient-to-l from-black via-black/80 to-transparent z-30 pointer-events-none"></div>
-
-          <div className="flex flex-nowrap overflow-x-auto gap-6 pb-8 px-6 sm:px-12 snap-x snap-mandatory scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#00d2ff] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
+        <div className="w-full">
+          {/* snap-center ve px ayarı ile sağdan/soldan pay bırakma */}
+          <div className="flex flex-nowrap overflow-x-auto gap-4 pb-8 px-[7.5vw] sm:px-[10vw] lg:px-8 snap-x snap-mandatory scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#00d2ff] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
             {urunler.length > 0 ? (
               urunler.map((urun: any) => {
                 const vitrinResmi = urun.resimler && urun.resimler.length > 0 ? urun.resimler[0] : urun.resim;
@@ -172,11 +162,10 @@ export default async function HomePage() {
                 const havaleFiyati = gecerliFiyat - (gecerliFiyat * (havaleOrani / 100));
 
                 return (
-                  <div key={urun._id.toString()} className="group relative flex flex-col w-[80vw] sm:w-[320px] lg:w-[calc(25%-1.125rem)] flex-shrink-0 snap-center sm:snap-start bg-[#1e1e1e] border border-white/10 shadow-[5px_5px_0px_rgba(0,0,0,0.8)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[8px_8px_0px_rgba(0,210,255,0.4)]">
+                  <div key={urun._id.toString()} className="group relative flex flex-col w-[85vw] sm:w-[320px] lg:w-[calc(25%-0.75rem)] flex-shrink-0 snap-center bg-[#1e1e1e] border border-white/10 shadow-[5px_5px_0px_rgba(0,0,0,0.8)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[8px_8px_0px_rgba(0,210,255,0.4)]">
                     <Link href={"/product/" + (urun.slug || urun._id)} className="absolute inset-0 z-10" prefetch={true} />
 
                     <div className="relative w-full aspect-[4/3] p-6 flex items-center justify-center bg-white/5 border-b border-white/10 pointer-events-none overflow-hidden">
-                      {/* Arka plan parlama efekti */}
                       <div className="absolute inset-0 bg-gradient-to-t from-[#00d2ff]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                       {!tukendiMi && (
@@ -241,14 +230,14 @@ export default async function HomePage() {
             ) : ( 
               <div className="col-span-full w-full py-24 sm:py-32 flex flex-col items-center justify-center border border-dashed border-white/10 rounded-none bg-black/40 backdrop-blur-xl">
                 <Cpu className="w-10 h-10 text-white/50 mb-4" />
-                <h3 className="text-xl font-black text-gray-400 uppercase tracking-widest">Sistem Çevrimdışı</h3>
+                <h3 className="text-xl font-black text-gray-400 uppercase tracking-widest">Katalog Güncelleniyor</h3>
               </div> 
             )}
           </div>
         </div>
       </div>
 
-      {/* ==================== 4. VİZYON & GÖRSEL ŞÖLENİ ==================== */}
+      {/* ==================== 4. VİZYON & GÖRSEL ŞÖLENİ (Yazılar Gerçekçi Oldu) ==================== */}
       <section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center bg-[#121212] border border-white/10 p-8 lg:p-12 relative overflow-hidden shadow-[5px_5px_0px_rgba(0,0,0,0.8)]">
           
@@ -256,27 +245,27 @@ export default async function HomePage() {
           
           <div className="space-y-6 max-w-xl">
             <div className="text-[#00d2ff] text-[10px] font-black tracking-[0.3em] uppercase">
-              Mühendislik & İnovasyon
+              Kalite & Güven
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-white leading-none">
-              Sadece Toplamıyoruz, <br/>
-              <span className="text-gray-500">Kusursuz İşliyoruz.</span>
+              Özenli Montaj, <br/>
+              <span className="text-gray-500">Doğru Parça Seçimi.</span>
             </h2>
             <div className="h-1 w-20 bg-[#00d2ff]"></div>
             
             <p className="text-gray-300 text-sm sm:text-base font-medium leading-relaxed pt-2">
-              Bilgin PC Market çatısı altında hayat bulan her amiral gemisi sistem, sıradan bir montaj sürecinden çok daha fazlasını temsil eder. Anakartın en kritik VRM fazlarından sıvı soğutmanın milimetrik hava akış hatlarına kadar her detay jilet gibi optimize edilir.
+              Bilgin PC Market olarak, bütçenize ve ihtiyaçlarınıza en uygun sistemleri büyük bir özenle hazırlıyoruz. Her bir parçanın birbiriyle olan uyumunu gözeterek uzun ömürlü bilgisayarlar topluyoruz.
             </p>
             <p className="text-gray-400 text-xs sm:text-sm leading-relaxed font-medium">
-              Kablolama sanatından statik yük testlerine, yüksek kararlılık ayarlarından termal analizlere kadar tüm aşamalar, rekabetçi arenalarda sıfır drop ve maksimum FPS ile oynamanız için tasarlanmıştır. Güç sadece parçalarda değil, onların kusursuz uyumundadır.
+              Kablolama düzeninden yazılım testlerine ve termal analizlere kadar tüm aşamalarda titiz davranıyoruz. Amacımız, size sorunsuz çalışacak, güvenilir ve verdiğiniz paranın tam karşılığını sunan sistemler ulaştırmak.
             </p>
           </div>
 
           <div className="relative w-full h-[250px] sm:h-[350px] overflow-hidden border border-white/10 shadow-2xl">
             <img 
               src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1000&auto=format&fit=crop" 
-              alt="Premium Donanım Laboratuvarı" 
-              className="w-full h-full object-cover opacity-60 hover:opacity-100 hover:scale-105 transition-all duration-700 grayscale hover:grayscale-0"
+              alt="Montaj Atölyesi" 
+              className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-all duration-700 grayscale hover:grayscale-0"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent"></div>
           </div>
@@ -284,24 +273,22 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ==================== 5. HIZLI ERİŞİM (Kategori Kartları Sinematik Odak) ==================== */}
-      <section className="max-w-[1400px] mx-auto px-0 sm:px-6 lg:px-8 pt-8 pb-12">
+      {/* ==================== 5. HIZLI ERİŞİM (Kartlar Ortalandı) ==================== */}
+      <section className="max-w-[1400px] mx-auto pt-8 pb-12">
         
-        <div className="flex items-center gap-4 mb-6 px-4 sm:px-0">
+        <div className="flex items-center gap-4 mb-6 px-6 lg:px-8">
           <div className="w-1.5 h-8 bg-white shadow-[0_0_10px_rgba(255,255,255,0.3)]"></div>
           <h2 className="text-xl sm:text-3xl font-black uppercase tracking-tight text-white">
             Hızlı <span className="text-gray-500">Erişim</span>
           </h2>
         </div>
 
-        <div className="relative w-full">
-          <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-r from-black to-transparent z-30 pointer-events-none"></div>
-          <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-l from-black to-transparent z-30 pointer-events-none"></div>
-
-          <div className="flex flex-nowrap overflow-x-auto gap-6 pb-4 px-4 sm:px-8 snap-x snap-mandatory scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#00d2ff] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
+        <div className="w-full">
+          {/* snap-center ve px ayarı */}
+          <div className="flex flex-nowrap overflow-x-auto gap-4 pb-4 px-[7.5vw] sm:px-[10vw] lg:px-8 snap-x snap-mandatory scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#00d2ff] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
             
-            <Link href="/kategori/hazir-sistemler" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#00d2ff] transition-colors duration-500">
-              <img src="https://images.unsplash.com/photo-1587202372634-32705e3bf49c?q=80&w=800&auto=format&fit=crop" alt="Hazır Sistemler" className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-80 group-hover:scale-110 transition-all duration-700 grayscale group-hover:grayscale-0" />
+            <Link href="/kategori/hazir-sistemler" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-center overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#00d2ff] transition-colors duration-500">
+              <img src="https://images.unsplash.com/photo-1587202372634-32705e3bf49c?q=80&w=800&auto=format&fit=crop" alt="Hazır Sistemler" className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-80 transition-all duration-700 grayscale group-hover:grayscale-0" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
                 <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors">Hazır Sistemler</h3>
@@ -309,8 +296,8 @@ export default async function HomePage() {
               </div>
             </Link>
 
-            <Link href="/kategori/ekran-kartlari" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#00d2ff] transition-colors duration-500">
-              <img src="https://images.unsplash.com/photo-1591488320449-011701bb6704?q=80&w=800&auto=format&fit=crop" alt="Ekran Kartları" className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-80 group-hover:scale-110 transition-all duration-700 grayscale group-hover:grayscale-0" />
+            <Link href="/kategori/ekran-kartlari" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-center overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#00d2ff] transition-colors duration-500">
+              <img src="https://images.unsplash.com/photo-1591488320449-011701bb6704?q=80&w=800&auto=format&fit=crop" alt="Ekran Kartları" className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-80 transition-all duration-700 grayscale group-hover:grayscale-0" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
                 <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors">Ekran Kartları</h3>
@@ -318,8 +305,8 @@ export default async function HomePage() {
               </div>
             </Link>
 
-            <Link href="/kategori/islemciler" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#00d2ff] transition-colors duration-500">
-              <img src="https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?q=80&w=800&auto=format&fit=crop" alt="İşlemciler" className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-80 group-hover:scale-110 transition-all duration-700 grayscale group-hover:grayscale-0" />
+            <Link href="/kategori/islemciler" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-center overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#00d2ff] transition-colors duration-500">
+              <img src="https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?q=80&w=800&auto=format&fit=crop" alt="İşlemciler" className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-80 transition-all duration-700 grayscale group-hover:grayscale-0" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
                 <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors">İşlemciler</h3>
@@ -327,8 +314,8 @@ export default async function HomePage() {
               </div>
             </Link>
 
-            <Link href="/kategori/anakartlar" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#00d2ff] transition-colors duration-500">
-              <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop" alt="Anakartlar" className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-80 group-hover:scale-110 transition-all duration-700 grayscale group-hover:grayscale-0" />
+            <Link href="/kategori/anakartlar" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-center overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#00d2ff] transition-colors duration-500">
+              <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop" alt="Anakartlar" className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-80 transition-all duration-700 grayscale group-hover:grayscale-0" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
                 <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors">Anakartlar</h3>
@@ -336,8 +323,8 @@ export default async function HomePage() {
               </div>
             </Link>
 
-            <Link href="/kategori/sivi-sogutma" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#00d2ff] transition-colors duration-500">
-              <img src="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?q=80&w=800&auto=format&fit=crop" alt="Sıvı Soğutma" className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-80 group-hover:scale-110 transition-all duration-700 grayscale group-hover:grayscale-0" />
+            <Link href="/kategori/sivi-sogutma" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-center overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#00d2ff] transition-colors duration-500">
+              <img src="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?q=80&w=800&auto=format&fit=crop" alt="Sıvı Soğutma" className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-80 transition-all duration-700 grayscale group-hover:grayscale-0" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
                 <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors">Sıvı Soğutma</h3>
@@ -345,8 +332,8 @@ export default async function HomePage() {
               </div>
             </Link>
 
-            <Link href="/kategori/profesyonel-monitor" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#00d2ff] transition-colors duration-500">
-              <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800&auto=format&fit=crop" alt="Profesyonel Monitörler" className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-80 group-hover:scale-110 transition-all duration-700 grayscale group-hover:grayscale-0" />
+            <Link href="/kategori/profesyonel-monitor" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-center overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#00d2ff] transition-colors duration-500">
+              <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800&auto=format&fit=crop" alt="Profesyonel Monitörler" className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-80 transition-all duration-700 grayscale group-hover:grayscale-0" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
                 <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors">Prof. Monitörler</h3>
@@ -358,49 +345,47 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ==================== 6. BİLGİN PC MANİFESTO (Kapanış Şöleni) ==================== */}
-      <section className="relative w-full py-24 sm:py-32 bg-black border-t border-white/10 overflow-hidden flex items-center justify-center">
+      {/* ==================== 6. BİLGİN PC MANİFESTO (Renk Aydınlatıldı, Dil Gerçekçi, 5070 Eklendi) ==================== */}
+      <section className="relative w-full py-20 sm:py-28 bg-[#0a0a0a] border-t border-white/10 overflow-hidden flex items-center justify-center">
         
-        {/* Arka Plan Gizemli Görsel ve Işıklandırma */}
-        <div className="absolute inset-0 z-0 opacity-20">
-          <img src="https://images.unsplash.com/photo-1591488320449-011701bb6704?q=80&w=2000&auto=format&fit=crop" alt="Manifesto Background" className="w-full h-full object-cover grayscale" />
-          <div className="absolute inset-0 bg-black/80"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black"></div>
+        {/* Arka Plan Görseli (Daha aydınlık ve belirgin: opacity-40) */}
+        <div className="absolute inset-0 z-0 opacity-40">
+          <img src="https://images.unsplash.com/photo-1591488320449-011701bb6704?q=80&w=2000&auto=format&fit=crop" alt="Bilgin PC Arka Plan" className="w-full h-full object-cover grayscale" />
+          <div className="absolute inset-0 bg-[#0a0a0a]/60"></div>
         </div>
         
-        {/* Neon PC Mavisi Yansımalar */}
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#00d2ff]/10 rounded-full blur-[150px] pointer-events-none z-0" />
         <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-[#00d2ff]/5 rounded-full blur-[150px] pointer-events-none z-0" />
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center">
           
-          <div className="inline-flex items-center justify-center gap-3 mb-8">
+          <div className="inline-flex items-center justify-center gap-3 mb-6">
             <div className="w-12 h-[1px] bg-gradient-to-r from-transparent to-[#00d2ff]"></div>
             <Zap className="w-6 h-6 text-[#00d2ff]" />
             <div className="w-12 h-[1px] bg-gradient-to-l from-transparent to-[#00d2ff]"></div>
           </div>
 
-          <h2 className="text-4xl sm:text-6xl md:text-7xl font-black uppercase tracking-tighter text-white mb-8 leading-[0.9]">
-            Sınırları Reddedenlerin <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-[#00d2ff] to-[#00d2ff]">Donanım Merkezi.</span>
+          <h2 className="text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter text-white mb-6 leading-[0.9]">
+            Bilgisayar Toplamanın <br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-[#00d2ff] to-[#00d2ff]">Güvenilir Adresi.</span>
           </h2>
 
-          <div className="space-y-6 text-gray-400 text-sm sm:text-base md:text-lg font-medium leading-relaxed max-w-3xl mx-auto">
+          <div className="space-y-4 text-gray-300 text-sm sm:text-base md:text-lg font-medium leading-relaxed max-w-3xl mx-auto">
             <p>
-              Bilgin PC Market'te biz sadece kutu alıp kutu satmıyoruz. Biz; mili-saniyelerin kader belirlediği o ölümcül maçlarda, devasa render projelerinin son saniyelerinde ve performansın sınırlarının zorlandığı her an'da, yanınızda dimdik duracak amiral gemilerini inşa ediyoruz.
+              Bilgin PC Market olarak, yılların getirdiği tecrübeyle sadece bilgisayar donanımı satmıyor, aynı zamanda ihtiyacınıza en uygun sistemleri sizin için bir araya getiriyoruz. Öğrenci bilgisayarlarından, üst düzey tasarım ve oyun istasyonlarına kadar her segmente hitap ediyoruz.
             </p>
             <p>
-              En yeni nesil mimarilere sahip ekran kartları, termal sınırları hiçe sayan sıvı soğutma teknolojileri ve e-spor arenalarını domine eden tepe model işlemciler... Buradaki her parça, güce hükmetmek isteyenler için bizzat, tek tek özenle seçildi.
+              RTX 5070 gibi en güncel ekran kartlarından, fiyat/performans oranı yüksek işlemcilere kadar aradığınız her parçayı stoklarımızda bulundurmaya gayret ediyoruz. Her montajı kendi bilgisayarımızmış gibi titizlikle yapıyor, size kullanıma hazır ve test edilmiş sistemler teslim ediyoruz.
             </p>
             <p className="text-white font-bold tracking-wide pt-4">
-              Kuralları başkaları koyar. Siz, Bilgin PC ile oyunu yeniden yazarsınız.
+              Teknoloji alışverişinizde dürüstlük ve kalite arıyorsanız, Bilgin PC yanınızda.
             </p>
           </div>
 
-          <div className="mt-12 flex justify-center items-center gap-6 text-gray-500 text-xs sm:text-sm font-black tracking-[0.3em] uppercase">
-            <span className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-[#00d2ff]" /> %100 Orijinal</span>
-            <span className="hidden sm:flex items-center gap-2"><Cpu className="w-4 h-4 text-[#00d2ff]" /> Özel Mühendislik</span>
-            <span className="flex items-center gap-2"><Star className="w-4 h-4 text-[#00d2ff]" /> VIP Deneyim</span>
+          <div className="mt-10 flex flex-wrap justify-center items-center gap-4 sm:gap-6 text-gray-400 text-xs sm:text-sm font-black tracking-[0.2em] sm:tracking-[0.3em] uppercase">
+            <span className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-[#00d2ff]" /> Resmi Garanti</span>
+            <span className="flex items-center gap-2"><Cpu className="w-4 h-4 text-[#00d2ff]" /> Güncel Donanım</span>
+            <span className="hidden sm:flex items-center gap-2"><Star className="w-4 h-4 text-[#00d2ff]" /> %100 Müşteri Memnuniyeti</span>
           </div>
 
         </div>
