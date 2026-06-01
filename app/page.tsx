@@ -37,7 +37,8 @@ export default async function HomePage() {
 
               <h1 className="text-5xl sm:text-7xl md:text-8xl font-black uppercase tracking-tighter leading-[0.95]">
                 Saf Gücün <br/>
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-[#d4af37] to-yellow-600 drop-shadow-[0_0_15px_rgba(212,175,55,0.2)]">
+                {/* BEYAZDAN ALTIN RENGİNE GEÇİŞ YAPAN BAŞLIK */}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-[#d4af37] drop-shadow-[0_0_15px_rgba(212,175,55,0.2)]">
                   Merkezi
                 </span>
               </h1>
@@ -116,13 +117,12 @@ export default async function HomePage() {
                   {/* 1. ÜST KISIM (GÖRSEL VE BUTONLAR) */}
                   <div className="relative w-full aspect-[4/3] p-6 flex items-center justify-center bg-black/40 border-b border-[#3f3f46]">
                     
-                    {/* BELİRGİN KARŞILAŞTIRMA BUTONU (Sol Üstte) */}
+                    {/* BELİRGİN KARŞILAŞTIRMA BUTONU */}
                     {!tukendiMi && (
                       <div className="absolute top-3 left-3 z-30">
                         <div className="flex items-center gap-2 bg-[#18181b]/80 backdrop-blur-sm border border-[#3f3f46] px-3 py-1.5 cursor-pointer hover:border-[#d4af37] hover:text-[#d4af37] transition-all duration-300 text-gray-400 group/compare">
                           <GitCompare className="w-4 h-4" />
                           <span className="text-[10px] font-black uppercase tracking-wider hidden sm:block group-hover/compare:text-[#d4af37]">Karşılaştır</span>
-                          {/* Arka planda senin orijinal CompareButton'unu görünmez tetikleyici olarak sarmalıyoruz ki sistemin bozulmasın */}
                           <div className="absolute inset-0 opacity-0 w-full h-full">
                             <CompareButton urun={urun} />
                           </div>
@@ -153,7 +153,7 @@ export default async function HomePage() {
                   {/* 2. ALT KISIM (METİNLER VE FİYAT) */}
                   <div className="flex flex-col flex-grow p-5 sm:p-6 relative z-10 bg-transparent">
                     
-                    {/* Ürün İsmi (ALTIN RENGİ - ESKİSİ GİBİ) */}
+                    {/* Ürün İsmi */}
                     <Link href={"/product/" + (urun.slug || urun._id)}>
                       <h3 className="text-[#d4af37] font-bold text-sm sm:text-base uppercase tracking-wider leading-snug line-clamp-2 mb-2 hover:text-white transition-colors">
                         {urun.isim || urun.name}
@@ -168,7 +168,7 @@ export default async function HomePage() {
                       <span className="text-gray-500 text-xs ml-2 font-medium">(Yorumlar)</span>
                     </div>
 
-                    {/* FİYAT VE 3D ROZET ALANI (Yan Yana) */}
+                    {/* FİYAT VE KARİZMATİK YEŞİL ROZET ALANI (Yan Yana) */}
                     <div className="border-t border-[#3f3f46] pt-4 mt-auto flex justify-between items-end">
                       
                       {/* Sol Taraf: Fiyatlar */}
@@ -182,30 +182,28 @@ export default async function HomePage() {
                           {gecerliFiyat.toLocaleString("tr-TR")} <span className="text-base font-normal text-[#a1a1aa]">₺</span>
                         </div>
                         {havaleOrani > 0 && !tukendiMi && (
-                          <div className="text-[#10b981] text-xs font-bold flex items-center gap-1.5 mt-2">
-                            <BanknoteIcon className="w-4 h-4" /> 
+                          <div className="text-[#a1a1aa] text-[11px] sm:text-xs font-bold flex items-center gap-1.5 mt-2">
+                            <BanknoteIcon className="w-3.5 h-3.5" /> 
                             Havale/EFT: {havaleFiyati.toLocaleString("tr-TR", {maximumFractionDigits: 2})} ₺
                           </div>
                         )}
                       </div>
 
-                      {/* Sağ Taraf: 3 Boyutlu Kırmızı Kurdele Rozeti */}
+                      {/* Sağ Taraf: Siber/Modern Yeşil Rozet */}
                       {indirimVarMi && !tukendiMi && (
-                        <div className="relative flex flex-col items-center ml-2">
-                          {/* Rozet Ana Gövdesi (Tırtıklı hissi veren keskin sekizgen form) */}
-                          <div className="relative bg-gradient-to-br from-[#ff1a1a] to-[#b30000] w-14 h-14 sm:w-16 sm:h-16 flex flex-col items-center justify-center shadow-[0_5px_15px_rgba(220,38,38,0.5)] z-10 border-2 border-[#ff4d4d]" style={{ clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)' }}>
-                            <span className="text-white text-lg sm:text-xl font-black leading-none drop-shadow-md">
-                              %{indirimOrani}
-                            </span>
-                            <span className="text-white text-[7px] sm:text-[8px] font-bold uppercase tracking-widest mt-0.5 text-center px-1 drop-shadow-md">
-                              Son Sistem
-                            </span>
-                          </div>
-                          {/* Kurdele Kuyrukları (Aşağı sarkan 3D hisli parçalar) */}
-                          <div className="absolute -bottom-3 flex justify-between w-10 sm:w-12 z-0">
-                            <div className="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[16px] border-t-[#800000] drop-shadow-lg"></div>
-                            <div className="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[16px] border-t-[#800000] drop-shadow-lg"></div>
-                          </div>
+                        <div className="relative bg-[#064e3b]/40 border border-[#10b981]/30 p-2 sm:p-2.5 flex flex-col items-end justify-center z-10 min-w-[70px] shadow-[0_0_15px_rgba(16,185,129,0.1)] overflow-hidden group-hover:border-[#10b981]/60 transition-colors duration-300">
+                           {/* Sol Taraftaki Keskin Neon Çizgi */}
+                           <div className="absolute top-0 left-0 w-1 h-full bg-[#10b981] shadow-[0_0_8px_#10b981]"></div>
+                           
+                           {/* İndirim Oranı */}
+                           <div className="text-[#10b981] text-xl sm:text-2xl font-black leading-none tracking-tighter flex items-start gap-1">
+                             <span className="text-xs sm:text-sm mt-0.5 opacity-80">%</span>{indirimOrani}
+                           </div>
+                           
+                           {/* Alt Yazı */}
+                           <div className="text-[#10b981] text-[7px] sm:text-[8px] font-bold uppercase tracking-widest mt-1 text-right opacity-90">
+                             Son Sistem <br/> İndirimi
+                           </div>
                         </div>
                       )}
                     </div>
