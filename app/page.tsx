@@ -271,7 +271,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ==================== 5. HIZLI ERİŞİM (Kartlar Ortalandı, GPU Karartıldı) ==================== */}
+      {/* ==================== 5. HIZLI ERİŞİM (Kategori Kartları Işıklandırıldı, "1080" Silindi) ==================== */}
       <section className="max-w-[1400px] mx-auto pt-8 pb-12">
         
         <div className="flex items-center gap-4 mb-6 px-6 lg:px-8">
@@ -282,59 +282,60 @@ export default async function HomePage() {
         </div>
 
         <div className="w-full">
+          {/* Opacity ve Brightness sorunları çözüldü, kartlar çok daha aydınlık */}
           <div className="flex flex-nowrap overflow-x-auto gap-4 pb-4 px-[7.5vw] sm:px-[10vw] lg:px-8 snap-x snap-mandatory scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#00d2ff] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
             
             <Link href="/kategori/hazir-sistemler" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#00d2ff] transition-colors duration-500">
-              <img src="https://images.unsplash.com/photo-1587202372634-32705e3bf49c?q=80&w=800&auto=format&fit=crop" alt="Hazır Sistemler" className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-80 transition-all duration-700 grayscale group-hover:grayscale-0" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent"></div>
+              <img src="https://images.unsplash.com/photo-1587202372634-32705e3bf49c?q=80&w=800&auto=format&fit=crop" alt="Hazır Sistemler" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 grayscale group-hover:grayscale-0" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
-                <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors">Hazır Sistemler</h3>
+                <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors drop-shadow-md">Hazır Sistemler</h3>
                 <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-500"></div>
               </div>
             </Link>
 
-            {/* EKRAN KARTLARI KARTI: Görsel PC'de detayları gizleyecek kadar karartıldı */}
+            {/* "1080" YAZAN RESİM DEĞİŞTİRİLDİ - YENİ EKRAN KARTI GÖRSELİ */}
             <Link href="/kategori/ekran-kartlari" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#00d2ff] transition-colors duration-500">
-              <img src="https://images.unsplash.com/photo-1591488320449-011701bb6704?q=80&w=800&auto=format&fit=crop" alt="Ekran Kartları" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-60 brightness-50 lg:brightness-50 contrast-125 transition-all duration-700 grayscale group-hover:grayscale-0" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent"></div>
+              <img src="https://images.unsplash.com/photo-1616588589676-62b3bd4ff6d2?q=80&w=800&auto=format&fit=crop" alt="Ekran Kartları" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 grayscale group-hover:grayscale-0" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
-                <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors">Ekran Kartları</h3>
+                <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors drop-shadow-md">Ekran Kartları</h3>
                 <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-500"></div>
               </div>
             </Link>
 
             <Link href="/kategori/islemciler" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#00d2ff] transition-colors duration-500">
-              <img src="https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?q=80&w=800&auto=format&fit=crop" alt="İşlemciler" className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-80 transition-all duration-700 grayscale group-hover:grayscale-0" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent"></div>
+              <img src="https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?q=80&w=800&auto=format&fit=crop" alt="İşlemciler" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 grayscale group-hover:grayscale-0" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
-                <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors">İşlemciler</h3>
+                <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors drop-shadow-md">İşlemciler</h3>
                 <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-500"></div>
               </div>
             </Link>
 
             <Link href="/kategori/anakartlar" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#00d2ff] transition-colors duration-500">
-              <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop" alt="Anakartlar" className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-80 transition-all duration-700 grayscale group-hover:grayscale-0" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent"></div>
+              <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop" alt="Anakartlar" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 grayscale group-hover:grayscale-0" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
-                <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors">Anakartlar</h3>
+                <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors drop-shadow-md">Anakartlar</h3>
                 <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-500"></div>
               </div>
             </Link>
 
             <Link href="/kategori/sivi-sogutma" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#00d2ff] transition-colors duration-500">
-              <img src="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?q=80&w=800&auto=format&fit=crop" alt="Sıvı Soğutma" className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-80 transition-all duration-700 grayscale group-hover:grayscale-0" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent"></div>
+              <img src="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?q=80&w=800&auto=format&fit=crop" alt="Sıvı Soğutma" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 grayscale group-hover:grayscale-0" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
-                <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors">Sıvı Soğutma</h3>
+                <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors drop-shadow-md">Sıvı Soğutma</h3>
                 <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-500"></div>
               </div>
             </Link>
 
             <Link href="/kategori/profesyonel-monitor" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#00d2ff] transition-colors duration-500">
-              <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800&auto=format&fit=crop" alt="Profesyonel Monitörler" className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-80 transition-all duration-700 grayscale group-hover:grayscale-0" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent"></div>
+              <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800&auto=format&fit=crop" alt="Profesyonel Monitörler" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 grayscale group-hover:grayscale-0" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
-                <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors">Prof. Monitörler</h3>
+                <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors drop-shadow-md">Prof. Monitörler</h3>
                 <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-500"></div>
               </div>
             </Link>
@@ -343,13 +344,13 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ==================== 6. BİLGİN PC MANİFESTO (Arka plan aydınlatıldı, Model ve İçerik gerçekçi oldu) ==================== */}
+      {/* ==================== 6. BİLGİN PC BİLGİLENDİRME (Dürüst, Samimi ve Güven Veren Esnaf Dili) ==================== */}
       <section className="relative w-full py-20 sm:py-28 bg-[#0a0a0a] border-t border-white/10 overflow-hidden flex items-center justify-center">
         
-        {/* Arka Plan Görseli Karartıldı ve Detaylar Gizlendi */}
-        <div className="absolute inset-0 z-0 opacity-20">
-          <img src="https://images.unsplash.com/photo-1591488320449-011701bb6704?q=80&w=2000&auto=format&fit=crop" alt="Bilgin PC Arka Plan" className="w-full h-full object-cover grayscale brightness-[0.4]" />
-          <div className="absolute inset-0 bg-[#0a0a0a]/60"></div>
+        {/* Arka Plan Görseli (Eski 1080 resmi silindi, yeni temiz teknoloji resmi kondu, daha aydınlık yapıldı) */}
+        <div className="absolute inset-0 z-0 opacity-40">
+          <img src="https://images.unsplash.com/photo-1600861194802-a2b11076bc8f?q=80&w=2000&auto=format&fit=crop" alt="Bilgin PC Arka Plan" className="w-full h-full object-cover grayscale" />
+          <div className="absolute inset-0 bg-[#0a0a0a]/70"></div>
         </div>
         
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#00d2ff]/10 rounded-full blur-[150px] pointer-events-none z-0" />
@@ -364,26 +365,26 @@ export default async function HomePage() {
           </div>
 
           <h2 className="text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter text-white mb-6 leading-[0.9]">
-            Bilgisayar Toplamanın <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-[#00d2ff] to-[#00d2ff]">Güvenilir Adresi.</span>
+            Güvenilir Donanım, <br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-[#00d2ff] to-[#00d2ff]">Samimi Hizmet.</span>
           </h2>
 
           <div className="space-y-4 text-gray-300 text-sm sm:text-base md:text-lg font-medium leading-relaxed max-w-3xl mx-auto">
             <p>
-              Bilgin PC Market olarak, yılların getirdiği tecrübeyle sadece bilgisayar donanımı satmıyor, aynı zamanda ihtiyacınıza en uygun sistemleri sizin için bir araya getiriyoruz. Öğrenci bilgisayarlarından, üst düzey tasarım ve oyun bilgisayarlarına kadar her segmente hitap ediyoruz.
+              Bilgin PC Market olarak, sizlere her zaman en pahalı olanı değil; ihtiyacınıza ve bütçenize en uygun olan doğru parçayı sunmayı amaçlıyoruz. Sadece satış yapana kadar değil, satış sonrasında da yanınızda olan dürüst bir hizmet anlayışını benimsiyoruz.
             </p>
             <p>
-              RTX 5070 gibi en güncel ekran kartlarından, fiyat/performans oranı yüksek işlemcilere kadar aradığınız her parçayı stoklarımızda bulundurmaya gayret ediyoruz. Her montajı kendi bilgisayarımızmış gibi titizlikle yapıyor, size kullanıma hazır ve test edilmiş sistemler teslim ediyoruz.
+              RTX 5070 gibi yeni nesil güncel ekran kartlarından, fiyat performans odaklı işlemcilere kadar aradığınız donanımları mağazamızda stoklu bulundurmaya gayret ediyoruz. Sipariş ettiğiniz her sistemi kendi evimize götürecekmiş gibi özenle topluyor, tüm testlerini bizzat tamamlamadan kargoya vermiyoruz.
             </p>
             <p className="text-white font-bold tracking-wide pt-4">
-              Teknoloji alışverişinizde dürüstlük ve kalite arıyorsanız, Bilgin PC yanınızda.
+              Bize duyduğunuz güven ve samimiyet, bizim için her şeyden önemlidir.
             </p>
           </div>
 
           <div className="mt-10 flex flex-wrap justify-center items-center gap-4 sm:gap-6 text-gray-400 text-xs sm:text-sm font-black tracking-[0.2em] sm:tracking-[0.3em] uppercase">
             <span className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-[#00d2ff]" /> Resmi Garanti</span>
             <span className="flex items-center gap-2"><Cpu className="w-4 h-4 text-[#00d2ff]" /> Güncel Donanım</span>
-            <span className="hidden sm:flex items-center gap-2"><Star className="w-4 h-4 text-[#00d2ff]" /> %100 Memnuniyet</span>
+            <span className="hidden sm:flex items-center gap-2"><Star className="w-4 h-4 text-[#00d2ff]" /> Müşteri Memnuniyeti</span>
           </div>
 
         </div>
