@@ -17,12 +17,12 @@ export default async function HomePage() {
   }
 
   return (
-    <main className="min-h-screen bg-black text-white font-sans pb-24 overflow-hidden selection:bg-[#d4af37] selection:text-black">
+    <main className="min-h-screen bg-black text-white font-sans pb-24 overflow-hidden selection:bg-[#10b981] selection:text-black">
       
       {/* ==================== 1. HERO (GİRİŞ) ==================== */}
       <section className="relative w-full min-h-[85vh] flex items-center justify-center pt-24 pb-20 border-b border-white/10">
         
-        {/* Arka plan ızgara deseni (Hafif beyaz/gri) */}
+        {/* Arka plan ızgara deseni */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_20%,transparent_100%)] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
@@ -48,9 +48,9 @@ export default async function HomePage() {
               </p>
 
               <div className="pt-4">
-                <a href="#vitrin" className="group relative inline-flex w-full sm:w-auto px-8 py-4 sm:px-10 sm:py-5 bg-white/5 backdrop-blur-md text-white font-black uppercase tracking-[0.1em] overflow-hidden rounded-none border border-white/20 hover:border-white hover:bg-white hover:text-black transition-all duration-300 text-center items-center justify-center">
+                <a href="#vitrin" className="group relative inline-flex w-full sm:w-auto px-8 py-4 sm:px-10 sm:py-5 bg-white/5 backdrop-blur-md text-white font-black uppercase tracking-[0.1em] overflow-hidden rounded-none border border-white/20 hover:border-[#10b981] hover:text-[#10b981] transition-all duration-300 text-center items-center justify-center">
                   <span className="relative flex items-center justify-center gap-3">
-                    Kataloğu İncele <Crosshair className="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" />
+                    Kataloğu İncele <Crosshair className="w-5 h-5 transition-transform duration-500" />
                   </span>
                 </a>
               </div>
@@ -88,7 +88,7 @@ export default async function HomePage() {
             </h2>
           </div>
           <div className="text-xs font-bold tracking-widest text-gray-400 uppercase flex items-center gap-2">
-            <div className="w-2 h-2 rounded-none bg-white animate-ping"></div>
+            <div className="w-2 h-2 rounded-none bg-[#10b981] animate-ping"></div>
             Aktif Stok: {urunler.length}
           </div>
         </div>
@@ -109,25 +109,25 @@ export default async function HomePage() {
               return (
                 <div 
                   key={urun._id.toString()} 
-                  // SİYAH CAM KART YAPISI: backdrop-blur-xl ile buzlu siyah cam efekti
-                  className="group relative flex flex-col w-[85vw] sm:w-[45vw] lg:w-full flex-shrink-0 snap-start bg-black/40 backdrop-blur-xl rounded-none border border-white/10 shadow-[5px_5px_0px_rgba(0,0,0,0.8)] hover:border-[#d4af37]/50 lg:hover:-translate-y-1 transition-all duration-300"
+                  // SİYAH CAM KART YAPISI
+                  className="group relative flex flex-col w-[85vw] sm:w-[45vw] lg:w-full flex-shrink-0 snap-start bg-black/40 backdrop-blur-xl rounded-none border border-white/10 shadow-[5px_5px_0px_rgba(0,0,0,0.8)] transition-all duration-300"
                 >
                   
-                  {/* TIKLAMA SORUNUNU ÇÖZEN GİZLİ LİNK KATMANI */}
+                  {/* TIKLAMA SORUNUNU ÇÖZEN GİZLİ LİNK KATMANI (KARTIN GENELİ İÇİN) */}
                   <Link href={"/product/" + (urun.slug || urun._id)} className="absolute inset-0 z-10" prefetch={true} />
 
                   {/* 1. ÜST KISIM (GÖRSEL VE BUTONLAR) */}
                   <div className="relative w-full aspect-[4/3] p-6 flex items-center justify-center bg-white/5 border-b border-white/10 pointer-events-none">
                     
-                    {/* KARŞILAŞTIRMA BUTONU (Altın Renk & Tıklama Kesin Çözüm) */}
+                    {/* KARŞILAŞTIRMA BUTONU (YEŞİL, SABİT RENK, KESİN TIKLAMA ÇÖZÜMÜ) */}
                     {!tukendiMi && (
-                      <div className="absolute top-3 right-3 z-50 pointer-events-auto">
-                        <div className="relative flex items-center gap-2 bg-black/60 backdrop-blur-md border border-[#d4af37]/50 px-3 py-1.5 cursor-pointer hover:border-[#d4af37] hover:bg-[#d4af37]/10 transition-all duration-300 group/compare">
-                          <GitCompare className="w-4 h-4 text-[#d4af37] group-hover/compare:scale-105 transition-transform" />
-                          <span className="text-[10px] font-black uppercase tracking-wider hidden sm:block text-[#d4af37]">Karşılaştır</span>
+                      <div className="absolute top-3 right-3 z-[60] pointer-events-auto">
+                        <div className="relative flex items-center gap-2 bg-black/60 backdrop-blur-md border border-[#10b981] px-3 py-1.5 cursor-pointer">
+                          <GitCompare className="w-4 h-4 text-[#10b981]" />
+                          <span className="text-[10px] font-black uppercase tracking-wider hidden sm:block text-[#10b981]">Karşılaştır</span>
                           
-                          {/* Kesin tıklama alanı */}
-                          <div className="absolute inset-0 z-50 w-full h-full opacity-0 flex items-stretch justify-stretch cursor-pointer *:w-full *:h-full">
+                          {/* İÇİNDEKİ BUTONU ZORLA %100 YAPAN TIKLAMA ALANI (Tıklanmama Hatası Çözümü) */}
+                          <div className="absolute inset-0 z-[70] w-full h-full opacity-0 cursor-pointer [&>*]:w-full [&>*]:h-full [&>*]:absolute [&>*]:inset-0 [&_button]:w-full [&_button]:h-full">
                             <CompareButton urun={urun} />
                           </div>
                         </div>
@@ -156,7 +156,7 @@ export default async function HomePage() {
                   <div className="flex flex-col flex-grow p-5 sm:p-6 relative z-20 pointer-events-none bg-transparent">
                     
                     {/* BEMBEYAZ ÜRÜN İSMİ */}
-                    <h3 className="text-white font-bold text-sm sm:text-base uppercase tracking-wider leading-snug line-clamp-2 mb-2 group-hover:text-[#d4af37] transition-colors">
+                    <h3 className="text-white font-bold text-sm sm:text-base uppercase tracking-wider leading-snug line-clamp-2 mb-2">
                       {urun.isim || urun.name}
                     </h3>
 
@@ -190,7 +190,7 @@ export default async function HomePage() {
                         )}
                       </div>
 
-                      {/* VIP Çift Çerçeve Rozet (Cam Efektli Altın) */}
+                      {/* VIP Çift Çerçeve Rozet (Sabit Altın) */}
                       {indirimVarMi && !tukendiMi && (
                         <div className="border-4 border-double border-[#d4af37] bg-black/40 backdrop-blur-md px-3 py-2 flex flex-col items-center justify-center ml-2">
                           <span className="text-[#d4af37] text-xl sm:text-2xl font-black leading-none">
@@ -203,11 +203,13 @@ export default async function HomePage() {
                       )}
                     </div>
 
-                    {/* İncele Butonu (Şeffaf Siyah Cam Efekti) */}
-                    <div className="mt-6 z-50 pointer-events-auto relative">
-                      <div className={"w-full text-center py-3 text-xs sm:text-sm font-bold uppercase border transition-all duration-300 backdrop-blur-md " + (tukendiMi ? "bg-black/40 border-[#27272a] text-[#71717a]" : "bg-white/5 border-white/20 text-white hover:border-[#d4af37] hover:bg-[#d4af37]/10 hover:text-[#d4af37]")}>
-                        {tukendiMi ? "Tükendi" : "İncele"}
-                      </div>
+                    {/* İNCELE BUTONU (Sadece bu buton fare gelince yeşil olacak) */}
+                    <div className="mt-6 z-[60] pointer-events-auto relative">
+                      <Link href={"/product/" + (urun.slug || urun._id)} className="block w-full">
+                        <div className={"w-full text-center py-3 text-xs sm:text-sm font-bold uppercase border transition-all duration-300 backdrop-blur-md " + (tukendiMi ? "bg-black/40 border-[#27272a] text-[#71717a] cursor-not-allowed" : "bg-white/5 border-white/20 text-white hover:border-[#10b981] hover:text-[#10b981] hover:shadow-[0_0_15px_rgba(16,185,129,0.2)]")}>
+                          {tukendiMi ? "Tükendi" : "İncele"}
+                        </div>
+                      </Link>
                     </div>
 
                   </div>
