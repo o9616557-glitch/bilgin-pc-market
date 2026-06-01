@@ -64,7 +64,7 @@ export default async function HomePage() {
                 
                 <div className="w-full h-[350px] bg-black/60 rounded-none border border-white/5 flex items-center justify-center overflow-hidden relative p-8 group">
                    <img 
-                     src="https://www.pngmart.com/files/22/Graphics-Card-PNG-Transparent.png" 
+                  src="/amiral.png"
                      alt="Amiral Gemisi Ekran Kartı" 
                      className="w-full h-full object-contain filter drop-shadow-[0_15px_20px_rgba(0,0,0,0.8)] transition-transform duration-700 group-hover:scale-105 z-10 relative" 
                    />
