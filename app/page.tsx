@@ -19,8 +19,8 @@ export default async function HomePage() {
   return (
     <main className="min-h-screen bg-black text-white font-sans pb-24 overflow-hidden selection:bg-[#10b981] selection:text-black">
       
-      {/* ==================== 1. HERO (GİRİŞ BÖLÜMÜ) ==================== */}
-      <section className="relative w-full min-h-[85vh] flex items-center justify-center pt-24 pb-12 border-b border-white/10">
+      {/* ==================== 1. HERO (GİRİŞ BÖLÜMÜ - Yüksekliği ve Boşlukları Daraltıldı) ==================== */}
+      <section className="relative w-full min-h-[55vh] flex items-center justify-center pt-24 pb-6 border-b border-white/10">
         
         {/* Arka plan premium ızgara deseni */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_20%,transparent_100%)] pointer-events-none" />
@@ -76,8 +76,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ==================== 2. ÖZEL AYRICALIKLAR (Ürünlerin Üstüne Taşındı, Boşluklar Alındı) ==================== */}
-      <section className="max-w-[1400px] mx-auto px-0 sm:px-6 lg:px-8 pt-10 pb-4">
+      {/* ==================== 2. ÖZEL AYRICALIKLAR (Hemen Hero'nun dibinden başlar) ==================== */}
+      <section className="max-w-[1400px] mx-auto px-0 sm:px-6 lg:px-8 pt-8 pb-4">
         
         <div className="flex items-center justify-between px-4 sm:px-0 mb-6">
           <div className="flex items-center gap-4">
@@ -156,8 +156,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ==================== 3. PREMIUM ÜRÜN VİTRİNİ (Tek Sıra Kaydırmalı Hale Getirildi) ==================== */}
-      <div id="vitrin" className="max-w-[1400px] mx-auto px-0 sm:px-6 lg:px-8 pt-10">
+      {/* ==================== 3. PREMIUM ÜRÜN VİTRİNİ ==================== */}
+      <div id="vitrin" className="max-w-[1400px] mx-auto px-0 sm:px-6 lg:px-8 pt-8">
         
         {/* Başlık Alanı */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-6 px-4 sm:px-0">
@@ -173,7 +173,7 @@ export default async function HomePage() {
           </div>
         </div>
 
-        {/* Ürün Listesi (ARTIK GRİD DEĞİL, TEK SIRA KAYDIRMALI TREN VAGONU) */}
+        {/* Ürün Listesi (TEK SIRA KAYDIRMALI TREN VAGONU) */}
         <div className="flex flex-nowrap overflow-x-auto gap-6 pb-8 px-4 sm:px-0 snap-x snap-mandatory scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#10b981] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
           {urunler.length > 0 ? (
             urunler.map((urun: any) => {
