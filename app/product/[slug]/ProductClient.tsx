@@ -30,11 +30,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [copied, setCopied] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
+  // Ana Galeri Hafızası
   const [seciliResimIndex, setSeciliResimIndex] = useState(0);
   const [fade, setFade] = useState(false); 
   const touchStartRef = useRef(0);
 
+  // 🚀 POPUP (LIGHTBOX) İÇİN BAĞIMSIZ HAFIZA
   const [lightboxAcik, setLightboxAcik] = useState(false);
+  const [lightboxResimIndex, setLightboxResimIndex] = useState(0);
 
   const fpsVerileri: any = product.fps_testleri || {};
   const dbOyunlar = Object.keys(fpsVerileri);
@@ -223,6 +226,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     });
   }
 
+  // ANA GALERİ MOTORU
   const degistirResim = (yeniIndex: number) => {
     if (yeniIndex === seciliResimIndex) return;
     setFade(true); 
@@ -254,6 +258,15 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     }
   };
 
+  // 🚀 POPUP İÇİN BAĞIMSIZ MOTOR
+  const popupSonrakiResim = () => {
+    setLightboxResimIndex((prev) => (prev + 1) % resimler.length);
+  };
+
+  const popupOncekiResim = () => {
+    setLightboxResimIndex((prev) => (prev - 1 + resimler.length) % resimler.length);
+  };
+
  return (
     <div className="min-h-screen bg-[#050814] text-white pb-9 sm:pb-10 font-sans overflow-x-hidden relative max-w-[100vw]">
       <div className={`fixed top-24 right-5 z-[9999999] bg-[#09090b] border border-[#00e5ff]/50 shadow-[0_0_30px_rgba(0,229,255,0.2)] text-white px-6 py-4 rounded-xl font-bold flex items-center gap-3 transition-all duration-300 transform ${toastMessage ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0 pointer-events-none"}`}>
@@ -277,8 +290,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <ChevronLeft className="w-6 h-6 stroke-[2.5]" />
             </button>
 
+            {/* 🚀 TIKLANDIĞINDA GEÇERLİ RESMİN BİLGİSİNİ POPUP HAFIZASINA AKTARIR */}
             <div 
-              onClick={() => setLightboxAcik(true)}
+              onClick={() => { setLightboxResimIndex(seciliResimIndex); setLightboxAcik(true); }}
               className="w-full h-full p-4 sm:p-8 flex justify-center items-center relative z-10 cursor-pointer"
             >
               <img 
@@ -300,7 +314,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </div>
           </div>
 
-          {/* 🚀 MOBİL İÇİN ÜST SOLDA YATAY ŞEKİLDE DİZİLMİŞ İKONLAR */}
           <div className="absolute left-4 top-4 flex flex-row gap-5 z-40 sm:hidden">
             <button onClick={(e) => { e.stopPropagation(); handleToggleFavorite(); }} className="text-2xl hover:scale-110 transition-transform drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">
               {isFav ? "❤️" : "🤍"}
@@ -450,7 +463,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       )}
 
-      {/* MOBİL ALT BAR (Sadece Teknik, FPS ve Sorular Kaldı) */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-md border-t border-slate-800 p-2 z-[50] flex flex-col gap-2 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
         <div className="flex justify-center items-center gap-2 overflow-x-auto whitespace-nowrap pb-2 [&::-webkit-scrollbar]:hidden">
            <button onClick={() => { setActiveTab("tech"); setTeknikPopupAcik(true); }} className="flex-1 flex justify-center items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">⚙️</span><span className="text-[10px] font-black uppercase tracking-wider">Teknik</span></button>
@@ -464,44 +476,43 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </button>
       </div>
 
-      {/* 🚀 BÜYÜK EKRAN LIGHTBOX MODAL (ORTADA AÇILAN POPUP VE X TUŞLU) */}
+      {/* 🚀 YEPYENİ BEYAZ ZEMİNLİ, BAĞIMSIZ HAFIZALI POPUP LIGHTBOX */}
       {lightboxAcik && (
         <div 
           onClick={() => setLightboxAcik(false)}
-          className="fixed inset-0 z-[9999999] bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 transition-all duration-300 select-none animate-fadeIn"
+          className="fixed inset-0 z-[9999999] bg-white/95 backdrop-blur-sm flex justify-center items-center p-4 transition-all duration-300 select-none animate-fadeIn"
         >
-          {/* Ortadaki Popup Kutusu (Sıkı Sarar, Boşlukları Yok Eder) */}
           <div 
              onClick={(e) => e.stopPropagation()}
-             className="relative bg-[#09090b] border border-white/10 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] flex justify-center items-center p-4 sm:p-8 max-w-[95vw] sm:max-w-[80vw]"
+             className="relative bg-white border border-slate-200 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] flex justify-center items-center p-4 sm:p-8 max-w-[95vw] sm:max-w-[80vw]"
           >
-            {/* Üst Sağda X Kapatma Butonu */}
+            {/* Siyah Kapatma Butonu */}
             <button 
               onClick={(e) => { e.stopPropagation(); setLightboxAcik(false); }}
-              className="absolute -top-3 -right-3 sm:-top-5 sm:-right-5 z-[99999999] bg-[#121215] border border-white/10 hover:bg-red-500/20 hover:border-red-500 text-slate-400 hover:text-white rounded-full p-2 sm:p-3 transition-all shadow-lg"
+              className="absolute -top-3 -right-3 sm:-top-5 sm:-right-5 z-[99999999] bg-black border border-white hover:bg-red-500 text-white rounded-full p-2 sm:p-3 transition-all shadow-lg"
             >
               <X className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
             </button>
 
-            {/* Sol Ok Tuşu (PC ve Mobil İçin Kutu Kenarında) */}
+            {/* Siyah Sol Ok Tuşu (Bağımsız Motoru Tetikler) */}
             <button 
-              onClick={(e) => { e.stopPropagation(); oncekiResim(); }}
-              className="absolute -left-4 sm:-left-8 top-1/2 -translate-y-1/2 z-[99999999] bg-[#121215] border border-white/10 hover:bg-[#00e5ff] text-slate-400 hover:text-black rounded-full p-2 sm:p-4 transition-all shadow-lg"
+              onClick={(e) => { e.stopPropagation(); popupOncekiResim(); }}
+              className="absolute -left-4 sm:-left-8 top-1/2 -translate-y-1/2 z-[99999999] bg-black border border-white hover:bg-[#00e5ff] text-white hover:text-black rounded-full p-2 sm:p-4 transition-all shadow-lg"
             >
               <ChevronLeft className="w-5 h-5 sm:w-8 sm:h-8 stroke-[2.5]" />
             </button>
 
-            {/* İç Görsel */}
+            {/* Bağımsız Hafızadan Gelen Görsel */}
             <img 
-              src={resimler[seciliResimIndex]} 
+              src={resimler[lightboxResimIndex]} 
               alt="Büyük Ekran İnceleme" 
               className="max-w-full max-h-[70vh] sm:max-h-[75vh] object-contain rounded-xl animate-scaleUp"
             />
 
-            {/* Sağ Ok Tuşu (PC ve Mobil İçin Kutu Kenarında) */}
+            {/* Siyah Sağ Ok Tuşu (Bağımsız Motoru Tetikler) */}
             <button 
-              onClick={(e) => { e.stopPropagation(); sonrakiResim(); }}
-              className="absolute -right-4 sm:-right-8 top-1/2 -translate-y-1/2 z-[99999999] bg-[#121215] border border-white/10 hover:bg-[#00e5ff] text-slate-400 hover:text-black rounded-full p-2 sm:p-4 transition-all shadow-lg"
+              onClick={(e) => { e.stopPropagation(); popupSonrakiResim(); }}
+              className="absolute -right-4 sm:-right-8 top-1/2 -translate-y-1/2 z-[99999999] bg-black border border-white hover:bg-[#00e5ff] text-white hover:text-black rounded-full p-2 sm:p-4 transition-all shadow-lg"
             >
               <ChevronRight className="w-5 h-5 sm:w-8 sm:h-8 stroke-[2.5]" />
             </button>
