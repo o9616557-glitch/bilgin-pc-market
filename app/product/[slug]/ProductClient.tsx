@@ -35,7 +35,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [fade, setFade] = useState(false); 
   const touchStartRef = useRef(0);
 
-  // 🚀 POPUP (LIGHTBOX) İÇİN BAĞIMSIZ HAFIZA
+  // Popup (Lightbox) İçin Bağımsız Hafıza
   const [lightboxAcik, setLightboxAcik] = useState(false);
   const [lightboxResimIndex, setLightboxResimIndex] = useState(0);
 
@@ -226,7 +226,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     });
   }
 
-  // ANA GALERİ MOTORU
   const degistirResim = (yeniIndex: number) => {
     if (yeniIndex === seciliResimIndex) return;
     setFade(true); 
@@ -258,7 +257,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     }
   };
 
-  // 🚀 POPUP İÇİN BAĞIMSIZ MOTOR
+  // POPUP BAĞIMSIZ MOTORU
   const popupSonrakiResim = () => {
     setLightboxResimIndex((prev) => (prev + 1) % resimler.length);
   };
@@ -290,7 +289,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <ChevronLeft className="w-6 h-6 stroke-[2.5]" />
             </button>
 
-            {/* 🚀 TIKLANDIĞINDA GEÇERLİ RESMİN BİLGİSİNİ POPUP HAFIZASINA AKTARIR */}
             <div 
               onClick={() => { setLightboxResimIndex(seciliResimIndex); setLightboxAcik(true); }}
               className="w-full h-full p-4 sm:p-8 flex justify-center items-center relative z-10 cursor-pointer"
@@ -463,6 +461,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       )}
 
+      {/* MOBİL ALT BAR */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-md border-t border-slate-800 p-2 z-[50] flex flex-col gap-2 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
         <div className="flex justify-center items-center gap-2 overflow-x-auto whitespace-nowrap pb-2 [&::-webkit-scrollbar]:hidden">
            <button onClick={() => { setActiveTab("tech"); setTeknikPopupAcik(true); }} className="flex-1 flex justify-center items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">⚙️</span><span className="text-[10px] font-black uppercase tracking-wider">Teknik</span></button>
@@ -476,51 +475,52 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </button>
       </div>
 
-      {/* 🚀 YEPYENİ BEYAZ ZEMİNLİ, BAĞIMSIZ HAFIZALI POPUP LIGHTBOX */}
+      {/* 🚀 CERRAH OPERASYONU GÜNCELLEMESİ: ARKA TARAF SİSLİ KOYU, KUTU İÇİ SAF BEYAZ, BUTONLAR SÜPER ŞEFFAF VE BAĞIMSIZ */}
       {lightboxAcik && (
         <div 
           onClick={() => setLightboxAcik(false)}
-          className="fixed inset-0 z-[9999999] bg-white/95 backdrop-blur-sm flex justify-center items-center p-4 transition-all duration-300 select-none animate-fadeIn"
+          className="fixed inset-0 z-[9999999] bg-black/75 backdrop-blur-md flex justify-center items-center p-4 transition-all duration-300 select-none animate-fadeIn"
         >
+          {/* Ortadaki Popup Kutusu (Arka taraftan tamamen bağımsız, içi net beyaz) */}
           <div 
              onClick={(e) => e.stopPropagation()}
-             className="relative bg-white border border-slate-200 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] flex justify-center items-center p-4 sm:p-8 max-w-[95vw] sm:max-w-[80vw]"
+             className="relative bg-white border border-slate-200 rounded-3xl shadow-[0_25px_70px_rgba(0,0,0,0.4)] flex justify-center items-center p-4 sm:p-8 max-w-[95vw] sm:max-w-[80vw]"
           >
-            {/* Siyah Kapatma Butonu */}
+            {/* Şeffaf Premium Kapatma Butonu (Üründeki Cam Gibi) */}
             <button 
               onClick={(e) => { e.stopPropagation(); setLightboxAcik(false); }}
-              className="absolute -top-3 -right-3 sm:-top-5 sm:-right-5 z-[99999999] bg-black border border-white hover:bg-red-500 text-white rounded-full p-2 sm:p-3 transition-all shadow-lg"
+              className="absolute -top-3 -right-3 sm:-top-5 sm:-right-5 z-[99999999] bg-black/60 hover:bg-black/80 text-white p-2.5 sm:p-3 rounded-full transition-all backdrop-blur-sm border border-white/10 shadow-lg"
             >
               <X className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
             </button>
 
-            {/* Siyah Sol Ok Tuşu (Bağımsız Motoru Tetikler) */}
+            {/* Şeffaf Sol Ok Tuşu (Sadece popup içindeki bağımsız hafızayı değiştirir) */}
             <button 
               onClick={(e) => { e.stopPropagation(); popupOncekiResim(); }}
-              className="absolute -left-4 sm:-left-8 top-1/2 -translate-y-1/2 z-[99999999] bg-black border border-white hover:bg-[#00e5ff] text-white hover:text-black rounded-full p-2 sm:p-4 transition-all shadow-lg"
+              className="absolute -left-4 sm:-left-8 top-1/2 -translate-y-1/2 z-[99999999] bg-black/60 hover:bg-black/80 text-white p-2.5 sm:p-4 rounded-full transition-all backdrop-blur-sm border border-white/10 shadow-lg"
             >
-              <ChevronLeft className="w-5 h-5 sm:w-8 sm:h-8 stroke-[2.5]" />
+              <ChevronLeft className="w-5 h-5 sm:w-7 sm:h-7 stroke-[2.5]" />
             </button>
 
-            {/* Bağımsız Hafızadan Gelen Görsel */}
+            {/* Bağımsız Hafızadan (`lightboxResimIndex`) Gelen Görsel */}
             <img 
               src={resimler[lightboxResimIndex]} 
               alt="Büyük Ekran İnceleme" 
-              className="max-w-full max-h-[70vh] sm:max-h-[75vh] object-contain rounded-xl animate-scaleUp"
+              className="max-w-full max-h-[70vh] sm:max-h-[75vh] object-contain rounded-xl"
             />
 
-            {/* Siyah Sağ Ok Tuşu (Bağımsız Motoru Tetikler) */}
+            {/* Şeffaf Sağ Ok Tuşu (Sadece popup içindeki bağımsız hafızayı değiştirir) */}
             <button 
               onClick={(e) => { e.stopPropagation(); popupSonrakiResim(); }}
-              className="absolute -right-4 sm:-right-8 top-1/2 -translate-y-1/2 z-[99999999] bg-black border border-white hover:bg-[#00e5ff] text-white hover:text-black rounded-full p-2 sm:p-4 transition-all shadow-lg"
+              className="absolute -right-4 sm:-right-8 top-1/2 -translate-y-1/2 z-[99999999] bg-black/60 hover:bg-black/80 text-white p-2.5 sm:p-4 rounded-full transition-all backdrop-blur-sm border border-white/10 shadow-lg"
             >
-              <ChevronRight className="w-5 h-5 sm:w-8 sm:h-8 stroke-[2.5]" />
+              <ChevronRight className="w-5 h-5 sm:w-7 sm:h-7 stroke-[2.5]" />
             </button>
           </div>
         </div>
       )}
 
-      {/* DİĞER TEKNİK BİLGİ POPUPLARI BURADAN İTİBAREN BAŞLAR */}
+      {/* DİĞER POPUPLAR (TEKNİK, FPS VE YORUMLAR) */}
       {teknikPopupAcik && (
         <div className="fixed inset-0 z-[999999] flex justify-center items-center p-0 sm:p-4 bg-black/80 backdrop-blur-md transition-all">
           <div className="absolute inset-0 hidden sm:block" onClick={() => setTeknikPopupAcik(false)}></div>
