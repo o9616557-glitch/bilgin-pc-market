@@ -207,10 +207,19 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const tukendiMi = product.stokDurumu === "Tükendi" || stokSifirMi;
   const adetGosterilecekMi = product.stokAdedi !== null && product.stokAdedi !== undefined && product.stokAdedi !== "" && Number(product.stokAdedi) > 0;
   const havaleFiyati = gecerliFiyat - (gecerliFiyat * havaleYuzdesi) / 100;
-  // 🚀 AKILLI GÖRSEL OKUMA MOTORU: Hem obje formatını hem de düz metin formatını anlar
-  const resimler = product.images && product.images.length > 0 
-    ? product.images.map((i:any) => typeof i === "string" ? i : i.src) 
-    : [product.resim || "https://via.placeholder.com/600"];
+
+  // 🚀 %100 KURŞUN GEÇİRMEZ GÖRSEL MOTORU BURADA BAŞLIYOR
+  let resimler = [product.resim || "https://via.placeholder.com/600"];
+  if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+    resimler = product.images.map((img: any) => {
+      // Eğer veritabanından direkt "/rtx5070-1.png" şeklinde metin gelirse bunu kullan
+      if (typeof img === "string") return img;
+      // Eğer veritabanından { src: "/rtx5070-1.png" } şeklinde obje gelirse src'yi kullan
+      if (img && img.src) return img.src;
+      // İkisi de değilse ana vitrin resmini kullan
+      return product.resim || "https://via.placeholder.com/600";
+    });
+  }
 
  return (
     <div className="min-h-screen bg-[#050814] text-white pb-9 sm:pb-10 font-sans overflow-x-hidden relative max-w-[100vw]">
@@ -330,7 +339,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-      {/* 🚀 CERRAH OPERASYONU: BEYAZ YAZI VE ŞEFFAF MAVİ ÇİZGİ BURADA EKLENDİ */}
       {product.aciklama && (
         <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 mt-10 mb-4 border-t border-white/10 pt-8">
           <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider mb-6">
