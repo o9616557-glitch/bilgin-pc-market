@@ -31,9 +31,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [copied, setCopied] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
-  // 🚀 ARTIK SABİT DEĞİL! Veritabanından gelen veriyi okuyoruz. Yoksa boş küme ({}) atıyoruz.
+  // 🚀 MONGODB DİNAMİK FPS MOTORU
   const fpsVerileri: any = product.fps_testleri || {};
-  // Veritabanında ekli olan oyunların isimlerini otomatik alıyoruz (Örn: ["Valorant", "CS2"])
   const dbOyunlar = Object.keys(fpsVerileri);
 
   const pId = product?._id?.toString() || product?.id?.toString() || "urun";
@@ -130,6 +129,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const gecerliFiyat = indirimliFiyat ? indirimliFiyat : normalFiyat;
   const havaleYuzdesi = product.havaleIndirimi !== undefined ? Number(product.havaleIndirimi) : 5;
 
+  // 🚀 YORUM GÖNDERME MOTORU
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reviewText.trim()) return showToast("Lütfen bir yorum yazın!");
@@ -143,11 +143,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       if (res.ok) {
         showToast("Yorumunuz onaya gönderildi! 🚀");
         setReviewText(""); setReviewName(""); setReviewRating(5);
-      } else showToast("Bir hata oluştu, giriş yaptığınızdan emin olun.");
+      } else {
+        showToast("Bir hata oluştu, giriş yaptığınızdan emin olun.");
+      }
     } catch (error) { showToast("Bağlantı hatası oluştu!"); }
     setIsSubmitting(false);
   };
 
+  // 🚀 SORU GÖNDERME MOTORU
   const handleSubmitQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!questionText.trim()) return showToast("Lütfen bir soru yazın!");
@@ -161,7 +164,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       if (res.ok) {
         showToast("Sorunuz onaya gönderildi! 🚀");
         setQuestionText(""); setQuestionName("");
-      } else showToast("Bir hata oluştu, giriş yaptığınızdan emin olun.");
+      } else {
+        showToast("Bir hata oluştu, giriş yaptığınızdan emin olun.");
+      }
     } catch (error) { showToast("Bağlantı hatası oluştu!"); }
     setIsSubmitting(false);
   };
@@ -386,20 +391,79 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
            <div className="overflow-y-auto flex-1 p-4 sm:p-6 flex flex-col text-slate-300 bg-transparent relative z-10">
                <div className="pb-10">
                   
+                  {/* ⭐ YORUMLAR SEKMESİ (FORM VE LİSTE GERİ GELDİ) */}
                   {activeTab === "reviews" && (
                      <div className="space-y-4">
-                        {/* ... Yorumlar Kodu ... */}
-                        <p className="text-center py-5 text-slate-500 font-medium">Bu ürüne henüz yorum yapılmamış.</p>
+                        <form onSubmit={handleSubmitReview} className="mb-8 bg-[#121215]/80 backdrop-blur-md border border-white/10 p-5 rounded-2xl relative z-20 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+                           <h3 className="text-[#00e5ff] font-black text-sm uppercase tracking-wider mb-3">Değerlendirme Yap</h3>
+                           <div className="flex gap-1 mb-4">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                 <button type="button" key={star} onClick={() => setReviewRating(star)} className={`text-2xl sm:text-3xl transition-all hover:scale-110 ${reviewRating >= star ? "text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]" : "text-slate-700 hover:text-amber-400/50"}`}>
+                                    ★
+                                 </button>
+                              ))}
+                           </div>
+                           <input type="text" value={reviewName} onChange={(e) => setReviewName(e.target.value)} placeholder="Adınız Soyadınız" className="w-full bg-[#050814] border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 mb-3 transition-all" />
+                           <textarea value={reviewText} onChange={(e) => setReviewText(e.target.value)} placeholder="Bu donanım hakkında ne düşünüyorsun? Performansı nasıl?" className="w-full bg-[#050814] border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 min-h-[100px] mb-4 resize-none transition-all" required />
+                           <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-[#00e5ff] text-black font-black uppercase tracking-widest text-xs px-8 py-3 rounded-xl hover:bg-[#00c4db] transition-all disabled:opacity-50 hover:shadow-[0_0_15px_rgba(0,229,255,0.4)]">
+                              {isSubmitting ? "Gönderiliyor..." : "Yorumu Gönder"}
+                           </button>
+                        </form>
+
+                        {reviews.length === 0 ? (
+                           <p className="text-center py-5 text-slate-500 font-medium">Bu ürüne henüz yorum yapılmamış. İlk yorumu sen yap!</p>
+                        ) : (
+                           reviews.map((rev, i) => (
+                              <div key={i} className="mb-4 pb-4 border-b border-white/5 relative z-10">
+                                 <div className="flex justify-between items-center mb-2">
+                                    <span className="font-bold text-white">{rev.name || "İsimsiz"}</span>
+                                    <span className="text-amber-400 text-xs drop-shadow-[0_0_5px_rgba(251,191,36,0.3)]">{"★".repeat(Number(rev.rating))}{"☆".repeat(5 - Number(rev.rating))}</span>
+                                 </div>
+                                 <p className="text-sm text-slate-400 mb-2">{rev.text}</p>
+                                 {(rev.answer || rev.reply || rev.adminReply || rev.cevap) && (
+                                    <div className="ml-4 p-3 bg-[#00e5ff]/5 border-l-2 border-[#00e5ff] rounded-r-lg mt-2">
+                                       <span className="font-black text-[#00e5ff] text-[10px] uppercase block mb-1">Yetkili Cevabı:</span>
+                                       <p className="text-sm text-slate-300">{rev.answer || rev.reply || rev.adminReply || rev.cevap}</p>
+                                    </div>
+                                 )}
+                              </div>
+                           ))
+                        )}
                      </div>
                   )}
 
+                  {/* 💬 SORULAR SEKMESİ (FORM VE LİSTE GERİ GELDİ) */}
                   {activeTab === "questions" && (
                      <div className="space-y-4">
-                        {/* ... Sorular Kodu ... */}
-                        <p className="text-center py-5 text-slate-500 font-medium">Henüz soru sorulmamış.</p>
+                        <form onSubmit={handleSubmitQuestion} className="mb-8 bg-[#121215]/80 backdrop-blur-md border border-white/10 p-5 rounded-2xl relative z-20 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+                           <h3 className="text-[#00e5ff] font-black text-sm uppercase tracking-wider mb-3">Soru Sor</h3>
+                           <input type="text" value={questionName} onChange={(e) => setQuestionName(e.target.value)} placeholder="Adınız Soyadınız" className="w-full bg-[#050814] border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 mb-3 transition-all" />
+                           <textarea value={questionText} onChange={(e) => setQuestionText(e.target.value)} placeholder="Bu ürünle ilgili merak ettiğin bir şey mi var? Bize sor..." className="w-full bg-[#050814] border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#00e5ff]/50 min-h-[100px] mb-4 resize-none transition-all" required />
+                           <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-[#00e5ff] text-black font-black uppercase tracking-widest text-xs px-8 py-3 rounded-xl hover:bg-[#00c4db] transition-all disabled:opacity-50 hover:shadow-[0_0_15px_rgba(0,229,255,0.4)]">
+                              {isSubmitting ? "Gönderiliyor..." : "Soruyu Gönder"}
+                           </button>
+                        </form>
+
+                        {questions.length === 0 ? (
+                           <p className="text-center py-5 text-slate-500 font-medium">Henüz soru sorulmamış. İlk soran sen ol!</p>
+                        ) : (
+                           questions.map((q, i) => (
+                              <div key={i} className="mb-4 pb-4 border-b border-white/5 relative z-10">
+                                 <span className="font-bold text-white block mb-1">❓ {q.name || "Müşteri"}:</span>
+                                 <p className="text-sm text-slate-300 mb-3">{q.text}</p>
+                                 {(q.answer || q.reply || q.adminReply || q.cevap) && (
+                                    <div className="ml-4 p-3 bg-[#00e5ff]/5 border-l-2 border-[#00e5ff] rounded-r-lg mt-2">
+                                       <span className="font-black text-[#00e5ff] text-[10px] uppercase block mb-1">Yetkili Cevabı:</span>
+                                       <p className="text-sm text-slate-300">{q.answer || q.reply || q.adminReply || q.cevap}</p>
+                                    </div>
+                                 )}
+                              </div>
+                           ))
+                        )}
                      </div>
                   )}
 
+                  {/* ⚙️ TEKNİK BİLGİLER */}
                   {activeTab === "tech" && product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 ? (
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                         {Object.entries(product.teknik_ozellikler).map(([anahtar, deger]) => (
@@ -411,7 +475,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                      </div>
                   ) : activeTab === "tech" && <p className="text-center py-10 text-slate-500 font-medium">Teknik detay bulunamadı.</p>}
 
-                  {/* 🚀 4. ADIM: YENİ AKILLI FPS MOTORU */}
+                  {/* 🎮 AKILLI VE DİNAMİK FPS MOTORU */}
                   {activeTab === "fps" && (
                      <div className="space-y-4 mt-2">
                         <div>
@@ -435,7 +499,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                            </div>
                         </div>
 
-                        {/* 🚀 MONGODB'DEN GELEN OYUNLARI OTOMATİK DİZEN YAPI */}
+                        {/* MONGODB'DEN GELEN OYUNLARI OTOMATİK DİZEN ALAN */}
                         <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-6">
                            {dbOyunlar.length > 0 ? (
                              dbOyunlar.map((oyunKodu) => (
