@@ -34,6 +34,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [fade, setFade] = useState(false); 
   const touchStartRef = useRef(0);
 
+  // 🚀 BÜYÜK EKRAN MODAL (LIGHTBOX) HAFIZASI
+  const [lightboxAcik, setLightboxAcik] = useState(false);
+
   const fpsVerileri: any = product.fps_testleri || {};
   const dbOyunlar = Object.keys(fpsVerileri);
 
@@ -102,11 +105,12 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     fetchCanliYorumlar();
   }, [pId]);
 
+  // 🚀 POPUP VEYA LIGHTBOX AÇIKKEN ARKAPLANIN KAYMASINI ENGELLEME MOTORU
   useEffect(() => {
-    if (teknikPopupAcik) document.body.style.overflow = "hidden";
+    if (teknikPopupAcik || lightboxAcik) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "unset";
     return () => { document.body.style.overflow = "unset"; };
-  }, [teknikPopupAcik]);
+  }, [teknikPopupAcik, lightboxAcik]);
 
   useEffect(() => {
     const calculateShipping = () => {
@@ -245,7 +249,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const handleTouchEnd = (e: React.TouchEvent) => {
     const touchEnd = e.changedTouches[0].clientX;
     const fark = touchStartRef.current - touchEnd;
-    // 🚀 MOBİL KAYDIRMA DAHA HASSAS VE RAHAT HALE GETİRİLDİ (50'den 30'a düşürüldü)
     if (fark > 30) {
       sonrakiResim(); 
     } else if (fark < -30) {
@@ -269,7 +272,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             onTouchEnd={handleTouchEnd}
             className="w-full aspect-square sm:aspect-[4/3] max-h-[380px] sm:max-h-[460px] relative flex justify-center items-center overflow-hidden group select-none bg-transparent"
           >
-            {/* 🚀 OKLAR DAHA SADE, GÖZ YORMAYAN BİR HALE GETİRİLDİ */}
             <button 
               onClick={(e) => { e.preventDefault(); oncekiResim(); }}
               className="hidden sm:block absolute left-2 z-30 bg-black/30 hover:bg-white/10 text-slate-300 hover:text-white p-3 rounded-full transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm"
@@ -277,7 +279,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <ChevronLeft className="w-6 h-6 stroke-[2.5]" />
             </button>
 
-            <div className="w-full h-full p-4 sm:p-8 flex justify-center items-center relative z-10">
+            {/* 🚀 TIKLANABİLİR BÜYÜK RESİM ALANI (cursor-pointer eklendi) */}
+            <div 
+              onClick={() => setLightboxAcik(true)}
+              className="w-full h-full p-4 sm:p-8 flex justify-center items-center relative z-10 cursor-pointer"
+            >
               <img 
                 src={resimler[seciliResimIndex]} 
                 alt={urunAdi + " - " + (seciliResimIndex + 1)} 
@@ -287,12 +293,12 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
             <button 
               onClick={(e) => { e.preventDefault(); sonrakiResim(); }}
-              className="hidden sm:block absolute right-2 z-30 bg-black/30 hover:bg-white/10 text-slate-300 hover:text-white p-3 rounded-full transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm"
+              className="absolute right-2 z-30 hidden sm:block bg-black/30 hover:bg-white/10 text-slate-300 hover:text-white p-3 rounded-full transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm"
             >
               <ChevronRight className="w-6 h-6 stroke-[2.5]" />
             </button>
             
-            <div className="sm:hidden absolute bottom-2 right-4 z-20 text-[10px] font-bold tracking-widest text-white/50 bg-black/30 px-2 py-0.5 rounded-md backdrop-blur-sm">
+            <div className="absolute bottom-2 right-4 z-20 rounded-md bg-black/30 px-2 py-0.5 text-[10px] font-bold tracking-widest text-white/50 backdrop-blur-sm sm:hidden">
               {seciliResimIndex + 1} / {resimler.length}
             </div>
           </div>
@@ -415,7 +421,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-      {/* 🚀 AÇIKLAMA GÖRSELLERİ TAMAMEN ŞEFFAF HALE GETİRİLDİ */}
+      {/* 🚀 AÇIKLAMA GÖRSELLERİ ARASI SIFIR BOŞLUK YAPILDI ([&_img]:my-0 [&_img]:p-0) */}
       {product.aciklama && (
         <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 mt-10 mb-4 border-t border-white/10 pt-8">
           <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider mb-6">
@@ -426,7 +432,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                        [&_h2]:text-xl [&_h2]:sm:text-2xl [&_h2]:font-black [&_h2]:text-white [&_h2]:underline [&_h2]:decoration-[#00e5ff]/40 [&_h2]:underline-offset-[6px] [&_h2]:mt-8 [&_h2]:mb-4
                        [&_h3]:text-lg [&_h3]:sm:text-xl [&_h3]:font-bold [&_h3]:text-white [&_h3]:underline [&_h3]:decoration-[#00e5ff]/40 [&_h3]:underline-offset-[4px] [&_h3]:mt-6 [&_h3]:mb-3
                        [&_p]:text-sm [&_p]:sm:text-base [&_p]:leading-relaxed [&_p]:text-slate-300 [&_p]:mb-4
-                       [&_img]:w-full [&_img]:max-w-5xl [&_img]:mx-auto [&_img]:border-none [&_img]:bg-transparent [&_img]:shadow-none [&_img]:my-6 [&_img]:sm:my-8"
+                       [&_img]:w-full [&_img]:max-w-5xl [&_img]:mx-auto [&_img]:border-none [&_img]:bg-transparent [&_img]:shadow-none [&_img]:my-0 [&_img]:p-0 [&_img]:block"
             dangerouslySetInnerHTML={{ __html: product.aciklama }}
           />
         </div>
@@ -452,6 +458,31 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </button>
       </div>
 
+      {/* 🚀 3. ADIM: EFSANE TAM EKRAN LIGHTBOX MODAL (X TUŞLU VE ARKA PLAN DOKUNMATİK KAPATMALI) */}
+      {lightboxAcik && (
+        <div 
+          onClick={() => setLightboxAcik(false)}
+          className="fixed inset-0 z-[9999999] bg-black/95 backdrop-blur-md flex justify-center items-center p-4 transition-all duration-300 select-none animate-fadeIn"
+        >
+          {/* Üst Sağda X Kapatma Butonu */}
+          <button 
+            onClick={(e) => { e.stopPropagation(); setLightboxAcik(false); }}
+            className="absolute top-6 right-6 z-[99999999] bg-white/5 border border-white/10 hover:bg-red-500/20 hover:border-red-500 text-slate-400 hover:text-white rounded-2xl p-3 transition-all backdrop-blur-md shadow-lg"
+          >
+            <X className="w-6 h-6 stroke-[2.5]" />
+          </button>
+
+          {/* Tam Ekran Devasa Görsel */}
+          <div className="max-w-full max-h-[90vh] flex justify-center items-center p-2" onClick={(e) => e.stopPropagation()}>
+            <img 
+              src={resimler[seciliResimIndex]} 
+              alt="Büyük Ekran İnceleme" 
+              className="max-w-full max-h-[85vh] sm:max-h-[90vh] object-contain filter drop-shadow-[0_25px_50px_rgba(0,0,0,0.9)] animate-scaleUp"
+            />
+          </div>
+        </div>
+      )}
+
       {/* POPUP MERKEZİ */}
       {teknikPopupAcik && (
         <div className="fixed inset-0 z-[999999] flex justify-center items-center p-0 sm:p-4 bg-black/80 backdrop-blur-md transition-all">
@@ -476,7 +507,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
            <div className="overflow-y-auto flex-1 p-4 sm:p-6 flex flex-col text-slate-300 bg-transparent relative z-10">
                <div className="pb-10">
                   
-                  {/* ⭐ YORUMLAR SEKMESİ */}
                   {activeTab === "reviews" && (
                      <div className="space-y-4">
                         <form onSubmit={handleSubmitReview} className="mb-8 bg-[#121215]/80 backdrop-blur-md border border-white/10 p-5 rounded-2xl relative z-20 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
