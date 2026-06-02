@@ -34,7 +34,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [fade, setFade] = useState(false); 
   const touchStartRef = useRef(0);
 
-  // 🚀 BÜYÜK EKRAN MODAL (LIGHTBOX) HAFIZASI
   const [lightboxAcik, setLightboxAcik] = useState(false);
 
   const fpsVerileri: any = product.fps_testleri || {};
@@ -105,7 +104,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     fetchCanliYorumlar();
   }, [pId]);
 
-  // 🚀 POPUP VEYA LIGHTBOX AÇIKKEN ARKAPLANIN KAYMASINI ENGELLEME MOTORU
   useEffect(() => {
     if (teknikPopupAcik || lightboxAcik) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "unset";
@@ -265,7 +263,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:gap-10 sm:py-10 sm:px-6">
         
-        <div className="w-full md:w-1/2 flex flex-col">
+        <div className="w-full md:w-1/2 flex flex-col relative">
           
           <div 
             onTouchStart={handleTouchStart}
@@ -279,7 +277,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <ChevronLeft className="w-6 h-6 stroke-[2.5]" />
             </button>
 
-            {/* 🚀 TIKLANABİLİR BÜYÜK RESİM ALANI (cursor-pointer eklendi) */}
             <div 
               onClick={() => setLightboxAcik(true)}
               className="w-full h-full p-4 sm:p-8 flex justify-center items-center relative z-10 cursor-pointer"
@@ -303,6 +300,22 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </div>
           </div>
 
+          {/* 🚀 MOBİL İÇİN SAĞ TARAFTA HAVADA SÜZÜLEN ŞEFFAF İKONLAR (Sadece Telefonda Görünür) */}
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-5 z-40 sm:hidden">
+            <button onClick={(e) => { e.stopPropagation(); handleToggleFavorite(); }} className="text-2xl hover:scale-110 transition-transform drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">
+              {isFav ? "❤️" : "🤍"}
+            </button>
+            <button onClick={(e) => { e.stopPropagation(); handleCompare(); }} className="text-2xl hover:scale-110 transition-transform drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">
+              ⚖️
+            </button>
+            <button onClick={(e) => { e.stopPropagation(); setActiveTab("reviews"); setTeknikPopupAcik(true); }} className="text-2xl hover:scale-110 transition-transform drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">
+              ⭐
+            </button>
+            <button onClick={(e) => { e.stopPropagation(); handleShare(); }} className="text-2xl hover:scale-110 transition-transform drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">
+              📤
+            </button>
+          </div>
+
           {resimler.length > 1 && (
             <div className="flex gap-4 justify-center mt-2 px-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {resimler.map((img: string, idx: number) => (
@@ -323,6 +336,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
         </div>
         
+        {/* SAĞ: ÜRÜN BİLGİLERİ (PC YAPISINA HİÇ DOKUNULMADI) */}
         <div className="w-full md:w-1/2 px-4 sm:px-0 mt-6 md:mt-0 flex flex-col justify-center">
           <div className="flex flex-wrap items-center gap-2 mb-3">
             {tukendiMi ? (
@@ -421,7 +435,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-      {/* 🚀 AÇIKLAMA GÖRSELLERİ ARASI SIFIR BOŞLUK YAPILDI ([&_img]:my-0 [&_img]:p-0) */}
       {product.aciklama && (
         <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 mt-10 mb-4 border-t border-white/10 pt-8">
           <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider mb-6">
@@ -438,18 +451,12 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       )}
 
-      {/* MOBİL ALT BAR */}
+      {/* 🚀 MOBİL ALT BAR (Sadece Teknik, FPS ve Sorular Kaldı) */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-md border-t border-slate-800 p-2 z-[50] flex flex-col gap-2 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
-        <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-2 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-[#121215] [&::-webkit-scrollbar-thumb]:bg-[#00e5ff]/50 [&::-webkit-scrollbar-thumb]:rounded-full">
-           <button onClick={() => { setActiveTab("tech"); setTeknikPopupAcik(true); }} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">⚙️</span><span className="text-[10px] font-black uppercase tracking-wider">Teknik</span></button>
-           <button onClick={() => { setActiveTab("fps"); setTeknikPopupAcik(true); }} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">🎮</span><span className="text-[10px] font-black uppercase tracking-wider">FPS</span></button>
-           <div className="w-[1px] h-5 bg-white/10 shrink-0 mx-0.5"></div>
-           <button onClick={handleCompare} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">⚖️</span><span className="text-[10px] font-black uppercase tracking-wider">Kıyasla</span></button>
-           <button onClick={handleToggleFavorite} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-red-500 transition-colors"><span className="text-sm">{isFav ? "❤️" : "🤍"}</span><span className="text-[10px] font-black uppercase tracking-wider">Favori</span></button>
-           <div className="w-[1px] h-5 bg-white/10 shrink-0 mx-0.5"></div>
-           <button onClick={() => { setActiveTab("reviews"); setTeknikPopupAcik(true); }} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">⭐</span><span className="text-[10px] font-black uppercase tracking-wider">Yorumlar</span></button>
-           <button onClick={() => { setActiveTab("questions"); setTeknikPopupAcik(true); }} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">💬</span><span className="text-[10px] font-black uppercase tracking-wider">Sorular</span></button>
-           <button onClick={handleShare} className="flex items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">📤</span><span className="text-[10px] font-black uppercase tracking-wider">Paylaş</span></button>
+        <div className="flex justify-center items-center gap-2 overflow-x-auto whitespace-nowrap pb-2 [&::-webkit-scrollbar]:hidden">
+           <button onClick={() => { setActiveTab("tech"); setTeknikPopupAcik(true); }} className="flex-1 flex justify-center items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">⚙️</span><span className="text-[10px] font-black uppercase tracking-wider">Teknik</span></button>
+           <button onClick={() => { setActiveTab("fps"); setTeknikPopupAcik(true); }} className="flex-1 flex justify-center items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">🎮</span><span className="text-[10px] font-black uppercase tracking-wider">FPS</span></button>
+           <button onClick={() => { setActiveTab("questions"); setTeknikPopupAcik(true); }} className="flex-1 flex justify-center items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">💬</span><span className="text-[10px] font-black uppercase tracking-wider">Sorular</span></button>
         </div>
         
         <button type="button" onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`w-full h-14 font-black uppercase tracking-wider rounded-xl flex items-center justify-between px-5 transition-all ${tukendiMi ? "bg-zinc-800 text-zinc-500" : "bg-[#00e5ff] text-black shadow-[0_0_15px_rgba(0,229,255,0.3)] hover:bg-[#00c4db]"}`}>
@@ -458,7 +465,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </button>
       </div>
 
-      {/* 🚀 3. ADIM: EFSANE TAM EKRAN LIGHTBOX MODAL (X TUŞLU VE ARKA PLAN DOKUNMATİK KAPATMALI) */}
+      {/* 🚀 BÜYÜK EKRAN LIGHTBOX MODAL (İÇİNDE SAĞ/SOL OKLAR EKLENDİ) */}
       {lightboxAcik && (
         <div 
           onClick={() => setLightboxAcik(false)}
@@ -472,18 +479,34 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             <X className="w-6 h-6 stroke-[2.5]" />
           </button>
 
+          {/* Sol Ok Tuşu (PC ve Mobil) */}
+          <button 
+            onClick={(e) => { e.stopPropagation(); oncekiResim(); }}
+            className="absolute left-2 sm:left-10 z-[99999999] bg-white/5 border border-white/10 hover:bg-[#00e5ff] text-slate-400 hover:text-white rounded-full p-3 sm:p-5 transition-all backdrop-blur-md shadow-lg"
+          >
+            <ChevronLeft className="w-6 h-6 sm:w-10 sm:h-10 stroke-[2.5]" />
+          </button>
+
           {/* Tam Ekran Devasa Görsel */}
-          <div className="max-w-full max-h-[90vh] flex justify-center items-center p-2" onClick={(e) => e.stopPropagation()}>
+          <div className="max-w-[80vw] max-h-[90vh] flex justify-center items-center p-2" onClick={(e) => e.stopPropagation()}>
             <img 
               src={resimler[seciliResimIndex]} 
               alt="Büyük Ekran İnceleme" 
               className="max-w-full max-h-[85vh] sm:max-h-[90vh] object-contain filter drop-shadow-[0_25px_50px_rgba(0,0,0,0.9)] animate-scaleUp"
             />
           </div>
+
+          {/* Sağ Ok Tuşu (PC ve Mobil) */}
+          <button 
+            onClick={(e) => { e.stopPropagation(); sonrakiResim(); }}
+            className="absolute right-2 sm:right-10 z-[99999999] bg-white/5 border border-white/10 hover:bg-[#00e5ff] text-slate-400 hover:text-white rounded-full p-3 sm:p-5 transition-all backdrop-blur-md shadow-lg"
+          >
+            <ChevronRight className="w-6 h-6 sm:w-10 sm:h-10 stroke-[2.5]" />
+          </button>
         </div>
       )}
 
-      {/* POPUP MERKEZİ */}
+      {/* DİĞER TEKNİK BİLGİ POPUPLARI BURADAN İTİBAREN BAŞLAR */}
       {teknikPopupAcik && (
         <div className="fixed inset-0 z-[999999] flex justify-center items-center p-0 sm:p-4 bg-black/80 backdrop-blur-md transition-all">
           <div className="absolute inset-0 hidden sm:block" onClick={() => setTeknikPopupAcik(false)}></div>
@@ -547,7 +570,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                      </div>
                   )}
 
-                  {/* 💬 SORULAR SEKMESİ */}
                   {activeTab === "questions" && (
                      <div className="space-y-4">
                         <form onSubmit={handleSubmitQuestion} className="mb-8 bg-[#121215]/80 backdrop-blur-md border border-white/10 p-5 rounded-2xl relative z-20 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
@@ -578,7 +600,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                      </div>
                   )}
 
-                  {/* ⚙️ TEKNİK BİLGİLER */}
                   {activeTab === "tech" && product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 ? (
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                         {Object.entries(product.teknik_ozellikler).map(([anahtar, deger]) => (
@@ -590,7 +611,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                      </div>
                   ) : activeTab === "tech" && <p className="text-center py-10 text-slate-500 font-medium">Teknik detay bulunamadı.</p>}
 
-                  {/* 🎮 AKILLI VE DİNAMİK FPS MOTORU */}
                   {activeTab === "fps" && (
                      <div className="space-y-4 mt-2">
                         <div>
