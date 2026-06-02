@@ -30,7 +30,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [copied, setCopied] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
+  // 🚀 SLIDER, DÖNGÜ VE YUMUŞAK GEÇİŞ HAFIZALARI
   const [seciliResimIndex, setSeciliResimIndex] = useState(0);
+  const [fade, setFade] = useState(false); // Yumuşak geçiş efekti için
   const touchStartRef = useRef(0);
 
   const fpsVerileri: any = product.fps_testleri || {};
@@ -220,12 +222,22 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     });
   }
 
+  // 🚀 YUMUŞAK GEÇİŞ MOTOTU (FADE EFFECT)
+  const degistirResim = (yeniIndex: number) => {
+    if (yeniIndex === seciliResimIndex) return;
+    setFade(true); // Resmi şeffaflaştır
+    setTimeout(() => {
+      setSeciliResimIndex(yeniIndex); // Arka planda resmi değiştir
+      setFade(false); // Resmi tekrar görünür yap
+    }, 200); // 200 milisaniyelik pürüzsüz geçiş
+  };
+
   const sonrakiResim = () => {
-    setSeciliResimIndex((prev) => (prev + 1) % resimler.length);
+    degistirResim((seciliResimIndex + 1) % resimler.length);
   };
 
   const oncekiResim = () => {
-    setSeciliResimIndex((prev) => (prev - 1 + resimler.length) % resimler.length);
+    degistirResim((seciliResimIndex - 1 + resimler.length) % resimler.length);
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -251,53 +263,59 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:gap-10 sm:py-10 sm:px-6">
         
+        {/* SOL: ŞEFFAF VE PREMIUM GALERİ ALANI */}
         <div className="w-full md:w-1/2 flex flex-col">
           
           <div 
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
-            className="w-full aspect-square sm:aspect-[4/3] max-h-[380px] sm:max-h-[460px] bg-[#09090b] border border-white/5 md:rounded-3xl relative flex justify-center items-center overflow-hidden group select-none"
+            className="w-full aspect-square sm:aspect-[4/3] max-h-[380px] sm:max-h-[460px] relative flex justify-center items-center overflow-hidden group select-none bg-transparent"
           >
+            {/* Oklar sadece PC'de ve fare üzerine gelince görünür, Mobilde YOK */}
             <button 
               onClick={(e) => { e.preventDefault(); oncekiResim(); }}
-              className="absolute left-4 z-30 bg-black/50 hover:bg-[#00e5ff] border border-white/10 hover:border-[#00e5ff] text-white hover:text-black p-2 rounded-xl transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 shadow-[0_0_15px_rgba(0,0,0,0.5)]"
+              className="hidden sm:block absolute left-2 z-30 bg-black/40 hover:bg-[#00e5ff] text-white hover:text-black p-3 rounded-full transition-all opacity-0 group-hover:opacity-100 shadow-[0_0_20px_rgba(0,0,0,0.5)] backdrop-blur-md"
             >
-              <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
+              <ChevronLeft className="w-6 h-6 stroke-[2.5]" />
             </button>
 
-            <div className="w-full h-full p-6 flex justify-center items-center relative z-10">
+            {/* Büyük Resim (Fade Efektli ve Kutusuz) */}
+            <div className="w-full h-full p-4 sm:p-8 flex justify-center items-center relative z-10">
               <img 
                 src={resimler[seciliResimIndex]} 
                 alt={urunAdi + " - " + (seciliResimIndex + 1)} 
-                className={`max-w-full max-h-full object-contain filter drop-shadow-[0_15px_30px_rgba(0,0,0,0.7)] transition-all duration-500 ease-out ${tukendiMi ? "grayscale opacity-50" : ""}`} 
+                className={`max-w-full max-h-full object-contain filter drop-shadow-[0_20px_40px_rgba(0,0,0,0.8)] transition-all duration-300 ease-in-out ${fade ? 'opacity-0 scale-[0.98]' : 'opacity-100 scale-100'} ${tukendiMi ? "grayscale opacity-50" : ""}`} 
               />
             </div>
 
+            {/* Oklar sadece PC'de ve fare üzerine gelince görünür, Mobilde YOK */}
             <button 
               onClick={(e) => { e.preventDefault(); sonrakiResim(); }}
-              className="absolute right-4 z-30 bg-black/50 hover:bg-[#00e5ff] border border-white/10 hover:border-[#00e5ff] text-white hover:text-black p-2 rounded-xl transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 shadow-[0_0_15px_rgba(0,0,0,0.5)]"
+              className="hidden sm:block absolute right-2 z-30 bg-black/40 hover:bg-[#00e5ff] text-white hover:text-black p-3 rounded-full transition-all opacity-0 group-hover:opacity-100 shadow-[0_0_20px_rgba(0,0,0,0.5)] backdrop-blur-md"
             >
-              <ChevronRight className="w-5 h-5 stroke-[2.5]" />
+              <ChevronRight className="w-6 h-6 stroke-[2.5]" />
             </button>
-
-            <div className="absolute bottom-4 right-4 z-20 bg-black/60 border border-white/10 px-3 py-1 rounded-lg text-[10px] font-black tracking-widest text-slate-400">
+            
+            {/* Sağ Alt Köşe Mini Sayaç (Sadece mobilde bilgilendirmek için zarif durur) */}
+            <div className="sm:hidden absolute bottom-2 right-4 z-20 text-[10px] font-bold tracking-widest text-white/50 bg-black/30 px-2 py-0.5 rounded-md backdrop-blur-sm">
               {seciliResimIndex + 1} / {resimler.length}
             </div>
           </div>
 
+          {/* KÜÇÜK GÖRSELLER (THUMBNAILS) - Kutusuz, Şeffaf ve Premium */}
           {resimler.length > 1 && (
-            <div className="flex gap-2 justify-center mt-4 px-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="flex gap-4 justify-center mt-2 px-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {resimler.map((img: string, idx: number) => (
                 <button
                   key={idx}
-                  onClick={(e) => { e.preventDefault(); setSeciliResimIndex(idx); }}
-                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl border p-1.5 bg-[#09090b]/80 backdrop-blur-md transition-all flex-shrink-0 flex items-center justify-center ${
+                  onClick={(e) => { e.preventDefault(); degistirResim(idx); }}
+                  className={`w-14 h-14 sm:w-20 sm:h-20 transition-all duration-300 flex-shrink-0 flex items-center justify-center bg-transparent ${
                     seciliResimIndex === idx 
-                      ? "border-[#00e5ff] shadow-[0_0_15px_rgba(0,229,255,0.3)] scale-105 opacity-100" 
-                      : "border-white/5 opacity-40 hover:opacity-100"
+                      ? "scale-110 opacity-100 drop-shadow-[0_0_15px_rgba(0,229,255,0.5)]" 
+                      : "opacity-40 hover:opacity-100 hover:scale-105"
                   }`}
                 >
-                  <img src={img} alt="Önizleme" className="max-w-full max-h-full object-contain rounded-md" />
+                  <img src={img} alt="Önizleme" className="max-w-full max-h-full object-contain filter drop-shadow-[0_5px_10px_rgba(0,0,0,0.5)]" />
                 </button>
               ))}
             </div>
@@ -305,6 +323,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
         </div>
         
+        {/* SAĞ: ÜRÜN BİLGİLERİ */}
         <div className="w-full md:w-1/2 px-4 sm:px-0 mt-6 md:mt-0 flex flex-col justify-center">
           <div className="flex flex-wrap items-center gap-2 mb-3">
             {tukendiMi ? (
