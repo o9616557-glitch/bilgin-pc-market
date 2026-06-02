@@ -506,7 +506,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             <img 
               src={resimler[lightboxResimIndex]} 
               alt="Büyük Ekran İnceleme" 
-              className="max-w-full min-h-[65vh] max-h-[85vh] sm:min-h-0 sm:max-h-[80vh] object-contain rounded-xl"
+              className="max-w-full min-h-[65vh] max-h-[80vh] sm:min-h-0 sm:max-h-[80vh] object-contain rounded-xl"
             />
             {/* Şeffaf Sağ Ok Tuşu (Sadece popup içindeki bağımsız hafızayı değiştirir) */}
             <button 
