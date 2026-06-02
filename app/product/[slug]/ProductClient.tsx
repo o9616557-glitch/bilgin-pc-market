@@ -10,7 +10,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const { sepeteEkle } = useCart(); 
   const { karsilastirmayaEkle, setPopupAcik } = useCompare(); 
   
-  // 🚀 ZIRHLI HAFIZALAR
   const [activeTab, setActiveTab] = useState("reviews");
   const [seciliCozunurluk, setSeciliCozunurluk] = useState("1080P");
   const [seciliIslemci, setSeciliIslemci] = useState("i5");
@@ -31,7 +30,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [copied, setCopied] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
-  // 🚀 MONGODB DİNAMİK FPS MOTORU
   const fpsVerileri: any = product.fps_testleri || {};
   const dbOyunlar = Object.keys(fpsVerileri);
 
@@ -129,7 +127,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const gecerliFiyat = indirimliFiyat ? indirimliFiyat : normalFiyat;
   const havaleYuzdesi = product.havaleIndirimi !== undefined ? Number(product.havaleIndirimi) : 5;
 
-  // 🚀 YORUM GÖNDERME MOTORU
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reviewText.trim()) return showToast("Lütfen bir yorum yazın!");
@@ -150,7 +147,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     setIsSubmitting(false);
   };
 
-  // 🚀 SORU GÖNDERME MOTORU
   const handleSubmitQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!questionText.trim()) return showToast("Lütfen bir soru yazın!");
@@ -331,17 +327,18 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
+      {/* 🚀 CERRAH OPERASYONU: BAŞLIKLAR KÜÇÜLTÜLDÜ, İKON SİLİNDİ, RENK BEYAZ YAPILDI */}
       {product.aciklama && (
         <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 mt-10 mb-4 border-t border-white/10 pt-8">
-          <h3 className="text-2xl sm:text-3xl font-black text-[#00e5ff] uppercase tracking-wider mb-6 flex items-center gap-3">
-            <span className="text-3xl">📝</span> Ürün Detayları ve İnceleme
+          <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider mb-6">
+            Ürün Detayları ve İnceleme
           </h3>
           <div 
             className="prose prose-invert max-w-none text-slate-300 line-clamp-none 
-                       [&_h2]:text-2xl [&_h2]:sm:text-3xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mt-8 [&_h2]:mb-4
-                       [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-[#00e5ff] [&_h3]:mt-6 [&_h3]:mb-3
-                       [&_p]:text-base [&_p]:leading-relaxed [&_p]:text-slate-300 [&_p]:mb-4
-                       [&_img]:w-full [&_img]:max-w-5xl [&_img]:mx-auto [&_img]:rounded-2xl [&_img]:border [&_img]:border-[#00e5ff]/20 [&_img]:my-8 [&_img]:shadow-[0_0_40px_rgba(0,229,255,0.15)]"
+                       [&_h2]:text-xl [&_h2]:sm:text-2xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mt-8 [&_h2]:mb-4
+                       [&_h3]:text-lg [&_h3]:sm:text-xl [&_h3]:font-bold [&_h3]:text-[#00e5ff] [&_h3]:mt-6 [&_h3]:mb-3
+                       [&_p]:text-sm [&_p]:sm:text-base [&_p]:leading-relaxed [&_p]:text-slate-300 [&_p]:mb-4
+                       [&_img]:w-full [&_img]:max-w-5xl [&_img]:mx-auto [&_img]:rounded-2xl [&_img]:border [&_img]:border-[#00e5ff]/20 [&_img]:my-6 [&_img]:sm:my-8 [&_img]:shadow-[0_0_40px_rgba(0,229,255,0.15)]"
             dangerouslySetInnerHTML={{ __html: product.aciklama }}
           />
         </div>
@@ -391,7 +388,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
            <div className="overflow-y-auto flex-1 p-4 sm:p-6 flex flex-col text-slate-300 bg-transparent relative z-10">
                <div className="pb-10">
                   
-                  {/* ⭐ YORUMLAR SEKMESİ (FORM VE LİSTE GERİ GELDİ) */}
+                  {/* ⭐ YORUMLAR SEKMESİ */}
                   {activeTab === "reviews" && (
                      <div className="space-y-4">
                         <form onSubmit={handleSubmitReview} className="mb-8 bg-[#121215]/80 backdrop-blur-md border border-white/10 p-5 rounded-2xl relative z-20 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
@@ -432,7 +429,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                      </div>
                   )}
 
-                  {/* 💬 SORULAR SEKMESİ (FORM VE LİSTE GERİ GELDİ) */}
+                  {/* 💬 SORULAR SEKMESİ */}
                   {activeTab === "questions" && (
                      <div className="space-y-4">
                         <form onSubmit={handleSubmitQuestion} className="mb-8 bg-[#121215]/80 backdrop-blur-md border border-white/10 p-5 rounded-2xl relative z-20 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
@@ -499,7 +496,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                            </div>
                         </div>
 
-                        {/* MONGODB'DEN GELEN OYUNLARI OTOMATİK DİZEN ALAN */}
                         <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-6">
                            {dbOyunlar.length > 0 ? (
                              dbOyunlar.map((oyunKodu) => (
