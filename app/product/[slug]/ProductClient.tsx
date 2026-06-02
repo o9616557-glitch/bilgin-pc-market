@@ -30,9 +30,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [copied, setCopied] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
-  // 🚀 SLIDER, DÖNGÜ VE YUMUŞAK GEÇİŞ HAFIZALARI
   const [seciliResimIndex, setSeciliResimIndex] = useState(0);
-  const [fade, setFade] = useState(false); // Yumuşak geçiş efekti için
+  const [fade, setFade] = useState(false); 
   const touchStartRef = useRef(0);
 
   const fpsVerileri: any = product.fps_testleri || {};
@@ -222,14 +221,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     });
   }
 
-  // 🚀 YUMUŞAK GEÇİŞ MOTOTU (FADE EFFECT)
   const degistirResim = (yeniIndex: number) => {
     if (yeniIndex === seciliResimIndex) return;
-    setFade(true); // Resmi şeffaflaştır
+    setFade(true); 
     setTimeout(() => {
-      setSeciliResimIndex(yeniIndex); // Arka planda resmi değiştir
-      setFade(false); // Resmi tekrar görünür yap
-    }, 200); // 200 milisaniyelik pürüzsüz geçiş
+      setSeciliResimIndex(yeniIndex); 
+      setFade(false); 
+    }, 200); 
   };
 
   const sonrakiResim = () => {
@@ -247,9 +245,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const handleTouchEnd = (e: React.TouchEvent) => {
     const touchEnd = e.changedTouches[0].clientX;
     const fark = touchStartRef.current - touchEnd;
-    if (fark > 50) {
+    // 🚀 MOBİL KAYDIRMA DAHA HASSAS VE RAHAT HALE GETİRİLDİ (50'den 30'a düşürüldü)
+    if (fark > 30) {
       sonrakiResim(); 
-    } else if (fark < -50) {
+    } else if (fark < -30) {
       oncekiResim(); 
     }
   };
@@ -263,7 +262,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:gap-10 sm:py-10 sm:px-6">
         
-        {/* SOL: ŞEFFAF VE PREMIUM GALERİ ALANI */}
         <div className="w-full md:w-1/2 flex flex-col">
           
           <div 
@@ -271,15 +269,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             onTouchEnd={handleTouchEnd}
             className="w-full aspect-square sm:aspect-[4/3] max-h-[380px] sm:max-h-[460px] relative flex justify-center items-center overflow-hidden group select-none bg-transparent"
           >
-            {/* Oklar sadece PC'de ve fare üzerine gelince görünür, Mobilde YOK */}
+            {/* 🚀 OKLAR DAHA SADE, GÖZ YORMAYAN BİR HALE GETİRİLDİ */}
             <button 
               onClick={(e) => { e.preventDefault(); oncekiResim(); }}
-              className="hidden sm:block absolute left-2 z-30 bg-black/40 hover:bg-[#00e5ff] text-white hover:text-black p-3 rounded-full transition-all opacity-0 group-hover:opacity-100 shadow-[0_0_20px_rgba(0,0,0,0.5)] backdrop-blur-md"
+              className="hidden sm:block absolute left-2 z-30 bg-black/30 hover:bg-white/10 text-slate-300 hover:text-white p-3 rounded-full transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm"
             >
               <ChevronLeft className="w-6 h-6 stroke-[2.5]" />
             </button>
 
-            {/* Büyük Resim (Fade Efektli ve Kutusuz) */}
             <div className="w-full h-full p-4 sm:p-8 flex justify-center items-center relative z-10">
               <img 
                 src={resimler[seciliResimIndex]} 
@@ -288,21 +285,18 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               />
             </div>
 
-            {/* Oklar sadece PC'de ve fare üzerine gelince görünür, Mobilde YOK */}
             <button 
               onClick={(e) => { e.preventDefault(); sonrakiResim(); }}
-              className="hidden sm:block absolute right-2 z-30 bg-black/40 hover:bg-[#00e5ff] text-white hover:text-black p-3 rounded-full transition-all opacity-0 group-hover:opacity-100 shadow-[0_0_20px_rgba(0,0,0,0.5)] backdrop-blur-md"
+              className="hidden sm:block absolute right-2 z-30 bg-black/30 hover:bg-white/10 text-slate-300 hover:text-white p-3 rounded-full transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm"
             >
               <ChevronRight className="w-6 h-6 stroke-[2.5]" />
             </button>
             
-            {/* Sağ Alt Köşe Mini Sayaç (Sadece mobilde bilgilendirmek için zarif durur) */}
             <div className="sm:hidden absolute bottom-2 right-4 z-20 text-[10px] font-bold tracking-widest text-white/50 bg-black/30 px-2 py-0.5 rounded-md backdrop-blur-sm">
               {seciliResimIndex + 1} / {resimler.length}
             </div>
           </div>
 
-          {/* KÜÇÜK GÖRSELLER (THUMBNAILS) - Kutusuz, Şeffaf ve Premium */}
           {resimler.length > 1 && (
             <div className="flex gap-4 justify-center mt-2 px-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {resimler.map((img: string, idx: number) => (
@@ -323,7 +317,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
         </div>
         
-        {/* SAĞ: ÜRÜN BİLGİLERİ */}
         <div className="w-full md:w-1/2 px-4 sm:px-0 mt-6 md:mt-0 flex flex-col justify-center">
           <div className="flex flex-wrap items-center gap-2 mb-3">
             {tukendiMi ? (
@@ -422,6 +415,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
+      {/* 🚀 AÇIKLAMA GÖRSELLERİ TAMAMEN ŞEFFAF HALE GETİRİLDİ */}
       {product.aciklama && (
         <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 mt-10 mb-4 border-t border-white/10 pt-8">
           <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider mb-6">
@@ -432,7 +426,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                        [&_h2]:text-xl [&_h2]:sm:text-2xl [&_h2]:font-black [&_h2]:text-white [&_h2]:underline [&_h2]:decoration-[#00e5ff]/40 [&_h2]:underline-offset-[6px] [&_h2]:mt-8 [&_h2]:mb-4
                        [&_h3]:text-lg [&_h3]:sm:text-xl [&_h3]:font-bold [&_h3]:text-white [&_h3]:underline [&_h3]:decoration-[#00e5ff]/40 [&_h3]:underline-offset-[4px] [&_h3]:mt-6 [&_h3]:mb-3
                        [&_p]:text-sm [&_p]:sm:text-base [&_p]:leading-relaxed [&_p]:text-slate-300 [&_p]:mb-4
-                       [&_img]:w-full [&_img]:max-w-5xl [&_img]:mx-auto [&_img]:rounded-2xl [&_img]:border [&_img]:border-[#00e5ff]/20 [&_img]:my-6 [&_img]:sm:my-8 [&_img]:shadow-[0_0_40px_rgba(0,229,255,0.15)]"
+                       [&_img]:w-full [&_img]:max-w-5xl [&_img]:mx-auto [&_img]:border-none [&_img]:bg-transparent [&_img]:shadow-none [&_img]:my-6 [&_img]:sm:my-8"
             dangerouslySetInnerHTML={{ __html: product.aciklama }}
           />
         </div>
