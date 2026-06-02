@@ -207,7 +207,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const tukendiMi = product.stokDurumu === "Tükendi" || stokSifirMi;
   const adetGosterilecekMi = product.stokAdedi !== null && product.stokAdedi !== undefined && product.stokAdedi !== "" && Number(product.stokAdedi) > 0;
   const havaleFiyati = gecerliFiyat - (gecerliFiyat * havaleYuzdesi) / 100;
-  const resimler = product.images && product.images.length > 0 ? product.images.map((i:any) => i.src) : [product.resim || "https://via.placeholder.com/600"];
+  // 🚀 AKILLI GÖRSEL OKUMA MOTORU: Hem obje formatını hem de düz metin formatını anlar
+  const resimler = product.images && product.images.length > 0 
+    ? product.images.map((i:any) => typeof i === "string" ? i : i.src) 
+    : [product.resim || "https://via.placeholder.com/600"];
 
  return (
     <div className="min-h-screen bg-[#050814] text-white pb-9 sm:pb-10 font-sans overflow-x-hidden relative max-w-[100vw]">
