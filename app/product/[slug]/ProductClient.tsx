@@ -494,12 +494,12 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <X className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
             </button>
 
-            {/* Şeffaf Sol Ok Tuşu (Sadece popup içindeki bağımsız hafızayı değiştirir) */}
+           {/* Şeffaf Sol Ok Tuşu (Sadece PC'de görünür) */}
             <button 
               onClick={(e) => { e.stopPropagation(); popupOncekiResim(); }}
-              className="absolute -left-4 sm:-left-8 top-1/2 -translate-y-1/2 z-[99999999] bg-black/60 hover:bg-black/80 text-white p-2.5 sm:p-4 rounded-full transition-all backdrop-blur-sm border border-white/10 shadow-lg"
+              className="hidden sm:block absolute -left-8 top-1/2 -translate-y-1/2 z-[99999999] bg-black/60 hover:bg-black/80 text-white p-4 rounded-full transition-all backdrop-blur-sm border border-white/10 shadow-lg"
             >
-              <ChevronLeft className="w-5 h-5 sm:w-7 sm:h-7 stroke-[2.5]" />
+              <ChevronLeft className="w-7 h-7 stroke-[2.5]" />
             </button>
 
           {/* Bağımsız Hafızadan (`lightboxResimIndex`) Gelen Görsel */}
@@ -508,15 +508,15 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               alt="Büyük Ekran İnceleme" 
               className="max-w-full min-h-[50vh] max-h-[70vh] sm:min-h-0 sm:max-h-[75vh] object-contain rounded-xl"
             />
-            {/* Şeffaf Sağ Ok Tuşu (Sadece popup içindeki bağımsız hafızayı değiştirir) */}
+           {/* Şeffaf Sağ Ok Tuşu (Sadece PC'de görünür) */}
             <button 
               onClick={(e) => { e.stopPropagation(); popupSonrakiResim(); }}
-              className="absolute -right-4 sm:-right-8 top-1/2 -translate-y-1/2 z-[99999999] bg-black/60 hover:bg-black/80 text-white p-2.5 sm:p-4 rounded-full transition-all backdrop-blur-sm border border-white/10 shadow-lg"
+              className="hidden sm:block absolute -right-8 top-1/2 -translate-y-1/2 z-[99999999] bg-black/60 hover:bg-black/80 text-white p-4 rounded-full transition-all backdrop-blur-sm border border-white/10 shadow-lg"
             >
-              <ChevronRight className="w-5 h-5 sm:w-7 sm:h-7 stroke-[2.5]" />
+              <ChevronRight className="w-7 h-7 stroke-[2.5]" />
             </button>
           </div>
-        </div>
+        </div> 
       )}
 
       {/* DİĞER POPUPLAR (TEKNİK, FPS VE YORUMLAR) */}
