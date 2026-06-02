@@ -1,10 +1,10 @@
 "use client";
 import { useRouter } from "next/navigation";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useCart } from "../../CartContext"; 
 import toast from "react-hot-toast";
 import { useCompare } from "@/app/CompareContext";
-import { X, Gamepad2 } from "lucide-react";
+import { X, Gamepad2, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const { sepeteEkle } = useCart(); 
@@ -29,6 +29,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [isFav, setIsFav] = useState(false);
   const [copied, setCopied] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+
+  const [seciliResimIndex, setSeciliResimIndex] = useState(0);
+  const touchStartRef = useRef(0);
 
   const fpsVerileri: any = product.fps_testleri || {};
   const dbOyunlar = Object.keys(fpsVerileri);
@@ -208,18 +211,36 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const adetGosterilecekMi = product.stokAdedi !== null && product.stokAdedi !== undefined && product.stokAdedi !== "" && Number(product.stokAdedi) > 0;
   const havaleFiyati = gecerliFiyat - (gecerliFiyat * havaleYuzdesi) / 100;
 
-  // 🚀 %100 KURŞUN GEÇİRMEZ GÖRSEL MOTORU BURADA BAŞLIYOR
   let resimler = [product.resim || "https://via.placeholder.com/600"];
   if (product.images && Array.isArray(product.images) && product.images.length > 0) {
     resimler = product.images.map((img: any) => {
-      // Eğer veritabanından direkt "/rtx5070-1.png" şeklinde metin gelirse bunu kullan
       if (typeof img === "string") return img;
-      // Eğer veritabanından { src: "/rtx5070-1.png" } şeklinde obje gelirse src'yi kullan
       if (img && img.src) return img.src;
-      // İkisi de değilse ana vitrin resmini kullan
       return product.resim || "https://via.placeholder.com/600";
     });
   }
+
+  const sonrakiResim = () => {
+    setSeciliResimIndex((prev) => (prev + 1) % resimler.length);
+  };
+
+  const oncekiResim = () => {
+    setSeciliResimIndex((prev) => (prev - 1 + resimler.length) % resimler.length);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const touchEnd = e.changedTouches[0].clientX;
+    const fark = touchStartRef.current - touchEnd;
+    if (fark > 50) {
+      sonrakiResim(); 
+    } else if (fark < -50) {
+      oncekiResim(); 
+    }
+  };
 
  return (
     <div className="min-h-screen bg-[#050814] text-white pb-9 sm:pb-10 font-sans overflow-x-hidden relative max-w-[100vw]">
@@ -229,19 +250,62 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       </div>
 
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:gap-10 sm:py-10 sm:px-6">
-        {/* SOL: GÖRSELLER */}
-        <div className="w-full md:w-1/2 md:rounded-3xl bg-transparent sm:bg-[#09090b] sm:border sm:border-white/5 relative">
-          <div className="flex overflow-x-auto snap-x snap-mandatory w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            {resimler.map((img: string, idx: number) => (
-              <div key={idx} className="w-full flex-shrink-0 snap-center flex justify-center items-center h-[350px] sm:h-[500px] relative">
-                <img src={img} alt={urunAdi + " - " + (idx + 1)} className={`max-w-full max-h-full object-contain p-4 sm:p-8 ${tukendiMi ? "grayscale opacity-50" : ""}`} />
-              </div>
-            ))}
+        
+        <div className="w-full md:w-1/2 flex flex-col">
+          
+          <div 
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            className="w-full aspect-square sm:aspect-[4/3] max-h-[380px] sm:max-h-[460px] bg-[#09090b] border border-white/5 md:rounded-3xl relative flex justify-center items-center overflow-hidden group select-none"
+          >
+            <button 
+              onClick={(e) => { e.preventDefault(); oncekiResim(); }}
+              className="absolute left-4 z-30 bg-black/50 hover:bg-[#00e5ff] border border-white/10 hover:border-[#00e5ff] text-white hover:text-black p-2 rounded-xl transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 shadow-[0_0_15px_rgba(0,0,0,0.5)]"
+            >
+              <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
+            </button>
+
+            <div className="w-full h-full p-6 flex justify-center items-center relative z-10">
+              <img 
+                src={resimler[seciliResimIndex]} 
+                alt={urunAdi + " - " + (seciliResimIndex + 1)} 
+                className={`max-w-full max-h-full object-contain filter drop-shadow-[0_15px_30px_rgba(0,0,0,0.7)] transition-all duration-500 ease-out ${tukendiMi ? "grayscale opacity-50" : ""}`} 
+              />
+            </div>
+
+            <button 
+              onClick={(e) => { e.preventDefault(); sonrakiResim(); }}
+              className="absolute right-4 z-30 bg-black/50 hover:bg-[#00e5ff] border border-white/10 hover:border-[#00e5ff] text-white hover:text-black p-2 rounded-xl transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 shadow-[0_0_15px_rgba(0,0,0,0.5)]"
+            >
+              <ChevronRight className="w-5 h-5 stroke-[2.5]" />
+            </button>
+
+            <div className="absolute bottom-4 right-4 z-20 bg-black/60 border border-white/10 px-3 py-1 rounded-lg text-[10px] font-black tracking-widest text-slate-400">
+              {seciliResimIndex + 1} / {resimler.length}
+            </div>
           </div>
+
+          {resimler.length > 1 && (
+            <div className="flex gap-2 justify-center mt-4 px-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              {resimler.map((img: string, idx: number) => (
+                <button
+                  key={idx}
+                  onClick={(e) => { e.preventDefault(); setSeciliResimIndex(idx); }}
+                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl border p-1.5 bg-[#09090b]/80 backdrop-blur-md transition-all flex-shrink-0 flex items-center justify-center ${
+                    seciliResimIndex === idx 
+                      ? "border-[#00e5ff] shadow-[0_0_15px_rgba(0,229,255,0.3)] scale-105 opacity-100" 
+                      : "border-white/5 opacity-40 hover:opacity-100"
+                  }`}
+                >
+                  <img src={img} alt="Önizleme" className="max-w-full max-h-full object-contain rounded-md" />
+                </button>
+              ))}
+            </div>
+          )}
+
         </div>
         
-        {/* SAĞ: ÜRÜN BİLGİLERİ */}
-        <div className="w-full md:w-1/2 px-4 sm:px-0 mt-4 sm:mt-0 flex flex-col justify-center">
+        <div className="w-full md:w-1/2 px-4 sm:px-0 mt-6 md:mt-0 flex flex-col justify-center">
           <div className="flex flex-wrap items-center gap-2 mb-3">
             {tukendiMi ? (
                <span className="bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] sm:text-xs font-black px-2.5 py-1 rounded-md tracking-wider">TÜKENDİ</span>
