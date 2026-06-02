@@ -250,10 +250,12 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const handleTouchEnd = (e: React.TouchEvent) => {
     const touchEnd = e.changedTouches[0].clientX;
     const fark = touchStartRef.current - touchEnd;
+    
+    // 🚀 CERRAH AKLI: Eğer Popup açıksa popup hafızasını, değilse ana galeri hafızasını değiştirir.
     if (fark > 30) {
-      sonrakiResim(); 
+      lightboxAcik ? popupSonrakiResim() : sonrakiResim(); 
     } else if (fark < -30) {
-      oncekiResim(); 
+      lightboxAcik ? popupOncekiResim() : oncekiResim(); 
     }
   };
 
@@ -481,9 +483,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           onClick={() => setLightboxAcik(false)}
           className="fixed inset-0 z-[9999999] bg-black/75 backdrop-blur-md flex justify-center items-center p-4 transition-all duration-300 select-none animate-fadeIn"
         >
-          {/* Ortadaki Popup Kutusu (Arka taraftan tamamen bağımsız, içi net beyaz) */}
+         {/* Ortadaki Popup Kutusu (Arka taraftan tamamen bağımsız, içi net beyaz ve DOKUNMATİK) */}
           <div 
              onClick={(e) => e.stopPropagation()}
+             onTouchStart={handleTouchStart} // 🚀 DOKUNMAYI BAŞLAT
+             onTouchEnd={handleTouchEnd}     // 🚀 HAREKET BİTTİĞİNDE RESMİ KAYDIR
              className="relative bg-white border border-slate-200 rounded-3xl shadow-[0_25px_70px_rgba(0,0,0,0.4)] flex justify-center items-center p-4 sm:p-8 max-w-[95vw] sm:max-w-[80vw]"
           >
             {/* Şeffaf Premium Kapatma Butonu (Üründeki Cam Gibi) */}
