@@ -80,11 +80,14 @@ export default function SepetSayfasi() {
             </div>
           </Link>
           
-          {/* Orta: Tıklanabilir Logo */}
-          <Link href="/" className="font-black text-xl sm:text-2xl tracking-tight text-white hover:opacity-80 transition-opacity absolute left-1/2 -translate-x-1/2">
-            BİLGİN <span className="text-[#00e5ff]">PC</span>
-          </Link>
-
+         {/* Orta: Tıklanabilir Logo (Zorunlu Prefetch Aktif) */}
+<Link 
+  href="/" 
+  prefetch={true} 
+  className="font-black text-xl sm:text-2xl tracking-tight text-white"
+>
+  BİLGİN <span className="text-[#00e5ff]">PC</span>
+</Link>
           {/* Sağ: Güvenlik Rozeti */}
           <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] sm:text-xs font-black uppercase tracking-widest bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20">
             <span>🔒</span> <span className="hidden sm:inline">Güvenli Alışveriş</span>
