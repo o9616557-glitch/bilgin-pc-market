@@ -502,13 +502,12 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <ChevronLeft className="w-5 h-5 sm:w-7 sm:h-7 stroke-[2.5]" />
             </button>
 
-            {/* Bağımsız Hafızadan (`lightboxResimIndex`) Gelen Görsel */}
+           {/* Bağımsız Hafızadan (`lightboxResimIndex`) Gelen Görsel */}
             <img 
               src={resimler[lightboxResimIndex]} 
               alt="Büyük Ekran İnceleme" 
-              className="max-w-full max-h-[70vh] sm:max-h-[75vh] object-contain rounded-xl"
+              className="max-w-full min-h-[65vh] max-h-[85vh] sm:min-h-0 sm:max-h-[80vh] object-contain rounded-xl"
             />
-
             {/* Şeffaf Sağ Ok Tuşu (Sadece popup içindeki bağımsız hafızayı değiştirir) */}
             <button 
               onClick={(e) => { e.stopPropagation(); popupSonrakiResim(); }}
