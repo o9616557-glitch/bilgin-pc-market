@@ -9,7 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@woocommerce/woocommerce-rest-api": "^1.0.2",
     "bcryptjs": "^3.0.3",
     "iyzipay": "^2.0.67",
     "lucide-react": "^1.16.0",
