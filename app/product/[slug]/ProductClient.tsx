@@ -300,8 +300,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </div>
           </div>
 
-          {/* 🚀 MOBİL İÇİN SAĞ TARAFTA HAVADA SÜZÜLEN ŞEFFAF İKONLAR (Sadece Telefonda Görünür) */}
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-5 z-40 sm:hidden">
+          {/* 🚀 MOBİL İÇİN ÜST SOLDA YATAY ŞEKİLDE DİZİLMİŞ İKONLAR */}
+          <div className="absolute left-4 top-4 flex flex-row gap-5 z-40 sm:hidden">
             <button onClick={(e) => { e.stopPropagation(); handleToggleFavorite(); }} className="text-2xl hover:scale-110 transition-transform drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">
               {isFav ? "❤️" : "🤍"}
             </button>
@@ -336,7 +336,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
         </div>
         
-        {/* SAĞ: ÜRÜN BİLGİLERİ (PC YAPISINA HİÇ DOKUNULMADI) */}
         <div className="w-full md:w-1/2 px-4 sm:px-0 mt-6 md:mt-0 flex flex-col justify-center">
           <div className="flex flex-wrap items-center gap-2 mb-3">
             {tukendiMi ? (
@@ -451,7 +450,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       )}
 
-      {/* 🚀 MOBİL ALT BAR (Sadece Teknik, FPS ve Sorular Kaldı) */}
+      {/* MOBİL ALT BAR (Sadece Teknik, FPS ve Sorular Kaldı) */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-[#050814]/95 backdrop-blur-md border-t border-slate-800 p-2 z-[50] flex flex-col gap-2 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
         <div className="flex justify-center items-center gap-2 overflow-x-auto whitespace-nowrap pb-2 [&::-webkit-scrollbar]:hidden">
            <button onClick={() => { setActiveTab("tech"); setTeknikPopupAcik(true); }} className="flex-1 flex justify-center items-center gap-1.5 px-3 py-2 bg-[#121215] border border-white/10 rounded-xl text-white hover:border-[#00e5ff] transition-colors"><span className="text-sm">⚙️</span><span className="text-[10px] font-black uppercase tracking-wider">Teknik</span></button>
@@ -465,44 +464,48 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </button>
       </div>
 
-      {/* 🚀 BÜYÜK EKRAN LIGHTBOX MODAL (İÇİNDE SAĞ/SOL OKLAR EKLENDİ) */}
+      {/* 🚀 BÜYÜK EKRAN LIGHTBOX MODAL (ORTADA AÇILAN POPUP VE X TUŞLU) */}
       {lightboxAcik && (
         <div 
           onClick={() => setLightboxAcik(false)}
-          className="fixed inset-0 z-[9999999] bg-black/95 backdrop-blur-md flex justify-center items-center p-4 transition-all duration-300 select-none animate-fadeIn"
+          className="fixed inset-0 z-[9999999] bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 transition-all duration-300 select-none animate-fadeIn"
         >
-          {/* Üst Sağda X Kapatma Butonu */}
-          <button 
-            onClick={(e) => { e.stopPropagation(); setLightboxAcik(false); }}
-            className="absolute top-6 right-6 z-[99999999] bg-white/5 border border-white/10 hover:bg-red-500/20 hover:border-red-500 text-slate-400 hover:text-white rounded-2xl p-3 transition-all backdrop-blur-md shadow-lg"
+          {/* Ortadaki Popup Kutusu (Sıkı Sarar, Boşlukları Yok Eder) */}
+          <div 
+             onClick={(e) => e.stopPropagation()}
+             className="relative bg-[#09090b] border border-white/10 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] flex justify-center items-center p-4 sm:p-8 max-w-[95vw] sm:max-w-[80vw]"
           >
-            <X className="w-6 h-6 stroke-[2.5]" />
-          </button>
+            {/* Üst Sağda X Kapatma Butonu */}
+            <button 
+              onClick={(e) => { e.stopPropagation(); setLightboxAcik(false); }}
+              className="absolute -top-3 -right-3 sm:-top-5 sm:-right-5 z-[99999999] bg-[#121215] border border-white/10 hover:bg-red-500/20 hover:border-red-500 text-slate-400 hover:text-white rounded-full p-2 sm:p-3 transition-all shadow-lg"
+            >
+              <X className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
+            </button>
 
-          {/* Sol Ok Tuşu (PC ve Mobil) */}
-          <button 
-            onClick={(e) => { e.stopPropagation(); oncekiResim(); }}
-            className="absolute left-2 sm:left-10 z-[99999999] bg-white/5 border border-white/10 hover:bg-[#00e5ff] text-slate-400 hover:text-white rounded-full p-3 sm:p-5 transition-all backdrop-blur-md shadow-lg"
-          >
-            <ChevronLeft className="w-6 h-6 sm:w-10 sm:h-10 stroke-[2.5]" />
-          </button>
+            {/* Sol Ok Tuşu (PC ve Mobil İçin Kutu Kenarında) */}
+            <button 
+              onClick={(e) => { e.stopPropagation(); oncekiResim(); }}
+              className="absolute -left-4 sm:-left-8 top-1/2 -translate-y-1/2 z-[99999999] bg-[#121215] border border-white/10 hover:bg-[#00e5ff] text-slate-400 hover:text-black rounded-full p-2 sm:p-4 transition-all shadow-lg"
+            >
+              <ChevronLeft className="w-5 h-5 sm:w-8 sm:h-8 stroke-[2.5]" />
+            </button>
 
-          {/* Tam Ekran Devasa Görsel */}
-          <div className="max-w-[80vw] max-h-[90vh] flex justify-center items-center p-2" onClick={(e) => e.stopPropagation()}>
+            {/* İç Görsel */}
             <img 
               src={resimler[seciliResimIndex]} 
               alt="Büyük Ekran İnceleme" 
-              className="max-w-full max-h-[85vh] sm:max-h-[90vh] object-contain filter drop-shadow-[0_25px_50px_rgba(0,0,0,0.9)] animate-scaleUp"
+              className="max-w-full max-h-[70vh] sm:max-h-[75vh] object-contain rounded-xl animate-scaleUp"
             />
-          </div>
 
-          {/* Sağ Ok Tuşu (PC ve Mobil) */}
-          <button 
-            onClick={(e) => { e.stopPropagation(); sonrakiResim(); }}
-            className="absolute right-2 sm:right-10 z-[99999999] bg-white/5 border border-white/10 hover:bg-[#00e5ff] text-slate-400 hover:text-white rounded-full p-3 sm:p-5 transition-all backdrop-blur-md shadow-lg"
-          >
-            <ChevronRight className="w-6 h-6 sm:w-10 sm:h-10 stroke-[2.5]" />
-          </button>
+            {/* Sağ Ok Tuşu (PC ve Mobil İçin Kutu Kenarında) */}
+            <button 
+              onClick={(e) => { e.stopPropagation(); sonrakiResim(); }}
+              className="absolute -right-4 sm:-right-8 top-1/2 -translate-y-1/2 z-[99999999] bg-[#121215] border border-white/10 hover:bg-[#00e5ff] text-slate-400 hover:text-black rounded-full p-2 sm:p-4 transition-all shadow-lg"
+            >
+              <ChevronRight className="w-5 h-5 sm:w-8 sm:h-8 stroke-[2.5]" />
+            </button>
+          </div>
         </div>
       )}
 
