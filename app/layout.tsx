@@ -9,6 +9,7 @@ import { CartProvider } from "./CartContext";
 import Footer from "@/components/Footer"; 
 import { CompareProvider } from "./CompareContext";
 import ComparePopup from "./ComparePopup";
+import { OrderAddressProvider } from "./context/OrderAddressContext";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -45,19 +46,21 @@ export default function RootLayout({
   }}
 />
 
-        <AuthProvider>
-          <CartProvider>
-            <CompareProvider>
-              <Header />
-              <main className="flex-grow w-full">
-                {children}
-              </main>
-              <Footer />
-              <ComparePopup />
-            </CompareProvider>
-          </CartProvider>
-        </AuthProvider>
-      </body>
-    </html>
-  );
-}
+    <OrderAddressProvider>
+              <AuthProvider>
+                <CartProvider>
+                  <CompareProvider>
+                    <Header />
+                    <main className="flex-grow w-full">
+                      {children}
+                    </main>
+                    <Footer />
+                    <ComparePopup />
+                  </CompareProvider>
+                </CartProvider>
+              </AuthProvider>
+            </OrderAddressProvider>
+          </body>
+        </html>
+      );
+    }

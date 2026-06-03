@@ -1,45 +1,37 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { HeartCrack, ArrowLeft, Trash2, ShoppingCart, Heart } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/app/CartContext";
 import { useRouter } from "next/navigation";
+// 🚀 YENİ MOTORUMUZU ÇAĞIRIYORUZ
+import { useOrderAddress } from "@/app/context/OrderAddressContext";
 
-interface Props {
-  initialFavorites: any[];
-}
-
-export default function FavoriClient({ initialFavorites }: Props) {
+export default function FavoriClient() {
   const router = useRouter();
-  const [favoriteProducts, setFavoriteProducts] = useState<any[]>(initialFavorites);
+  
+  // 🚀 ZURNANIN ZIRT DEDİĞİ YER: Veriyi motordan 0 milisaniyede çekiyoruz!
+  const { favorites, refreshAllData, updateFavoritesLocally } = useOrderAddress();
+  
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
-
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
 
-  // 1. Senin orijinal 'page.tsx' dosyan taze veriyi getirdiğinde ekrana basar.
-  useEffect(() => {
-    setFavoriteProducts(initialFavorites);
-  }, [initialFavorites]);
-
-  // 2. 🚀 SİHİRLİ DOKUNUŞ: Sadece sayfa açıldığında 1 kez çalışır.
-  // Müşteri sayfaya girdiği an beklemeden eski listeyi görür, bu kod ise
-  // arka planda sessizce taze veriyi kontrol eder. Varsa saniyesinde ekrana düşürür!
-  useEffect(() => {
-    router.refresh();
-  }, []);
-
+  // 🚀 YENİ SİLME MOTORU
   const handleDeleteFavorite = async () => {
     if (!productToDelete) return;
 
     const targetId = String(productToDelete._id || productToDelete.id);
     
-    setFavoriteProducts(prev => prev.filter(p => String(p._id || p.id) !== targetId));
+    // 1. Ekrandan anında sil (Optimistic UI)
+    const newFavorites = favorites.filter(p => String(p._id || p.id) !== targetId);
+    updateFavoritesLocally(newFavorites);
     setProductToDelete(null);
 
     try {
+      // 2. Arka planda sessizce veritabanından sil
       const res = await fetch("/api/favorites", {
         method: "POST", 
         headers: { "Content-Type": "application/json" },
@@ -49,13 +41,15 @@ export default function FavoriClient({ initialFavorites }: Props) {
       if (!res.ok) throw new Error("Veritabanı reddetti");
       toast.success("Ürün favorilerden kaldırıldı. 🤍");
       
-      // Sildikten sonra da arka planda sessizce günceller
-      router.refresh(); 
+      // 3. Arka planda motorun verilerini tazele
+      refreshAllData(); 
     } catch (error: any) {
       toast.error("Sistem hatası: Veritabanından silinemedi!");
+      refreshAllData(); // Hata olursa listeyi geri getir
     }
   };
 
+  // 👇 BURADAN AŞAĞISI (handleSepeteEkle ve return kısmı) AYNI KALACAK 👇
   const handleSepeteEkle = (urun: any) => {
     const targetId = urun._id || urun.id;
     sepeteEkle({
@@ -95,7 +89,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
 </div>
         </div>
 
-        {favoriteProducts.length === 0 ? (
+        {favorites.length === 0 ? (
           /* 🚀 BOŞ EKRAN - Göz yoran animasyon kaldırıldı, sabit ve net. */
           <div className="text-center p-10 sm:p-16 bg-transparent relative">
             <div className="w-20 h-20 rounded-full bg-[#121215]/50 border border-slate-800/50 flex items-center justify-center mx-auto mb-6 shadow-inner">
@@ -113,7 +107,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            {favoriteProducts.map((urun: any, index: number) => {
+            {favorites.map((urun: any, index: number) => {
               const isAdded = sepeteEklenenler.includes(urun._id || urun.id);
               return (
                 <div key={index} className="group border border-slate-800 bg-[#09090b] rounded-2xl p-4 sm:p-5 transition-all duration-300 hover:border-[#00e5ff]/40 shadow-xl hover:shadow-[0_0_25px_rgba(0,229,255,0.03)] flex flex-col sm:flex-row sm:items-center gap-5 relative overflow-hidden animate-in fade-in duration-300">
