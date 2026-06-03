@@ -15,6 +15,17 @@ export default function FavoriClient() {
   // 🚀 ZURNANIN ZIRT DEDİĞİ YER: Veriyi motordan 0 milisaniyede çekiyoruz!
   const { favorites = [], refreshAllData, updateFavoritesLocally } = useOrderAddress() || {};
   console.log("Favoriler verisi:", favorites);
+  // Motor henüz verileri çekiyorsa veya boşsa sayfayı siyah ekrana düşürme, kibarca bekle de!
+  if (!favorites) {
+    return (
+      <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center font-sans">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-[#00e5ff] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-400 text-xs uppercase tracking-widest font-bold">DONANIMLAR YÜKLENİYOR...</p>
+        </div>
+      </div>
+    );
+  }
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
@@ -85,7 +96,7 @@ export default function FavoriClient() {
             </h1>
           </div>
          <div className="flex items-center justify-start gap-2 bg-[#09090b] text-slate-300 px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-wider border border-slate-800/80 shadow-sm w-full md:w-auto">
-  LİSTELENEN: <span className="text-[#00e5ff] font-black text-sm">0</span> DONANIM
+  LİSTELENEN: <span className="text-[#00e5ff] font-black text-sm">{favorites?.length || 0}</span> DONANIM
 </div>
         </div>
 
