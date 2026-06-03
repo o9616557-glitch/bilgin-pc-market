@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route"; // Kendi authOptions yoluna göre kontrol et
 import { revalidatePath } from "next/cache"; // 🚀 1. ŞOK DALGASI İÇİN İTHAL EDİLDİ
 
-// 1. Kullanıcının Favori Listesini Getir (GET)
+// 1. Kullanıcının Favori Listesini Tam Detaylarıyla Getir (GET)
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -17,9 +17,11 @@ export async function GET() {
       await mongoose.connect(process.env.MONGODB_URI as string);
     }
 
-    const user = await User.findOne({ email: session.user.email });
+    // 🚀 SİHİRLİ DOKUNUŞ: .populate("favorites") ekledik!
+    // Artık sistem sadece ID numaralarını değil; o ID'ye ait ürünün 
+    // adını, fiyatını, resmini de veritabanından paket yapıp getirecek!
+    const user = await User.findOne({ email: session.user.email }).populate("favorites");
     
-    // 🚀 SİHİRLİ DOKUNUŞ 1: Kullanıcı DB'de yoksa (Google ile yeni girdiyse) hata verme, boş favori listesi dön.
     if (!user) {
       return NextResponse.json({ favorites: [] }, { status: 200 });
     }
@@ -30,7 +32,6 @@ export async function GET() {
     return NextResponse.json({ message: "Sunucu hatası oluştu." }, { status: 500 });
   }
 }
-
 // 2. Favorilere Ürün Ekle veya Çıkar (POST)
 export async function POST(req: Request) {
   try {
