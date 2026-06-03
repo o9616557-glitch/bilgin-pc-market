@@ -3,46 +3,52 @@
 import { useSession } from "next-auth/react";
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-// Depomuzun iskeleti
 type UserContextType = {
   kullanici: any;
   favoriler: any[];
   veriYukleniyor: boolean;
-  setFavoriler: (veri: any) => void; // Favori ekle/çıkar yaparken anında güncellensin diye
+  setFavoriler: (veri: any) => void;
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession(); // Next-Auth'tan giriş bilgisini alıyoruz
+  const { data: session, status } = useSession();
   const [favoriler, setFavoriler] = useState<any[]>([]);
   const [veriYukleniyor, setVeriYukleniyor] = useState(true);
 
   useEffect(() => {
-    // 1. Durum: Sistem hala müşterinin kim olduğunu anlamaya çalışıyor (Bekle)
+    // 🚀 SİHİRLİ DOKUNUŞ: Sayfa açılır açılmaz önce Torpido Gözüne (LocalStorage) bak!
+    // Varsa anında ekrana bas, müşteri 1 salise bile beklemesin.
+    const torpidoFavoriler = localStorage.getItem("bilgin_favoriler");
+    if (torpidoFavoriler) {
+      setFavoriler(JSON.parse(torpidoFavoriler));
+      setVeriYukleniyor(false); // Veri torpidodan geldi, yükleme ekranını kapat
+    }
+
     if (status === "loading") return;
 
-    // 2. Durum: Müşteri giriş yapmış! (Hemen verileri çek)
     if (status === "authenticated") {
-      setVeriYukleniyor(true);
-      // MongoDB'ye gidip favorileri çekiyoruz (Senin kendi api yoluna göre burası değişebilir)
-      fetch("/api/favoriler") 
+      // Arka planda sessizce veritabanına gidip en güncel listeyi alıyoruz
+      fetch("/api/favoriler")
         .then((res) => res.json())
         .then((data) => {
-          setFavoriler(data);
+          setFavoriler(data); // Ekrandaki listeyi güncel tut
           setVeriYukleniyor(false);
+          // Gelen taze veriyi bir sonraki giriş için torpidoya yedekle
+          localStorage.setItem("bilgin_favoriler", JSON.stringify(data));
         })
         .catch((err) => {
           console.error("Favoriler çekilirken hata:", err);
           setVeriYukleniyor(false);
         });
-    } 
-    // 3. Durum: Ziyaretçi giriş yapmamış
-    else {
+    } else {
+      // Müşteri çıkış yaparsa torpidoyu da temizle
       setFavoriler([]);
+      localStorage.removeItem("bilgin_favoriler");
       setVeriYukleniyor(false);
     }
-  }, [status, session]); // Giriş durumu değiştiğinde bu motor tekrar çalışır
+  }, [status, session]);
 
   return (
     <UserContext.Provider value={{ kullanici: session?.user, favoriler, veriYukleniyor, setFavoriler }}>
@@ -51,7 +57,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Sayfalarda kullanacağımız sihirli kanca
 export const useUser = () => {
   const context = useContext(UserContext);
   if (context === undefined) {
