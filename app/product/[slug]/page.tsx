@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   } catch (error) {
     return { title: "Ürün Detayı | Bilgin PC" };
   }
-}
+} 
 
 import ProductClient from "./ProductClient";
 import clientPromise from "@/lib/mongodb";
