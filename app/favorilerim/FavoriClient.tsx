@@ -19,21 +19,16 @@ export default function FavoriClient({ initialFavorites }: Props) {
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
 
-  // 🚀 İŞTE ÇÖZÜM BURADA: Sayfaya her girdiğinde arka planda çaktırmadan taze veriyi çeker!
-  // Müşteri sayfaya girer girmez güncel listeyi görür, F5 yapmasına gerek kalmaz.
+  // 1. Senin orijinal 'page.tsx' dosyan taze veriyi getirdiğinde ekrana basar.
   useEffect(() => {
-    const tazeVeriyiGetir = async () => {
-      try {
-        const res = await fetch("/api/favorites");
-        if (res.ok) {
-          const data = await res.json();
-          setFavoriteProducts(data.favorites); // Taze veriyi anında ekrana bas
-        }
-      } catch (error) {
-        console.error("Veri çekilemedi", error);
-      }
-    };
-    tazeVeriyiGetir();
+    setFavoriteProducts(initialFavorites);
+  }, [initialFavorites]);
+
+  // 2. 🚀 SİHİRLİ DOKUNUŞ: Sadece sayfa açıldığında 1 kez çalışır.
+  // Müşteri sayfaya girdiği an beklemeden eski listeyi görür, bu kod ise
+  // arka planda sessizce taze veriyi kontrol eder. Varsa saniyesinde ekrana düşürür!
+  useEffect(() => {
+    router.refresh();
   }, []);
 
   const handleDeleteFavorite = async () => {
@@ -41,7 +36,6 @@ export default function FavoriClient({ initialFavorites }: Props) {
 
     const targetId = String(productToDelete._id || productToDelete.id);
     
-    // Anında listeden sil (Bekleme yok)
     setFavoriteProducts(prev => prev.filter(p => String(p._id || p.id) !== targetId));
     setProductToDelete(null);
 
@@ -54,6 +48,9 @@ export default function FavoriClient({ initialFavorites }: Props) {
 
       if (!res.ok) throw new Error("Veritabanı reddetti");
       toast.success("Ürün favorilerden kaldırıldı. 🤍");
+      
+      // Sildikten sonra da arka planda sessizce günceller
+      router.refresh(); 
     } catch (error: any) {
       toast.error("Sistem hatası: Veritabanından silinemedi!");
     }
@@ -76,7 +73,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
     }, 2000);
   };
 
-  // 👇 BURADAN AŞAĞISINA (return) DOKUNMA 👇 (" ile başlayan kısma) HİÇ DOKUNMA! 👇
+  // 👇 BURADAN AŞAĞISINA (return) DOKUNM
   return (
     <div className="min-h-screen bg-[#050814] text-white pt-12 pb-24 px-4 relative overflow-hidden font-sans">
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#00e5ff] blur-[150px] opacity-10 pointer-events-none"></div>
