@@ -1,4 +1,4 @@
-import { UserProvider } from "./UserContext"; // Dosyayı nereye açtıysan yolunu ona göre ayarla
+
 import { Toaster } from "react-hot-toast";
 import AuthProvider from "@/components/AuthProvider";
 import type { Metadata } from "next";
@@ -44,17 +44,18 @@ export default function RootLayout({
     }
   }}
 />
-<AuthProvider>
-          <UserProvider>
-            <CartProvider>
-              <CompareProvider>
-                <Header />
-                <main className="flex-grow w-full">
-                  {children}
-                </main>
-              </CompareProvider>
-            </CartProvider>
-          </UserProvider>
+
+        <AuthProvider>
+          <CartProvider>
+            <CompareProvider>
+              <Header />
+              <main className="flex-grow w-full">
+                {children}
+              </main>
+              <Footer />
+              <ComparePopup />
+            </CompareProvider>
+          </CartProvider>
         </AuthProvider>
       </body>
     </html>
