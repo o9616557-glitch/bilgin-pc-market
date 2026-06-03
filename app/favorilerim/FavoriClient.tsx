@@ -1,36 +1,47 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { HeartCrack, ArrowLeft, Trash2, ShoppingCart, Heart } from "lucide-react";
+import { HeartCrack, ArrowLeft, Trash2, ShoppingCart } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/app/CartContext";
 import { useRouter } from "next/navigation";
-import { useUser } from "../UserContext"; // 🔥 YENİ TURBO MOTOR EKLENDİ
+import { Heart } from "lucide-react";
+interface Props {
+  initialFavorites: any[];
+}
 
-export default function FavoriClient() {
+export default function FavoriClient({ initialFavorites }: Props) {
   const router = useRouter();
-  const { sepeteEkle } = useCart();
-  
-  // 🚀 MERKEZİ DEPO BAĞLANDI: Eski initialFavorites prop'una ve useEffect'lere gerek kalmadı.
-  // Tasarım bozulmasın diye "favoriler" adını "favoriteProducts" olarak aliasladık.
- const { favoriler, setFavoriler, veriYukleniyor } = useUser();
-const favoriteProducts = favoriler || []; // ÇELİK YELEK: Eğer veri tanımsız gelirse, boş liste [] kabul et ve çökmeyi engelle!
+  const [favoriteProducts, setFavoriteProducts] = useState<any[]>(initialFavorites);
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
+
+  const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
 
-  // 🗑️ SİLME İŞLEMİ (Anında Tepki)
+  // 🚀 RADAR GÜÇLENDİRİLDİ: Sadece veriler gerçekten değiştiyse listeyi günceller.
+  // Bu sayede animasyonların veya yazıların üst üste binip titreşmesi %100 engellenir.
+  useEffect(() => {
+    setFavoriteProducts((prev) => {
+      if (JSON.stringify(prev) === JSON.stringify(initialFavorites)) return prev;
+      return initialFavorites;
+    });
+  }, [initialFavorites]);
+
+  useEffect(() => {
+    router.refresh();
+  }, [router]);
+
   const handleDeleteFavorite = async () => {
     if (!productToDelete) return;
 
     const targetId = String(productToDelete._id || productToDelete.id);
     
-    // 1. Ekrandan anında sil (Müşteri 1 saniye bile beklemesin, anında yok olsun)
-    setFavoriler((prev: any[]) => prev.filter(p => String(p._id || p.id) !== targetId));
+    // Anında sil
+    setFavoriteProducts(prev => prev.filter(p => String(p._id || p.id) !== targetId));
     setProductToDelete(null);
 
     try {
-      // 2. Arka planda veritabanına sessizce emri gönder
       const res = await fetch("/api/favorites", {
         method: "POST", 
         headers: { "Content-Type": "application/json" },
@@ -39,12 +50,13 @@ const favoriteProducts = favoriler || []; // ÇELİK YELEK: Eğer veri tanımsı
 
       if (!res.ok) throw new Error("Veritabanı reddetti");
       toast.success("Ürün favorilerden kaldırıldı. 🤍");
+      router.refresh(); 
     } catch (error: any) {
       toast.error("Sistem hatası: Veritabanından silinemedi!");
+      router.refresh();
     }
   };
 
-  // 🛒 SEPETE EKLEME İŞLEMİ (Aynı kaldı, kusursuzdu zaten)
   const handleSepeteEkle = (urun: any) => {
     const targetId = urun._id || urun.id;
     sepeteEkle({
@@ -61,17 +73,6 @@ const favoriteProducts = favoriler || []; // ÇELİK YELEK: Eğer veri tanımsı
       setSepeteEklenenler(prev => prev.filter(id => id !== targetId));
     }, 2000);
   };
-
-  // ⏳ VERİ YÜKLENİRKEN EKRAN TİTREMESİN DİYE YÜKLEME DURUMU
-  if (veriYukleniyor) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center text-white">
-        <p className="animate-pulse">Favorileriniz yükleniyor...</p>
-      </div>
-    );
-  }
-
-
 
   return (
     <div className="min-h-screen bg-[#050814] text-white pt-12 pb-24 px-4 relative overflow-hidden font-sans">

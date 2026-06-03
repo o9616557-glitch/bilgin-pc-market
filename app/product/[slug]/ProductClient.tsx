@@ -1,5 +1,5 @@
 "use client";
-import { useUser } from "../../UserContext";
+
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
 import { useCart } from "../../CartContext"; 
@@ -10,7 +10,7 @@ import { X, Gamepad2, ChevronLeft, ChevronRight } from "lucide-react";
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const { sepeteEkle } = useCart(); 
   const { karsilastirmayaEkle, setPopupAcik } = useCompare(); 
-  const { setFavoriler } = useUser();
+  
   const [activeTab, setActiveTab] = useState("reviews");
   const [seciliCozunurluk, setSeciliCozunurluk] = useState("1080P");
   const [seciliIslemci, setSeciliIslemci] = useState("i5");
@@ -52,72 +52,35 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     setTimeout(() => setToastMessage(""), 4000); 
   };
 
-const handleToggleFavorite = async () => {
+  const handleToggleFavorite = async () => {
     const oncekiDurum = isFav;
-    setIsFav(!oncekiDurum); // Ekranda kalbi anında doldur/boşalt
-
+    setIsFav(!oncekiDurum); 
     try {
       const res = await fetch("/api/favorites", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productId: String(pId) })
       });
-
       if (res.status === 401) {
-        setIsFav(oncekiDurum); // Giriş yapmadıysa kalbi geri boşalt
+        setIsFav(oncekiDurum); 
         toast.error("Favorilere eklemek için lütfen giriş yapın. 🔒", {
-          style: { background: "#121215", color: "#fff", border: "1px solid #333" },
+          style: { background: "#121215", color: "#fff", border: "1px solid #334155", borderRadius: "12px" },
           iconTheme: { primary: "#00e5ff", secondary: "#000" },
         });
-        return;
+        return; 
       }
-
-      if (!res.ok) throw new Error("API Hatası");
-
-      // 🚀 YENİ SİHİRLİ DOKUNUŞ: Veritabanı yığınını değil, sadece "Temiz Kimliği" alıyoruz!
-      // Bu sayede sistem asla çökmez ve diğer butonları dondurmaz.
-      const temizUrun = {
-        _id: pId,
-        id: pId,
-        isim: urunAdi,
-        fiyat: gecerliFiyat,
-        resim: resimler[0] || "https://via.placeholder.com/400"
-      };
-
-      setFavoriler((prev: any[]) => {
-        // Eğer sistemde prev yoksa boş liste kabul et (Hata önleyici)
-        const guncelListe = Array.isArray(prev) ? prev : [];
-        const zatenVarMi = guncelListe.some((p) => String(p._id || p.id) === String(pId));
-        
-        let yeniListe;
-        if (zatenVarMi) {
-          yeniListe = guncelListe.filter((p) => String(p._id || p.id) !== String(pId));
-        } else {
-          yeniListe = [...guncelListe, temizUrun]; 
-        }
-        
-        localStorage.setItem("bilgin_favoriler", JSON.stringify(yeniListe));
-        return yeniListe;
-      });
-
-    } catch (error) {
-      setIsFav(oncekiDurum);
-      toast.error("Bir sorun oluştu, lütfen tekrar deneyin.");
-    }
+      if (!res.ok) { setIsFav(oncekiDurum); toast.error("Bir sorun oluştu."); }
+    } catch (error) { setIsFav(oncekiDurum); }
   };
 
   const handleCompare = () => {
-    try {
-      karsilastirmayaEkle(product);
-      setTimeout(() => {
-        if (typeof setPopupAcik === "function") {
-          setPopupAcik(true);
-        }
-      }, 100);
-    } catch (error) {
-      console.error("Karşılaştırma motorunda hata:", error);
-    }
+    karsilastirmayaEkle(product);
+    setTimeout(() => {
+      if (typeof setPopupAcik === "function") {
+        setPopupAcik(true); 
+      }
+    }, 100);
   };
+
   useEffect(() => {
     const checkFavoriteStatus = async () => {
       try {
