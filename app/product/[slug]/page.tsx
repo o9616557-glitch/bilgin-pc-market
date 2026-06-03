@@ -1,4 +1,40 @@
 import React from "react";
+
+import { Metadata } from "next";
+
+// 🚀 SİHİRLİ SEO MOTORU: Google bu sayfaya girdiği an bu fonksiyon çalışır!
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  try {
+    const resolvedParams = await params;
+    
+    // Senin kendi hızlı MongoDB bağlantınla ürünü buluyoruz
+    const client = await clientPromise;
+    const db = client.db("bilginpcmarket");
+    const product = await db.collection("products").findOne({ slug: resolvedParams.slug });
+
+    if (!product || !product.isim) {
+      return { title: "Ürün Bulunamadı | Bilgin PC" };
+    }
+
+    // Açıklamadaki HTML kodlarını (<h2>, <p>) temizle ve 160 karaktere kısalt
+    const temizAciklama = product.açıklama 
+      ? product.açıklama.replace(/<[^>]+>/g, '').substring(0, 160) + "..." 
+      : `${product.isim} en uygun fiyatlarla stoklarımızda!`;
+
+    return {
+      title: `${product.isim} | Bilgin PC`,
+      description: temizAciklama,
+      openGraph: {
+        title: product.isim,
+        description: temizAciklama,
+        images: [{ url: product.resim || "https://via.placeholder.com/600", width: 800, height: 600 }],
+      },
+    };
+  } catch (error) {
+    return { title: "Ürün Detayı | Bilgin PC" };
+  }
+}
+
 import ProductClient from "./ProductClient";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
