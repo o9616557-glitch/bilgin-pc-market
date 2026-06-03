@@ -1,44 +1,39 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { HeartCrack, ArrowLeft, Trash2, ShoppingCart } from "lucide-react";
+import { HeartCrack, ArrowLeft, Trash2, ShoppingCart, Heart } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/app/CartContext";
 import { useRouter } from "next/navigation";
-import { Heart } from "lucide-react";
+import { useUserData } from "../hooks/useUserData";
+// 1. SWR Motorumuzu içeri aktarıyoruz (Dosya yolunu kendi projene göre kontrol et)
+
+
 interface Props {
   initialFavorites: any[];
 }
 
 export default function FavoriClient({ initialFavorites }: Props) {
   const router = useRouter();
-  const [favoriteProducts, setFavoriteProducts] = useState<any[]>(initialFavorites);
-  const [productToDelete, setProductToDelete] = useState<any | null>(null);
-
   const { sepeteEkle } = useCart();
+  
+  // 2. SWR'den verileri ve güncelleme tetikleyicisini alıyoruz
+  const { favoriler, favorileriGuncelle } = useUserData();
+
+  // 3. Ekranda gösterilecek listeyi belirliyoruz: 
+  // Eğer SWR verisi henüz gelmediyse ilk yüklemedeki hızı sağlamak için initialFavorites kullan.
+  // SWR veriyi çekince otomatik olarak kendi verisini (favoriler) gösterecek.
+  const favoriteProducts = favoriler.length > 0 ? favoriler : initialFavorites;
+
+  // Eski state'e artık ihtiyacımız yok çünkü veriyi doğrudan SWR'den (veya initialFavorites'tan) okuyoruz.
+  const [productToDelete, setProductToDelete] = useState<any | null>(null);
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
-
-  // 🚀 RADAR GÜÇLENDİRİLDİ: Sadece veriler gerçekten değiştiyse listeyi günceller.
-  // Bu sayede animasyonların veya yazıların üst üste binip titreşmesi %100 engellenir.
-  useEffect(() => {
-    setFavoriteProducts((prev) => {
-      if (JSON.stringify(prev) === JSON.stringify(initialFavorites)) return prev;
-      return initialFavorites;
-    });
-  }, [initialFavorites]);
-
-  useEffect(() => {
-    router.refresh();
-  }, [router]);
 
   const handleDeleteFavorite = async () => {
     if (!productToDelete) return;
 
     const targetId = String(productToDelete._id || productToDelete.id);
-    
-    // Anında sil
-    setFavoriteProducts(prev => prev.filter(p => String(p._id || p.id) !== targetId));
     setProductToDelete(null);
 
     try {
@@ -49,11 +44,16 @@ export default function FavoriClient({ initialFavorites }: Props) {
       });
 
       if (!res.ok) throw new Error("Veritabanı reddetti");
+      
       toast.success("Ürün favorilerden kaldırıldı. 🤍");
-      router.refresh(); 
+      
+      // 4. SİHİRLİ DOKUNUŞ: Sayfayı yenilemek (router.refresh) yerine RAM'deki listeyi anında güncelliyoruz!
+      favorileriGuncelle(); 
+      
     } catch (error: any) {
       toast.error("Sistem hatası: Veritabanından silinemedi!");
-      router.refresh();
+      // Hata durumunda da listeyi orijinal haline getirmek için güncelliyoruz
+      favorileriGuncelle();
     }
   };
 
@@ -74,6 +74,8 @@ export default function FavoriClient({ initialFavorites }: Props) {
     }, 2000);
   };
 
+  // BU SATIRDAN SONRASI SENİN TASARIM KODLARINDIR:
+  // return ( ... )
   return (
     <div className="min-h-screen bg-[#050814] text-white pt-12 pb-24 px-4 relative overflow-hidden font-sans">
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#00e5ff] blur-[150px] opacity-10 pointer-events-none"></div>
