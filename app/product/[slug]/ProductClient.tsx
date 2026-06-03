@@ -52,9 +52,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     setTimeout(() => setToastMessage(""), 4000); 
   };
 
- const handleToggleFavorite = async () => {
+const handleToggleFavorite = async () => {
     const oncekiDurum = isFav;
-    setIsFav(!oncekiDurum); // Ekranda kalbi anında doldur/boşalt (Müşteri beklemesin)
+    setIsFav(!oncekiDurum); // Ekranda kalbi anında doldur/boşalt
 
     try {
       const res = await fetch("/api/favorites", {
@@ -72,42 +72,51 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         return;
       }
 
-      if (!res.ok) {
-        setIsFav(oncekiDurum);
-        toast.error("Bir sorun oluştu.");
-        return; // Hata varsa burada dur, aşağıya inme
-      }
+      if (!res.ok) throw new Error("API Hatası");
 
-      // 🚀 İŞTE SİHİRLİ DOKUNUŞ BURADA BAŞLIYOR (Eğer API başarılıysa çalışır)
+      // 🚀 YENİ SİHİRLİ DOKUNUŞ: Veritabanı yığınını değil, sadece "Temiz Kimliği" alıyoruz!
+      // Bu sayede sistem asla çökmez ve diğer butonları dondurmaz.
+      const temizUrun = {
+        _id: pId,
+        id: pId,
+        isim: urunAdi,
+        fiyat: gecerliFiyat,
+        resim: resimler[0] || "https://via.placeholder.com/400"
+      };
+
       setFavoriler((prev: any[]) => {
-        // Ürün zaten favorilerimizde var mıydı?
-        const zatenVarMi = prev.some((p) => String(p._id || p.id) === String(product._id || product.id));
+        // Eğer sistemde prev yoksa boş liste kabul et (Hata önleyici)
+        const guncelListe = Array.isArray(prev) ? prev : [];
+        const zatenVarMi = guncelListe.some((p) => String(p._id || p.id) === String(pId));
         
         let yeniListe;
         if (zatenVarMi) {
-          // Varsa listeden çıkarıyoruz (Kalpten tık kaldırıldı)
-          yeniListe = prev.filter((p) => String(p._id || p.id) !== String(product._id || product.id));
+          yeniListe = guncelListe.filter((p) => String(p._id || p.id) !== String(pId));
         } else {
-          // Yoksa tam ürün objesini merkezi depoya fırlatıyoruz!
-          yeniListe = [...prev, product]; 
+          yeniListe = [...guncelListe, temizUrun]; 
         }
         
-        // Gelecek sefer bekleme olmasın diye torpidoyu anında güncelliyoruz
         localStorage.setItem("bilgin_favoriler", JSON.stringify(yeniListe));
         return yeniListe;
       });
 
     } catch (error) {
       setIsFav(oncekiDurum);
+      toast.error("Bir sorun oluştu, lütfen tekrar deneyin.");
     }
   };
+
   const handleCompare = () => {
-    karsilastirmayaEkle(product);
-    setTimeout(() => {
-      if (typeof setPopupAcik === "function") {
-        setPopupAcik(true);
-      }
-    }, 100);
+    try {
+      karsilastirmayaEkle(product);
+      setTimeout(() => {
+        if (typeof setPopupAcik === "function") {
+          setPopupAcik(true);
+        }
+      }, 100);
+    } catch (error) {
+      console.error("Karşılaştırma motorunda hata:", error);
+    }
   };
   useEffect(() => {
     const checkFavoriteStatus = async () => {
