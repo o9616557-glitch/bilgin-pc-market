@@ -13,8 +13,8 @@ export default function FavoriClient() {
   const router = useRouter();
   
   // 🚀 ZURNANIN ZIRT DEDİĞİ YER: Veriyi motordan 0 milisaniyede çekiyoruz!
-  const { favorites, refreshAllData, updateFavoritesLocally } = useOrderAddress();
-  
+  const { favorites = [], refreshAllData, updateFavoritesLocally } = useOrderAddress() || {};
+  console.log("Favoriler verisi:", favorites);
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
