@@ -1,48 +1,45 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { HeartCrack, ArrowLeft, Trash2, ShoppingCart, Heart } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/app/CartContext";
 import { useRouter } from "next/navigation";
-// 🚀 YENİ MOTORUMUZU ÇAĞIRIYORUZ
-import { useOrderAddress } from "@/app/context/OrderAddressContext";
 
-export default function FavoriClient() {
+interface Props {
+  initialFavorites: any[];
+}
+
+export default function FavoriClient({ initialFavorites }: Props) {
   const router = useRouter();
-  
-  // 🚀 ZURNANIN ZIRT DEDİĞİ YER: Veriyi motordan 0 milisaniyede çekiyoruz!
-  const { favorites = [], refreshAllData, updateFavoritesLocally } = useOrderAddress() || {};
-  console.log("Favoriler verisi:", favorites);
-  // Motor henüz verileri çekiyorsa veya boşsa sayfayı siyah ekrana düşürme, kibarca bekle de!
-  if (!favorites) {
-    return (
-      <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center font-sans">
-        <div className="text-center">
-          <div className="w-10 h-10 border-4 border-[#00e5ff] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-400 text-xs uppercase tracking-widest font-bold">DONANIMLAR YÜKLENİYOR...</p>
-        </div>
-      </div>
-    );
-  }
+  const [favoriteProducts, setFavoriteProducts] = useState<any[]>(initialFavorites);
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
+
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
 
-  // 🚀 YENİ SİLME MOTORU
+  // 1. Senin orijinal 'page.tsx' dosyan taze veriyi getirdiğinde ekrana basar.
+  useEffect(() => {
+    setFavoriteProducts(initialFavorites);
+  }, [initialFavorites]);
+
+  // 2. 🚀 SİHİRLİ DOKUNUŞ: Sadece sayfa açıldığında 1 kez çalışır.
+  // Müşteri sayfaya girdiği an beklemeden eski listeyi görür, bu kod ise
+  // arka planda sessizce taze veriyi kontrol eder. Varsa saniyesinde ekrana düşürür!
+  useEffect(() => {
+    router.refresh();
+  }, []);
+
   const handleDeleteFavorite = async () => {
     if (!productToDelete) return;
 
     const targetId = String(productToDelete._id || productToDelete.id);
     
-    // 1. Ekrandan anında sil (Optimistic UI)
-    const newFavorites = favorites.filter(p => String(p._id || p.id) !== targetId);
-    updateFavoritesLocally(newFavorites);
+    setFavoriteProducts(prev => prev.filter(p => String(p._id || p.id) !== targetId));
     setProductToDelete(null);
 
     try {
-      // 2. Arka planda sessizce veritabanından sil
       const res = await fetch("/api/favorites", {
         method: "POST", 
         headers: { "Content-Type": "application/json" },
@@ -52,15 +49,13 @@ export default function FavoriClient() {
       if (!res.ok) throw new Error("Veritabanı reddetti");
       toast.success("Ürün favorilerden kaldırıldı. 🤍");
       
-      // 3. Arka planda motorun verilerini tazele
-      refreshAllData(); 
+      // Sildikten sonra da arka planda sessizce günceller
+      router.refresh(); 
     } catch (error: any) {
       toast.error("Sistem hatası: Veritabanından silinemedi!");
-      refreshAllData(); // Hata olursa listeyi geri getir
     }
   };
 
-  // 👇 BURADAN AŞAĞISI (handleSepeteEkle ve return kısmı) AYNI KALACAK 👇
   const handleSepeteEkle = (urun: any) => {
     const targetId = urun._id || urun.id;
     sepeteEkle({
@@ -96,11 +91,11 @@ export default function FavoriClient() {
             </h1>
           </div>
          <div className="flex items-center justify-start gap-2 bg-[#09090b] text-slate-300 px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-wider border border-slate-800/80 shadow-sm w-full md:w-auto">
-  LİSTELENEN: <span className="text-[#00e5ff] font-black text-sm">{favorites?.length || 0}</span> DONANIM
+  LİSTELENEN: <span className="text-[#00e5ff] font-black text-sm">0</span> DONANIM
 </div>
         </div>
 
-        {favorites.length === 0 ? (
+        {favoriteProducts.length === 0 ? (
           /* 🚀 BOŞ EKRAN - Göz yoran animasyon kaldırıldı, sabit ve net. */
           <div className="text-center p-10 sm:p-16 bg-transparent relative">
             <div className="w-20 h-20 rounded-full bg-[#121215]/50 border border-slate-800/50 flex items-center justify-center mx-auto mb-6 shadow-inner">
@@ -118,7 +113,7 @@ export default function FavoriClient() {
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            {favorites.map((urun: any, index: number) => {
+            {favoriteProducts.map((urun: any, index: number) => {
               const isAdded = sepeteEklenenler.includes(urun._id || urun.id);
               return (
                 <div key={index} className="group border border-slate-800 bg-[#09090b] rounded-2xl p-4 sm:p-5 transition-all duration-300 hover:border-[#00e5ff]/40 shadow-xl hover:shadow-[0_0_25px_rgba(0,229,255,0.03)] flex flex-col sm:flex-row sm:items-center gap-5 relative overflow-hidden animate-in fade-in duration-300">
