@@ -73,7 +73,18 @@ export default function SiparisClient({ initialOrders }: Props) {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  const DurumRozetiGoster = ({ durum }: { durum: string }) => {
+  // 🚀 GÜNCELLENİYOR DURUMU BURAYA EKLENDİ 🚀
+  const DurumRozetiGoster = ({ durum, isRefreshing }: { durum: string, isRefreshing: boolean }) => {
+    // Eğer sayfa o an güncelleniyorsa eski durumu gizle, bunu göster!
+    if (isRefreshing) {
+      return (
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#00e5ff]/10 border border-[#00e5ff]/30 text-[#00e5ff] text-xs font-black uppercase tracking-widest shadow-inner">
+           <RefreshCw className="w-4 h-4 animate-spin" />
+           GÜNCELLENİYOR...
+        </div>
+      );
+    }
+
     const d = (durum || "").toLocaleLowerCase("tr-TR");
     
     if (d.includes("iptal") || d.includes("i̇ptal")) {
@@ -116,7 +127,6 @@ export default function SiparisClient({ initialOrders }: Props) {
       );
   };
 
-
   return (
     <div className="min-h-screen bg-[#070b1a] text-white pt-12 md:pt-12 pb-24 px-4 relative overflow-hidden font-sans">
       
@@ -137,7 +147,7 @@ export default function SiparisClient({ initialOrders }: Props) {
           <button 
             onClick={handleRefresh}
             disabled={refreshing}
-            className="flex items-center gap-2 bg-[#09090b] hover:bg-[#121215] text-[#00e5ff] px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all border border-slate-800/80 hover:border-[#00e5ff]/50 shadow-lg hover:shadow-[0_0_20px_rgba(0,229,255,0.2)]"
+            className={`flex items-center gap-2 bg-[#09090b] text-[#00e5ff] px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all border shadow-lg ${refreshing ? 'border-[#00e5ff]/50 bg-[#00e5ff]/5 opacity-80 cursor-wait' : 'hover:bg-[#121215] border-slate-800/80 hover:border-[#00e5ff]/50 hover:shadow-[0_0_20px_rgba(0,229,255,0.2)]'}`}
           >
             <RefreshCw className={"w-4 h-4 " + (refreshing ? "animate-spin" : "")} />
             {refreshing ? "Güncelleniyor..." : "Durumları Güncelle"}
@@ -172,12 +182,13 @@ export default function SiparisClient({ initialOrders }: Props) {
               const durumMetni = order.durum || order.status || "";
 
               return (
-                <div key={order._id} className="group border border-slate-800 bg-[#09090b] rounded-2xl p-6 transition-all duration-300 hover:border-[#00e5ff]/40 shadow-xl hover:shadow-[0_0_25px_rgba(0,229,255,0.03)] relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <div key={order._id} className={`group border bg-[#09090b] rounded-2xl p-6 transition-all duration-300 relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 ${refreshing ? 'border-slate-800/50 opacity-70' : 'border-slate-800 hover:border-[#00e5ff]/40 shadow-xl hover:shadow-[0_0_25px_rgba(0,229,255,0.03)]'}`}>
                   
                   <button
                     onClick={() => handleDeleteClick(order._id)}
                     className="absolute top-4 right-4 p-2.5 text-slate-500 hover:text-red-500 bg-[#121215] border border-slate-800 hover:border-red-500/30 hover:bg-red-500/10 rounded-xl transition-all shadow-md z-20"
                     title="Siparişi Sil"
+                    disabled={refreshing}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -196,7 +207,10 @@ export default function SiparisClient({ initialOrders }: Props) {
                       <p className="text-xs text-slate-500 font-medium mb-3">
                         Tarih: <span className="text-slate-300">{new Date(order.createdAt).toLocaleDateString("tr-TR")}</span>
                       </p>
-                      <DurumRozetiGoster durum={durumMetni} />
+                      
+                      {/* 🚀 GÜNCEL DURUM ROZETİ (Güncellenirken "GÜNCELLENİYOR..." yazar) 🚀 */}
+                      <DurumRozetiGoster durum={durumMetni} isRefreshing={refreshing} />
+                      
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -207,7 +221,7 @@ export default function SiparisClient({ initialOrders }: Props) {
                   </div>
 
                   {adminMesaji && (
-                    <div className="mt-6 bg-[#0088ff]/10 border border-[#0088ff]/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm">
+                    <div className={`mt-6 bg-[#0088ff]/10 border border-[#0088ff]/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm transition-opacity ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
                       <MessageSquare className="w-5 h-5 text-[#00e5ff] flex-shrink-0 mt-0.5" />
                       <div>
                         <p className="text-[10px] text-[#00e5ff] font-black uppercase tracking-widest mb-1">Mağaza Mesajı / Kargo Notu</p>
@@ -216,12 +230,10 @@ export default function SiparisClient({ initialOrders }: Props) {
                     </div>
                   )}
 
-                  {/* 🚀 GÜNCELLENEN ÜRÜN LİSTESİ: Mobilde Resim Büyütüldü 🚀 */}
-                  <div className="border-t border-slate-800/80 pt-6 mt-6 space-y-4">
+                  <div className={`border-t border-slate-800/80 pt-6 mt-6 space-y-4 transition-opacity ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
                     {order.items?.map((item: any, idx: number) => (
                       <div key={idx} className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-[#121215] p-4 sm:p-5 rounded-2xl border border-slate-800/60 shadow-lg">
                         
-                        {/* 🚀 KUTU VE RESİM BOYUTLARI ARTIRILDI 🚀 */}
                         <div className="w-full sm:w-32 sm:h-32 flex-shrink-0 flex justify-center items-center bg-[#09090b] py-6 sm:py-0 rounded-xl border border-slate-800/50 relative overflow-hidden">
                           <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
                           {item.image || item.resim ? (
@@ -240,17 +252,14 @@ export default function SiparisClient({ initialOrders }: Props) {
                           )}
                         </div>
 
-                        {/* İÇERİK: BAŞLIK + FİYAT */}
                         <div className="flex flex-col sm:flex-row flex-grow w-full justify-between sm:items-center gap-4">
                           
-                          {/* BAŞLIK */}
                           <div className="w-full sm:w-auto flex-grow text-center sm:text-left">
                             <p className="font-bold text-slate-200 break-words whitespace-normal leading-relaxed text-sm sm:text-base">
                               {item.title}
                             </p>
                           </div>
 
-                          {/* ADET VE FİYAT BÖLÜMÜ (PC'DE SAĞA YASLI) */}
                           <div className="w-full sm:w-auto flex flex-row sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 sm:border-l border-slate-800/80 pt-4 sm:pt-0 sm:pl-6 mt-2 sm:mt-0 flex-shrink-0 gap-2">
                             <p className="text-xs text-slate-400 font-bold uppercase bg-slate-800/40 px-3 py-1.5 rounded-lg border border-slate-700/50">
                               {item.quantity} ADET
@@ -265,7 +274,7 @@ export default function SiparisClient({ initialOrders }: Props) {
                     ))}
                   </div>
 
-                  <div className="mt-6 flex justify-between items-center bg-[#121215] border border-slate-800/80 p-5 rounded-xl shadow-inner">
+                  <div className={`mt-6 flex justify-between items-center bg-[#121215] border border-slate-800/80 p-5 rounded-xl shadow-inner transition-opacity ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
                     <span className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Genel Toplam</span>
                     <span className="text-2xl font-black text-white tracking-tight">
                       {Number(order.totalPrice).toLocaleString("tr-TR")} <span className="text-sm text-slate-500">TL</span>
