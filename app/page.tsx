@@ -163,7 +163,7 @@ export default async function HomePage() {
                 return (
                   <div key={urun._id.toString()} className="group relative flex flex-col w-[85vw] sm:w-[320px] lg:w-[calc(25%-0.75rem)] flex-shrink-0 snap-center lg:snap-start bg-[#09090b] rounded-2xl overflow-hidden border border-white/5 transition-all duration-500 hover:border-[#00d2ff]/40 hover:shadow-[0_0_30px_rgba(0,210,255,0.15)]">
                     
-                    {/* 🚀 EFSANE GERİ DÖNDÜ: KARTIN TAMAMINI TIKLANABİLİR YAPAN VE ÖNCEDEN YÜKLEYEN LİNK 🚀 */}
+                    {/* 🚀 KARTIN TAMAMINI TIKLANABİLİR YAPAN VE ÖNCEDEN YÜKLEYEN LİNK 🚀 */}
                     <Link href={"/product/" + (urun.slug || urun._id)} className="absolute inset-0 z-10" prefetch={true} />
 
                     <div className="relative aspect-[4/3] w-full bg-gradient-to-b from-white/5 to-transparent flex items-center justify-center p-6 overflow-hidden pointer-events-none">
@@ -179,12 +179,13 @@ export default async function HomePage() {
                         </div>
                       )}
 
+                      {/* 🚀 STOK NOKTASI SOL ÜST KÖŞEYE ALINDI 🚀 */}
                       {tukendiMi ? (
-                         <div className="absolute top-4 right-4 z-20">
+                         <div className="absolute top-4 left-4 z-20">
                            <div className="w-2.5 h-2.5 rounded-full bg-zinc-600 shadow-[0_0_10px_rgba(82,82,91,0.8)]" title="Tükendi"></div>
                          </div>
                       ) : (
-                         <div className="absolute top-4 right-4 z-20">
+                         <div className="absolute top-4 left-4 z-20">
                            <div className="w-2.5 h-2.5 rounded-full bg-[#10b981] animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]" title="Stokta Var"></div>
                          </div>
                       )}
