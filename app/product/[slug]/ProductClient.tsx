@@ -13,7 +13,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   
   const [activeTab, setActiveTab] = useState("teknik");
   const [seciliCozunurluk, setSeciliCozunurluk] = useState("1080P");
-  // 🚀 ESKİ İŞLEMCİ MOTORU DEVREDE 🚀
   const [seciliIslemci, setSeciliIslemci] = useState("i5"); 
 
   const [reviewName, setReviewName] = useState("");
@@ -35,7 +34,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   
   const tabsRef = useRef<HTMLDivElement>(null);
 
-  // 🚀 TEST VERİLERİ SİLİNDİ, SADECE MONGODB'DEN GELEN GERÇEK VERİ KULLANILIYOR 🚀
+  // 🚀 SADECE VERİTABANINDAN (MONGO'DAN) GELENLERİ OKU 🚀
   const fpsVerileri: any = product.fps_testleri || {};
   const dbOyunlar = Object.keys(fpsVerileri);
   
@@ -131,7 +130,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const handleTouchStart = (e: React.TouchEvent) => touchStartRef.current = e.touches[0].clientX;
   const handleTouchEnd = (e: React.TouchEvent) => { const fark = touchStartRef.current - e.changedTouches[0].clientX; if (fark > 40) sonrakiResim(); else if (fark < -40) oncekiResim(); };
 
-  // 🚀 İŞLEMCİ SEÇİM BUTONLARINI İÇEREN YENİ FPS TABLOSU 🚀
+  // FPS TABLOSU
   const renderFpsSection = () => (
     <div className="bg-[#09090b] border border-white/10 rounded-2xl p-4 sm:p-6 flex flex-col xl:flex-row gap-6 sm:gap-8 shadow-[0_5px_15px_rgba(0,0,0,0.5)]">
        <div className="flex flex-col items-center justify-center xl:border-r border-white/10 xl:pr-8 pb-6 xl:pb-0 border-b xl:border-b-0 w-full xl:w-auto">
@@ -145,7 +144,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
        <div className="flex-1 overflow-hidden w-full flex flex-col">
           
-          {/* 🚀 GERİ GELEN İŞLEMCİ (5, 7, 9) SEÇİM MOTORU 🚀 */}
+          {/* İŞLEMCİ SEÇİM MOTORU */}
           <div className="flex gap-2 sm:gap-3 mb-4">
              {[{ id: "i5", top: "INTEL i5", bottom: "RYZEN 5" }, { id: "i7", top: "INTEL i7", bottom: "RYZEN 7" }, { id: "i9", top: "INTEL i9", bottom: "RYZEN 9" }].map((islemci) => (
                 <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as any)} className={`flex-1 flex flex-col items-center justify-center py-2 px-1 sm:px-2 rounded-xl border transition-all ${seciliIslemci === islemci.id ? "bg-[#121215] border-[#00d2ff] text-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.2)]" : "bg-black border-white/5 text-slate-500 hover:text-white"}`}>
@@ -194,7 +193,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
       <div className="max-w-[1200px] mx-auto sm:px-6 py-0 sm:py-10 flex flex-col md:flex-row gap-0 sm:gap-8 lg:gap-12 relative items-start">
         
-        {/* === SOL KOLON (PC'DE YAPIŞKAN) === */}
+        {/* SOL KOLON */}
         <div className="w-full md:w-[45%] flex flex-col relative md:sticky md:top-28 h-max mb-6 sm:mb-0 transition-all duration-500">
           
           <div className="flex items-center gap-2 mb-2 sm:mb-4 px-4 sm:px-0 pt-4 sm:pt-0">
@@ -242,7 +241,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </div>
           )}
 
-          {/* PC İÇİN FPS TABLOSU (GALERİNİN ALTINDA AÇIK KALIR) */}
+          {/* PC İÇİN FPS TABLOSU */}
           <div className="hidden md:block mt-8">
              <h3 className="text-lg font-black uppercase mb-4 text-white flex items-center gap-2">
                <Gauge className="w-5 h-5 text-[#00d2ff]" /> Performans Testleri
@@ -251,10 +250,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           </div>
         </div>
 
-        {/* === SAĞ: ÜRÜN BİLGİLERİ VE AKSİYONLAR === */}
+        {/* SAĞ KOLON */}
         <div className="w-full md:w-[55%] flex flex-col px-4 sm:px-0">
           
-          {/* TIKLAYINCA AŞAĞI KAYDIRIR */}
           <div onClick={handleReviewClick} className="flex items-center justify-between mb-4 border-b border-white/10 pb-4 cursor-pointer group">
              <div className="text-xs sm:text-sm font-black text-gray-500 tracking-[0.2em] uppercase">{product.marka || "BİLGİN PC"}</div>
              <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
@@ -306,14 +304,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
              {renderFpsSection()}
           </div>
 
-          {/* SEKMELER BAŞLIĞI VE REFERANSI */}
+          {/* SEKMELER */}
           <div ref={tabsRef} className="flex overflow-x-auto gap-2 border-b border-white/10 pb-3 mb-6 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#00d2ff]/50 [&::-webkit-scrollbar-thumb]:rounded-full scroll-mt-24">
              <button onClick={() => setActiveTab('teknik')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest ${activeTab === 'teknik' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Teknik Özellikler</button>
              <button onClick={() => setActiveTab('yorumlar')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest ${activeTab === 'yorumlar' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Yorumlar</button>
              <button onClick={() => setActiveTab('sorular')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest ${activeTab === 'sorular' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Sorular</button>
           </div>
 
-          {/* SEKME İÇERİKLERİ */}
           <div className="min-h-[200px] mb-8">
 
              {activeTab === 'teknik' && (
@@ -420,7 +417,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
          </button>
       </div>
 
-      {/* LIGHTBOX (Tam Ekran Resim ve Kaydırma Motoru) */}
+      {/* LIGHTBOX */}
       {lightboxAcik && (
         <div 
           onTouchStart={handleTouchStart} 
