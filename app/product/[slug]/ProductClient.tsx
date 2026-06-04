@@ -31,7 +31,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const touchStartRef = useRef(0);
   const [lightboxAcik, setLightboxAcik] = useState(false);
   
-  // 🚀 KAYDIRMA MOTORU İÇİN REFERANS 🚀
   const tabsRef = useRef<HTMLDivElement>(null);
 
   const fpsVerileri: any = product.fps_testleri || {};
@@ -99,11 +98,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     if (navigator.share) { try { await navigator.share({ title: urunAdi, text: "Bu ürüne bak!", url: window.location.href }); } catch (err) {} } else { navigator.clipboard.writeText(window.location.href); setCopied(true); setTimeout(() => setCopied(false), 2000); toast.success("Bağlantı kopyalandı"); }
   };
 
-  // 🚀 YORUMLARA TIKLAYINCA AŞAĞI KAYDIRAN MOTOR 🚀
   const handleReviewClick = () => {
     setActiveTab("yorumlar");
     if (tabsRef.current) {
-      const offset = 100; // Mobilde üst barın altında kalmasın diye pay
+      const offset = 100;
       const bodyRect = document.body.getBoundingClientRect().top;
       const elementRect = tabsRef.current.getBoundingClientRect().top;
       const elementPosition = elementRect - bodyRect;
@@ -133,10 +131,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const handleTouchStart = (e: React.TouchEvent) => touchStartRef.current = e.touches[0].clientX;
   const handleTouchEnd = (e: React.TouchEvent) => { const fark = touchStartRef.current - e.changedTouches[0].clientX; if (fark > 40) sonrakiResim(); else if (fark < -40) oncekiResim(); };
 
-  // 🚀 FPS KUTUSU (Tekrarlamamak için değişken olarak tanımlandı) 🚀
   const renderFpsSection = () => (
     <div className="bg-[#09090b] border border-white/10 rounded-2xl p-4 sm:p-6 flex flex-col xl:flex-row gap-6 sm:gap-8 shadow-[0_5px_15px_rgba(0,0,0,0.5)]">
-       {/* Sol Kadran */}
        <div className="flex flex-col items-center justify-center xl:border-r border-white/10 xl:pr-8 pb-6 xl:pb-0 border-b xl:border-b-0 w-full xl:w-auto">
           <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Genel Performans</span>
           <div className="relative w-[140px] h-[70px] overflow-hidden mb-2">
@@ -146,7 +142,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           <span className="text-[10px] text-gray-500">En Yüksek Akıcılık Puanı</span>
        </div>
 
-       {/* Sağ Oyun Kartları */}
        <div className="flex-1 overflow-hidden w-full">
           <div className="flex gap-2 p-1 bg-black rounded-full w-fit mb-4 border border-white/5 mx-auto xl:mx-0">
              {["1080P", "2K", "4K"].map(res => (
@@ -173,7 +168,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   );
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans pb-24 sm:pb-10">
+    <div className="min-h-screen bg-[#050505] text-white font-sans pb-24 sm:pb-10 relative">
       
       <style dangerouslySetInnerHTML={{ __html: `
         .badge-rosette-page { position: absolute; top: 15px; right: 15px; width: 70px; height: 70px; background: #e60000; clip-path: polygon(50% 0%, 60% 10%, 75% 5%, 80% 20%, 95% 25%, 90% 40%, 100% 50%, 90% 60%, 95% 75%, 80% 80%, 75% 95%, 60% 90%, 50% 100%, 40% 90%, 25% 95%, 20% 80%, 5% 75%, 10% 60%, 0% 50%, 10% 40%, 5% 25%, 20% 20%, 25% 5%, 40% 10%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); pointer-events: none; }
@@ -181,10 +176,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         .badge-rosette-page span:last-child { font-size: 11px; font-weight: 900; line-height: 1; }
       `}} />
 
-      <div className="max-w-[1200px] mx-auto sm:px-6 py-0 sm:py-10 flex flex-col md:flex-row gap-0 sm:gap-8 lg:gap-12">
+      <div className="max-w-[1200px] mx-auto sm:px-6 py-0 sm:py-10 flex flex-col md:flex-row gap-0 sm:gap-8 lg:gap-12 relative items-start">
         
-        {/* === SOL: GALERİ ALANI === */}
-        <div className="w-full md:w-[45%] flex flex-col relative mb-6 sm:mb-0">
+        {/* 🚀 1. DÜZENLEME: SOL KOLON TEKRAR "STICKY" YAPILDI 🚀 */}
+        <div className="w-full md:w-[45%] flex flex-col relative md:sticky md:top-28 h-max mb-6 sm:mb-0 transition-all duration-500">
           
           <div className="flex items-center gap-2 mb-2 sm:mb-4 px-4 sm:px-0 pt-4 sm:pt-0">
              {tukendiMi ? (
@@ -231,7 +226,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </div>
           )}
 
-          {/* 🚀 PC İÇİN FPS TABLOSU (GALERİNİN ALTINDA AÇIK KALIR) 🚀 */}
           <div className="hidden md:block mt-8">
              <h3 className="text-lg font-black uppercase mb-4 text-white flex items-center gap-2">
                <Gauge className="w-5 h-5 text-[#00d2ff]" /> Performans Testleri
@@ -243,14 +237,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         {/* === SAĞ: ÜRÜN BİLGİLERİ VE AKSİYONLAR === */}
         <div className="w-full md:w-[55%] flex flex-col px-4 sm:px-0">
           
-          {/* 🚀 TIKLAYINCA AŞAĞI KAYDIRAN YORUM BAŞLIĞI 🚀 */}
           <div onClick={handleReviewClick} className="flex items-center justify-between mb-4 border-b border-white/10 pb-4 cursor-pointer group">
              <div className="text-xs sm:text-sm font-black text-gray-500 tracking-[0.2em] uppercase">{product.marka || "BİLGİN PC"}</div>
              <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
                 <div className="flex gap-0.5">
                    {[1,2,3,4,5].map(s => <Star key={s} className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${Number(avgRating) >= s ? 'text-[#d4af37] fill-[#d4af37]' : 'text-gray-700'}`} />)}
                 </div>
-                <span className="text-gray-400 font-bold ml-1 group-hover:text-white transition-colors underline underline-offset-4 decoration-white/20">{totalReviews > 0 ? `${avgRating} (${totalReviews} Yorum)` : 'Yeni Ürün'}</span>
+                {/* 🚀 2. DÜZENLEME: YENİ ÜRÜN YAZISI DEĞİŞTİRİLDİ 🚀 */}
+                <span className="text-gray-400 font-bold ml-1 group-hover:text-white transition-colors underline underline-offset-4 decoration-white/20">{totalReviews > 0 ? `${avgRating} (${totalReviews} Yorum)` : 'Henüz Değerlendirilmedi'}</span>
              </div>
           </div>
 
@@ -272,8 +266,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
              )}
           </div>
 
-          <div className="flex gap-2 sm:gap-4 mb-8 sm:mb-10">
-             <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`hidden sm:flex flex-1 h-14 sm:h-16 rounded-2xl font-black text-sm sm:text-lg uppercase tracking-widest items-center justify-center gap-2 sm:gap-3 transition-all ${tukendiMi ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-[#00d2ff] text-black hover:bg-[#00c4db] shadow-[0_0_20px_rgba(0,229,255,0.2)]'}`}>
+          <div className="flex gap-2 sm:gap-4 mb-10">
+             <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`hidden sm:flex flex-1 h-14 sm:h-16 rounded-2xl font-black text-sm sm:text-lg uppercase tracking-widest items-center justify-center gap-2 sm:gap-3 transition-all ${tukendiMi ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-[#00e5ff] text-black hover:bg-[#00c4db] shadow-[0_0_20px_rgba(0,229,255,0.2)]'}`}>
                 <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" /> {tukendiMi ? "Tükendi" : "Sepete Ekle"}
              </button>
              <button onClick={handleToggleFavorite} className={`w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl flex items-center justify-center border transition-all ${isFav ? 'bg-red-500/10 border-red-500 text-red-500' : 'bg-[#09090b] border-white/10 hover:border-[#00d2ff] hover:text-[#00d2ff]'}`} title="Favori">
@@ -287,7 +281,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
              </button>
           </div>
 
-          {/* 🚀 MOBİL İÇİN FPS TABLOSU (Sayfa düzenini bozmadan butonların altına gelir) 🚀 */}
           <div className="block md:hidden mb-10">
              <h3 className="text-lg font-black uppercase mb-4 text-white flex items-center gap-2">
                <Gauge className="w-5 h-5 text-[#00d2ff]" /> Performans Testleri
@@ -295,17 +288,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
              {renderFpsSection()}
           </div>
 
-          {/* 🚀 SEKMELER REFERANS NOKTASI (AŞAĞI KAYDIRMA BURAYA GELİR) 🚀 */}
           <div ref={tabsRef} className="flex overflow-x-auto gap-2 border-b border-white/10 pb-3 mb-6 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#00d2ff]/50 [&::-webkit-scrollbar-thumb]:rounded-full">
              <button onClick={() => setActiveTab('teknik')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest ${activeTab === 'teknik' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Teknik Özellikler</button>
              <button onClick={() => setActiveTab('yorumlar')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest ${activeTab === 'yorumlar' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Yorumlar</button>
              <button onClick={() => setActiveTab('sorular')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest ${activeTab === 'sorular' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Sorular</button>
           </div>
 
-          {/* SEKME İÇERİKLERİ */}
           <div className="min-h-[200px] mb-8">
 
-             {/* Teknik Özellikler */}
              {activeTab === 'teknik' && (
                 <div className="bg-[#09090b] border border-white/5 rounded-2xl overflow-hidden">
                    {product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 ? (
@@ -319,7 +309,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 </div>
              )}
 
-             {/* Yorumlar */}
              {activeTab === 'yorumlar' && (
                 <div className="space-y-6">
                    <form onSubmit={handleSubmitReview} className="bg-[#09090b] border border border-white/5 p-5 sm:p-6 rounded-2xl">
@@ -354,7 +343,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 </div>
              )}
 
-             {/* Sorular */}
              {activeTab === 'sorular' && (
                 <div className="space-y-6">
                    <form onSubmit={handleSubmitQuestion} className="bg-[#09090b] border border-white/5 p-5 sm:p-6 rounded-2xl">
@@ -385,7 +373,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-      {/* 🚀 4. DÜZENLEME: AÇIKLAMA BÖLÜMÜNÜN BOŞLUKLARI YARI YARIYA İNDİRİLDİ (pt-6, pb-10) 🚀 */}
       {product.aciklama && (
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-6 pb-10 border-t border-white/10">
            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-widest mb-6 text-white flex items-center gap-3">
