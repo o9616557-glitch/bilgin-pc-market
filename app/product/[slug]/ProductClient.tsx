@@ -193,7 +193,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
   return (
     // 🚀 DÜZELTME 1: Alt boşluk pb-32'den pb-16'ya düşürüldü (Tam kıvamında) 🚀
-    <div className="bg-[#050505] text-white font-sans pb-16 sm:pb-10 relative">
+    <div className="bg-[#050505] text-white font-sans pb-7 sm:pb-10 relative">
       
       <style dangerouslySetInnerHTML={{ __html: `
         body { -webkit-tap-highlight-color: transparent; }
