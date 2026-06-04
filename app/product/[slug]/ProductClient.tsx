@@ -130,39 +130,32 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const handleTouchStart = (e: React.TouchEvent) => touchStartRef.current = e.touches[0].clientX;
   const handleTouchEnd = (e: React.TouchEvent) => { const fark = touchStartRef.current - e.changedTouches[0].clientX; if (fark > 40) sonrakiResim(); else if (fark < -40) oncekiResim(); };
 
-  // FPS TABLOSU
+  // FPS TABLOSU - YENİ VE ORTALANMIŞ VERSİYON
   const renderFpsSection = () => (
-    <div className="bg-[#09090b] border border-white/10 rounded-2xl p-4 sm:p-6 flex flex-col xl:flex-row gap-6 sm:gap-8 shadow-[0_5px_15px_rgba(0,0,0,0.5)]">
-       <div className="flex flex-col items-center justify-center xl:border-r border-white/10 xl:pr-8 pb-6 xl:pb-0 border-b xl:border-b-0 w-full xl:w-auto">
-          <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Genel Performans</span>
-          <div className="relative w-[140px] h-[70px] overflow-hidden mb-2">
-             <div className="absolute top-0 left-0 w-[140px] h-[140px] rounded-full border-[12px] border-white/5 border-t-[#00d2ff] border-l-[#00d2ff] transform rotate-45"></div>
-          </div>
-          <div className="text-3xl font-black text-white -mt-5 mb-1">16,671</div>
-          <span className="text-[10px] text-gray-500">En Yüksek Akıcılık Puanı</span>
-       </div>
-
-       <div className="flex-1 overflow-hidden w-full flex flex-col">
+    <div className="bg-[#09090b] border border-white/10 rounded-2xl p-4 sm:p-6 flex flex-col w-full shadow-[0_5px_15px_rgba(0,0,0,0.5)]">
+       
+       <div className="flex-1 w-full flex flex-col items-center">
           
           {/* İŞLEMCİ SEÇİM MOTORU */}
-          <div className="flex gap-2 sm:gap-3 mb-4">
+          <div className="flex flex-wrap sm:flex-nowrap justify-center gap-2 sm:gap-3 mb-5 w-full">
              {[{ id: "i5", top: "INTEL i5", bottom: "RYZEN 5" }, { id: "i7", top: "INTEL i7", bottom: "RYZEN 7" }, { id: "i9", top: "INTEL i9", bottom: "RYZEN 9" }].map((islemci) => (
-                <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as any)} className={`flex-1 flex flex-col items-center justify-center py-2 px-1 sm:px-2 rounded-xl border transition-all ${seciliIslemci === islemci.id ? "bg-[#121215] border-[#00d2ff] text-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.2)]" : "bg-black border-white/5 text-slate-500 hover:text-white"}`}>
+                <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as any)} className={`flex-1 min-w-[30%] flex flex-col items-center justify-center py-2 px-1 sm:px-2 rounded-xl border transition-all ${seciliIslemci === islemci.id ? "bg-[#121215] border-[#00d2ff] text-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.2)]" : "bg-black border-white/5 text-slate-500 hover:text-white"}`}>
                    <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider">{islemci.top}</span>
                    <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider mt-0.5">{islemci.bottom}</span>
                 </button>
              ))}
           </div>
 
-          <div className="flex gap-2 p-1 bg-black rounded-full w-fit mb-4 border border-white/5 mx-auto xl:mx-0">
+          <div className="flex justify-center gap-2 p-1 bg-black rounded-full w-fit mb-6 border border-white/5">
              {["1080P", "2K", "4K"].map(res => (
                 <button key={res} onClick={() => setSeciliCozunurluk(res)} className={`px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-black transition-all ${seciliCozunurluk === res ? 'bg-white text-black' : 'text-gray-400 hover:text-white'}`}>{res}</button>
              ))}
           </div>
           
-          <div className="flex gap-3 overflow-x-auto pb-2 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:bg-white/20">
+          {/* OYUNLAR - Sığmayanlar alt satıra geçer ve ortalanır */}
+          <div className="flex flex-wrap justify-center gap-3 w-full mb-4">
              {dbOyunlar.length > 0 ? dbOyunlar.map(oyun => (
-                <div key={oyun} className="w-24 sm:w-28 flex-shrink-0 bg-black border border-white/10 rounded-xl overflow-hidden flex flex-col">
+                <div key={oyun} className="w-[100px] sm:w-[110px] flex-shrink-0 bg-black border border-white/10 rounded-xl overflow-hidden flex flex-col transition-all hover:scale-105 hover:border-[#f59e0b]/50">
                    <div className="h-16 bg-zinc-900 relative flex items-center justify-center p-2 text-center text-white/70 text-[10px] font-black uppercase">
                       {oyun.toLowerCase().includes("valorant") || oyun.toLowerCase().includes("cs") ? (
                         <Crosshair className="w-8 h-8 absolute opacity-10" />
@@ -178,6 +171,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 </div>
              )) : <div className="text-center text-gray-500 text-sm w-full py-4">Oyun testi verisi bulunamadı. Lütfen panelden ekleyin.</div>}
           </div>
+
+          {/* KAYNAK NOTU EKLENDİ */}
+          <div className="w-full text-center mt-2 border-t border-white/5 pt-3">
+             <span className="text-[9px] sm:text-[10px] text-gray-500/70 font-medium tracking-wide">
+                * Gösterilen FPS değerleri global donanım inceleme platformları ve bağımsız test laboratuvarları baz alınarak derlenmiş ortalama değerlerdir. Kullanılan diğer bileşenlere göre ufak değişiklikler gösterebilir.
+             </span>
+          </div>
+
        </div>
     </div>
   );
