@@ -73,12 +73,9 @@ export default function SiparisClient({ initialOrders }: Props) {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  // 🚀 MOTOR TAMİR EDİLDİ: Türkçe Karakter Sorunu Çözüldü!
   const DurumRozetiGoster = ({ durum }: { durum: string }) => {
-    // Türkçe karakterleri bozmadan küçültmek için toLocaleLowerCase ekledik
     const d = (durum || "").toLocaleLowerCase("tr-TR");
     
-    // 1. İptal
     if (d.includes("iptal") || d.includes("i̇ptal")) {
       return (
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-black uppercase tracking-widest shadow-inner">
@@ -87,7 +84,6 @@ export default function SiparisClient({ initialOrders }: Props) {
         </div>
       );
     }
-    // 2. Teslim Edildi
     if (d.includes("teslim") || d.includes("tamam") || d.includes("bit") || d.includes("son")) {
        return (
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-black uppercase tracking-widest shadow-inner">
@@ -96,7 +92,6 @@ export default function SiparisClient({ initialOrders }: Props) {
         </div>
       );
     }
-    // 3. Kargoya Verildi
     if (d.includes("kargo")) {
        return (
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#00e5ff]/10 border border-[#00e5ff]/20 text-[#00e5ff] text-xs font-black uppercase tracking-widest shadow-[0_0_15px_rgba(0,229,255,0.15)]">
@@ -105,7 +100,6 @@ export default function SiparisClient({ initialOrders }: Props) {
         </div>
       );
     }
-    // 4. Hazırlanıyor
     if (d.includes("hazır") || d.includes("ödendi") || d.includes("odendi")) {
       return (
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-black uppercase tracking-widest shadow-inner">
@@ -114,7 +108,6 @@ export default function SiparisClient({ initialOrders }: Props) {
         </div>
       );
     }
-    // 5. Sipariş Alındı (Varsayılan)
     return (
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-500/10 border border-slate-500/20 text-slate-300 text-xs font-black uppercase tracking-widest shadow-inner">
            <Clock className="w-4 h-4" />
@@ -203,7 +196,6 @@ export default function SiparisClient({ initialOrders }: Props) {
                       <p className="text-xs text-slate-500 font-medium mb-3">
                         Tarih: <span className="text-slate-300">{new Date(order.createdAt).toLocaleDateString("tr-TR")}</span>
                       </p>
-                      {/* VAGON YERİNE BURAYA MODERN ROZET GELDİ */}
                       <DurumRozetiGoster durum={durumMetni} />
                     </div>
 
@@ -224,47 +216,51 @@ export default function SiparisClient({ initialOrders }: Props) {
                     </div>
                   )}
 
-                  {/* YENİ TASARIM BURAYA EKLENDİ (Resim Üstte, Başlık Serbest) */}
+                  {/* 🚀 GÜNCELLENEN ÜRÜN LİSTESİ: PC'de yan yana, boşluklar alındı 🚀 */}
                   <div className="border-t border-slate-800/80 pt-6 mt-6 space-y-4">
                     {order.items?.map((item: any, idx: number) => (
-                      <div key={idx} className="flex flex-col gap-4 bg-[#121215] p-4 sm:p-5 rounded-2xl border border-slate-800/60 shadow-lg">
+                      <div key={idx} className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-[#121215] p-4 sm:p-5 rounded-2xl border border-slate-800/60 shadow-lg">
                         
-                        {/* GÖRSEL KISMI: Orjinal resim kırık gelirse koruma devrede */}
-                        <div className="w-full flex justify-center bg-[#09090b] py-6 rounded-xl border border-slate-800/50 relative overflow-hidden">
+                        {/* KÜÇÜLTÜLMÜŞ GÖRSEL KUTUSU */}
+                        <div className="w-full sm:w-28 sm:h-28 flex-shrink-0 flex justify-center items-center bg-[#09090b] py-4 sm:py-0 rounded-xl border border-slate-800/50 relative overflow-hidden">
                           <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
                           {item.image || item.resim ? (
                             <img 
                               src={item.image || item.resim} 
                               alt={item.title} 
-                              className="w-28 h-28 object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] z-10"
+                              className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] z-10"
                               onError={(e) => { 
                                 e.currentTarget.src = "https://placehold.co/200x200/121215/00e5ff?text=Gorsel+Yok" 
                               }}
                             />
                           ) : (
-                            <div className="w-16 h-16 rounded-xl bg-[#09090b] border border-slate-700 flex items-center justify-center z-10">
-                              <PackageOpen className="w-8 h-8 text-slate-600" />
+                            <div className="w-12 h-12 rounded-xl bg-[#09090b] border border-slate-700 flex items-center justify-center z-10">
+                              <PackageOpen className="w-6 h-6 text-slate-600" />
                             </div>
                           )}
                         </div>
 
-                        {/* BAŞLIK */}
-                        <div className="w-full text-center sm:text-left">
-                          <p className="font-bold text-slate-200 break-words whitespace-normal leading-relaxed text-sm sm:text-base">
-                            {item.title}
-                          </p>
-                        </div>
+                        {/* İÇERİK: BAŞLIK + FİYAT */}
+                        <div className="flex flex-col sm:flex-row flex-grow w-full justify-between sm:items-center gap-4">
+                          
+                          {/* BAŞLIK */}
+                          <div className="w-full sm:w-auto flex-grow text-center sm:text-left">
+                            <p className="font-bold text-slate-200 break-words whitespace-normal leading-relaxed text-sm sm:text-base">
+                              {item.title}
+                            </p>
+                          </div>
 
-                        {/* ADET VE FİYAT */}
-                        <div className="flex items-center justify-between border-t border-slate-800/80 pt-4 mt-2">
-                          <p className="text-xs text-slate-400 font-bold uppercase bg-slate-800/40 px-4 py-2 rounded-lg border border-slate-700/50">
-                            {item.quantity} ADET
-                          </p>
-                          <p className="font-black text-[#00e5ff] text-lg sm:text-xl whitespace-nowrap">
-                            {Number((item.price || 0) * item.quantity).toLocaleString("tr-TR")} TL
-                          </p>
-                        </div>
+                          {/* ADET VE FİYAT BÖLÜMÜ (PC'DE SAĞA YASLI) */}
+                          <div className="w-full sm:w-auto flex flex-row sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 sm:border-l border-slate-800/80 pt-4 sm:pt-0 sm:pl-6 mt-2 sm:mt-0 flex-shrink-0 gap-2">
+                            <p className="text-xs text-slate-400 font-bold uppercase bg-slate-800/40 px-3 py-1.5 rounded-lg border border-slate-700/50">
+                              {item.quantity} ADET
+                            </p>
+                            <p className="font-black text-[#00e5ff] text-lg sm:text-xl whitespace-nowrap">
+                              {Number((item.price || 0) * item.quantity).toLocaleString("tr-TR")} TL
+                            </p>
+                          </div>
 
+                        </div>
                       </div>
                     ))}
                   </div>
