@@ -218,7 +218,6 @@ export default function SiparisClient({ initialOrders }: Props) {
                     </div>
                   </div>
 
-
                   {adminMesaji && (
                     <div className="mt-6 bg-[#0088ff]/10 border border-[#0088ff]/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm">
                       <MessageSquare className="w-5 h-5 text-[#00e5ff] flex-shrink-0 mt-0.5" />
@@ -229,6 +228,7 @@ export default function SiparisClient({ initialOrders }: Props) {
                     </div>
                   )}
 
+                  {/* YENİ TASARIM BURAYA EKLENDİ (Resim Üstte, Başlık Serbest) */}
                   <div className="border-t border-slate-800/80 pt-6 mt-6 space-y-4">
                     {order.items?.map((item: any, idx: number) => (
                       <div key={idx} className="flex flex-col gap-4 bg-[#121215] p-4 sm:p-5 rounded-2xl border border-slate-800/60 shadow-lg">
