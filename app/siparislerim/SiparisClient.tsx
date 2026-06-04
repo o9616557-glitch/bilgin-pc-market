@@ -73,17 +73,13 @@ export default function SiparisClient({ initialOrders }: Props) {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  const iptalEdildiMi = (durum: string) => {
-    if (!durum) return false;
-    return durum === "İptal Edildi" || durum.toLowerCase().includes("iptal");
-  };
-
-  // 🚀 YENİ MODERN DURUM ROZETİ (VAGON YERİNE)
+  // 🚀 MOTOR TAMİR EDİLDİ: Türkçe Karakter Sorunu Çözüldü!
   const DurumRozetiGoster = ({ durum }: { durum: string }) => {
-    const d = (durum || "").toLowerCase();
+    // Türkçe karakterleri bozmadan küçültmek için toLocaleLowerCase ekledik
+    const d = (durum || "").toLocaleLowerCase("tr-TR");
     
     // 1. İptal
-    if (d.includes("iptal")) {
+    if (d.includes("iptal") || d.includes("i̇ptal")) {
       return (
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-black uppercase tracking-widest shadow-inner">
            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
@@ -242,7 +238,6 @@ export default function SiparisClient({ initialOrders }: Props) {
                               alt={item.title} 
                               className="w-28 h-28 object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] z-10"
                               onError={(e) => { 
-                                // ŞEFİM BU KOD RESMİN KIRIK ÇIKMASINI ENGELLER!
                                 e.currentTarget.src = "https://placehold.co/200x200/121215/00e5ff?text=Gorsel+Yok" 
                               }}
                             />
