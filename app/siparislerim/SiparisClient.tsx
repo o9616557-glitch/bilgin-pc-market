@@ -246,7 +246,9 @@ export default function SiparisClient({ initialOrders }: Props) {
                             </div>
                           )}
                           <div>
-                            <p className="font-bold text-slate-200 line-clamp-1">{item.title}</p>
+                           <p className="font-bold text-slate-200 break-words whitespace-normal">
+  {item.title}
+</p>
                             <p className="text-xs text-slate-500 mt-1 font-bold uppercase tracking-wider">{item.quantity} Adet</p>
                           </div>
                         </div>
