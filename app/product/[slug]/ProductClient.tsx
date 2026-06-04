@@ -5,16 +5,13 @@ import React, { useState, useEffect, useRef } from "react";
 import { useCart } from "../../CartContext"; 
 import toast from "react-hot-toast";
 import { useCompare } from "@/app/CompareContext";
-import { X, Gamepad2, ChevronLeft, ChevronRight, ShoppingCart, Heart, GitCompare, Share2, Info, Star, Zap } from "lucide-react";
+import { X, Gamepad2, ChevronLeft, ChevronRight, ShoppingCart, Heart, GitCompare, Share2, Star, Zap } from "lucide-react";
 
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
-  // ==========================================
-  // 🚀 SENİN MEVCUT MOTORLARIN (HİÇ DOKUNULMADI) 🚀
-  // ==========================================
   const { sepeteEkle } = useCart(); 
   const { karsilastirmayaEkle, setPopupAcik } = useCompare(); 
   
-  const [activeTab, setActiveTab] = useState("aciklama"); // Varsayılan sekme: Açıklama
+  const [activeTab, setActiveTab] = useState("aciklama"); 
   const [seciliCozunurluk, setSeciliCozunurluk] = useState("1080P");
   const [seciliIslemci, setSeciliIslemci] = useState("i5");
   const [reviewName, setReviewName] = useState("");
@@ -28,7 +25,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [addingToCart, setAddingToCart] = useState(false);
   const [isFav, setIsFav] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
 
   const [seciliResimIndex, setSeciliResimIndex] = useState(0);
   const [fade, setFade] = useState(false); 
@@ -40,8 +36,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const pId = product?._id?.toString() || product?.id?.toString() || "urun";
   const totalReviews = reviews.length;
   const avgRating = totalReviews > 0 ? (reviews.reduce((acc: any, curr: any) => acc + Number(curr.rating), 0) / totalReviews).toFixed(1) : "0.0";
-
-  const showToast = (message: string) => { setToastMessage(message); setTimeout(() => setToastMessage(""), 4000); };
 
   const handleToggleFavorite = async () => {
     const oncekiDurum = isFav; setIsFav(!oncekiDurum); 
@@ -78,18 +72,18 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const havaleYuzdesi = product.havaleIndirimi !== undefined ? Number(product.havaleIndirimi) : 5;
 
   const handleSubmitReview = async (e: React.FormEvent) => {
-    e.preventDefault(); if (!reviewText.trim()) return showToast("Yorum yazın!"); setIsSubmitting(true);
+    e.preventDefault(); if (!reviewText.trim()) return toast.error("Yorum yazın!"); setIsSubmitting(true);
     try {
       const res = await fetch("/api/reviews", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ productId: pId, type: "review", name: reviewName, text: reviewText, rating: reviewRating }) });
-      if (res.ok) { showToast("Yorumunuz gönderildi!"); setReviewText(""); setReviewName(""); setReviewRating(5); } else showToast("Hata oluştu.");
+      if (res.ok) { toast.success("Yorumunuz gönderildi!"); setReviewText(""); setReviewName(""); setReviewRating(5); } else toast.error("Hata oluştu.");
     } catch (error) {} setIsSubmitting(false);
   };
 
   const handleSubmitQuestion = async (e: React.FormEvent) => {
-    e.preventDefault(); if (!questionText.trim()) return showToast("Soru yazın!"); setIsSubmitting(true);
+    e.preventDefault(); if (!questionText.trim()) return toast.error("Soru yazın!"); setIsSubmitting(true);
     try {
       const res = await fetch("/api/reviews", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ productId: pId, type: "question", name: questionName, text: questionText }) });
-      if (res.ok) { showToast("Sorunuz gönderildi!"); setQuestionText(""); setQuestionName(""); } else showToast("Hata oluştu.");
+      if (res.ok) { toast.success("Sorunuz gönderildi!"); setQuestionText(""); setQuestionName(""); } else toast.error("Hata oluştu.");
     } catch (error) {} setIsSubmitting(false);
   };
 
@@ -116,18 +110,15 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const degistirResim = (yeniIndex: number) => { if (yeniIndex === seciliResimIndex) return; setFade(true); setTimeout(() => { setSeciliResimIndex(yeniIndex); setFade(false); }, 200); };
   const sonrakiResim = () => degistirResim((seciliResimIndex + 1) % resimler.length);
   const oncekiResim = () => degistirResim((seciliResimIndex - 1 + resimler.length) % resimler.length);
+  
   const handleTouchStart = (e: React.TouchEvent) => touchStartRef.current = e.touches[0].clientX;
-  const handleTouchEnd = (e: React.TouchEvent) => { const fark = touchStartRef.current - e.changedTouches[0].clientX; if (fark > 30) sonrakiResim(); else if (fark < -30) oncekiResim(); };
+  const handleTouchEnd = (e: React.TouchEvent) => { const fark = touchStartRef.current - e.changedTouches[0].clientX; if (fark > 40) sonrakiResim(); else if (fark < -40) oncekiResim(); };
 
-  // ==========================================
-  // 🚀 ULTIMATE ARAYÜZ TASARIMI 🚀
-  // ==========================================
   return (
     <div className="min-h-screen bg-[#050505] text-white font-sans pb-24 sm:pb-10">
       
-      {/* İndirim Rozeti İçin CSS (Sadece sayfa içi) */}
       <style dangerouslySetInnerHTML={{ __html: `
-        .badge-rosette-page { position: absolute; top: 15px; left: 15px; width: 80px; height: 80px; background: #e60000; clip-path: polygon(50% 0%, 60% 10%, 75% 5%, 80% 20%, 95% 25%, 90% 40%, 100% 50%, 90% 60%, 95% 75%, 80% 80%, 75% 95%, 60% 90%, 50% 100%, 40% 90%, 25% 95%, 20% 80%, 5% 75%, 10% 60%, 0% 50%, 10% 40%, 5% 25%, 20% 20%, 25% 5%, 40% 10%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); }
+        .badge-rosette-page { position: absolute; top: 0px; left: 0px; width: 80px; height: 80px; background: #e60000; clip-path: polygon(50% 0%, 60% 10%, 75% 5%, 80% 20%, 95% 25%, 90% 40%, 100% 50%, 90% 60%, 95% 75%, 80% 80%, 75% 95%, 60% 90%, 50% 100%, 40% 90%, 25% 95%, 20% 80%, 5% 75%, 10% 60%, 0% 50%, 10% 40%, 5% 25%, 20% 20%, 25% 5%, 40% 10%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); pointer-events: none; }
         .badge-rosette-page span:first-child { font-size: 20px; font-weight: 900; line-height: 1; margin-top: 5px; }
         .badge-rosette-page span:last-child { font-size: 13px; font-weight: 900; line-height: 1; }
       `}} />
@@ -145,16 +136,17 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
              )}
           </div>
 
+          {/* 🚀 KART TASARIMI KALDIRILDI - SADECE RESİM 🚀 */}
           <div 
             onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
-            className="relative w-full aspect-square sm:aspect-[4/3] bg-white/[0.02] backdrop-blur-xl border border-white/5 rounded-2xl flex items-center justify-center p-6 overflow-hidden mb-4 group"
+            className="relative w-full aspect-square sm:aspect-[4/3] flex items-center justify-center mb-2 group"
           >
             {indirimVarMi && !tukendiMi && (
               <div className="badge-rosette-page"><span>%{indirimOrani}</span><span>İNDİRİM</span></div>
             )}
             
-            <button onClick={(e) => { e.preventDefault(); oncekiResim(); }} className="absolute left-3 z-30 w-10 h-10 bg-black/50 border border-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-[#00d2ff] hover:text-black hover:scale-110"><ChevronLeft className="w-6 h-6" /></button>
-            <button onClick={(e) => { e.preventDefault(); sonrakiResim(); }} className="absolute right-3 z-30 w-10 h-10 bg-black/50 border border-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-[#00d2ff] hover:text-black hover:scale-110"><ChevronRight className="w-6 h-6" /></button>
+            <button onClick={(e) => { e.preventDefault(); oncekiResim(); }} className="absolute left-0 z-30 w-10 h-10 bg-black/50 border border-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-[#00d2ff] hover:text-black hover:scale-110"><ChevronLeft className="w-6 h-6" /></button>
+            <button onClick={(e) => { e.preventDefault(); sonrakiResim(); }} className="absolute right-0 z-30 w-10 h-10 bg-black/50 border border-white/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-[#00d2ff] hover:text-black hover:scale-110"><ChevronRight className="w-6 h-6" /></button>
 
             <img 
               onClick={() => setLightboxAcik(true)}
@@ -164,8 +156,22 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             />
           </div>
 
+          {/* 🚀 MOBİL NOKTA / ÇİZGİ NAVİGASYONU 🚀 */}
           {resimler.length > 1 && (
-            <div className="flex gap-3 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden">
+            <div className="flex md:hidden justify-center gap-2 mt-2 mb-6">
+              {resimler.map((_, idx) => (
+                <button 
+                  key={idx} 
+                  onClick={() => degistirResim(idx)} 
+                  className={`h-1.5 rounded-full transition-all duration-300 ${seciliResimIndex === idx ? 'w-6 bg-[#00d2ff]' : 'w-2 bg-gray-600'}`} 
+                />
+              ))}
+            </div>
+          )}
+
+          {/* 🚀 PC KÜÇÜK RESİM GALERİSİ 🚀 */}
+          {resimler.length > 1 && (
+            <div className="hidden md:flex gap-3 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden">
               {resimler.map((img: string, idx: number) => (
                 <button key={idx} onClick={() => degistirResim(idx)} className={`w-20 h-20 flex-shrink-0 bg-white/[0.02] border rounded-xl p-2 transition-all duration-300 flex items-center justify-center ${seciliResimIndex === idx ? "border-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.2)]" : "border-white/5 opacity-50 hover:opacity-100 hover:border-white/20"}`}>
                   <img src={img} alt="" className="max-w-full max-h-full object-contain" />
@@ -192,8 +198,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             {urunAdi}
           </h1>
 
-          {/* Premium Fiyat Kutusu */}
-          <div className="relative bg-white/[0.02] backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8 mb-8 overflow-hidden group">
+          <div className="relative bg-white/[0.02] backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8 mb-6 overflow-hidden group">
              <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#00d2ff]/20 blur-[60px] rounded-full pointer-events-none group-hover:bg-[#00d2ff]/30 transition-colors"></div>
              
              {indirimVarMi && !tukendiMi && <div className="text-gray-500 text-lg line-through font-bold mb-1">{normalFiyat.toLocaleString("tr-TR")} TL</div>}
@@ -209,28 +214,29 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
              )}
           </div>
 
-          {/* Aksiyon Butonları (PC İçin) */}
-          <div className="hidden sm:flex gap-4 mb-10">
-             <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`flex-1 h-16 rounded-2xl font-black text-lg uppercase tracking-widest flex items-center justify-center gap-3 transition-all ${tukendiMi ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-[#00d2ff] text-black hover:bg-white hover:shadow-[0_0_30px_rgba(0,210,255,0.4)]'}`}>
-                <ShoppingCart className="w-6 h-6" /> {tukendiMi ? "Tükendi" : "Sepete Ekle"}
+          {/* 🚀 AKSİYON BUTONLARI (HEM PC HEM MOBİLDE GÖRÜNÜR) 🚀 */}
+          <div className="flex gap-2 sm:gap-4 mb-10">
+             <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`flex-1 h-14 sm:h-16 rounded-2xl font-black text-sm sm:text-lg uppercase tracking-widest flex items-center justify-center gap-2 sm:gap-3 transition-all ${tukendiMi ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-[#00d2ff] text-black hover:bg-white hover:shadow-[0_0_30px_rgba(0,210,255,0.4)]'}`}>
+                <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" /> <span className="hidden sm:inline">{tukendiMi ? "Tükendi" : "Sepete Ekle"}</span><span className="sm:hidden">{tukendiMi ? "Tükendi" : "Ekle"}</span>
              </button>
-             <button onClick={handleToggleFavorite} className={`w-16 h-16 rounded-2xl flex items-center justify-center border transition-all ${isFav ? 'bg-red-500/10 border-red-500 text-red-500' : 'bg-white/5 border-white/10 hover:border-[#00d2ff] hover:text-[#00d2ff]'}`} title="Favori">
-                <Heart className={`w-6 h-6 ${isFav ? 'fill-red-500' : ''}`} />
+             <button onClick={handleToggleFavorite} className={`w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl flex items-center justify-center border transition-all ${isFav ? 'bg-red-500/10 border-red-500 text-red-500' : 'bg-white/5 border-white/10 hover:border-[#00d2ff] hover:text-[#00d2ff]'}`} title="Favori">
+                <Heart className={`w-5 h-5 sm:w-6 sm:h-6 ${isFav ? 'fill-red-500' : ''}`} />
              </button>
-             <button onClick={handleCompare} className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all hover:border-[#00d2ff] hover:text-[#00d2ff]" title="Karşılaştır">
-                <GitCompare className="w-6 h-6" />
+             <button onClick={handleCompare} className="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all hover:border-[#00d2ff] hover:text-[#00d2ff]" title="Karşılaştır">
+                <GitCompare className="w-5 h-5 sm:w-6 sm:h-6" />
              </button>
-             <button onClick={handleShare} className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all hover:border-[#00d2ff] hover:text-[#00d2ff]" title="Paylaş">
-                <Share2 className="w-6 h-6" />
+             <button onClick={handleShare} className="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all hover:border-[#00d2ff] hover:text-[#00d2ff]" title="Paylaş">
+                <Share2 className="w-5 h-5 sm:w-6 sm:h-6" />
              </button>
           </div>
 
-          {/* SEKMELER MENÜSÜ */}
+          {/* 🚀 SEKMELER (AÇIKLAMA VE SORULAR EKLENDİ) 🚀 */}
           <div className="flex overflow-x-auto gap-2 border-b border-white/10 pb-4 mb-6 [&::-webkit-scrollbar]:hidden">
-             <button onClick={() => setActiveTab('aciklama')} className={`px-5 py-3 rounded-xl font-bold text-sm whitespace-nowrap transition-all uppercase tracking-widest ${activeTab === 'aciklama' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Detay</button>
+             <button onClick={() => setActiveTab('aciklama')} className={`px-5 py-3 rounded-xl font-bold text-sm whitespace-nowrap transition-all uppercase tracking-widest ${activeTab === 'aciklama' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Açıklama</button>
              <button onClick={() => setActiveTab('teknik')} className={`px-5 py-3 rounded-xl font-bold text-sm whitespace-nowrap transition-all uppercase tracking-widest ${activeTab === 'teknik' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Teknik</button>
              <button onClick={() => setActiveTab('fps')} className={`px-5 py-3 rounded-xl font-bold text-sm whitespace-nowrap transition-all uppercase tracking-widest ${activeTab === 'fps' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>FPS Testi</button>
              <button onClick={() => setActiveTab('yorumlar')} className={`px-5 py-3 rounded-xl font-bold text-sm whitespace-nowrap transition-all uppercase tracking-widest ${activeTab === 'yorumlar' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Yorumlar</button>
+             <button onClick={() => setActiveTab('sorular')} className={`px-5 py-3 rounded-xl font-bold text-sm whitespace-nowrap transition-all uppercase tracking-widest ${activeTab === 'sorular' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Sorular</button>
           </div>
 
           {/* SEKME İÇERİKLERİ */}
@@ -280,7 +286,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 </div>
              )}
 
-             {/* Yorumlar ve Sorular */}
+             {/* Yorumlar */}
              {activeTab === 'yorumlar' && (
                 <div className="space-y-8">
                    <form onSubmit={handleSubmitReview} className="bg-white/[0.02] border border-white/5 p-6 rounded-2xl">
@@ -303,10 +309,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                                <div className="text-[#d4af37] text-xs">{"★".repeat(Number(r.rating))}{"☆".repeat(5-Number(r.rating))}</div>
                             </div>
                             <p className="text-gray-400 text-sm leading-relaxed">{r.text}</p>
-                            {(r.answer || r.reply) && (
+                            {(r.answer || r.reply || r.adminReply || r.cevap) && (
                                <div className="mt-4 bg-[#00d2ff]/10 border-l-2 border-[#00d2ff] p-4 rounded-r-xl">
                                   <span className="text-[#00d2ff] font-black text-[10px] uppercase block mb-1">Bilgin PC Yanıtı</span>
-                                  <p className="text-gray-300 text-sm">{r.answer || r.reply}</p>
+                                  <p className="text-gray-300 text-sm">{r.answer || r.reply || r.adminReply || r.cevap}</p>
                                </div>
                             )}
                          </div>
@@ -314,6 +320,34 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                    </div>
                 </div>
              )}
+
+             {/* Sorular */}
+             {activeTab === 'sorular' && (
+                <div className="space-y-8">
+                   <form onSubmit={handleSubmitQuestion} className="bg-white/[0.02] border border-white/5 p-6 rounded-2xl">
+                      <h3 className="text-lg font-black uppercase mb-4 tracking-wide text-white">Soru Sor</h3>
+                      <input type="text" value={questionName} onChange={e => setQuestionName(e.target.value)} placeholder="Adınız Soyadınız" className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-sm text-white focus:border-[#00d2ff] outline-none mb-4" />
+                      <textarea value={questionText} onChange={e => setQuestionText(e.target.value)} placeholder="Ürünle ilgili ne öğrenmek istersiniz?" className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-sm text-white focus:border-[#00d2ff] outline-none mb-4 min-h-[100px] resize-none" />
+                      <button disabled={isSubmitting} className="w-full sm:w-auto bg-[#00d2ff] text-black font-black uppercase tracking-widest px-8 py-3.5 rounded-xl hover:bg-white transition-all">{isSubmitting ? '...' : 'Gönder'}</button>
+                   </form>
+
+                   <div className="space-y-4">
+                      {questions.length > 0 ? questions.map((q, i) => (
+                         <div key={i} className="bg-white/[0.02] border border-white/5 p-6 rounded-2xl">
+                            <span className="text-white font-bold block mb-2">❓ {q.name || "Müşteri"}</span>
+                            <p className="text-gray-400 text-sm leading-relaxed">{q.text}</p>
+                            {(q.answer || q.reply || q.adminReply || q.cevap) && (
+                               <div className="mt-4 bg-[#00d2ff]/10 border-l-2 border-[#00d2ff] p-4 rounded-r-xl">
+                                  <span className="text-[#00d2ff] font-black text-[10px] uppercase block mb-1">Bilgin PC Yanıtı</span>
+                                  <p className="text-gray-300 text-sm">{q.answer || q.reply || q.adminReply || q.cevap}</p>
+                               </div>
+                            )}
+                         </div>
+                      )) : <div className="text-center text-gray-500 py-8">Henüz soru yok. İlk soran sen ol!</div>}
+                   </div>
+                </div>
+             )}
+
           </div>
         </div>
       </div>
@@ -329,11 +363,20 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
          </button>
       </div>
 
-      {/* LIGHTBOX (Tıklanınca Büyüyen Resim) */}
+      {/* 🚀 LIGHTBOX (Tam Ekran Resim ve Kaydırma Motoru) 🚀 */}
       {lightboxAcik && (
-        <div onClick={() => setLightboxAcik(false)} className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-           <button className="absolute top-6 right-6 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-red-500 transition-colors"><X className="w-6 h-6" /></button>
-           <img src={resimler[seciliResimIndex]} className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl" alt="" />
+        <div 
+          onTouchStart={handleTouchStart} 
+          onTouchEnd={handleTouchEnd}
+          className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex items-center justify-center p-4"
+        >
+           <button onClick={() => setLightboxAcik(false)} className="absolute top-6 right-6 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-red-500 transition-colors z-50"><X className="w-6 h-6" /></button>
+           
+           <button onClick={(e) => { e.stopPropagation(); oncekiResim(); }} className="hidden sm:flex absolute left-6 w-14 h-14 bg-white/10 rounded-full items-center justify-center hover:bg-[#00d2ff] hover:text-black transition-colors z-50"><ChevronLeft className="w-8 h-8" /></button>
+           
+           <img src={resimler[seciliResimIndex]} className={`max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl transition-all duration-300 ${fade ? 'opacity-0 scale-[0.98]' : 'opacity-100 scale-100'}`} alt="" />
+           
+           <button onClick={(e) => { e.stopPropagation(); sonrakiResim(); }} className="hidden sm:flex absolute right-6 w-14 h-14 bg-white/10 rounded-full items-center justify-center hover:bg-[#00d2ff] hover:text-black transition-colors z-50"><ChevronRight className="w-8 h-8" /></button>
         </div>
       )}
 
