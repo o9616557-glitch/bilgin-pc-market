@@ -19,6 +19,17 @@ export default async function HomePage() {
   return (
     <main className="min-h-screen bg-black text-white font-sans overflow-hidden selection:bg-[#00d2ff] selection:text-black">
       
+      {/* 🚀 ANA SAYFA İNDİRİM ROZETİ CSS KODU (SOL ÜST KÖŞE) 🚀 */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        .discount-badge-home { position: absolute; top: 10px; left: 10px; width: 75px; height: 100px; z-index: 50; filter: drop-shadow(0px 8px 10px rgba(0,0,0,0.6)); pointer-events: none; }
+        .badge-rosette-home { position: relative; width: 75px; height: 75px; background: #e60000; clip-path: polygon(50% 0%, 60% 10%, 75% 5%, 80% 20%, 95% 25%, 90% 40%, 100% 50%, 90% 60%, 95% 75%, 80% 80%, 75% 95%, 60% 90%, 50% 100%, 40% 90%, 25% 95%, 20% 80%, 5% 75%, 10% 60%, 0% 50%, 10% 40%, 5% 25%, 20% 20%, 25% 5%, 40% 10%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 2; }
+        .badge-rosette-home span:first-child { font-size: 20px; font-weight: 900; line-height: 1; margin-top: 3px; }
+        .badge-rosette-home span:last-child { font-size: 13px; font-weight: 900; line-height: 1; }
+        .badge-ribbon-home-left, .badge-ribbon-home-right { position: absolute; top: 50px; width: 26px; height: 50px; background: linear-gradient(to right, #c20000 12%, white 12%, white 18%, #c20000 18%, #c20000 82%, white 82%, white 88%, #c20000 88%); z-index: 1; }
+        .badge-ribbon-home-left { left: 8px; transform: rotate(20deg); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%); }
+        .badge-ribbon-home-right { right: 8px; transform: rotate(-20deg); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%); }
+      `}} />
+
       {/* ==================== 1. HERO (GİRİŞ BÖLÜMÜ) ==================== */}
       <section className="relative w-full min-h-[55vh] flex items-center justify-center pt-24 pb-6 border-b border-white/10">
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_20%,transparent_100%)] pointer-events-none" />
@@ -83,7 +94,6 @@ export default async function HomePage() {
           <div className="flex flex-nowrap overflow-x-auto gap-4 pb-4 px-[7.5vw] sm:px-[10vw] lg:px-8 snap-x snap-mandatory scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#00d2ff] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
 
             <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#10b981] transition-colors duration-500">
-              {/* HELLO Yazılı resim silindi, yeni teknoloji resmi eklendi */}
               <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800&auto=format&fit=crop" alt="Havale İndirimi" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-60 transition-all duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent"></div>
               <div className="relative z-10 transform group-hover:-translate-y-2 transition-transform duration-500">
@@ -166,6 +176,18 @@ export default async function HomePage() {
 
                     <div className="relative w-full aspect-[4/3] p-6 flex items-center justify-center bg-white/5 border-b border-white/10 pointer-events-none overflow-hidden">
                       <div className="absolute inset-0 bg-gradient-to-t from-[#00d2ff]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                      {/* 🚀 VİTRİN KARTLARI İÇİN HTML ROZET BURADA 🚀 */}
+                      {indirimVarMi && !tukendiMi && (
+                        <div className="discount-badge-home">
+                            <div className="badge-ribbon-home-left"></div>
+                            <div className="badge-ribbon-home-right"></div>
+                            <div className="badge-rosette-home">
+                                <span>%{indirimOrani}</span>
+                                <span>İNDİRİM</span>
+                            </div>
+                        </div>
+                      )}
 
                       {!tukendiMi && (
                         <div className="absolute top-3 right-3 z-[60] pointer-events-auto">
@@ -294,7 +316,6 @@ export default async function HomePage() {
               </div>
             </Link>
 
-            {/* HELLO ve "1080" yazmayan yeni, temiz bir donanım resmi eklendi */}
             <Link href="/kategori/ekran-kartlari" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#00d2ff] transition-colors duration-500">
               <img src="https://images.unsplash.com/photo-1591488320449-011701bb6704?q=80&w=800&auto=format&fit=crop" alt="Ekran Kartları" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 grayscale group-hover:grayscale-0" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent"></div>
@@ -344,10 +365,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ==================== 6. BİLGİN PC BİLGİLENDİRME (Yeni güvenilir resim) ==================== */}
+      {/* ==================== 6. BİLGİN PC BİLGİLENDİRME ==================== */}
       <section className="relative w-full py-20 sm:py-28 bg-[#0a0a0a] border-t border-white/10 overflow-hidden flex items-center justify-center">
         
-        {/* Güvenilir ve çok daha net anakart resmi. 1080 yazmıyor! */}
         <div className="absolute inset-0 z-0 opacity-40">
           <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2000&auto=format&fit=crop" alt="Bilgin PC Arka Plan" className="w-full h-full object-cover grayscale" />
           <div className="absolute inset-0 bg-[#0a0a0a]/70"></div>
