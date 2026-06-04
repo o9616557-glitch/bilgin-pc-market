@@ -187,8 +187,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   );
 
   return (
-    // 🚀 ANA DÜZELTME 1: min-h-screen ve devasa pb-32 silindi, daha derli toplu yapıldı 🚀
-    <div className="bg-[#050505] text-white font-sans pb-6 sm:pb-10 relative">
+    <div className="bg-[#050505] text-white font-sans pb-32 sm:pb-10 relative">
       
       <style dangerouslySetInnerHTML={{ __html: `
         body { -webkit-tap-highlight-color: transparent; }
@@ -275,7 +274,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             {urunAdi}
           </h1>
 
-          <div className="relative rounded-3xl bg-[#09090b] p-6 sm:p-8 mb-6 sm:mb-8 border border-[#00e5ff]/50 shadow-[0_0_20px_rgba(0,229,255,0.15)] overflow-hidden select-none">
+          {/* 🚀 BÜYÜK FİYAT KUTUSU SADECE BİLGİSAYARDA GÖZÜKÜR (hidden sm:block EKLENDİ) 🚀 */}
+          <div className="hidden sm:block relative rounded-3xl bg-[#09090b] p-6 sm:p-8 mb-6 sm:mb-8 border border-[#00e5ff]/50 shadow-[0_0_20px_rgba(0,229,255,0.15)] overflow-hidden select-none">
              {indirimVarMi && !tukendiMi && <div className="text-gray-500 text-sm sm:text-lg line-through font-bold mb-1">{normalFiyat.toLocaleString("tr-TR")} TL</div>}
              <div className="text-3xl sm:text-5xl font-black leading-none mb-5 text-white">
                 {gecerliFiyat.toLocaleString("tr-TR")} <span className="text-xl sm:text-2xl text-[#00d2ff]">TL</span>
@@ -317,7 +317,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
              <button onClick={() => setActiveTab('sorular')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase touch-manipulation tracking-widest ${activeTab === 'sorular' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Sorular</button>
           </div>
 
-          {/* 🚀 DÜZELTME 2: Sekmelerin altındaki devasa boşluk küçültüldü 🚀 */}
           <div className="min-h-[150px] mb-4">
 
              {activeTab === 'teknik' && (
@@ -409,7 +408,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-      {/* 🚀 DÜZELTME 3: Resim boşlukları ve açıklamanın kendi alt boşluğu tıraşlandı 🚀 */}
       {product.aciklama && (
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-4 pb-2 border-t border-white/10 select-none touch-manipulation">
            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-widest mb-6 text-white flex items-center gap-3 select-none">
@@ -426,10 +424,17 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       )}
 
-      <div className="sm:hidden fixed bottom-0 left-0 w-full bg-black/95 backdrop-blur-xl border-t border-white/10 px-6 py-4 z-50 flex items-center justify-between shadow-[0_-20px_40px_rgba(0,0,0,0.6)] select-none">
+      {/* 🚀 MOBİL YAPIŞKAN SEPETE HAVALE FİYATI EKLENDİ VE TASARIM DÜZENLENDİ 🚀 */}
+      <div className="sm:hidden fixed bottom-0 left-0 w-full bg-[#050505]/95 backdrop-blur-2xl border-t border-white/10 px-4 py-3 z-50 flex items-center justify-between shadow-[0_-20px_40px_rgba(0,0,0,0.8)] select-none">
          <div className="flex flex-col">
-            {indirimVarMi && !tukendiMi && <span className="text-gray-500 text-[10px] line-through">{normalFiyat.toLocaleString("tr-TR")} ₺</span>}
-            <span className="text-2xl font-black text-white leading-none">{gecerliFiyat.toLocaleString("tr-TR")} ₺</span>
+            {indirimVarMi && !tukendiMi && <span className="text-gray-500 text-[11px] line-through font-medium mb-0.5">{normalFiyat.toLocaleString("tr-TR")} ₺</span>}
+            <span className="text-[22px] font-black text-white leading-none mb-1.5">{gecerliFiyat.toLocaleString("tr-TR")} <span className="text-[#00d2ff] text-lg">₺</span></span>
+            
+            {havaleYuzdesi > 0 && !tukendiMi && (
+               <span className="text-[#10b981] text-[10px] font-black tracking-wide flex items-center gap-1">
+                 <Zap className="w-3 h-3" /> HAVALE: {havaleFiyati.toLocaleString("tr-TR", {maximumFractionDigits: 0})} ₺
+               </span>
+            )}
          </div>
          <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`h-12 px-6 rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 transition-all touch-manipulation ${tukendiMi ? 'bg-zinc-800 text-zinc-500' : 'bg-[#00d2ff] text-black shadow-[0_0_20px_rgba(0,210,255,0.3)] hover:bg-[#00c4db]'}`}>
             <ShoppingCart className="w-4 h-4" /> {tukendiMi ? "Tükendi" : "Sepete Ekle"}
