@@ -187,9 +187,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   );
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans pb-32 sm:pb-10 relative">
+    // 🚀 ANA DÜZELTME 1: min-h-screen ve devasa pb-32 silindi, daha derli toplu yapıldı 🚀
+    <div className="bg-[#050505] text-white font-sans pb-6 sm:pb-10 relative">
       
-      {/* 🚀 GLOBAL CSS: Dokunmayı kitleme kuralları 🚀 */}
       <style dangerouslySetInnerHTML={{ __html: `
         body { -webkit-tap-highlight-color: transparent; }
         button, img, a, .select-none { -webkit-touch-callout: none; user-select: none; }
@@ -257,12 +257,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
         <div className="w-full md:w-[55%] flex flex-col px-4 sm:px-0">
           
-          {/* 🚀 BİLGİN PC ve YORUMLAR KISMI AYRILDI 🚀 */}
           <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-4 select-none touch-manipulation">
              <div className="text-xs sm:text-sm font-black text-gray-500 tracking-[0.2em] uppercase">
                 {product.marka || "BİLGİN PC"}
              </div>
-             {/* 🚀 SADECE BURAYA TIKLANINCA YORUMLARA İNER 🚀 */}
              <div onClick={handleReviewClick} className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm cursor-pointer group">
                 <div className="flex gap-0.5">
                    {[1,2,3,4,5].map(s => <Star key={s} className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-all ${Number(avgRating) >= s ? 'text-[#d4af37] fill-[#d4af37]' : 'text-gray-700'}`} />)}
@@ -319,7 +317,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
              <button onClick={() => setActiveTab('sorular')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase touch-manipulation tracking-widest ${activeTab === 'sorular' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Sorular</button>
           </div>
 
-          <div className="min-h-[200px] mb-8">
+          {/* 🚀 DÜZELTME 2: Sekmelerin altındaki devasa boşluk küçültüldü 🚀 */}
+          <div className="min-h-[150px] mb-4">
 
              {activeTab === 'teknik' && (
                 <div className="bg-[#09090b] border border-white/5 rounded-2xl overflow-hidden select-none">
@@ -410,24 +409,23 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-      {/* 🚀 AÇIKLAMA KISMINDAKİ KOPYALAMAYI VE GOOGLE ARAMAYI TAMAMEN ENGELLEYEN KOD 🚀 */}
+      {/* 🚀 DÜZELTME 3: Resim boşlukları ve açıklamanın kendi alt boşluğu tıraşlandı 🚀 */}
       {product.aciklama && (
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-4 pb-10 border-t border-white/10 select-none touch-manipulation">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-4 pb-2 border-t border-white/10 select-none touch-manipulation">
            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-widest mb-6 text-white flex items-center gap-3 select-none">
              <Info className="w-5 h-5 sm:w-6 sm:h-6 text-[#00d2ff]" /> Ürün Açıklaması
            </h2>
            <div className="prose prose-invert max-w-none select-none touch-manipulation 
               [&_*]:!select-none [&_*]:!-webkit-touch-callout-none
-              [&_img]:w-full [&_img]:h-auto [&_img]:!m-0 [&_img]:!border-none [&_img]:!rounded-none [&_img]:block [&_img]:my-6
+              [&_img]:w-full [&_img]:h-auto [&_img]:!m-0 [&_img]:!border-none [&_img]:!rounded-none [&_img]:block [&_img]:mt-6 [&_img]:mb-2
               [&_h2]:text-xl sm:[&_h2]:text-2xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mb-3 [&_h2]:mt-8
               [&_h3]:text-lg sm:[&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-gray-200 [&_h3]:mb-2 [&_h3]:mt-6
-              [&_p]:text-gray-300 [&_p]:leading-relaxed [&_p]:text-sm sm:[&_p]:text-base [&_p]:mb-4" 
+              [&_p]:text-gray-300 [&_p]:leading-relaxed [&_p]:text-sm sm:[&_p]:text-base [&_p]:mb-2" 
               dangerouslySetInnerHTML={{ __html: product.aciklama }} 
            />
         </div>
       )}
 
-      {/* 🚀 MOBİL YAPIŞKAN SEPET - ALT BOŞLUK TAMAMEN SIFIRLANDI 🚀 */}
       <div className="sm:hidden fixed bottom-0 left-0 w-full bg-black/95 backdrop-blur-xl border-t border-white/10 px-6 py-4 z-50 flex items-center justify-between shadow-[0_-20px_40px_rgba(0,0,0,0.6)] select-none">
          <div className="flex flex-col">
             {indirimVarMi && !tukendiMi && <span className="text-gray-500 text-[10px] line-through">{normalFiyat.toLocaleString("tr-TR")} ₺</span>}
