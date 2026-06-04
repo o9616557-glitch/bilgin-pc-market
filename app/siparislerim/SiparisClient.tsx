@@ -187,7 +187,6 @@ export default function SiparisClient({ initialOrders }: Props) {
 
                   <div className="pt-8 pb-6 px-2 sm:px-8">
                     {isCancelled ? (
-                      /* 🚀 YENİ KİBAR VE MODERN İPTAL TASARIMI */
                       <div className="bg-[#121215] border border-slate-800/80 p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-center gap-4 text-slate-300 font-bold tracking-widest text-sm uppercase shadow-inner">
                         <div className="w-10 h-10 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shrink-0">
                           <span className="text-xl text-rose-500 font-black mb-1">×</span>
@@ -234,27 +233,47 @@ export default function SiparisClient({ initialOrders }: Props) {
                     </div>
                   )}
 
+                  {/* 🚀 YENİ TASARIM BURAYA EKLENDİ (Resim Üstte, Başlık Serbest) */}
                   <div className="border-t border-slate-800/80 pt-6 space-y-4">
                     {order.items?.map((item: any, idx: number) => (
-                      <div key={idx} className="flex items-center justify-between gap-4 text-sm bg-[#121215] p-3 rounded-xl border border-slate-800/50">
-                        <div className="flex items-center gap-4">
-                          {item.image ? (
-                            <img src={item.image} alt={item.title} className="w-14 h-14 object-contain rounded-lg bg-[#09090b] border border-slate-800 p-1"/>
+                      <div key={idx} className="flex flex-col gap-4 bg-[#121215] p-4 sm:p-5 rounded-2xl border border-slate-800/60 shadow-lg">
+                        
+                        {/* 1. SATIR: GÖRSEL */}
+                        <div className="w-full flex justify-center bg-[#09090b] py-6 rounded-xl border border-slate-800/50 relative overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
+                          {item.image || item.resim ? (
+                            <img 
+                              src={item.image || item.resim} 
+                              alt={item.title} 
+                              className="w-28 h-28 object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] z-10"
+                              onError={(e) => { 
+                                e.currentTarget.src = "https://placehold.co/200x200/121215/00e5ff?text=Gorsel+Yok" 
+                              }}
+                            />
                           ) : (
-                            <div className="w-14 h-14 rounded-lg bg-[#09090b] border border-slate-800 flex items-center justify-center">
-                              <PackageOpen className="w-5 h-5 text-slate-600" />
+                            <div className="w-16 h-16 rounded-xl bg-[#09090b] border border-slate-700 flex items-center justify-center z-10">
+                              <PackageOpen className="w-8 h-8 text-slate-600" />
                             </div>
                           )}
-                          <div>
-                           <p className="font-bold text-slate-200 break-words whitespace-normal">
-  {item.title}
-</p>
-                            <p className="text-xs text-slate-500 mt-1 font-bold uppercase tracking-wider">{item.quantity} Adet</p>
-                          </div>
                         </div>
-                        <p className="font-black text-[#00e5ff] text-base whitespace-nowrap">
-                          {Number(item.price * item.quantity).toLocaleString("tr-TR")} TL
-                        </p>
+
+                        {/* 2. SATIR: BAŞLIK */}
+                        <div className="w-full text-center sm:text-left">
+                          <p className="font-bold text-slate-200 break-words whitespace-normal leading-relaxed text-sm sm:text-base">
+                            {item.title}
+                          </p>
+                        </div>
+
+                        {/* 3. SATIR: ADET VE FİYAT */}
+                        <div className="flex items-center justify-between border-t border-slate-800/80 pt-4 mt-2">
+                          <p className="text-xs text-slate-400 font-bold uppercase bg-slate-800/40 px-4 py-2 rounded-lg border border-slate-700/50">
+                            {item.quantity} ADET
+                          </p>
+                          <p className="font-black text-[#00e5ff] text-lg sm:text-xl whitespace-nowrap">
+                            {Number((item.price || 0) * item.quantity).toLocaleString("tr-TR")} TL
+                          </p>
+                        </div>
+
                       </div>
                     ))}
                   </div>
