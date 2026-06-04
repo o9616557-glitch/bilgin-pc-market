@@ -1,22 +1,25 @@
 import clientPromise from "@/lib/mongodb";
 import Link from "next/link";
-import { Cpu, Crosshair, Sparkles, Star, GitCompare, ShieldCheck, Zap, Eye, ArrowRight } from "lucide-react";
+import { Cpu, Crosshair, Sparkles, Star, GitCompare, ShieldCheck, Zap, ShoppingCart, Eye, ArrowRight } from "lucide-react";
 import CompareButton from "./CompareButton"; 
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+// 🚀 HIZLANDIRMA AYARI: Her tıklamada sıfırdan yüklemek yerine sayfayı 60 saniyede bir günceller.
+export const revalidate = 60; 
 
 export default async function HomePage() {
   let urunler: any[] = [];
   try {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
-    urunler = await db.collection("products").find({}).toArray();
+    
+    // 🚀 HIZLANDIRMA AYARI: 300 ürünün hepsini değil, vitrine sadece son 8 ürünü çeker.
+    urunler = await db.collection("products").find({}).limit(8).toArray();
   } catch (e) { 
     console.error("HATA:", e); 
   }
 
   return (
+// ... Kodun geri kalanı aynı şekilde devam ediyor ...
     <main className="min-h-screen bg-black text-white font-sans overflow-hidden selection:bg-[#00d2ff] selection:text-black">
       
       {/* 🚀 ANA SAYFA İNDİRİM ROZETİ CSS 🚀 */}
