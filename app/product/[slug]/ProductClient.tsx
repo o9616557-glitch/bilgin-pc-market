@@ -6,6 +6,7 @@ import { useCart } from "../../CartContext";
 import toast from "react-hot-toast";
 import { useCompare } from "@/app/CompareContext";
 import { X, Gamepad2, ChevronLeft, ChevronRight, ShoppingCart, Heart, GitCompare, Share2, Star, Zap, Info, Gauge, Crosshair } from "lucide-react";
+import Link from "next/link"; // 🚀 BREADCRUMB İÇİN LİNK EKLENDİ
 
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const { sepeteEkle } = useCart(); 
@@ -140,6 +141,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const handleTouchStart = (e: React.TouchEvent) => touchStartRef.current = e.touches[0].clientX;
   const handleTouchEnd = (e: React.TouchEvent) => { const fark = touchStartRef.current - e.changedTouches[0].clientX; if (fark > 40) sonrakiResim(); else if (fark < -40) oncekiResim(); };
 
+  // Kategoriyi veritabanından dinamik alıyoruz, yoksa "Ekran Kartları" diyoruz.
+  const kategoriIsmi = product.kategori || "Ekran Kartları";
+  const kategoriSlug = product.kategoriSlug || "ekran-kartlari";
+
   const renderFpsSection = () => (
     <div className="bg-[#09090b] border border-white/10 rounded-2xl p-4 sm:p-6 flex flex-col w-full shadow-[0_5px_15px_rgba(0,0,0,0.5)] select-none touch-manipulation">
        <div className="flex-1 w-full flex flex-col items-center">
@@ -187,7 +192,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   );
 
   return (
-    <div className="bg-[#050505] text-white font-sans pb-5 sm:pb-10 relative">
+    // 🚀 DÜZELTME 1: Alt boşluk pb-32'den pb-16'ya düşürüldü (Tam kıvamında) 🚀
+    <div className="bg-[#050505] text-white font-sans pb-16 sm:pb-10 relative">
       
       <style dangerouslySetInnerHTML={{ __html: `
         body { -webkit-tap-highlight-color: transparent; }
@@ -199,6 +205,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
       <div className="max-w-[1200px] mx-auto sm:px-6 py-0 sm:py-10 flex flex-col md:flex-row gap-0 sm:gap-8 lg:gap-12 relative items-start">
         
+        {/* SOL KOLON (RESİMLER) */}
         <div className="w-full md:w-[45%] flex flex-col relative md:sticky md:top-28 h-max mb-6 sm:mb-0 transition-all duration-500">
           
           <div className="flex items-center gap-2 mb-2 sm:mb-4 px-4 sm:px-0 pt-4 sm:pt-0">
@@ -254,10 +261,20 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           </div>
         </div>
 
-        <div className="w-full md:w-[55%] flex flex-col px-4 sm:px-0">
+        {/* SAĞ KOLON (BİLGİLER VE SEPET) */}
+        <div className="w-full md:w-[55%] flex flex-col px-4 sm:px-0 mt-4 sm:mt-0">
           
+          {/* 🚀 YENİ: KATEGORİ YOLU (BREADCRUMB) EKLENDİ 🚀 */}
+          <div className="flex items-center gap-2 mb-3 text-[10px] sm:text-xs font-black uppercase tracking-widest text-gray-500 select-none">
+             <Link href="/" className="hover:text-[#00d2ff] transition-colors">Ana Sayfa</Link>
+             <span className="text-gray-700">/</span>
+             <Link href={`/kategori/${kategoriSlug}`} className="hover:text-[#00d2ff] transition-colors text-gray-300">
+                {kategoriIsmi}
+             </Link>
+          </div>
+
           <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-4 select-none touch-manipulation">
-             <div className="text-xs sm:text-sm font-black text-gray-500 tracking-[0.2em] uppercase">
+             <div className="text-xs sm:text-sm font-black text-[#00d2ff] tracking-[0.2em] uppercase">
                 {product.marka || "BİLGİN PC"}
              </div>
              <div onClick={handleReviewClick} className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm cursor-pointer group">
@@ -274,7 +291,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             {urunAdi}
           </h1>
 
-          {/* 🚀 BÜYÜK FİYAT KUTUSU SADECE BİLGİSAYARDA GÖZÜKÜR (hidden sm:block EKLENDİ) 🚀 */}
           <div className="hidden sm:block relative rounded-3xl bg-[#09090b] p-6 sm:p-8 mb-6 sm:mb-8 border border-[#00e5ff]/50 shadow-[0_0_20px_rgba(0,229,255,0.15)] overflow-hidden select-none">
              {indirimVarMi && !tukendiMi && <div className="text-gray-500 text-sm sm:text-lg line-through font-bold mb-1">{normalFiyat.toLocaleString("tr-TR")} TL</div>}
              <div className="text-3xl sm:text-5xl font-black leading-none mb-5 text-white">
@@ -408,6 +424,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
+      {/* 🚀 DÜZELTME 2: Açıklama alanındaki resimlerin de altındaki gereksiz boşluk (mb) sıfırlandı 🚀 */}
       {product.aciklama && (
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-4 pb-2 border-t border-white/10 select-none touch-manipulation">
            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-widest mb-6 text-white flex items-center gap-3 select-none">
@@ -415,7 +432,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
            </h2>
            <div className="prose prose-invert max-w-none select-none touch-manipulation 
               [&_*]:!select-none [&_*]:!-webkit-touch-callout-none
-              [&_img]:w-full [&_img]:h-auto [&_img]:!m-0 [&_img]:!border-none [&_img]:!rounded-none [&_img]:block [&_img]:mt-6 [&_img]:mb-2
+              [&_img]:w-full [&_img]:h-auto [&_img]:!m-0 [&_img]:!border-none [&_img]:!rounded-none [&_img]:block [&_img]:mt-6 [&_img]:mb-0
               [&_h2]:text-xl sm:[&_h2]:text-2xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mb-3 [&_h2]:mt-8
               [&_h3]:text-lg sm:[&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-gray-200 [&_h3]:mb-2 [&_h3]:mt-6
               [&_p]:text-gray-300 [&_p]:leading-relaxed [&_p]:text-sm sm:[&_p]:text-base [&_p]:mb-2" 
@@ -424,7 +441,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       )}
 
-      {/* 🚀 MOBİL YAPIŞKAN SEPETE HAVALE FİYATI EKLENDİ VE TASARIM DÜZENLENDİ 🚀 */}
       <div className="sm:hidden fixed bottom-0 left-0 w-full bg-[#050505]/95 backdrop-blur-2xl border-t border-white/10 px-4 py-3 z-50 flex items-center justify-between shadow-[0_-20px_40px_rgba(0,0,0,0.8)] select-none">
          <div className="flex flex-col">
             {indirimVarMi && !tukendiMi && <span className="text-gray-500 text-[11px] line-through font-medium mb-0.5">{normalFiyat.toLocaleString("tr-TR")} ₺</span>}
