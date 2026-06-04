@@ -115,11 +115,15 @@ export default function OdemeSayfasi() {
         return { 
           id: item.id, 
           isim: item.isim, 
+          title: item.isim, // Olası isim uyuşmazlığına karşı kalkan
           miktar: item.adet, 
+          quantity: item.adet, // Olası miktar uyuşmazlığına karşı kalkan
           adet: item.adet, 
           fiyat: sonFiyat, 
+          price: sonFiyat, // Olası fiyat uyuşmazlığına karşı kalkan
           varyasyon: item.varyasyon, 
-          resim: item.resim || item.image || "/placeholder.jpg" 
+          resim: item.resim || item.image || "/placeholder.jpg",
+          image: item.resim || item.image || "/placeholder.jpg" // 🚀 BİNGO: Resim garantisi!
         };
       }),
       odemeYontemi,
