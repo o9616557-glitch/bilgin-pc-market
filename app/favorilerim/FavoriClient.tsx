@@ -73,7 +73,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
     }, 2000);
   };
 
-  // 👇 BURADAN AŞAĞISINA (return) DOKUNM
+  // 👇 BURADAN AŞAĞISINA (return) DOKUNMA
   return (
     <div className="min-h-screen bg-[#050814] text-white pt-12 pb-24 px-4 relative overflow-hidden font-sans">
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#00e5ff] blur-[150px] opacity-10 pointer-events-none"></div>
@@ -91,49 +91,76 @@ export default function FavoriClient({ initialFavorites }: Props) {
             </h1>
           </div>
          <div className="flex items-center justify-start gap-2 bg-[#09090b] text-slate-300 px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-wider border border-slate-800/80 shadow-sm w-full md:w-auto">
-  LİSTELENEN: <span className="text-[#00e5ff] font-black text-sm">0</span> DONANIM
-</div>
+            LİSTELENEN: <span className="text-[#00e5ff] font-black text-sm">{favoriteProducts.length}</span> DONANIM
+          </div>
         </div>
 
         {favoriteProducts.length === 0 ? (
-          /* 🚀 BOŞ EKRAN - Göz yoran animasyon kaldırıldı, sabit ve net. */
+          /* 🚀 BOŞ EKRAN */
           <div className="text-center p-10 sm:p-16 bg-transparent relative">
             <div className="w-20 h-20 rounded-full bg-[#121215]/50 border border-slate-800/50 flex items-center justify-center mx-auto mb-6 shadow-inner">
               <HeartCrack className="w-10 h-10 text-slate-500" />
             </div>
             <h2 className="text-xl font-black uppercase tracking-wide mb-2 text-white">Henüz Favori Öğe Yok</h2>
             <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed flex items-center justify-center flex-wrap gap-x-1">
-  İlginizi çeken donanımları 
-  <Heart className="w-4 h-4 text-white fill-white" />
-  ikonuna tıklayarak favori listenize ekleyebilir, dilediğiniz zaman kolayca ulaşabilirsiniz.
-</p>
+              İlginizi çeken donanımları 
+              <Heart className="w-4 h-4 text-white fill-white" />
+              ikonuna tıklayarak favori listenize ekleyebilir, dilediğiniz zaman kolayca ulaşabilirsiniz.
+            </p>
             <Link href="/" prefetch={true} className="inline-block bg-[#00e5ff] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:-translate-y-0.5">
               Donanımları İncele
             </Link>
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4">
             {favoriteProducts.map((urun: any, index: number) => {
               const isAdded = sepeteEklenenler.includes(urun._id || urun.id);
               return (
-                <div key={index} className="group border border-slate-800 bg-[#09090b] rounded-2xl p-4 sm:p-5 transition-all duration-300 hover:border-[#00e5ff]/40 shadow-xl hover:shadow-[0_0_25px_rgba(0,229,255,0.03)] flex flex-col sm:flex-row sm:items-center gap-5 relative overflow-hidden animate-in fade-in duration-300">
-                  <div className="w-full sm:w-24 h-24 bg-[#121215] rounded-xl border border-slate-800 p-3 flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105">
-                    <img src={urun.resim || "/placeholder.jpg"} alt={urun.isim} className="max-w-full max-h-full object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]" />
+                /* 🚀 YENİ TASARIM: KOMPAKT VE ŞIK YATAY LİSTE */
+                <div key={index} className="group flex flex-col sm:flex-row items-center bg-[#09090b] border border-slate-800/60 rounded-2xl p-4 gap-4 sm:gap-6 transition-all duration-300 hover:border-[#00e5ff]/40 shadow-lg hover:shadow-[0_0_25px_rgba(0,229,255,0.05)] relative overflow-hidden">
+                  
+                  {/* GÖRSEL KUTUSU - Küçültüldü ve dolgunlaştırıldı */}
+                  <div className="w-full sm:w-28 h-40 sm:h-28 shrink-0 bg-[#121215] rounded-xl border border-slate-800 flex items-center justify-center p-2 relative overflow-hidden group-hover:border-[#00e5ff]/20 transition-colors">
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#00e5ff]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <img 
+                      src={urun.resim || "/placeholder.jpg"} 
+                      alt={urun.isim} 
+                      className="w-full h-full object-contain filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] transition-transform duration-500 ease-out group-hover:scale-110 z-10" 
+                    />
                   </div>
-                  <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-left w-full">
-                      <div className="flex flex-col flex-1 min-w-0">
-                          <h3 className="text-sm sm:text-base font-bold text-white mb-1.5 leading-snug truncate group-hover:text-[#00e5ff] transition-colors">{urun.isim || urun.name}</h3>
-                          <div className="text-xl sm:text-2xl font-black text-white tracking-tight">{Number(urun.fiyat || 0).toLocaleString("tr-TR")} <span className="text-xs font-bold text-slate-500 uppercase">TL</span></div>
-                      </div>
-                      <div className="flex items-center gap-3 shrink-0 w-full sm:w-auto justify-between sm:justify-end border-t border-slate-800/50 sm:border-none pt-4 sm:pt-0">
-                          <button onClick={() => setProductToDelete(urun)} className="p-3 text-slate-400 bg-[#121215] border border-slate-800 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-500 rounded-xl transition-all shadow-md">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                          <button onClick={() => handleSepeteEkle(urun)} disabled={isAdded} className={`flex-1 sm:flex-none flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wider py-3.5 px-6 rounded-xl transition-all duration-300 shadow-md ${isAdded ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-none shadow-[0_0_15px_rgba(16,185,129,0.3)]" : "bg-[#121215] text-slate-300 border border-slate-800 hover:bg-[#00e5ff] hover:text-black hover:border-[#00e5ff] hover:shadow-[0_0_20px_rgba(0,229,255,0.2)]"}`}>
-                            {isAdded ? (<><span className="text-sm">✓</span> Eklendi!</>) : (<><ShoppingCart className="w-3.5 h-3.5" /> Sepete Ekle</>)}
-                          </button>
+
+                  {/* BAŞLIK VE FİYAT - Özgür bırakıldı, sıkışmaz */}
+                  <div className="flex-1 flex flex-col justify-center text-center sm:text-left w-full h-full">
+                      <h3 className="text-sm sm:text-base font-bold text-slate-200 mb-2 leading-relaxed break-words whitespace-normal group-hover:text-white transition-colors line-clamp-2">
+                        {urun.isim || urun.name}
+                      </h3>
+                      <div className="text-xl sm:text-2xl font-black text-[#00e5ff] tracking-tight mt-auto">
+                        {Number(urun.fiyat || 0).toLocaleString("tr-TR")} <span className="text-sm font-bold text-slate-500 uppercase">TL</span>
                       </div>
                   </div>
+
+                  {/* BUTONLAR - Orantılı ve Şık */}
+                  <div className="flex flex-row items-center gap-2 sm:gap-3 shrink-0 w-full sm:w-auto mt-2 sm:mt-0 pt-4 sm:pt-0 border-t border-slate-800/50 sm:border-none">
+                      <button 
+                        onClick={() => setProductToDelete(urun)} 
+                        className="w-12 h-12 flex items-center justify-center text-slate-400 bg-[#121215] border border-slate-800 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 rounded-xl transition-all shadow-md shrink-0"
+                        title="Favorilerden Kaldır"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                      <button 
+                        onClick={() => handleSepeteEkle(urun)} 
+                        disabled={isAdded} 
+                        className={`flex-1 sm:flex-none h-12 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wider px-6 rounded-xl transition-all duration-300 shadow-md ${
+                          isAdded 
+                          ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-none shadow-[0_0_15px_rgba(16,185,129,0.3)]" 
+                          : "bg-[#121215] text-slate-300 border border-slate-800 hover:bg-[#00e5ff] hover:text-black hover:border-[#00e5ff] hover:shadow-[0_0_20px_rgba(0,229,255,0.2)]"
+                        }`}
+                      >
+                        {isAdded ? (<><span className="text-sm">✓</span> Eklendi!</>) : (<><ShoppingCart className="w-4 h-4" /> Sepete Ekle</>)}
+                      </button>
+                  </div>
+
                 </div>
               );
             })}
