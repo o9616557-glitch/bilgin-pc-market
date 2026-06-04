@@ -10,8 +10,30 @@ export default async function HomePage() {
   try {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
-    // 🚀 Sadece güncel ürünleri çeker, sayfayı hantallaştırmaz
-    urunler = await db.collection("products").find({}).limit(12).toArray();
+    
+    // 1. Ürünleri Çek
+    const rawUrunler = await db.collection("products").find({}).limit(12).toArray();
+    
+    // 2. Yorumları Çek (Gerçek Yıldız ve Değerlendirme Sayısı İçin)
+    const productIds = rawUrunler.map(p => p._id.toString());
+    let reviewsData: any[] = [];
+    
+    try {
+        reviewsData = await db.collection("reviews").find({ 
+            productId: { $in: productIds }, 
+            type: "review" 
+        }).toArray();
+    } catch (reviewErr) {
+        console.log("Yorumlar çekilemedi, varsayılan değerler kullanılacak.");
+    }
+
+    // 3. Ürünler ile Yorumları Eşleştir
+    urunler = rawUrunler.map(urun => {
+        const pid = urun._id.toString();
+        const pReviews = reviewsData.filter(r => r.productId === pid);
+        return { ...urun, fetchedReviews: pReviews };
+    });
+
   } catch (e) { 
     console.error("HATA:", e); 
   }
@@ -83,8 +105,10 @@ export default async function HomePage() {
           </div>
         </div>
         <div className="w-full">
-          <div className="flex flex-nowrap overflow-x-auto gap-4 pb-4 px-[7.5vw] sm:px-[10vw] lg:px-8 snap-x snap-mandatory scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#00d2ff] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
-            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 hover:border-[#10b981] transition-colors duration-500">
+          {/* 🚀 YUMUŞAK KAYDIRMA İÇİN SNAP CLASSLARI KALDIRILDI 🚀 */}
+          <div className="flex flex-nowrap overflow-x-auto gap-4 pb-4 px-[7.5vw] sm:px-[10vw] lg:px-8 scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#00d2ff] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
+            
+            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#10b981] transition-colors duration-500">
               <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800&auto=format&fit=crop" alt="Havale İndirimi" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-60 transition-all duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent"></div>
               <div className="relative z-10 transform group-hover:-translate-y-2 transition-transform duration-500">
@@ -94,7 +118,8 @@ export default async function HomePage() {
                 <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100">Banka transferi ile yapacağınız ödemelerde sistem anında net indirim uygular.</p>
               </div>
             </div>
-            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 hover:border-white transition-colors duration-500">
+
+            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-white transition-colors duration-500">
               <img src="https://images.unsplash.com/photo-1587202372634-32705e3bf49c?q=80&w=800&auto=format&fit=crop" alt="Hızlı Kargo" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 transition-all duration-700 grayscale" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent"></div>
               <div className="relative z-10 transform group-hover:-translate-y-2 transition-transform duration-500">
@@ -104,7 +129,8 @@ export default async function HomePage() {
                 <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100">Siparişleriniz kargo sürecinde zarar görmemesi için ekstra korumalı şekilde paketlenir ve hızlıca kargoya verilir.</p>
               </div>
             </div>
-            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 hover:border-[#d4af37] transition-colors duration-500">
+
+            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#d4af37] transition-colors duration-500">
               <img src="https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?q=80&w=800&auto=format&fit=crop" alt="Montaj ve Test" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-50 transition-all duration-700 sepia-[.3]" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent"></div>
               <div className="relative z-10 transform group-hover:-translate-y-2 transition-transform duration-500">
@@ -114,7 +140,8 @@ export default async function HomePage() {
                 <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100">Bizden aldığınız sistemler titizlikle toplanır. Gerekli tüm performans testlerinden geçtikten sonra size teslim edilir.</p>
               </div>
             </div>
-            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 hover:border-[#3b82f6] transition-colors duration-500">
+
+            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#3b82f6] transition-colors duration-500">
               <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop" alt="Resmi Garanti" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 transition-all duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent"></div>
               <div className="relative z-10 transform group-hover:-translate-y-2 transition-transform duration-500">
@@ -144,7 +171,8 @@ export default async function HomePage() {
         </div>
 
         <div className="w-full">
-          <div className="flex flex-nowrap overflow-x-auto gap-4 pb-8 px-[7.5vw] sm:px-[10vw] lg:px-8 snap-x snap-mandatory scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#00d2ff] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
+          {/* 🚀 YUMUŞAK KAYDIRMA İÇİN SNAP CLASSLARI KALDIRILDI 🚀 */}
+          <div className="flex flex-nowrap overflow-x-auto gap-4 pb-8 px-[7.5vw] sm:px-[10vw] lg:px-8 scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#00d2ff] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
             {urunler.length > 0 ? (
               urunler.map((urun: any) => {
                 const vitrinResmi = urun.resimler && urun.resimler.length > 0 ? urun.resimler[0] : urun.resim;
@@ -156,13 +184,19 @@ export default async function HomePage() {
                 const havaleOrani = urun.havaleIndirimi !== undefined ? urun.havaleIndirimi : 5;
                 const havaleFiyati = gecerliFiyat - (gecerliFiyat * (havaleOrani / 100));
 
-                const yildizSayisi = urun.rating ? Number(urun.rating) : 0;
-                const yorumSayisi = urun.yorumSayisi ? Number(urun.yorumSayisi) : 0;
+                // 🚀 GERÇEK YORUM HESAPLAMA MOTORU 🚀
+                let yildizSayisi = urun.rating ? Number(urun.rating) : 0;
+                let yorumSayisi = urun.yorumSayisi ? Number(urun.yorumSayisi) : 0;
+
+                if (urun.fetchedReviews && urun.fetchedReviews.length > 0) {
+                    yorumSayisi = urun.fetchedReviews.length;
+                    const totalRating = urun.fetchedReviews.reduce((acc: any, curr: any) => acc + Number(curr.rating || 0), 0);
+                    yildizSayisi = totalRating / yorumSayisi;
+                }
 
                 return (
-                  <div key={urun._id.toString()} className="group relative flex flex-col w-[85vw] sm:w-[320px] lg:w-[calc(25%-0.75rem)] flex-shrink-0 snap-center lg:snap-start bg-[#09090b] rounded-2xl overflow-hidden border border-white/5 transition-all duration-500 hover:border-[#00d2ff]/40 hover:shadow-[0_0_30px_rgba(0,210,255,0.15)]">
+                  <div key={urun._id.toString()} className="group relative flex flex-col w-[85vw] sm:w-[320px] lg:w-[calc(25%-0.75rem)] flex-shrink-0 bg-[#09090b] rounded-2xl overflow-hidden border border-white/5 transition-all duration-500 hover:border-[#00d2ff]/40 hover:shadow-[0_0_30px_rgba(0,210,255,0.15)]">
                     
-                    {/* Görsel Alanı (Artık tıklanmıyor, sadece görsel) */}
                     <div className="relative aspect-[4/3] w-full bg-gradient-to-b from-white/5 to-transparent flex items-center justify-center p-6 overflow-hidden pointer-events-none">
                       
                       {indirimVarMi && !tukendiMi && (
@@ -176,7 +210,6 @@ export default async function HomePage() {
                         </div>
                       )}
 
-                      {/* Stok Durumu Noktası (Sol Üst) */}
                       {tukendiMi ? (
                          <div className="absolute top-4 left-4 z-20 pointer-events-none">
                            <div className="w-2.5 h-2.5 rounded-full bg-zinc-600 shadow-[0_0_10px_rgba(82,82,91,0.8)]" title="Tükendi"></div>
@@ -187,7 +220,6 @@ export default async function HomePage() {
                          </div>
                       )}
 
-                      {/* Tıklanamayan Ürün Resmi */}
                       <div className="w-full h-full flex items-center justify-center relative z-10">
                         {vitrinResmi ? (
                           <img 
@@ -204,13 +236,14 @@ export default async function HomePage() {
                     <div className="p-5 flex flex-col flex-grow relative z-20 bg-transparent pointer-events-none">
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-gray-500 text-[10px] font-black tracking-[0.2em] uppercase">{urun.marka || "DONANIM"}</span>
+                        
+                        {/* 🚀 GÜNCELLENMİŞ YORUM ALANI 🚀 */}
                         <div className="flex items-center gap-1 text-[10px] text-gray-400 font-bold">
-                          <Star className={`w-3 h-3 ${yildizSayisi > 0 ? 'text-[#d4af37] fill-[#d4af37]' : 'text-gray-700'}`} />
+                          <Star className={`w-3 h-3 ${yorumSayisi > 0 ? 'text-[#d4af37] fill-[#d4af37]' : 'text-gray-700'}`} />
                           <span>{yorumSayisi > 0 ? `${yildizSayisi.toFixed(1)} (${yorumSayisi})` : 'Değerlendirme Yok'}</span>
                         </div>
                       </div>
 
-                      {/* Tıklanamayan Ürün Başlığı */}
                       <div className="block mt-1">
                         <h3 className="text-white text-sm font-bold leading-relaxed line-clamp-2 mb-4 group-hover:text-[#00d2ff] transition-colors">
                           {urun.isim || urun.name}
@@ -232,7 +265,6 @@ export default async function HomePage() {
                           )}
                         </div>
 
-                        {/* 🚀 SADECE BURASI TIKLANABİLİR (İNCELE BUTONU) 🚀 */}
                         <div className="relative z-20">
                           {tukendiMi ? (
                              <div className="h-10 px-4 sm:h-11 bg-white/5 border border-white/5 rounded-xl flex items-center justify-center cursor-not-allowed" title="Tükendi">
@@ -298,8 +330,9 @@ export default async function HomePage() {
           </h2>
         </div>
         <div className="w-full">
-          <div className="flex flex-nowrap overflow-x-auto gap-4 pb-4 px-[7.5vw] sm:px-[10vw] lg:px-8 snap-x snap-mandatory scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#00d2ff] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
-            <Link href="/kategori/hazir-sistemler" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-500">
+          {/* 🚀 YUMUŞAK KAYDIRMA İÇİN SNAP CLASSLARI KALDIRILDI 🚀 */}
+          <div className="flex flex-nowrap overflow-x-auto gap-4 pb-4 px-[7.5vw] sm:px-[10vw] lg:px-8 scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#00d2ff] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
+            <Link href="/kategori/hazir-sistemler" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-500">
               <img src="https://images.unsplash.com/photo-1587202372634-32705e3bf49c?q=80&w=800&auto=format&fit=crop" alt="Hazır Sistemler" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 grayscale group-hover:grayscale-0" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
@@ -307,7 +340,7 @@ export default async function HomePage() {
                 <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-500"></div>
               </div>
             </Link>
-            <Link href="/kategori/ekran-kartlari" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-500">
+            <Link href="/kategori/ekran-kartlari" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-500">
               <img src="https://images.unsplash.com/photo-1591488320449-011701bb6704?q=80&w=800&auto=format&fit=crop" alt="Ekran Kartları" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 grayscale group-hover:grayscale-0" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
@@ -315,7 +348,7 @@ export default async function HomePage() {
                 <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-500"></div>
               </div>
             </Link>
-            <Link href="/kategori/islemciler" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-500">
+            <Link href="/kategori/islemciler" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-500">
               <img src="https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?q=80&w=800&auto=format&fit=crop" alt="İşlemciler" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 grayscale group-hover:grayscale-0" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
@@ -323,7 +356,7 @@ export default async function HomePage() {
                 <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-500"></div>
               </div>
             </Link>
-            <Link href="/kategori/anakartlar" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-500">
+            <Link href="/kategori/anakartlar" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-500">
               <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop" alt="Anakartlar" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 grayscale group-hover:grayscale-0" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
@@ -331,7 +364,7 @@ export default async function HomePage() {
                 <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-500"></div>
               </div>
             </Link>
-            <Link href="/kategori/sivi-sogutma" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-500">
+            <Link href="/kategori/sivi-sogutma" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-500">
               <img src="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?q=80&w=800&auto=format&fit=crop" alt="Sıvı Soğutma" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 grayscale group-hover:grayscale-0" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
@@ -339,7 +372,7 @@ export default async function HomePage() {
                 <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-500"></div>
               </div>
             </Link>
-            <Link href="/kategori/profesyonel-monitor" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-500">
+            <Link href="/kategori/profesyonel-monitor" className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-500">
               <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800&auto=format&fit=crop" alt="Profesyonel Monitörler" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 grayscale group-hover:grayscale-0" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
