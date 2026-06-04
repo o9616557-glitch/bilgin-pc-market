@@ -1,6 +1,6 @@
 import clientPromise from "@/lib/mongodb";
 import Link from "next/link";
-import { Cpu, Crosshair, Sparkles, Star, GitCompare, ShieldCheck, Zap, ShoppingCart, Eye, Heart } from "lucide-react";
+import { Cpu, Crosshair, Sparkles, Star, GitCompare, ShieldCheck, Zap, Eye, ArrowRight } from "lucide-react";
 import CompareButton from "./CompareButton"; 
 
 export const dynamic = "force-dynamic";
@@ -19,6 +19,17 @@ export default async function HomePage() {
   return (
     <main className="min-h-screen bg-black text-white font-sans overflow-hidden selection:bg-[#00d2ff] selection:text-black">
       
+      {/* 🚀 ANA SAYFA İNDİRİM ROZETİ CSS 🚀 */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        .discount-badge-home { position: absolute; top: 10px; right: 10px; width: 65px; height: 90px; z-index: 50; filter: drop-shadow(0px 6px 8px rgba(0,0,0,0.6)); pointer-events: none; }
+        .badge-rosette-home { position: relative; width: 65px; height: 65px; background: #e60000; clip-path: polygon(50% 0%, 60% 10%, 75% 5%, 80% 20%, 95% 25%, 90% 40%, 100% 50%, 90% 60%, 95% 75%, 80% 80%, 75% 95%, 60% 90%, 50% 100%, 40% 90%, 25% 95%, 20% 80%, 5% 75%, 10% 60%, 0% 50%, 10% 40%, 5% 25%, 20% 20%, 25% 5%, 40% 10%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 2; }
+        .badge-rosette-home span:first-child { font-size: 17px; font-weight: 900; line-height: 1; margin-top: 3px; }
+        .badge-rosette-home span:last-child { font-size: 11px; font-weight: 900; line-height: 1; }
+        .badge-ribbon-home-left, .badge-ribbon-home-right { position: absolute; top: 45px; width: 20px; height: 45px; background: linear-gradient(to right, #c20000 12%, white 12%, white 18%, #c20000 18%, #c20000 82%, white 82%, white 88%, #c20000 88%); z-index: 1; }
+        .badge-ribbon-home-left { left: 8px; transform: rotate(20deg); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%); }
+        .badge-ribbon-home-right { right: 8px; transform: rotate(-20deg); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%); }
+      `}} />
+
       {/* ==================== 1. HERO (GİRİŞ BÖLÜMÜ) ==================== */}
       <section className="relative w-full min-h-[55vh] flex items-center justify-center pt-24 pb-6 border-b border-white/10">
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_20%,transparent_100%)] pointer-events-none" />
@@ -69,7 +80,6 @@ export default async function HomePage() {
 
       {/* ==================== 2. NEDEN BİZ? ==================== */}
       <section className="max-w-[1400px] mx-auto pt-8 pb-4">
-        
         <div className="flex items-center justify-between px-6 lg:px-8 mb-6">
           <div className="flex items-center gap-4">
             <div className="w-1.5 h-8 bg-white shadow-[0_0_10px_rgba(255,255,255,0.3)]"></div>
@@ -159,6 +169,10 @@ export default async function HomePage() {
                 const havaleOrani = urun.havaleIndirimi !== undefined ? urun.havaleIndirimi : 5;
                 const havaleFiyati = gecerliFiyat - (gecerliFiyat * (havaleOrani / 100));
 
+                // 🚀 GERÇEK YORUM VERİLERİ (Yoksa 'Değerlendirme Yok' yazar) 🚀
+                const yildizSayisi = urun.rating ? Number(urun.rating) : 0;
+                const yorumSayisi = urun.yorumSayisi ? Number(urun.yorumSayisi) : 0;
+
                 return (
                   /* 🚀 ULTIMATE KART BAŞLANGICI 🚀 */
                   <div key={urun._id.toString()} className="group relative flex flex-col w-[85vw] sm:w-[320px] lg:w-[calc(25%-0.75rem)] flex-shrink-0 snap-center lg:snap-start bg-[#09090b] rounded-2xl overflow-hidden border border-white/5 transition-all duration-500 hover:border-[#00d2ff]/40 hover:shadow-[0_0_30px_rgba(0,210,255,0.15)]">
@@ -220,12 +234,12 @@ export default async function HomePage() {
                     {/* İçerik ve Bilgi Alanı */}
                     <div className="p-5 flex flex-col flex-grow">
                       
-                      {/* Marka ve Yıldızlar */}
+                      {/* Marka ve GERÇEK Yıldızlar */}
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-gray-500 text-[10px] font-black tracking-[0.2em] uppercase">{urun.marka || "DONANIM"}</span>
                         <div className="flex items-center gap-1 text-[10px] text-gray-400 font-bold">
-                          <Star className="w-3 h-3 text-[#d4af37] fill-[#d4af37]" />
-                          <span>Beş Yıldız</span>
+                          <Star className={`w-3 h-3 ${yildizSayisi > 0 ? 'text-[#d4af37] fill-[#d4af37]' : 'text-gray-700'}`} />
+                          <span>{yorumSayisi > 0 ? `${yildizSayisi.toFixed(1)} (${yorumSayisi})` : 'Değerlendirme Yok'}</span>
                         </div>
                       </div>
 
@@ -253,14 +267,16 @@ export default async function HomePage() {
                           )}
                         </div>
 
-                        {/* Alt Sağ Buton */}
+                        {/* 🚀 YENİ İNCELE BUTONU (Sepet İkonu Yerine) 🚀 */}
                         {tukendiMi ? (
-                           <div className="w-10 h-10 bg-white/5 border border-white/5 rounded-xl flex items-center justify-center cursor-not-allowed" title="Tükendi">
-                             <ShoppingCart className="w-4 h-4 text-zinc-600" />
+                           <div className="h-10 px-4 sm:h-11 bg-white/5 border border-white/5 rounded-xl flex items-center justify-center cursor-not-allowed" title="Tükendi">
+                             <span className="text-xs font-black text-zinc-600 uppercase tracking-widest">Tükendi</span>
                            </div>
                         ) : (
-                           <Link href={"/product/" + (urun.slug || urun._id)} className="relative overflow-hidden w-10 h-10 sm:w-11 sm:h-11 bg-white/5 border border-white/10 hover:bg-[#00d2ff] hover:border-[#00d2ff] rounded-xl flex items-center justify-center group/btn transition-all duration-300 shadow-md hover:shadow-[0_0_15px_rgba(0,210,255,0.4)]">
-                             <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-gray-300 group-hover/btn:text-black transition-colors z-10" />
+                           <Link href={"/product/" + (urun.slug || urun._id)} className="relative overflow-hidden h-10 px-4 sm:h-11 sm:px-5 bg-white/5 border border-white/10 hover:bg-[#00d2ff] hover:border-[#00d2ff] rounded-xl flex items-center justify-center group/btn transition-all duration-300 shadow-md hover:shadow-[0_0_15px_rgba(0,210,255,0.4)]">
+                             <span className="text-xs sm:text-sm font-black text-gray-300 group-hover/btn:text-black transition-colors z-10 uppercase tracking-widest flex items-center gap-2">
+                               İncele <ArrowRight className="w-4 h-4 hidden sm:block transition-transform group-hover/btn:translate-x-1" />
+                             </span>
                            </Link>
                         )}
                       </div>
