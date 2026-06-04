@@ -5,13 +5,12 @@ import React, { useState, useEffect, useRef } from "react";
 import { useCart } from "../../CartContext"; 
 import toast from "react-hot-toast";
 import { useCompare } from "@/app/CompareContext";
-import { X, Gamepad2, ChevronLeft, ChevronRight, ShoppingCart, Heart, GitCompare, Share2, Star, Zap, Gauge, Info } from "lucide-react";
+import { X, Gamepad2, ChevronLeft, ChevronRight, ShoppingCart, Heart, GitCompare, Share2, Star, Zap, Info } from "lucide-react";
 
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const { sepeteEkle } = useCart(); 
   const { karsilastirmayaEkle, setPopupAcik } = useCompare(); 
   
-  // 🚀 AÇIKLAMA SEKMEDEN ÇIKTI, VARSAYILAN SEKME "TEKNİK" OLDU 🚀
   const [activeTab, setActiveTab] = useState("teknik");
   const [seciliCozunurluk, setSeciliCozunurluk] = useState("1080P");
   const [seciliIslemci, setSeciliIslemci] = useState("i5");
@@ -97,7 +96,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     if (navigator.share) { try { await navigator.share({ title: urunAdi, text: "Bu ürüne bak!", url: window.location.href }); } catch (err) {} } else { navigator.clipboard.writeText(window.location.href); setCopied(true); setTimeout(() => setCopied(false), 2000); toast.success("Bağlantı kopyalandı"); }
   };
 
-  if (!product) return <div className="text-center p-10 text-[#00d2ff] font-bold">Yükleniyor...</div>;
+  if (!product) return <div className="text-center p-10 text-[#00e5ff] font-bold">Yükleniyor...</div>;
 
   const indirimVarMi = indirimliFiyat !== null && normalFiyat > indirimliFiyat;
   const indirimOrani = indirimVarMi ? Math.round(((normalFiyat - gecerliFiyat) / normalFiyat) * 100) : 0;
@@ -118,7 +117,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   return (
     <div className="min-h-screen bg-[#050505] text-white font-sans pb-24 sm:pb-10">
       
-      {/* İndirim Rozeti İçin CSS (Sadece sayfa içi) */}
       <style dangerouslySetInnerHTML={{ __html: `
         .badge-rosette-page { position: absolute; top: 15px; right: 15px; width: 70px; height: 70px; background: #e60000; clip-path: polygon(50% 0%, 60% 10%, 75% 5%, 80% 20%, 95% 25%, 90% 40%, 100% 50%, 90% 60%, 95% 75%, 80% 80%, 75% 95%, 60% 90%, 50% 100%, 40% 90%, 25% 95%, 20% 80%, 5% 75%, 10% 60%, 0% 50%, 10% 40%, 5% 25%, 20% 20%, 25% 5%, 40% 10%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); pointer-events: none; }
         .badge-rosette-page span:first-child { font-size: 18px; font-weight: 900; line-height: 1; margin-top: 5px; }
@@ -138,7 +136,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
              )}
           </div>
 
-          {/* 🚀 PC'DE KUTULU, MOBİLDE KUTUSUZ RESİM GALERİSİ 🚀 */}
+          {/* PC'DE KUTULU, MOBİLDE KUTUSUZ RESİM GALERİSİ */}
           <div 
             onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
             className="relative w-full aspect-square sm:aspect-[4/3] bg-transparent sm:bg-white/[0.02] sm:backdrop-blur-xl sm:border sm:border-white/5 sm:rounded-2xl flex items-center justify-center p-0 sm:p-6 overflow-hidden mb-2 group"
@@ -158,7 +156,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             />
           </div>
 
-          {/* Mobilde Nokta / Çizgi Navigasyonu */}
+          {/* Mobilde Çizgi Navigasyonu */}
           {resimler.length > 1 && (
             <div className="flex sm:hidden justify-center gap-2 mt-2 mb-2 px-4">
               {resimler.map((_, idx) => (
@@ -167,7 +165,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </div>
           )}
 
-          {/* PC'de Küçük Resimler (Kutulu) */}
+          {/* PC'de Küçük Resimler */}
           {resimler.length > 1 && (
             <div className="hidden sm:flex gap-3 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden">
               {resimler.map((img: string, idx: number) => (
@@ -182,13 +180,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         {/* === SAĞ: ÜRÜN BİLGİLERİ VE AKSİYONLAR === */}
         <div className="w-full md:w-[55%] flex flex-col px-4 sm:px-0">
           
-          <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-4">
+          {/* 🚀 2. DÜZENLEME: Üstteki yorum alanına tıklayınca alttaki yorumlar sekmesine gider 🚀 */}
+          <div onClick={() => setActiveTab("yorumlar")} className="flex items-center justify-between mb-4 border-b border-white/10 pb-4 cursor-pointer group">
              <div className="text-xs sm:text-sm font-black text-gray-500 tracking-[0.2em] uppercase">{product.marka || "BİLGİN PC"}</div>
              <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
                 <div className="flex gap-0.5">
                    {[1,2,3,4,5].map(s => <Star key={s} className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${Number(avgRating) >= s ? 'text-[#d4af37] fill-[#d4af37]' : 'text-gray-700'}`} />)}
                 </div>
-                <span className="text-gray-400 font-bold ml-1">{totalReviews > 0 ? `${avgRating} (${totalReviews})` : 'Yeni Ürün'}</span>
+                <span className="text-gray-400 font-bold ml-1 group-hover:text-white transition-colors underline underline-offset-4 decoration-white/20">{totalReviews > 0 ? `${avgRating} (${totalReviews} Yorum)` : 'Yeni Ürün'}</span>
              </div>
           </div>
 
@@ -196,10 +195,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             {urunAdi}
           </h1>
 
-          {/* Premium Fiyat Kutusu (Senin Eski Parlayan Kutu) */}
-          <div className="relative rounded-3xl bg-[#09090b] p-6 sm:p-8 mb-6 sm:mb-8 border border-[#00d2ff]/40 shadow-[0_0_20px_rgba(0,229,255,0.15)] overflow-hidden">
-             <div className="absolute top-0 right-0 w-32 h-32 bg-[#00d2ff] blur-[100px] opacity-20 pointer-events-none"></div>
-             
+          {/* 🚀 1. VE 5. DÜZENLEME: Göz alan neon ışık çemberleri kaldırıldı, sade parlayan orijinal fiyat kutusu 🚀 */}
+          <div className="relative rounded-3xl bg-[#09090b] p-6 sm:p-8 mb-6 sm:mb-8 border border-[#00e5ff]/50 shadow-[0_0_20px_rgba(0,229,255,0.15)] overflow-hidden">
              {indirimVarMi && !tukendiMi && <div className="text-gray-500 text-sm sm:text-lg line-through font-bold mb-1">{normalFiyat.toLocaleString("tr-TR")} TL</div>}
              <div className="text-3xl sm:text-5xl font-black leading-none mb-5 text-white">
                 {gecerliFiyat.toLocaleString("tr-TR")} <span className="text-xl sm:text-2xl text-[#00d2ff]">TL</span>
@@ -213,9 +210,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
              )}
           </div>
 
-          {/* 🚀 AKSİYON BUTONLARI (MOBİLDE DE GÖRÜNECEK) 🚀 */}
+          {/* 🚀 4. DÜZENLEME: Üzerine gelince göz alan beyaz parlama efekti yumuşatıldı 🚀 */}
           <div className="flex gap-2 sm:gap-4 mb-10">
-             <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`hidden sm:flex flex-1 h-14 sm:h-16 rounded-2xl font-black text-sm sm:text-lg uppercase tracking-widest items-center justify-center gap-2 sm:gap-3 transition-all ${tukendiMi ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-[#00d2ff] text-black hover:bg-white hover:shadow-[0_0_30px_rgba(0,210,255,0.4)]'}`}>
+             <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`hidden sm:flex flex-1 h-14 sm:h-16 rounded-2xl font-black text-sm sm:text-lg uppercase tracking-widest items-center justify-center gap-2 sm:gap-3 transition-all ${tukendiMi ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-[#00e5ff] text-black hover:bg-[#00c4db] shadow-[0_0_20px_rgba(0,229,255,0.2)]'}`}>
                 <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" /> {tukendiMi ? "Tükendi" : "Sepete Ekle"}
              </button>
              <button onClick={handleToggleFavorite} className={`w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl flex items-center justify-center border transition-all ${isFav ? 'bg-red-500/10 border-red-500 text-red-500' : 'bg-[#09090b] border-white/10 hover:border-[#00d2ff] hover:text-[#00d2ff]'}`} title="Favori">
@@ -229,10 +226,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
              </button>
           </div>
 
-          {/* 🚀 SEKMELER MENÜSÜ (KAYDIRMA ÇUBUKLU) 🚀 */}
+          {/* SEKMELER MENÜSÜ */}
           <div className="flex overflow-x-auto gap-2 border-b border-white/10 pb-3 mb-6 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#00d2ff]/50 [&::-webkit-scrollbar-thumb]:rounded-full">
              <button onClick={() => setActiveTab('teknik')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest ${activeTab === 'teknik' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Teknik Özellikler</button>
-             <button onClick={() => setActiveTab('fps')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest ${activeTab === 'fps' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Benchmarks (FPS)</button>
+             <button onClick={() => setActiveTab('fps')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest ${activeTab === 'fps' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Performans (FPS)</button>
              <button onClick={() => setActiveTab('yorumlar')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest ${activeTab === 'yorumlar' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Yorumlar</button>
              <button onClick={() => setActiveTab('sorular')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest ${activeTab === 'sorular' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Sorular</button>
           </div>
@@ -254,18 +251,18 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 </div>
              )}
 
-             {/* 🚀 YENİ MODERN FPS BENCHMARKS BÖLÜMÜ 🚀 */}
+             {/* 🚀 6. DÜZENLEME: Tamamen Türkçe Performans (FPS) Ekranı 🚀 */}
              {activeTab === 'fps' && (
                 <div className="bg-[#09090b] border border-white/10 rounded-2xl p-4 sm:p-6 flex flex-col xl:flex-row gap-6 sm:gap-8">
                    
-                   {/* Sol Kadran (Gauge) */}
+                   {/* Sol Kadran */}
                    <div className="flex flex-col items-center justify-center xl:border-r border-white/10 xl:pr-8 pb-6 xl:pb-0 border-b xl:border-b-0">
                       <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Genel Performans</span>
-                      <div className="relative w-[150px] h-[75px] overflow-hidden mb-2">
-                         <div className="absolute top-0 left-0 w-[150px] h-[150px] rounded-full border-[15px] border-white/5 border-t-[#00d2ff] border-l-[#00d2ff] transform rotate-45"></div>
+                      <div className="relative w-[140px] h-[70px] overflow-hidden mb-2">
+                         <div className="absolute top-0 left-0 w-[140px] h-[140px] rounded-full border-[12px] border-white/5 border-t-[#00d2ff] border-l-[#00d2ff] transform rotate-45"></div>
                       </div>
-                      <div className="text-3xl font-black text-white -mt-6 mb-1">16,671</div>
-                      <span className="text-[10px] text-gray-500">99th Percentile Puanı</span>
+                      <div className="text-3xl font-black text-white -mt-5 mb-1">16,671</div>
+                      <span className="text-[10px] text-gray-500">En Yüksek Akıcılık Puanı</span>
                    </div>
 
                    {/* Sağ Oyun Kartları */}
@@ -279,12 +276,12 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                       <div className="flex gap-3 overflow-x-auto pb-2 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:bg-white/20">
                          {dbOyunlar.length > 0 ? dbOyunlar.map(oyun => (
                             <div key={oyun} className="w-24 sm:w-28 flex-shrink-0 bg-black border border-white/10 rounded-xl overflow-hidden flex flex-col">
-                               <div className="h-20 bg-zinc-900 relative flex items-center justify-center p-2 text-center text-white/50 text-[10px] font-black uppercase">
-                                  {oyun.includes("pubg") || oyun.toLowerCase().includes("game") ? <Gamepad2 className="w-8 h-8 absolute opacity-20" /> : null}
+                               <div className="h-16 bg-zinc-900 relative flex items-center justify-center p-2 text-center text-white/70 text-[10px] font-black uppercase">
+                                  {oyun.includes("pubg") || oyun.toLowerCase().includes("game") ? <Gamepad2 className="w-6 h-6 absolute opacity-10" /> : null}
                                   <span className="relative z-10 drop-shadow-md">{oyun}</span>
                                </div>
                                <div className="bg-[#f59e0b]/10 border-t border-[#f59e0b]/20 p-2 text-center">
-                                  <span className="block text-[#f59e0b] text-lg sm:text-xl font-black leading-none">{fpsVerileri[oyun]?.["i5"]?.[seciliCozunurluk] || "-"}</span>
+                                  <span className="block text-[#f59e0b] text-base sm:text-lg font-black leading-none">{fpsVerileri[oyun]?.[seciliIslemci]?.[seciliCozunurluk] || "-"}</span>
                                   <span className="text-[#f59e0b] text-[9px] font-bold">FPS</span>
                                </div>
                             </div>
@@ -297,7 +294,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
              {/* Yorumlar */}
              {activeTab === 'yorumlar' && (
                 <div className="space-y-6">
-                   <form onSubmit={handleSubmitReview} className="bg-[#09090b] border border-white/5 p-5 sm:p-6 rounded-2xl">
+                   <form onSubmit={handleSubmitReview} className="bg-[#09090b] border border border-white/5 p-5 sm:p-6 rounded-2xl">
                       <h3 className="text-base font-black uppercase mb-4 tracking-wide text-white">Yorum Yap</h3>
                       <div className="flex gap-1.5 mb-4">
                          {[1,2,3,4,5].map(s => (
@@ -306,7 +303,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                       </div>
                       <input type="text" value={reviewName} onChange={e => setReviewName(e.target.value)} placeholder="Adınız Soyadınız" className="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[#00d2ff] outline-none mb-3" />
                       <textarea value={reviewText} onChange={e => setReviewText(e.target.value)} placeholder="Ürün hakkında ne düşünüyorsunuz?" className="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[#00d2ff] outline-none mb-3 min-h-[80px] resize-none" />
-                      <button disabled={isSubmitting} className="w-full sm:w-auto bg-[#00d2ff] text-black font-black uppercase tracking-widest px-8 py-3 rounded-xl hover:bg-white transition-all">{isSubmitting ? '...' : 'Gönder'}</button>
+                      <button disabled={isSubmitting} className="w-full sm:w-auto bg-[#00d2ff] text-black font-black uppercase tracking-widest px-8 py-3 rounded-xl hover:bg-[#00c4db] transition-all">{isSubmitting ? '...' : 'Gönder'}</button>
                    </form>
 
                    <div className="space-y-3">
@@ -336,7 +333,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                       <h3 className="text-base font-black uppercase mb-4 tracking-wide text-white">Soru Sor</h3>
                       <input type="text" value={questionName} onChange={e => setQuestionName(e.target.value)} placeholder="Adınız Soyadınız" className="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[#00d2ff] outline-none mb-3" />
                       <textarea value={questionText} onChange={e => setQuestionText(e.target.value)} placeholder="Ürünle ilgili ne öğrenmek istersiniz?" className="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[#00d2ff] outline-none mb-3 min-h-[80px] resize-none" />
-                      <button disabled={isSubmitting} className="w-full sm:w-auto bg-[#00d2ff] text-black font-black uppercase tracking-widest px-8 py-3 rounded-xl hover:bg-white transition-all">{isSubmitting ? '...' : 'Gönder'}</button>
+                      <button disabled={isSubmitting} className="w-full sm:w-auto bg-[#00d2ff] text-black font-black uppercase tracking-widest px-8 py-3 rounded-xl hover:bg-[#00c4db] transition-all">{isSubmitting ? '...' : 'Gönder'}</button>
                    </form>
 
                    <div className="space-y-3">
@@ -360,14 +357,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-      {/* 🚀 AÇIKLAMA BÖLÜMÜ (EN ALTTA, KUTUSUZ) 🚀 */}
+      {/* 🚀 3. DÜZENLEME: Açıklama alt bölmedeki görseller hem PC hem telefonda tamamen kutusuz/borderless yapıldı 🚀 */}
       {product.aciklama && (
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-10 pb-20 border-t border-white/10">
            <h2 className="text-2xl font-black uppercase tracking-widest mb-8 text-white flex items-center gap-3">
              <Info className="w-6 h-6 text-[#00d2ff]" /> Ürün Açıklaması
            </h2>
            <div className="prose prose-invert max-w-none 
-              [&_img]:w-full [&_img]:h-auto [&_img]:!m-0 [&_img]:!border-none [&_img]:!rounded-none [&_img]:block sm:[&_img]:!rounded-2xl sm:[&_img]:!border-solid sm:[&_img]:!border sm:[&_img]:!border-white/10 sm:[&_img]:my-8
+              [&_img]:w-full [&_img]:h-auto [&_img]:!m-0 [&_img]:!border-none [&_img]:!rounded-none [&_img]:block [&_img]:my-8
               [&_h2]:text-2xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mb-4 [&_h2]:mt-10
               [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-gray-200 [&_h3]:mb-3 [&_h3]:mt-8
               [&_p]:text-gray-300 [&_p]:leading-relaxed [&_p]:text-sm sm:[&_p]:text-base [&_p]:mb-5" 
@@ -382,7 +379,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             {indirimVarMi && !tukendiMi && <span className="text-gray-500 text-[10px] line-through">{normalFiyat.toLocaleString("tr-TR")} ₺</span>}
             <span className="text-2xl font-black text-white leading-none">{gecerliFiyat.toLocaleString("tr-TR")} ₺</span>
          </div>
-         <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`h-12 px-6 rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${tukendiMi ? 'bg-zinc-800 text-zinc-500' : 'bg-[#00d2ff] text-black shadow-[0_0_20px_rgba(0,210,255,0.3)]'}`}>
+         <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`h-12 px-6 rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${tukendiMi ? 'bg-zinc-800 text-zinc-500' : 'bg-[#00d2ff] text-black shadow-[0_0_20px_rgba(0,210,255,0.3)] hover:bg-[#00c4db]'}`}>
             <ShoppingCart className="w-4 h-4" /> {tukendiMi ? "Tükendi" : "Sepete Ekle"}
          </button>
       </div>
