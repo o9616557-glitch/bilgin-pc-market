@@ -13,7 +13,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   
   const [activeTab, setActiveTab] = useState("teknik");
   const [seciliCozunurluk, setSeciliCozunurluk] = useState("1080P");
-  const [seciliIslemci, setSeciliIslemci] = useState("i5");
+  // 🚀 ESKİ İŞLEMCİ MOTORU DEVREDE 🚀
+  const [seciliIslemci, setSeciliIslemci] = useState("i5"); 
+
   const [reviewName, setReviewName] = useState("");
   const [questionName, setQuestionName] = useState("");
   const [reviewText, setReviewText] = useState("");
@@ -31,19 +33,12 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const touchStartRef = useRef(0);
   const [lightboxAcik, setLightboxAcik] = useState(false);
   
-  // Yorumlara kaydırmak için referans
   const tabsRef = useRef<HTMLDivElement>(null);
 
-  // 🚀 SADECE İSTENİLEN 3 OYUN (Veritabanı boşsa bunlar görünür) 🚀
-  const fpsVerileri: any = Object.keys(product.fps_testleri || {}).length > 0 
-    ? product.fps_testleri 
-    : {
-      "CYBERPUNK": { i5: { "1080P": "145", "2K": "110", "4K": "65" } },
-      "VALORANT": { i5: { "1080P": "580", "2K": "410", "4K": "240" } },
-      "GTA 5": { i5: { "1080P": "185", "2K": "145", "4K": "95" } }
-    };
-  
+  // 🚀 TEST VERİLERİ SİLİNDİ, SADECE MONGODB'DEN GELEN GERÇEK VERİ KULLANILIYOR 🚀
+  const fpsVerileri: any = product.fps_testleri || {};
   const dbOyunlar = Object.keys(fpsVerileri);
+  
   const pId = product?._id?.toString() || product?.id?.toString() || "urun";
   const totalReviews = reviews.length;
   const avgRating = totalReviews > 0 ? (reviews.reduce((acc: any, curr: any) => acc + Number(curr.rating), 0) / totalReviews).toFixed(1) : "0.0";
@@ -107,7 +102,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     if (navigator.share) { try { await navigator.share({ title: urunAdi, text: "Bu ürüne bak!", url: window.location.href }); } catch (err) {} } else { navigator.clipboard.writeText(window.location.href); setCopied(true); setTimeout(() => setCopied(false), 2000); toast.success("Bağlantı kopyalandı"); }
   };
 
-  // 🚀 TIKLAYINCA AŞAĞI KAYDIRAN FONKSİYON 🚀
   const handleReviewClick = () => {
     setActiveTab("yorumlar");
     if (tabsRef.current) {
@@ -137,7 +131,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const handleTouchStart = (e: React.TouchEvent) => touchStartRef.current = e.touches[0].clientX;
   const handleTouchEnd = (e: React.TouchEvent) => { const fark = touchStartRef.current - e.changedTouches[0].clientX; if (fark > 40) sonrakiResim(); else if (fark < -40) oncekiResim(); };
 
-  // FPS TABLOSU ŞABLONU
+  // 🚀 İŞLEMCİ SEÇİM BUTONLARINI İÇEREN YENİ FPS TABLOSU 🚀
   const renderFpsSection = () => (
     <div className="bg-[#09090b] border border-white/10 rounded-2xl p-4 sm:p-6 flex flex-col xl:flex-row gap-6 sm:gap-8 shadow-[0_5px_15px_rgba(0,0,0,0.5)]">
        <div className="flex flex-col items-center justify-center xl:border-r border-white/10 xl:pr-8 pb-6 xl:pb-0 border-b xl:border-b-0 w-full xl:w-auto">
@@ -149,7 +143,18 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           <span className="text-[10px] text-gray-500">En Yüksek Akıcılık Puanı</span>
        </div>
 
-       <div className="flex-1 overflow-hidden w-full">
+       <div className="flex-1 overflow-hidden w-full flex flex-col">
+          
+          {/* 🚀 GERİ GELEN İŞLEMCİ (5, 7, 9) SEÇİM MOTORU 🚀 */}
+          <div className="flex gap-2 sm:gap-3 mb-4">
+             {[{ id: "i5", top: "INTEL i5", bottom: "RYZEN 5" }, { id: "i7", top: "INTEL i7", bottom: "RYZEN 7" }, { id: "i9", top: "INTEL i9", bottom: "RYZEN 9" }].map((islemci) => (
+                <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as any)} className={`flex-1 flex flex-col items-center justify-center py-2 px-1 sm:px-2 rounded-xl border transition-all ${seciliIslemci === islemci.id ? "bg-[#121215] border-[#00d2ff] text-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.2)]" : "bg-black border-white/5 text-slate-500 hover:text-white"}`}>
+                   <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider">{islemci.top}</span>
+                   <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider mt-0.5">{islemci.bottom}</span>
+                </button>
+             ))}
+          </div>
+
           <div className="flex gap-2 p-1 bg-black rounded-full w-fit mb-4 border border-white/5 mx-auto xl:mx-0">
              {["1080P", "2K", "4K"].map(res => (
                 <button key={res} onClick={() => setSeciliCozunurluk(res)} className={`px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-black transition-all ${seciliCozunurluk === res ? 'bg-white text-black' : 'text-gray-400 hover:text-white'}`}>{res}</button>
@@ -172,7 +177,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                       <span className="text-[#f59e0b] text-[9px] font-bold">FPS</span>
                    </div>
                 </div>
-             )) : <div className="text-center text-gray-500 text-sm w-full py-4">Oyun testi verisi bulunamadı.</div>}
+             )) : <div className="text-center text-gray-500 text-sm w-full py-4">Oyun testi verisi bulunamadı. Lütfen panelden ekleyin.</div>}
           </div>
        </div>
     </div>
@@ -189,7 +194,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
       <div className="max-w-[1200px] mx-auto sm:px-6 py-0 sm:py-10 flex flex-col md:flex-row gap-0 sm:gap-8 lg:gap-12 relative items-start">
         
-        {/* === SOL KOLON === */}
+        {/* === SOL KOLON (PC'DE YAPIŞKAN) === */}
         <div className="w-full md:w-[45%] flex flex-col relative md:sticky md:top-28 h-max mb-6 sm:mb-0 transition-all duration-500">
           
           <div className="flex items-center gap-2 mb-2 sm:mb-4 px-4 sm:px-0 pt-4 sm:pt-0">
@@ -237,7 +242,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </div>
           )}
 
-          {/* 🚀 PC İÇİN FPS TABLOSU (GALERİNİN ALTINDA AÇIK KALIR) 🚀 */}
+          {/* PC İÇİN FPS TABLOSU (GALERİNİN ALTINDA AÇIK KALIR) */}
           <div className="hidden md:block mt-8">
              <h3 className="text-lg font-black uppercase mb-4 text-white flex items-center gap-2">
                <Gauge className="w-5 h-5 text-[#00d2ff]" /> Performans Testleri
@@ -249,7 +254,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         {/* === SAĞ: ÜRÜN BİLGİLERİ VE AKSİYONLAR === */}
         <div className="w-full md:w-[55%] flex flex-col px-4 sm:px-0">
           
-          {/* 🚀 YORUMLARA TIKLAYINCA AŞAĞI KAYDIRIR 🚀 */}
+          {/* TIKLAYINCA AŞAĞI KAYDIRIR */}
           <div onClick={handleReviewClick} className="flex items-center justify-between mb-4 border-b border-white/10 pb-4 cursor-pointer group">
              <div className="text-xs sm:text-sm font-black text-gray-500 tracking-[0.2em] uppercase">{product.marka || "BİLGİN PC"}</div>
              <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
@@ -293,7 +298,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
              </button>
           </div>
 
-          {/* 🚀 MOBİL İÇİN FPS TABLOSU 🚀 */}
+          {/* MOBİL İÇİN FPS TABLOSU */}
           <div className="block md:hidden mb-10">
              <h3 className="text-lg font-black uppercase mb-4 text-white flex items-center gap-2">
                <Gauge className="w-5 h-5 text-[#00d2ff]" /> Performans Testleri
@@ -388,7 +393,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-      {/* 🚀 AÇIKLAMANIN BOŞLUKLARI AZALTILDI (pt-4, pb-10) 🚀 */}
+      {/* AÇIKLAMA */}
       {product.aciklama && (
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-4 pb-10 border-t border-white/10">
            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-widest mb-6 text-white flex items-center gap-3">
