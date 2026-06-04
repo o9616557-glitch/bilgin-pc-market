@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useCart } from "../../CartContext"; 
 import toast from "react-hot-toast";
 import { useCompare } from "@/app/CompareContext";
-import { X, Gamepad2, ChevronLeft, ChevronRight, ShoppingCart, Heart, GitCompare, Share2, Star, Zap, Info } from "lucide-react";
+import { X, Gamepad2, ChevronLeft, ChevronRight, ShoppingCart, Heart, GitCompare, Share2, Star, Zap, Info, Gauge } from "lucide-react";
 
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const { sepeteEkle } = useCart(); 
@@ -30,6 +30,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [fade, setFade] = useState(false); 
   const touchStartRef = useRef(0);
   const [lightboxAcik, setLightboxAcik] = useState(false);
+  
+  // 🚀 KAYDIRMA MOTORU İÇİN REFERANS 🚀
+  const tabsRef = useRef<HTMLDivElement>(null);
 
   const fpsVerileri: any = product.fps_testleri || {};
   const dbOyunlar = Object.keys(fpsVerileri);
@@ -96,6 +99,22 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     if (navigator.share) { try { await navigator.share({ title: urunAdi, text: "Bu ürüne bak!", url: window.location.href }); } catch (err) {} } else { navigator.clipboard.writeText(window.location.href); setCopied(true); setTimeout(() => setCopied(false), 2000); toast.success("Bağlantı kopyalandı"); }
   };
 
+  // 🚀 YORUMLARA TIKLAYINCA AŞAĞI KAYDIRAN MOTOR 🚀
+  const handleReviewClick = () => {
+    setActiveTab("yorumlar");
+    if (tabsRef.current) {
+      const offset = 100; // Mobilde üst barın altında kalmasın diye pay
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = tabsRef.current.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      
+      window.scrollTo({
+        top: elementPosition - offset,
+        behavior: "smooth"
+      });
+    }
+  };
+
   if (!product) return <div className="text-center p-10 text-[#00e5ff] font-bold">Yükleniyor...</div>;
 
   const indirimVarMi = indirimliFiyat !== null && normalFiyat > indirimliFiyat;
@@ -114,6 +133,45 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const handleTouchStart = (e: React.TouchEvent) => touchStartRef.current = e.touches[0].clientX;
   const handleTouchEnd = (e: React.TouchEvent) => { const fark = touchStartRef.current - e.changedTouches[0].clientX; if (fark > 40) sonrakiResim(); else if (fark < -40) oncekiResim(); };
 
+  // 🚀 FPS KUTUSU (Tekrarlamamak için değişken olarak tanımlandı) 🚀
+  const renderFpsSection = () => (
+    <div className="bg-[#09090b] border border-white/10 rounded-2xl p-4 sm:p-6 flex flex-col xl:flex-row gap-6 sm:gap-8 shadow-[0_5px_15px_rgba(0,0,0,0.5)]">
+       {/* Sol Kadran */}
+       <div className="flex flex-col items-center justify-center xl:border-r border-white/10 xl:pr-8 pb-6 xl:pb-0 border-b xl:border-b-0 w-full xl:w-auto">
+          <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Genel Performans</span>
+          <div className="relative w-[140px] h-[70px] overflow-hidden mb-2">
+             <div className="absolute top-0 left-0 w-[140px] h-[140px] rounded-full border-[12px] border-white/5 border-t-[#00d2ff] border-l-[#00d2ff] transform rotate-45"></div>
+          </div>
+          <div className="text-3xl font-black text-white -mt-5 mb-1">16,671</div>
+          <span className="text-[10px] text-gray-500">En Yüksek Akıcılık Puanı</span>
+       </div>
+
+       {/* Sağ Oyun Kartları */}
+       <div className="flex-1 overflow-hidden w-full">
+          <div className="flex gap-2 p-1 bg-black rounded-full w-fit mb-4 border border-white/5 mx-auto xl:mx-0">
+             {["1080P", "2K", "4K"].map(res => (
+                <button key={res} onClick={() => setSeciliCozunurluk(res)} className={`px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-black transition-all ${seciliCozunurluk === res ? 'bg-white text-black' : 'text-gray-400 hover:text-white'}`}>{res}</button>
+             ))}
+          </div>
+          
+          <div className="flex gap-3 overflow-x-auto pb-2 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:bg-white/20">
+             {dbOyunlar.length > 0 ? dbOyunlar.map(oyun => (
+                <div key={oyun} className="w-24 sm:w-28 flex-shrink-0 bg-black border border-white/10 rounded-xl overflow-hidden flex flex-col">
+                   <div className="h-16 bg-zinc-900 relative flex items-center justify-center p-2 text-center text-white/70 text-[10px] font-black uppercase">
+                      {oyun.includes("pubg") || oyun.toLowerCase().includes("game") ? <Gamepad2 className="w-6 h-6 absolute opacity-10" /> : null}
+                      <span className="relative z-10 drop-shadow-md">{oyun}</span>
+                   </div>
+                   <div className="bg-[#f59e0b]/10 border-t border-[#f59e0b]/20 p-2 text-center">
+                      <span className="block text-[#f59e0b] text-base sm:text-lg font-black leading-none">{fpsVerileri[oyun]?.[seciliIslemci]?.[seciliCozunurluk] || "-"}</span>
+                      <span className="text-[#f59e0b] text-[9px] font-bold">FPS</span>
+                   </div>
+                </div>
+             )) : <div className="text-center text-gray-500 text-sm w-full py-4">Oyun testi verisi bulunamadı.</div>}
+          </div>
+       </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-[#050505] text-white font-sans pb-24 sm:pb-10">
       
@@ -126,7 +184,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       <div className="max-w-[1200px] mx-auto sm:px-6 py-0 sm:py-10 flex flex-col md:flex-row gap-0 sm:gap-8 lg:gap-12">
         
         {/* === SOL: GALERİ ALANI === */}
-        <div className="w-full md:w-[45%] flex flex-col relative md:sticky md:top-24 h-max mb-6 sm:mb-0">
+        <div className="w-full md:w-[45%] flex flex-col relative mb-6 sm:mb-0">
           
           <div className="flex items-center gap-2 mb-2 sm:mb-4 px-4 sm:px-0 pt-4 sm:pt-0">
              {tukendiMi ? (
@@ -136,7 +194,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
              )}
           </div>
 
-          {/* PC'DE KUTULU, MOBİLDE KUTUSUZ RESİM GALERİSİ */}
           <div 
             onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
             className="relative w-full aspect-square sm:aspect-[4/3] bg-transparent sm:bg-white/[0.02] sm:backdrop-blur-xl sm:border sm:border-white/5 sm:rounded-2xl flex items-center justify-center p-0 sm:p-6 overflow-hidden mb-2 group"
@@ -156,7 +213,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             />
           </div>
 
-          {/* Mobilde Çizgi Navigasyonu */}
           {resimler.length > 1 && (
             <div className="flex sm:hidden justify-center gap-2 mt-2 mb-2 px-4">
               {resimler.map((_, idx) => (
@@ -165,7 +221,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </div>
           )}
 
-          {/* PC'de Küçük Resimler */}
           {resimler.length > 1 && (
             <div className="hidden sm:flex gap-3 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden">
               {resimler.map((img: string, idx: number) => (
@@ -175,13 +230,21 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               ))}
             </div>
           )}
+
+          {/* 🚀 PC İÇİN FPS TABLOSU (GALERİNİN ALTINDA AÇIK KALIR) 🚀 */}
+          <div className="hidden md:block mt-8">
+             <h3 className="text-lg font-black uppercase mb-4 text-white flex items-center gap-2">
+               <Gauge className="w-5 h-5 text-[#00d2ff]" /> Performans Testleri
+             </h3>
+             {renderFpsSection()}
+          </div>
         </div>
 
         {/* === SAĞ: ÜRÜN BİLGİLERİ VE AKSİYONLAR === */}
         <div className="w-full md:w-[55%] flex flex-col px-4 sm:px-0">
           
-          {/* 🚀 2. DÜZENLEME: Üstteki yorum alanına tıklayınca alttaki yorumlar sekmesine gider 🚀 */}
-          <div onClick={() => setActiveTab("yorumlar")} className="flex items-center justify-between mb-4 border-b border-white/10 pb-4 cursor-pointer group">
+          {/* 🚀 TIKLAYINCA AŞAĞI KAYDIRAN YORUM BAŞLIĞI 🚀 */}
+          <div onClick={handleReviewClick} className="flex items-center justify-between mb-4 border-b border-white/10 pb-4 cursor-pointer group">
              <div className="text-xs sm:text-sm font-black text-gray-500 tracking-[0.2em] uppercase">{product.marka || "BİLGİN PC"}</div>
              <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
                 <div className="flex gap-0.5">
@@ -195,7 +258,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             {urunAdi}
           </h1>
 
-          {/* 🚀 1. VE 5. DÜZENLEME: Göz alan neon ışık çemberleri kaldırıldı, sade parlayan orijinal fiyat kutusu 🚀 */}
           <div className="relative rounded-3xl bg-[#09090b] p-6 sm:p-8 mb-6 sm:mb-8 border border-[#00e5ff]/50 shadow-[0_0_20px_rgba(0,229,255,0.15)] overflow-hidden">
              {indirimVarMi && !tukendiMi && <div className="text-gray-500 text-sm sm:text-lg line-through font-bold mb-1">{normalFiyat.toLocaleString("tr-TR")} TL</div>}
              <div className="text-3xl sm:text-5xl font-black leading-none mb-5 text-white">
@@ -210,9 +272,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
              )}
           </div>
 
-          {/* 🚀 4. DÜZENLEME: Üzerine gelince göz alan beyaz parlama efekti yumuşatıldı 🚀 */}
-          <div className="flex gap-2 sm:gap-4 mb-10">
-             <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`hidden sm:flex flex-1 h-14 sm:h-16 rounded-2xl font-black text-sm sm:text-lg uppercase tracking-widest items-center justify-center gap-2 sm:gap-3 transition-all ${tukendiMi ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-[#00e5ff] text-black hover:bg-[#00c4db] shadow-[0_0_20px_rgba(0,229,255,0.2)]'}`}>
+          <div className="flex gap-2 sm:gap-4 mb-8 sm:mb-10">
+             <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`hidden sm:flex flex-1 h-14 sm:h-16 rounded-2xl font-black text-sm sm:text-lg uppercase tracking-widest items-center justify-center gap-2 sm:gap-3 transition-all ${tukendiMi ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-[#00d2ff] text-black hover:bg-[#00c4db] shadow-[0_0_20px_rgba(0,229,255,0.2)]'}`}>
                 <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" /> {tukendiMi ? "Tükendi" : "Sepete Ekle"}
              </button>
              <button onClick={handleToggleFavorite} className={`w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl flex items-center justify-center border transition-all ${isFav ? 'bg-red-500/10 border-red-500 text-red-500' : 'bg-[#09090b] border-white/10 hover:border-[#00d2ff] hover:text-[#00d2ff]'}`} title="Favori">
@@ -226,16 +287,23 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
              </button>
           </div>
 
-          {/* SEKMELER MENÜSÜ */}
-          <div className="flex overflow-x-auto gap-2 border-b border-white/10 pb-3 mb-6 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#00d2ff]/50 [&::-webkit-scrollbar-thumb]:rounded-full">
+          {/* 🚀 MOBİL İÇİN FPS TABLOSU (Sayfa düzenini bozmadan butonların altına gelir) 🚀 */}
+          <div className="block md:hidden mb-10">
+             <h3 className="text-lg font-black uppercase mb-4 text-white flex items-center gap-2">
+               <Gauge className="w-5 h-5 text-[#00d2ff]" /> Performans Testleri
+             </h3>
+             {renderFpsSection()}
+          </div>
+
+          {/* 🚀 SEKMELER REFERANS NOKTASI (AŞAĞI KAYDIRMA BURAYA GELİR) 🚀 */}
+          <div ref={tabsRef} className="flex overflow-x-auto gap-2 border-b border-white/10 pb-3 mb-6 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#00d2ff]/50 [&::-webkit-scrollbar-thumb]:rounded-full">
              <button onClick={() => setActiveTab('teknik')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest ${activeTab === 'teknik' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Teknik Özellikler</button>
-             <button onClick={() => setActiveTab('fps')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest ${activeTab === 'fps' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Performans (FPS)</button>
              <button onClick={() => setActiveTab('yorumlar')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest ${activeTab === 'yorumlar' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Yorumlar</button>
              <button onClick={() => setActiveTab('sorular')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest ${activeTab === 'sorular' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Sorular</button>
           </div>
 
           {/* SEKME İÇERİKLERİ */}
-          <div className="min-h-[250px] mb-10">
+          <div className="min-h-[200px] mb-8">
 
              {/* Teknik Özellikler */}
              {activeTab === 'teknik' && (
@@ -248,46 +316,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                          </div>
                       ))
                    ) : (<div className="p-8 text-center text-gray-500 text-sm">Teknik detay girilmemiş.</div>)}
-                </div>
-             )}
-
-             {/* 🚀 6. DÜZENLEME: Tamamen Türkçe Performans (FPS) Ekranı 🚀 */}
-             {activeTab === 'fps' && (
-                <div className="bg-[#09090b] border border-white/10 rounded-2xl p-4 sm:p-6 flex flex-col xl:flex-row gap-6 sm:gap-8">
-                   
-                   {/* Sol Kadran */}
-                   <div className="flex flex-col items-center justify-center xl:border-r border-white/10 xl:pr-8 pb-6 xl:pb-0 border-b xl:border-b-0">
-                      <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Genel Performans</span>
-                      <div className="relative w-[140px] h-[70px] overflow-hidden mb-2">
-                         <div className="absolute top-0 left-0 w-[140px] h-[140px] rounded-full border-[12px] border-white/5 border-t-[#00d2ff] border-l-[#00d2ff] transform rotate-45"></div>
-                      </div>
-                      <div className="text-3xl font-black text-white -mt-5 mb-1">16,671</div>
-                      <span className="text-[10px] text-gray-500">En Yüksek Akıcılık Puanı</span>
-                   </div>
-
-                   {/* Sağ Oyun Kartları */}
-                   <div className="flex-1 overflow-hidden">
-                      <div className="flex gap-2 p-1 bg-black rounded-full w-fit mb-4 border border-white/5">
-                         {["1080P", "2K", "4K"].map(res => (
-                            <button key={res} onClick={() => setSeciliCozunurluk(res)} className={`px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-black transition-all ${seciliCozunurluk === res ? 'bg-white text-black' : 'text-gray-400 hover:text-white'}`}>{res}</button>
-                         ))}
-                      </div>
-                      
-                      <div className="flex gap-3 overflow-x-auto pb-2 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:bg-white/20">
-                         {dbOyunlar.length > 0 ? dbOyunlar.map(oyun => (
-                            <div key={oyun} className="w-24 sm:w-28 flex-shrink-0 bg-black border border-white/10 rounded-xl overflow-hidden flex flex-col">
-                               <div className="h-16 bg-zinc-900 relative flex items-center justify-center p-2 text-center text-white/70 text-[10px] font-black uppercase">
-                                  {oyun.includes("pubg") || oyun.toLowerCase().includes("game") ? <Gamepad2 className="w-6 h-6 absolute opacity-10" /> : null}
-                                  <span className="relative z-10 drop-shadow-md">{oyun}</span>
-                               </div>
-                               <div className="bg-[#f59e0b]/10 border-t border-[#f59e0b]/20 p-2 text-center">
-                                  <span className="block text-[#f59e0b] text-base sm:text-lg font-black leading-none">{fpsVerileri[oyun]?.[seciliIslemci]?.[seciliCozunurluk] || "-"}</span>
-                                  <span className="text-[#f59e0b] text-[9px] font-bold">FPS</span>
-                               </div>
-                            </div>
-                         )) : <div className="text-center text-gray-500 text-sm w-full py-4">Oyun testi verisi bulunamadı.</div>}
-                      </div>
-                   </div>
                 </div>
              )}
 
@@ -357,17 +385,17 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-      {/* 🚀 3. DÜZENLEME: Açıklama alt bölmedeki görseller hem PC hem telefonda tamamen kutusuz/borderless yapıldı 🚀 */}
+      {/* 🚀 4. DÜZENLEME: AÇIKLAMA BÖLÜMÜNÜN BOŞLUKLARI YARI YARIYA İNDİRİLDİ (pt-6, pb-10) 🚀 */}
       {product.aciklama && (
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-10 pb-20 border-t border-white/10">
-           <h2 className="text-2xl font-black uppercase tracking-widest mb-8 text-white flex items-center gap-3">
-             <Info className="w-6 h-6 text-[#00d2ff]" /> Ürün Açıklaması
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-6 pb-10 border-t border-white/10">
+           <h2 className="text-xl sm:text-2xl font-black uppercase tracking-widest mb-6 text-white flex items-center gap-3">
+             <Info className="w-5 h-5 sm:w-6 sm:h-6 text-[#00d2ff]" /> Ürün Açıklaması
            </h2>
            <div className="prose prose-invert max-w-none 
-              [&_img]:w-full [&_img]:h-auto [&_img]:!m-0 [&_img]:!border-none [&_img]:!rounded-none [&_img]:block [&_img]:my-8
-              [&_h2]:text-2xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mb-4 [&_h2]:mt-10
-              [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-gray-200 [&_h3]:mb-3 [&_h3]:mt-8
-              [&_p]:text-gray-300 [&_p]:leading-relaxed [&_p]:text-sm sm:[&_p]:text-base [&_p]:mb-5" 
+              [&_img]:w-full [&_img]:h-auto [&_img]:!m-0 [&_img]:!border-none [&_img]:!rounded-none [&_img]:block [&_img]:my-6
+              [&_h2]:text-xl sm:[&_h2]:text-2xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mb-3 [&_h2]:mt-8
+              [&_h3]:text-lg sm:[&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-gray-200 [&_h3]:mb-2 [&_h3]:mt-6
+              [&_p]:text-gray-300 [&_p]:leading-relaxed [&_p]:text-sm sm:[&_p]:text-base [&_p]:mb-4" 
               dangerouslySetInnerHTML={{ __html: product.aciklama }} 
            />
         </div>
