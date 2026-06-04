@@ -67,16 +67,25 @@ export default async function HomePage() {
         </div>
       </section>
 
-    <div className="flex flex-nowrap overflow-x-auto gap-4 pb-4 px-[7.5vw] sm:px-[10vw] lg:px-8 snap-x snap-mandatory scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#00d2ff] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
+      {/* ==================== 2. NEDEN BİZ? ==================== */}
+      <section className="max-w-[1400px] mx-auto pt-8 pb-4">
+        
+        <div className="flex items-center justify-between px-6 lg:px-8 mb-6">
+          <div className="flex items-center gap-4">
+            <div className="w-1.5 h-8 bg-white shadow-[0_0_10px_rgba(255,255,255,0.3)]"></div>
+            <h2 className="text-xl sm:text-3xl font-black uppercase tracking-tight text-white">
+              Neden <span className="text-gray-500">Biz?</span>
+            </h2>
+          </div>
+        </div>
 
-            {/* KART 1: HAVALE */}
-            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#0a0a0a] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#10b981] transition-colors duration-500">
-              {/* Askeri Düzey CSS Arka Planı (Resim Yerine) */}
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(16,185,129,0.1),transparent_70%)] pointer-events-none"></div>
-              <div className="absolute top-8 right-8 text-[#10b981]/10 transform rotate-12 group-hover:scale-110 transition-transform duration-700">
-                <ShieldCheck className="w-48 h-48" />
-              </div>
-              
+        <div className="w-full">
+          <div className="flex flex-nowrap overflow-x-auto gap-4 pb-4 px-[7.5vw] sm:px-[10vw] lg:px-8 snap-x snap-mandatory scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#00d2ff] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
+
+            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#10b981] transition-colors duration-500">
+              {/* HELLO Yazılı resim silindi, yeni teknoloji resmi eklendi */}
+              <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800&auto=format&fit=crop" alt="Havale İndirimi" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-60 transition-all duration-700" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent"></div>
               <div className="relative z-10 transform group-hover:-translate-y-2 transition-transform duration-500">
                 <div className="text-[#10b981] font-black text-5xl tracking-tighter mb-1 drop-shadow-[0_0_15px_rgba(16,185,129,0.2)]">%15</div>
                 <h3 className="text-white font-black text-base uppercase tracking-widest mb-3 group-hover:text-[#10b981] transition-colors">Havale İndirimi</h3>
@@ -85,14 +94,9 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* KART 2: HIZLI KARGO */}
-            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#0a0a0a] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-white transition-colors duration-500">
-              {/* Askeri Düzey CSS Arka Planı */}
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.05),transparent_70%)] pointer-events-none"></div>
-              <div className="absolute top-8 right-8 text-white/5 transform -rotate-12 group-hover:scale-110 transition-transform duration-700">
-                <Zap className="w-48 h-48" />
-              </div>
-
+            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-white transition-colors duration-500">
+              <img src="https://images.unsplash.com/photo-1587202372634-32705e3bf49c?q=80&w=800&auto=format&fit=crop" alt="Hızlı Kargo" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 transition-all duration-700 grayscale" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent"></div>
               <div className="relative z-10 transform group-hover:-translate-y-2 transition-transform duration-500">
                 <div className="text-white font-black text-4xl tracking-tighter mb-2">HIZLI<span className="text-gray-600">TESLİMAT</span></div>
                 <h3 className="text-white font-black text-base uppercase tracking-widest mb-3 group-hover:text-gray-300 transition-colors">Özenli Paketleme</h3>
@@ -101,14 +105,9 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* KART 3: MONTAJ VE TEST */}
-            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#0a0a0a] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#d4af37] transition-colors duration-500">
-               {/* Askeri Düzey CSS Arka Planı */}
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(212,175,55,0.1),transparent_70%)] pointer-events-none"></div>
-              <div className="absolute top-8 right-8 text-[#d4af37]/10 transform rotate-12 group-hover:scale-110 transition-transform duration-700">
-                <Cpu className="w-48 h-48" />
-              </div>
-
+            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#d4af37] transition-colors duration-500">
+              <img src="https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?q=80&w=800&auto=format&fit=crop" alt="Montaj ve Test" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-50 transition-all duration-700 sepia-[.3]" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent"></div>
               <div className="relative z-10 transform group-hover:-translate-y-2 transition-transform duration-500">
                 <div className="text-[#d4af37] font-black text-4xl tracking-tighter mb-2 drop-shadow-[0_0_15px_rgba(212,175,55,0.2)]">ÜCRETSİZ<span className="text-white">MONTAJ</span></div>
                 <h3 className="text-white font-black text-base uppercase tracking-widest mb-3 group-hover:text-[#d4af37] transition-colors">Test ve Kurulum</h3>
@@ -117,14 +116,9 @@ export default async function HomePage() {
               </div>
             </div>
 
-             {/* KART 4: RESMİ GARANTİ */}
-            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#0a0a0a] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#3b82f6] transition-colors duration-500">
-               {/* Askeri Düzey CSS Arka Planı */}
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.1),transparent_70%)] pointer-events-none"></div>
-              <div className="absolute top-8 right-8 text-[#3b82f6]/10 transform -rotate-12 group-hover:scale-110 transition-transform duration-700">
-                <Sparkles className="w-48 h-48" />
-              </div>
-
+            <div className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 snap-center lg:snap-start overflow-hidden flex flex-col justify-end p-6 cursor-pointer hover:border-[#3b82f6] transition-colors duration-500">
+              <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop" alt="Resmi Garanti" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 transition-all duration-700" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent"></div>
               <div className="relative z-10 transform group-hover:-translate-y-2 transition-transform duration-500">
                 <div className="text-[#3b82f6] font-black text-4xl tracking-tighter mb-2 drop-shadow-[0_0_15px_rgba(59,130,246,0.2)]">RESMİ<span className="text-white text-2xl">GARANTİ</span></div>
                 <h3 className="text-white font-black text-base uppercase tracking-widest mb-3 group-hover:text-[#3b82f6] transition-colors">Güvenilir Alışveriş</h3>
@@ -134,7 +128,8 @@ export default async function HomePage() {
             </div>
 
           </div>
-     
+        </div>
+      </section>
 
       {/* ==================== 3. GÜNCEL ÜRÜNLER (VİTRİN) ==================== */}
       <div id="vitrin" className="max-w-[1400px] mx-auto pt-10 pb-8">
