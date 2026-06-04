@@ -19,13 +19,13 @@ export default async function HomePage() {
   return (
     <main className="min-h-screen bg-black text-white font-sans overflow-hidden selection:bg-[#00d2ff] selection:text-black">
       
-      {/* 🚀 ANA SAYFA İNDİRİM ROZETİ CSS KODU (SOL ÜST KÖŞE) 🚀 */}
+      {/* 🚀 ANA SAYFA İNDİRİM ROZETİ CSS (BİR TIK UFAK VE SAĞ ÜST KÖŞE) 🚀 */}
       <style dangerouslySetInnerHTML={{ __html: `
-        .discount-badge-home { position: absolute; top: 10px; left: 10px; width: 75px; height: 100px; z-index: 50; filter: drop-shadow(0px 8px 10px rgba(0,0,0,0.6)); pointer-events: none; }
-        .badge-rosette-home { position: relative; width: 75px; height: 75px; background: #e60000; clip-path: polygon(50% 0%, 60% 10%, 75% 5%, 80% 20%, 95% 25%, 90% 40%, 100% 50%, 90% 60%, 95% 75%, 80% 80%, 75% 95%, 60% 90%, 50% 100%, 40% 90%, 25% 95%, 20% 80%, 5% 75%, 10% 60%, 0% 50%, 10% 40%, 5% 25%, 20% 20%, 25% 5%, 40% 10%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 2; }
-        .badge-rosette-home span:first-child { font-size: 20px; font-weight: 900; line-height: 1; margin-top: 3px; }
-        .badge-rosette-home span:last-child { font-size: 13px; font-weight: 900; line-height: 1; }
-        .badge-ribbon-home-left, .badge-ribbon-home-right { position: absolute; top: 50px; width: 26px; height: 50px; background: linear-gradient(to right, #c20000 12%, white 12%, white 18%, #c20000 18%, #c20000 82%, white 82%, white 88%, #c20000 88%); z-index: 1; }
+        .discount-badge-home { position: absolute; top: 10px; right: 10px; width: 65px; height: 90px; z-index: 50; filter: drop-shadow(0px 6px 8px rgba(0,0,0,0.6)); pointer-events: none; }
+        .badge-rosette-home { position: relative; width: 65px; height: 65px; background: #e60000; clip-path: polygon(50% 0%, 60% 10%, 75% 5%, 80% 20%, 95% 25%, 90% 40%, 100% 50%, 90% 60%, 95% 75%, 80% 80%, 75% 95%, 60% 90%, 50% 100%, 40% 90%, 25% 95%, 20% 80%, 5% 75%, 10% 60%, 0% 50%, 10% 40%, 5% 25%, 20% 20%, 25% 5%, 40% 10%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 2; }
+        .badge-rosette-home span:first-child { font-size: 17px; font-weight: 900; line-height: 1; margin-top: 3px; }
+        .badge-rosette-home span:last-child { font-size: 11px; font-weight: 900; line-height: 1; }
+        .badge-ribbon-home-left, .badge-ribbon-home-right { position: absolute; top: 45px; width: 20px; height: 45px; background: linear-gradient(to right, #c20000 12%, white 12%, white 18%, #c20000 18%, #c20000 82%, white 82%, white 88%, #c20000 88%); z-index: 1; }
         .badge-ribbon-home-left { left: 8px; transform: rotate(20deg); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%); }
         .badge-ribbon-home-right { right: 8px; transform: rotate(-20deg); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%); }
       `}} />
@@ -177,7 +177,7 @@ export default async function HomePage() {
                     <div className="relative w-full aspect-[4/3] p-6 flex items-center justify-center bg-white/5 border-b border-white/10 pointer-events-none overflow-hidden">
                       <div className="absolute inset-0 bg-gradient-to-t from-[#00d2ff]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-                      {/* 🚀 VİTRİN KARTLARI İÇİN HTML ROZET BURADA 🚀 */}
+                      {/* 🚀 SAĞ ÜST KÖŞE ROZETİ 🚀 */}
                       {indirimVarMi && !tukendiMi && (
                         <div className="discount-badge-home">
                             <div className="badge-ribbon-home-left"></div>
@@ -189,17 +189,6 @@ export default async function HomePage() {
                         </div>
                       )}
 
-                      {!tukendiMi && (
-                        <div className="absolute top-3 right-3 z-[60] pointer-events-auto">
-                          <div className="relative flex items-center gap-2 bg-black/60 backdrop-blur-md border border-[#00d2ff] px-3 py-1.5 cursor-pointer">
-                            <GitCompare className="w-4 h-4 text-[#00d2ff]" />
-                            <span className="text-[10px] font-black uppercase tracking-wider hidden sm:block text-[#00d2ff]">Karşılaştır</span>
-                            <div className="absolute inset-0 z-[70] w-full h-full opacity-0 cursor-pointer [&>*]:w-full [&>*]:h-full [&>*]:absolute [&>*]:inset-0 [&_button]:w-full [&_button]:h-full">
-                              <CompareButton urun={urun} />
-                            </div>
-                          </div>
-                        </div>
-                      )}
                       {tukendiMi && (
                         <div className="absolute -top-[1px] -left-[1px] z-20 bg-zinc-800/80 backdrop-blur-md border border-zinc-500 text-white px-3 py-1.5 text-[10px] font-bold tracking-widest uppercase">
                           STOKTA YOK
@@ -229,10 +218,16 @@ export default async function HomePage() {
                             </div>
                           )}
                         </div>
-                        {indirimVarMi && !tukendiMi && (
-                          <div className="border-4 border-double border-[#d4af37] bg-black/40 backdrop-blur-md px-3 py-2 flex flex-col items-center justify-center ml-2">
-                            <span className="text-[#d4af37] text-xl sm:text-2xl font-black leading-none">%{indirimOrani}</span>
-                            <span className="text-[#d4af37] border-t border-[#d4af37]/50 text-[7px] sm:text-[8px] font-bold uppercase tracking-[0.2em] pt-1 mt-1 text-center">İndirim</span>
+                        
+                        {/* 🚀 YENİ MODERN KARŞILAŞTIRMA BUTONU BURAYA GELDİ 🚀 */}
+                        {!tukendiMi && (
+                          <div className="ml-2 flex items-center justify-center pointer-events-auto">
+                            <div className="relative group/compare flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 bg-[#121212] hover:bg-[#00d2ff] border border-white/10 hover:border-[#00d2ff] transition-all duration-300 rounded-xl cursor-pointer shadow-[0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_0_15px_rgba(0,210,255,0.4)]" title="Karşılaştır">
+                              <GitCompare className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 group-hover/compare:text-black transition-colors" />
+                              <div className="absolute inset-0 z-[70] w-full h-full opacity-0 cursor-pointer [&>*]:w-full [&>*]:h-full [&>*]:absolute [&>*]:inset-0 [&_button]:w-full [&_button]:h-full">
+                                <CompareButton urun={urun} />
+                              </div>
+                            </div>
                           </div>
                         )}
                       </div>
