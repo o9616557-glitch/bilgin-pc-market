@@ -1,7 +1,6 @@
 import clientPromise from "@/lib/mongodb";
 import Link from "next/link";
-import { Cpu, Crosshair, Sparkles, Star, GitCompare, ShieldCheck, Zap, Eye, ArrowRight } from "lucide-react";
-import CompareButton from "./CompareButton"; 
+import { Cpu, Crosshair, Sparkles, Star, ShieldCheck, Zap, ArrowRight } from "lucide-react";
 
 // 🚀 HIZLANDIRMA AYARI: Ana sayfayı 60 saniyede bir günceller, sürekli veritabanını yormaz
 export const revalidate = 60; 
@@ -163,13 +162,11 @@ export default async function HomePage() {
                 return (
                   <div key={urun._id.toString()} className="group relative flex flex-col w-[85vw] sm:w-[320px] lg:w-[calc(25%-0.75rem)] flex-shrink-0 snap-center lg:snap-start bg-[#09090b] rounded-2xl overflow-hidden border border-white/5 transition-all duration-500 hover:border-[#00d2ff]/40 hover:shadow-[0_0_30px_rgba(0,210,255,0.15)]">
                     
-                    {/* 🚀 KARTIN TAMAMINI TIKLANABİLİR YAPAN VE ÖNCEDEN YÜKLEYEN LİNK 🚀 */}
-                    <Link href={"/product/" + (urun.slug || urun._id)} className="absolute inset-0 z-10" prefetch={true} />
-
-                    <div className="relative aspect-[4/3] w-full bg-gradient-to-b from-white/5 to-transparent flex items-center justify-center p-6 overflow-hidden pointer-events-none">
+                    {/* Görsel Alanı */}
+                    <div className="relative aspect-[4/3] w-full bg-gradient-to-b from-white/5 to-transparent flex items-center justify-center p-6 overflow-hidden">
                       
                       {indirimVarMi && !tukendiMi && (
-                        <div className="discount-badge-home">
+                        <div className="discount-badge-home pointer-events-none">
                             <div className="badge-ribbon-home-left"></div>
                             <div className="badge-ribbon-home-right"></div>
                             <div className="badge-rosette-home">
@@ -179,43 +176,32 @@ export default async function HomePage() {
                         </div>
                       )}
 
-                      {/* 🚀 STOK NOKTASI SOL ÜST KÖŞEYE ALINDI 🚀 */}
+                      {/* Stok Durumu Noktası */}
                       {tukendiMi ? (
-                         <div className="absolute top-4 left-4 z-20">
+                         <div className="absolute top-4 left-4 z-20 pointer-events-none">
                            <div className="w-2.5 h-2.5 rounded-full bg-zinc-600 shadow-[0_0_10px_rgba(82,82,91,0.8)]" title="Tükendi"></div>
                          </div>
                       ) : (
-                         <div className="absolute top-4 left-4 z-20">
+                         <div className="absolute top-4 left-4 z-20 pointer-events-none">
                            <div className="w-2.5 h-2.5 rounded-full bg-[#10b981] animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]" title="Stokta Var"></div>
                          </div>
                       )}
 
-                      {vitrinResmi ? (
-                        <img 
-                          src={vitrinResmi} 
-                          alt={urun.isim || urun.name} 
-                          className={`w-full h-full object-contain filter drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-transform duration-700 ease-out group-hover:scale-110 ${tukendiMi ? "grayscale opacity-30" : ""}`}
-                        />
-                      ) : (
-                        <Cpu className="w-16 h-16 text-white/10" />
-                      )}
-
-                      {!tukendiMi && (
-                        <div className="absolute bottom-4 left-0 w-full flex justify-center gap-3 transition-all duration-300 z-30 translate-y-4 opacity-0 pointer-events-none group-hover:translate-y-0 group-hover:opacity-100 group-hover:pointer-events-auto">
-                          <Link href={"/product/" + (urun.slug || urun._id)} prefetch={true} className="w-10 h-10 bg-black/60 backdrop-blur-md border border-white/10 hover:border-[#00d2ff] hover:text-black hover:bg-[#00d2ff] text-white rounded-full flex items-center justify-center transition-all shadow-lg hover:shadow-[0_0_15px_rgba(0,210,255,0.4)]" title="Detayları İncele">
-                            <Eye className="w-4 h-4" />
-                          </Link>
-                          <div className="relative flex items-center justify-center w-10 h-10 bg-black/60 backdrop-blur-md border border-white/10 hover:border-[#00d2ff] hover:text-black hover:bg-[#00d2ff] text-white rounded-full transition-all shadow-lg hover:shadow-[0_0_15px_rgba(0,210,255,0.4)]" title="Karşılaştır">
-                            <GitCompare className="w-4 h-4" />
-                            <div className="absolute inset-0 z-[70] w-full h-full opacity-0 cursor-pointer [&>*]:w-full [&>*]:h-full [&>*]:absolute [&>*]:inset-0 [&_button]:w-full [&_button]:h-full">
-                              <CompareButton urun={urun} />
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                      {/* Tıklanabilir Ürün Resmi */}
+                      <Link href={"/product/" + (urun.slug || urun._id)} prefetch={true} className="w-full h-full flex items-center justify-center relative z-10">
+                        {vitrinResmi ? (
+                          <img 
+                            src={vitrinResmi} 
+                            alt={urun.isim || urun.name} 
+                            className={`w-full h-full object-contain filter drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-transform duration-700 ease-out group-hover:scale-110 ${tukendiMi ? "grayscale opacity-30" : ""}`}
+                          />
+                        ) : (
+                          <Cpu className="w-16 h-16 text-white/10" />
+                        )}
+                      </Link>
                     </div>
 
-                    <div className="p-5 flex flex-col flex-grow relative z-20 pointer-events-none bg-transparent">
+                    <div className="p-5 flex flex-col flex-grow relative z-20 bg-transparent">
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-gray-500 text-[10px] font-black tracking-[0.2em] uppercase">{urun.marka || "DONANIM"}</span>
                         <div className="flex items-center gap-1 text-[10px] text-gray-400 font-bold">
@@ -224,11 +210,14 @@ export default async function HomePage() {
                         </div>
                       </div>
 
-                      <h3 className="text-white text-sm font-bold leading-relaxed line-clamp-2 mb-4 group-hover:text-[#00d2ff] transition-colors">
-                        {urun.isim || urun.name}
-                      </h3>
+                      {/* Tıklanabilir Ürün Başlığı */}
+                      <Link href={"/product/" + (urun.slug || urun._id)} prefetch={true} className="block mt-1">
+                        <h3 className="text-white text-sm font-bold leading-relaxed line-clamp-2 mb-4 group-hover:text-[#00d2ff] transition-colors">
+                          {urun.isim || urun.name}
+                        </h3>
+                      </Link>
 
-                      <div className="flex items-end justify-between mt-auto pt-4 border-t border-white/5 pointer-events-auto">
+                      <div className="flex items-end justify-between mt-auto pt-4 border-t border-white/5">
                         <div className="flex flex-col relative z-20">
                           {indirimVarMi && !tukendiMi && (
                             <span className="text-gray-600 text-[11px] line-through font-medium mb-0.5">{normalFiyat.toLocaleString("tr-TR")} ₺</span>
@@ -249,8 +238,8 @@ export default async function HomePage() {
                                <span className="text-xs font-black text-zinc-600 uppercase tracking-widest">Tükendi</span>
                              </div>
                           ) : (
-                             <Link href={"/product/" + (urun.slug || urun._id)} prefetch={true} className="relative overflow-hidden h-10 px-4 sm:h-11 sm:px-5 bg-white/5 border border-white/10 hover:bg-[#00d2ff] hover:border-[#00d2ff] rounded-xl flex items-center justify-center group/btn transition-all duration-300 shadow-md hover:shadow-[0_0_15px_rgba(0,210,255,0.4)] pointer-events-auto">
-                               <span className="text-xs sm:text-sm font-black text-gray-300 group-hover/btn:text-black transition-colors z-10 uppercase tracking-widest flex items-center gap-2">
+                             <Link href={"/product/" + (urun.slug || urun._id)} prefetch={true} className="relative overflow-hidden h-10 px-4 sm:h-11 sm:px-5 bg-white/5 border border-white/10 hover:bg-[#00d2ff] hover:border-[#00d2ff] rounded-xl flex items-center justify-center group/btn transition-all duration-300 shadow-md hover:shadow-[0_0_15px_rgba(0,210,255,0.4)]">
+                               <span className="text-xs sm:text-sm font-black text-gray-300 group-hover/btn:text-black transition-colors uppercase tracking-widest flex items-center gap-2">
                                  İncele <ArrowRight className="w-4 h-4 hidden sm:block transition-transform group-hover/btn:translate-x-1" />
                                </span>
                              </Link>
