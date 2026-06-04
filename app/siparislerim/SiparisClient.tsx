@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Trash2, Copy, Check, RefreshCw, ArrowLeft, MessageSquare, PackageOpen, Package, Truck, CheckCircle2, Clock } from "lucide-react"; 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,6 +13,7 @@ interface Props {
 export default function SiparisClient({ initialOrders }: Props) {
   const router = useRouter();
   const [orders, setOrders] = useState<any[]>(initialOrders);
+  const ordersRef = useRef<any[]>(initialOrders); // 🚀 Radarın eski durumu hatırlaması için hafıza
   const [refreshing, setRefreshing] = useState(false); 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
@@ -21,32 +22,65 @@ export default function SiparisClient({ initialOrders }: Props) {
   useEffect(() => {
     if (initialOrders.length > 0) {
       setOrders(initialOrders);
+      ordersRef.current = initialOrders;
     }
   }, [initialOrders]);
 
+  // 🚀 İŞTE SENİN İSTEDİĞİ SİHİRLİ RADAR (HER 10 SANİYEDE BİR KONTROL EDER) 🚀
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    const radar = setInterval(async () => {
+      if (refreshing) return; // Zaten manuel yenileniyorsa karışma
 
-  const fetchOrders = async () => {
+      try {
+        const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
+        });
+        const data = await res.json();
+        
+        if (res.ok && data.orders) {
+           // Admin panelindeki güncel durum ile müşterinin ekranındaki durumu karşılaştır
+           const eskiDurumlar = JSON.stringify(ordersRef.current.map(o => ({id: o._id, durum: o.durum})));
+           const yeniDurumlar = JSON.stringify(data.orders.map((o:any) => ({id: o._id, durum: o.durum})));
+
+           // EĞER ŞEF DURUMU DEĞİŞTİRMİŞSE (FARK VARSA)
+           if (eskiDurumlar !== yeniDurumlar) {
+              setRefreshing(true); // 1. Araya "Güncelleniyor..." animasyonunu sok
+              
+              setTimeout(() => {
+                 setOrders(data.orders); // 2. İki saniye sonra yeni durumu ekrana bas
+                 ordersRef.current = data.orders;
+                 setRefreshing(false);
+              }, 2000); 
+           } else {
+              // Değişim yoksa sessizce veriyi eşitle (animasyon yapma)
+              setOrders(data.orders);
+              ordersRef.current = data.orders;
+           }
+        }
+      } catch (error) {
+        // Sessizce hata geç
+      }
+    }, 10000); // 10 saniyede bir çalışır
+
+    return () => clearInterval(radar); // Sayfadan çıkınca radarı kapat
+  }, [refreshing]);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
     try {
-      const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
-        cache: "no-store",
-        headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
-      });
+      const res = await fetch("/api/orders?t=" + new Date().getTime(), { cache: "no-store" });
       const data = await res.json();
-      if (res.ok) setOrders(data.orders || []);
-      else setErrorMsg(data.message || "Siparişler güncellenemedi.");
+      if (res.ok) {
+         setOrders(data.orders || []);
+         ordersRef.current = data.orders || [];
+      } else {
+         setErrorMsg(data.message || "Siparişler güncellenemedi.");
+      }
     } catch (error) {
       setErrorMsg("Bağlantı hatası oluştu.");
-    } finally {
-      setRefreshing(false);
     }
-  };
-
-  const handleRefresh = () => {
-    setRefreshing(true);
-    fetchOrders(); 
+    setTimeout(() => setRefreshing(false), 800);
   };
 
   const handleDeleteClick = (orderId: string) => {
@@ -73,9 +107,9 @@ export default function SiparisClient({ initialOrders }: Props) {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  // 🚀 GÜNCELLENİYOR DURUMU BURAYA EKLENDİ 🚀
+  // 🚀 ROZET SİSTEMİ (GÜNCELLENİRKEN OTOMATİK DEVREYE GİRER) 🚀
   const DurumRozetiGoster = ({ durum, isRefreshing }: { durum: string, isRefreshing: boolean }) => {
-    // Eğer sayfa o an güncelleniyorsa eski durumu gizle, bunu göster!
+    
     if (isRefreshing) {
       return (
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#00e5ff]/10 border border-[#00e5ff]/30 text-[#00e5ff] text-xs font-black uppercase tracking-widest shadow-inner">
@@ -182,7 +216,7 @@ export default function SiparisClient({ initialOrders }: Props) {
               const durumMetni = order.durum || order.status || "";
 
               return (
-                <div key={order._id} className={`group border bg-[#09090b] rounded-2xl p-6 transition-all duration-300 relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 ${refreshing ? 'border-slate-800/50 opacity-70' : 'border-slate-800 hover:border-[#00e5ff]/40 shadow-xl hover:shadow-[0_0_25px_rgba(0,229,255,0.03)]'}`}>
+                <div key={order._id} className={`group border bg-[#09090b] rounded-2xl p-6 transition-all duration-300 relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 ${refreshing ? 'border-slate-800/50 opacity-80 scale-[0.99]' : 'border-slate-800 hover:border-[#00e5ff]/40 shadow-xl hover:shadow-[0_0_25px_rgba(0,229,255,0.03)] scale-100'}`}>
                   
                   <button
                     onClick={() => handleDeleteClick(order._id)}
@@ -208,7 +242,7 @@ export default function SiparisClient({ initialOrders }: Props) {
                         Tarih: <span className="text-slate-300">{new Date(order.createdAt).toLocaleDateString("tr-TR")}</span>
                       </p>
                       
-                      {/* 🚀 GÜNCEL DURUM ROZETİ (Güncellenirken "GÜNCELLENİYOR..." yazar) 🚀 */}
+                      {/* 🚀 ROZET OTOMATİK OLARAK BURADA DEVREYE GİRER 🚀 */}
                       <DurumRozetiGoster durum={durumMetni} isRefreshing={refreshing} />
                       
                     </div>
@@ -221,7 +255,7 @@ export default function SiparisClient({ initialOrders }: Props) {
                   </div>
 
                   {adminMesaji && (
-                    <div className={`mt-6 bg-[#0088ff]/10 border border-[#0088ff]/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm transition-opacity ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
+                    <div className={`mt-6 bg-[#0088ff]/10 border border-[#0088ff]/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
                       <MessageSquare className="w-5 h-5 text-[#00e5ff] flex-shrink-0 mt-0.5" />
                       <div>
                         <p className="text-[10px] text-[#00e5ff] font-black uppercase tracking-widest mb-1">Mağaza Mesajı / Kargo Notu</p>
@@ -230,7 +264,7 @@ export default function SiparisClient({ initialOrders }: Props) {
                     </div>
                   )}
 
-                  <div className={`border-t border-slate-800/80 pt-6 mt-6 space-y-4 transition-opacity ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
+                  <div className={`border-t border-slate-800/80 pt-6 mt-6 space-y-4 transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
                     {order.items?.map((item: any, idx: number) => (
                       <div key={idx} className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-[#121215] p-4 sm:p-5 rounded-2xl border border-slate-800/60 shadow-lg">
                         
@@ -274,7 +308,7 @@ export default function SiparisClient({ initialOrders }: Props) {
                     ))}
                   </div>
 
-                  <div className={`mt-6 flex justify-between items-center bg-[#121215] border border-slate-800/80 p-5 rounded-xl shadow-inner transition-opacity ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
+                  <div className={`mt-6 flex justify-between items-center bg-[#121215] border border-slate-800/80 p-5 rounded-xl shadow-inner transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
                     <span className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Genel Toplam</span>
                     <span className="text-2xl font-black text-white tracking-tight">
                       {Number(order.totalPrice).toLocaleString("tr-TR")} <span className="text-sm text-slate-500">TL</span>
