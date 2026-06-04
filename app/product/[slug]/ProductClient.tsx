@@ -279,6 +279,17 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:gap-10 sm:py-10 sm:px-6">
         
         <div className="w-full md:w-1/2 flex flex-col relative">
+        {/* --- DİNAMİK İNDİRİM ROZETİ --- */}
+  {indirimVarMi && !tukendiMi && (
+    <div className="discount-badge">
+        <div className="badge-ribbon-left"></div>
+        <div className="badge-ribbon-right"></div>
+        <div className="badge-rosette">
+            <span>%{indirimOrani}</span>
+            <span>İNDİRİM</span>
+        </div>
+    </div>
+  )}
           
           <div 
             onTouchStart={handleTouchStart}
