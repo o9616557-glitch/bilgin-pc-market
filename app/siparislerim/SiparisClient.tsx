@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Trash2, Copy, Check, RefreshCw, ArrowLeft, MessageSquare, PackageOpen, Info } from "lucide-react"; 
+import { Trash2, Copy, Check, RefreshCw, ArrowLeft, MessageSquare, PackageOpen, Package, Truck, CheckCircle2, Clock } from "lucide-react"; 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PackageX } from "lucide-react";
@@ -73,26 +73,60 @@ export default function SiparisClient({ initialOrders }: Props) {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  const aktifAdimBul = (durum: string) => {
-    if (!durum) return 0; 
-    const d = durum.toLowerCase();
-    if (durum === "Teslim Edildi" || d.includes("teslim") || d.includes("tamam") || d.includes("tamal") || d.includes("bit") || d.includes("son")) return 3;
-    if (durum === "Kargoya Verildi" || d.includes("kargo")) return 2;
-    if (durum === "Ödendi / Hazırlanıyor" || d.includes("hazır") || d.includes("odendi")) return 1;
-    return 0;
-  };
-
   const iptalEdildiMi = (durum: string) => {
     if (!durum) return false;
     return durum === "İptal Edildi" || durum.toLowerCase().includes("iptal");
   };
 
-  const steps = [
-    { num: 1, label: "SİPARİŞ ALINDI" },
-    { num: 2, label: "HAZIRLANIYOR" },
-    { num: 3, label: "KARGODA" },
-    { num: 4, label: "TESLİM EDİLDİ" },
-  ];
+  // 🚀 YENİ MODERN DURUM ROZETİ (VAGON YERİNE)
+  const DurumRozetiGoster = ({ durum }: { durum: string }) => {
+    const d = (durum || "").toLowerCase();
+    
+    // 1. İptal
+    if (d.includes("iptal")) {
+      return (
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-black uppercase tracking-widest shadow-inner">
+           <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+           SİPARİŞ İPTAL EDİLDİ
+        </div>
+      );
+    }
+    // 2. Teslim Edildi
+    if (d.includes("teslim") || d.includes("tamam") || d.includes("bit") || d.includes("son")) {
+       return (
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-black uppercase tracking-widest shadow-inner">
+           <CheckCircle2 className="w-4 h-4" />
+           TESLİM EDİLDİ
+        </div>
+      );
+    }
+    // 3. Kargoya Verildi
+    if (d.includes("kargo")) {
+       return (
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#00e5ff]/10 border border-[#00e5ff]/20 text-[#00e5ff] text-xs font-black uppercase tracking-widest shadow-[0_0_15px_rgba(0,229,255,0.15)]">
+           <Truck className="w-4 h-4 animate-bounce" />
+           KARGODA
+        </div>
+      );
+    }
+    // 4. Hazırlanıyor
+    if (d.includes("hazır") || d.includes("ödendi") || d.includes("odendi")) {
+      return (
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-black uppercase tracking-widest shadow-inner">
+           <Package className="w-4 h-4" />
+           SİPARİŞ HAZIRLANIYOR
+        </div>
+      );
+    }
+    // 5. Sipariş Alındı (Varsayılan)
+    return (
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-500/10 border border-slate-500/20 text-slate-300 text-xs font-black uppercase tracking-widest shadow-inner">
+           <Clock className="w-4 h-4" />
+           SİPARİŞ ALINDI
+        </div>
+      );
+  };
+
 
   return (
     <div className="min-h-screen bg-[#070b1a] text-white pt-12 md:pt-12 pb-24 px-4 relative overflow-hidden font-sans">
@@ -146,10 +180,7 @@ export default function SiparisClient({ initialOrders }: Props) {
             {orders.map((order: any) => {
               const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase();
               const adminMesaji = order.musteriMesaji || order.mesaj || order.adminMesaj || order.siparisNotu || order.kargoNotu || order.kargoTakipNo;
-              
               const durumMetni = order.durum || order.status || "";
-              const isCancelled = iptalEdildiMi(durumMetni);
-              const currentStep = aktifAdimBul(durumMetni) + 1; 
 
               return (
                 <div key={order._id} className="group border border-slate-800 bg-[#09090b] rounded-2xl p-6 transition-all duration-300 hover:border-[#00e5ff]/40 shadow-xl hover:shadow-[0_0_25px_rgba(0,229,255,0.03)] relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -173,9 +204,11 @@ export default function SiparisClient({ initialOrders }: Props) {
                           {copiedCode === currentSiparisKodu ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                         </button>
                       </p>
-                      <p className="text-xs text-slate-500 font-medium">
+                      <p className="text-xs text-slate-500 font-medium mb-3">
                         Tarih: <span className="text-slate-300">{new Date(order.createdAt).toLocaleDateString("tr-TR")}</span>
                       </p>
+                      {/* VAGON YERİNE BURAYA MODERN ROZET GELDİ */}
+                      <DurumRozetiGoster durum={durumMetni} />
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -185,46 +218,9 @@ export default function SiparisClient({ initialOrders }: Props) {
                     </div>
                   </div>
 
-                  <div className="pt-8 pb-6 px-2 sm:px-8">
-                    {isCancelled ? (
-                      <div className="bg-[#121215] border border-slate-800/80 p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-center gap-4 text-slate-300 font-bold tracking-widest text-sm uppercase shadow-inner">
-                        <div className="w-10 h-10 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shrink-0">
-                          <span className="text-xl text-rose-500 font-black mb-1">×</span>
-                        </div>
-                        <span className="text-center">SİPARİŞ İPTAL EDİLDİ</span>
-                      </div>
-                    ) : (
-                      <div className="relative flex items-start justify-between w-full max-w-3xl mx-auto">
-                        <div className="absolute left-0 top-4 sm:top-5 -translate-y-1/2 w-full h-1 bg-[#121215] border-y border-slate-800 -z-10 rounded-full"></div>
-                        <div 
-                          className="absolute left-0 top-4 sm:top-5 -translate-y-1/2 h-1 bg-gradient-to-r from-[#00e5ff] to-[#0088ff] -z-10 transition-all duration-700 ease-in-out shadow-[0_0_15px_rgba(0,229,255,0.6)] rounded-full" 
-                          style={{ width: (((currentStep - 1) / 3) * 100) + "%" }}
-                        ></div>
-
-                        {steps.map((step) => {
-                          const isCompleted = currentStep >= step.num;
-                          return (
-                            <div key={step.num} className="flex flex-col items-center gap-3 relative z-10 w-20 sm:w-24">
-                              <div className={"w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-black text-xs sm:text-sm border-2 transition-all duration-500 shrink-0 " + (
-                                isCompleted ? "bg-[#00e5ff] border-[#00e5ff] text-black shadow-[0_0_20px_rgba(0,229,255,0.4)]" : 
-                                "bg-[#09090b] border-slate-700 text-slate-500"
-                              )}>
-                                {isCompleted ? <Check className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={4} /> : step.num}
-                              </div>
-                              <span className={"text-[9px] sm:text-[10px] font-black tracking-widest uppercase text-center w-full transition-colors duration-500 " + (
-                                isCompleted ? "text-slate-200" : "text-slate-600"
-                              )}>
-                                {step.label}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
 
                   {adminMesaji && (
-                    <div className="mb-6 bg-[#0088ff]/10 border border-[#0088ff]/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm">
+                    <div className="mt-6 bg-[#0088ff]/10 border border-[#0088ff]/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm">
                       <MessageSquare className="w-5 h-5 text-[#00e5ff] flex-shrink-0 mt-0.5" />
                       <div>
                         <p className="text-[10px] text-[#00e5ff] font-black uppercase tracking-widest mb-1">Mağaza Mesajı / Kargo Notu</p>
@@ -233,12 +229,11 @@ export default function SiparisClient({ initialOrders }: Props) {
                     </div>
                   )}
 
-                  {/* 🚀 YENİ TASARIM BURAYA EKLENDİ (Resim Üstte, Başlık Serbest) */}
-                  <div className="border-t border-slate-800/80 pt-6 space-y-4">
+                  <div className="border-t border-slate-800/80 pt-6 mt-6 space-y-4">
                     {order.items?.map((item: any, idx: number) => (
                       <div key={idx} className="flex flex-col gap-4 bg-[#121215] p-4 sm:p-5 rounded-2xl border border-slate-800/60 shadow-lg">
                         
-                        {/* 1. SATIR: GÖRSEL */}
+                        {/* GÖRSEL KISMI: Orjinal resim kırık gelirse koruma devrede */}
                         <div className="w-full flex justify-center bg-[#09090b] py-6 rounded-xl border border-slate-800/50 relative overflow-hidden">
                           <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
                           {item.image || item.resim ? (
@@ -247,6 +242,7 @@ export default function SiparisClient({ initialOrders }: Props) {
                               alt={item.title} 
                               className="w-28 h-28 object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] z-10"
                               onError={(e) => { 
+                                // ŞEFİM BU KOD RESMİN KIRIK ÇIKMASINI ENGELLER!
                                 e.currentTarget.src = "https://placehold.co/200x200/121215/00e5ff?text=Gorsel+Yok" 
                               }}
                             />
@@ -257,14 +253,14 @@ export default function SiparisClient({ initialOrders }: Props) {
                           )}
                         </div>
 
-                        {/* 2. SATIR: BAŞLIK */}
+                        {/* BAŞLIK */}
                         <div className="w-full text-center sm:text-left">
                           <p className="font-bold text-slate-200 break-words whitespace-normal leading-relaxed text-sm sm:text-base">
                             {item.title}
                           </p>
                         </div>
 
-                        {/* 3. SATIR: ADET VE FİYAT */}
+                        {/* ADET VE FİYAT */}
                         <div className="flex items-center justify-between border-t border-slate-800/80 pt-4 mt-2">
                           <p className="text-xs text-slate-400 font-bold uppercase bg-slate-800/40 px-4 py-2 rounded-lg border border-slate-700/50">
                             {item.quantity} ADET
