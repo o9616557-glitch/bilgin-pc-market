@@ -90,7 +90,7 @@ export async function PUT(request: Request) {
     altMesaj = "Ödemeniz başarıyla tarafımıza ulaşmış ve siparişiniz hazırlık aşamasına geçmiştir. Ürünleriniz uzman ekibimiz tarafından özenle paketleniyor! En kısa sürede kargoya teslim edilecektir.";
   } else if (yeniDurum === "Kargoya Verildi") {
     baslik = "SİPARİŞİNİZ KARGOYA VERİLDİ 📦";
-    altMesaj = "Beklenen an geldi! Paketiniz başarıyla yola çıkmıştır. Sipariş takip kodunuzu sitemizdeki <strong>Sipariş Takip</strong> ekranına yazarak kargonuzun nerede olduğunu anlık olarak izleyebilirsiniz.";
+    altMesaj = " Paketiniz başarıyla yola çıkmıştır. Sipariş takip kodunuzu sitemizdeki <strong>Sipariş Takip</strong> ekranına yazarak kargonuzun nerede olduğunu anlık olarak izleyebilirsiniz.";
   } else if (yeniDurum === "İptal Edildi") {
     baslik = "SİPARİŞİNİZ İPTAL EDİLDİ ❌";
     altMesaj = "Siparişiniz mağazamız tarafından iptal edilmiştir. İptal süreci veya ücret iadeniz hakkında detaylı bilgi almak için dükkanımızla doğrudan iletişime geçebilirsiniz.";
@@ -124,7 +124,7 @@ export async function PUT(request: Request) {
           
           <h3 style="color: #ffffff; font-size: 18px; margin-bottom: 8px; letter-spacing: 0.5px;">Yardıma mı İhtiyacınız Var?</h3>
           <p style="color: #a1a1aa; font-size: 13px; line-height: 1.6; margin-top: 0; margin-bottom: 25px; padding: 0 10px;">
-            Siparişinizle ilgili en ufak bir sorunuzda veya talebinizde hiç endişelenmeyin. Uzman ekibimiz size destek olmak için bir mesaj uzağınızda!
+            Siparişinizle ilgili en ufak bir sorunuzda veya talebinizde  endişelenmeyin. Uzman ekibimiz size destek olmak için bir mesaj uzağınızda!
           </p>
 
           <div style="background-color: rgba(255, 255, 255, 0.03); border: 1px solid rgba(0, 229, 255, 0.15); border-radius: 12px; padding: 20px; text-align: left; max-width: 350px; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
