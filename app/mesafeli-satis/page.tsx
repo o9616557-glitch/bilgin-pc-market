@@ -35,25 +35,24 @@ export default function MesafeliSatisSozlesmesiPage() {
             <h2 className="text-xl font-bold text-white mb-4 border-b border-slate-800 pb-2">1. TARAFLAR</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
-              {/* 🚀 GÜNCELLENEN KURUMSAL SATICI BÖLÜMÜ 🚀 */}
               <div className="bg-slate-950/50 p-4 rounded-lg border border-slate-800/80">
                 <h3 className="text-cyan-400 font-bold mb-2 text-sm uppercase">1.1. Satıcı Bilgileri</h3>
                 <ul className="text-sm text-slate-400 space-y-2">
                   <li><strong className="text-slate-300">Ünvanı:</strong> [Şirketinizin Vergi Levhasındaki Resmi Ünvanı]</li>
-                  <li><strong className="text-slate-300">Operasyon Merkezi:</strong> İstanbul</li>
+                  <li><strong className="text-slate-300">Merkez:</strong> İstanbul</li>
                   <li className="text-xs text-slate-500 font-medium border-l-2 border-cyan-500/30 pl-3 py-0.5 my-2.5">
-                    * Bilgin PC Market, tüm Türkiye'ye hizmet veren e-ticaret odaklı bir teknoloji tedarikçisidir. Hız ve güvenlik standartları gereği siparişleriniz doğrudan operasyon ve lojistik merkezimizden sevk edilmektedir.
+                    * Bilgin PC Market, tüm Türkiye'ye hizmet veren e-ticaret odaklı bir teknoloji tedarikçisidir. Açık depo ve merkez adresimiz, güvenlik protokolleri gereği yalnızca sipariş sonrası tarafınıza iletilen resmi e-fatura üzerinde yer almaktadır.
                   </li>
-                  <li><strong className="text-slate-300">Yasal Tebligat & Lojistik Adresi:</strong> [Vergi Levhanızdaki Açık Adresiniz]</li>
                   <li><strong className="text-slate-300">Telefon:</strong> 0850 123 45 67</li>
                   <li><strong className="text-slate-300">E-posta:</strong> info@bilginpcmarket.com</li>
                 </ul>
               </div>
 
+              {/* 🚀 "i" YAZIM HATASI BURADA DÜZELTİLDİ 🚀 */}
               <div className="bg-slate-950/50 p-4 rounded-lg border border-slate-800/80">
                 <h3 className="text-cyan-400 font-bold mb-2 text-sm uppercase">1.2. Alıcı Bilgileri</h3>
                 <p className="text-sm text-slate-400 leading-relaxed">
-                  Siparişi veren, ödeme sayfasında bilgileri yer alan i platform üzerinden alışveriş yapan tüketiciyi ifade eder.
+                  Siparişi veren, ödeme sayfasında bilgileri yer alan ve platform üzerinden alışveriş yapan tüketiciyi ifade eder.
                 </p>
               </div>
             </div>
