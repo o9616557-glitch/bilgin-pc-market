@@ -216,26 +216,26 @@ export default function SiparisClient({ initialOrders }: Props) {
                     </div>
                   )}
 
-                  {/* 🚀 GÜNCELLENEN ÜRÜN LİSTESİ: PC'de yan yana, boşluklar alındı 🚀 */}
+                  {/* 🚀 GÜNCELLENEN ÜRÜN LİSTESİ: Mobilde Resim Büyütüldü 🚀 */}
                   <div className="border-t border-slate-800/80 pt-6 mt-6 space-y-4">
                     {order.items?.map((item: any, idx: number) => (
                       <div key={idx} className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-[#121215] p-4 sm:p-5 rounded-2xl border border-slate-800/60 shadow-lg">
                         
-                        {/* KÜÇÜLTÜLMÜŞ GÖRSEL KUTUSU */}
-                        <div className="w-full sm:w-28 sm:h-28 flex-shrink-0 flex justify-center items-center bg-[#09090b] py-4 sm:py-0 rounded-xl border border-slate-800/50 relative overflow-hidden">
+                        {/* 🚀 KUTU VE RESİM BOYUTLARI ARTIRILDI 🚀 */}
+                        <div className="w-full sm:w-32 sm:h-32 flex-shrink-0 flex justify-center items-center bg-[#09090b] py-6 sm:py-0 rounded-xl border border-slate-800/50 relative overflow-hidden">
                           <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
                           {item.image || item.resim ? (
                             <img 
                               src={item.image || item.resim} 
                               alt={item.title} 
-                              className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] z-10"
+                              className="w-32 h-32 sm:w-28 sm:h-28 object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] z-10"
                               onError={(e) => { 
                                 e.currentTarget.src = "https://placehold.co/200x200/121215/00e5ff?text=Gorsel+Yok" 
                               }}
                             />
                           ) : (
-                            <div className="w-12 h-12 rounded-xl bg-[#09090b] border border-slate-700 flex items-center justify-center z-10">
-                              <PackageOpen className="w-6 h-6 text-slate-600" />
+                            <div className="w-16 h-16 rounded-xl bg-[#09090b] border border-slate-700 flex items-center justify-center z-10">
+                              <PackageOpen className="w-8 h-8 text-slate-600" />
                             </div>
                           )}
                         </div>
