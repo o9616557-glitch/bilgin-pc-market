@@ -23,7 +23,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [reviews, setReviews] = useState([] as any[]);
   const [questions, setQuestions] = useState([] as any[]);
-  const [reviewsLoading, setReviewsLoading] = useState(true); // 🚀 YENİ: Yükleniyor durumu
+  const [reviewsLoading, setReviewsLoading] = useState(true); 
   const [addingToCart, setAddingToCart] = useState(false);
   const [isFav, setIsFav] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -61,7 +61,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
   useEffect(() => {
     const fetchCanliYorumlar = async () => {
-      setReviewsLoading(true); // Veri çekmeye başlarken yükleniyor yap
+      setReviewsLoading(true); 
       try { 
          const res = await fetch("/api/reviews?productId=" + pId); 
          const result = await res.json(); 
@@ -70,7 +70,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             setQuestions(result.data.filter((item: any) => item.type === "question")); 
          } 
       } catch (error) {}
-      setReviewsLoading(false); // Veri bitince kapat
+      setReviewsLoading(false); 
     }; 
     fetchCanliYorumlar();
   }, [pId]);
@@ -141,7 +141,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const handleTouchEnd = (e: React.TouchEvent) => { const fark = touchStartRef.current - e.changedTouches[0].clientX; if (fark > 40) sonrakiResim(); else if (fark < -40) oncekiResim(); };
 
   const renderFpsSection = () => (
-    <div className="bg-[#09090b] border border-white/10 rounded-2xl p-4 sm:p-6 flex flex-col w-full shadow-[0_5px_15px_rgba(0,0,0,0.5)] select-none">
+    <div className="bg-[#09090b] border border-white/10 rounded-2xl p-4 sm:p-6 flex flex-col w-full shadow-[0_5px_15px_rgba(0,0,0,0.5)] select-none touch-manipulation">
        <div className="flex-1 w-full flex flex-col items-center">
           <div className="flex flex-wrap sm:flex-nowrap justify-center gap-2 sm:gap-3 mb-5 w-full">
              {[{ id: "i5", top: "INTEL i5", bottom: "RYZEN 5" }, { id: "i7", top: "INTEL i7", bottom: "RYZEN 7" }, { id: "i9", top: "INTEL i9", bottom: "RYZEN 9" }].map((islemci) => (
@@ -189,7 +189,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   return (
     <div className="min-h-screen bg-[#050505] text-white font-sans pb-32 sm:pb-10 relative">
       
-      {/* 🚀 MOBİL DOKUNMA VE ARAMA SORUNLARINI ÇÖZEN GLOBAL CSS 🚀 */}
+      {/* 🚀 GLOBAL CSS: Dokunmayı kitleme kuralları 🚀 */}
       <style dangerouslySetInnerHTML={{ __html: `
         body { -webkit-tap-highlight-color: transparent; }
         button, img, a, .select-none { -webkit-touch-callout: none; user-select: none; }
@@ -257,13 +257,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
         <div className="w-full md:w-[55%] flex flex-col px-4 sm:px-0">
           
-          <div onClick={handleReviewClick} className="flex items-center justify-between mb-4 border-b border-white/10 pb-4 cursor-pointer group select-none touch-manipulation">
-             <div className="text-xs sm:text-sm font-black text-gray-500 tracking-[0.2em] uppercase">{product.marka || "BİLGİN PC"}</div>
-             <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+          {/* 🚀 BİLGİN PC ve YORUMLAR KISMI AYRILDI 🚀 */}
+          <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-4 select-none touch-manipulation">
+             <div className="text-xs sm:text-sm font-black text-gray-500 tracking-[0.2em] uppercase">
+                {product.marka || "BİLGİN PC"}
+             </div>
+             {/* 🚀 SADECE BURAYA TIKLANINCA YORUMLARA İNER 🚀 */}
+             <div onClick={handleReviewClick} className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm cursor-pointer group">
                 <div className="flex gap-0.5">
-                   {[1,2,3,4,5].map(s => <Star key={s} className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${Number(avgRating) >= s ? 'text-[#d4af37] fill-[#d4af37]' : 'text-gray-700'}`} />)}
+                   {[1,2,3,4,5].map(s => <Star key={s} className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-all ${Number(avgRating) >= s ? 'text-[#d4af37] fill-[#d4af37]' : 'text-gray-700'}`} />)}
                 </div>
-                {/* 🚀 YENİ: Yorum Sayısı / Güncelleniyor Kısmı 🚀 */}
                 <span className="text-gray-400 font-bold ml-1 group-hover:text-white transition-colors underline underline-offset-4 decoration-white/20">
                    {reviewsLoading ? 'Güncelleniyor...' : (totalReviews > 0 ? `${avgRating} (${totalReviews} Yorum)` : 'Henüz Değerlendirilmedi')}
                 </span>
@@ -345,7 +348,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                       <button disabled={isSubmitting} className="w-full sm:w-auto bg-[#00d2ff] text-black font-black uppercase tracking-widest px-8 py-3 rounded-xl hover:bg-[#00c4db] transition-all touch-manipulation">{isSubmitting ? '...' : 'Gönder'}</button>
                    </form>
 
-                   {/* 🚀 YENİ: Yorum Yüklenme Animasyonu 🚀 */}
                    <div className="space-y-3">
                       {reviewsLoading ? (
                          <div className="text-center text-[#00d2ff] py-8 text-sm font-bold animate-pulse uppercase tracking-widest">
@@ -381,7 +383,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                       <button disabled={isSubmitting} className="w-full sm:w-auto bg-[#00d2ff] text-black font-black uppercase tracking-widest px-8 py-3 rounded-xl hover:bg-[#00c4db] transition-all touch-manipulation">{isSubmitting ? '...' : 'Gönder'}</button>
                    </form>
 
-                   {/* 🚀 YENİ: Soru Yüklenme Animasyonu 🚀 */}
                    <div className="space-y-3">
                       {reviewsLoading ? (
                          <div className="text-center text-[#00d2ff] py-8 text-sm font-bold animate-pulse uppercase tracking-widest">
@@ -409,12 +410,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
+      {/* 🚀 AÇIKLAMA KISMINDAKİ KOPYALAMAYI VE GOOGLE ARAMAYI TAMAMEN ENGELLEYEN KOD 🚀 */}
       {product.aciklama && (
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-4 pb-10 border-t border-white/10">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-4 pb-10 border-t border-white/10 select-none touch-manipulation">
            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-widest mb-6 text-white flex items-center gap-3 select-none">
              <Info className="w-5 h-5 sm:w-6 sm:h-6 text-[#00d2ff]" /> Ürün Açıklaması
            </h2>
-           <div className="prose prose-invert max-w-none 
+           <div className="prose prose-invert max-w-none select-none touch-manipulation 
+              [&_*]:!select-none [&_*]:!-webkit-touch-callout-none
               [&_img]:w-full [&_img]:h-auto [&_img]:!m-0 [&_img]:!border-none [&_img]:!rounded-none [&_img]:block [&_img]:my-6
               [&_h2]:text-xl sm:[&_h2]:text-2xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mb-3 [&_h2]:mt-8
               [&_h3]:text-lg sm:[&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-gray-200 [&_h3]:mb-2 [&_h3]:mt-6
@@ -424,11 +427,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       )}
 
-      {/* 🚀 YENİ: Mobilde Boşluğu Kaldırılan Tam Oturan Sepet 🚀 */}
-      <div 
-        className="sm:hidden fixed bottom-0 left-0 w-full bg-black/95 backdrop-blur-xl border-t border-white/10 px-6 pt-4 z-50 flex items-center justify-between shadow-[0_-20px_40px_rgba(0,0,0,0.6)] select-none"
-        style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
-      >
+      {/* 🚀 MOBİL YAPIŞKAN SEPET - ALT BOŞLUK TAMAMEN SIFIRLANDI 🚀 */}
+      <div className="sm:hidden fixed bottom-0 left-0 w-full bg-black/95 backdrop-blur-xl border-t border-white/10 px-6 py-4 z-50 flex items-center justify-between shadow-[0_-20px_40px_rgba(0,0,0,0.6)] select-none">
          <div className="flex flex-col">
             {indirimVarMi && !tukendiMi && <span className="text-gray-500 text-[10px] line-through">{normalFiyat.toLocaleString("tr-TR")} ₺</span>}
             <span className="text-2xl font-black text-white leading-none">{gecerliFiyat.toLocaleString("tr-TR")} ₺</span>
