@@ -214,7 +214,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       <div className="max-w-[1200px] mx-auto sm:px-6 py-0 sm:py-10 flex flex-col md:flex-row gap-0 sm:gap-8 lg:gap-12 relative items-start">
         
         {/* SOL KOLON (RESİMLER) */}
-        <div className="w-full md:w-[45%] flex flex-col relative md:sticky md:top-28 h-max mb-2 sm:mb-0 transition-all duration-500">
+        <div className="w-full md:w-[45%] flex flex-col relative md:sticky md:top-7 h-max mb-2 sm:mb-0 transition-all duration-500">
           
           <div className="flex items-center gap-2 mb-2 sm:mb-4 px-4 sm:px-0 pt-4 sm:pt-0">
              {tukendiMi ? (
