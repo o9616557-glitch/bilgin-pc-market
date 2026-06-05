@@ -2,26 +2,48 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
-// ŞEF, TÜM KATEGORİLERİ BURAYA LİSTE OLARAK EKLİYORUZ. 
-// Kod ameleliği yok, sistem burayı okuyup otomatik ekrana basacak.
-const allCategories = [
-  { name: "Anakartlar", slug: "anakart" },
-  { name: "İşlemciler", slug: "islemci" },
-  { name: "Ekran Kartları", slug: "ekran-karti" },
-  { name: "RAM Bellekler", slug: "ram" },
-  { name: "M.2 SSD'ler", slug: "ssd" },
-  { name: "Sıvı Soğutmalar", slug: "sivi-sogutma" },
-  { name: "Oyuncu Kasaları", slug: "oyuncu-kasasi" },
-  { name: "Güç Kaynakları (PSU)", slug: "psu" },
-  // ... Buraya 100 tane bile ekleyebilirsin ...
+// ŞEF, İŞTE MEGA MENÜ MANTIĞI: ANA BAŞLIKLAR VE ALTINDAKİ ÜRÜNLER
+const menuCategories = [
+  {
+    title: "Bilgisayar Bileşenleri",
+    items: [
+      { name: "Anakartlar", slug: "anakart" },
+      { name: "İşlemciler", slug: "islemci" },
+      { name: "Ekran Kartları", slug: "ekran-karti" },
+      { name: "RAM Bellekler", slug: "ram" },
+      { name: "M.2 ve SATA SSD", slug: "ssd" },
+      { name: "Oyuncu Kasaları", slug: "kasa" },
+      { name: "Güç Kaynakları (PSU)", slug: "psu" },
+      { name: "Soğutma Sistemleri", slug: "sogutma" },
+    ]
+  },
+  {
+    title: "Çevre Birimleri",
+    items: [
+      { name: "Oyuncu Monitörleri", slug: "monitor" },
+      { name: "Klavyeler", slug: "klavye" },
+      { name: "Oyuncu Mouseları", slug: "mouse" },
+      { name: "Kulaklıklar", slug: "kulaklik" },
+      { name: "Mousepadler", slug: "mousepad" },
+      { name: "Oyuncu Koltukları", slug: "koltuk" },
+    ]
+  },
+  {
+    title: "Ağ & Aksesuarlar",
+    items: [
+      { name: "Modem ve Router", slug: "modem" },
+      { name: "USB Bellekler", slug: "usb" },
+      { name: "Görüntü Kabloları", slug: "kablo" },
+      { name: "Termal Macunlar", slug: "termal-macun" },
+      { name: "Web Kameralar", slug: "webcam" },
+      { name: "Kasa Fanları", slug: "fan" },
+    ]
+  }
 ];
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  // Ana şeritte görünecek ilk 4 popüler kategori
-  const popularCategories = allCategories.slice(0, 4);
 
   return (
     <nav className="bg-black/60 backdrop-blur-md border-b border-gray-800 w-full z-40 transition-all duration-300 relative">
@@ -31,7 +53,7 @@ export default function Navbar() {
           {/* MASAÜSTÜ GÖRÜNÜM */}
           <div className="hidden md:flex items-center space-x-8 w-full">
             
-            {/* TÜM KATEGORİLER AÇILIR MENÜSÜ (DROPDOWN) */}
+            {/* MEGA MENÜ TETİKLEYİCİSİ */}
             <div 
               className="relative"
               onMouseEnter={() => setDropdownOpen(true)}
@@ -42,29 +64,41 @@ export default function Navbar() {
                 <span>Tüm Kategoriler</span>
               </button>
 
-              {/* Açılan Devasa Liste (Scroll edilebilir) */}
+              {/* AÇILAN DEV MEGA MENÜ PANELİ */}
               {dropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-64 bg-[#09090b] border border-gray-800 rounded-md shadow-xl py-2 max-h-96 overflow-y-auto z-50">
-                  {allCategories.map((cat) => (
-                    <Link 
-                      key={cat.slug} 
-                      href={`/kategori/${cat.slug}`} 
-                      className="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-600/20 hover:text-blue-400 transition-colors"
-                    >
-                      {cat.name}
-                    </Link>
-                  ))}
+                <div className="absolute top-full left-0 mt-1 w-[800px] bg-[#09090b]/95 backdrop-blur-xl border border-gray-800 rounded-lg shadow-2xl p-6 z-50">
+                  <div className="grid grid-cols-3 gap-8">
+                    {/* Kategorileri döngüyle kolonlara ayırıyoruz */}
+                    {menuCategories.map((category, index) => (
+                      <div key={index}>
+                        <h3 className="text-blue-500 font-bold text-sm tracking-wider uppercase mb-4 border-b border-gray-800 pb-2">
+                          {category.title}
+                        </h3>
+                        <ul className="space-y-2">
+                          {category.items.map((item) => (
+                            <li key={item.slug}>
+                              <Link 
+                                href={`/kategori/${item.slug}`} 
+                                className="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-200 block text-sm"
+                              >
+                                {item.name}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* HIZLI ERİŞİM VİTRİN KATEGORİLERİ */}
+            {/* VİTRİN: EN ÇOK ARANAN 4 KATEGORİ */}
             <div className="flex items-center space-x-6">
-              {popularCategories.map((cat) => (
-                <Link key={cat.slug} href={`/kategori/${cat.slug}`} className="text-gray-300 hover:text-white hover:text-blue-500 text-sm font-medium transition-colors">
-                  {cat.name}
-                </Link>
-              ))}
+              <Link href="/kategori/ekran-karti" className="text-gray-300 hover:text-white hover:text-blue-500 text-sm font-medium transition-colors">Ekran Kartları</Link>
+              <Link href="/kategori/islemci" className="text-gray-300 hover:text-white hover:text-blue-500 text-sm font-medium transition-colors">İşlemciler</Link>
+              <Link href="/kategori/anakart" className="text-gray-300 hover:text-white hover:text-blue-500 text-sm font-medium transition-colors">Anakartlar</Link>
+              <Link href="/kategori/monitor" className="text-gray-300 hover:text-white hover:text-blue-500 text-sm font-medium transition-colors">Monitörler</Link>
             </div>
           </div>
 
@@ -78,21 +112,28 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* MOBİL AÇILIR MENÜ (100 Kategori telefonda kaydırılabilir olacak) */}
+      {/* MOBİL İÇİN AKORDİYON MENÜ */}
       {isOpen && (
-        <div className="md:hidden bg-[#050814]/95 backdrop-blur-lg border-b border-gray-800 max-h-[70vh] overflow-y-auto">
-          <div className="px-4 pt-2 pb-4 space-y-1 sm:px-3">
-            {allCategories.map((cat) => (
-              <Link 
-                key={cat.slug} 
-                href={`/kategori/${cat.slug}`} 
-                onClick={() => setIsOpen(false)} 
-                className="text-gray-300 hover:text-blue-500 block px-3 py-3 rounded-md text-base font-medium border-b border-gray-800/30"
-              >
-                {cat.name}
-              </Link>
-            ))}
-          </div>
+        <div className="md:hidden bg-[#050814]/95 backdrop-blur-lg border-b border-gray-800 max-h-[70vh] overflow-y-auto px-4 py-4 space-y-6">
+          {menuCategories.map((category, index) => (
+            <div key={index}>
+              <h3 className="text-blue-500 font-bold text-sm tracking-wider uppercase mb-2 border-b border-gray-800 pb-1">
+                {category.title}
+              </h3>
+              <div className="flex flex-col space-y-2">
+                {category.items.map((item) => (
+                  <Link 
+                    key={item.slug} 
+                    href={`/kategori/${item.slug}`} 
+                    onClick={() => setIsOpen(false)} 
+                    className="text-gray-300 hover:text-white text-sm py-1 pl-2 border-l border-gray-800/50 hover:border-blue-500"
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </nav>
