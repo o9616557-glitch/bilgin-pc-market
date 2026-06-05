@@ -76,22 +76,22 @@ export default function FavoriClient({ initialFavorites }: Props) {
   // 👇 BURADAN AŞAĞISINA (return) DOKUNMA
   return (
     <div className="min-h-screen bg-[#050814] text-white pt-12 pb-24 px-4 relative overflow-hidden font-sans">
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#00e5ff] blur-[150px] opacity-10 pointer-events-none"></div>
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#3b82f6] blur-[150px] opacity-10 pointer-events-none"></div>
       <div className="absolute bottom-[10%] right-[-10%] w-[400px] h-[400px] bg-[#0088ff] blur-[150px] opacity-5 pointer-events-none"></div>
 
       <div className="max-w-4xl mx-auto relative z-10">
         
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-800 pb-6 mb-10">
           <div>
-            <Link href="/" prefetch={true} className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-3">
+            <Link href="/" prefetch={true} className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#3b82f6] transition-all mb-3">
               <ArrowLeft className="w-4 h-4" /> Mağazaya Geri Dön
             </Link>
             <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-white">
-              FAVORİ <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00e5ff] to-[#0088ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.2)]">ÜRÜNLERİM</span>
+              FAVORİ <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3b82f6] to-[#0088ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.2)]">ÜRÜNLERİM</span>
             </h1>
           </div>
          <div className="flex items-center justify-start gap-2 bg-[#09090b] text-slate-300 px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-wider border border-slate-800/80 shadow-sm w-full md:w-auto">
-            LİSTELENEN: <span className="text-[#00e5ff] font-black text-sm">{favoriteProducts.length}</span> DONANIM
+            LİSTELENEN: <span className="text-[#3b82f6] font-black text-sm">{favoriteProducts.length}</span> DONANIM
           </div>
         </div>
 
@@ -107,7 +107,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
               <Heart className="w-4 h-4 text-white fill-white" />
               ikonuna tıklayarak favori listenize ekleyebilir, dilediğiniz zaman kolayca ulaşabilirsiniz.
             </p>
-            <Link href="/" prefetch={true} className="inline-block bg-[#00e5ff] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:-translate-y-0.5">
+            <Link href="/" prefetch={true} className="inline-block bg-[#3b82f6] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:-translate-y-0.5">
               Donanımları İncele
             </Link>
           </div>
@@ -117,11 +117,11 @@ export default function FavoriClient({ initialFavorites }: Props) {
               const isAdded = sepeteEklenenler.includes(urun._id || urun.id);
               return (
                 /* 🚀 YENİ TASARIM: KOMPAKT VE ŞIK YATAY LİSTE */
-                <div key={index} className="group flex flex-col sm:flex-row items-center bg-[#09090b] border border-slate-800/60 rounded-2xl p-4 gap-4 sm:gap-6 transition-all duration-300 hover:border-[#00e5ff]/40 shadow-lg hover:shadow-[0_0_25px_rgba(0,229,255,0.05)] relative overflow-hidden">
+                <div key={index} className="group flex flex-col sm:flex-row items-center bg-[#09090b] border border-slate-800/60 rounded-2xl p-4 gap-4 sm:gap-6 transition-all duration-300 hover:border-[#3b82f6]/40 shadow-lg hover:shadow-[0_0_25px_rgba(0,229,255,0.05)] relative overflow-hidden">
                   
                   {/* GÖRSEL KUTUSU - Küçültüldü ve dolgunlaştırıldı */}
-                  <div className="w-full sm:w-28 h-40 sm:h-28 shrink-0 bg-[#121215] rounded-xl border border-slate-800 flex items-center justify-center p-2 relative overflow-hidden group-hover:border-[#00e5ff]/20 transition-colors">
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#00e5ff]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="w-full sm:w-28 h-40 sm:h-28 shrink-0 bg-[#121215] rounded-xl border border-slate-800 flex items-center justify-center p-2 relative overflow-hidden group-hover:border-[#3b82f6]/20 transition-colors">
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#3b82f6]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     <img 
                       src={urun.resim || "/placeholder.jpg"} 
                       alt={urun.isim} 
@@ -134,7 +134,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
                       <h3 className="text-sm sm:text-base font-bold text-slate-200 mb-2 leading-relaxed break-words whitespace-normal group-hover:text-white transition-colors line-clamp-2">
                         {urun.isim || urun.name}
                       </h3>
-                      <div className="text-xl sm:text-2xl font-black text-[#00e5ff] tracking-tight mt-auto">
+                      <div className="text-xl sm:text-2xl font-black text-[#3b82f6] tracking-tight mt-auto">
                         {Number(urun.fiyat || 0).toLocaleString("tr-TR")} <span className="text-sm font-bold text-slate-500 uppercase">TL</span>
                       </div>
                   </div>
@@ -154,7 +154,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
                         className={`flex-1 sm:flex-none h-12 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wider px-6 rounded-xl transition-all duration-300 shadow-md ${
                           isAdded 
                           ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-none shadow-[0_0_15px_rgba(16,185,129,0.3)]" 
-                          : "bg-[#121215] text-slate-300 border border-slate-800 hover:bg-[#00e5ff] hover:text-black hover:border-[#00e5ff] hover:shadow-[0_0_20px_rgba(0,229,255,0.2)]"
+                          : "bg-[#121215] text-slate-300 border border-slate-800 hover:bg-[#3b82f6] hover:text-black hover:border-[#3b82f6] hover:shadow-[0_0_20px_rgba(0,229,255,0.2)]"
                         }`}
                       >
                         {isAdded ? (<><span className="text-sm">✓</span> Eklendi!</>) : (<><ShoppingCart className="w-4 h-4" /> Sepete Ekle</>)}

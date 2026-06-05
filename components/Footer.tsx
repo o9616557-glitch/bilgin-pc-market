@@ -19,7 +19,7 @@ export default function Footer() {
   return (
     <footer className={`bg-[#09090b] border-t border-slate-800/80 pt-16 relative overflow-hidden flex flex-col items-center ${pathname?.includes('/product') ? 'pb-40 md:pb-8' : 'pb-8'}`
     }>
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-[#00e5ff] to-transparent opacity-20"></div>
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-[#3b82f6] to-transparent opacity-20"></div>
       
       <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
@@ -27,7 +27,7 @@ export default function Footer() {
           <div className="flex flex-col gap-6">
             <div>
               <h2 className="text-2xl font-black text-white uppercase tracking-wider mb-2">
-                BİLGİN <span className="text-[#00e5ff]">PC</span>
+                BİLGİN <span className="text-[#3b82f6]">PC</span>
               </h2>
               <p className="text-slate-400 text-sm leading-relaxed">
                 Yüksek performanslı bilgisayar bileşenleri ve yeni nesil donanım çözümleri. Güvenli alışveriş altyapısı ve kurumsal destekle hizmetinizdeyiz.
@@ -36,8 +36,8 @@ export default function Footer() {
             
             <div>
               <span className="text-white font-bold text-sm uppercase tracking-wider block mb-3">Uygulamamızı İndirin</span>
-              <a href="#" className="flex items-center gap-3 bg-[#121215] border border-slate-700 hover:border-[#00e5ff]/50 transition-all p-3 rounded-xl group w-max">
-                <Smartphone className="w-8 h-8 text-[#00e5ff] group-hover:scale-110 transition-transform" />
+              <a href="#" className="flex items-center gap-3 bg-[#121215] border border-slate-700 hover:border-[#3b82f6]/50 transition-all p-3 rounded-xl group w-max">
+                <Smartphone className="w-8 h-8 text-[#3b82f6] group-hover:scale-110 transition-transform" />
                 <div className="flex flex-col">
                   <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-1">Hemen İndir</span>
                   <span className="text-white font-bold text-sm leading-none">Google Play</span>
@@ -48,16 +48,16 @@ export default function Footer() {
 
           <div className="flex flex-col gap-4">
             <h3 className="text-white font-black text-lg uppercase tracking-wider mb-2">Kurumsal</h3>
-            <Link href="/hakkimizda" className="text-slate-400 hover:text-[#00e5ff] transition-colors text-sm font-medium flex items-center gap-2">
+            <Link href="/hakkimizda" className="text-slate-400 hover:text-[#3b82f6] transition-colors text-sm font-medium flex items-center gap-2">
               <Info className="w-4 h-4" /> Hakkımızda
             </Link>
-            <Link href="/gizlilik-politikasi" className="text-slate-400 hover:text-[#00e5ff] transition-colors text-sm font-medium flex items-center gap-2">
+            <Link href="/gizlilik-politikasi" className="text-slate-400 hover:text-[#3b82f6] transition-colors text-sm font-medium flex items-center gap-2">
               <ShieldCheck className="w-4 h-4" /> Gizlilik Politikası
             </Link>
-            <Link href="/mesafeli-satis" className="text-slate-400 hover:text-[#00e5ff] transition-colors text-sm font-medium flex items-center gap-2">
+            <Link href="/mesafeli-satis" className="text-slate-400 hover:text-[#3b82f6] transition-colors text-sm font-medium flex items-center gap-2">
               <FileText className="w-4 h-4" /> Mesafeli Satış Sözleşmesi
             </Link>
-            <Link href="/iade-ve-garanti" className="text-slate-400 hover:text-[#00e5ff] transition-colors text-sm font-medium flex items-center gap-2">
+            <Link href="/iade-ve-garanti" className="text-slate-400 hover:text-[#3b82f6] transition-colors text-sm font-medium flex items-center gap-2">
               <RefreshCcw className="w-4 h-4" /> İade ve Garanti Şartları
             </Link>
           </div>
@@ -66,7 +66,7 @@ export default function Footer() {
             <h3 className="text-white font-black text-lg uppercase tracking-wider mb-2">İletişim</h3>
             <div className="flex items-center gap-3 text-slate-400 text-sm font-medium">
               <div className="w-8 h-8 rounded-full bg-[#121215] flex items-center justify-center shrink-0 border border-slate-800">
-                <Phone className="w-4 h-4 text-[#00e5ff]" />
+                <Phone className="w-4 h-4 text-[#3b82f6]" />
               </div>
               <div className="flex flex-col">
                 <span className="text-xs text-slate-500">Müşteri Hizmetleri</span>
@@ -75,7 +75,7 @@ export default function Footer() {
             </div>
             <div className="flex items-center gap-3 text-slate-400 text-sm font-medium">
               <div className="w-8 h-8 rounded-full bg-[#121215] flex items-center justify-center shrink-0 border border-slate-800">
-                <Mail className="w-4 h-4 text-[#00e5ff]" />
+                <Mail className="w-4 h-4 text-[#3b82f6]" />
               </div>
               <div className="flex flex-col">
                 <span className="text-xs text-slate-500">Kurumsal E-Posta</span>
@@ -84,11 +84,11 @@ export default function Footer() {
             </div>
             <div className="flex items-center gap-3 text-slate-400 text-sm font-medium">
               <div className="w-8 h-8 rounded-full bg-[#121215] flex items-center justify-center shrink-0 border border-slate-800">
-                <Globe className="w-4 h-4 text-[#00e5ff]" />
+                <Globe className="w-4 h-4 text-[#3b82f6]" />
               </div>
               <div className="flex flex-col">
                 <span className="text-xs text-slate-500">Web Sitemiz</span>
-                <a href="https://bilginpcmarket.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#00e5ff] transition-colors">
+                <a href="https://bilginpcmarket.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#3b82f6] transition-colors">
                   www.bilginpcmarket.com
                 </a>
               </div>

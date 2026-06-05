@@ -6,7 +6,7 @@ export default function Loading() {
     <div className="min-h-screen bg-[#050814] text-white pt-12 pb-24 px-4 relative overflow-hidden font-sans">
       
       {/* SİBER NEON ARKA PLAN IŞIKLARI */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#00e5ff] blur-[150px] opacity-10 pointer-events-none"></div>
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#3b82f6] blur-[150px] opacity-10 pointer-events-none"></div>
       <div className="absolute bottom-[10%] right-[-10%] w-[400px] h-[400px] bg-[#0088ff] blur-[150px] opacity-5 pointer-events-none"></div>
 
       <div className="max-w-4xl mx-auto relative z-10">
@@ -18,7 +18,7 @@ export default function Loading() {
               <ArrowLeft className="w-4 h-4" /> Mağazaya Geri Dön
             </div>
             <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-white">
-              FAVORİ <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00e5ff] to-[#0088ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.2)]">ÜRÜNLERİM</span>
+              FAVORİ <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3b82f6] to-[#0088ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.2)]">ÜRÜNLERİM</span>
             </h1>
           </div>
           {/* Aydınlatılmış Ürün Sayısı Hayaleti */}

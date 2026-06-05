@@ -46,7 +46,7 @@ export default function GirisPage() {
 
   return (
     <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center p-0 md:p-4 relative overflow-hidden">
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#00e5ff] rounded-full mix-blend-screen filter blur-[150px] opacity-10"></div>
+      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#3b82f6] rounded-full mix-blend-screen filter blur-[150px] opacity-10"></div>
       
      <div className="w-full max-w-md bg-[#09090b] border-none md:border border-white/10 rounded-none md:rounded-2xl p-6 md:p-8 min-h-screen md:min-h-[auto] flex flex-col justify-center shadow-2xl relative z-10">
         
@@ -54,14 +54,14 @@ export default function GirisPage() {
           <div className="flex flex-col items-center justify-center w-full mb-8 shrink-0 mt-8 md:mt-0">
             <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tight drop-shadow-[0_0_10px_rgba(0,0,0,0.5)]">
               <span className="text-white">BİLGİN</span>
-              <span className="text-[#00e5ff]">PC</span>
+              <span className="text-[#3b82f6]">PC</span>
             </div>
-            <div className="h-[2px] w-12 bg-[#00e5ff]/50 mt-2"></div>
+            <div className="h-[2px] w-12 bg-[#3b82f6]/50 mt-2"></div>
           </div>
 
           {/* GİRİŞ YAP BAŞLIĞI VE ALT YAZISI (Eski Kibar Haline Döndü, Hiçbir Şey Silinmedi) */}
-         <h1 className="text-lg sm:text-xl font-bold uppercase tracking-wide text-white drop-shadow-md mb-2 border-l-4 border-[#00e5ff] pl-4">
-           GİRİŞ <span className="text-[#00e5ff] font-black">YAP</span>
+         <h1 className="text-lg sm:text-xl font-bold uppercase tracking-wide text-white drop-shadow-md mb-2 border-l-4 border-[#3b82f6] pl-4">
+           GİRİŞ <span className="text-[#3b82f6] font-black">YAP</span>
           </h1>
           <p className="text-slate-400 text-sm mb-8 font-medium">
             Güvenli alışveriş ve sipariş takibi için hesabınıza giriş yapın.Eger hesabınız yoksa hızlıca kayıt olabilirsiniz.
@@ -101,7 +101,7 @@ export default function GirisPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="E-Posta Adresiniz" 
-              className="w-full bg-[#050814] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#00e5ff]/50 transition-colors"
+              className="w-full bg-[#050814] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#3b82f6]/50 transition-colors"
               required 
             />
           </div>
@@ -113,7 +113,7 @@ export default function GirisPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Şifreniz" 
-              className="w-full bg-[#050814] border border-white/10 rounded-xl py-3 pl-12 pr-12 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#00e5ff]/50 transition-colors"
+              className="w-full bg-[#050814] border border-white/10 rounded-xl py-3 pl-12 pr-12 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#3b82f6]/50 transition-colors"
               required 
             />
             {/* GÖZ İKONU BUTONU */}
@@ -128,19 +128,19 @@ export default function GirisPage() {
 
           {/* ŞİFREMİ UNUTTUM LİNKİ */}
           <div className="flex justify-end mb-2">
-             <Link href="/sifre-sifirla" className="text-xs text-slate-400 hover:text-[#00e5ff] transition-colors">
+             <Link href="/sifre-sifirla" className="text-xs text-slate-400 hover:text-[#3b82f6] transition-colors">
                 Şifremi unuttum
              </Link>
           </div>
 
-          <button type="submit" className="w-full bg-[#00e5ff] text-black rounded-xl py-3.5 font-black uppercase tracking-widest hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)]">
+          <button type="submit" className="w-full bg-[#3b82f6] text-black rounded-xl py-3.5 font-black uppercase tracking-widest hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)]">
             GİRİŞ YAP
           </button>
         </form>
 
         <div className="text-center mb-6 mt-4">
           <p className="text-slate-400 text-sm">
-            Hesabınız yok mu? <Link href="/kayit" className="text-[#00e5ff] font-bold hover:underline">Yeni Kayıt Oluştur</Link>
+            Hesabınız yok mu? <Link href="/kayit" className="text-[#3b82f6] font-bold hover:underline">Yeni Kayıt Oluştur</Link>
           </p>
         </div>
 
@@ -150,11 +150,11 @@ export default function GirisPage() {
         prefetch={true} 
         className="w-full bg-white/5 border border-white/10 rounded-xl py-3 flex items-center justify-center gap-2 group hover:bg-white/10 transition-all duration-100 active:scale-95"
       >
-        <UserCircle2 size={18} className="text-slate-400 group-hover:text-[#00e5ff] transition-colors duration-100" />
+        <UserCircle2 size={18} className="text-slate-400 group-hover:text-[#3b82f6] transition-colors duration-100" />
         <span className="text-slate-300 group-hover:text-white font-medium transition-colors duration-100">
           Üye Olmadan Devam Et
         </span>
-        <ArrowRight size={16} className="text-slate-500 group-hover:translate-x-1 group-hover:text-[#00e5ff] transition-all duration-100" />
+        <ArrowRight size={16} className="text-slate-500 group-hover:translate-x-1 group-hover:text-[#3b82f6] transition-all duration-100" />
       </Link>
     </div>
     </div>

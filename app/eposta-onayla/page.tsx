@@ -48,7 +48,7 @@ function OnayIcerik() {
     <div className="w-full max-w-md bg-[#09090b] border border-white/10 rounded-3xl shadow-[0_0_50px_rgba(0,229,255,0.05)] p-8 relative z-10 text-center">
       {status === "loading" && (
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-16 h-16 text-[#00e5ff] animate-spin" />
+          <Loader2 className="w-16 h-16 text-[#3b82f6] animate-spin" />
           <h1 className="text-2xl font-black uppercase tracking-tighter text-white">HESAP ONAYLANIYOR</h1>
           <p className="text-slate-400 text-sm font-medium">{message}</p>
         </div>
@@ -59,7 +59,7 @@ function OnayIcerik() {
           <CheckCircle2 className="w-16 h-16 text-emerald-500 drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]" />
           <h1 className="text-2xl font-black uppercase tracking-tighter text-white">TEBRİKLER!</h1>
           <p className="text-slate-400 text-sm font-medium mb-4">{message}</p>
-          <Link href="/giris" className="w-full bg-[#00e5ff] text-black rounded-xl py-3.5 font-black uppercase tracking-widest hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)]">
+          <Link href="/giris" className="w-full bg-[#3b82f6] text-black rounded-xl py-3.5 font-black uppercase tracking-widest hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)]">
             GİRİŞ YAPMAYA GİT
           </Link>
         </div>
@@ -82,10 +82,10 @@ function OnayIcerik() {
 export default function EpostaOnaylaPage() {
   return (
     <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center p-4 relative overflow-hidden">
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#00e5ff] rounded-full mix-blend-screen filter blur-[150px] opacity-10"></div>
+      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#3b82f6] rounded-full mix-blend-screen filter blur-[150px] opacity-10"></div>
       <Suspense fallback={
         <div className="text-white flex flex-col items-center gap-2">
-          <Loader2 className="w-8 h-8 text-[#00e5ff] animate-spin" />
+          <Loader2 className="w-8 h-8 text-[#3b82f6] animate-spin" />
           <span>Yükleniyor...</span>
         </div>
       }>

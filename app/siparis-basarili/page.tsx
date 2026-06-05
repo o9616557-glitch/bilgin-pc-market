@@ -49,9 +49,9 @@ function BasariliIcerik() {
           Bizi tercih ettiğiniz için teşekkür ederiz. Siparişiniz sistemimize başarıyla düştü ve hazırlık aşamasına geçildi.
         </p>
 
-        <div style={{ background: "#09090b", border: "1px dashed #00e5ff", borderRadius: "12px", padding: "20px", marginBottom: "25px" }}>
+        <div style={{ background: "#09090b", border: "1px dashed #3b82f6", borderRadius: "12px", padding: "20px", marginBottom: "25px" }}>
           <p style={{ color: "#a1a1aa", fontSize: "0.85rem", marginBottom: "6px" }}>Sipariş Takip Kodunuz:</p>
-          <div style={{ color: "#00e5ff", fontSize: "1.6rem", fontWeight: "900", letterSpacing: "2px", marginBottom: "15px" }}>
+          <div style={{ color: "#3b82f6", fontSize: "1.6rem", fontWeight: "900", letterSpacing: "2px", marginBottom: "15px" }}>
             {gosterilecekKod}
           </div>
           
@@ -89,7 +89,7 @@ function BasariliIcerik() {
           <Link href="/" style={{ flex: 1, minWidth: "130px", padding: "14px", background: "#27272a", color: "#fff", borderRadius: "10px", textDecoration: "none", fontWeight: "700", fontSize: "0.9rem", textAlign: "center" }}>
             Ana Sayfa
           </Link>
-          <Link href="/siparis-takip" style={{ flex: 1, minWidth: "130px", padding: "14px", background: "#00e5ff", color: "#000", borderRadius: "10px", textDecoration: "none", fontWeight: "900", fontSize: "0.9rem", textAlign: "center", boxShadow: "0 4px 15px rgba(0, 229, 255, 0.2)" }}>
+          <Link href="/siparis-takip" style={{ flex: 1, minWidth: "130px", padding: "14px", background: "#3b82f6", color: "#000", borderRadius: "10px", textDecoration: "none", fontWeight: "900", fontSize: "0.9rem", textAlign: "center", boxShadow: "0 4px 15px rgba(0, 229, 255, 0.2)" }}>
             Siparişi Takip Et
           </Link>
         </div>
@@ -101,7 +101,7 @@ function BasariliIcerik() {
 
 export default function SiparisBasariliSayfasi() {
   return (
-    <Suspense fallback={<div style={{ textAlign: "center", padding: "100px", color: "#00e5ff", fontWeight: "900" }}>Yükleniyor...</div>}>
+    <Suspense fallback={<div style={{ textAlign: "center", padding: "100px", color: "#3b82f6", fontWeight: "900" }}>Yükleniyor...</div>}>
       <BasariliIcerik />
     </Suspense>
   );

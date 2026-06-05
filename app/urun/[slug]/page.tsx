@@ -28,7 +28,7 @@ export default async function UrunDetaySayfasi({ params }: { params: any }) {
       <main style={{ padding: "100px 20px", textAlign: "center", background: "#09090b", color: "white", minHeight: "100vh" }}>
         <h1 style={{ fontSize: "3rem", marginBottom: "20px" }}>Bileşen Bulunamadı</h1>
         <p style={{ color: "#a1a1aa", marginBottom: "30px" }}>Aranan Adres: "{slug}"</p>
-        <Link href="/" style={{ color: "#00e5ff", textDecoration: "none", fontSize: "1.2rem" }}>&larr; Ana Sayfaya Dön</Link>
+        <Link href="/" style={{ color: "#3b82f6", textDecoration: "none", fontSize: "1.2rem" }}>&larr; Ana Sayfaya Dön</Link>
       </main>
     );
   }
@@ -68,7 +68,7 @@ export default async function UrunDetaySayfasi({ params }: { params: any }) {
         
         <div style={{ marginBottom: "20px", fontSize: "0.85rem", color: "#a1a1aa", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
-            <Link href="/" style={{ color: "#00e5ff", textDecoration: "none" }}>Ana Sayfa</Link>
+            <Link href="/" style={{ color: "#3b82f6", textDecoration: "none" }}>Ana Sayfa</Link>
             <span style={{ margin: "0 8px" }}>/</span>
             <span style={{ color: "#fff" }}>{urun.kategori || "Donanım"}</span>
           </div>
@@ -85,7 +85,7 @@ export default async function UrunDetaySayfasi({ params }: { params: any }) {
           <div style={{ flex: "1 1 50%", display: "flex", flexDirection: "column" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
               <span style={{ color: "#f59e0b", fontSize: "1.2rem" }}>★★★★★</span>
-              <span style={{ color: "#00e5ff", fontSize: "0.85rem", fontWeight: "600" }}>({urun.degerlendirme_sayisi || 0} Değerlendirme)</span>
+              <span style={{ color: "#3b82f6", fontSize: "0.85rem", fontWeight: "600" }}>({urun.degerlendirme_sayisi || 0} Değerlendirme)</span>
             </div>
 
             <h1 className="urun-baslik">{urun.isim}</h1>
@@ -94,7 +94,7 @@ export default async function UrunDetaySayfasi({ params }: { params: any }) {
               <div style={{ background: "rgba(16, 185, 129, 0.1)", color: "#10b981", padding: "6px 12px", borderRadius: "8px", fontWeight: "700", fontSize: "0.8rem", border: "1px solid rgba(16, 185, 129, 0.2)" }}>
                 {urun.stok_durumu || "STOKTA VAR"}
               </div>
-              <div style={{ background: "rgba(0, 229, 255, 0.1)", color: "#00e5ff", padding: "6px 12px", borderRadius: "8px", fontWeight: "700", fontSize: "0.8rem", border: "1px solid rgba(0, 229, 255, 0.2)" }}>
+              <div style={{ background: "rgba(0, 229, 255, 0.1)", color: "#3b82f6", padding: "6px 12px", borderRadius: "8px", fontWeight: "700", fontSize: "0.8rem", border: "1px solid rgba(0, 229, 255, 0.2)" }}>
                 HIZLI GÖNDERİM
               </div>
             </div>
@@ -107,14 +107,14 @@ export default async function UrunDetaySayfasi({ params }: { params: any }) {
 
         <div style={{ display: "flex", flexDirection: "column", gap: "24px", paddingBottom: "80px" }}>
           <section style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px" }}>
-            <h3 style={{ color: "#00e5ff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "12px" }}>⚙️ Ürün Açıklaması</h3>
+            <h3 style={{ color: "#3b82f6", fontSize: "1.2rem", fontWeight: "800", marginBottom: "12px" }}>⚙️ Ürün Açıklaması</h3>
             <p style={{ color: "#d4d4d8", lineHeight: "1.6", fontSize: "0.95rem" }}>
               {urun.aciklama || "Bu ürünün detaylı açıklaması yakında eklenecektir."}
             </p>
           </section>
 
           <section style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px" }}>
-            <h3 style={{ color: "#00e5ff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "16px" }}>📊 Teknik Bilgiler</h3>
+            <h3 style={{ color: "#3b82f6", fontSize: "1.2rem", fontWeight: "800", marginBottom: "16px" }}>📊 Teknik Bilgiler</h3>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px" }}>
               <div style={{ background: "#09090b", padding: "12px", borderRadius: "10px", border: "1px solid #1f1f22" }}>
                 <span style={{ color: "#71717a", fontSize: "0.8rem" }}>Kategori</span>

@@ -47,11 +47,11 @@ export async function POST(req: Request) {
       subject: "Şifre Sıfırlama Talebi - Bilgin PC Market",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #050814; color: #ffffff; border-radius: 10px;">
-          <h2 style="color: #00e5ff; text-align: center;">Şifre Sıfırlama Talebi</h2>
+          <h2 style="color: #3b82f6; text-align: center;">Şifre Sıfırlama Talebi</h2>
           <p style="color: #e2e8f0; font-size: 16px;">Merhaba,</p>
           <p style="color: #e2e8f0; font-size: 16px;">Bilgin PC Market hesabınız için bir şifre sıfırlama talebinde bulundunuz. Aşağıdaki butona tıklayarak yeni şifrenizi belirleyebilirsiniz:</p>
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${resetUrl}" style="background-color: #00e5ff; color: #000000; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 5px; font-size: 16px;">Yeni Şifre Belirle</a>
+            <a href="${resetUrl}" style="background-color: #3b82f6; color: #000000; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 5px; font-size: 16px;">Yeni Şifre Belirle</a>
           </div>
           <p style="color: #94a3b8; font-size: 14px;">Eğer bu talebi siz yapmadıysanız, bu e-postayı güvenle silebilirsiniz. Şifreniz değiştirilmeyecektir.</p>
           <p style="color: #94a3b8; font-size: 14px; margin-top: 30px;">Saygılarımızla,<br>Bilgin PC Market Ekibi</p>

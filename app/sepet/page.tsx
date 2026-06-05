@@ -35,7 +35,7 @@ export default function SepetSayfasi() {
         
         {/* YENİ BAŞLIK VE METİN */}
         <h2 className="text-xl md:text-2xl font-black uppercase tracking-wide mb-3 text-white">
-          SEPETİNİZ HENÜZ <span className="text-[#00e5ff]">BOŞ</span>
+          SEPETİNİZ HENÜZ <span className="text-[#3b82f6]">BOŞ</span>
         </h2>
         
         <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">
@@ -46,7 +46,7 @@ export default function SepetSayfasi() {
         <Link
           href="/"
           prefetch={true}
-          className="bg-[#00e5ff] text-black px-8 py-4 rounded-xl font-black text-sm uppercase tracking-wider hover:bg-[#00c4db] transition-all hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(0,229,255,0.2)] hover:shadow-[0_0_25px_rgba(0,229,255,0.4)]"
+          className="bg-[#3b82f6] text-black px-8 py-4 rounded-xl font-black text-sm uppercase tracking-wider hover:bg-[#00c4db] transition-all hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(0,229,255,0.2)] hover:shadow-[0_0_25px_rgba(0,229,255,0.4)]"
         >
           ALIŞVERİŞE BAŞLA
         </Link>
@@ -75,7 +75,7 @@ export default function SepetSayfasi() {
             </div>
 
             {/* 💻 SADECE BİLGİSAYAR (Ekran büyüyünce devreye girer) */}
-            <div className="hidden md:flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 group-hover:text-[#00e5ff] transition-all">
+            <div className="hidden md:flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 group-hover:text-[#3b82f6] transition-all">
               <ArrowLeft className="w-5 h-5" /> MAĞAZAYA GERİ DÖN
             </div>
           </Link>
@@ -86,7 +86,7 @@ export default function SepetSayfasi() {
   prefetch={true} 
   className="font-black text-xl sm:text-2xl tracking-tight text-white"
 >
-  BİLGİN <span className="text-[#00e5ff]">PC</span>
+  BİLGİN <span className="text-[#3b82f6]">PC</span>
 </Link>
           {/* Sağ: Güvenlik Rozeti */}
           <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] sm:text-xs font-black uppercase tracking-widest bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20">
@@ -100,8 +100,8 @@ export default function SepetSayfasi() {
         
         {/* ALIŞVERİŞ SEPETİM BAŞLIĞI */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between pb-4 mb-4 gap-4 mt-2 border-b border-slate-800">
-          <h1 className="text-lg sm:text-xl font-bold uppercase tracking-wide text-white drop-shadow-md border-l-4 border-[#00e5ff] pl-4 m-0">
-            ALIŞVERİŞ <span className="text-[#00e5ff] font-black">SEPETİM</span>
+          <h1 className="text-lg sm:text-xl font-bold uppercase tracking-wide text-white drop-shadow-md border-l-4 border-[#3b82f6] pl-4 m-0">
+            ALIŞVERİŞ <span className="text-[#3b82f6] font-black">SEPETİM</span>
           </h1>
           {sepetiTemizle && (
             <button onClick={sepetiTemizle} className="text-sm font-semibold text-slate-400 hover:text-red-400 bg-slate-800/50 border border-slate-700/50 py-2 px-4 rounded-xl transition-all">
@@ -119,14 +119,14 @@ export default function SepetSayfasi() {
               const urunToplamFiyat = urun.fiyat * urun.adet;
 
               return (
-                <div key={index} className="flex flex-col sm:flex-row items-center bg-[#09090b] border border-slate-800/50 rounded-2xl p-4 gap-4 transition-all hover:border-[#00e5ff]/30">
+                <div key={index} className="flex flex-col sm:flex-row items-center bg-[#09090b] border border-slate-800/50 rounded-2xl p-4 gap-4 transition-all hover:border-[#3b82f6]/30">
                   <div className="w-full sm:w-28 h-40 sm:h-28 shrink-0 bg-[#121215] rounded-xl border border-slate-800 flex items-center justify-center p-2">
                     <img src={urun.resim || "/placeholder.jpg"} alt={urun.isim} className="w-full h-full object-contain" />
                   </div>
                   <div className="flex-1 flex flex-col text-center sm:text-left w-full">
                     <h3 className="font-bold text-lg text-white mb-1 leading-tight">{urun.isim}</h3>
                     {urun.varyasyon && !urun.varyasyon.toLowerCase().includes("standart") && (
-                      <p className="text-[#00e5ff] text-xs font-semibold mb-2 bg-[#00e5ff]/10 inline-block self-center sm:self-start px-2 py-0.5 rounded border border-[#00e5ff]/20">{urun.varyasyon}</p>
+                      <p className="text-[#3b82f6] text-xs font-semibold mb-2 bg-[#3b82f6]/10 inline-block self-center sm:self-start px-2 py-0.5 rounded border border-[#3b82f6]/20">{urun.varyasyon}</p>
                     )}
                     
                     <div className="text-xl font-black mt-2 sm:mt-auto tracking-tight text-white">
@@ -135,9 +135,9 @@ export default function SepetSayfasi() {
                   </div>
                   <div className="flex flex-row items-center justify-between sm:justify-end gap-3 w-full sm:w-auto mt-4 sm:mt-0 pt-4 sm:pt-0 border-t border-slate-800/50 sm:border-none">
                     <div className="flex items-center bg-[#121215] border border-slate-800 rounded-xl p-1">
-                      <button onClick={() => adetGuncelle(urun.id, urun.varyasyon, -1)} className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-[#00e5ff] hover:bg-slate-800 rounded-lg transition-all text-xl font-medium">-</button>
+                      <button onClick={() => adetGuncelle(urun.id, urun.varyasyon, -1)} className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-[#3b82f6] hover:bg-slate-800 rounded-lg transition-all text-xl font-medium">-</button>
                       <span className="font-black w-8 text-center text-white text-base">{urun.adet}</span>
-                      <button onClick={() => adetGuncelle(urun.id, urun.varyasyon, 1)} className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-[#00e5ff] hover:bg-slate-800 rounded-lg transition-all text-xl font-medium">+</button>
+                      <button onClick={() => adetGuncelle(urun.id, urun.varyasyon, 1)} className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-[#3b82f6] hover:bg-slate-800 rounded-lg transition-all text-xl font-medium">+</button>
                     </div>
                     <button onClick={() => setUrunToDelete(urun)} className="w-11 h-11 flex items-center justify-center text-slate-400 bg-slate-800/50 border border-slate-700/50 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 rounded-xl transition-all shrink-0">
                       <Trash2 className="w-5 h-5" />
@@ -152,7 +152,7 @@ export default function SepetSayfasi() {
           <div className="w-full lg:w-1/3 sticky top-28">
             <div className="bg-[#09090b] border border-slate-800/50 rounded-3xl p-6 lg:p-8">
               <h2 className="font-black text-xl mb-6 pb-4 border-b border-slate-800 text-white uppercase tracking-wide">
-                Sipariş <span className="text-[#00e5ff]">Özeti</span>
+                Sipariş <span className="text-[#3b82f6]">Özeti</span>
               </h2>
               
               <div className="flex justify-between text-slate-400 mb-4 font-medium text-sm">
@@ -162,7 +162,7 @@ export default function SepetSayfasi() {
               
               <div className="flex justify-between text-slate-400 mb-6 font-medium text-sm">
                 <span>Kargo Ücreti</span>
-                <span>{kargo === 0 ? <span className="text-[#00e5ff] font-bold">Ücretsiz</span> : <span className="text-white font-bold">{kargo} TL</span>}</span>
+                <span>{kargo === 0 ? <span className="text-[#3b82f6] font-bold">Ücretsiz</span> : <span className="text-white font-bold">{kargo} TL</span>}</span>
               </div>
 
               <div className="flex justify-between items-center text-white font-black border-t border-slate-800 pt-6 mb-5">
@@ -186,7 +186,7 @@ export default function SepetSayfasi() {
               )}
 
               <Link href="/odeme" className="block w-full">
-                <button className="w-full bg-[#00e5ff] text-black font-black uppercase tracking-wider py-4 rounded-xl text-lg hover:bg-[#00c4db] transition-all shadow-[0_0_15px_rgba(0,229,255,0.2)]">
+                <button className="w-full bg-[#3b82f6] text-black font-black uppercase tracking-wider py-4 rounded-xl text-lg hover:bg-[#00c4db] transition-all shadow-[0_0_15px_rgba(0,229,255,0.2)]">
                   Güvenli Ödemeye Geç
                 </button>
               </Link>

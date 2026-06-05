@@ -181,21 +181,21 @@ export default function AdminPaneli() {
   const durumRengi = (durum: string) => {
     if (!durum) return "#f59e0b";
     if (durum === "Ödendi / Hazırlanıyor" || durum.includes("Başarılı")) return "#10b981"; 
-    if (durum === "Kargoya Verildi") return "#00e5ff"; 
+    if (durum === "Kargoya Verildi") return "#3b82f6"; 
     if (durum === "İptal Edildi") return "#ef4444"; 
     return "#f59e0b"; 
   };
 
-  if (yukleniyor && !girisYapildi) return <div style={{ textAlign: "center", padding: "100px", color: "#00e5ff" }}>Yükleniyor...</div>;
+  if (yukleniyor && !girisYapildi) return <div style={{ textAlign: "center", padding: "100px", color: "#3b82f6" }}>Yükleniyor...</div>;
 
   if (!girisYapildi) {
     return (
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh", padding: "20px" }}>
-        {bildirim && <div style={{ position: "fixed", top: 20, right: 20, background: "#121214", border: `1px solid ${bildirim.tip === "basari" ? "#00e5ff" : "#ef4444"}`, borderRadius: "10px", padding: "15px 25px", color: "#fff", zIndex: 99999 }}>{bildirim.mesaj}</div>}
+        {bildirim && <div style={{ position: "fixed", top: 20, right: 20, background: "#121214", border: `1px solid ${bildirim.tip === "basari" ? "#3b82f6" : "#ef4444"}`, borderRadius: "10px", padding: "15px 25px", color: "#fff", zIndex: 99999 }}>{bildirim.mesaj}</div>}
         <form onSubmit={girisYap} style={{ background: "#121214", border: "1px solid #27272a", padding: "40px", borderRadius: "20px", textAlign: "center", width: "100%", maxWidth: "400px" }}>
           <h2 style={{ color: "#fff", marginBottom: "25px", fontWeight: "900" }}>Patron Girişi</h2>
           <input type="password" value={sifre} onChange={(e) => setSifre(e.target.value)} placeholder="Şifreyi Girin..." style={{ width: "100%", padding: "15px", background: "#09090b", border: "1px solid #27272a", borderRadius: "10px", color: "#fff", marginBottom: "20px", outline: "none" }} required />
-          <button type="submit" style={{ width: "100%", padding: "15px", background: "#00e5ff", color: "#000", border: "none", borderRadius: "10px", fontWeight: "900", cursor: "pointer" }}>Kilidi Aç</button>
+          <button type="submit" style={{ width: "100%", padding: "15px", background: "#3b82f6", color: "#000", border: "none", borderRadius: "10px", fontWeight: "900", cursor: "pointer" }}>Kilidi Aç</button>
         </form>
       </div>
     );
@@ -206,10 +206,10 @@ export default function AdminPaneli() {
       
       {bildirim && (
         <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0, 0, 0, 0.7)", zIndex: 99999, display: "flex", justifyContent: "center", alignItems: "center", backdropFilter: "blur(4px)" }}>
-          <div style={{ background: "#121214", border: `1px solid ${bildirim.tip === "basari" ? "#00e5ff" : "#ef4444"}`, borderRadius: "16px", padding: "30px", maxWidth: "400px", width: "90%", textAlign: "center" }}>
+          <div style={{ background: "#121214", border: `1px solid ${bildirim.tip === "basari" ? "#3b82f6" : "#ef4444"}`, borderRadius: "16px", padding: "30px", maxWidth: "400px", width: "90%", textAlign: "center" }}>
             <h3 style={{ color: "#fff", fontWeight: "900", marginBottom: "15px" }}>{bildirim.tip === "basari" ? "Başarılı" : "Hata"}</h3>
             <p style={{ color: "#a1a1aa", marginBottom: "25px" }}>{bildirim.mesaj}</p>
-            <button onClick={() => setBildirim(null)} style={{ width: "100%", background: bildirim.tip === "basari" ? "#00e5ff" : "#ef4444", color: bildirim.tip === "basari" ? "#000" : "#fff", border: "none", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer" }}>Tamam</button>
+            <button onClick={() => setBildirim(null)} style={{ width: "100%", background: bildirim.tip === "basari" ? "#3b82f6" : "#ef4444", color: bildirim.tip === "basari" ? "#000" : "#fff", border: "none", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer" }}>Tamam</button>
           </div>
         </div>
       )}
@@ -228,7 +228,7 @@ export default function AdminPaneli() {
 
       {yeniUrunModu && (
         <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0, 0, 0, 0.85)", zIndex: 9999, display: "flex", justifyContent: "center", alignItems: "center", backdropFilter: "blur(5px)" }}>
-          <form onSubmit={urunKaydet} style={{ background: "#121214", border: "1px solid #00e5ff", borderRadius: "16px", padding: "20px", maxWidth: "520px", width: "90%", display: "flex", flexDirection: "column", gap: "12px", maxHeight: "95vh", overflowY: "auto" }}>
+          <form onSubmit={urunKaydet} style={{ background: "#121214", border: "1px solid #3b82f6", borderRadius: "16px", padding: "20px", maxWidth: "520px", width: "90%", display: "flex", flexDirection: "column", gap: "12px", maxHeight: "95vh", overflowY: "auto" }}>
             <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: "900", borderBottom: "1px solid #27272a", paddingBottom: "10px", margin: 0 }}>{duzenlenenUrun ? "⚙️ ÜRÜNÜ DÜZENLE" : "🚀 YENİ ÜRÜN EKLE"}</h3>
             
             <div><label style={{ color: "#a1a1aa", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Ürün Adı</label><input type="text" value={formIsim} onChange={(e) => setFormIsim(e.target.value)} required style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }} /></div>
@@ -240,8 +240,8 @@ export default function AdminPaneli() {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
               <div>
-                <label style={{ color: "#00e5ff", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Stok Adedi (İsteğe Bağlı)</label>
-                <input type="number" value={formStokAdedi} onChange={(e) => setFormStokAdedi(e.target.value)} placeholder="Sadece Var yazsın istiyorsan BOŞ BIRAK" style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#00e5ff", fontWeight: "900", outline: "none" }} />
+                <label style={{ color: "#3b82f6", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Stok Adedi (İsteğe Bağlı)</label>
+                <input type="number" value={formStokAdedi} onChange={(e) => setFormStokAdedi(e.target.value)} placeholder="Sadece Var yazsın istiyorsan BOŞ BIRAK" style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#3b82f6", fontWeight: "900", outline: "none" }} />
               </div>
               <div><label style={{ color: "#10b981", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Özel Havale İndirimi (%)</label><input type="number" value={formHavaleIndirimi} onChange={(e) => setFormHavaleIndirimi(e.target.value)} min="0" max="100" style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#10b981", fontWeight: "900", outline: "none" }} /></div>
             </div>
@@ -261,23 +261,23 @@ export default function AdminPaneli() {
 
             <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
               <button type="button" onClick={formuKapat} style={{ flex: 1, padding: "12px", background: "#27272a", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "800", cursor: "pointer" }}>Kapat</button>
-              <button type="submit" style={{ flex: 1, padding: "12px", background: "#00e5ff", color: "#000", border: "none", borderRadius: "8px", fontWeight: "900", cursor: "pointer" }}>Kaydet</button>
+              <button type="submit" style={{ flex: 1, padding: "12px", background: "#3b82f6", color: "#000", border: "none", borderRadius: "8px", fontWeight: "900", cursor: "pointer" }}>Kaydet</button>
             </div>
           </form>
         </div>
       )}
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px", flexWrap: "wrap", gap: "15px" }}>
-        <h1 style={{ color: "#fff", fontSize: "2rem", fontWeight: "900", borderLeft: "6px solid #00e5ff", paddingLeft: "15px" }}>PATRON <span style={{ color: "#00e5ff" }}>PANELİ</span></h1>
+        <h1 style={{ color: "#fff", fontSize: "2rem", fontWeight: "900", borderLeft: "6px solid #3b82f6", paddingLeft: "15px" }}>PATRON <span style={{ color: "#3b82f6" }}>PANELİ</span></h1>
         <button onClick={cikisYap} style={{ background: "rgba(239, 68, 68, 0.1)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.3)", padding: "10px 15px", borderRadius: "8px", cursor: "pointer", fontWeight: "700" }}>Çıkış</button>
       </div>
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginBottom: "30px", borderBottom: "1px solid #27272a", paddingBottom: "15px" }}>
-        <button onClick={() => setAktifSekme("siparisler")} style={{ flex: "1 1 auto", background: aktifSekme === "siparisler" ? "#00e5ff" : "transparent", color: aktifSekme === "siparisler" ? "#000" : "#a1a1aa", border: aktifSekme === "siparisler" ? "none" : "1px solid #27272a", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", textAlign: "center", transition: "0.2s" }}>📦 Sipariş Yönetimi ({siparisler.length})</button>
-        <button onClick={() => setAktifSekme("urunler")} style={{ flex: "1 1 auto", background: aktifSekme === "urunler" ? "#00e5ff" : "transparent", color: aktifSekme === "urunler" ? "#000" : "#a1a1aa", border: aktifSekme === "urunler" ? "none" : "1px solid #27272a", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", textAlign: "center", transition: "0.2s" }}>💻 Ürün Yönetimi ({urunler.length})</button>
+        <button onClick={() => setAktifSekme("siparisler")} style={{ flex: "1 1 auto", background: aktifSekme === "siparisler" ? "#3b82f6" : "transparent", color: aktifSekme === "siparisler" ? "#000" : "#a1a1aa", border: aktifSekme === "siparisler" ? "none" : "1px solid #27272a", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", textAlign: "center", transition: "0.2s" }}>📦 Sipariş Yönetimi ({siparisler.length})</button>
+        <button onClick={() => setAktifSekme("urunler")} style={{ flex: "1 1 auto", background: aktifSekme === "urunler" ? "#3b82f6" : "transparent", color: aktifSekme === "urunler" ? "#000" : "#a1a1aa", border: aktifSekme === "urunler" ? "none" : "1px solid #27272a", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", textAlign: "center", transition: "0.2s" }}>💻 Ürün Yönetimi ({urunler.length})</button>
       </div>
-      <button onClick={() => window.location.href = "/admin/reviews"} style={{ flex: "1 1 auto", background: "rgba(0, 229, 255, 0.1)", color: "#00e5ff", border: "1px solid rgba(0, 229, 255, 0.3)", borderRadius: "8px", padding: "10px 15px", cursor: "pointer", fontWeight: "900", textTransform: "uppercase" }}>⭐ YORUM YÖNETİMİ</button>
-      {yukleniyor ? <div style={{ textAlign: "center", padding: "50px", color: "#00e5ff", fontWeight: "900" }}>Veriler Çekiliyor Patron...</div> : aktifSekme === "siparisler" ? (
+      <button onClick={() => window.location.href = "/admin/reviews"} style={{ flex: "1 1 auto", background: "rgba(0, 229, 255, 0.1)", color: "#3b82f6", border: "1px solid rgba(0, 229, 255, 0.3)", borderRadius: "8px", padding: "10px 15px", cursor: "pointer", fontWeight: "900", textTransform: "uppercase" }}>⭐ YORUM YÖNETİMİ</button>
+      {yukleniyor ? <div style={{ textAlign: "center", padding: "50px", color: "#3b82f6", fontWeight: "900" }}>Veriler Çekiliyor Patron...</div> : aktifSekme === "siparisler" ? (
         
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           {siparisler.map((siparis) => (
@@ -316,7 +316,7 @@ export default function AdminPaneli() {
                   <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "5px" }}>Ödeme Detayı</p>
                   <p style={{ color: "#fff", fontSize: "0.85rem", lineHeight: "1.6" }}>
                     Yöntem: <strong>{siparis.odemeYontemi === "kart" ? "Kredi Kartı" : "Havale / EFT"}</strong><br />
-                    Tutar: <strong style={{ color: "#00e5ff", fontSize: "1.1rem" }}>{Number((siparis.toplamTutar) || (siparis.Tutar) || 0).toLocaleString("tr-TR")} TL</strong>
+                    Tutar: <strong style={{ color: "#3b82f6", fontSize: "1.1rem" }}>{Number((siparis.toplamTutar) || (siparis.Tutar) || 0).toLocaleString("tr-TR")} TL</strong>
                   </p>
                 </div>
                 <div>
@@ -324,7 +324,7 @@ export default function AdminPaneli() {
                   <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
                     {siparis.sepet?.map((urun: any, i: number) => (
                       <div key={i} style={{ color: "#fff", fontSize: "0.8rem", background: "#09090b", padding: "8px 10px", borderRadius: "6px", border: "1px solid #27272a" }}>
-                        <span style={{ color: "#00e5ff", fontWeight: "800", marginRight: "5px" }}>{urun.adet}x</span> {urun.isim || urun.name}
+                        <span style={{ color: "#3b82f6", fontWeight: "800", marginRight: "5px" }}>{urun.adet}x</span> {urun.isim || urun.name}
                       </div>
                     ))}
                   </div>
@@ -334,7 +334,7 @@ export default function AdminPaneli() {
               <div style={{ marginTop: "10px", borderTop: "1px solid #27272a", paddingTop: "15px" }}>
                 <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "8px", fontWeight: "700" }}>💬 Müşteriye İletilecek Mesaj</p>
                 <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                  <input type="text" defaultValue={siparis.musteriMesaji || ""} onBlur={(e) => mesajGuncelle(siparis._id, e.target.value)} placeholder="Müşteriye sipariş takip ekranında görünecek bir mesaj yazın ve dışarı tıklayın..." style={{ flex: "1 1 200px", padding: "12px 15px", background: "rgba(0, 229, 255, 0.05)", color: "#00e5ff", border: "1px solid rgba(0, 229, 255, 0.3)", borderRadius: "8px", outline: "none", fontSize: "0.85rem" }} />
+                  <input type="text" defaultValue={siparis.musteriMesaji || ""} onBlur={(e) => mesajGuncelle(siparis._id, e.target.value)} placeholder="Müşteriye sipariş takip ekranında görünecek bir mesaj yazın ve dışarı tıklayın..." style={{ flex: "1 1 200px", padding: "12px 15px", background: "rgba(0, 229, 255, 0.05)", color: "#3b82f6", border: "1px solid rgba(0, 229, 255, 0.3)", borderRadius: "8px", outline: "none", fontSize: "0.85rem" }} />
                 </div>
               </div>
             </div>
@@ -344,7 +344,7 @@ export default function AdminPaneli() {
         
         <div>
           <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "20px" }}>
-            <button onClick={yeniUrunModunuAc} style={{ width: "100%", maxWidth: "200px", background: "#00e5ff", color: "#000", border: "none", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", transition: "0.2s" }}>➕ Yeni Ürün Ekle</button>
+            <button onClick={yeniUrunModunuAc} style={{ width: "100%", maxWidth: "200px", background: "#3b82f6", color: "#000", border: "none", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", transition: "0.2s" }}>➕ Yeni Ürün Ekle</button>
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))", gap: "15px" }}>
@@ -369,7 +369,7 @@ export default function AdminPaneli() {
                       <div style={{display: "flex", alignItems: "center", gap: "6px"}}>
                         
                         {adetGosterilecekMi && (
-                          <span style={{ background: "rgba(0, 229, 255, 0.1)", color: "#00e5ff", fontSize: "0.7rem", padding: "4px 8px", borderRadius: "4px", fontWeight: "900" }}>{urun.stokAdedi} Adet</span>
+                          <span style={{ background: "rgba(0, 229, 255, 0.1)", color: "#3b82f6", fontSize: "0.7rem", padding: "4px 8px", borderRadius: "4px", fontWeight: "900" }}>{urun.stokAdedi} Adet</span>
                         )}
 
                         <span style={{ color: durumRengiCode, fontWeight: "800", fontSize: "0.75rem" }}>● {gosterilecekDurum}</span>
@@ -384,12 +384,12 @@ export default function AdminPaneli() {
                           <span style={{ color: "#ef4444", fontSize: "0.9rem", textDecoration: "line-through", opacity: 0.6 }}>
                             {normalFiyat.toLocaleString("tr-TR")} TL
                           </span>
-                          <span style={{ color: "#00e5ff", fontSize: "1.3rem", fontWeight: "900" }}>
+                          <span style={{ color: "#3b82f6", fontSize: "1.3rem", fontWeight: "900" }}>
                             {gosterilenFiyat.toLocaleString("tr-TR")} TL
                           </span>
                         </div>
                       ) : (
-                        <span style={{ color: "#00e5ff", fontSize: "1.3rem", fontWeight: "900" }}>
+                        <span style={{ color: "#3b82f6", fontSize: "1.3rem", fontWeight: "900" }}>
                           {gosterilenFiyat.toLocaleString("tr-TR")} TL
                         </span>
                       )}
@@ -401,7 +401,7 @@ export default function AdminPaneli() {
 
                   </div>
                   <div style={{ display: "flex", gap: "10px", borderTop: "1px solid #27272a", paddingTop: "15px" }}>
-                    <button onClick={() => urunDuzenleModunuAc(urun)} style={{ flex: 1, background: "rgba(0, 229, 255, 0.1)", color: "#00e5ff", border: "1px solid rgba(0, 229, 255, 0.2)", padding: "8px", borderRadius: "6px", fontWeight: "800", cursor: "pointer", fontSize: "0.85rem", transition: "0.2s" }}>⚙️ Düzenle</button>
+                    <button onClick={() => urunDuzenleModunuAc(urun)} style={{ flex: 1, background: "rgba(0, 229, 255, 0.1)", color: "#3b82f6", border: "1px solid rgba(0, 229, 255, 0.2)", padding: "8px", borderRadius: "6px", fontWeight: "800", cursor: "pointer", fontSize: "0.85rem", transition: "0.2s" }}>⚙️ Düzenle</button>
                     <button onClick={() => urunSilmeIslemi(urun._id)} style={{ background: "rgba(239, 68, 68, 0.1)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.2)", padding: "8px 12px", borderRadius: "6px", fontWeight: "800", cursor: "pointer", fontSize: "0.85rem", transition: "0.2s" }}>🗑️ Sil</button>
                   </div>
                 </div>

@@ -55,11 +55,11 @@ export async function POST(req: Request) {
       subject: "Hesabınızı Onaylayın - Bilgin PC Market",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #050814; color: #ffffff; border-radius: 10px;">
-          <h2 style="color: #00e5ff; text-align: center;">Bilgin PC Market'e Hoş Geldiniz!</h2>
+          <h2 style="color: #3b82f6; text-align: center;">Bilgin PC Market'e Hoş Geldiniz!</h2>
           <p style="color: #e2e8f0; font-size: 16px;">Merhaba ${name},</p>
           <p style="color: #e2e8f0; font-size: 16px;">Hesabınızı aktifleştirmek ve güvenli alışverişe başlamak için lütfen aşağıdaki butona tıklayarak e-posta adresinizi doğrulayın:</p>
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${verifyUrl}" style="background-color: #00e5ff; color: #000000; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 5px; font-size: 16px;">Hesabımı Onayla</a>
+            <a href="${verifyUrl}" style="background-color: #3b82f6; color: #000000; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 5px; font-size: 16px;">Hesabımı Onayla</a>
           </div>
           <p style="color: #94a3b8; font-size: 14px;">Eğer bu kaydı siz yapmadıysanız, bu e-postayı dikkate almayabilirsiniz.</p>
           <p style="color: #94a3b8; font-size: 14px; margin-top: 30px;">Saygılarımızla,<br>Bilgin PC Market Ekibi</p>

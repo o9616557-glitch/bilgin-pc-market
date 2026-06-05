@@ -12,7 +12,7 @@ export default function CompareButton({ urun }: { urun: any }) {
         karsilastirmayaEkle(urun);
         setPopupAcik(true);
       }}
-      className="absolute bottom-3 right-3 bg-[#09090b]/80 hover:bg-[#00e5ff] text-slate-400 hover:text-black border border-slate-700 hover:border-[#00e5ff] p-2 rounded-xl z-20 backdrop-blur-md transition-all shadow-[0_0_15px_rgba(0,0,0,0.5)] hover:shadow-[0_0_20px_rgba(0,229,255,0.4)] group/btn"
+      className="absolute bottom-3 right-3 bg-[#09090b]/80 hover:bg-[#3b82f6] text-slate-400 hover:text-black border border-slate-700 hover:border-[#3b82f6] p-2 rounded-xl z-20 backdrop-blur-md transition-all shadow-[0_0_15px_rgba(0,0,0,0.5)] hover:shadow-[0_0_20px_rgba(0,229,255,0.4)] group/btn"
       title="Karşılaştırmaya Ekle"
     >
       {/* Terazi İkonu */}

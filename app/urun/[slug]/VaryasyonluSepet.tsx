@@ -47,8 +47,8 @@ export default function VaryasyonluSepet({ urun }: { urun: any }) {
                   style={{
                     padding: "10px 16px",
                     background: seciliMi ? "rgba(0, 229, 255, 0.1)" : "#121214",
-                    color: seciliMi ? "#00e5ff" : "#a1a1aa",
-                    border: seciliMi ? "1px solid #00e5ff" : "1px solid #27272a",
+                    color: seciliMi ? "#3b82f6" : "#a1a1aa",
+                    border: seciliMi ? "1px solid #3b82f6" : "1px solid #27272a",
                     borderRadius: "8px",
                     cursor: "pointer",
                     fontWeight: "800",
@@ -81,13 +81,13 @@ export default function VaryasyonluSepet({ urun }: { urun: any }) {
           </div>
           <div>
             <span style={{ fontSize: "0.8rem", color: "#a1a1aa", display: "block" }}>Taksit Seçenekleri</span>
-            <div style={{ fontSize: "1.0rem", fontWeight: "700", color: "#00e5ff", marginTop: "4px" }}>Peşin Fiyatına 3 Taksit</div>
+            <div style={{ fontSize: "1.0rem", fontWeight: "700", color: "#3b82f6", marginTop: "4px" }}>Peşin Fiyatına 3 Taksit</div>
             <div style={{ fontSize: "0.75rem", color: "#71717a", marginTop: "4px", lineHeight: "1.4" }}>Tüm kredi kartlarına vade farksız taksit imkanı.</div>
           </div>
         </div>
       </div>
 
-      <button onClick={sepeteFirlat} className="masaustu-sepet" style={{ width: "100%", padding: "18px", fontSize: "1.2rem", fontWeight: "900", background: "linear-gradient(45deg, #00e5ff, #007acc)", color: "#000", border: "none", borderRadius: "12px", cursor: "pointer", textTransform: "uppercase", letterSpacing: "1px" }}>
+      <button onClick={sepeteFirlat} className="masaustu-sepet" style={{ width: "100%", padding: "18px", fontSize: "1.2rem", fontWeight: "900", background: "linear-gradient(45deg, #3b82f6, #007acc)", color: "#000", border: "none", borderRadius: "12px", cursor: "pointer", textTransform: "uppercase", letterSpacing: "1px" }}>
         Sepete Ekle
       </button>
 
@@ -96,9 +96,9 @@ export default function VaryasyonluSepet({ urun }: { urun: any }) {
       }}>
         <div>
           <span style={{ fontSize: "0.75rem", color: "#a1a1aa", display: "block" }}>Toplam Tutar</span>
-          <span style={{ fontSize: "1.3rem", fontWeight: "900", color: "#00e5ff" }}>{anaFiyat.toLocaleString()} TL</span>
+          <span style={{ fontSize: "1.3rem", fontWeight: "900", color: "#3b82f6" }}>{anaFiyat.toLocaleString()} TL</span>
         </div>
-        <button onClick={sepeteFirlat} style={{ padding: "12px 24px", background: "linear-gradient(45deg, #00e5ff, #007acc)", color: "#000", border: "none", borderRadius: "8px", fontWeight: "900", cursor: "pointer" }}>
+        <button onClick={sepeteFirlat} style={{ padding: "12px 24px", background: "linear-gradient(45deg, #3b82f6, #007acc)", color: "#000", border: "none", borderRadius: "8px", fontWeight: "900", cursor: "pointer" }}>
           Sepete Ekle
         </button>
       </div>

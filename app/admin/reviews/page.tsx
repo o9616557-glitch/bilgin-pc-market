@@ -63,18 +63,18 @@ export default function AdminReviewsPage() {
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
-            <Link href="/admin" className="flex items-center gap-2 text-[#00e5ff] mb-2 hover:underline">
+            <Link href="/admin" className="flex items-center gap-2 text-[#3b82f6] mb-2 hover:underline">
               <ArrowLeft size={16} /> Panel'e Dön
             </Link>
             <h1 className="text-3xl font-black uppercase tracking-tighter">Yorum & Soru Yönetimi</h1>
           </div>
           <button onClick={fetchData} className="bg-white/5 hover:bg-white/10 p-3 rounded-xl transition-all border border-white/10">
-            {loading ? <Loader2 className="animate-spin text-[#00e5ff]" /> : "🔄 Verileri Yenile"}
+            {loading ? <Loader2 className="animate-spin text-[#3b82f6]" /> : "🔄 Verileri Yenile"}
           </button>
         </div>
 
         {loading ? (
-          <div className="flex flex-col items-center py-20"><Loader2 size={48} className="animate-spin text-[#00e5ff] mb-4" /></div>
+          <div className="flex flex-col items-center py-20"><Loader2 size={48} className="animate-spin text-[#3b82f6] mb-4" /></div>
         ) : data.length === 0 ? (
           <div className="bg-[#0b1329] border border-dashed border-white/10 rounded-3xl py-20 text-center text-slate-500 font-bold">Hiç yorum yok.</div>
         ) : (
@@ -94,7 +94,7 @@ export default function AdminReviewsPage() {
                     <h3 className="text-white font-bold text-lg mb-1">{item.name}</h3>
                     <p className="text-slate-300 text-sm italic mb-3">"{item.text}"</p>
                     {item.answer && (
-                      <div className="bg-[#050814] p-3 rounded-xl border-l-4 border-[#00e5ff] text-xs text-[#00e5ff] mb-3">
+                      <div className="bg-[#050814] p-3 rounded-xl border-l-4 border-[#3b82f6] text-xs text-[#3b82f6] mb-3">
                         <span className="font-black block mb-1">MAĞAZA CEVABI:</span>{item.answer}
                       </div>
                     )}
@@ -117,7 +117,7 @@ export default function AdminReviewsPage() {
                   <div className="mt-4 pt-4 border-t border-white/5">
                     <div className="flex gap-2">
                       <textarea value={replyText} onChange={(e) => setReplyText(e.target.value)} placeholder="Cevabınız..." className="flex-1 bg-[#050814] border border-white/10 rounded-xl p-3 text-sm text-white" rows={2} />
-                      <button onClick={() => handleSendReply(item._id)} className="bg-[#00e5ff] text-black px-4 rounded-xl font-black uppercase text-xs flex items-center gap-2"><Send size={16} /> Gönder</button>
+                      <button onClick={() => handleSendReply(item._id)} className="bg-[#3b82f6] text-black px-4 rounded-xl font-black uppercase text-xs flex items-center gap-2"><Send size={16} /> Gönder</button>
                       <button onClick={() => setReplyId(null)} className="bg-white/5 text-slate-400 px-4 rounded-xl font-bold text-xs">İptal</button>
                     </div>
                   </div>

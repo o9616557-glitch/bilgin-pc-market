@@ -112,7 +112,7 @@ export default function SiparisClient({ initialOrders }: Props) {
     
     if (isRefreshing) {
       return (
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#00e5ff]/10 border border-[#00e5ff]/30 text-[#00e5ff] text-xs font-black uppercase tracking-widest shadow-inner">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#3b82f6]/10 border border-[#3b82f6]/30 text-[#3b82f6] text-xs font-black uppercase tracking-widest shadow-inner">
            <RefreshCw className="w-4 h-4 animate-spin" />
            GÜNCELLENİYOR...
         </div>
@@ -139,7 +139,7 @@ export default function SiparisClient({ initialOrders }: Props) {
     }
     if (d.includes("kargo")) {
        return (
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#00e5ff]/10 border border-[#00e5ff]/20 text-[#00e5ff] text-xs font-black uppercase tracking-widest shadow-[0_0_15px_rgba(0,229,255,0.15)]">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#3b82f6]/10 border border-[#3b82f6]/20 text-[#3b82f6] text-xs font-black uppercase tracking-widest shadow-[0_0_15px_rgba(0,229,255,0.15)]">
            <Truck className="w-4 h-4 animate-bounce" />
            KARGODA
         </div>
@@ -164,24 +164,24 @@ export default function SiparisClient({ initialOrders }: Props) {
   return (
     <div className="min-h-screen bg-[#070b1a] text-white pt-12 md:pt-12 pb-24 px-4 relative overflow-hidden font-sans">
       
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#00e5ff] blur-[150px] opacity-10 pointer-events-none"></div>
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#3b82f6] blur-[150px] opacity-10 pointer-events-none"></div>
       <div className="absolute bottom-[10%] right-[-10%] w-[400px] h-[400px] bg-[#0088ff] blur-[150px] opacity-5 pointer-events-none"></div>
 
       <div className="max-w-4xl mx-auto relative z-10">
         
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-800 pb-6 mb-10">
           <div>
-            <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-3">
+            <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#3b82f6] transition-all mb-3">
               <ArrowLeft className="w-4 h-4" /> MAĞAZAYA GERİ DÖN
             </Link>
             <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-white">
-              SİPARİŞ <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00e5ff] to-[#0088ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.2)]">GEÇMİŞİM</span>
+              SİPARİŞ <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3b82f6] to-[#0088ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.2)]">GEÇMİŞİM</span>
             </h1>
           </div>
           <button 
             onClick={handleRefresh}
             disabled={refreshing}
-            className={`flex items-center gap-2 bg-[#09090b] text-[#00e5ff] px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all border shadow-lg ${refreshing ? 'border-[#00e5ff]/50 bg-[#00e5ff]/5 opacity-80 cursor-wait' : 'hover:bg-[#121215] border-slate-800/80 hover:border-[#00e5ff]/50 hover:shadow-[0_0_20px_rgba(0,229,255,0.2)]'}`}
+            className={`flex items-center gap-2 bg-[#09090b] text-[#3b82f6] px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all border shadow-lg ${refreshing ? 'border-[#3b82f6]/50 bg-[#3b82f6]/5 opacity-80 cursor-wait' : 'hover:bg-[#121215] border-slate-800/80 hover:border-[#3b82f6]/50 hover:shadow-[0_0_20px_rgba(0,229,255,0.2)]'}`}
           >
             <RefreshCw className={"w-4 h-4 " + (refreshing ? "animate-spin" : "")} />
             {refreshing ? "Güncelleniyor..." : "Durumları Güncelle"}
@@ -204,7 +204,7 @@ export default function SiparisClient({ initialOrders }: Props) {
             <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">
               Sipariş geçmişiniz şu an boş görünüyor. Size en uygun teknolojileri keşfetmek için mağazamızı inceleyebilirsiniz.
             </p>
-            <Link href="/" prefetch={true} className="inline-block bg-[#00e5ff] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:-translate-y-0.5">
+            <Link href="/" prefetch={true} className="inline-block bg-[#3b82f6] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:-translate-y-0.5">
               Alışverişe Başla
             </Link>
           </div>
@@ -216,7 +216,7 @@ export default function SiparisClient({ initialOrders }: Props) {
               const durumMetni = order.durum || order.status || "";
 
               return (
-                <div key={order._id} className={`group border bg-[#09090b] rounded-2xl p-6 transition-all duration-300 relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 ${refreshing ? 'border-slate-800/50 opacity-80 scale-[0.99]' : 'border-slate-800 hover:border-[#00e5ff]/40 shadow-xl hover:shadow-[0_0_25px_rgba(0,229,255,0.03)] scale-100'}`}>
+                <div key={order._id} className={`group border bg-[#09090b] rounded-2xl p-6 transition-all duration-300 relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 ${refreshing ? 'border-slate-800/50 opacity-80 scale-[0.99]' : 'border-slate-800 hover:border-[#3b82f6]/40 shadow-xl hover:shadow-[0_0_25px_rgba(0,229,255,0.03)] scale-100'}`}>
                   
                   <button
                     onClick={() => handleDeleteClick(order._id)}
@@ -230,10 +230,10 @@ export default function SiparisClient({ initialOrders }: Props) {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800/80 pr-16">
                     <div>
                       <p className="text-xs text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2 font-bold">
-                        SİPARİŞ NO: <span className="text-[#00e5ff] font-black">{currentSiparisKodu}</span>
+                        SİPARİŞ NO: <span className="text-[#3b82f6] font-black">{currentSiparisKodu}</span>
                         <button 
                           onClick={() => handleCopy(currentSiparisKodu)}
-                          className="text-slate-400 hover:text-[#00e5ff] transition-colors bg-[#121215] border border-slate-800 p-1.5 rounded-lg"
+                          className="text-slate-400 hover:text-[#3b82f6] transition-colors bg-[#121215] border border-slate-800 p-1.5 rounded-lg"
                         >
                           {copiedCode === currentSiparisKodu ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                         </button>
@@ -256,9 +256,9 @@ export default function SiparisClient({ initialOrders }: Props) {
 
                   {adminMesaji && (
                     <div className={`mt-6 bg-[#0088ff]/10 border border-[#0088ff]/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
-                      <MessageSquare className="w-5 h-5 text-[#00e5ff] flex-shrink-0 mt-0.5" />
+                      <MessageSquare className="w-5 h-5 text-[#3b82f6] flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-[10px] text-[#00e5ff] font-black uppercase tracking-widest mb-1">Mağaza Mesajı / Kargo Notu</p>
+                        <p className="text-[10px] text-[#3b82f6] font-black uppercase tracking-widest mb-1">Mağaza Mesajı / Kargo Notu</p>
                         <p className="text-sm text-slate-200 font-medium leading-relaxed">{adminMesaji}</p>
                       </div>
                     </div>
@@ -298,7 +298,7 @@ export default function SiparisClient({ initialOrders }: Props) {
                             <p className="text-xs text-slate-400 font-bold uppercase bg-slate-800/40 px-3 py-1.5 rounded-lg border border-slate-700/50">
                               {item.quantity} ADET
                             </p>
-                            <p className="font-black text-[#00e5ff] text-lg sm:text-xl whitespace-nowrap">
+                            <p className="font-black text-[#3b82f6] text-lg sm:text-xl whitespace-nowrap">
                               {Number((item.price || 0) * item.quantity).toLocaleString("tr-TR")} TL
                             </p>
                           </div>

@@ -133,10 +133,10 @@ export default function ProductGrid({ initialProducts }: { initialProducts: any[
                         </div>
                         {/* Neon yeni fiyat */}
                         <div className="flex items-end gap-1">
-                          <span className="text-sm md:text-base font-black text-[#00e5ff] tracking-wide shadow-blue-500/50 drop-shadow-md">
+                          <span className="text-sm md:text-base font-black text-[#3b82f6] tracking-wide shadow-blue-500/50 drop-shadow-md">
                             {indirimliFiyat.toLocaleString("tr-TR")}
                           </span>
-                          <span className="text-[10px] font-black text-[#00e5ff] mb-[2px]">TL</span>
+                          <span className="text-[10px] font-black text-[#3b82f6] mb-[2px]">TL</span>
                         </div>
                       </>
                     ) : (

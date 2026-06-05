@@ -114,7 +114,7 @@ export default function FavorilerModal({ isOpen, onClose }: { isOpen: boolean; o
         
         {/* ÜST BAŞLIK */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-800/50 bg-[#09090b] sticky top-0 z-20">
-          <h1 className="text-xl sm:text-2xl font-black uppercase tracking-wider text-[#00e5ff]">
+          <h1 className="text-xl sm:text-2xl font-black uppercase tracking-wider text-[#3b82f6]">
             FAVORİLERİM
           </h1>
           <button onClick={onClose} className="p-2 sm:p-2.5 bg-slate-800/50 hover:bg-slate-700/50 rounded-xl transition-all text-slate-400 hover:text-white">
@@ -127,14 +127,14 @@ export default function FavorilerModal({ isOpen, onClose }: { isOpen: boolean; o
           
           {isLoading ? (
             <div className="h-full flex flex-col items-center justify-center py-20">
-              <Loader2 className="animate-spin text-[#00e5ff] h-10 w-10 mb-4" />
+              <Loader2 className="animate-spin text-[#3b82f6] h-10 w-10 mb-4" />
               <p className="text-slate-400">Vitrin hazırlanıyor...</p>
             </div>
           ) : favoriteProducts.length === 0 ? (
             <div className="text-center p-12 bg-slate-800/20 border border-slate-700/50 rounded-2xl mt-4">
               <HeartCrack className="w-16 h-16 text-slate-600 mx-auto mb-4" />
               <p className="text-slate-400 mb-6">Henüz beğendiğiniz bir ürün bulunmuyor.</p>
-              <Link href="/" onClick={onClose} className="bg-[#00e5ff] text-black px-6 py-3 rounded-xl font-bold hover:bg-[#00c4db] transition-all">
+              <Link href="/" onClick={onClose} className="bg-[#3b82f6] text-black px-6 py-3 rounded-xl font-bold hover:bg-[#00c4db] transition-all">
                 Alışverişe Başla
               </Link>
             </div>
@@ -144,7 +144,7 @@ export default function FavorilerModal({ isOpen, onClose }: { isOpen: boolean; o
                 const isAdded = sepeteEklenenler.includes(urun._id || urun.id);
 
                 return (
-                <div key={index} className="border border-slate-800/50 bg-slate-900/30 rounded-2xl p-4 sm:p-6 relative transition-all hover:border-[#00e5ff]/30">
+                <div key={index} className="border border-slate-800/50 bg-slate-900/30 rounded-2xl p-4 sm:p-6 relative transition-all hover:border-[#3b82f6]/30">
                   
                   {/* ÇÖP TENEKESİ */}
                   <button 
@@ -163,7 +163,7 @@ export default function FavorilerModal({ isOpen, onClose }: { isOpen: boolean; o
                     {/* Ürün Bilgisi */}
                     <div className="flex-1">
                       <h3 className="text-sm sm:text-base font-bold text-white mb-2 leading-snug">{urun.isim}</h3>
-                      <div className="text-xl sm:text-2xl font-black text-[#00e5ff] tracking-tight">
+                      <div className="text-xl sm:text-2xl font-black text-[#3b82f6] tracking-tight">
                         {urun.fiyat.toLocaleString("tr-TR")} TL
                       </div>
                     </div>
@@ -176,7 +176,7 @@ export default function FavorilerModal({ isOpen, onClose }: { isOpen: boolean; o
                         className={`w-full sm:w-auto flex items-center justify-center gap-2 text-sm font-bold py-3 px-6 rounded-xl transition-all duration-300 ${
                           isAdded 
                             ? "bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]"
-                            : "bg-[#00e5ff]/10 text-[#00e5ff] hover:bg-[#00e5ff] hover:text-black"
+                            : "bg-[#3b82f6]/10 text-[#3b82f6] hover:bg-[#3b82f6] hover:text-black"
                         }`}
                       >
                         {isAdded ? (

@@ -70,18 +70,18 @@ export default function SiparisTakipPage() {
     <div className="min-h-screen bg-[#050814] text-white pt-12 md:pt-12 pb-12 px-4 relative overflow-hidden flex flex-col items-center">
       
       {/* 🔥 Arka Plan Uzay Mavisi Parlaması */}
-      <div className="absolute top-[-5%] left-1/2 -translate-x-1/2 w-[70%] h-[40%] bg-[#00e5ff] blur-[150px] opacity-15 rounded-full pointer-events-none z-0"></div>
+      <div className="absolute top-[-5%] left-1/2 -translate-x-1/2 w-[70%] h-[40%] bg-[#3b82f6] blur-[150px] opacity-15 rounded-full pointer-events-none z-0"></div>
 
       <div className="w-full max-w-4xl mx-auto relative z-10">
         
         {/* 🚀 ÜST BAŞLIK VE GERİ DÖNÜŞ */}
         <div className="flex flex-col gap-3 border-b border-white/20 pb-6 mb-8">
           <div>
-            <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00e5ff] transition-all mb-3">
+            <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#3b82f6] transition-all mb-3">
               <ArrowLeft className="w-4 h-4" /> Mağazaya Geri Dön
             </Link>
             <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tight text-white mb-3">
-              SİPARİŞ <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00e5ff] to-[#0088ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.2)]">TAKİBİ</span>
+              SİPARİŞ <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3b82f6] to-[#0088ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.2)]">TAKİBİ</span>
             </h1>
             <p className="text-slate-400 text-sm md:text-base font-medium leading-relaxed max-w-2xl">
               Siparişinizin güncel durumunu, e-posta adresinize gönderilen <span className="text-white font-bold">sipariş kodu</span> ile anlık olarak takip edebilirsiniz.
@@ -99,13 +99,13 @@ export default function SiparisTakipPage() {
                 value={kodu}
                 onChange={(e) => setKodu(e.target.value)}
                 placeholder="Sipariş Kodu (Örn: BPC-118312)"
-                className="w-full bg-[#050B14] border border-white/5 rounded-xl pl-12 pr-4 py-4 text-white placeholder-slate-500 focus:outline-none focus:border-[#00e5ff]/40 transition-all font-bold tracking-wider"
+                className="w-full bg-[#050B14] border border-white/5 rounded-xl pl-12 pr-4 py-4 text-white placeholder-slate-500 focus:outline-none focus:border-[#3b82f6]/40 transition-all font-bold tracking-wider"
               />
             </div>
             <button
               type="submit"
               disabled={yukleniyor}
-              className="bg-[#00e5ff] hover:bg-[#00c4db] text-black font-black uppercase tracking-widest text-xs px-10 py-4 sm:py-0 rounded-xl transition-all disabled:opacity-50 shadow-[0_0_20px_rgba(0,229,255,0.2)]"
+              className="bg-[#3b82f6] hover:bg-[#00c4db] text-black font-black uppercase tracking-widest text-xs px-10 py-4 sm:py-0 rounded-xl transition-all disabled:opacity-50 shadow-[0_0_20px_rgba(0,229,255,0.2)]"
             >
               {yukleniyor ? "ARANIYOR..." : "SORGULA"}
             </button>
@@ -141,7 +141,7 @@ export default function SiparisTakipPage() {
                 </div>
                 <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-3">Sipariş İptal Edildi</h3>
                 <p className="text-slate-400 text-sm max-w-md mx-auto leading-relaxed">
-                  Bu sipariş iptal edilmiş görünüyor. Sorularınız için <span className="text-[#00e5ff] font-bold">0850 305 59 68</span> numaralı hattan bize ulaşabilirsiniz.
+                  Bu sipariş iptal edilmiş görünüyor. Sorularınız için <span className="text-[#3b82f6] font-bold">0850 305 59 68</span> numaralı hattan bize ulaşabilirsiniz.
                 </p>
               </div>
             ) : (
@@ -154,7 +154,7 @@ export default function SiparisTakipPage() {
                   
                   {/* İlerleme Çizgisi */}
                   <div 
-                    className="absolute left-0 top-[21px] md:top-[29px] h-[6px] bg-gradient-to-r from-[#00e5ff] to-[#0088ff] rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_#00e5ff]"
+                    className="absolute left-0 top-[21px] md:top-[29px] h-[6px] bg-gradient-to-r from-[#3b82f6] to-[#0088ff] rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_#3b82f6]"
                     style={{ width: `${(aktifAdimBul(siparis.durum) / (adimlar.length - 1)) * 100}%` }}
                   ></div>
 
@@ -166,7 +166,7 @@ export default function SiparisTakipPage() {
                     return (
                       <div key={index} className="flex flex-col items-center relative z-10 w-1/4">
                         <div className={`w-12 h-12 md:w-16 md:h-16 rounded-2xl flex items-center justify-center transition-all duration-500 ${
-                          tamamlandiMi ? "bg-[#00e5ff] text-black shadow-[0_0_20px_rgba(0,229,255,0.4)] rotate-0" : "bg-slate-900 text-slate-600 border border-slate-700"
+                          tamamlandiMi ? "bg-[#3b82f6] text-black shadow-[0_0_20px_rgba(0,229,255,0.4)] rotate-0" : "bg-slate-900 text-slate-600 border border-slate-700"
                         } ${suAnkiMi && index !== 3 ? "animate-pulse" : ""}`}>
                           {index === 0 && <ShoppingCart size={24} />}
                           {index === 1 && <Package size={24} />}
@@ -202,7 +202,7 @@ export default function SiparisTakipPage() {
                       {/* 🚀 TARİH KISMI BURAYA EKLENDİ */}
                       {formatliTarih && (
                         <div className="flex items-center gap-2 mt-3 text-slate-400 text-xs font-bold uppercase tracking-wider">
-                          <CalendarDays className="w-4 h-4 text-[#00e5ff]" />
+                          <CalendarDays className="w-4 h-4 text-[#3b82f6]" />
                           <span>Sipariş Tarihi: <span className="text-white">{formatliTarih}</span></span>
                         </div>
                       )}
@@ -210,7 +210,7 @@ export default function SiparisTakipPage() {
                     </div>
                     <div className="text-right">
                       <p className="text-slate-500 text-[10px] uppercase tracking-[0.2em] font-black mb-2">Güncel Durum</p>
-                      <p className={`text-sm md:text-lg font-black uppercase tracking-widest ${iptalEdildiMi(siparis.durum) ? 'text-slate-400' : 'text-[#00e5ff]'}`}>
+                      <p className={`text-sm md:text-lg font-black uppercase tracking-widest ${iptalEdildiMi(siparis.durum) ? 'text-slate-400' : 'text-[#3b82f6]'}`}>
                         {siparis.durum || "HAZIRLANIYOR"}
                       </p>
                     </div>
@@ -221,7 +221,7 @@ export default function SiparisTakipPage() {
                     <p className="text-slate-500 text-[10px] uppercase tracking-[0.2em] font-black mb-4">PAKET İÇERİĞİ</p>
                     <div className="space-y-3 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
                       {siparis.items.map((urun: any, i: number) => (
-                        <div key={i} className="flex items-center gap-4 bg-[#050B14] p-3 rounded-2xl border border-white/5 group hover:border-[#00e5ff]/20 transition-all">
+                        <div key={i} className="flex items-center gap-4 bg-[#050B14] p-3 rounded-2xl border border-white/5 group hover:border-[#3b82f6]/20 transition-all">
                           <div className="w-16 h-16 rounded-xl overflow-hidden bg-black flex-shrink-0 border border-white/5">
                             {urun.resim || urun.gorsel || urun.image ? (
                               <img src={urun.resim || urun.gorsel || urun.image} alt="" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />

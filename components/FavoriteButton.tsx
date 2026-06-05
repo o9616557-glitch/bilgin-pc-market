@@ -55,14 +55,14 @@ export default function FavoriteButton({ productId, initialIsFavorite = false }:
       disabled={isLoading}
       className={`p-2 rounded-full border transition-all ${
         isFavorite 
-          ? "bg-[#00e5ff]/10 border-[#00e5ff] text-[#00e5ff]" 
+          ? "bg-[#3b82f6]/10 border-[#3b82f6] text-[#3b82f6]" 
           : "bg-[#09090b]/50 border-white/10 text-slate-400 hover:border-white/30 hover:text-white"
       } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
       aria-label="Favorilere Ekle"
     >
       <Heart 
         size={20} 
-        fill={isFavorite ? "#00e5ff" : "none"} 
+        fill={isFavorite ? "#3b82f6" : "none"} 
         className={isFavorite ? "drop-shadow-[0_0_8px_rgba(0,229,255,0.8)]" : ""}
       />
     </button>

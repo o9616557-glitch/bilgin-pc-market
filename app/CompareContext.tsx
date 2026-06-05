@@ -25,7 +25,7 @@ export function CompareProvider({ children }: { children: ReactNode }) {
       if (prev.find((u) => (u._id || u.id) === (urun._id || urun.id))) {
         toast("Bu ürün zaten listede! ⚖️", {
           position: "top-center", // 🚀 ŞEFİM İŞTE BURASI: Bildirim artık tepeden inecek!
-          style: { background: "#09090b", color: "#fff", border: "1px solid #00e5ff", borderRadius: "12px", fontSize: "14px", fontWeight: "bold" },
+          style: { background: "#09090b", color: "#fff", border: "1px solid #3b82f6", borderRadius: "12px", fontSize: "14px", fontWeight: "bold" },
           icon: "👀",
         });
         return prev;
@@ -38,7 +38,7 @@ export function CompareProvider({ children }: { children: ReactNode }) {
           style: { 
             background: "#09090b", 
             color: "#fff", 
-            border: "1px solid #00e5ff", 
+            border: "1px solid #3b82f6", 
             borderRadius: "12px",
             fontSize: "14px",
             fontWeight: "bold",

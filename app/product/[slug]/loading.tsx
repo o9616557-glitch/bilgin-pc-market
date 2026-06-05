@@ -24,8 +24,8 @@ export default function Loading() {
           width: 100%;
           height: 100%;
           border-radius: 50%;
-          border: 4px solid #00e5ff; // Senin meşhur Neon Mavi Rengin
-          border-color: #00e5ff transparent #00e5ff transparent;
+          border: 4px solid #3b82f6; // Senin meşhur Neon Mavi Rengin
+          border-color: #3b82f6 transparent #3b82f6 transparent;
           animation: spinner-dual-ring 1.2s linear infinite;
           box-shadow: 0 0 15px rgba(0, 229, 255, 0.4); // Sleek neon efekt
         }

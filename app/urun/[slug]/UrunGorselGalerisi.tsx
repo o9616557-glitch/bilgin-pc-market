@@ -42,7 +42,7 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
                 flexShrink: 0,
                 backgroundColor: "#121214", 
                 borderRadius: "14px", 
-                border: aktifResim === index ? "2px solid #00e5ff" : "1px solid #27272a", 
+                border: aktifResim === index ? "2px solid #3b82f6" : "1px solid #27272a", 
                 padding: "8px",
                 cursor: "pointer",
                 display: "flex",

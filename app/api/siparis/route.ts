@@ -58,21 +58,21 @@ export async function POST(request: Request) {
           subject: "Siparişiniz Alındı! 📦 (Havale Bekleniyor)",
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #09090b; color: #ffffff; padding: 30px; border-radius: 12px; border: 1px solid #27272a;">
-              <h2 style="color: #00e5ff; text-align: center; text-transform: uppercase;">Siparişiniz Alındı! 🎉</h2>
+              <h2 style="color: #3b82f6; text-align: center; text-transform: uppercase;">Siparişiniz Alındı! 🎉</h2>
               <p>Merhaba <strong style="color: #fff;">${musteri?.ad || ""} ${musteri?.soyad || ""}</strong>,</p>
               <p>Siparişiniz sistemimize başarıyla ulaştı. Havale/EFT işleminiz onaylandığında siparişiniz hazırlık aşamasına geçilecektir.</p>
               
               <div style="background-color: #121215; padding: 25px; border-radius: 8px; margin: 25px 0; border: 1px solid #27272a; box-shadow: 0 0 15px rgba(0, 229, 255, 0.05);">
-                <h3 style="color: #00e5ff; margin-top: 0; border-bottom: 1px solid #27272a; padding-bottom: 10px;">Sipariş Bilgileriniz</h3>
+                <h3 style="color: #3b82f6; margin-top: 0; border-bottom: 1px solid #27272a; padding-bottom: 10px;">Sipariş Bilgileriniz</h3>
                 <p style="color: #a1a1aa; font-size: 14px;"><strong>Sipariş Kodu:</strong> <span style="color: #fff;">${siparisKodu}</span></p>
                 <p style="color: #a1a1aa; font-size: 14px;"><strong>Ad Soyad:</strong> <span style="color: #fff;">${musteri?.ad || ""} ${musteri?.soyad || ""}</span></p>
                 <p style="color: #a1a1aa; font-size: 14px;"><strong>Telefon:</strong> <span style="color: #fff;">${musteri?.telefon || "-"}</span></p>
                 <p style="color: #a1a1aa; font-size: 14px;"><strong>Şehir / İlçe:</strong> <span style="color: #fff;">${musteri?.sehir || ""} / ${musteri?.ilce || ""}</span></p>
                 <p style="color: #a1a1aa; font-size: 14px;"><strong>Teslimat Adresi:</strong> <span style="color: #fff;">${musteri?.adres || "-"}</span></p>
-                <p style="color: #a1a1aa; font-size: 14px;"><strong>Ödenecek Tutar:</strong> <span style="color: #00e5ff; font-weight: bold; font-size: 18px;">${toplamTutar} TL</span></p>
+                <p style="color: #a1a1aa; font-size: 14px;"><strong>Ödenecek Tutar:</strong> <span style="color: #3b82f6; font-weight: bold; font-size: 18px;">${toplamTutar} TL</span></p>
               </div>
               
-              <p style="color: #a1a1aa; font-size: 14px; text-align: center;">Bizi tercih ettiğiniz için teşekkür ederiz!<br><br><strong style="color: #00e5ff;">Bilgin PC Market</strong></p>
+              <p style="color: #a1a1aa; font-size: 14px; text-align: center;">Bizi tercih ettiğiniz için teşekkür ederiz!<br><br><strong style="color: #3b82f6;">Bilgin PC Market</strong></p>
             </div>
           `
         };
