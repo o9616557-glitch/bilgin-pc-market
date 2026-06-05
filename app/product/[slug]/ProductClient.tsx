@@ -6,7 +6,7 @@ import { useCart } from "../../CartContext";
 import toast from "react-hot-toast";
 import { useCompare } from "@/app/CompareContext";
 import { X, Gamepad2, ChevronLeft, ChevronRight, ShoppingCart, Heart, GitCompare, Share2, Star, Zap, Info, Gauge, Crosshair } from "lucide-react";
-import Link from "next/link"; // 🚀 BREADCRUMB İÇİN LİNK EKLENDİ
+import Link from "next/link"; 
 
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const { sepeteEkle } = useCart(); 
@@ -33,6 +33,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [fade, setFade] = useState(false); 
   const touchStartRef = useRef(0);
   const [lightboxAcik, setLightboxAcik] = useState(false);
+  
+  // 🚀 BÜYÜTEÇ (ZOOM) İÇİN YENİ STATELER 🚀
+  const [zoomOrigin, setZoomOrigin] = useState("center center");
+  const [isHoveringImg, setIsHoveringImg] = useState(false);
   
   const tabsRef = useRef<HTMLDivElement>(null);
 
@@ -141,7 +145,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const handleTouchStart = (e: React.TouchEvent) => touchStartRef.current = e.touches[0].clientX;
   const handleTouchEnd = (e: React.TouchEvent) => { const fark = touchStartRef.current - e.changedTouches[0].clientX; if (fark > 40) sonrakiResim(); else if (fark < -40) oncekiResim(); };
 
-  // Kategoriyi veritabanından dinamik alıyoruz, yoksa "Ekran Kartları" diyoruz.
+  // 🚀 BÜYÜTEÇ (ZOOM) MOUSE TAKİP FONKSİYONU 🚀
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setZoomOrigin(`${x}% ${y}%`);
+  };
+
   const kategoriIsmi = product.kategori || "Ekran Kartları";
   const kategoriSlug = product.kategoriSlug || "ekran-kartlari";
 
@@ -192,8 +203,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   );
 
   return (
-    // 🚀 DÜZELTME 1: Alt boşluk pb-32'den pb-16'ya düşürüldü (Tam kıvamında) 🚀
-    <div className="bg-[#050505] text-white font-sans pb-7 sm:pb-10 relative">
+    <div className="bg-[#050505] text-white font-sans pb-16 sm:pb-10 relative">
       
       <style dangerouslySetInnerHTML={{ __html: `
         body { -webkit-tap-highlight-color: transparent; }
@@ -216,22 +226,32 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
              )}
           </div>
 
+          {/* 🚀 BÜYÜTEÇ KODLARININ EKLENDİĞİ ANA RESİM KUTUSU 🚀 */}
           <div 
             onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
-            className="relative w-full aspect-square sm:aspect-[4/3] bg-transparent sm:bg-white/[0.02] sm:backdrop-blur-xl sm:border sm:border-white/5 sm:rounded-2xl flex items-center justify-center p-0 sm:p-6 overflow-hidden mb-2 group select-none"
+            onMouseMove={handleMouseMove}
+            onMouseEnter={() => setIsHoveringImg(true)}
+            onMouseLeave={() => { setIsHoveringImg(false); setZoomOrigin("center center"); }}
+            onClick={() => setLightboxAcik(true)}
+            className="relative w-full aspect-square sm:aspect-[4/3] bg-transparent sm:bg-white/[0.02] sm:backdrop-blur-xl sm:border sm:border-white/5 sm:rounded-2xl flex items-center justify-center p-0 sm:p-6 overflow-hidden mb-2 group select-none cursor-zoom-in"
           >
             {indirimVarMi && !tukendiMi && (
               <div className="badge-rosette-page"><span>%{indirimOrani}</span><span>İNDİRİM</span></div>
             )}
             
-            <button onClick={(e) => { e.preventDefault(); oncekiResim(); }} className="hidden sm:flex absolute left-3 z-30 w-10 h-10 bg-black/50 border border-white/10 rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-[#00d2ff] hover:text-black hover:scale-110 touch-manipulation"><ChevronLeft className="w-6 h-6" /></button>
-            <button onClick={(e) => { e.preventDefault(); sonrakiResim(); }} className="hidden sm:flex absolute right-3 z-30 w-10 h-10 bg-black/50 border border-white/10 rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-[#00d2ff] hover:text-black hover:scale-110 touch-manipulation"><ChevronRight className="w-6 h-6" /></button>
+            {/* Butonlara stopPropagation eklendi ki basınca tam ekran açılmasın */}
+            <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); oncekiResim(); }} className="hidden sm:flex absolute left-3 z-30 w-10 h-10 bg-black/50 border border-white/10 rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-[#00d2ff] hover:text-black hover:scale-110 touch-manipulation"><ChevronLeft className="w-6 h-6" /></button>
+            <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); sonrakiResim(); }} className="hidden sm:flex absolute right-3 z-30 w-10 h-10 bg-black/50 border border-white/10 rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-[#00d2ff] hover:text-black hover:scale-110 touch-manipulation"><ChevronRight className="w-6 h-6" /></button>
 
+            {/* Farenin X/Y koordinatına göre büyüyen resim */}
             <img 
-              onClick={() => setLightboxAcik(true)}
               src={resimler[seciliResimIndex]} 
               alt={urunAdi} 
-              className={`w-full h-full object-contain cursor-zoom-in sm:filter sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] transition-all duration-300 ${fade ? 'opacity-0 scale-[0.98]' : 'opacity-100 scale-100'} ${tukendiMi ? "grayscale opacity-50" : ""}`} 
+              style={{
+                 transformOrigin: zoomOrigin,
+                 transform: isHoveringImg ? "scale(2.4)" : "scale(1)"
+              }}
+              className={`w-full h-full object-contain pointer-events-none sm:filter sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] transition-transform duration-150 ease-out ${fade ? 'opacity-0' : 'opacity-100'} ${tukendiMi ? "grayscale opacity-50" : ""}`} 
             />
           </div>
 
@@ -264,7 +284,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         {/* SAĞ KOLON (BİLGİLER VE SEPET) */}
         <div className="w-full md:w-[55%] flex flex-col px-4 sm:px-0 mt-4 sm:mt-0">
           
-          {/* 🚀 YENİ: KATEGORİ YOLU (BREADCRUMB) EKLENDİ 🚀 */}
           <div className="flex items-center gap-2 mb-3 text-[10px] sm:text-xs font-black uppercase tracking-widest text-gray-500 select-none">
              <Link href="/" className="hover:text-[#00d2ff] transition-colors">Ana Sayfa</Link>
              <span className="text-gray-700">/</span>
@@ -424,7 +443,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-   {/* 🚀 KUTUSUZ VE %65 BOYUTUNDA PREMIUM ÜRÜN AÇIKLAMASI 🚀 */}
+      {/* 🚀 KUTUSUZ VE %65 BOYUTUNDA PREMIUM ÜRÜN AÇIKLAMASI 🚀 */}
       {product.aciklama && (
         <div className="max-w-[1000px] mx-auto px-4 sm:px-6 pt-12 pb-10 border-t border-white/10 select-none touch-manipulation">
            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-widest mb-10 text-white flex items-center justify-center gap-3 select-none">
@@ -433,16 +452,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
            <div className="prose prose-invert max-w-none select-none touch-manipulation 
               [&_*]:!select-none [&_*]:!-webkit-touch-callout-none
               
-              /* 1. RESİM AYARLARI: Kutuyu, gölgeyi ve kenarlıkları sildik. Boyutu tam %65 yaptık. */
+              /* 1. RESİM AYARLARI */
               [&_img]:w-full md:[&_img]:w-[65%] [&_img]:mx-auto [&_img]:h-auto [&_img]:block [&_img]:my-10 [&_img]:!border-none [&_img]:!shadow-none [&_img]:!bg-transparent
               
-              /* 2. ANA BAŞLIKLAR (H2): Büyük ve net */
+              /* 2. ANA BAŞLIKLAR (H2) */
               [&_h2]:text-2xl sm:[&_h2]:text-3xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mb-4 [&_h2]:mt-12
               
-              /* 3. ALT BAŞLIKLAR (H3): Estetik Bilgin PC Mavisi */
+              /* 3. ALT BAŞLIKLAR (H3) */
               [&_h3]:text-xl sm:[&_h3]:text-2xl [&_h3]:font-bold [&_h3]:text-[#00d2ff] [&_h3]:mb-3 [&_h3]:mt-10
               
-              /* 4. PARAGRAFLAR (YAZILAR): Akıcı, ferah ve keskin */
+              /* 4. PARAGRAFLAR (YAZILAR) */
               [&_p]:text-gray-300 [&_p]:leading-[1.8] [&_p]:text-base sm:[&_p]:text-[17px] [&_p]:mb-6" 
               
               dangerouslySetInnerHTML={{ __html: product.aciklama }} 
