@@ -462,7 +462,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
            </h2>
            <div className="prose prose-invert max-w-none select-none touch-manipulation 
               [&_*]:!select-none [&_*]:!-webkit-touch-callout-none
-              [&_img]:w-full md:[&_img]:w-[65%] [&_img]:mx-auto [&_img]:h-auto [&_img]:block [&_img]:my-10 [&_img]:!border-none [&_img]:!shadow-none [&_img]:!bg-transparent
+             /* Yenisi */
+[&_img]:w-[calc(100%+2rem)] [&_img]:-mx-4 md:[&_img]:w-[65%] md:[&_img]:mx-auto [&_img]:h-auto [&_img]:block [&_img]:my-10 [&_img]:!border-none [&_img]:!shadow-none [&_img]:!bg-transparent
               [&_h2]:text-2xl sm:[&_h2]:text-3xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mb-4 [&_h2]:mt-12
               [&_h3]:text-xl sm:[&_h3]:text-2xl [&_h3]:font-bold [&_h3]:text-[#00d2ff] [&_h3]:mb-3 [&_h3]:mt-10
               [&_p]:text-gray-300 [&_p]:leading-[1.8] [&_p]:text-base sm:[&_p]:text-[17px] [&_p]:mb-6" 
