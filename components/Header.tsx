@@ -96,13 +96,23 @@ export default function Header() {
   }, []);
 
   return (
-    // SİYAH/CAM EFEKTLİ PREMIUM ARKA PLAN (Sticky özelliğiyle tepeye çivilendi)
     <header className="bg-[#050814]/90 backdrop-blur-md border-b border-gray-800 sticky top-0 z-50 w-full transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
 
-          {/* SOL TARAF: LOGO */}
-          <div className="flex-shrink-0 flex items-center">
+          {/* SOL TARAF: HAMBURGER (SADECE MOBİLDE) & LOGO */}
+          <div className="flex-shrink-0 flex items-center gap-4">
+            
+            {/* MOBİL HAMBURGER BUTONU - EN SOLDA */}
+            <button 
+              className="md:hidden flex flex-col justify-center items-center w-8 h-8 focus:outline-none" 
+              onClick={() => setMenuAcik(!menuAcik)}
+            >
+              <span className={`block w-6 h-0.5 bg-white transition-all duration-300 ${menuAcik ? 'rotate-45 translate-y-1.5' : ''}`}></span>
+              <span className={`block w-6 h-0.5 bg-white mt-1 transition-all duration-300 ${menuAcik ? 'opacity-0' : ''}`}></span>
+              <span className={`block w-6 h-0.5 bg-white mt-1 transition-all duration-300 ${menuAcik ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
+            </button>
+
             <Link href="/" prefetch={true} className="text-white font-black text-2xl tracking-tight flex items-center">
               BİLGİN <span className="text-blue-500 ml-1">PC</span>
             </Link>
@@ -137,6 +147,7 @@ export default function Header() {
                               <li key={item.slug}>
                                 <Link 
                                   href={`/kategori/${item.slug}`} 
+                                  prefetch={true}
                                   className="text-gray-400 hover:text-white hover:translate-x-1 hover:text-blue-400 transition-all duration-200 block text-base"
                                 >
                                   {item.name}
@@ -154,14 +165,14 @@ export default function Header() {
 
             {/* VİTRİN KATEGORİLERİ */}
             <nav className="flex items-center space-x-6">
-              <Link href="/kategori/hazir-sistem" className="text-gray-300 hover:text-white hover:text-blue-500 text-sm font-bold transition-colors">🔥 Hazır Sistemler</Link>
-              <Link href="/kategori/ekran-karti" className="text-gray-300 hover:text-white hover:text-blue-500 text-sm font-medium transition-colors">Ekran Kartları</Link>
-              <Link href="/kategori/islemci" className="text-gray-300 hover:text-white hover:text-blue-500 text-sm font-medium transition-colors">İşlemciler</Link>
-              <Link href="/kategori/anakart" className="text-gray-300 hover:text-white hover:text-blue-500 text-sm font-medium transition-colors">Anakartlar</Link>
+              <Link href="/kategori/hazir-sistem" prefetch={true} className="text-gray-300 hover:text-white hover:text-blue-500 text-sm font-bold transition-colors">🔥 Hazır Sistemler</Link>
+              <Link href="/kategori/ekran-karti" prefetch={true} className="text-gray-300 hover:text-white hover:text-blue-500 text-sm font-medium transition-colors">Ekran Kartları</Link>
+              <Link href="/kategori/islemci" prefetch={true} className="text-gray-300 hover:text-white hover:text-blue-500 text-sm font-medium transition-colors">İşlemciler</Link>
+              <Link href="/kategori/anakart" prefetch={true} className="text-gray-300 hover:text-white hover:text-blue-500 text-sm font-medium transition-colors">Anakartlar</Link>
             </nav>
           </div>
 
-          {/* SAĞ TARAF: HESABIM, SEPET VE MOBİL MENÜ BUTONU */}
+          {/* SAĞ TARAF: HESABIM VE SEPET */}
           <div className="flex items-center space-x-3">
 
             {/* HESABIM BÖLÜMÜ */}
@@ -178,7 +189,7 @@ export default function Header() {
 
               {hesabimAcik && (
                 <div className="absolute top-full right-0 mt-2 w-60 bg-[#09090b] border border-gray-800 rounded-lg shadow-2xl p-2 z-50">
-                  <Link href="/siparis-takip" onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 rounded-md text-sm font-bold mb-1 transition-colors">
+                  <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 rounded-md text-sm font-bold mb-1 transition-colors">
                     <span>📦</span> Kargo / Sipariş Takip
                   </Link>
 
@@ -191,15 +202,15 @@ export default function Header() {
                         <p className="text-blue-400 text-xs font-semibold truncate">{session.user?.name || session.user?.email}</p>
                       </div>
 
-                      <Link href="/siparislerim" onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-md text-sm transition-colors">
+                      <Link href="/siparislerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-md text-sm transition-colors">
                         <span>📋</span> Siparişlerim
                       </Link>
 
-                      <Link href="/adreslerim" onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-md text-sm transition-colors">
+                      <Link href="/adreslerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-md text-sm transition-colors">
                         <span>📍</span> Adreslerim
                       </Link>
 
-                      <Link href="/favorilerim" onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-md text-sm transition-colors">
+                      <Link href="/favorilerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-md text-sm transition-colors">
                         <span>❤️</span> Favorilerim
                       </Link>
 
@@ -207,7 +218,7 @@ export default function Header() {
 
                       {isAdmin && (
                         <>
-                          <Link href="/admin" onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-yellow-500 bg-yellow-500/10 hover:bg-yellow-500/20 rounded-md text-sm font-bold transition-colors">
+                          <Link href="/admin" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-yellow-500 bg-yellow-500/10 hover:bg-yellow-500/20 rounded-md text-sm font-bold transition-colors">
                             <span>👑</span> Yönetim Paneli
                           </Link>
                           <div className="h-px bg-gray-800 my-2"></div>
@@ -220,10 +231,10 @@ export default function Header() {
                     </>
                   ) : (
                     <>
-                      <Link href="/giris" onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-md text-sm font-semibold mb-2 transition-colors">
+                      <Link href="/giris" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-md text-sm font-semibold mb-2 transition-colors">
                         <span>🔑</span> Giriş Yap
                       </Link>
-                      <Link href="/kayit" onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-md text-sm transition-colors">
+                      <Link href="/kayit" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-md text-sm transition-colors">
                         <span>📝</span> Yeni Kayıt
                       </Link>
                     </>
@@ -233,7 +244,7 @@ export default function Header() {
             </div>
 
             {/* SEPETİM BÖLÜMÜ */}
-            <Link href="/sepet" className="relative flex items-center space-x-2 bg-gray-900 border border-gray-800 hover:border-gray-600 px-3 py-2 rounded-md transition-colors">
+            <Link href="/sepet" prefetch={true} className="relative flex items-center space-x-2 bg-gray-900 border border-gray-800 hover:border-gray-600 px-3 py-2 rounded-md transition-colors">
               <span className="text-lg">🛒</span>
               <span className="hidden sm:block text-sm font-semibold text-gray-300">Sepetim</span>
               {sepetAdedi > 0 && (
@@ -243,30 +254,14 @@ export default function Header() {
               )}
             </Link>
 
-            {/* MOBİL HAMBURGER BUTONU */}
-            <button 
-              className="md:hidden flex flex-col justify-center items-center w-8 h-8 focus:outline-none" 
-              onClick={() => setMenuAcik(!menuAcik)}
-            >
-              <span className={`block w-6 h-0.5 bg-white transition-all duration-300 ${menuAcik ? 'rotate-45 translate-y-1.5' : ''}`}></span>
-              <span className={`block w-6 h-0.5 bg-white mt-1 transition-all duration-300 ${menuAcik ? 'opacity-0' : ''}`}></span>
-              <span className={`block w-6 h-0.5 bg-white mt-1 transition-all duration-300 ${menuAcik ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
-            </button>
           </div>
         </div>
       </div>
 
-      {/* MOBİL MENÜ (Aşağı açılan kısım) */}
+      {/* MOBİL MENÜ (Aşağı açılan kısım - Hızlı linkler silindi, direkt kategoriler başlıyor) */}
       {menuAcik && (
         <div className="md:hidden bg-[#050814]/98 backdrop-blur-lg border-t border-gray-800 max-h-[75vh] overflow-y-auto px-4 py-4 space-y-6">
           
-          {/* Mobil Vitrin Hızlı Linkler */}
-          <div className="flex flex-col space-y-3 pb-4 border-b border-gray-800">
-             <Link href="/kategori/ekran-karti" onClick={() => setMenuAcik(false)} className="text-blue-400 text-lg font-bold">Ekran Kartları</Link>
-             <Link href="/kategori/islemci" onClick={() => setMenuAcik(false)} className="text-blue-400 text-lg font-bold">İşlemciler</Link>
-             <Link href="/kategori/anakart" onClick={() => setMenuAcik(false)} className="text-blue-400 text-lg font-bold">Anakartlar</Link>
-          </div>
-
           {/* Mobil Tüm Kategoriler */}
           {menuCategories.map((category, index) => (
             <div key={index}>
@@ -278,6 +273,7 @@ export default function Header() {
                   <Link 
                     key={item.slug} 
                     href={`/kategori/${item.slug}`} 
+                    prefetch={true}
                     onClick={() => setMenuAcik(false)} 
                     className="text-gray-300 hover:text-white text-base py-1.5 pl-2 border-l border-gray-800/50 hover:border-blue-500"
                   >
