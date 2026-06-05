@@ -201,7 +201,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   );
 
   return (
-    <div className="bg-[#050505] text-white font-sans pb-1 sm:pb-10 relative">
+    <div className="bg-[#050505] text-white font-sans pb-0 sm:pb-10 relative">
       
       <style dangerouslySetInnerHTML={{ __html: `
         body { -webkit-tap-highlight-color: transparent; }
