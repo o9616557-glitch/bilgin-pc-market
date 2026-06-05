@@ -285,12 +285,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </div>
           )}
 
-          <div className="hidden md:block mt-8">
-             <h3 className="text-lg font-black uppercase mb-4 text-white flex items-center gap-2 select-none">
-               <Gauge className="w-5 h-5 text-[#00d2ff]" /> Performans Testleri
-             </h3>
-             {renderFpsSection()}
-          </div>
+         {kategoriIsmi.includes("Ekran") && (
+  <div className="block md:hidden mb-10 select-none">
+     <h3 className="text-lg font-black uppercase mb-4 text-white flex items-center gap-2">
+       <Gauge className="w-5 h-5 text-[#00d2ff]" /> Performans Testleri
+     </h3>
+     {renderFpsSection()}
+  </div>
+)}
         </div>
 
         {/* SAĞ KOLON (BİLGİLER VE SEPET) */}
