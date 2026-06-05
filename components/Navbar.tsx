@@ -2,41 +2,57 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
-// ŞEF, İŞTE MEGA MENÜ MANTIĞI: ANA BAŞLIKLAR VE ALTINDAKİ ÜRÜNLER
+// BİLGİN PC MARKET - FULL KATEGORİ ENVANTERİ
 const menuCategories = [
   {
     title: "Bilgisayar Bileşenleri",
     items: [
-      { name: "Anakartlar", slug: "anakart" },
-      { name: "İşlemciler", slug: "islemci" },
       { name: "Ekran Kartları", slug: "ekran-karti" },
+      { name: "İşlemciler", slug: "islemci" },
+      { name: "Anakartlar", slug: "anakart" },
       { name: "RAM Bellekler", slug: "ram" },
       { name: "M.2 ve SATA SSD", slug: "ssd" },
+      { name: "Sabit Diskler (HDD)", slug: "hdd" },
       { name: "Oyuncu Kasaları", slug: "kasa" },
       { name: "Güç Kaynakları (PSU)", slug: "psu" },
-      { name: "Soğutma Sistemleri", slug: "sogutma" },
     ]
   },
   {
     title: "Çevre Birimleri",
     items: [
       { name: "Oyuncu Monitörleri", slug: "monitor" },
-      { name: "Klavyeler", slug: "klavye" },
+      { name: "Oyuncu Klavyeleri", slug: "klavye" },
       { name: "Oyuncu Mouseları", slug: "mouse" },
-      { name: "Kulaklıklar", slug: "kulaklik" },
+      { name: "Oyuncu Kulaklıkları", slug: "kulaklik" },
       { name: "Mousepadler", slug: "mousepad" },
-      { name: "Oyuncu Koltukları", slug: "koltuk" },
+      { name: "Yayıncı Mikrofonları", slug: "mikrofon" },
+      { name: "Oyuncu Koltukları", slug: "oyuncu-koltugu" },
+      { name: "Direksiyon Setleri", slug: "direksiyon-seti" },
     ]
   },
   {
-    title: "Ağ & Aksesuarlar",
+    title: "Bilgisayar & Laptop",
     items: [
-      { name: "Modem ve Router", slug: "modem" },
-      { name: "USB Bellekler", slug: "usb" },
-      { name: "Görüntü Kabloları", slug: "kablo" },
+      { name: "Hazır Oyuncu Sistemleri", slug: "hazir-sistem" },
+      { name: "Oyuncu Laptopları", slug: "oyuncu-laptop" },
+      { name: "Ofis ve İş Laptopları", slug: "ofis-laptop" },
+      { name: "Mini PC'ler", slug: "mini-pc" },
+      { name: "All-in-One PC", slug: "all-in-one" },
+      { name: "Laptop Soğutucuları", slug: "laptop-sogutucu" },
+      { name: "Laptop Çantaları", slug: "laptop-cantasi" },
+    ]
+  },
+  {
+    title: "Soğutma, Ağ & Aksesuar",
+    items: [
+      { name: "Sıvı Soğutmalar", slug: "sivi-sogutma" },
+      { name: "İşlemci Hava Soğutucuları", slug: "hava-sogutma" },
+      { name: "Kasa Fanları", slug: "kasa-fani" },
       { name: "Termal Macunlar", slug: "termal-macun" },
-      { name: "Web Kameralar", slug: "webcam" },
-      { name: "Kasa Fanları", slug: "fan" },
+      { name: "Modem ve Routerlar", slug: "modem" },
+      { name: "Wi-Fi Adaptörleri", slug: "wifi-adaptor" },
+      { name: "Görüntü Kabloları", slug: "kablo" },
+      { name: "UPS (Kesintisiz Güç)", slug: "ups" },
     ]
   }
 ];
@@ -64,11 +80,10 @@ export default function Navbar() {
                 <span>Tüm Kategoriler</span>
               </button>
 
-              {/* AÇILAN DEV MEGA MENÜ PANELİ */}
+              {/* AÇILAN DEV MEGA MENÜ PANELİ (4 Kolonlu Genişletilmiş Versiyon) */}
               {dropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-[800px] bg-[#09090b]/95 backdrop-blur-xl border border-gray-800 rounded-lg shadow-2xl p-6 z-50">
-                  <div className="grid grid-cols-3 gap-8">
-                    {/* Kategorileri döngüyle kolonlara ayırıyoruz */}
+                <div className="absolute top-full left-0 mt-1 w-[1000px] bg-[#09090b]/98 backdrop-blur-xl border border-gray-800 rounded-lg shadow-2xl p-8 z-50">
+                  <div className="grid grid-cols-4 gap-8">
                     {menuCategories.map((category, index) => (
                       <div key={index}>
                         <h3 className="text-blue-500 font-bold text-sm tracking-wider uppercase mb-4 border-b border-gray-800 pb-2">
@@ -93,11 +108,11 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* VİTRİN: EN ÇOK ARANAN 4 KATEGORİ */}
+            {/* VİTRİN: EN ÇOK ARANAN ŞERİT KATEGORİLERİ */}
             <div className="flex items-center space-x-6">
+              <Link href="/kategori/hazir-sistem" className="text-gray-300 hover:text-white hover:text-blue-500 text-sm font-bold transition-colors">🔥 Hazır Sistemler</Link>
               <Link href="/kategori/ekran-karti" className="text-gray-300 hover:text-white hover:text-blue-500 text-sm font-medium transition-colors">Ekran Kartları</Link>
               <Link href="/kategori/islemci" className="text-gray-300 hover:text-white hover:text-blue-500 text-sm font-medium transition-colors">İşlemciler</Link>
-              <Link href="/kategori/anakart" className="text-gray-300 hover:text-white hover:text-blue-500 text-sm font-medium transition-colors">Anakartlar</Link>
               <Link href="/kategori/monitor" className="text-gray-300 hover:text-white hover:text-blue-500 text-sm font-medium transition-colors">Monitörler</Link>
             </div>
           </div>
@@ -112,9 +127,9 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* MOBİL İÇİN AKORDİYON MENÜ */}
+      {/* MOBİL İÇİN AKORDİYON MENÜ (Kusursuz Kaydırma) */}
       {isOpen && (
-        <div className="md:hidden bg-[#050814]/95 backdrop-blur-lg border-b border-gray-800 max-h-[70vh] overflow-y-auto px-4 py-4 space-y-6">
+        <div className="md:hidden bg-[#050814]/98 backdrop-blur-lg border-b border-gray-800 max-h-[75vh] overflow-y-auto px-4 py-4 space-y-6">
           {menuCategories.map((category, index) => (
             <div key={index}>
               <h3 className="text-blue-500 font-bold text-sm tracking-wider uppercase mb-2 border-b border-gray-800 pb-1">
