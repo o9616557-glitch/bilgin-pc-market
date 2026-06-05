@@ -1,12 +1,12 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useCart } from "@/app/CartContext";
-import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 
-// ŞEFİN MEGA MENÜ KATEGORİ LİSTESİ
+// ŞEFİN JİLET GİBİ 4 KOLONLU MEGA MENÜ ENVANTERİ
 const menuCategories = [
   {
     title: "Bilgisayar Bileşenleri",
@@ -66,7 +66,7 @@ const menuCategories = [
 export default function Header() {
   const pathname = usePathname();
 
-  // 🚀 GİZLEME MOTORU: Bu sayfalarda menü görünmez!
+  // 🚀 GİZLEME MOTORU: Bu sayfalarda Header ASLA görünmez!
   const gizlenecekSayfalar = ["/sepet", "/odeme", "/giris", "/kayit", "/checkout"];
   if (gizlenecekSayfalar.includes(pathname)) {
     return null; 
@@ -96,20 +96,20 @@ export default function Header() {
   }, []);
 
   return (
-    <>
-      {/* ŞEF DİKKAT: position: "sticky", top: 0 ile sayfa kaydıkça menüyü tepeye çiviledik */}
-      <header style={{ backgroundColor: "rgba(9, 9, 11, 0.9)", borderBottom: "1px solid #27272a", position: "sticky", top: 0, zIndex: 50, backdropFilter: "blur(12px)" }}>
-        <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "12px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    // SİYAH/CAM EFEKTLİ PREMIUM ARKA PLAN (Sticky özelliğiyle tepeye çivilendi)
+    <header className="bg-[#050814]/90 backdrop-blur-md border-b border-gray-800 sticky top-0 z-50 w-full transition-all duration-300">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-20">
 
           {/* SOL TARAF: LOGO */}
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <Link href="/" prefetch={true} style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
-              <span style={{ fontSize: "1.5rem", fontWeight: "900", color: "#ffffff", letterSpacing: "-1px", lineHeight: "1" }}>BİLGİN <span style={{ color: "#00e5ff" }}>PC</span></span>
+          <div className="flex-shrink-0 flex items-center">
+            <Link href="/" prefetch={true} className="text-white font-black text-2xl tracking-tight flex items-center">
+              BİLGİN <span className="text-blue-500 ml-1">PC</span>
             </Link>
           </div>
 
-          {/* ORTA: MEGA MENÜ VE VİTRİN KATEGORİLERİ (Masaüstü) */}
-          <div className="hidden md:flex items-center gap-6">
+          {/* ORTA: MASAÜSTÜ MEGA MENÜ VE VİTRİN */}
+          <div className="hidden md:flex items-center space-x-8">
             
             {/* MEGA MENÜ TETİKLEYİCİSİ */}
             <div 
@@ -117,29 +117,27 @@ export default function Header() {
               onMouseEnter={() => setDropdownOpen(true)}
               onMouseLeave={() => setDropdownOpen(false)}
             >
-              <button style={{ display: "flex", alignItems: "center", gap: "8px", color: "#fff", background: "rgba(0, 229, 255, 0.1)", border: "1px solid rgba(0, 229, 255, 0.2)", padding: "8px 16px", borderRadius: "8px", fontWeight: "600", cursor: "pointer", transition: "all 0.2s" }}>
-                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                Tüm Kategoriler
+              <button className="flex items-center space-x-2 text-white bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/20 px-4 py-2 rounded-md font-semibold transition-colors">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                <span>Tüm Kategoriler</span>
               </button>
 
-              {/* AÇILAN DEV MEGA MENÜ PANELİ */}
+              {/* FERAH, KÖPRÜLÜ, 4 KOLONLU DEV MENÜ PANELİ */}
               {dropdownOpen && (
-                <div style={{ position: "absolute", top: "100%", left: "-100px", paddingTop: "16px", width: "1100px", zIndex: 100 }}>
-                  <div style={{ background: "rgba(9, 9, 11, 0.98)", backdropFilter: "blur(16px)", border: "1px solid #27272a", borderRadius: "12px", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)", padding: "40px" }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "48px" }}>
+                <div className="absolute top-full left-0 pt-6 w-[1100px] z-50">
+                  <div className="bg-[#09090b]/98 backdrop-blur-xl border border-gray-800 rounded-lg shadow-2xl p-10">
+                    <div className="grid grid-cols-4 gap-12">
                       {menuCategories.map((category, index) => (
                         <div key={index}>
-                          <h3 style={{ color: "#00e5ff", fontWeight: "700", fontSize: "0.875rem", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "24px", borderBottom: "1px solid #27272a", paddingBottom: "12px" }}>
+                          <h3 className="text-blue-500 font-bold text-sm tracking-wider uppercase mb-6 border-b border-gray-800 pb-3">
                             {category.title}
                           </h3>
-                          <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "16px" }}>
+                          <ul className="space-y-4">
                             {category.items.map((item) => (
                               <li key={item.slug}>
                                 <Link 
                                   href={`/kategori/${item.slug}`} 
-                                  style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "1rem", transition: "all 0.2s" }}
-                                  onMouseOver={(e) => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.transform = "translateX(4px)"; }}
-                                  onMouseOut={(e) => { e.currentTarget.style.color = "#a1a1aa"; e.currentTarget.style.transform = "none"; }}
+                                  className="text-gray-400 hover:text-white hover:translate-x-1 hover:text-blue-400 transition-all duration-200 block text-base"
                                 >
                                   {item.name}
                                 </Link>
@@ -154,74 +152,78 @@ export default function Header() {
               )}
             </div>
 
-            {/* VİTRİN LİNKLERİ */}
-            <nav style={{ display: "flex", gap: "24px" }}>
-              <Link href="/kategori/ekran-karti" prefetch={true} style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.95rem", fontWeight: "600" }} onMouseOver={(e) => e.currentTarget.style.color = "#00e5ff"} onMouseOut={(e) => e.currentTarget.style.color = "#a1a1aa"}>Ekran Kartları</Link>
-              <Link href="/kategori/islemci" prefetch={true} style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.95rem", fontWeight: "600" }} onMouseOver={(e) => e.currentTarget.style.color = "#00e5ff"} onMouseOut={(e) => e.currentTarget.style.color = "#a1a1aa"}>İşlemciler</Link>
-              <Link href="/kategori/anakart" prefetch={true} style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "0.95rem", fontWeight: "600" }} onMouseOver={(e) => e.currentTarget.style.color = "#00e5ff"} onMouseOut={(e) => e.currentTarget.style.color = "#a1a1aa"}>Anakartlar</Link>
+            {/* VİTRİN KATEGORİLERİ */}
+            <nav className="flex items-center space-x-6">
+              <Link href="/kategori/hazir-sistem" className="text-gray-300 hover:text-white hover:text-blue-500 text-sm font-bold transition-colors">🔥 Hazır Sistemler</Link>
+              <Link href="/kategori/ekran-karti" className="text-gray-300 hover:text-white hover:text-blue-500 text-sm font-medium transition-colors">Ekran Kartları</Link>
+              <Link href="/kategori/islemci" className="text-gray-300 hover:text-white hover:text-blue-500 text-sm font-medium transition-colors">İşlemciler</Link>
+              <Link href="/kategori/anakart" className="text-gray-300 hover:text-white hover:text-blue-500 text-sm font-medium transition-colors">Anakartlar</Link>
             </nav>
           </div>
 
-          {/* SAĞ TARAF (Hesabım, Sepet, Hamburger) */}
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {/* SAĞ TARAF: HESABIM, SEPET VE MOBİL MENÜ BUTONU */}
+          <div className="flex items-center space-x-3">
 
-            {/* HESABIM MENÜSÜ */}
-            <div ref={hesabimRef} style={{ position: "relative" }}>
-              <button onClick={() => setHesabimAcik(!hesabimAcik)} style={{ display: "flex", alignItems: "center", gap: "6px", background: hesabimAcik ? "rgba(0, 229, 255, 0.1)" : "#18181b", color: "#fff", border: "1px solid #27272a", padding: "8px 16px", borderRadius: "8px", cursor: "pointer", transition: "all 0.2s" }}>
-                <span style={{ fontSize: "16px" }}>👤</span>
-                <span className="hidden sm:inline" style={{ fontSize: "0.85rem", fontWeight: "600" }}>
+            {/* HESABIM BÖLÜMÜ */}
+            <div ref={hesabimRef} className="relative">
+              <button 
+                onClick={() => setHesabimAcik(!hesabimAcik)} 
+                className={`flex items-center space-x-2 px-3 py-2 rounded-md border transition-colors ${hesabimAcik ? 'bg-blue-600/20 border-blue-500/30 text-white' : 'bg-gray-900 border-gray-800 text-gray-300 hover:text-white hover:bg-gray-800'}`}
+              >
+                <span className="text-lg">👤</span>
+                <span className="hidden sm:block text-sm font-semibold">
                   {session?.user?.name ? session.user.name.split(" ")[0] : "Hesabım"}
                 </span>
               </button>
 
               {hesabimAcik && (
-                <div style={{ position: "absolute", top: "50px", right: "0", background: "#09090b", border: "1px solid #27272a", borderRadius: "12px", width: "220px", padding: "8px", boxShadow: "0 10px 40px rgba(0,0,0,0.5)" }}>
-                  <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#00e5ff", background: "rgba(0, 229, 255, 0.05)", textDecoration: "none", fontSize: "0.85rem", borderRadius: "8px", fontWeight: "bold", marginBottom: "4px" }}>
+                <div className="absolute top-full right-0 mt-2 w-60 bg-[#09090b] border border-gray-800 rounded-lg shadow-2xl p-2 z-50">
+                  <Link href="/siparis-takip" onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 rounded-md text-sm font-bold mb-1 transition-colors">
                     <span>📦</span> Kargo / Sipariş Takip
                   </Link>
 
-                  <div style={{ height: "1px", background: "#27272a", margin: "4px 0" }}></div>
+                  <div className="h-px bg-gray-800 my-2"></div>
 
                   {session ? (
                     <>
-                      <div style={{ padding: "8px 12px", borderBottom: "1px solid #27272a", marginBottom: "4px" }}>
-                        <p style={{ color: "#fff", fontSize: "0.9rem", fontWeight: "700" }}>Hoş Geldin, 👋</p>
-                        <p style={{ color: "#00e5ff", fontSize: "0.8rem", fontWeight: "600", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{session.user?.name || session.user?.email}</p>
+                      <div className="px-3 py-2 border-b border-gray-800 mb-1">
+                        <p className="text-white text-sm font-bold">Hoş Geldin, 👋</p>
+                        <p className="text-blue-400 text-xs font-semibold truncate">{session.user?.name || session.user?.email}</p>
                       </div>
 
-                      <Link href="/siparislerim" prefetch={true} onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
+                      <Link href="/siparislerim" onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-md text-sm transition-colors">
                         <span>📋</span> Siparişlerim
                       </Link>
 
-                      <Link href="/adreslerim" prefetch={true} onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
+                      <Link href="/adreslerim" onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-md text-sm transition-colors">
                         <span>📍</span> Adreslerim
                       </Link>
 
-                      <Link href="/favorilerim" prefetch={true} onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#a1a1aa", textDecoration: "none", fontSize: "0.85rem" }}>
+                      <Link href="/favorilerim" onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-md text-sm transition-colors">
                         <span>❤️</span> Favorilerim
                       </Link>
 
-                      <div style={{ height: "1px", background: "#27272a", margin: "4px 0" }}></div>
+                      <div className="h-px bg-gray-800 my-2"></div>
 
                       {isAdmin && (
                         <>
-                          <Link href="/admin" onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#f59e0b", background: "rgba(245, 158, 11, 0.1)", textDecoration: "none", fontSize: "0.85rem", borderRadius: "8px", fontWeight: "bold" }}>
+                          <Link href="/admin" onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-yellow-500 bg-yellow-500/10 hover:bg-yellow-500/20 rounded-md text-sm font-bold transition-colors">
                             <span>👑</span> Yönetim Paneli
                           </Link>
-                          <div style={{ height: "1px", background: "#27272a", margin: "4px 0" }}></div>
+                          <div className="h-px bg-gray-800 my-2"></div>
                         </>
                       )}
 
-                      <button onClick={() => { setHesabimAcik(false); signOut({ callbackUrl: '/' }); }} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#ef4444", background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer", fontSize: "0.85rem" }}>
+                      <button onClick={() => { setHesabimAcik(false); signOut({ callbackUrl: '/' }); }} className="flex items-center gap-3 px-3 py-2 w-full text-left text-red-500 hover:bg-red-500/10 rounded-md text-sm transition-colors">
                         <span>🚪</span> Çıkış Yap
                       </button>
                     </>
                   ) : (
                     <>
-                      <Link href="/giris" prefetch={true} onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#ffffff", background: "rgba(0, 229, 255, 0.1)", textDecoration: "none", fontSize: "0.85rem", borderRadius: "8px" }}>
+                      <Link href="/giris" onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-md text-sm font-semibold mb-2 transition-colors">
                         <span>🔑</span> Giriş Yap
                       </Link>
-                      <Link href="/kayit" prefetch={true} onClick={() => setHesabimAcik(false)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", color: "#fff", textDecoration: "none", fontSize: "0.85rem" }}>
+                      <Link href="/kayit" onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-md text-sm transition-colors">
                         <span>📝</span> Yeni Kayıt
                       </Link>
                     </>
@@ -230,60 +232,63 @@ export default function Header() {
               )}
             </div>
 
-            {/* SEPETİM BUTONU */}
-            <Link href="/sepet" prefetch={true} style={{ position: "relative", textDecoration: "none", display: "flex", alignItems: "center", gap: "6px", background: "#18181b", padding: "8px 14px", height: "42px", boxSizing: "border-box", borderRadius: "8px", border: "1px solid #27272a", color: "#fff" }}>
-              <span style={{ fontSize: "16px" }}>🛒</span>
-              <span className="hidden sm:inline" style={{ fontWeight: "600", color: "#a1a1aa", fontSize: "0.85rem" }}>Sepetim</span>
+            {/* SEPETİM BÖLÜMÜ */}
+            <Link href="/sepet" className="relative flex items-center space-x-2 bg-gray-900 border border-gray-800 hover:border-gray-600 px-3 py-2 rounded-md transition-colors">
+              <span className="text-lg">🛒</span>
+              <span className="hidden sm:block text-sm font-semibold text-gray-300">Sepetim</span>
               {sepetAdedi > 0 && (
-                <span style={{ position: "absolute", top: "-5px", right: "-5px", background: "#00e5ff", color: "#000", fontSize: "0.7rem", fontWeight: "900", width: "20px", height: "20px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}>
+                <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs font-black w-5 h-5 flex items-center justify-center rounded-full shadow-lg">
                   {sepetAdedi}
                 </span>
               )}
             </Link>
 
             {/* MOBİL HAMBURGER BUTONU */}
-            <button className="md:hidden flex flex-col justify-center items-center ml-2" onClick={() => setMenuAcik(!menuAcik)} style={{ background: "transparent", border: "none", padding: "0", height: "40px", width: "30px", cursor: "pointer", gap: "6px" }}>
-              <span style={{ display: "block", width: "22px", height: "2px", background: "#fff", transition: "all 0.3s", transform: menuAcik ? "rotate(45deg) translate(5px, 5px)" : "none" }}></span>
-              <span style={{ display: "block", width: "22px", height: "2px", background: "#fff", transition: "all 0.3s", opacity: menuAcik ? 0 : 1 }}></span>
-              <span style={{ display: "block", width: "22px", height: "2px", background: "#fff", transition: "all 0.3s", transform: menuAcik ? "rotate(-45deg) translate(6px, -6px)" : "none" }}></span>
+            <button 
+              className="md:hidden flex flex-col justify-center items-center w-8 h-8 focus:outline-none" 
+              onClick={() => setMenuAcik(!menuAcik)}
+            >
+              <span className={`block w-6 h-0.5 bg-white transition-all duration-300 ${menuAcik ? 'rotate-45 translate-y-1.5' : ''}`}></span>
+              <span className={`block w-6 h-0.5 bg-white mt-1 transition-all duration-300 ${menuAcik ? 'opacity-0' : ''}`}></span>
+              <span className={`block w-6 h-0.5 bg-white mt-1 transition-all duration-300 ${menuAcik ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
             </button>
           </div>
         </div>
+      </div>
 
-        {/* MOBİL MENÜ İÇERİĞİ (Hamburger'e basınca açılır) */}
-        {menuAcik && (
-          <div className="md:hidden" style={{ background: "#09090b", borderTop: "1px solid #27272a", maxHeight: "70vh", overflowY: "auto", padding: "16px" }}>
-            
-            {/* Mobil Vitrin Linkleri */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px", borderBottom: "1px solid #27272a", paddingBottom: "16px", marginBottom: "16px" }}>
-              <Link href="/kategori/ekran-karti" onClick={() => setMenuAcik(false)} style={{ color: "#00e5ff", textDecoration: "none", fontSize: "1.1rem", fontWeight: "700" }}>Ekran Kartları</Link>
-              <Link href="/kategori/islemci" onClick={() => setMenuAcik(false)} style={{ color: "#00e5ff", textDecoration: "none", fontSize: "1.1rem", fontWeight: "700" }}>İşlemciler</Link>
-              <Link href="/kategori/anakart" onClick={() => setMenuAcik(false)} style={{ color: "#00e5ff", textDecoration: "none", fontSize: "1.1rem", fontWeight: "700" }}>Anakartlar</Link>
-            </div>
-
-            {/* Mobil Kategoriler Listesi */}
-            {menuCategories.map((category, index) => (
-              <div key={index} style={{ marginBottom: "20px" }}>
-                <h3 style={{ color: "#fff", fontWeight: "700", fontSize: "0.9rem", textTransform: "uppercase", marginBottom: "10px", paddingBottom: "5px", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-                  {category.title}
-                </h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                  {category.items.map((item) => (
-                    <Link 
-                      key={item.slug} 
-                      href={`/kategori/${item.slug}`} 
-                      onClick={() => setMenuAcik(false)} 
-                      style={{ color: "#a1a1aa", textDecoration: "none", fontSize: "1rem", paddingLeft: "8px", borderLeft: "2px solid transparent" }}
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ))}
+      {/* MOBİL MENÜ (Aşağı açılan kısım) */}
+      {menuAcik && (
+        <div className="md:hidden bg-[#050814]/98 backdrop-blur-lg border-t border-gray-800 max-h-[75vh] overflow-y-auto px-4 py-4 space-y-6">
+          
+          {/* Mobil Vitrin Hızlı Linkler */}
+          <div className="flex flex-col space-y-3 pb-4 border-b border-gray-800">
+             <Link href="/kategori/ekran-karti" onClick={() => setMenuAcik(false)} className="text-blue-400 text-lg font-bold">Ekran Kartları</Link>
+             <Link href="/kategori/islemci" onClick={() => setMenuAcik(false)} className="text-blue-400 text-lg font-bold">İşlemciler</Link>
+             <Link href="/kategori/anakart" onClick={() => setMenuAcik(false)} className="text-blue-400 text-lg font-bold">Anakartlar</Link>
           </div>
-        )}
-      </header>
-    </>
+
+          {/* Mobil Tüm Kategoriler */}
+          {menuCategories.map((category, index) => (
+            <div key={index}>
+              <h3 className="text-blue-500 font-bold text-sm tracking-wider uppercase mb-2 border-b border-gray-800 pb-1">
+                {category.title}
+              </h3>
+              <div className="flex flex-col space-y-3">
+                {category.items.map((item) => (
+                  <Link 
+                    key={item.slug} 
+                    href={`/kategori/${item.slug}`} 
+                    onClick={() => setMenuAcik(false)} 
+                    className="text-gray-300 hover:text-white text-base py-1.5 pl-2 border-l border-gray-800/50 hover:border-blue-500"
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </header>
   );
 }
