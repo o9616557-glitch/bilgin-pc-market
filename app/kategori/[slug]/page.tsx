@@ -16,8 +16,12 @@ function BanknoteIcon(props: any) {
 // Dinamik Sayfa Ayarı
 export const revalidate = 60;
 
-export default async function KategoriSayfasi({ params }: { params: { slug: string } }) {
-  const rawSlug = params.slug;
+// 🚀 BİNGO: Parametreleri "any" yaparak ve "await" ile bekleyerek hatayı kökten çözüyoruz!
+export default async function KategoriSayfasi({ params }: any) {
+  
+  // 🚀 MOTOR TAMİRİ: Yeni Next.js kurallarına göre URL parametresini bekleyerek (await) alıyoruz.
+  const resolvedParams = await params;
+  const rawSlug = resolvedParams?.slug || "";
 
   // Başlığı düzeltme (Örn: ekran-kartlari -> EKRAN KARTLARI)
   const sayfaBasligi = rawSlug.replace(/-/g, " ").toUpperCase();
