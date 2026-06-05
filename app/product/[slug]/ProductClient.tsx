@@ -34,7 +34,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const touchStartRef = useRef(0);
   const [lightboxAcik, setLightboxAcik] = useState(false);
   
-  // 🚀 BÜYÜTEÇ (ZOOM) İÇİN YENİ STATELER 🚀
   const [zoomOrigin, setZoomOrigin] = useState("center center");
   const [isHoveringImg, setIsHoveringImg] = useState(false);
   
@@ -145,7 +144,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const handleTouchStart = (e: React.TouchEvent) => touchStartRef.current = e.touches[0].clientX;
   const handleTouchEnd = (e: React.TouchEvent) => { const fark = touchStartRef.current - e.changedTouches[0].clientX; if (fark > 40) sonrakiResim(); else if (fark < -40) oncekiResim(); };
 
-  // 🚀 BÜYÜTEÇ (ZOOM) MOUSE TAKİP FONKSİYONU 🚀
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - left) / width) * 100;
@@ -226,7 +224,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
              )}
           </div>
 
-          {/* 🚀 BÜYÜTEÇ KODLARININ EKLENDİĞİ ANA RESİM KUTUSU 🚀 */}
           <div 
             onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
             onMouseMove={handleMouseMove}
@@ -239,11 +236,26 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <div className="badge-rosette-page"><span>%{indirimOrani}</span><span>İNDİRİM</span></div>
             )}
             
-            {/* Butonlara stopPropagation eklendi ki basınca tam ekran açılmasın */}
-            <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); oncekiResim(); }} className="hidden sm:flex absolute left-3 z-30 w-10 h-10 bg-black/50 border border-white/10 rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-[#00d2ff] hover:text-black hover:scale-110 touch-manipulation"><ChevronLeft className="w-6 h-6" /></button>
-            <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); sonrakiResim(); }} className="hidden sm:flex absolute right-3 z-30 w-10 h-10 bg-black/50 border border-white/10 rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-[#00d2ff] hover:text-black hover:scale-110 touch-manipulation"><ChevronRight className="w-6 h-6" /></button>
+            {/* 🚀 OKLARA GELİNCE BÜYÜMEYİ DURDURAN KODLAR BURAYA EKLENDİ 🚀 */}
+            <button 
+               onClick={(e) => { e.preventDefault(); e.stopPropagation(); oncekiResim(); }} 
+               onMouseEnter={(e) => { e.stopPropagation(); setIsHoveringImg(false); }}
+               onMouseLeave={(e) => { e.stopPropagation(); setIsHoveringImg(true); }}
+               onMouseMove={(e) => e.stopPropagation()}
+               className="hidden sm:flex absolute left-3 z-30 w-10 h-10 bg-black/50 border border-white/10 rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-[#00d2ff] hover:text-black hover:scale-110 touch-manipulation"
+            >
+               <ChevronLeft className="w-6 h-6" />
+            </button>
+            <button 
+               onClick={(e) => { e.preventDefault(); e.stopPropagation(); sonrakiResim(); }} 
+               onMouseEnter={(e) => { e.stopPropagation(); setIsHoveringImg(false); }}
+               onMouseLeave={(e) => { e.stopPropagation(); setIsHoveringImg(true); }}
+               onMouseMove={(e) => e.stopPropagation()}
+               className="hidden sm:flex absolute right-3 z-30 w-10 h-10 bg-black/50 border border-white/10 rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-[#00d2ff] hover:text-black hover:scale-110 touch-manipulation"
+            >
+               <ChevronRight className="w-6 h-6" />
+            </button>
 
-            {/* Farenin X/Y koordinatına göre büyüyen resim */}
             <img 
               src={resimler[seciliResimIndex]} 
               alt={urunAdi} 
@@ -443,7 +455,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-      {/* 🚀 KUTUSUZ VE %65 BOYUTUNDA PREMIUM ÜRÜN AÇIKLAMASI 🚀 */}
       {product.aciklama && (
         <div className="max-w-[1000px] mx-auto px-4 sm:px-6 pt-12 pb-10 border-t border-white/10 select-none touch-manipulation">
            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-widest mb-10 text-white flex items-center justify-center gap-3 select-none">
@@ -451,19 +462,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
            </h2>
            <div className="prose prose-invert max-w-none select-none touch-manipulation 
               [&_*]:!select-none [&_*]:!-webkit-touch-callout-none
-              
-              /* 1. RESİM AYARLARI */
               [&_img]:w-full md:[&_img]:w-[65%] [&_img]:mx-auto [&_img]:h-auto [&_img]:block [&_img]:my-10 [&_img]:!border-none [&_img]:!shadow-none [&_img]:!bg-transparent
-              
-              /* 2. ANA BAŞLIKLAR (H2) */
               [&_h2]:text-2xl sm:[&_h2]:text-3xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mb-4 [&_h2]:mt-12
-              
-              /* 3. ALT BAŞLIKLAR (H3) */
               [&_h3]:text-xl sm:[&_h3]:text-2xl [&_h3]:font-bold [&_h3]:text-[#00d2ff] [&_h3]:mb-3 [&_h3]:mt-10
-              
-              /* 4. PARAGRAFLAR (YAZILAR) */
               [&_p]:text-gray-300 [&_p]:leading-[1.8] [&_p]:text-base sm:[&_p]:text-[17px] [&_p]:mb-6" 
-              
               dangerouslySetInnerHTML={{ __html: product.aciklama }} 
            />
         </div>
