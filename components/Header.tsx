@@ -173,15 +173,16 @@ export default function Header() {
           </div>
 
           {/* SAĞ TARAF: HESABIM VE SEPET */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-1 md:space-x-3">
 
             {/* HESABIM BÖLÜMÜ */}
             <div ref={hesabimRef} className="relative">
               <button 
                 onClick={() => setHesabimAcik(!hesabimAcik)} 
-                className={`flex items-center space-x-2 px-3 py-2 rounded-md border transition-colors ${hesabimAcik ? 'bg-blue-600/20 border-blue-500/30 text-white' : 'bg-gray-900 border-gray-800 text-gray-300 hover:text-white hover:bg-gray-800'}`}
+                // Mobilde şeffaf ve ortalı w-10 h-10, masaüstünde eski kutulu yapı
+                className={`flex items-center justify-center w-10 h-10 md:w-auto md:h-auto md:px-3 md:py-2 md:space-x-2 rounded-md transition-colors ${hesabimAcik ? 'text-blue-500 md:bg-blue-600/20 md:border-blue-500/30' : 'text-gray-300 hover:text-white hover:bg-gray-800/50 md:bg-gray-900 md:border md:border-gray-800'}`}
               >
-                <span className="text-lg">👤</span>
+                <span className="text-xl md:text-lg">👤</span>
                 <span className="hidden sm:block text-sm font-semibold">
                   {session?.user?.name ? session.user.name.split(" ")[0] : "Hesabım"}
                 </span>
@@ -244,11 +245,13 @@ export default function Header() {
             </div>
 
             {/* SEPETİM BÖLÜMÜ */}
-            <Link href="/sepet" prefetch={true} className="relative flex items-center space-x-2 bg-gray-900 border border-gray-800 hover:border-gray-600 px-3 py-2 rounded-md transition-colors">
-              <span className="text-lg">🛒</span>
+            {/* Mobilde şeffaf w-10 h-10 yapıldı, gereksiz kutu silindi */}
+            <Link href="/sepet" prefetch={true} className="relative flex items-center justify-center w-10 h-10 md:w-auto md:h-auto md:px-3 md:py-2 md:space-x-2 rounded-md transition-colors text-gray-300 hover:text-white hover:bg-gray-800/50 md:bg-gray-900 md:border md:border-gray-800 md:hover:border-gray-600">
+              <span className="text-xl md:text-lg">🛒</span>
               <span className="hidden sm:block text-sm font-semibold text-gray-300">Sepetim</span>
               {sepetAdedi > 0 && (
-                <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs font-black w-5 h-5 flex items-center justify-center rounded-full shadow-lg">
+                // Mobilde sepet uyarısı kutunun tam köşesine, masaüstünde eski yerine oturtuldu
+                <span className="absolute top-0 right-0 md:-top-2 md:-right-2 bg-blue-500 text-white text-[10px] md:text-xs font-black w-4 h-4 md:w-5 md:h-5 flex items-center justify-center rounded-full shadow-lg">
                   {sepetAdedi}
                 </span>
               )}
@@ -258,7 +261,7 @@ export default function Header() {
         </div>
       </div>
 
-      {/* MOBİL MENÜ (Aşağı açılan kısım - Hızlı linkler silindi, direkt kategoriler başlıyor) */}
+      {/* MOBİL MENÜ (Aşağı açılan kısım) */}
       {menuAcik && (
         <div className="md:hidden bg-[#050814]/98 backdrop-blur-lg border-t border-gray-800 max-h-[75vh] overflow-y-auto px-4 py-4 space-y-6">
           
