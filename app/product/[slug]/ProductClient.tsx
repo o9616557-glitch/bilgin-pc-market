@@ -1,5 +1,3 @@
-"use client";
-
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
 import { useCart } from "../../CartContext"; 
@@ -39,7 +37,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   
   const tabsRef = useRef<HTMLDivElement>(null);
 
-  const fpsVerileri: any = product.fps_testleri || {};
+  const fpsVerileri: any = product?.fps_testleri || {};
   const dbOyunlar = Object.keys(fpsVerileri);
   
   const pId = product?._id?.toString() || product?.id?.toString() || "urun";
@@ -84,11 +82,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     return () => { document.body.style.overflow = "unset"; };
   }, [lightboxAcik]);
 
-  const urunAdi = product.isim || product.name || "İsimsiz Ürün";
-  const normalFiyat = Number(product.regular_price || product.fiyat || product.price || 0);
-  const indirimliFiyat = product.indirimliFiyat ? Number(product.indirimliFiyat) : null;
+  const urunAdi = product?.isim || product?.name || "İsimsiz Ürün";
+  const normalFiyat = Number(product?.regular_price || product?.fiyat || product?.price || 0);
+  const indirimliFiyat = product?.indirimliFiyat ? Number(product.indirimliFiyat) : null;
   const gecerliFiyat = indirimliFiyat ? indirimliFiyat : normalFiyat;
-  const havaleYuzdesi = product.havaleIndirimi !== undefined ? Number(product.havaleIndirimi) : 5;
+  const havaleYuzdesi = product?.havaleIndirimi !== undefined ? Number(product.havaleIndirimi) : 5;
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault(); if (!reviewText.trim()) return toast.error("Yorum yazın!"); setIsSubmitting(true);
@@ -108,7 +106,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
   const handleAddToCart = () => {
     setAddingToCart(true);
-    try { sepeteEkle({ id: String(pId), isim: urunAdi, fiyat: gecerliFiyat, resim: product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/400", varyasyon: "Standart Model", havaleIndirimi: havaleYuzdesi }); toast.success("Sepete eklendi!"); } catch (error) {} finally { setAddingToCart(false); }
+    try { sepeteEkle({ id: String(pId), isim: urunAdi, fiyat: gecerliFiyat, resim: product?.resim || (product?.images && product.images[0]?.src) || "https://via.placeholder.com/400", varyasyon: "Standart Model", havaleIndirimi: havaleYuzdesi }); toast.success("Sepete eklendi!"); } catch (error) {} finally { setAddingToCart(false); }
   };
   
   const handleShare = async () => {
@@ -201,7 +199,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   );
 
   return (
-    <div className="bg-[#050505] text-white font-sans pb-0 sm:pb-10 relative">
+    <div className="bg-[#050505] text-white font-sans pb-24 sm:pb-10 relative overflow-x-hidden">
       
       <style dangerouslySetInnerHTML={{ __html: `
         body { -webkit-tap-highlight-color: transparent; }
@@ -209,6 +207,25 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         .badge-rosette-page { position: absolute; top: 15px; right: 15px; width: 70px; height: 70px; background: #e60000; clip-path: polygon(50% 0%, 60% 10%, 75% 5%, 80% 20%, 95% 25%, 90% 40%, 100% 50%, 90% 60%, 95% 75%, 80% 80%, 75% 95%, 60% 90%, 50% 100%, 40% 90%, 25% 95%, 20% 80%, 5% 75%, 10% 60%, 0% 50%, 10% 40%, 5% 25%, 20% 20%, 25% 5%, 40% 10%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); pointer-events: none; }
         .badge-rosette-page span:first-child { font-size: 18px; font-weight: 900; line-height: 1; margin-top: 5px; }
         .badge-rosette-page span:last-child { font-size: 11px; font-weight: 900; line-height: 1; }
+        
+        /* 🚀 TAM EKRAN RESİM İÇİN KIRILMAZ KOD 🚀 */
+        .ozel-aciklama img {
+          display: block !important;
+          width: calc(100% + 2rem) !important;
+          max-width: calc(100% + 2rem) !important;
+          margin-left: -1rem !important;
+          margin-right: -1rem !important;
+          object-fit: cover !important;
+        }
+        @media (min-width: 768px) {
+          .ozel-aciklama img {
+            width: 65% !important;
+            max-width: 65% !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            border-radius: 1rem !important;
+          }
+        }
       `}} />
 
       <div className="max-w-[1200px] mx-auto sm:px-6 py-0 sm:py-10 flex flex-col md:flex-row gap-0 sm:gap-8 lg:gap-12 relative items-start">
@@ -236,7 +253,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <div className="badge-rosette-page"><span>%{indirimOrani}</span><span>İNDİRİM</span></div>
             )}
             
-            {/* 🚀 OKLARA GELİNCE BÜYÜMEYİ DURDURAN KODLAR BURAYA EKLENDİ 🚀 */}
             <button 
                onClick={(e) => { e.preventDefault(); e.stopPropagation(); oncekiResim(); }} 
                onMouseEnter={(e) => { e.stopPropagation(); setIsHoveringImg(false); }}
@@ -285,12 +301,15 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </div>
           )}
 
-          <div className="hidden md:block mt-8">
-             <h3 className="text-lg font-black uppercase mb-4 text-white flex items-center gap-2 select-none">
-               <Gauge className="w-5 h-5 text-[#00d2ff]" /> Performans Testleri
-             </h3>
-             {renderFpsSection()}
-          </div>
+          {kategoriIsmi && kategoriIsmi.includes("Ekran") && (
+            <div className="hidden md:block mt-8">
+               <h3 className="text-lg font-black uppercase mb-4 text-white flex items-center gap-2 select-none">
+                 <Gauge className="w-5 h-5 text-[#00d2ff]" /> Performans Testleri
+               </h3>
+               {renderFpsSection()}
+            </div>
+          )}
+
         </div>
 
         {/* SAĞ KOLON (BİLGİLER VE SEPET) */}
@@ -351,12 +370,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
              </button>
           </div>
 
-          <div className="block md:hidden mb-10 select-none">
-             <h3 className="text-lg font-black uppercase mb-4 text-white flex items-center gap-2">
-               <Gauge className="w-5 h-5 text-[#00d2ff]" /> Performans Testleri
-             </h3>
-             {renderFpsSection()}
-          </div>
+          {kategoriIsmi && kategoriIsmi.includes("Ekran") && (
+            <div className="block md:hidden mb-10 select-none">
+               <h3 className="text-lg font-black uppercase mb-4 text-white flex items-center gap-2">
+                 <Gauge className="w-5 h-5 text-[#00d2ff]" /> Performans Testleri
+               </h3>
+               {renderFpsSection()}
+            </div>
+          )}
 
           <div ref={tabsRef} className="flex overflow-x-auto gap-2 border-b border-white/10 pb-3 mb-6 select-none [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#00d2ff]/50 [&::-webkit-scrollbar-thumb]:rounded-full scroll-mt-24">
              <button onClick={() => setActiveTab('teknik')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase touch-manipulation tracking-widest ${activeTab === 'teknik' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Teknik Özellikler</button>
@@ -456,33 +477,26 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       </div>
 
       {product.aciklama && (
-        <div className="max-w-[1000px] mx-auto px-4 sm:px-6 pt-12 pb-10 border-t border-white/10 select-none touch-manipulation">
-           <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-widest mb-10 text-white flex items-center justify-center gap-3 select-none">
-             <Info className="w-6 h-6 sm:w-8 sm:h-8 text-[#00d2ff]" /> Ürün Açıklaması
-           </h2>
-           <div className="prose prose-invert max-w-none select-none touch-manipulation 
-              [&_*]:!select-none [&_*]:!-webkit-touch-callout-none
-              [&_img]:w-full md:[&_img]:w-[65%] [&_img]:mx-auto [&_img]:h-auto [&_img]:block [&_img]:my-10 [&_img]:!border-none [&_img]:!shadow-none [&_img]:!bg-transparent
-              [&_h2]:text-2xl sm:[&_h2]:text-3xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mb-4 [&_h2]:mt-12
-              [&_h3]:text-xl sm:[&_h3]:text-2xl [&_h3]:font-bold [&_h3]:text-[#00d2ff] [&_h3]:mb-3 [&_h3]:mt-10
-              [&_p]:text-gray-300 [&_p]:leading-[1.8] [&_p]:text-base sm:[&_p]:text-[17px] [&_p]:mb-6" 
-              dangerouslySetInnerHTML={{ __html: product.aciklama }} 
-           />
+        <div className="ozel-aciklama max-w-[1000px] mx-auto px-4 sm:px-6 pt-12 pb-10 border-t border-white/10 select-none touch-manipulation overflow-x-hidden relative">
+          <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-widest mb-10 text-white flex items-center justify-center gap-3 select-none">
+            <Info className="w-6 h-6 sm:w-8 sm:h-8 text-[#00d2ff]" /> Ürün Açıklaması
+          </h2>
+          <div className="max-w-none select-none touch-manipulation [&_*]:!select-none [&_*]:!-webkit-touch-callout-none [&_img]:w-[calc(100%+2rem)] [&_img]:-mx-4 md:[&_img]:w-[65%] md:[&_img]:mx-auto [&_h2]:text-2xl sm:[&_h2]:text-3xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mb-4 [&_h2]:mt-12 [&_h3]:text-xl sm:[&_h3]:text-2xl [&_h3]:font-bold [&_h3]:text-[#00d2ff] [&_h3]:mb-3 [&_h3]:mt-10 [&_p]:text-gray-300 [&_p]:leading-[1.8] [&_p]:text-base sm:[&_p]:text-[17px] [&_p]:mb-6" dangerouslySetInnerHTML={{ __html: product.aciklama }} />
         </div>
       )}
 
-      <div className="sm:hidden fixed bottom-0 left-0 w-full bg-[#050505]/95 backdrop-blur-2xl border-t border-white/10 px-4 py-3 z-50 flex items-center justify-between shadow-[0_-20px_40px_rgba(0,0,0,0.8)] select-none">
+      {/* 🚀 MOBİL SEPET BARI 🚀 */}
+      <div className="sm:hidden fixed bottom-0 left-0 w-full bg-[#050505]/95 backdrop-blur-2xl border-t border-white/10 px-4 py-3 z-40 flex items-center justify-between">
          <div className="flex flex-col">
-            {indirimVarMi && !tukendiMi && <span className="text-gray-500 text-[11px] line-through font-medium mb-0.5">{normalFiyat.toLocaleString("tr-TR")} ₺</span>}
-            <span className="text-[22px] font-black text-white leading-none mb-1.5">{gecerliFiyat.toLocaleString("tr-TR")} <span className="text-[#00d2ff] text-lg">₺</span></span>
-            
+            {indirimVarMi && !tukendiMi && <span className="text-gray-500 text-[11px] line-through font-medium mb-0.5">{normalFiyat.toLocaleString("tr-TR")} TL</span>}
+            <span className="text-[22px] font-black text-white leading-none mb-1.5">{gecerliFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">TL</span></span>
             {havaleYuzdesi > 0 && !tukendiMi && (
                <span className="text-[#10b981] text-[10px] font-black tracking-wide flex items-center gap-1">
-                 <Zap className="w-3 h-3" /> HAVALE: {havaleFiyati.toLocaleString("tr-TR", {maximumFractionDigits: 0})} ₺
+                  <Zap className="w-3 h-3" /> HAVALE: {havaleFiyati.toLocaleString("tr-TR", {maximumFractionDigits: 0})} TL
                </span>
             )}
          </div>
-         <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`h-12 px-6 rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 transition-all touch-manipulation ${tukendiMi ? 'bg-zinc-800 text-zinc-500' : 'bg-[#00d2ff] text-black shadow-[0_0_20px_rgba(0,210,255,0.3)] hover:bg-[#00c4db]'}`}>
+         <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`h-12 px-6 rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 transition-all touch-manipulation ${tukendiMi ? 'bg-zinc-800 text-zinc-500' : 'bg-[#00e5ff] text-black shadow-[0_0_15px_rgba(0,229,255,0.3)]'}`}>
             <ShoppingCart className="w-4 h-4" /> {tukendiMi ? "Tükendi" : "Sepete Ekle"}
          </button>
       </div>
