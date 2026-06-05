@@ -175,7 +175,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           <div className="flex flex-wrap justify-center gap-3 w-full mb-4">
              {dbOyunlar.length > 0 ? dbOyunlar.map(oyun => (
                 <div key={oyun} className="w-[100px] sm:w-[110px] flex-shrink-0 bg-black border border-white/10 rounded-xl overflow-hidden flex flex-col transition-all hover:scale-105 hover:border-[#f59e0b]/50">
-                   <div className="h-16 bg-zinc-900 relative flex items-center justify-center p-2 text-center text-white/70 text-[10px] font-black uppercase">
+                   <div className="h-5 bg-zinc-900 relative flex items-center justify-center p-2 text-center text-white/70 text-[10px] font-black uppercase">
                       {oyun.toLowerCase().includes("valorant") || oyun.toLowerCase().includes("cs") ? (
                         <Crosshair className="w-8 h-8 absolute opacity-10" />
                       ) : (
