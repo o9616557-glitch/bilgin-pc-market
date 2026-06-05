@@ -1,5 +1,3 @@
-"use client";
-
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
 import { useCart } from "../../CartContext"; 
@@ -201,7 +199,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   );
 
   return (
-    <div className="bg-[#050505] text-white font-sans pb-0 sm:pb-10 relative">
+    <div className="bg-[#050505] text-white font-sans pb-24 sm:pb-10 relative overflow-x-hidden">
       
       <style dangerouslySetInnerHTML={{ __html: `
         body { -webkit-tap-highlight-color: transparent; }
@@ -209,6 +207,25 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         .badge-rosette-page { position: absolute; top: 15px; right: 15px; width: 70px; height: 70px; background: #e60000; clip-path: polygon(50% 0%, 60% 10%, 75% 5%, 80% 20%, 95% 25%, 90% 40%, 100% 50%, 90% 60%, 95% 75%, 80% 80%, 75% 95%, 60% 90%, 50% 100%, 40% 90%, 25% 95%, 20% 80%, 5% 75%, 10% 60%, 0% 50%, 10% 40%, 5% 25%, 20% 20%, 25% 5%, 40% 10%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); pointer-events: none; }
         .badge-rosette-page span:first-child { font-size: 18px; font-weight: 900; line-height: 1; margin-top: 5px; }
         .badge-rosette-page span:last-child { font-size: 11px; font-weight: 900; line-height: 1; }
+        
+        /* 🚀 TAM EKRAN RESİM İÇİN KIRILMAZ KOD 🚀 */
+        .ozel-aciklama img {
+          display: block !important;
+          width: 100vw !important;
+          max-width: 100vw !important;
+          margin-left: calc(-50vw + 50%) !important;
+          margin-right: calc(-50vw + 50%) !important;
+          object-fit: cover !important;
+        }
+        @media (min-width: 768px) {
+          .ozel-aciklama img {
+            width: 65% !important;
+            max-width: 65% !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            border-radius: 1rem !important;
+          }
+        }
       `}} />
 
       <div className="max-w-[1200px] mx-auto sm:px-6 py-0 sm:py-10 flex flex-col md:flex-row gap-0 sm:gap-8 lg:gap-12 relative items-start">
@@ -236,7 +253,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <div className="badge-rosette-page"><span>%{indirimOrani}</span><span>İNDİRİM</span></div>
             )}
             
-            {/* 🚀 OKLARA GELİNCE BÜYÜMEYİ DURDURAN KODLAR BURAYA EKLENDİ 🚀 */}
             <button 
                onClick={(e) => { e.preventDefault(); e.stopPropagation(); oncekiResim(); }} 
                onMouseEnter={(e) => { e.stopPropagation(); setIsHoveringImg(false); }}
@@ -455,36 +471,30 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-    {product.aciklama && (
-  <div className="max-w-[1000px] mx-auto px-4 sm:px-6 pt-12 pb-10 border-t border-white/10 select-none touch-manipulation overflow-x-hidden relative">
-    
-    {/* 🚀 KESİN ÇÖZÜM: TAILWIND'İ EZEN SAF CSS BLOĞU 🚀 */}
-    <style dangerouslySetInnerHTML={{__html: `
-      .ozel-aciklama img {
-        width: calc(100% + 2rem) !important;
-        max-width: none !important;
-        margin-left: -1rem !important;
-        margin-right: -1rem !important;
-      }
-      @media (min-width: 768px) {
-        .ozel-aciklama img {
-          width: 65% !important;
-          max-width: 65% !important;
-          margin-left: auto !important;
-          margin-right: auto !important;
-        }
-      }
-    `}} />
+      {product.aciklama && (
+        <div className="max-w-[1000px] mx-auto px-4 sm:px-6 pt-12 pb-10 border-t border-white/10 select-none touch-manipulation overflow-x-hidden relative">
+          <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-widest mb-10 text-white flex items-center justify-center gap-3 select-none">
+            <Info className="w-6 h-6 sm:w-8 sm:h-8 text-[#00d2ff]" /> Ürün Açıklaması
+          </h2>
+          <div className="ozel-aciklama prose prose-invert max-w-none select-none touch-manipulation [&_*]:!select-none [&_*]:!-webkit-touch-callout-none [&_h2]:text-2xl sm:[&_h2]:text-3xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mb-4 [&_h2]:mt-12 [&_h3]:text-xl sm:[&_h3]:text-2xl [&_h3]:font-bold [&_h3]:text-[#00d2ff] [&_h3]:mb-3 [&_h3]:mt-10 [&_p]:text-gray-300 [&_p]:leading-[1.8] [&_p]:text-base sm:[&_p]:text-[17px] [&_p]:mb-6" dangerouslySetInnerHTML={{ __html: product.aciklama }} />
+        </div>
+      )}
 
-    <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-widest mb-10 text-white flex items-center justify-center gap-3 select-none">
-      <Info className="w-6 h-6 sm:w-8 sm:h-8 text-[#00d2ff]" /> Ürün Açıklaması
-    </h2>
-    
-    {/* Özel sınıfımızı (ozel-aciklama) buraya ekledik */}
-    <div className="ozel-aciklama prose prose-invert max-w-none select-none touch-manipulation [&_*]:!select-none [&_*]:!-webkit-touch-callout-none [&_h2]:text-2xl sm:[&_h2]:text-3xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mb-4 [&_h2]:mt-12 [&_h3]:text-xl sm:[&_h3]:text-2xl [&_h3]:font-bold [&_h3]:text-[#00d2ff] [&_h3]:mb-3 [&_h3]:mt-10 [&_p]:text-gray-300 [&_p]:leading-[1.8] [&_p]:text-base sm:[&_p]:text-[17px] [&_p]:mb-6" dangerouslySetInnerHTML={{ __html: product.aciklama }} />
-  
-  </div>
-)}
+      {/* 🚀 KAYBOLAN MOBİL SEPET BARI GERİ GELDİ 🚀 */}
+      <div className="sm:hidden fixed bottom-0 left-0 w-full bg-[#050505]/95 backdrop-blur-2xl border-t border-white/10 px-4 py-3 z-40 flex items-center justify-between">
+         <div className="flex flex-col">
+            {indirimVarMi && !tukendiMi && <span className="text-gray-500 text-[11px] line-through font-medium mb-0.5">{normalFiyat.toLocaleString("tr-TR")} TL</span>}
+            <span className="text-[22px] font-black text-white leading-none mb-1.5">{gecerliFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">TL</span></span>
+            {havaleYuzdesi > 0 && !tukendiMi && (
+               <span className="text-[#10b981] text-[10px] font-black tracking-wide flex items-center gap-1">
+                  <Zap className="w-3 h-3" /> HAVALE: {havaleFiyati.toLocaleString("tr-TR", {maximumFractionDigits: 0})} TL
+               </span>
+            )}
+         </div>
+         <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`h-12 px-6 rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 transition-all touch-manipulation ${tukendiMi ? 'bg-zinc-800 text-zinc-500' : 'bg-[#00e5ff] text-black shadow-[0_0_15px_rgba(0,229,255,0.3)]'}`}>
+            <ShoppingCart className="w-4 h-4" /> {tukendiMi ? "Tükendi" : "Sepete Ekle"}
+         </button>
+      </div>
 
       {lightboxAcik && (
         <div 
