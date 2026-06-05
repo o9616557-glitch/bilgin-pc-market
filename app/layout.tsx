@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
-import Navbar from "@/components/Navbar"; // 🚀 BİZİM KATEGORİ MENÜSÜ EKLENDİ
 import { CartProvider } from "./CartContext";
 import Footer from "@/components/Footer"; 
 import { CompareProvider } from "./CompareContext";
@@ -31,6 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="tr">
+      {/* 🚀 İŞTE BURASI: font-sans eklendi, artık o premium Geist fontu tüm siteye HD kalitesinde basılacak 🚀 */}
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased min-h-screen flex flex-col bg-[#050814] overflow-x-hidden`}>
         <Toaster
           position="top-right"
@@ -49,18 +49,12 @@ export default function RootLayout({
         <AuthProvider>
           <CartProvider>
             <CompareProvider>
-              
-              {/* 🚀 ÜST ÜSTE İKİ KATMANLI PROFESYONEL MENÜ YAPISI 🚀 */}
-              <Header /> {/* Senin ana üst menün (Logo, Sepet vs.) */}
-              <Navbar /> {/* Bizim kategori alt menümüz (Anakart, İşlemci vs.) */}
-
+              <Header />
               <main className="flex-grow w-full">
                 {children}
               </main>
-              
               <Footer />
               <ComparePopup />
-              
             </CompareProvider>
           </CartProvider>
         </AuthProvider>
