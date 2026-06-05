@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
-// ŞEF, VATAN'DAN SÜZÜLMÜŞ FULL ENVANTER LİSTESİ BURADA!
+// BİLGİN PC MARKET - FULL KATEGORİ ENVANTERİ
 const menuCategories = [
   {
     title: "Bilgisayar Bileşenleri",
@@ -86,28 +86,40 @@ export default function Navbar() {
               </button>
 
               {/* AÇILAN DEV MEGA MENÜ PANELİ */}
+              {/* ŞEF DİKKAT: pt-4 ile fare için görünmez bir iniş köprüsü kurduk */}
               {dropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-[1100px] bg-[#09090b]/98 backdrop-blur-xl border border-gray-800 rounded-lg shadow-2xl p-8 z-50">
-                  <div className="grid grid-cols-4 gap-8">
-                    {menuCategories.map((category, index) => (
-                      <div key={index}>
-                        <h3 className="text-blue-500 font-bold text-sm tracking-wider uppercase mb-4 border-b border-gray-800 pb-2">
-                          {category.title}
-                        </h3>
-                        <ul className="space-y-2">
-                          {category.items.map((item) => (
-                            <li key={item.slug}>
-                              <Link 
-                                href={`/kategori/${item.slug}`} 
-                                className="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-200 block text-sm"
-                              >
-                                {item.name}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
+                <div className="absolute top-full left-0 pt-4 w-[1100px] z-50">
+                  
+                  {/* p-10 yaparak menünün iç boşluklarına nefes aldırdık */}
+                  <div className="bg-[#09090b]/98 backdrop-blur-xl border border-gray-800 rounded-lg shadow-2xl p-10">
+                    
+                    {/* gap-12 yaparak kolonların arasını daha da açtık */}
+                    <div className="grid grid-cols-4 gap-12">
+                      {menuCategories.map((category, index) => (
+                        <div key={index}>
+                          
+                          {/* mb-6 ve pb-3 yaparak ana başlıkların altını ferahlattık */}
+                          <h3 className="text-blue-500 font-bold text-sm tracking-wider uppercase mb-6 border-b border-gray-800 pb-3">
+                            {category.title}
+                          </h3>
+                          
+                          {/* space-y-4 yaparak alt alta dizilen yazıların arasına boşluk koyduk */}
+                          <ul className="space-y-4">
+                            {category.items.map((item) => (
+                              <li key={item.slug}>
+                                {/* text-sm'den text-base'e çekerek yazıları daha okunaklı yaptık */}
+                                <Link 
+                                  href={`/kategori/${item.slug}`} 
+                                  className="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-200 block text-base"
+                                >
+                                  {item.name}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -140,13 +152,13 @@ export default function Navbar() {
               <h3 className="text-blue-500 font-bold text-sm tracking-wider uppercase mb-2 border-b border-gray-800 pb-1">
                 {category.title}
               </h3>
-              <div className="flex flex-col space-y-2">
+              <div className="flex flex-col space-y-3"> {/* Burada da satır aralarını açtık */}
                 {category.items.map((item) => (
                   <Link 
                     key={item.slug} 
                     href={`/kategori/${item.slug}`} 
                     onClick={() => setIsOpen(false)} 
-                    className="text-gray-300 hover:text-white text-sm py-1.5 pl-2 border-l border-gray-800/50 hover:border-blue-500"
+                    className="text-gray-300 hover:text-white text-base py-1.5 pl-2 border-l border-gray-800/50 hover:border-blue-500"
                   >
                     {item.name}
                   </Link>
