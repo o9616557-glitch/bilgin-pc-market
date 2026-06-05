@@ -424,7 +424,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-    {/* 🚀 DÜZELTİLMİŞ PREMIUM ÜRÜN AÇIKLAMASI 🚀 */}
+   {/* 🚀 KUTUSUZ VE %65 BOYUTUNDA PREMIUM ÜRÜN AÇIKLAMASI 🚀 */}
       {product.aciklama && (
         <div className="max-w-[1000px] mx-auto px-4 sm:px-6 pt-12 pb-10 border-t border-white/10 select-none touch-manipulation">
            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-widest mb-10 text-white flex items-center justify-center gap-3 select-none">
@@ -433,16 +433,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
            <div className="prose prose-invert max-w-none select-none touch-manipulation 
               [&_*]:!select-none [&_*]:!-webkit-touch-callout-none
               
-              /* 1. RESİM AYARLARI: Dev gibi patlamasını engelledik, ortaladık ve köşeleri yumuşattık */
-              [&_img]:w-full md:[&_img]:w-[85%] lg:[&_img]:w-[75%] [&_img]:mx-auto [&_img]:h-auto [&_img]:rounded-2xl [&_img]:block [&_img]:my-10 [&_img]:border [&_img]:border-white/5 [&_img]:shadow-[0_0_40px_rgba(0,0,0,0.5)]
+              /* 1. RESİM AYARLARI: Kutuyu, gölgeyi ve kenarlıkları sildik. Boyutu tam %65 yaptık. */
+              [&_img]:w-full md:[&_img]:w-[65%] [&_img]:mx-auto [&_img]:h-auto [&_img]:block [&_img]:my-10 [&_img]:!border-none [&_img]:!shadow-none [&_img]:!bg-transparent
               
-              /* 2. ANA BAŞLIKLAR (H2): Büyüttük ve daha belirgin yaptık */
+              /* 2. ANA BAŞLIKLAR (H2): Büyük ve net */
               [&_h2]:text-2xl sm:[&_h2]:text-3xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mb-4 [&_h2]:mt-12
               
-              /* 3. ALT BAŞLIKLAR (H3): Daha estetik hale getirdik */
+              /* 3. ALT BAŞLIKLAR (H3): Estetik Bilgin PC Mavisi */
               [&_h3]:text-xl sm:[&_h3]:text-2xl [&_h3]:font-bold [&_h3]:text-[#00d2ff] [&_h3]:mb-3 [&_h3]:mt-10
               
-              /* 4. PARAGRAFLAR (YAZILAR): Boyutunu büyüttük, satır aralıklarını ferahlattık */
+              /* 4. PARAGRAFLAR (YAZILAR): Akıcı, ferah ve keskin */
               [&_p]:text-gray-300 [&_p]:leading-[1.8] [&_p]:text-base sm:[&_p]:text-[17px] [&_p]:mb-6" 
               
               dangerouslySetInnerHTML={{ __html: product.aciklama }} 
