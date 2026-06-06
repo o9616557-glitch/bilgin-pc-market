@@ -20,29 +20,30 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Formda eksik bilgi var şef!" }, { status: 400 });
     }
 
-    const client = await clientPromise;
-    const db = client.db("bilginpcmarket");
     const siparisKodu = `BPC-${Math.floor(100000 + Math.random() * 900000)}`;
 
-    const yeniSiparis = {
-      siparisKodu,
-      musteri,
-      sepet,
-      odemeYontemi,
-      toplamTutar,
-      durum: odemeYontemi === "havale" ? "Havale Bekliyor" : "Ödeme Bekliyor",
-      tarih: new Date(),
-      userEmail: musteri?.eposta || musteri?.email || "",
-      email: musteri?.eposta || musteri?.email || "",
-      items: sepet, 
-      totalPrice: toplamTutar,
-      status: odemeYontemi === "havale" ? "Havale Bekliyor" : "Ödeme Bekliyor"
-    };
-    
-    await db.collection("orders").insertOne(yeniSiparis);
-
-    // 🚀 SADECE HAVALE İSE MAİL AT (Kredi kartıysa asla atma, parayı bekle!)
+    // 🚀 BİNGO: EĞER ÖDEME HAVALE İSE SİPARİŞİ ŞİMDİ KAYDET VE MAİL AT
     if (odemeYontemi === "havale") {
+      const client = await clientPromise;
+      const db = client.db("bilginpcmarket");
+
+      const yeniSiparis = {
+        siparisKodu,
+        musteri,
+        sepet,
+        odemeYontemi: "Havale",
+        toplamTutar,
+        durum: "Havale Bekliyor",
+        tاريخ: new Date(),
+        userEmail: musteri?.eposta || musteri?.email || "",
+        email: musteri?.eposta || musteri?.email || "",
+        items: sepet, 
+        totalPrice: toplamTutar,
+        status: "Havale Bekliyor"
+      };
+      
+      await db.collection("orders").insertOne(yeniSiparis);
+
       try {
         const nodemailer = require("nodemailer");
         const transporter = nodemailer.createTransport({
@@ -82,7 +83,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, odemeYontemi: "havale", siparisKodu });
     }
 
-    // ================= KART ÖDEMESİ KISMI =================
+    // ================= 🚀 BİNGO: KART ÖDEMESİ KISMI (Burada veritabanına KAYIT YOK!) =================
+    // Kart ödemesi seçildiyse, sadece İyzico formunu oluşturuyoruz.
+    // Sipariş kaydını, para hesaba geçtikten sonra 'api/iyzico-sonuc' yapacak.
+    
     let sepetUrunleri = sepet.map((item: any) => ({
       id: item.id, name: item.isim, category1: "Bilgisayar Donanim", itemType: "PHYSICAL", price: (item.fiyat * item.adet).toString()
     }));
@@ -114,6 +118,10 @@ export async function POST(request: Request) {
     });
 
     if (iyzicoSonuc.status === "success") {
+      // 🚀 BİNGO 2: Kredi kartı formunu açmadan hemen önce "GeciciSiparis" adlı bir gizli tabloya veya LocalStorage'a 
+      // güvenmek yerine, bilgileri doğrudan dönüş sayfasına gönderebilmek için Iyzico formunu döneriz.
+      // (Önemli Not: Sepet bilgileri İyzico'dan dönerken kaybolmaması için bir sonraki mesajında 'iyzico-sonuc' dosyasında bir ayar yapmamız gerekecek)
+      
       return NextResponse.json({ success: true, odemeYontemi: "kart", checkoutFormContent: iyzicoSonuc.checkoutFormContent });
     } else {
       return NextResponse.json({ error: `Iyzico Reddetti: ${iyzicoSonuc.errorMessage || JSON.stringify(iyzicoSonuc)}` }, { status: 400 });

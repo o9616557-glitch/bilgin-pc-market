@@ -10,43 +10,42 @@ export async function POST(request: Request) {
       secretKey: process.env.IYZICO_SECRET_KEY,
       uri: process.env.IYZICO_URI
     });
-
-    const formData = await request.formData();
-    const token = formData.get("token");
     
-    const url = new URL(request.url);
-    const siparisKodu = url.searchParams.get("siparisKodu");
+    const body = await request.json();
+    const { musteri, sepet, odemeYontemi, toplamTutar } = body;
 
-    if (!token || !siparisKodu) {
-      // 🚀 303 EKLENDİ (POST methodunu GET'e çevirerek sayfayı açtırır)
-      return NextResponse.redirect(new URL("/odeme?hata=eksik_bilgi", request.url), 303);
+    if (!musteri || !sepet || !odemeYontemi || !toplamTutar) {
+      return NextResponse.json({ error: "Formda eksik bilgi var şef!" }, { status: 400 });
     }
 
-    const sonuc: any = await new Promise((resolve, reject) => {
-      iyzipay.checkoutForm.retrieve({
-        locale: "tr", conversationId: siparisKodu as string, token: token as string
-      }, (err: any, result: any) => {
-        if (err) reject(err); else resolve(result);
-      });
-    });
+    const client = await clientPromise;
+    const db = client.db("bilginpcmarket");
+    const siparisKodu = `BPC-${Math.floor(100000 + Math.random() * 900000)}`;
 
-    // 🚀 BANKA PARAYI ÇEKTİ, ONAYLADI!
-    if (sonuc.paymentStatus === "SUCCESS") {
-      const client = await clientPromise;
-      const db = client.db("bilginpcmarket");
-      
-      await db.collection("orders").updateOne(
-        { siparisKodu: siparisKodu },
-        { $set: { durum: "Ödendi - Hazırlanıyor", odemeId: sonuc.paymentId } }
-      );
+    // 🚀 BİNGO: SİPARİŞ KART İSE "KREDİ KARTI" VE "ÖDEME BEKLENİYOR" OLARAK KAYDEDİLİR!
+    const gercekOdemeYontemi = odemeYontemi === "havale" ? "Havale / EFT" : "Kredi Kartı";
+    const ilkDurum = odemeYontemi === "havale" ? "Havale Bekliyor" : "Ödeme Bekleniyor";
 
-      // 🎯 KART ONAYLANDI MAİLİ
+    const yeniSiparis = {
+      siparisKodu,
+      musteri,
+      sepet,
+      odemeYontemi: gercekOdemeYontemi,
+      toplamTutar,
+      durum: ilkDurum,
+      tarih: new Date(),
+      userEmail: musteri?.eposta || musteri?.email || "",
+      email: musteri?.eposta || musteri?.email || "",
+      items: sepet, 
+      totalPrice: toplamTutar,
+      status: ilkDurum
+    };
+    
+    await db.collection("orders").insertOne(yeniSiparis);
+
+    // ================= HAVALE İSE MAİL AT VE BİTİR =================
+    if (odemeYontemi === "havale") {
       try {
-        const siparis = await db.collection("orders").findOne({ siparisKodu: siparisKodu });
-        const musteriMaili = siparis?.email || siparis?.userEmail || siparis?.musteri?.eposta || "o9616557@gmail.com";
-        const musteri = siparis?.musteri || {};
-        const toplamTutar = siparis?.toplamTutar || siparis?.totalPrice || 0;
-
         const nodemailer = require("nodemailer");
         const transporter = nodemailer.createTransport({
           host: "smtp.gmail.com", port: 465, secure: true,
@@ -54,41 +53,74 @@ export async function POST(request: Request) {
           tls: { rejectUnauthorized: false }
         });
 
+        const musteriMaili = musteri?.eposta || musteri?.email || "o9616557@gmail.com";
         const mailSecenekleri = {
           from: `"Bilgin PC Market" <o9616557@gmail.com>`,
           to: musteriMaili,
-          subject: "Ödemeniz Başarılı! 🚀 (Siparişiniz Hazırlanıyor)",
+          subject: "Siparişiniz Alındı! 📦 (Havale Bekleniyor)",
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #09090b; color: #ffffff; padding: 30px; border-radius: 12px; border: 1px solid #27272a;">
-              <h2 style="color: #3b82f6; text-align: center; text-transform: uppercase;">Ödemeniz Alındı! 🎉</h2>
+              <h2 style="color: #3b82f6; text-align: center; text-transform: uppercase;">Siparişiniz Alındı! 🎉</h2>
               <p>Merhaba <strong style="color: #fff;">${musteri?.ad || ""} ${musteri?.soyad || ""}</strong>,</p>
-              <p>Ödemeniz Iyzico tarafından başarıyla onaylandı. Siparişiniz şu an <strong>Hazırlanıyor</strong> aşamasına geçmiştir.</p>
+              <p>Siparişiniz sistemimize başarıyla ulaştı. Havale/EFT işleminiz onaylandığında siparişiniz hazırlık aşamasına geçilecektir.</p>
               
               <div style="background-color: #121215; padding: 25px; border-radius: 8px; margin: 25px 0; border: 1px solid #27272a; box-shadow: 0 0 15px rgba(0, 229, 255, 0.05);">
-                <h3 style="color: #3b82f6; margin-top: 0; border-bottom: 1px solid #27272a; padding-bottom: 10px;">Sipariş Detayları</h3>
+                <h3 style="color: #3b82f6; margin-top: 0; border-bottom: 1px solid #27272a; padding-bottom: 10px;">Sipariş Bilgileriniz</h3>
                 <p style="color: #a1a1aa; font-size: 14px;"><strong>Sipariş Kodu:</strong> <span style="color: #fff;">${siparisKodu}</span></p>
                 <p style="color: #a1a1aa; font-size: 14px;"><strong>Ad Soyad:</strong> <span style="color: #fff;">${musteri?.ad || ""} ${musteri?.soyad || ""}</span></p>
                 <p style="color: #a1a1aa; font-size: 14px;"><strong>Telefon:</strong> <span style="color: #fff;">${musteri?.telefon || "-"}</span></p>
                 <p style="color: #a1a1aa; font-size: 14px;"><strong>Şehir / İlçe:</strong> <span style="color: #fff;">${musteri?.sehir || ""} / ${musteri?.ilce || ""}</span></p>
                 <p style="color: #a1a1aa; font-size: 14px;"><strong>Teslimat Adresi:</strong> <span style="color: #fff;">${musteri?.adres || "-"}</span></p>
-                <p style="color: #a1a1aa; font-size: 14px;"><strong>Ödenen Tutar:</strong> <span style="color: #3b82f6; font-weight: bold; font-size: 18px;">${toplamTutar} TL</span></p>
+                <p style="color: #a1a1aa; font-size: 14px;"><strong>Ödenecek Tutar:</strong> <span style="color: #3b82f6; font-weight: bold; font-size: 18px;">${toplamTutar} TL</span></p>
               </div>
               
               <p style="color: #a1a1aa; font-size: 14px; text-align: center;">Bizi tercih ettiğiniz için teşekkür ederiz!<br><br><strong style="color: #3b82f6;">Bilgin PC Market</strong></p>
             </div>
           `
         };
-        transporter.sendMail(mailSecenekleri).catch((err: any) => console.log(err));
-      } catch (mailHatasi) { }
+        transporter.sendMail(mailSecenekleri).catch((err: any) => console.error(err));
+      } catch (mailHatasi) {}
 
-      // 🚀 303 EKLENDİ! Artık Sipariş Başarılı sayfasına jilet gibi geçecek.
-      return NextResponse.redirect(new URL(`/siparis-basarili?kodu=${siparisKodu}`, request.url), 303);
-    } else {
-      // 🚀 303 EKLENDİ
-      return NextResponse.redirect(new URL("/odeme?hata=odeme_reddedildi", request.url), 303);
+      return NextResponse.json({ success: true, odemeYontemi: "havale", siparisKodu });
     }
-  } catch (error) {
-    // 🚀 303 EKLENDİ
-    return NextResponse.redirect(new URL("/odeme?hata=sistem_hatasi", request.url), 303);
+
+    // ================= KART ÖDEMESİ KISMI (Sadece Form Oluşturulur, Para Çekilmedi) =================
+    let sepetUrunleri = sepet.map((item: any) => ({
+      id: item.id, name: item.isim, category1: "Bilgisayar Donanim", itemType: "PHYSICAL", price: (item.fiyat * item.adet).toString()
+    }));
+
+    const araToplam = sepet.reduce((top: number, u: any) => top + (u.fiyat * u.adet), 0);
+    const kargoUcreti = araToplam > 5000 ? 0 : 1;
+    
+    if (kargoUcreti > 0) {
+      sepetUrunleri.push({ id: "KARGO-01", name: "Teslimat Bedeli", category1: "Hizmet", itemType: "VIRTUAL", price: kargoUcreti.toString() });
+    }
+
+    const iyzicoTalep = {
+      locale: "tr", conversationId: siparisKodu, price: toplamTutar.toString(), paidPrice: toplamTutar.toString(), currency: "TRY", basketId: siparisKodu, paymentGroup: "PRODUCT",
+      callbackUrl: `https://www.bilginpcmarket.com/api/iyzico-sonuc?siparisKodu=${siparisKodu}`,
+      enabledInstallments: [1, 2, 3, 6, 9],
+      buyer: {
+        id: "MUSTERI-123", name: musteri.ad || "Müşteri", surname: musteri.soyad || "Soyadı", gsmNumber: "+905555555555", email: musteri.eposta || "test@test.com", identityNumber: "11111111111", lastLoginDate: "2026-05-21 12:00:00", registrationDate: "2026-05-21 12:00:00", registrationAddress: musteri.adres || "Test Adresi", ip: "85.34.78.112", city: musteri.sehir || "Istanbul", country: "Turkey", zipCode: "34000"
+      },
+      shippingAddress: { contactName: `${musteri.ad} ${musteri.soyad}`, city: musteri.sehir || "Istanbul", country: "Turkey", address: musteri.adres || "Test Adresi", zipCode: "34000" },
+      billingAddress: { contactName: `${musteri.ad} ${musteri.soyad}`, city: musteri.sehir || "Istanbul", country: "Turkey", address: musteri.adres || "Test Adresi", zipCode: "34000" },
+      basketItems: sepetUrunleri
+    };
+
+    const iyzicoSonuc: any = await new Promise((resolve) => {
+      iyzipay.checkoutFormInitialize.create(iyzicoTalep, (err: any, result: any) => {
+        if (err) resolve({ status: "failure", errorMessage: err.message || JSON.stringify(err) });
+        else resolve(result);
+      });
+    });
+
+    if (iyzicoSonuc.status === "success") {
+      return NextResponse.json({ success: true, odemeYontemi: "kart", checkoutFormContent: iyzicoSonuc.checkoutFormContent });
+    } else {
+      return NextResponse.json({ error: `Iyzico Reddetti: ${iyzicoSonuc.errorMessage || JSON.stringify(iyzicoSonuc)}` }, { status: 400 });
+    }
+  } catch (error: any) {
+    return NextResponse.json({ error: `Arka Uç Çöktü: ${error.message}` }, { status: 500 });
   }
 }
