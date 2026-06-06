@@ -106,13 +106,15 @@ export default function OdemeSayfasi() {
       const icerik = document.createRange().createContextualFragment(iyzicoFormHtml);
       document.getElementById("iyzipay-checkout-form")?.appendChild(icerik);
 
-      // BİNGO: İyzico sayfaya yüklendiği an ekranı yağ gibi aşağı kaydırıp ortalar!
+      // 🚀 BİNGO: İyzico'yu tam hizasında, bir tık yukarıda durdurur (Üst menüyü ezmez)
       setTimeout(() => {
         const panel = document.getElementById("iyzico-panel");
         if (panel) {
-          panel.scrollIntoView({ behavior: "smooth", block: "center" });
+          // -120 rakamı üstten bırakılacak boşluktur. Ekran tam kararında durur.
+          const y = panel.getBoundingClientRect().top + window.scrollY - 120;
+          window.scrollTo({ top: y, behavior: "smooth" });
         }
-      }, 300); // 300 milisaniye gecikme, formun tam oturmasını sağlar
+      }, 300);
     }
   }, [iyzicoFormHtml]);
 
