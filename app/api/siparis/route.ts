@@ -24,19 +24,23 @@ export async function POST(request: Request) {
     const db = client.db("bilginpcmarket");
     const siparisKodu = `BPC-${Math.floor(100000 + Math.random() * 900000)}`;
 
+    // 🚀 BİNGO: ÖDEME YÖNTEMİ VE DURUMUNU BURADA KESİN MÜHÜRLÜYORUZ
+    const gercekOdemeYontemi = odemeYontemi === "havale" ? "Havale / EFT" : "Kredi Kartı";
+    const ilkDurum = odemeYontemi === "havale" ? "Havale Bekliyor" : "Ödeme Bekleniyor";
+
     const yeniSiparis = {
       siparisKodu,
       musteri,
       sepet,
-      odemeYontemi,
+      odemeYontemi: gercekOdemeYontemi, // Panelde artık net olarak Kredi Kartı veya Havale/EFT yazar
       toplamTutar,
-      durum: odemeYontemi === "havale" ? "Havale Bekliyor" : "Ödeme Bekliyor",
+      durum: ilkDurum, // Kartsa 'Ödeme Bekleniyor', havaleyse 'Havale Bekliyor'
       tarih: new Date(),
       userEmail: musteri?.eposta || musteri?.email || "",
       email: musteri?.eposta || musteri?.email || "",
       items: sepet, 
       totalPrice: toplamTutar,
-      status: odemeYontemi === "havale" ? "Havale Bekliyor" : "Ödeme Bekliyor"
+      status: ilkDurum
     };
     
     await db.collection("orders").insertOne(yeniSiparis);
