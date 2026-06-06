@@ -4,6 +4,7 @@ import { useCart } from "../CartContext";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import toast from "react-hot-toast";
 
 export default function OdemeSayfasi() {
   const { data: session } = useSession();
@@ -92,13 +93,28 @@ export default function OdemeSayfasi() {
   const { araToplam, kargo, genelToplam } = hesaplaTutar();
   const inputDegis = (e: any) => { setForm({ ...form, [e.target.name]: e.target.value }); };
   const faturaInputDegis = (e: any) => { setFaturaForm({ ...faturaForm, [e.target.name]: e.target.value }); };
-  // 🚀 DÜN KUSURSUZ ÇALIŞAN ORİJİNAL İYZİCO KODU (GERİ GETİRİLDİ)
+  // 🚀 İYZİCO YENİDEN YÜKLEME VE BYPASS MOTORU
   useEffect(() => {
     if (iyzicoFormHtml) {
-      const gonderilenScript = document.getElementById("iyzico-script");
-      if (gonderilenScript) gonderilenScript.remove();
-      const icerik = document.createRange().createContextualFragment(iyzicoFormHtml);
-      document.getElementById("iyzipay-checkout-form")?.appendChild(icerik);
+      const formDiv = document.getElementById("iyzipay-checkout-form");
+      if (formDiv) {
+        formDiv.innerHTML = "";
+        const geciciDiv = document.createElement("div");
+        geciciDiv.innerHTML = iyzicoFormHtml;
+        formDiv.appendChild(geciciDiv);
+
+        const scriptTagleri = geciciDiv.getElementsByTagName("script");
+        for (let i = 0; i < scriptTagleri.length; i++) {
+          const yeniScript = document.createElement("script");
+          yeniScript.id = "bilgin-iyzico-script";
+          yeniScript.innerHTML = scriptTagleri[i].innerHTML;
+          
+          if (scriptTagleri[i].src) {
+            yeniScript.src = scriptTagleri[i].src + "?v=" + new Date().getTime();
+          }
+          document.body.appendChild(yeniScript);
+        }
+      }
     }
   }, [iyzicoFormHtml]);
 
@@ -134,13 +150,14 @@ export default function OdemeSayfasi() {
           window.location.href = "/siparis-basarili?kodu=" + data.siparisKodu;
         } else {
           setIyzicoFormHtml(data.checkoutFormContent);
+          // EKRANI YAĞ GİBİ İYZİCOYA KAYDIR
+          setTimeout(() => document.getElementById("iyzico-panel")?.scrollIntoView({ behavior: "smooth", block: "center" }), 200);
         }
       } else {
-        // En sağlam hata gösterici
-        alert("Hata Oluştu: " + (data.error || "İşlem reddedildi."));
+        toast.error("Hata Oluştu: " + (data.error || data.message || "İşlem reddedildi."));
       }
     } catch (hata) {
-      alert("Sunucu ile bağlantı kurulamadı. Lütfen tekrar deneyin.");
+      toast.error("Sunucu ile bağlantı kurulamadı. Lütfen tekrar deneyin.");
     } finally {
       setYukleniyor(false);
     }
@@ -177,7 +194,8 @@ export default function OdemeSayfasi() {
 
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="flex-2 w-full lg:w-2/3">
-            <form onSubmit={siparisTamamla} className={["bg-[#09090b] border border-white/5 rounded-3xl p-5 sm:p-8 shadow-2xl relative overflow-hidden transition-all duration-300", iyzicoFormHtml ? "hidden" : "block"].join(" ")}>
+            {/* 🚀 FORM ARTIK KAPANMIYOR, SADECE BUĞULANIYOR! */}
+            <form onSubmit={siparisTamamla} className={["bg-[#09090b] border border-white/5 rounded-3xl p-5 sm:p-8 shadow-2xl relative overflow-hidden transition-all duration-700", iyzicoFormHtml ? "opacity-30 pointer-events-none blur-[2px]" : "block"].join(" ")}>
               <h3 className="text-base sm:text-lg font-black text-white mb-5 flex items-center gap-2 uppercase tracking-wider"><span className="text-[#3b82f6]">📍</span> Teslimat Bilgileri</h3>
 
               {adresAraniyor ? (
@@ -267,19 +285,28 @@ export default function OdemeSayfasi() {
               </button>
             </form>
 
+            {/* 🚀 BİNGO: İYZİCO KUTUSU VE SPINNER YÜKLEME EKRANI */}
             {iyzicoFormHtml && (
-              <div className="bg-[#09090b] border border-white/5 rounded-3xl p-4 sm:p-6 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in duration-300">
+              <div id="iyzico-panel" className="bg-[#09090b] border border-[#3b82f6]/40 rounded-3xl p-4 sm:p-6 shadow-[0_0_40px_rgba(59,130,246,0.15)] relative overflow-hidden animate-in slide-in-from-bottom-8 duration-500 mt-8">
                 <div className="flex justify-between items-center mb-4 pb-4 border-b border-white/10">
                    <h3 className="font-black text-white uppercase tracking-wider text-sm sm:text-base flex items-center gap-2">
                      <ShieldCheck className="w-5 h-5 text-emerald-400" /> Güvenli Ödeme Ekranı
                    </h3>
-                   {/* 🚀 BİNGO: İptal butonu artık sayfayı tertemiz yapıyor! */}
                    <button onClick={() => window.location.reload()} className="text-slate-400 hover:text-white text-xs font-bold px-3 py-1.5 bg-[#121215] rounded-lg border border-white/10 transition-colors">
-                     İptal Et / Geri Dön
+                     Vazgeç / Geri Dön
                    </button>
                 </div>
-                <div className="bg-white p-2 sm:p-4 rounded-2xl w-full">
-                  <div id="iyzipay-checkout-form" className="responsive"></div>
+                
+                <div className="bg-white p-2 sm:p-4 rounded-2xl w-full relative min-h-[350px] flex items-center justify-center">
+                  
+                  {/* ARKA PLANDA DÖNEN YÜKLENİYOR SPINNERI */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-0 bg-slate-50 rounded-2xl">
+                     <div className="w-10 h-10 border-4 border-[#3b82f6]/20 border-t-[#3b82f6] rounded-full animate-spin mb-3"></div>
+                     <span className="text-slate-500 font-bold text-sm animate-pulse uppercase tracking-widest">İyzico Yükleniyor...</span>
+                  </div>
+
+                  {/* İYZİCO BURAYA GELECEK VE ÜSTÜNÜ KAPATACAK */}
+                  <div id="iyzipay-checkout-form" className="responsive w-full relative z-10"></div>
                 </div>
               </div>
             )}
@@ -313,8 +340,7 @@ export default function OdemeSayfasi() {
           </div>
         </div>
       </div>
-
-     {acikSozlesme && (
+{acikSozlesme && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <div className="bg-[#09090b] border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden">
             <div className="flex justify-between items-center p-3 sm:p-4 border-b border-slate-800 bg-[#121215]"><h3 className="text-white font-bold uppercase tracking-wider text-sm sm:text-base">{acikSozlesme === "mesafeli" ? "Mesafeli Satış Sözleşmesi" : "Gizlilik Politikası"}</h3><button onClick={() => setAcikSozlesme(null)} className="text-slate-400 hover:text-white p-1"><X className="w-5 h-5" /></button></div>
