@@ -4,11 +4,12 @@ const addressSchema = new mongoose.Schema({
   title: { type: String, required: true }, // Örn: Ev, İş
   fullName: { type: String, required: true },
   phone: { type: String, required: true },
+  email: { type: String }, // 🚀 ŞEFİM YENİ EKLENDİ (E-Posta Rafı)
   city: { type: String, required: true },
   district: { type: String, required: true },
   fullAddress: { type: String, required: true },
-  isDefaultDelivery: { type: Boolean, default: false }, // 🚀 ŞEFİM YENİ EKLENDİ (Teslimat)
-  isDefaultBilling: { type: Boolean, default: false },  // 🚀 ŞEFİM YENİ EKLENDİ (Fatura)
+  isDefaultDelivery: { type: Boolean, default: false }, 
+  isDefaultBilling: { type: Boolean, default: false },  
 });
 
 const userSchema = new mongoose.Schema(
