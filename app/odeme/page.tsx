@@ -317,7 +317,7 @@ export default function OdemeSayfasi() {
                         <img src={urun.resim || urun.image || "/placeholder.jpg"} alt={urun.isim} className="max-w-full max-h-full object-contain" />
                       </div>
                       <div className="flex-1 flex flex-col min-w-0">
-                        <span className="text-white text-[10px] sm:text-xs font-bold truncate block" title={urun.isim}>{urun.isim}</span>
+                      <span className="text-white text-[10px] sm:text-xs font-bold leading-snug break-words" title={urun.isim}>{urun.isim}</span>
                         <span className="text-slate-400 text-[9px] sm:text-[10px]">{urun.adet} Adet</span>
                       </div>
                       <div className="text-[#3b82f6] font-black text-xs sm:text-sm shrink-0">
