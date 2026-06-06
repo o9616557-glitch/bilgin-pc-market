@@ -15,9 +15,8 @@ function BanknoteIcon(props: any) {
   );
 }
 
-// 🚀 AKILLI KELİME AVCISI MOTORLARI 🚀
-// Veritabanına dokunmadan ürün isimlerinden özellikleri çeker
-const bilinenMarkalar = ["ASUS", "MSI", "GIGABYTE", "SAPPHIRE", "PALIT", "ZOTAC", "GALAX", "PNY", "INNO3D", "EVGA", "XFX", "POWERCOLOR"];
+// 🚀 ZIRHLI KELİME AVCISI MOTORLARI 🚀
+const bilinenMarkalar = ["ASUS", "MSI", "GIGABYTE", "SAPPHIRE", "PALIT", "ZOTAC", "GALAX", "PNY", "INNO3D", "EVGA", "XFX", "POWERCOLOR", "ASROCK"];
 
 const getMarka = (urun: any) => {
   if (urun.marka && urun.marka !== "Diğer") return urun.marka.toUpperCase();
@@ -29,26 +28,32 @@ const getMarka = (urun: any) => {
 };
 
 const getGpu = (isim: string) => {
-  const t = isim.toUpperCase();
+  if (!isim) return null;
+  // Bütün boşlukları siliyoruz ki "RTX 4070" de "RTX4070" de aynı okunsun
+  const t = isim.toUpperCase().replace(/\s+/g, ""); 
   if (t.includes("NVIDIA") || t.includes("RTX") || t.includes("GTX") || t.includes("GEFORCE")) return "NVIDIA";
-  if (t.includes("AMD") || t.includes("RADEON") || t.includes("RX ")) return "AMD";
+  if (t.includes("AMD") || t.includes("RADEON") || t.includes("RX")) return "AMD";
   if (t.includes("INTEL") || t.includes("ARC")) return "Intel";
   return null;
 };
 
 const getSeri = (isim: string) => {
-  const t = isim.toUpperCase();
-  if (t.includes("RTX 40")) return "RTX 4000 Serisi";
-  if (t.includes("RTX 30")) return "RTX 3000 Serisi";
-  if (t.includes("RTX 20") || t.includes("GTX 16")) return "Eski Nesil (RTX 20 / GTX 16)";
-  if (t.includes("RX 7")) return "RX 7000 Serisi";
-  if (t.includes("RX 6")) return "RX 6000 Serisi";
+  if (!isim) return null;
+  const t = isim.toUpperCase().replace(/\s+/g, ""); // Boşlukları yutuyoruz!
+  
+  if (t.includes("RTX40")) return "RTX 4000 Serisi";
+  if (t.includes("RTX30")) return "RTX 3000 Serisi";
+  if (t.includes("RTX20") || t.includes("GTX16") || t.includes("GTX10")) return "Eski Nesil (RTX 20 / GTX 16)";
+  if (t.includes("RX7")) return "RX 7000 Serisi";
+  if (t.includes("RX6")) return "RX 6000 Serisi";
+  if (t.includes("RX5")) return "RX 5000 Serisi";
   return null;
 };
 
 const getVram = (isim: string) => {
-  const t = isim.toUpperCase();
-  const match = t.match(/(\d+)\s*GB/); // "12GB", "12 GB", "16GB" vb. bulur
+  if (!isim) return null;
+  const t = isim.toUpperCase().replace(/\s+/g, ""); // "12 GB" -> "12GB"
+  const match = t.match(/(\d+)GB/); // Sadece rakam ve GB yan yanaysa al
   if (match) return `${match[1]} GB`;
   return null;
 };
@@ -57,8 +62,8 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
   
-  // Kategori Ekran Kartı mı Kontrolü
-  const isEkranKarti = sayfaBasligi.includes("EKRAN KART") || sayfaBasligi.includes("VGA");
+  // Kategori Ekran Kartı mı Kontrolü (Daha geniş tuttuk)
+  const isEkranKarti = sayfaBasligi.includes("EKRAN") || sayfaBasligi.includes("VGA") || sayfaBasligi.includes("GPU");
 
   // 🚀 STANDART FİLTRE HAFIZALARI
   const [seciliMarkalar, setSeciliMarkalar] = useState<string[]>([]);
@@ -73,13 +78,15 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
 
   const [mobilFiltreAcik, setMobilFiltreAcik] = useState(false);
 
-  // Filtre Seçeneklerini Otomatik Üret
+  // Filtre Seçeneklerini Otomatik Üret (Sort ile alfabetik dizeriz)
   const markalar = useMemo(() => Array.from(new Set(urunler.map(u => getMarka(u)))).filter(Boolean).sort(), [urunler]);
   const gpuList = useMemo(() => Array.from(new Set(urunler.map(u => getGpu(u.isim || u.name)))).filter(Boolean).sort(), [urunler]);
   const seriList = useMemo(() => Array.from(new Set(urunler.map(u => getSeri(u.isim || u.name)))).filter(Boolean).sort(), [urunler]);
+  
+  // GB'ları büyüklüğüne göre dizer (Örn: 8, 12, 16, 24)
   const vramList = useMemo(() => Array.from(new Set(urunler.map(u => getVram(u.isim || u.name))))
     .filter(Boolean)
-    .sort((a: any, b: any) => parseInt(a) - parseInt(b)), [urunler]); // GB'ları sayıya göre sıralar (8, 12, 16, 24)
+    .sort((a: any, b: any) => parseInt(a) - parseInt(b)), [urunler]); 
 
   // 🚀 ANLIK FİLTRELEME MOTORU
   const filtrelenmisUrunler = useMemo(() => {
