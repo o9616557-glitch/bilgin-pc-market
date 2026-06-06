@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 // @ts-ignore
 import Iyzipay from "iyzipay";
-// @ts-ignore
-import "postman-request"; 
 
 export async function POST(request: Request) {
   try {
@@ -20,30 +18,33 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Formda eksik bilgi var şef!" }, { status: 400 });
     }
 
+    const client = await clientPromise;
+    const db = client.db("bilginpcmarket");
     const siparisKodu = `BPC-${Math.floor(100000 + Math.random() * 900000)}`;
 
-    // 🚀 BİNGO: EĞER ÖDEME HAVALE İSE SİPARİŞİ ŞİMDİ KAYDET VE MAİL AT
+    // 🚀 BİNGO: SİPARİŞ KART İSE "KREDİ KARTI" VE "ÖDEME BEKLENİYOR" OLARAK KAYDEDİLİR!
+    const gercekOdemeYontemi = odemeYontemi === "havale" ? "Havale / EFT" : "Kredi Kartı";
+    const ilkDurum = odemeYontemi === "havale" ? "Havale Bekliyor" : "Ödeme Bekleniyor";
+
+    const yeniSiparis = {
+      siparisKodu,
+      musteri,
+      sepet,
+      odemeYontemi: gercekOdemeYontemi,
+      toplamTutar,
+      durum: ilkDurum,
+      tarih: new Date(),
+      userEmail: musteri?.eposta || musteri?.email || "",
+      email: musteri?.eposta || musteri?.email || "",
+      items: sepet, 
+      totalPrice: toplamTutar,
+      status: ilkDurum
+    };
+    
+    await db.collection("orders").insertOne(yeniSiparis);
+
+    // ================= HAVALE İSE MAİL AT VE BİTİR =================
     if (odemeYontemi === "havale") {
-      const client = await clientPromise;
-      const db = client.db("bilginpcmarket");
-
-      const yeniSiparis = {
-        siparisKodu,
-        musteri,
-        sepet,
-        odemeYontemi: "Havale",
-        toplamTutar,
-        durum: "Havale Bekliyor",
-        tاريخ: new Date(),
-        userEmail: musteri?.eposta || musteri?.email || "",
-        email: musteri?.eposta || musteri?.email || "",
-        items: sepet, 
-        totalPrice: toplamTutar,
-        status: "Havale Bekliyor"
-      };
-      
-      await db.collection("orders").insertOne(yeniSiparis);
-
       try {
         const nodemailer = require("nodemailer");
         const transporter = nodemailer.createTransport({
@@ -83,10 +84,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, odemeYontemi: "havale", siparisKodu });
     }
 
-    // ================= 🚀 BİNGO: KART ÖDEMESİ KISMI (Burada veritabanına KAYIT YOK!) =================
-    // Kart ödemesi seçildiyse, sadece İyzico formunu oluşturuyoruz.
-    // Sipariş kaydını, para hesaba geçtikten sonra 'api/iyzico-sonuc' yapacak.
-    
+    // ================= KART ÖDEMESİ KISMI (Sadece Form Oluşturulur, Para Çekilmedi) =================
     let sepetUrunleri = sepet.map((item: any) => ({
       id: item.id, name: item.isim, category1: "Bilgisayar Donanim", itemType: "PHYSICAL", price: (item.fiyat * item.adet).toString()
     }));
@@ -118,10 +116,6 @@ export async function POST(request: Request) {
     });
 
     if (iyzicoSonuc.status === "success") {
-      // 🚀 BİNGO 2: Kredi kartı formunu açmadan hemen önce "GeciciSiparis" adlı bir gizli tabloya veya LocalStorage'a 
-      // güvenmek yerine, bilgileri doğrudan dönüş sayfasına gönderebilmek için Iyzico formunu döneriz.
-      // (Önemli Not: Sepet bilgileri İyzico'dan dönerken kaybolmaması için bir sonraki mesajında 'iyzico-sonuc' dosyasında bir ayar yapmamız gerekecek)
-      
       return NextResponse.json({ success: true, odemeYontemi: "kart", checkoutFormContent: iyzicoSonuc.checkoutFormContent });
     } else {
       return NextResponse.json({ error: `Iyzico Reddetti: ${iyzicoSonuc.errorMessage || JSON.stringify(iyzicoSonuc)}` }, { status: 400 });
