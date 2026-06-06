@@ -15,8 +15,8 @@ function BanknoteIcon(props: any) {
   );
 }
 
-// 🚀 ZIRHLI KELİME AVCISI MOTORLARI 🚀
-const bilinenMarkalar = ["ASUS", "MSI", "GIGABYTE", "SAPPHIRE", "PALIT", "ZOTAC", "GALAX", "PNY", "INNO3D", "EVGA", "XFX", "POWERCOLOR", "ASROCK"];
+// 🚀 ZIRHLI KELİME AVCISI MOTORLARI (GPU + CPU + ANAKART) 🚀
+const bilinenMarkalar = ["ASUS", "MSI", "GIGABYTE", "SAPPHIRE", "PALIT", "ZOTAC", "GALAX", "PNY", "INNO3D", "EVGA", "XFX", "POWERCOLOR", "ASROCK", "INTEL", "AMD"];
 
 const getMarka = (urun: any) => {
   if (urun.marka && urun.marka !== "Diğer") return urun.marka.toUpperCase();
@@ -27,6 +27,7 @@ const getMarka = (urun: any) => {
   return "Diğer";
 };
 
+// --- EKRAN KARTI (GPU) AVCILARI ---
 const getGpu = (isim: string) => {
   if (!isim) return null;
   const t = isim.toUpperCase().replace(/\s+/g, ""); 
@@ -38,9 +39,7 @@ const getGpu = (isim: string) => {
 
 const getSeri = (isim: string) => {
   if (!isim) return null;
-  const t = isim.toUpperCase().replace(/\s+/g, ""); // Boşlukları yutuyoruz!
-  
-  // 🔥 RTX 5000 serisi eklendi!
+  const t = isim.toUpperCase().replace(/\s+/g, ""); 
   if (t.includes("RTX50")) return "RTX 5000 Serisi";
   if (t.includes("RTX40")) return "RTX 4000 Serisi";
   if (t.includes("RTX30")) return "RTX 3000 Serisi";
@@ -51,20 +50,57 @@ const getSeri = (isim: string) => {
   return null;
 };
 
-// 🔥 EFSANE VRAM ÇÖZÜMÜ: Artık rakamları birleştirip saçmalamaz!
 const getVram = (isim: string) => {
   if (!isim) return null;
-  const t = isim.toUpperCase().replace(/\s+/g, ""); // Bütün boşlukları sildik (Örn: RTX407012GB)
-  
-  // Sadece mantıklı VRAM kapasitelerini sırayla arıyoruz. 
-  // Böylece "407012GB" yazsa bile sadece içindeki "12GB" kısmını cımbızlayacak!
+  const t = isim.toUpperCase().replace(/\s+/g, ""); 
   const vramKapasiteleri = ["24GB", "20GB", "16GB", "12GB", "10GB", "8GB", "6GB", "4GB", "2GB"];
-  
   for (const vram of vramKapasiteleri) {
-    if (t.includes(vram)) {
-      return vram.replace("GB", " GB"); // Ekranda jilet gibi "12 GB" dursun diye ayırıyoruz
-    }
+    if (t.includes(vram)) return vram.replace("GB", " GB"); 
   }
+  return null;
+};
+
+// --- İŞLEMCİ (CPU) AVCILARI ---
+const getIslemciSeri = (isim: string) => {
+  if (!isim) return null;
+  const t = isim.toUpperCase().replace(/\s+/g, "");
+  if (t.includes("RYZEN9")) return "Ryzen 9";
+  if (t.includes("RYZEN7")) return "Ryzen 7";
+  if (t.includes("RYZEN5")) return "Ryzen 5";
+  if (t.includes("RYZEN3")) return "Ryzen 3";
+  if (t.includes("COREI9") || t.includes("I9-")) return "Core i9";
+  if (t.includes("COREI7") || t.includes("I7-")) return "Core i7";
+  if (t.includes("COREI5") || t.includes("I5-")) return "Core i5";
+  if (t.includes("COREI3") || t.includes("I3-")) return "Core i3";
+  return null;
+};
+
+// --- ANAKART VE İŞLEMCİ ORTAK AVCISI (SOKET) ---
+const getSoket = (isim: string) => {
+  if (!isim) return null;
+  const t = isim.toUpperCase().replace(/\s+/g, "");
+  if (t.includes("AM5")) return "AM5";
+  if (t.includes("AM4")) return "AM4";
+  if (t.includes("1700") || t.includes("LGA1700")) return "LGA 1700";
+  if (t.includes("1200") || t.includes("LGA1200")) return "LGA 1200";
+  if (t.includes("1151") || t.includes("LGA1151")) return "LGA 1151";
+  return null;
+};
+
+// --- ANAKART ÖZEL AVCILARI ---
+const getCipset = (isim: string) => {
+  if (!isim) return null;
+  const t = isim.toUpperCase();
+  const match = t.match(/(A520|B550|X570|A620|B650E|B650|X670E|X670|X870E|X870|H410|H510|H610|B460|B560|B660|B760|Z490|Z590|Z690|Z790|Z890)/);
+  if (match) return match[1];
+  return null;
+};
+
+const getDdr = (isim: string) => {
+  if (!isim) return null;
+  const t = isim.toUpperCase().replace(/\s+/g, "");
+  if (t.includes("DDR5")) return "DDR5";
+  if (t.includes("DDR4")) return "DDR4";
   return null;
 };
 
@@ -72,49 +108,77 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
   
-  const isEkranKarti = sayfaBasligi.includes("EKRAN") || sayfaBasligi.includes("VGA") || sayfaBasligi.includes("GPU");
+  // 🚀 KATEGORİ TANIMA SİSTEMİ
+  const b = sayfaBasligi.toUpperCase();
+  const isEkranKarti = b.includes("EKRAN") || b.includes("VGA") || b.includes("GPU");
+  const isIslemci = b.includes("İŞLEMCİ") || b.includes("ISLEMCI") || b.includes("CPU");
+  const isAnakart = b.includes("ANAKART") || b.includes("MOTHERBOARD");
 
+  // 🚀 STANDART FİLTRE HAFIZALARI
   const [seciliMarkalar, setSeciliMarkalar] = useState<string[]>([]);
   const [sadeceStokta, setSadeceStokta] = useState(false);
   const [minFiyat, setMinFiyat] = useState<string>("");
   const [maxFiyat, setMaxFiyat] = useState<string>("");
   
+  // 🚀 DONANIMLARA ÖZEL FİLTRE HAFIZALARI
   const [seciliGpu, setSeciliGpu] = useState<string[]>([]);
   const [seciliSeri, setSeciliSeri] = useState<string[]>([]);
   const [seciliVram, setSeciliVram] = useState<string[]>([]);
+  
+  const [seciliIslemciSeri, setSeciliIslemciSeri] = useState<string[]>([]);
+  const [seciliSoket, setSeciliSoket] = useState<string[]>([]);
+  
+  const [seciliCipset, setSeciliCipset] = useState<string[]>([]);
+  const [seciliDdr, setSeciliDdr] = useState<string[]>([]);
 
   const [mobilFiltreAcik, setMobilFiltreAcik] = useState(false);
 
+  // 🚀 LİSTELERİ OTOMATİK OLUŞTUR
   const markalar = useMemo(() => Array.from(new Set(urunler.map(u => getMarka(u)))).filter(Boolean).sort(), [urunler]);
+  
   const gpuList = useMemo(() => Array.from(new Set(urunler.map(u => getGpu(u.isim || u.name)))).filter(Boolean).sort(), [urunler]);
   const seriList = useMemo(() => Array.from(new Set(urunler.map(u => getSeri(u.isim || u.name)))).filter(Boolean).sort(), [urunler]);
+  const vramList = useMemo(() => Array.from(new Set(urunler.map(u => getVram(u.isim || u.name)))).filter(Boolean).sort((a: any, b: any) => parseInt(a) - parseInt(b)), [urunler]); 
   
-  const vramList = useMemo(() => Array.from(new Set(urunler.map(u => getVram(u.isim || u.name))))
-    .filter(Boolean)
-    .sort((a: any, b: any) => parseInt(a) - parseInt(b)), [urunler]); 
+  const islemciSeriList = useMemo(() => Array.from(new Set(urunler.map(u => getIslemciSeri(u.isim || u.name)))).filter(Boolean).sort(), [urunler]);
+  const soketList = useMemo(() => Array.from(new Set(urunler.map(u => getSoket(u.isim || u.name)))).filter(Boolean).sort(), [urunler]);
+  const cipsetList = useMemo(() => Array.from(new Set(urunler.map(u => getCipset(u.isim || u.name)))).filter(Boolean).sort(), [urunler]);
+  const ddrList = useMemo(() => Array.from(new Set(urunler.map(u => getDdr(u.isim || u.name)))).filter(Boolean).sort(), [urunler]);
 
+  // 🚀 ANLIK FİLTRELEME MOTORU
   const filtrelenmisUrunler = useMemo(() => {
     return urunler.filter(urun => {
       const urunAdi = urun.isim || urun.name || "";
 
+      // Standart Filtreler
       if (seciliMarkalar.length > 0 && !seciliMarkalar.includes(getMarka(urun))) return false;
-
       const tukendiMi = urun.stokDurumu === "Tükendi" || urun.stokAdedi === 0 || urun.stokAdedi === "0";
       if (sadeceStokta && tukendiMi) return false;
-
       const fiyat = Number(urun.indirimliFiyat || urun.price || urun.fiyat || 0);
       if (minFiyat && fiyat < Number(minFiyat)) return false;
       if (maxFiyat && fiyat > Number(maxFiyat)) return false;
 
+      // Kategoriye Özel Filtreler
       if (isEkranKarti) {
         if (seciliGpu.length > 0 && !seciliGpu.includes(getGpu(urunAdi) as string)) return false;
         if (seciliSeri.length > 0 && !seciliSeri.includes(getSeri(urunAdi) as string)) return false;
         if (seciliVram.length > 0 && !seciliVram.includes(getVram(urunAdi) as string)) return false;
       }
 
+      if (isIslemci) {
+        if (seciliIslemciSeri.length > 0 && !seciliIslemciSeri.includes(getIslemciSeri(urunAdi) as string)) return false;
+        if (seciliSoket.length > 0 && !seciliSoket.includes(getSoket(urunAdi) as string)) return false;
+      }
+
+      if (isAnakart) {
+        if (seciliSoket.length > 0 && !seciliSoket.includes(getSoket(urunAdi) as string)) return false;
+        if (seciliCipset.length > 0 && !seciliCipset.includes(getCipset(urunAdi) as string)) return false;
+        if (seciliDdr.length > 0 && !seciliDdr.includes(getDdr(urunAdi) as string)) return false;
+      }
+
       return true;
     });
-  }, [urunler, seciliMarkalar, sadeceStokta, minFiyat, maxFiyat, seciliGpu, seciliSeri, seciliVram, isEkranKarti]);
+  }, [urunler, seciliMarkalar, sadeceStokta, minFiyat, maxFiyat, seciliGpu, seciliSeri, seciliVram, seciliIslemciSeri, seciliSoket, seciliCipset, seciliDdr, isEkranKarti, isIslemci, isAnakart]);
 
   const toggleArray = (setter: any, item: string) => {
     setter((prev: string[]) => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
@@ -123,6 +187,7 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
   const filtreleriTemizle = () => {
     setSeciliMarkalar([]); setSadeceStokta(false); setMinFiyat(""); setMaxFiyat("");
     setSeciliGpu([]); setSeciliSeri([]); setSeciliVram([]);
+    setSeciliIslemciSeri([]); setSeciliSoket([]); setSeciliCipset([]); setSeciliDdr([]);
   };
 
   const handleSepeteEkle = (urun: any) => {
@@ -203,7 +268,6 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
               {/* 🎮 EKRAN KARTINA ÖZEL FİLTRELER 🎮 */}
               {isEkranKarti && (
                 <>
-                  {/* YONGA SETİ (GPU) */}
                   {gpuList.length > 0 && (
                     <div className="mb-6 pb-6 border-b border-white/5">
                       <h4 className="text-xs font-black text-[#00d2ff] uppercase tracking-widest mb-4">Grafik İşlemci (GPU)</h4>
@@ -220,7 +284,6 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
                     </div>
                   )}
 
-                  {/* GPU SERİSİ */}
                   {seriList.length > 0 && (
                     <div className="mb-6 pb-6 border-b border-white/5">
                       <h4 className="text-xs font-black text-[#00d2ff] uppercase tracking-widest mb-4">GPU Serisi</h4>
@@ -237,7 +300,6 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
                     </div>
                   )}
 
-                  {/* VRAM (BELLEK) */}
                   {vramList.length > 0 && (
                     <div className="mb-6 pb-6 border-b border-white/5">
                       <h4 className="text-xs font-black text-[#00d2ff] uppercase tracking-widest mb-4">Bellek (VRAM)</h4>
@@ -249,6 +311,84 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
                             className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${seciliVram.includes(vram) ? 'bg-[#00d2ff]/20 border-[#00d2ff] text-[#00d2ff]' : 'bg-[#121212] border-white/10 text-gray-400 hover:border-white/30 hover:text-white'}`}
                           >
                             {vram}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* 🧠 İŞLEMCİYE ÖZEL FİLTRELER 🧠 */}
+              {isIslemci && (
+                <>
+                  {islemciSeriList.length > 0 && (
+                    <div className="mb-6 pb-6 border-b border-white/5">
+                      <h4 className="text-xs font-black text-[#00d2ff] uppercase tracking-widest mb-4">İşlemci Serisi</h4>
+                      <div className="space-y-3">
+                        {islemciSeriList.map((seri: any) => (
+                          <label key={seri} className="flex items-center gap-3 cursor-pointer group">
+                            <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${seciliIslemciSeri.includes(seri) ? 'bg-[#00d2ff] border-[#00d2ff]' : 'bg-[#121212] border-white/20 group-hover:border-[#00d2ff]/50'}`}>
+                              {seciliIslemciSeri.includes(seri) && <CheckIcon />}
+                            </div>
+                            <span className={`text-sm font-bold transition-colors ${seciliIslemciSeri.includes(seri) ? 'text-white' : 'text-gray-400 group-hover:text-gray-300'}`}>{seri}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* 🎛️ ANAKART & İŞLEMCİ ORTAK SOKET FİLTRESİ 🎛️ */}
+              {(isIslemci || isAnakart) && soketList.length > 0 && (
+                <div className="mb-6 pb-6 border-b border-white/5">
+                  <h4 className="text-xs font-black text-[#00d2ff] uppercase tracking-widest mb-4">Soket Tipi</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {soketList.map((soket: any) => (
+                      <button 
+                        key={soket}
+                        onClick={() => toggleArray(setSeciliSoket, soket)}
+                        className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${seciliSoket.includes(soket) ? 'bg-[#00d2ff]/20 border-[#00d2ff] text-[#00d2ff]' : 'bg-[#121212] border-white/10 text-gray-400 hover:border-white/30 hover:text-white'}`}
+                      >
+                        {soket}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 🔌 ANAKART ÖZEL FİLTRELER 🔌 */}
+              {isAnakart && (
+                <>
+                  {cipsetList.length > 0 && (
+                    <div className="mb-6 pb-6 border-b border-white/5">
+                      <h4 className="text-xs font-black text-[#00d2ff] uppercase tracking-widest mb-4">Çipset</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {cipsetList.map((cipset: any) => (
+                          <button 
+                            key={cipset}
+                            onClick={() => toggleArray(setSeciliCipset, cipset)}
+                            className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${seciliCipset.includes(cipset) ? 'bg-[#00d2ff]/20 border-[#00d2ff] text-[#00d2ff]' : 'bg-[#121212] border-white/10 text-gray-400 hover:border-white/30 hover:text-white'}`}
+                          >
+                            {cipset}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {ddrList.length > 0 && (
+                    <div className="mb-6 pb-6 border-b border-white/5">
+                      <h4 className="text-xs font-black text-[#00d2ff] uppercase tracking-widest mb-4">Bellek Desteği</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {ddrList.map((ddr: any) => (
+                          <button 
+                            key={ddr}
+                            onClick={() => toggleArray(setSeciliDdr, ddr)}
+                            className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${seciliDdr.includes(ddr) ? 'bg-[#00d2ff]/20 border-[#00d2ff] text-[#00d2ff]' : 'bg-[#121212] border-white/10 text-gray-400 hover:border-white/30 hover:text-white'}`}
+                          >
+                            {ddr}
                           </button>
                         ))}
                       </div>
