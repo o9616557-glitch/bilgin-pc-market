@@ -93,12 +93,37 @@ export default function OdemeSayfasi() {
   const inputDegis = (e: any) => { setForm({ ...form, [e.target.name]: e.target.value }); };
   const faturaInputDegis = (e: any) => { setFaturaForm({ ...faturaForm, [e.target.name]: e.target.value }); };
 
+  // 🚀 İYZİCO YENİDEN YÜKLEME MOTORU (Geri Dönme Hatasını Kesin Çözer)
   useEffect(() => {
+    // 1. Önce eski İyzico kalıntılarını, pencerelerini ve hafızasını tamamen temizle
+    const eskiScript = document.getElementById("bilgin-iyzico-script");
+    if (eskiScript) eskiScript.remove();
+    
+    const iyziModal = document.querySelector(".iyzi-modal");
+    if (iyziModal) iyziModal.remove();
+
+    if (typeof window !== "undefined") {
+      delete (window as any).iyziInit; // İyzico'nun hafızasını sıfırla
+    }
+
+    // 2. Eğer yeni bir form HTML'i geldiyse, sıfırdan oluştur ve çalıştır
     if (iyzicoFormHtml) {
       const formDiv = document.getElementById("iyzipay-checkout-form");
       if (formDiv) formDiv.innerHTML = "";
-      const icerik = document.createRange().createContextualFragment(iyzicoFormHtml);
-      formDiv?.appendChild(icerik);
+
+      const geciciDiv = document.createElement("div");
+      geciciDiv.innerHTML = iyzicoFormHtml;
+      
+      const scriptTagleri = geciciDiv.getElementsByTagName("script");
+      for (let i = 0; i < scriptTagleri.length; i++) {
+        const yeniScript = document.createElement("script");
+        yeniScript.id = "bilgin-iyzico-script";
+        yeniScript.innerHTML = scriptTagleri[i].innerHTML;
+        if (scriptTagleri[i].src) {
+          yeniScript.src = scriptTagleri[i].src;
+        }
+        document.body.appendChild(yeniScript); // Body'ye ekle ki zorla çalışsın
+      }
     }
   }, [iyzicoFormHtml]);
   const siparisTamamla = async (e: React.FormEvent) => {
