@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft, Cpu, PackageX, Star, ArrowRight, Filter, X, ShoppingCart, ChevronDown } from "lucide-react";
+import { ArrowLeft, Cpu, PackageX, Star, Filter, X, ShoppingCart } from "lucide-react";
 import { useCart } from "@/app/CartContext";
 
 function BanknoteIcon(props: any) {
@@ -29,7 +29,6 @@ const getMarka = (urun: any) => {
 
 const getGpu = (isim: string) => {
   if (!isim) return null;
-  // Bütün boşlukları siliyoruz ki "RTX 4070" de "RTX4070" de aynı okunsun
   const t = isim.toUpperCase().replace(/\s+/g, ""); 
   if (t.includes("NVIDIA") || t.includes("RTX") || t.includes("GTX") || t.includes("GEFORCE")) return "NVIDIA";
   if (t.includes("AMD") || t.includes("RADEON") || t.includes("RX")) return "AMD";
@@ -41,6 +40,8 @@ const getSeri = (isim: string) => {
   if (!isim) return null;
   const t = isim.toUpperCase().replace(/\s+/g, ""); // Boşlukları yutuyoruz!
   
+  // 🔥 RTX 5000 serisi eklendi!
+  if (t.includes("RTX50")) return "RTX 5000 Serisi";
   if (t.includes("RTX40")) return "RTX 4000 Serisi";
   if (t.includes("RTX30")) return "RTX 3000 Serisi";
   if (t.includes("RTX20") || t.includes("GTX16") || t.includes("GTX10")) return "Eski Nesil (RTX 20 / GTX 16)";
@@ -50,11 +51,20 @@ const getSeri = (isim: string) => {
   return null;
 };
 
+// 🔥 EFSANE VRAM ÇÖZÜMÜ: Artık rakamları birleştirip saçmalamaz!
 const getVram = (isim: string) => {
   if (!isim) return null;
-  const t = isim.toUpperCase().replace(/\s+/g, ""); // "12 GB" -> "12GB"
-  const match = t.match(/(\d+)GB/); // Sadece rakam ve GB yan yanaysa al
-  if (match) return `${match[1]} GB`;
+  const t = isim.toUpperCase().replace(/\s+/g, ""); // Bütün boşlukları sildik (Örn: RTX407012GB)
+  
+  // Sadece mantıklı VRAM kapasitelerini sırayla arıyoruz. 
+  // Böylece "407012GB" yazsa bile sadece içindeki "12GB" kısmını cımbızlayacak!
+  const vramKapasiteleri = ["24GB", "20GB", "16GB", "12GB", "10GB", "8GB", "6GB", "4GB", "2GB"];
+  
+  for (const vram of vramKapasiteleri) {
+    if (t.includes(vram)) {
+      return vram.replace("GB", " GB"); // Ekranda jilet gibi "12 GB" dursun diye ayırıyoruz
+    }
+  }
   return null;
 };
 
@@ -62,50 +72,40 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
   
-  // Kategori Ekran Kartı mı Kontrolü (Daha geniş tuttuk)
   const isEkranKarti = sayfaBasligi.includes("EKRAN") || sayfaBasligi.includes("VGA") || sayfaBasligi.includes("GPU");
 
-  // 🚀 STANDART FİLTRE HAFIZALARI
   const [seciliMarkalar, setSeciliMarkalar] = useState<string[]>([]);
   const [sadeceStokta, setSadeceStokta] = useState(false);
   const [minFiyat, setMinFiyat] = useState<string>("");
   const [maxFiyat, setMaxFiyat] = useState<string>("");
   
-  // 🚀 EKRAN KARTINA ÖZEL FİLTRE HAFIZALARI
   const [seciliGpu, setSeciliGpu] = useState<string[]>([]);
   const [seciliSeri, setSeciliSeri] = useState<string[]>([]);
   const [seciliVram, setSeciliVram] = useState<string[]>([]);
 
   const [mobilFiltreAcik, setMobilFiltreAcik] = useState(false);
 
-  // Filtre Seçeneklerini Otomatik Üret (Sort ile alfabetik dizeriz)
   const markalar = useMemo(() => Array.from(new Set(urunler.map(u => getMarka(u)))).filter(Boolean).sort(), [urunler]);
   const gpuList = useMemo(() => Array.from(new Set(urunler.map(u => getGpu(u.isim || u.name)))).filter(Boolean).sort(), [urunler]);
   const seriList = useMemo(() => Array.from(new Set(urunler.map(u => getSeri(u.isim || u.name)))).filter(Boolean).sort(), [urunler]);
   
-  // GB'ları büyüklüğüne göre dizer (Örn: 8, 12, 16, 24)
   const vramList = useMemo(() => Array.from(new Set(urunler.map(u => getVram(u.isim || u.name))))
     .filter(Boolean)
     .sort((a: any, b: any) => parseInt(a) - parseInt(b)), [urunler]); 
 
-  // 🚀 ANLIK FİLTRELEME MOTORU
   const filtrelenmisUrunler = useMemo(() => {
     return urunler.filter(urun => {
       const urunAdi = urun.isim || urun.name || "";
 
-      // 1. Marka
       if (seciliMarkalar.length > 0 && !seciliMarkalar.includes(getMarka(urun))) return false;
 
-      // 2. Stok
       const tukendiMi = urun.stokDurumu === "Tükendi" || urun.stokAdedi === 0 || urun.stokAdedi === "0";
       if (sadeceStokta && tukendiMi) return false;
 
-      // 3. Fiyat
       const fiyat = Number(urun.indirimliFiyat || urun.price || urun.fiyat || 0);
       if (minFiyat && fiyat < Number(minFiyat)) return false;
       if (maxFiyat && fiyat > Number(maxFiyat)) return false;
 
-      // 4. Ekran Kartı Özel Filtreleri
       if (isEkranKarti) {
         if (seciliGpu.length > 0 && !seciliGpu.includes(getGpu(urunAdi) as string)) return false;
         if (seciliSeri.length > 0 && !seciliSeri.includes(getSeri(urunAdi) as string)) return false;
@@ -116,7 +116,6 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
     });
   }, [urunler, seciliMarkalar, sadeceStokta, minFiyat, maxFiyat, seciliGpu, seciliSeri, seciliVram, isEkranKarti]);
 
-  // Geçiş Fonksiyonları
   const toggleArray = (setter: any, item: string) => {
     setter((prev: string[]) => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
   };
