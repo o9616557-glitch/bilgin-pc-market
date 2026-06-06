@@ -87,7 +87,7 @@ export default function OdemeSayfasi() {
       const indirimOrani = (urun.havaleIndirimi !== undefined && urun.havaleIndirimi !== null) ? Number(urun.havaleIndirimi) : 0;
       let urunFiyati = Number(urun.fiyat);
       if (odemeYontemi === "havale" && indirimOrani > 0) {
-        urunFiyati = urunFiyati - (urunFiyati * indirimOrani) / 100;
+        urunFiyati = urunFiyati - (urunFiyati * urun.fiyat) / 100;
       }
       hesaplananAraToplam += urunFiyati * urun.adet;
     });
@@ -191,7 +191,7 @@ export default function OdemeSayfasi() {
 
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="flex-2 w-full lg:w-2/3">
-            <form onSubmit={siparisTamamla} className={iyzicoFormHtml ? "hidden" : "bg-[#09090b] border border-white/5 rounded-3xl p-5 sm:p-8 shadow-2xl relative overflow-hidden block"}>
+            <form onSubmit={siparisTamamla} className={["bg-[#09090b] border border-white/5 rounded-3xl p-5 sm:p-8 shadow-2xl relative overflow-hidden transition-all duration-300", iyzicoFormHtml ? "hidden" : "block"].join(" ")}>
               <h3 className="text-base sm:text-lg font-black text-white mb-5 flex items-center gap-2 uppercase tracking-wider"><span className="text-[#3b82f6]">📍</span> Teslimat Bilgileri</h3>
 
               {adresAraniyor ? (
@@ -307,22 +307,29 @@ export default function OdemeSayfasi() {
              <div className="bg-[#09090b] border border-white/5 rounded-3xl p-5 sm:p-6 lg:p-8 sticky top-28 shadow-2xl">
                 <h2 className="font-black text-lg sm:text-xl mb-5 pb-3 border-b border-white/10 text-white uppercase tracking-wider">Sipariş <span className="text-[#3b82f6]">Özeti</span></h2>
                 
-                <div className="space-y-3 mb-6 max-h-[250px] overflow-y-auto custom-scrollbar pr-1">
+                <div className="space-y-3 mb-6 max-h-[280px] overflow-y-auto custom-scrollbar pr-1">
                   {sepet.map((urun: any) => (
-                    <div key={urun.id} className="flex items-center gap-3 bg-[#121215] p-2 sm:p-3 rounded-xl border border-white/5">
-                      <div className="w-12 h-12 sm:w-14 sm:h-14 bg-[#09090b] rounded-lg border border-white/10 flex items-center justify-center p-1.5 shrink-0">
-                        <img src={urun.resim || urun.image || "/placeholder.jpg"} alt={urun.isim} className="max-w-full max-h-full object-contain" />
-                      </div>
+                    /* 🚀 BİNGO: Kart yapısı dikey (flex-col) yapıldı. Başlık boylu boyunca yayılıyor! */
+                    <div key={urun.id} className="flex flex-col bg-[#121215] p-3 rounded-xl border border-white/5 gap-2 shadow-sm animate-in fade-in duration-300">
                       
-                      {/* 🚀 BİNGO: BURASI DEĞİŞTİ - İsimler artık kesilmeyecek (line-clamp-2) */}
-                      <div className="flex-1 flex flex-col min-w-0 pr-2">
-                        <span className="text-white text-[11px] sm:text-xs font-bold line-clamp-2 leading-tight mb-1" title={urun.isim}>{urun.isim}</span>
-                        <span className="text-slate-400 text-[10px] font-medium">{urun.adet} Adet</span>
-                      </div>
+                      {/* Üst Kısım: Başlık upuzun yayılsın, asla iç içe girmesin */}
+                      <span className="text-white text-xs font-bold leading-relaxed break-words block w-full" title={urun.isim}>
+                        {urun.isim}
+                      </span>
                       
-                      <div className="text-[#3b82f6] font-black text-xs sm:text-sm shrink-0">
-                        {(urun.fiyat * urun.adet).toLocaleString("tr-TR")} TL
+                      {/* Alt Kısım: Resim, Adet ve Fiyat Satırı */}
+                      <div className="flex items-center justify-between gap-2 border-t border-white/5 pt-2 mt-0.5">
+                        <div className="flex items-center gap-2">
+                          <div className="w-10 h-10 bg-[#09090b] rounded-lg border border-white/10 flex items-center justify-center p-1 shrink-0">
+                            <img src={urun.resim || urun.image || "/placeholder.jpg"} alt={urun.isim} className="max-w-full max-h-full object-contain" />
+                          </div>
+                          <span className="text-slate-400 text-xs font-medium bg-white/5 px-2 py-0.5 rounded border border-white/5">{urun.adet} Adet</span>
+                        </div>
+                        <div className="text-[#3b82f6] font-black text-xs sm:text-sm shrink-0 drop-shadow-[0_0_8px_rgba(59,130,246,0.2)]">
+                          {(urun.fiyat * urun.adet).toLocaleString("tr-TR")} TL
+                        </div>
                       </div>
+
                     </div>
                   ))}
                 </div>
@@ -343,7 +350,7 @@ export default function OdemeSayfasi() {
               {acikSozlesme === "mesafeli" ? (
                 <><p><strong>Madde 1: Taraflar</strong><br/>Bu sözleşme, alıcı ve satıcı (Bilgin PC) arasında dijital ortamda kurulmuştur.</p><p><strong>Madde 2: Sözleşmenin Konusu</strong><br/>Alıcının sipariş ettiği bilgisayar ve donanım ürünlerinin satışı, teslimatı ve garanti şartlarıdır.</p><p><strong>Madde 3: İade ve İptal Şartları</strong><br/>Alıcı, ürün kendisine teslim edildikten sonra 14 gün içinde cayma hakkını kullanabilir (kutu açılmamış ve zarar görmemişse).</p></>
               ) : (
-                <><p><strong>Veri Güvenliği:</strong><br/>Bilgin PC, müşteri bilgilerini (adres, e-posta, telefon) yalnızca siparişin teslimatı ve faturalandırma süreçleri için kullanır.</p><p><strong>Üçüncü Şahıslar:</strong><br/>Hiçbir kişisel veri, kargo firmaları haricinde 3. şahıslarla paylaşılmaz veya satılamaz.</p><p><strong>Ödeme Güvenliği:</strong><br/>Kredi kartı bilgileriniz sistemimizde saklanmaz. Ödemeler 256-bit SSL sertifikası ile doğrudan banka altyapısında gerçekleşir.</p></>
+                <><p><strong>Veri Güvenliği:</strong><br/>Bilgin PC, müşteri bilgilerini (adres, e-posta, telephone) yalnızca siparişin teslimatı ve faturalandırma süreçleri için kullanır.</p><p><strong>Üçüncü Şahıslar:</strong><br/>Hiçbir kişisel veri, kargo firmaları haricinde 3. şahıslarla paylaşılmaz veya satılamaz.</p><p><strong>Ödeme Güvenliği:</strong><br/>Kredi kartı bilgileriniz sistemimizde saklanmaz. Ödemeler 256-bit SSL sertifikası ile doğrudan banka altyapısında gerçekleşir.</p></>
               )}
             </div>
             <div className="p-3 sm:p-4 border-t border-slate-800 bg-[#121215] flex justify-end"><button onClick={() => setAcikSozlesme(null)} className="bg-[#3b82f6] text-white font-bold px-5 sm:px-6 py-2 rounded-lg hover:bg-[#2563eb] transition-colors text-[10px] sm:text-xs uppercase tracking-wider">Okudum, Kapat</button></div>
