@@ -15,16 +15,27 @@ function BanknoteIcon(props: any) {
   );
 }
 
-// 🚀 ZIRHLI KELİME AVCISI MOTORLARI (Teknik bilgileri de okumaya çalışır) 🚀
+// 🚀 ZIRHLI VE "DERİN TARAMALI" KELİME AVCISI MOTORLARI 🚀
 const bilinenMarkalar = ["ASUS", "MSI", "GIGABYTE", "SAPPHIRE", "PALIT", "ZOTAC", "GALAX", "PNY", "INNO3D", "EVGA", "XFX", "POWERCOLOR", "ASROCK", "INTEL", "AMD"];
 
-// Tüm detayları birleştirip arama havuzu oluşturuyoruz (İsim + Varsa açıklamalar/özellikler)
+// 🔥 BİNGO: Veritabanındaki "teknik_ozeller : Nesne" kısmını parçalayıp okuyan motor!
 const getAramaMetni = (urun: any) => {
+  let teknikMetin = "";
+  
+  // Veritabanındaki teknik özellikler nesnesini yakala
+  const teknikObj = urun.teknik_ozellikler || urun.teknik_ozeller || urun.ozellikler || urun.features || urun.attributes;
+  
+  if (teknikObj) {
+    // Nesne (Object) ise içindeki her şeyi metne çevir (JSON.stringify hayat kurtarır)
+    teknikMetin = typeof teknikObj === 'object' ? JSON.stringify(teknikObj) : String(teknikObj);
+  }
+
   return (
     (urun.isim || "") + " " + 
     (urun.name || "") + " " + 
     (urun.aciklama || "") + " " + 
-    (urun.description || "")
+    (urun.description || "") + " " +
+    teknikMetin // Teknik özellikleri de arama havuzuna dahil ettik!
   ).toUpperCase().replace(/\s+/g, "");
 };
 
@@ -90,7 +101,7 @@ const getSoket = (urun: any) => {
 };
 
 const getCipset = (urun: any) => {
-  const t = (urun.isim || urun.name || "").toUpperCase(); // Sadece isme bakıyoruz ki gereksiz açıklamalardan karışmasın
+  const t = (urun.isim || urun.name || "").toUpperCase(); 
   const match = t.match(/(A520|B550|X570|A620|B650E|B650|X670E|X670|X870E|X870|H410|H510|H610|B460|B560|B660|B760|Z490|Z590|Z690|Z790|Z890)/);
   if (match) return match[1];
   return null;
@@ -107,7 +118,6 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
   
-  // 🚀 KATEGORİ TANIMA SİSTEMİ
   const b = sayfaBasligi.toUpperCase();
   const isEkranKarti = b.includes("EKRAN") || b.includes("VGA") || b.includes("GPU");
   const isIslemci = b.includes("İŞLEMCİ") || b.includes("ISLEMCI") || b.includes("CPU");
@@ -130,7 +140,6 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
 
   const [mobilFiltreAcik, setMobilFiltreAcik] = useState(false);
 
-  // 🚀 LİSTELERİ OTOMATİK OLUŞTUR
   const markalar = useMemo(() => Array.from(new Set(urunler.map(u => getMarka(u)))).filter(Boolean).sort(), [urunler]);
   const gpuList = useMemo(() => Array.from(new Set(urunler.map(u => getGpu(u)))).filter(Boolean).sort(), [urunler]);
   const seriList = useMemo(() => Array.from(new Set(urunler.map(u => getSeri(u)))).filter(Boolean).sort(), [urunler]);
@@ -141,7 +150,6 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
   const cipsetList = useMemo(() => Array.from(new Set(urunler.map(u => getCipset(u)))).filter(Boolean).sort(), [urunler]);
   const ddrList = useMemo(() => Array.from(new Set(urunler.map(u => getDdr(u)))).filter(Boolean).sort(), [urunler]);
 
-  // 🚀 ANLIK FİLTRELEME MOTORU
   const filtrelenmisUrunler = useMemo(() => {
     return urunler.filter(urun => {
       if (seciliMarkalar.length > 0 && !seciliMarkalar.includes(getMarka(urun))) return false;
@@ -172,7 +180,6 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
     });
   }, [urunler, seciliMarkalar, sadeceStokta, minFiyat, maxFiyat, seciliGpu, seciliSeri, seciliVram, seciliIslemciSeri, seciliSoket, seciliCipset, seciliDdr, isEkranKarti, isIslemci, isAnakart]);
 
-  // 🔥 TIKLAMA (ONCLICK) SORUNU ÇÖZÜLDÜ!
   const toggleArray = (setter: any, item: string) => {
     setter((prev: string[]) => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
   };
@@ -222,7 +229,7 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
 
       <div className="flex flex-col lg:flex-row gap-8 px-4 sm:px-0 relative">
         
-        {/* 🛠️ SOL FİLTRE MENÜSÜ - 🔥 ARTIK AŞAĞI KAYAR (STICKY) 🔥 */}
+        {/* 🛠️ SOL FİLTRE MENÜSÜ - ASANSÖR GİBİ İNER */}
         <div className={`fixed inset-0 z-[100] lg:sticky lg:top-24 lg:self-start lg:block lg:w-[300px] lg:shrink-0 lg:h-[calc(100vh-120px)] transition-transform duration-300 ${mobilFiltreAcik ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
           <div className="absolute inset-0 bg-black/80 lg:hidden" onClick={() => setMobilFiltreAcik(false)}></div>
           
