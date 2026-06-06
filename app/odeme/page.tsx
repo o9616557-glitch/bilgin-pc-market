@@ -80,6 +80,7 @@ export default function OdemeSayfasi() {
       setAdresAraniyor(false);
     }
   }, [session, status]);
+
   const hesaplaTutar = () => {
     let hesaplananAraToplam = 0;
     sepet.forEach((urun: any) => {
@@ -98,7 +99,6 @@ export default function OdemeSayfasi() {
   const inputDegis = (e: any) => { setForm({ ...form, [e.target.name]: e.target.value }); };
   const faturaInputDegis = (e: any) => { setFaturaForm({ ...faturaForm, [e.target.name]: e.target.value }); };
 
-  // Orijinal sağlam İyzico motoru + 🚀 OTOMATİK KAYDIRMA (SCROLL)
   useEffect(() => {
     if (iyzicoFormHtml) {
       const gonderilenScript = document.getElementById("iyzico-script");
@@ -106,11 +106,9 @@ export default function OdemeSayfasi() {
       const icerik = document.createRange().createContextualFragment(iyzicoFormHtml);
       document.getElementById("iyzipay-checkout-form")?.appendChild(icerik);
 
-      // 🚀 BİNGO: İyzico'yu tam hizasında, bir tık yukarıda durdurur (Üst menüyü ezmez)
       setTimeout(() => {
         const panel = document.getElementById("iyzico-panel");
         if (panel) {
-          // -120 rakamı üstten bırakılacak boşluktur. Ekran tam kararında durur.
           const y = panel.getBoundingClientRect().top + window.scrollY - 120;
           window.scrollTo({ top: y, behavior: "smooth" });
         }
@@ -166,6 +164,7 @@ export default function OdemeSayfasi() {
     setIbanKopyalandi(true);
     setTimeout(() => setIbanKopyalandi(false), 2000);
   };
+
   if (sepet.length === 0) {
     return (
       <div className="min-h-[80vh] bg-[#050814] text-white flex flex-col items-center justify-center px-4">
@@ -192,7 +191,6 @@ export default function OdemeSayfasi() {
 
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="flex-2 w-full lg:w-2/3">
-            
             <form onSubmit={siparisTamamla} className={iyzicoFormHtml ? "hidden" : "bg-[#09090b] border border-white/5 rounded-3xl p-5 sm:p-8 shadow-2xl relative overflow-hidden block"}>
               <h3 className="text-base sm:text-lg font-black text-white mb-5 flex items-center gap-2 uppercase tracking-wider"><span className="text-[#3b82f6]">📍</span> Teslimat Bilgileri</h3>
 
@@ -283,7 +281,6 @@ export default function OdemeSayfasi() {
               </button>
             </form>
 
-            {/* 🚀 BİNGO: İYZİCO AÇILDIĞINDA EKRANI ORTALAYAN PANEL */}
             {iyzicoFormHtml && (
               <div id="iyzico-panel" className="bg-[#09090b] border border-[#3b82f6]/40 rounded-3xl p-4 sm:p-6 shadow-[0_0_40px_rgba(59,130,246,0.15)] relative overflow-hidden animate-in slide-in-from-top-4 duration-500">
                 <div className="flex justify-between items-center mb-4 pb-4 border-b border-white/10">
@@ -316,10 +313,13 @@ export default function OdemeSayfasi() {
                       <div className="w-12 h-12 sm:w-14 sm:h-14 bg-[#09090b] rounded-lg border border-white/10 flex items-center justify-center p-1.5 shrink-0">
                         <img src={urun.resim || urun.image || "/placeholder.jpg"} alt={urun.isim} className="max-w-full max-h-full object-contain" />
                       </div>
-                      <div className="flex-1 flex flex-col min-w-0">
-                      <span className="text-white text-[10px] sm:text-xs font-bold leading-snug break-words" title={urun.isim}>{urun.isim}</span>
-                        <span className="text-slate-400 text-[9px] sm:text-[10px]">{urun.adet} Adet</span>
+                      
+                      {/* 🚀 BİNGO: BURASI DEĞİŞTİ - İsimler artık kesilmeyecek (line-clamp-2) */}
+                      <div className="flex-1 flex flex-col min-w-0 pr-2">
+                        <span className="text-white text-[11px] sm:text-xs font-bold line-clamp-2 leading-tight mb-1" title={urun.isim}>{urun.isim}</span>
+                        <span className="text-slate-400 text-[10px] font-medium">{urun.adet} Adet</span>
                       </div>
+                      
                       <div className="text-[#3b82f6] font-black text-xs sm:text-sm shrink-0">
                         {(urun.fiyat * urun.adet).toLocaleString("tr-TR")} TL
                       </div>
