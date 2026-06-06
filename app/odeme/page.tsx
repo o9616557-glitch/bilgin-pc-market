@@ -4,7 +4,6 @@ import { useCart } from "../CartContext";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import toast from "react-hot-toast";
 
 export default function OdemeSayfasi() {
   const { data: session } = useSession();
@@ -93,49 +92,20 @@ export default function OdemeSayfasi() {
   const { araToplam, kargo, genelToplam } = hesaplaTutar();
   const inputDegis = (e: any) => { setForm({ ...form, [e.target.name]: e.target.value }); };
   const faturaInputDegis = (e: any) => { setFaturaForm({ ...faturaForm, [e.target.name]: e.target.value }); };
-  // 🚀 BİNGO: TARAYICI ÖNBELLEĞİNİ BYPASS EDİP İYZİCOYU ZORLA ÇALIŞTIRAN MOTOR
+  // 🚀 DÜN KUSURSUZ ÇALIŞAN ORİJİNAL İYZİCO KODU (GERİ GETİRİLDİ)
   useEffect(() => {
     if (iyzicoFormHtml) {
-      const formDiv = document.getElementById("iyzipay-checkout-form");
-      if (formDiv) {
-        formDiv.innerHTML = "";
-        const geciciDiv = document.createElement("div");
-        geciciDiv.innerHTML = iyzicoFormHtml;
-        formDiv.appendChild(geciciDiv);
-
-        const scriptTagleri = geciciDiv.getElementsByTagName("script");
-        for (let i = 0; i < scriptTagleri.length; i++) {
-          const yeniScript = document.createElement("script");
-          yeniScript.id = "bilgin-iyzico-script";
-          yeniScript.innerHTML = scriptTagleri[i].innerHTML;
-          
-          if (scriptTagleri[i].src) {
-            // Tembel tarayıcıyı kandırmak için sonuna rastgele rakam ekliyoruz (Cache bypass)
-            yeniScript.src = scriptTagleri[i].src + "?v=" + new Date().getTime();
-          }
-          document.body.appendChild(yeniScript);
-        }
-      }
+      const gonderilenScript = document.getElementById("iyzico-script");
+      if (gonderilenScript) gonderilenScript.remove();
+      const icerik = document.createRange().createContextualFragment(iyzicoFormHtml);
+      document.getElementById("iyzipay-checkout-form")?.appendChild(icerik);
     }
   }, [iyzicoFormHtml]);
-
-  const iyzicoIptal = () => {
-    setIyzicoFormHtml("");
-    if (typeof window !== "undefined") {
-      delete (window as any).iyziInit;
-      delete (window as any).iyziCheckout;
-    }
-    const iyziModal = document.querySelector(".iyzi-modal");
-    if (iyziModal) iyziModal.remove();
-
-    const eskiScript = document.getElementById("bilgin-iyzico-script");
-    if (eskiScript) eskiScript.remove();
-  };
 
   const siparisTamamla = async (e: React.FormEvent) => {
     e.preventDefault();
     setYukleniyor(true);
-    iyzicoIptal(); // Yeni denemeden önce eskisini kesinlikle sil
+    setIyzicoFormHtml("");
 
     const sessionEmail = (session && session.user && session.user.email) ? session.user.email : form.eposta;
 
@@ -166,10 +136,11 @@ export default function OdemeSayfasi() {
           setIyzicoFormHtml(data.checkoutFormContent);
         }
       } else {
-        toast.error("Hata Oluştu: " + (data.error || data.message || "İşlem reddedildi."));
+        // En sağlam hata gösterici
+        alert("Hata Oluştu: " + (data.error || "İşlem reddedildi."));
       }
     } catch (hata) {
-      toast.error("Sunucu ile bağlantı kurulamadı. Lütfen tekrar deneyin.");
+      alert("Sunucu ile bağlantı kurulamadı. Lütfen tekrar deneyin.");
     } finally {
       setYukleniyor(false);
     }
@@ -302,7 +273,8 @@ export default function OdemeSayfasi() {
                    <h3 className="font-black text-white uppercase tracking-wider text-sm sm:text-base flex items-center gap-2">
                      <ShieldCheck className="w-5 h-5 text-emerald-400" /> Güvenli Ödeme Ekranı
                    </h3>
-                   <button onClick={iyzicoIptal} className="text-slate-400 hover:text-white text-xs font-bold px-3 py-1.5 bg-[#121215] rounded-lg border border-white/10 transition-colors">
+                   {/* 🚀 BİNGO: İptal butonu artık sayfayı tertemiz yapıyor! */}
+                   <button onClick={() => window.location.reload()} className="text-slate-400 hover:text-white text-xs font-bold px-3 py-1.5 bg-[#121215] rounded-lg border border-white/10 transition-colors">
                      İptal Et / Geri Dön
                    </button>
                 </div>
@@ -342,7 +314,7 @@ export default function OdemeSayfasi() {
         </div>
       </div>
 
-      {acikSozlesme && (
+     {acikSozlesme && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <div className="bg-[#09090b] border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden">
             <div className="flex justify-between items-center p-3 sm:p-4 border-b border-slate-800 bg-[#121215]"><h3 className="text-white font-bold uppercase tracking-wider text-sm sm:text-base">{acikSozlesme === "mesafeli" ? "Mesafeli Satış Sözleşmesi" : "Gizlilik Politikası"}</h3><button onClick={() => setAcikSozlesme(null)} className="text-slate-400 hover:text-white p-1"><X className="w-5 h-5" /></button></div>
