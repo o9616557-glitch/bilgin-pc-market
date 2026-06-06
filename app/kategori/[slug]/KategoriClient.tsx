@@ -30,90 +30,91 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
 
-  // 🚀 SABİT FİLTRE HAFIZALARI
+  // 🚀 FİLTRE HAFIZALARI
   const [seciliMarkalar, setSeciliMarkalar] = useState<string[]>([]);
   const [sadeceStokta, setSadeceStokta] = useState(false);
   const [minFiyat, setMinFiyat] = useState<string>("");
   const [maxFiyat, setMaxFiyat] = useState<string>("");
-  
-  // 🚀 DİNAMİK FİLTRE HAFIZASI (Trendyol / Amazon Mantığı)
-  // Örn: { "Bellek Tipi": ["GDDR6", "GDDR6X"], "Çekirdek Hızı": ["2500 MHz"] }
   const [seciliDinamik, setSeciliDinamik] = useState<Record<string, string[]>>({});
 
   const [mobilFiltreAcik, setMobilFiltreAcik] = useState(false);
 
   const markalar = useMemo(() => Array.from(new Set(urunler.map(u => getMarka(u)))).filter(Boolean).sort(), [urunler]);
 
-  // 🔥 BİNGO: Veritabanındaki tüm teknik özellikleri otomatik okuyup kategori listesi yapan Yapay Zeka
   const dinamikFiltreListesi = useMemo(() => {
     const filtreHaritasi: Record<string, Set<string>> = {};
 
     urunler.forEach(urun => {
       const teknikler = urun.teknik_ozellikler || urun.teknik_ozeller || urun.ozellikler || urun.attributes;
-      
-      // Eğer teknik özellikler bir nesne (Object) ise içindeki her şeyi parçala
       if (teknikler && typeof teknikler === 'object') {
         Object.entries(teknikler).forEach(([baslik, deger]) => {
           if (!deger) return;
           const metinDeger = String(deger).trim();
-          if (metinDeger === "") return;
-
-          // Gereksiz, çok uzun veya mantıksız özellikleri filtreye almamak için ufak bir koruma (örn: 30 karakterden uzunsa filtre yapma)
-          if (metinDeger.length > 30) return;
-
-          if (!filtreHaritasi[baslik]) {
-            filtreHaritasi[baslik] = new Set();
-          }
+          if (metinDeger === "" || metinDeger.length > 30) return; 
+          if (!filtreHaritasi[baslik]) filtreHaritasi[baslik] = new Set();
           filtreHaritasi[baslik].add(metinDeger);
         });
       }
     });
 
-    // Set'leri normal array'e çevirip alfabetik sıralıyoruz
     const sonuc: Record<string, string[]> = {};
     Object.keys(filtreHaritasi).forEach(baslik => {
-      // Eğer bir özelliğin sadece 1 tane farklı değeri varsa onu filtre olarak göstermeye gerek yok
-      if (filtreHaritasi[baslik].size > 1) {
+      if (filtreHaritasi[baslik].size > 1) { 
         sonuc[baslik] = Array.from(filtreHaritasi[baslik]).sort();
       }
     });
-
     return sonuc;
   }, [urunler]);
 
+  // 🧠 ÇAPRAZ BAĞLANTI (DEPENDENT FACET) MOTORU 
+  // "Bir ürün, belirli bir kategori HARİÇ diğer tüm seçili filtrelere uyuyor mu?" kontrolü
+  const urunGecerliMi = (urun: any, haricTutulacakBaslik: string | null = null) => {
+    // 1. Marka Kontrolü
+    if (haricTutulacakBaslik !== "Marka" && seciliMarkalar.length > 0 && !seciliMarkalar.includes(getMarka(urun))) return false;
+    
+    // 2. Stok ve Fiyat
+    const tukendiMi = urun.stokDurumu === "Tükendi" || urun.stokAdedi === 0 || urun.stokAdedi === "0";
+    if (sadeceStokta && tukendiMi) return false;
+    const fiyat = Number(urun.indirimliFiyat || urun.price || urun.fiyat || 0);
+    if (minFiyat && fiyat < Number(minFiyat)) return false;
+    if (maxFiyat && fiyat > Number(maxFiyat)) return false;
 
-  // 🚀 ANLIK FİLTRELEME MOTORU
+    // 3. Diğer Dinamik Özellikler Kontrolü
+    const teknikler = urun.teknik_ozellikler || urun.teknik_ozeller || urun.ozellikler || urun.attributes || {};
+    for (const [baslik, secilenler] of Object.entries(seciliDinamik)) {
+      if (baslik === haricTutulacakBaslik || secilenler.length === 0) continue; 
+      const urununBuOzelligi = String(teknikler[baslik] || "").trim();
+      if (!secilenler.includes(urununBuOzelligi)) return false;
+    }
+    return true;
+  };
+
+  // 🔥 Sağdaki ürünleri dizmek için kullanılan ANA filtre listesi
   const filtrelenmisUrunler = useMemo(() => {
-    return urunler.filter(urun => {
-      // 1. Sabit Filtreler
-      if (seciliMarkalar.length > 0 && !seciliMarkalar.includes(getMarka(urun))) return false;
-      
-      const tukendiMi = urun.stokDurumu === "Tükendi" || urun.stokAdedi === 0 || urun.stokAdedi === "0";
-      if (sadeceStokta && tukendiMi) return false;
-      
-      const fiyat = Number(urun.indirimliFiyat || urun.price || urun.fiyat || 0);
-      if (minFiyat && fiyat < Number(minFiyat)) return false;
-      if (maxFiyat && fiyat > Number(maxFiyat)) return false;
-
-      // 2. Dinamik Teknik Özellik Filtreleri
-      const teknikler = urun.teknik_ozellikler || urun.teknik_ozeller || urun.ozellikler || urun.attributes || {};
-      
-      for (const [baslik, secilenDegerler] of Object.entries(seciliDinamik)) {
-        if (secilenDegerler.length === 0) continue; // Bu başlıkta seçim yapılmamışsa geç
-
-        const urununBuOzelligi = String(teknikler[baslik] || "").trim();
-        
-        // Eğer ürünün bu özelliği, kullanıcının seçtiklerinden herhangi biriyle eşleşmiyorsa ürünü gizle
-        if (!secilenDegerler.includes(urununBuOzelligi)) {
-          return false;
-        }
-      }
-
-      return true;
-    });
+    return urunler.filter(u => urunGecerliMi(u, null));
   }, [urunler, seciliMarkalar, sadeceStokta, minFiyat, maxFiyat, seciliDinamik]);
 
-  // Dinamik özellikleri aç/kapat toggle fonksiyonu
+  // 🔥 ŞEFİN İSTEDİĞİ OLAY: Sol menüdeki alakasız özellikleri (0 ürün kalanları) yok etme motoru
+  const dinamikSecenekGecerliMi = (baslik: string, deger: string) => {
+    // Eğer o seçenek zaten tıklandıysa (seçiliyse) ekrandan gizleme ki adam iptal edebilsin
+    if ((seciliDinamik[baslik] || []).includes(deger)) return true;
+    
+    // Eğer bu seçeneği seçersek, geriye hiç ürün kalıyor mu? Kalmıyorsa o seçeneği GİZLE!
+    return urunler.some(u => {
+      if (!urunGecerliMi(u, baslik)) return false;
+      const teknikler = u.teknik_ozellikler || u.teknik_ozeller || u.ozellikler || u.attributes || {};
+      return String(teknikler[baslik] || "").trim() === deger;
+    });
+  };
+
+  const markaGecerliMi = (marka: string) => {
+    if (seciliMarkalar.includes(marka)) return true;
+    return urunler.some(u => {
+      if (!urunGecerliMi(u, "Marka")) return false;
+      return getMarka(u) === marka;
+    });
+  };
+
   const toggleDinamik = (baslik: string, deger: string) => {
     setSeciliDinamik(onceki => {
       const mevcutlar = onceki[baslik] || [];
@@ -127,7 +128,7 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
 
   const filtreleriTemizle = () => {
     setSeciliMarkalar([]); setSadeceStokta(false); setMinFiyat(""); setMaxFiyat("");
-    setSeciliDinamik({}); // Dinamik filtreleri sıfırla
+    setSeciliDinamik({}); 
   };
 
   const handleSepeteEkle = (urun: any) => {
@@ -139,6 +140,9 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
     setSepeteEklenenler(prev => [...prev, targetId]);
     setTimeout(() => { setSepeteEklenenler(prev => prev.filter(id => id !== targetId)); }, 2000);
   };
+
+  // Markaları filtreleyelim
+  const gecerliMarkalar = markalar.filter(m => markaGecerliMi(m));
 
   return (
     <>
@@ -156,118 +160,121 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
         <div className="flex gap-2">
           <button 
             onClick={() => setMobilFiltreAcik(true)}
-            className="lg:hidden flex items-center justify-center gap-2 bg-[#00d2ff]/10 text-[#00d2ff] px-5 py-3 rounded-none font-bold text-xs uppercase tracking-wider border border-[#00d2ff]/30"
+            className="lg:hidden flex items-center justify-center gap-2 bg-[#00d2ff]/10 text-[#00d2ff] px-4 py-2.5 rounded-none font-bold text-xs uppercase tracking-wider border border-[#00d2ff]/30"
           >
             <Filter className="w-4 h-4" /> Filtrele
           </button>
-          <div className="flex items-center justify-start gap-2 bg-white/5 border border-white/10 px-5 py-3 rounded-none text-xs font-bold tracking-widest text-gray-400 uppercase">
+          <div className="flex items-center justify-start gap-2 bg-white/5 border border-white/10 px-4 py-2.5 rounded-none text-xs font-bold tracking-widest text-gray-400 uppercase">
             <div className="w-2 h-2 rounded-none bg-[#10b981] animate-ping"></div>
             Sonuç: {filtrelenmisUrunler.length}
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8 px-4 sm:px-0 relative items-start">
+      <div className="flex flex-col lg:flex-row gap-6 px-4 sm:px-0 relative items-start">
         
-        {/* 🛠️ SOL FİLTRE MENÜSÜ - ASANSÖR GİBİ İNER (UZAMASI ÇÖZÜLDÜ) 🔥 */}
-        {/* lg:h-max ve max-h-[85vh] sayesinde kutu sadece içindeki yazılar kadar uzun olur, çirkin durmaz */}
-        <div className={`fixed inset-0 z-[100] lg:sticky lg:top-24 lg:self-start lg:block lg:w-[300px] lg:shrink-0 lg:h-fit transition-transform duration-300 ${mobilFiltreAcik ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
+        {/* 🛠️ SOL FİLTRE MENÜSÜ - AKILLI VE GİZLENEN KUTULAR */}
+        <aside className={`fixed inset-0 z-[100] lg:sticky lg:top-24 lg:w-[260px] xl:w-[280px] lg:max-h-[calc(100vh-100px)] lg:shrink-0 transition-transform duration-300 flex flex-col ${mobilFiltreAcik ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
           <div className="absolute inset-0 bg-black/80 lg:hidden" onClick={() => setMobilFiltreAcik(false)}></div>
           
-          <div className="absolute top-0 left-0 h-full w-4/5 max-w-sm bg-[#09090b] border-r border-white/10 lg:static lg:h-max lg:w-full lg:bg-transparent lg:border-none p-6 lg:p-0">
-            <div className="flex justify-between items-center mb-6 lg:hidden">
-              <span className="font-black text-xl text-white uppercase tracking-wider flex items-center gap-2"><Filter className="w-5 h-5 text-[#00d2ff]" /> Filtreler</span>
-              <button onClick={() => setMobilFiltreAcik(false)} className="p-2 text-gray-400 hover:text-white"><X className="w-6 h-6" /></button>
+          <div className="relative w-4/5 max-w-sm h-full bg-[#09090b] border-r border-white/10 lg:w-full lg:bg-[#09090b] lg:border lg:border-white/5 lg:rounded-2xl lg:shadow-xl flex flex-col overflow-hidden">
+            
+            <div className="p-4 border-b border-white/5 flex justify-between items-center shrink-0 bg-[#09090b] z-10">
+              <h3 className="font-bold text-white uppercase tracking-wider flex items-center gap-2 text-sm"><Filter className="w-4 h-4 text-[#00d2ff]" /> Filtreler</h3>
+              <div className="flex items-center gap-3">
+                <button onClick={filtreleriTemizle} className="text-[#00d2ff] text-xs font-bold hover:underline">Temizle</button>
+                <button onClick={() => setMobilFiltreAcik(false)} className="lg:hidden text-gray-400 hover:text-white"><X className="w-5 h-5" /></button>
+              </div>
             </div>
 
-            <div className="bg-[#09090b] border border-white/5 rounded-2xl p-6 shadow-xl max-h-full lg:max-h-[80vh] overflow-y-auto custom-scrollbar">
+            <div className="p-4 overflow-y-auto custom-scrollbar flex-1">
               
-              <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/5 sticky top-0 bg-[#09090b] z-10 pt-2">
-                <h3 className="font-bold text-white uppercase tracking-wider flex items-center gap-2"><Filter className="w-4 h-4 text-[#00d2ff]" /> Filtreler</h3>
-                <button onClick={filtreleriTemizle} className="text-[#00d2ff] text-xs font-bold hover:underline">Temizle</button>
-              </div>
-
-              {/* STOK & FİYAT */}
-              <div className="mb-6 pb-6 border-b border-white/5">
-                <label className="flex items-center gap-3 cursor-pointer group mb-6">
+              <div className="mb-5 pb-5 border-b border-white/5">
+                <label className="flex items-center gap-3 cursor-pointer group mb-5">
                   <div className="relative">
                     <input type="checkbox" className="sr-only" checked={sadeceStokta} onChange={(e) => setSadeceStokta(e.target.checked)} />
-                    <div className={`block w-10 h-6 rounded-full transition-colors ${sadeceStokta ? 'bg-[#10b981]' : 'bg-white/10'}`}></div>
-                    <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${sadeceStokta ? 'translate-x-4' : 'translate-x-0'}`}></div>
+                    <div className={`block w-9 h-5 rounded-full transition-colors ${sadeceStokta ? 'bg-[#10b981]' : 'bg-white/10'}`}></div>
+                    <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition-transform ${sadeceStokta ? 'translate-x-4' : 'translate-x-0'}`}></div>
                   </div>
-                  <span className="text-sm font-bold text-gray-300 group-hover:text-white transition-colors">Sadece Stoktakiler</span>
+                  <span className="text-xs font-bold text-gray-300 group-hover:text-white transition-colors">Sadece Stoktakiler</span>
                 </label>
 
-                <h4 className="text-xs font-black text-gray-500 uppercase tracking-widest mb-4">Fiyat Aralığı (TL)</h4>
+                <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Fiyat Aralığı (TL)</h4>
                 <div className="flex items-center gap-2">
-                  <input type="number" placeholder="Min" value={minFiyat} onChange={(e) => setMinFiyat(e.target.value)} className="w-full bg-[#121212] border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[#00d2ff] outline-none" />
+                  <input type="number" placeholder="Min" value={minFiyat} onChange={(e) => setMinFiyat(e.target.value)} className="w-full bg-[#121212] border border-white/10 rounded-lg p-2.5 text-xs text-white focus:border-[#00d2ff] outline-none" />
                   <span className="text-gray-500">-</span>
-                  <input type="number" placeholder="Max" value={maxFiyat} onChange={(e) => setMaxFiyat(e.target.value)} className="w-full bg-[#121212] border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[#00d2ff] outline-none" />
+                  <input type="number" placeholder="Max" value={maxFiyat} onChange={(e) => setMaxFiyat(e.target.value)} className="w-full bg-[#121212] border border-white/10 rounded-lg p-2.5 text-xs text-white focus:border-[#00d2ff] outline-none" />
                 </div>
               </div>
 
-              {/* MARKA FİLTRESİ */}
-              {markalar.length > 0 && (
-                <div className="mb-6 pb-6 border-b border-white/5">
-                  <h4 className="text-xs font-black text-gray-500 uppercase tracking-widest mb-4">Markalar</h4>
-                  <div className="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
-                    {markalar.map((marka: any) => (
+              {gecerliMarkalar.length > 0 && (
+                <div className="mb-5 pb-5 border-b border-white/5">
+                  <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Markalar</h4>
+                  <div className="space-y-2.5 max-h-36 overflow-y-auto pr-2 custom-scrollbar">
+                    {gecerliMarkalar.map((marka: any) => (
                       <label key={marka} className="flex items-center gap-3 cursor-pointer group" onClick={() => setSeciliMarkalar(prev => prev.includes(marka) ? prev.filter(m => m !== marka) : [...prev, marka])}>
-                        <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${seciliMarkalar.includes(marka) ? 'bg-[#00d2ff] border-[#00d2ff]' : 'bg-[#121212] border-white/20 group-hover:border-[#00d2ff]/50'}`}>
+                        <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${seciliMarkalar.includes(marka) ? 'bg-[#00d2ff] border-[#00d2ff]' : 'bg-[#121212] border-white/20 group-hover:border-[#00d2ff]/50'}`}>
                           {seciliMarkalar.includes(marka) && <CheckIcon />}
                         </div>
-                        <span className={`text-sm font-bold transition-colors ${seciliMarkalar.includes(marka) ? 'text-white' : 'text-gray-400 group-hover:text-gray-300'}`}>{marka}</span>
+                        <span className={`text-xs font-bold transition-colors ${seciliMarkalar.includes(marka) ? 'text-white' : 'text-gray-400 group-hover:text-gray-300'}`}>{marka}</span>
                       </label>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* 🎯 TAMAMEN DİNAMİK TEKNİK ÖZELLİK FİLTRELERİ (YAPAY ZEKA) */}
-              {Object.entries(dinamikFiltreListesi).map(([baslik, degerler]) => (
-                <div key={baslik} className="mb-6 pb-6 border-b border-white/5 last:border-0 last:pb-0 last:mb-0">
-                  <h4 className="text-xs font-black text-[#00d2ff] uppercase tracking-widest mb-4">{baslik}</h4>
-                  
-                  {/* Eğer kutucuklar kısa metinliyse (örn: 12GB, AM5) yan yana buton yap, uzunsa alt alta liste yap */}
-                  {degerler.every(d => d.length <= 10) ? (
-                    <div className="flex flex-wrap gap-2">
-                      {degerler.map(deger => {
-                        const seciliMi = (seciliDinamik[baslik] || []).includes(deger);
-                        return (
-                          <button 
-                            key={deger}
-                            onClick={() => toggleDinamik(baslik, deger)}
-                            className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${seciliMi ? 'bg-[#00d2ff]/20 border-[#00d2ff] text-[#00d2ff]' : 'bg-[#121212] border-white/10 text-gray-400 hover:border-white/30 hover:text-white'}`}
-                          >
-                            {deger}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="space-y-3 max-h-48 overflow-y-auto custom-scrollbar pr-2">
-                      {degerler.map(deger => {
-                        const seciliMi = (seciliDinamik[baslik] || []).includes(deger);
-                        return (
-                          <label key={deger} className="flex items-center gap-3 cursor-pointer group" onClick={() => toggleDinamik(baslik, deger)}>
-                            <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${seciliMi ? 'bg-[#00d2ff] border-[#00d2ff]' : 'bg-[#121212] border-white/20 group-hover:border-[#00d2ff]/50'}`}>
-                              {seciliMi && <CheckIcon />}
-                            </div>
-                            <span className={`text-sm font-bold transition-colors ${seciliMi ? 'text-white' : 'text-gray-400 group-hover:text-gray-300'} break-words`}>{deger}</span>
-                          </label>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              ))}
+              {/* 🎯 TAMAMEN ALAKALI ÖZELLİKLERİ GÖSTEREN MOTOR */}
+              {Object.entries(dinamikFiltreListesi).map(([baslik, degerler]) => {
+                // ŞEFİN ZEKASI: Sadece içinde ürün kalan özellikleri filtreliyoruz!
+                const gecerliDegerler = degerler.filter(d => dinamikSecenekGecerliMi(baslik, d));
+                
+                // Eğer bu özelliğin hiçbir değeri kalmadıysa (örneğin AMD seçilince LGA1700 çipseti), O BAŞLIĞI KOMPLE GİZLE!
+                if (gecerliDegerler.length === 0) return null;
+
+                return (
+                  <div key={baslik} className="mb-5 pb-5 border-b border-white/5 last:border-0 last:pb-0 last:mb-0 animate-in fade-in duration-300">
+                    <h4 className="text-[10px] font-black text-[#00d2ff] uppercase tracking-widest mb-3">{baslik}</h4>
+                    
+                    {gecerliDegerler.every(d => d.length <= 12) ? (
+                      <div className="flex flex-wrap gap-1.5">
+                        {gecerliDegerler.map(deger => {
+                          const seciliMi = (seciliDinamik[baslik] || []).includes(deger);
+                          return (
+                            <button 
+                              key={deger}
+                              onClick={() => toggleDinamik(baslik, deger)}
+                              className={`px-2.5 py-1.5 rounded-lg border text-[10px] font-bold transition-all ${seciliMi ? 'bg-[#00d2ff]/20 border-[#00d2ff] text-[#00d2ff]' : 'bg-[#121212] border-white/10 text-gray-400 hover:border-white/30 hover:text-white'}`}
+                            >
+                              {deger}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="space-y-2.5 max-h-36 overflow-y-auto custom-scrollbar pr-2">
+                        {gecerliDegerler.map(deger => {
+                          const seciliMi = (seciliDinamik[baslik] || []).includes(deger);
+                          return (
+                            <label key={deger} className="flex items-center gap-3 cursor-pointer group" onClick={() => toggleDinamik(baslik, deger)}>
+                              <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${seciliMi ? 'bg-[#00d2ff] border-[#00d2ff]' : 'bg-[#121212] border-white/20 group-hover:border-[#00d2ff]/50'}`}>
+                                {seciliMi && <CheckIcon />}
+                              </div>
+                              <span className={`text-xs font-bold transition-colors ${seciliMi ? 'text-white' : 'text-gray-400 group-hover:text-gray-300'} break-words`}>{deger}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
 
             </div>
           </div>
-        </div>
+        </aside>
 
         {/* 🛠️ SAĞ ÜRÜN IZGARASI */}
-        <div className="flex-1 w-full min-w-0">
+        <main className="flex-1 w-full min-w-0">
           {filtrelenmisUrunler.length === 0 ? (
             <div className="w-full py-24 flex flex-col items-center justify-center border border-dashed border-white/10 rounded-2xl bg-white/[0.02]">
               <PackageX className="w-12 h-12 text-white/30 mb-4" />
@@ -384,7 +391,7 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
               })}
             </div>
           )}
-        </div>
+        </main>
       </div>
     </>
   );
@@ -392,7 +399,7 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
 
 function CheckIcon() {
   return (
-    <svg className="w-3 h-3 text-black font-bold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+    <svg className="w-2.5 h-2.5 text-black font-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
     </svg>
   );
