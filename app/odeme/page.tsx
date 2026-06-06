@@ -93,38 +93,49 @@ export default function OdemeSayfasi() {
   const inputDegis = (e: any) => { setForm({ ...form, [e.target.name]: e.target.value }); };
   const faturaInputDegis = (e: any) => { setFaturaForm({ ...faturaForm, [e.target.name]: e.target.value }); };
 
-  // 🚀 İYZİCO YENİDEN YÜKLEME MOTORU (Geri Dönme Hatasını Kesin Çözer)
+ // 🚀 İYZİCO YENİDEN YÜKLEME VE GERİ TUŞU KORUMASI
   useEffect(() => {
-    // 1. Önce eski İyzico kalıntılarını, pencerelerini ve hafızasını tamamen temizle
-    const eskiScript = document.getElementById("bilgin-iyzico-script");
-    if (eskiScript) eskiScript.remove();
-    
-    const iyziModal = document.querySelector(".iyzi-modal");
-    if (iyziModal) iyziModal.remove();
+    const iyzicoTemizle = () => {
+      const eskiScript = document.getElementById("bilgin-iyzico-script");
+      if (eskiScript) eskiScript.remove();
+      // BİNGO: Sayfayı çökerten o görünmez İyzico kalıntısını siliyoruz!
+      const iyziModal = document.querySelector(".iyzi-modal");
+      if (iyziModal) iyziModal.remove(); 
+      if (typeof window !== "undefined") delete (window as any).iyziInit;
+    };
 
-    if (typeof window !== "undefined") {
-      delete (window as any).iyziInit; // İyzico'nun hafızasını sıfırla
-    }
+    const handleGeriTusu = () => {
+      if (iyzicoFormHtml) {
+        setIyzicoFormHtml(""); // Sadece İyzico'yu kapat
+        iyzicoTemizle(); // Kalıntıları temizle ki sayfa çökmesin
+      }
+    };
 
-    // 2. Eğer yeni bir form HTML'i geldiyse, sıfırdan oluştur ve çalıştır
+    // Telefonda geri tuşuna basıldığını dinleyen radar
+    window.addEventListener("popstate", handleGeriTusu);
+
     if (iyzicoFormHtml) {
+      iyzicoTemizle();
       const formDiv = document.getElementById("iyzipay-checkout-form");
-      if (formDiv) formDiv.innerHTML = "";
-
-      const geciciDiv = document.createElement("div");
-      geciciDiv.innerHTML = iyzicoFormHtml;
-      
-      const scriptTagleri = geciciDiv.getElementsByTagName("script");
-      for (let i = 0; i < scriptTagleri.length; i++) {
-        const yeniScript = document.createElement("script");
-        yeniScript.id = "bilgin-iyzico-script";
-        yeniScript.innerHTML = scriptTagleri[i].innerHTML;
-        if (scriptTagleri[i].src) {
-          yeniScript.src = scriptTagleri[i].src;
+      if (formDiv) {
+        formDiv.innerHTML = "";
+        const geciciDiv = document.createElement("div");
+        geciciDiv.innerHTML = iyzicoFormHtml;
+        const scriptTagleri = geciciDiv.getElementsByTagName("script");
+        for (let i = 0; i < scriptTagleri.length; i++) {
+          const yeniScript = document.createElement("script");
+          yeniScript.id = "bilgin-iyzico-script";
+          yeniScript.innerHTML = scriptTagleri[i].innerHTML;
+          if (scriptTagleri[i].src) yeniScript.src = scriptTagleri[i].src;
+          document.body.appendChild(yeniScript);
         }
-        document.body.appendChild(yeniScript); // Body'ye ekle ki zorla çalışsın
       }
     }
+
+    return () => {
+      window.removeEventListener("popstate", handleGeriTusu);
+      iyzicoTemizle();
+    };
   }, [iyzicoFormHtml]);
   const siparisTamamla = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -151,11 +162,13 @@ export default function OdemeSayfasi() {
     try {
       const response = await fetch("/api/siparis", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(siparisVerisi) });
       const data = await response.json();
-      if (data.success) {
+    if (data.success) {
         if (data.odemeYontemi === "havale") {
           localStorage.removeItem("bilgin-sepet");
           window.location.href = "/siparis-basarili?kodu=" + data.siparisKodu;
         } else {
+          // 🚀 BİNGO: Telefona "yeni bir sayfaya geçtik" numarası yapıyoruz ki geri tuşu çalışsın!
+          window.history.pushState({ modal: "iyzico" }, "");
           setIyzicoFormHtml(data.checkoutFormContent);
         }
       } else {
@@ -296,9 +309,9 @@ export default function OdemeSayfasi() {
                    <h3 className="font-black text-white uppercase tracking-wider text-sm sm:text-base flex items-center gap-2">
                      <ShieldCheck className="w-5 h-5 text-emerald-400" /> Güvenli Ödeme Ekranı
                    </h3>
-                   <button onClick={() => setIyzicoFormHtml("")} className="text-slate-400 hover:text-white text-xs font-bold px-3 py-1.5 bg-[#121215] rounded-lg border border-white/10 transition-colors">
-                     İptal Et / Geri Dön
-                   </button>
+                 <button onClick={() => window.history.back()} className="text-slate-400 hover:text-white text-xs font-bold px-3 py-1.5 bg-[#121215] rounded-lg border border-white/10 transition-colors">
+  İptal Et / Geri Dön
+</button>
                 </div>
                 <div className="bg-white p-2 sm:p-4 rounded-2xl w-full">
                   <div id="iyzipay-checkout-form" className="responsive"></div>
