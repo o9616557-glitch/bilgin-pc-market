@@ -92,23 +92,41 @@ export default function OdemeSayfasi() {
   const { araToplam, kargo, genelToplam } = hesaplaTutar();
   const inputDegis = (e: any) => { setForm({ ...form, [e.target.name]: e.target.value }); };
   const faturaInputDegis = (e: any) => { setFaturaForm({ ...faturaForm, [e.target.name]: e.target.value }); };
+  // 🚀 BİNGO: İKİNCİ KEZ AÇILMAMA SORUNUNUN ÇÖZÜM MOTORU BURADA
   useEffect(() => {
     if (iyzicoFormHtml) {
+      // 1. Önce eski kalıntıları tamamen sök at
       if (typeof window !== "undefined") {
         delete (window as any).iyziInit;
       }
       const iyziModal = document.querySelector(".iyzi-modal");
       if (iyziModal) iyziModal.remove();
 
+      const eskiScript = document.getElementById("bilgin-iyzico-script");
+      if (eskiScript) eskiScript.remove();
+
       const formDiv = document.getElementById("iyzipay-checkout-form");
       if (formDiv) {
         formDiv.innerHTML = "";
-        const icerik = document.createRange().createContextualFragment(iyzicoFormHtml);
-        formDiv.appendChild(icerik);
+        const geciciDiv = document.createElement("div");
+        geciciDiv.innerHTML = iyzicoFormHtml;
+        
+        formDiv.appendChild(geciciDiv);
+
+        // 2. Kodu (Script) sıfırdan yaratıp zorla çalıştır
+        const scriptTagleri = geciciDiv.getElementsByTagName("script");
+        for (let i = 0; i < scriptTagleri.length; i++) {
+          const yeniScript = document.createElement("script");
+          yeniScript.id = "bilgin-iyzico-script";
+          yeniScript.innerHTML = scriptTagleri[i].innerHTML;
+          if (scriptTagleri[i].src) yeniScript.src = scriptTagleri[i].src;
+          document.body.appendChild(yeniScript);
+        }
       }
     }
   }, [iyzicoFormHtml]);
 
+  // 🚀 İPTAL EDİLDİĞİNDE ARKA PLANI TERTEMİZ YAPAN FONKSİYON
   const iyzicoIptal = () => {
     setIyzicoFormHtml("");
     if (typeof window !== "undefined") {
@@ -116,12 +134,15 @@ export default function OdemeSayfasi() {
     }
     const iyziModal = document.querySelector(".iyzi-modal");
     if (iyziModal) iyziModal.remove();
+
+    const eskiScript = document.getElementById("bilgin-iyzico-script");
+    if (eskiScript) eskiScript.remove();
   };
 
   const siparisTamamla = async (e: React.FormEvent) => {
     e.preventDefault();
     setYukleniyor(true);
-    setIyzicoFormHtml("");
+    iyzicoIptal(); // Yeni sipariş başlatırken de eskiyi temizle
 
     const sessionEmail = (session && session.user && session.user.email) ? session.user.email : form.eposta;
 
@@ -327,7 +348,7 @@ export default function OdemeSayfasi() {
         </div>
       </div>
 
-      {acikSozlesme && (
+    {acikSozlesme && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <div className="bg-[#09090b] border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden">
             <div className="flex justify-between items-center p-3 sm:p-4 border-b border-slate-800 bg-[#121215]"><h3 className="text-white font-bold uppercase tracking-wider text-sm sm:text-base">{acikSozlesme === "mesafeli" ? "Mesafeli Satış Sözleşmesi" : "Gizlilik Politikası"}</h3><button onClick={() => setAcikSozlesme(null)} className="text-slate-400 hover:text-white p-1"><X className="w-5 h-5" /></button></div>
