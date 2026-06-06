@@ -26,35 +26,137 @@ const getMarka = (urun: any) => {
   return "Diğer";
 };
 
+// 🚀 SADECE İSİMDEN KELİME AVLAYAN YARDIMCI MOTORLAR 🚀
+const getAramaMetni = (urun: any) => ((urun.isim || "") + " " + (urun.name || "")).toUpperCase().replace(/\s+/g, "");
+
+const getGpu = (urun: any) => {
+  const t = getAramaMetni(urun);
+  if (t.includes("NVIDIA") || t.includes("RTX") || t.includes("GTX") || t.includes("GEFORCE")) return "NVIDIA";
+  if (t.includes("AMD") || t.includes("RADEON") || t.includes("RX")) return "AMD";
+  if (t.includes("INTEL") || t.includes("ARC")) return "Intel";
+  return null;
+};
+
+const getSeri = (urun: any) => {
+  const t = getAramaMetni(urun);
+  if (t.includes("RTX50")) return "RTX 5000 Serisi";
+  if (t.includes("RTX40")) return "RTX 4000 Serisi";
+  if (t.includes("RTX30")) return "RTX 3000 Serisi";
+  if (t.includes("RTX20") || t.includes("GTX16") || t.includes("GTX10")) return "Eski Nesil (RTX 20 / GTX 16)";
+  if (t.includes("RX7")) return "RX 7000 Serisi";
+  if (t.includes("RX6")) return "RX 6000 Serisi";
+  if (t.includes("RX5")) return "RX 5000 Serisi";
+  return null;
+};
+
+const getVram = (urun: any) => {
+  const t = getAramaMetni(urun);
+  const vramKapasiteleri = ["24GB", "20GB", "16GB", "12GB", "10GB", "8GB", "6GB", "4GB", "2GB"];
+  for (const vram of vramKapasiteleri) {
+    if (t.includes(vram)) return vram.replace("GB", " GB"); 
+  }
+  return null;
+};
+
+const getIslemciSeri = (urun: any) => {
+  const t = getAramaMetni(urun);
+  if (t.includes("RYZEN9")) return "Ryzen 9";
+  if (t.includes("RYZEN7")) return "Ryzen 7";
+  if (t.includes("RYZEN5")) return "Ryzen 5";
+  if (t.includes("RYZEN3")) return "Ryzen 3";
+  if (t.includes("COREI9") || t.includes("I9-")) return "Core i9";
+  if (t.includes("COREI7") || t.includes("I7-")) return "Core i7";
+  if (t.includes("COREI5") || t.includes("I5-")) return "Core i5";
+  if (t.includes("COREI3") || t.includes("I3-")) return "Core i3";
+  return null;
+};
+
+const getSoket = (urun: any) => {
+  const t = getAramaMetni(urun);
+  if (t.includes("AM5")) return "AM5";
+  if (t.includes("AM4")) return "AM4";
+  if (t.includes("1700") || t.includes("LGA1700")) return "LGA 1700";
+  if (t.includes("1200") || t.includes("LGA1200")) return "LGA 1200";
+  if (t.includes("1151") || t.includes("LGA1151")) return "LGA 1151";
+  return null;
+};
+
+const getCipset = (urun: any) => {
+  const t = (urun.isim || urun.name || "").toUpperCase(); 
+  const match = t.match(/(A520|B550|X570|A620|B650E|B650|X670E|X670|X870E|X870|H410|H510|H610|B460|B560|B660|B760|Z490|Z590|Z690|Z790|Z890)/);
+  if (match) return match[1];
+  return null;
+};
+
+const getDdr = (urun: any) => {
+  const t = getAramaMetni(urun);
+  if (t.includes("DDR5")) return "DDR5";
+  if (t.includes("DDR4")) return "DDR4";
+  return null;
+};
+
 export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any[], sayfaBasligi: string }) {
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
 
-  // 🚀 FİLTRE HAFIZALARI
+  // 🚀 KATEGORİ TESPİTİ
+  const b = sayfaBasligi.toUpperCase();
+  const isEkranKarti = b.includes("EKRAN") || b.includes("VGA") || b.includes("GPU");
+  const isIslemci = b.includes("İŞLEMCİ") || b.includes("ISLEMCI") || b.includes("CPU");
+  const isAnakart = b.includes("ANAKART") || b.includes("MOTHERBOARD");
+
+  // 🔥 HİBRİT ÖZELLİK TOPLAYICI (Veritabanı Yoksa İsimden Çeker)
+  const getUrunOzellikleri = (urun: any) => {
+    const dbOzellikler = urun.teknik_ozellikler || urun.teknik_ozeller || urun.ozellikler || urun.attributes || {};
+    let sanalOzellikler: Record<string, string> = {};
+
+    if (isEkranKarti) {
+      const gpu = getGpu(urun); if (gpu) sanalOzellikler["Grafik İşlemci"] = gpu;
+      const seri = getSeri(urun); if (seri) sanalOzellikler["GPU Serisi"] = seri;
+      const vram = getVram(urun); if (vram) sanalOzellikler["Bellek (VRAM)"] = vram;
+    }
+    if (isIslemci) {
+      const iseri = getIslemciSeri(urun); if (iseri) sanalOzellikler["İşlemci Serisi"] = iseri;
+      const soket = getSoket(urun); if (soket) sanalOzellikler["Soket Tipi"] = soket;
+    }
+    if (isAnakart) {
+      const cipset = getCipset(urun); if (cipset) sanalOzellikler["Çipset"] = cipset;
+      const soket = getSoket(urun); if (soket) sanalOzellikler["Soket Tipi"] = soket;
+      const ddr = getDdr(urun); if (ddr) sanalOzellikler["Bellek Desteği"] = ddr;
+    }
+
+    // Veritabanındakileri ve İsimden Bulduklarımızı Birleştiriyoruz
+    return { ...sanalOzellikler, ...(typeof dbOzellikler === 'object' ? dbOzellikler : {}) };
+  };
+
+  // 🚀 SABİT FİLTRE HAFIZALARI
   const [seciliMarkalar, setSeciliMarkalar] = useState<string[]>([]);
   const [sadeceStokta, setSadeceStokta] = useState(false);
   const [minFiyat, setMinFiyat] = useState<string>("");
   const [maxFiyat, setMaxFiyat] = useState<string>("");
+  
+  // 🚀 DİNAMİK FİLTRE HAFIZASI
   const [seciliDinamik, setSeciliDinamik] = useState<Record<string, string[]>>({});
 
   const [mobilFiltreAcik, setMobilFiltreAcik] = useState(false);
 
   const markalar = useMemo(() => Array.from(new Set(urunler.map(u => getMarka(u)))).filter(Boolean).sort(), [urunler]);
 
+  // 🔥 FİLTRE BAŞLIKLARINI OLUŞTURAN MOTOR (Hem DB hem İsimleri Tarar)
   const dinamikFiltreListesi = useMemo(() => {
     const filtreHaritasi: Record<string, Set<string>> = {};
 
     urunler.forEach(urun => {
-      const teknikler = urun.teknik_ozellikler || urun.teknik_ozeller || urun.ozellikler || urun.attributes;
-      if (teknikler && typeof teknikler === 'object') {
-        Object.entries(teknikler).forEach(([baslik, deger]) => {
-          if (!deger) return;
-          const metinDeger = String(deger).trim();
-          if (metinDeger === "" || metinDeger.length > 30) return; 
-          if (!filtreHaritasi[baslik]) filtreHaritasi[baslik] = new Set();
-          filtreHaritasi[baslik].add(metinDeger);
-        });
-      }
+      const birlesikOzellikler = getUrunOzellikleri(urun);
+      
+      Object.entries(birlesikOzellikler).forEach(([baslik, deger]) => {
+        if (!deger) return;
+        const metinDeger = String(deger).trim();
+        if (metinDeger === "" || metinDeger.length > 30) return; 
+
+        if (!filtreHaritasi[baslik]) filtreHaritasi[baslik] = new Set();
+        filtreHaritasi[baslik].add(metinDeger);
+      });
     });
 
     const sonuc: Record<string, string[]> = {};
@@ -63,47 +165,39 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
         sonuc[baslik] = Array.from(filtreHaritasi[baslik]).sort();
       }
     });
+
     return sonuc;
   }, [urunler]);
 
   // 🧠 ÇAPRAZ BAĞLANTI (DEPENDENT FACET) MOTORU 
-  // "Bir ürün, belirli bir kategori HARİÇ diğer tüm seçili filtrelere uyuyor mu?" kontrolü
   const urunGecerliMi = (urun: any, haricTutulacakBaslik: string | null = null) => {
-    // 1. Marka Kontrolü
     if (haricTutulacakBaslik !== "Marka" && seciliMarkalar.length > 0 && !seciliMarkalar.includes(getMarka(urun))) return false;
     
-    // 2. Stok ve Fiyat
     const tukendiMi = urun.stokDurumu === "Tükendi" || urun.stokAdedi === 0 || urun.stokAdedi === "0";
     if (sadeceStokta && tukendiMi) return false;
     const fiyat = Number(urun.indirimliFiyat || urun.price || urun.fiyat || 0);
     if (minFiyat && fiyat < Number(minFiyat)) return false;
     if (maxFiyat && fiyat > Number(maxFiyat)) return false;
 
-    // 3. Diğer Dinamik Özellikler Kontrolü
-    const teknikler = urun.teknik_ozellikler || urun.teknik_ozeller || urun.ozellikler || urun.attributes || {};
+    const birlesikOzellikler = getUrunOzellikleri(urun);
     for (const [baslik, secilenler] of Object.entries(seciliDinamik)) {
       if (baslik === haricTutulacakBaslik || secilenler.length === 0) continue; 
-      const urununBuOzelligi = String(teknikler[baslik] || "").trim();
+      const urununBuOzelligi = String(birlesikOzellikler[baslik] || "").trim();
       if (!secilenler.includes(urununBuOzelligi)) return false;
     }
     return true;
   };
 
-  // 🔥 Sağdaki ürünleri dizmek için kullanılan ANA filtre listesi
   const filtrelenmisUrunler = useMemo(() => {
     return urunler.filter(u => urunGecerliMi(u, null));
   }, [urunler, seciliMarkalar, sadeceStokta, minFiyat, maxFiyat, seciliDinamik]);
 
-  // 🔥 ŞEFİN İSTEDİĞİ OLAY: Sol menüdeki alakasız özellikleri (0 ürün kalanları) yok etme motoru
   const dinamikSecenekGecerliMi = (baslik: string, deger: string) => {
-    // Eğer o seçenek zaten tıklandıysa (seçiliyse) ekrandan gizleme ki adam iptal edebilsin
     if ((seciliDinamik[baslik] || []).includes(deger)) return true;
-    
-    // Eğer bu seçeneği seçersek, geriye hiç ürün kalıyor mu? Kalmıyorsa o seçeneği GİZLE!
     return urunler.some(u => {
       if (!urunGecerliMi(u, baslik)) return false;
-      const teknikler = u.teknik_ozellikler || u.teknik_ozeller || u.ozellikler || u.attributes || {};
-      return String(teknikler[baslik] || "").trim() === deger;
+      const birlesikOzellikler = getUrunOzellikleri(u);
+      return String(birlesikOzellikler[baslik] || "").trim() === deger;
     });
   };
 
@@ -141,7 +235,6 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
     setTimeout(() => { setSepeteEklenenler(prev => prev.filter(id => id !== targetId)); }, 2000);
   };
 
-  // Markaları filtreleyelim
   const gecerliMarkalar = markalar.filter(m => markaGecerliMi(m));
 
   return (
@@ -173,7 +266,7 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
 
       <div className="flex flex-col lg:flex-row gap-6 px-4 sm:px-0 relative items-start">
         
-        {/* 🛠️ SOL FİLTRE MENÜSÜ - AKILLI VE GİZLENEN KUTULAR */}
+        {/* 🛠️ SOL FİLTRE MENÜSÜ */}
         <aside className={`fixed inset-0 z-[100] lg:sticky lg:top-24 lg:w-[260px] xl:w-[280px] lg:max-h-[calc(100vh-100px)] lg:shrink-0 transition-transform duration-300 flex flex-col ${mobilFiltreAcik ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
           <div className="absolute inset-0 bg-black/80 lg:hidden" onClick={() => setMobilFiltreAcik(false)}></div>
           
@@ -225,10 +318,8 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
 
               {/* 🎯 TAMAMEN ALAKALI ÖZELLİKLERİ GÖSTEREN MOTOR */}
               {Object.entries(dinamikFiltreListesi).map(([baslik, degerler]) => {
-                // ŞEFİN ZEKASI: Sadece içinde ürün kalan özellikleri filtreliyoruz!
                 const gecerliDegerler = degerler.filter(d => dinamikSecenekGecerliMi(baslik, d));
                 
-                // Eğer bu özelliğin hiçbir değeri kalmadıysa (örneğin AMD seçilince LGA1700 çipseti), O BAŞLIĞI KOMPLE GİZLE!
                 if (gecerliDegerler.length === 0) return null;
 
                 return (
