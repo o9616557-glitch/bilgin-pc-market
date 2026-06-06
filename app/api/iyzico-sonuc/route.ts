@@ -18,6 +18,7 @@ export async function POST(request: Request) {
     const siparisKodu = url.searchParams.get("siparisKodu");
 
     if (!token || !siparisKodu) {
+      // 🚀 303 EKLENDİ (POST methodunu GET'e çevirerek sayfayı açtırır)
       return NextResponse.redirect(new URL("/odeme?hata=eksik_bilgi", request.url), 303);
     }
 
@@ -34,10 +35,9 @@ export async function POST(request: Request) {
       const client = await clientPromise;
       const db = client.db("bilginpcmarket");
       
-      // 🚀 BİNGO: Siparişin durumunu Ödendi yapıyoruz ve yöntemini Kredi Kartı olarak mühürlüyoruz!
       await db.collection("orders").updateOne(
         { siparisKodu: siparisKodu },
-        { $set: { durum: "Ödendi - Hazırlanıyor", odemeYontemi: "Kredi Kartı", odemeId: sonuc.paymentId } }
+        { $set: { durum: "Ödendi - Hazırlanıyor", odemeId: sonuc.paymentId } }
       );
 
       // 🎯 KART ONAYLANDI MAİLİ
@@ -81,12 +81,14 @@ export async function POST(request: Request) {
         transporter.sendMail(mailSecenekleri).catch((err: any) => console.log(err));
       } catch (mailHatasi) { }
 
+      // 🚀 303 EKLENDİ! Artık Sipariş Başarılı sayfasına jilet gibi geçecek.
       return NextResponse.redirect(new URL(`/siparis-basarili?kodu=${siparisKodu}`, request.url), 303);
     } else {
-      // Adamın kartında para yoksa veya vazgeçerse durumu güncelleyebiliriz veya olduğu gibi "Ödeme Bekleniyor" bırakabiliriz.
+      // 🚀 303 EKLENDİ
       return NextResponse.redirect(new URL("/odeme?hata=odeme_reddedildi", request.url), 303);
     }
   } catch (error) {
+    // 🚀 303 EKLENDİ
     return NextResponse.redirect(new URL("/odeme?hata=sistem_hatasi", request.url), 303);
   }
 }

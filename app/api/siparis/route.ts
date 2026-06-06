@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 // @ts-ignore
 import Iyzipay from "iyzipay";
+// @ts-ignore
+import "postman-request"; 
 
 export async function POST(request: Request) {
   try {
@@ -22,28 +24,24 @@ export async function POST(request: Request) {
     const db = client.db("bilginpcmarket");
     const siparisKodu = `BPC-${Math.floor(100000 + Math.random() * 900000)}`;
 
-    // 🚀 BİNGO: SİPARİŞ KART İSE "KREDİ KARTI" VE "ÖDEME BEKLENİYOR" OLARAK KAYDEDİLİR!
-    const gercekOdemeYontemi = odemeYontemi === "havale" ? "Havale / EFT" : "Kredi Kartı";
-    const ilkDurum = odemeYontemi === "havale" ? "Havale Bekliyor" : "Ödeme Bekleniyor";
-
     const yeniSiparis = {
       siparisKodu,
       musteri,
       sepet,
-      odemeYontemi: gercekOdemeYontemi,
+      odemeYontemi,
       toplamTutar,
-      durum: ilkDurum,
+      durum: odemeYontemi === "havale" ? "Havale Bekliyor" : "Ödeme Bekliyor",
       tarih: new Date(),
       userEmail: musteri?.eposta || musteri?.email || "",
       email: musteri?.eposta || musteri?.email || "",
       items: sepet, 
       totalPrice: toplamTutar,
-      status: ilkDurum
+      status: odemeYontemi === "havale" ? "Havale Bekliyor" : "Ödeme Bekliyor"
     };
     
     await db.collection("orders").insertOne(yeniSiparis);
 
-    // ================= HAVALE İSE MAİL AT VE BİTİR =================
+    // 🚀 SADECE HAVALE İSE MAİL AT (Kredi kartıysa asla atma, parayı bekle!)
     if (odemeYontemi === "havale") {
       try {
         const nodemailer = require("nodemailer");
@@ -84,7 +82,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, odemeYontemi: "havale", siparisKodu });
     }
 
-    // ================= KART ÖDEMESİ KISMI (Sadece Form Oluşturulur, Para Çekilmedi) =================
+    // ================= KART ÖDEMESİ KISMI =================
     let sepetUrunleri = sepet.map((item: any) => ({
       id: item.id, name: item.isim, category1: "Bilgisayar Donanim", itemType: "PHYSICAL", price: (item.fiyat * item.adet).toString()
     }));
