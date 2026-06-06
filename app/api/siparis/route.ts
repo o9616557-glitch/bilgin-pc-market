@@ -24,17 +24,17 @@ export async function POST(request: Request) {
     const db = client.db("bilginpcmarket");
     const siparisKodu = `BPC-${Math.floor(100000 + Math.random() * 900000)}`;
 
-    // 🚀 BİNGO: ÖDEME YÖNTEMİ VE DURUMUNU BURADA KESİN MÜHÜRLÜYORUZ
+    // 🚀 BİNGO: Kart seçildiğinde panele "Kredi Kartı" ve "Kredi Kartı - Ödeme Bekleniyor" olarak yazılır!
     const gercekOdemeYontemi = odemeYontemi === "havale" ? "Havale / EFT" : "Kredi Kartı";
-    const ilkDurum = odemeYontemi === "havale" ? "Havale Bekliyor" : "Ödeme Bekleniyor";
+    const ilkDurum = odemeYontemi === "havale" ? "Havale Bekliyor" : "Kredi Kartı - Ödeme Bekleniyor";
 
     const yeniSiparis = {
       siparisKodu,
       musteri,
       sepet,
-      odemeYontemi: gercekOdemeYontemi, // Panelde artık net olarak Kredi Kartı veya Havale/EFT yazar
+      odemeYontemi: gercekOdemeYontemi, // Veritabanına düzgünce "Kredi Kartı" yazar
       toplamTutar,
-      durum: ilkDurum, // Kartsa 'Ödeme Bekleniyor', havaleyse 'Havale Bekliyor'
+      durum: ilkDurum, // Havaleyse havale bekliyor, kartsa kart ödemesi bekliyor yazar
       tarih: new Date(),
       userEmail: musteri?.eposta || musteri?.email || "",
       email: musteri?.eposta || musteri?.email || "",
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     
     await db.collection("orders").insertOne(yeniSiparis);
 
-    // 🚀 SADECE HAVALE İSE MAİL AT (Kredi kartıysa asla atma, parayı bekle!)
+    // ================= SADECE HAVALE İSE MAİL AT =================
     if (odemeYontemi === "havale") {
       try {
         const nodemailer = require("nodemailer");
