@@ -13,7 +13,7 @@ interface Props {
 export default function SiparisClient({ initialOrders }: Props) {
   const router = useRouter();
   const [orders, setOrders] = useState<any[]>(initialOrders);
-  const ordersRef = useRef<any[]>(initialOrders); // 🚀 Radarın eski durumu hatırlaması için hafıza
+  const ordersRef = useRef<any[]>(initialOrders);
   const [refreshing, setRefreshing] = useState(false); 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
@@ -26,10 +26,9 @@ export default function SiparisClient({ initialOrders }: Props) {
     }
   }, [initialOrders]);
 
-  // 🚀 İŞTE SENİN İSTEDİĞİ SİHİRLİ RADAR (HER 10 SANİYEDE BİR KONTROL EDER) 🚀
   useEffect(() => {
     const radar = setInterval(async () => {
-      if (refreshing) return; // Zaten manuel yenileniyorsa karışma
+      if (refreshing) return; 
 
       try {
         const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
@@ -39,21 +38,18 @@ export default function SiparisClient({ initialOrders }: Props) {
         const data = await res.json();
         
         if (res.ok && data.orders) {
-           // Admin panelindeki güncel durum ile müşterinin ekranındaki durumu karşılaştır
            const eskiDurumlar = JSON.stringify(ordersRef.current.map(o => ({id: o._id, durum: o.durum})));
            const yeniDurumlar = JSON.stringify(data.orders.map((o:any) => ({id: o._id, durum: o.durum})));
 
-           // EĞER ŞEF DURUMU DEĞİŞTİRMİŞSE (FARK VARSA)
            if (eskiDurumlar !== yeniDurumlar) {
-              setRefreshing(true); // 1. Araya "Güncelleniyor..." animasyonunu sok
+              setRefreshing(true); 
               
               setTimeout(() => {
-                 setOrders(data.orders); // 2. İki saniye sonra yeni durumu ekrana bas
+                 setOrders(data.orders); 
                  ordersRef.current = data.orders;
                  setRefreshing(false);
               }, 2000); 
            } else {
-              // Değişim yoksa sessizce veriyi eşitle (animasyon yapma)
               setOrders(data.orders);
               ordersRef.current = data.orders;
            }
@@ -61,9 +57,9 @@ export default function SiparisClient({ initialOrders }: Props) {
       } catch (error) {
         // Sessizce hata geç
       }
-    }, 10000); // 10 saniyede bir çalışır
+    }, 10000); 
 
-    return () => clearInterval(radar); // Sayfadan çıkınca radarı kapat
+    return () => clearInterval(radar); 
   }, [refreshing]);
 
   const handleRefresh = async () => {
@@ -107,9 +103,7 @@ export default function SiparisClient({ initialOrders }: Props) {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  // 🚀 ROZET SİSTEMİ (GÜNCELLENİRKEN OTOMATİK DEVREYE GİRER) 🚀
   const DurumRozetiGoster = ({ durum, isRefreshing }: { durum: string, isRefreshing: boolean }) => {
-    
     if (isRefreshing) {
       return (
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#3b82f6]/10 border border-[#3b82f6]/30 text-[#3b82f6] text-xs font-black uppercase tracking-widest shadow-inner">
@@ -159,6 +153,15 @@ export default function SiparisClient({ initialOrders }: Props) {
            SİPARİŞ ALINDI
         </div>
       );
+  };
+
+  // 🔥 EFSANE ÇÖZÜM: Yöntemi düzgünce Türkçe "Kredi Kartı" veya "Havale / EFT" olarak yazan ufak çevirici motor
+  const getGuzelOdemeYontemi = (metin: string) => {
+    if (!metin) return "Havale / EFT";
+    const m = metin.toLowerCase();
+    if (m === "kart" || m.includes("kredi") || m.includes("iyzico")) return "Kredi Kartı";
+    if (m === "havale" || m.includes("eft")) return "Havale / EFT";
+    return metin; 
   };
 
   return (
@@ -214,6 +217,9 @@ export default function SiparisClient({ initialOrders }: Props) {
               const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase();
               const adminMesaji = order.musteriMesaji || order.mesaj || order.adminMesaj || order.siparisNotu || order.kargoNotu || order.kargoTakipNo;
               const durumMetni = order.durum || order.status || "";
+              
+              // 🔥 BİNGO: Veritabanındaki odemeYontemi (veya eski adıyla paymentMethod) değerini şık kelimeye çeviriyoruz
+              const gosterilecekYontem = getGuzelOdemeYontemi(order.odemeYontemi || order.paymentMethod);
 
               return (
                 <div key={order._id} className={`group border bg-[#09090b] rounded-2xl p-6 transition-all duration-300 relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 ${refreshing ? 'border-slate-800/50 opacity-80 scale-[0.99]' : 'border-slate-800 hover:border-[#3b82f6]/40 shadow-xl hover:shadow-[0_0_25px_rgba(0,229,255,0.03)] scale-100'}`}>
@@ -239,17 +245,17 @@ export default function SiparisClient({ initialOrders }: Props) {
                         </button>
                       </p>
                       <p className="text-xs text-slate-500 font-medium mb-3">
-                        Tarih: <span className="text-slate-300">{new Date(order.createdAt).toLocaleDateString("tr-TR")}</span>
+                        Tarih: <span className="text-slate-300">{new Date(order.createdAt || order.tarih).toLocaleDateString("tr-TR")}</span>
                       </p>
                       
-                      {/* 🚀 ROZET OTOMATİK OLARAK BURADA DEVREYE GİRER 🚀 */}
                       <DurumRozetiGoster durum={durumMetni} isRefreshing={refreshing} />
                       
                     </div>
 
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] bg-[#121215] text-slate-300 px-3 py-1.5 rounded-lg border border-slate-800 font-black uppercase tracking-wider">
-                        {order.paymentMethod || "Havale / EFT"}
+                        {/* 🔥 BİNGO: Artık kafadan "Havale" değil, sistemin doğru okuduğu metin yazacak */}
+                        {gosterilecekYontem}
                       </span>
                     </div>
                   </div>
@@ -273,7 +279,7 @@ export default function SiparisClient({ initialOrders }: Props) {
                           {item.image || item.resim ? (
                             <img 
                               src={item.image || item.resim} 
-                              alt={item.title} 
+                              alt={item.title || item.isim} 
                               className="w-32 h-32 sm:w-28 sm:h-28 object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] z-10"
                               onError={(e) => { 
                                 e.currentTarget.src = "https://placehold.co/200x200/121215/00e5ff?text=Gorsel+Yok" 
@@ -290,16 +296,16 @@ export default function SiparisClient({ initialOrders }: Props) {
                           
                           <div className="w-full sm:w-auto flex-grow text-center sm:text-left">
                             <p className="font-bold text-slate-200 break-words whitespace-normal leading-relaxed text-sm sm:text-base">
-                              {item.title}
+                              {item.title || item.isim}
                             </p>
                           </div>
 
                           <div className="w-full sm:w-auto flex flex-row sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 sm:border-l border-slate-800/80 pt-4 sm:pt-0 sm:pl-6 mt-2 sm:mt-0 flex-shrink-0 gap-2">
                             <p className="text-xs text-slate-400 font-bold uppercase bg-slate-800/40 px-3 py-1.5 rounded-lg border border-slate-700/50">
-                              {item.quantity} ADET
+                              {item.quantity || item.adet} ADET
                             </p>
                             <p className="font-black text-[#3b82f6] text-lg sm:text-xl whitespace-nowrap">
-                              {Number((item.price || 0) * item.quantity).toLocaleString("tr-TR")} TL
+                              {Number((item.price || item.fiyat || 0) * (item.quantity || item.adet || 1)).toLocaleString("tr-TR")} TL
                             </p>
                           </div>
 
@@ -311,7 +317,7 @@ export default function SiparisClient({ initialOrders }: Props) {
                   <div className={`mt-6 flex justify-between items-center bg-[#121215] border border-slate-800/80 p-5 rounded-xl shadow-inner transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
                     <span className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Genel Toplam</span>
                     <span className="text-2xl font-black text-white tracking-tight">
-                      {Number(order.totalPrice).toLocaleString("tr-TR")} <span className="text-sm text-slate-500">TL</span>
+                      {Number(order.totalPrice || order.toplamTutar).toLocaleString("tr-TR")} <span className="text-sm text-slate-500">TL</span>
                     </span>
                   </div>
                   
