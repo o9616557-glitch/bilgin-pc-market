@@ -92,51 +92,32 @@ export default function OdemeSayfasi() {
   const { araToplam, kargo, genelToplam } = hesaplaTutar();
   const inputDegis = (e: any) => { setForm({ ...form, [e.target.name]: e.target.value }); };
   const faturaInputDegis = (e: any) => { setFaturaForm({ ...faturaForm, [e.target.name]: e.target.value }); };
-
- // 🚀 İYZİCO YENİDEN YÜKLEME VE GERİ TUŞU KORUMASI
   useEffect(() => {
-    const iyzicoTemizle = () => {
-      const eskiScript = document.getElementById("bilgin-iyzico-script");
-      if (eskiScript) eskiScript.remove();
-      // BİNGO: Sayfayı çökerten o görünmez İyzico kalıntısını siliyoruz!
-      const iyziModal = document.querySelector(".iyzi-modal");
-      if (iyziModal) iyziModal.remove(); 
-      if (typeof window !== "undefined") delete (window as any).iyziInit;
-    };
-
-    const handleGeriTusu = () => {
-      if (iyzicoFormHtml) {
-        setIyzicoFormHtml(""); // Sadece İyzico'yu kapat
-        iyzicoTemizle(); // Kalıntıları temizle ki sayfa çökmesin
-      }
-    };
-
-    // Telefonda geri tuşuna basıldığını dinleyen radar
-    window.addEventListener("popstate", handleGeriTusu);
-
     if (iyzicoFormHtml) {
-      iyzicoTemizle();
+      if (typeof window !== "undefined") {
+        delete (window as any).iyziInit;
+      }
+      const iyziModal = document.querySelector(".iyzi-modal");
+      if (iyziModal) iyziModal.remove();
+
       const formDiv = document.getElementById("iyzipay-checkout-form");
       if (formDiv) {
         formDiv.innerHTML = "";
-        const geciciDiv = document.createElement("div");
-        geciciDiv.innerHTML = iyzicoFormHtml;
-        const scriptTagleri = geciciDiv.getElementsByTagName("script");
-        for (let i = 0; i < scriptTagleri.length; i++) {
-          const yeniScript = document.createElement("script");
-          yeniScript.id = "bilgin-iyzico-script";
-          yeniScript.innerHTML = scriptTagleri[i].innerHTML;
-          if (scriptTagleri[i].src) yeniScript.src = scriptTagleri[i].src;
-          document.body.appendChild(yeniScript);
-        }
+        const icerik = document.createRange().createContextualFragment(iyzicoFormHtml);
+        formDiv.appendChild(icerik);
       }
     }
-
-    return () => {
-      window.removeEventListener("popstate", handleGeriTusu);
-      iyzicoTemizle();
-    };
   }, [iyzicoFormHtml]);
+
+  const iyzicoIptal = () => {
+    setIyzicoFormHtml("");
+    if (typeof window !== "undefined") {
+      delete (window as any).iyziInit;
+    }
+    const iyziModal = document.querySelector(".iyzi-modal");
+    if (iyziModal) iyziModal.remove();
+  };
+
   const siparisTamamla = async (e: React.FormEvent) => {
     e.preventDefault();
     setYukleniyor(true);
@@ -162,13 +143,11 @@ export default function OdemeSayfasi() {
     try {
       const response = await fetch("/api/siparis", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(siparisVerisi) });
       const data = await response.json();
-    if (data.success) {
+      if (data.success) {
         if (data.odemeYontemi === "havale") {
           localStorage.removeItem("bilgin-sepet");
           window.location.href = "/siparis-basarili?kodu=" + data.siparisKodu;
         } else {
-          // 🚀 BİNGO: Telefona "yeni bir sayfaya geçtik" numarası yapıyoruz ki geri tuşu çalışsın!
-          window.history.pushState({ modal: "iyzico" }, "");
           setIyzicoFormHtml(data.checkoutFormContent);
         }
       } else {
@@ -197,7 +176,6 @@ export default function OdemeSayfasi() {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen bg-[#050814] text-white pb-12 relative font-sans">
       <div className="border-b border-white/5 bg-[#09090b]/90 backdrop-blur-md sticky top-0 z-50 shadow-lg mb-8">
@@ -309,9 +287,9 @@ export default function OdemeSayfasi() {
                    <h3 className="font-black text-white uppercase tracking-wider text-sm sm:text-base flex items-center gap-2">
                      <ShieldCheck className="w-5 h-5 text-emerald-400" /> Güvenli Ödeme Ekranı
                    </h3>
-                 <button onClick={() => window.history.back()} className="text-slate-400 hover:text-white text-xs font-bold px-3 py-1.5 bg-[#121215] rounded-lg border border-white/10 transition-colors">
-  İptal Et / Geri Dön
-</button>
+                   <button onClick={iyzicoIptal} className="text-slate-400 hover:text-white text-xs font-bold px-3 py-1.5 bg-[#121215] rounded-lg border border-white/10 transition-colors">
+                     İptal Et / Geri Dön
+                   </button>
                 </div>
                 <div className="bg-white p-2 sm:p-4 rounded-2xl w-full">
                   <div id="iyzipay-checkout-form" className="responsive"></div>
@@ -349,7 +327,7 @@ export default function OdemeSayfasi() {
         </div>
       </div>
 
-    {acikSozlesme && (
+      {acikSozlesme && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <div className="bg-[#09090b] border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden">
             <div className="flex justify-between items-center p-3 sm:p-4 border-b border-slate-800 bg-[#121215]"><h3 className="text-white font-bold uppercase tracking-wider text-sm sm:text-base">{acikSozlesme === "mesafeli" ? "Mesafeli Satış Sözleşmesi" : "Gizlilik Politikası"}</h3><button onClick={() => setAcikSozlesme(null)} className="text-slate-400 hover:text-white p-1"><X className="w-5 h-5" /></button></div>
