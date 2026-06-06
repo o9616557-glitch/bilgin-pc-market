@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import User from "@/models/User";
 import { getServerSession } from "next-auth";
-// NOT: NextAuth yapılandırma dosyanızın yoluna göre importu düzenlemeyi unutmayın.
 import { authOptions } from "../auth/[...nextauth]/route"; 
 
 // 1. Kullanıcının Adreslerini Getir (GET)
@@ -39,9 +38,9 @@ export async function POST(req: Request) {
 
     const newAddress = await req.json();
     
-    // Gerekli alanların kontrolü
-    if (!newAddress.title || !newAddress.fullName || !newAddress.phone || !newAddress.fullAddress) {
-      return NextResponse.json({ message: "Lütfen gerekli tüm adres alanlarını doldurun." }, { status: 400 });
+    // 🚀 BİNGO: E-Posta kontrolü sisteme lehimlendi!
+    if (!newAddress.title || !newAddress.fullName || !newAddress.phone || !newAddress.email || !newAddress.fullAddress) {
+      return NextResponse.json({ message: "Lütfen e-posta dahil gerekli tüm adres alanlarını doldurun." }, { status: 400 });
     }
 
     if (mongoose.connection.readyState !== 1) {
@@ -53,12 +52,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Kullanıcı bulunamadı." }, { status: 404 });
     }
 
-    // 🚀 ŞEFİM: TAHT OYUNLARI KURALI (Sadece bir varsayılan adres olabilir)
-    // Eğer yeni adres "Varsayılan Teslimat" seçildiyse, eskilerin tacını alıyoruz
+    // ŞEFİM: TAHT OYUNLARI KURALI (Sadece bir varsayılan adres olabilir)
     if (newAddress.isDefaultDelivery) {
       user.addresses.forEach((addr: any) => { addr.isDefaultDelivery = false; });
     }
-    // Eğer yeni adres "Fatura Adresi" seçildiyse, eskilerin tacını alıyoruz
     if (newAddress.isDefaultBilling) {
       user.addresses.forEach((addr: any) => { addr.isDefaultBilling = false; });
     }
@@ -66,6 +63,7 @@ export async function POST(req: Request) {
     // Yeni ve güncel adresi listeye ekle
     user.addresses.push(newAddress);
     await user.save();
+    
     return NextResponse.json({ 
       message: "Adres başarıyla eklendi.",
       addresses: user.addresses 
@@ -98,7 +96,6 @@ export async function DELETE(req: Request) {
 
         const user = await User.findOne({ email: session.user.email });
         
-        // MongoDB'nin pull operatörü ile ID'ye göre adresi diziden çıkarıyoruz
         user.addresses.pull({ _id: addressId });
         await user.save();
 
