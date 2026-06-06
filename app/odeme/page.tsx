@@ -1,5 +1,5 @@
 "use client";
-import { ArrowLeft, CreditCard, Banknote, ShieldCheck, MapPin, Edit3, User, Phone, Mail, X } from "lucide-react";
+import { ArrowLeft, CreditCard, Banknote, ShieldCheck, MapPin, Edit3, User, Phone, Mail, X, ShoppingCart } from "lucide-react";
 import { useCart } from "../CartContext";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -87,7 +87,7 @@ export default function OdemeSayfasi() {
       const indirimOrani = (urun.havaleIndirimi !== undefined && urun.havaleIndirimi !== null) ? Number(urun.havaleIndirimi) : 0;
       let urunFiyati = Number(urun.fiyat);
       if (odemeYontemi === "havale" && indirimOrani > 0) {
-        urunFiyati = urunFiyati - (urunFiyati * urun.fiyat) / 100;
+        urunFiyati = urunFiyati - (urunFiyati * indirimOrani) / 100;
       }
       hesaplananAraToplam += urunFiyati * urun.adet;
     });
@@ -307,23 +307,36 @@ export default function OdemeSayfasi() {
              <div className="bg-[#09090b] border border-white/5 rounded-3xl p-5 sm:p-6 lg:p-8 sticky top-28 shadow-2xl">
                 <h2 className="font-black text-lg sm:text-xl mb-5 pb-3 border-b border-white/10 text-white uppercase tracking-wider">Sipariş <span className="text-[#3b82f6]">Özeti</span></h2>
                 
-                <div className="space-y-3 mb-6 max-h-[280px] overflow-y-auto custom-scrollbar pr-1">
+                {/* 🚀 BİNGO: Liste boşluğu ve yüksekliği ayarlandı */}
+                <div className="space-y-4 mb-6 max-h-[400px] overflow-y-auto custom-scrollbar pr-1">
                   {sepet.map((urun: any) => (
-                    /* 🚀 BİNGO: Kart yapısı dikey (flex-col) yapıldı. Başlık boylu boyunca yayılıyor! */
-                    <div key={urun.id} className="flex flex-col bg-[#121215] p-3 rounded-xl border border-white/5 gap-2 shadow-sm animate-in fade-in duration-300">
+                    /* 🚀 BİNGO: Kart yapısı dikey (flex-col) yapıldı, padding artırıldı */
+                    <div key={urun.id} className="flex flex-col bg-[#121215] p-4 rounded-2xl border border-white/5 gap-3 shadow-sm animate-in fade-in duration-300 hover:border-[#3b82f6]/20 transition-colors">
                       
-                      {/* Üst Kısım: Başlık upuzun yayılsın, asla iç içe girmesin */}
-                      <span className="text-white text-xs font-bold leading-relaxed break-words block w-full" title={urun.isim}>
-                        {urun.isim}
-                      </span>
+                      {/* 1. Üst Kısım: Büyük Resim Kutusu - Sepetteki gibi! */}
+                      <div className="w-full h-36 sm:h-32 bg-[#09090b] rounded-xl border border-white/10 flex items-center justify-center p-2 shrink-0 shadow-inner">
+                        <img
+                          src={urun.resim || urun.image || "/placeholder.jpg"}
+                          alt={urun.isim}
+                          className="max-w-full max-h-full object-contain"
+                        />
+                      </div>
                       
-                      {/* Alt Kısım: Resim, Adet ve Fiyat Satırı */}
-                      <div className="flex items-center justify-between gap-2 border-t border-white/5 pt-2 mt-0.5">
-                        <div className="flex items-center gap-2">
-                          <div className="w-10 h-10 bg-[#09090b] rounded-lg border border-white/10 flex items-center justify-center p-1 shrink-0">
-                            <img src={urun.resim || urun.image || "/placeholder.jpg"} alt={urun.isim} className="max-w-full max-h-full object-contain" />
-                          </div>
-                          <span className="text-slate-400 text-xs font-medium bg-white/5 px-2 py-0.5 rounded border border-white/5">{urun.adet} Adet</span>
+                      {/* 2. Orta Kısım: Başlık tam genişlik, yayılıyor */}
+                      <div className="flex flex-col flex-1 min-w-0">
+                        <span className="text-white text-[11px] sm:text-xs font-bold leading-snug break-words block w-full" title={urun.isim}>
+                          {urun.isim}
+                        </span>
+                        {/* Opsiyonel: Varyasyon bilgisi varsa buraya eklenebilir */}
+                      </div>
+                      
+                      {/* 3. Alt Kısım: Adet ve Fiyat Satırı */}
+                      <div className="flex items-center justify-between gap-2 border-t border-white/5 pt-2 mt-1">
+                        <div className="flex items-center gap-1.5">
+                          <ShoppingCart className="w-3.5 h-3.5 text-slate-500" />
+                          <span className="text-slate-400 text-xs font-medium bg-white/5 px-2 py-0.5 rounded border border-white/5 tracking-wide">
+                            {urun.adet} Adet
+                          </span>
                         </div>
                         <div className="text-[#3b82f6] font-black text-xs sm:text-sm shrink-0 drop-shadow-[0_0_8px_rgba(59,130,246,0.2)]">
                           {(urun.fiyat * urun.adet).toLocaleString("tr-TR")} TL
@@ -350,7 +363,7 @@ export default function OdemeSayfasi() {
               {acikSozlesme === "mesafeli" ? (
                 <><p><strong>Madde 1: Taraflar</strong><br/>Bu sözleşme, alıcı ve satıcı (Bilgin PC) arasında dijital ortamda kurulmuştur.</p><p><strong>Madde 2: Sözleşmenin Konusu</strong><br/>Alıcının sipariş ettiği bilgisayar ve donanım ürünlerinin satışı, teslimatı ve garanti şartlarıdır.</p><p><strong>Madde 3: İade ve İptal Şartları</strong><br/>Alıcı, ürün kendisine teslim edildikten sonra 14 gün içinde cayma hakkını kullanabilir (kutu açılmamış ve zarar görmemişse).</p></>
               ) : (
-                <><p><strong>Veri Güvenliği:</strong><br/>Bilgin PC, müşteri bilgilerini (adres, e-posta, telephone) yalnızca siparişin teslimatı ve faturalandırma süreçleri için kullanır.</p><p><strong>Üçüncü Şahıslar:</strong><br/>Hiçbir kişisel veri, kargo firmaları haricinde 3. şahıslarla paylaşılmaz veya satılamaz.</p><p><strong>Ödeme Güvenliği:</strong><br/>Kredi kartı bilgileriniz sistemimizde saklanmaz. Ödemeler 256-bit SSL sertifikası ile doğrudan banka altyapısında gerçekleşir.</p></>
+                <><p><strong>Veri Güvenliği:</strong><br/>Bilgin PC, müşteri bilgilerini (adres, e-posta, telefon) yalnızca siparişin teslimatı ve faturalandırma süreçleri için kullanır.</p><p><strong>Üçüncü Şahıslar:</strong><br/>Hiçbir kişisel veri, kargo firmaları haricinde 3. şahıslarla paylaşılmaz veya satılamaz.</p><p><strong>Ödeme Güvenliği:</strong><br/>Kredi kartı bilgileriniz sistemimizde saklanmaz. Ödemeler 256-bit SSL sertifikası ile doğrudan banka altyapısında gerçekleşir.</p></>
               )}
             </div>
             <div className="p-3 sm:p-4 border-t border-slate-800 bg-[#121215] flex justify-end"><button onClick={() => setAcikSozlesme(null)} className="bg-[#3b82f6] text-white font-bold px-5 sm:px-6 py-2 rounded-lg hover:bg-[#2563eb] transition-colors text-[10px] sm:text-xs uppercase tracking-wider">Okudum, Kapat</button></div>
