@@ -33,10 +33,10 @@ export async function POST(request: Request) {
       const client = await clientPromise;
       const db = client.db("bilginpcmarket");
       
-      // 🔥 İŞTE DEĞİŞEN YER: Senin sistemin bunu (Eğik Çizgi) olarak istiyormuş
+      // 🚀 BİNGO: Burada da yöntemi "kart" olarak perçinledik ki sistem Kredi Kartı yazısını tetiklesin!
       await db.collection("orders").updateOne(
         { siparisKodu: siparisKodu },
-        { $set: { durum: "Ödendi / Hazırlanıyor", status: "Ödendi / Hazırlanıyor", odemeYontemi: "Kredi Kartı", odemeId: sonuc.paymentId } }
+        { $set: { durum: "Ödendi / Hazırlanıyor", status: "Ödendi / Hazırlanıyor", odemeYontemi: "kart", odemeId: sonuc.paymentId } }
       );
 
       try {

@@ -24,8 +24,8 @@ export async function POST(request: Request) {
     const db = client.db("bilginpcmarket");
     const siparisKodu = `BPC-${Math.floor(100000 + Math.random() * 900000)}`;
 
-    // 🔥 İŞTE TEK DEĞİŞEN YER: Panel kelimelerini sistemin tanıdığı orijinal haline getirdik
-    const gercekOdemeYontemi = odemeYontemi === "havale" ? "Havale / EFT" : "Kredi Kartı";
+    // 🚀 BİNGO: Diğer sayfaların (Siparişlerim vb.) tanıması için orijinal "havale" ve "kart" kodlarına geri döndük!
+    const gercekOdemeYontemi = odemeYontemi === "havale" ? "havale" : "kart";
     const ilkDurum = odemeYontemi === "havale" ? "Havale Bekliyor" : "Ödeme Bekliyor";
 
     const yeniSiparis = {
