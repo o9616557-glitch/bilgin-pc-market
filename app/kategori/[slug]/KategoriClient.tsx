@@ -105,11 +105,40 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
   const isIslemci = b.includes("İŞLEMCİ") || b.includes("ISLEMCI") || b.includes("CPU");
   const isAnakart = b.includes("ANAKART") || b.includes("MOTHERBOARD");
 
-  // 🔥 HİBRİT ÖZELLİK TOPLAYICI (Veritabanı Yoksa İsimden Çeker)
+  // 🔥 BULDOZER PARSER (Veritabanındaki teknik özellikleri söküp alır!)
   const getUrunOzellikleri = (urun: any) => {
-    const dbOzellikler = urun.teknik_ozellikler || urun.teknik_ozeller || urun.ozellikler || urun.attributes || {};
+    let dbObj: Record<string, string> = {};
+    const rawDb = urun.teknik_ozellikler || urun.teknik_ozeller || urun.ozellikler || urun.attributes;
+    
+    // Veritabanındaki veri Array(Liste) mi, String mi, Normal Obje mi tespit edip çeviriyoruz
+    if (rawDb) {
+      try {
+        let parsed = rawDb;
+        if (typeof rawDb === 'string') {
+          parsed = JSON.parse(rawDb);
+        }
+        
+        if (Array.isArray(parsed)) {
+          // Admin paneli [{baslik: "VRAM", deger: "12GB"}] gibi liste kaydediyorsa
+          parsed.forEach((item: any) => {
+            const key = item.name || item.key || item.baslik || item.ozellik || item.title;
+            const val = item.value || item.val || item.deger || item.text;
+            if (key && val) dbObj[key] = String(val).trim();
+          });
+        } else if (typeof parsed === 'object' && parsed !== null) {
+          // Admin paneli {"VRAM": "12GB"} gibi standart obje kaydediyorsa
+          Object.entries(parsed).forEach(([k, v]) => {
+            if (v && typeof v !== 'object') dbObj[k] = String(v).trim();
+          });
+        }
+      } catch (e) {
+        // String JSON hatası olursa sessizce geç
+      }
+    }
+
     let sanalOzellikler: Record<string, string> = {};
 
+    // İsimden avlanan özellikler (Eğer veritabanında yoksa devreye girer)
     if (isEkranKarti) {
       const gpu = getGpu(urun); if (gpu) sanalOzellikler["Grafik İşlemci"] = gpu;
       const seri = getSeri(urun); if (seri) sanalOzellikler["GPU Serisi"] = seri;
@@ -125,8 +154,9 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
       const ddr = getDdr(urun); if (ddr) sanalOzellikler["Bellek Desteği"] = ddr;
     }
 
-    // Veritabanındakileri ve İsimden Bulduklarımızı Birleştiriyoruz
-    return { ...sanalOzellikler, ...(typeof dbOzellikler === 'object' ? dbOzellikler : {}) };
+    // 🔥 VERİTABANI ÖNCELİKLİDİR: Önce sanal olanları, sonra db'dekileri birleştiriyoruz.
+    // (Aynı başlık gelirse db'deki ezsin geçer!)
+    return { ...sanalOzellikler, ...dbObj };
   };
 
   // 🚀 SABİT FİLTRE HAFIZALARI
@@ -142,7 +172,7 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
 
   const markalar = useMemo(() => Array.from(new Set(urunler.map(u => getMarka(u)))).filter(Boolean).sort(), [urunler]);
 
-  // 🔥 FİLTRE BAŞLIKLARINI OLUŞTURAN MOTOR (Hem DB hem İsimleri Tarar)
+  // 🔥 FİLTRE BAŞLIKLARINI OLUŞTURAN MOTOR
   const dinamikFiltreListesi = useMemo(() => {
     const filtreHaritasi: Record<string, Set<string>> = {};
 
@@ -152,7 +182,8 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
       Object.entries(birlesikOzellikler).forEach(([baslik, deger]) => {
         if (!deger) return;
         const metinDeger = String(deger).trim();
-        if (metinDeger === "" || metinDeger.length > 30) return; 
+        // Uzun metinleri ve açıklamaları filtre menüsünde göstermeyelim (Max 35 Karakter)
+        if (metinDeger === "" || metinDeger.length > 35) return; 
 
         if (!filtreHaritasi[baslik]) filtreHaritasi[baslik] = new Set();
         filtreHaritasi[baslik].add(metinDeger);
