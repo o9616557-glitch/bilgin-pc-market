@@ -29,18 +29,16 @@ export async function POST(request: Request) {
       });
     });
 
-    // 🚀 BANKA PARAYI ÇEKTİ, ONAYLADI!
     if (sonuc.paymentStatus === "SUCCESS") {
       const client = await clientPromise;
       const db = client.db("bilginpcmarket");
       
-      // 🚀 BİNGO: Ödeme onaylandığı an hem yöntemi "Kredi Kartı" olarak perçinliyoruz hem de durumunu güncelliyoruz!
+      // 🔥 İŞTE DEĞİŞEN YER: Senin sistemin bunu (Eğik Çizgi) olarak istiyormuş
       await db.collection("orders").updateOne(
         { siparisKodu: siparisKodu },
-        { $set: { durum: "Ödendi - Hazırlanıyor", status: "Ödendi - Hazırlanıyor", odemeYontemi: "Kredi Kartı", odemeId: sonuc.paymentId } }
+        { $set: { durum: "Ödendi / Hazırlanıyor", status: "Ödendi / Hazırlanıyor", odemeYontemi: "Kredi Kartı", odemeId: sonuc.paymentId } }
       );
 
-      // 🎯 KART ONAYLANDI MAİLİ
       try {
         const siparis = await db.collection("orders").findOne({ siparisKodu: siparisKodu });
         const musteriMaili = siparis?.email || siparis?.userEmail || siparis?.musteri?.eposta || "o9616557@gmail.com";

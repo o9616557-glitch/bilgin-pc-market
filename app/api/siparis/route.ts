@@ -24,17 +24,17 @@ export async function POST(request: Request) {
     const db = client.db("bilginpcmarket");
     const siparisKodu = `BPC-${Math.floor(100000 + Math.random() * 900000)}`;
 
-    // 🚀 BİNGO: Kart seçildiğinde panele "Kredi Kartı" ve "Kredi Kartı - Ödeme Bekleniyor" olarak yazılır!
+    // 🔥 İŞTE TEK DEĞİŞEN YER: Panel kelimelerini sistemin tanıdığı orijinal haline getirdik
     const gercekOdemeYontemi = odemeYontemi === "havale" ? "Havale / EFT" : "Kredi Kartı";
-    const ilkDurum = odemeYontemi === "havale" ? "Havale Bekliyor" : "Kredi Kartı - Ödeme Bekleniyor";
+    const ilkDurum = odemeYontemi === "havale" ? "Havale Bekliyor" : "Ödeme Bekliyor";
 
     const yeniSiparis = {
       siparisKodu,
       musteri,
       sepet,
-      odemeYontemi: gercekOdemeYontemi, // Veritabanına düzgünce "Kredi Kartı" yazar
+      odemeYontemi: gercekOdemeYontemi, 
       toplamTutar,
-      durum: ilkDurum, // Havaleyse havale bekliyor, kartsa kart ödemesi bekliyor yazar
+      durum: ilkDurum, 
       tarih: new Date(),
       userEmail: musteri?.eposta || musteri?.email || "",
       email: musteri?.eposta || musteri?.email || "",
