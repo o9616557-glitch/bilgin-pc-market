@@ -80,7 +80,6 @@ export default function OdemeSayfasi() {
       setAdresAraniyor(false);
     }
   }, [session, status]);
-
   const hesaplaTutar = () => {
     let hesaplananAraToplam = 0;
     sepet.forEach((urun: any) => {
@@ -99,12 +98,21 @@ export default function OdemeSayfasi() {
   const inputDegis = (e: any) => { setForm({ ...form, [e.target.name]: e.target.value }); };
   const faturaInputDegis = (e: any) => { setFaturaForm({ ...faturaForm, [e.target.name]: e.target.value }); };
 
+  // Orijinal sağlam İyzico motoru + 🚀 OTOMATİK KAYDIRMA (SCROLL)
   useEffect(() => {
     if (iyzicoFormHtml) {
       const gonderilenScript = document.getElementById("iyzico-script");
       if (gonderilenScript) gonderilenScript.remove();
       const icerik = document.createRange().createContextualFragment(iyzicoFormHtml);
       document.getElementById("iyzipay-checkout-form")?.appendChild(icerik);
+
+      // BİNGO: İyzico sayfaya yüklendiği an ekranı yağ gibi aşağı kaydırıp ortalar!
+      setTimeout(() => {
+        const panel = document.getElementById("iyzico-panel");
+        if (panel) {
+          panel.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 300); // 300 milisaniye gecikme, formun tam oturmasını sağlar
     }
   }, [iyzicoFormHtml]);
 
@@ -156,7 +164,6 @@ export default function OdemeSayfasi() {
     setIbanKopyalandi(true);
     setTimeout(() => setIbanKopyalandi(false), 2000);
   };
-
   if (sepet.length === 0) {
     return (
       <div className="min-h-[80vh] bg-[#050814] text-white flex flex-col items-center justify-center px-4">
@@ -167,6 +174,7 @@ export default function OdemeSayfasi() {
       </div>
     );
   }
+
   return (
     <div className="min-h-screen bg-[#050814] text-white pb-12 relative font-sans">
       <div className="border-b border-white/5 bg-[#09090b]/90 backdrop-blur-md sticky top-0 z-50 shadow-lg mb-8">
@@ -183,7 +191,6 @@ export default function OdemeSayfasi() {
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="flex-2 w-full lg:w-2/3">
             
-            {/* FORM BAŞLANGICI */}
             <form onSubmit={siparisTamamla} className={iyzicoFormHtml ? "hidden" : "bg-[#09090b] border border-white/5 rounded-3xl p-5 sm:p-8 shadow-2xl relative overflow-hidden block"}>
               <h3 className="text-base sm:text-lg font-black text-white mb-5 flex items-center gap-2 uppercase tracking-wider"><span className="text-[#3b82f6]">📍</span> Teslimat Bilgileri</h3>
 
@@ -273,7 +280,8 @@ export default function OdemeSayfasi() {
                 {adresAraniyor ? "BİLGİLER KONTROL EDİLİYOR..." : yukleniyor ? "İŞLENİYOR..." : "SİPARİŞİ ONAYLA VE BİTİR"}
               </button>
             </form>
-            {/* 🚀 İYZİCO AÇILDIĞINDA FORM GİZLENİR, SADECE BU GÖZÜKÜR */}
+
+            {/* 🚀 BİNGO: İYZİCO AÇILDIĞINDA EKRANI ORTALAYAN PANEL */}
             {iyzicoFormHtml && (
               <div id="iyzico-panel" className="bg-[#09090b] border border-[#3b82f6]/40 rounded-3xl p-4 sm:p-6 shadow-[0_0_40px_rgba(59,130,246,0.15)] relative overflow-hidden animate-in slide-in-from-top-4 duration-500">
                 <div className="flex justify-between items-center mb-4 pb-4 border-b border-white/10">
