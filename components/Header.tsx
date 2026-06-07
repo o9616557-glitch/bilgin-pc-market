@@ -294,7 +294,8 @@ export default function Header() {
       </header>
       {/* 🔥 RAZER STYLE TAM EKRAN ARAMA MODALI 🔥 */}
       {aramaAcik && (
-        <div className="fixed inset-0 z-[100] bg-[#09090b]/96 backdrop-blur-2xl flex flex-col overflow-hidden animate-in fade-in duration-100">
+      
+  <div className="fixed inset-0 z-[99999] bg-[#09090b]/98 backdrop-blur-3xl flex flex-col overflow-hidden animate-in fade-in duration-100">
           
           <div className="p-4 md:p-6 border-b border-white/10 flex items-center gap-4">
             <form onSubmit={handleAramaSubmit} className="relative w-full max-w-4xl mx-auto flex-1">
