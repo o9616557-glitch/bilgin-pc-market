@@ -66,38 +66,6 @@ const menuCategories = [
 
 const POPULER_KELIMELER = ["Asus ROG", "RTX 4090", "Intel 14. Nesil", "DDR5 RAM", "Samsung 990 Pro"];
 
-// 🔥 0 MS GECİKME İÇİN EN ÇOK SATAN GERÇEK ÜRÜNLERİ BURAYA SABİTLEDİK (İNTERNETE BİLE İHTİYAÇ DUYMAZ ANINDA AÇILIR!)
-const EN_COK_SATANLAR_VITRIN = [
-  {
-    _id: "vitrin-1",
-    isim: "Asus ROG Strix RTX 4070 Ti SUPER OC 16GB",
-    slug: "asus-rog-strix-rtx-4070-ti-super-oc",
-    fiyat: 18999,
-    resim: "https://dlcdnwebbots.asus.com/gfn/images/v2/default_rog.jpg" // Kendi orijinal resim yolunla değiştirebilirsin şefim
-  },
-  {
-    _id: "vitrin-2",
-    isim: "Intel Core i7-14700K İşlemci (Box, LGA1700)",
-    slug: "intel-core-i7-14700k-islemci",
-    fiyat: 11499,
-    resim: "/placeholder.jpg"
-  },
-  {
-    _id: "vitrin-3",
-    isim: "Samsung 990 Pro 1TB NVMe M.2 SSD (7450MB-6900MB)",
-    slug: "samsung-990-pro-1tb-nvme-m2-ssd",
-    fiyat: 4299,
-    resim: "/placeholder.jpg"
-  },
-  {
-    _id: "vitrin-4",
-    isim: "Corsair K70 RGB PRO Mekanik Oyuncu Klavyesi",
-    slug: "corsair-k70-rgb-pro-klavye",
-    fiyat: 5499,
-    resim: "/placeholder.jpg"
-  }
-];
-
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
@@ -114,6 +82,7 @@ export default function Header() {
   const [aramaAcik, setAramaAcik] = useState(false);
   const [aramaMetni, setAramaMetni] = useState("");
   const [canliSonuclar, setCanliSonuclar] = useState<any[]>([]);
+  const [populerUrunler, setPopulerUrunler] = useState<any[]>([]); // GERÇEK ÜRÜNLER İÇİN HAFIZA
   const [sonAramalar, setSonAramalar] = useState<string[]>([]);
   const [aramaYukleniyor, setAramaYukleniyor] = useState(false);
   
@@ -130,7 +99,15 @@ export default function Header() {
     if (kayitliAramalar) setSonAramalar(JSON.parse(kayitliAramalar));
   }, []);
 
-  // Modal açıldığında input'a şimşek hızında odaklan
+  // 🔥 SİNSİ YÜKLEME (BACKGROUND FETCH) 🔥 - Müşteri arama butonuna basmadan önce gerçek ürünleri çeker hazırlar!
+  useEffect(() => {
+    fetch("/api/arama?init=true")
+      .then(res => res.json())
+      .then(data => setPopulerUrunler(data))
+      .catch(() => setPopulerUrunler([]));
+  }, []);
+
+  // Modal açıldığında input'a odaklan
   useEffect(() => {
     if (aramaAcik) {
       setTimeout(() => searchInputRef.current?.focus(), 30);
@@ -139,7 +116,7 @@ export default function Header() {
     }
   }, [aramaAcik]);
 
-  // 🔥 ŞİMŞEK HIZINDA CANLI ARAMA MOTORU (Yazıldığı an veritabanına uçar)
+  // ŞİMŞEK HIZINDA CANLI ARAMA MOTORU
   useEffect(() => {
     if (aramaMetni.trim().length >= 2) {
       setAramaYukleniyor(true);
@@ -152,13 +129,14 @@ export default function Header() {
           setCanliSonuclar([]); 
         }
         setAramaYukleniyor(false);
-      }, 40); // 40ms - İnanılmaz tepki süresi!
+      }, 50); 
       return () => clearTimeout(timer);
     } else {
       setCanliSonuclar([]);
     }
   }, [aramaMetni]);
 
+  // Dışarı tıklanınca Hesabım menüsünü kapatır
   useEffect(() => {
     function disariTiklandi(event: any) {
       if (hesabimRef.current && !hesabimRef.current.contains(event.target)) setHesabimAcik(false);
@@ -186,7 +164,6 @@ export default function Header() {
     setSonAramalar(yeni);
     localStorage.setItem("sonAramalar", JSON.stringify(yeni));
   };
-
   return (
     <>
       <header className="bg-[#050814]/90 backdrop-blur-md border-b border-gray-800 sticky top-0 z-50 w-full transition-all duration-300">
@@ -205,7 +182,7 @@ export default function Header() {
               </Link>
             </div>
 
-            {/* ORTA: MASAÜSTÜ MEGA MENÜ VE VİTRİN */}
+            {/* ORTA: MASAÜSTÜ MEGA MENÜ */}
             <div className="hidden md:flex items-center space-x-6 flex-1 justify-center">
               <div className="relative" onMouseEnter={() => setDropdownOpen(true)} onMouseLeave={() => setDropdownOpen(false)}>
                 <button className="flex items-center space-x-2 text-white bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/20 px-4 py-2 rounded-md font-semibold transition-colors text-sm">
@@ -243,10 +220,9 @@ export default function Header() {
               </nav>
             </div>
 
-            {/* SAĞ TARAF: BÜYÜTEÇ BUTONU, HESABIM VE SEPET */}
+            {/* SAĞ TARAF: BÜYÜTEÇ, HESABIM VE SEPET */}
             <div className="flex items-center space-x-1 md:space-x-3 shrink-0">
               
-              {/* 🔥 PREMIUM BÜYÜTEÇ BUTONU (0 MS TEPKİ SÜRESİ İÇİN ALTYAPI HAZIRLANDI) 🔥 */}
               <button onClick={() => setAramaAcik(true)} className="flex items-center justify-center w-10 h-10 md:w-auto md:h-10 md:px-4 md:space-x-2 rounded-xl text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-colors">
                 <Search className="w-5 h-5 text-[#00d2ff]" />
                 <span className="hidden md:block text-xs font-bold uppercase tracking-wider text-gray-400">Ürün Ara...</span>
@@ -258,6 +234,7 @@ export default function Header() {
                   <span className="hidden sm:block text-sm font-semibold">{session?.user?.name ? session.user.name.split(" ")[0] : "Hesabım"}</span>
                 </button>
 
+                {/* HESABIM DROPDOWN SİPARİŞLERİM DAHİL */}
                 {hesabimAcik && (
                   <div className="absolute top-full right-0 mt-2 w-60 bg-[#09090b] border border-gray-800 rounded-lg shadow-2xl p-2 z-50">
                     <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 rounded-md text-sm font-bold mb-1 transition-colors">📦 Kargo / Sipariş Takip</Link>
@@ -315,12 +292,10 @@ export default function Header() {
           </div>
         )}
       </header>
-
-      {/* 🔥 SHIMŞEK HIZINDA RAZER STYLE TAM EKRAN ARAMA MODALI 🔥 */}
+      {/* 🔥 RAZER STYLE TAM EKRAN ARAMA MODALI 🔥 */}
       {aramaAcik && (
         <div className="fixed inset-0 z-[100] bg-[#09090b]/96 backdrop-blur-2xl flex flex-col overflow-hidden animate-in fade-in duration-100">
           
-          {/* Üst Arama Giriş Çubuğu */}
           <div className="p-4 md:p-6 border-b border-white/10 flex items-center gap-4">
             <form onSubmit={handleAramaSubmit} className="relative w-full max-w-4xl mx-auto flex-1">
               <button type="submit" className="absolute inset-y-0 left-0 pl-4 flex items-center z-10">
@@ -343,23 +318,23 @@ export default function Header() {
             <button onClick={() => setAramaAcik(false)} className="text-gray-400 hover:text-white p-2 font-bold text-sm">Kapat</button>
           </div>
 
-          {/* İçerik Gövdesi */}
           <div className="flex-1 overflow-y-auto p-4 md:p-8 max-w-4xl mx-auto w-full pb-32">
             
-            {/* 1. DURUM: KULLANICI HARF YAZDIYSA */}
+            {/* YAZI YAZILDIYSA CANLI SONUÇLAR */}
             {aramaMetni.length > 0 ? (
               <div className="space-y-4">
                 <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
                   {aramaYukleniyor ? <Loader2 className="w-4 h-4 animate-spin text-[#00d2ff]" /> : <Search className="w-4 h-4" />}
                   ARAMA SONUÇLARI
                 </h3>
+                
                 {canliSonuclar.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {canliSonuclar.map((urun) => (
                       <Link 
                         key={urun._id} 
                         href={"/product/" + urun.slug} 
-                        prefetch={true} // 🔥 ARKA PLANDA ÖNDEN YÜKLEME SİLAHI (TIKLAYINCA ANINDA AÇILIR!)
+                        prefetch={true} 
                         onClick={() => setAramaAcik(false)} 
                         className="flex items-center gap-4 p-4 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-[#00d2ff]/30 rounded-2xl transition-all group"
                       >
@@ -384,10 +359,9 @@ export default function Header() {
                 )}
               </div>
             ) : (
-              /* 2. DURUM: KUTU BOŞSA (0 MS GEÇMİŞ VE STATİK GERÇEK VİTRİN) */
+              /* KUTU BOŞSA VİTRİN */
               <div className="space-y-8 animate-in slide-in-from-bottom-2 duration-100">
                 
-                {/* Popüler Kelimeler */}
                 <div>
                   <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2 mb-4">
                     <Flame className="w-4 h-4 text-[#00d2ff]" /> POPÜLER KELİMELER
@@ -400,7 +374,7 @@ export default function Header() {
                     ))}
                   </div>
                 </div>
-                {/* Son Aramalar */}
+
                 {sonAramalar.length > 0 && (
                   <div>
                     <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2 mb-4">
@@ -419,27 +393,29 @@ export default function Header() {
                   </div>
                 )}
 
-                {/* 🔥 EN ÇOK SATANLAR (0 MS GECİKMELİ, PREFETCH DESTEKLİ GERÇEK VİTRİN) 🔥 */}
-                <div>
-                  <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">EN ÇOK SATANLAR</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {EN_COK_SATANLAR_VITRIN.map((urun) => (
-                      <Link 
-                        key={urun._id} 
-                        href={"/product/" + urun.slug} 
-                        prefetch={true} // 🔥 BU KARTA BAKILDIĞI AN SAYFAYI ARKA PLANDA ÖNDEN ÇEKER, TIKLAYINCA BEKLETMEZ!
-                        onClick={() => setAramaAcik(false)} 
-                        className="bg-[#121212] border border-white/5 hover:border-[#00d2ff]/30 p-3 rounded-2xl group transition-colors flex flex-col"
-                      >
-                        <div className="aspect-square bg-black/40 rounded-xl mb-3 flex items-center justify-center p-2">
-                           <img src={urun.resim} alt={urun.isim} className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform" />
-                        </div>
-                        <h4 className="text-xs text-gray-300 font-medium line-clamp-2 flex-1 mb-2">{urun.isim}</h4>
-                        <span className="text-sm font-black text-white">{Number(urun.fiyat).toLocaleString("tr-TR")} ₺</span>
-                      </Link>
-                    ))}
+                {/* 🔥 GERÇEK VERİTABANI ÜRÜNLERİ (PREFETCH SAYESİNDE TIKLANDIĞINDA ŞİMŞEK GİBİ AÇILIR) 🔥 */}
+                {populerUrunler.length > 0 && (
+                  <div>
+                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">EN ÇOK SATANLAR</h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {populerUrunler.map((urun) => (
+                        <Link 
+                          key={urun._id} 
+                          href={"/product/" + urun.slug} 
+                          prefetch={true} 
+                          onClick={() => setAramaAcik(false)} 
+                          className="bg-[#121212] border border-white/5 hover:border-[#00d2ff]/30 p-3 rounded-2xl group transition-colors flex flex-col"
+                        >
+                          <div className="aspect-square bg-black/40 rounded-xl mb-3 flex items-center justify-center p-2">
+                             <img src={urun.resim} alt={urun.isim} className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform" />
+                          </div>
+                          <h4 className="text-xs text-gray-300 font-medium line-clamp-2 flex-1 mb-2">{urun.isim}</h4>
+                          <span className="text-sm font-black text-white">{Number(urun.fiyat).toLocaleString("tr-TR")} ₺</span>
+                        </Link>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
               </div>
             )}
