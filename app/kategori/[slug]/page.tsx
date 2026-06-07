@@ -61,7 +61,7 @@ export default async function KategoriSayfasi({ params }: any) {
         .badge-ribbon-home-left { left: 8px; transform: rotate(20deg); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%); }
         .badge-ribbon-home-right { right: 8px; transform: rotate(-20deg); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%); }
       `}} />
-      <div className="max-w-[1400px] mx-auto relative z-10">
+      <div className="max-w-[1400px] mx-auto">
          {/* ÇAĞIRILAN İSTEMCİ MOTORU */}
          <KategoriClient urunler={urunler} sayfaBasligi={sayfaBasligi} />
       </div>
