@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useCart } from "@/app/CartContext";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
-import { Search, X, Clock, Flame, ArrowRight, Loader2 } from "lucide-react";
+import { Search, X, Clock, Flame, ArrowRight, ChevronRight, Loader2 } from "lucide-react";
 
 // ŞEFİN JİLET GİBİ 4 KOLONLU MEGA MENÜ ENVANTERİ
 const menuCategories = [
@@ -182,8 +182,8 @@ export default function Header() {
           <div className="flex items-center justify-between h-20 gap-2 sm:gap-4">
 
             {/* SOL TARAF: HAMBURGER & LOGO */}
-            <div className="flex-shrink-0 flex items-center gap-3">
-              <button className="md:hidden flex flex-col justify-center items-center w-10 h-10 focus:outline-none z-[100]" onClick={() => setMenuAcik(!menuAcik)}>
+            <div className="flex-shrink-0 flex items-center gap-4">
+              <button className="md:hidden flex flex-col justify-center items-center w-8 h-8 focus:outline-none z-[100]" onClick={() => setMenuAcik(!menuAcik)}>
                 <span className={"block w-6 h-0.5 bg-white transition-all duration-300 " + (menuAcik ? "rotate-45 translate-y-1.5" : "")}></span>
                 <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "opacity-0" : "")}></span>
                 <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "-rotate-45 -translate-y-1.5" : "")}></span>
@@ -196,7 +196,7 @@ export default function Header() {
             {/* ORTA: MASAÜSTÜ MEGA MENÜ */}
             <div className="hidden md:flex items-center space-x-6 flex-1 justify-center">
               <div className="relative" onMouseEnter={() => setDropdownOpen(true)} onMouseLeave={() => setDropdownOpen(false)}>
-                <button className="flex items-center space-x-2 text-white bg-white/5 hover:bg-[#00d2ff]/10 border border-white/10 hover:border-[#00d2ff]/30 px-4 py-2 rounded-xl font-semibold transition-all text-sm">
+                <button className="flex items-center space-x-2 text-white hover:text-[#00d2ff] py-2 font-semibold transition-colors text-sm">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                   <span>Tüm Kategoriler</span>
                 </button>
@@ -224,29 +224,32 @@ export default function Header() {
               </div>
 
               <nav className="flex items-center space-x-6">
-                <Link href="/kategori/hazir-sistem" prefetch={true} className="text-gray-300 hover:text-white hover:text-[#00d2ff] text-sm font-bold transition-colors">🔥 Hazır Sistemler</Link>
-                <Link href="/kategori/ekran-karti" prefetch={true} className="text-gray-300 hover:text-white hover:text-[#00d2ff] text-sm font-medium transition-colors">Ekran Kartları</Link>
-                <Link href="/kategori/islemci" prefetch={true} className="text-gray-300 hover:text-white hover:text-[#00d2ff] text-sm font-medium transition-colors">İşlemciler</Link>
-                <Link href="/kategori/anakart" prefetch={true} className="text-gray-300 hover:text-white hover:text-[#00d2ff] text-sm font-medium transition-colors">Anakartlar</Link>
+                <Link href="/kategori/hazir-sistem" prefetch={true} className="text-gray-300 hover:text-[#00d2ff] text-sm font-bold transition-colors">🔥 Hazır Sistemler</Link>
+                <Link href="/kategori/ekran-karti" prefetch={true} className="text-gray-300 hover:text-[#00d2ff] text-sm font-medium transition-colors">Ekran Kartları</Link>
+                <Link href="/kategori/islemci" prefetch={true} className="text-gray-300 hover:text-[#00d2ff] text-sm font-medium transition-colors">İşlemciler</Link>
+                <Link href="/kategori/anakart" prefetch={true} className="text-gray-300 hover:text-[#00d2ff] text-sm font-medium transition-colors">Anakartlar</Link>
               </nav>
             </div>
 
-            {/* 🎯 SAĞ TARAF: BÜYÜTEÇ, HESABIM VE SEPET */}
-            <div className="flex items-center gap-1.5 md:gap-2.5 shrink-0">
+            {/* 🎯 SAĞ TARAF: BÜYÜTEÇ, HESABIM VE SEPET (KUTUSUZ, TEMİZ, ORTALANMIŞ) 🎯 */}
+            <div className="flex items-center gap-4 md:gap-6 shrink-0">
               
-              <button onClick={() => setAramaAcik(true)} className="flex items-center justify-center w-10 h-10 md:w-auto md:h-11 md:px-5 gap-2 rounded-xl text-white bg-white/10 border border-white/20 shadow-md hover:border-[#00d2ff]/50 hover:bg-[#00d2ff]/10 hover:shadow-[0_0_15px_rgba(0,210,255,0.3)] transition-all group cursor-pointer">
-                <Search className="w-5 h-5 shrink-0 text-gray-300 group-hover:text-[#00d2ff] transition-colors" />
-                <span className="hidden md:block text-xs font-black uppercase tracking-wider">Ara</span>
+              {/* ARAMA (Sadece İkon ve Yazı) */}
+              <button onClick={() => setAramaAcik(true)} className="flex items-center gap-1.5 text-gray-300 hover:text-[#00d2ff] transition-colors p-1">
+                <Search className="w-5 h-5 md:w-5 md:h-5" />
+                <span className="hidden md:block text-xs font-bold uppercase tracking-wider">Ara</span>
               </button>
 
-              <div ref={hesabimRef} className="relative">
-                <button onClick={() => setHesabimAcik(!hesabimAcik)} className={`flex items-center justify-center w-10 h-10 md:w-auto md:h-11 md:px-5 gap-2 rounded-xl transition-all shadow-md border cursor-pointer ${hesabimAcik ? "bg-[#00d2ff]/20 border-[#00d2ff] text-white shadow-[0_0_15px_rgba(0,210,255,0.3)]" : "bg-white/10 border-white/20 text-white hover:border-[#00d2ff]/50 hover:bg-[#00d2ff]/10 hover:shadow-[0_0_15px_rgba(0,210,255,0.3)] group"}`}>
-                  <svg className={`w-5 h-5 shrink-0 ${hesabimAcik ? "text-[#00d2ff]" : "text-gray-300 group-hover:text-[#00d2ff] transition-colors"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                  <span className="hidden sm:block text-xs font-black uppercase tracking-wider">{session?.user?.name ? session.user.name.split(" ")[0] : "Hesabım"}</span>
+              {/* HESABIM (Sadece İkon ve Yazı) */}
+              <div ref={hesabimRef} className="relative flex items-center">
+                <button onClick={() => setHesabimAcik(!hesabimAcik)} className={`flex items-center gap-1.5 p-1 transition-colors ${hesabimAcik ? "text-[#00d2ff]" : "text-gray-300 hover:text-[#00d2ff]"}`}>
+                  <svg className="w-5 h-5 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                  <span className="hidden sm:block text-xs font-bold uppercase tracking-wider">{session?.user?.name ? session.user.name.split(" ")[0] : "Hesabım"}</span>
                 </button>
 
+                {/* HESABIM AÇILIR MENÜSÜ (Kusursuz Hizalama) */}
                 {hesabimAcik && (
-                  <div className="absolute top-[120%] right-0 w-56 bg-[#09090b] border border-white/10 rounded-2xl shadow-[0_0_30px_rgba(0,0,0,0.8)] p-2 z-50 flex flex-col gap-1">
+                  <div className="absolute top-full right-0 mt-5 w-56 bg-[#09090b] border border-white/10 rounded-2xl shadow-[0_0_30px_rgba(0,0,0,0.8)] p-2 z-50 flex flex-col gap-1">
                     <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2.5 text-[#00d2ff] bg-[#00d2ff]/10 hover:bg-[#00d2ff]/20 rounded-xl text-sm font-bold transition-colors">📦 Sipariş Takip</Link>
                     <div className="h-px bg-white/5 my-1"></div>
                     {session ? (
@@ -277,17 +280,18 @@ export default function Header() {
                 )}
               </div>
 
-              <Link href="/sepet" prefetch={true} className="relative flex items-center justify-center w-10 h-10 md:w-auto md:h-11 md:px-5 gap-2 rounded-xl transition-all shadow-md border bg-white/10 border-white/20 text-white hover:border-[#00d2ff]/50 hover:bg-[#00d2ff]/10 hover:shadow-[0_0_15px_rgba(0,210,255,0.3)] group cursor-pointer">
-                <svg className="w-5 h-5 shrink-0 text-gray-300 group-hover:text-[#00d2ff] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                <span className="hidden sm:block text-xs font-black uppercase tracking-wider">Sepet</span>
-                {sepetAdedi > 0 && <span className="absolute -top-2 -right-2 bg-[#10b981] text-white text-[10px] md:text-xs font-black w-5 h-5 flex items-center justify-center rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)] border-2 border-[#050814]">{sepetAdedi}</span>}
+              {/* SEPET (Sadece İkon ve Yazı) */}
+              <Link href="/sepet" prefetch={true} className="relative flex items-center gap-1.5 p-1 text-gray-300 hover:text-[#00d2ff] transition-colors">
+                <svg className="w-5 h-5 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <span className="hidden sm:block text-xs font-bold uppercase tracking-wider">Sepet</span>
+                {sepetAdedi > 0 && <span className="absolute -top-1.5 -right-2 md:-top-1.5 md:-right-2 bg-[#10b981] text-white text-[9px] md:text-[10px] font-black w-4 h-4 md:w-4 md:h-4 flex items-center justify-center rounded-full border border-[#050814]">{sepetAdedi}</span>}
               </Link>
             </div>
           </div>
         </div>
       </header>
 
-      {/* 📱 KUSURSUZ MOBİL MENÜ (HEADER'IN DIŞINA ALINDI, ARTIK %100 GÖRÜNÜR) 📱 */}
+      {/* 📱 KUSURSUZ MOBİL MENÜ (ÜÇGEN İKONLU VE TEMİZ) 📱 */}
       <div className={`md:hidden fixed top-[80px] left-0 w-full h-[calc(100vh-80px)] bg-[#050814] z-[98] overflow-y-auto transition-transform duration-300 ${menuAcik ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="px-6 py-8 pb-32">
           {menuCategories.map((category, index) => (
@@ -300,10 +304,11 @@ export default function Header() {
                     href={"/kategori/" + item.slug} 
                     prefetch={true} 
                     onClick={() => setMenuAcik(false)} 
-                    className="text-white text-base font-bold py-3.5 border-b border-white/5 flex items-center justify-between"
+                    className="text-white text-base font-bold py-3.5 border-b border-white/5 flex items-center justify-between group"
                   >
                     {item.name}
-                    <ArrowRight className="w-5 h-5 text-gray-500" />
+                    {/* 🔥 ŞEFİN İSTEDİĞİ ÜÇGEN (CHEVRON) İKONU 🔥 */}
+                    <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-[#00d2ff] transition-colors" />
                   </Link>
                 ))}
               </div>
