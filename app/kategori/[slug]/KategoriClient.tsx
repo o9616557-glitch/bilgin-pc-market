@@ -298,7 +298,7 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
       <div className="flex flex-col lg:flex-row gap-6 px-4 sm:px-0 relative items-start">
         
     {/* 🛠️ SOL FİLTRE MENÜSÜ (Header'ın altına giren Buzlu Cam Versiyon) */}
-        <aside className={`fixed top-[83px] bottom-0 left-0 right-0 z-[40] lg:sticky lg:top-24 lg:w-[260px] xl:w-[280px] lg:max-h-[calc(100vh-100px)] lg:shrink-0 transition-transform duration-300 flex flex-col ${mobilFiltreAcik ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
+        <aside className={`fixed top-[80px] bottom-0 left-0 right-0 z-[40] lg:sticky lg:top-24 lg:w-[260px] xl:w-[280px] lg:max-h-[calc(100vh-100px)] lg:shrink-0 transition-transform duration-300 flex flex-col ${mobilFiltreAcik ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
           <div className="absolute inset-0 bg-[#050814]/70 backdrop-blur-md lg:hidden" onClick={() => setMobilFiltreAcik(false)}></div>
           
           <div className="relative w-4/5 max-w-sm h-full bg-[#09090b] border-r border-white/10 lg:w-full lg:bg-[#09090b] lg:border lg:border-white/5 lg:rounded-2xl lg:shadow-xl flex flex-col overflow-hidden">
