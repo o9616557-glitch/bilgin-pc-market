@@ -377,19 +377,25 @@ export default function Header() {
                 )}
                 
    {canliSonuclar.length > 0 && (
-                  <div className="mt-4">
-                    {/* ŞEFİN EFSANESİ: Önce yazılana bakar, bulamazsa GELEN İLK ÜRÜNÜN İSMİNE bakar! */}
+                  <div className="mt-4 px-2">
+                    {/* ŞEFİN ZARİF VE MODERN DİNAMİK BUTONU */}
                     {(akilliKategoriBul(aramaMetni) || akilliKategoriBul(canliSonuclar[0]?.isim)) ? (
                       <Link 
                         href={`/kategori/${(akilliKategoriBul(aramaMetni) || akilliKategoriBul(canliSonuclar[0]?.isim))?.slug}`} 
                         onClick={() => setAramaAcik(false)} 
-                        className="w-full flex items-center justify-center gap-2 py-4 bg-[#00d2ff]/10 hover:bg-[#00d2ff] text-[#00d2ff] hover:text-black rounded-2xl font-black uppercase text-xs tracking-widest transition-colors border border-[#00d2ff]/20"
+                        className="w-full flex items-center justify-between px-6 py-4 bg-gradient-to-r from-[#00d2ff]/10 to-transparent hover:from-[#00d2ff]/20 border border-[#00d2ff]/20 hover:border-[#00d2ff]/50 rounded-2xl text-[#00d2ff] transition-all group shadow-[0_0_15px_rgba(0,210,255,0.05)] hover:shadow-[0_0_25px_rgba(0,210,255,0.15)]"
                       >
-                        🔥 TÜM {(akilliKategoriBul(aramaMetni) || akilliKategoriBul(canliSonuclar[0]?.isim))?.isim.toUpperCase()} <ArrowRight className="w-4 h-4" />
+                        <span className="font-bold tracking-wide text-sm">
+                          Tüm {(akilliKategoriBul(aramaMetni) || akilliKategoriBul(canliSonuclar[0]?.isim))?.isim}
+                        </span>
+                        <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
                       </Link>
                     ) : (
-                      <button onClick={() => handleAramaSubmit()} className="w-full flex items-center justify-center gap-2 py-4 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded-2xl font-black uppercase text-xs tracking-widest transition-colors border border-white/10">
-                        "{aramaMetni}" İçin Tüm Sonuçları Gör <ArrowRight className="w-4 h-4" />
+                      <button onClick={() => handleAramaSubmit()} className="w-full flex items-center justify-between px-6 py-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-2xl text-gray-300 hover:text-white transition-all group">
+                        <span className="font-bold tracking-wide text-sm">
+                          Tüm "{aramaMetni}" Sonuçları
+                        </span>
+                        <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
                       </button>
                     )}
                   </div>
