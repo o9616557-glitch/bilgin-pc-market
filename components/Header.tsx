@@ -385,7 +385,7 @@ export default function Header() {
                         onClick={() => setAramaAcik(false)} 
                         className="w-full flex items-center justify-center gap-2 py-4 bg-[#00d2ff]/10 hover:bg-[#00d2ff] text-[#00d2ff] hover:text-black rounded-2xl font-black uppercase text-xs tracking-widest transition-colors border border-[#00d2ff]/20"
                       >
-                        🔥 TÜM {(akilliKategoriBul(aramaMetni) || akilliKategoriBul(canliSonuclar[0]?.isim))?.isim.toUpperCase()} SAYFASINA GİT <ArrowRight className="w-4 h-4" />
+                        🔥 TÜM {(akilliKategoriBul(aramaMetni) || akilliKategoriBul(canliSonuclar[0]?.isim))?.isim.toUpperCase()} <ArrowRight className="w-4 h-4" />
                       </Link>
                     ) : (
                       <button onClick={() => handleAramaSubmit()} className="w-full flex items-center justify-center gap-2 py-4 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded-2xl font-black uppercase text-xs tracking-widest transition-colors border border-white/10">
