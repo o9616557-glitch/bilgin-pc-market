@@ -1,33 +1,50 @@
 import KategoriClient from "@/app/kategori/[slug]/KategoriClient";
-import clientPromise from "@/lib/mongodb"; // 🎯 FOTOĞRAFTAN ALINAN DOĞRU BAĞLANTI
+import clientPromise from "@/lib/mongodb";
 
 export const dynamic = "force-dynamic";
 
+// 🔥 ŞEFİN YENİ NESİL TÜRKÇE KARAKTER VE BÜYÜK/KÜÇÜK HARF TERCÜMANI 🔥
+// Bu motor "ı" ile "i"yi, "ğ" ile "g"yi aynı şey sanır. Müşteri nasıl yazarsa yazsın ürünü bulur!
+function gelismisRegex(metin: string) {
+  if (!metin) return "";
+  return metin
+    .replace(/[iİıI]/g, "[iİıI]")
+    .replace(/[gĞğG]/g, "[gĞğG]")
+    .replace(/[cÇçC]/g, "[cÇçC]")
+    .replace(/[sŞşS]/g, "[sŞşS]")
+    .replace(/[oÖöO]/g, "[oÖöO]")
+    .replace(/[uÜüU]/g, "[uÜüU]");
+}
+
 export default async function AramaSayfasi({ searchParams }: any) {
-  // 1. URL'den müşterinin yazdığı kelimeyi yakalıyoruz (Örn: ?q=RTX)
+  // 1. URL'den müşterinin yazdığı kelimeyi yakalıyoruz
   const arananKelime = searchParams?.q || "";
 
   let temizUrunler: any[] = [];
 
   try {
-    // 2. Senin yöntemine (clientPromise) göre veritabanına bağlanıyoruz
     const client = await clientPromise;
     const db = client.db(); 
 
-    // 3. Arama Zekası: İsimde, markada veya kategoride aranan kelimeyi bulur (Büyük/küçük harf duyarsız)
-    const query = {
+    // Şifreli kelimeyi akıllı Türkçe çeviriciye sokuyoruz
+    const gucluKelime = gelismisRegex(arananKelime);
+
+    // 3. Arama Zekası: İsim, marka ve kategoride JİLET gibi arar
+    const query = arananKelime ? {
       $or: [
-        { isim: { $regex: arananKelime, $options: "i" } },
-        { name: { $regex: arananKelime, $options: "i" } },
-        { marka: { $regex: arananKelime, $options: "i" } },
-        { kategori: { $regex: arananKelime, $options: "i" } }
+        { isim: { $regex: gucluKelime, $options: "i" } },
+        { name: { $regex: gucluKelime, $options: "i" } },
+        { marka: { $regex: gucluKelime, $options: "i" } },
+        { kategori: { $regex: gucluKelime, $options: "i" } }
       ]
-    };
+    } : {};
 
-    // 4. "urunler" koleksiyonundan verileri çekiyoruz
-    const urunler = await db.collection("urunler").find(query).toArray();
+    // 4. 🔥 SADECE "urunler" DEĞİL, TÜM KOLEKSİYONLARA BAKIYORUZ Kİ BOŞ ÇIKMASIN!
+    let urunler = await db.collection("urunler").find(query).toArray();
+    if (urunler.length === 0) urunler = await db.collection("uruns").find(query).toArray();
+    if (urunler.length === 0) urunler = await db.collection("products").find(query).toArray();
 
-    // 5. Ekrana basılacak formata (String'e) çeviriyoruz
+    // 5. Ekrana basılacak formata çeviriyoruz
     temizUrunler = urunler.map((urun: any) => ({
       ...urun,
       _id: urun._id.toString(),
@@ -45,7 +62,8 @@ export default async function AramaSayfasi({ searchParams }: any) {
       <div className="max-w-[1400px] mx-auto pt-8">
         <KategoriClient
           urunler={temizUrunler}
-          sayfaBasligi={"${arananKelime}"}
+          // 🔥 BAŞLIK HATASI DÜZELTİLDİ: Artık ekranda "RTX İçin Arama Sonuçları" yazacak
+          sayfaBasligi={arananKelime ? `"${arananKelime}" İçin Arama Sonuçları` : "Tüm Ürünler"}
         />
       </div>
     </div>
