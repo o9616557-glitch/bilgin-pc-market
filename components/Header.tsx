@@ -129,7 +129,7 @@ export default function Header() {
           setCanliSonuclar([]); 
         }
         setAramaYukleniyor(false);
-      }, 250); 
+      }, 150); 
       return () => clearTimeout(timer);
     } else {
       setCanliSonuclar([]);

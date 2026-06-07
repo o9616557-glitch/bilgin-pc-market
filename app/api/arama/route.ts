@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
-// 🔥 ŞEFİN YENİ NESİL TÜRKÇE ÇEVİRMENİ 🔥
-function gelismisRegex(metin: string) {
+// 🔥 ŞEFİN YENİ NESİL ÇÖKMEYEN TÜRKÇE ÇEVİRMENİ 🔥
+function guvenliRegex(metin: string) {
   if (!metin) return "";
-  return metin
+  // Önce klavyeden girilen boşluk ve tehlikeli karakterleri zararsız hale getirir
+  let temiz = metin.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+  // Sonra Türkçe karakterleri akıllandırır
+  return temiz
     .replace(/[iİıI]/g, "[iİıI]")
     .replace(/[gĞğG]/g, "[gĞğG]")
     .replace(/[cÇçC]/g, "[cÇçC]")
@@ -24,17 +27,19 @@ export async function GET(request: Request) {
     
     let query = {};
     if (q) {
-      const gucluKelime = gelismisRegex(q);
+      const gucluKelime = guvenliRegex(q);
       query = {
         $or: [
           { isim: { $regex: gucluKelime, $options: "i" } },
           { name: { $regex: gucluKelime, $options: "i" } },
-          { marka: { $regex: gucluKelime, $options: "i" } }
+          { marka: { $regex: gucluKelime, $options: "i" } },
+          { kategori: { $regex: gucluKelime, $options: "i" } }
         ]
       };
     }
 
-    const limit = init ? 4 : 12; 
+    // Vitrin ise 4, canlı arama ise 10 ürün getir
+    const limit = init ? 4 : 10; 
     
     let urunler = await db.collection("urunler").find(query).limit(limit).toArray();
     if (urunler.length === 0) urunler = await db.collection("uruns").find(query).limit(limit).toArray();
@@ -50,6 +55,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(temizUrunler);
   } catch (error) {
+    console.error("API Arama Hatası:", error);
     return NextResponse.json([]);
   }
 }
