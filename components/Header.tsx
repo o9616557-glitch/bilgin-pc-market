@@ -65,6 +65,19 @@ const menuCategories = [
 ];
 
 const POPULER_KELIMELER = ["Asus ROG", "RTX 4090", "Intel 14. Nesil", "DDR5 RAM", "Samsung 990 Pro"];
+// 🔥 ŞEFİN YENİ NESİL AKILLI KATEGORİ RADARI 🔥
+const akilliKategoriBul = (metin: string) => {
+  const k = metin.toLowerCase();
+  if (k.includes("ekran") || k.includes("rtx") || k.includes("gtx") || k.includes("rx ") || k.includes("4070") || k.includes("4090") || k.includes("5070") || k.includes("5090") || k.includes("vga")) return { isim: "Ekran Kartları", slug: "ekran-karti" };
+  if (k.includes("işlemci") || k.includes("islemci") || k.includes("intel") || k.includes("ryzen") || k.includes("core i") || k.includes("cpu")) return { isim: "İşlemciler", slug: "islemci" };
+  if (k.includes("anakart") || k.includes("motherboard") || k.includes("z790") || k.includes("b650") || k.includes("a320")) return { isim: "Anakartlar", slug: "anakart" };
+  if (k.includes("laptop") || k.includes("notebook") || k.includes("macbook") || k.includes("dizüstü")) return { isim: "Laptop & Notebook", slug: "laptop" };
+  if (k.includes("kasa") || k.includes("tower") || k.includes("corsair")) return { isim: "Bilgisayar Kasaları", slug: "kasa" };
+  if (k.includes("hazır") || k.includes("hazir") || k.includes("sistem") || k.includes("toplama")) return { isim: "Hazır Sistemler", slug: "hazir-sistem" };
+  if (k.includes("ram") || k.includes("bellek") || k.includes("ddr4") || k.includes("ddr5")) return { isim: "RAM Bellekler", slug: "ram" };
+  if (k.includes("monitör") || k.includes("monitor") || k.includes("hz")) return { isim: "Monitörler", slug: "monitor" };
+  return null; // Eğer tam bir kategori bulamazsa boş döner
+};
 
 export default function Header() {
   const pathname = usePathname();
@@ -353,11 +366,19 @@ export default function Header() {
                   !aramaYukleniyor && <div className="text-center py-10 text-gray-500">Aradığınız kriterde ürün bulunamadı.</div>
                 )}
                 
-                {canliSonuclar.length > 0 && (
-                  <button onClick={() => handleAramaSubmit()} className="w-full mt-4 flex items-center justify-center gap-2 py-4 bg-[#00d2ff]/10 hover:bg-[#00d2ff] text-[#00d2ff] hover:text-black rounded-2xl font-black uppercase text-xs tracking-widest transition-colors">
-                    Tüm Sonuçlara Git (Filtreli Ekran) <ArrowRight className="w-4 h-4" />
-                  </button>
-                )}
+             {canliSonuclar.length > 0 && (
+  <div className="mt-4">
+    {akilliKategoriBul(aramaMetni) ? (
+      <Link href={`/kategori/${akilliKategoriBul(aramaMetni)?.slug}`} onClick={() => setAramaAcik(false)} className="w-full flex items-center justify-center gap-2 py-4 bg-[#00d2ff]/10 hover:bg-[#00d2ff] text-[#00d2ff] hover:text-black rounded-2xl font-black uppercase text-xs tracking-widest transition-colors border border-[#00d2ff]/20">
+        🔥 TÜM {akilliKategoriBul(aramaMetni)?.isim} KATEGORİSİNE GİT <ArrowRight className="w-4 h-4" />
+      </Link>
+    ) : (
+      <button onClick={() => handleAramaSubmit()} className="w-full flex items-center justify-center gap-2 py-4 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded-2xl font-black uppercase text-xs tracking-widest transition-colors border border-white/10">
+        "{aramaMetni}" İçin Tüm Sonuçlara Git <ArrowRight className="w-4 h-4" />
+      </button>
+    )}
+  </div>
+)}
               </div>
             ) : (
               /* KUTU BOŞSA VİTRİN */
