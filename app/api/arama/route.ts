@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
-// 🔥 ŞEFİN YENİ NESİL ÇÖKMEYEN TÜRKÇE ÇEVİRMENİ 🔥
+// 🔥 ŞEFİN TÜRKÇE ÇEVİRMENİ 🔥
 function guvenliRegex(metin: string) {
   if (!metin) return "";
-  // Güvenlik duvarı: Boşlukları serbest bırak, sadece kod bozucu işaretleri engelle
   let temiz = metin.replace(/[-[\]{}()*+?.,\\^$|#]/g, '\\$&');
   return temiz
     .replace(/[iİıI]/g, "[iİıI]")
@@ -13,6 +12,14 @@ function guvenliRegex(metin: string) {
     .replace(/[sŞşS]/g, "[sŞşS]")
     .replace(/[oÖöO]/g, "[oÖöO]")
     .replace(/[uÜüU]/g, "[uÜüU]");
+}
+
+// 🚀 ŞEFİN HARF VE RAKAM NEŞTERİ (asus5070 -> asus 5070 yapar)
+function harfRakamAyir(metin: string) {
+  if (!metin) return "";
+  return metin
+    .replace(/([a-zA-ZğüşıöçĞÜŞİÖÇ])(\d)/g, '$1 $2') // Harften sonra rakam gelirse arayı aç
+    .replace(/(\d)([a-zA-ZğüşıöçĞÜŞİÖÇ])/g, '$1 $2'); // Rakamdan sonra harf gelirse arayı aç (örn: 5070rtx -> 5070 rtx)
 }
 
 export async function GET(request: Request) {
@@ -26,10 +33,12 @@ export async function GET(request: Request) {
     
     let query = {};
     if (q.trim()) {
-      // 🚀 HEPSİBURADA ZEKASI: Kelimeleri boşluklardan parçalayıp diziye çevir
-      const kelimeler = q.trim().split(/\s+/);
+      // 1. Önce müşterinin yapışık yazdığı "asus5070"i ayırıyoruz
+      const akilliMetin = harfRakamAyir(q.trim());
       
-      // Her bir kelime için ayrı ayrı arama şartı oluştur
+      // 2. Ayırdığımız metni kelimelere bölüyoruz
+      const kelimeler = akilliMetin.split(/\s+/);
+      
       const aramaSartlari = kelimeler.map((kelime) => {
         const gucluKelime = guvenliRegex(kelime);
         return {
@@ -42,18 +51,16 @@ export async function GET(request: Request) {
         };
       });
 
-      // $and Kuralı: Yazılan TÜM kelimeler üründe bulunmak ZORUNDA
+      // 3. Yazılan her parçanın o üründe geçmesini zorunlu tutuyoruz
       query = { $and: aramaSartlari };
     }
 
     const limit = init ? 4 : 10; 
     
-    // Aramayı çalıştır
     let urunler = await db.collection("urunler").find(query).limit(limit).toArray();
     if (urunler.length === 0) urunler = await db.collection("uruns").find(query).limit(limit).toArray();
     if (urunler.length === 0) urunler = await db.collection("products").find(query).limit(limit).toArray();
 
-    // Ürünleri vitrine hazırla
     const temizUrunler = urunler.map((u: any) => ({
       _id: u._id.toString(),
       isim: u.isim || u.name || "",
