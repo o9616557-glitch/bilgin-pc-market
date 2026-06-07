@@ -234,7 +234,7 @@ export default function Header() {
             </div>
 
             {/* 🎯 SAĞ TARAF: YAZI SOLDA, İKON SAĞDA! 🎯 */}
-            <div className="flex items-center gap-4 md:gap-8 shrink-0 h-full">
+            <div className="flex items-center gap-3 md:gap-6 shrink-0 h-full">
               
               {/* ARAMA (Yazı Solda, İkon Sağda) */}
               <button onClick={() => setAramaAcik(true)} className="flex items-center gap-2 text-gray-300 hover:text-[#00d2ff] transition-colors p-2 group">
