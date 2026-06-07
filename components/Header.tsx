@@ -202,8 +202,8 @@ export default function Header() {
                   <span>Tüm Kategoriler</span>
                 </button>
 
-                {dropdownOpen && (
-                  <div className="absolute top-full left-0 mt-6 w-[1100px] z-50">
+              {dropdownOpen && (
+  <div className="absolute top-[50%] left-0 pt-[35px] w-[1100px] z-50">
                     <div className="bg-[#09090b]/98 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_30px_50px_rgba(0,0,0,0.8)] p-10">
                       <div className="grid grid-cols-4 gap-12">
                         {menuCategories.map((category, index) => (
