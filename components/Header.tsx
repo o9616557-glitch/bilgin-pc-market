@@ -233,8 +233,8 @@ export default function Header() {
               </nav>
             </div>
 
-            {/* 🎯 SAĞ TARAF: YAZI SOLDA, İKON SAĞDA! 🎯 */}
-            <div className="flex items-center gap-3 md:gap-6 shrink-0 h-full">
+           {/* 🎯 SAĞ TARAF: SİMGE SOLDA, YAZI SAĞDA, BÜYÜK HARFLER İPTAL! 🎯 */}
+<div className="flex items-center gap-2 md:gap-4 shrink-0 h-full">
               
               {/* ARAMA (Yazı Solda, İkon Sağda) */}
               <button onClick={() => setAramaAcik(true)} className="flex items-center gap-2 text-gray-300 hover:text-[#00d2ff] transition-colors p-2 group">
