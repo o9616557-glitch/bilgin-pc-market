@@ -256,10 +256,10 @@ export default function Header() {
                     <div className="h-px bg-white/5 my-1"></div>
                     {session ? (
                       <>
-                        <div className="px-3 py-2 border-b border-white/5 mb-1">
-                          <p className="text-white text-xs font-bold">Hoş Geldin, 👋</p>
-                          <p className="text-[#00d2ff] text-[11px] font-semibold truncate">{session.user?.name || session.user?.email}</p>
-                        </div>
+                      <div className="px-3 py-3 border-b border-white/5 mb-2">
+  <p className="text-white text-sm font-black mb-0.5">Hoş Geldin, 👋</p>
+  <p className="text-[#00d2ff] text-base font-black truncate">{session.user?.name || session.user?.email}</p>
+</div>
                         <Link href="/siparislerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl text-sm transition-colors">📋 Siparişlerim</Link>
                         <Link href="/adreslerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl text-sm transition-colors">📍 Adreslerim</Link>
                         <Link href="/favorilerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl text-sm transition-colors">❤️ Favorilerim</Link>
