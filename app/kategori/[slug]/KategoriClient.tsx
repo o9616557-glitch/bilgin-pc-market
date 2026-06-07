@@ -391,16 +391,13 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
              );
               })}
 
-              {/* 🔥 FİLTRE SONU İŞARETİ 🔥 */}
-              <div className="mt-10 mb-8 flex flex-col items-center justify-center opacity-60 select-none">
+            {/* 🔥 FİLTRE SONU İŞARETİ 🔥 */}
+              <div className="mt-8 mb-6 flex justify-center opacity-50 select-none">
                 <div className="flex items-center gap-3">
-                  <div className="w-6 h-[1px] bg-white/20"></div>
-                  <div className="w-1.5 h-1.5 rotate-45 bg-white/20"></div>
-                  <div className="w-6 h-[1px] bg-white/20"></div>
+                  <div className="w-8 h-[1px] bg-gray-600"></div>
+                  <div className="w-1.5 h-1.5 rotate-45 bg-gray-500"></div>
+                  <div className="w-8 h-[1px] bg-gray-600"></div>
                 </div>
-                <span className="text-[9px] font-black text-gray-500 uppercase tracking-[0.3em] mt-3">
-                  FİLTRELERİN SONU
-                </span>
               </div>
 
             </div>
