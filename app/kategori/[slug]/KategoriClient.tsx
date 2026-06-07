@@ -435,11 +435,11 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
                   }
 
                   return (
-                    <div key={urun._id.toString()} className="group relative flex flex-col w-full flex-shrink-0 bg-[#09090b] rounded-2xl overflow-hidden border border-white/5 transition-all duration-700 ease-out hover:border-[#00d2ff]/40 hover:shadow-[0_0_30px_rgba(0,210,255,0.15)]">
+                   <div key={urun._id.toString()} className="group relative isolate z-0 flex flex-col w-full flex-shrink-0 bg-[#09090b] rounded-2xl overflow-hidden border border-white/5 transition-all duration-700 ease-out hover:border-[#00d2ff]/40 hover:shadow-[0_0_30px_rgba(0,210,255,0.15)]">
                       <div className="relative aspect-[4/3] w-full bg-gradient-to-b from-white/5 to-transparent flex items-center justify-center p-6 overflow-hidden pointer-events-none">
                         
-                        {indirimVarMi && !tukendiMi && (
-                          <div className="discount-badge-home pointer-events-none">
+                       {indirimVarMi && !tukendiMi && (
+  <div className="discount-badge-home pointer-events-none !z-10">
                               <div className="badge-ribbon-home-left"></div>
                               <div className="badge-ribbon-home-right"></div>
                               <div className="badge-rosette-home">
