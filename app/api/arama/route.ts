@@ -1,18 +1,23 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
-// 🔥 ŞEFİN YENİ NESİL ÇÖKMEYEN TÜRKÇE ÇEVİRMENİ 🔥
 function guvenliRegex(metin: string) {
   if (!metin) return "";
-  // Boşlukları serbest bırakıyoruz ki kelimeleri bölebilelim
-  let temiz = metin.replace(/[-[\]{}()*+?.,\\^$|#]/g, '\\$&');
-  return temiz
+  
+  // 1. Önce tehlikeli karakterleri temizle
+  let temiz = metin.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '');
+  
+  // 2. Türkçe karakterleri esnet
+  let regexStr = temiz
     .replace(/[iİıI]/g, "[iİıI]")
     .replace(/[gĞğG]/g, "[gĞğG]")
     .replace(/[cÇçC]/g, "[cÇçC]")
     .replace(/[sŞşS]/g, "[sŞşS]")
     .replace(/[oÖöO]/g, "[oÖöO]")
     .replace(/[uÜüU]/g, "[uÜüU]");
+
+  // 🚀 ŞEFİN SİHRİ: Her harfin arasına "isteğe bağlı boşluk" izni veriyoruz
+  return regexStr.split("").join("[\\s-]*");
 }
 
 export async function GET(request: Request) {

@@ -5,13 +5,18 @@ export const dynamic = "force-dynamic";
 
 function gelismisRegex(metin: string) {
   if (!metin) return "";
-  return metin
+  
+  let temiz = metin.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '');
+  
+  let regexStr = temiz
     .replace(/[iİıI]/g, "[iİıI]")
     .replace(/[gĞğG]/g, "[gĞğG]")
     .replace(/[cÇçC]/g, "[cÇçC]")
     .replace(/[sŞşS]/g, "[sŞşS]")
     .replace(/[oÖöO]/g, "[oÖöO]")
     .replace(/[uÜüU]/g, "[uÜüU]");
+
+  return regexStr.split("").join("[\\s-]*");
 }
 
 export default async function AramaSayfasi({ searchParams }: any) {
