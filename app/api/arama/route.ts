@@ -1,25 +1,10 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
-// 🔥 ŞEFİN YENİ NESİL ÇÖKMEYEN TÜRKÇE ÇEVİRMENİ 🔥
-function guvenliRegex(metin: string) {
-  if (!metin) return "";
-  // Önce klavyeden girilen boşluk ve tehlikeli karakterleri zararsız hale getirir
-  let temiz = metin.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-  // Sonra Türkçe karakterleri akıllandırır
-  return temiz
-    .replace(/[iİıI]/g, "[iİıI]")
-    .replace(/[gĞğG]/g, "[gĞğG]")
-    .replace(/[cÇçC]/g, "[cÇçC]")
-    .replace(/[sŞşS]/g, "[sŞşS]")
-    .replace(/[oÖöO]/g, "[oÖöO]")
-    .replace(/[uÜüU]/g, "[uÜüU]");
-}
-
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const q = searchParams.get("q") || "";
-  const init = searchParams.get("init") === "true";
+  const init = searchParams.get("init") === "true"; // Modal ilk açıldığında çalışacak özel mod
 
   try {
     const client = await clientPromise;
@@ -27,24 +12,23 @@ export async function GET(request: Request) {
     
     let query = {};
     if (q) {
-      const gucluKelime = guvenliRegex(q);
       query = {
         $or: [
-          { isim: { $regex: gucluKelime, $options: "i" } },
-          { name: { $regex: gucluKelime, $options: "i" } },
-          { marka: { $regex: gucluKelime, $options: "i" } },
-          { kategori: { $regex: gucluKelime, $options: "i" } }
+          { isim: { $regex: q, $options: "i" } },
+          { name: { $regex: q, $options: "i" } },
+          { marka: { $regex: q, $options: "i" } }
         ]
       };
     }
 
-    // Vitrin ise 4, canlı arama ise 10 ürün getir
+    // 🔥 init=true ise "En Çok Satanlar" (Vitrin) için son eklenen/popüler 4 ürünü çeker!
     const limit = init ? 4 : 10; 
     
     let urunler = await db.collection("urunler").find(query).limit(limit).toArray();
     if (urunler.length === 0) urunler = await db.collection("uruns").find(query).limit(limit).toArray();
     if (urunler.length === 0) urunler = await db.collection("products").find(query).limit(limit).toArray();
 
+    // Sadece ekranda gösterilecek "Hafif" verileri seçiyoruz ki şimşek gibi açılsın
     const temizUrunler = urunler.map((u: any) => ({
       _id: u._id.toString(),
       isim: u.isim || u.name || "",
@@ -55,7 +39,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json(temizUrunler);
   } catch (error) {
-    console.error("API Arama Hatası:", error);
     return NextResponse.json([]);
   }
 }
