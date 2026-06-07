@@ -118,7 +118,7 @@ export default function Header() {
 
   // ŞİMŞEK HIZINDA CANLI ARAMA MOTORU
   useEffect(() => {
-    if (aramaMetni.trim().length >= 2) {
+    if (aramaMetni.trim().length >= 3) {
       setAramaYukleniyor(true);
       const timer = setTimeout(async () => {
         try {
