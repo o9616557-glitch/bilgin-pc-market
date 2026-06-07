@@ -66,7 +66,6 @@ const menuCategories = [
 
 const POPULER_KELIMELER = ["Asus ROG", "RTX 4090", "Intel 14. Nesil", "DDR5 RAM", "Samsung 990 Pro"];
 
-// 🔥 ŞEFİN GÜNCELLENMİŞ AKILLI KATEGORİ RADARI 🔥
 const akilliKategoriBul = (metin: string) => {
   if (!metin) return null;
   const k = metin.toLowerCase();
@@ -180,11 +179,11 @@ export default function Header() {
     <>
       <header className="fixed top-0 left-0 w-full z-[99] bg-[#050814]/90 backdrop-blur-md border-b border-white/5 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20 gap-4">
+          <div className="flex items-center justify-between h-20 gap-2 sm:gap-4">
 
             {/* SOL TARAF: HAMBURGER & LOGO */}
-            <div className="flex-shrink-0 flex items-center gap-4">
-              <button className="md:hidden flex flex-col justify-center items-center w-8 h-8 focus:outline-none z-[100]" onClick={() => setMenuAcik(!menuAcik)}>
+            <div className="flex-shrink-0 flex items-center gap-3">
+              <button className="md:hidden flex flex-col justify-center items-center w-10 h-10 focus:outline-none z-[100]" onClick={() => setMenuAcik(!menuAcik)}>
                 <span className={"block w-6 h-0.5 bg-white transition-all duration-300 " + (menuAcik ? "rotate-45 translate-y-1.5" : "")}></span>
                 <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "opacity-0" : "")}></span>
                 <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "-rotate-45 -translate-y-1.5" : "")}></span>
@@ -232,45 +231,48 @@ export default function Header() {
               </nav>
             </div>
 
-            {/* 🎯 SAĞ TARAF: BÜYÜTEÇ, HESABIM VE SEPET (TEK TİP UYUM) 🎯 */}
-            <div className="flex items-center space-x-2 shrink-0">
+            {/* 🎯 SAĞ TARAF: BÜYÜTEÇ, HESABIM VE SEPET (MİLİMETRİK ORTALANMIŞ) 🎯 */}
+            <div className="flex items-center gap-1 sm:gap-2 shrink-0">
               
-              <button onClick={() => setAramaAcik(true)} className="flex items-center justify-center h-10 px-3 md:px-4 space-x-2 rounded-xl text-gray-300 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#00d2ff]/50 hover:text-white transition-all group">
-                <Search className="w-5 h-5 text-gray-400 group-hover:text-[#00d2ff] transition-colors" />
+              {/* ARAMA */}
+              <button onClick={() => setAramaAcik(true)} className="flex items-center justify-center w-10 h-10 md:w-auto md:px-4 gap-2 rounded-xl text-gray-300 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#00d2ff]/50 hover:text-white transition-all group">
+                <Search className="w-5 h-5 shrink-0 text-gray-400 group-hover:text-[#00d2ff] transition-colors" />
                 <span className="hidden md:block text-xs font-bold uppercase tracking-wider">Ürün Ara...</span>
               </button>
 
+              {/* HESABIM */}
               <div ref={hesabimRef} className="relative">
-                <button onClick={() => setHesabimAcik(!hesabimAcik)} className={`flex items-center justify-center h-10 px-3 md:px-4 space-x-2 rounded-xl transition-all border ${hesabimAcik ? "bg-[#00d2ff]/10 border-[#00d2ff]/50 text-white" : "bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:border-[#00d2ff]/50 hover:text-white"}`}>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                <button onClick={() => setHesabimAcik(!hesabimAcik)} className={`flex items-center justify-center w-10 h-10 md:w-auto md:px-4 gap-2 rounded-xl transition-all border ${hesabimAcik ? "bg-[#00d2ff]/10 border-[#00d2ff]/50 text-white" : "bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:border-[#00d2ff]/50 hover:text-white"}`}>
+                  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                   <span className="hidden sm:block text-xs font-bold uppercase tracking-wider">{session?.user?.name ? session.user.name.split(" ")[0] : "Hesabım"}</span>
                 </button>
 
+                {/* HESABIM AÇILIR MENÜSÜ (KAYMA VE ÜST ÜSTE BİNME DÜZELTİLDİ) */}
                 {hesabimAcik && (
-                  <div className="absolute top-full right-0 mt-2 w-60 bg-[#09090b] border border-white/10 rounded-2xl shadow-[0_0_30px_rgba(0,0,0,0.8)] p-2 z-50">
-                    <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-[#00d2ff] bg-[#00d2ff]/10 hover:bg-[#00d2ff]/20 rounded-xl text-sm font-bold mb-1 transition-colors">📦 Sipariş Takip</Link>
-                    <div className="h-px bg-white/5 my-2"></div>
+                  <div className="absolute top-[120%] right-0 w-56 bg-[#09090b] border border-white/10 rounded-2xl shadow-[0_0_30px_rgba(0,0,0,0.8)] p-2 z-50 flex flex-col gap-1">
+                    <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2.5 text-[#00d2ff] bg-[#00d2ff]/10 hover:bg-[#00d2ff]/20 rounded-xl text-sm font-bold transition-colors">📦 Sipariş Takip</Link>
+                    <div className="h-px bg-white/5 my-1"></div>
                     {session ? (
                       <>
                         <div className="px-3 py-2 border-b border-white/5 mb-1">
-                          <p className="text-white text-sm font-bold">Hoş Geldin, 👋</p>
-                          <p className="text-[#00d2ff] text-xs font-semibold truncate">{session.user?.name || session.user?.email}</p>
+                          <p className="text-white text-xs font-bold">Hoş Geldin, 👋</p>
+                          <p className="text-[#00d2ff] text-[11px] font-semibold truncate">{session.user?.name || session.user?.email}</p>
                         </div>
                         <Link href="/siparislerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl text-sm transition-colors">📋 Siparişlerim</Link>
                         <Link href="/adreslerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl text-sm transition-colors">📍 Adreslerim</Link>
                         <Link href="/favorilerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl text-sm transition-colors">❤️ Favorilerim</Link>
-                        <div className="h-px bg-white/5 my-2"></div>
+                        <div className="h-px bg-white/5 my-1"></div>
                         {isAdmin && (
                           <>
                             <Link href="/admin" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-[#10b981] bg-[#10b981]/10 hover:bg-[#10b981]/20 rounded-xl text-sm font-bold transition-colors">👑 Yönetim Paneli</Link>
-                            <div className="h-px bg-white/5 my-2"></div>
+                            <div className="h-px bg-white/5 my-1"></div>
                           </>
                         )}
                         <button onClick={() => { setHesabimAcik(false); signOut({ callbackUrl: "/" }); }} className="flex items-center gap-3 px-3 py-2 w-full text-left text-red-500 hover:bg-red-500/10 rounded-xl text-sm transition-colors">🚪 Çıkış Yap</button>
                       </>
                     ) : (
                       <>
-                        <Link href="/giris" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center justify-center gap-2 px-3 py-2 text-black bg-[#00d2ff] hover:bg-[#00c4db] rounded-xl text-sm font-bold mb-2 transition-colors">🔑 Giriş Yap</Link>
+                        <Link href="/giris" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center justify-center gap-2 px-3 py-2 text-black bg-[#00d2ff] hover:bg-[#00c4db] rounded-xl text-sm font-bold transition-colors">🔑 Giriş Yap</Link>
                         <Link href="/kayit" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center justify-center gap-2 px-3 py-2 text-gray-300 hover:text-white hover:bg-white/5 border border-white/5 rounded-xl text-sm font-bold transition-colors">📝 Yeni Kayıt</Link>
                       </>
                     )}
@@ -278,8 +280,9 @@ export default function Header() {
                 )}
               </div>
 
-              <Link href="/sepet" prefetch={true} className="relative flex items-center justify-center h-10 px-3 md:px-4 space-x-2 rounded-xl transition-all text-gray-300 bg-white/5 border border-white/10 hover:border-[#00d2ff]/50 hover:bg-white/10 hover:text-white group">
-                <svg className="w-5 h-5 group-hover:text-[#00d2ff] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+              {/* SEPET */}
+              <Link href="/sepet" prefetch={true} className="relative flex items-center justify-center w-10 h-10 md:w-auto md:px-4 gap-2 rounded-xl transition-all text-gray-300 bg-white/5 border border-white/10 hover:border-[#00d2ff]/50 hover:bg-white/10 hover:text-white group">
+                <svg className="w-5 h-5 shrink-0 group-hover:text-[#00d2ff] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                 <span className="hidden sm:block text-xs font-bold uppercase tracking-wider">Sepet</span>
                 {sepetAdedi > 0 && <span className="absolute -top-2 -right-2 bg-[#10b981] text-white text-[10px] md:text-xs font-black w-5 h-5 flex items-center justify-center rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]">{sepetAdedi}</span>}
               </Link>
@@ -287,9 +290,9 @@ export default function Header() {
           </div>
         </div>
 
-        {/* 📱 ŞEFİN YENİ TAM EKRAN MOBİL MENÜSÜ 📱 */}
-        <div className={`md:hidden fixed inset-0 bg-[#050814]/95 backdrop-blur-2xl z-40 transition-all duration-300 flex flex-col ${menuAcik ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-full pointer-events-none"}`}>
-          <div className="flex-1 overflow-y-auto px-6 py-24 space-y-8">
+        {/* 📱 ŞEFİN YENİ TAM EKRAN MOBİL MENÜSÜ (ŞEFFAFLIK GİDERİLDİ) 📱 */}
+        <div className={`md:hidden fixed inset-0 bg-[#050814] z-[98] transition-all duration-300 flex flex-col ${menuAcik ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-full pointer-events-none"}`}>
+          <div className="flex-1 overflow-y-auto px-6 pt-24 pb-12 space-y-8">
             {menuCategories.map((category, index) => (
               <div key={index} className="animate-in slide-in-from-left-4 duration-500" style={{ animationDelay: `${index * 100}ms` }}>
                 <h3 className="text-[#00d2ff] font-black text-xs tracking-widest uppercase mb-4 border-b border-white/10 pb-2">{category.title}</h3>
