@@ -4,7 +4,7 @@ import clientPromise from "@/lib/mongodb";
 // 🔥 ŞEFİN YENİ NESİL ÇÖKMEYEN TÜRKÇE ÇEVİRMENİ 🔥
 function guvenliRegex(metin: string) {
   if (!metin) return "";
-  // Boşlukları serbest bırakıyoruz ki kelimeleri bölebilelim
+  // Güvenlik duvarı: Boşlukları serbest bırak, sadece kod bozucu işaretleri engelle
   let temiz = metin.replace(/[-[\]{}()*+?.,\\^$|#]/g, '\\$&');
   return temiz
     .replace(/[iİıI]/g, "[iİıI]")
@@ -26,9 +26,10 @@ export async function GET(request: Request) {
     
     let query = {};
     if (q.trim()) {
-      // 🚀 ŞEFİN PARÇALAYICISI: Müşterinin yazdığı kelimeleri boşluklardan ayır
+      // 🚀 HEPSİBURADA ZEKASI: Kelimeleri boşluklardan parçalayıp diziye çevir
       const kelimeler = q.trim().split(/\s+/);
       
+      // Her bir kelime için ayrı ayrı arama şartı oluştur
       const aramaSartlari = kelimeler.map((kelime) => {
         const gucluKelime = guvenliRegex(kelime);
         return {
@@ -41,16 +42,18 @@ export async function GET(request: Request) {
         };
       });
 
-      // Bütün kelimelerin (hem asus hem 5070) aynı üründe geçmesini zorunlu tut
+      // $and Kuralı: Yazılan TÜM kelimeler üründe bulunmak ZORUNDA
       query = { $and: aramaSartlari };
     }
 
     const limit = init ? 4 : 10; 
     
+    // Aramayı çalıştır
     let urunler = await db.collection("urunler").find(query).limit(limit).toArray();
     if (urunler.length === 0) urunler = await db.collection("uruns").find(query).limit(limit).toArray();
     if (urunler.length === 0) urunler = await db.collection("products").find(query).limit(limit).toArray();
 
+    // Ürünleri vitrine hazırla
     const temizUrunler = urunler.map((u: any) => ({
       _id: u._id.toString(),
       isim: u.isim || u.name || "",
