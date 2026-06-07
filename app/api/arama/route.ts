@@ -4,9 +4,8 @@ import clientPromise from "@/lib/mongodb";
 // 🔥 ŞEFİN YENİ NESİL ÇÖKMEYEN TÜRKÇE ÇEVİRMENİ 🔥
 function guvenliRegex(metin: string) {
   if (!metin) return "";
-  // Önce klavyeden girilen boşluk ve tehlikeli karakterleri zararsız hale getirir
-  let temiz = metin.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-  // Sonra Türkçe karakterleri akıllandırır
+  // Boşlukları serbest bırakıyoruz ki kelimeleri bölebilelim
+  let temiz = metin.replace(/[-[\]{}()*+?.,\\^$|#]/g, '\\$&');
   return temiz
     .replace(/[iİıI]/g, "[iİıI]")
     .replace(/[gĞğG]/g, "[gĞğG]")
@@ -26,19 +25,26 @@ export async function GET(request: Request) {
     const db = client.db();
     
     let query = {};
-    if (q) {
-      const gucluKelime = guvenliRegex(q);
-      query = {
-        $or: [
-          { isim: { $regex: gucluKelime, $options: "i" } },
-          { name: { $regex: gucluKelime, $options: "i" } },
-          { marka: { $regex: gucluKelime, $options: "i" } },
-          { kategori: { $regex: gucluKelime, $options: "i" } }
-        ]
-      };
+    if (q.trim()) {
+      // 🚀 ŞEFİN PARÇALAYICISI: Müşterinin yazdığı kelimeleri boşluklardan ayır
+      const kelimeler = q.trim().split(/\s+/);
+      
+      const aramaSartlari = kelimeler.map((kelime) => {
+        const gucluKelime = guvenliRegex(kelime);
+        return {
+          $or: [
+            { isim: { $regex: gucluKelime, $options: "i" } },
+            { name: { $regex: gucluKelime, $options: "i" } },
+            { marka: { $regex: gucluKelime, $options: "i" } },
+            { kategori: { $regex: gucluKelime, $options: "i" } }
+          ]
+        };
+      });
+
+      // Bütün kelimelerin (hem asus hem 5070) aynı üründe geçmesini zorunlu tut
+      query = { $and: aramaSartlari };
     }
 
-    // Vitrin ise 4, canlı arama ise 10 ürün getir
     const limit = init ? 4 : 10; 
     
     let urunler = await db.collection("urunler").find(query).limit(limit).toArray();

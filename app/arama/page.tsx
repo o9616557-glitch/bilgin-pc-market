@@ -21,16 +21,26 @@ export default async function AramaSayfasi({ searchParams }: any) {
   try {
     const client = await clientPromise;
     const db = client.db();
-    const gucluKelime = gelismisRegex(arananKelime);
+   let query = {};
+    if (arananKelime.trim()) {
+      // 🚀 ŞEFİN PARÇALAYICISI: Müşterinin yazdığı kelimeleri boşluklardan ayırır
+      const kelimeler = arananKelime.trim().split(/\s+/);
+      
+      const aramaSartlari = kelimeler.map((kelime: string) => {
+        const gucluKelime = gelismisRegex(kelime);
+        return {
+          $or: [
+            { isim: { $regex: gucluKelime, $options: "i" } },
+            { name: { $regex: gucluKelime, $options: "i" } },
+            { marka: { $regex: gucluKelime, $options: "i" } },
+            { kategori: { $regex: gucluKelime, $options: "i" } }
+          ]
+        };
+      });
 
-    const query = arananKelime ? {
-      $or: [
-        { isim: { $regex: gucluKelime, $options: "i" } },
-        { name: { $regex: gucluKelime, $options: "i" } },
-        { marka: { $regex: gucluKelime, $options: "i" } },
-        { kategori: { $regex: gucluKelime, $options: "i" } }
-      ]
-    } : {};
+      // Bütün kelimelerin aynı üründe geçmesini zorunlu tut
+      query = { $and: aramaSartlari };
+    }
 
     let urunler = await db.collection("urunler").find(query).toArray();
     if (urunler.length === 0) urunler = await db.collection("uruns").find(query).toArray();
