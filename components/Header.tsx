@@ -231,23 +231,22 @@ export default function Header() {
               </nav>
             </div>
 
-            {/* 🎯 SAĞ TARAF: BÜYÜTEÇ, HESABIM VE SEPET (MİLİMETRİK ORTALANMIŞ) 🎯 */}
-            <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            {/* 🎯 SAĞ TARAF: BÜYÜTEÇ, HESABIM VE SEPET (GERÇEK BUTON GÖRÜNÜMÜ) 🎯 */}
+            <div className="flex items-center gap-1.5 md:gap-2.5 shrink-0">
               
-              {/* ARAMA */}
-              <button onClick={() => setAramaAcik(true)} className="flex items-center justify-center w-10 h-10 md:w-auto md:px-4 gap-2 rounded-xl text-gray-300 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#00d2ff]/50 hover:text-white transition-all group">
-                <Search className="w-5 h-5 shrink-0 text-gray-400 group-hover:text-[#00d2ff] transition-colors" />
-                <span className="hidden md:block text-xs font-bold uppercase tracking-wider">Ürün Ara...</span>
+              {/* ARAMA BUTONU */}
+              <button onClick={() => setAramaAcik(true)} className="flex items-center justify-center w-10 h-10 md:w-auto md:h-11 md:px-5 gap-2 rounded-xl text-white bg-white/10 border border-white/20 shadow-md hover:border-[#00d2ff]/50 hover:bg-[#00d2ff]/10 hover:shadow-[0_0_15px_rgba(0,210,255,0.3)] transition-all group cursor-pointer">
+                <Search className="w-5 h-5 shrink-0 text-gray-300 group-hover:text-[#00d2ff] transition-colors" />
+                <span className="hidden md:block text-xs font-black uppercase tracking-wider">Ara</span>
               </button>
 
-              {/* HESABIM */}
+              {/* HESABIM BUTONU */}
               <div ref={hesabimRef} className="relative">
-                <button onClick={() => setHesabimAcik(!hesabimAcik)} className={`flex items-center justify-center w-10 h-10 md:w-auto md:px-4 gap-2 rounded-xl transition-all border ${hesabimAcik ? "bg-[#00d2ff]/10 border-[#00d2ff]/50 text-white" : "bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:border-[#00d2ff]/50 hover:text-white"}`}>
-                  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                  <span className="hidden sm:block text-xs font-bold uppercase tracking-wider">{session?.user?.name ? session.user.name.split(" ")[0] : "Hesabım"}</span>
+                <button onClick={() => setHesabimAcik(!hesabimAcik)} className={`flex items-center justify-center w-10 h-10 md:w-auto md:h-11 md:px-5 gap-2 rounded-xl transition-all shadow-md border cursor-pointer ${hesabimAcik ? "bg-[#00d2ff]/20 border-[#00d2ff] text-white shadow-[0_0_15px_rgba(0,210,255,0.3)]" : "bg-white/10 border-white/20 text-white hover:border-[#00d2ff]/50 hover:bg-[#00d2ff]/10 hover:shadow-[0_0_15px_rgba(0,210,255,0.3)] group"}`}>
+                  <svg className={`w-5 h-5 shrink-0 ${hesabimAcik ? "text-[#00d2ff]" : "text-gray-300 group-hover:text-[#00d2ff] transition-colors"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                  <span className="hidden sm:block text-xs font-black uppercase tracking-wider">{session?.user?.name ? session.user.name.split(" ")[0] : "Hesabım"}</span>
                 </button>
 
-                {/* HESABIM AÇILIR MENÜSÜ (KAYMA VE ÜST ÜSTE BİNME DÜZELTİLDİ) */}
                 {hesabimAcik && (
                   <div className="absolute top-[120%] right-0 w-56 bg-[#09090b] border border-white/10 rounded-2xl shadow-[0_0_30px_rgba(0,0,0,0.8)] p-2 z-50 flex flex-col gap-1">
                     <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2.5 text-[#00d2ff] bg-[#00d2ff]/10 hover:bg-[#00d2ff]/20 rounded-xl text-sm font-bold transition-colors">📦 Sipariş Takip</Link>
@@ -280,27 +279,27 @@ export default function Header() {
                 )}
               </div>
 
-              {/* SEPET */}
-              <Link href="/sepet" prefetch={true} className="relative flex items-center justify-center w-10 h-10 md:w-auto md:px-4 gap-2 rounded-xl transition-all text-gray-300 bg-white/5 border border-white/10 hover:border-[#00d2ff]/50 hover:bg-white/10 hover:text-white group">
-                <svg className="w-5 h-5 shrink-0 group-hover:text-[#00d2ff] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                <span className="hidden sm:block text-xs font-bold uppercase tracking-wider">Sepet</span>
-                {sepetAdedi > 0 && <span className="absolute -top-2 -right-2 bg-[#10b981] text-white text-[10px] md:text-xs font-black w-5 h-5 flex items-center justify-center rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]">{sepetAdedi}</span>}
+              {/* SEPET BUTONU */}
+              <Link href="/sepet" prefetch={true} className="relative flex items-center justify-center w-10 h-10 md:w-auto md:h-11 md:px-5 gap-2 rounded-xl transition-all shadow-md border bg-white/10 border-white/20 text-white hover:border-[#00d2ff]/50 hover:bg-[#00d2ff]/10 hover:shadow-[0_0_15px_rgba(0,210,255,0.3)] group cursor-pointer">
+                <svg className="w-5 h-5 shrink-0 text-gray-300 group-hover:text-[#00d2ff] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <span className="hidden sm:block text-xs font-black uppercase tracking-wider">Sepet</span>
+                {sepetAdedi > 0 && <span className="absolute -top-2 -right-2 bg-[#10b981] text-white text-[10px] md:text-xs font-black w-5 h-5 flex items-center justify-center rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)] border-2 border-[#050814]">{sepetAdedi}</span>}
               </Link>
             </div>
           </div>
         </div>
 
-        {/* 📱 ŞEFİN YENİ TAM EKRAN MOBİL MENÜSÜ (ŞEFFAFLIK GİDERİLDİ) 📱 */}
+        {/* 📱 ŞEFİN YENİ TAM EKRAN MOBİL MENÜSÜ (GÖRÜNMEYEN YAZILAR DÜZELTİLDİ) 📱 */}
         <div className={`md:hidden fixed inset-0 bg-[#050814] z-[98] transition-all duration-300 flex flex-col ${menuAcik ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-full pointer-events-none"}`}>
           <div className="flex-1 overflow-y-auto px-6 pt-24 pb-12 space-y-8">
             {menuCategories.map((category, index) => (
-              <div key={index} className="animate-in slide-in-from-left-4 duration-500" style={{ animationDelay: `${index * 100}ms` }}>
+              <div key={index}>
                 <h3 className="text-[#00d2ff] font-black text-xs tracking-widest uppercase mb-4 border-b border-white/10 pb-2">{category.title}</h3>
                 <div className="flex flex-col space-y-4">
                   {category.items.map((item) => (
-                    <Link key={item.slug} href={"/kategori/" + item.slug} prefetch={true} onClick={() => setMenuAcik(false)} className="text-gray-300 hover:text-white text-lg font-bold flex items-center justify-between group">
+                    <Link key={item.slug} href={"/kategori/" + item.slug} prefetch={true} onClick={() => setMenuAcik(false)} className="text-white text-lg font-bold flex items-center justify-between group">
                       {item.name}
-                      <ArrowRight className="w-4 h-4 text-gray-600 group-hover:text-[#00d2ff] transform group-hover:translate-x-2 transition-all" />
+                      <ArrowRight className="w-4 h-4 text-gray-500 group-hover:text-[#00d2ff]" />
                     </Link>
                   ))}
                 </div>
