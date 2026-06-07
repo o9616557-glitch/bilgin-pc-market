@@ -224,16 +224,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
              )}
           </div>
 
-          <div 
+        <div 
             onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
             onMouseMove={handleMouseMove}
             onMouseEnter={() => setIsHoveringImg(true)}
             onMouseLeave={() => { setIsHoveringImg(false); setZoomOrigin("center center"); }}
             onClick={() => setLightboxAcik(true)}
-            className="relative w-full aspect-square sm:aspect-[4/3] bg-transparent sm:bg-white/[0.02] sm:backdrop-blur-xl sm:border sm:border-white/5 sm:rounded-2xl flex items-center justify-center p-0 sm:p-6 overflow-hidden mb-2 group select-none cursor-zoom-in"
+            className="relative isolate z-0 w-full aspect-square sm:aspect-[4/3] bg-transparent sm:bg-white/[0.02] sm:backdrop-blur-xl sm:border sm:border-white/5 sm:rounded-2xl flex items-center justify-center p-0 sm:p-6 overflow-hidden mb-2 group select-none cursor-zoom-in"
           >
             {indirimVarMi && !tukendiMi && (
-              <div className="badge-rosette-page"><span>%{indirimOrani}</span><span>İNDİRİM</span></div>
+              <div className="badge-rosette-page !z-10"><span>%{indirimOrani}</span><span>İNDİRİM</span></div>
             )}
             
             {/* 🚀 OKLARA GELİNCE BÜYÜMEYİ DURDURAN KODLAR BURAYA EKLENDİ 🚀 */}
