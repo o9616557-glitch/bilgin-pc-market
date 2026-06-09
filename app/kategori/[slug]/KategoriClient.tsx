@@ -29,10 +29,8 @@ const getMarka = (urun: any) => {
   return "Diğer";
 };
 
-// 🚀 SADECE İSİMDEN KELİME AVLAYAN YARDIMCI MOTORLAR 🚀
 const getAramaMetni = (urun: any) => ((urun.isim || "") + " " + (urun.name || "")).toUpperCase().replace(/\s+/g, "");
 
-// Geliştirilmiş GPU tespiti (Marka ayrımı için)
 const getGpuMarka = (urun: any) => {
   const t = getAramaMetni(urun);
   if (t.includes("NVIDIA") || t.includes("RTX") || t.includes("GTX") || t.includes("GEFORCE")) return "NVIDIA";
@@ -41,7 +39,6 @@ const getGpuMarka = (urun: any) => {
   return null;
 };
 
-// Geliştirilmiş GPU Seri tespiti
 const getSeri = (urun: any) => {
   const t = getAramaMetni(urun);
   if (t.includes("RTX50")) return "RTX 5000 Serisi";
@@ -54,7 +51,6 @@ const getSeri = (urun: any) => {
   return null;
 };
 
-// Geliştirilmiş VRAM tespiti
 const getVram = (urun: any) => {
   const t = getAramaMetni(urun);
   const vramKapasiteleri = ["24GB", "20GB", "16GB", "12GB", "10GB", "8GB", "6GB", "4GB", "2GB"];
@@ -64,7 +60,6 @@ const getVram = (urun: any) => {
   return null;
 };
 
-// Geliştirilmiş İşlemci Serisi tespiti
 const getIslemciSeri = (urun: any) => {
   const t = getAramaMetni(urun);
   if (t.includes("RYZEN9")) return "Ryzen 9";
@@ -78,7 +73,6 @@ const getIslemciSeri = (urun: any) => {
   return null;
 };
 
-// Soket tipi tespiti
 const getSoket = (urun: any) => {
   const t = getAramaMetni(urun);
   if (t.includes("AM5")) return "AM5";
@@ -89,7 +83,6 @@ const getSoket = (urun: any) => {
   return null;
 };
 
-// Çipset tespiti
 const getCipset = (urun: any) => {
   const t = (urun.isim || urun.name || "").toUpperCase(); 
   const match = t.match(/(A520|B550|X570|A620|B650E|B650|X670E|X670|X870E|X870|H410|H510|H610|B460|B560|B660|B760|Z490|Z590|Z690|Z790|Z890)/);
@@ -97,7 +90,6 @@ const getCipset = (urun: any) => {
   return null;
 };
 
-// DDR tespiti
 const getDdr = (urun: any) => {
   const t = getAramaMetni(urun);
   if (t.includes("DDR5")) return "DDR5";
@@ -105,7 +97,6 @@ const getDdr = (urun: any) => {
   return null;
 };
 
-// PSU Kapasite tespiti
 const getPsuKapasite = (urun: any) => {
   const t = getAramaMetni(urun);
   const match = t.match(/(\d{3,4})W/);
@@ -113,7 +104,6 @@ const getPsuKapasite = (urun: any) => {
   return null;
 };
 
-// PSU Sertifika tespiti
 const getPsuSertifika = (urun: any) => {
   const t = (urun.isim || urun.name || "").toUpperCase();
   if (t.includes("PLATINUM")) return "80+ Platinum";
@@ -129,14 +119,12 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
   const { karsilastirmayaEkle } = useCompare();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
 
-  // 🚀 KATEGORİ TESPİTİ
   const b = sayfaBasligi.toUpperCase();
   const isEkranKarti = b.includes("EKRAN") || b.includes("VGA") || b.includes("GPU");
   const isIslemci = b.includes("İŞLEMCİ") || b.includes("ISLEMCI") || b.includes("CPU");
   const isAnakart = b.includes("ANAKART") || b.includes("MOTHERBOARD");
   const isPsu = b.includes("PSU") || b.includes("GÜÇ");
 
-  // 🔥 BULDOZER PARSER (Veritabanındaki teknik özellikleri söküp alır!)
   const getUrunOzellikleri = (urun: any) => {
     let dbObj: Record<string, string> = {};
     const rawDb = urun.teknik_ozellikler || urun.teknik_ozeller || urun.ozellikler || urun.attributes;
@@ -164,7 +152,6 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
 
     let sanalOzellikler: Record<string, string> = {};
 
-    // İsimden avlanan özellikler (Eğer veritabanında yoksa devreye girer)
     if (isEkranKarti) {
       const gpu = getGpuMarka(urun); if (gpu) sanalOzellikler["Grafik İşlemci"] = gpu;
       const seri = getSeri(urun); if (seri) sanalOzellikler["GPU Serisi"] = seri;
@@ -184,24 +171,19 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
       const sertifika = getPsuSertifika(urun); if (sertifika) sanalOzellikler["Sertifika"] = sertifika;
     }
 
-    // 🔥 VERİTABANI ÖNCELİKLİDİR: Önce sanal olanları, sonra db'dekileri birleştiriyoruz.
     return { ...sanalOzellikler, ...dbObj };
   };
 
-  // 🚀 SABİT FİLTRE HAFIZALARI
   const [seciliMarkalar, setSeciliMarkalar] = useState<string[]>([]);
   const [sadeceStokta, setSadeceStokta] = useState(false);
   const [minFiyat, setMinFiyat] = useState<string>("");
   const [maxFiyat, setMaxFiyat] = useState<string>("");
   
-  // 🚀 DİNAMİK FİLTRE HAFIZASI
   const [seciliDinamik, setSeciliDinamik] = useState<Record<string, string[]>>({});
-
   const [mobilFiltreAcik, setMobilFiltreAcik] = useState(false);
 
   const markalar = useMemo(() => Array.from(new Set(urunler.map(u => getMarka(u)))).filter(Boolean).sort(), [urunler]);
 
-  // 🔥 FİLTRE BAŞLIKLARINI OLUŞTURAN MOTOR
   const dinamikFiltreListesi = useMemo(() => {
     const filtreHaritasi: Record<string, Set<string>> = {};
 
@@ -211,7 +193,6 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
       Object.entries(birlesikOzellikler).forEach(([baslik, deger]) => {
         if (!deger) return;
         const metinDeger = String(deger).trim();
-        // Uzun metinleri filtre menüsünde göstermeyelim (Max 35 Karakter)
         if (metinDeger === "" || metinDeger.length > 35) return; 
 
         if (!filtreHaritasi[baslik]) filtreHaritasi[baslik] = new Set();
@@ -229,7 +210,6 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
     return sonuc;
   }, [urunler]);
 
-  // 🧠 ÇAPRAZ BAĞLANTI (DEPENDENT FACET) MOTORU 
   const urunGecerliMi = (urun: any, haricTutulacakBaslik: string | null = null) => {
     if (haricTutulacakBaslik !== "Marka" && seciliMarkalar.length > 0 && !seciliMarkalar.includes(getMarka(urun))) return false;
     
@@ -287,8 +267,11 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
 
   const handleSepeteEkle = (urun: any) => {
     const targetId = urun._id || urun.id;
+    const normalFiyat = Number(urun.regular_price || urun.fiyat || urun.price || 0);
+    const gecerliFiyat = urun.indirimliFiyat ? Number(urun.indirimliFiyat) : normalFiyat;
+
     sepeteEkle({
-      id: targetId, isim: urun.isim || urun.title || urun.name, fiyat: urun.indirimliFiyat || urun.price || urun.fiyat,
+      id: targetId, isim: urun.isim || urun.title || urun.name, fiyat: gecerliFiyat,
       resim: (urun.resimler && urun.resimler[0]) || urun.resim || urun.image || "/placeholder.jpg", adet: 1, varyasyon: "Standart" 
     });
     setSepeteEklenenler(prev => [...prev, targetId]);
@@ -303,11 +286,11 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
     <>
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-white/5 pb-6 mb-8 px-4 sm:px-0 select-none">
         <div>
-          <Link href="/" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-500 hover:text-[#00d2ff] transition-all mb-3">
+          <Link href="/" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-500 hover:text-white transition-all mb-3">
             <ArrowLeft className="w-4 h-4" /> Mağazaya Geri Dön
           </Link>
           <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tight text-white leading-none">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-[#00d2ff]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">
               {sayfaBasligi}
             </span> MODELLERİ
           </h1>
@@ -315,7 +298,7 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
         <div className="flex gap-2">
           <button 
             onClick={() => setMobilFiltreAcik(true)}
-            className="lg:hidden flex items-center justify-center gap-2 bg-[#00d2ff]/10 text-[#00d2ff] px-4 py-2.5 rounded-none font-bold text-xs uppercase tracking-wider border border-[#00d2ff]/20"
+            className="lg:hidden flex items-center justify-center gap-2 bg-white/5 text-white px-4 py-2.5 rounded-none font-bold text-xs uppercase tracking-wider border border-white/10"
           >
             <Filter className="w-4 h-4" /> Filtrele
           </button>
@@ -328,21 +311,20 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
 
       <div className="flex flex-col lg:flex-row gap-6 px-4 sm:px-0 relative items-start">
         
-        {/* 🛠️ SOL FİLTRE MENÜSÜ (Buzlu Şeffaf - Tam Buldozer Düzen) */}
+        {/* 🛠️ SOL FİLTRE MENÜSÜ (Buzlu Şeffaf - Tam Buldozer Düzen - Mavi Yazılar Kaldırıldı) */}
         <aside className={`fixed top-[81px] bottom-0 left-0 right-0 z-[40] lg:sticky lg:top-24 lg:w-[260px] xl:w-[280px] lg:max-h-[calc(100vh-100px)] lg:shrink-0 transition-transform duration-300 flex flex-col ${mobilFiltreAcik ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
           <div className="absolute inset-0 bg-black/60 lg:hidden" onClick={() => setMobilFiltreAcik(false)}></div>
           
           <div className="relative w-4/5 max-w-sm h-full bg-[#050505]/90 border-r border-white/5 lg:w-full lg:bg-transparent lg:border-none lg:shadow-none flex flex-col overflow-hidden">
             
-            <div className="p-4 border-b border-white/5 flex justify-between items-center shrink-0 bg-[#050505] z-10 lg:hidden">
-              <h3 className="font-bold text-white uppercase tracking-wider flex items-center gap-2 text-sm"><Filter className="w-4 h-4 text-[#00d2ff]" /> Filtreler</h3>
+            <div className="p-4 border-b border-white/5 flex justify-between items-center shrink-0 bg-[#050505] lg:bg-transparent lg:px-0 z-10">
+              <h3 className="font-bold text-white uppercase tracking-wider flex items-center gap-2 text-sm"><Filter className="w-4 h-4 text-gray-400" /> Filtreler</h3>
               <div className="flex items-center gap-3">
-                <button onClick={filtreleriTemizle} className="text-[#00d2ff] text-xs font-black hover:underline">Temizle</button>
+                <button onClick={filtreleriTemizle} className="text-gray-400 text-xs font-bold hover:text-white transition-all">Temizle</button>
                 <button onClick={() => setMobilFiltreAcik(false)} className="lg:hidden text-gray-400 hover:text-white"><X className="w-5 h-5" /></button>
               </div>
             </div>
 
-            {/* 🔥 Kaydırma Çubuğu Olmayan, Şeffaf ve İnce Çizgili Filtre Alanı */}
             <div className="p-4 lg:p-0 overflow-y-auto [&::-webkit-scrollbar]:hidden flex-1 select-none">
               
               <div className="mb-6 pb-6 border-b border-white/5">
@@ -352,24 +334,24 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
                     <div className={`block w-9 h-5 rounded-full transition-colors ${sadeceStokta ? 'bg-[#10b981]' : 'bg-white/10'}`}></div>
                     <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition-transform ${sadeceStokta ? 'translate-x-4' : 'translate-x-0'}`}></div>
                   </div>
-                  <span className="text-xs font-bold text-gray-300 group-hover:text-white transition-colors">Sadece Stoktakiler</span>
+                  <span className="text-xs font-bold text-gray-400 group-hover:text-white transition-colors">Sadece Stoktakiler</span>
                 </label>
 
-                <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Fiyat Aralığı (TL)</h4>
+                <h4 className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-3">Fiyat Aralığı (TL)</h4>
                 <div className="flex items-center gap-2">
-                  <input type="number" placeholder="Min" value={minFiyat} onChange={(e) => setMinFiyat(e.target.value)} className="w-full bg-black border border-white/5 rounded-lg p-2.5 text-xs text-white focus:border-[#00d2ff] outline-none" />
+                  <input type="number" placeholder="Min" value={minFiyat} onChange={(e) => setMinFiyat(e.target.value)} className="w-full bg-black border border-white/5 rounded-lg p-2.5 text-xs text-white focus:border-white/30 outline-none transition-colors" />
                   <span className="text-gray-500">-</span>
-                  <input type="number" placeholder="Max" value={maxFiyat} onChange={(e) => setMaxFiyat(e.target.value)} className="w-full bg-black border border-white/5 rounded-lg p-2.5 text-xs text-white focus:border-[#00d2ff] outline-none" />
+                  <input type="number" placeholder="Max" value={maxFiyat} onChange={(e) => setMaxFiyat(e.target.value)} className="w-full bg-black border border-white/5 rounded-lg p-2.5 text-xs text-white focus:border-white/30 outline-none transition-colors" />
                 </div>
               </div>
 
               {gecerliMarkalar.length > 0 && (
                 <div className="mb-6 pb-6 border-b border-white/5">
-                  <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Markalar</h4>
+                  <h4 className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-3">Markalar</h4>
                   <div className="space-y-2.5">
                     {gecerliMarkalar.map((marka: any) => (
                       <label key={marka} className="flex items-center gap-3 cursor-pointer group" onClick={() => setSeciliMarkalar(prev => prev.includes(marka) ? prev.filter(m => m !== marka) : [...prev, marka])}>
-                        <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${seciliMarkalar.includes(marka) ? 'bg-[#00d2ff] border-[#00d2ff]' : 'bg-black border-white/10 group-hover:border-[#00d2ff]/30'}`}>
+                        <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${seciliMarkalar.includes(marka) ? 'bg-[#00d2ff] border-[#00d2ff]' : 'bg-black border-white/10 group-hover:border-white/30'}`}>
                           {seciliMarkalar.includes(marka) && <CheckIcon />}
                         </div>
                         <span className={`text-xs font-bold transition-colors ${seciliMarkalar.includes(marka) ? 'text-white' : 'text-gray-400 group-hover:text-gray-300'}`}>{marka}</span>
@@ -379,21 +361,20 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
                 </div>
               )}
 
-              {/* 🎯 TAMAMEN AÇIK DİNAMİK FİLTRELER (İNCE ÇİZGİLİ) */}
               {Object.entries(dinamikFiltreListesi).map(([baslik, degerler]) => {
                 const gecerliDegerler = degerler.filter(d => dinamikSecenekGecerliMi(baslik, d));
                 if (gecerliDegerler.length === 0) return null;
 
                 return (
                   <div key={baslik} className="mb-6 pb-6 border-b border-white/5 last:border-0 last:pb-0">
-                    <h4 className="text-[10px] font-black text-[#00d2ff] uppercase tracking-widest mb-3">{baslik}</h4>
+                    <h4 className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-3">{baslik}</h4>
                     
                     {gecerliDegerler.every(d => d.length <= 12) ? (
                       <div className="flex flex-wrap gap-1.5">
                         {gecerliDegerler.map(deger => {
                           const seciliMi = (seciliDinamik[baslik] || []).includes(deger);
                           return (
-                            <button key={deger} onClick={() => toggleDinamik(baslik, deger)} className={`px-2.5 py-1.5 rounded-lg border text-[10px] font-bold transition-all ${seciliMi ? 'bg-[#00d2ff]/10 border-[#00d2ff] text-[#00d2ff]' : 'bg-black border-white/5 text-gray-400 hover:border-white/10 hover:text-white'}`} >
+                            <button key={deger} onClick={() => toggleDinamik(baslik, deger)} className={`px-2.5 py-1.5 rounded-lg border text-[10px] font-bold transition-all ${seciliMi ? 'bg-white/10 border-white/30 text-white' : 'bg-black border-white/5 text-gray-400 hover:border-white/20 hover:text-gray-300'}`} >
                               {deger}
                             </button>
                           );
@@ -405,7 +386,7 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
                           const seciliMi = (seciliDinamik[baslik] || []).includes(deger);
                           return (
                             <label key={deger} className="flex items-center gap-3 cursor-pointer group" onClick={() => toggleDinamik(baslik, deger)}>
-                              <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${seciliMi ? 'bg-[#00d2ff] border-[#00d2ff]' : 'bg-black border-white/10 group-hover:border-[#00d2ff]/30'}`}>
+                              <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${seciliMi ? 'bg-[#00d2ff] border-[#00d2ff]' : 'bg-black border-white/10 group-hover:border-white/30'}`}>
                                 {seciliMi && <CheckIcon />}
                               </div>
                               <span className={`text-xs font-bold transition-colors ${seciliMi ? 'text-white' : 'text-gray-400 group-hover:text-gray-300'} break-words`}>{deger}</span>
@@ -418,8 +399,14 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
                 );
               })}
 
+              <div className="mt-8 mb-12 flex justify-center items-center gap-3 opacity-30 select-none">
+                <div className="w-12 h-[1px] bg-gradient-to-r from-transparent to-white/50"></div>
+                <div className="w-2 h-2 rotate-45 border border-white/50 bg-transparent"></div>
+                <div className="w-12 h-[1px] bg-gradient-to-l from-transparent to-white/50"></div>
+              </div>
+
               <div className="mb-6 lg:hidden">
-                <button onClick={filtreleriTemizle} className="w-full text-center bg-black border border-white/10 text-white text-xs font-black uppercase tracking-widest py-3 rounded-none">Filtreleri Temizle</button>
+                <button onClick={filtreleriTemizle} className="w-full text-center bg-black border border-white/10 text-gray-400 text-xs font-black uppercase tracking-widest py-3 rounded-none hover:text-white transition-colors">Filtreleri Temizle</button>
               </div>
 
             </div>
@@ -430,31 +417,32 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
         <main className="flex-1 w-full min-w-0 pb-12">
           {filtrelenmisUrunler.length === 0 ? (
             <div className="w-full py-24 flex flex-col items-center justify-center border border-dashed border-white/5 rounded-2xl bg-white/[0.01]">
-              <PackageX className="w-12 h-12 text-white/10 mb-4" />
-              <h3 className="text-xl font-black text-white uppercase tracking-widest mb-2 text-center px-4">Aradığınız Kriterlerde Ürün Bulunamadı</h3>
-              <button onClick={filtreleriTemizle} className="mt-4 text-[#00d2ff] text-sm font-black underline">Filtreleri Temizle</button>
+              <PackageX className="w-12 h-12 text-gray-600 mb-4" />
+              <h3 className="text-xl font-black text-gray-400 uppercase tracking-widest mb-2 text-center px-4">Aradığınız Kriterlerde Ürün Bulunamadı</h3>
+              <button onClick={filtreleriTemizle} className="mt-4 text-white text-sm font-bold underline transition-colors hover:text-gray-300">Filtreleri Temizle</button>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
               {filtrelenmisUrunler.map((urun: any) => {
                   const targetId = urun._id || urun.id;
                   const vitrinResmi = urun.resim || (urun.images && urun.images[0]?.src) || "/placeholder.jpg";
-                 const normalFiyat = Number(urun.regular_price || urun.fiyat || urun.price || 0);
-const indirimliFiyat = urun.indirimliFiyat ? Number(urun.indirimliFiyat) : null;
-const gecerliFiyat = indirimliFiyat ? indirimliFiyat : normalFiyat;
-const indirimVarMi = indirimliFiyat !== null && normalFiyat > gecerliFiyat;
+                  
+                  const normalFiyat = Number(urun.regular_price || urun.fiyat || urun.price || 0);
+                  const indirimliFiyat = urun.indirimliFiyat ? Number(urun.indirimliFiyat) : null;
+                  const gecerliFiyat = indirimliFiyat ? indirimliFiyat : normalFiyat;
+                  const indirimVarMi = indirimliFiyat !== null && normalFiyat > gecerliFiyat;
+
                   const indirimOrani = indirimVarMi ? Math.round(((normalFiyat - gecerliFiyat) / normalFiyat) * 100) : 0;
                   const tukendiMi = urun.stokDurumu === "Tükendi" || urun.stokAdedi === 0 || urun.stokAdedi === "0";
                   const havaleOrani = urun.havaleIndirimi !== undefined ? Number(urun.havaleIndirimi) : 5;
                   const havaleFiyati = gecerliFiyat - (gecerliFiyat * (havaleOrani / 100));
                   const isAdded = sepeteEklenenler.includes(String(targetId));
 
-                  // Yorum ve Yıldız Hesaplama (Varsa)
                   let yildizSayisi = urun.rating ? Number(urun.rating) : 0;
                   let yorumSayisi = urun.yorumSayisi ? Number(urun.yorumSayisi) : 0;
 
                   return (
-                   <div key={String(targetId)} className="group relative isolate z-0 flex flex-col w-full flex-shrink-0 bg-[#09090b]/40 backdrop-blur-3xl rounded-3xl overflow-hidden border border-white/5 transition-all duration-700 ease-out hover:border-[#00d2ff]/20 hover:shadow-[0_15px_60px_rgba(0,210,255,0.1)]">
+                   <div key={String(targetId)} className="group relative isolate z-0 flex flex-col w-full flex-shrink-0 bg-[#09090b]/40 backdrop-blur-3xl rounded-3xl overflow-hidden border border-white/5 transition-all duration-700 ease-out hover:border-white/20 hover:shadow-[0_15px_60px_rgba(255,255,255,0.05)]">
                       <div className="relative aspect-[4/3] w-full bg-gradient-to-b from-white/[0.01] to-transparent flex items-center justify-center p-6 overflow-hidden pointer-events-none">
                         
                        {indirimVarMi && !tukendiMi && (
@@ -485,7 +473,7 @@ const indirimVarMi = indirimliFiyat !== null && normalFiyat > gecerliFiyat;
 
                       <div className="p-5 flex flex-col flex-grow relative z-20 bg-black/30 backdrop-blur-xl border-t border-white/5">
                         <div className="flex justify-between items-center mb-2 select-none">
-                          <span className="text-[#00d2ff] text-[10px] font-black tracking-[0.2em] uppercase">{getMarka(urun)}</span>
+                          <span className="text-gray-400 text-[10px] font-black tracking-[0.2em] uppercase">{getMarka(urun)}</span>
                           <div className="flex items-center gap-1 text-[10px] text-gray-500 font-black">
                             <Star className={`w-3.5 h-3.5 ${yorumSayisi > 0 ? 'text-[#d4af37] fill-[#d4af37]' : 'text-gray-800'}`} />
                             <span>{yorumSayisi > 0 ? `${yildizSayisi.toFixed(1)} (${yorumSayisi})` : 'Değerlendirme Yok'}</span>
@@ -493,7 +481,7 @@ const indirimVarMi = indirimliFiyat !== null && normalFiyat > gecerliFiyat;
                         </div>
 
                         <div className="block mt-1">
-                          <h3 className="text-white text-sm font-bold leading-relaxed line-clamp-2 mb-4 group-hover:text-[#00d2ff] transition-colors duration-700">
+                          <h3 className="text-white text-sm font-bold leading-relaxed line-clamp-2 mb-4 group-hover:text-gray-300 transition-colors duration-700">
                             {urun.isim || urun.name}
                           </h3>
                         </div>
@@ -504,7 +492,7 @@ const indirimVarMi = indirimliFiyat !== null && normalFiyat > gecerliFiyat;
                               <span className="text-gray-600 text-[11px] line-through font-medium mb-0.5">{normalFiyat.toLocaleString("tr-TR")} ₺</span>
                             )}
                             <span className="text-2xl font-black text-white leading-none">
-                              {gecerliFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">₺</span>
+                              {gecerliFiyat.toLocaleString("tr-TR")} <span className="text-sm text-gray-500">₺</span>
                             </span>
                             {havaleOrani > 0 && !tukendiMi && (
                               <span className="text-[#10b981] text-[10px] font-black mt-1.5 flex items-center gap-1">
@@ -514,14 +502,14 @@ const indirimVarMi = indirimliFiyat !== null && normalFiyat > gecerliFiyat;
                           </div>
 
                           <div className="flex gap-2.5">
-                             <button onClick={() => handleKarsilastir(urun)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-black border border-white/5 text-gray-500 hover:border-[#00d2ff] hover:text-[#00d2ff] transition-all">
+                             <button onClick={() => handleKarsilastir(urun)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-black border border-white/5 text-gray-500 hover:border-white/30 hover:text-white transition-all">
                                <GitCompare className="w-4 h-4" />
                              </button>
                              {!tukendiMi && (
                                <button 
                                  onClick={() => handleSepeteEkle(urun)} 
                                  disabled={isAdded}
-                                 className={`h-10 w-10 flex items-center justify-center rounded-xl transition-all border ${isAdded ? "bg-[#10b981] border-transparent text-black" : "bg-[#00d2ff] border-transparent text-black hover:bg-[#00c4db]"}`}
+                                 className={`h-10 w-10 flex items-center justify-center rounded-xl transition-all border ${isAdded ? "bg-[#10b981] border-transparent text-black" : "bg-white/10 border-transparent text-white hover:bg-white hover:text-black"}`}
                                >
                                  {isAdded ? "✓" : <ShoppingCart className="w-4 h-4" />}
                                </button>
@@ -530,7 +518,6 @@ const indirimVarMi = indirimliFiyat !== null && normalFiyat > gecerliFiyat;
                         </div>
                       </div>
                       
-                      {/* Ürünün Kendi Detayına Giden Link Area */}
                       <Link href={"/product/" + (urun.slug || targetId)} className="absolute inset-0 z-10" />
 
                     </div>
