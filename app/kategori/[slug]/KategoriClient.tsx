@@ -533,6 +533,21 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
           )}
         </main>
       </div>
+      {/* 🚀 KARŞILAŞTIRMA YÜZEN BAR (FLOATING BAR) 🚀 */}
+      {karsilastirilanlar && karsilastirilanlar.length > 0 && (
+        <div className="fixed bottom-6 right-6 lg:bottom-10 lg:right-10 z-[100] bg-black/80 backdrop-blur-xl border border-[#00d2ff]/30 p-1.5 rounded-2xl shadow-[0_0_30px_rgba(0,210,255,0.2)] flex items-center animate-in slide-in-from-bottom-10 fade-in duration-500 select-none">
+          <div className="px-4 flex flex-col justify-center">
+            <span className="text-white font-black text-xs uppercase tracking-widest">{karsilastirilanlar.length} Ürün</span>
+            <span className="text-gray-400 text-[9px] uppercase tracking-wider">Seçildi</span>
+          </div>
+          <button 
+            onClick={() => { if (typeof setPopupAcik === "function") setPopupAcik(true); }}
+            className="bg-[#00d2ff] text-black px-5 py-3 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-white transition-colors"
+          >
+            Karşılaştır
+          </button>
+        </div>
+      )}
     </>
   );
 }
