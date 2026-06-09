@@ -151,8 +151,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     setZoomOrigin(`${x}% ${y}%`);
   };
 
-  const kategoriIsmi = product.kategori || "Ekran Kartları";
-  const kategoriSlug = product.kategoriSlug || "ekran-kartlari";
+  const kategoriIsmi = product.kategori || "Ürünler";
+  // Kategori ismini otomatik linke (slug) çeviren sihirli kod
+  const kategoriSlug = product.kategoriSlug || (product.kategori ? product.kategori.replace(/[çÇ]/g, 'c').replace(/[ğĞ]/g, 'g').replace(/[şŞ]/g, 's').replace(/[üÜ]/g, 'u').replace(/[ıİ]/g, 'i').replace(/[öÖ]/g, 'o').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : "urunler");
 
   const renderFpsSection = () => (
     <div className="bg-[#09090b] border border-white/10 rounded-2xl p-4 sm:p-6 flex flex-col w-full shadow-[0_5px_15px_rgba(0,0,0,0.5)] select-none touch-manipulation">
