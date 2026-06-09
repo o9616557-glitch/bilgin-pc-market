@@ -181,7 +181,7 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
   
   const [seciliDinamik, setSeciliDinamik] = useState<Record<string, string[]>>({});
   const [mobilFiltreAcik, setMobilFiltreAcik] = useState(false);
-
+const [barGizli, setBarGizli] = useState(false);
   const markalar = useMemo(() => Array.from(new Set(urunler.map(u => getMarka(u)))).filter(Boolean).sort(), [urunler]);
 
   const dinamikFiltreListesi = useMemo(() => {
@@ -278,14 +278,11 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
     setTimeout(() => { setSepeteEklenenler(prev => prev.filter(id => id !== targetId)); }, 2000);
   };
 
- const handleKarsilastir = (urun: any) => { 
+const handleKarsilastir = (urun: any) => { 
   karsilastirmayaEkle(urun); 
-  toast.success("Karşılaştırmaya eklendi"); 
-  if (typeof setPopupAcik === "function") {
-    setTimeout(() => setPopupAcik(true), 150);
-  }
+  setBarGizli(false); // Yeni ürün eklenince gizlenen bar geri gelsin
+  // Toast mesajı tamamen iptal edildi!
 };
-
   const gecerliMarkalar = markalar.filter(m => markaGecerliMi(m));
 
   return (
@@ -533,19 +530,31 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
           )}
         </main>
       </div>
-      {/* 🚀 KARŞILAŞTIRMA YÜZEN BAR (FLOATING BAR) 🚀 */}
-      {karsilastirilanlar && karsilastirilanlar.length > 0 && (
-        <div className="fixed bottom-6 right-6 lg:bottom-10 lg:right-10 z-[100] bg-black/80 backdrop-blur-xl border border-[#00d2ff]/30 p-1.5 rounded-2xl shadow-[0_0_30px_rgba(0,210,255,0.2)] flex items-center animate-in slide-in-from-bottom-10 fade-in duration-500 select-none">
-          <div className="px-4 flex flex-col justify-center">
+     {/* 🚀 KARŞILAŞTIRMA YÜZEN BAR (FLOATING BAR) - X BUTONLU 🚀 */}
+      {!barGizli && karsilastirilanlar && karsilastirilanlar.length > 0 && (
+        <div className="fixed bottom-6 right-6 lg:bottom-10 lg:right-10 z-[100] bg-black/80 backdrop-blur-xl border border-[#00d2ff]/30 p-1.5 rounded-2xl shadow-[0_0_30px_rgba(0,210,255,0.2)] flex items-center gap-3 animate-in slide-in-from-bottom-10 fade-in duration-500 select-none">
+          
+          <div className="pl-3 flex flex-col justify-center">
             <span className="text-white font-black text-xs uppercase tracking-widest">{karsilastirilanlar.length} Ürün</span>
             <span className="text-gray-400 text-[9px] uppercase tracking-wider">Seçildi</span>
           </div>
-          <button 
-            onClick={() => { if (typeof setPopupAcik === "function") setPopupAcik(true); }}
-            className="bg-[#00d2ff] text-black px-5 py-3 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-white transition-colors"
-          >
-            Karşılaştır
-          </button>
+
+          <div className="flex gap-1.5">
+            <button 
+              onClick={() => { if (typeof setPopupAcik === "function") setPopupAcik(true); }}
+              className="bg-[#00d2ff] text-black px-4 py-2.5 rounded-xl font-black uppercase text-[10px] sm:text-xs tracking-widest hover:bg-white transition-colors"
+            >
+              Karşılaştır
+            </button>
+            <button 
+              onClick={() => setBarGizli(true)}
+              className="bg-white/10 text-gray-300 px-3 py-2.5 rounded-xl hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center"
+              title="Barı Gizle"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
         </div>
       )}
     </>
