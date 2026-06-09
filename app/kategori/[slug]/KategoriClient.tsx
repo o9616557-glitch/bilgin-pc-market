@@ -530,31 +530,33 @@ const handleKarsilastir = (urun: any) => {
           )}
         </main>
       </div>
-  {/* 🚀 KARŞILAŞTIRMA YÜZEN BAR (FLOATING BAR) - X BUTONLU 🚀 */}
+{/* 🚀 KARŞILAŞTIRMA YÜZEN BAR (FOOTER'A ÇARPMAYAN STICKY KAPSÜL) 🚀 */}
       {!barGizli && karsilastirilanlar && karsilastirilanlar.length > 0 && (
-        <div className="fixed bottom-6 right-6 lg:bottom-10 lg:right-10 z-[100] bg-black/80 backdrop-blur-xl border border-[#00d2ff]/30 p-1.5 rounded-2xl shadow-[0_0_30px_rgba(0,210,255,0.2)] flex items-center gap-3 animate-in slide-in-from-bottom-10 fade-in duration-500 select-none">
-          
-          <div className="pl-3 flex flex-col justify-center">
-            <span className="text-white font-black text-xs uppercase tracking-widest">{karsilastirilanlar.length} Ürün</span>
-            <span className="text-gray-400 text-[9px] uppercase tracking-wider">Seçildi</span>
-          </div>
+        <div className="sticky bottom-6 lg:bottom-10 z-[9999] w-full flex justify-center pointer-events-none mt-10">
+          <div className="pointer-events-auto bg-black/80 backdrop-blur-xl border border-[#00d2ff]/30 p-1.5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_30px_rgba(0,210,255,0.3)] flex items-center gap-3 animate-in slide-in-from-bottom-10 fade-in duration-500 select-none">
+            
+            <div className="pl-3 flex flex-col justify-center items-center">
+              <span className="text-white font-black text-xs uppercase tracking-widest leading-none mb-1">{karsilastirilanlar.length} Ürün</span>
+              <span className="text-gray-400 text-[9px] uppercase tracking-wider leading-none">Seçildi</span>
+            </div>
 
-          <div className="flex gap-1.5">
-            <button 
-              onClick={() => { if (typeof setPopupAcik === "function") setPopupAcik(true); }}
-              className="bg-[#00d2ff] text-black px-4 py-2.5 rounded-xl font-black uppercase text-[10px] sm:text-xs tracking-widest hover:bg-white transition-colors"
-            >
-              Karşılaştır
-            </button>
-            <button 
-              onClick={() => setBarGizli(true)}
-              className="bg-white/10 text-gray-300 px-3 py-2.5 rounded-xl hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center"
-              title="Barı Gizle"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
+            <div className="flex gap-1.5">
+              <button 
+                onClick={() => { if (typeof setPopupAcik === "function") setPopupAcik(true); }}
+                className="bg-[#00d2ff] text-black px-6 py-2.5 rounded-xl font-black uppercase text-[10px] sm:text-xs tracking-widest hover:bg-white transition-colors"
+              >
+                Karşılaştır
+              </button>
+              <button 
+                onClick={() => setBarGizli(true)}
+                className="bg-white/10 text-gray-300 px-3 py-2.5 rounded-xl hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center"
+                title="Barı Gizle"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
 
+          </div>
         </div>
       )}
     </>
