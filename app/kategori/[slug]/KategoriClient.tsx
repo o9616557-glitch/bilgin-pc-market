@@ -116,7 +116,7 @@ const getPsuSertifika = (urun: any) => {
 
 export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any[], sayfaBasligi: string }) {
   const { sepeteEkle } = useCart();
-  const { karsilastirmayaEkle } = useCompare();
+  const { karsilastirmayaEkle, karsilastirilanlar, setPopupAcik } = useCompare();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
 
   const b = sayfaBasligi.toUpperCase();
@@ -278,7 +278,13 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
     setTimeout(() => { setSepeteEklenenler(prev => prev.filter(id => id !== targetId)); }, 2000);
   };
 
-  const handleKarsilastir = (urun: any) => { karsilastirmayaEkle(urun); toast.success("Karşılaştırmaya eklendi"); };
+ const handleKarsilastir = (urun: any) => { 
+  karsilastirmayaEkle(urun); 
+  toast.success("Karşılaştırmaya eklendi"); 
+  if (typeof setPopupAcik === "function") {
+    setTimeout(() => setPopupAcik(true), 150);
+  }
+};
 
   const gecerliMarkalar = markalar.filter(m => markaGecerliMi(m));
 
