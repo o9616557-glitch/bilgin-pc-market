@@ -530,9 +530,9 @@ const handleKarsilastir = (urun: any) => {
           )}
         </main>
       </div>
-    {/* 🚀 KARŞILAŞTIRMA YÜZEN BAR (FLOATING BAR) - TAM ORTALANMIŞ KAPSÜL 🚀 */}
+   {/* 🚀 KARŞILAŞTIRMA YÜZEN BAR (FLOATING BAR) - YUKARI KALDIRILMIŞ KAPSÜL 🚀 */}
       {!barGizli && karsilastirilanlar && karsilastirilanlar.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 lg:bottom-10 z-[100] bg-black/80 backdrop-blur-xl border border-[#00d2ff]/30 p-1.5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_30px_rgba(0,210,255,0.2)] flex items-center gap-3 animate-in slide-in-from-bottom-10 fade-in duration-500 select-none">
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 lg:bottom-16 z-[9999] bg-black/80 backdrop-blur-xl border border-[#00d2ff]/30 p-1.5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_30px_rgba(0,210,255,0.3)] flex items-center gap-3 animate-in slide-in-from-bottom-10 fade-in duration-500 select-none">
           
           <div className="pl-3 flex flex-col justify-center items-center">
             <span className="text-white font-black text-xs uppercase tracking-widest leading-none mb-1">{karsilastirilanlar.length} Ürün</span>
