@@ -11,7 +11,8 @@ import Link from "next/link";
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const { sepeteEkle } = useCart(); 
   const { karsilastirmayaEkle, setPopupAcik } = useCompare(); 
-  
+  const [sayfaYuklendi, setSayfaYuklendi] = useState(false);
+useEffect(() => { setSayfaYuklendi(true); }, []);
   const [activeTab, setActiveTab] = useState("teknik");
   const [seciliCozunurluk, setSeciliCozunurluk] = useState("1080P");
   const [seciliIslemci, setSeciliIslemci] = useState("i5"); 
@@ -460,13 +461,12 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-     {product.aciklama && (
+   {product.aciklama && sayfaYuklendi && (
         <div className="max-w-[1000px] mx-auto px-4 sm:px-6 pt-12 pb-10 border-t border-white/10 select-none touch-manipulation">
            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-widest mb-10 text-white flex items-center justify-center gap-3 select-none">
              <Info className="w-6 h-6 sm:w-8 sm:h-8 text-[#00d2ff]" /> Ürün Açıklaması
            </h2>
            
-           {/* 🔥 ŞEFİM, `prose` SINIFINI BURADAN SÖKTÜM VE VİDEOLARIN SİTEDE HÜKMEDEBİLMESİ İÇİN DOĞRUDAN GENİŞLİK TANIDIM 🔥 */}
            <div 
              className="w-full text-gray-300 leading-[1.8] text-base sm:text-[17px] select-none touch-manipulation
                [&_img]:w-full md:[&_img]:w-[65%] [&_img]:mx-auto [&_img]:h-auto [&_img]:block [&_img]:my-10 [&_img]:!border-none [&_img]:!shadow-none [&_img]:!bg-transparent
@@ -474,7 +474,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                [&_h3]:text-xl sm:[&_h3]:text-2xl [&_h3]:font-bold [&_h3]:text-[#00d2ff] [&_h3]:mb-3 [&_h3]:mt-10
                [&_p]:mb-6
                
-               {/* 🚀 YOUTUBE VE MP4 VİDEOLARINA EKRANI KAPLAMA VE CANLANMA EMRETTİK: */}
+               {/* 🚀 TARAYICIYA ZORLA VİDEOYU GÖSTERME EMİRLERİ */}
                [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-2xl [&_iframe]:border [&_iframe]:border-white/10 [&_iframe]:shadow-2xl [&_iframe]:block [&_iframe]:my-6
                [&_video]:w-full [&_video]:h-auto [&_video]:rounded-2xl [&_video]:border [&_video]:border-white/10 [&_video]:shadow-2xl [&_video]:block [&_video]:my-6" 
              dangerouslySetInnerHTML={{ __html: product.aciklama }} 
