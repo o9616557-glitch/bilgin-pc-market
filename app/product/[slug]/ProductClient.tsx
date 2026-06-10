@@ -465,21 +465,22 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-widest mb-10 text-white flex items-center justify-center gap-3 select-none">
              <Info className="w-6 h-6 sm:w-8 sm:h-8 text-[#00d2ff]" /> Ürün Açıklaması
            </h2>
-           <div className="prose prose-invert max-w-none select-none touch-manipulation 
-             [&_*]:!select-none [&_*]:!-webkit-touch-callout-none
-             [&_img]:w-full md:[&_img]:w-[65%] [&_img]:mx-auto [&_img]:h-auto [&_img]:block [&_img]:my-10 [&_img]:!border-none [&_img]:!shadow-none [&_img]:!bg-transparent
-             [&_h2]:text-2xl sm:[&_h2]:text-3xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mb-4 [&_h2]:mt-12
-             [&_h3]:text-xl sm:[&_h3]:text-2xl [&_h3]:font-bold [&_h3]:text-[#00d2ff] [&_h3]:mb-3 [&_h3]:mt-10
-             [&_p]:text-gray-300 [&_p]:leading-[1.8] [&_p]:text-base sm:[&_p]:text-[17px] [&_p]:mb-6
-             
-             {/* 🚀 ŞEFİM, VİDEOLARIN VE YOUTUBE PENCERELERİNİN SİTEDEREN UÇMASINI SAĞLAYAN SİHİRLİ KODLAR BURAYA EKLENDİ: */}
-             [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-2xl [&_iframe]:border [&_iframe]:border-white/10 [&_iframe]:shadow-2xl
-             [&_video]:w-full [&_video]:h-auto [&_video]:rounded-2xl [&_video]:border [&_video]:border-white/10 [&_video]:shadow-2xl" 
+           
+           {/* 🔥 ŞEFİM, `prose` SINIFINI BURADAN SÖKTÜM VE VİDEOLARIN SİTEDE HÜKMEDEBİLMESİ İÇİN DOĞRUDAN GENİŞLİK TANIDIM 🔥 */}
+           <div 
+             className="w-full text-gray-300 leading-[1.8] text-base sm:text-[17px] select-none touch-manipulation
+               [&_img]:w-full md:[&_img]:w-[65%] [&_img]:mx-auto [&_img]:h-auto [&_img]:block [&_img]:my-10 [&_img]:!border-none [&_img]:!shadow-none [&_img]:!bg-transparent
+               [&_h2]:text-2xl sm:[&_h2]:text-3xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mb-4 [&_h2]:mt-12
+               [&_h3]:text-xl sm:[&_h3]:text-2xl [&_h3]:font-bold [&_h3]:text-[#00d2ff] [&_h3]:mb-3 [&_h3]:mt-10
+               [&_p]:mb-6
+               
+               {/* 🚀 YOUTUBE VE MP4 VİDEOLARINA EKRANI KAPLAMA VE CANLANMA EMRETTİK: */}
+               [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-2xl [&_iframe]:border [&_iframe]:border-white/10 [&_iframe]:shadow-2xl [&_iframe]:block [&_iframe]:my-6
+               [&_video]:w-full [&_video]:h-auto [&_video]:rounded-2xl [&_video]:border [&_video]:border-white/10 [&_video]:shadow-2xl [&_video]:block [&_video]:my-6" 
              dangerouslySetInnerHTML={{ __html: product.aciklama }} 
            />
         </div>
       )}
-
       <div className="sm:hidden fixed bottom-0 left-0 w-full bg-[#050505]/95 backdrop-blur-2xl border-t border-white/10 px-4 py-3 z-50 flex items-center justify-between shadow-[0_-20px_40px_rgba(0,0,0,0.8)] select-none">
          <div className="flex flex-col">
             {indirimVarMi && !tukendiMi && <span className="text-gray-500 text-[11px] line-through font-medium mb-0.5">{normalFiyat.toLocaleString("tr-TR")} ₺</span>}
