@@ -16,7 +16,7 @@ useEffect(() => { setSayfaYuklendi(true); }, []);
   const [activeTab, setActiveTab] = useState("teknik");
   const [seciliCozunurluk, setSeciliCozunurluk] = useState("1080P");
   const [seciliIslemci, setSeciliIslemci] = useState("i5"); 
-
+const [videoOynatiliyor, setVideoOynatiliyor] = useState(false);
   const [reviewName, setReviewName] = useState("");
   const [questionName, setQuestionName] = useState("");
   const [reviewText, setReviewText] = useState("");
@@ -461,22 +461,64 @@ useEffect(() => { setSayfaYuklendi(true); }, []);
         </div>
       </div>
 
-   {product.aciklama && sayfaYuklendi && (
+ {product.aciklama && (
         <div className="max-w-[1000px] mx-auto px-4 sm:px-6 pt-12 pb-10 border-t border-white/10 select-none touch-manipulation">
            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-widest mb-10 text-white flex items-center justify-center gap-3 select-none">
              <Info className="w-6 h-6 sm:w-8 sm:h-8 text-[#00d2ff]" /> Ürün Açıklaması
            </h2>
            
+           {/* 🔥 VİDEO VARSA BİLGİN PC LOGOLU AFİŞ DEVREYE GİRER 🔥 */}
+           {product.aciklama.includes("youtube.com/embed") && (
+             <div className="w-full flex flex-col gap-12 select-none px-1 sm:px-0 mb-12">
+               <div className="bg-[#09090b] border border-white/5 rounded-3xl p-4 sm:p-8 lg:p-12 shadow-2xl w-full flex flex-col gap-8 relative overflow-hidden">
+                 <div style={{ maxWidth: '896px', marginLeft: 'auto', marginRight: 'auto', width: '100%', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'black' }}>
+                   <div style={{ position: 'relative', width: '100%', paddingTop: '56.25%' }}>
+                     
+                     {!videoOynatiliyor ? (
+                       <div 
+                         onClick={() => setVideoOynatiliyor(true)}
+                         className="absolute inset-0 w-full h-full cursor-pointer flex flex-col items-center justify-center group select-none z-20"
+                         style={{ 
+                           backgroundImage: `url(${product.resim})`, 
+                           backgroundSize: 'cover', 
+                           backgroundPosition: 'center' 
+                         }}
+                       >
+                         <div className="absolute inset-0 bg-black/60 transition-opacity group-hover:bg-black/40" />
+                         <div className="relative z-30 flex flex-col items-center gap-4 transition-transform duration-300 group-hover:scale-110">
+                           <div className="w-20 h-20 rounded-full bg-black/80 border-2 border-[#00d2ff] flex items-center justify-center shadow-[0_0_30px_rgba(0,210,255,0.4)] transition-all group-hover:border-white group-hover:shadow-[0_0_40px_rgba(255,255,255,0.6)]">
+                             <svg className="w-8 h-8 text-[#00d2ff] fill-[#00d2ff] group-hover:text-white group-hover:fill-white ml-1 transition-colors" viewBox="0 0 24 24">
+                               <path d="M8 5v14l11-7z"/>
+                             </svg>
+                           </div>
+                           <span className="text-white font-black text-sm uppercase tracking-[0.2em] drop-shadow-md bg-black/40 px-4 py-1.5 rounded-full border border-white/5">
+                             BİLGİN PC • VİDEOYU İZLE
+                           </span>
+                         </div>
+                       </div>
+                     ) : (
+                       <iframe 
+                         style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }} 
+                         src={`https://www.youtube.com/embed/${product.aciklama.match(/embed\/([^"?'<]+)/)?.[1] || ''}?autoplay=1&vq=hd1080`} 
+                         title="İnceleme Videosu" 
+                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                         allowFullScreen>
+                       </iframe>
+                     )}
+                   </div>
+                 </div>
+               </div>
+             </div>
+           )}
+
+           {/* 🚀 AÇIKLAMANIN GERİ KALANI (Eski çifte videoyu gizler, sadece yazıları ve resimleri basar) */}
            <div 
-             className="w-full text-gray-300 leading-[1.8] text-base sm:text-[17px] select-none touch-manipulation
+             className="w-full text-gray-300 leading-[1.8] text-base sm:text-[17px] touch-manipulation
                [&_img]:w-full md:[&_img]:w-[65%] [&_img]:mx-auto [&_img]:h-auto [&_img]:block [&_img]:my-10 [&_img]:!border-none [&_img]:!shadow-none [&_img]:!bg-transparent
                [&_h2]:text-2xl sm:[&_h2]:text-3xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mb-4 [&_h2]:mt-12
                [&_h3]:text-xl sm:[&_h3]:text-2xl [&_h3]:font-bold [&_h3]:text-[#00d2ff] [&_h3]:mb-3 [&_h3]:mt-10
                [&_p]:mb-6
-               
-               {/* 🚀 TARAYICIYA ZORLA VİDEOYU GÖSTERME EMİRLERİ */}
-               [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-2xl [&_iframe]:border [&_iframe]:border-white/10 [&_iframe]:shadow-2xl [&_iframe]:block [&_iframe]:my-6
-               [&_video]:w-full [&_video]:h-auto [&_video]:rounded-2xl [&_video]:border [&_video]:border-white/10 [&_video]:shadow-2xl [&_video]:block [&_video]:my-6" 
+               [&_iframe]:hidden" 
              dangerouslySetInnerHTML={{ __html: product.aciklama }} 
            />
         </div>
