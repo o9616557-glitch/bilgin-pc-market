@@ -14,7 +14,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [sayfaYuklendi, setSayfaYuklendi] = useState(false);
   useEffect(() => { setSayfaYuklendi(true); }, []);
   
-  // 🚀 Şefim, sayfa ilk açıldığında "Açıklama" sekmesinin açık gelmesi için burayı güncelledim.
+  // Varsayılan olarak Açıklama sekmesi açık gelecek
   const [activeTab, setActiveTab] = useState("aciklama");
   
   const [seciliCozunurluk, setSeciliCozunurluk] = useState("1080P");
@@ -365,19 +365,54 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           </div>
          )}
 
-          {/* 🚀 SEKMELER (TABS) BAŞLANGICI - BURAYI DÜZENLEDİM */}
-          <div ref={tabsRef} className="flex overflow-x-auto gap-2 border-b border-white/10 pb-3 mb-6 select-none [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#00d2ff]/50 [&::-webkit-scrollbar-thumb]:rounded-full scroll-mt-24">
+          {/* 🚀 SEKME BAŞLIKLARI (TABS) - KUTUSUZ, PREMİUM VE JİLET GİBİ SIFIRDAN YAPILDI */}
+          <div ref={tabsRef} className="flex overflow-x-auto gap-6 sm:gap-8 border-b border-white/10 pb-0 mb-6 select-none [&::-webkit-scrollbar]:hidden scroll-mt-24">
               {product.aciklama && (
-                <button onClick={() => setActiveTab('aciklama')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase touch-manipulation tracking-widest ${activeTab === 'aciklama' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Ürün Açıklaması</button>
+                <button 
+                  onClick={() => setActiveTab('aciklama')} 
+                  className={`pb-4 font-black text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest relative touch-manipulation ${activeTab === 'aciklama' ? 'text-[#00d2ff]' : 'text-gray-400 hover:text-white'}`}
+                >
+                  Ürün Açıklaması
+                  {activeTab === 'aciklama' && (
+                    <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#00d2ff] shadow-[0_0_10px_rgba(0,210,255,0.6)] rounded-full"></div>
+                  )}
+                </button>
               )}
-              <button onClick={() => setActiveTab('teknik')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase touch-manipulation tracking-widest ${activeTab === 'teknik' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Teknik Özellikler</button>
-              <button onClick={() => setActiveTab('yorumlar')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase touch-manipulation tracking-widest ${activeTab === 'yorumlar' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Yorumlar</button>
-              <button onClick={() => setActiveTab('sorular')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase touch-manipulation tracking-widest ${activeTab === 'sorular' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Sorular</button>
+              
+              <button 
+                onClick={() => setActiveTab('teknik')} 
+                className={`pb-4 font-black text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest relative touch-manipulation ${activeTab === 'teknik' ? 'text-[#00d2ff]' : 'text-gray-400 hover:text-white'}`}
+              >
+                Teknik Özellikler
+                {activeTab === 'teknik' && (
+                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#00d2ff] shadow-[0_0_10px_rgba(0,210,255,0.6)] rounded-full"></div>
+                )}
+              </button>
+              
+              <button 
+                onClick={() => setActiveTab('yorumlar')} 
+                className={`pb-4 font-black text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest relative touch-manipulation ${activeTab === 'yorumlar' ? 'text-[#00d2ff]' : 'text-gray-400 hover:text-white'}`}
+              >
+                Yorumlar ({totalReviews})
+                {activeTab === 'yorumlar' && (
+                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#00d2ff] shadow-[0_0_10px_rgba(0,210,255,0.6)] rounded-full"></div>
+                )}
+              </button>
+              
+              <button 
+                onClick={() => setActiveTab('sorular')} 
+                className={`pb-4 font-black text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest relative touch-manipulation ${activeTab === 'sorular' ? 'text-[#00d2ff]' : 'text-gray-400 hover:text-white'}`}
+              >
+                Sorular ({questions.length})
+                {activeTab === 'sorular' && (
+                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#00d2ff] shadow-[0_0_10px_rgba(0,210,255,0.6)] rounded-full"></div>
+                )}
+              </button>
           </div>
 
           <div className="min-h-[150px] mb-4">
 
-              {/* 🚀 ÜRÜN AÇIKLAMASI SEKME İÇERİĞİ - EN ALTTAN ALIP BURAYA TAŞIDIM */}
+              {/* ÜRÜN AÇIKLAMASI İÇERİĞİ */}
               {activeTab === 'aciklama' && product.aciklama && (
                 <div className="animate-fade-in text-gray-300 leading-relaxed select-none touch-manipulation">
                    <div className="prose prose-invert max-w-none select-none touch-manipulation 
@@ -391,6 +426,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 </div>
               )}
 
+              {/* TEKNİK ÖZELLİKLER İÇERİĞİ */}
               {activeTab === 'teknik' && (
                 <div className="bg-[#09090b] border border-white/5 rounded-2xl overflow-hidden select-none">
                    {product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 ? (
@@ -404,6 +440,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 </div>
               )}
 
+              {/* YORUMLAR İÇERİĞİ */}
               {activeTab === 'yorumlar' && (
                 <div className="space-y-6">
                    <form onSubmit={handleSubmitReview} className="bg-[#09090b] border border-white/5 p-5 sm:p-6 rounded-2xl">
@@ -444,6 +481,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 </div>
               )}
 
+              {/* SORULAR İÇERİĞİ (O Hatalı 'r' harfi tamamen düzeltildi şefim) */}
               {activeTab === 'sorular' && (
                 <div className="space-y-6">
                    <form onSubmit={handleSubmitQuestion} className="bg-[#09090b] border border-white/5 p-5 sm:p-6 rounded-2xl">
@@ -465,7 +503,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                             {(q.answer || q.reply || q.adminReply || q.cevap) && (
                                <div className="mt-3 bg-[#00d2ff]/10 border-l-2 border-[#00d2ff] p-3 rounded-r-xl">
                                   <span className="text-[#00d2ff] font-black text-[9px] uppercase block mb-1">Bilgin PC Yanıtı</span>
-                                 <p className="text-gray-300 text-xs sm:text-sm">{q.answer || q.reply || q.adminReply || q.cevap}</p>
+                                  <p className="text-gray-300 text-xs sm:text-sm">{q.answer || q.reply || q.adminReply || q.cevap}</p>
                                </div>
                             )}
                          </div>
@@ -480,8 +518,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
       </div>
 
-      {/* 🚀 Şefim, alt kısımdaki eski, dağınık bağımsız ürün açıklaması alanını tamamen kaldırdım. Artık her şey yukarıda sekmeli kutunun içinde derli toplu duruyor. */}
-
+      {/* MOBİL ALT SEPET BAR ALANI */}
       <div className="sm:hidden fixed bottom-0 left-0 w-full bg-[#050505]/95 backdrop-blur-2xl border-t border-white/10 px-4 py-3 z-50 flex items-center justify-between shadow-[0_-20px_40px_rgba(0,0,0,0.8)] select-none">
          <div className="flex flex-col">
             {indirimVarMi && !tukendiMi && <span className="text-gray-500 text-[11px] line-through font-medium mb-0.5">{normalFiyat.toLocaleString("tr-TR")} ₺</span>}
@@ -498,6 +535,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
          </button>
       </div>
 
+      {/* LIGHTBOX ALANI */}
       {lightboxAcik && (
         <div 
           onTouchStart={handleTouchStart} 
