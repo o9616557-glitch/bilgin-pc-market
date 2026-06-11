@@ -31,8 +31,8 @@ const menuCategories = [
       { name: "Mouse & Mouse Pad", slug: "mouse" },
       { name: "Oyuncu Kulaklıkları", slug: "kulaklik" },
       { name: "Yayıncı Mikrofonları", slug: "mikrofon" },
-      { name: "Oyun Kolu & Direksiyon", slug: "oyun-kolu" },
-      { name: "Simülasyon Ürünleri", slug: "simulasyon" },
+      { name: "Oyun Kolu", slug: "oyun-kolu" },
+      { name: "Oyun Direksiyonu", slug: "oyun-direksiyonu" },
       { name: "Hoparlör (Speaker)", slug: "hoparlor" },
     ]
   },
