@@ -125,53 +125,58 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
   const isAnakart = b.includes("ANAKART") || b.includes("MOTHERBOARD");
   const isPsu = b.includes("PSU") || b.includes("GÜÇ");
 
+  // 🧠 HAFIZA OPTİMİZASYONU: Ürün ham verilerini sadece bir kez işler, şişmeyi önler.
+  const urunOzellikleriHaritasi = useMemo(() => {
+    const harita = new Map<string, Record<string, string>>();
+    urunler.forEach(urun => {
+      const targetId = String(urun._id || urun.id);
+      let dbObj: Record<string, string> = {};
+      const rawDb = urun.teknik_ozellikler || urun.teknik_ozeller || urun.ozellikler || urun.attributes;
+      
+      if (rawDb) {
+        try {
+          let parsed = typeof rawDb === 'string' ? JSON.parse(rawDb) : rawDb;
+          if (Array.isArray(parsed)) {
+            parsed.forEach((item: any) => {
+              const key = item.name || item.key || item.baslik || item.ozellik || item.title;
+              const val = item.value || item.val || item.deger || item.text;
+              if (key && val) dbObj[key] = String(val).trim();
+            });
+          } else if (typeof parsed === 'object' && parsed !== null) {
+            Object.entries(parsed).forEach(([k, v]) => {
+              if (v && typeof v !== 'object') dbObj[k] = String(v).trim();
+            });
+          }
+        } catch (e) {}
+      }
+
+      let sanalOzellikler: Record<string, string> = {};
+      if (isEkranKarti) {
+        const gpu = getGpuMarka(urun); if (gpu) sanalOzellikler["Grafik İşlemci"] = gpu;
+        const seri = getSeri(urun); if (seri) sanalOzellikler["GPU Serisi"] = seri;
+        const vram = getVram(urun); if (vram) sanalOzellikler["Bellek (VRAM)"] = vram;
+      }
+      if (isIslemci) {
+        const iseri = getIslemciSeri(urun); if (iseri) sanalOzellikler["İşlemci Serisi"] = iseri;
+        const soket = getSoket(urun); if (soket) sanalOzellikler["Soket Tipi"] = soket;
+      }
+      if (isAnakart) {
+        const cipset = getCipset(urun); if (cipset) sanalOzellikler["Çipset"] = cipset;
+        const soket = getSoket(urun); if (soket) sanalOzellikler["Soket Tipi"] = soket;
+        const ddr = getDdr(urun); if (ddr) sanalOzellikler["Bellek Desteği"] = ddr;
+      }
+      if (isPsu) {
+        const güc = getPsuKapasite(urun); if (güc) sanalOzellikler["Güç Değeri"] = güc;
+        const sertifika = getPsuSertifika(urun); if (sertifika) sanalOzellikler["Sertifika"] = sertifika;
+      }
+
+      harita.set(targetId, { ...sanalOzellikler, ...dbObj });
+    });
+    return harita;
+  }, [urunler, isEkranKarti, isIslemci, isAnakart, isPsu]);
+
   const getUrunOzellikleri = (urun: any) => {
-    let dbObj: Record<string, string> = {};
-    const rawDb = urun.teknik_ozellikler || urun.teknik_ozeller || urun.ozellikler || urun.attributes;
-    
-    if (rawDb) {
-      try {
-        let parsed = rawDb;
-        if (typeof rawDb === 'string') {
-          parsed = JSON.parse(rawDb);
-        }
-        
-        if (Array.isArray(parsed)) {
-          parsed.forEach((item: any) => {
-            const key = item.name || item.key || item.baslik || item.ozellik || item.title;
-            const val = item.value || item.val || item.deger || item.text;
-            if (key && val) dbObj[key] = String(val).trim();
-          });
-        } else if (typeof parsed === 'object' && parsed !== null) {
-          Object.entries(parsed).forEach(([k, v]) => {
-            if (v && typeof v !== 'object') dbObj[k] = String(v).trim();
-          });
-        }
-      } catch (e) {}
-    }
-
-    let sanalOzellikler: Record<string, string> = {};
-
-    if (isEkranKarti) {
-      const gpu = getGpuMarka(urun); if (gpu) sanalOzellikler["Grafik İşlemci"] = gpu;
-      const seri = getSeri(urun); if (seri) sanalOzellikler["GPU Serisi"] = seri;
-      const vram = getVram(urun); if (vram) sanalOzellikler["Bellek (VRAM)"] = vram;
-    }
-    if (isIslemci) {
-      const iseri = getIslemciSeri(urun); if (iseri) sanalOzellikler["İşlemci Serisi"] = iseri;
-      const soket = getSoket(urun); if (soket) sanalOzellikler["Soket Tipi"] = soket;
-    }
-    if (isAnakart) {
-      const cipset = getCipset(urun); if (cipset) sanalOzellikler["Çipset"] = cipset;
-      const soket = getSoket(urun); if (soket) sanalOzellikler["Soket Tipi"] = soket;
-      const ddr = getDdr(urun); if (ddr) sanalOzellikler["Bellek Desteği"] = ddr;
-    }
-    if (isPsu) {
-      const güc = getPsuKapasite(urun); if (güc) sanalOzellikler["Güç Değeri"] = güc;
-      const sertifika = getPsuSertifika(urun); if (sertifika) sanalOzellikler["Sertifika"] = sertifika;
-    }
-
-    return { ...sanalOzellikler, ...dbObj };
+    return urunOzellikleriHaritasi.get(String(urun._id || urun.id)) || {};
   };
 
   const [seciliMarkalar, setSeciliMarkalar] = useState<string[]>([]);
@@ -184,16 +189,16 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
   const [barGizli, setBarGizli] = useState(false);
   const markalar = useMemo(() => Array.from(new Set(urunler.map(u => getMarka(u)))).filter(Boolean).sort(), [urunler]);
 
+  // 👑 ŞEFİMİN İSTEDİĞİ ANTI-BLOAT (ŞİŞME ÖNLEYİCİ) DİNAMİK MOTOR 👑
   const dinamikFiltreListesi = useMemo(() => {
     const filtreHaritasi: Record<string, Set<string>> = {};
 
     urunler.forEach(urun => {
       const birlesikOzellikler = getUrunOzellikleri(urun);
-      
       Object.entries(birlesikOzellikler).forEach(([baslik, deger]) => {
         if (!deger) return;
         const metinDeger = String(deger).trim();
-        if (metinDeger === "") return; // 🎯 SİNSİ 35 KARAKTERLİK KATİL LİMİT BURADAN SÖKÜLDÜ! ARTIK TÜM UZUN YAZILAR FİLTREYE GELECEK!
+        if (metinDeger === "") return;
 
         if (!filtreHaritasi[baslik]) filtreHaritasi[baslik] = new Set();
         filtreHaritasi[baslik].add(metinDeger);
@@ -202,13 +207,17 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
 
     const sonuc: Record<string, string[]> = {};
     Object.keys(filtreHaritasi).forEach(baslik => {
-      if (filtreHaritasi[baslik].size > 1) { 
+      const secenekSayisi = filtreHaritasi[baslik].size;
+      
+      // 🎯 ESNAF KİLİDİ: Eğer 50 üründe bir başlığın 12'den fazla farklı çeşidi varsa (Ağırlık, Boyut veya özel seri noları gibi)
+      // O başlığı filtre listesinden eler ki sol taraf kilometrelerce uzayıp şişmesin!
+      if (secenekSayisi > 1 && secenekSayisi <= 12) { 
         sonuc[baslik] = Array.from(filtreHaritasi[baslik]).sort();
       }
     });
 
     return sonuc;
-  }, [urunler]);
+  }, [urunler, urunOzellikleriHaritasi]);
 
   const urunGecerliMi = (urun: any, haricTutulacakBaslik: string | null = null) => {
     if (haricTutulacakBaslik !== "Marka" && seciliMarkalar.length > 0 && !seciliMarkalar.includes(getMarka(urun))) return false;
@@ -314,7 +323,7 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
 
       <div className="flex flex-col lg:flex-row gap-6 px-4 sm:px-0 relative items-start">
         
-        {/* 🛠️ SOL FİLTRE MENÜSÜ */}
+        {/* 🛠 McKay SOL FİLTRE PANELİ */}
         <aside className={`fixed top-[81px] bottom-0 left-0 right-0 z-[40] lg:sticky lg:top-24 lg:w-[260px] xl:w-[280px] lg:max-h-[calc(100vh-100px)] lg:shrink-0 transition-transform duration-300 flex flex-col ${mobilFiltreAcik ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
           <div className="absolute inset-0 bg-black/60 lg:hidden" onClick={() => setMobilFiltreAcik(false)}></div>
           
@@ -416,7 +425,7 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
           </div>
         </aside>
 
-        {/* 🛠️ SAĞ ÜRÜN IZGARASI */}
+        {/* 🛠 Sağ ÜRÜN IZGARASI */}
         <main className="flex-1 w-full min-w-0 pb-12">
           {filtrelenmisUrunler.length === 0 ? (
             <div className="w-full py-24 flex flex-col items-center justify-center border border-dashed border-white/5 rounded-2xl bg-white/[0.01]">
