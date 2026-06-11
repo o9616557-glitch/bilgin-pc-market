@@ -148,7 +148,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const handleTouchStart = (e: React.TouchEvent) => touchStartRef.current = e.touches[0].clientX;
   const handleTouchEnd = (e: React.TouchEvent) => { const fark = touchStartRef.current - e.changedTouches[0].clientX; if (fark > 40) sonrakiResim(); else if (fark < -40) oncekiResim(); };
 
-  // Şefim MouseEvent hatası burada düzeltildi
+  // MouseEvent hatası düzeltildi
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - left) / width) * 100;
@@ -370,7 +370,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
           </div>
         </div> 
-        {/* 🚀 SAĞ VE SOL KOLONU TUTAN YAPI BURADA BİTTİ! 🚀 */}
 
         {/* 🚀 ALT KISIM: HEM GALERİNİN HEM SAĞ TARAFIN TAM ALTINA (100% GENİŞLİK) YERLEŞEN ALAN 🚀 */}
         <div ref={tabsRef} className="w-full border-t border-white/10 pt-10 mt-10 scroll-mt-24">
@@ -437,19 +436,25 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   </div>
                 )}
 
-                {/* 🚀 TEKNİK ÖZELLİKLER İÇERİĞİ - ALT ALTA (KUTU TASARIMI) YAPILDI 🚀 */}
+                {/* 🚀 TEKNİK ÖZELLİKLER İÇERİĞİ - FOTOĞRAFLARDAKİ GİBİ YAPILDI 🚀 */}
                 {activeTab === 'teknik' && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 w-full select-none">
+                  <div className="w-full flex flex-col select-none max-w-5xl">
                      {product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 ? (
                         Object.entries(product.teknik_ozellikler).map(([key, val], i) => (
-                           <div key={i} className="bg-[#09090b] border border-white/5 rounded-xl p-4 sm:p-5 flex flex-col justify-center hover:border-white/10 transition-colors">
-                              {/* Başlık üstte */}
-                              <span className="text-[#00d2ff]/70 font-black uppercase tracking-wider text-[10px] sm:text-xs mb-1.5">{key}</span>
-                              {/* Değer altta */}
-                              <span className="text-white font-medium text-sm sm:text-base leading-snug">{val as string}</span>
+                           <div key={i} className="flex flex-col md:flex-row py-4 sm:py-6 border-b border-white/10 last:border-0">
+                              {/* PC'de SOLDA (w-1/3) - Mobilde ÜSTTE duran başlık */}
+                              <span className="text-white font-bold text-base sm:text-lg md:w-1/3 mb-2 md:mb-0">
+                                {key}
+                              </span>
+                              {/* PC'de SAĞDA (w-2/3) - Mobilde ALTTA duran cevap */}
+                              <span className="text-gray-300 font-medium text-sm sm:text-base md:w-2/3 leading-relaxed">
+                                {val as string}
+                              </span>
                            </div>
                         ))
-                     ) : (<div className="p-8 text-center text-gray-500 text-sm col-span-full bg-[#09090b] border border-white/5 rounded-xl">Teknik detay girilmemiş.</div>)}
+                     ) : (
+                        <div className="p-8 text-center text-gray-500 text-sm w-full">Teknik detay girilmemiş.</div>
+                     )}
                   </div>
                 )}
 
