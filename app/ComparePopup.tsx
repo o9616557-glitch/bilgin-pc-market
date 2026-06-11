@@ -11,8 +11,10 @@ export default function ComparePopup() {
 
   const tumOzellikAnahtarlari: string[] = [];
   karsilastirilanlar.forEach((urun) => {
-    if (urun.teknik_ozellikler) {
-      Object.keys(urun.teknik_ozellikler).forEach((anahtar) => {
+    // 🎯 SİHİRLİ KÖPRÜYÜ BURAYA BAĞLADIK PATRON: Önce yeni filtre_ozellikleri kutusuna bakar, yoksa eski sisteme geçer!
+    const hedefKutu = urun.filtre_ozellikleri || urun.teknik_ozellikler;
+    if (hedefKutu) {
+      Object.keys(hedefKutu).forEach((anahtar) => {
         if (!tumOzellikAnahtarlari.includes(anahtar)) {
           tumOzellikAnahtarlari.push(anahtar);
         }
@@ -69,7 +71,6 @@ export default function ComparePopup() {
             {karsilastirilanlar.length === 0 ? (
               <div className="text-center py-20 text-slate-500 font-bold uppercase tracking-widest">[ Karşılaştırılacak Ürün Seçilmedi ]</div>
             ) : (
-              // 🚀 ŞEFİM İŞTE BURASI: w-fit yerine w-full yapıldı, soldaki gereksiz boşluk/kayma engellendi.
               <div className="flex flex-col gap-6 w-full">
                 
                 {/* ANA GÖRSEL VE VİTRİN SATIRI */}
@@ -114,14 +115,15 @@ export default function ComparePopup() {
                 {tumOzellikAnahtarlari.map((ozellikAdi) => (
                   <div key={ozellikAdi} className="mt-2 w-full">
                     
-                    {/* 🚀 ŞEFİM İŞTE BURASI: pl-1 (sol ufak boşluk) tamamen silindi, sıfıra sıfır sola dayandı. */}
                     <div className="text-[#3b82f6] font-black text-[11px] sm:text-xs uppercase tracking-widest mb-2 text-left">
                       {ozellikAdi}
                     </div>
                     
                     <div className="grid gap-3 sm:gap-4 w-full" style={getGridStyle()}>
                       {karsilastirilanlar.map((urun, idx) => {
-                        const deger = urun.teknik_ozellikler ? urun.teknik_ozellikler[ozellikAdi] : null;
+                        // 🎯 İKİNCİ SİHİRLİ BAĞLANTI: Değerleri basarken de önce filtre_ozellikleri'ndeki o kısa hap kelimeleri ekrana basar!
+                        const hedefKutu = urun.filtre_ozellikleri || urun.teknik_ozellikler;
+                        const deger = hedefKutu ? hedefKutu[ozellikAdi] : null;
                         return (
                           <div key={idx} className="bg-[#121215]/80 border border-white/10 p-2 sm:p-3 rounded-md text-xs sm:text-sm text-white font-medium flex items-center justify-start min-h-[40px] sm:min-h-[48px] shadow-sm hover:border-[#3b82f6]/50 transition-colors">
                             {deger || "-"}
