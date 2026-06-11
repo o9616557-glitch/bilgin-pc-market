@@ -125,13 +125,15 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
   const isAnakart = b.includes("ANAKART") || b.includes("MOTHERBOARD");
   const isPsu = b.includes("PSU") || b.includes("GÜÇ");
 
-  // 🧠 HAFIZA OPTİMİZASYONU: Ürün ham verilerini sadece bir kez işler, şişmeyi önler.
+  // 🧠 HAFIZA OPTİMİZASYONU
   const urunOzellikleriHaritasi = useMemo(() => {
     const harita = new Map<string, Record<string, string>>();
     urunler.forEach(urun => {
       const targetId = String(urun._id || urun.id);
       let dbObj: Record<string, string> = {};
-      const rawDb = urun.teknik_ozellikler || urun.teknik_ozeller || urun.ozellikler || urun.attributes;
+      
+      // 🎯 KABLOYU BAĞLADIK PATRON! Önce Compass'taki filtre_ozellikleri kutusuna bakar, bulamazsa eski teknik_ozellikler'e geçer!
+      const rawDb = urun.filtre_ozellikleri || urun.teknik_ozellikler || urun.teknik_ozeller || urun.ozellikler || urun.attributes;
       
       if (rawDb) {
         try {
@@ -209,9 +211,8 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
     Object.keys(filtreHaritasi).forEach(baslik => {
       const secenekSayisi = filtreHaritasi[baslik].size;
       
-      // 🎯 ESNAF KİLİDİ: Eğer 50 üründe bir başlığın 12'den fazla farklı çeşidi varsa (Ağırlık, Boyut veya özel seri noları gibi)
-      // O başlığı filtre listesinden eler ki sol taraf kilometrelerce uzayıp şişmesin!
-      if (secenekSayisi > 1 && secenekSayisi <= 12) { 
+      // 🎯 Şefim test ederken tek ürün olsa bile gözüksün diye alt sınırı >= 1 yaptık! Üst sınırı koruduk ki şişmesin!
+      if (secenekSayisi >= 1 && secenekSayisi <= 15) { 
         sonuc[baslik] = Array.from(filtreHaritasi[baslik]).sort();
       }
     });
@@ -323,7 +324,7 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
 
       <div className="flex flex-col lg:flex-row gap-6 px-4 sm:px-0 relative items-start">
         
-        {/* 🛠 McKay SOL FİLTRE PANELİ */}
+        {/* 🛠 SOL FİLTRE PANELİ */}
         <aside className={`fixed top-[81px] bottom-0 left-0 right-0 z-[40] lg:sticky lg:top-24 lg:w-[260px] xl:w-[280px] lg:max-h-[calc(100vh-100px)] lg:shrink-0 transition-transform duration-300 flex flex-col ${mobilFiltreAcik ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
           <div className="absolute inset-0 bg-black/60 lg:hidden" onClick={() => setMobilFiltreAcik(false)}></div>
           
