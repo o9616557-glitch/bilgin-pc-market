@@ -148,6 +148,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const handleTouchStart = (e: React.TouchEvent) => touchStartRef.current = e.touches[0].clientX;
   const handleTouchEnd = (e: React.TouchEvent) => { const fark = touchStartRef.current - e.changedTouches[0].clientX; if (fark > 40) sonrakiResim(); else if (fark < -40) oncekiResim(); };
 
+  // Şefim MouseEvent hatası burada düzeltildi
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - left) / width) * 100;
@@ -215,15 +216,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         .badge-rosette-page span:last-child { font-size: 11px; font-weight: 900; line-height: 1; }
       `}} />
 
-      {/* 🚀 ANA SARMALAYICI KONTEYNER: BURAYI BÜTÜNSEL YAPTIK 🚀 */}
+      {/* ANA SARMALAYICI KONTEYNER */}
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-0 sm:py-10">
         
-        {/* ÜST KISIM: YAN YANA BÖLÜNEN ALAN (SOLDA RESİMLER - SAĞDA SEPET) */}
+        {/* ÜST KISIM: İKİ KOLONLU ALAN (SOLDA RESİM - SAĞDA FİYAT/SEPET) */}
         <div className="flex flex-col md:flex-row gap-0 sm:gap-8 lg:gap-12 relative items-start mb-12">
           
           {/* SOL KOLON (RESİMLER) */}
           <div className="w-full md:w-[45%] flex flex-col relative md:sticky md:top-28 h-max mb-2 sm:mb-0 transition-all duration-500">
-            
             <div className="flex items-center gap-2 mb-2 sm:mb-4 px-4 sm:px-0 pt-4 sm:pt-0">
                {tukendiMi ? (
                   <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] sm:text-xs font-black px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg tracking-widest flex items-center gap-2"><span className="w-2 h-2 bg-red-500 rounded-full"></span> TÜKENDİ</div>
@@ -304,7 +304,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
           {/* SAĞ KOLON (BİLGİLER VE SEPET) */}
           <div className="w-full md:w-[55%] flex flex-col mt-4 sm:mt-0">
-            
             <div className="flex items-center gap-2 mb-3 text-[10px] sm:text-xs font-black uppercase tracking-widest text-gray-500 select-none">
                <Link href="/" className="hover:text-[#00d2ff] transition-colors">Ana Sayfa</Link>
                <span className="text-gray-700">/</span>
@@ -370,7 +369,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
            )}
 
           </div>
-        </div>
+        </div> 
+        {/* 🚀 SAĞ VE SOL KOLONU TUTAN YAPI BURADA BİTTİ! 🚀 */}
 
         {/* 🚀 ALT KISIM: HEM GALERİNİN HEM SAĞ TARAFIN TAM ALTINA (100% GENİŞLİK) YERLEŞEN ALAN 🚀 */}
         <div ref={tabsRef} className="w-full border-t border-white/10 pt-10 mt-10 scroll-mt-24">
@@ -421,11 +421,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             </div>
 
             {/* SEKMELERİN İÇERİK ALANI (TAM EKRAN GENİŞLİĞİNDE) */}
-            <div className="min-h-[200px] mb-4">
+            <div className="min-h-[200px] mb-4 w-full">
 
                 {/* ÜRÜN AÇIKLAMASI İÇERİĞİ */}
                 {activeTab === 'aciklama' && product.aciklama && (
-                  <div className="animate-fade-in text-gray-300 leading-relaxed select-none touch-manipulation">
+                  <div className="animate-fade-in text-gray-300 leading-relaxed select-none touch-manipulation w-full">
                      <div className="prose prose-invert max-w-none select-none touch-manipulation 
                        [&_*]:!select-none [&_*]:!-webkit-touch-callout-none
                        [&_img]:w-full md:[&_img]:w-[70%] [&_img]:mx-auto [&_img]:h-auto [&_img]:block [&_img]:my-8 [&_img]:rounded-2xl [&_img]:border-none [&_img]:shadow-none [&_img]:bg-transparent
@@ -437,23 +437,25 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   </div>
                 )}
 
-                {/* TEKNİK ÖZELLİKLER İÇERİĞİ */}
+                {/* 🚀 TEKNİK ÖZELLİKLER İÇERİĞİ - ALT ALTA (KUTU TASARIMI) YAPILDI 🚀 */}
                 {activeTab === 'teknik' && (
-                  <div className="bg-[#09090b] border border-white/5 rounded-2xl overflow-hidden select-none grid grid-cols-1 md:grid-cols-2 gap-x-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 w-full select-none">
                      {product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 ? (
                         Object.entries(product.teknik_ozellikler).map(([key, val], i) => (
-                           <div key={i} className="flex justify-between p-4 sm:p-5 border-b border-white/5">
-                              <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px] sm:text-xs w-1/2">{key}</span>
-                              <span className="text-white font-medium text-right w-1/2 text-xs sm:text-sm">{val as string}</span>
+                           <div key={i} className="bg-[#09090b] border border-white/5 rounded-xl p-4 sm:p-5 flex flex-col justify-center hover:border-white/10 transition-colors">
+                              {/* Başlık üstte */}
+                              <span className="text-[#00d2ff]/70 font-black uppercase tracking-wider text-[10px] sm:text-xs mb-1.5">{key}</span>
+                              {/* Değer altta */}
+                              <span className="text-white font-medium text-sm sm:text-base leading-snug">{val as string}</span>
                            </div>
                         ))
-                     ) : (<div className="p-8 text-center text-gray-500 text-sm col-span-2">Teknik detay girilmemiş.</div>)}
+                     ) : (<div className="p-8 text-center text-gray-500 text-sm col-span-full bg-[#09090b] border border-white/5 rounded-xl">Teknik detay girilmemiş.</div>)}
                   </div>
                 )}
 
                 {/* YORUMLAR İÇERİĞİ */}
                 {activeTab === 'yorumlar' && (
-                  <div className="space-y-6 max-w-[800px]">
+                  <div className="space-y-6 w-full max-w-[800px]">
                      <form onSubmit={handleSubmitReview} className="bg-[#09090b] border border-white/5 p-5 sm:p-6 rounded-2xl">
                         <h3 className="text-base font-black uppercase mb-4 tracking-wide text-white">Yorum Yap</h3>
                         <div className="flex gap-1.5 mb-4">
@@ -494,7 +496,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
                 {/* SORULAR İÇERİĞİ */}
                 {activeTab === 'sorular' && (
-                  <div className="space-y-6 max-w-[800px]">
+                  <div className="space-y-6 w-full max-w-[800px]">
                      <form onSubmit={handleSubmitQuestion} className="bg-[#09090b] border border-white/5 p-5 sm:p-6 rounded-2xl">
                         <h3 className="text-base font-black uppercase mb-4 tracking-wide text-white">Soru Sor</h3>
                         <input type="text" value={questionName} onChange={e => setQuestionName(e.target.value)} placeholder="Adınız Soyadınız" className="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[#00d2ff] outline-none mb-3" />
