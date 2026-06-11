@@ -116,7 +116,7 @@ const getPsuSertifika = (urun: any) => {
 
 export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any[], sayfaBasligi: string }) {
   const { sepeteEkle } = useCart();
- const { karsilastirmayaEkle, karsilastirilanlar, setPopupAcik, karsilastirmayiTemizle } = useCompare();
+  const { karsilastirmayaEkle, karsilastirilanlar, setPopupAcik, karsilastirmayiTemizle } = useCompare();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
 
   const b = sayfaBasligi.toUpperCase();
@@ -181,7 +181,7 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
   
   const [seciliDinamik, setSeciliDinamik] = useState<Record<string, string[]>>({});
   const [mobilFiltreAcik, setMobilFiltreAcik] = useState(false);
-const [barGizli, setBarGizli] = useState(false);
+  const [barGizli, setBarGizli] = useState(false);
   const markalar = useMemo(() => Array.from(new Set(urunler.map(u => getMarka(u)))).filter(Boolean).sort(), [urunler]);
 
   const dinamikFiltreListesi = useMemo(() => {
@@ -193,7 +193,7 @@ const [barGizli, setBarGizli] = useState(false);
       Object.entries(birlesikOzellikler).forEach(([baslik, deger]) => {
         if (!deger) return;
         const metinDeger = String(deger).trim();
-        if (metinDeger === "" || metinDeger.length > 35) return; 
+        if (metinDeger === "") return; // 🎯 SİNSİ 35 KARAKTERLİK KATİL LİMİT BURADAN SÖKÜLDÜ! ARTIK TÜM UZUN YAZILAR FİLTREYE GELECEK!
 
         if (!filtreHaritasi[baslik]) filtreHaritasi[baslik] = new Set();
         filtreHaritasi[baslik].add(metinDeger);
@@ -278,11 +278,11 @@ const [barGizli, setBarGizli] = useState(false);
     setTimeout(() => { setSepeteEklenenler(prev => prev.filter(id => id !== targetId)); }, 2000);
   };
 
-const handleKarsilastir = (urun: any) => { 
-  karsilastirmayaEkle(urun); 
-  setBarGizli(false); // Yeni ürün eklenince gizlenen bar geri gelsin
-  // Toast mesajı tamamen iptal edildi!
-};
+  const handleKarsilastir = (urun: any) => { 
+    karsilastirmayaEkle(urun); 
+    setBarGizli(false);
+  };
+  
   const gecerliMarkalar = markalar.filter(m => markaGecerliMi(m));
 
   return (
@@ -314,7 +314,7 @@ const handleKarsilastir = (urun: any) => {
 
       <div className="flex flex-col lg:flex-row gap-6 px-4 sm:px-0 relative items-start">
         
-        {/* 🛠️ SOL FİLTRE MENÜSÜ (Buzlu Şeffaf - Tam Buldozer Düzen - Mavi Yazılar Kaldırıldı) */}
+        {/* 🛠️ SOL FİLTRE MENÜSÜ */}
         <aside className={`fixed top-[81px] bottom-0 left-0 right-0 z-[40] lg:sticky lg:top-24 lg:w-[260px] xl:w-[280px] lg:max-h-[calc(100vh-100px)] lg:shrink-0 transition-transform duration-300 flex flex-col ${mobilFiltreAcik ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
           <div className="absolute inset-0 bg-black/60 lg:hidden" onClick={() => setMobilFiltreAcik(false)}></div>
           
@@ -445,10 +445,10 @@ const handleKarsilastir = (urun: any) => {
                   let yorumSayisi = urun.yorumSayisi ? Number(urun.yorumSayisi) : 0;
 
                   return (
-                   <div key={String(targetId)} className="group relative isolate z-0 flex flex-col w-full flex-shrink-0 bg-[#09090b]/40 backdrop-blur-3xl rounded-3xl overflow-hidden border border-white/5 transition-all duration-700 ease-out hover:border-white/20 hover:shadow-[0_15px_60px_rgba(255,255,255,0.05)]">
+                    <div key={String(targetId)} className="group relative isolate z-0 flex flex-col w-full flex-shrink-0 bg-[#09090b]/40 backdrop-blur-3xl rounded-3xl overflow-hidden border border-white/5 transition-all duration-700 ease-out hover:border-white/20 hover:shadow-[0_15px_60px_rgba(255,255,255,0.05)]">
                       <div className="relative aspect-[4/3] w-full bg-gradient-to-b from-white/[0.01] to-transparent flex items-center justify-center p-6 overflow-hidden pointer-events-none">
                         
-                       {indirimVarMi && !tukendiMi && (
+                        {indirimVarMi && !tukendiMi && (
                           <div className="absolute top-4 right-4 discount-badge-container pointer-events-none !z-10">
                               <div className="badge-ribbon-home-left"></div>
                               <div className="badge-ribbon-home-right"></div>
@@ -521,7 +521,7 @@ const handleKarsilastir = (urun: any) => {
                         </div>
                       </div>
                       
-                     <Link href={"/product/" + (urun.slug || targetId)} prefetch={true} onMouseEnter={(e) => { const router = require('next/navigation').useRouter; router().prefetch("/product/" + (urun.slug || targetId)); }} className="absolute inset-0 z-10" />
+                      <Link href={"/product/" + (urun.slug || targetId)} prefetch={true} onMouseEnter={(e) => { const router = require('next/navigation').useRouter; router().prefetch("/product/" + (urun.slug || targetId)); }} className="absolute inset-0 z-10" />
 
                     </div>
                   );
@@ -530,7 +530,8 @@ const handleKarsilastir = (urun: any) => {
           )}
         </main>
       </div>
-{/* 🚀 KARŞILAŞTIRMA YÜZEN BAR (GENİŞ BUTONLU VE İMHA ÖZELLİKLİ) 🚀 */}
+
+      {/* 🚀 KARŞILAŞTIRMA YÜZEN BAR */}
       {!barGizli && karsilastirilanlar && karsilastirilanlar.length > 0 && (
         <div className="sticky bottom-6 lg:bottom-10 z-[9999] w-full flex justify-center pointer-events-none mt-10">
           <div className="pointer-events-auto bg-black/80 backdrop-blur-xl border border-[#00d2ff]/30 p-1.5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_30px_rgba(0,210,255,0.3)] flex items-center gap-3 animate-in slide-in-from-bottom-10 fade-in duration-500 select-none">
