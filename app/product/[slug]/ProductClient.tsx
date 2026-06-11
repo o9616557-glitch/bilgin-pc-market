@@ -12,11 +12,14 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const { sepeteEkle } = useCart(); 
   const { karsilastirmayaEkle, setPopupAcik } = useCompare(); 
   const [sayfaYuklendi, setSayfaYuklendi] = useState(false);
-useEffect(() => { setSayfaYuklendi(true); }, []);
-  const [activeTab, setActiveTab] = useState("teknik");
+  useEffect(() => { setSayfaYuklendi(true); }, []);
+  
+  // 🚀 Şefim, sayfa ilk açıldığında "Açıklama" sekmesinin açık gelmesi için burayı güncelledim.
+  const [activeTab, setActiveTab] = useState("aciklama");
+  
   const [seciliCozunurluk, setSeciliCozunurluk] = useState("1080P");
   const [seciliIslemci, setSeciliIslemci] = useState("i5"); 
-const [videoOynatiliyor, setVideoOynatiliyor] = useState(false);
+  const [videoOynatiliyor, setVideoOynatiliyor] = useState(false);
   const [reviewName, setReviewName] = useState("");
   const [questionName, setQuestionName] = useState("");
   const [reviewText, setReviewText] = useState("");
@@ -153,52 +156,51 @@ const [videoOynatiliyor, setVideoOynatiliyor] = useState(false);
   };
 
   const kategoriIsmi = product.kategori || "Ürünler";
-  // Kategori ismini otomatik linke (slug) çeviren sihirli kod
   const kategoriSlug = product.kategoriSlug || (product.kategori ? product.kategori.replace(/[çÇ]/g, 'c').replace(/[ğĞ]/g, 'g').replace(/[şŞ]/g, 's').replace(/[üÜ]/g, 'u').replace(/[ıİ]/g, 'i').replace(/[öÖ]/g, 'o').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : "urunler");
 
   const renderFpsSection = () => (
     <div className="bg-[#09090b] border border-white/10 rounded-2xl p-4 sm:p-6 flex flex-col w-full shadow-[0_5px_15px_rgba(0,0,0,0.5)] select-none touch-manipulation">
-       <div className="flex-1 w-full flex flex-col items-center">
-          <div className="flex flex-wrap sm:flex-nowrap justify-center gap-2 sm:gap-3 mb-5 w-full">
-             {[{ id: "i5", top: "INTEL i5", bottom: "RYZEN 5" }, { id: "i7", top: "INTEL i7", bottom: "RYZEN 7" }, { id: "i9", top: "INTEL i9", bottom: "RYZEN 9" }].map((islemci) => (
-                <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as any)} className={`flex-1 min-w-[30%] flex flex-col items-center justify-center py-2 px-1 sm:px-2 rounded-xl border transition-all touch-manipulation ${seciliIslemci === islemci.id ? "bg-[#121215] border-[#00d2ff] text-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.2)]" : "bg-black border-white/5 text-slate-500 hover:text-white"}`}>
-                   <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider">{islemci.top}</span>
-                   <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider mt-0.5">{islemci.bottom}</span>
-                </button>
-             ))}
-          </div>
+        <div className="flex-1 w-full flex flex-col items-center">
+           <div className="flex flex-wrap sm:flex-nowrap justify-center gap-2 sm:gap-3 mb-5 w-full">
+              {[{ id: "i5", top: "INTEL i5", bottom: "RYZEN 5" }, { id: "i7", top: "INTEL i7", bottom: "RYZEN 7" }, { id: "i9", top: "INTEL i9", bottom: "RYZEN 9" }].map((islemci) => (
+                 <button key={islemci.id} onClick={() => setSeciliIslemci(islemci.id as any)} className={`flex-1 min-w-[30%] flex flex-col items-center justify-center py-2 px-1 sm:px-2 rounded-xl border transition-all touch-manipulation ${seciliIslemci === islemci.id ? "bg-[#121215] border-[#00d2ff] text-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.2)]" : "bg-black border-white/5 text-slate-500 hover:text-white"}`}>
+                    <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider">{islemci.top}</span>
+                    <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider mt-0.5">{islemci.bottom}</span>
+                 </button>
+              ))}
+           </div>
 
-          <div className="flex justify-center gap-2 p-1 bg-black rounded-full w-fit mb-6 border border-white/5">
-             {["1080P", "2K", "4K"].map(res => (
-                <button key={res} onClick={() => setSeciliCozunurluk(res)} className={`px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-black transition-all touch-manipulation ${seciliCozunurluk === res ? 'bg-white text-black' : 'text-gray-400 hover:text-white'}`}>{res}</button>
-             ))}
-          </div>
-          
-          <div className="flex flex-wrap justify-center gap-3 w-full mb-4">
-             {dbOyunlar.length > 0 ? dbOyunlar.map(oyun => (
-                <div key={oyun} className="w-[100px] sm:w-[110px] flex-shrink-0 bg-black border border-white/10 rounded-xl overflow-hidden flex flex-col transition-all hover:scale-105 hover:border-[#f59e0b]/50">
-                   <div className="h-16 bg-zinc-900 relative flex items-center justify-center p-2 text-center text-white/70 text-[10px] font-black uppercase">
-                      {oyun.toLowerCase().includes("valorant") || oyun.toLowerCase().includes("cs") ? (
-                        <Crosshair className="w-8 h-8 absolute opacity-10" />
-                      ) : (
-                        <Gamepad2 className="w-8 h-8 absolute opacity-10" />
-                      )}
-                      <span className="relative z-10 drop-shadow-md">{oyun}</span>
-                   </div>
-                   <div className="bg-[#f59e0b]/10 border-t border-[#f59e0b]/20 p-2 text-center">
-                      <span className="block text-[#f59e0b] text-base sm:text-lg font-black leading-none">{fpsVerileri[oyun]?.[seciliIslemci]?.[seciliCozunurluk] || "-"}</span>
-                      <span className="text-[#f59e0b] text-[9px] font-bold">FPS</span>
-                   </div>
-                </div>
-             )) : <div className="text-center text-gray-500 text-sm w-full py-4">Oyun testi verisi bulunamadı. Lütfen panelden ekleyin.</div>}
-          </div>
+           <div className="flex justify-center gap-2 p-1 bg-black rounded-full w-fit mb-6 border border-white/5">
+              {["1080P", "2K", "4K"].map(res => (
+                 <button key={res} onClick={() => setSeciliCozunurluk(res)} className={`px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-black transition-all touch-manipulation ${seciliCozunurluk === res ? 'bg-white text-black' : 'text-gray-400 hover:text-white'}`}>{res}</button>
+              ))}
+           </div>
+           
+           <div className="flex flex-wrap justify-center gap-3 w-full mb-4">
+              {dbOyunlar.length > 0 ? dbOyunlar.map(oyun => (
+                 <div key={oyun} className="w-[100px] sm:w-[110px] flex-shrink-0 bg-black border border-white/10 rounded-xl overflow-hidden flex flex-col transition-all hover:scale-105 hover:border-[#f59e0b]/50">
+                    <div className="h-16 bg-zinc-900 relative flex items-center justify-center p-2 text-center text-white/70 text-[10px] font-black uppercase">
+                       {oyun.toLowerCase().includes("valorant") || oyun.toLowerCase().includes("cs") ? (
+                         <Crosshair className="w-8 h-8 absolute opacity-10" />
+                       ) : (
+                         <Gamepad2 className="w-8 h-8 absolute opacity-10" />
+                       )}
+                       <span className="relative z-10 drop-shadow-md">{oyun}</span>
+                    </div>
+                    <div className="bg-[#f59e0b]/10 border-t border-[#f59e0b]/20 p-2 text-center">
+                       <span className="block text-[#f59e0b] text-base sm:text-lg font-black leading-none">{fpsVerileri[oyun]?.[seciliIslemci]?.[seciliCozunurluk] || "-"}</span>
+                       <span className="text-[#f59e0b] text-[9px] font-bold">FPS</span>
+                    </div>
+                 </div>
+              )) : <div className="text-center text-gray-500 text-sm w-full py-4">Oyun testi verisi bulunamadı. Lütfen panelden ekleyin.</div>}
+           </div>
 
-          <div className="w-full text-center mt-2 border-t border-white/5 pt-3">
-             <span className="text-[9px] sm:text-[10px] text-gray-500/70 font-medium tracking-wide">
-                * Gösterilen FPS değerleri global donanım inceleme platformları ve bağımsız test laboratuvarları baz alınarak derlenmiş ortalama değerlerdir.
-             </span>
-          </div>
-       </div>
+           <div className="w-full text-center mt-2 border-t border-white/5 pt-3">
+              <span className="text-[9px] sm:text-[10px] text-gray-500/70 font-medium tracking-wide">
+                 * Gösterilen FPS değerleri global donanım inceleme platformları ve bağımsız test laboratuvarları baz alınarak derlenmiş ortalama değerlerdir.
+              </span>
+           </div>
+        </div>
     </div>
   );
 
@@ -226,7 +228,7 @@ const [videoOynatiliyor, setVideoOynatiliyor] = useState(false);
              )}
           </div>
 
-        <div 
+          <div 
             onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
             onMouseMove={handleMouseMove}
             onMouseEnter={() => setIsHoveringImg(true)}
@@ -238,7 +240,6 @@ const [videoOynatiliyor, setVideoOynatiliyor] = useState(false);
               <div className="badge-rosette-page !z-10"><span>%{indirimOrani}</span><span>İNDİRİM</span></div>
             )}
             
-            {/* 🚀 OKLARA GELİNCE BÜYÜMEYİ DURDURAN KODLAR BURAYA EKLENDİ 🚀 */}
             <button 
                onClick={(e) => { e.preventDefault(); e.stopPropagation(); oncekiResim(); }} 
                onMouseEnter={(e) => { e.stopPropagation(); setIsHoveringImg(false); }}
@@ -288,13 +289,13 @@ const [videoOynatiliyor, setVideoOynatiliyor] = useState(false);
           )}
 
          {kategoriIsmi.includes("Ekran") && (
-  <div className="block md:hidden mb-10 select-none">
-     <h3 className="text-lg font-black uppercase mb-4 text-white flex items-center gap-2">
-       <Gauge className="w-5 h-5 text-[#00d2ff]" /> Performans Testleri
-     </h3>
-     {renderFpsSection()}
-  </div>
-)}
+          <div className="block md:hidden mb-10 select-none">
+             <h3 className="text-lg font-black uppercase mb-4 text-white flex items-center gap-2">
+               <Gauge className="w-5 h-5 text-[#00d2ff]" /> Performans Testleri
+             </h3>
+             {renderFpsSection()}
+          </div>
+         )}
         </div>
 
         {/* SAĞ KOLON (BİLGİLER VE SEPET) */}
@@ -341,7 +342,7 @@ const [videoOynatiliyor, setVideoOynatiliyor] = useState(false);
           </div>
 
           <div className="flex gap-2 sm:gap-4 mb-8 sm:mb-10 select-none">
-             <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`hidden sm:flex flex-1 h-14 sm:h-16 rounded-2xl font-black text-sm sm:text-lg uppercase tracking-widest items-center justify-center gap-2 sm:gap-3 transition-all touch-manipulation ${tukendiMi ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-[#3b82f6] text-black hover:bg-[#00c4db] shadow-[0_0_20px_rgba(0,229,255,0.2)]'}`}>
+             <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`hidden sm:flex flex-1 h-14 sm:h-16 rounded-2xl font-black text-sm sm:text-lg uppercase tracking-widest items-center justify-center gap-2 sm:gap-3 transition-all touch-manipulation ${tukendiMi ? 'bg-zinc-800 text-zinc-500' : 'bg-[#3b82f6] text-black hover:bg-[#00c4db] shadow-[0_0_20px_rgba(0,229,255,0.2)]'}`}>
                 <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" /> {tukendiMi ? "Tükendi" : "Sepete Ekle"}
              </button>
              <button onClick={handleToggleFavorite} className={`w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl flex items-center justify-center border transition-all touch-manipulation ${isFav ? 'bg-red-500/10 border-red-500 text-red-500' : 'bg-[#09090b] border-white/10 hover:border-[#00d2ff] hover:text-[#00d2ff]'}`} title="Favori">
@@ -355,24 +356,42 @@ const [videoOynatiliyor, setVideoOynatiliyor] = useState(false);
              </button>
           </div>
 
-        {kategoriIsmi.includes("Ekran") && (
-  <div className="hidden md:block mt-8">
-     <h3 className="text-lg font-black uppercase mb-4 text-white flex items-center gap-2 select-none">
-       <Gauge className="w-5 h-5 text-[#00d2ff]" /> Performans Testleri
-     </h3>
-     {renderFpsSection()}
-  </div>
-)}
+         {kategoriIsmi.includes("Ekran") && (
+          <div className="hidden md:block mt-8 mb-8">
+             <h3 className="text-lg font-black uppercase mb-4 text-white flex items-center gap-2 select-none">
+               <Gauge className="w-5 h-5 text-[#00d2ff]" /> Performans Testleri
+             </h3>
+             {renderFpsSection()}
+          </div>
+         )}
 
+          {/* 🚀 SEKMELER (TABS) BAŞLANGICI - BURAYI DÜZENLEDİM */}
           <div ref={tabsRef} className="flex overflow-x-auto gap-2 border-b border-white/10 pb-3 mb-6 select-none [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#00d2ff]/50 [&::-webkit-scrollbar-thumb]:rounded-full scroll-mt-24">
-             <button onClick={() => setActiveTab('teknik')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase touch-manipulation tracking-widest ${activeTab === 'teknik' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Teknik Özellikler</button>
-             <button onClick={() => setActiveTab('yorumlar')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase touch-manipulation tracking-widest ${activeTab === 'yorumlar' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Yorumlar</button>
-             <button onClick={() => setActiveTab('sorular')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase touch-manipulation tracking-widest ${activeTab === 'sorular' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Sorular</button>
+              {product.aciklama && (
+                <button onClick={() => setActiveTab('aciklama')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase touch-manipulation tracking-widest ${activeTab === 'aciklama' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Ürün Açıklaması</button>
+              )}
+              <button onClick={() => setActiveTab('teknik')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase touch-manipulation tracking-widest ${activeTab === 'teknik' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Teknik Özellikler</button>
+              <button onClick={() => setActiveTab('yorumlar')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase touch-manipulation tracking-widest ${activeTab === 'yorumlar' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Yorumlar</button>
+              <button onClick={() => setActiveTab('sorular')} className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all uppercase touch-manipulation tracking-widest ${activeTab === 'sorular' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>Sorular</button>
           </div>
 
           <div className="min-h-[150px] mb-4">
 
-             {activeTab === 'teknik' && (
+              {/* 🚀 ÜRÜN AÇIKLAMASI SEKME İÇERİĞİ - EN ALTTAN ALIP BURAYA TAŞIDIM */}
+              {activeTab === 'aciklama' && product.aciklama && (
+                <div className="animate-fade-in text-gray-300 leading-relaxed select-none touch-manipulation">
+                   <div className="prose prose-invert max-w-none select-none touch-manipulation 
+                     [&_*]:!select-none [&_*]:!-webkit-touch-callout-none
+                     [&_img]:w-full [&_img]:mx-auto [&_img]:h-auto [&_img]:block [&_img]:my-6 [&_img]:rounded-xl [&_img]:border-none [&_img]:shadow-none [&_img]:bg-transparent
+                     [&_h2]:text-xl sm:[&_h2]:text-2xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mb-3 [&_h2]:mt-6
+                     [&_h3]:text-lg sm:[&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-[#00d2ff] [&_h3]:mb-2 [&_h3]:mt-5
+                     [&_p]:text-gray-300 [&_p]:leading-[1.7] [&_p]:text-sm sm:[&_p]:text-base [&_p]:mb-4" 
+                     dangerouslySetInnerHTML={{ __html: product.aciklama }} 
+                   />
+                </div>
+              )}
+
+              {activeTab === 'teknik' && (
                 <div className="bg-[#09090b] border border-white/5 rounded-2xl overflow-hidden select-none">
                    {product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 ? (
                       Object.entries(product.teknik_ozellikler).map(([key, val], i) => (
@@ -383,11 +402,11 @@ const [videoOynatiliyor, setVideoOynatiliyor] = useState(false);
                       ))
                    ) : (<div className="p-8 text-center text-gray-500 text-sm">Teknik detay girilmemiş.</div>)}
                 </div>
-             )}
+              )}
 
-             {activeTab === 'yorumlar' && (
+              {activeTab === 'yorumlar' && (
                 <div className="space-y-6">
-                   <form onSubmit={handleSubmitReview} className="bg-[#09090b] border border border-white/5 p-5 sm:p-6 rounded-2xl">
+                   <form onSubmit={handleSubmitReview} className="bg-[#09090b] border border-white/5 p-5 sm:p-6 rounded-2xl">
                       <h3 className="text-base font-black uppercase mb-4 tracking-wide text-white">Yorum Yap</h3>
                       <div className="flex gap-1.5 mb-4">
                          {[1,2,3,4,5].map(s => (
@@ -423,9 +442,9 @@ const [videoOynatiliyor, setVideoOynatiliyor] = useState(false);
                       )}
                    </div>
                 </div>
-             )}
+              )}
 
-             {activeTab === 'sorular' && (
+              {activeTab === 'sorular' && (
                 <div className="space-y-6">
                    <form onSubmit={handleSubmitQuestion} className="bg-[#09090b] border border-white/5 p-5 sm:p-6 rounded-2xl">
                       <h3 className="text-base font-black uppercase mb-4 tracking-wide text-white">Soru Sor</h3>
@@ -446,7 +465,7 @@ const [videoOynatiliyor, setVideoOynatiliyor] = useState(false);
                             {(q.answer || q.reply || q.adminReply || q.cevap) && (
                                <div className="mt-3 bg-[#00d2ff]/10 border-l-2 border-[#00d2ff] p-3 rounded-r-xl">
                                   <span className="text-[#00d2ff] font-black text-[9px] uppercase block mb-1">Bilgin PC Yanıtı</span>
-                                  <p className="text-gray-300 text-xs sm:text-sm">{q.answer || q.reply || q.adminReply || q.cevap}</p>
+                                 <p className="text-gray-300 text-xs sm:text-sm">{q.answer || q.reply || q.adminReply || q.cevap}</p>
                                </div>
                             )}
                          </div>
@@ -455,27 +474,14 @@ const [videoOynatiliyor, setVideoOynatiliyor] = useState(false);
                       )}
                    </div>
                 </div>
-             )}
+              )}
           </div>
           
         </div>
       </div>
 
- {product.aciklama && (
-        <div className="max-w-[1000px] mx-auto px-4 sm:px-6 pt-12 pb-10 border-t border-white/10 select-none touch-manipulation">
-           <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-widest mb-10 text-white flex items-center justify-center gap-3 select-none">
-             <Info className="w-6 h-6 sm:w-8 sm:h-8 text-[#00d2ff]" /> Ürün Açıklaması
-           </h2>
-           <div className="prose prose-invert max-w-none select-none touch-manipulation 
-             [&_*]:!select-none [&_*]:!-webkit-touch-callout-none
-             [&_img]:w-full md:[&_img]:w-[65%] [&_img]:mx-auto [&_img]:h-auto [&_img]:block [&_img]:my-10 [&_img]:!border-none [&_img]:!shadow-none [&_img]:!bg-transparent
-             [&_h2]:text-2xl sm:[&_h2]:text-3xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mb-4 [&_h2]:mt-12
-             [&_h3]:text-xl sm:[&_h3]:text-2xl [&_h3]:font-bold [&_h3]:text-[#00d2ff] [&_h3]:mb-3 [&_h3]:mt-10
-             [&_p]:text-gray-300 [&_p]:leading-[1.8] [&_p]:text-base sm:[&_p]:text-[17px] [&_p]:mb-6" 
-             dangerouslySetInnerHTML={{ __html: product.aciklama }} 
-           />
-        </div>
-      )}
+      {/* 🚀 Şefim, alt kısımdaki eski, dağınık bağımsız ürün açıklaması alanını tamamen kaldırdım. Artık her şey yukarıda sekmeli kutunun içinde derli toplu duruyor. */}
+
       <div className="sm:hidden fixed bottom-0 left-0 w-full bg-[#050505]/95 backdrop-blur-2xl border-t border-white/10 px-4 py-3 z-50 flex items-center justify-between shadow-[0_-20px_40px_rgba(0,0,0,0.8)] select-none">
          <div className="flex flex-col">
             {indirimVarMi && !tukendiMi && <span className="text-gray-500 text-[11px] line-through font-medium mb-0.5">{normalFiyat.toLocaleString("tr-TR")} ₺</span>}
@@ -483,7 +489,7 @@ const [videoOynatiliyor, setVideoOynatiliyor] = useState(false);
             
             {havaleYuzdesi > 0 && !tukendiMi && (
                <span className="text-[#10b981] text-[10px] font-black tracking-wide flex items-center gap-1">
-                 <Zap className="w-3 h-3" /> HAVALE: {havaleFiyati.toLocaleString("tr-TR", {maximumFractionDigits: 0})} ₺
+                  <Zap className="w-3 h-3" /> HAVALE: {havaleFiyati.toLocaleString("tr-TR", {maximumFractionDigits: 0})} ₺
                </span>
             )}
          </div>
