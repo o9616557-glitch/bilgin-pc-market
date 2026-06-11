@@ -215,307 +215,319 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         .badge-rosette-page span:last-child { font-size: 11px; font-weight: 900; line-height: 1; }
       `}} />
 
-      <div className="max-w-[1200px] mx-auto sm:px-6 py-0 sm:py-10 flex flex-col md:flex-row gap-0 sm:gap-8 lg:gap-12 relative items-start">
+      {/* 🚀 ANA SARMALAYICI KONTEYNER: BURAYI BÜTÜNSEL YAPTIK 🚀 */}
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-0 sm:py-10">
         
-        {/* SOL KOLON (RESİMLER) */}
-        <div className="w-full md:w-[45%] flex flex-col relative md:sticky md:top-28 h-max mb-2 sm:mb-0 transition-all duration-500">
+        {/* ÜST KISIM: YAN YANA BÖLÜNEN ALAN (SOLDA RESİMLER - SAĞDA SEPET) */}
+        <div className="flex flex-col md:flex-row gap-0 sm:gap-8 lg:gap-12 relative items-start mb-12">
           
-          <div className="flex items-center gap-2 mb-2 sm:mb-4 px-4 sm:px-0 pt-4 sm:pt-0">
-             {tukendiMi ? (
-                <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] sm:text-xs font-black px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg tracking-widest flex items-center gap-2"><span className="w-2 h-2 bg-red-500 rounded-full"></span> TÜKENDİ</div>
-             ) : (
-                <div className="bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] text-[10px] sm:text-xs font-black px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg tracking-widest flex items-center gap-2"><span className="w-2 h-2 bg-[#10b981] rounded-full animate-pulse"></span> STOKTA VAR</div>
-             )}
-          </div>
-
-          <div 
-            onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
-            onMouseMove={handleMouseMove}
-            onMouseEnter={() => setIsHoveringImg(true)}
-            onMouseLeave={() => { setIsHoveringImg(false); setZoomOrigin("center center"); }}
-            onClick={() => setLightboxAcik(true)}
-            className="relative isolate z-0 w-full aspect-square sm:aspect-[4/3] bg-transparent sm:bg-white/[0.02] sm:backdrop-blur-xl sm:border sm:border-white/5 sm:rounded-2xl flex items-center justify-center p-0 sm:p-6 overflow-hidden mb-2 group select-none cursor-zoom-in"
-          >
-            {indirimVarMi && !tukendiMi && (
-              <div className="badge-rosette-page !z-10"><span>%{indirimOrani}</span><span>İNDİRİM</span></div>
-            )}
+          {/* SOL KOLON (RESİMLER) */}
+          <div className="w-full md:w-[45%] flex flex-col relative md:sticky md:top-28 h-max mb-2 sm:mb-0 transition-all duration-500">
             
-            <button 
-               onClick={(e) => { e.preventDefault(); e.stopPropagation(); oncekiResim(); }} 
-               onMouseEnter={(e) => { e.stopPropagation(); setIsHoveringImg(false); }}
-               onMouseLeave={(e) => { e.stopPropagation(); setIsHoveringImg(true); }}
-               onMouseMove={(e) => e.stopPropagation()}
-               className="hidden sm:flex absolute left-3 z-30 w-10 h-10 bg-black/50 border border-white/10 rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-[#00d2ff] hover:text-black hover:scale-110 touch-manipulation"
-            >
-               <ChevronLeft className="w-6 h-6" />
-            </button>
-            <button 
-               onClick={(e) => { e.preventDefault(); e.stopPropagation(); sonrakiResim(); }} 
-               onMouseEnter={(e) => { e.stopPropagation(); setIsHoveringImg(false); }}
-               onMouseLeave={(e) => { e.stopPropagation(); setIsHoveringImg(true); }}
-               onMouseMove={(e) => e.stopPropagation()}
-               className="hidden sm:flex absolute right-3 z-30 w-10 h-10 bg-black/50 border border-white/10 rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-[#00d2ff] hover:text-black hover:scale-110 touch-manipulation"
-            >
-               <ChevronRight className="w-6 h-6" />
-            </button>
+            <div className="flex items-center gap-2 mb-2 sm:mb-4 px-4 sm:px-0 pt-4 sm:pt-0">
+               {tukendiMi ? (
+                  <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] sm:text-xs font-black px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg tracking-widest flex items-center gap-2"><span className="w-2 h-2 bg-red-500 rounded-full"></span> TÜKENDİ</div>
+               ) : (
+                  <div className="bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] text-[10px] sm:text-xs font-black px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg tracking-widest flex items-center gap-2"><span className="w-2 h-2 bg-[#10b981] rounded-full animate-pulse"></span> STOKTA VAR</div>
+               )}
+            </div>
 
-            <img 
-              src={resimler[seciliResimIndex]} 
-              alt={urunAdi} 
-              style={{
-                 transformOrigin: zoomOrigin,
-                 transform: isHoveringImg ? "scale(2.4)" : "scale(1)"
-              }}
-              className={`w-full h-full object-contain pointer-events-none sm:filter sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] transition-transform duration-150 ease-out ${fade ? 'opacity-0' : 'opacity-100'} ${tukendiMi ? "grayscale opacity-50" : ""}`} 
-            />
+            <div 
+              onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
+              onMouseMove={handleMouseMove}
+              onMouseEnter={() => setIsHoveringImg(true)}
+              onMouseLeave={() => { setIsHoveringImg(false); setZoomOrigin("center center"); }}
+              onClick={() => setLightboxAcik(true)}
+              className="relative isolate z-0 w-full aspect-square sm:aspect-[4/3] bg-transparent sm:bg-white/[0.02] sm:backdrop-blur-xl sm:border sm:border-white/5 sm:rounded-2xl flex items-center justify-center p-0 sm:p-6 overflow-hidden mb-2 group select-none cursor-zoom-in"
+            >
+              {indirimVarMi && !tukendiMi && (
+                <div className="badge-rosette-page !z-10"><span>%{indirimOrani}</span><span>İNDİRİM</span></div>
+              )}
+              
+              <button 
+                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); oncekiResim(); }} 
+                 onMouseEnter={(e) => { e.stopPropagation(); setIsHoveringImg(false); }}
+                 onMouseLeave={(e) => { e.stopPropagation(); setIsHoveringImg(true); }}
+                 onMouseMove={(e) => e.stopPropagation()}
+                 className="hidden sm:flex absolute left-3 z-30 w-10 h-10 bg-black/50 border border-white/10 rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-[#00d2ff] hover:text-black hover:scale-110 touch-manipulation"
+              >
+                 <ChevronLeft className="w-6 h-6" />
+              </button>
+              <button 
+                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); sonrakiResim(); }} 
+                 onMouseEnter={(e) => { e.stopPropagation(); setIsHoveringImg(false); }}
+                 onMouseLeave={(e) => { e.stopPropagation(); setIsHoveringImg(true); }}
+                 onMouseMove={(e) => e.stopPropagation()}
+                 className="hidden sm:flex absolute right-3 z-30 w-10 h-10 bg-black/50 border border-white/10 rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-[#00d2ff] hover:text-black hover:scale-110 touch-manipulation"
+              >
+                 <ChevronRight className="w-6 h-6" />
+              </button>
+
+              <img 
+                src={resimler[seciliResimIndex]} 
+                alt={urunAdi} 
+                style={{
+                   transformOrigin: zoomOrigin,
+                   transform: isHoveringImg ? "scale(2.4)" : "scale(1)"
+                }}
+                className={`w-full h-full object-contain pointer-events-none sm:filter sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] transition-transform duration-150 ease-out ${fade ? 'opacity-0' : 'opacity-100'} ${tukendiMi ? "grayscale opacity-50" : ""}`} 
+              />
+            </div>
+
+            {resimler.length > 1 && (
+              <div className="flex sm:hidden justify-center gap-2 mt-2 mb-2 px-4 select-none">
+                {resimler.map((_, idx) => (
+                  <button key={idx} onClick={() => degistirResim(idx)} className={`h-1.5 rounded-full transition-all duration-300 touch-manipulation ${seciliResimIndex === idx ? 'w-6 bg-[#00d2ff]' : 'w-2 bg-zinc-800'}`} />
+                ))}
+              </div>
+            )}
+
+            {resimler.length > 1 && (
+              <div className="hidden sm:flex gap-3 overflow-x-auto pb-2 select-none [&::-webkit-scrollbar]:hidden">
+                {resimler.map((img: string, idx: number) => (
+                  <button key={idx} onClick={() => degistirResim(idx)} className={`w-20 h-20 flex-shrink-0 bg-white/[0.02] border rounded-xl p-2 transition-all duration-300 flex items-center justify-center touch-manipulation ${seciliResimIndex === idx ? "border-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.2)]" : "border-white/5 opacity-50 hover:opacity-100 hover:border-white/20"}`}>
+                    <img src={img} alt="" className="max-w-full max-h-full object-contain" />
+                  </button>
+                ))}
+              </div>
+            )}
+
+           {kategoriIsmi.includes("Ekran") && (
+            <div className="block md:hidden mb-10 select-none">
+               <h3 className="text-lg font-black uppercase mb-4 text-white flex items-center gap-2">
+                 <Gauge className="w-5 h-5 text-[#00d2ff]" /> Performans Testleri
+               </h3>
+               {renderFpsSection()}
+            </div>
+           )}
           </div>
 
-          {resimler.length > 1 && (
-            <div className="flex sm:hidden justify-center gap-2 mt-2 mb-2 px-4 select-none">
-              {resimler.map((_, idx) => (
-                <button key={idx} onClick={() => degistirResim(idx)} className={`h-1.5 rounded-full transition-all duration-300 touch-manipulation ${seciliResimIndex === idx ? 'w-6 bg-[#00d2ff]' : 'w-2 bg-zinc-800'}`} />
-              ))}
+          {/* SAĞ KOLON (BİLGİLER VE SEPET) */}
+          <div className="w-full md:w-[55%] flex flex-col mt-4 sm:mt-0">
+            
+            <div className="flex items-center gap-2 mb-3 text-[10px] sm:text-xs font-black uppercase tracking-widest text-gray-500 select-none">
+               <Link href="/" className="hover:text-[#00d2ff] transition-colors">Ana Sayfa</Link>
+               <span className="text-gray-700">/</span>
+               <Link href={`/kategori/${kategoriSlug}`} className="hover:text-[#00d2ff] transition-colors text-gray-300">
+                  {kategoriIsmi}
+               </Link>
             </div>
-          )}
 
-          {resimler.length > 1 && (
-            <div className="hidden sm:flex gap-3 overflow-x-auto pb-2 select-none [&::-webkit-scrollbar]:hidden">
-              {resimler.map((img: string, idx: number) => (
-                <button key={idx} onClick={() => degistirResim(idx)} className={`w-20 h-20 flex-shrink-0 bg-white/[0.02] border rounded-xl p-2 transition-all duration-300 flex items-center justify-center touch-manipulation ${seciliResimIndex === idx ? "border-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.2)]" : "border-white/5 opacity-50 hover:opacity-100 hover:border-white/20"}`}>
-                  <img src={img} alt="" className="max-w-full max-h-full object-contain" />
-                </button>
-              ))}
+            <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-4 select-none touch-manipulation">
+               <div className="text-xs sm:text-sm font-black text-[#00d2ff] tracking-[0.2em] uppercase">
+                  {product.marka || "BİLGİN PC"}
+               </div>
+               <div onClick={handleReviewClick} className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm cursor-pointer group">
+                  <div className="flex gap-0.5">
+                     {[1,2,3,4,5].map(s => <Star key={s} className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-all ${Number(avgRating) >= s ? 'text-[#d4af37] fill-[#d4af37]' : 'text-gray-700'}`} />)}
+                  </div>
+                  <span className="text-gray-400 font-bold ml-1 group-hover:text-white transition-colors underline underline-offset-4 decoration-white/20">
+                     {reviewsLoading ? 'Güncelleniyor...' : (totalReviews > 0 ? `${avgRating} (${totalReviews} Yorum)` : 'Henüz Değerlendirilmedi')}
+                  </span>
+               </div>
             </div>
-          )}
 
-         {kategoriIsmi.includes("Ekran") && (
-          <div className="block md:hidden mb-10 select-none">
-             <h3 className="text-lg font-black uppercase mb-4 text-white flex items-center gap-2">
-               <Gauge className="w-5 h-5 text-[#00d2ff]" /> Performans Testleri
-             </h3>
-             {renderFpsSection()}
+            <h1 className="text-xl sm:text-4xl font-black uppercase tracking-tight leading-snug sm:leading-tight mb-6 sm:mb-8 select-none">
+              {urunAdi}
+            </h1>
+
+            <div className="hidden sm:block relative rounded-3xl bg-[#09090b] p-6 sm:p-8 mb-6 sm:mb-8 border border-[#3b82f6]/50 shadow-[0_0_20px_rgba(0,229,255,0.15)] overflow-hidden select-none">
+               {indirimVarMi && !tukendiMi && <div className="text-gray-500 text-sm sm:text-lg line-through font-bold mb-1">{normalFiyat.toLocaleString("tr-TR")} TL</div>}
+               <div className="text-3xl sm:text-5xl font-black leading-none mb-5 text-white">
+                  {gecerliFiyat.toLocaleString("tr-TR")} <span className="text-xl sm:text-2xl text-[#00d2ff]">TL</span>
+               </div>
+
+               {havaleYuzdesi > 0 && !tukendiMi && (
+                 <div className="inline-flex items-center gap-2 bg-[#10b981]/10 border border-[#10b981]/20 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl">
+                   <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-[#10b981]" />
+                   <span className="text-[#10b981] font-black tracking-wider text-xs sm:text-sm">HAVALE: {havaleFiyati.toLocaleString("tr-TR", {maximumFractionDigits: 0})} TL</span>
+                 </div>
+               )}
+            </div>
+
+            <div className="flex gap-2 sm:gap-4 mb-8 sm:mb-10 select-none">
+               <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`hidden sm:flex flex-1 h-14 sm:h-16 rounded-2xl font-black text-sm sm:text-lg uppercase tracking-widest items-center justify-center gap-2 sm:gap-3 transition-all touch-manipulation ${tukendiMi ? 'bg-zinc-800 text-zinc-500' : 'bg-[#3b82f6] text-black hover:bg-[#00c4db] shadow-[0_0_20px_rgba(0,229,255,0.2)]'}`}>
+                  <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" /> {tukendiMi ? "Tükendi" : "Sepete Ekle"}
+               </button>
+               <button onClick={handleToggleFavorite} className={`w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl flex items-center justify-center border transition-all touch-manipulation ${isFav ? 'bg-red-500/10 border-red-500 text-red-500' : 'bg-[#09090b] border-white/10 hover:border-[#00d2ff] hover:text-[#00d2ff]'}`} title="Favori">
+                  <Heart className={`w-5 h-5 sm:w-6 sm:h-6 ${isFav ? 'fill-red-500' : ''}`} />
+               </button>
+               <button onClick={handleCompare} className="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl bg-[#09090b] border border-white/10 flex items-center justify-center transition-all touch-manipulation hover:border-[#00d2ff] hover:text-[#00d2ff]" title="Karşılaştır">
+                  <GitCompare className="w-5 h-5 sm:w-6 sm:h-6" />
+               </button>
+               <button onClick={handleShare} className="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl bg-[#09090b] border border-white/10 flex items-center justify-center transition-all touch-manipulation hover:border-[#00d2ff] hover:text-[#00d2ff]" title="Paylaş">
+                  <Share2 className="w-5 h-5 sm:w-6 sm:h-6" />
+               </button>
+            </div>
+
+           {kategoriIsmi.includes("Ekran") && (
+            <div className="hidden md:block mt-8 mb-8">
+               <h3 className="text-lg font-black uppercase mb-4 text-white flex items-center gap-2 select-none">
+                 <Gauge className="w-5 h-5 text-[#00d2ff]" /> Performans Testleri
+               </h3>
+               {renderFpsSection()}
+            </div>
+           )}
+
           </div>
-         )}
         </div>
 
-        {/* SAĞ KOLON (BİLGİLER VE SEPET) */}
-        <div className="w-full md:w-[55%] flex flex-col px-4 sm:px-0 mt-4 sm:mt-0">
-          
-          <div className="flex items-center gap-2 mb-3 text-[10px] sm:text-xs font-black uppercase tracking-widest text-gray-500 select-none">
-             <Link href="/" className="hover:text-[#00d2ff] transition-colors">Ana Sayfa</Link>
-             <span className="text-gray-700">/</span>
-             <Link href={`/kategori/${kategoriSlug}`} className="hover:text-[#00d2ff] transition-colors text-gray-300">
-                {kategoriIsmi}
-             </Link>
-          </div>
-
-          <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-4 select-none touch-manipulation">
-             <div className="text-xs sm:text-sm font-black text-[#00d2ff] tracking-[0.2em] uppercase">
-                {product.marka || "BİLGİN PC"}
-             </div>
-             <div onClick={handleReviewClick} className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm cursor-pointer group">
-                <div className="flex gap-0.5">
-                   {[1,2,3,4,5].map(s => <Star key={s} className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-all ${Number(avgRating) >= s ? 'text-[#d4af37] fill-[#d4af37]' : 'text-gray-700'}`} />)}
-                </div>
-                <span className="text-gray-400 font-bold ml-1 group-hover:text-white transition-colors underline underline-offset-4 decoration-white/20">
-                   {reviewsLoading ? 'Güncelleniyor...' : (totalReviews > 0 ? `${avgRating} (${totalReviews} Yorum)` : 'Henüz Değerlendirilmedi')}
-                </span>
-             </div>
-          </div>
-
-          <h1 className="text-xl sm:text-4xl font-black uppercase tracking-tight leading-snug sm:leading-tight mb-6 sm:mb-8 select-none">
-            {urunAdi}
-          </h1>
-
-          <div className="hidden sm:block relative rounded-3xl bg-[#09090b] p-6 sm:p-8 mb-6 sm:mb-8 border border-[#3b82f6]/50 shadow-[0_0_20px_rgba(0,229,255,0.15)] overflow-hidden select-none">
-             {indirimVarMi && !tukendiMi && <div className="text-gray-500 text-sm sm:text-lg line-through font-bold mb-1">{normalFiyat.toLocaleString("tr-TR")} TL</div>}
-             <div className="text-3xl sm:text-5xl font-black leading-none mb-5 text-white">
-                {gecerliFiyat.toLocaleString("tr-TR")} <span className="text-xl sm:text-2xl text-[#00d2ff]">TL</span>
-             </div>
-
-             {havaleYuzdesi > 0 && !tukendiMi && (
-               <div className="inline-flex items-center gap-2 bg-[#10b981]/10 border border-[#10b981]/20 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl">
-                 <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-[#10b981]" />
-                 <span className="text-[#10b981] font-black tracking-wider text-xs sm:text-sm">HAVALE: {havaleFiyati.toLocaleString("tr-TR", {maximumFractionDigits: 0})} TL</span>
-               </div>
-             )}
-          </div>
-
-          <div className="flex gap-2 sm:gap-4 mb-8 sm:mb-10 select-none">
-             <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`hidden sm:flex flex-1 h-14 sm:h-16 rounded-2xl font-black text-sm sm:text-lg uppercase tracking-widest items-center justify-center gap-2 sm:gap-3 transition-all touch-manipulation ${tukendiMi ? 'bg-zinc-800 text-zinc-500' : 'bg-[#3b82f6] text-black hover:bg-[#00c4db] shadow-[0_0_20px_rgba(0,229,255,0.2)]'}`}>
-                <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" /> {tukendiMi ? "Tükendi" : "Sepete Ekle"}
-             </button>
-             <button onClick={handleToggleFavorite} className={`w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl flex items-center justify-center border transition-all touch-manipulation ${isFav ? 'bg-red-500/10 border-red-500 text-red-500' : 'bg-[#09090b] border-white/10 hover:border-[#00d2ff] hover:text-[#00d2ff]'}`} title="Favori">
-                <Heart className={`w-5 h-5 sm:w-6 sm:h-6 ${isFav ? 'fill-red-500' : ''}`} />
-             </button>
-             <button onClick={handleCompare} className="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl bg-[#09090b] border border-white/10 flex items-center justify-center transition-all touch-manipulation hover:border-[#00d2ff] hover:text-[#00d2ff]" title="Karşılaştır">
-                <GitCompare className="w-5 h-5 sm:w-6 sm:h-6" />
-             </button>
-             <button onClick={handleShare} className="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl bg-[#09090b] border border-white/10 flex items-center justify-center transition-all touch-manipulation hover:border-[#00d2ff] hover:text-[#00d2ff]" title="Paylaş">
-                <Share2 className="w-5 h-5 sm:w-6 sm:h-6" />
-             </button>
-          </div>
-
-         {kategoriIsmi.includes("Ekran") && (
-          <div className="hidden md:block mt-8 mb-8">
-             <h3 className="text-lg font-black uppercase mb-4 text-white flex items-center gap-2 select-none">
-               <Gauge className="w-5 h-5 text-[#00d2ff]" /> Performans Testleri
-             </h3>
-             {renderFpsSection()}
-          </div>
-         )}
-
-          {/* 🚀 SEKME BAŞLIKLARI (TABS) - KUTUSUZ, PREMİUM VE JİLET GİBİ SIFIRDAN YAPILDI */}
-          <div ref={tabsRef} className="flex overflow-x-auto gap-6 sm:gap-8 border-b border-white/10 pb-0 mb-6 select-none [&::-webkit-scrollbar]:hidden scroll-mt-24">
-              {product.aciklama && (
+        {/* 🚀 ALT KISIM: HEM GALERİNİN HEM SAĞ TARAFIN TAM ALTINA (100% GENİŞLİK) YERLEŞEN ALAN 🚀 */}
+        <div ref={tabsRef} className="w-full border-t border-white/10 pt-10 mt-10 scroll-mt-24">
+            
+            {/* SIFIR KUTU, KİBAR VE ASİL SEKME BAŞLIKLARI */}
+            <div className="flex overflow-x-auto gap-8 sm:gap-12 border-b border-white/5 pb-0 mb-8 select-none [&::-webkit-scrollbar]:hidden">
+                {product.aciklama && (
+                  <button 
+                    onClick={() => setActiveTab('aciklama')} 
+                    className={`pb-4 font-black text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest relative touch-manipulation ${activeTab === 'aciklama' ? 'text-[#00d2ff]' : 'text-gray-400 hover:text-white'}`}
+                  >
+                    Ürün Açıklaması
+                    {activeTab === 'aciklama' && (
+                      <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#00d2ff] shadow-[0_0_10px_rgba(0,210,255,0.6)] rounded-full"></div>
+                    )}
+                  </button>
+                )}
+                
                 <button 
-                  onClick={() => setActiveTab('aciklama')} 
-                  className={`pb-4 font-black text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest relative touch-manipulation ${activeTab === 'aciklama' ? 'text-[#00d2ff]' : 'text-gray-400 hover:text-white'}`}
+                  onClick={() => setActiveTab('teknik')} 
+                  className={`pb-4 font-black text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest relative touch-manipulation ${activeTab === 'teknik' ? 'text-[#00d2ff]' : 'text-gray-400 hover:text-white'}`}
                 >
-                  Ürün Açıklaması
-                  {activeTab === 'aciklama' && (
+                  Teknik Özellikler
+                  {activeTab === 'teknik' && (
                     <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#00d2ff] shadow-[0_0_10px_rgba(0,210,255,0.6)] rounded-full"></div>
                   )}
                 </button>
-              )}
-              
-              <button 
-                onClick={() => setActiveTab('teknik')} 
-                className={`pb-4 font-black text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest relative touch-manipulation ${activeTab === 'teknik' ? 'text-[#00d2ff]' : 'text-gray-400 hover:text-white'}`}
-              >
-                Teknik Özellikler
+                
+                <button 
+                  onClick={() => setActiveTab('yorumlar')} 
+                  className={`pb-4 font-black text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest relative touch-manipulation ${activeTab === 'yorumlar' ? 'text-[#00d2ff]' : 'text-gray-400 hover:text-white'}`}
+                >
+                  Yorumlar ({totalReviews})
+                  {activeTab === 'yorumlar' && (
+                    <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#00d2ff] shadow-[0_0_10px_rgba(0,210,255,0.6)] rounded-full"></div>
+                  )}
+                </button>
+                
+                <button 
+                  onClick={() => setActiveTab('sorular')} 
+                  className={`pb-4 font-black text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest relative touch-manipulation ${activeTab === 'sorular' ? 'text-[#00d2ff]' : 'text-gray-400 hover:text-white'}`}
+                >
+                  Sorular ({questions.length})
+                  {activeTab === 'sorular' && (
+                    <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#00d2ff] shadow-[0_0_10px_rgba(0,210,255,0.6)] rounded-full"></div>
+                  )}
+                </button>
+            </div>
+
+            {/* SEKMELERİN İÇERİK ALANI (TAM EKRAN GENİŞLİĞİNDE) */}
+            <div className="min-h-[200px] mb-4">
+
+                {/* ÜRÜN AÇIKLAMASI İÇERİĞİ */}
+                {activeTab === 'aciklama' && product.aciklama && (
+                  <div className="animate-fade-in text-gray-300 leading-relaxed select-none touch-manipulation">
+                     <div className="prose prose-invert max-w-none select-none touch-manipulation 
+                       [&_*]:!select-none [&_*]:!-webkit-touch-callout-none
+                       [&_img]:w-full md:[&_img]:w-[70%] [&_img]:mx-auto [&_img]:h-auto [&_img]:block [&_img]:my-8 [&_img]:rounded-2xl [&_img]:border-none [&_img]:shadow-none [&_img]:bg-transparent
+                       [&_h2]:text-xl sm:[&_h2]:text-3xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mb-4 [&_h2]:mt-8
+                       [&_h3]:text-lg sm:[&_h3]:text-2xl [&_h3]:font-bold [&_h3]:text-[#00d2ff] [&_h3]:mb-3 [&_h3]:mt-6
+                       [&_p]:text-gray-300 [&_p]:leading-[1.8] [&_p]:text-sm sm:[&_p]:text-[17px] [&_p]:mb-5" 
+                       dangerouslySetInnerHTML={{ __html: product.aciklama }} 
+                     />
+                  </div>
+                )}
+
+                {/* TEKNİK ÖZELLİKLER İÇERİĞİ */}
                 {activeTab === 'teknik' && (
-                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#00d2ff] shadow-[0_0_10px_rgba(0,210,255,0.6)] rounded-full"></div>
+                  <div className="bg-[#09090b] border border-white/5 rounded-2xl overflow-hidden select-none grid grid-cols-1 md:grid-cols-2 gap-x-8">
+                     {product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 ? (
+                        Object.entries(product.teknik_ozellikler).map(([key, val], i) => (
+                           <div key={i} className="flex justify-between p-4 sm:p-5 border-b border-white/5">
+                              <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px] sm:text-xs w-1/2">{key}</span>
+                              <span className="text-white font-medium text-right w-1/2 text-xs sm:text-sm">{val as string}</span>
+                           </div>
+                        ))
+                     ) : (<div className="p-8 text-center text-gray-500 text-sm col-span-2">Teknik detay girilmemiş.</div>)}
+                  </div>
                 )}
-              </button>
-              
-              <button 
-                onClick={() => setActiveTab('yorumlar')} 
-                className={`pb-4 font-black text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest relative touch-manipulation ${activeTab === 'yorumlar' ? 'text-[#00d2ff]' : 'text-gray-400 hover:text-white'}`}
-              >
-                Yorumlar ({totalReviews})
+
+                {/* YORUMLAR İÇERİĞİ */}
                 {activeTab === 'yorumlar' && (
-                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#00d2ff] shadow-[0_0_10px_rgba(0,210,255,0.6)] rounded-full"></div>
+                  <div className="space-y-6 max-w-[800px]">
+                     <form onSubmit={handleSubmitReview} className="bg-[#09090b] border border-white/5 p-5 sm:p-6 rounded-2xl">
+                        <h3 className="text-base font-black uppercase mb-4 tracking-wide text-white">Yorum Yap</h3>
+                        <div className="flex gap-1.5 mb-4">
+                           {[1,2,3,4,5].map(s => (
+                              <button type="button" key={s} onClick={() => setReviewRating(s)} className={`text-2xl transition-all touch-manipulation ${reviewRating >= s ? 'text-[#d4af37]' : 'text-gray-700'}`}>★</button>
+                           ))}
+                        </div>
+                        <input type="text" value={reviewName} onChange={e => setReviewName(e.target.value)} placeholder="Adınız Soyadınız" className="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[#00d2ff] outline-none mb-3" />
+                        <textarea value={reviewText} onChange={e => setReviewText(e.target.value)} placeholder="Ürün hakkında ne düşünüyorsunuz?" className="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[#00d2ff] outline-none mb-3 min-h-[80px] resize-none" />
+                        <button disabled={isSubmitting} className="w-full sm:w-auto bg-[#00d2ff] text-black font-black uppercase tracking-widest px-8 py-3 rounded-xl hover:bg-[#00c4db] transition-all touch-manipulation">{isSubmitting ? '...' : 'Gönder'}</button>
+                     </form>
+
+                     <div className="space-y-3">
+                        {reviewsLoading ? (
+                           <div className="text-center text-[#00d2ff] py-8 text-sm font-bold animate-pulse uppercase tracking-widest">
+                              Yorumlar Güncelleniyor...
+                           </div>
+                        ) : reviews.length > 0 ? reviews.map((r, i) => (
+                           <div key={i} className="bg-[#09090b] border border-white/5 p-5 rounded-2xl">
+                              <div className="flex justify-between items-start mb-2">
+                                 <strong className="text-white font-bold text-sm">{r.name || "Anonim"}</strong>
+                                 <div className="text-[#d4af37] text-[10px]">{"★".repeat(Number(r.rating))}{"☆".repeat(5-Number(r.rating))}</div>
+                              </div>
+                              <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">{r.text}</p>
+                              {(r.answer || r.reply || r.adminReply || r.cevap) && (
+                                 <div className="mt-3 bg-[#00d2ff]/10 border-l-2 border-[#00d2ff] p-3 rounded-r-xl">
+                                    <span className="text-[#00d2ff] font-black text-[9px] uppercase block mb-1">Bilgin PC Yanıtı</span>
+                                    <p className="text-gray-300 text-xs sm:text-sm">{r.answer || r.reply || r.adminReply || r.cevap}</p>
+                                 </div>
+                              )}
+                           </div>
+                        )) : (
+                           <div className="text-center text-gray-500 py-6 text-sm">İlk yorumu sen yap!</div>
+                        )}
+                     </div>
+                  </div>
                 )}
-              </button>
-              
-              <button 
-                onClick={() => setActiveTab('sorular')} 
-                className={`pb-4 font-black text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest relative touch-manipulation ${activeTab === 'sorular' ? 'text-[#00d2ff]' : 'text-gray-400 hover:text-white'}`}
-              >
-                Sorular ({questions.length})
+
+                {/* SORULAR İÇERİĞİ */}
                 {activeTab === 'sorular' && (
-                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#00d2ff] shadow-[0_0_10px_rgba(0,210,255,0.6)] rounded-full"></div>
+                  <div className="space-y-6 max-w-[800px]">
+                     <form onSubmit={handleSubmitQuestion} className="bg-[#09090b] border border-white/5 p-5 sm:p-6 rounded-2xl">
+                        <h3 className="text-base font-black uppercase mb-4 tracking-wide text-white">Soru Sor</h3>
+                        <input type="text" value={questionName} onChange={e => setQuestionName(e.target.value)} placeholder="Adınız Soyadınız" className="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[#00d2ff] outline-none mb-3" />
+                        <textarea value={questionText} onChange={e => setQuestionText(e.target.value)} placeholder="Ürünle ilgili ne öğrenmek istersiniz?" className="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[#00d2ff] outline-none mb-3 min-h-[80px] resize-none" />
+                        <button disabled={isSubmitting} className="w-full sm:w-auto bg-[#00d2ff] text-black font-black uppercase tracking-widest px-8 py-3 rounded-xl hover:bg-[#00c4db] transition-all touch-manipulation">{isSubmitting ? '...' : 'Gönder'}</button>
+                     </form>
+
+                     <div className="space-y-3">
+                        {reviewsLoading ? (
+                           <div className="text-center text-[#00d2ff] py-8 text-sm font-bold animate-pulse uppercase tracking-widest">
+                              Sorular Güncelleniyor...
+                           </div>
+                        ) : questions.length > 0 ? questions.map((q, i) => (
+                           <div key={i} className="bg-[#09090b] border border-white/5 p-5 rounded-2xl">
+                              <span className="text-white font-bold block mb-1 text-sm">❓ {q.name || "Müşteri"}</span>
+                              <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">{q.text}</p>
+                              {(q.answer || q.reply || q.adminReply || q.cevap) && (
+                                 <div className="mt-3 bg-[#00d2ff]/10 border-l-2 border-[#00d2ff] p-3 rounded-r-xl">
+                                    <span className="text-[#00d2ff] font-black text-[9px] uppercase block mb-1">Bilgin PC Yanıtı</span>
+                                    <p className="text-gray-300 text-xs sm:text-sm">{q.answer || q.reply || q.adminReply || q.cevap}</p>
+                                 </div>
+                              )}
+                           </div>
+                        )) : (
+                           <div className="text-center text-gray-500 py-6 text-sm">Henüz soru yok. İlk soran sen ol!</div>
+                        )}
+                     </div>
+                  </div>
                 )}
-              </button>
-          </div>
-
-          <div className="min-h-[150px] mb-4">
-
-              {/* ÜRÜN AÇIKLAMASI İÇERİĞİ */}
-              {activeTab === 'aciklama' && product.aciklama && (
-                <div className="animate-fade-in text-gray-300 leading-relaxed select-none touch-manipulation">
-                   <div className="prose prose-invert max-w-none select-none touch-manipulation 
-                     [&_*]:!select-none [&_*]:!-webkit-touch-callout-none
-                     [&_img]:w-full [&_img]:mx-auto [&_img]:h-auto [&_img]:block [&_img]:my-6 [&_img]:rounded-xl [&_img]:border-none [&_img]:shadow-none [&_img]:bg-transparent
-                     [&_h2]:text-xl sm:[&_h2]:text-2xl [&_h2]:font-black [&_h2]:text-white [&_h2]:mb-3 [&_h2]:mt-6
-                     [&_h3]:text-lg sm:[&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-[#00d2ff] [&_h3]:mb-2 [&_h3]:mt-5
-                     [&_p]:text-gray-300 [&_p]:leading-[1.7] [&_p]:text-sm sm:[&_p]:text-base [&_p]:mb-4" 
-                     dangerouslySetInnerHTML={{ __html: product.aciklama }} 
-                   />
-                </div>
-              )}
-
-              {/* TEKNİK ÖZELLİKLER İÇERİĞİ */}
-              {activeTab === 'teknik' && (
-                <div className="bg-[#09090b] border border-white/5 rounded-2xl overflow-hidden select-none">
-                   {product.teknik_ozellikler && Object.keys(product.teknik_ozellikler).length > 0 ? (
-                      Object.entries(product.teknik_ozellikler).map(([key, val], i) => (
-                         <div key={i} className={`flex justify-between p-4 sm:p-5 ${i !== 0 ? 'border-t border-white/5' : ''}`}>
-                            <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px] sm:text-xs w-1/2">{key}</span>
-                            <span className="text-white font-medium text-right w-1/2 text-xs sm:text-sm">{val as string}</span>
-                         </div>
-                      ))
-                   ) : (<div className="p-8 text-center text-gray-500 text-sm">Teknik detay girilmemiş.</div>)}
-                </div>
-              )}
-
-              {/* YORUMLAR İÇERİĞİ */}
-              {activeTab === 'yorumlar' && (
-                <div className="space-y-6">
-                   <form onSubmit={handleSubmitReview} className="bg-[#09090b] border border-white/5 p-5 sm:p-6 rounded-2xl">
-                      <h3 className="text-base font-black uppercase mb-4 tracking-wide text-white">Yorum Yap</h3>
-                      <div className="flex gap-1.5 mb-4">
-                         {[1,2,3,4,5].map(s => (
-                            <button type="button" key={s} onClick={() => setReviewRating(s)} className={`text-2xl transition-all touch-manipulation ${reviewRating >= s ? 'text-[#d4af37]' : 'text-gray-700'}`}>★</button>
-                         ))}
-                      </div>
-                      <input type="text" value={reviewName} onChange={e => setReviewName(e.target.value)} placeholder="Adınız Soyadınız" className="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[#00d2ff] outline-none mb-3" />
-                      <textarea value={reviewText} onChange={e => setReviewText(e.target.value)} placeholder="Ürün hakkında ne düşünüyorsunuz?" className="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[#00d2ff] outline-none mb-3 min-h-[80px] resize-none" />
-                      <button disabled={isSubmitting} className="w-full sm:w-auto bg-[#00d2ff] text-black font-black uppercase tracking-widest px-8 py-3 rounded-xl hover:bg-[#00c4db] transition-all touch-manipulation">{isSubmitting ? '...' : 'Gönder'}</button>
-                   </form>
-
-                   <div className="space-y-3">
-                      {reviewsLoading ? (
-                         <div className="text-center text-[#00d2ff] py-8 text-sm font-bold animate-pulse uppercase tracking-widest">
-                            Yorumlar Güncelleniyor...
-                         </div>
-                      ) : reviews.length > 0 ? reviews.map((r, i) => (
-                         <div key={i} className="bg-[#09090b] border border-white/5 p-5 rounded-2xl">
-                            <div className="flex justify-between items-start mb-2">
-                               <strong className="text-white font-bold text-sm">{r.name || "Anonim"}</strong>
-                               <div className="text-[#d4af37] text-[10px]">{"★".repeat(Number(r.rating))}{"☆".repeat(5-Number(r.rating))}</div>
-                            </div>
-                            <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">{r.text}</p>
-                            {(r.answer || r.reply || r.adminReply || r.cevap) && (
-                               <div className="mt-3 bg-[#00d2ff]/10 border-l-2 border-[#00d2ff] p-3 rounded-r-xl">
-                                  <span className="text-[#00d2ff] font-black text-[9px] uppercase block mb-1">Bilgin PC Yanıtı</span>
-                                  <p className="text-gray-300 text-xs sm:text-sm">{r.answer || r.reply || r.adminReply || r.cevap}</p>
-                               </div>
-                            )}
-                         </div>
-                      )) : (
-                         <div className="text-center text-gray-500 py-6 text-sm">İlk yorumu sen yap!</div>
-                      )}
-                   </div>
-                </div>
-              )}
-
-              {/* SORULAR İÇERİĞİ (O Hatalı 'r' harfi tamamen düzeltildi şefim) */}
-              {activeTab === 'sorular' && (
-                <div className="space-y-6">
-                   <form onSubmit={handleSubmitQuestion} className="bg-[#09090b] border border-white/5 p-5 sm:p-6 rounded-2xl">
-                      <h3 className="text-base font-black uppercase mb-4 tracking-wide text-white">Soru Sor</h3>
-                      <input type="text" value={questionName} onChange={e => setQuestionName(e.target.value)} placeholder="Adınız Soyadınız" className="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[#00d2ff] outline-none mb-3" />
-                      <textarea value={questionText} onChange={e => setQuestionText(e.target.value)} placeholder="Ürünle ilgili ne öğrenmek istersiniz?" className="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[#00d2ff] outline-none mb-3 min-h-[80px] resize-none" />
-                      <button disabled={isSubmitting} className="w-full sm:w-auto bg-[#00d2ff] text-black font-black uppercase tracking-widest px-8 py-3 rounded-xl hover:bg-[#00c4db] transition-all touch-manipulation">{isSubmitting ? '...' : 'Gönder'}</button>
-                   </form>
-
-                   <div className="space-y-3">
-                      {reviewsLoading ? (
-                         <div className="text-center text-[#00d2ff] py-8 text-sm font-bold animate-pulse uppercase tracking-widest">
-                            Sorular Güncelleniyor...
-                         </div>
-                      ) : questions.length > 0 ? questions.map((q, i) => (
-                         <div key={i} className="bg-[#09090b] border border-white/5 p-5 rounded-2xl">
-                            <span className="text-white font-bold block mb-1 text-sm">❓ {q.name || "Müşteri"}</span>
-                            <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">{q.text}</p>
-                            {(q.answer || q.reply || q.adminReply || q.cevap) && (
-                               <div className="mt-3 bg-[#00d2ff]/10 border-l-2 border-[#00d2ff] p-3 rounded-r-xl">
-                                  <span className="text-[#00d2ff] font-black text-[9px] uppercase block mb-1">Bilgin PC Yanıtı</span>
-                                  <p className="text-gray-300 text-xs sm:text-sm">{q.answer || q.reply || q.adminReply || q.cevap}</p>
-                               </div>
-                            )}
-                         </div>
-                      )) : (
-                         <div className="text-center text-gray-500 py-6 text-sm">Henüz soru yok. İlk soran sen ol!</div>
-                      )}
-                   </div>
-                </div>
-              )}
-          </div>
-          
+            </div>
+            
         </div>
+
       </div>
 
       {/* MOBİL ALT SEPET BAR ALANI */}
