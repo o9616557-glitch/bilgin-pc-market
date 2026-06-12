@@ -27,6 +27,7 @@ export default function KendinToplaPage() {
   const [selections, setSelections] = useState<Record<string, any>>({});
   const activeStepInfo = STEPS[currentStep];
 
+  // 🚀 HAFIZADAN BİLGİLERİ AYIKLARKEN KELİME ANALİZİNİ EN YÜKSEK SEVİYEYE ÇIKARDIK
   const dinamikFiltreleriHesapla = () => {
     let soket = "";
     let bellek = "";
@@ -253,21 +254,6 @@ export default function KendinToplaPage() {
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#09090b]/95 backdrop-blur-2xl border-t border-white/10 px-4 py-3.5 z-50 flex items-center justify-between shadow-[0_-15px_30px_rgba(0,0,0,0.8)] select-none">
-         <div className="flex flex-col">
-            <span className="text-gray-500 text-[9px] font-black tracking-wider uppercase mb-0.5">{toplamWatt}W TDP | {Object.keys(selections).length} Parça</span>
-            <span className="text-2xl font-black text-white leading-none">
-              {toplamFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">₺</span>
-            </span>
-         </div>
-         <button 
-           onClick={handleAddSystemToCart}
-           className="h-12 px-5 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 bg-[#00d2ff] text-black"
-         >
-            <ShoppingBag className="w-4 h-4" /> Ekle
-         </button>
       </div>
     </div>
   );
