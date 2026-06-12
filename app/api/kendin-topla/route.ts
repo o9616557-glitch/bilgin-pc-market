@@ -10,43 +10,48 @@ async function getDb() {
     client = new MongoClient(uri);
     await client.connect();
   }
-  return client.db(); // Veritabanı adını otomatik çeker veya içine yazabilirsin (.db("bilginpc"))
+  return client.db();
 }
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const kategori = searchParams.get("kategori"); // Hangi parça adımındayız? (islemci, anakart vs.)
+    const kategori = searchParams.get("kategori"); // islemci, anakart vs.
     
-    // Uyum Kriterleri (Hafızadan gelen kilitler)
+    // Uyum Kriterleri
     const seciliSoket = searchParams.get("soket"); 
     const seciliBellek = searchParams.get("bellek");
     const seciliAnakartYapisi = searchParams.get("anakartYapisi");
 
     const db = await getDb();
     
-    // Veritabanı sorgu filtresi başlangıçta sadece ilgili kategoriyi hedeflesin
-    let sorgu: any = { kategoriSlug: kategori };
+    // 🚀 AKILLI KATEGORİ EŞLEŞTİRME (Büyük/küçük harf ve Türkçe karakter sorunu çözüldü)
+    let kategoriRegex = "";
+    if (kategori === "islemci") kategoriRegex = "işlemci|islemci|cpu";
+    else if (kategori === "anakart") kategoriRegex = "anakart";
+    else if (kategori === "ram") kategoriRegex = "ram|bellek";
+    else if (kategori === "ekran-karti") kategoriRegex = "ekran kartı|ekran karti|vga";
+    else if (kategori === "ssd") kategoriRegex = "ssd|m.2|disk|hdd";
+    else if (kategori === "kasa") kategoriRegex = "kasa";
+    else if (kategori === "psu") kategoriRegex = "güç kaynağı|guc kaynagi|psu";
+    else if (kategori === "sogutma") kategoriRegex = "soğutma|sogutma|soğutucu";
 
-    // 🚀 AKILLI EŞLEŞTİRME DİŞLİLERİ BURADA DÖNÜYOR 🚀
-    
-    // Eğer Anakart adımındaysak ve işlemci seçildiyse: Sadece o sokete uygun anakartları getir
+    // $options: "i" demek, büyük/küçük harf duyarsız yap demek (Case Insensitive)
+    let sorgu: any = { kategori: { $regex: kategoriRegex, $options: "i" } };
+
+    // 🚀 ZİNCİRLEME UYUM FİLTRELERİ (Soket, Bellek, Kasa uyumu)
     if (kategori === "anakart" && seciliSoket) {
-      sorgu["teknik_ozellikler.Soket Tipi"] = seciliSoket;
+      sorgu["teknik_ozellikler.Soket Tipi"] = { $regex: seciliSoket, $options: "i" };
     }
 
-    // Eğer RAM adımındaysak ve işlemci/anakart seçildiyse: Hafızadaki bellek tipini (DDR5/DDR4) içersin
     if (kategori === "ram" && seciliBellek) {
-      // Senin veritabanında "DDR5 5600 MT/s" yazdığı için tam eşleşme değil regex (içerir) yapıyoruz şefim
       sorgu["teknik_ozellikler.Bellek Desteği"] = { $regex: seciliBellek, $options: "i" };
     }
 
-    // Eğer Kasa adımındaysak ve anakart seçildiyse: Kasalar o anakart yapısını (ATX, Micro-ATX) desteklemeli
     if (kategori === "kasa" && seciliAnakartYapisi) {
       sorgu["teknik_ozellikler.Anakart Yapısı"] = { $regex: seciliAnakartYapisi, $options: "i" };
     }
 
-    // Ürünleri fiyata göre artan sırada listele ki temiz dursun
     const urunler = await db.collection("products").find(sorgu).sort({ fiyat: 1 }).toArray();
 
     return NextResponse.json({ success: true, data: urunler });
