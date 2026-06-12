@@ -17,14 +17,12 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const kategori = searchParams.get("kategori"); 
     
-    // Arayüzden anlık olarak gelen teknik kilitler patron
     const seciliSoket = searchParams.get("soket"); 
     const seciliBellek = searchParams.get("bellek");
     const seciliYapi = searchParams.get("yapi");
 
     const db = await getDb();
     
-    // Temel kategori belirleme (Kurşungeçirmez Regex)
     let regexStr = "";
     if (kategori === "islemci") regexStr = "şlemci|slemci|cpu|islemci|işlemci";
     else if (kategori === "anakart") regexStr = "anakart|board";
@@ -35,21 +33,22 @@ export async function GET(request: Request) {
     else if (kategori === "psu") regexStr = "güç|guc|psu|power";
     else if (kategori === "sogutma") regexStr = "soğut|sogut|cooler";
 
-    // Sorgu nesnesi ilk başta sadece kategoriyi süzüyor (Böylece her şey açık şefim)
-    let sorgu: any = {
-      $or: [
-        { kategori: { $regex: regexStr, $options: "i" } },
-        { kategoriSlug: { $regex: regexStr, $options: "i" } }
-      ]
-    };
+    // 🚀 SEPETİN ANA TEMELİ: Kategoriyi koruma altına alıyoruz
+    let conditions: any[] = [
+      {
+        $or: [
+          { kategori: { $regex: regexStr, $options: "i" } },
+          { kategoriSlug: { $regex: regexStr, $options: "i" } }
+        ]
+      }
+    ];
 
-    // 🚀 TEK TEK AYAR VERME VE UYUM MATRİSİ FİLTRELERİ 🚀
-
-    // 1. SOKET KONTROLÜ (İşlemci, Anakart ve Soğutucuyu bağlar)
+    // 🚀 SENİN DEDİĞİN "TEK TEK AYAR VERME" MANTIĞI BURADA DÖNÜYOR:
+    
+    // 1. SOKET AYARI (İşlemci, Anakart ve Soğutucu için alan adları tek tek tanımlandı)
     if (seciliSoket && seciliSoket !== "null" && seciliSoket !== "undefined" && seciliSoket !== "") {
       if (kategori === "anakart" || kategori === "islemci") {
-        sorgu["$and"] = sorgu["$and"] || [];
-        sorgu["$and"].push({
+        conditions.push({
           $or: [
             { "teknik_ozellikler.Soket Tipi": { $regex: seciliSoket, $options: "i" } },
             { "teknik_ozellikler.Soket": { $regex: seciliSoket, $options: "i" } }
@@ -57,23 +56,24 @@ export async function GET(request: Request) {
         });
       }
       if (kategori === "sogutma") {
-        sorgu["$and"] = sorgu["$and"] || [];
-        sorgu["$and"].push({
+        conditions.push({
           $or: [
             { "teknik_ozellikler.Uyumlu Soketler": { $regex: seciliSoket, $options: "i" } },
-            { "teknik_ozellikler.Soket Desteği": { $regex: seciliSoket, $options: "i" } }
+            { "teknik_ozellikler.Soket Desteği": { $regex: seciliSoket, $options: "i" } },
+            { "teknik_ozellikler.Soket Tipi": { $regex: seciliSoket, $options: "i" } }
           ]
         });
       }
     }
 
-    // 2. BELLEK KONTROLÜ (DDR4 / DDR5 - İşlemci, Anakart ve RAM'i bağlar)
+    // 2. BELLEK AYARI (Anakart ve RAM'deki tüm olası kelimeler tek tek listelendi patron)
     if (seciliBellek && seciliBellek !== "null" && seciliBellek !== "undefined" && seciliBellek !== "") {
       if (kategori === "ram" || kategori === "anakart" || kategori === "islemci") {
-        sorgu["$and"] = sorgu["$and"] || [];
-        sorgu["$and"].push({
+        conditions.push({
           $or: [
             { "teknik_ozellikler.Bellek Türü": { $regex: seciliBellek, $options: "i" } },
+            { "teknik_ozellikler.Bellek Tipi": { $regex: seciliBellek, $options: "i" } },
+            { "teknik_ozellikler.RAM Tipi": { $regex: seciliBellek, $options: "i" } },
             { "teknik_ozellikler.Bellek Desteği": { $regex: seciliBellek, $options: "i" } },
             { "teknik_ozellikler.Tip": { $regex: seciliBellek, $options: "i" } }
           ]
@@ -81,11 +81,10 @@ export async function GET(request: Request) {
       }
     }
 
-    // 3. FİZİKSEL YAPI KONTROLÜ (ATX / Micro-ATX - Kasa ve Anakartı bağlar)
+    // 3. KASA VE ANAKART BOYUT AYARI
     if (seciliYapi && seciliYapi !== "null" && seciliYapi !== "undefined" && seciliYapi !== "") {
       if (kategori === "kasa" || kategori === "anakart") {
-        sorgu["$and"] = sorgu["$and"] || [];
-        sorgu["$and"].push({
+        conditions.push({
           $or: [
             { "teknik_ozellikler.Anakart Yapısı": { $regex: seciliYapi, $options: "i" } },
             { "teknik_ozellikler.Anakart Desteği": { $regex: seciliYapi, $options: "i" } }
@@ -94,7 +93,10 @@ export async function GET(request: Request) {
       }
     }
 
+    // Bütün şartları güvenli bir $and zinciriyle MongoDB'ye gönderiyoruz şefim
+    const sorgu = { $and: conditions };
     const urunler = await db.collection("products").find(sorgu).sort({ fiyat: 1 }).toArray();
+    
     return NextResponse.json({ success: true, data: urunler });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

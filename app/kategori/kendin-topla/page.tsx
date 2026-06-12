@@ -24,18 +24,14 @@ export default function KendinToplaPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Müşterinin anlık sepeti
   const [selections, setSelections] = useState<Record<string, any>>({});
-
   const activeStepInfo = STEPS[currentStep];
 
-  // 🚀 SENİN DEDİĞİN BÜYÜK ZEKÂ BURADA: ANLIK OLARAK TÜM SEÇİLENLERDEN UYUM AYARLARINI AYIKLAMA
   const dinamikFiltreleriHesapla = () => {
     let soket = "";
     let bellek = "";
     let yapi = "";
 
-    // 1. Herhangi bir adımda işlemci seçildiyse ayarları kap
     if (selections["islemci"]) {
       const t = selections["islemci"].teknik_ozellikler || {};
       soket = t["Soket Tipi"] || t["Soket"] || soket;
@@ -44,40 +40,20 @@ export default function KendinToplaPage() {
       else if (bDesteği.toLowerCase().includes("ddr4")) bellek = "DDR4";
     }
 
-    // 2. Herhangi bir adımda anakart seçildiyse ayarları kap
     if (selections["anakart"]) {
       const t = selections["anakart"].teknik_ozellikler || {};
       soket = t["Soket Tipi"] || t["Soket"] || soket;
       yapi = t["Anakart Yapısı"] || t["Anakart Desteği"] || yapi;
-      const bTürü = t["Bellek Türü"] || t["Bellek Desteği"] || "";
+      const bTürü = t["Bellek Türü"] || t["Bellek Tipi"] || t["RAM Tipi"] || t["Bellek Desteği"] || "";
       if (bTürü.toLowerCase().includes("ddr5")) bellek = "DDR5";
       else if (bTürü.toLowerCase().includes("ddr4")) bellek = "DDR4";
     }
 
-    // 3. Herhangi bir adımda RAM seçildiyse ayarları kap
     if (selections["ram"]) {
       const t = selections["ram"].teknik_ozellikler || {};
-      const bTürü = t["Bellek Türü"] || t["Tip"] || t["Bellek Desteği"] || "";
+      const bTürü = t["Bellek Türü"] || t["Bellek Tipi"] || t["RAM Tipi"] || t["Tip"] || t["Bellek Desteği"] || "";
       if (bTürü.toLowerCase().includes("ddr5")) bellek = "DDR5";
       else if (bTürü.toLowerCase().includes("ddr4")) bellek = "DDR4";
-    }
-
-    // 4. Herhangi bir adımda sıvı soğutma seçildiyse ayarları kap
-    if (selections["sogutma"]) {
-      const t = selections["sogutma"].teknik_ozellikler || {};
-      const uSoketler = t["Uyumlu Soketler"] || t["Soket Desteği"] || "";
-      // Eğer halihazırda soket seçilmediyse ve soğutucu AM5 ise soketi AM5 kabul et şefim
-      if (!soket) {
-        if (uSoketler.toLowerCase().includes("am5")) soket = "AM5";
-        else if (uSoketler.toLowerCase().includes("1700")) soket = "LGA1700";
-      }
-    }
-
-    // 5. Herhangi bir adımda kasa seçildiyse ayarları kap
-    if (selections["kasa"]) {
-      const t = selections["kasa"].teknik_ozellikler || {};
-      const kYapi = t["Anakart Yapısı"] || t["Anakart Desteği"] || "";
-      if (kYapi.toLowerCase().includes("atx")) yapi = "ATX";
     }
 
     return { soket, bellek, yapi };
@@ -85,7 +61,6 @@ export default function KendinToplaPage() {
 
   const { soket, bellek, yapi } = dinamikFiltreleriHesapla();
 
-  // Verileri API'den çekme tetiği
   useEffect(() => {
     const fetchComponents = async () => {
       setLoading(true);
