@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { MongoClient } from "mongodb";
 
-// MongoDB Bağlantı Bilgisi (Kendi URI değişkenini buraya sabitleyebilirsin)
+// MongoDB Bağlantı Bilgisi
 const uri = process.env.MONGODB_URI || "mongodb://localhost:27017/bilginpc"; 
 let client: MongoClient;
 
@@ -16,28 +16,34 @@ async function getDb() {
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const kategori = searchParams.get("kategori"); // islemci, anakart vs.
+    const kategori = searchParams.get("kategori"); 
     
-    // Uyum Kriterleri
+    // Uyum Kriterleri 
     const seciliSoket = searchParams.get("soket"); 
     const seciliBellek = searchParams.get("bellek");
     const seciliAnakartYapisi = searchParams.get("anakartYapisi");
 
     const db = await getDb();
     
-    // 🚀 AKILLI KATEGORİ EŞLEŞTİRME (Büyük/küçük harf ve Türkçe karakter sorunu çözüldü)
-    let kategoriRegex = "";
-    if (kategori === "islemci") kategoriRegex = "işlemci|islemci|cpu";
-    else if (kategori === "anakart") kategoriRegex = "anakart";
-    else if (kategori === "ram") kategoriRegex = "ram|bellek";
-    else if (kategori === "ekran-karti") kategoriRegex = "ekran kartı|ekran karti|vga";
-    else if (kategori === "ssd") kategoriRegex = "ssd|m.2|disk|hdd";
-    else if (kategori === "kasa") kategoriRegex = "kasa";
-    else if (kategori === "psu") kategoriRegex = "güç kaynağı|guc kaynagi|psu";
-    else if (kategori === "sogutma") kategoriRegex = "soğutma|sogutma|soğutucu";
+    // 🚀 BÜYÜK/KÜÇÜK İ HARFİ SENDROMUNU ÇÖZEN KURŞUNGEÇİRMEZ ARAMA 🚀
+    // Kelimenin başındaki sorunlu harfleri attık, "şlemci" veya "slemci" geçiyorsa bile bulacak!
+    let regexStr = "";
+    if (kategori === "islemci") regexStr = "şlemci|slemci|cpu|islemci|işlemci";
+    else if (kategori === "anakart") regexStr = "anakart|board";
+    else if (kategori === "ram") regexStr = "ram|bellek";
+    else if (kategori === "ekran-karti") regexStr = "ekran|vga|gpu";
+    else if (kategori === "ssd") regexStr = "ssd|m.2|disk|hdd";
+    else if (kategori === "kasa") regexStr = "kasa|kabin";
+    else if (kategori === "psu") regexStr = "güç|guc|psu|power";
+    else if (kategori === "sogutma") regexStr = "soğut|sogut|cooler";
 
-    // $options: "i" demek, büyük/küçük harf duyarsız yap demek (Case Insensitive)
-    let sorgu: any = { kategori: { $regex: kategoriRegex, $options: "i" } };
+    // Kategori isminde VEYA kategoriSlug isminde arama yap (Kesin bulur)
+    let sorgu: any = {
+      $or: [
+        { kategori: { $regex: regexStr, $options: "i" } },
+        { kategoriSlug: { $regex: regexStr, $options: "i" } }
+      ]
+    };
 
     // 🚀 ZİNCİRLEME UYUM FİLTRELERİ (Soket, Bellek, Kasa uyumu)
     if (kategori === "anakart" && seciliSoket) {
