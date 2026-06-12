@@ -7,7 +7,7 @@ import { useSession, signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { Search, X, Clock, Flame, ArrowRight, ChevronRight, Loader2 } from "lucide-react";
 
-// ŞEFİN JİLET GİBİ 4 KOLONLU MEGA MENÜ ENVANTERİ (GÜNCELLENDİ)
+// ŞEFİN JİLET GİBİ 4 KOLONLU MEGA MENÜ ENVANTERİ
 const menuCategories = [
   {
     title: "Bilgisayar Bileşenleri",
@@ -39,14 +39,12 @@ const menuCategories = [
   {
     title: "Sistem, Laptop & Yazılım",
     items: [
-      { name: "Kendin Topla", slug: "kendin-topla" }, // 🔥 Hazır sistem yerine Kendin Topla geldi şefim
+      { name: "Kendin Topla", slug: "kendin-topla" }, 
       { name: "Premium Laptop & Notebook", slug: "laptop" },
       { name: "Masaüstü Bilgisayar", slug: "masaustu" },
-      // ❌ MacBook buradan uçuruldu
       { name: "OEM Paketler (Toplama PC)", slug: "oem-paket" },
       { name: "İşletim Sistemi", slug: "isletim-sistemi" },
       { name: "Microsoft Office & Yazılım", slug: "yazilim" },
-      // ❌ Antivirüs buradan uçuruldu
     ]
   },
   {
@@ -224,8 +222,8 @@ export default function Header() {
               </div>
 
               <nav className="flex items-center space-x-6">
-                {/* 🔥 Masaüstü hazır sistem yazısı "Kendin Topla" olarak güncellendi patron */}
-                <Link href="/kategori/kendin-topla" prefetch={true} className="text-[#00d2ff] hover:text-white text-sm font-black transition-colors tracking-wide">🔧 Kendin Topla</Link>
+                {/* 🔥 Şefim üst menüdeki yer artık "Oyun Bilgisayarı" oldu, diğer yerlerden tamamen farklı! */}
+                <Link href="/kategori/hazir-sistem" prefetch={true} className="text-[#00d2ff] hover:text-white text-sm font-black transition-colors tracking-wide">🕹️ Oyun Bilgisayarı</Link>
                 <Link href="/kategori/ekran-karti" prefetch={true} className="text-gray-300 hover:text-[#00d2ff] text-sm font-medium transition-colors">Ekran Kartları</Link>
                 <Link href="/kategori/islemci" prefetch={true} className="text-gray-300 hover:text-[#00d2ff] text-sm font-medium transition-colors">İşlemciler</Link>
                 <Link href="/kategori/anakart" prefetch={true} className="text-gray-300 hover:text-[#00d2ff] text-sm font-medium transition-colors">Anakartlar</Link>
@@ -280,14 +278,14 @@ export default function Header() {
                 )}
               </div>
 
-              {/* SEPET VE YENİ JİLET SAYAC ALANI */}
+              {/* SEPET ALANI */}
               <Link href="/sepet" prefetch={true} className="relative flex items-center gap-2 p-2 text-gray-300 hover:text-[#00d2ff] transition-colors group">
                 <span className="hidden md:block text-sm font-bold">Sepet</span>
                 <div className="relative">
                   <svg className="w-5 h-5 md:w-5 md:h-5 shrink-0 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                  {/* 🚀 ŞEFİM, SAYAC ALANINI KIPKIRMIZI, SEÇİLEBİLİR VE MİLİMETRİK ORTALANMIŞ YAPTIM 🚀 */}
+                  {/* 🚀 ŞEFİM, SAYACIN PARLAMASINI VE GÖLGESİNİ KISTIM, TOK VE OTURAKLI BİR KIRMIZI YAPTIM 🚀 */}
                   {sepetAdedi > 0 && (
-                    <span className="absolute -top-1.5 -right-2 bg-red-600 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-[#050814] shadow-[0_0_12px_rgba(220,38,38,0.6)] select-none leading-none pt-[0.5px]">
+                    <span className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-[#050814] shadow-[0_0_4px_rgba(239,68,68,0.4)] select-none leading-none pt-[0.5px]">
                       {sepetAdedi}
                     </span>
                   )}
@@ -302,12 +300,12 @@ export default function Header() {
       <div className={`md:hidden fixed top-[80px] left-0 w-full h-[calc(100vh-80px)] bg-[#050814] z-[98] overflow-y-auto transition-transform duration-300 ${menuAcik ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="px-6 py-8 pb-32">
           
-          {/* 🚀 ŞEFİM, TELEFONDA EN ÜSTE BOMBASTİK "KENDİN TOPLA" BANNER MENÜSÜ GELDİ 🚀 */}
+          {/* Telefonda en üstte aslanlar gibi "Kendin Topla" parlıyor */}
           <Link 
             href="/kategori/kendin-topla" 
             prefetch={true}
             onClick={() => setMenuAcik(false)}
-            className="mb-8 flex items-center justify-between px-5 py-4 bg-gradient-to-r from-[#00d2ff]/20 to-transparent border border-[#00d2ff]/30 rounded-2xl text-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.15)] group animate-pulse"
+            className="mb-8 flex items-center justify-between px-5 py-4 bg-gradient-to-r from-[#00d2ff]/20 to-transparent border border-[#00d2ff]/30 rounded-2xl text-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.15)] group"
           >
             <span className="font-black tracking-wide text-base flex items-center gap-2.5">
               🔧 Kendin Topla (PC Sihirbazı)
