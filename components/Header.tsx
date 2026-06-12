@@ -7,7 +7,7 @@ import { useSession, signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { Search, X, Clock, Flame, ArrowRight, ChevronRight, Loader2 } from "lucide-react";
 
-// ŞEFİN JİLET GİBİ 4 KOLONLU MEGA MENÜ ENVANTERİ
+// ŞEFİN JİLET GİBİ 4 KOLONLU MEGA MENÜ ENVANTERİ (GÜNCELLENDİ)
 const menuCategories = [
   {
     title: "Bilgisayar Bileşenleri",
@@ -32,21 +32,21 @@ const menuCategories = [
       { name: "Oyuncu Kulaklıkları", slug: "kulaklik" },
       { name: "Yayıncı Mikrofonları", slug: "mikrofon" },
       { name: "Oyun Kolu", slug: "oyun-kolu" },
-      { name: "Oyun Direksiyonu", slug: "oyun-direksiyonu" },
+      { name: "Oyun Direksiyonu", slug: "magcaraya" },
       { name: "Hoparlör (Speaker)", slug: "hoparlor" },
     ]
   },
   {
     title: "Sistem, Laptop & Yazılım",
     items: [
-      { name: "Hazır Oyun Bilgisayarı", slug: "hazir-sistem" },
+      { name: "Kendin Topla", slug: "kendin-topla" }, // 🔥 Hazır sistem yerine Kendin Topla geldi şefim
       { name: "Premium Laptop & Notebook", slug: "laptop" },
       { name: "Masaüstü Bilgisayar", slug: "masaustu" },
-      { name: "MacBook & Mac", slug: "macbook" },
+      // ❌ MacBook buradan uçuruldu
       { name: "OEM Paketler (Toplama PC)", slug: "oem-paket" },
       { name: "İşletim Sistemi", slug: "isletim-sistemi" },
       { name: "Microsoft Office & Yazılım", slug: "yazilim" },
-      { name: "Güvenlik & Antivirüs", slug: "antivirus" },
+      // ❌ Antivirüs buradan uçuruldu
     ]
   },
   {
@@ -70,12 +70,12 @@ const akilliKategoriBul = (metin: string) => {
   if (!metin) return null;
   const k = metin.toLowerCase();
   
+  if (k.includes("topla") || k.includes("kendin") || k.includes("sihirbaz")) return { isim: "Kendin Topla", slug: "kendin-topla" };
   if (k.includes("ekran") || k.includes("rtx") || k.includes("gtx") || k.includes("rx ") || k.includes("4070") || k.includes("4080") || k.includes("4090") || k.includes("5070") || k.includes("5080") || k.includes("5090") || k.includes("vga")) return { isim: "Ekran Kartları", slug: "ekran-karti" };
   if (k.includes("işlemci") || k.includes("islemci") || k.includes("intel") || k.includes("ryzen") || k.includes("cpu")) return { isim: "İşlemciler", slug: "islemci" };
   if (k.includes("anakart") || k.includes("motherboard") || k.includes("z790") || k.includes("b650") || k.includes("x670")) return { isim: "Anakartlar", slug: "anakart" };
-  if (k.includes("laptop") || k.includes("notebook") || k.includes("macbook")) return { isim: "Laptoplar", slug: "laptop" };
+  if (k.includes("laptop") || k.includes("notebook")) return { isim: "Laptoplar", slug: "laptop" };
   if (k.includes("kasa") || k.includes("kabin")) return { isim: "Kasalar", slug: "kasa" };
-  if (k.includes("hazır") || k.includes("hazir") || k.includes("sistem")) return { isim: "Hazır Sistemler", slug: "hazir-sistem" };
   if (k.includes("ram") || k.includes("bellek") || k.includes("ddr")) return { isim: "RAM Bellekler", slug: "ram" };
   if (k.includes("monitör") || k.includes("monitor") || k.includes("ekran")) return { isim: "Monitörler", slug: "monitor" };
   
@@ -195,7 +195,6 @@ export default function Header() {
 
             {/* ORTA: MASAÜSTÜ MEGA MENÜ */}
             <div className="hidden md:flex items-center space-x-6 flex-1 justify-center h-full">
-              {/* h-full sayesinde div yüksekliği 80px'i kapsıyor */}
               <div className="relative flex items-center h-full" onMouseEnter={() => setDropdownOpen(true)} onMouseLeave={() => setDropdownOpen(false)}>
                 <button className="flex items-center space-x-2 text-white hover:text-[#00d2ff] py-2 font-semibold transition-colors text-sm">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -203,7 +202,6 @@ export default function Header() {
                 </button>
 
                 {dropdownOpen && (
-                  /* 🔥 GÖRÜNMEZ KÖPRÜ (pt-[20px] eklendi) 🔥 */
                   <div className="absolute top-[60px] left-0 pt-[20px] w-[1100px] z-50">
                     <div className="bg-[#09090b]/98 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_30px_50px_rgba(0,0,0,0.8)] p-10">
                       <div className="grid grid-cols-4 gap-12">
@@ -226,40 +224,40 @@ export default function Header() {
               </div>
 
               <nav className="flex items-center space-x-6">
-                <Link href="/kategori/hazir-sistem" prefetch={true} className="text-gray-300 hover:text-[#00d2ff] text-sm font-bold transition-colors">🔥 Hazır Sistemler</Link>
+                {/* 🔥 Masaüstü hazır sistem yazısı "Kendin Topla" olarak güncellendi patron */}
+                <Link href="/kategori/kendin-topla" prefetch={true} className="text-[#00d2ff] hover:text-white text-sm font-black transition-colors tracking-wide">🔧 Kendin Topla</Link>
                 <Link href="/kategori/ekran-karti" prefetch={true} className="text-gray-300 hover:text-[#00d2ff] text-sm font-medium transition-colors">Ekran Kartları</Link>
                 <Link href="/kategori/islemci" prefetch={true} className="text-gray-300 hover:text-[#00d2ff] text-sm font-medium transition-colors">İşlemciler</Link>
                 <Link href="/kategori/anakart" prefetch={true} className="text-gray-300 hover:text-[#00d2ff] text-sm font-medium transition-colors">Anakartlar</Link>
               </nav>
             </div>
 
-           {/* 🎯 SAĞ TARAF: SİMGE SOLDA, YAZI SAĞDA, BÜYÜK HARFLER İPTAL! 🎯 */}
-<div className="flex items-center gap-2 md:gap-4 shrink-0 h-full">
+            {/* SAĞ TARAF: SİMGE SOLDA, YAZI SAĞDA */}
+            <div className="flex items-center gap-2 md:gap-4 shrink-0 h-full">
               
-              {/* ARAMA (Yazı Solda, İkon Sağda) */}
+              {/* ARAMA */}
               <button onClick={() => setAramaAcik(true)} className="flex items-center gap-2 text-gray-300 hover:text-[#00d2ff] transition-colors p-2 group">
                 <span className="hidden md:block text-sm font-bold">Ara</span>
                 <Search className="w-5 h-5 md:w-5 md:h-5 shrink-0 group-hover:scale-110 transition-transform" />
               </button>
 
-              {/* HESABIM (Yazı Solda, İkon Sağda) */}
+              {/* HESABIM */}
               <div ref={hesabimRef} className="relative flex items-center h-full">
                 <button onClick={() => setHesabimAcik(!hesabimAcik)} className={`flex items-center gap-2 p-2 transition-colors group ${hesabimAcik ? "text-[#00d2ff]" : "text-gray-300 hover:text-[#00d2ff]"}`}>
                   <span className="hidden sm:block text-sm font-bold">{session?.user?.name ? session.user.name.split(" ")[0] : "Hesabım"}</span>
                   <svg className={`w-5 h-5 md:w-5 md:h-5 shrink-0 transition-transform ${hesabimAcik ? "scale-110" : "group-hover:scale-110"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 </button>
 
-                {/* HESABIM AÇILIR MENÜSÜ */}
                 {hesabimAcik && (
                   <div className="absolute top-[75px] right-0 w-56 bg-[#09090b] border border-white/10 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.8)] p-2 z-[999] flex flex-col gap-1">
                     <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2.5 text-[#00d2ff] bg-[#00d2ff]/10 hover:bg-[#00d2ff]/20 rounded-xl text-sm font-bold transition-colors">📦 Sipariş Takip</Link>
                     <div className="h-px bg-white/5 my-1"></div>
                     {session ? (
                       <>
-                      <div className="px-3 py-3 border-b border-white/5 mb-2">
-  <p className="text-white text-sm font-black mb-0.5">Hoş Geldin, 👋</p>
-  <p className="text-[#00d2ff] text-base font-black truncate">{session.user?.name || session.user?.email}</p>
-</div>
+                        <div className="px-3 py-3 border-b border-white/5 mb-2">
+                          <p className="text-white text-sm font-black mb-0.5">Hoş Geldin, 👋</p>
+                          <p className="text-[#00d2ff] text-base font-black truncate">{session.user?.name || session.user?.email}</p>
+                        </div>
                         <Link href="/siparislerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl text-sm transition-colors">📋 Siparişlerim</Link>
                         <Link href="/adreslerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl text-sm transition-colors">📍 Adreslerim</Link>
                         <Link href="/favorilerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl text-sm transition-colors">❤️ Favorilerim</Link>
@@ -282,12 +280,17 @@ export default function Header() {
                 )}
               </div>
 
-              {/* SEPET (Yazı Solda, İkon Sağda) */}
+              {/* SEPET VE YENİ JİLET SAYAC ALANI */}
               <Link href="/sepet" prefetch={true} className="relative flex items-center gap-2 p-2 text-gray-300 hover:text-[#00d2ff] transition-colors group">
                 <span className="hidden md:block text-sm font-bold">Sepet</span>
                 <div className="relative">
                   <svg className="w-5 h-5 md:w-5 md:h-5 shrink-0 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                  {sepetAdedi > 0 && <span className="absolute -top-2 -right-2 bg-[#10b981] text-white text-[9px] md:text-[10px] font-black w-4 h-4 flex items-center justify-center rounded-full border-[1.5px] border-[#050814]">{sepetAdedi}</span>}
+                  {/* 🚀 ŞEFİM, SAYAC ALANINI KIPKIRMIZI, SEÇİLEBİLİR VE MİLİMETRİK ORTALANMIŞ YAPTIM 🚀 */}
+                  {sepetAdedi > 0 && (
+                    <span className="absolute -top-1.5 -right-2 bg-red-600 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-[#050814] shadow-[0_0_12px_rgba(220,38,38,0.6)] select-none leading-none pt-[0.5px]">
+                      {sepetAdedi}
+                    </span>
+                  )}
                 </div>
               </Link>
             </div>
@@ -298,6 +301,20 @@ export default function Header() {
       {/* 📱 KUSURSUZ MOBİL MENÜ 📱 */}
       <div className={`md:hidden fixed top-[80px] left-0 w-full h-[calc(100vh-80px)] bg-[#050814] z-[98] overflow-y-auto transition-transform duration-300 ${menuAcik ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="px-6 py-8 pb-32">
+          
+          {/* 🚀 ŞEFİM, TELEFONDA EN ÜSTE BOMBASTİK "KENDİN TOPLA" BANNER MENÜSÜ GELDİ 🚀 */}
+          <Link 
+            href="/kategori/kendin-topla" 
+            prefetch={true}
+            onClick={() => setMenuAcik(false)}
+            className="mb-8 flex items-center justify-between px-5 py-4 bg-gradient-to-r from-[#00d2ff]/20 to-transparent border border-[#00d2ff]/30 rounded-2xl text-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.15)] group animate-pulse"
+          >
+            <span className="font-black tracking-wide text-base flex items-center gap-2.5">
+              🔧 Kendin Topla (PC Sihirbazı)
+            </span>
+            <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
+          </Link>
+
           {menuCategories.map((category, index) => (
             <div key={index} className="mb-8">
               <h3 className="text-[#00d2ff] font-black text-sm tracking-widest uppercase mb-4 border-b border-white/10 pb-3">{category.title}</h3>
@@ -320,7 +337,7 @@ export default function Header() {
         </div>
       </div>
 
-      {/* 🔥 RAZER STYLE TAM EKRAN ARAMA MODALI 🔥 */}
+      {/* 🔥 TAM EKRAN ARAMA MODALI 🔥 */}
       {aramaAcik && (
         <div className="fixed inset-0 z-[99999] bg-[#09090b]/98 backdrop-blur-3xl flex flex-col overflow-hidden animate-in fade-in duration-100">
           <div className="p-4 md:p-6 border-b border-white/10 flex items-center gap-4">
@@ -346,8 +363,6 @@ export default function Header() {
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 md:p-8 max-w-4xl mx-auto w-full pb-32">
-            
-            {/* YAZI YAZILDIYSA CANLI SONUÇLAR */}
             {aramaMetni.length > 0 ? (
               <div className="space-y-4">
                 <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
@@ -404,9 +419,7 @@ export default function Header() {
                 )}
               </div>
             ) : (
-              /* KUTU BOŞSA VİTRİN */
               <div className="space-y-8 animate-in slide-in-from-bottom-2 duration-100">
-                
                 <div>
                   <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2 mb-4">
                     <Flame className="w-4 h-4 text-[#00d2ff]" /> POPÜLER KELİMELER
@@ -460,10 +473,8 @@ export default function Header() {
                     </div>
                   </div>
                 )}
-
               </div>
             )}
-
           </div>
         </div>
       )}
