@@ -17,12 +17,14 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const kategori = searchParams.get("kategori"); 
     
+    // Arayüzden anlık olarak gelen teknik kilitler patron
     const seciliSoket = searchParams.get("soket"); 
     const seciliBellek = searchParams.get("bellek");
-    const seciliAnakartYapisi = searchParams.get("anakartYapisi");
+    const seciliYapi = searchParams.get("yapi");
 
     const db = await getDb();
     
+    // Temel kategori belirleme (Kurşungeçirmez Regex)
     let regexStr = "";
     if (kategori === "islemci") regexStr = "şlemci|slemci|cpu|islemci|işlemci";
     else if (kategori === "anakart") regexStr = "anakart|board";
@@ -33,6 +35,7 @@ export async function GET(request: Request) {
     else if (kategori === "psu") regexStr = "güç|guc|psu|power";
     else if (kategori === "sogutma") regexStr = "soğut|sogut|cooler";
 
+    // Sorgu nesnesi ilk başta sadece kategoriyi süzüyor (Böylece her şey açık şefim)
     let sorgu: any = {
       $or: [
         { kategori: { $regex: regexStr, $options: "i" } },
@@ -40,34 +43,58 @@ export async function GET(request: Request) {
       ]
     };
 
-    // 🚀 ESNEK UYUM FİLTRELERİ
-    if (kategori === "anakart" && seciliSoket && seciliSoket !== "undefined") {
-      sorgu["$or"] = [
-        { "teknik_ozellikler.Soket Tipi": { $regex: seciliSoket, $options: "i" } },
-        { "teknik_ozellikler.Soket": { $regex: seciliSoket, $options: "i" } }
-      ];
+    // 🚀 TEK TEK AYAR VERME VE UYUM MATRİSİ FİLTRELERİ 🚀
+
+    // 1. SOKET KONTROLÜ (İşlemci, Anakart ve Soğutucuyu bağlar)
+    if (seciliSoket && seciliSoket !== "null" && seciliSoket !== "undefined" && seciliSoket !== "") {
+      if (kategori === "anakart" || kategori === "islemci") {
+        sorgu["$and"] = sorgu["$and"] || [];
+        sorgu["$and"].push({
+          $or: [
+            { "teknik_ozellikler.Soket Tipi": { $regex: seciliSoket, $options: "i" } },
+            { "teknik_ozellikler.Soket": { $regex: seciliSoket, $options: "i" } }
+          ]
+        });
+      }
+      if (kategori === "sogutma") {
+        sorgu["$and"] = sorgu["$and"] || [];
+        sorgu["$and"].push({
+          $or: [
+            { "teknik_ozellikler.Uyumlu Soketler": { $regex: seciliSoket, $options: "i" } },
+            { "teknik_ozellikler.Soket Desteği": { $regex: seciliSoket, $options: "i" } }
+          ]
+        });
+      }
     }
 
-    if (kategori === "ram" && seciliBellek && seciliBellek !== "undefined") {
-      sorgu["$or"] = [
-        { "teknik_ozellikler.Bellek Desteği": { $regex: seciliBellek, $options: "i" } },
-        { "teknik_ozellikler.Bellek Türü": { $regex: seciliBellek, $options: "i" } },
-        { "teknik_ozellikler.Tip": { $regex: seciliBellek, $options: "i" } }
-      ];
+    // 2. BELLEK KONTROLÜ (DDR4 / DDR5 - İşlemci, Anakart ve RAM'i bağlar)
+    if (seciliBellek && seciliBellek !== "null" && seciliBellek !== "undefined" && seciliBellek !== "") {
+      if (kategori === "ram" || kategori === "anakart" || kategori === "islemci") {
+        sorgu["$and"] = sorgu["$and"] || [];
+        sorgu["$and"].push({
+          $or: [
+            { "teknik_ozellikler.Bellek Türü": { $regex: seciliBellek, $options: "i" } },
+            { "teknik_ozellikler.Bellek Desteği": { $regex: seciliBellek, $options: "i" } },
+            { "teknik_ozellikler.Tip": { $regex: seciliBellek, $options: "i" } }
+          ]
+        });
+      }
     }
 
-    // Kasalarda katı filtreleme kilitlenmeye sebep olmasın diye esnettik patron
-    if (kategori === "kasa" && seciliAnakartYapisi && seciliAnakartYapisi !== "undefined") {
-      // Eğer veritabanında tam eşleşme yoksa genel listeyi bozmasın diye esnek regex uyguluyoruz
-      sorgu["$or"] = [
-        { "teknik_ozellikler.Anakart Yapısı": { $regex: "atx", $options: "i" } },
-        { "teknik_ozellikler.Anakart Desteği": { $regex: "atx", $options: "i" } },
-        { resim: { $exists: true } } // Her ihtimale karşı boş kalmasın diye fallback
-      ];
+    // 3. FİZİKSEL YAPI KONTROLÜ (ATX / Micro-ATX - Kasa ve Anakartı bağlar)
+    if (seciliYapi && seciliYapi !== "null" && seciliYapi !== "undefined" && seciliYapi !== "") {
+      if (kategori === "kasa" || kategori === "anakart") {
+        sorgu["$and"] = sorgu["$and"] || [];
+        sorgu["$and"].push({
+          $or: [
+            { "teknik_ozellikler.Anakart Yapısı": { $regex: seciliYapi, $options: "i" } },
+            { "teknik_ozellikler.Anakart Desteği": { $regex: seciliYapi, $options: "i" } }
+          ]
+        });
+      }
     }
 
     const urunler = await db.collection("products").find(sorgu).sort({ fiyat: 1 }).toArray();
-
     return NextResponse.json({ success: true, data: urunler });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
