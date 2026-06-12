@@ -24,9 +24,11 @@ export default function KendinToplaPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Müşterinin anlık sepeti
   const [selections, setSelections] = useState<Record<string, any>>({});
   const activeStepInfo = STEPS[currentStep];
 
+  // 🚀 TÜM SEÇİLENLERDEN UYUM AYARLARINI ANLIK AYIKLAYAN MEKANİZMA
   const dinamikFiltreleriHesapla = () => {
     let soket = "";
     let bellek = "";
@@ -65,6 +67,7 @@ export default function KendinToplaPage() {
     const fetchComponents = async () => {
       setLoading(true);
       try {
+        // 🚀 BÜTÜN YAZIM HATALARI TEMİZLENDİ, TERTEMİZ PARAMETRELER GİDİYOR
         let url = `/api/kendin-topla?kategori=${activeStepInfo.id}&soket=${encodeURIComponent(soket)}&bellek=${encodeURIComponent(bellek)}&yapi=${encodeURIComponent(yapi)}`;
         const res = await fetch(url);
         const resData = await res.json();
@@ -100,8 +103,9 @@ export default function KendinToplaPage() {
 
   const toplamWatt = Object.values(selections).reduce((acc, curr) => {
     const t = curr.teknik_ozellikler || {};
-    const tdp = t["Güç Tüketimi (TDP)"] || t["TDP Değeri"] || "0";
-    return acc + (parseInt(tdp.replace(/[^0-9]/g, "")) || 0);
+    const tdpYazisi = t["Güç Tüketimi (TDP)"] || t["TDP Değeri"] || t["Güç Tüketimi"] || t["TDP"] || "0";
+    const wattSayisi = parseInt(tdpYazisi.replace(/[^0-9]/g, "")) || 0;
+    return acc + wattSayisi;
   }, 0);
 
   const handleAddSystemToCart = () => {
@@ -213,10 +217,12 @@ export default function KendinToplaPage() {
           <div className="bg-[#09090b] border border-white/10 rounded-2xl p-5 shadow-2xl flex flex-col w-full">
             <h3 className="text-sm font-black uppercase tracking-wider text-gray-400 mb-4 pb-2 border-b border-white/5 flex items-center justify-between">
               <span>SİSTEM ÖZETİ</span>
-              <span className="text-[10px] bg-zinc-800 px-2.5 py-0.5 rounded-md border border-white/5 text-[#00d2ff]">⚡ {toplamWatt}W TDP</span>
+              <span className="text-[11px] bg-red-950/40 px-3 py-1 rounded-xl border border-red-500/30 text-red-400 font-black animate-pulse">
+                ⚡ {toplamWatt} Watt Çekiyor
+              </span>
             </h3>
 
-            <div className="space-y-3 mb-6 max-h-[350px] overflow-y-auto pr-1">
+            <div className="space-y-3 mb-4 max-h-[300px] overflow-y-auto pr-1">
               {STEPS.map((step) => {
                 const comp = selections[step.id];
                 return (
@@ -233,6 +239,12 @@ export default function KendinToplaPage() {
               })}
             </div>
 
+            {toplamWatt > 0 && (
+              <div className="bg-zinc-900/50 border border-white/5 p-3 rounded-xl mb-4 text-[11px] text-gray-400 font-medium">
+                📢 Önerilen En Düşük PSU: <strong className="text-[#00d2ff] font-black">{(toplamWatt + 150)}W</strong>
+              </div>
+            )}
+
             <div className="border-t border-white/10 pt-4 flex flex-col">
               <div className="flex justify-between items-baseline mb-5">
                 <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">TOPLAM:</span>
@@ -244,6 +256,21 @@ export default function KendinToplaPage() {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#09090b]/95 backdrop-blur-2xl border-t border-white/10 px-4 py-3.5 z-50 flex items-center justify-between shadow-[0_-15px_30px_rgba(0,0,0,0.8)] select-none">
+         <div className="flex flex-col">
+            <span className="text-gray-500 text-[9px] font-black tracking-wider uppercase mb-0.5">{toplamWatt}W TDP | {Object.keys(selections).length} Parça</span>
+            <span className="text-2xl font-black text-white leading-none">
+              {toplamFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">₺</span>
+            </span>
+         </div>
+         <button 
+           onClick={handleAddSystemToCart}
+           className="h-12 px-5 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 bg-[#00d2ff] text-black"
+         >
+            <ShoppingBag className="w-4 h-4" /> Ekle
+         </button>
       </div>
     </div>
   );

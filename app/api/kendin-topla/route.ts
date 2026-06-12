@@ -31,9 +31,9 @@ export async function GET(request: Request) {
     else if (kategori === "ssd") regexStr = "ssd|m.2|disk|hdd";
     else if (kategori === "kasa") regexStr = "kasa|kabin";
     else if (kategori === "psu") regexStr = "güç|guc|psu|power";
-    else if (kategori === "sogutma") regexStr = "soğut|sogut|cooler";
+    // 🚀 ŞEFİM, SOĞUTMA FİLTRESİ GENİŞLETİLDİ (Sıvı soğutma, işlemci soğutucu ne varsa bulur)
+    else if (kategori === "sogutma") regexStr = "soğut|sogut|cooler|fan|sıvı|sivi";
 
-    // 🚀 SEPETİN ANA TEMELİ: Kategoriyi koruma altına alıyoruz
     let conditions: any[] = [
       {
         $or: [
@@ -43,9 +43,6 @@ export async function GET(request: Request) {
       }
     ];
 
-    // 🚀 SENİN DEDİĞİN "TEK TEK AYAR VERME" MANTIĞI BURADA DÖNÜYOR:
-    
-    // 1. SOKET AYARI (İşlemci, Anakart ve Soğutucu için alan adları tek tek tanımlandı)
     if (seciliSoket && seciliSoket !== "null" && seciliSoket !== "undefined" && seciliSoket !== "") {
       if (kategori === "anakart" || kategori === "islemci") {
         conditions.push({
@@ -66,7 +63,6 @@ export async function GET(request: Request) {
       }
     }
 
-    // 2. BELLEK AYARI (Anakart ve RAM'deki tüm olası kelimeler tek tek listelendi patron)
     if (seciliBellek && seciliBellek !== "null" && seciliBellek !== "undefined" && seciliBellek !== "") {
       if (kategori === "ram" || kategori === "anakart" || kategori === "islemci") {
         conditions.push({
@@ -81,7 +77,6 @@ export async function GET(request: Request) {
       }
     }
 
-    // 3. KASA VE ANAKART BOYUT AYARI
     if (seciliYapi && seciliYapi !== "null" && seciliYapi !== "undefined" && seciliYapi !== "") {
       if (kategori === "kasa" || kategori === "anakart") {
         conditions.push({
@@ -93,7 +88,6 @@ export async function GET(request: Request) {
       }
     }
 
-    // Bütün şartları güvenli bir $and zinciriyle MongoDB'ye gönderiyoruz şefim
     const sorgu = { $and: conditions };
     const urunler = await db.collection("products").find(sorgu).sort({ fiyat: 1 }).toArray();
     
