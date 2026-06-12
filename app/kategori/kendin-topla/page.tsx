@@ -24,11 +24,9 @@ export default function KendinToplaPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Müşterinin anlık sepeti
   const [selections, setSelections] = useState<Record<string, any>>({});
   const activeStepInfo = STEPS[currentStep];
 
-  // 🚀 TÜM SEÇİLENLERDEN UYUM AYARLARINI ANLIK AYIKLAYAN MEKANİZMA
   const dinamikFiltreleriHesapla = () => {
     let soket = "";
     let bellek = "";
@@ -67,7 +65,6 @@ export default function KendinToplaPage() {
     const fetchComponents = async () => {
       setLoading(true);
       try {
-        // 🚀 BÜTÜN YAZIM HATALARI TEMİZLENDİ, TERTEMİZ PARAMETRELER GİDİYOR
         let url = `/api/kendin-topla?kategori=${activeStepInfo.id}&soket=${encodeURIComponent(soket)}&bellek=${encodeURIComponent(bellek)}&yapi=${encodeURIComponent(yapi)}`;
         const res = await fetch(url);
         const resData = await res.json();

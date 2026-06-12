@@ -31,7 +31,6 @@ export async function GET(request: Request) {
     else if (kategori === "ssd") regexStr = "ssd|m.2|disk|hdd";
     else if (kategori === "kasa") regexStr = "kasa|kabin";
     else if (kategori === "psu") regexStr = "güç|guc|psu|power";
-    // 🚀 ŞEFİM, SOĞUTMA FİLTRESİ GENİŞLETİLDİ (Sıvı soğutma, işlemci soğutucu ne varsa bulur)
     else if (kategori === "sogutma") regexStr = "soğut|sogut|cooler|fan|sıvı|sivi";
 
     let conditions: any[] = [
@@ -43,7 +42,10 @@ export async function GET(request: Request) {
       }
     ];
 
-    if (seciliSoket && seciliSoket !== "null" && seciliSoket !== "undefined" && seciliSoket !== "") {
+    // 🚀 BOŞSA FİLTRELEME YAPMA MANTIĞI BURADA ŞEFİM:
+    
+    // 1. Soket filtresi sadece parametre doluyken çalışır
+    if (seciliSoket && seciliSoket !== "null" && seciliSoket !== "undefined" && seciliSoket.trim() !== "") {
       if (kategori === "anakart" || kategori === "islemci") {
         conditions.push({
           $or: [
@@ -63,7 +65,8 @@ export async function GET(request: Request) {
       }
     }
 
-    if (seciliBellek && seciliBellek !== "null" && seciliBellek !== "undefined" && seciliBellek !== "") {
+    // 2. Bellek filtresi sadece parametre doluyken çalışır
+    if (seciliBellek && seciliBellek !== "null" && seciliBellek !== "undefined" && seciliBellek.trim() !== "") {
       if (kategori === "ram" || kategori === "anakart" || kategori === "islemci") {
         conditions.push({
           $or: [
@@ -77,7 +80,8 @@ export async function GET(request: Request) {
       }
     }
 
-    if (seciliYapi && seciliYapi !== "null" && seciliYapi !== "undefined" && seciliYapi !== "") {
+    // 3. Kasa Yapı filtresi sadece parametre doluyken çalışır
+    if (seciliYapi && seciliYapi !== "null" && seciliYapi !== "undefined" && seciliYapi.trim() !== "") {
       if (kategori === "kasa" || kategori === "anakart") {
         conditions.push({
           $or: [
