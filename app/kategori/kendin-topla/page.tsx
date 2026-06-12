@@ -17,7 +17,6 @@ import {
   Check 
 } from "lucide-react";
 
-// 🚀 SİHİRBAZIN ADIM ADIM AKIŞ SIRALAMASI
 const STEPS = [
   { id: "islemci", name: "İşlemci (CPU)", icon: Cpu },
   { id: "anakart", name: "Anakart", icon: LayoutGrid },
@@ -35,10 +34,7 @@ export default function KendinToplaPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Müşterinin seçtiği parçaların hafızası
   const [selections, setSelections] = useState<Record<string, any>>({});
-
-  // Uyum Kilitleri
   const [uSoket, setUSoket] = useState<string>("");
   const [uBellek, setUBellek] = useState<string>("");
   const [uAnakartYapisi, setUAnakartYapisi] = useState<string>("");
@@ -75,16 +71,21 @@ export default function KendinToplaPage() {
     const stepId = activeStepInfo.id;
     setSelections((prev) => ({ ...prev, [stepId]: product }));
 
+    // Akıllı ayıklama mekanizması esnetildi şefim
     if (stepId === "islemci") {
-      const soket = product.teknik_ozellikler?.["Soket Tipi"] || "";
-      const bellekDesteği = product.teknik_ozellikler?.["Bellek Desteği"] || "";
+      const tÖzellik = product.teknik_ozellikler || {};
+      const soket = tÖzellik["Soket Tipi"] || tÖzellik["Soket"] || "AM5";
+      const bellekDesteği = tÖzellik["Bellek Desteği"] || tÖzellik["Bellek Türü"] || "DDR5";
+      
       setUSoket(soket);
       if (bellekDesteği.toLowerCase().includes("ddr5")) setUBellek("DDR5");
       else if (bellekDesteği.toLowerCase().includes("ddr4")) setUBellek("DDR4");
+      else setUBellek("DDR5"); // varsayılan patlamasın diye
     }
 
     if (stepId === "anakart") {
-      const yapi = product.teknik_ozellikler?.["Anakart Yapısı"] || "ATX";
+      const tÖzellik = product.teknik_ozellikler || {};
+      const yapi = tÖzellik["Anakart Yapısı"] || tÖzellik["Anakart Desteği"] || "ATX";
       setUAnakartYapisi(yapi);
     }
 
@@ -115,7 +116,8 @@ export default function KendinToplaPage() {
   }, 0);
 
   const toplamWatt = Object.values(selections).reduce((acc, curr) => {
-    const tdpYazisi = curr.teknik_ozellikler?.["Güç Tüketimi (TDP)"] || curr.teknik_ozellikler?.["TDP Değeri"] || "0";
+    const tÖzellik = curr.teknik_ozellikler || {};
+    const tdpYazisi = tÖzellik["Güç Tüketimi (TDP)"] || tÖzellik["TDP Değeri"] || "0";
     const wattSayisi = parseInt(tdpYazisi.replace(/[^0-9]/g, "")) || 0;
     return acc + wattSayisi;
   }, 0);
@@ -141,17 +143,14 @@ export default function KendinToplaPage() {
 
   return (
     <div className="bg-[#050505] text-white min-h-screen font-sans pb-24">
-      {/* 🚀 ÜST BAŞLIK VE ADIMLAR ALANI (SIKIŞMA SORUNU BURADA ÇÖZÜLDÜ) 🚀 */}
       <div className="border-b border-white/5 bg-[#09090b]/80 backdrop-blur-xl sticky top-20 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          
           <div className="flex items-center space-x-3 shrink-0">
             <span className="text-[#00d2ff] font-black text-xl sm:text-2xl">🔧 PC SİHİRBAZI</span>
             <span className="text-gray-600 font-bold hidden sm:inline">|</span>
             <span className="text-gray-400 text-xs sm:text-sm font-medium hidden sm:inline">Kendi Canavarını İnşa Et</span>
           </div>
           
-          {/* ADIM BUTONLARI (FLEX-WRAP İLE EKRANA GÖRE KIVRILIR, ASLA TAŞMAZ) */}
           <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
             {STEPS.map((step, idx) => {
               const StepIcon = step.icon;
@@ -176,14 +175,10 @@ export default function KendinToplaPage() {
               );
             })}
           </div>
-
         </div>
       </div>
 
-      {/* ANA İÇERİK ALANI (İKİ KOLONLU PREMIUM DÜZEN) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8 items-start">
-        
-        {/* SOL KOLON: AKTİF ADIMA AİT PARÇA LİSTESİ */}
         <div className="w-full lg:w-[70%] flex flex-col gap-6">
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <h2 className="text-lg sm:text-2xl font-black uppercase tracking-tight flex items-center gap-3">
@@ -195,7 +190,6 @@ export default function KendinToplaPage() {
             </span>
           </div>
 
-          {/* YÜKLENİYOR SİMGE PANELİ */}
           {loading ? (
             <div className="flex flex-col items-center justify-center py-24 text-gray-500 gap-3">
               <Loader2 className="w-8 h-8 animate-spin text-[#00d2ff]" />
@@ -220,7 +214,6 @@ export default function KendinToplaPage() {
                     <div className="flex flex-col justify-between flex-1 min-w-0">
                       <div>
                         <h4 className="text-sm font-bold text-white truncate group-hover:text-[#00d2ff] transition-colors mb-1" title={urun.isim}>{urun.isim}</h4>
-                        {/* Teknik özellikleri listeleme */}
                         <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-gray-500 font-medium">
                           {urun.teknik_ozellikler && Object.entries(urun.teknik_ozellikler).slice(0, 2).map(([k, v]: any) => (
                             <span key={k}>{k}: <strong className="text-gray-400">{v}</strong></span>
@@ -253,7 +246,6 @@ export default function KendinToplaPage() {
             </div>
           )}
 
-          {/* ALT GEÇİŞ BUTONLARI */}
           <div className="flex justify-between items-center mt-6 pt-4 border-t border-white/5">
             <button 
               disabled={currentStep === 0}
@@ -272,7 +264,6 @@ export default function KendinToplaPage() {
           </div>
         </div>
 
-        {/* SAĞ KOLON: ANLIK SEPET HESAP MAKİNESİ PANELİ (PC SÜRÜMÜ) */}
         <div className="w-full lg:w-[30%] lg:sticky lg:top-40 flex flex-col gap-6">
           <div className="bg-[#09090b] border border-white/10 rounded-2xl p-5 shadow-2xl flex flex-col w-full">
             <h3 className="text-sm font-black uppercase tracking-wider text-gray-400 mb-4 pb-2 border-b border-white/5 flex items-center justify-between">
@@ -282,7 +273,6 @@ export default function KendinToplaPage() {
               </span>
             </h3>
 
-            {/* SEÇİLEN PARÇALARIN KÜÇÜK LİSTESİ */}
             <div className="space-y-3 mb-6 max-h-[350px] overflow-y-auto pr-1">
               {STEPS.map((step) => {
                 const comp = selections[step.id];
@@ -298,7 +288,6 @@ export default function KendinToplaPage() {
                       <button 
                         onClick={() => handleRemoveComponent(step.id)} 
                         className="text-gray-600 hover:text-red-500 font-black px-1 text-sm transition-colors opacity-0 group-hover:opacity-100"
-                        title="Parçayı Çıkar"
                       >
                         ✕
                       </button>
@@ -310,7 +299,6 @@ export default function KendinToplaPage() {
               })}
             </div>
 
-            {/* FİYAT TABLOSU VE SATIN ALMA */}
             <div className="border-t border-white/10 pt-4 flex flex-col">
               <div className="flex justify-between items-baseline mb-5">
                 <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">TOPLAM BÜTÇE:</span>
@@ -321,17 +309,15 @@ export default function KendinToplaPage() {
 
               <button 
                 onClick={handleAddSystemToCart}
-                className="w-full h-14 rounded-xl bg-[#00d2ff] text-black font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,210,255,0.15)]"
+                className="w-full h-14 rounded-xl bg-[#00d2ff] text-black font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 hover:bg-[#00c4db] transition-all"
               >
                 <ShoppingBag className="w-4 h-4" /> Sistemi Sepete Ekle
               </button>
             </div>
           </div>
         </div>
-
       </div>
 
-      {/* 📱 MOBİL İÇIN ALT SABİT PANEL (TELEFONDA GEZEN MÜŞTERİLER İÇİN) 📱 */}
       <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#09090b]/95 backdrop-blur-2xl border-t border-white/10 px-4 py-3.5 z-50 flex items-center justify-between shadow-[0_-15px_30px_rgba(0,0,0,0.8)] select-none">
          <div className="flex flex-col">
             <span className="text-gray-500 text-[9px] font-black tracking-wider uppercase mb-0.5">SİSTEM TUTARI ({Object.keys(selections).length} Parça)</span>
@@ -341,12 +327,11 @@ export default function KendinToplaPage() {
          </div>
          <button 
            onClick={handleAddSystemToCart}
-           className="h-12 px-5 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 bg-[#00d2ff] text-black shadow-[0_0_15px_rgba(0,210,255,0.2)] hover:bg-[#00c4db]"
+           className="h-12 px-5 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 bg-[#00d2ff] text-black"
          >
             <ShoppingBag className="w-4 h-4" /> Sistemi Ekle
          </button>
       </div>
-
     </div>
   );
 }
