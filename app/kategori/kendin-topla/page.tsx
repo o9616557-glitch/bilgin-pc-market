@@ -123,38 +123,48 @@ export default function KendinToplaPage() {
     toast.success("Sistem başarıyla sıfırlandı.");
   };
 
-  // 🚀 TÜM SİSTEMİ FAVORİLERE EKLEME FONKSİYONU
+  // 🚀 KORUMALI FAVORİ KAYIT MOTORU DÜZELTİLDİ
   const handleAddSystemToFavorites = async () => {
     if (Object.keys(selections).length === 0) {
       return toast.error("Favorilere eklemek için en az bir parça seçmelisiniz.");
     }
 
+    const loadToast = toast.loading("Bileşenler favori listenize işleniyor...");
     try {
-      // API'ye favori kaydı atıyoruz (Veritabanındaki 'favorites' koleksiyonuna yazar)
-      const res = await fetch("/api/favorites", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "toplama_pc",
-          parcalar: Object.entries(selections).map(([kategori, urun]) => ({
-            kategori,
-            productId: urun._id,
-            isim: urun.isim,
-            fiyat: urun.indirimliFiyat || urun.fiyat
-          })),
-          toplamTutar: toplamFiyat
-        })
-      });
+      let basariliSayisi = 0;
+      let sonHataMesaji = "";
 
-      const data = await res.json();
-      if (data.success) {
-        toast.success("Topladığınız sistem başarıyla favorilerinize kaydedildi! ❤️");
+      // Seçilen tüm parçaları döngüye alıp senin mevcut favori API'ne tek tek yediriyoruz şefim
+      for (const urun of Object.values(selections)) {
+        const res = await fetch("/api/favorites", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            productId: urun._id,
+            id: urun._id // Hem productId hem düz id gönderiyoruz ki backend şaşırmasın!
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          basariliSayisi++;
+        } else {
+          sonHataMesaji = data.message || "Yetki hatası.";
+        }
+      }
+
+      toast.dismiss(loadToast);
+
+      if (basariliSayisi === Object.keys(selections).length) {
+        toast.success("Tüm sistem bileşenleri başarıyla favorilerinize kaydedildi! ❤️");
+      } else if (basariliSayisi > 0) {
+        toast.success(`${basariliSayisi} parça favorilere eklendi, bazıları atlandı.`);
       } else {
-        // Eğer kullanıcı giriş yapmadıysa api'den hata döner, onu yakalıyoruz
-        toast.error(data.message || "Sistemi favorilere eklemek için lütfen giriş yapınız.");
+        toast.error(sonHataMesaji || "Lütfen önce kullanıcı girişi yapınız.");
       }
     } catch (error) {
-      toast.error("Favorilere eklenirken teknik bir sorun oluştu.");
+      toast.dismiss(loadToast);
+      toast.error("Teknik bir sorun oluştu.");
     }
   };
 
@@ -378,7 +388,6 @@ export default function KendinToplaPage() {
                 <span className="text-3xl font-black text-white tracking-tight">{toplamFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">TL</span></span>
               </div>
               
-              {/* 🚀 YENİ: SİSTEMİ KOMPLE FAVORİLERE EKLEME BUTONU */}
               <button 
                 onClick={handleAddSystemToFavorites}
                 className="w-full h-11 rounded-xl font-bold uppercase tracking-wider text-xs border border-white/10 hover:border-red-500/40 bg-white/[0.02] hover:bg-red-500/5 text-gray-300 hover:text-red-400 flex items-center justify-center gap-2 transition-all"
@@ -428,12 +437,11 @@ export default function KendinToplaPage() {
          </div>
       </div>
 
-      {/* ==================== 🚀 MÜKEMMEL SCROLL VE HİZALANMA DETAYINA SAHİP İNCELEME MODAL PANELİ 🚀 ==================== */}
+      {/* DETAY İNCELEME MODAL PANELİ */}
       {previewProduct && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 overflow-y-auto flex items-start sm:items-center justify-center p-2 sm:p-6 md:p-10 animate-in fade-in duration-200">
           <div className="bg-[#09090b] border border-white/10 w-full max-w-5xl rounded-2xl overflow-hidden flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.8)] my-auto">
             
-            {/* PANEL ÜST BİLGİSİ */}
             <div className="flex items-center justify-between p-5 border-b border-white/5 bg-black/20 shrink-0">
               <h3 className="text-sm font-black uppercase tracking-wider text-[#00d2ff]">Ürün Detay İnceleme</h3>
               <button 
@@ -444,10 +452,9 @@ export default function KendinToplaPage() {
               </button>
             </div>
 
-            {/* PANEL İÇERİK ALANI */}
             <div className="overflow-y-auto p-4 sm:p-6 grid grid-cols-1 md:grid-cols-5 gap-6 max-h-[calc(100vh-160px)] sm:max-h-[70vh]">
               
-              {/* 🚀 SOL SÜTUN DEĞİŞİKLİĞİ: 'md:sticky md:top-0' eklenerek, sağ taraf kaydıkça sol tarafın nizami bir şekilde aşağıya eşlik etmesi sağlandı! */}
+              {/* SOL SÜTUN (AŞAĞI KAYDIKÇA SABİT KALAN RESİM VE FİYAT ALANI) */}
               <div className="md:col-span-2 flex flex-col items-center gap-4 sm:gap-6 border-b md:border-b-0 md:border-r border-white/5 pb-6 md:pb-0 md:pr-6 md:sticky md:top-0 h-max">
                 <div className="w-full aspect-square bg-black/40 rounded-2xl p-6 border border-white/5 flex items-center justify-center">
                   <img src={previewProduct.resim} alt={previewProduct.isim} className="max-w-full max-h-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
@@ -493,7 +500,6 @@ export default function KendinToplaPage() {
               </div>
             </div>
 
-            {/* PANEL ALT SEÇENEKLERİ */}
             <div className="p-5 border-t border-white/5 bg-black/20 flex items-center justify-end gap-3 shrink-0">
               <button 
                 onClick={() => setPreviewProduct(null)}
