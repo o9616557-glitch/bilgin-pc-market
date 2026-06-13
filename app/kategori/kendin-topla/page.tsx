@@ -27,14 +27,12 @@ export default function KendinToplaPage() {
   const [selections, setSelections] = useState<Record<string, any>>({});
   const activeStepInfo = STEPS[currentStep];
 
-  // 🚀 KENDİ KENDİNİ FİLTRELEYİP LİSTEYİ YOK ETME SORUNU ÇÖZÜLDÜ
   const dinamikFiltreleriHesapla = (stepToIgnore: string) => {
     let soket = "";
     let bellek = "";
     let yapi = "";
     let radyator = "";
 
-    // Bulunduğumuz adımın seçimini süzgece katmıyoruz ki listedeki alternatif ürünler kaybolmasın!
     const sIslemci = stepToIgnore === "islemci" ? null : selections["islemci"];
     const sAnakart = stepToIgnore === "anakart" ? null : selections["anakart"];
     const sRam = stepToIgnore === "ram" ? null : selections["ram"];
@@ -87,7 +85,8 @@ export default function KendinToplaPage() {
       }
     };
     fetchComponents();
-  }, [currentStep, selections, soket, bellek, yapi, radyator]);
+    // 🚀 JET MOTORU AYARI: 'selections' bağımlılıklardan çıkarıldı. Seçim esnasında gereksiz internet trafiği engellendi!
+  }, [currentStep, soket, bellek, yapi, radyator]);
 
   const handleSelectComponent = (product: any) => {
     setSelections((prev) => ({ ...prev, [activeStepInfo.id]: product }));
@@ -144,8 +143,6 @@ export default function KendinToplaPage() {
 
   return (
     <div className="bg-[#050505] text-white min-h-screen font-sans pb-32">
-      
-      {/* 📱 🌲 TELEFONDA ARTIK STICKY (YAPIŞKAN) DEĞİL, DARALMA YAPMAZ */}
       <div className="border-b border-white/5 bg-[#09090b]/80 backdrop-blur-xl lg:sticky lg:top-20 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center space-x-3 shrink-0">
@@ -176,7 +173,6 @@ export default function KendinToplaPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8 items-start">
-        {/* SOL TARAF: ÜRÜN LİSTESİ */}
         <div className="w-full lg:w-[65%] flex flex-col gap-6">
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <h2 className="text-lg sm:text-2xl font-black uppercase tracking-tight flex items-center gap-3">
@@ -197,13 +193,11 @@ export default function KendinToplaPage() {
                 return (
                   <div key={urun._id} className={`bg-[#09090b] border rounded-2xl p-4 flex gap-4 hover:border-white/20 transition-all group ${isItemChosen ? "border-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.05)]" : "border-white/5"}`}>
                     
-                    {/* ÜRÜN RESMİNE TIKLAYINCA YENİ SEKMEDE DETAY SAYFASINA GİDER */}
                     <a 
                       href={`/product/${urun.slug}`} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="w-20 h-20 bg-black/40 rounded-xl p-2 flex items-center justify-center shrink-0 cursor-pointer relative block group/img"
-                      title="Ürünü yeni sekmede incele"
                     >
                       <img src={urun.resim} alt={urun.isim} className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform" />
                       <div className="absolute inset-0 bg-black/60 rounded-xl opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity">
@@ -213,18 +207,15 @@ export default function KendinToplaPage() {
 
                     <div className="flex flex-col justify-between flex-1 min-w-0">
                       <div>
-                        {/* ÜRÜN İSMİNE TIKLAYINCA YENİ SEKMEDE DETAY SAYFASINA GİDER */}
                         <a 
                           href={`/product/${urun.slug}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-sm font-bold text-white truncate block hover:text-[#00d2ff] hover:underline transition-all cursor-pointer mb-1"
-                          title="Ürünü yeni sekmede incele"
                         >
                           {urun.isim}
                         </a>
                         
-                        {/* 🚀 CSS DÜZELTİLDİ: "break-all break-words" ile yazılar asla kutudan taşmaz */}
                         <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-gray-500 font-medium break-all break-words">
                           {urun.sihirbaz_ozellikleri && Object.entries(urun.sihirbaz_ozellikleri).filter(([_, v]) => v).slice(0, 3).map(([k, v]: any) => (
                             <span key={k} className="capitalize">{k.replace('_', ' ')}: <strong className="text-gray-400">{v}</strong></span>
@@ -263,7 +254,6 @@ export default function KendinToplaPage() {
           </div>
         </div>
 
-        {/* SAĞ TARAF: SİSTEM ÖZETİ */}
         <div className="w-full lg:w-[35%] lg:sticky lg:top-40 flex flex-col gap-6">
           <div className="bg-[#09090b] border border-white/10 rounded-2xl p-6 shadow-2xl flex flex-col w-full">
             
@@ -277,7 +267,7 @@ export default function KendinToplaPage() {
               {Object.keys(selections).length > 0 && (
                 <button 
                   onClick={handleClearAll}
-                  className="text-gray-500 hover:text-red-400 text-xs font-black flex items-center gap-1.5 transition-colors px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 hover:bg-red-500/10 hover:bg-red-500/20"
+                  className="text-gray-500 hover:text-red-400 text-xs font-black flex items-center gap-1.5 transition-colors px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 hover:bg-red-500/10 hover:border-red-500/20"
                 >
                   <RefreshCw className="w-3 h-3" /> Tümünü Sıfırla
                 </button>
@@ -318,7 +308,6 @@ export default function KendinToplaPage() {
                       <button 
                         onClick={() => handleRemoveComponent(step.id)} 
                         className="text-gray-500 hover:text-red-500 p-2 rounded-xl bg-white/5 hover:bg-red-500/10 border border-white/5 transition-all shrink-0 mt-1"
-                        title="Parçayı Kaldır"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -334,7 +323,6 @@ export default function KendinToplaPage() {
               </div>
             )}
 
-            {/* 📱 🌲 TELEFONDA BU PANEL BUTONU GİZLENDİ, ÇİFT SEPET OLUŞMAZ */}
             <div className="hidden lg:flex border-t border-white/10 pt-4 flex-col">
               <div className="flex justify-between items-baseline mb-5">
                 <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">TOPLAM:</span>
@@ -354,7 +342,6 @@ export default function KendinToplaPage() {
         </div>
       </div>
 
-      {/* MOBİL ALT BAR (TELEFONLARDA TEK SEPET BURASIDIR) */}
       <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#09090b]/95 backdrop-blur-2xl border-t border-white/10 px-6 py-4 z-50 flex items-center justify-between shadow-[0_-15px_30px_rgba(0,0,0,0.8)] select-none">
          <div className="flex flex-col">
             <span className="text-gray-500 text-[10px] font-black tracking-wider uppercase mb-0.5">TOPLAM TUTAR</span>
