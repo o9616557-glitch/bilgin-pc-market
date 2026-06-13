@@ -32,7 +32,7 @@ const menuCategories = [
       { name: "Oyuncu Kulaklıkları", slug: "kulaklik" },
       { name: "Yayıncı Mikrofonları", slug: "mikrofon" },
       { name: "Oyun Kolu", slug: "oyun-kolu" },
-      { name: "Oyun Direksiyonu", slug: "magcaraya" },
+      { name: "Oyun Direksiyonu", slug: "oyun-direksiyonu" },
       { name: "Hoparlör (Speaker)", slug: "hoparlor" },
     ]
   },
