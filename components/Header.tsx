@@ -51,7 +51,7 @@ const menuCategories = [
     title: "Ağ, Aksesuar & Kablo",
     items: [
       { name: "Modem", slug: "modem" },
-      { name: "USB Bellek & Hafıza Kartı", slug: "usb-bellek" },
+      { name: "USB Bellek & Hafıza Kartı", slug: "usb-hafiza" },
       { name: "Kablolar & Çeviriciler", slug: "kablolar" },
       { name: "Akım Koruyucu Priz", slug: "akim-koruyucu" },
       { name: "Notebook Soğutucu", slug: "notebook-aksesuar" },
