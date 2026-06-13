@@ -24,8 +24,11 @@ export default function KendinToplaPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Aktif toplanan sistem hafıza state yapısı
   const [selections, setSelections] = useState<Record<string, any>>({});
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
+  
+  // Sadece kalbi kırmızı yapacak state
   const [isFavorited, setIsFavorited] = useState(false);
   
   const activeStepInfo = STEPS[currentStep];
@@ -144,6 +147,7 @@ export default function KendinToplaPage() {
     setSelections({});
     setCurrentStep(0);
     localStorage.removeItem("bilgin_sihirbaz_selections");
+    setIsFavorited(false);
     toast.success("Sistem başarıyla sıfırlandı.");
   };
 
@@ -243,6 +247,7 @@ export default function KendinToplaPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col lg:flex-row gap-8 items-start">
+        {/* SOL TARAF: ÜRÜN LİSTESİ */}
         <div className="w-full lg:w-[65%] flex flex-col gap-6">
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <h2 className="text-lg sm:text-2xl font-black uppercase tracking-tight flex items-center gap-3">
@@ -321,6 +326,7 @@ export default function KendinToplaPage() {
           </div>
         </div>
 
+        {/* SAĞ TARAF: SİSTEM ÖZETİ */}
         <div className="w-full lg:w-[35%] lg:sticky lg:top-40 flex flex-col gap-6">
           <div className="bg-[#18181b] border-2 border-white/10 rounded-2xl p-6 shadow-2xl flex flex-col w-full">
             
@@ -397,6 +403,14 @@ export default function KendinToplaPage() {
               </div>
               
               <button 
+                onClick={handleAddSystemToFavorites}
+                className="w-full h-11 rounded-xl font-bold uppercase tracking-wider text-xs border border-white/10 bg-white/[0.02] text-gray-300 flex items-center justify-center gap-2 transition-all hover:bg-white/[0.05]"
+              >
+                <Heart className={`w-3.5 h-3.5 transition-colors ${isFavorited ? "text-red-500 fill-red-500" : "text-gray-400"}`} /> 
+                Bu Sistemi Favorilerime Ekle
+              </button>
+
+              <button 
                 onClick={handleAddSystemToCart} 
                 disabled={psuYetersiz || gpuKasaAşimi}
                 className={`w-full h-14 rounded-xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 transition-all ${
@@ -410,6 +424,7 @@ export default function KendinToplaPage() {
         </div>
       </div>
 
+      {/* MOBİL ALT BAR */}
       <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#18181b]/95 backdrop-blur-2xl border-t-2 border-white/10 px-4 sm:px-6 py-4 z-50 flex items-center justify-between shadow-[0_-15px_30px_rgba(0,0,0,0.8)] select-none">
          <div className="flex flex-col">
             <span className="text-gray-400 text-[10px] font-black tracking-wider uppercase mb-0.5">TOPLAM TUTAR</span>
@@ -418,6 +433,13 @@ export default function KendinToplaPage() {
             </span>
          </div>
          <div className="flex items-center gap-2">
+           <button 
+             onClick={handleAddSystemToFavorites}
+             className="h-12 w-12 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center transition-colors"
+             title="Sistemi Favorilere Ekle"
+           >
+             <Heart className={`w-5 h-5 transition-colors ${isFavorited ? "text-red-500 fill-red-500" : "text-gray-400"}`} />
+           </button>
            <button 
              onClick={handleAddSystemToCart}
              disabled={psuYetersiz || gpuKasaAşimi}
@@ -430,9 +452,9 @@ export default function KendinToplaPage() {
          </div>
       </div>
 
-      {/* 🚀 Z-INDEX [9999] UYGULANMIŞ POP-UP PENCERESİ */}
+      {/* 🚀 Z-INDEX [9999] VE ÇENTİK KORUMALI POP-UP PANELİ */}
       {previewProduct && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[9999] overflow-y-auto flex items-start sm:items-center justify-center p-2 sm:p-6 md:p-10 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[9999] overflow-y-auto flex items-start sm:items-center justify-center p-4 py-10 sm:p-6 md:p-10 animate-in fade-in duration-200">
           <div className="bg-[#121214] border-2 border-white/10 w-full max-w-5xl rounded-2xl overflow-hidden flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.8)] my-auto">
             
             <div className="flex items-center justify-between p-5 border-b border-white/10 bg-[#18181b] shrink-0">
