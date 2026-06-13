@@ -225,14 +225,14 @@ export default function KendinToplaPage() {
   return (
     <div className="bg-[#050505] text-white min-h-screen font-sans pb-32">
       <div className="border-b border-white/5 bg-[#09090b]/90 backdrop-blur-xl lg:sticky lg:top-20 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-center space-x-3 shrink-0">
             <span className="text-[#00d2ff] font-black text-xl tracking-tight">🔧 PC SİHİRBAZI</span>
           </div>
           
-          {/* 🚀 ELİT VE BÜTÜNSEL TAB DÜZENLEMESİ: Telefonda ikili alt alta grid, PC'de düz çizgi nizamı (Asla taşmaz!) */}
-          <div className="w-full lg:w-auto">
-            <div className="grid grid-cols-2 gap-2 lg:flex lg:items-center lg:space-x-1 lg:border-b lg:border-white/10 lg:pb-1">
+          {/* 🚀 VİTRİN NİZAMI BURADA DÜZELTİLDİ: İç içe girmeyi önler, yazıları tek satırda (whitespace-nowrap) tutar */}
+          <div className="w-full lg:flex-1 lg:overflow-x-auto lg:pl-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:flex lg:items-center lg:space-x-2 lg:border-b lg:border-white/10 lg:pb-1 lg:min-w-max">
               {STEPS.map((step, idx) => {
                 const StepIcon = step.icon;
                 const isSelected = !!selections[step.id];
@@ -241,7 +241,7 @@ export default function KendinToplaPage() {
                   <button
                     key={step.id}
                     onClick={() => setCurrentStep(idx)}
-                    className={`flex items-center justify-center lg:justify-start space-x-2 px-3 py-2.5 lg:px-4 lg:py-3 rounded-xl lg:rounded-none border border-white/5 lg:border-0 text-xs font-black uppercase tracking-wider transition-all relative ${
+                    className={`flex items-center justify-center lg:justify-start space-x-1.5 px-1 py-3 lg:px-4 lg:py-3 rounded-xl lg:rounded-none border border-white/5 lg:border-0 text-[10px] md:text-[11px] lg:text-xs font-black uppercase tracking-wider transition-all relative lg:shrink-0 ${
                       isActive 
                         ? "text-[#00d2ff] bg-[#00d2ff]/10 lg:bg-transparent border-[#00d2ff]/30 lg:border-0" 
                         : isSelected 
@@ -249,11 +249,13 @@ export default function KendinToplaPage() {
                           : "text-gray-400 bg-zinc-900/40 lg:bg-transparent hover:text-white"
                     }`}
                   >
-                    <StepIcon className="w-4 h-4 shrink-0" />
-                    <span>{step.name}</span>
+                    <StepIcon className="w-3.5 h-3.5 lg:w-4 lg:h-4 shrink-0" />
+                    
+                    {/* 🚀 İŞTE SİHİRLİ KOD BURASI: whitespace-nowrap yazının alt alta düşmesini KESİNLİKLE engeller! */}
+                    <span className="whitespace-nowrap">{step.name}</span>
+                    
                     {isSelected && <Check className="w-3 h-3 text-emerald-400 ml-1 shrink-0" />}
                     
-                    {/* Aktif segment alt çizgisi (Sadece PC'de tab çizgisi olarak gözüksün, mobilde zaten kutu parlıyor) */}
                     {isActive && (
                       <div className="hidden lg:block absolute bottom-[-5px] left-0 w-full h-[3px] bg-[#00d2ff] drop-shadow-[0_0_8px_rgba(0,210,255,0.6)] z-10" />
                     )}
@@ -285,7 +287,7 @@ export default function KendinToplaPage() {
               {products.map((urun) => {
                 const isItemChosen = selections[activeStepInfo.id]?._id === urun._id;
                 return (
-                  <div key={urun._id} className={`bg-[#18181b] border-2 rounded-2xl p-4 flex gap-4 hover:border-white/20 transition-all group shadow-md ${isItemChosen ? "border-[#00d2ff] bg-[#00d2ff]/5" : "border-white/10"}`}>
+                  <div key={urun._id} className={`bg-[#18181b] border-2 rounded-2xl p-4 flex gap-4 hover:border-white/20 transition-all group shadow-md ${isItemChosen ? "border-emerald-500 bg-emerald-500/5" : "border-white/10"}`}>
                     
                     <button 
                       onClick={() => setPreviewProduct(urun)}
@@ -336,10 +338,10 @@ export default function KendinToplaPage() {
           )}
 
           <div className="flex justify-between items-center mt-6 pt-4 border-t border-white/10">
-            <button disabled={currentStep === 0} onClick={() => setCurrentStep((p) => p - 1)} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-zinc-800 border border-white/10 text-sm font-bold text-gray-300 hover:text-white hover:bg-zinc-700 disabled:opacity-40 transition-colors">
+            <button disabled={currentStep === 0} onClick={() => setCurrentStep((p) => p - 1)} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-zinc-800 border border-white/10 text-sm font-bold text-gray-300 hover:text-white disabled:opacity-40 transition-colors">
               <ChevronLeft className="w-4 h-4" /> Önceki Adım
             </button>
-            <button disabled={currentStep === STEPS.length - 1} onClick={() => setCurrentStep((p) => p + 1)} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-zinc-800 border border-white/10 text-sm font-bold text-gray-300 hover:text-white hover:bg-zinc-700 disabled:opacity-40 transition-colors">
+            <button disabled={currentStep === STEPS.length - 1} onClick={() => setCurrentStep((p) => p + 1)} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-zinc-800 border border-white/10 text-sm font-bold text-gray-300 hover:text-white disabled:opacity-40 transition-colors">
               Sonraki Adım <ChevronRight className="w-4 h-4" />
             </button>
           </div>
@@ -458,7 +460,7 @@ export default function KendinToplaPage() {
 
       {/* DETAY İNCELEME MODAL PANELİ */}
       {previewProduct && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[9999] overflow-y-auto flex items-start sm:items-center justify-center p-2 sm:p-6 md:p-10 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-black/95 z-[9999] overflow-y-auto flex items-start sm:items-center justify-center p-2 sm:p-6 md:p-10 animate-in fade-in duration-100">
           <div className="bg-[#121214] border-2 border-white/10 w-full max-w-5xl rounded-2xl overflow-hidden flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.8)] my-auto">
             
             <div className="flex items-center justify-between p-5 border-b border-white/10 bg-[#18181b] shrink-0">
