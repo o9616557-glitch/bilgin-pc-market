@@ -157,9 +157,9 @@ export default function KendinToplaPage() {
     fetchAllStepsParallel();
   }, [currentStep, soket, bellek, yapi, radyator]);
 
+  // 🚀 UYARI POP-UP KUTUSU KALDIRILDI: Sadece state güncelleniyor şefim
   const handleSelectComponent = (product: any) => {
     setSelections((prev) => ({ ...prev, [activeStepInfo.id]: product }));
-    toast.success(`${product.isim} eklendi.`);
   };
 
   const handleRemoveComponent = (stepId: string) => {
@@ -237,7 +237,6 @@ export default function KendinToplaPage() {
                 const isSelected = !!selections[step.id];
                 const isActive = currentStep === idx;
                 
-                // 🚀 DİNAMİK RENK SEÇİMİ: Hepsi tamamlandığında aktif olan mavi buton da yeşile bürünür!
                 let tabColorClass = "";
                 if (isActive) {
                   tabColorClass = isSystemComplete ? "text-emerald-400" : "text-[#00d2ff]";
@@ -257,7 +256,6 @@ export default function KendinToplaPage() {
                     <span className="whitespace-nowrap">{step.name}</span>
                     {isSelected && <Check className="w-3 h-3 text-emerald-400 ml-1 shrink-0" />}
                     
-                    {/* 🚀 DİNAMİK ALT ÇİZGİ: Hepsi tamamlandığında aktif çizgi de parlayan zümrüt yeşili olur! */}
                     {isActive && (
                       <div className={`absolute bottom-[-9px] left-0 w-full h-[3px] z-10 ${
                         isSystemComplete 
@@ -323,7 +321,6 @@ export default function KendinToplaPage() {
                       <div className="flex items-center justify-between mt-3 pt-2 border-t border-white/10">
                         <span className="text-base font-black text-white">{Number(urun.indirimliFiyat || urun.fiyat || 0).toLocaleString("tr-TR")} ₺</span>
                         
-                        {/* 🚀 SADE VE TEMİZ BUTON: "Sisteme Ekle" yerine sadece "Ekle" yazıyor patron */}
                         <button 
                           onClick={() => handleSelectComponent(urun)} 
                           className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all border ${
@@ -543,7 +540,6 @@ export default function KendinToplaPage() {
                 Kapat
               </button>
               
-              {/* 🚀 MODAL BUTONU SADELEŞTİRİLDİ: "Parçayı Ekle" olarak güncellendi patron */}
               <button 
                 onClick={() => {
                   handleSelectComponent(previewProduct);
