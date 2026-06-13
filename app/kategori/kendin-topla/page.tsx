@@ -28,12 +28,14 @@ export default function KendinToplaPage() {
   const [selections, setSelections] = useState<Record<string, any>>({});
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
   
-  // 🚀 LİGHTSPEED ÖNBELLEK: İlk tıklama gecikmesini yok eden akıllı cache ref yapısı
+  // LİGHTSPEED ÖNBELLEK
   const cacheRef = useRef<Record<string, any[]>>({});
   
   const activeStepInfo = STEPS[currentStep];
+  
+  // 🚀 YENİ KURAL: Tüm 8 parça da seçildi mi? (True/False)
+  const isAllCompleted = STEPS.every((s) => selections[s.id]);
 
-  // Tarayıcı hafızasından eski seçimleri geri yükleme motoru
   useEffect(() => {
     const eskiSecimler = localStorage.getItem("bilgin_sihirbaz_selections");
     if (eskiSecimler) {
@@ -45,14 +47,12 @@ export default function KendinToplaPage() {
     }
   }, []);
 
-  // Seçimler değiştikçe hafızayı anında güncelleme motoru
   useEffect(() => {
     if (Object.keys(selections).length > 0) {
       localStorage.setItem("bilgin_sihirbaz_selections", JSON.stringify(selections));
     }
   }, [selections]);
 
-  // Pop-up açılınca arka plan kaymasını engelleyen kilit
   useEffect(() => {
     if (previewProduct) {
       document.body.style.overflow = "hidden";
@@ -109,7 +109,7 @@ export default function KendinToplaPage() {
 
   const { soket, bellek, yapi, radyator } = dinamikFiltreleriHesapla(activeStepInfo.id);
 
-  // 🚀 PARALEL ARKA PLAN PRE-FETCH MOTORU
+  // PARALEL ARKA PLAN PRE-FETCH MOTORU
   useEffect(() => {
     const currentCacheKey = `${activeStepInfo.id}_${soket}_${bellek}_${yapi}_${radyator}`;
     
@@ -137,7 +137,6 @@ export default function KendinToplaPage() {
         }
       }
 
-      // Arka planda diğer tüm adımları önceden hazır etme motoru
       STEPS.forEach(async (step) => {
         if (step.id === activeStepInfo.id) return;
         const stepCacheKey = `${step.id}_${soket}_${bellek}_${yapi}_${radyator}`;
@@ -223,29 +222,31 @@ export default function KendinToplaPage() {
   return (
     <div className="bg-[#050505] text-white min-h-screen font-sans pb-32">
       <div className="border-b border-white/5 bg-[#09090b]/90 backdrop-blur-xl lg:sticky lg:top-20 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center space-x-3 shrink-0">
-            <span className="text-[#00d2ff] font-black text-xl tracking-tight">🔧 PC SİHİRBAZI</span>
+            <span className="text-[#00d2ff] font-black text-xl sm:text-2xl">🔧 PC SİHİRBAZI</span>
           </div>
           
-          {/* 🚀 TAM İSTEDİĞİN GİBİ KURUMSAL GRİD NİZAMI: 'Damla damla' ayrı duran kutular kalktı, tek bir birleşik lüks panel haline geldi. Sağa sola asla kaymaz, mobilde 2'şerli aşağı akar! */}
           <div className="w-full lg:w-auto bg-zinc-900/40 p-1.5 rounded-2xl border border-white/5 lg:bg-transparent lg:p-0 lg:border-0">
             <div className="grid grid-cols-2 gap-1.5 w-full lg:flex lg:items-center lg:space-x-1">
               {STEPS.map((step, idx) => {
                 const StepIcon = step.icon;
                 const isSelected = !!selections[step.id];
                 const isActive = currentStep === idx;
+                
                 return (
                   <button
                     key={step.id}
                     onClick={() => setCurrentStep(idx)}
-                    /* 🚀 GÜNEŞ IŞIĞI AYARI: Aktif buton fosforlu tam kaplama oldu, güneşte kusursuz okunur */
-                    className={`flex items-center space-x-2 px-3 py-3 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all truncate text-left ${
+                    /* 🚀 TAMAMLAMA MANTIĞI: Hepsi bittiyse (isAllCompleted) mavi yerine yemyeşil parlayacak! */
+                    className={`flex items-center space-x-2 px-3 py-3 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all truncate text-left border ${
                       isActive 
-                        ? "bg-[#00d2ff] text-black shadow-[0_0_15px_rgba(0,210,255,0.3)]" 
+                        ? isAllCompleted 
+                           ? "bg-emerald-500 text-black border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.4)]" // Tümü bitmişse Yeşile Döner
+                           : "bg-[#00d2ff] text-black border-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.3)]" // Toplama sürüyorsa Mavidir
                         : isSelected 
-                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" 
-                          : "bg-zinc-900/60 text-gray-300 border border-white/5 hover:text-white"
+                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" 
+                          : "bg-zinc-900/60 text-gray-300 border-white/5 hover:text-white"
                     }`}
                   >
                     <StepIcon className={`w-4 h-4 shrink-0 ${isActive ? "text-black" : isSelected ? "text-emerald-400" : "text-[#00d2ff]"}`} />
