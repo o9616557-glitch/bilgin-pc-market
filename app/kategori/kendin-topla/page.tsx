@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useCart } from "@/app/CartContext";
 import toast from "react-hot-toast";
 import { 
-  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, ChevronRight, ChevronLeft, Loader2, Check, AlertTriangle, Trash2, RefreshCw, ExternalLink 
+  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, ChevronRight, ChevronLeft, Loader2, Check, AlertTriangle, Trash2, RefreshCw, ExternalLink, Heart 
 } from "lucide-react";
 
 const STEPS = [
@@ -24,17 +24,14 @@ export default function KendinToplaPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Kalıcı hafızalı seçim state yapısı
+  // Aktif toplanan sistem hafıza state yapısı
   const [selections, setSelections] = useState<Record<string, any>>({});
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
   
-  // LİGHTSPEED ÖNBELLEK
-  const cacheRef = useRef<Record<string, any[]>>({});
+  // Sadece kalbi kırmızı yapacak state
+  const [isFavorited, setIsFavorited] = useState(false);
   
   const activeStepInfo = STEPS[currentStep];
-  
-  // 🚀 YENİ KURAL: Tüm 8 parça da seçildi mi? (True/False)
-  const isAllCompleted = STEPS.every((s) => selections[s.id]);
 
   useEffect(() => {
     const eskiSecimler = localStorage.getItem("bilgin_sihirbaz_selections");
@@ -51,6 +48,7 @@ export default function KendinToplaPage() {
     if (Object.keys(selections).length > 0) {
       localStorage.setItem("bilgin_sihirbaz_selections", JSON.stringify(selections));
     }
+    setIsFavorited(false);
   }, [selections]);
 
   useEffect(() => {
@@ -109,52 +107,22 @@ export default function KendinToplaPage() {
 
   const { soket, bellek, yapi, radyator } = dinamikFiltreleriHesapla(activeStepInfo.id);
 
-  // PARALEL ARKA PLAN PRE-FETCH MOTORU
   useEffect(() => {
-    const currentCacheKey = `${activeStepInfo.id}_${soket}_${bellek}_${yapi}_${radyator}`;
-    
-    if (cacheRef.current[currentCacheKey]) {
-      setProducts(cacheRef.current[currentCacheKey]);
-      setLoading(false);
-    } else {
+    const fetchComponents = async () => {
       setLoading(true);
-    }
-
-    const fetchAllStepsParallel = async () => {
-      if (!cacheRef.current[currentCacheKey]) {
-        try {
-          let url = `/api/kendin-topla?kategori=${activeStepInfo.id}&soket=${encodeURIComponent(soket)}&bellek=${encodeURIComponent(bellek)}&yapi=${encodeURIComponent(yapi)}&radyator=${encodeURIComponent(radyator)}`;
-          const res = await fetch(url);
-          const resData = await res.json();
-          if (resData.success) {
-            cacheRef.current[currentCacheKey] = resData.data;
-            setProducts(resData.data);
-          }
-        } catch (e) {
-          setProducts([]);
-        } finally {
-          setLoading(false);
-        }
+      try {
+        let url = `/api/kendin-topla?kategori=${activeStepInfo.id}&soket=${encodeURIComponent(soket)}&bellek=${encodeURIComponent(bellek)}&yapi=${encodeURIComponent(yapi)}&radyator=${encodeURIComponent(radyator)}`;
+        const res = await fetch(url);
+        const resData = await res.json();
+        if (resData.success) setProducts(resData.data);
+        else setProducts([]);
+      } catch (e) {
+        setProducts([]);
+      } finally {
+        setLoading(false);
       }
-
-      STEPS.forEach(async (step) => {
-        if (step.id === activeStepInfo.id) return;
-        const stepCacheKey = `${step.id}_${soket}_${bellek}_${yapi}_${radyator}`;
-        
-        if (!cacheRef.current[stepCacheKey]) {
-          try {
-            let url = `/api/kendin-topla?kategori=${step.id}&soket=${encodeURIComponent(soket)}&bellek=${encodeURIComponent(bellek)}&yapi=${encodeURIComponent(yapi)}&radyator=${encodeURIComponent(radyator)}`;
-            const res = await fetch(url);
-            const resData = await res.json();
-            if (resData.success) {
-              cacheRef.current[stepCacheKey] = resData.data;
-            }
-          } catch (e) {}
-        }
-      });
     };
-
-    fetchAllStepsParallel();
+    fetchComponents();
   }, [currentStep, soket, bellek, yapi, radyator]);
 
   const handleSelectComponent = (product: any) => {
@@ -179,7 +147,34 @@ export default function KendinToplaPage() {
     setSelections({});
     setCurrentStep(0);
     localStorage.removeItem("bilgin_sihirbaz_selections");
+    setIsFavorited(false);
     toast.success("Sistem başarıyla sıfırlandı.");
+  };
+
+  const handleAddSystemToFavorites = () => {
+    if (Object.keys(selections).length === 0) {
+      return toast.error("Favorilere eklemek için en az bir parça seçmelisiniz.");
+    }
+
+    try {
+      const mevcutSistemler = localStorage.getItem("bilgin_kayitli_sistemler");
+      let sistemListesi = mevcutSistemler ? JSON.parse(mevcutSistemler) : [];
+
+      const yeniSistemKonfigurasayonu = {
+        id: Date.now(),
+        tarih: new Date().toLocaleDateString("tr-TR"),
+        toplamTutar: toplamFiyat,
+        parcalar: { ...selections }
+      };
+
+      sistemListesi.push(yeniSistemKonfigurasayonu);
+      localStorage.setItem("bilgin_kayitli_sistemler", JSON.stringify(sistemListesi));
+
+      setIsFavorited(true);
+      toast.success("Sistem konfigürasyonunuz sapıtma olmadan başarıyla favorilerinize kaydedildi! ❤️");
+    } catch (error) {
+      toast.error("Sistem kaydedilirken teknik bir sorun oluştu.");
+    }
   };
 
   const toplamFiyat = Object.values(selections).reduce((acc, curr) => {
@@ -216,46 +211,37 @@ export default function KendinToplaPage() {
     localStorage.removeItem("bilgin_sihirbaz_selections");
     setSelections({});
     setCurrentStep(0);
+    setIsFavorited(false);
     toast.success("Sistem başarıyla sepete eklendi ve sihirbaz temizlendi.");
   };
 
   return (
     <div className="bg-[#050505] text-white min-h-screen font-sans pb-32">
       <div className="border-b border-white/5 bg-[#09090b]/90 backdrop-blur-xl lg:sticky lg:top-20 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center space-x-3 shrink-0">
             <span className="text-[#00d2ff] font-black text-xl sm:text-2xl">🔧 PC SİHİRBAZI</span>
           </div>
           
-          <div className="w-full lg:w-auto bg-zinc-900/40 p-1.5 rounded-2xl border border-white/5 lg:bg-transparent lg:p-0 lg:border-0">
-            <div className="grid grid-cols-2 gap-1.5 w-full lg:flex lg:items-center lg:space-x-1">
-              {STEPS.map((step, idx) => {
-                const StepIcon = step.icon;
-                const isSelected = !!selections[step.id];
-                const isActive = currentStep === idx;
-                
-                return (
-                  <button
-                    key={step.id}
-                    onClick={() => setCurrentStep(idx)}
-                    /* 🚀 TAMAMLAMA MANTIĞI: Hepsi bittiyse (isAllCompleted) mavi yerine yemyeşil parlayacak! */
-                    className={`flex items-center space-x-2 px-3 py-3 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all truncate text-left border ${
-                      isActive 
-                        ? isAllCompleted 
-                           ? "bg-emerald-500 text-black border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.4)]" // Tümü bitmişse Yeşile Döner
-                           : "bg-[#00d2ff] text-black border-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.3)]" // Toplama sürüyorsa Mavidir
-                        : isSelected 
-                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" 
-                          : "bg-zinc-900/60 text-gray-300 border-white/5 hover:text-white"
-                    }`}
-                  >
-                    <StepIcon className={`w-4 h-4 shrink-0 ${isActive ? "text-black" : isSelected ? "text-emerald-400" : "text-[#00d2ff]"}`} />
-                    <span className="truncate">{step.name}</span>
-                    {isSelected && <Check className={`w-3 h-3 ml-auto shrink-0 ${isActive ? "text-black" : "text-emerald-400"}`} />}
-                  </button>
-                );
-              })}
-            </div>
+          <div className="flex overflow-x-auto sm:flex-wrap items-center gap-2 w-full md:w-auto pb-1 sm:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            {STEPS.map((step, idx) => {
+              const StepIcon = step.icon;
+              const isSelected = !!selections[step.id];
+              const isActive = currentStep === idx;
+              return (
+                <button
+                  key={step.id}
+                  onClick={() => setCurrentStep(idx)}
+                  className={`shrink-0 flex items-center space-x-1.5 px-3 py-2 sm:py-1.5 rounded-xl border text-xs font-black transition-all ${
+                    isActive ? "bg-[#00d2ff]/15 border-[#00d2ff] text-[#00d2ff]" : isSelected ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-400" : "bg-zinc-800/80 border-white/10 text-gray-300 hover:text-white hover:bg-zinc-700"
+                  }`}
+                >
+                  <StepIcon className="w-3.5 h-3.5" />
+                  <span>{step.name}</span>
+                  {isSelected && <Check className="w-3 h-3 text-emerald-400 ml-0.5" />}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -417,10 +403,18 @@ export default function KendinToplaPage() {
               </div>
               
               <button 
+                onClick={handleAddSystemToFavorites}
+                className="w-full h-11 rounded-xl font-bold uppercase tracking-wider text-xs border border-white/10 bg-white/[0.02] text-gray-300 flex items-center justify-center gap-2 transition-all hover:bg-white/[0.05]"
+              >
+                <Heart className={`w-3.5 h-3.5 transition-colors ${isFavorited ? "text-red-500 fill-red-500" : "text-gray-400"}`} /> 
+                Bu Sistemi Favorilerime Ekle
+              </button>
+
+              <button 
                 onClick={handleAddSystemToCart} 
                 disabled={psuYetersiz || gpuKasaAşimi}
                 className={`w-full h-14 rounded-xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 transition-all ${
-                  (psuYetersiz || gpuKasaAşimi) ? "bg-zinc-800 text-gray-600 cursor-not-allowed border border-white/10" : "bg-[#00d2ff] text-black hover:bg-[#00c4db]"
+                  (psuYetersiz || gpuKasaAşimi) ? "bg-zinc-800 text-gray-500 cursor-not-allowed border border-white/10" : "bg-[#00d2ff] text-black hover:bg-[#00c4db]"
                 }`}
               >
                 <ShoppingBag className="w-4 h-4" /> { (psuYetersiz || gpuKasaAşimi) ? "Uyumsuzlukları Gideriniz" : "Sistemi Sepete Ekle" }
@@ -431,7 +425,7 @@ export default function KendinToplaPage() {
       </div>
 
       {/* MOBİL ALT BAR */}
-      <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#18181b]/95 backdrop-blur-2xl border-t-2 border-white/10 px-4 py-4 z-50 flex items-center justify-between shadow-[0_-15px_30px_rgba(0,0,0,0.8)] select-none">
+      <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#18181b]/95 backdrop-blur-2xl border-t-2 border-white/10 px-4 sm:px-6 py-4 z-50 flex items-center justify-between shadow-[0_-15px_30px_rgba(0,0,0,0.8)] select-none">
          <div className="flex flex-col">
             <span className="text-gray-400 text-[10px] font-black tracking-wider uppercase mb-0.5">TOPLAM TUTAR</span>
             <span className="text-2xl font-black text-white leading-none">
@@ -439,6 +433,13 @@ export default function KendinToplaPage() {
             </span>
          </div>
          <div className="flex items-center gap-2">
+           <button 
+             onClick={handleAddSystemToFavorites}
+             className="h-12 w-12 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center transition-colors"
+             title="Sistemi Favorilere Ekle"
+           >
+             <Heart className={`w-5 h-5 transition-colors ${isFavorited ? "text-red-500 fill-red-500" : "text-gray-400"}`} />
+           </button>
            <button 
              onClick={handleAddSystemToCart}
              disabled={psuYetersiz || gpuKasaAşimi}
@@ -451,9 +452,9 @@ export default function KendinToplaPage() {
          </div>
       </div>
 
-      {/* DETAY İNCELEME MODAL PANELİ */}
+      {/* 🚀 Z-INDEX [9999] VE ÇENTİK KORUMALI POP-UP PANELİ */}
       {previewProduct && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 overflow-y-auto flex items-start sm:items-center justify-center p-2 sm:p-6 md:p-10 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[9999] overflow-y-auto flex items-start sm:items-center justify-center p-4 py-10 sm:p-6 md:p-10 animate-in fade-in duration-200">
           <div className="bg-[#121214] border-2 border-white/10 w-full max-w-5xl rounded-2xl overflow-hidden flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.8)] my-auto">
             
             <div className="flex items-center justify-between p-5 border-b border-white/10 bg-[#18181b] shrink-0">
