@@ -27,8 +27,6 @@ export default function KendinToplaPage() {
   // Hafızalı seçim state yapısı
   const [selections, setSelections] = useState<Record<string, any>>({});
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
-  
-  // 🚀 FAVORİ DURUMUNU TAKİP EDEN YENİ STATE (SADECE KALP KIRMIZI OLACAK)
   const [isFavorited, setIsFavorited] = useState(false);
   
   const activeStepInfo = STEPS[currentStep];
@@ -50,7 +48,6 @@ export default function KendinToplaPage() {
     if (Object.keys(selections).length > 0) {
       localStorage.setItem("bilgin_sihirbaz_selections", JSON.stringify(selections));
     }
-    // 🚀 Parça eklenip çıkarıldığında favori kırmızı kalbi sıfırlanır ki yeni hali de kaydedilebilsin
     setIsFavorited(false);
   }, [selections]);
 
@@ -155,7 +152,7 @@ export default function KendinToplaPage() {
     toast.success("Sistem başarıyla sıfırlandı.");
   };
 
-  // 🚀 GÜVENLİ TEK TEK EKLEME VE KIRMIZI KALP MOTORU
+  // 🚀 SAPITMA KORUMALI DİNAMİK TEK TEK FAVORİ KAYIT MOTORU
   const handleAddSystemToFavorites = async () => {
     if (Object.keys(selections).length === 0) {
       return toast.error("Favorilere eklemek için en az bir parça seçmelisiniz.");
@@ -166,14 +163,16 @@ export default function KendinToplaPage() {
       let basariliSayisi = 0;
       let sonHataMesaji = "";
 
-      // Seçilen tüm parçaları döngüye alıp senin o çalışan orijinal API'ne tek tek yediriyoruz şefim
+      // 🛠️ DÜZELTME: Her ürünün kendi döngü verisinde dinamik ID alıyoruz, dışarıdaki sabit bağı sildik!
       for (const urun of Object.values(selections)) {
+        if (!urun || !urun._id) continue;
+
         const res = await fetch("/api/favorites", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             productId: urun._id,
-            id: urun._id 
+            id: urun._id // Dinamik olarak o an döngüdeki gerçek ürünün ID'si gönderiliyor!
           })
         });
 
@@ -188,8 +187,8 @@ export default function KendinToplaPage() {
       toast.dismiss(loadToast);
 
       if (basariliSayisi > 0) {
-        setIsFavorited(true); // 🚀 BAŞARILIYSA SADECE KALBİ KIRMIZI YAPAR, YAZIYI DEĞİŞTİRMEZ!
-        toast.success("Seçtiğiniz tüm parçalar başarıyla favorilerinize kaydedildi! ❤️");
+        setIsFavorited(true);
+        toast.success("Seçtiğiniz tüm güncel parçalar başarıyla favorilerinize kaydedildi! ❤️");
       } else {
         toast.error(sonHataMesaji || "Lütfen önce kullanıcı girişi yapınız.");
       }
@@ -361,7 +360,7 @@ export default function KendinToplaPage() {
               {Object.keys(selections).length > 0 && (
                 <button 
                   onClick={handleClearAll}
-                  className="text-gray-500 hover:text-red-400 text-xs font-black flex items-center gap-1.5 transition-colors px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 hover:bg-red-500/10 hover:border-red-500/20"
+                  className="text-gray-500 hover:text-red-400 text-xs font-black flex items-center gap-1.5 transition-colors px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 hover:bg-red-500/10 hover:bg-red-500/20"
                 >
                   <RefreshCw className="w-3 h-3" /> Tümünü Sıfırla
                 </button>
@@ -423,7 +422,6 @@ export default function KendinToplaPage() {
                 <span className="text-3xl font-black text-white tracking-tight">{toplamFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">TL</span></span>
               </div>
               
-              {/* 🚀 MASAÜSTÜ FAVORİ BUTONU: Sadece kalp kırmızıya boyanır, yazı nizamı sabit kalır */}
               <button 
                 onClick={handleAddSystemToFavorites}
                 className="w-full h-11 rounded-xl font-bold uppercase tracking-wider text-xs border border-white/10 bg-white/[0.02] text-gray-300 flex items-center justify-center gap-2 transition-all hover:bg-white/[0.05]"
@@ -455,7 +453,6 @@ export default function KendinToplaPage() {
             </span>
          </div>
          <div className="flex items-center gap-2">
-           {/* 🚀 MOBİL FAVORİ BUTONU: Sadece içindeki kalp ikonu kırmızıya boyanır */}
            <button 
              onClick={handleAddSystemToFavorites}
              className="h-12 w-12 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center transition-colors"
@@ -471,7 +468,7 @@ export default function KendinToplaPage() {
              }`}
            >
               <ShoppingBag className="w-4 h-4" /> Sepete Ekle
-           </button>
+         </button>
          </div>
       </div>
 
