@@ -28,9 +28,12 @@ export default function KendinToplaPage() {
   const [selections, setSelections] = useState<Record<string, any>>({});
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
   
+  // 🚀 FAVORİ DURUMUNU TAKİP EDEN YENİ STATE (SADECE KALP KIRMIZI OLACAK)
+  const [isFavorited, setIsFavorited] = useState(false);
+  
   const activeStepInfo = STEPS[currentStep];
 
-  // 📦 Tarayıcı hafızasından eski seçimleri geri yükleme motoru
+  // Tarayıcı hafızasından eski seçimleri geri yükleme motoru
   useEffect(() => {
     const eskiSecimler = localStorage.getItem("bilgin_sihirbaz_selections");
     if (eskiSecimler) {
@@ -42,11 +45,13 @@ export default function KendinToplaPage() {
     }
   }, []);
 
-  // 💾 Seçimler değiştikçe hafızayı anında güncelleme motoru
+  // Seçimler değiştikçe hafızayı anında güncelleme motoru
   useEffect(() => {
     if (Object.keys(selections).length > 0) {
       localStorage.setItem("bilgin_sihirbaz_selections", JSON.stringify(selections));
     }
+    // 🚀 Parça eklenip çıkarıldığında favori kırmızı kalbi sıfırlanır ki yeni hali de kaydedilebilsin
+    setIsFavorited(false);
   }, [selections]);
 
   // Pop-up açılınca arka plan kaymasını engelleyen kilit
@@ -146,48 +151,47 @@ export default function KendinToplaPage() {
     setSelections({});
     setCurrentStep(0);
     localStorage.removeItem("bilgin_sihirbaz_selections");
+    setIsFavorited(false);
     toast.success("Sistem başarıyla sıfırlandı.");
   };
 
-  // 🚀 SINIRSIZ FAVORİ KAYIT MOTORU (EN AZ 4 KURALI TAMAMEN KALKTI!)
+  // 🚀 GÜVENLİ TEK TEK EKLEME VE KIRMIZI KALP MOTORU
   const handleAddSystemToFavorites = async () => {
     if (Object.keys(selections).length === 0) {
       return toast.error("Favorilere eklemek için en az bir parça seçmelisiniz.");
     }
 
-    const loadToast = toast.loading("Sistem konfigürasyonu bütün olarak paketleniyor...");
+    const loadToast = toast.loading("Bileşenler favori listenize işleniyor...");
     try {
-      const ilkKategoriAnahtari = Object.keys(selections)[0];
-      const ilkSecilenUrun = selections[ilkKategoriAnahtari];
+      let basariliSayisi = 0;
+      let sonHataMesaji = "";
 
-      const sistemPaketi = {
-        productId: ilkSecilenUrun._id,
-        id: ilkSecilenUrun._id,
-        isToplamaSystem: true, 
-        genelToplamTutar: toplamFiyat,
-        parcalar: STEPS.map(step => {
-          const parca = selections[step.id];
-          return parca ? {
-            parcaBasligi: step.name,
-            urunIsmi: parca.isim,
-            fiyat: Number(parca.indirimliFiyat || parca.fiyat || 0)
-          } : null;
-        }).filter(Boolean)
-      };
+      // Seçilen tüm parçaları döngüye alıp senin o çalışan orijinal API'ne tek tek yediriyoruz şefim
+      for (const urun of Object.values(selections)) {
+        const res = await fetch("/api/favorites", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            productId: urun._id,
+            id: urun._id 
+          })
+        });
 
-      const res = await fetch("/api/favorites", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(sistemPaketi)
-      });
+        const data = await res.json();
+        if (data.success) {
+          basariliSayisi++;
+        } else {
+          sonHataMesaji = data.message || "Yetki hatası.";
+        }
+      }
 
-      const data = await res.json();
       toast.dismiss(loadToast);
 
-      if (data.success) {
-        toast.success("Sistem konfigürasyonunuz tek bir bütün kart olarak favorilere eklendi! ❤️");
+      if (basariliSayisi > 0) {
+        setIsFavorited(true); // 🚀 BAŞARILIYSA SADECE KALBİ KIRMIZI YAPAR, YAZIYI DEĞİŞTİRMEZ!
+        toast.success("Seçtiğiniz tüm parçalar başarıyla favorilerinize kaydedildi! ❤️");
       } else {
-        toast.error(data.message || "Lütfen önce kullanıcı girişi yapınız.");
+        toast.error(sonHataMesaji || "Lütfen önce kullanıcı girişi yapınız.");
       }
     } catch (error) {
       toast.dismiss(loadToast);
@@ -229,6 +233,7 @@ export default function KendinToplaPage() {
     localStorage.removeItem("bilgin_sihirbaz_selections");
     setSelections({});
     setCurrentStep(0);
+    setIsFavorited(false);
     toast.success("Sistem başarıyla sepete eklendi ve sihirbaz temizlendi.");
   };
 
@@ -418,11 +423,13 @@ export default function KendinToplaPage() {
                 <span className="text-3xl font-black text-white tracking-tight">{toplamFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">TL</span></span>
               </div>
               
+              {/* 🚀 MASAÜSTÜ FAVORİ BUTONU: Sadece kalp kırmızıya boyanır, yazı nizamı sabit kalır */}
               <button 
                 onClick={handleAddSystemToFavorites}
-                className="w-full h-11 rounded-xl font-bold uppercase tracking-wider text-xs border border-white/10 hover:border-red-500/40 bg-white/[0.02] hover:bg-red-500/5 text-gray-300 hover:text-red-400 flex items-center justify-center gap-2 transition-all"
+                className="w-full h-11 rounded-xl font-bold uppercase tracking-wider text-xs border border-white/10 bg-white/[0.02] text-gray-300 flex items-center justify-center gap-2 transition-all hover:bg-white/[0.05]"
               >
-                <Heart className="w-3.5 h-3.5" /> Bu Sistemi Favorilerime Ekle
+                <Heart className={`w-3.5 h-3.5 transition-colors ${isFavorited ? "text-red-500 fill-red-500" : "text-gray-400"}`} /> 
+                Bu Sistemi Favorilerime Ekle
               </button>
 
               <button 
@@ -448,12 +455,13 @@ export default function KendinToplaPage() {
             </span>
          </div>
          <div className="flex items-center gap-2">
+           {/* 🚀 MOBİL FAVORİ BUTONU: Sadece içindeki kalp ikonu kırmızıya boyanır */}
            <button 
              onClick={handleAddSystemToFavorites}
-             className="h-12 w-12 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center text-gray-400 hover:text-red-400 transition-colors"
+             className="h-12 w-12 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center transition-colors"
              title="Sistemi Favorilere Ekle"
            >
-             <Heart className="w-5 h-5" />
+             <Heart className={`w-5 h-5 transition-colors ${isFavorited ? "text-red-500 fill-red-500" : "text-gray-400"}`} />
            </button>
            <button 
              onClick={handleAddSystemToCart}
