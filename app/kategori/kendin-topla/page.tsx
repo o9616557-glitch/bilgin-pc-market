@@ -2,11 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { useCart } from "@/app/CartContext";
-// 🚀 ANA SAYFADAKİ GİBİ AKILLI GEÇİŞ MOTORU DAHİL EDİLDİ
-import Link from "next/link"; 
 import toast from "react-hot-toast";
 import { 
-  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, ChevronRight, ChevronLeft, Loader2, Check, AlertTriangle, Trash2, RefreshCw, ExternalLink, ArrowRight 
+  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, ChevronRight, ChevronLeft, Loader2, Check, AlertTriangle, Trash2, RefreshCw, ExternalLink 
 } from "lucide-react";
 
 const STEPS = [
@@ -27,6 +25,10 @@ export default function KendinToplaPage() {
   const [loading, setLoading] = useState(true);
 
   const [selections, setSelections] = useState<Record<string, any>>({});
+  
+  // 🚀 ANINDA DETAY GÖSTERİMİ İÇİN YENİ NESİL MODAL STATE YAPISI
+  const [previewProduct, setPreviewProduct] = useState<any | null>(null);
+  
   const activeStepInfo = STEPS[currentStep];
 
   const dinamikFiltreleriHesapla = (stepToIgnore: string) => {
@@ -195,32 +197,28 @@ export default function KendinToplaPage() {
                 return (
                   <div key={urun._id} className={`bg-[#09090b] border rounded-2xl p-4 flex gap-4 hover:border-white/20 transition-all group ${isItemChosen ? "border-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.05)]" : "border-white/5"}`}>
                     
-                    {/* 🚀 JET MOTORU ENJEKTE EDİLDİ: 'prefetch={true}' ve 'pointer-events-auto' tam koruma sağlandı */}
-                    <Link 
-                      href={`/product/${urun.slug || urun._id}`} 
-                      target="_blank" 
-                      prefetch={true}
+                    {/* 🚀 DEĞİŞİKLİK: Link söküldü, yerine 0ms'de modal açan akıllı buton entegre edildi */}
+                    <button 
+                      onClick={() => setPreviewProduct(urun)}
                       className="w-20 h-20 bg-black/40 rounded-xl p-2 flex items-center justify-center shrink-0 cursor-pointer relative block group/img pointer-events-auto"
-                      title="Ürünü yeni sekmede incele"
+                      title="Ürün detaylarını incele"
                     >
                       <img src={urun.resim} alt={urun.isim} className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform" />
                       <div className="absolute inset-0 bg-black/60 rounded-xl opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity">
                         <ExternalLink className="w-4 h-4 text-[#00d2ff]" />
                       </div>
-                    </Link>
+                    </button>
 
                     <div className="flex flex-col justify-between flex-1 min-w-0">
                       <div>
-                        {/* 🚀 JET MOTORU ENJEKTE EDİLDİ: İsim bağlantısı da tam performans moduna alındı */}
-                        <Link 
-                          href={`/product/${urun.slug || urun._id}`}
-                          target="_blank"
-                          prefetch={true}
-                          className="text-sm font-bold text-white truncate block hover:text-[#00d2ff] hover:underline transition-all cursor-pointer mb-1 pointer-events-auto"
-                          title="Ürünü yeni sekmede incele"
+                        {/* 🚀 DEĞİŞİKLİK: Başlık da modal tetikleyicisine dönüştürüldü */}
+                        <button 
+                          onClick={() => setPreviewProduct(urun)}
+                          className="text-sm font-bold text-white text-left truncate block hover:text-[#00d2ff] hover:underline transition-all cursor-pointer mb-1 pointer-events-auto w-full"
+                          title="Ürün detaylarını incele"
                         >
                           {urun.isim}
-                        </Link>
+                        </button>
                         
                         <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-gray-500 font-medium break-all break-words">
                           {urun.sihirbaz_ozellikleri && Object.entries(urun.sihirbaz_ozellikleri).filter(([_, v]) => v).slice(0, 3).map(([k, v]: any) => (
@@ -367,6 +365,94 @@ export default function KendinToplaPage() {
             <ShoppingBag className="w-4 h-4" /> Sepete Ekle
          </button>
       </div>
+
+      {/* ==================== 🚀 LİGHTSPEED DETAY İNCELEME MODAL PANELİ 🚀 ==================== */}
+      {previewProduct && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 sm:p-6 md:p-10 select-none animate-in fade-in duration-200">
+          <div className="bg-[#09090b] border border-white/10 w-full max-w-4xl h-full max-h-[85vh] rounded-2xl overflow-hidden flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+            
+            {/* PANEL ÜST BİLGİSİ */}
+            <div className="flex items-center justify-between p-5 border-b border-white/5 bg-black/20">
+              <h3 className="text-sm font-black uppercase tracking-wider text-[#00d2ff]">Ürün Detay İnceleme</h3>
+              <button 
+                onClick={() => setPreviewProduct(null)}
+                className="text-gray-400 hover:text-white px-4 py-2 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors font-black text-xs uppercase tracking-widest"
+              >
+                Kapat ✕
+              </button>
+            </div>
+
+            {/* PANEL İÇERİK ALANI */}
+            <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-5 gap-6">
+              {/* SOL SÜTUN: MEDYA VE FİYAT */}
+              <div className="md:col-span-2 flex flex-col items-center gap-6 border-b md:border-b-0 md:border-r border-white/5 pb-6 md:pb-0 md:pr-6">
+                <div className="w-full aspect-square bg-black/40 rounded-2xl p-6 border border-white/5 flex items-center justify-center">
+                  <img src={previewProduct.resim} alt={previewProduct.isim} className="max-w-full max-h-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
+                </div>
+                <div className="w-full bg-white/5 p-4 rounded-xl border border-white/5 flex flex-col items-center justify-center text-center">
+                  <span className="text-[10px] text-gray-500 font-black tracking-widest uppercase mb-1">AVANTAJLI FİYAT</span>
+                  <span className="text-3xl font-black text-emerald-400">{Number(previewProduct.indirimliFiyat || previewProduct.fiyat || 0).toLocaleString("tr-TR")} ₺</span>
+                </div>
+              </div>
+
+              {/* SAĞ SÜTUN: TEKNİK VERİLER VE AÇIKLAMA */}
+              <div className="md:col-span-3 space-y-6 overflow-y-auto pr-1">
+                <div>
+                  <span className="text-[10px] text-gray-500 font-black tracking-widest uppercase block mb-1">{previewProduct.marka || "BİLEŞEN"}</span>
+                  <h2 className="text-lg md:text-xl font-black text-white leading-snug">{previewProduct.isim}</h2>
+                </div>
+
+                {/* TEKNİK DETAY TABLOSU */}
+                {previewProduct.teknik_ozellikler && (
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 border-b border-white/5 pb-1">Teknik Özellikler</h4>
+                    <div className="grid grid-cols-1 gap-1.5 text-xs">
+                      {Object.entries(previewProduct.teknik_ozellikler).map(([key, value]: any) => (
+                        <div key={key} className="flex justify-between py-2 px-3 bg-white/[0.02] border border-white/5 rounded-lg gap-4">
+                          <span className="text-gray-500 font-bold capitalize">{key.replace(/_/g, ' ')}</span>
+                          <span className="text-gray-300 font-extrabold text-right break-all">{String(value)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* ZENGİN METİN AÇIKLAMASI */}
+                {previewProduct.aciklama && (
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 border-b border-white/5 pb-1">Ürün Açıklaması</h4>
+                    <div 
+                      className="text-xs text-gray-400 leading-relaxed font-medium break-words prose prose-invert max-w-none"
+                      dangerouslySetInnerHTML={{ __html: previewProduct.aciklama }}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* PANEL ALT SEÇENEKLERİ */}
+            <div className="p-5 border-t border-white/5 bg-black/20 flex items-center justify-end gap-3">
+              <button 
+                onClick={() => setPreviewProduct(null)}
+                className="px-5 py-3 rounded-xl text-xs font-black uppercase bg-zinc-900 border border-white/5 text-gray-400 hover:text-white transition-colors"
+              >
+                Kapat
+              </button>
+              <button 
+                onClick={() => {
+                  handleSelectComponent(previewProduct);
+                  setPreviewProduct(null);
+                }}
+                className="px-6 py-3 rounded-xl text-xs font-black uppercase bg-[#00d2ff] text-black hover:bg-[#00c4db] transition-colors flex items-center gap-2 shadow-[0_0_15px_rgba(0,210,255,0.2)]"
+              >
+                <ShoppingBag className="w-4 h-4" /> Parçayı Sisteme Ekle
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
