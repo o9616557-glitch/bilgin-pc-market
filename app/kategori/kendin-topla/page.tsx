@@ -26,7 +26,7 @@ export default function KendinToplaPage() {
 
   const [selections, setSelections] = useState<Record<string, any>>({});
   
-  // 🚀 ANINDA DETAY GÖSTERİMİ İÇİN YENİ NESİL MODAL STATE YAPISI
+  // Detay inceleme modal state yapısı
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
   
   const activeStepInfo = STEPS[currentStep];
@@ -197,7 +197,6 @@ export default function KendinToplaPage() {
                 return (
                   <div key={urun._id} className={`bg-[#09090b] border rounded-2xl p-4 flex gap-4 hover:border-white/20 transition-all group ${isItemChosen ? "border-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.05)]" : "border-white/5"}`}>
                     
-                    {/* 🚀 DEĞİŞİKLİK: Link söküldü, yerine 0ms'de modal açan akıllı buton entegre edildi */}
                     <button 
                       onClick={() => setPreviewProduct(urun)}
                       className="w-20 h-20 bg-black/40 rounded-xl p-2 flex items-center justify-center shrink-0 cursor-pointer relative block group/img pointer-events-auto"
@@ -211,7 +210,6 @@ export default function KendinToplaPage() {
 
                     <div className="flex flex-col justify-between flex-1 min-w-0">
                       <div>
-                        {/* 🚀 DEĞİŞİKLİK: Başlık da modal tetikleyicisine dönüştürüldü */}
                         <button 
                           onClick={() => setPreviewProduct(urun)}
                           className="text-sm font-bold text-white text-left truncate block hover:text-[#00d2ff] hover:underline transition-all cursor-pointer mb-1 pointer-events-auto w-full"
@@ -366,13 +364,14 @@ export default function KendinToplaPage() {
          </button>
       </div>
 
-      {/* ==================== 🚀 LİGHTSPEED DETAY İNCELEME MODAL PANELİ 🚀 ==================== */}
+      {/* ==================== 🚀 ULTRA-HIZLI VE MAKSİMUM SCROLL UYUMLU DETAY İNCELEME MODAL PANELİ 🚀 ==================== */}
       {previewProduct && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 sm:p-6 md:p-10 select-none animate-in fade-in duration-200">
-          <div className="bg-[#09090b] border border-white/10 w-full max-w-4xl h-full max-h-[85vh] rounded-2xl overflow-hidden flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 overflow-y-auto flex items-start sm:items-center justify-center p-2 sm:p-6 md:p-10 animate-in fade-in duration-200">
+          {/* 🚀 DEĞİŞİKLİK: 'max-w-5xl' ile kutu genişletildi, 'max-h' sınırları esnetilerek mobilde donması engellendi */}
+          <div className="bg-[#09090b] border border-white/10 w-full max-w-5xl rounded-2xl overflow-hidden flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.8)] my-auto">
             
             {/* PANEL ÜST BİLGİSİ */}
-            <div className="flex items-center justify-between p-5 border-b border-white/5 bg-black/20">
+            <div className="flex items-center justify-between p-5 border-b border-white/5 bg-black/20 shrink-0">
               <h3 className="text-sm font-black uppercase tracking-wider text-[#00d2ff]">Ürün Detay İnceleme</h3>
               <button 
                 onClick={() => setPreviewProduct(null)}
@@ -382,10 +381,11 @@ export default function KendinToplaPage() {
               </button>
             </div>
 
-            {/* PANEL İÇERİK ALANI */}
-            <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-5 gap-6">
+            {/* PANEL İÇERİK ALANI (MOBİLDE ASLA KİLİTLENMEYEN SCROLL YUKARI-AŞAĞI MOTORU BURADA) */}
+            <div className="overflow-y-auto p-4 sm:p-6 grid grid-cols-1 md:grid-cols-5 gap-6 max-h-[calc(100vh-160px)] sm:max-h-[70vh]">
+              
               {/* SOL SÜTUN: MEDYA VE FİYAT */}
-              <div className="md:col-span-2 flex flex-col items-center gap-6 border-b md:border-b-0 md:border-r border-white/5 pb-6 md:pb-0 md:pr-6">
+              <div className="md:col-span-2 flex flex-col items-center gap-4 sm:gap-6 border-b md:border-b-0 md:border-r border-white/5 pb-6 md:pb-0 md:pr-6">
                 <div className="w-full aspect-square bg-black/40 rounded-2xl p-6 border border-white/5 flex items-center justify-center">
                   <img src={previewProduct.resim} alt={previewProduct.isim} className="max-w-full max-h-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
                 </div>
@@ -396,7 +396,7 @@ export default function KendinToplaPage() {
               </div>
 
               {/* SAĞ SÜTUN: TEKNİK VERİLER VE AÇIKLAMA */}
-              <div className="md:col-span-3 space-y-6 overflow-y-auto pr-1">
+              <div className="md:col-span-3 space-y-6">
                 <div>
                   <span className="text-[10px] text-gray-500 font-black tracking-widest uppercase block mb-1">{previewProduct.marka || "BİLEŞEN"}</span>
                   <h2 className="text-lg md:text-xl font-black text-white leading-snug">{previewProduct.isim}</h2>
@@ -431,7 +431,7 @@ export default function KendinToplaPage() {
             </div>
 
             {/* PANEL ALT SEÇENEKLERİ */}
-            <div className="p-5 border-t border-white/5 bg-black/20 flex items-center justify-end gap-3">
+            <div className="p-5 border-t border-white/5 bg-black/20 flex items-center justify-end gap-3 shrink-0">
               <button 
                 onClick={() => setPreviewProduct(null)}
                 className="px-5 py-3 rounded-xl text-xs font-black uppercase bg-zinc-900 border border-white/5 text-gray-400 hover:text-white transition-colors"
