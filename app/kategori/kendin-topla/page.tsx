@@ -230,9 +230,9 @@ export default function KendinToplaPage() {
             <span className="text-[#00d2ff] font-black text-xl tracking-tight">🔧 PC SİHİRBAZI</span>
           </div>
           
-          {/* 🚀 ELİT VE BÜTÜNSEL TAB TASARIMI: 'Damla damla' kutular tamamen söküldü, yerine tek parça kurumsal segment çizgisi geldi */}
-          <div className="w-full lg:w-auto overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            <div className="flex items-center space-x-1 border-b border-white/10 pb-1 min-w-max lg:min-w-0">
+          {/* 🚀 ELİT VE BÜTÜNSEL TAB DÜZENLEMESİ: Telefonda ikili alt alta grid, PC'de düz çizgi nizamı (Asla taşmaz!) */}
+          <div className="w-full lg:w-auto">
+            <div className="grid grid-cols-2 gap-2 lg:flex lg:items-center lg:space-x-1 lg:border-b lg:border-white/10 lg:pb-1">
               {STEPS.map((step, idx) => {
                 const StepIcon = step.icon;
                 const isSelected = !!selections[step.id];
@@ -241,21 +241,21 @@ export default function KendinToplaPage() {
                   <button
                     key={step.id}
                     onClick={() => setCurrentStep(idx)}
-                    className={`flex items-center space-x-2 px-4 py-3 text-xs font-black uppercase tracking-wider transition-all relative ${
+                    className={`flex items-center justify-center lg:justify-start space-x-2 px-3 py-2.5 lg:px-4 lg:py-3 rounded-xl lg:rounded-none border border-white/5 lg:border-0 text-xs font-black uppercase tracking-wider transition-all relative ${
                       isActive 
-                        ? "text-[#00d2ff]" 
+                        ? "text-[#00d2ff] bg-[#00d2ff]/10 lg:bg-transparent border-[#00d2ff]/30 lg:border-0" 
                         : isSelected 
-                          ? "text-emerald-400" 
-                          : "text-gray-400 hover:text-white"
+                          ? "text-emerald-400 bg-emerald-500/10 lg:bg-transparent border-emerald-500/20 lg:border-0" 
+                          : "text-gray-400 bg-zinc-900/40 lg:bg-transparent hover:text-white"
                     }`}
                   >
                     <StepIcon className="w-4 h-4 shrink-0" />
                     <span>{step.name}</span>
                     {isSelected && <Check className="w-3 h-3 text-emerald-400 ml-1 shrink-0" />}
                     
-                    {/* Aktif segment alt çizgisi (Güneşte ayna gibi parlar) */}
+                    {/* Aktif segment alt çizgisi (Sadece PC'de tab çizgisi olarak gözüksün, mobilde zaten kutu parlıyor) */}
                     {isActive && (
-                      <div className="absolute bottom-[-5px] left-0 w-full h-[3px] bg-[#00d2ff] drop-shadow-[0_0_8px_rgba(0,210,255,0.6)] z-10" />
+                      <div className="hidden lg:block absolute bottom-[-5px] left-0 w-full h-[3px] bg-[#00d2ff] drop-shadow-[0_0_8px_rgba(0,210,255,0.6)] z-10" />
                     )}
                   </button>
                 );
@@ -425,7 +425,7 @@ export default function KendinToplaPage() {
                 onClick={handleAddSystemToCart} 
                 disabled={psuYetersiz || gpuKasaAşimi}
                 className={`w-full h-14 rounded-xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 transition-all ${
-                  (psuYetersiz || gpuKasaAşimi) ? "bg-zinc-800 text-gray-600 cursor-not-allowed border border-white/10" : "bg-[#00d2ff] text-black hover:bg-[#00c4db]"
+                  (psuYetersiz || gpuKasaAşimi) ? "bg-zinc-800 text-gray-500 cursor-not-allowed border border-white/10" : "bg-[#00d2ff] text-black hover:bg-[#00c4db]"
                 }`}
               >
                 <ShoppingBag className="w-4 h-4" /> { (psuYetersiz || gpuKasaAşimi) ? "Uyumsuzlukları Gideriniz" : "Sistemi Sepete Ekle" }
@@ -436,7 +436,7 @@ export default function KendinToplaPage() {
       </div>
 
       {/* MOBİL ALT BAR */}
-      <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#18181b]/95 backdrop-blur-2xl border-t-2 border-white/10 px-4 py-4 z-50 flex items-center justify-between shadow-[0_-15px_30px_rgba(0,0,0,0.8)] select-none">
+      <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#18181b]/95 backdrop-blur-2xl border-t-2 border-white/10 px-4 sm:px-6 py-4 z-50 flex items-center justify-between shadow-[0_-15px_30px_rgba(0,0,0,0.8)] select-none">
          <div className="flex flex-col">
             <span className="text-gray-400 text-[10px] font-black tracking-wider uppercase mb-0.5">TOPLAM TUTAR</span>
             <span className="text-2xl font-black text-white leading-none">
@@ -458,7 +458,7 @@ export default function KendinToplaPage() {
 
       {/* DETAY İNCELEME MODAL PANELİ */}
       {previewProduct && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 overflow-y-auto flex items-start sm:items-center justify-center p-2 sm:p-6 md:p-10 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[9999] overflow-y-auto flex items-start sm:items-center justify-center p-2 sm:p-6 md:p-10 animate-in fade-in duration-200">
           <div className="bg-[#121214] border-2 border-white/10 w-full max-w-5xl rounded-2xl overflow-hidden flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.8)] my-auto">
             
             <div className="flex items-center justify-between p-5 border-b border-white/10 bg-[#18181b] shrink-0">
