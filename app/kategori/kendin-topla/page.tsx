@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { useCart } from "@/app/CartContext";
-// 🚀 JET MOTORU: Düz <a> yerine Next.js'in akıllı ön yükleme bileşenini dahil ediyoruz
+// 🚀 ANA SAYFADAKİ GİBİ AKILLI GEÇİŞ MOTORU DAHİL EDİLDİ
 import Link from "next/link"; 
 import toast from "react-hot-toast";
 import { 
-  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, ChevronRight, ChevronLeft, Loader2, Check, AlertTriangle, Trash2, RefreshCw, ExternalLink 
+  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, ChevronRight, ChevronLeft, Loader2, Check, AlertTriangle, Trash2, RefreshCw, ExternalLink, ArrowRight 
 } from "lucide-react";
 
 const STEPS = [
@@ -195,11 +195,12 @@ export default function KendinToplaPage() {
                 return (
                   <div key={urun._id} className={`bg-[#09090b] border rounded-2xl p-4 flex gap-4 hover:border-white/20 transition-all group ${isItemChosen ? "border-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.05)]" : "border-white/5"}`}>
                     
-                    {/* 🚀 DEĞİŞİKLİK: <a> etiketi akıllı <Link> ile değiştirildi. Sayfa ekrana geldiği an Next.js arka planda ön yükleme yapacak! */}
+                    {/* 🚀 JET MOTORU ENJEKTE EDİLDİ: 'prefetch={true}' ve 'pointer-events-auto' tam koruma sağlandı */}
                     <Link 
-                      href={`/product/${urun.slug}`} 
+                      href={`/product/${urun.slug || urun._id}`} 
                       target="_blank" 
-                      className="w-20 h-20 bg-black/40 rounded-xl p-2 flex items-center justify-center shrink-0 cursor-pointer relative block group/img"
+                      prefetch={true}
+                      className="w-20 h-20 bg-black/40 rounded-xl p-2 flex items-center justify-center shrink-0 cursor-pointer relative block group/img pointer-events-auto"
                       title="Ürünü yeni sekmede incele"
                     >
                       <img src={urun.resim} alt={urun.isim} className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform" />
@@ -210,11 +211,12 @@ export default function KendinToplaPage() {
 
                     <div className="flex flex-col justify-between flex-1 min-w-0">
                       <div>
-                        {/* 🚀 DEĞİŞİKLİK: Başlık da akıllı <Link> yapıldı */}
+                        {/* 🚀 JET MOTORU ENJEKTE EDİLDİ: İsim bağlantısı da tam performans moduna alındı */}
                         <Link 
-                          href={`/product/${urun.slug}`}
+                          href={`/product/${urun.slug || urun._id}`}
                           target="_blank"
-                          className="text-sm font-bold text-white truncate block hover:text-[#00d2ff] hover:underline transition-all cursor-pointer mb-1"
+                          prefetch={true}
+                          className="text-sm font-bold text-white truncate block hover:text-[#00d2ff] hover:underline transition-all cursor-pointer mb-1 pointer-events-auto"
                           title="Ürünü yeni sekmede incele"
                         >
                           {urun.isim}
@@ -347,6 +349,7 @@ export default function KendinToplaPage() {
         </div>
       </div>
 
+      {/* MOBİL ALT BAR */}
       <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#09090b]/95 backdrop-blur-2xl border-t border-white/10 px-6 py-4 z-50 flex items-center justify-between shadow-[0_-15px_30px_rgba(0,0,0,0.8)] select-none">
          <div className="flex flex-col">
             <span className="text-gray-500 text-[10px] font-black tracking-wider uppercase mb-0.5">TOPLAM TUTAR</span>
