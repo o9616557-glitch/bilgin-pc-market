@@ -28,7 +28,7 @@ export default function KendinToplaPage() {
   const [selections, setSelections] = useState<Record<string, any>>({});
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
   
-  // 🚀 KUANTUM HAFIZA: İlk tıklama gecikmesini yok eden akıllı client-side cache ref yapısı
+  // 🚀 LİGHTSPEED ÖNBELLEK: İlk tıklama gecikmesini yok eden akıllı cache ref yapısı
   const cacheRef = useRef<Record<string, any[]>>({});
   
   const activeStepInfo = STEPS[currentStep];
@@ -109,11 +109,10 @@ export default function KendinToplaPage() {
 
   const { soket, bellek, yapi, radyator } = dinamikFiltreleriHesapla(activeStepInfo.id);
 
-  // 🚀 PARALEL ARKA PLAN MOTORU: İlk tıklama yavaşlığını tamamen yok eden mekanizma
+  // 🚀 PARALEL ARKA PLAN PRE-FETCH MOTORU
   useEffect(() => {
     const currentCacheKey = `${activeStepInfo.id}_${soket}_${bellek}_${yapi}_${radyator}`;
     
-    // Eğer aktif adım zaten hafızadaysa internete hiç sorma direkt tak diye getir
     if (cacheRef.current[currentCacheKey]) {
       setProducts(cacheRef.current[currentCacheKey]);
       setLoading(false);
@@ -122,7 +121,6 @@ export default function KendinToplaPage() {
     }
 
     const fetchAllStepsParallel = async () => {
-      // 1. Önce aktif olan adımı çekip ekrana basıyoruz (Gecikmesiz)
       if (!cacheRef.current[currentCacheKey]) {
         try {
           let url = `/api/kendin-topla?kategori=${activeStepInfo.id}&soket=${encodeURIComponent(soket)}&bellek=${encodeURIComponent(bellek)}&yapi=${encodeURIComponent(yapi)}&radyator=${encodeURIComponent(radyator)}`;
@@ -139,9 +137,9 @@ export default function KendinToplaPage() {
         }
       }
 
-      // 2. SİHİRLİ DOKUNUŞ: Geriye kalan tüm adımları arka planda sessizce paralel indiriyoruz!
+      // Arka planda diğer tüm adımları önceden hazır etme motoru
       STEPS.forEach(async (step) => {
-        if (step.id === activeStepInfo.id) return; // Aktif adımı zaten yukarda çektik
+        if (step.id === activeStepInfo.id) return;
         const stepCacheKey = `${step.id}_${soket}_${bellek}_${yapi}_${radyator}`;
         
         if (!cacheRef.current[stepCacheKey]) {
@@ -150,7 +148,7 @@ export default function KendinToplaPage() {
             const res = await fetch(url);
             const resData = await res.json();
             if (resData.success) {
-              cacheRef.current[stepCacheKey] = resData.data; // İleride tıklanacak her şey artık hazır!
+              cacheRef.current[stepCacheKey] = resData.data;
             }
           } catch (e) {}
         }
@@ -230,9 +228,9 @@ export default function KendinToplaPage() {
             <span className="text-[#00d2ff] font-black text-xl tracking-tight">🔧 PC SİHİRBAZI</span>
           </div>
           
-          {/* 🚀 ELİT VE BÜTÜNSEL TAB TASARIMI: 'Damla damla' kutular tamamen söküldü, yerine tek parça kurumsal segment çizgisi geldi */}
+          {/* 🚀 YATAY KAYDIRMALI ELİT SEGMENT BAR: Çirkin grid kalktı, telefonda yana doğru kaydırılabilir tek satır şerit geri geldi! */}
           <div className="w-full lg:w-auto overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            <div className="flex items-center space-x-1 border-b border-white/10 pb-1 min-w-max lg:min-w-0">
+            <div className="flex items-center space-x-1 border-b border-white/10 pb-1 min-w-max">
               {STEPS.map((step, idx) => {
                 const StepIcon = step.icon;
                 const isSelected = !!selections[step.id];
@@ -241,7 +239,8 @@ export default function KendinToplaPage() {
                   <button
                     key={step.id}
                     onClick={() => setCurrentStep(idx)}
-                    className={`flex items-center space-x-2 px-4 py-3 text-xs font-black uppercase tracking-wider transition-all relative ${
+                    /* shrink-0 sayesinde yana kayarken harfler asla ezilmez, kalıp gibi kalır */
+                    className={`shrink-0 flex items-center space-x-2 px-4 py-3 text-xs font-black uppercase tracking-wider transition-all relative ${
                       isActive 
                         ? "text-[#00d2ff]" 
                         : isSelected 
@@ -253,7 +252,7 @@ export default function KendinToplaPage() {
                     <span>{step.name}</span>
                     {isSelected && <Check className="w-3 h-3 text-emerald-400 ml-1 shrink-0" />}
                     
-                    {/* Aktif segment alt çizgisi (Güneşte ayna gibi parlar) */}
+                    {/* Aktif parlak kuantum alt çizgisi */}
                     {isActive && (
                       <div className="absolute bottom-[-5px] left-0 w-full h-[3px] bg-[#00d2ff] drop-shadow-[0_0_8px_rgba(0,210,255,0.6)] z-10" />
                     )}
