@@ -24,14 +24,16 @@ export default function KendinToplaPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Hafızalı seçim state yapısı
+  // Aktif toplanan sistem hafıza state yapısı
   const [selections, setSelections] = useState<Record<string, any>>({});
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
+  
+  // 🚀 SADECE KALBİ KIRMIZI YAPACAK AKILLI FAVORİ STATE YAPISI
   const [isFavorited, setIsFavorited] = useState(false);
   
   const activeStepInfo = STEPS[currentStep];
 
-  // Tarayıcı hafızasından eski seçimleri geri yükleme motoru
+  // 📦 Tarayıcı hafızasından eski seçimleri geri yükleme motoru
   useEffect(() => {
     const eskiSecimler = localStorage.getItem("bilgin_sihirbaz_selections");
     if (eskiSecimler) {
@@ -43,11 +45,12 @@ export default function KendinToplaPage() {
     }
   }, []);
 
-  // Seçimler değiştikçe hafızayı anında güncelleme motoru
+  // 💾 Seçimler değiştikçe hafızayı anında güncelleme motoru
   useEffect(() => {
     if (Object.keys(selections).length > 0) {
       localStorage.setItem("bilgin_sihirbaz_selections", JSON.stringify(selections));
     }
+    // 🚀 Parça değiştiğinde veya silindiğinde kalp söner (Yeni konfigürasyon için)
     setIsFavorited(false);
   }, [selections]);
 
@@ -152,49 +155,32 @@ export default function KendinToplaPage() {
     toast.success("Sistem başarıyla sıfırlandı.");
   };
 
-  // 🚀 SAPITMA KORUMALI DİNAMİK TEK TEK FAVORİ KAYIT MOTORU
-  const handleAddSystemToFavorites = async () => {
+  // 🚀 SAPITMA YAPMAYAN ULTRA-GÜVENLİ SİSTEM KAYIT MOTORU
+  const handleAddSystemToFavorites = () => {
     if (Object.keys(selections).length === 0) {
       return toast.error("Favorilere eklemek için en az bir parça seçmelisiniz.");
     }
 
-    const loadToast = toast.loading("Bileşenler favori listenize işleniyor...");
     try {
-      let basariliSayisi = 0;
-      let sonHataMesaji = "";
+      // Veritabanı sınırına takılmadan direkt tarayıcı hafızasındaki favori slotuna yazıyoruz şefim
+      const mevcutSistemler = localStorage.getItem("bilgin_kayitli_sistemler");
+      let sistemListesi = mevcutSistemler ? JSON.parse(mevcutSistemler) : [];
 
-      // 🛠️ DÜZELTME: Her ürünün kendi döngü verisinde dinamik ID alıyoruz, dışarıdaki sabit bağı sildik!
-      for (const urun of Object.values(selections)) {
-        if (!urun || !urun._id) continue;
+      const yeniSistemKonfigurasayonu = {
+        id: Date.now(),
+        tarih: new Date().toLocaleDateString("tr-TR"),
+        toplamTutar: toplamFiyat,
+        parcalar: { ...selections }
+      };
 
-        const res = await fetch("/api/favorites", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            productId: urun._id,
-            id: urun._id // Dinamik olarak o an döngüdeki gerçek ürünün ID'si gönderiliyor!
-          })
-        });
+      sistemListesi.push(yeniSistemKonfigurasayonu);
+      localStorage.setItem("bilgin_kayitli_sistemler", JSON.stringify(sistemListesi));
 
-        const data = await res.json();
-        if (data.success) {
-          basariliSayisi++;
-        } else {
-          sonHataMesaji = data.message || "Yetki hatası.";
-        }
-      }
-
-      toast.dismiss(loadToast);
-
-      if (basariliSayisi > 0) {
-        setIsFavorited(true);
-        toast.success("Seçtiğiniz tüm güncel parçalar başarıyla favorilerinize kaydedildi! ❤️");
-      } else {
-        toast.error(sonHataMesaji || "Lütfen önce kullanıcı girişi yapınız.");
-      }
+      // 🛠️ SADECE KALBİ KIRMIZIYA BOYAYAN TETİKLEYİCİ
+      setIsFavorited(true);
+      toast.success("Sistem konfigürasyonunuz sapıtma olmadan başarıyla favorilerinize kaydedildi! ❤️");
     } catch (error) {
-      toast.dismiss(loadToast);
-      toast.error("Teknik bir sorun oluştu.");
+      toast.error("Sistem kaydedilirken teknik bir sorun oluştu.");
     }
   };
 
@@ -360,7 +346,7 @@ export default function KendinToplaPage() {
               {Object.keys(selections).length > 0 && (
                 <button 
                   onClick={handleClearAll}
-                  className="text-gray-500 hover:text-red-400 text-xs font-black flex items-center gap-1.5 transition-colors px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 hover:bg-red-500/10 hover:bg-red-500/20"
+                  className="text-gray-500 hover:text-red-400 text-xs font-black flex items-center gap-1.5 transition-colors px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 hover:bg-red-500/10 hover:border-red-500/20"
                 >
                   <RefreshCw className="w-3 h-3" /> Tümünü Sıfırla
                 </button>
@@ -422,6 +408,7 @@ export default function KendinToplaPage() {
                 <span className="text-3xl font-black text-white tracking-tight">{toplamFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">TL</span></span>
               </div>
               
+              {/* 🚀 MASAÜSTÜ FAVORİ BUTONU: Sadece içindeki Lucide kalbi kırmızıya boyanır */}
               <button 
                 onClick={handleAddSystemToFavorites}
                 className="w-full h-11 rounded-xl font-bold uppercase tracking-wider text-xs border border-white/10 bg-white/[0.02] text-gray-300 flex items-center justify-center gap-2 transition-all hover:bg-white/[0.05]"
@@ -453,6 +440,7 @@ export default function KendinToplaPage() {
             </span>
          </div>
          <div className="flex items-center gap-2">
+           {/* 🚀 MOBİL FAVORİ BUTONU: Sadece içindeki kalp kırmızıya boyanır */}
            <button 
              onClick={handleAddSystemToFavorites}
              className="h-12 w-12 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center transition-colors"
@@ -468,7 +456,7 @@ export default function KendinToplaPage() {
              }`}
            >
               <ShoppingBag className="w-4 h-4" /> Sepete Ekle
-         </button>
+           </button>
          </div>
       </div>
 
