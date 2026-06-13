@@ -50,7 +50,7 @@ const menuCategories = [
   {
     title: "Ağ, Aksesuar & Kablo",
     items: [
-      { name: "Modem ve  Network", slug: "modem" },
+      { name: "Modem", slug: "modem" },
       { name: "USB Bellek & Hafıza Kartı", slug: "usb-bellek" },
       { name: "Kablolar & Çeviriciler", slug: "kablolar" },
       { name: "Akım Koruyucu Priz", slug: "akim-koruyucu" },
