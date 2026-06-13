@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { useCart } from "@/app/CartContext";
+// 🚀 JET MOTORU: Düz <a> yerine Next.js'in akıllı ön yükleme bileşenini dahil ediyoruz
+import Link from "next/link"; 
 import toast from "react-hot-toast";
 import { 
   Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, ChevronRight, ChevronLeft, Loader2, Check, AlertTriangle, Trash2, RefreshCw, ExternalLink 
@@ -85,7 +87,6 @@ export default function KendinToplaPage() {
       }
     };
     fetchComponents();
-    // 🚀 JET MOTORU AYARI: 'selections' bağımlılıklardan çıkarıldı. Seçim esnasında gereksiz internet trafiği engellendi!
   }, [currentStep, soket, bellek, yapi, radyator]);
 
   const handleSelectComponent = (product: any) => {
@@ -173,6 +174,7 @@ export default function KendinToplaPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8 items-start">
+        {/* SOL TARAF: ÜRÜN LİSTESİ */}
         <div className="w-full lg:w-[65%] flex flex-col gap-6">
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <h2 className="text-lg sm:text-2xl font-black uppercase tracking-tight flex items-center gap-3">
@@ -193,28 +195,30 @@ export default function KendinToplaPage() {
                 return (
                   <div key={urun._id} className={`bg-[#09090b] border rounded-2xl p-4 flex gap-4 hover:border-white/20 transition-all group ${isItemChosen ? "border-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.05)]" : "border-white/5"}`}>
                     
-                    <a 
+                    {/* 🚀 DEĞİŞİKLİK: <a> etiketi akıllı <Link> ile değiştirildi. Sayfa ekrana geldiği an Next.js arka planda ön yükleme yapacak! */}
+                    <Link 
                       href={`/product/${urun.slug}`} 
                       target="_blank" 
-                      rel="noopener noreferrer"
                       className="w-20 h-20 bg-black/40 rounded-xl p-2 flex items-center justify-center shrink-0 cursor-pointer relative block group/img"
+                      title="Ürünü yeni sekmede incele"
                     >
                       <img src={urun.resim} alt={urun.isim} className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform" />
                       <div className="absolute inset-0 bg-black/60 rounded-xl opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity">
                         <ExternalLink className="w-4 h-4 text-[#00d2ff]" />
                       </div>
-                    </a>
+                    </Link>
 
                     <div className="flex flex-col justify-between flex-1 min-w-0">
                       <div>
-                        <a 
+                        {/* 🚀 DEĞİŞİKLİK: Başlık da akıllı <Link> yapıldı */}
+                        <Link 
                           href={`/product/${urun.slug}`}
                           target="_blank"
-                          rel="noopener noreferrer"
                           className="text-sm font-bold text-white truncate block hover:text-[#00d2ff] hover:underline transition-all cursor-pointer mb-1"
+                          title="Ürünü yeni sekmede incele"
                         >
                           {urun.isim}
-                        </a>
+                        </Link>
                         
                         <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-gray-500 font-medium break-all break-words">
                           {urun.sihirbaz_ozellikleri && Object.entries(urun.sihirbaz_ozellikleri).filter(([_, v]) => v).slice(0, 3).map(([k, v]: any) => (
@@ -254,6 +258,7 @@ export default function KendinToplaPage() {
           </div>
         </div>
 
+        {/* SAĞ TARAF: SİSTEM ÖZETİ */}
         <div className="w-full lg:w-[35%] lg:sticky lg:top-40 flex flex-col gap-6">
           <div className="bg-[#09090b] border border-white/10 rounded-2xl p-6 shadow-2xl flex flex-col w-full">
             
