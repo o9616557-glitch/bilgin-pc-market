@@ -15,11 +15,12 @@ async function getDb() {
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const kategori = searchParams.get("kategori"); 
+    const kategori = searchParams.get("kategori") || ""; 
     
-    const seciliSoket = searchParams.get("soket"); 
-    const seciliBellek = searchParams.get("bellek");
-    const seciliYapi = searchParams.get("yapi");
+    const seciliSoket = searchParams.get("soket") || ""; 
+    const seciliBellek = searchParams.get("bellek") || "";
+    const seciliYapi = searchParams.get("yapi") || "";
+    const seciliRadyator = searchParams.get("radyator") || "";
 
     const db = await getDb();
     
@@ -42,72 +43,32 @@ export async function GET(request: Request) {
       }
     ];
 
-    // 🚀 KATEGORİ BAZLI NOKTA ATIŞI FİLTRELEME AYARLARI 🚀
-
-    // 1. İŞLEMCİ FİLTRESİ: İşlemci listelenirken RAM'in ne olduğuna bakıp kendini kilitlemesin şefim. Sadece soket uyumu varsa baksın.
-    if (kategori === "islemci" && seciliSoket && seciliSoket !== "undefined" && seciliSoket !== "") {
-      conditions.push({
-        $or: [
-          { "teknik_ozellikler.Soket Tipi": { $regex: seciliSoket, $options: "i" } },
-          { "teknik_ozellikler.Soket": { $regex: seciliSoket, $options: "i" } }
-        ]
-      });
-    }
-
-    // 2. ANAKART FİLTRESİ: Anakart hem sokete hem belleğe hem de kasa yapısına göre süzülür.
-    if (kategori === "anakart") {
-      if (seciliSoket && seciliSoket !== "undefined" && seciliSoket !== "") {
-        conditions.push({
-          $or: [
-            { "teknik_ozellikler.Soket Tipi": { $regex: seciliSoket, $options: "i" } },
-            { "teknik_ozellikler.Soket": { $regex: seciliSoket, $options: "i" } }
-          ]
-        });
-      }
-      if (seciliBellek && seciliBellek !== "undefined" && seciliBellek !== "") {
-        conditions.push({
-          $or: [
-            { "teknik_ozellikler.Bellek Türü": { $regex: seciliBellek, $options: "i" } },
-            { "teknik_ozellikler.Bellek Tipi": { $regex: seciliBellek, $options: "i" } },
-            { "teknik_ozellikler.RAM Tipi": { $regex: seciliBellek, $options: "i" } },
-            { "teknik_ozellikler.Bellek Desteği": { $regex: seciliBellek, $options: "i" } }
-          ]
-        });
+    // 1. SOKET KONTROLÜ
+    if (seciliSoket && seciliSoket !== "undefined" && seciliSoket.trim() !== "") {
+      if (["islemci", "anakart", "sogutma"].includes(kategori)) {
+        conditions.push({ "sihirbaz_ozellikleri.soket": { $regex: seciliSoket, $options: "i" } });
       }
     }
 
-    // 3. RAM FİLTRESİ: Sadece bellek tipine (DDR4/DDR5) bakar.
-    if (kategori === "ram" && seciliBellek && seciliBellek !== "undefined" && seciliBellek !== "") {
-      conditions.push({
-        $or: [
-          { "teknik_ozellikler.Bellek Türü": { $regex: seciliBellek, $options: "i" } },
-          { "teknik_ozellikler.Bellek Tipi": { $regex: seciliBellek, $options: "i" } },
-          { "teknik_ozellikler.Tip": { $regex: seciliBellek, $options: "i" } },
-          { "teknik_ozellikler.RAM Tipi": { $regex: seciliBellek, $options: "i" } }
-        ]
-      });
+    // 2. BELLEK KONTROLÜ
+    if (seciliBellek && seciliBellek !== "undefined" && seciliBellek.trim() !== "") {
+      if (["islemci", "anakart", "ram"].includes(kategori)) {
+        conditions.push({ "sihirbaz_ozellikleri.bellek_tipi": { $regex: seciliBellek, $options: "i" } });
+      }
     }
 
-    // 4. SOĞUTUCU FİLTRESİ: İşlemcinin soket yapısına (AM5 / 1700) göre dükkandaki soğutucuları getirir.
-    if (kategori === "sogutma" && seciliSoket && seciliSoket !== "undefined" && seciliSoket !== "") {
-      conditions.push({
-        $or: [
-          { "teknik_ozellikler.Uyumlu Soketler": { $regex: seciliSoket, $options: "i" } },
-          { "teknik_ozellikler.Soket Desteği": { $regex: seciliSoket, $options: "i" } },
-          { "teknik_ozellikler.Soket Tipi": { $regex: seciliSoket, $options: "i" } },
-          { "teknik_ozellikler.Soket": { $regex: seciliSoket, $options: "i" } }
-        ]
-      });
+    // 3. ANAKART BOYUT KONTROLÜ
+    if (seciliYapi && seciliYapi !== "undefined" && seciliYapi.trim() !== "") {
+      if (["anakart", "kasa"].includes(kategori)) {
+        conditions.push({ "sihirbaz_ozellikleri.anakart_yapisi": { $regex: seciliYapi, $options: "i" } });
+      }
     }
 
-    // 5. KASA FİLTRESİ: Anakartın fiziksel boyutuna bakar.
-    if (kategori === "kasa" && seciliYapi && seciliYapi !== "undefined" && seciliYapi !== "") {
-      conditions.push({
-        $or: [
-          { "teknik_ozellikler.Anakart Yapısı": { $regex: seciliYapi, $options: "i" } },
-          { "teknik_ozellikler.Anakart Desteği": { $regex: seciliYapi, $options: "i" } }
-        ]
-      });
+    // 4. RADYATÖR VE KASA UYUMU
+    if (seciliRadyator && seciliRadyator !== "undefined" && seciliRadyator.trim() !== "") {
+      if (["sogutma", "kasa"].includes(kategori)) {
+        conditions.push({ "sihirbaz_ozellikleri.radyator_boyutu": { $regex: seciliRadyator, $options: "i" } });
+      }
     }
 
     const sorgu = { $and: conditions };

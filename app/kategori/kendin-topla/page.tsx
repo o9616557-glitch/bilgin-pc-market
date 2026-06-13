@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useCart } from "@/app/CartContext";
 import toast from "react-hot-toast";
 import { 
-  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, ChevronRight, ChevronLeft, Loader2, Check 
+  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, ChevronRight, ChevronLeft, Loader2, Check, AlertTriangle 
 } from "lucide-react";
 
 const STEPS = [
@@ -27,46 +27,47 @@ export default function KendinToplaPage() {
   const [selections, setSelections] = useState<Record<string, any>>({});
   const activeStepInfo = STEPS[currentStep];
 
-  // 🚀 HAFIZADAN BİLGİLERİ AYIKLARKEN KELİME ANALİZİNİ EN YÜKSEK SEVİYEYE ÇIKARDIK
   const dinamikFiltreleriHesapla = () => {
     let soket = "";
     let bellek = "";
     let yapi = "";
+    let radyator = "";
 
-    if (selections["islemci"]) {
-      const t = selections["islemci"].teknik_ozellikler || {};
-      soket = t["Soket Tipi"] || t["Soket"] || soket;
-      const bDesteği = t["Bellek Desteği"] || t["Bellek Türü"] || "";
-      if (bDesteği.toLowerCase().includes("ddr5")) bellek = "DDR5";
-      else if (bDesteği.toLowerCase().includes("ddr4")) bellek = "DDR4";
+    if (selections["islemci"]?.sihirbaz_ozellikleri) {
+      const sz = selections["islemci"].sihirbaz_ozellikleri;
+      soket = sz.soket || soket;
+      bellek = sz.bellek_tipi || bellek;
     }
 
-    if (selections["anakart"]) {
-      const t = selections["anakart"].teknik_ozellikler || {};
-      soket = t["Soket Tipi"] || t["Soket"] || soket;
-      yapi = t["Anakart Yapısı"] || t["Anakart Desteği"] || yapi;
-      const bTürü = t["Bellek Türü"] || t["Bellek Tipi"] || t["RAM Tipi"] || t["Bellek Desteği"] || "";
-      if (bTürü.toLowerCase().includes("ddr5")) bellek = "DDR5";
-      else if (bTürü.toLowerCase().includes("ddr4")) bellek = "DDR4";
+    if (selections["anakart"]?.sihirbaz_ozellikleri) {
+      const sz = selections["anakart"].sihirbaz_ozellikleri;
+      if (!soket) soket = sz.soket;
+      if (!bellek) bellek = sz.bellek_tipi;
+      yapi = sz.anakart_yapisi || yapi;
     }
 
-    if (selections["ram"]) {
-      const t = selections["ram"].teknik_ozellikler || {};
-      const bTürü = t["Bellek Türü"] || t["Bellek Tipi"] || t["RAM Tipi"] || t["Tip"] || t["Bellek Desteği"] || "";
-      if (bTürü.toLowerCase().includes("ddr5")) bellek = "DDR5";
-      else if (bTürü.toLowerCase().includes("ddr4")) bellek = "DDR4";
+    if (selections["ram"]?.sihirbaz_ozellikleri && !bellek) {
+      bellek = selections["ram"].sihirbaz_ozellikleri.bellek_tipi;
     }
 
-    return { soket, bellek, yapi };
+    if (selections["sogutma"]?.sihirbaz_ozellikleri) {
+      radyator = selections["sogutma"].sihirbaz_ozellikleri.radyator_boyutu || radyator;
+    }
+
+    if (selections["kasa"]?.sihirbaz_ozellikleri && !radyator) {
+      radyator = selections["kasa"].sihirbaz_ozellikleri.radyator_boyutu || radyator;
+    }
+
+    return { soket, bellek, yapi, radyator };
   };
 
-  const { soket, bellek, yapi } = dinamikFiltreleriHesapla();
+  const { soket, bellek, yapi, radyator } = dinamikFiltreleriHesapla();
 
   useEffect(() => {
     const fetchComponents = async () => {
       setLoading(true);
       try {
-        let url = `/api/kendin-topla?kategori=${activeStepInfo.id}&soket=${encodeURIComponent(soket)}&bellek=${encodeURIComponent(bellek)}&yapi=${encodeURIComponent(yapi)}`;
+        let url = `/api/kendin-topla?kategori=${activeStepInfo.id}&soket=${encodeURIComponent(soket)}&bellek=${encodeURIComponent(bellek)}&yapi=${encodeURIComponent(yapi)}&radyator=${encodeURIComponent(radyator)}`;
         const res = await fetch(url);
         const resData = await res.json();
         if (resData.success) setProducts(resData.data);
@@ -78,7 +79,7 @@ export default function KendinToplaPage() {
       }
     };
     fetchComponents();
-  }, [currentStep, selections, soket, bellek, yapi]);
+  }, [currentStep, selections, soket, bellek, yapi, radyator]);
 
   const handleSelectComponent = (product: any) => {
     setSelections((prev) => ({ ...prev, [activeStepInfo.id]: product }));
@@ -99,15 +100,34 @@ export default function KendinToplaPage() {
     return acc + Number(curr.indirimliFiyat || curr.fiyat || 0);
   }, 0);
 
+  // ⚡ ANLIK SİSTEM TÜKETİMİ
   const toplamWatt = Object.values(selections).reduce((acc, curr) => {
-    const t = curr.teknik_ozellikler || {};
-    const tdpYazisi = t["Güç Tüketimi (TDP)"] || t["TDP Değeri"] || t["Güç Tüketimi"] || t["TDP"] || "0";
-    const wattSayisi = parseInt(tdpYazisi.replace(/[^0-9]/g, "")) || 0;
-    return acc + wattSayisi;
+    const sz = curr.sihirbaz_ozellikleri || {};
+    return acc + (Number(sz.harcanan_guc) || 0);
   }, 0);
+
+  // 🛡️ ESNAF NİZAMI GÜVENLİK KALKANLARI KONTROLLERİ BURADA BAŞLIYOR:
+  
+  // 1. Güç Kaynağı Yeterlilik Kontrolü
+  const seciliPsuGucu = Number(selections["psu"]?.sihirbaz_ozellikleri?.psu_gucu) || 0;
+  const psuYetersiz = seciliPsuGucu > 0 && (toplamWatt + 150) > seciliPsuGucu;
+
+  // 2. Ekran Kartı Kasaya Sığıyor mu Kontrolü (Milimetrik)
+  const kasaGpuLimiti = Number(selections["kasa"]?.sihirbaz_ozellikleri?.gpu_boyutu) || 0;
+  const ekranKartiBoyutu = Number(selections["ekran-karti"]?.sihirbaz_ozellikleri?.gpu_boyutu) || 0;
+  const gpuKasaAşimi = kasaGpuLimiti > 0 && ekranKartiBoyutu > 0 && ekranKartiBoyutu > kasaGpuLimiti;
 
   const handleAddSystemToCart = () => {
     if (Object.keys(selections).length === 0) return toast.error("En az bir parça seçmelisin şefim!");
+    
+    // 🛑 KRİTİK BLOKE ETME MEKANİZMASI: Tehlikeli siparişi dükkana sokmuyoruz!
+    if (psuYetersiz) {
+      return toast.error("Şefim bu güç kaynağı sistemi kaldırmaz, dükkanı yakarız! Daha güçlü bir PSU seç.");
+    }
+    if (gpuKasaAşimi) {
+      return toast.error("Şefim bu ekran kartı bu kasaya sığmaz, kapak kapanmaz! Başka kart veya kasa seç.");
+    }
+
     Object.values(selections).forEach((urun) => {
       sepeteEkle({
         id: urun._id?.toString(),
@@ -179,8 +199,8 @@ export default function KendinToplaPage() {
                       <div>
                         <h4 className="text-sm font-bold text-white truncate group-hover:text-[#00d2ff] transition-colors mb-1">{urun.isim}</h4>
                         <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-gray-500 font-medium">
-                          {urun.teknik_ozellikler && Object.entries(urun.teknik_ozellikler).slice(0, 2).map(([k, v]: any) => (
-                            <span key={k}>{k}: <strong className="text-gray-400">{v}</strong></span>
+                          {urun.sihirbaz_ozellikleri && Object.entries(urun.sihirbaz_ozellikleri).filter(([_, v]) => v).slice(0, 3).map(([k, v]: any) => (
+                            <span key={k} className="capitalize">{k.replace('_', ' ')}: <strong className="text-gray-400">{v}</strong></span>
                           ))}
                         </div>
                       </div>
@@ -197,7 +217,7 @@ export default function KendinToplaPage() {
             </div>
           ) : (
             <div className="text-center py-16 bg-[#09090b] border border-white/5 rounded-2xl p-6 text-gray-500 text-sm">
-              Bu adıma uygun parça bulunamadı şefim.
+              Bu kriterlere uygun parça dükkanda kalmamış şefim.
             </div>
           )}
 
@@ -216,9 +236,24 @@ export default function KendinToplaPage() {
             <h3 className="text-sm font-black uppercase tracking-wider text-gray-400 mb-4 pb-2 border-b border-white/5 flex items-center justify-between">
               <span>SİSTEM ÖZETİ</span>
               <span className="text-[11px] bg-red-950/40 px-3 py-1 rounded-xl border border-red-500/30 text-red-400 font-black animate-pulse">
-                ⚡ {toplamWatt} Watt Çekiyor
+                ⚡ {toplamWatt} Watt Tüketim
               </span>
             </h3>
+
+            {/* 🛑 CANLI UYARI PANELİ BURADA ŞEFİM 🛑 */}
+            {psuYetersiz && (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-3 mb-4 flex items-start gap-2.5 text-xs text-red-400 font-bold animate-bounce">
+                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>TEHLİKE: Seçilen PSU ({seciliPsuGucu}W), gereken gücü ({(toplamWatt + 150)}W) karşılayamıyor! Dükkan yanar!</span>
+              </div>
+            )}
+
+            {gpuKasaAşimi && (
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 mb-4 flex items-start gap-2.5 text-xs text-amber-400 font-bold">
+                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>BOYUT HATASI: Ekran Kartı ({ekranKartiBoyutu}mm), Kasanın limitinden ({kasaGpuLimiti}mm) büyük! Sığmaz!</span>
+              </div>
+            )}
 
             <div className="space-y-3 mb-4 max-h-[300px] overflow-y-auto pr-1">
               {STEPS.map((step) => {
@@ -237,9 +272,9 @@ export default function KendinToplaPage() {
               })}
             </div>
 
-            {toplamWatt > 0 && (
+            {toplamWatt > 0 && !psuYetersiz && (
               <div className="bg-zinc-900/50 border border-white/5 p-3 rounded-xl mb-4 text-[11px] text-gray-400 font-medium">
-                📢 Önerilen En Düşük PSU: <strong className="text-[#00d2ff] font-black">{(toplamWatt + 150)}W</strong>
+                📢 Güvenli PSU İhtiyacı: <strong className="text-[#00d2ff] font-black">{(toplamWatt + 150)}W</strong>
               </div>
             )}
 
@@ -248,8 +283,14 @@ export default function KendinToplaPage() {
                 <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">TOPLAM:</span>
                 <span className="text-3xl font-black text-white tracking-tight">{toplamFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">TL</span></span>
               </div>
-              <button onClick={handleAddSystemToCart} className="w-full h-14 rounded-xl bg-[#00d2ff] text-black font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 hover:bg-[#00c4db] transition-all">
-                <ShoppingBag className="w-4 h-4" /> Sistemi Sepete Ekle
+              <button 
+                onClick={handleAddSystemToCart} 
+                disabled={psuYetersiz || gpuKasaAşimi}
+                className={`w-full h-14 rounded-xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 transition-all ${
+                  (psuYetersiz || gpuKasaAşimi) ? "bg-zinc-800 text-gray-600 cursor-not-allowed border border-white/5" : "bg-[#00d2ff] text-black hover:bg-[#00c4db]"
+                }`}
+              >
+                <ShoppingBag className="w-4 h-4" /> { (psuYetersiz || gpuKasaAşimi) ? "Uyumsuz Parçaları Düzelt" : "Sistemi Sepete Ekle" }
               </button>
             </div>
           </div>
