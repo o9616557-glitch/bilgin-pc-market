@@ -29,7 +29,7 @@ export default function KendinToplaPage() {
   
   const activeStepInfo = STEPS[currentStep];
 
-  // Arka plan kaymasını engelleme motoru
+  // Arka plan kaymasını engelleyen kilit motoru
   useEffect(() => {
     if (previewProduct) {
       document.body.style.overflow = "hidden";
@@ -123,44 +123,50 @@ export default function KendinToplaPage() {
     toast.success("Sistem başarıyla sıfırlandı.");
   };
 
-  // 🚀 KORUMALI FAVORİ KAYIT MOTORU DÜZELTİLDİ
+  // 🚀 YENİ NESİL BÜTÜNSEL SİSTEM PAKETLEME VE FAVORİ KAYIT MOTORU
   const handleAddSystemToFavorites = async () => {
-    if (Object.keys(selections).length === 0) {
-      return toast.error("Favorilere eklemek için en az bir parça seçmelisiniz.");
+    const secilenUrunSayisi = Object.keys(selections).length;
+    
+    // 🛑 KURAL 1: 3 üründen fazlası seçilmiş olmalı (En az 4 parça)
+    if (secilenUrunSayisi <= 3) {
+      return toast.error("Toplama sistem olarak kaydedilmesi için lütfen en az 4 parça seçiniz.");
     }
 
-    const loadToast = toast.loading("Bileşenler favori listenize işleniyor...");
+    const loadToast = toast.loading("Sistem konfigürasyonu bütün olarak paketleniyor...");
     try {
-      let basariliSayisi = 0;
-      let sonHataMesaji = "";
+      // Backend tarafındaki zorunlu ID alanını doldurmak için ilk seçilen ürünün bilgisini alıyoruz
+      const ilkKategoriAnahtari = Object.keys(selections)[0];
+      const ilkSecilenUrun = selections[ilkKategoriAnahtari];
 
-      // Seçilen tüm parçaları döngüye alıp senin mevcut favori API'ne tek tek yediriyoruz şefim
-      for (const urun of Object.values(selections)) {
-        const res = await fetch("/api/favorites", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            productId: urun._id,
-            id: urun._id // Hem productId hem düz id gönderiyoruz ki backend şaşırmasın!
-          })
-        });
+      // 🚀 KURAL 2: Tek tek değil, tüm başlıkları, fiyatları ve genel toplamı tek paket yapıyoruz
+      const sistemPaketi = {
+        productId: ilkSecilenUrun._id,
+        id: ilkSecilenUrun._id,
+        isToplamaSystem: true, // Favoriler sayfasının resimsiz modern kart çizmesi için özel etiket
+        genelToplamTutar: toplamFiyat,
+        parcalar: STEPS.map(step => {
+          const parca = selections[step.id];
+          return parca ? {
+            parcaBasligi: step.name,
+            urunIsmi: parca.isim,
+            fiyat: Number(parca.indirimliFiyat || parca.fiyat || 0)
+          } : null;
+        }).filter(Boolean)
+      };
 
-        const data = await res.json();
-        if (data.success) {
-          basariliSayisi++;
-        } else {
-          sonHataMesaji = data.message || "Yetki hatası.";
-        }
-      }
+      const res = await fetch("/api/favorites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(sistemPaketi)
+      });
 
+      const data = await res.json();
       toast.dismiss(loadToast);
 
-      if (basariliSayisi === Object.keys(selections).length) {
-        toast.success("Tüm sistem bileşenleri başarıyla favorilerinize kaydedildi! ❤️");
-      } else if (basariliSayisi > 0) {
-        toast.success(`${basariliSayisi} parça favorilere eklendi, bazıları atlandı.`);
+      if (data.success) {
+        toast.success("Sistem konfigürasyonunuz tek bir bütün kart olarak favorilere eklendi! ❤️");
       } else {
-        toast.error(sonHataMesaji || "Lütfen önce kullanıcı girişi yapınız.");
+        toast.error(data.message || "Lütfen önce kullanıcı girişi yapınız.");
       }
     } catch (error) {
       toast.dismiss(loadToast);
@@ -433,7 +439,7 @@ export default function KendinToplaPage() {
              }`}
            >
               <ShoppingBag className="w-4 h-4" /> Sepete Ekle
-           </button>
+         </button>
          </div>
       </div>
 
@@ -453,8 +459,6 @@ export default function KendinToplaPage() {
             </div>
 
             <div className="overflow-y-auto p-4 sm:p-6 grid grid-cols-1 md:grid-cols-5 gap-6 max-h-[calc(100vh-160px)] sm:max-h-[70vh]">
-              
-              {/* SOL SÜTUN (AŞAĞI KAYDIKÇA SABİT KALAN RESİM VE FİYAT ALANI) */}
               <div className="md:col-span-2 flex flex-col items-center gap-4 sm:gap-6 border-b md:border-b-0 md:border-r border-white/5 pb-6 md:pb-0 md:pr-6 md:sticky md:top-0 h-max">
                 <div className="w-full aspect-square bg-black/40 rounded-2xl p-6 border border-white/5 flex items-center justify-center">
                   <img src={previewProduct.resim} alt={previewProduct.isim} className="max-w-full max-h-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
@@ -465,14 +469,12 @@ export default function KendinToplaPage() {
                 </div>
               </div>
 
-              {/* SAĞ SÜTUN: TEKNİK VERİLER VE AÇIKLAMA */}
               <div className="md:col-span-3 space-y-6">
                 <div>
                   <span className="text-[10px] text-gray-500 font-black tracking-widest uppercase block mb-1">{previewProduct.marka || "BİLEŞEN"}</span>
                   <h2 className="text-lg md:text-xl font-black text-white leading-snug">{previewProduct.isim}</h2>
                 </div>
 
-                {/* TEKNİK DETAY TABLOSU */}
                 {previewProduct.teknik_ozellikler && (
                   <div className="space-y-2">
                     <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 border-b border-white/5 pb-1">Teknik Özellikler</h4>
@@ -487,7 +489,6 @@ export default function KendinToplaPage() {
                   </div>
                 )}
 
-                {/* ZENGİN METİN AÇIKLAMASI */}
                 {previewProduct.aciklama && (
                   <div className="space-y-2">
                     <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 border-b border-white/5 pb-1">Ürün Açıklaması</h4>
