@@ -223,14 +223,14 @@ export default function KendinToplaPage() {
   return (
     <div className="bg-[#050505] text-white min-h-screen font-sans pb-32">
       <div className="border-b border-white/5 bg-[#09090b]/90 backdrop-blur-xl lg:sticky lg:top-20 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-center space-x-3 shrink-0">
             <span className="text-[#00d2ff] font-black text-xl tracking-tight">🔧 PC SİHİRBAZI</span>
           </div>
           
-          {/* 🚀 YATAY KAYDIRMALI ELİT SEGMENT BAR: Çirkin grid kalktı, telefonda yana doğru kaydırılabilir tek satır şerit geri geldi! */}
-          <div className="w-full lg:w-auto overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            <div className="flex items-center space-x-1 border-b border-white/10 pb-1 min-w-max">
+          {/* 🚀 TAM İSTEDİĞİN GİBİ KURUMSAL GRİD NİZAMI: 'Damla damla' ayrı duran kutular kalktı, tek bir birleşik lüks panel haline geldi. Sağa sola asla kaymaz, mobilde 2'şerli aşağı akar! */}
+          <div className="w-full lg:w-auto bg-zinc-900/40 p-1.5 rounded-2xl border border-white/5 lg:bg-transparent lg:p-0 lg:border-0">
+            <div className="grid grid-cols-2 gap-1.5 w-full lg:flex lg:items-center lg:space-x-1">
               {STEPS.map((step, idx) => {
                 const StepIcon = step.icon;
                 const isSelected = !!selections[step.id];
@@ -239,23 +239,18 @@ export default function KendinToplaPage() {
                   <button
                     key={step.id}
                     onClick={() => setCurrentStep(idx)}
-                    /* shrink-0 sayesinde yana kayarken harfler asla ezilmez, kalıp gibi kalır */
-                    className={`shrink-0 flex items-center space-x-2 px-4 py-3 text-xs font-black uppercase tracking-wider transition-all relative ${
+                    /* 🚀 GÜNEŞ IŞIĞI AYARI: Aktif buton fosforlu tam kaplama oldu, güneşte kusursuz okunur */
+                    className={`flex items-center space-x-2 px-3 py-3 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all truncate text-left ${
                       isActive 
-                        ? "text-[#00d2ff]" 
+                        ? "bg-[#00d2ff] text-black shadow-[0_0_15px_rgba(0,210,255,0.3)]" 
                         : isSelected 
-                          ? "text-emerald-400" 
-                          : "text-gray-400 hover:text-white"
+                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" 
+                          : "bg-zinc-900/60 text-gray-300 border border-white/5 hover:text-white"
                     }`}
                   >
-                    <StepIcon className="w-4 h-4 shrink-0" />
-                    <span>{step.name}</span>
-                    {isSelected && <Check className="w-3 h-3 text-emerald-400 ml-1 shrink-0" />}
-                    
-                    {/* Aktif parlak kuantum alt çizgisi */}
-                    {isActive && (
-                      <div className="absolute bottom-[-5px] left-0 w-full h-[3px] bg-[#00d2ff] drop-shadow-[0_0_8px_rgba(0,210,255,0.6)] z-10" />
-                    )}
+                    <StepIcon className={`w-4 h-4 shrink-0 ${isActive ? "text-black" : isSelected ? "text-emerald-400" : "text-[#00d2ff]"}`} />
+                    <span className="truncate">{step.name}</span>
+                    {isSelected && <Check className={`w-3 h-3 ml-auto shrink-0 ${isActive ? "text-black" : "text-emerald-400"}`} />}
                   </button>
                 );
               })}
