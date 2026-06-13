@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useCart } from "@/app/CartContext";
 import toast from "react-hot-toast";
 import { 
@@ -28,8 +28,12 @@ export default function KendinToplaPage() {
   const [selections, setSelections] = useState<Record<string, any>>({});
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
   
+  // 🚀 JET MOTORU: 0ms hız için client-side kuantum önbellek mekanizması
+  const cacheRef = useRef<Record<string, any[]>>({});
+  
   const activeStepInfo = STEPS[currentStep];
 
+  // Tarayıcı hafızasından eski seçimleri geri yükleme motoru
   useEffect(() => {
     const eskiSecimler = localStorage.getItem("bilgin_sihirbaz_selections");
     if (eskiSecimler) {
@@ -41,12 +45,14 @@ export default function KendinToplaPage() {
     }
   }, []);
 
+  // Seçimler değiştikçe hafızayı anında güncelleme motoru
   useEffect(() => {
     if (Object.keys(selections).length > 0) {
       localStorage.setItem("bilgin_sihirbaz_selections", JSON.stringify(selections));
     }
   }, [selections]);
 
+  // Pop-up açılınca arka plan kaymasını engelleyen kilit
   useEffect(() => {
     if (previewProduct) {
       document.body.style.overflow = "hidden";
@@ -103,15 +109,31 @@ export default function KendinToplaPage() {
 
   const { soket, bellek, yapi, radyator } = dinamikFiltreleriHesapla(activeStepInfo.id);
 
+  // 🚀 IŞIK HIZINDA VERİ GETİRME VE ÖNBELLEKLEME FONSİYONU
   useEffect(() => {
+    // Benzersiz bir filtre anahtarı üretiyoruz
+    const cacheKey = `${activeStepInfo.id}_${soket}_${bellek}_${yapi}_${radyator}`;
+    
+    // Eğer bu parça kombinasyonu daha önce yüklendiyse, internete hiç sorma direkt hafızadan tak diye getir!
+    if (cacheRef.current[cacheKey]) {
+      setProducts(cacheRef.current[cacheKey]);
+      setLoading(false);
+      return;
+    }
+
     const fetchComponents = async () => {
       setLoading(true);
       try {
         let url = `/api/kendin-topla?kategori=${activeStepInfo.id}&soket=${encodeURIComponent(soket)}&bellek=${encodeURIComponent(bellek)}&yapi=${encodeURIComponent(yapi)}&radyator=${encodeURIComponent(radyator)}`;
         const res = await fetch(url);
         const resData = await res.json();
-        if (resData.success) setProducts(resData.data);
-        else setProducts([]);
+        if (resData.success) {
+          // Gelen temiz veriyi önbelleğe yazıyoruz
+          cacheRef.current[cacheKey] = resData.data;
+          setProducts(resData.data);
+        } else {
+          setProducts([]);
+        }
       } catch (e) {
         setProducts([]);
       } finally {
@@ -186,13 +208,13 @@ export default function KendinToplaPage() {
   return (
     <div className="bg-[#050505] text-white min-h-screen font-sans pb-32">
       <div className="border-b border-white/5 bg-[#09090b]/90 backdrop-blur-xl lg:sticky lg:top-20 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center space-x-3 shrink-0">
             <span className="text-[#00d2ff] font-black text-xl sm:text-2xl">🔧 PC SİHİRBAZI</span>
           </div>
           
-          {/* 🚀 DERLİ TOPLU MENÜ: Flex-wrap kaldırıldı, yatay kaydırmalı (scroll) yapıldı! */}
-          <div className="flex overflow-x-auto sm:flex-wrap items-center gap-2 w-full md:w-auto pb-1 sm:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          {/* 🚀 DERLİ TOPLU MOBİL GRİD: Sağa kaydırma tamamen kalktı. Mobilde jilet gibi 2'li yan yana grid nizamına geçildi. */}
+          <div className="grid grid-cols-2 gap-2 w-full md:flex md:flex-wrap md:w-auto">
             {STEPS.map((step, idx) => {
               const StepIcon = step.icon;
               const isSelected = !!selections[step.id];
@@ -201,14 +223,13 @@ export default function KendinToplaPage() {
                 <button
                   key={step.id}
                   onClick={() => setCurrentStep(idx)}
-                  /* 🚀 GÜNEŞ IŞIĞI MODU: Butonların zemin rengi açıldı, shrink-0 ile ezilmeleri engellendi */
-                  className={`shrink-0 flex items-center space-x-1.5 px-3 py-2 sm:py-1.5 rounded-xl border text-xs font-black transition-all ${
+                  className={`flex items-center space-x-1.5 px-3 py-2.5 sm:py-1.5 rounded-xl border text-[11px] sm:text-xs font-black transition-all truncate text-left ${
                     isActive ? "bg-[#00d2ff]/15 border-[#00d2ff] text-[#00d2ff]" : isSelected ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-400" : "bg-zinc-800/80 border-white/10 text-gray-300 hover:text-white hover:bg-zinc-700"
                   }`}
                 >
-                  <StepIcon className="w-3.5 h-3.5" />
-                  <span>{step.name}</span>
-                  {isSelected && <Check className="w-3 h-3 text-emerald-400 ml-0.5" />}
+                  <StepIcon className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{step.name}</span>
+                  {isSelected && <Check className="w-3 h-3 text-emerald-400 ml-auto shrink-0" />}
                 </button>
               );
             })}
@@ -236,7 +257,6 @@ export default function KendinToplaPage() {
               {products.map((urun) => {
                 const isItemChosen = selections[activeStepInfo.id]?._id === urun._id;
                 return (
-                  /* 🚀 GÜNEŞ IŞIĞI KARTLARI: Arka plan bg-[#18181b] yapıldı (Daha açık füme), Kenarlık border-2 yapıldı */
                   <div key={urun._id} className={`bg-[#18181b] border-2 rounded-2xl p-4 flex gap-4 hover:border-white/20 transition-all group shadow-md ${isItemChosen ? "border-[#00d2ff] bg-[#00d2ff]/5" : "border-white/10"}`}>
                     
                     <button 
@@ -258,7 +278,6 @@ export default function KendinToplaPage() {
                           {urun.isim}
                         </button>
                         
-                        {/* 🚀 GÜNEŞ IŞIĞI YAZILARI: text-gray-500 yerine text-gray-300 kullanıldı! */}
                         <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-gray-300 font-medium break-all break-words">
                           {urun.sihirbaz_ozellikleri && Object.entries(urun.sihirbaz_ozellikleri).filter(([_, v]) => v).slice(0, 3).map(([k, v]: any) => (
                             <span key={k} className="capitalize">{k.replace('_', ' ')}: <strong className="text-gray-100">{v}</strong></span>
@@ -268,7 +287,6 @@ export default function KendinToplaPage() {
                       <div className="flex items-center justify-between mt-3 pt-2 border-t border-white/10">
                         <span className="text-base font-black text-white">{Number(urun.indirimliFiyat || urun.fiyat || 0).toLocaleString("tr-TR")} ₺</span>
                         
-                        {/* 🚀 GÜNEŞ IŞIĞI BUTON: bg-zinc-800 yerine bg-zinc-700 ve daha parlak beyaz yazı eklendi */}
                         <button 
                           onClick={() => handleSelectComponent(urun)} 
                           className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all border ${
@@ -390,7 +408,7 @@ export default function KendinToplaPage() {
       </div>
 
       {/* MOBİL ALT BAR */}
-      <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#18181b]/95 backdrop-blur-2xl border-t-2 border-white/10 px-4 sm:px-6 py-4 z-50 flex items-center justify-between shadow-[0_-15px_30px_rgba(0,0,0,0.8)] select-none">
+      <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#18181b]/95 backdrop-blur-2xl border-t-2 border-white/10 px-4 py-4 z-50 flex items-center justify-between shadow-[0_-15px_30px_rgba(0,0,0,0.8)] select-none">
          <div className="flex flex-col">
             <span className="text-gray-400 text-[10px] font-black tracking-wider uppercase mb-0.5">TOPLAM TUTAR</span>
             <span className="text-2xl font-black text-white leading-none">
