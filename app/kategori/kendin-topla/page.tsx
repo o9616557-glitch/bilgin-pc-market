@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useCart } from "@/app/CartContext";
 import toast from "react-hot-toast";
 import { 
@@ -24,13 +24,16 @@ export default function KendinToplaPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 🚀 KALICI HAFIZA STATE'LERİ
+  // Kalıcı hafızalı seçim state yapısı
   const [selections, setSelections] = useState<Record<string, any>>({});
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
   
+  // 🚀 KUANTUM HAFIZA: İlk tıklama gecikmesini yok eden akıllı client-side cache ref yapısı
+  const cacheRef = useRef<Record<string, any[]>>({});
+  
   const activeStepInfo = STEPS[currentStep];
 
-  // 1. AŞAMA: SAYFA AÇILINCA ESKİ SEÇİMLERİ HAFIZADAN ÇEK
+  // Tarayıcı hafızasından eski seçimleri geri yükleme motoru
   useEffect(() => {
     const eskiSecimler = localStorage.getItem("bilgin_sihirbaz_selections");
     if (eskiSecimler) {
@@ -42,14 +45,14 @@ export default function KendinToplaPage() {
     }
   }, []);
 
-  // 2. AŞAMA: LİSTE DEĞİŞTİKÇE HAFIZAYI GÜNCELLE
+  // Seçimler değiştikçe hafızayı anında güncelleme motoru
   useEffect(() => {
     if (Object.keys(selections).length > 0) {
       localStorage.setItem("bilgin_sihirbaz_selections", JSON.stringify(selections));
     }
   }, [selections]);
 
-  // POP-UP AÇILINCA ARKA PLANI KİLİTLE
+  // Pop-up açılınca arka plan kaymasını engelleyen kilit
   useEffect(() => {
     if (previewProduct) {
       document.body.style.overflow = "hidden";
@@ -106,23 +109,55 @@ export default function KendinToplaPage() {
 
   const { soket, bellek, yapi, radyator } = dinamikFiltreleriHesapla(activeStepInfo.id);
 
-  // ÜRÜNLERİ HIZLICA VERİTABANINDAN ÇEK
+  // 🚀 PARALEL ARKA PLAN MOTORU: İlk tıklama yavaşlığını tamamen yok eden mekanizma
   useEffect(() => {
-    const fetchComponents = async () => {
+    const currentCacheKey = `${activeStepInfo.id}_${soket}_${bellek}_${yapi}_${radyator}`;
+    
+    // Eğer aktif adım zaten hafızadaysa internete hiç sorma direkt tak diye getir
+    if (cacheRef.current[currentCacheKey]) {
+      setProducts(cacheRef.current[currentCacheKey]);
+      setLoading(false);
+    } else {
       setLoading(true);
-      try {
-        let url = `/api/kendin-topla?kategori=${activeStepInfo.id}&soket=${encodeURIComponent(soket)}&bellek=${encodeURIComponent(bellek)}&yapi=${encodeURIComponent(yapi)}&radyator=${encodeURIComponent(radyator)}`;
-        const res = await fetch(url);
-        const resData = await res.json();
-        if (resData.success) setProducts(resData.data);
-        else setProducts([]);
-      } catch (e) {
-        setProducts([]);
-      } finally {
-        setLoading(false);
+    }
+
+    const fetchAllStepsParallel = async () => {
+      // 1. Önce aktif olan adımı çekip ekrana basıyoruz (Gecikmesiz)
+      if (!cacheRef.current[currentCacheKey]) {
+        try {
+          let url = `/api/kendin-topla?kategori=${activeStepInfo.id}&soket=${encodeURIComponent(soket)}&bellek=${encodeURIComponent(bellek)}&yapi=${encodeURIComponent(yapi)}&radyator=${encodeURIComponent(radyator)}`;
+          const res = await fetch(url);
+          const resData = await res.json();
+          if (resData.success) {
+            cacheRef.current[currentCacheKey] = resData.data;
+            setProducts(resData.data);
+          }
+        } catch (e) {
+          setProducts([]);
+        } finally {
+          setLoading(false);
+        }
       }
+
+      // 2. SİHİRLİ DOKUNUŞ: Geriye kalan tüm adımları arka planda sessizce paralel indiriyoruz!
+      STEPS.forEach(async (step) => {
+        if (step.id === activeStepInfo.id) return; // Aktif adımı zaten yukarda çektik
+        const stepCacheKey = `${step.id}_${soket}_${bellek}_${yapi}_${radyator}`;
+        
+        if (!cacheRef.current[stepCacheKey]) {
+          try {
+            let url = `/api/kendin-topla?kategori=${step.id}&soket=${encodeURIComponent(soket)}&bellek=${encodeURIComponent(bellek)}&yapi=${encodeURIComponent(yapi)}&radyator=${encodeURIComponent(radyator)}`;
+            const res = await fetch(url);
+            const resData = await res.json();
+            if (resData.success) {
+              cacheRef.current[stepCacheKey] = resData.data; // İleride tıklanacak her şey artık hazır!
+            }
+          } catch (e) {}
+        }
+      });
     };
-    fetchComponents();
+
+    fetchAllStepsParallel();
   }, [currentStep, soket, bellek, yapi, radyator]);
 
   const handleSelectComponent = (product: any) => {
@@ -190,30 +225,42 @@ export default function KendinToplaPage() {
   return (
     <div className="bg-[#050505] text-white min-h-screen font-sans pb-32">
       <div className="border-b border-white/5 bg-[#09090b]/90 backdrop-blur-xl lg:sticky lg:top-20 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-center space-x-3 shrink-0">
-            <span className="text-[#00d2ff] font-black text-xl sm:text-2xl">🔧 PC SİHİRBAZI</span>
+            <span className="text-[#00d2ff] font-black text-xl tracking-tight">🔧 PC SİHİRBAZI</span>
           </div>
           
-          <div className="flex overflow-x-auto sm:flex-wrap items-center gap-2 w-full md:w-auto pb-1 sm:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            {STEPS.map((step, idx) => {
-              const StepIcon = step.icon;
-              const isSelected = !!selections[step.id];
-              const isActive = currentStep === idx;
-              return (
-                <button
-                  key={step.id}
-                  onClick={() => setCurrentStep(idx)}
-                  className={`shrink-0 flex items-center space-x-1.5 px-3 py-2 sm:py-1.5 rounded-xl border text-xs font-black transition-all ${
-                    isActive ? "bg-[#00d2ff]/15 border-[#00d2ff] text-[#00d2ff]" : isSelected ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-400" : "bg-zinc-800/80 border-white/10 text-gray-300 hover:text-white hover:bg-zinc-700"
-                  }`}
-                >
-                  <StepIcon className="w-3.5 h-3.5" />
-                  <span>{step.name}</span>
-                  {isSelected && <Check className="w-3 h-3 text-emerald-400 ml-0.5" />}
-                </button>
-              );
-            })}
+          {/* 🚀 ELİT VE BÜTÜNSEL TAB TASARIMI: 'Damla damla' kutular tamamen söküldü, yerine tek parça kurumsal segment çizgisi geldi */}
+          <div className="w-full lg:w-auto overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="flex items-center space-x-1 border-b border-white/10 pb-1 min-w-max lg:min-w-0">
+              {STEPS.map((step, idx) => {
+                const StepIcon = step.icon;
+                const isSelected = !!selections[step.id];
+                const isActive = currentStep === idx;
+                return (
+                  <button
+                    key={step.id}
+                    onClick={() => setCurrentStep(idx)}
+                    className={`flex items-center space-x-2 px-4 py-3 text-xs font-black uppercase tracking-wider transition-all relative ${
+                      isActive 
+                        ? "text-[#00d2ff]" 
+                        : isSelected 
+                          ? "text-emerald-400" 
+                          : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    <StepIcon className="w-4 h-4 shrink-0" />
+                    <span>{step.name}</span>
+                    {isSelected && <Check className="w-3 h-3 text-emerald-400 ml-1 shrink-0" />}
+                    
+                    {/* Aktif segment alt çizgisi (Güneşte ayna gibi parlar) */}
+                    {isActive && (
+                      <div className="absolute bottom-[-5px] left-0 w-full h-[3px] bg-[#00d2ff] drop-shadow-[0_0_8px_rgba(0,210,255,0.6)] z-10" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
@@ -238,8 +285,7 @@ export default function KendinToplaPage() {
               {products.map((urun) => {
                 const isItemChosen = selections[activeStepInfo.id]?._id === urun._id;
                 return (
-                  /* 🚀 MODERN KARTLAR: Füme Arka Plan & Zümrüt Yeşili Seçim Modu */
-                  <div key={urun._id} className={`bg-[#18181b] border-2 rounded-2xl p-4 flex gap-4 hover:border-white/20 transition-all group shadow-md ${isItemChosen ? "border-emerald-500 bg-emerald-500/5" : "border-white/10"}`}>
+                  <div key={urun._id} className={`bg-[#18181b] border-2 rounded-2xl p-4 flex gap-4 hover:border-white/20 transition-all group shadow-md ${isItemChosen ? "border-[#00d2ff] bg-[#00d2ff]/5" : "border-white/10"}`}>
                     
                     <button 
                       onClick={() => setPreviewProduct(urun)}
@@ -269,7 +315,6 @@ export default function KendinToplaPage() {
                       <div className="flex items-center justify-between mt-3 pt-2 border-t border-white/10">
                         <span className="text-base font-black text-white">{Number(urun.indirimliFiyat || urun.fiyat || 0).toLocaleString("tr-TR")} ₺</span>
                         
-                        {/* 🚀 MODERN BUTON: Parlak ve canlı renkler! */}
                         <button 
                           onClick={() => handleSelectComponent(urun)} 
                           className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all border ${
@@ -380,7 +425,7 @@ export default function KendinToplaPage() {
                 onClick={handleAddSystemToCart} 
                 disabled={psuYetersiz || gpuKasaAşimi}
                 className={`w-full h-14 rounded-xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 transition-all ${
-                  (psuYetersiz || gpuKasaAşimi) ? "bg-zinc-800 text-gray-500 cursor-not-allowed border border-white/10" : "bg-[#00d2ff] text-black hover:bg-[#00c4db]"
+                  (psuYetersiz || gpuKasaAşimi) ? "bg-zinc-800 text-gray-600 cursor-not-allowed border border-white/10" : "bg-[#00d2ff] text-black hover:bg-[#00c4db]"
                 }`}
               >
                 <ShoppingBag className="w-4 h-4" /> { (psuYetersiz || gpuKasaAşimi) ? "Uyumsuzlukları Gideriniz" : "Sistemi Sepete Ekle" }
@@ -391,7 +436,7 @@ export default function KendinToplaPage() {
       </div>
 
       {/* MOBİL ALT BAR */}
-      <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#18181b]/95 backdrop-blur-2xl border-t-2 border-white/10 px-4 sm:px-6 py-4 z-50 flex items-center justify-between shadow-[0_-15px_30px_rgba(0,0,0,0.8)] select-none">
+      <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#18181b]/95 backdrop-blur-2xl border-t-2 border-white/10 px-4 py-4 z-50 flex items-center justify-between shadow-[0_-15px_30px_rgba(0,0,0,0.8)] select-none">
          <div className="flex flex-col">
             <span className="text-gray-400 text-[10px] font-black tracking-wider uppercase mb-0.5">TOPLAM TUTAR</span>
             <span className="text-2xl font-black text-white leading-none">
@@ -411,9 +456,9 @@ export default function KendinToplaPage() {
          </div>
       </div>
 
-      {/* 🚀 Z-INDEX [9999] UYGULANMIŞ HIZLI POP-UP PENCERESİ */}
+      {/* DETAY İNCELEME MODAL PANELİ */}
       {previewProduct && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[9999] overflow-y-auto flex items-start sm:items-center justify-center p-2 sm:p-6 md:p-10 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 overflow-y-auto flex items-start sm:items-center justify-center p-2 sm:p-6 md:p-10 animate-in fade-in duration-200">
           <div className="bg-[#121214] border-2 border-white/10 w-full max-w-5xl rounded-2xl overflow-hidden flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.8)] my-auto">
             
             <div className="flex items-center justify-between p-5 border-b border-white/10 bg-[#18181b] shrink-0">
