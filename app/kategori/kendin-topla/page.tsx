@@ -27,41 +27,49 @@ export default function KendinToplaPage() {
   const [selections, setSelections] = useState<Record<string, any>>({});
   const activeStepInfo = STEPS[currentStep];
 
-  const dinamikFiltreleriHesapla = () => {
+  // 🚀 KENDİ KENDİNİ FİLTRELEYİP LİSTEYİ YOK ETME SORUNU ÇÖZÜLDÜ
+  const dinamikFiltreleriHesapla = (stepToIgnore: string) => {
     let soket = "";
     let bellek = "";
     let yapi = "";
     let radyator = "";
 
-    if (selections["islemci"]?.sihirbaz_ozellikleri) {
-      const sz = selections["islemci"].sihirbaz_ozellikleri;
+    // Bulunduğumuz adımın seçimini süzgece katmıyoruz ki listedeki alternatif ürünler kaybolmasın!
+    const sIslemci = stepToIgnore === "islemci" ? null : selections["islemci"];
+    const sAnakart = stepToIgnore === "anakart" ? null : selections["anakart"];
+    const sRam = stepToIgnore === "ram" ? null : selections["ram"];
+    const sSogutma = stepToIgnore === "sogutma" ? null : selections["sogutma"];
+    const sKasa = stepToIgnore === "kasa" ? null : selections["kasa"];
+
+    if (sIslemci?.sihirbaz_ozellikleri) {
+      const sz = sIslemci.sihirbaz_ozellikleri;
       soket = sz.soket || soket;
       bellek = sz.bellek_tipi || bellek;
     }
 
-    if (selections["anakart"]?.sihirbaz_ozellikleri) {
-      const sz = selections["anakart"].sihirbaz_ozellikleri;
+    if (sAnakart?.sihirbaz_ozellikleri) {
+      const sz = sAnakart.sihirbaz_ozellikleri;
       if (!soket) soket = sz.soket;
       if (!bellek) bellek = sz.bellek_tipi;
       yapi = sz.anakart_yapisi || yapi;
     }
 
-    if (selections["ram"]?.sihirbaz_ozellikleri && !bellek) {
-      bellek = selections["ram"].sihirbaz_ozellikleri.bellek_tipi;
+    if (sRam?.sihirbaz_ozellikleri && !bellek) {
+      bellek = sRam.sihirbaz_ozellikleri.bellek_tipi;
     }
 
-    if (selections["sogutma"]?.sihirbaz_ozellikleri) {
-      radyator = selections["sogutma"].sihirbaz_ozellikleri.radyator_boyutu || radyator;
+    if (sSogutma?.sihirbaz_ozellikleri) {
+      radyator = sSogutma.sihirbaz_ozellikleri.radyator_boyutu || radyator;
     }
 
-    if (selections["kasa"]?.sihirbaz_ozellikleri && !radyator) {
-      radyator = selections["kasa"].sihirbaz_ozellikleri.radyator_boyutu || radyator;
+    if (sKasa?.sihirbaz_ozellikleri && !radyator) {
+      radyator = sKasa.sihirbaz_ozellikleri.radyator_boyutu || radyator;
     }
 
     return { soket, bellek, yapi, radyator };
   };
 
-  const { soket, bellek, yapi, radyator } = dinamikFiltreleriHesapla();
+  const { soket, bellek, yapi, radyator } = dinamikFiltreleriHesapla(activeStepInfo.id);
 
   useEffect(() => {
     const fetchComponents = async () => {
@@ -81,7 +89,6 @@ export default function KendinToplaPage() {
     fetchComponents();
   }, [currentStep, selections, soket, bellek, yapi, radyator]);
 
-  // 🚀 ARTIK SEÇİM YAPILINCA BİR SONRAKİ ADIMA ZIPLAMIYOR, EKRANDA KALIYOR PATRON!
   const handleSelectComponent = (product: any) => {
     setSelections((prev) => ({ ...prev, [activeStepInfo.id]: product }));
     toast.success(`${product.isim} başarıyla sisteme eklendi.`);
@@ -137,7 +144,9 @@ export default function KendinToplaPage() {
 
   return (
     <div className="bg-[#050505] text-white min-h-screen font-sans pb-32">
-      <div className="border-b border-white/5 bg-[#09090b]/80 backdrop-blur-xl sticky top-20 z-40">
+      
+      {/* 📱 🌲 TELEFONDA ARTIK STICKY (YAPIŞKAN) DEĞİL, DARALMA YAPMAZ */}
+      <div className="border-b border-white/5 bg-[#09090b]/80 backdrop-blur-xl lg:sticky lg:top-20 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center space-x-3 shrink-0">
             <span className="text-[#00d2ff] font-black text-xl sm:text-2xl">🔧 PC SİHİRBAZI</span>
@@ -188,13 +197,13 @@ export default function KendinToplaPage() {
                 return (
                   <div key={urun._id} className={`bg-[#09090b] border rounded-2xl p-4 flex gap-4 hover:border-white/20 transition-all group ${isItemChosen ? "border-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.05)]" : "border-white/5"}`}>
                     
-                    {/* 🚀 ÜRÜN DETAYINA GİDEN RESİM ALANI (YENİ SEKMEDE AÇILIR) */}
+                    {/* ÜRÜN RESMİNE TIKLAYINCA YENİ SEKMEDE DETAY SAYFASINA GİDER */}
                     <a 
                       href={`/product/${urun.slug}`} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="w-20 h-20 bg-black/40 rounded-xl p-2 flex items-center justify-center shrink-0 cursor-pointer relative block group/img"
-                      title="Ürün detaylarını yeni sekmede gör"
+                      title="Ürünü yeni sekmede incele"
                     >
                       <img src={urun.resim} alt={urun.isim} className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform" />
                       <div className="absolute inset-0 bg-black/60 rounded-xl opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity">
@@ -204,17 +213,19 @@ export default function KendinToplaPage() {
 
                     <div className="flex flex-col justify-between flex-1 min-w-0">
                       <div>
-                        {/* 🚀 ÜRÜN DETAYINA GİDEN BAŞLIK ALANI */}
+                        {/* ÜRÜN İSMİNE TIKLAYINCA YENİ SEKMEDE DETAY SAYFASINA GİDER */}
                         <a 
                           href={`/product/${urun.slug}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-sm font-bold text-white truncate block hover:text-[#00d2ff] hover:underline transition-all cursor-pointer mb-1"
-                          title="Ürün detaylarını yeni sekmede gör"
+                          title="Ürünü yeni sekmede incele"
                         >
                           {urun.isim}
                         </a>
-                        <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-gray-500 font-medium">
+                        
+                        {/* 🚀 CSS DÜZELTİLDİ: "break-all break-words" ile yazılar asla kutudan taşmaz */}
+                        <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-gray-500 font-medium break-all break-words">
                           {urun.sihirbaz_ozellikleri && Object.entries(urun.sihirbaz_ozellikleri).filter(([_, v]) => v).slice(0, 3).map(([k, v]: any) => (
                             <span key={k} className="capitalize">{k.replace('_', ' ')}: <strong className="text-gray-400">{v}</strong></span>
                           ))}
@@ -266,7 +277,7 @@ export default function KendinToplaPage() {
               {Object.keys(selections).length > 0 && (
                 <button 
                   onClick={handleClearAll}
-                  className="text-gray-500 hover:text-red-400 text-xs font-black flex items-center gap-1.5 transition-colors px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 hover:bg-red-500/10 hover:border-red-500/20"
+                  className="text-gray-500 hover:text-red-400 text-xs font-black flex items-center gap-1.5 transition-colors px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 hover:bg-red-500/10 hover:bg-red-500/20"
                 >
                   <RefreshCw className="w-3 h-3" /> Tümünü Sıfırla
                 </button>
@@ -323,7 +334,8 @@ export default function KendinToplaPage() {
               </div>
             )}
 
-            <div className="border-t border-white/10 pt-4 flex flex-col">
+            {/* 📱 🌲 TELEFONDA BU PANEL BUTONU GİZLENDİ, ÇİFT SEPET OLUŞMAZ */}
+            <div className="hidden lg:flex border-t border-white/10 pt-4 flex-col">
               <div className="flex justify-between items-baseline mb-5">
                 <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">TOPLAM:</span>
                 <span className="text-3xl font-black text-white tracking-tight">{toplamFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">TL</span></span>
@@ -342,7 +354,7 @@ export default function KendinToplaPage() {
         </div>
       </div>
 
-      {/* MOBİL ALT BAR */}
+      {/* MOBİL ALT BAR (TELEFONLARDA TEK SEPET BURASIDIR) */}
       <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#09090b]/95 backdrop-blur-2xl border-t border-white/10 px-6 py-4 z-50 flex items-center justify-between shadow-[0_-15px_30px_rgba(0,0,0,0.8)] select-none">
          <div className="flex flex-col">
             <span className="text-gray-500 text-[10px] font-black tracking-wider uppercase mb-0.5">TOPLAM TUTAR</span>
