@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useCart } from "@/app/CartContext";
 import toast from "react-hot-toast";
 import { 
-  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, ChevronRight, ChevronLeft, Loader2, Check, AlertTriangle, Trash2, RefreshCw, ExternalLink, Heart 
+  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, ChevronRight, ChevronLeft, Loader2, Check, AlertTriangle, Trash2, RefreshCw, ExternalLink 
 } from "lucide-react";
 
 const STEPS = [
@@ -24,12 +24,9 @@ export default function KendinToplaPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Aktif toplanan sistem hafıza state yapısı
+  // Kalıcı hafızalı seçim state yapısı
   const [selections, setSelections] = useState<Record<string, any>>({});
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
-  
-  // 🚀 SADECE KALBİ KIRMIZI YAPACAK AKILLI FAVORİ STATE YAPISI
-  const [isFavorited, setIsFavorited] = useState(false);
   
   const activeStepInfo = STEPS[currentStep];
 
@@ -50,8 +47,6 @@ export default function KendinToplaPage() {
     if (Object.keys(selections).length > 0) {
       localStorage.setItem("bilgin_sihirbaz_selections", JSON.stringify(selections));
     }
-    // 🚀 Parça değiştiğinde veya silindiğinde kalp söner (Yeni konfigürasyon için)
-    setIsFavorited(false);
   }, [selections]);
 
   // Pop-up açılınca arka plan kaymasını engelleyen kilit
@@ -151,37 +146,7 @@ export default function KendinToplaPage() {
     setSelections({});
     setCurrentStep(0);
     localStorage.removeItem("bilgin_sihirbaz_selections");
-    setIsFavorited(false);
     toast.success("Sistem başarıyla sıfırlandı.");
-  };
-
-  // 🚀 SAPITMA YAPMAYAN ULTRA-GÜVENLİ SİSTEM KAYIT MOTORU
-  const handleAddSystemToFavorites = () => {
-    if (Object.keys(selections).length === 0) {
-      return toast.error("Favorilere eklemek için en az bir parça seçmelisiniz.");
-    }
-
-    try {
-      // Veritabanı sınırına takılmadan direkt tarayıcı hafızasındaki favori slotuna yazıyoruz şefim
-      const mevcutSistemler = localStorage.getItem("bilgin_kayitli_sistemler");
-      let sistemListesi = mevcutSistemler ? JSON.parse(mevcutSistemler) : [];
-
-      const yeniSistemKonfigurasayonu = {
-        id: Date.now(),
-        tarih: new Date().toLocaleDateString("tr-TR"),
-        toplamTutar: toplamFiyat,
-        parcalar: { ...selections }
-      };
-
-      sistemListesi.push(yeniSistemKonfigurasayonu);
-      localStorage.setItem("bilgin_kayitli_sistemler", JSON.stringify(sistemListesi));
-
-      // 🛠️ SADECE KALBİ KIRMIZIYA BOYAYAN TETİKLEYİCİ
-      setIsFavorited(true);
-      toast.success("Sistem konfigürasyonunuz sapıtma olmadan başarıyla favorilerinize kaydedildi! ❤️");
-    } catch (error) {
-      toast.error("Sistem kaydedilirken teknik bir sorun oluştu.");
-    }
   };
 
   const toplamFiyat = Object.values(selections).reduce((acc, curr) => {
@@ -218,7 +183,6 @@ export default function KendinToplaPage() {
     localStorage.removeItem("bilgin_sihirbaz_selections");
     setSelections({});
     setCurrentStep(0);
-    setIsFavorited(false);
     toast.success("Sistem başarıyla sepete eklendi ve sihirbaz temizlendi.");
   };
 
@@ -407,15 +371,6 @@ export default function KendinToplaPage() {
                 <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">TOPLAM:</span>
                 <span className="text-3xl font-black text-white tracking-tight">{toplamFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">TL</span></span>
               </div>
-              
-              {/* 🚀 MASAÜSTÜ FAVORİ BUTONU: Sadece içindeki Lucide kalbi kırmızıya boyanır */}
-              <button 
-                onClick={handleAddSystemToFavorites}
-                className="w-full h-11 rounded-xl font-bold uppercase tracking-wider text-xs border border-white/10 bg-white/[0.02] text-gray-300 flex items-center justify-center gap-2 transition-all hover:bg-white/[0.05]"
-              >
-                <Heart className={`w-3.5 h-3.5 transition-colors ${isFavorited ? "text-red-500 fill-red-500" : "text-gray-400"}`} /> 
-                Bu Sistemi Favorilerime Ekle
-              </button>
 
               <button 
                 onClick={handleAddSystemToCart} 
@@ -440,14 +395,6 @@ export default function KendinToplaPage() {
             </span>
          </div>
          <div className="flex items-center gap-2">
-           {/* 🚀 MOBİL FAVORİ BUTONU: Sadece içindeki kalp kırmızıya boyanır */}
-           <button 
-             onClick={handleAddSystemToFavorites}
-             className="h-12 w-12 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center transition-colors"
-             title="Sistemi Favorilere Ekle"
-           >
-             <Heart className={`w-5 h-5 transition-colors ${isFavorited ? "text-red-500 fill-red-500" : "text-gray-400"}`} />
-           </button>
            <button 
              onClick={handleAddSystemToCart}
              disabled={psuYetersiz || gpuKasaAşimi}
@@ -456,7 +403,7 @@ export default function KendinToplaPage() {
              }`}
            >
               <ShoppingBag className="w-4 h-4" /> Sepete Ekle
-           </button>
+         </button>
          </div>
       </div>
 
