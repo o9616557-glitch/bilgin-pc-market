@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useCart } from "@/app/CartContext";
 import toast from "react-hot-toast";
 import { 
-  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, ChevronRight, ChevronLeft, Loader2, Check, AlertTriangle, Trash2, RefreshCw, ExternalLink 
+  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, Loader2, Check, AlertTriangle, Trash2, RefreshCw, ExternalLink 
 } from "lucide-react";
 
 const STEPS = [
@@ -28,7 +28,7 @@ export default function KendinToplaPage() {
   const [selections, setSelections] = useState<Record<string, any>>({});
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
   
-  // 🚀 KUANTUM HAFIZA: İlk tıklama gecikmesini yok eden akıllı client-side cache ref yapısı
+  // KUANTUM HAFIZA: İlk tıklama gecikmesini yok eden akıllı client-side cache ref yapısı
   const cacheRef = useRef<Record<string, any[]>>({});
   
   const activeStepInfo = STEPS[currentStep];
@@ -109,7 +109,7 @@ export default function KendinToplaPage() {
 
   const { soket, bellek, yapi, radyator } = dinamikFiltreleriHesapla(activeStepInfo.id);
 
-  // 🚀 PARALEL ARKA PLAN MOTORU: İlk tıklama yavaşlığını tamamen yok eden mekanizma
+  // PARALEL ARKA PLAN MOTORU: İlk tıklama yavaşlığını tamamen yok eden mekanizma
   useEffect(() => {
     const currentCacheKey = `${activeStepInfo.id}_${soket}_${bellek}_${yapi}_${radyator}`;
     
@@ -157,7 +157,6 @@ export default function KendinToplaPage() {
     fetchAllStepsParallel();
   }, [currentStep, soket, bellek, yapi, radyator]);
 
-  // 🚀 UYARI POP-UP KUTUSU KALDIRILDI: Sadece state güncelleniyor şefim
   const handleSelectComponent = (product: any) => {
     setSelections((prev) => ({ ...prev, [activeStepInfo.id]: product }));
   };
@@ -352,15 +351,6 @@ export default function KendinToplaPage() {
               </p>
             </div>
           )}
-
-          <div className="flex justify-between items-center mt-6 pt-4 border-t border-white/10">
-            <button disabled={currentStep === 0} onClick={() => setCurrentStep((p) => p - 1)} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-zinc-800 border border-white/10 text-sm font-bold text-gray-300 hover:text-white disabled:opacity-40 transition-colors">
-              <ChevronLeft className="w-4 h-4" /> Önceki Adım
-            </button>
-            <button disabled={currentStep === STEPS.length - 1} onClick={() => setCurrentStep((p) => p + 1)} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-zinc-800 border border-white/10 text-sm font-bold text-gray-300 hover:text-white disabled:opacity-40 transition-colors">
-              Sonraki Adım <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
         </div>
 
         {/* SAĞ TARAF: SİSTEM ÖZETİ */}
