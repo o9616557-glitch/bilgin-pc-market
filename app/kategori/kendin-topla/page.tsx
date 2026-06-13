@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useCart } from "@/app/CartContext";
 import toast from "react-hot-toast";
 import { 
-  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, ChevronRight, ChevronLeft, Loader2, Check, AlertTriangle 
+  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, ChevronRight, ChevronLeft, Loader2, Check, AlertTriangle, Trash2, RefreshCw 
 } from "lucide-react";
 
 const STEPS = [
@@ -96,37 +96,33 @@ export default function KendinToplaPage() {
     });
   };
 
+  // 🚀 KOMPİLE SİLME (RESET) MANTIĞI BURADA ŞEFİM
+  const handleClearAll = () => {
+    setSelections({});
+    setCurrentStep(0);
+    toast.success("Tezgah tertemiz edildi şefim! Baştan dizebilirsin. 🧹");
+  };
+
   const toplamFiyat = Object.values(selections).reduce((acc, curr) => {
     return acc + Number(curr.indirimliFiyat || curr.fiyat || 0);
   }, 0);
 
-  // ⚡ ANLIK SİSTEM TÜKETİMİ
   const toplamWatt = Object.values(selections).reduce((acc, curr) => {
     const sz = curr.sihirbaz_ozellikleri || {};
     return acc + (Number(sz.harcanan_guc) || 0);
   }, 0);
 
-  // 🛡️ ESNAF NİZAMI GÜVENLİK KALKANLARI KONTROLLERİ BURADA BAŞLIYOR:
-  
-  // 1. Güç Kaynağı Yeterlilik Kontrolü
   const seciliPsuGucu = Number(selections["psu"]?.sihirbaz_ozellikleri?.psu_gucu) || 0;
   const psuYetersiz = seciliPsuGucu > 0 && (toplamWatt + 150) > seciliPsuGucu;
 
-  // 2. Ekran Kartı Kasaya Sığıyor mu Kontrolü (Milimetrik)
   const kasaGpuLimiti = Number(selections["kasa"]?.sihirbaz_ozellikleri?.gpu_boyutu) || 0;
   const ekranKartiBoyutu = Number(selections["ekran-karti"]?.sihirbaz_ozellikleri?.gpu_boyutu) || 0;
   const gpuKasaAşimi = kasaGpuLimiti > 0 && ekranKartiBoyutu > 0 && ekranKartiBoyutu > kasaGpuLimiti;
 
   const handleAddSystemToCart = () => {
     if (Object.keys(selections).length === 0) return toast.error("En az bir parça seçmelisin şefim!");
-    
-    // 🛑 KRİTİK BLOKE ETME MEKANİZMASI: Tehlikeli siparişi dükkana sokmuyoruz!
-    if (psuYetersiz) {
-      return toast.error("Şefim bu güç kaynağı sistemi kaldırmaz, dükkanı yakarız! Daha güçlü bir PSU seç.");
-    }
-    if (gpuKasaAşimi) {
-      return toast.error("Şefim bu ekran kartı bu kasaya sığmaz, kapak kapanmaz! Başka kart veya kasa seç.");
-    }
+    if (psuYetersiz) return toast.error("Şefim bu güç kaynağı sistemi kaldırmaz! Daha güçlü bir PSU seç.");
+    if (gpuKasaAşimi) return toast.error("Şefim bu ekran kartı bu kasaya sığmaz! Başka kart veya kasa seç.");
 
     Object.values(selections).forEach((urun) => {
       sepeteEkle({
@@ -142,7 +138,7 @@ export default function KendinToplaPage() {
   };
 
   return (
-    <div className="bg-[#050505] text-white min-h-screen font-sans pb-24">
+    <div className="bg-[#050505] text-white min-h-screen font-sans pb-32">
       <div className="border-b border-white/5 bg-[#09090b]/80 backdrop-blur-xl sticky top-20 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center space-x-3 shrink-0">
@@ -173,7 +169,8 @@ export default function KendinToplaPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8 items-start">
-        <div className="w-full lg:w-[70%] flex flex-col gap-6">
+        {/* SOL TARAF: ÜRÜN LİSTESİ */}
+        <div className="w-full lg:w-[65%] flex flex-col gap-6">
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <h2 className="text-lg sm:text-2xl font-black uppercase tracking-tight flex items-center gap-3">
               <activeStepInfo.icon className="w-6 h-6 text-[#00d2ff]" />
@@ -231,41 +228,68 @@ export default function KendinToplaPage() {
           </div>
         </div>
 
-        <div className="w-full lg:w-[30%] lg:sticky lg:top-40 flex flex-col gap-6">
-          <div className="bg-[#09090b] border border-white/10 rounded-2xl p-5 shadow-2xl flex flex-col w-full">
-            <h3 className="text-sm font-black uppercase tracking-wider text-gray-400 mb-4 pb-2 border-b border-white/5 flex items-center justify-between">
-              <span>SİSTEM ÖZETİ</span>
-              <span className="text-[11px] bg-red-950/40 px-3 py-1 rounded-xl border border-red-500/30 text-red-400 font-black animate-pulse">
-                ⚡ {toplamWatt} Watt Tüketim
-              </span>
-            </h3>
+        {/* SAĞ TARAF: FERAH VE GENİŞ SİSTEM ÖZETİ PANELİ */}
+        <div className="w-full lg:w-[35%] lg:sticky lg:top-40 flex flex-col gap-6">
+          <div className="bg-[#09090b] border border-white/10 rounded-2xl p-6 shadow-2xl flex flex-col w-full">
+            
+            {/* BAŞLIK VE KİBAR KOMPİLE SİLME BUTONU AREA */}
+            <div className="flex items-center justify-between pb-3 border-b border-white/5 mb-4">
+              <div className="flex flex-col">
+                <h3 className="text-sm font-black uppercase tracking-wider text-gray-400">SİSTEM ÖZETİ</h3>
+                <span className="text-[10px] bg-red-950/40 border border-red-500/20 text-red-400 px-2 py-0.5 rounded-md mt-1 w-max font-black animate-pulse">
+                  ⚡ {toplamWatt}W Tüketim
+                </span>
+              </div>
+              {Object.keys(selections).length > 0 && (
+                <button 
+                  onClick={handleClearAll}
+                  className="text-gray-500 hover:text-red-400 text-xs font-black flex items-center gap-1.5 transition-colors px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 hover:bg-red-500/10 hover:border-red-500/20"
+                >
+                  <RefreshCw className="w-3 h-3" /> Tümünü Sıfırla
+                </button>
+              )}
+            </div>
 
-            {/* 🛑 CANLI UYARI PANELİ BURADA ŞEFİM 🛑 */}
+            {/* KORUMA KALKANLARI UYARI PANELLERİ */}
             {psuYetersiz && (
-              <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-3 mb-4 flex items-start gap-2.5 text-xs text-red-400 font-bold animate-bounce">
+              <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-3.5 mb-4 flex items-start gap-2.5 text-xs text-red-400 font-bold">
                 <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>TEHLİKE: Seçilen PSU ({seciliPsuGucu}W), gereken gücü ({(toplamWatt + 150)}W) karşılayamıyor! Dükkan yanar!</span>
               </div>
             )}
 
             {gpuKasaAşimi && (
-              <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 mb-4 flex items-start gap-2.5 text-xs text-amber-400 font-bold">
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3.5 mb-4 flex items-start gap-2.5 text-xs text-amber-400 font-bold">
                 <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>BOYUT HATASI: Ekran Kartı ({ekranKartiBoyutu}mm), Kasanın limitinden ({kasaGpuLimiti}mm) büyük! Sığmaz!</span>
               </div>
             )}
 
-            <div className="space-y-3 mb-4 max-h-[300px] overflow-y-auto pr-1">
+            {/* GENİŞ VE HAKİKİ TEK TEK SİLME DESTEKLİ PARÇA LİSTESİ */}
+            <div className="space-y-3 mb-5 max-h-[380px] overflow-y-auto pr-1">
               {STEPS.map((step) => {
                 const comp = selections[step.id];
                 return (
-                  <div key={step.id} className="flex items-center justify-between text-xs p-2 rounded-xl bg-black/40 border border-white/5 gap-2 group">
+                  <div key={step.id} className="flex items-center justify-between text-sm p-3.5 rounded-xl bg-black/40 border border-white/5 gap-3 group transition-all hover:border-white/10">
                     <div className="min-w-0 flex-1">
-                      <span className="block text-[9px] text-[#00d2ff] font-black uppercase tracking-wide leading-none mb-0.5">{step.name}</span>
-                      <span className="block text-gray-300 font-bold truncate">{comp ? comp.isim : "Henüz Seçilmedi..."}</span>
+                      <span className="block text-[10px] text-[#00d2ff] font-black uppercase tracking-wider mb-0.5">{step.name}</span>
+                      <span className={`block truncate font-bold text-xs ${comp ? "text-white" : "text-gray-600 italic"}`}>
+                        {comp ? comp.isim : "Henüz Seçilmedi..."}
+                      </span>
+                      {comp && (
+                        <span className="block text-[11px] text-emerald-400 font-extrabold mt-0.5">
+                          {Number(comp.indirimliFiyat || comp.fiyat || 0).toLocaleString("tr-TR")} ₺
+                        </span>
+                      )}
                     </div>
                     {comp && (
-                      <button onClick={() => handleRemoveComponent(step.id)} className="text-gray-600 hover:text-red-500 font-black px-1 text-sm transition-colors opacity-0 group-hover:opacity-100">✕</button>
+                      <button 
+                        onClick={() => handleRemoveComponent(step.id)} 
+                        className="text-gray-500 hover:text-red-500 p-2 rounded-xl bg-white/5 hover:bg-red-500/10 border border-white/5 transition-all shrink-0"
+                        title="Parçayı Kaldır"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     )}
                   </div>
                 );
@@ -295,6 +319,25 @@ export default function KendinToplaPage() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* 📱 SADECE FİYAT VE BUTON BARINDIRAN MOBİL YAPIŞKAN ALT BAR 📱 */}
+      <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#09090b]/95 backdrop-blur-2xl border-t border-white/10 px-6 py-4.5 z-50 flex items-center justify-between shadow-[0_-15px_30px_rgba(0,0,0,0.8)] select-none">
+         <div className="flex flex-col">
+            <span className="text-gray-500 text-[10px] font-black tracking-wider uppercase mb-0.5">TOPLAM TUTAR</span>
+            <span className="text-2xl font-black text-white leading-none">
+              {toplamFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">₺</span>
+            </span>
+         </div>
+         <button 
+           onClick={handleAddSystemToCart}
+           disabled={psuYetersiz || gpuKasaAşimi}
+           className={`h-12 px-6 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
+             (psuYetersiz || gpuKasaAşimi) ? "bg-zinc-800 text-gray-600 cursor-not-allowed" : "bg-[#00d2ff] text-black"
+           }`}
+         >
+            <ShoppingBag className="w-4 h-4" /> Sepete Ekle
+         </button>
       </div>
     </div>
   );
