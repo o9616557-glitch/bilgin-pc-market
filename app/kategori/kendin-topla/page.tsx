@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useCart } from "@/app/CartContext";
 import toast from "react-hot-toast";
 import { 
-  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, ChevronRight, ChevronLeft, Loader2, Check, AlertTriangle, Trash2, RefreshCw, ExternalLink 
+  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, ChevronRight, ChevronLeft, Loader2, Check, AlertTriangle, Trash2, RefreshCw, ExternalLink, Heart 
 } from "lucide-react";
 
 const STEPS = [
@@ -25,25 +25,19 @@ export default function KendinToplaPage() {
   const [loading, setLoading] = useState(true);
 
   const [selections, setSelections] = useState<Record<string, any>>({});
-  
-  // Detay inceleme modal state yapısı
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
   
   const activeStepInfo = STEPS[currentStep];
 
-  // 🚀 ARKA PLANIN OYNAMASINI (SCROLL) ENGELLEYEN JET KİLİT MOTORU
+  // Arka plan kaymasını engelleme motoru
   useEffect(() => {
     if (previewProduct) {
-      // Pop-up açıldığında body'nin kaymasını tamamen engelle ve sağa sola esnemesini durdur
       document.body.style.overflow = "hidden";
       document.body.style.height = "100vh";
     } else {
-      // Pop-up kapatıldığında eski haline geri döndür
       document.body.style.overflow = "unset";
       document.body.style.height = "unset";
     }
-
-    // Bileşen kapandığında veya temizlendiğinde her ihtimale karşı kilidi sök (Memory leak engelleme)
     return () => {
       document.body.style.overflow = "unset";
       document.body.style.height = "unset";
@@ -127,6 +121,41 @@ export default function KendinToplaPage() {
     setSelections({});
     setCurrentStep(0);
     toast.success("Sistem başarıyla sıfırlandı.");
+  };
+
+  // 🚀 TÜM SİSTEMİ FAVORİLERE EKLEME FONKSİYONU
+  const handleAddSystemToFavorites = async () => {
+    if (Object.keys(selections).length === 0) {
+      return toast.error("Favorilere eklemek için en az bir parça seçmelisiniz.");
+    }
+
+    try {
+      // API'ye favori kaydı atıyoruz (Veritabanındaki 'favorites' koleksiyonuna yazar)
+      const res = await fetch("/api/favorites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "toplama_pc",
+          parcalar: Object.entries(selections).map(([kategori, urun]) => ({
+            kategori,
+            productId: urun._id,
+            isim: urun.isim,
+            fiyat: urun.indirimliFiyat || urun.fiyat
+          })),
+          toplamTutar: toplamFiyat
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Topladığınız sistem başarıyla favorilerinize kaydedildi! ❤️");
+      } else {
+        // Eğer kullanıcı giriş yapmadıysa api'den hata döner, onu yakalıyoruz
+        toast.error(data.message || "Sistemi favorilere eklemek için lütfen giriş yapınız.");
+      }
+    } catch (error) {
+      toast.error("Favorilere eklenirken teknik bir sorun oluştu.");
+    }
   };
 
   const toplamFiyat = Object.values(selections).reduce((acc, curr) => {
@@ -219,7 +248,6 @@ export default function KendinToplaPage() {
                     <button 
                       onClick={() => setPreviewProduct(urun)}
                       className="w-20 h-20 bg-black/40 rounded-xl p-2 flex items-center justify-center shrink-0 cursor-pointer relative block group/img pointer-events-auto"
-                      title="Ürün detaylarını incele"
                     >
                       <img src={urun.resim} alt={urun.isim} className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform" />
                       <div className="absolute inset-0 bg-black/60 rounded-xl opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity">
@@ -232,7 +260,6 @@ export default function KendinToplaPage() {
                         <button 
                           onClick={() => setPreviewProduct(urun)}
                           className="text-sm font-bold text-white text-left truncate block hover:text-[#00d2ff] hover:underline transition-all cursor-pointer mb-1 pointer-events-auto w-full"
-                          title="Ürün detaylarını incele"
                         >
                           {urun.isim}
                         </button>
@@ -345,11 +372,20 @@ export default function KendinToplaPage() {
               </div>
             )}
 
-            <div className="hidden lg:flex border-t border-white/10 pt-4 flex-col">
-              <div className="flex justify-between items-baseline mb-5">
+            <div className="hidden lg:flex border-t border-white/10 pt-4 flex-col gap-3">
+              <div className="flex justify-between items-baseline mb-2">
                 <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">TOPLAM:</span>
                 <span className="text-3xl font-black text-white tracking-tight">{toplamFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">TL</span></span>
               </div>
+              
+              {/* 🚀 YENİ: SİSTEMİ KOMPLE FAVORİLERE EKLEME BUTONU */}
+              <button 
+                onClick={handleAddSystemToFavorites}
+                className="w-full h-11 rounded-xl font-bold uppercase tracking-wider text-xs border border-white/10 hover:border-red-500/40 bg-white/[0.02] hover:bg-red-500/5 text-gray-300 hover:text-red-400 flex items-center justify-center gap-2 transition-all"
+              >
+                <Heart className="w-3.5 h-3.5" /> Bu Sistemi Favorilerime Ekle
+              </button>
+
               <button 
                 onClick={handleAddSystemToCart} 
                 disabled={psuYetersiz || gpuKasaAşimi}
@@ -372,18 +408,27 @@ export default function KendinToplaPage() {
               {toplamFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">₺</span>
             </span>
          </div>
-         <button 
-           onClick={handleAddSystemToCart}
-           disabled={psuYetersiz || gpuKasaAşimi}
-           className={`h-12 px-6 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
-             (psuYetersiz || gpuKasaAşimi) ? "bg-zinc-800 text-gray-600 cursor-not-allowed" : "bg-[#00d2ff] text-black"
-           }`}
-         >
-            <ShoppingBag className="w-4 h-4" /> Sepete Ekle
-         </button>
+         <div className="flex items-center gap-2">
+           <button 
+             onClick={handleAddSystemToFavorites}
+             className="h-12 w-12 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center text-gray-400 hover:text-red-400 transition-colors"
+             title="Sistemi Favorilere Ekle"
+           >
+             <Heart className="w-5 h-5" />
+           </button>
+           <button 
+             onClick={handleAddSystemToCart}
+             disabled={psuYetersiz || gpuKasaAşimi}
+             className={`h-12 px-6 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
+               (psuYetersiz || gpuKasaAşimi) ? "bg-zinc-800 text-gray-600 cursor-not-allowed" : "bg-[#00d2ff] text-black"
+             }`}
+           >
+              <ShoppingBag className="w-4 h-4" /> Sepete Ekle
+           </button>
+         </div>
       </div>
 
-      {/* ==================== 🚀 ULTRA-HIZLI VE ARKA PLANI KİLİTLEYEN MODAL PANELİ 🚀 ==================== */}
+      {/* ==================== 🚀 MÜKEMMEL SCROLL VE HİZALANMA DETAYINA SAHİP İNCELEME MODAL PANELİ 🚀 ==================== */}
       {previewProduct && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 overflow-y-auto flex items-start sm:items-center justify-center p-2 sm:p-6 md:p-10 animate-in fade-in duration-200">
           <div className="bg-[#09090b] border border-white/10 w-full max-w-5xl rounded-2xl overflow-hidden flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.8)] my-auto">
@@ -402,8 +447,8 @@ export default function KendinToplaPage() {
             {/* PANEL İÇERİK ALANI */}
             <div className="overflow-y-auto p-4 sm:p-6 grid grid-cols-1 md:grid-cols-5 gap-6 max-h-[calc(100vh-160px)] sm:max-h-[70vh]">
               
-              {/* SOL SÜTUN: MEDYA VE FİYAT */}
-              <div className="md:col-span-2 flex flex-col items-center gap-4 sm:gap-6 border-b md:border-b-0 md:border-r border-white/5 pb-6 md:pb-0 md:pr-6">
+              {/* 🚀 SOL SÜTUN DEĞİŞİKLİĞİ: 'md:sticky md:top-0' eklenerek, sağ taraf kaydıkça sol tarafın nizami bir şekilde aşağıya eşlik etmesi sağlandı! */}
+              <div className="md:col-span-2 flex flex-col items-center gap-4 sm:gap-6 border-b md:border-b-0 md:border-r border-white/5 pb-6 md:pb-0 md:pr-6 md:sticky md:top-0 h-max">
                 <div className="w-full aspect-square bg-black/40 rounded-2xl p-6 border border-white/5 flex items-center justify-center">
                   <img src={previewProduct.resim} alt={previewProduct.isim} className="max-w-full max-h-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
                 </div>
@@ -457,8 +502,7 @@ export default function KendinToplaPage() {
                 Kapat
               </button>
               <button 
-                onClick={
-                  () => {
+                onClick={() => {
                   handleSelectComponent(previewProduct);
                   setPreviewProduct(null);
                 }}
