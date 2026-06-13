@@ -31,6 +31,25 @@ export default function KendinToplaPage() {
   
   const activeStepInfo = STEPS[currentStep];
 
+  // 🚀 ARKA PLANIN OYNAMASINI (SCROLL) ENGELLEYEN JET KİLİT MOTORU
+  useEffect(() => {
+    if (previewProduct) {
+      // Pop-up açıldığında body'nin kaymasını tamamen engelle ve sağa sola esnemesini durdur
+      document.body.style.overflow = "hidden";
+      document.body.style.height = "100vh";
+    } else {
+      // Pop-up kapatıldığında eski haline geri döndür
+      document.body.style.overflow = "unset";
+      document.body.style.height = "unset";
+    }
+
+    // Bileşen kapandığında veya temizlendiğinde her ihtimale karşı kilidi sök (Memory leak engelleme)
+    return () => {
+      document.body.style.overflow = "unset";
+      document.body.style.height = "unset";
+    };
+  }, [previewProduct]);
+
   const dinamikFiltreleriHesapla = (stepToIgnore: string) => {
     let soket = "";
     let bellek = "";
@@ -364,10 +383,9 @@ export default function KendinToplaPage() {
          </button>
       </div>
 
-      {/* ==================== 🚀 ULTRA-HIZLI VE MAKSİMUM SCROLL UYUMLU DETAY İNCELEME MODAL PANELİ 🚀 ==================== */}
+      {/* ==================== 🚀 ULTRA-HIZLI VE ARKA PLANI KİLİTLEYEN MODAL PANELİ 🚀 ==================== */}
       {previewProduct && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 overflow-y-auto flex items-start sm:items-center justify-center p-2 sm:p-6 md:p-10 animate-in fade-in duration-200">
-          {/* 🚀 DEĞİŞİKLİK: 'max-w-5xl' ile kutu genişletildi, 'max-h' sınırları esnetilerek mobilde donması engellendi */}
           <div className="bg-[#09090b] border border-white/10 w-full max-w-5xl rounded-2xl overflow-hidden flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.8)] my-auto">
             
             {/* PANEL ÜST BİLGİSİ */}
@@ -381,7 +399,7 @@ export default function KendinToplaPage() {
               </button>
             </div>
 
-            {/* PANEL İÇERİK ALANI (MOBİLDE ASLA KİLİTLENMEYEN SCROLL YUKARI-AŞAĞI MOTORU BURADA) */}
+            {/* PANEL İÇERİK ALANI */}
             <div className="overflow-y-auto p-4 sm:p-6 grid grid-cols-1 md:grid-cols-5 gap-6 max-h-[calc(100vh-160px)] sm:max-h-[70vh]">
               
               {/* SOL SÜTUN: MEDYA VE FİYAT */}
@@ -439,7 +457,8 @@ export default function KendinToplaPage() {
                 Kapat
               </button>
               <button 
-                onClick={() => {
+                onClick={
+                  () => {
                   handleSelectComponent(previewProduct);
                   setPreviewProduct(null);
                 }}
