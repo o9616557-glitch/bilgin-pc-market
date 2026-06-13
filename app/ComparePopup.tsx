@@ -1,6 +1,6 @@
 "use client";
 import { useCompare } from "./CompareContext"; 
-import { X, MinusCircle, Trash2 } from "lucide-react";
+import { X, MinusCircle, Trash2, AlertTriangle } from "lucide-react";
 import Link from "next/link"; 
 import { Toaster } from "react-hot-toast"; 
 
@@ -10,8 +10,13 @@ export default function ComparePopup() {
   if (!popupAcik) return null;
 
   const tumOzellikAnahtarlari: string[] = [];
+  
+  // 🚀 Kategorileri topluyoruz ki farklı parça eklenmiş mi bilelim
+  const seciliKategoriler = new Set<string>();
+
   karsilastirilanlar.forEach((urun) => {
-    // 🎯 SİHİRLİ KÖPRÜYÜ BURAYA BAĞLADIK PATRON: Önce yeni filtre_ozellikleri kutusuna bakar, yoksa eski sisteme geçer!
+    if (urun.kategori) seciliKategoriler.add(urun.kategori);
+
     const hedefKutu = urun.filtre_ozellikleri || urun.teknik_ozellikler;
     if (hedefKutu) {
       Object.keys(hedefKutu).forEach((anahtar) => {
@@ -22,23 +27,31 @@ export default function ComparePopup() {
     }
   });
 
+  // Farklı türde ürünler mi var? (Örn: Hazır Sistem ile Soğutucu yan yanaysa true olur)
+  const kategoriUyusmazligi = seciliKategoriler.size > 1;
+
   const getGridStyle = () => {
-    // 3 ürün varsa alanı tam doldur (1fr), yoksa normal boyutta (240px) bırak.
     const maksimumGenislik = karsilastirilanlar.length === 3 ? "1fr" : "240px";
-    
     return { 
       gridTemplateColumns: `repeat(${karsilastirilanlar.length}, minmax(160px, ${maksimumGenislik}))`, 
       justifyContent: "start" 
     };
   };
+
+  // 🚀 Alt tireleri silip ilk harfleri büyüten özel esnaf fırçası
+  const ozellikAdiniDuzenle = (metin: string) => {
+    return metin
+      .replace(/_/g, " ")
+      .split(" ")
+      .map((kelime) => kelime.charAt(0).toUpperCase() + kelime.slice(1).toLowerCase())
+      .join(" ");
+  };
+
   return (
     <div className="fixed inset-0 z-[9999] flex justify-center items-center p-0 sm:p-4 bg-black/80 backdrop-blur-md transition-all">
       
-      
-      
       <div className="absolute inset-0 hidden sm:block" onClick={() => setPopupAcik(false)}></div>
       
-      {/* PENCERE BOYUTU */}
       <div className="relative w-full h-full sm:max-h-[85vh] sm:max-w-4xl mx-auto bg-[#09090b]/60 backdrop-blur-2xl sm:border sm:border-[#3b82f6]/30 sm:rounded-3xl flex flex-col overflow-hidden shadow-[0_0_40px_rgba(0,229,255,0.15)]">
         
         {/* HEADER (TAVAN) */}
@@ -64,6 +77,14 @@ export default function ComparePopup() {
             </button>
           </div>
         </div>
+
+        {/* 🚀 FARKLI KATEGORİ UYARISI */}
+        {kategoriUyusmazligi && karsilastirilanlar.length > 0 && (
+          <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 flex items-center gap-2 text-amber-400 text-xs sm:text-sm font-medium z-10 shrink-0">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>Farklı türdeki ürünleri karşılaştırıyorsunuz. Bazı özellikler birbiriyle uyuşmayabilir (Örn: "-" olarak görünebilir).</span>
+          </div>
+        )}
 
         {/* İÇERİK ALANI */}
         <div className="overflow-y-auto overflow-x-auto flex-1 p-4 sm:p-6 flex flex-col text-slate-300 bg-transparent relative z-10">
@@ -115,13 +136,13 @@ export default function ComparePopup() {
                 {tumOzellikAnahtarlari.map((ozellikAdi) => (
                   <div key={ozellikAdi} className="mt-2 w-full">
                     
+                    {/* 🚀 Alt tireler silindi, kelimeler düzeltildi! */}
                     <div className="text-[#3b82f6] font-black text-[11px] sm:text-xs uppercase tracking-widest mb-2 text-left">
-                      {ozellikAdi}
+                      {ozellikAdiniDuzenle(ozellikAdi)}
                     </div>
                     
                     <div className="grid gap-3 sm:gap-4 w-full" style={getGridStyle()}>
                       {karsilastirilanlar.map((urun, idx) => {
-                        // 🎯 İKİNCİ SİHİRLİ BAĞLANTI: Değerleri basarken de önce filtre_ozellikleri'ndeki o kısa hap kelimeleri ekrana basar!
                         const hedefKutu = urun.filtre_ozellikleri || urun.teknik_ozellikler;
                         const deger = hedefKutu ? hedefKutu[ozellikAdi] : null;
                         return (
