@@ -24,12 +24,32 @@ export default function KendinToplaPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // 🚀 HAFIZALI MOTOR: İlk açılışta state boş başlar, useEffect ile localStorage'dan dolacak
   const [selections, setSelections] = useState<Record<string, any>>({});
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
   
   const activeStepInfo = STEPS[currentStep];
 
-  // Arka plan kaymasını engelleyen kilit motoru
+  // 📦 1. TETİKLEYİCİ: Sayfa ilk açıldığında tarayıcı hafızasında eski parça var mı bak ve geri yükle
+  useEffect(() => {
+    const eskiSecimler = localStorage.getItem("bilgin_sihirbaz_selections");
+    if (eskiSecimler) {
+      try {
+        setSelections(JSON.parse(eskiSecimler));
+      } catch (e) {
+        console.error("Hafıza okuma hatası:", e);
+      }
+    }
+  }, []);
+
+  // 💾 2. TETİKLEYİCİ: Her seçim değiştiğinde (ekleme/silme) hafızayı anında güncelle
+  useEffect(() => {
+    if (Object.keys(selections).length > 0) {
+      localStorage.setItem("bilgin_sihirbaz_selections", JSON.stringify(selections));
+    }
+  }, [selections]);
+
+  // Pop-up arka plan kilidi
   useEffect(() => {
     if (previewProduct) {
       document.body.style.overflow = "hidden";
@@ -113,6 +133,12 @@ export default function KendinToplaPage() {
     setSelections((prev) => {
       const yeni = { ...prev };
       delete yeni[stepId];
+      // Eğer hiç parça kalmadıysa hafızayı da tamamen temizle
+      if (Object.keys(yeni).length === 0) {
+        localStorage.removeItem("bilgin_sihirbaz_selections");
+      } else {
+        localStorage.setItem("bilgin_sihirbaz_selections", JSON.stringify(yeni));
+      }
       return yeni;
     });
   };
@@ -120,29 +146,26 @@ export default function KendinToplaPage() {
   const handleClearAll = () => {
     setSelections({});
     setCurrentStep(0);
+    // 🚀 Sıfırlandığında hafızayı da uçuruyoruz
+    localStorage.removeItem("bilgin_sihirbaz_selections");
     toast.success("Sistem başarıyla sıfırlandı.");
   };
 
-  // 🚀 YENİ NESİL BÜTÜNSEL SİSTEM PAKETLEME VE FAVORİ KAYIT MOTORU
   const handleAddSystemToFavorites = async () => {
     const secilenUrunSayisi = Object.keys(selections).length;
-    
-    // 🛑 KURAL 1: 3 üründen fazlası seçilmiş olmalı (En az 4 parça)
     if (secilenUrunSayisi <= 3) {
       return toast.error("Toplama sistem olarak kaydedilmesi için lütfen en az 4 parça seçiniz.");
     }
 
     const loadToast = toast.loading("Sistem konfigürasyonu bütün olarak paketleniyor...");
     try {
-      // Backend tarafındaki zorunlu ID alanını doldurmak için ilk seçilen ürünün bilgisini alıyoruz
       const ilkKategoriAnahtari = Object.keys(selections)[0];
       const ilkSecilenUrun = selections[ilkKategoriAnahtari];
 
-      // 🚀 KURAL 2: Tek tek değil, tüm başlıkları, fiyatları ve genel toplamı tek paket yapıyoruz
       const sistemPaketi = {
         productId: ilkSecilenUrun._id,
         id: ilkSecilenUrun._id,
-        isToplamaSystem: true, // Favoriler sayfasının resimsiz modern kart çizmesi için özel etiket
+        isToplamaSystem: true,
         genelToplamTutar: toplamFiyat,
         parcalar: STEPS.map(step => {
           const parca = selections[step.id];
@@ -205,7 +228,11 @@ export default function KendinToplaPage() {
         havaleIndirimi: urun.havaleIndirimi || 5
       });
     });
-    toast.success("Sistem başarıyla sepete eklendi.");
+    // 🚀 Sepete başarıyla eklenince hafızayı temizliyoruz ki yeni sistem toplayabilsin
+    localStorage.removeItem("bilgin_sihirbaz_selections");
+    setSelections({});
+    setCurrentStep(0);
+    toast.success("Sistem başarıyla sepete eklendi ve sihirbaz temizlendi.");
   };
 
   return (
