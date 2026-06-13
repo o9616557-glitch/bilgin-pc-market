@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useCart } from "@/app/CartContext";
 import toast from "react-hot-toast";
 import { 
-  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, ChevronRight, ChevronLeft, Loader2, Check, AlertTriangle, Trash2, RefreshCw, ExternalLink 
+  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, ChevronRight, ChevronLeft, Loader2, Check, AlertTriangle, Trash2, RefreshCw, ExternalLink, Heart 
 } from "lucide-react";
 
 const STEPS = [
@@ -24,9 +24,12 @@ export default function KendinToplaPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Kalıcı hafızalı seçim state yapısı
+  // Aktif toplanan sistem hafıza state yapısı
   const [selections, setSelections] = useState<Record<string, any>>({});
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
+  
+  // Sadece kalbi kırmızı yapacak state
+  const [isFavorited, setIsFavorited] = useState(false);
   
   const activeStepInfo = STEPS[currentStep];
 
@@ -45,6 +48,7 @@ export default function KendinToplaPage() {
     if (Object.keys(selections).length > 0) {
       localStorage.setItem("bilgin_sihirbaz_selections", JSON.stringify(selections));
     }
+    setIsFavorited(false);
   }, [selections]);
 
   useEffect(() => {
@@ -143,7 +147,34 @@ export default function KendinToplaPage() {
     setSelections({});
     setCurrentStep(0);
     localStorage.removeItem("bilgin_sihirbaz_selections");
+    setIsFavorited(false);
     toast.success("Sistem başarıyla sıfırlandı.");
+  };
+
+  const handleAddSystemToFavorites = () => {
+    if (Object.keys(selections).length === 0) {
+      return toast.error("Favorilere eklemek için en az bir parça seçmelisiniz.");
+    }
+
+    try {
+      const mevcutSistemler = localStorage.getItem("bilgin_kayitli_sistemler");
+      let sistemListesi = mevcutSistemler ? JSON.parse(mevcutSistemler) : [];
+
+      const yeniSistemKonfigurasayonu = {
+        id: Date.now(),
+        tarih: new Date().toLocaleDateString("tr-TR"),
+        toplamTutar: toplamFiyat,
+        parcalar: { ...selections }
+      };
+
+      sistemListesi.push(yeniSistemKonfigurasayonu);
+      localStorage.setItem("bilgin_kayitli_sistemler", JSON.stringify(sistemListesi));
+
+      setIsFavorited(true);
+      toast.success("Sistem konfigürasyonunuz sapıtma olmadan başarıyla favorilerinize kaydedildi! ❤️");
+    } catch (error) {
+      toast.error("Sistem kaydedilirken teknik bir sorun oluştu.");
+    }
   };
 
   const toplamFiyat = Object.values(selections).reduce((acc, curr) => {
@@ -180,6 +211,7 @@ export default function KendinToplaPage() {
     localStorage.removeItem("bilgin_sihirbaz_selections");
     setSelections({});
     setCurrentStep(0);
+    setIsFavorited(false);
     toast.success("Sistem başarıyla sepete eklendi ve sihirbaz temizlendi.");
   };
 
@@ -191,7 +223,6 @@ export default function KendinToplaPage() {
             <span className="text-[#00d2ff] font-black text-xl sm:text-2xl">🔧 PC SİHİRBAZI</span>
           </div>
           
-          {/* 🚀 DERLİ TOPLU MENÜ: Flex-wrap kaldırıldı, yatay kaydırmalı (scroll) yapıldı! */}
           <div className="flex overflow-x-auto sm:flex-wrap items-center gap-2 w-full md:w-auto pb-1 sm:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {STEPS.map((step, idx) => {
               const StepIcon = step.icon;
@@ -201,7 +232,6 @@ export default function KendinToplaPage() {
                 <button
                   key={step.id}
                   onClick={() => setCurrentStep(idx)}
-                  /* 🚀 GÜNEŞ IŞIĞI MODU: Butonların zemin rengi açıldı, shrink-0 ile ezilmeleri engellendi */
                   className={`shrink-0 flex items-center space-x-1.5 px-3 py-2 sm:py-1.5 rounded-xl border text-xs font-black transition-all ${
                     isActive ? "bg-[#00d2ff]/15 border-[#00d2ff] text-[#00d2ff]" : isSelected ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-400" : "bg-zinc-800/80 border-white/10 text-gray-300 hover:text-white hover:bg-zinc-700"
                   }`}
@@ -236,7 +266,6 @@ export default function KendinToplaPage() {
               {products.map((urun) => {
                 const isItemChosen = selections[activeStepInfo.id]?._id === urun._id;
                 return (
-                  /* 🚀 GÜNEŞ IŞIĞI KARTLARI: Arka plan bg-[#18181b] yapıldı (Daha açık füme), Kenarlık border-2 yapıldı */
                   <div key={urun._id} className={`bg-[#18181b] border-2 rounded-2xl p-4 flex gap-4 hover:border-white/20 transition-all group shadow-md ${isItemChosen ? "border-[#00d2ff] bg-[#00d2ff]/5" : "border-white/10"}`}>
                     
                     <button 
@@ -258,7 +287,6 @@ export default function KendinToplaPage() {
                           {urun.isim}
                         </button>
                         
-                        {/* 🚀 GÜNEŞ IŞIĞI YAZILARI: text-gray-500 yerine text-gray-300 kullanıldı! */}
                         <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-gray-300 font-medium break-all break-words">
                           {urun.sihirbaz_ozellikleri && Object.entries(urun.sihirbaz_ozellikleri).filter(([_, v]) => v).slice(0, 3).map(([k, v]: any) => (
                             <span key={k} className="capitalize">{k.replace('_', ' ')}: <strong className="text-gray-100">{v}</strong></span>
@@ -268,7 +296,6 @@ export default function KendinToplaPage() {
                       <div className="flex items-center justify-between mt-3 pt-2 border-t border-white/10">
                         <span className="text-base font-black text-white">{Number(urun.indirimliFiyat || urun.fiyat || 0).toLocaleString("tr-TR")} ₺</span>
                         
-                        {/* 🚀 GÜNEŞ IŞIĞI BUTON: bg-zinc-800 yerine bg-zinc-700 ve daha parlak beyaz yazı eklendi */}
                         <button 
                           onClick={() => handleSelectComponent(urun)} 
                           className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all border ${
@@ -376,6 +403,14 @@ export default function KendinToplaPage() {
               </div>
               
               <button 
+                onClick={handleAddSystemToFavorites}
+                className="w-full h-11 rounded-xl font-bold uppercase tracking-wider text-xs border border-white/10 bg-white/[0.02] text-gray-300 flex items-center justify-center gap-2 transition-all hover:bg-white/[0.05]"
+              >
+                <Heart className={`w-3.5 h-3.5 transition-colors ${isFavorited ? "text-red-500 fill-red-500" : "text-gray-400"}`} /> 
+                Bu Sistemi Favorilerime Ekle
+              </button>
+
+              <button 
                 onClick={handleAddSystemToCart} 
                 disabled={psuYetersiz || gpuKasaAşimi}
                 className={`w-full h-14 rounded-xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 transition-all ${
@@ -399,6 +434,13 @@ export default function KendinToplaPage() {
          </div>
          <div className="flex items-center gap-2">
            <button 
+             onClick={handleAddSystemToFavorites}
+             className="h-12 w-12 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center transition-colors"
+             title="Sistemi Favorilere Ekle"
+           >
+             <Heart className={`w-5 h-5 transition-colors ${isFavorited ? "text-red-500 fill-red-500" : "text-gray-400"}`} />
+           </button>
+           <button 
              onClick={handleAddSystemToCart}
              disabled={psuYetersiz || gpuKasaAşimi}
              className={`h-12 px-6 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg ${
@@ -409,9 +451,10 @@ export default function KendinToplaPage() {
          </button>
          </div>
       </div>
-{/* DETAY İNCELEME MODAL PANELİ */}
-{previewProduct && (
-  <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[9999] overflow-y-auto flex items-start sm:items-center justify-center p-2 sm:p-6 md:p-10 animate-in fade-in duration-200">
+
+      {/* 🚀 Z-INDEX [9999] VE ÇENTİK KORUMALI POP-UP PANELİ */}
+      {previewProduct && (
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[9999] overflow-y-auto flex items-start sm:items-center justify-center p-4 py-10 sm:p-6 md:p-10 animate-in fade-in duration-200">
           <div className="bg-[#121214] border-2 border-white/10 w-full max-w-5xl rounded-2xl overflow-hidden flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.8)] my-auto">
             
             <div className="flex items-center justify-between p-5 border-b border-white/10 bg-[#18181b] shrink-0">
