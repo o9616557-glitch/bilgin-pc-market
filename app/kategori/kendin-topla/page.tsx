@@ -28,7 +28,7 @@ export default function KendinToplaPage() {
   const [selections, setSelections] = useState<Record<string, any>>({});
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
   
-  // 🚀 JET MOTORU: 0ms hız için client-side kuantum önbellek mekanizması
+  // 🚀 KUANTUM HAFIZA: İlk tıklama gecikmesini yok eden akıllı client-side cache ref yapısı
   const cacheRef = useRef<Record<string, any[]>>({});
   
   const activeStepInfo = STEPS[currentStep];
@@ -109,38 +109,55 @@ export default function KendinToplaPage() {
 
   const { soket, bellek, yapi, radyator } = dinamikFiltreleriHesapla(activeStepInfo.id);
 
-  // 🚀 IŞIK HIZINDA VERİ GETİRME VE ÖNBELLEKLEME FONSİYONU
+  // 🚀 PARALEL ARKA PLAN MOTORU: İlk tıklama yavaşlığını tamamen yok eden mekanizma
   useEffect(() => {
-    // Benzersiz bir filtre anahtarı üretiyoruz
-    const cacheKey = `${activeStepInfo.id}_${soket}_${bellek}_${yapi}_${radyator}`;
+    const currentCacheKey = `${activeStepInfo.id}_${soket}_${bellek}_${yapi}_${radyator}`;
     
-    // Eğer bu parça kombinasyonu daha önce yüklendiyse, internete hiç sorma direkt hafızadan tak diye getir!
-    if (cacheRef.current[cacheKey]) {
-      setProducts(cacheRef.current[cacheKey]);
+    // Eğer aktif adım zaten hafızadaysa internete hiç sorma direkt tak diye getir
+    if (cacheRef.current[currentCacheKey]) {
+      setProducts(cacheRef.current[currentCacheKey]);
       setLoading(false);
-      return;
+    } else {
+      setLoading(true);
     }
 
-    const fetchComponents = async () => {
-      setLoading(true);
-      try {
-        let url = `/api/kendin-topla?kategori=${activeStepInfo.id}&soket=${encodeURIComponent(soket)}&bellek=${encodeURIComponent(bellek)}&yapi=${encodeURIComponent(yapi)}&radyator=${encodeURIComponent(radyator)}`;
-        const res = await fetch(url);
-        const resData = await res.json();
-        if (resData.success) {
-          // Gelen temiz veriyi önbelleğe yazıyoruz
-          cacheRef.current[cacheKey] = resData.data;
-          setProducts(resData.data);
-        } else {
+    const fetchAllStepsParallel = async () => {
+      // 1. Önce aktif olan adımı çekip ekrana basıyoruz (Gecikmesiz)
+      if (!cacheRef.current[currentCacheKey]) {
+        try {
+          let url = `/api/kendin-topla?kategori=${activeStepInfo.id}&soket=${encodeURIComponent(soket)}&bellek=${encodeURIComponent(bellek)}&yapi=${encodeURIComponent(yapi)}&radyator=${encodeURIComponent(radyator)}`;
+          const res = await fetch(url);
+          const resData = await res.json();
+          if (resData.success) {
+            cacheRef.current[currentCacheKey] = resData.data;
+            setProducts(resData.data);
+          }
+        } catch (e) {
           setProducts([]);
+        } finally {
+          setLoading(false);
         }
-      } catch (e) {
-        setProducts([]);
-      } finally {
-        setLoading(false);
       }
+
+      // 2. SİHİRLİ DOKUNUŞ: Geriye kalan tüm adımları arka planda sessizce paralel indiriyoruz!
+      STEPS.forEach(async (step) => {
+        if (step.id === activeStepInfo.id) return; // Aktif adımı zaten yukarda çektik
+        const stepCacheKey = `${step.id}_${soket}_${bellek}_${yapi}_${radyator}`;
+        
+        if (!cacheRef.current[stepCacheKey]) {
+          try {
+            let url = `/api/kendin-topla?kategori=${step.id}&soket=${encodeURIComponent(soket)}&bellek=${encodeURIComponent(bellek)}&yapi=${encodeURIComponent(yapi)}&radyator=${encodeURIComponent(radyator)}`;
+            const res = await fetch(url);
+            const resData = await res.json();
+            if (resData.success) {
+              cacheRef.current[stepCacheKey] = resData.data; // İleride tıklanacak her şey artık hazır!
+            }
+          } catch (e) {}
+        }
+      });
     };
-    fetchComponents();
+
+    fetchAllStepsParallel();
   }, [currentStep, soket, bellek, yapi, radyator]);
 
   const handleSelectComponent = (product: any) => {
@@ -208,31 +225,42 @@ export default function KendinToplaPage() {
   return (
     <div className="bg-[#050505] text-white min-h-screen font-sans pb-32">
       <div className="border-b border-white/5 bg-[#09090b]/90 backdrop-blur-xl lg:sticky lg:top-20 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-center space-x-3 shrink-0">
-            <span className="text-[#00d2ff] font-black text-xl sm:text-2xl">🔧 PC SİHİRBAZI</span>
+            <span className="text-[#00d2ff] font-black text-xl tracking-tight">🔧 PC SİHİRBAZI</span>
           </div>
           
-          {/* 🚀 DERLİ TOPLU MOBİL GRİD: Sağa kaydırma tamamen kalktı. Mobilde jilet gibi 2'li yan yana grid nizamına geçildi. */}
-          <div className="grid grid-cols-2 gap-2 w-full md:flex md:flex-wrap md:w-auto">
-            {STEPS.map((step, idx) => {
-              const StepIcon = step.icon;
-              const isSelected = !!selections[step.id];
-              const isActive = currentStep === idx;
-              return (
-                <button
-                  key={step.id}
-                  onClick={() => setCurrentStep(idx)}
-                  className={`flex items-center space-x-1.5 px-3 py-2.5 sm:py-1.5 rounded-xl border text-[11px] sm:text-xs font-black transition-all truncate text-left ${
-                    isActive ? "bg-[#00d2ff]/15 border-[#00d2ff] text-[#00d2ff]" : isSelected ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-400" : "bg-zinc-800/80 border-white/10 text-gray-300 hover:text-white hover:bg-zinc-700"
-                  }`}
-                >
-                  <StepIcon className="w-3.5 h-3.5 shrink-0" />
-                  <span className="truncate">{step.name}</span>
-                  {isSelected && <Check className="w-3 h-3 text-emerald-400 ml-auto shrink-0" />}
-                </button>
-              );
-            })}
+          {/* 🚀 ELİT VE BÜTÜNSEL TAB TASARIMI: 'Damla damla' kutular tamamen söküldü, yerine tek parça kurumsal segment çizgisi geldi */}
+          <div className="w-full lg:w-auto overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="flex items-center space-x-1 border-b border-white/10 pb-1 min-w-max lg:min-w-0">
+              {STEPS.map((step, idx) => {
+                const StepIcon = step.icon;
+                const isSelected = !!selections[step.id];
+                const isActive = currentStep === idx;
+                return (
+                  <button
+                    key={step.id}
+                    onClick={() => setCurrentStep(idx)}
+                    className={`flex items-center space-x-2 px-4 py-3 text-xs font-black uppercase tracking-wider transition-all relative ${
+                      isActive 
+                        ? "text-[#00d2ff]" 
+                        : isSelected 
+                          ? "text-emerald-400" 
+                          : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    <StepIcon className="w-4 h-4 shrink-0" />
+                    <span>{step.name}</span>
+                    {isSelected && <Check className="w-3 h-3 text-emerald-400 ml-1 shrink-0" />}
+                    
+                    {/* Aktif segment alt çizgisi (Güneşte ayna gibi parlar) */}
+                    {isActive && (
+                      <div className="absolute bottom-[-5px] left-0 w-full h-[3px] bg-[#00d2ff] drop-shadow-[0_0_8px_rgba(0,210,255,0.6)] z-10" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
@@ -397,7 +425,7 @@ export default function KendinToplaPage() {
                 onClick={handleAddSystemToCart} 
                 disabled={psuYetersiz || gpuKasaAşimi}
                 className={`w-full h-14 rounded-xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 transition-all ${
-                  (psuYetersiz || gpuKasaAşimi) ? "bg-zinc-800 text-gray-500 cursor-not-allowed border border-white/10" : "bg-[#00d2ff] text-black hover:bg-[#00c4db]"
+                  (psuYetersiz || gpuKasaAşimi) ? "bg-zinc-800 text-gray-600 cursor-not-allowed border border-white/10" : "bg-[#00d2ff] text-black hover:bg-[#00c4db]"
                 }`}
               >
                 <ShoppingBag className="w-4 h-4" /> { (psuYetersiz || gpuKasaAşimi) ? "Uyumsuzlukları Gideriniz" : "Sistemi Sepete Ekle" }
