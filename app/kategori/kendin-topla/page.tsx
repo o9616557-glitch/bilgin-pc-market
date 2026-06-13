@@ -198,6 +198,9 @@ export default function KendinToplaPage() {
   const ekranKartiBoyutu = Number(selections["ekran-karti"]?.sihirbaz_ozellikleri?.gpu_boyutu) || 0;
   const gpuKasaAşimi = kasaGpuLimiti > 0 && ekranKartiBoyutu > 0 && ekranKartiBoyutu > kasaGpuLimiti;
 
+  // 🚀 Sistem tamamlandı mı kontrol eden akıllı kural (8 parçanın hepsi seçildi mi?)
+  const isSystemComplete = STEPS.every(step => !!selections[step.id]);
+
   const handleAddSystemToCart = () => {
     if (Object.keys(selections).length === 0) return toast.error("Lütfen sepete eklemek için en az bir parça seçiniz.");
     if (psuYetersiz) return toast.error("Güç kaynağı yetersiz. Lütfen daha yüksek kapasiteli bir güç kaynağı seçiniz.");
@@ -227,9 +230,9 @@ export default function KendinToplaPage() {
             <span className="text-[#00d2ff] font-black text-xl tracking-tight">🔧 PC SİHİRBAZI</span>
           </div>
           
-          {/* 🚀 KUTULAR SİLİNDİ, KAYDIRMA SİLİNDİ! SIĞMAYANLAR TİPİŞ TİPİŞ ALT SATIRA GEÇER (flex-wrap) */}
+          {/* 🚀 KATALOG ALANI: Telefonda net ikili grid düzen, kutusuz ve şeffaf! PC'de yan yana esnek düzen (Asla taşmaz) */}
           <div className="w-full lg:flex-1 lg:pl-6">
-            <div className="flex flex-wrap items-center gap-x-4 sm:gap-x-6 gap-y-4 border-b border-white/10 pb-2">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-3 lg:flex lg:flex-wrap lg:items-center lg:gap-x-6 lg:gap-y-4 border-b border-white/10 pb-2">
               {STEPS.map((step, idx) => {
                 const StepIcon = step.icon;
                 const isSelected = !!selections[step.id];
@@ -238,7 +241,7 @@ export default function KendinToplaPage() {
                   <button
                     key={step.id}
                     onClick={() => setCurrentStep(idx)}
-                    className={`flex items-center space-x-1.5 py-1 text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all relative ${
+                    className={`flex items-center justify-start space-x-2 py-1.5 text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all relative ${
                       isActive 
                         ? "text-[#00d2ff]" 
                         : isSelected 
@@ -250,7 +253,7 @@ export default function KendinToplaPage() {
                     <span className="whitespace-nowrap">{step.name}</span>
                     {isSelected && <Check className="w-3 h-3 text-emerald-400 ml-1 shrink-0" />}
                     
-                    {/* Sadece aktif olanın altına parlayan çizgi */}
+                    {/* Aktif olanın altındaki parlayan mavi elit çizgi */}
                     {isActive && (
                       <div className="absolute bottom-[-9px] left-0 w-full h-[3px] bg-[#00d2ff] drop-shadow-[0_0_8px_rgba(0,210,255,0.6)] z-10" />
                     )}
@@ -332,11 +335,23 @@ export default function KendinToplaPage() {
             </div>
           )}
 
+          {/* 🚀 MODERN VE ELİT TEBRİKLER ALANI: Tüm parçalar tamamlandığında listelerin tam altında belirir */}
+          {isSystemComplete && (
+            <div className="w-full bg-emerald-500/10 border-2 border-emerald-500/20 rounded-2xl p-5 md:p-6 text-center mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300 select-none">
+              <h3 className="text-emerald-400 font-black text-base md:text-lg uppercase tracking-wider mb-1 flex items-center justify-center gap-2">
+                🎉 Tebrikler! Sisteminiz Tamamlandı
+              </h3>
+              <p className="text-gray-400 text-xs md:text-sm font-medium leading-relaxed">
+                Bütün bileşenleri başarıyla seçtiniz. Konfigürasyonunuz sepete eklenmeye hazır durumda.
+              </p>
+            </div>
+          )}
+
           <div className="flex justify-between items-center mt-6 pt-4 border-t border-white/10">
-            <button disabled={currentStep === 0} onClick={() => setCurrentStep((p) => p - 1)} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-zinc-800 border border-white/10 text-sm font-bold text-gray-300 hover:text-white hover:bg-zinc-700 disabled:opacity-40 transition-colors">
+            <button disabled={currentStep === 0} onClick={() => setCurrentStep((p) => p - 1)} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-zinc-800 border border-white/10 text-sm font-bold text-gray-300 hover:text-white disabled:opacity-40 transition-colors">
               <ChevronLeft className="w-4 h-4" /> Önceki Adım
             </button>
-            <button disabled={currentStep === STEPS.length - 1} onClick={() => setCurrentStep((p) => p + 1)} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-zinc-800 border border-white/10 text-sm font-bold text-gray-300 hover:text-white hover:bg-zinc-700 disabled:opacity-40 transition-colors">
+            <button disabled={currentStep === STEPS.length - 1} onClick={() => setCurrentStep((p) => p + 1)} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-zinc-800 border border-white/10 text-sm font-bold text-gray-300 hover:text-white disabled:opacity-40 transition-colors">
               Sonraki Adım <ChevronRight className="w-4 h-4" />
             </button>
           </div>
@@ -453,10 +468,10 @@ export default function KendinToplaPage() {
          </div>
       </div>
 
-      {/* DETAY İNCELEME MODAL PANELİ */}
+      {/* 🚀 MILIM SALLANMAYAN JİLET POP-UP MODAL PANELİ (Sallanmayı önlemek için overflow iç alana kilitlendi) */}
       {previewProduct && (
-        <div className="fixed inset-0 bg-black/95 z-[9999] overflow-y-auto flex items-start sm:items-center justify-center p-2 sm:p-6 md:p-10 animate-in fade-in duration-100">
-          <div className="bg-[#121214] border-2 border-white/10 w-full max-w-5xl rounded-2xl overflow-hidden flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.8)] my-auto">
+        <div className="fixed inset-0 bg-black/95 z-[9999] flex items-center justify-center p-4 animate-in fade-in duration-100">
+          <div className="bg-[#121214] border-2 border-white/10 w-full max-w-5xl max-h-[90vh] rounded-2xl overflow-hidden flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.8)]">
             
             <div className="flex items-center justify-between p-5 border-b border-white/10 bg-[#18181b] shrink-0">
               <h3 className="text-sm font-black uppercase tracking-wider text-[#00d2ff]">Ürün Detay İnceleme</h3>
@@ -468,7 +483,8 @@ export default function KendinToplaPage() {
               </button>
             </div>
 
-            <div className="overflow-y-auto p-4 sm:p-6 grid grid-cols-1 md:grid-cols-5 gap-6 max-h-[calc(100vh-160px)] sm:max-h-[70vh]">
+            {/* 🚀 SALLANMAYI KESEN ÖZEL ALAN: overflow-y-auto sadece buraya verildi, böylece ana viewport katmanı zıplama yapmaz */}
+            <div className="overflow-y-auto p-4 sm:p-6 grid grid-cols-1 md:grid-cols-5 gap-6 content-start">
               <div className="md:col-span-2 flex flex-col items-center gap-4 sm:gap-6 border-b md:border-b-0 md:border-r border-white/10 pb-6 md:pb-0 md:pr-6 md:sticky md:top-0 h-max">
                 <div className="w-full aspect-square bg-black/60 rounded-2xl p-6 border border-white/10 flex items-center justify-center">
                   <img src={previewProduct.resim} alt={previewProduct.isim} className="max-w-full max-h-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
