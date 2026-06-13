@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useCart } from "@/app/CartContext";
 import toast from "react-hot-toast";
 import { 
-  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, ChevronRight, ChevronLeft, Loader2, Check, AlertTriangle, Trash2, RefreshCw, ExternalLink 
+  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, ChevronRight, ChevronLeft, Loader2, Check, AlertTriangle, Trash2, RefreshCw, ExternalLink, Heart 
 } from "lucide-react";
 
 const STEPS = [
@@ -26,11 +26,27 @@ export default function KendinToplaPage() {
 
   const [selections, setSelections] = useState<Record<string, any>>({});
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
+  const [isFavorited, setIsFavorited] = useState(false);
   
-  // 🚀 IŞIK HIZINDA ÖN BELLEK (CACHE) DEPOSU
-  const [productsCache, setProductsCache] = useState<Record<string, any[]>>({});
-
   const activeStepInfo = STEPS[currentStep];
+
+  useEffect(() => {
+    const eskiSecimler = localStorage.getItem("bilgin_sihirbaz_selections");
+    if (eskiSecimler) {
+      try {
+        setSelections(JSON.parse(eskiSecimler));
+      } catch (e) {
+        console.error("Hafıza okuma hatası:", e);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (Object.keys(selections).length > 0) {
+      localStorage.setItem("bilgin_sihirbaz_selections", JSON.stringify(selections));
+    }
+    setIsFavorited(false);
+  }, [selections]);
 
   useEffect(() => {
     if (previewProduct) {
@@ -88,32 +104,15 @@ export default function KendinToplaPage() {
 
   const { soket, bellek, yapi, radyator } = dinamikFiltreleriHesapla(activeStepInfo.id);
 
-  // 🚀 ÖN BELLEK KONTROLLÜ PARÇA ÇEKME MOTORU
   useEffect(() => {
     const fetchComponents = async () => {
-      // Benzersiz cache anahtarı (Kategori + filtre kombinasyonu)
-      const cacheKey = `${activeStepInfo.id}_${soket}_${bellek}_${yapi}_${radyator}`;
-
-      // 🛑 EĞER BU KATALOG DAHA ÖNCE YÜKLENDİYSE DİREKT ÖN BELLEKTEN GETİR (0 MILISANIYE!)
-      if (productsCache[cacheKey]) {
-        setProducts(productsCache[cacheKey]);
-        setLoading(false);
-        return;
-      }
-
       setLoading(true);
       try {
         let url = `/api/kendin-topla?kategori=${activeStepInfo.id}&soket=${encodeURIComponent(soket)}&bellek=${encodeURIComponent(bellek)}&yapi=${encodeURIComponent(yapi)}&radyator=${encodeURIComponent(radyator)}`;
         const res = await fetch(url);
         const resData = await res.json();
-        
-        if (resData.success) {
-          // Gelen veriyi hafızaya (Cache) yazıyoruz şefim
-          setProductsCache(prev => ({ ...prev, [cacheKey]: resData.data }));
-          setProducts(resData.data);
-        } else {
-          setProducts([]);
-        }
+        if (resData.success) setProducts(resData.data);
+        else setProducts([]);
       } catch (e) {
         setProducts([]);
       } finally {
@@ -121,7 +120,7 @@ export default function KendinToplaPage() {
       }
     };
     fetchComponents();
-  }, [currentStep, soket, bellek, yapi, radyator, productsCache]);
+  }, [currentStep, soket, bellek, yapi, radyator]);
 
   const handleSelectComponent = (product: any) => {
     setSelections((prev) => ({ ...prev, [activeStepInfo.id]: product }));
@@ -132,6 +131,11 @@ export default function KendinToplaPage() {
     setSelections((prev) => {
       const yeni = { ...prev };
       delete yeni[stepId];
+      if (Object.keys(yeni).length === 0) {
+        localStorage.removeItem("bilgin_sihirbaz_selections");
+      } else {
+        localStorage.setItem("bilgin_sihirbaz_selections", JSON.stringify(yeni));
+      }
       return yeni;
     });
   };
@@ -139,7 +143,34 @@ export default function KendinToplaPage() {
   const handleClearAll = () => {
     setSelections({});
     setCurrentStep(0);
+    localStorage.removeItem("bilgin_sihirbaz_selections");
     toast.success("Sistem başarıyla sıfırlandı.");
+  };
+
+  const handleAddSystemToFavorites = () => {
+    if (Object.keys(selections).length === 0) {
+      return toast.error("Favorilere eklemek için en az bir parça seçmelisiniz.");
+    }
+
+    try {
+      const mevcutSistemler = localStorage.getItem("bilgin_kayitli_sistemler");
+      let sistemListesi = mevcutSistemler ? JSON.parse(mevcutSistemler) : [];
+
+      const yeniSistemKonfigurasayonu = {
+        id: Date.now(),
+        tarih: new Date().toLocaleDateString("tr-TR"),
+        toplamTutar: toplamFiyat,
+        parcalar: { ...selections }
+      };
+
+      sistemListesi.push(yeniSistemKonfigurasayonu);
+      localStorage.setItem("bilgin_kayitli_sistemler", JSON.stringify(sistemListesi));
+
+      setIsFavorited(true);
+      toast.success("Sistem konfigürasyonunuz sapıtma olmadan başarıyla favorilerinize kaydedildi! ❤️");
+    } catch (error) {
+      toast.error("Sistem kaydedilirken teknik bir sorun oluştu.");
+    }
   };
 
   const toplamFiyat = Object.values(selections).reduce((acc, curr) => {
@@ -173,9 +204,11 @@ export default function KendinToplaPage() {
         havaleIndirimi: urun.havaleIndirimi || 5
       });
     });
+    localStorage.removeItem("bilgin_sihirbaz_selections");
     setSelections({});
     setCurrentStep(0);
-    toast.success("Sistem başarıyla sepete eklendi.");
+    setIsFavorited(false);
+    toast.success("Sistem başarıyla sepete eklendi ve sihirbaz temizlendi.");
   };
 
   return (
@@ -186,8 +219,7 @@ export default function KendinToplaPage() {
             <span className="text-[#00d2ff] font-black text-xl sm:text-2xl">🔧 PC SİHİRBAZI</span>
           </div>
           
-          {/* 🚀 TELEFONDA SABİT, DİKEY VE DERLI TOPLU KATALOG DÜZENİ */}
-          <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          <div className="flex overflow-x-auto sm:flex-wrap items-center gap-2 w-full md:w-auto pb-1 sm:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {STEPS.map((step, idx) => {
               const StepIcon = step.icon;
               const isSelected = !!selections[step.id];
@@ -196,8 +228,8 @@ export default function KendinToplaPage() {
                 <button
                   key={step.id}
                   onClick={() => setCurrentStep(idx)}
-                  className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border text-xs font-black transition-all ${
-                    isActive ? "bg-[#00d2ff]/15 border-[#00d2ff] text-[#00d2ff]" : isSelected ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-400" : "bg-zinc-800/80 border-white/10 text-gray-300 hover:text-white"
+                  className={`shrink-0 flex items-center space-x-1.5 px-3 py-2 sm:py-1.5 rounded-xl border text-xs font-black transition-all ${
+                    isActive ? "bg-[#00d2ff]/15 border-[#00d2ff] text-[#00d2ff]" : isSelected ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-400" : "bg-zinc-800/80 border-white/10 text-gray-300 hover:text-white hover:bg-zinc-700"
                   }`}
                 >
                   <StepIcon className="w-3.5 h-3.5" />
@@ -211,7 +243,6 @@ export default function KendinToplaPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col lg:flex-row gap-8 items-start">
-        {/* SOL TARAF: ÜRÜN LİSTESİ */}
         <div className="w-full lg:w-[65%] flex flex-col gap-6">
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <h2 className="text-lg sm:text-2xl font-black uppercase tracking-tight flex items-center gap-3">
@@ -230,7 +261,7 @@ export default function KendinToplaPage() {
               {products.map((urun) => {
                 const isItemChosen = selections[activeStepInfo.id]?._id === urun._id;
                 return (
-                  <div key={urun._id} className={`bg-[#18181b] border-2 rounded-2xl p-4 flex gap-4 hover:border-white/20 transition-all group shadow-md ${isItemChosen ? "border-emerald-500 bg-emerald-500/5" : "border-white/10"}`}>
+                  <div key={urun._id} className={`bg-[#18181b] border-2 rounded-2xl p-4 flex gap-4 hover:border-white/20 transition-all group shadow-md ${isItemChosen ? "border-[#00d2ff] bg-[#00d2ff]/5" : "border-white/10"}`}>
                     
                     <button 
                       onClick={() => setPreviewProduct(urun)}
@@ -246,7 +277,7 @@ export default function KendinToplaPage() {
                       <div>
                         <button 
                           onClick={() => setPreviewProduct(urun)}
-                          className="text-sm font-bold text-white text-left truncate block hover:text-[#00d2ff] hover:underline transition-all cursor-pointer mb-1 w-full"
+                          className="text-sm font-bold text-white text-left truncate block hover:text-[#00d2ff] hover:underline transition-all cursor-pointer mb-1 pointer-events-auto w-full"
                         >
                           {urun.isim}
                         </button>
@@ -259,6 +290,7 @@ export default function KendinToplaPage() {
                       </div>
                       <div className="flex items-center justify-between mt-3 pt-2 border-t border-white/10">
                         <span className="text-base font-black text-white">{Number(urun.indirimliFiyat || urun.fiyat || 0).toLocaleString("tr-TR")} ₺</span>
+                        
                         <button 
                           onClick={() => handleSelectComponent(urun)} 
                           className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all border ${
@@ -280,16 +312,15 @@ export default function KendinToplaPage() {
           )}
 
           <div className="flex justify-between items-center mt-6 pt-4 border-t border-white/10">
-            <button disabled={currentStep === 0} onClick={() => setCurrentStep((p) => p - 1)} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-zinc-800 border border-white/10 text-sm font-bold text-gray-300 hover:text-white disabled:opacity-40 transition-colors">
+            <button disabled={currentStep === 0} onClick={() => setCurrentStep((p) => p - 1)} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-zinc-800 border border-white/10 text-sm font-bold text-gray-300 hover:text-white hover:bg-zinc-700 disabled:opacity-40 transition-colors">
               <ChevronLeft className="w-4 h-4" /> Önceki Adım
             </button>
-            <button disabled={currentStep === STEPS.length - 1} onClick={() => setCurrentStep((p) => p + 1)} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-zinc-800 border border-white/10 text-sm font-bold text-gray-300 hover:text-white disabled:opacity-40 transition-colors">
+            <button disabled={currentStep === STEPS.length - 1} onClick={() => setCurrentStep((p) => p + 1)} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-zinc-800 border border-white/10 text-sm font-bold text-gray-300 hover:text-white hover:bg-zinc-700 disabled:opacity-40 transition-colors">
               Sonraki Adım <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        {/* SAĞ TARAF: SİSTEM ÖZETİ */}
         <div className="w-full lg:w-[35%] lg:sticky lg:top-40 flex flex-col gap-6">
           <div className="bg-[#18181b] border-2 border-white/10 rounded-2xl p-6 shadow-2xl flex flex-col w-full">
             
@@ -359,11 +390,12 @@ export default function KendinToplaPage() {
               </div>
             )}
 
-            <div className="hidden lg:flex border-t border-white/10 pt-4 flex-col">
-              <div className="flex justify-between items-baseline mb-5">
+            <div className="hidden lg:flex border-t border-white/10 pt-4 flex-col gap-3">
+              <div className="flex justify-between items-baseline mb-2">
                 <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">TOPLAM:</span>
                 <span className="text-3xl font-black text-white tracking-tight">{toplamFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">TL</span></span>
               </div>
+              
               <button 
                 onClick={handleAddSystemToCart} 
                 disabled={psuYetersiz || gpuKasaAşimi}
@@ -378,7 +410,6 @@ export default function KendinToplaPage() {
         </div>
       </div>
 
-      {/* MOBİL ALT BAR */}
       <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#18181b]/95 backdrop-blur-2xl border-t-2 border-white/10 px-4 sm:px-6 py-4 z-50 flex items-center justify-between shadow-[0_-15px_30px_rgba(0,0,0,0.8)] select-none">
          <div className="flex flex-col">
             <span className="text-gray-400 text-[10px] font-black tracking-wider uppercase mb-0.5">TOPLAM TUTAR</span>
@@ -386,20 +417,22 @@ export default function KendinToplaPage() {
               {toplamFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">₺</span>
             </span>
          </div>
-         <button 
-           onClick={handleAddSystemToCart}
-           disabled={psuYetersiz || gpuKasaAşimi}
-           className={`h-12 px-6 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg ${
-             (psuYetersiz || gpuKasaAşimi) ? "bg-zinc-800 text-gray-500 cursor-not-allowed border border-white/10" : "bg-[#00d2ff] text-black"
-           }`}
-         >
-            <ShoppingBag className="w-4 h-4" /> Sepete Ekle
+         <div className="flex items-center gap-2">
+           <button 
+             onClick={handleAddSystemToCart}
+             disabled={psuYetersiz || gpuKasaAşimi}
+             className={`h-12 px-6 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg ${
+               (psuYetersiz || gpuKasaAşimi) ? "bg-zinc-800 text-gray-500 cursor-not-allowed border border-white/10" : "bg-[#00d2ff] text-black"
+             }`}
+           >
+              <ShoppingBag className="w-4 h-4" /> Sepete Ekle
          </button>
+         </div>
       </div>
 
-      {/* 🚀 ARTIK 0 GECİKMELİ POP-UP PANELİ (AĞIRLAŞTIRAN BLUR EFEKTİ SİLİNDİ, KATMAN z-[9999] SABİT) */}
+      {/* 🚀 Z-INDEX [9999] UYGULANMIŞ POP-UP PENCERESİ */}
       {previewProduct && (
-        <div className="fixed inset-0 bg-black/95 z-[9999] overflow-y-auto flex items-start sm:items-center justify-center p-2 sm:p-6 md:p-10 animate-in fade-in duration-100">
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[9999] overflow-y-auto flex items-start sm:items-center justify-center p-2 sm:p-6 md:p-10 animate-in fade-in duration-200">
           <div className="bg-[#121214] border-2 border-white/10 w-full max-w-5xl rounded-2xl overflow-hidden flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.8)] my-auto">
             
             <div className="flex items-center justify-between p-5 border-b border-white/10 bg-[#18181b] shrink-0">
