@@ -39,7 +39,7 @@ const menuCategories = [
   {
     title: "Sistem, Laptop & Yazılım",
     items: [
-      { name: "Oyun Bilgisayarı", slug: "hazir-sistem" }, // 🔥 Yer değiştirdi, burası Oyun Bilgisayarı oldu
+     { name: "Oyun Bilgisayarı", slug: "oyun-bilgisayari" },
       { name: "Premium Laptop & Notebook", slug: "laptop" },
       { name: "Masaüstü Bilgisayar", slug: "masaustu" },
       { name: "OEM Paketler (Toplama PC)", slug: "oem-paket" },
