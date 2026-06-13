@@ -27,6 +27,9 @@ export default function KendinToplaPage() {
   const [selections, setSelections] = useState<Record<string, any>>({});
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
   
+  // 🚀 IŞIK HIZINDA ÖN BELLEK (CACHE) DEPOSU
+  const [productsCache, setProductsCache] = useState<Record<string, any[]>>({});
+
   const activeStepInfo = STEPS[currentStep];
 
   useEffect(() => {
@@ -85,15 +88,32 @@ export default function KendinToplaPage() {
 
   const { soket, bellek, yapi, radyator } = dinamikFiltreleriHesapla(activeStepInfo.id);
 
+  // 🚀 ÖN BELLEK KONTROLLÜ PARÇA ÇEKME MOTORU
   useEffect(() => {
     const fetchComponents = async () => {
+      // Benzersiz cache anahtarı (Kategori + filtre kombinasyonu)
+      const cacheKey = `${activeStepInfo.id}_${soket}_${bellek}_${yapi}_${radyator}`;
+
+      // 🛑 EĞER BU KATALOG DAHA ÖNCE YÜKLENDİYSE DİREKT ÖN BELLEKTEN GETİR (0 MILISANIYE!)
+      if (productsCache[cacheKey]) {
+        setProducts(productsCache[cacheKey]);
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       try {
         let url = `/api/kendin-topla?kategori=${activeStepInfo.id}&soket=${encodeURIComponent(soket)}&bellek=${encodeURIComponent(bellek)}&yapi=${encodeURIComponent(yapi)}&radyator=${encodeURIComponent(radyator)}`;
         const res = await fetch(url);
         const resData = await res.json();
-        if (resData.success) setProducts(resData.data);
-        else setProducts([]);
+        
+        if (resData.success) {
+          // Gelen veriyi hafızaya (Cache) yazıyoruz şefim
+          setProductsCache(prev => ({ ...prev, [cacheKey]: resData.data }));
+          setProducts(resData.data);
+        } else {
+          setProducts([]);
+        }
       } catch (e) {
         setProducts([]);
       } finally {
@@ -101,7 +121,7 @@ export default function KendinToplaPage() {
       }
     };
     fetchComponents();
-  }, [currentStep, soket, bellek, yapi, radyator]);
+  }, [currentStep, soket, bellek, yapi, radyator, productsCache]);
 
   const handleSelectComponent = (product: any) => {
     setSelections((prev) => ({ ...prev, [activeStepInfo.id]: product }));
@@ -166,7 +186,7 @@ export default function KendinToplaPage() {
             <span className="text-[#00d2ff] font-black text-xl sm:text-2xl">🔧 PC SİHİRBAZI</span>
           </div>
           
-          {/* 🚀 TELEFONDA ASLA SAĞA SOLA KAYMAZ, EN BAŞTAKİ GİBİ SABİT VE DÜZGÜN KATALOG NİZAMI */}
+          {/* 🚀 TELEFONDA SABİT, DİKEY VE DERLI TOPLU KATALOG DÜZENİ */}
           <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
             {STEPS.map((step, idx) => {
               const StepIcon = step.icon;
@@ -210,7 +230,6 @@ export default function KendinToplaPage() {
               {products.map((urun) => {
                 const isItemChosen = selections[activeStepInfo.id]?._id === urun._id;
                 return (
-                  /* 🚀 GÜNEŞTE PARLAYAN CANLI ZÜMRÜT YEŞİLİ KART NİZAMI */
                   <div key={urun._id} className={`bg-[#18181b] border-2 rounded-2xl p-4 flex gap-4 hover:border-white/20 transition-all group shadow-md ${isItemChosen ? "border-emerald-500 bg-emerald-500/5" : "border-white/10"}`}>
                     
                     <button 
@@ -378,7 +397,7 @@ export default function KendinToplaPage() {
          </button>
       </div>
 
-      {/* 🚀 ULTRA HIZLI POP-UP PANELİ (GECİKME YAPAN BLUR EFEKTİ KALDIRILDI, ÜST MENÜ KORUMALI z-[9999]) */}
+      {/* 🚀 ARTIK 0 GECİKMELİ POP-UP PANELİ (AĞIRLAŞTIRAN BLUR EFEKTİ SİLİNDİ, KATMAN z-[9999] SABİT) */}
       {previewProduct && (
         <div className="fixed inset-0 bg-black/95 z-[9999] overflow-y-auto flex items-start sm:items-center justify-center p-2 sm:p-6 md:p-10 animate-in fade-in duration-100">
           <div className="bg-[#121214] border-2 border-white/10 w-full max-w-5xl rounded-2xl overflow-hidden flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.8)] my-auto">
