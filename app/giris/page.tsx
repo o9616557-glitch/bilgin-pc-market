@@ -132,9 +132,13 @@ export default function GirisPage() {
              </Link>
           </div>
 
-          <button type="submit" className="w-full bg-[#3b82f6] text-black rounded-xl py-3.5 font-black uppercase tracking-widest hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)]">
-            GİRİŞ YAP
-          </button>
+       {/* 🚀 GİRİŞ YAP BUTONU (PREMIUM HOVER EFEKTİ İLE) 🚀 */}
+    <button
+      type="submit"
+      className="w-full py-3.5 mt-2 bg-[#3b82f6] text-white text-sm font-black uppercase tracking-widest rounded-xl transition-all duration-300 hover:bg-[#1e40af] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+    >
+      GİRİŞ YAP
+    </button>
         </form>
 
         <div className="text-center mb-6 mt-4">
