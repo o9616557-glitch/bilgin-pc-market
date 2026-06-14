@@ -459,7 +459,7 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
                       <div className="relative aspect-[4/3] w-full bg-gradient-to-b from-white/[0.01] to-transparent flex items-center justify-center p-6 overflow-hidden pointer-events-none">
                         
                         {indirimVarMi && !tukendiMi && (
-                          <div className="absolute top-4 right-4 discount-badge-container pointer-events-none !z-10">
+                         <div className="absolute top-4 right-4 discount-badge-container pointer-events-none !z-20">
                               <div className="badge-ribbon-home-left"></div>
                               <div className="badge-ribbon-home-right"></div>
                               <div className="badge-rosette-home">
