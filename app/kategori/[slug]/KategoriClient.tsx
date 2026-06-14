@@ -426,14 +426,24 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
           </div>
         </aside>
 
-        {/* 🛠 Sağ ÜRÜN IZGARASI */}
-        <main className="flex-1 w-full min-w-0 pb-12">
-          {filtrelenmisUrunler.length === 0 ? (
-            <div className="w-full py-24 flex flex-col items-center justify-center border border-dashed border-white/5 rounded-2xl bg-white/[0.01]">
-              <PackageX className="w-12 h-12 text-gray-600 mb-4" />
-              <h3 className="text-xl font-black text-gray-400 uppercase tracking-widest mb-2 text-center px-4">Aradığınız Kriterlerde Ürün Bulunamadı</h3>
-              <button onClick={filtreleriTemizle} className="mt-4 text-white text-sm font-bold underline transition-colors hover:text-gray-300">Filtreleri Temizle</button>
-            </div>
+       {/* 🛠 Sağ ÜRÜN IZGARASI */}
+<main className="flex-1 w-full min-w-0 pb-12">
+  {filtrelenmisUrunler.length === 0 ? (
+    <div className="w-full flex flex-col items-center justify-center text-center gap-4 py-20 select-none border border-white/5 bg-black/20 rounded-2xl px-4">
+      <span className="text-[#00d2ff] font-black text-xs uppercase tracking-widest animate-pulse">
+        Sistem Güncelleniyor
+      </span>
+      <h3 className="text-xl sm:text-2xl font-black text-white leading-tight uppercase max-w-md">
+        Seçilen Kombinasyon Şu An Hazırlık Aşamasında
+      </h3>
+      <div className="h-px w-16 bg-gradient-to-r from-transparent via-[#00d2ff] to-transparent my-1"></div>
+      <p className="text-xs sm:text-sm font-medium leading-relaxed text-gray-400 max-w-lg">
+        Aradığınız kriterlere uygun donanım yapılandırmaları ve güncel stok listeleri arka planda optimize ediliyor olabilir. Mevcut filtrelerinizi sıfırlayarak dükkandaki diğer canavar bileşenleri ve hazır sistemleri hemen inceleyebilirsiniz.
+      </p>
+      <button onClick={filtreleriTemizle} className="mt-4 px-6 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-xs font-black uppercase tracking-wider transition-all duration-200 hover:bg-[#00d2ff]/10 hover:border-[#00d2ff] hover:text-white">
+        Filtreleri Temizle ve Keşfet
+      </button>
+    </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
               {filtrelenmisUrunler.map((urun: any) => {
