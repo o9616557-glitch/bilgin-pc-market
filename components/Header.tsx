@@ -193,14 +193,14 @@ export default function Header() {
                 <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "-rotate-45 -translate-y-1.5" : "")}></span>
               </button>
               <Link href="/" prefetch={true} className="text-white font-black text-2xl tracking-tight flex items-center relative z-[100]">
-                BİLGİN <span className="text-[#00d2ff] ml-1">PC</span>
+                BİLGİN <span className="text-[#3b82f6] ml-1">PC</span>
               </Link>
             </div>
 
             {/* ORTA: MASAÜSTÜ MEGA MENÜ */}
             <div className="hidden md:flex items-center space-x-6 flex-1 justify-center h-full">
               <div className="relative flex items-center h-full" onMouseEnter={() => setDropdownOpen(true)} onMouseLeave={() => setDropdownOpen(false)}>
-                <button className="flex items-center space-x-2 text-white hover:text-[#00d2ff] py-2 font-semibold transition-colors text-sm">
+                <button className="flex items-center space-x-2 text-white hover:text-[#3b82f6] py-2 font-semibold transition-colors text-sm">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                   <span>Tüm Kategoriler</span>
                 </button>
@@ -211,11 +211,11 @@ export default function Header() {
                       <div className="grid grid-cols-4 gap-12">
                         {menuCategories.map((category, index) => (
                           <div key={index}>
-                            <h3 className="text-[#00d2ff] font-bold text-sm tracking-wider uppercase mb-6 border-b border-white/10 pb-3">{category.title}</h3>
+                            <h3 className="text-[#3b82f6] font-bold text-sm tracking-wider uppercase mb-6 border-b border-white/10 pb-3">{category.title}</h3>
                             <ul className="space-y-4">
                               {category.items.map((item) => (
                                 <li key={item.slug}>
-                                  <Link href={"/kategori/" + item.slug} prefetch={true} className="text-gray-400 hover:text-white hover:translate-x-1 hover:text-[#00d2ff] transition-all duration-200 block text-base">{item.name}</Link>
+                                  <Link href={"/kategori/" + item.slug} prefetch={true} className="text-gray-400 hover:text-white hover:translate-x-1 hover:text-[#3b82f6] transition-all duration-200 block text-base">{item.name}</Link>
                                 </li>
                               ))}
                             </ul>
@@ -229,10 +229,10 @@ export default function Header() {
 
               <nav className="flex items-center space-x-6">
                 {/* 🔥 ŞEFİM, YER DEĞİŞTİ! ÜST MENÜDE ARTIK KENDİN TOPLA EN BAŞTA PARLIYOR! */}
-             <Link href="/kategori/kendin-topla" prefetch={true} className="text-gray-300 hover:text-[#00d2ff] text-sm font-medium transition-colors">🔧 Kendin Topla</Link>
-                <Link href="/kategori/ekran-karti" prefetch={true} className="text-gray-300 hover:text-[#00d2ff] text-sm font-medium transition-colors">Ekran Kartları</Link>
-                <Link href="/kategori/islemci" prefetch={true} className="text-gray-300 hover:text-[#00d2ff] text-sm font-medium transition-colors">İşlemciler</Link>
-                <Link href="/kategori/anakart" prefetch={true} className="text-gray-300 hover:text-[#00d2ff] text-sm font-medium transition-colors">Anakartlar</Link>
+             <Link href="/kategori/kendin-topla" prefetch={true} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">🔧 Kendin Topla</Link>
+                <Link href="/kategori/ekran-karti" prefetch={true} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">Ekran Kartları</Link>
+                <Link href="/kategori/islemci" prefetch={true} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">İşlemciler</Link>
+                <Link href="/kategori/anakart" prefetch={true} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">Anakartlar</Link>
               </nav>
             </div>
 
@@ -240,27 +240,27 @@ export default function Header() {
             <div className="flex items-center gap-2 md:gap-4 shrink-0 h-full">
               
               {/* ARAMA */}
-              <button onClick={() => setAramaAcik(true)} className="flex items-center gap-2 text-gray-300 hover:text-[#00d2ff] transition-colors p-2 group">
+              <button onClick={() => setAramaAcik(true)} className="flex items-center gap-2 text-gray-300 hover:text-[#3b82f6] transition-colors p-2 group">
                 <span className="hidden md:block text-sm font-bold">Ara</span>
                 <Search className="w-5 h-5 md:w-5 md:h-5 shrink-0 group-hover:scale-110 transition-transform" />
               </button>
 
               {/* HESABIM */}
               <div ref={hesabimRef} className="relative flex items-center h-full">
-                <button onClick={() => setHesabimAcik(!hesabimAcik)} className={`flex items-center gap-2 p-2 transition-colors group ${hesabimAcik ? "text-[#00d2ff]" : "text-gray-300 hover:text-[#00d2ff]"}`}>
+                <button onClick={() => setHesabimAcik(!hesabimAcik)} className={`flex items-center gap-2 p-2 transition-colors group ${hesabimAcik ? "text-[#3b82f6]" : "text-gray-300 hover:text-[#3b82f6]"}`}>
                   <span className="hidden sm:block text-sm font-bold">{session?.user?.name ? session.user.name.split(" ")[0] : "Hesabım"}</span>
                   <svg className={`w-5 h-5 md:w-5 md:h-5 shrink-0 transition-transform ${hesabimAcik ? "scale-110" : "group-hover:scale-110"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 </button>
 
                 {hesabimAcik && (
                   <div className="absolute top-[75px] right-0 w-56 bg-[#09090b] border border-white/10 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.8)] p-2 z-[999] flex flex-col gap-1">
-                    <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2.5 text-[#00d2ff] bg-[#00d2ff]/10 hover:bg-[#00d2ff]/20 rounded-xl text-sm font-bold transition-colors">📦 Sipariş Takip</Link>
+                    <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2.5 text-[#3b82f6] bg-[#3b82f6]/10 hover:bg-[#3b82f6]/20 rounded-xl text-sm font-bold transition-colors">📦 Sipariş Takip</Link>
                     <div className="h-px bg-white/5 my-1"></div>
                     {session ? (
                       <>
                         <div className="px-3 py-3 border-b border-white/5 mb-2">
                           <p className="text-white text-sm font-black mb-0.5">Hoş Geldin, 👋</p>
-                          <p className="text-[#00d2ff] text-base font-black truncate">{session.user?.name || session.user?.email}</p>
+                          <p className="text-[#3b82f6] text-base font-black truncate">{session.user?.name || session.user?.email}</p>
                         </div>
                         <Link href="/siparislerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl text-sm transition-colors">📋 Siparişlerim</Link>
                         <Link href="/adreslerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl text-sm transition-colors">📍 Adreslerim</Link>
@@ -285,7 +285,7 @@ export default function Header() {
               </div>
 
               {/* SEPET ALANI */}
-              <Link href="/sepet" prefetch={true} className="relative flex items-center gap-2 p-2 text-gray-300 hover:text-[#00d2ff] transition-colors group">
+              <Link href="/sepet" prefetch={true} className="relative flex items-center gap-2 p-2 text-gray-300 hover:text-[#3b82f6] transition-colors group">
                 <span className="hidden md:block text-sm font-bold">Sepet</span>
                 <div className="relative">
                   <svg className="w-5 h-5 md:w-5 md:h-5 shrink-0 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
@@ -311,7 +311,7 @@ export default function Header() {
             href="/kategori/kendin-topla" 
             prefetch={true}
             onClick={() => setMenuAcik(false)}
-            className="mb-8 flex items-center justify-between px-5 py-4 bg-gradient-to-r from-[#00d2ff]/20 to-transparent border border-[#00d2ff]/30 rounded-2xl text-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.15)] group"
+            className="mb-8 flex items-center justify-between px-5 py-4 bg-gradient-to-r from-[#3b82f6]/20 to-transparent border border-[#3b82f6]/30 rounded-2xl text-[#3b82f6] shadow-[0_0_15px_rgba(0,210,255,0.15)] group"
           >
             <span className="font-black tracking-wide text-base flex items-center gap-2.5">
               🔧 Kendin Topla (PC Sihirbazı)
@@ -321,7 +321,7 @@ export default function Header() {
 
           {menuCategories.map((category, index) => (
             <div key={index} className="mb-8">
-              <h3 className="text-[#00d2ff] font-black text-sm tracking-widest uppercase mb-4 border-b border-white/10 pb-3">{category.title}</h3>
+              <h3 className="text-[#3b82f6] font-black text-sm tracking-widest uppercase mb-4 border-b border-white/10 pb-3">{category.title}</h3>
               <div className="flex flex-col">
                 {category.items.map((item) => (
                   <Link 
@@ -332,7 +332,7 @@ export default function Header() {
                     className="text-white text-base font-bold py-3.5 border-b border-white/5 flex items-center justify-between group"
                   >
                     {item.name}
-                    <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-[#00d2ff] transition-colors" />
+                    <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-[#3b82f6] transition-colors" />
                   </Link>
                 ))}
               </div>
@@ -347,7 +347,7 @@ export default function Header() {
           <div className="p-4 md:p-6 border-b border-white/10 flex items-center gap-4">
             <form onSubmit={handleAramaSubmit} className="relative w-full max-w-4xl mx-auto flex-1">
               <button type="submit" className="absolute inset-y-0 left-0 pl-4 flex items-center z-10">
-                <Search className="w-5 h-5 text-[#00d2ff]" />
+                <Search className="w-5 h-5 text-[#3b82f6]" />
               </button>
               <input
                 ref={searchInputRef}
@@ -355,7 +355,7 @@ export default function Header() {
                 placeholder="Ürün, Marka veya Kategori Ara..."
                 value={aramaMetni}
                 onChange={(e) => setAramaMetni(e.target.value)}
-                className="w-full h-14 bg-white/5 border border-white/10 focus:border-[#00d2ff] focus:bg-[#121212] rounded-2xl pl-12 pr-12 text-lg text-white placeholder-gray-500 outline-none transition-all"
+                className="w-full h-14 bg-white/5 border border-white/10 focus:border-[#3b82f6] focus:bg-[#121212] rounded-2xl pl-12 pr-12 text-lg text-white placeholder-gray-500 outline-none transition-all"
               />
               {aramaMetni && (
                 <button type="button" onClick={() => setAramaMetni("")} className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-white z-10">
@@ -374,7 +374,7 @@ export default function Header() {
             {/* ⬅️ SOL SÜTUN: KATEGORİLER */}
                 <div className="w-full md:w-[280px] shrink-0">
                   <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-3 mb-4">
-                    <Search className="w-3.5 h-3.5 text-[#00d2ff]" /> İLGİLİ KATEGORİLER
+                    <Search className="w-3.5 h-3.5 text-[#3b82f6]" /> İLGİLİ KATEGORİLER
                   </h3>
                   
                   {bulunanKategoriler.length > 0 ? (
@@ -384,21 +384,21 @@ export default function Header() {
                           key={kat.slug} 
                           href={"/kategori/" + kat.slug} 
                           onClick={() => setAramaAcik(false)} 
-                          className="relative overflow-hidden px-4 py-3.5 bg-black/40 border border-white/5 hover:border-[#00d2ff]/40 hover:bg-[#00d2ff]/[0.02] text-gray-400 hover:text-white rounded-xl transition-all duration-300 flex items-center gap-4 text-sm font-bold group"
+                          className="relative overflow-hidden px-4 py-3.5 bg-black/40 border border-white/5 hover:border-[#3b82f6]/40 hover:bg-[#3b82f6]/[0.02] text-gray-400 hover:text-white rounded-xl transition-all duration-300 flex items-center gap-4 text-sm font-bold group"
                         >
                           {/* 1. Efekt: Üstüne gelince solda beliren mavi neon çizgi */}
-                          <div className="absolute left-0 top-2 bottom-2 w-1 rounded-r-md bg-gradient-to-b from-[#00d2ff] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          <div className="absolute left-0 top-2 bottom-2 w-1 rounded-r-md bg-gradient-to-b from-[#3b82f6] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                           
                           {/* 2. Efekt: Modern, parlayan çip/nokta tasarımı */}
-                          <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 group-hover:border-[#00d2ff]/30 group-hover:bg-[#00d2ff]/10 flex items-center justify-center shrink-0 transition-all duration-300">
-                            <div className="w-1.5 h-1.5 rounded-full bg-gray-500 group-hover:bg-[#00d2ff] group-hover:shadow-[0_0_10px_#00d2ff] transition-all duration-300"></div>
+                          <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 group-hover:border-[#3b82f6]/30 group-hover:bg-[#3b82f6]/10 flex items-center justify-center shrink-0 transition-all duration-300">
+                            <div className="w-1.5 h-1.5 rounded-full bg-gray-500 group-hover:bg-[#3b82f6] group-hover:shadow-[0_0_10px_#3b82f6] transition-all duration-300"></div>
                           </div>
                           
                           {/* Kategori Adı */}
                           <span className="flex-1 tracking-wide transition-colors">{kat.name}</span>
                           
                           {/* 3. Efekt: Sağdan kayarak gelen şık ok işareti */}
-                          <ArrowRight className="w-4 h-4 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 text-[#00d2ff] transition-all duration-300" />
+                          <ArrowRight className="w-4 h-4 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 text-[#3b82f6] transition-all duration-300" />
                         </Link>
                       ))}
                     </div>
@@ -407,7 +407,7 @@ export default function Header() {
                 {/* ➡️ SAĞ SÜTUN: ÜRÜN SONUÇLARI */}
                 <div className="w-full flex-1 min-w-0">
                   <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-3 mb-4">
-                    {aramaYukleniyor ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#00d2ff]" /> : <Search className="w-3.5 h-3.5" />}
+                    {aramaYukleniyor ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#3b82f6]" /> : <Search className="w-3.5 h-3.5" />}
                     ÜRÜN SONUÇLARI
                   </h3>
                   
@@ -419,14 +419,14 @@ export default function Header() {
                           href={"/product/" + urun.slug} 
                           prefetch={true} 
                           onClick={() => setAramaAcik(false)} 
-                          className="flex items-center gap-4 p-4 bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-[#00d2ff]/30 rounded-2xl transition-all group"
+                          className="flex items-center gap-4 p-4 bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-[#3b82f6]/30 rounded-2xl transition-all group"
                         >
                           <div className="w-16 h-16 bg-black/50 rounded-xl p-2 flex shrink-0 items-center justify-center">
                             <img src={urun.resim} alt={urun.isim} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform" />
                           </div>
                           <div className="flex flex-col min-w-0">
                             <span className="text-sm font-medium text-white line-clamp-2 leading-snug mb-1">{urun.isim}</span>
-                            <span className="text-lg font-black text-[#00d2ff]">{Number(urun.fiyat).toLocaleString("tr-TR")} ₺</span>
+                            <span className="text-lg font-black text-[#3b82f6]">{Number(urun.fiyat).toLocaleString("tr-TR")} ₺</span>
                           </div>
                         </Link>
                       ))}
@@ -455,7 +455,7 @@ export default function Header() {
                     <div className="flex flex-col bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
                       {sonAramalar.map((kelime, idx) => (
                         <div key={idx} className="flex items-center justify-between p-4 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors group cursor-pointer" onClick={() => handleAramaSubmit(undefined, kelime)}>
-                          <span className="text-gray-300 group-hover:text-[#00d2ff]">"{kelime}"</span>
+                          <span className="text-gray-300 group-hover:text-[#3b82f6]">"{kelime}"</span>
                           <button onClick={(e) => { e.stopPropagation(); gecmisAramayiSil(kelime); }} className="text-gray-500 hover:text-red-500 p-1">
                             <X className="w-4 h-4" />
                           </button>
@@ -475,7 +475,7 @@ export default function Header() {
                           href={"/product/" + urun.slug} 
                           prefetch={true} 
                           onClick={() => setAramaAcik(false)} 
-                          className="bg-[#121212] border border-white/5 hover:border-[#00d2ff]/30 p-3 rounded-2xl group transition-colors flex flex-col"
+                          className="bg-[#121212] border border-white/5 hover:border-[#3b82f6]/30 p-3 rounded-2xl group transition-colors flex flex-col"
                         >
                           <div className="aspect-square bg-black/40 rounded-xl mb-3 flex items-center justify-center p-2">
                              <img src={urun.resim} alt={urun.isim} className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform" />
