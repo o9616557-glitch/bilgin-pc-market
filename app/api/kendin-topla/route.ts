@@ -27,7 +27,7 @@ export async function GET(request: Request) {
     let regexStr = "";
     if (kategori === "islemci") regexStr = "şlemci|slemci|cpu|islemci|işlemci";
     else if (kategori === "anakart") regexStr = "anakart|board";
-    else if (kategori === "ram") regexStr = "ram|bellek";
+   else if (kategori === "ram") regexStr = "ram";
     else if (kategori === "ekran-karti") regexStr = "ekran|vga|gpu";
     else if (kategori === "ssd") regexStr = "ssd|m.2|disk|hdd";
     else if (kategori === "kasa") regexStr = "kasa|kabin";
