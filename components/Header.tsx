@@ -62,7 +62,13 @@ const menuCategories = [
   }
 ];
 
-const POPULER_KELIMELER = ["Asus ROG", "RTX 4090", "Intel 14. Nesil", "DDR5 RAM", "Samsung 990 Pro"];
+const HIZLI_LINKLER = [
+  { isim: "ASUS ROG Ryuo", url: "/product/asus-rog-ryuo" },
+  { isim: "TUF 5070", url: "/product/tuf-5070" },
+  { isim: "Razer V3 Mikrofon", url: "/product/razer-v3" },
+  { isim: "Logitech Yarış Direksiyonu", url: "/product/logitech-direksiyon" },
+  { isim: "Samsung 990 Pro", url: "/product/samsung-990-pro" }
+];
 
 const akilliKategoriBul = (metin: string) => {
   if (!metin) return null;
@@ -449,19 +455,24 @@ export default function Header() {
               </div>
             ) : (
               <div className="space-y-8 animate-in slide-in-from-bottom-2 duration-100">
-                <div>
-                  <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2 mb-4">
-                    <Flame className="w-4 h-4 text-[#00d2ff]" /> POPÜLER KELİMELER
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {POPULER_KELIMELER.map((kelime) => (
-                      <button key={kelime} onClick={() => handleAramaSubmit(undefined, kelime)} className="px-4 py-2 bg-white/5 border border-white/10 hover:border-[#00d2ff]/50 hover:bg-[#00d2ff]/10 text-gray-300 hover:text-white rounded-full text-sm transition-all">
-                        {kelime}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
+             <div>
+          <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 mb-4">
+            <Flame className="w-4 h-4 text-[#00d2ff]" /> HIZLI ERİŞİM
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            {HIZLI_LINKLER.map((item, index) => (
+              <Link 
+                key={index} 
+                href={item.url}
+                onClick={() => setAramaAcik(false)} 
+                className="px-4 py-2 bg-white/5 border border-white/10 hover:border-[#00d2ff]/50 hover:bg-[#00d2ff]/10 text-gray-300 hover:text-white rounded-full text-sm transition-all shadow-[0_0_10px_rgba(0,0,0,0.5)] group"
+              >
+                <span className="text-[#00d2ff] group-hover:text-white transition-colors mr-1.5">⚡</span>
+                {item.isim}
+              </Link>
+            ))}
+          </div>
+        </div>
                 {sonAramalar.length > 0 && (
                   <div>
                     <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2 mb-4">
