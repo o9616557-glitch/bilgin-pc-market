@@ -63,7 +63,7 @@ const menuCategories = [
 ];
 
 const HIZLI_LINKLER = [
-  { isim: "ASUS ROG Ryuo", url: "/product/asus-rog-ryuo" },
+ { isim: "ASUS ROG Ryuo", url: "/product/asus-rog-ryuo-iv-360-argb-white-edition-360mm-beyaz-sivi-islemci-sogutucu" },
   { isim: "TUF 5070", url: "/product/tuf-5070" },
   { isim: "Razer V3 Mikrofon", url: "/product/razer-v3" },
   { isim: "Logitech Yarış Direksiyonu", url: "/product/logitech-direksiyon" },
