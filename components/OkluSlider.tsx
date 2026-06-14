@@ -17,7 +17,7 @@ export default function OkluSlider({ children }: { children: React.ReactNode }) 
   return (
     <div className="w-full flex flex-col">
       
-      {/* 🚀 ÜST KISIM: KAYDIRMA ALANI (RESİMLERİN ÜSTÜNDE HİÇBİR ŞEY YOK) 🚀 */}
+      {/* 🚀 ÜST KISIM: KAYDIRMA ALANI 🚀 */}
       <div
         ref={sliderRef}
         className="flex flex-nowrap overflow-x-auto snap-x snap-mandatory gap-4 pb-4 px-[7.5vw] sm:px-[10vw] lg:px-8 scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
@@ -25,8 +25,9 @@ export default function OkluSlider({ children }: { children: React.ReactNode }) 
         {children}
       </div>
 
-      {/* 🎯 ALT KISIM: KİBAR VE MODERN KONTROL PANELİ 🎯 */}
-      <div className="flex items-center justify-center gap-6 mt-6">
+      {/* 🎯 ALT KISIM: TELEFONDA GİZLİ, BİLGİSAYARDA GÖRÜNÜR! 🎯 
+          (Buraya 'hidden sm:flex' kodunu ekledik) */}
+      <div className="hidden sm:flex items-center justify-center gap-6 mt-6">
         
         {/* ⬅️ SOL OK */}
         <button
@@ -36,7 +37,7 @@ export default function OkluSlider({ children }: { children: React.ReactNode }) 
           <ChevronLeft className="w-5 h-5" />
         </button>
 
-        {/* ➖ ORTADAKİ ZARİF ÇİZGİ (Neon Efektli) */}
+        {/* ➖ ORTADAKİ ZARİF ÇİZGİ */}
         <div className="w-16 sm:w-24 h-1 bg-gradient-to-r from-transparent via-[#00d2ff]/50 to-transparent rounded-full opacity-50"></div>
 
         {/* ➡️ SAĞ OK */}
