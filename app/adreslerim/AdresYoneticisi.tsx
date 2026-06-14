@@ -137,7 +137,7 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
             <ArrowLeft className="w-4 h-4" /> Mağazaya Geri Dön
           </Link>
           <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-white">
-            KAYITLI <span className="text-[#00dM2ff] drop-shadow-[0_0_15px_rgba(0,210,255,0.2)]">ADRESLERİM</span>
+        KAYITLI <span className="text-[#3b82f6] drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]">ADRESLERİM</span>
           </h1>
         </div>
 
@@ -148,7 +148,7 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
           {!showForm && (
             <button
               onClick={() => { setFormData(formBaslangic); setEditingId(null); setShowForm(true); }}
-              className="w-full sm:w-auto flex justify-center items-center gap-2 bg-[#3b82f6] text-black px-6 py-3 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_15px_rgba(0,210,255,0.2)]"
+             className="w-full sm:w-auto flex justify-center items-center gap-2 bg-[#3b82f6] text-white px-6 py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-all duration-300 hover:bg-[#1e40af] hover:shadow-[0_0_15px_rgba(59,130,246,0.3)]"
             >
               <Plus size={16} /> YENİ EKLE
             </button>
@@ -213,9 +213,13 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
             </div>
 
             <div className="md:col-span-2 flex justify-end mt-2">
-              <button type="submit" disabled={isSubmitting} className="bg-[#3b82f6] text-black px-8 py-3 rounded-xl font-black uppercase tracking-widest hover:bg-[#00c4db] transition-all disabled:opacity-50">
-                {isSubmitting ? "İŞLENİYOR..." : editingId ? "DEĞİŞİKLİKLERİ KAYDET" : "ADRESİ KAYDET"}
-              </button>
+             <button 
+          type="submit" 
+          disabled={isSubmitting} 
+          className="bg-[#3b82f6] text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest hover:bg-[#1e40af] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isSubmitting ? "İŞLENİYOR..." : editingId ? "DEĞİŞİKLİKLERİ KAYDET" : "ADRESİ KAYDET"}
+        </button>
             </div>
           </form>
         </div>
