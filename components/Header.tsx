@@ -392,29 +392,7 @@ export default function Header() {
                   !aramaYukleniyor && <div className="text-center py-10 text-gray-500">Aradığınız kriterde ürün bulunamadı.</div>
                 )}
                 
-                {canliSonuclar.length > 0 && (
-                  <div className="mt-4 px-2">
-                    {(akilliKategoriBul(aramaMetni) || akilliKategoriBul(canliSonuclar[0]?.isim)) ? (
-                      <Link 
-                        href={`/kategori/${(akilliKategoriBul(aramaMetni) || akilliKategoriBul(canliSonuclar[0]?.isim))?.slug}`} 
-                        onClick={() => setAramaAcik(false)} 
-                        className="w-full flex items-center justify-between px-6 py-4 bg-gradient-to-r from-[#00d2ff]/10 to-transparent hover:from-[#00d2ff]/20 border border-[#00d2ff]/20 hover:border-[#00d2ff]/50 rounded-2xl text-[#00d2ff] transition-all group shadow-[0_0_15px_rgba(0,210,255,0.05)] hover:shadow-[0_0_25px_rgba(0,210,255,0.15)]"
-                      >
-                        <span className="font-bold tracking-wide text-sm">
-                          Tüm {(akilliKategoriBul(aramaMetni) || akilliKategoriBul(canliSonuclar[0]?.isim))?.isim}
-                        </span>
-                        <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
-                      </Link>
-                    ) : (
-                      <button onClick={() => handleAramaSubmit()} className="w-full flex items-center justify-between px-6 py-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-2xl text-gray-300 hover:text-white transition-all group">
-                        <span className="font-bold tracking-wide text-sm">
-                          Tüm "{aramaMetni}" Sonuçları
-                        </span>
-                        <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
-                      </button>
-                    )}
-                  </div>
-                )}
+              
               </div>
             ) : (
               <div className="space-y-8 animate-in slide-in-from-bottom-2 duration-100">
