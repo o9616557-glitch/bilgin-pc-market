@@ -62,12 +62,7 @@ const menuCategories = [
   }
 ];
 
-// SADECE 2 ÜRÜN VE SLUG MANTIĞI
-const HIZLI_LINKLER = [
-  
-  { isim: "ASUS ROG Ryuo", slug: "asus-rog-ryuo-iv-360-argb-white-edition-beyaz-sivi-sogutucu" },
 
-];
 function akilliKategoriBul(metin: string) {
   if (!metin) return null;
   const k = metin.toLowerCase();
@@ -458,15 +453,16 @@ export default function Header() {
           <Flame className="w-4 h-4 text-[#00d2ff]" /> HIZLI ERİŞİM
         </h3>
         <div className="flex flex-wrap gap-2">
-          {HIZLI_LINKLER.map((item, index) => (
+          {populerUrunler.slice(0, 3).map((urun, index) => (
             <Link 
-              key={index} 
-             href={"/product/" + item.slug}
-              onClick={() => setAramaAcik(false)} 
+              key={urun._id || index} 
+              href={"/product/" + urun.slug}
+              prefetch={true}
+              onClick={() => setTimeout(() => setAramaAcik(false), 50)} 
               className="px-4 py-2 bg-white/5 border border-white/10 hover:border-[#00d2ff]/50 hover:bg-[#00d2ff]/10 text-gray-300 hover:text-white rounded-full text-sm transition-all shadow-[0_0_10px_rgba(0,0,0,0.5)] group"
             >
               <span className="text-[#00d2ff] group-hover:text-white transition-colors mr-1.5">⚡</span>
-              {item.isim}
+              {urun.isim}
             </Link>
           ))}
         </div>
