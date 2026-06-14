@@ -38,7 +38,7 @@ export default function MesafeliSatisSozlesmesiPage() {
               <div className="bg-slate-950/50 p-4 rounded-lg border border-slate-800/80">
                 <h3 className="text-cyan-400 font-bold mb-2 text-sm uppercase">1.1. Satıcı Bilgileri</h3>
                 <ul className="text-sm text-slate-400 space-y-2">
-                  <li><strong className="text-slate-300">Ünvanı:</strong> [Şirketinizin Vergi Levhasındaki Resmi Ünvanı]</li>
+                  <li><strong className="text-slate-300">Ünvanı:</strong> [ÖZKAN BİLGİN]</li>
                   <li><strong className="text-slate-300">Merkez:</strong> İstanbul</li>
                   <li className="text-xs text-slate-500 font-medium border-l-2 border-cyan-500/30 pl-3 py-0.5 my-2.5">
                     * Bilgin PC Market, tüm Türkiye'ye hizmet veren e-ticaret odaklı bir teknoloji tedarikçisidir. Açık depo ve merkez adresimiz, güvenlik protokolleri gereği yalnızca sipariş sonrası tarafınıza iletilen resmi e-fatura üzerinde yer almaktadır.
