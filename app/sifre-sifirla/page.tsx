@@ -75,13 +75,14 @@ export default function SifreSifirlaPage() {
             />
           </div>
 
-          <button 
-            type="submit" 
-            disabled={isLoading}
-            className="w-full bg-[#3b82f6] text-black rounded-xl py-3.5 font-black uppercase tracking-widest hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? "GÖNDERİLİYOR..." : "SIFIRLAMA LİNKİ GÖNDER"}
-          </button>
+        {/* 🚀 ŞİFRE SIFIRLAMA BUTONU (PREMIUM RENKLER VE YÜKLENİYOR MOTORU İLE) 🚀 */}
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full py-3.5 mt-2 bg-[#3b82f6] text-white text-sm font-black uppercase tracking-widest rounded-xl transition-all duration-300 hover:bg-[#1e40af] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isLoading ? "GÖNDERİLİYOR..." : "SIFIRLAMA LİNKİ GÖNDER"}
+        </button>
         </form>
 
       </div>
