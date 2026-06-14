@@ -372,7 +372,7 @@ export default function Header() {
               // ANA DÜZEN: Mobilde alt alta, PC'de yan yana (Sol: Kategoriler, Sağ: Ürünler)
               <div className="flex flex-col md:flex-row gap-6 md:gap-8 w-full items-start animate-in fade-in duration-300">
                 
-                {/* ⬅️ SOL SÜTUN: KATEGORİLER */}
+            {/* ⬅️ SOL SÜTUN: KATEGORİLER */}
                 <div className="w-full md:w-[280px] shrink-0">
                   <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-3 mb-4">
                     <Search className="w-3.5 h-3.5 text-[#00d2ff]" /> İLGİLİ KATEGORİLER
@@ -385,11 +385,21 @@ export default function Header() {
                           key={kat.slug} 
                           href={"/kategori/" + kat.slug} 
                           onClick={() => setAramaAcik(false)} 
-                          className="px-4 py-3.5 bg-white/[0.02] border border-white/5 hover:border-[#00d2ff]/30 hover:bg-[#00d2ff]/5 text-gray-300 hover:text-white rounded-xl transition-all duration-300 flex items-center gap-3 text-sm font-bold group"
+                          className="relative overflow-hidden px-4 py-3.5 bg-black/40 border border-white/5 hover:border-[#00d2ff]/40 hover:bg-[#00d2ff]/[0.02] text-gray-400 hover:text-white rounded-xl transition-all duration-300 flex items-center gap-4 text-sm font-bold group"
                         >
-                          <span className="text-[#00d2ff]/70 group-hover:text-[#00d2ff] transition-colors">📁</span>
-                          <span className="flex-1">{kat.name}</span>
-                          <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 text-[#00d2ff] transition-all duration-300" />
+                          {/* 1. Efekt: Üstüne gelince solda beliren mavi neon çizgi */}
+                          <div className="absolute left-0 top-2 bottom-2 w-1 rounded-r-md bg-gradient-to-b from-[#00d2ff] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          
+                          {/* 2. Efekt: Modern, parlayan çip/nokta tasarımı */}
+                          <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 group-hover:border-[#00d2ff]/30 group-hover:bg-[#00d2ff]/10 flex items-center justify-center shrink-0 transition-all duration-300">
+                            <div className="w-1.5 h-1.5 rounded-full bg-gray-500 group-hover:bg-[#00d2ff] group-hover:shadow-[0_0_10px_#00d2ff] transition-all duration-300"></div>
+                          </div>
+                          
+                          {/* Kategori Adı */}
+                          <span className="flex-1 tracking-wide transition-colors">{kat.name}</span>
+                          
+                          {/* 3. Efekt: Sağdan kayarak gelen şık ok işareti */}
+                          <ArrowRight className="w-4 h-4 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 text-[#00d2ff] transition-all duration-300" />
                         </Link>
                       ))}
                     </div>
@@ -399,7 +409,6 @@ export default function Header() {
                     </div>
                   )}
                 </div>
-
                 {/* ➡️ SAĞ SÜTUN: ÜRÜN SONUÇLARI */}
                 <div className="w-full flex-1 min-w-0">
                   <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-3 mb-4">
