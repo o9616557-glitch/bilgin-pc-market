@@ -91,7 +91,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-     {/* ==================== 1.5. GÜNÜN YILDIZLARI (VIP KARTLAR) ==================== */}
+    {/* ==================== 1.5. GÜNÜN YILDIZLARI (VIP KARTLAR) ==================== */}
       <section className="max-w-[1400px] mx-auto pt-12 pb-4 select-none touch-manipulation">
         <div className="flex items-center justify-between px-6 lg:px-8 mb-6 lg:mb-8 pointer-events-none">
           <div className="flex items-center gap-4">
@@ -124,15 +124,15 @@ export default async function HomePage() {
                     prefetch={true} 
                     className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-auto snap-center snap-always h-[400px] sm:h-[450px] bg-[#121212] rounded-3xl overflow-hidden border border-white/20 hover:border-[#00d2ff] transition-all duration-700 flex flex-col justify-end p-6 sm:p-8 shadow-[0_10px_30px_rgba(0,0,0,0.6)] hover:shadow-[0_0_40px_rgba(0,210,255,0.3)]"
                   >
-                    {/* Güneşte net okunması için çok daha koyu alt arka plan */}
+                    {/* Arka plan gradyanı */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/90 to-transparent z-10 pointer-events-none"></div>
                     
-                    {/* VIP Rozeti - Güneşte parlasın diye belirginleştirildi */}
-                    <div className="absolute top-6 left-6 z-20 bg-[#00d2ff] text-black text-[10px] sm:text-xs font-black px-4 py-2 rounded-full uppercase tracking-widest shadow-[0_0_20px_rgba(0,210,255,0.8)] pointer-events-none border border-white/40">
+                    {/* 🎯 VIP Rozeti - Şefin İsteği Üzerine Parlaması Azaltıldı 🎯 */}
+                    <div className="absolute top-6 left-6 z-20 bg-[#00a3c7] text-black text-[10px] sm:text-xs font-black px-4 py-2 rounded-full uppercase tracking-widest pointer-events-none border border-zinc-700 shadow-md">
                       Premium Seçim
                     </div>
 
-                    {/* Dev Ürün Resmi - Parlaklığı artırıldı */}
+                    {/* Dev Ürün Resmi */}
                     <div className="absolute inset-0 flex items-center justify-center p-12 z-0 pointer-events-none bg-white/5">
                       {vitrinResmi ? (
                         <img 
@@ -145,7 +145,7 @@ export default async function HomePage() {
                       )}
                     </div>
 
-                    {/* Alt Bilgiler ve Neon Fiyat - Metin gölgeleri artırıldı */}
+                    {/* Alt Bilgiler ve Neon Fiyat */}
                     <div className="relative z-20 transform group-hover:-translate-y-2 transition-transform duration-700 pointer-events-none">
                       <div className="text-gray-300 text-[10px] sm:text-xs font-black tracking-[0.2em] uppercase mb-2 drop-shadow-md">{urun.marka || "BİLGİN PC"}</div>
                       <h3 className="text-white text-lg sm:text-xl font-bold leading-snug line-clamp-2 mb-4 group-hover:text-[#00d2ff] transition-colors duration-700 drop-shadow-lg">{urun.isim || urun.name}</h3>
@@ -153,7 +153,6 @@ export default async function HomePage() {
                       <div className="flex items-center justify-between mt-auto border-t border-white/20 pt-4">
                         <span className="text-2xl sm:text-3xl font-black text-white drop-shadow-md">{gecerliFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">₺</span></span>
                         
-                        {/* Güneşte dikkat çekmesi için beyaz ikon */}
                         <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center group-hover:bg-[#00d2ff] text-black transition-colors duration-700 shadow-[0_0_15px_rgba(255,255,255,0.5)] pointer-events-auto">
                           <ArrowRight className="w-5 h-5" />
                         </div>
@@ -165,7 +164,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
       {/* ==================== 2. NEDEN BİZ? ==================== */}
       <section className="max-w-[1400px] mx-auto pt-8 pb-4 select-none touch-manipulation">
         <div className="flex items-center justify-between px-6 lg:px-8 mb-6 pointer-events-none">
