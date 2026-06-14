@@ -91,21 +91,21 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ==================== 1.5. GÜNÜN YILDIZLARI (VIP KARTLAR) ==================== */}
+     {/* ==================== 1.5. GÜNÜN YILDIZLARI (VIP KARTLAR) ==================== */}
       <section className="max-w-[1400px] mx-auto pt-12 pb-4 select-none touch-manipulation">
-        <div className="flex items-center justify-between px-6 lg:px-8 mb-8 pointer-events-none">
+        <div className="flex items-center justify-between px-6 lg:px-8 mb-6 lg:mb-8 pointer-events-none">
           <div className="flex items-center gap-4">
             <div className="w-1.5 h-8 bg-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.5)]"></div>
-            <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-white">
+            <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-white drop-shadow-lg">
               Günün <span className="text-[#00d2ff]">Yıldızları</span>
             </h2>
           </div>
         </div>
 
-        <div className="px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="w-full">
+          {/* 🔥 MOBİLDE YANA KAYAR, BİLGİSAYARDA YAN YANA 3'LÜ DURUR 🔥 */}
+          <div className="flex flex-nowrap overflow-x-auto snap-x snap-mandatory lg:grid lg:grid-cols-3 gap-4 lg:gap-6 pb-8 px-[7.5vw] lg:px-8 scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             
-            {/* 🔥 ŞEFİN MERMİ GİBİ MOTORU: Zaten çekilen ürünlerden en pahalı/premium 3 tanesini otomatik ayıklar! 🔥 */}
             {[...urunler]
               .sort((a, b) => {
                  const aFiyat = Number(a.fiyat || a.price || a.regular_price || 0);
@@ -122,37 +122,39 @@ export default async function HomePage() {
                     href={"/product/" + (urun.slug || urun._id)} 
                     key={urun._id.toString()} 
                     prefetch={true} 
-                    className="group relative w-full h-[400px] sm:h-[450px] bg-[#09090b] rounded-3xl overflow-hidden border border-white/5 hover:border-[#00d2ff]/50 transition-all duration-700 flex flex-col justify-end p-6 sm:p-8 shadow-2xl hover:shadow-[0_0_40px_rgba(0,210,255,0.15)]"
+                    className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-auto snap-center snap-always h-[400px] sm:h-[450px] bg-[#121212] rounded-3xl overflow-hidden border border-white/20 hover:border-[#00d2ff] transition-all duration-700 flex flex-col justify-end p-6 sm:p-8 shadow-[0_10px_30px_rgba(0,0,0,0.6)] hover:shadow-[0_0_40px_rgba(0,210,255,0.3)]"
                   >
-                    {/* Arka Plan Glow (Parlama) Efekti */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent z-10 pointer-events-none"></div>
+                    {/* Güneşte net okunması için çok daha koyu alt arka plan */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/90 to-transparent z-10 pointer-events-none"></div>
                     
-                    {/* VIP Rozeti */}
-                    <div className="absolute top-6 left-6 z-20 bg-gradient-to-r from-[#00d2ff] to-blue-600 text-black text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-[0_0_15px_rgba(0,210,255,0.5)] pointer-events-none">
+                    {/* VIP Rozeti - Güneşte parlasın diye belirginleştirildi */}
+                    <div className="absolute top-6 left-6 z-20 bg-[#00d2ff] text-black text-[10px] sm:text-xs font-black px-4 py-2 rounded-full uppercase tracking-widest shadow-[0_0_20px_rgba(0,210,255,0.8)] pointer-events-none border border-white/40">
                       Premium Seçim
                     </div>
 
-                    {/* Dev Ürün Resmi */}
-                    <div className="absolute inset-0 flex items-center justify-center p-12 z-0 pointer-events-none">
+                    {/* Dev Ürün Resmi - Parlaklığı artırıldı */}
+                    <div className="absolute inset-0 flex items-center justify-center p-12 z-0 pointer-events-none bg-white/5">
                       {vitrinResmi ? (
                         <img 
                           src={vitrinResmi} 
                           alt={urun.isim || "Ürün"} 
-                          className="w-full h-full object-contain filter drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] group-hover:scale-110 transition-transform duration-1000 ease-out" 
+                          className="w-full h-full object-contain filter drop-shadow-[0_20px_20px_rgba(0,0,0,1)] group-hover:scale-110 transition-transform duration-1000 ease-out brightness-110" 
                         />
                       ) : (
                         <Cpu className="w-20 h-20 text-white/10" />
                       )}
                     </div>
 
-                    {/* Alt Bilgiler ve Neon Fiyat */}
+                    {/* Alt Bilgiler ve Neon Fiyat - Metin gölgeleri artırıldı */}
                     <div className="relative z-20 transform group-hover:-translate-y-2 transition-transform duration-700 pointer-events-none">
-                      <div className="text-gray-500 text-[10px] sm:text-xs font-black tracking-[0.2em] uppercase mb-2">{urun.marka || "BİLGİN PC"}</div>
-                      <h3 className="text-white text-lg sm:text-xl font-bold leading-snug line-clamp-2 mb-4 group-hover:text-[#00d2ff] transition-colors duration-700">{urun.isim || urun.name}</h3>
+                      <div className="text-gray-300 text-[10px] sm:text-xs font-black tracking-[0.2em] uppercase mb-2 drop-shadow-md">{urun.marka || "BİLGİN PC"}</div>
+                      <h3 className="text-white text-lg sm:text-xl font-bold leading-snug line-clamp-2 mb-4 group-hover:text-[#00d2ff] transition-colors duration-700 drop-shadow-lg">{urun.isim || urun.name}</h3>
                       
-                      <div className="flex items-center justify-between mt-auto border-t border-white/10 pt-4">
-                        <span className="text-2xl sm:text-3xl font-black text-white">{gecerliFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">₺</span></span>
-                        <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-[#00d2ff] group-hover:text-black transition-colors duration-700 shadow-lg pointer-events-auto">
+                      <div className="flex items-center justify-between mt-auto border-t border-white/20 pt-4">
+                        <span className="text-2xl sm:text-3xl font-black text-white drop-shadow-md">{gecerliFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">₺</span></span>
+                        
+                        {/* Güneşte dikkat çekmesi için beyaz ikon */}
+                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center group-hover:bg-[#00d2ff] text-black transition-colors duration-700 shadow-[0_0_15px_rgba(255,255,255,0.5)] pointer-events-auto">
                           <ArrowRight className="w-5 h-5" />
                         </div>
                       </div>
