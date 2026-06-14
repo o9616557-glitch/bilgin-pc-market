@@ -276,8 +276,8 @@ export default function Header() {
                       </>
                     ) : (
                       <>
-                        <Link href="/giris" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center justify-center gap-2 px-3 py-2 text-black bg-[#00d2ff] hover:bg-[#00c4db] rounded-xl text-sm font-bold transition-colors">🔑 Giriş Yap</Link>
-                        <Link href="/kayit" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center justify-center gap-2 px-3 py-2 text-gray-300 hover:text-white hover:bg-white/5 border border-white/5 rounded-xl text-sm font-bold transition-colors">📝 Yeni Kayıt</Link>
+                      <Link href="/giris" onClick={() => setHesabimAcik(false)} className="flex items-center justify-center gap-2 px-3 py-2 text-white bg-[#3b82f6] hover:bg-[#1e40af] rounded-xl text-sm font-bold transition-all duration-300 shadow-md hover:shadow-[0_0_15px_rgba(59,130,246,0.3)]">🔑 Giriş Yap</Link>
+<Link href="/kayit" onClick={() => setHesabimAcik(false)} className="flex items-center justify-center gap-2 px-3 py-2 text-gray-300 hover:text-white hover:bg-white/10 border border-white/10 rounded-xl text-sm font-bold transition-all duration-300">📝 Yeni Kayıt</Link>
                       </>
                     )}
                   </div>
