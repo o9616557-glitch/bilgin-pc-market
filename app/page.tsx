@@ -342,7 +342,7 @@ export default async function HomePage() {
                 <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-700 ease-out"></div>
               </div>
             </Link>
-            <Link href="/kategori/islemciler" className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
+           <Link href="/kategori/islemci" prefetch={true} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
               <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781456013/photo-1591799264318-7e6ef8ddb7ea_uxzawq.jpg" alt="Güncel Donanım İşlemcisi" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-1000 ease-out grayscale group-hover:grayscale-0 pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent pointer-events-none"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-700 ease-out pointer-events-none">
@@ -350,7 +350,7 @@ export default async function HomePage() {
                 <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-700 ease-out"></div>
               </div>
             </Link>
-            <Link href="/kategori/anakartlar" className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
+           <Link href="/kategori/anakart" prefetch={true} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
               <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781454483/photo-1518770660439-4636190af475_cicwu0.jpg" alt="Donanım Temeli Anakart" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-1000 ease-out grayscale group-hover:grayscale-0 pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent pointer-events-none"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-700 ease-out pointer-events-none">
@@ -358,7 +358,7 @@ export default async function HomePage() {
                 <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-700 ease-out"></div>
               </div>
             </Link>
-            <Link href="/kategori/sivi-sogutma" className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
+           <Link href="/kategori/sogutma" prefetch={true} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
               <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781454481/photo-1587202372634-32705e3bf49c_mrqkiv.jpg" alt="RGB Fanlı Sıvı Soğutma" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-1000 ease-out grayscale group-hover:grayscale-0 pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent pointer-events-none"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-700 ease-out pointer-events-none">
@@ -366,8 +366,9 @@ export default async function HomePage() {
                 <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-700 ease-out"></div>
               </div>
             </Link>
-            <Link href="/kategori/profesyonel-monitor" className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
-           <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781457384/2025941420-00UIEZ-1_ujpjre.webp" alt="Kavisli Oyuncu Monitörü" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-1000 ease-out grayscale group-hover:grayscale-0 pointer-events-none" />
+          <Link href="/kategori/monitor" prefetch={true} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
+              <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781457384/2025941420-00UIEZ-1_ujpjre.webp" alt="Kavisli Oyuncu Monitörü" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-1000 ease-out grayscale group-hover:grayscale-0 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent pointer-events-none"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-700 ease-out pointer-events-none">
                 <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors duration-700 drop-shadow-md">Prof. Monitörler</h3>
                 <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-700 ease-out"></div>
