@@ -82,7 +82,7 @@ export default async function HomePage() {
                 
                 {/* 🎯 Etiket (Hoverda Maviye Döner) */}
                 <div className="absolute -top-[1px] -right-[1px] bg-white text-black text-[10px] font-black px-4 py-2 rounded-none uppercase tracking-widest z-20 group-hover:bg-[#00d2ff] transition-colors duration-500 shadow-lg">
-                  Öne Çıkanlar
+                  Ekran Kartları
                 </div>
                 
                 <div className="w-full h-[350px] bg-black/60 rounded-none border border-white/5 flex items-center justify-center overflow-hidden relative p-8">
