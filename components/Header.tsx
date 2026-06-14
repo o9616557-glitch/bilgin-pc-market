@@ -67,10 +67,10 @@ const HIZLI_LINKLER = [
   { isim: "ASUS ROG Ryuo", slug: "asus-rog-ryuo-iv-360-argb-white-edition-beyaz-sivi-sogutucu" },
   { isim: "TUF 5070", slug: "asus-tuf-gaming-geforce-rtx-5070-12gb-gddr7-oc" }
 ];
-const akilliKategoriBul = (metin: string) => {
+function akilliKategoriBul(metin: string) {
   if (!metin) return null;
   const k = metin.toLowerCase();
-  
+
   if (k.includes("topla") || k.includes("kendin") || k.includes("sihirbaz")) return { isim: "Kendin Topla", slug: "kendin-topla" };
   if (k.includes("ekran") || k.includes("rtx") || k.includes("gtx") || k.includes("rx ") || k.includes("4070") || k.includes("4080") || k.includes("4090") || k.includes("5070") || k.includes("5080") || k.includes("5090") || k.includes("vga")) return { isim: "Ekran Kartları", slug: "ekran-karti" };
   if (k.includes("işlemci") || k.includes("islemci") || k.includes("intel") || k.includes("ryzen") || k.includes("cpu")) return { isim: "İşlemciler", slug: "islemci" };
@@ -79,9 +79,9 @@ const akilliKategoriBul = (metin: string) => {
   if (k.includes("kasa") || k.includes("kabin")) return { isim: "Kasalar", slug: "kasa" };
   if (k.includes("ram") || k.includes("bellek") || k.includes("ddr")) return { isim: "RAM Bellekler", slug: "ram" };
   if (k.includes("monitör") || k.includes("monitor") || k.includes("ekran")) return { isim: "Monitörler", slug: "monitor" };
-  
+
   return null;
-};
+}
 
 export default function Header() {
   const pathname = usePathname();
