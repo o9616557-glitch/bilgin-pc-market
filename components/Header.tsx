@@ -402,11 +402,7 @@ export default function Header() {
                         </Link>
                       ))}
                     </div>
-                  ) : (
-                    <div className="text-gray-500 text-xs font-medium py-4 px-2 bg-white/[0.01] rounded-xl border border-dashed border-white/5 text-center">
-                      İlgili kategori bulunamadı.
-                    </div>
-                  )}
+                 ) : null}
                 </div>
                 {/* ➡️ SAĞ SÜTUN: ÜRÜN SONUÇLARI */}
                 <div className="w-full flex-1 min-w-0">
