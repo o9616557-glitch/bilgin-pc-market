@@ -1,6 +1,7 @@
 import clientPromise from "@/lib/mongodb";
 import Link from "next/link";
 import { Cpu, Crosshair, Sparkles, Star, ShieldCheck, Zap, ArrowRight } from "lucide-react";
+import OkluSlider from "@/components/OkluSlider"; // 🔥 ŞEFİN YENİ OK SİSTEMİ EKLENDİ!
 
 // 🚀 HIZLANDIRMA AYARI: Ana sayfayı 60 saniyede bir günceller, sürekli veritabanını yormaz
 export const revalidate = 60; 
@@ -107,10 +108,8 @@ export default async function HomePage() {
           </div>
         </div>
         <div className="w-full">
-          {/* 🚀 SNAP-MANDATORY AYARLANDI 🚀 */}
-          <div className="flex flex-nowrap overflow-x-auto snap-x snap-mandatory gap-4 pb-4 px-[7.5vw] sm:px-[10vw] lg:px-8 scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#00d2ff] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
-            
-            {/* 🚀 SNAP-ALWAYS EKLENDİ (KESİN TEK TEK ATLAR) 🚀 */}
+          {/* 🔥 OKLU SLIDER BURADA BAŞLIYOR 🔥 */}
+          <OkluSlider>
             <div className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#10b981] transition-colors duration-700 ease-out">
               <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781456009/depositphotos_76643017-stock-photo-illustration-of-great-sales-and_qvv12v.webp" alt="Havale İndirimi" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-60 transition-all duration-1000 ease-out pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent pointer-events-none"></div>
@@ -154,7 +153,7 @@ export default async function HomePage() {
                 <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity duration-700">Mağazamızdaki tüm ürünler Türkiye resmi distribütör garantilidir. İkinci el veya kutusuz ürün satışımız yoktur.</p>
               </div>
             </div>
-          </div>
+          </OkluSlider>
         </div>
       </section>
 
@@ -174,7 +173,8 @@ export default async function HomePage() {
         </div>
 
         <div className="w-full">
-          <div className="flex flex-nowrap overflow-x-auto snap-x snap-mandatory gap-4 pb-8 px-[7.5vw] sm:px-[10vw] lg:px-8 scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#00d2ff] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
+          {/* 🔥 OKLU SLIDER BURADA DA BAŞLIYOR 🔥 */}
+          <OkluSlider>
             {urunler.length > 0 ? (
               urunler.map((urun: any) => {
                 const vitrinResmi = urun.resimler && urun.resimler.length > 0 ? urun.resimler[0] : urun.resim;
@@ -196,7 +196,6 @@ export default async function HomePage() {
                 }
 
                 return (
-                  /* 🚀 SNAP-ALWAYS BURADA DA EKLİ 🚀 */
                   <div key={urun._id.toString()} className="group relative flex-none snap-center snap-always lg:snap-start flex flex-col w-[85vw] sm:w-[320px] lg:w-[calc(25%-0.75rem)] flex-shrink-0 bg-[#09090b] rounded-2xl overflow-hidden border border-white/5 transition-all duration-700 ease-out hover:border-[#00d2ff]/40 hover:shadow-[0_0_30px_rgba(0,210,255,0.15)]">
                     
                     <div className="relative aspect-[4/3] w-full bg-gradient-to-b from-white/5 to-transparent flex items-center justify-center p-6 overflow-hidden pointer-events-none">
@@ -286,12 +285,12 @@ export default async function HomePage() {
                 )
               })
             ) : ( 
-              <div className="col-span-full w-full py-24 sm:py-32 flex flex-col items-center justify-center border border-dashed border-white/10 rounded-none bg-black/40 backdrop-blur-xl">
+              <div className="w-full flex-none py-24 sm:py-32 flex flex-col items-center justify-center border border-dashed border-white/10 rounded-none bg-black/40 backdrop-blur-xl">
                 <Cpu className="w-10 h-10 text-white/50 mb-4" />
                 <h3 className="text-xl font-black text-gray-400 uppercase tracking-widest">Katalog Güncelleniyor</h3>
               </div> 
             )}
-          </div>
+          </OkluSlider>
         </div>
       </div>
 
@@ -331,10 +330,9 @@ export default async function HomePage() {
           </h2>
         </div>
         <div className="w-full">
-          <div className="flex flex-nowrap overflow-x-auto snap-x snap-mandatory gap-4 pb-4 px-[7.5vw] sm:px-[10vw] lg:px-8 scroll-smooth max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:[&::-webkit-scrollbar]:h-2.5 lg:[&::-webkit-scrollbar-track]:bg-[#050505] lg:[&::-webkit-scrollbar-track]:border lg:[&::-webkit-scrollbar-track]:border-white/10 lg:[&::-webkit-scrollbar-thumb]:bg-white/20 hover:lg:[&::-webkit-scrollbar-thumb]:bg-[#00d2ff] lg:[&::-webkit-scrollbar-thumb]:rounded-none">
-            
-            {/* 🚀 SNAP-ALWAYS BURADA DA EKLİ 🚀 */}
-           <Link href="/kategori/ekran-karti" prefetch={true} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
+          {/* 🔥 OKLU SLIDER BURADA DA BAŞLIYOR 🔥 */}
+          <OkluSlider>
+            <Link href="/kategori/ekran-karti" prefetch={true} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
               <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781456502/5789-amdnin-cine-ozel-ekran-karti-dunyaya-aciliyor_hdqtwp.webp" alt="Yüksek Performanslı Ekran Kartı" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-1000 ease-out grayscale group-hover:grayscale-0 pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent pointer-events-none"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-700 ease-out pointer-events-none">
@@ -342,7 +340,7 @@ export default async function HomePage() {
                 <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-700 ease-out"></div>
               </div>
             </Link>
-           <Link href="/kategori/islemci" prefetch={true} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
+            <Link href="/kategori/islemci" prefetch={true} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
               <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781456013/photo-1591799264318-7e6ef8ddb7ea_uxzawq.jpg" alt="Güncel Donanım İşlemcisi" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-1000 ease-out grayscale group-hover:grayscale-0 pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent pointer-events-none"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-700 ease-out pointer-events-none">
@@ -350,7 +348,7 @@ export default async function HomePage() {
                 <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-700 ease-out"></div>
               </div>
             </Link>
-           <Link href="/kategori/anakart" prefetch={true} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
+            <Link href="/kategori/anakart" prefetch={true} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
               <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781454483/photo-1518770660439-4636190af475_cicwu0.jpg" alt="Donanım Temeli Anakart" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-1000 ease-out grayscale group-hover:grayscale-0 pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent pointer-events-none"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-700 ease-out pointer-events-none">
@@ -358,7 +356,7 @@ export default async function HomePage() {
                 <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-700 ease-out"></div>
               </div>
             </Link>
-           <Link href="/kategori/sogutma" prefetch={true} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
+            <Link href="/kategori/sogutma" prefetch={true} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
               <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781454481/photo-1587202372634-32705e3bf49c_mrqkiv.jpg" alt="RGB Fanlı Sıvı Soğutma" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-1000 ease-out grayscale group-hover:grayscale-0 pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent pointer-events-none"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-700 ease-out pointer-events-none">
@@ -366,7 +364,7 @@ export default async function HomePage() {
                 <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-700 ease-out"></div>
               </div>
             </Link>
-          <Link href="/kategori/monitor" prefetch={true} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
+            <Link href="/kategori/monitor" prefetch={true} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
               <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781457384/2025941420-00UIEZ-1_ujpjre.webp" alt="Kavisli Oyuncu Monitörü" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-1000 ease-out grayscale group-hover:grayscale-0 pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent pointer-events-none"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-700 ease-out pointer-events-none">
@@ -374,7 +372,7 @@ export default async function HomePage() {
                 <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-700 ease-out"></div>
               </div>
             </Link>
-          </div>
+          </OkluSlider>
         </div>
       </section>
 
@@ -393,7 +391,7 @@ export default async function HomePage() {
             <Zap className="w-6 h-6 text-[#00d2ff]" />
             <div className="w-12 h-[1px] bg-gradient-to-l from-transparent to-[#00d2ff]"></div>
           </div>
-          <h2 className="text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter text-white mb-6 leading-[0.9]">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tighter text-white mb-6 leading-[0.9]">
             Güvenilir Donanım, <br/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-[#00d2ff] to-[#00d2ff]">Samimi Hizmet.</span>
           </h2>
