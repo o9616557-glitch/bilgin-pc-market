@@ -100,7 +100,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-    {/* ==================== 1.5. GÜNÜN YILDIZLARI (VIP KARTLAR) ==================== */}
+    {/* ======={/* ==================== 1.5. GÜNÜN YILDIZLARI (VIP KARTLAR) ==================== */}
       <section className="max-w-[1400px] mx-auto pt-12 pb-4 select-none touch-manipulation">
         <div className="flex items-center justify-between px-6 lg:px-8 mb-6 lg:mb-8 pointer-events-none">
           <div className="flex items-center gap-4">
@@ -131,12 +131,12 @@ export default async function HomePage() {
                     href={"/product/" + (urun.slug || urun._id)} 
                     key={urun._id.toString()} 
                     prefetch={true} 
-                    className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-auto snap-center snap-always h-[400px] sm:h-[450px] bg-[#121212] rounded-3xl overflow-hidden border border-white/20 hover:border-[#00d2ff] transition-all duration-700 flex flex-col justify-end p-6 sm:p-8 shadow-[0_10px_30px_rgba(0,0,0,0.6)] hover:shadow-[0_0_40px_rgba(0,210,255,0.3)]"
+                    className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-auto snap-center snap-always h-[400px] sm:h-[450px] bg-[#121212] rounded-3xl overflow-hidden border border-white/20 hover:border-[#00d2ff] transition-all duration-700 flex flex-col justify-end p-6 sm:p-8 shadow-[0_10px_30px_rgba(0,0,0,0.6)] hover:shadow-[0_0_20px_rgba(0,210,255,0.3)]"
                   >
-                    {/* Arka plan gradyanı */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/90 to-transparent z-10 pointer-events-none"></div>
+                    {/* Arka plan gradyanı - Şefin talimatıyla yarıya indirildi */}
+                    <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-[#09090b] via-[#09090b]/90 to-transparent z-10 pointer-events-none"></div>
                     
-                    {/* 🎯 VIP Rozeti - Şefin İsteği Üzerine Parlaması Azaltıldı 🎯 */}
+                    {/* 🎯 VIP Rozeti */}
                     <div className="absolute top-6 left-6 z-20 bg-[#00a3c7] text-black text-[10px] sm:text-xs font-black px-4 py-2 rounded-full uppercase tracking-widest pointer-events-none border border-zinc-700 shadow-md">
                       Premium Seçim
                     </div>
