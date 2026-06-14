@@ -105,7 +105,14 @@ export default function Header() {
   const sepetAdedi = sepet.reduce((toplam: number, urun: any) => toplam + (urun.adet || 1), 0);
   const { data: session } = useSession();
   const isAdmin = session?.user?.email?.toLowerCase() === "o9616557@gmail.com";
-
+// 🔥 KATEGORİ BULUCU MOTOR 🔥
+  const aramaMetniTemiz = aramaMetni.toLowerCase().trim();
+  const bulunanKategoriler = aramaMetniTemiz.length > 1 
+    ? menuCategories.flatMap(kat => kat.items).filter(item => 
+        item.name.toLowerCase().includes(aramaMetniTemiz) || 
+        item.slug.toLowerCase().includes(aramaMetniTemiz)
+      )
+    : [];
   useEffect(() => {
     const kayitliAramalar = localStorage.getItem("sonAramalar");
     if (kayitliAramalar) setSonAramalar(JSON.parse(kayitliAramalar));
@@ -361,38 +368,75 @@ export default function Header() {
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 md:p-8 max-w-4xl mx-auto w-full pb-32">
-            {aramaMetni.length > 0 ? (
-              <div className="space-y-4">
-                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                  {aramaYukleniyor ? <Loader2 className="w-4 h-4 animate-spin text-[#00d2ff]" /> : <Search className="w-4 h-4" />}
-                  ARAMA SONUÇLARI
-                </h3>
+         {aramaMetni.length > 0 ? (
+              // ANA DÜZEN: Mobilde alt alta, PC'de yan yana (Sol: Kategoriler, Sağ: Ürünler)
+              <div className="flex flex-col md:flex-row gap-6 md:gap-8 w-full items-start animate-in fade-in duration-300">
                 
-                {canliSonuclar.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {canliSonuclar.map((urun) => (
-                      <Link 
-                        key={urun._id} 
-                        href={"/product/" + urun.slug} 
-                        prefetch={true} 
-                        onClick={() => setAramaAcik(false)} 
-                        className="flex items-center gap-4 p-4 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-[#00d2ff]/30 rounded-2xl transition-all group"
-                      >
-                        <div className="w-16 h-16 bg-black/50 rounded-xl p-2 flex shrink-0 items-center justify-center">
-                          <img src={urun.resim} alt={urun.isim} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform" />
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-sm font-medium text-white line-clamp-2 leading-snug mb-1">{urun.isim}</span>
-                          <span className="text-lg font-black text-[#00d2ff]">{Number(urun.fiyat).toLocaleString("tr-TR")} ₺</span>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                ) : (
-                  !aramaYukleniyor && <div className="text-center py-10 text-gray-500">Aradığınız kriterde ürün bulunamadı.</div>
-                )}
-                
-              
+                {/* ⬅️ SOL SÜTUN: KATEGORİLER */}
+                <div className="w-full md:w-[280px] shrink-0">
+                  <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-3 mb-4">
+                    <Search className="w-3.5 h-3.5 text-[#00d2ff]" /> İLGİLİ KATEGORİLER
+                  </h3>
+                  
+                  {bulunanKategoriler.length > 0 ? (
+                    <div className="flex flex-col gap-2">
+                      {bulunanKategoriler.map((kat) => (
+                        <Link 
+                          key={kat.slug} 
+                          href={"/kategori/" + kat.slug} 
+                          onClick={() => setAramaAcik(false)} 
+                          className="px-4 py-3.5 bg-white/[0.02] border border-white/5 hover:border-[#00d2ff]/30 hover:bg-[#00d2ff]/5 text-gray-300 hover:text-white rounded-xl transition-all duration-300 flex items-center gap-3 text-sm font-bold group"
+                        >
+                          <span className="text-[#00d2ff]/70 group-hover:text-[#00d2ff] transition-colors">📁</span>
+                          <span className="flex-1">{kat.name}</span>
+                          <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 text-[#00d2ff] transition-all duration-300" />
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-gray-500 text-xs font-medium py-4 px-2 bg-white/[0.01] rounded-xl border border-dashed border-white/5 text-center">
+                      İlgili kategori bulunamadı.
+                    </div>
+                  )}
+                </div>
+
+                {/* ➡️ SAĞ SÜTUN: ÜRÜN SONUÇLARI */}
+                <div className="w-full flex-1 min-w-0">
+                  <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-3 mb-4">
+                    {aramaYukleniyor ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#00d2ff]" /> : <Search className="w-3.5 h-3.5" />}
+                    ÜRÜN SONUÇLARI
+                  </h3>
+                  
+                  {canliSonuclar.length > 0 ? (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                      {canliSonuclar.map((urun) => (
+                        <Link 
+                          key={urun._id} 
+                          href={"/product/" + urun.slug} 
+                          prefetch={true} 
+                          onClick={() => setAramaAcik(false)} 
+                          className="flex items-center gap-4 p-4 bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-[#00d2ff]/30 rounded-2xl transition-all group"
+                        >
+                          <div className="w-16 h-16 bg-black/50 rounded-xl p-2 flex shrink-0 items-center justify-center">
+                            <img src={urun.resim} alt={urun.isim} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform" />
+                          </div>
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-sm font-medium text-white line-clamp-2 leading-snug mb-1">{urun.isim}</span>
+                            <span className="text-lg font-black text-[#00d2ff]">{Number(urun.fiyat).toLocaleString("tr-TR")} ₺</span>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    !aramaYukleniyor && (
+                      <div className="text-center py-16 flex flex-col items-center justify-center bg-white/[0.01] rounded-2xl border border-dashed border-white/5">
+                        <span className="text-4xl mb-3 opacity-20">🔍</span>
+                        <span className="text-gray-500 font-medium text-sm">Aradığınız kriterde ürün bulunamadı.</span>
+                      </div>
+                    )
+                  )}
+                </div>
+
               </div>
             ) : (
               <div className="space-y-8 animate-in slide-in-from-bottom-2 duration-100">
