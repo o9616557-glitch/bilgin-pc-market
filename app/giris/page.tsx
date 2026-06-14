@@ -66,25 +66,23 @@ export default function GirisPage() {
           <p className="text-slate-400 text-sm mb-8 font-medium">
             Güvenli alışveriş ve sipariş takibi için hesabınıza giriş yapın.Eger hesabınız yoksa hızlıca kayıt olabilirsiniz.
           </p>
-        {/* SOSYAL MEDYA BUTONLARI */}
-        <div className="flex gap-3 mb-6">
-          <button 
-            type="button" 
-            onClick={() => signIn('google', { callbackUrl: '/' })} 
-            className="flex-1 hover:bg-white/10 border border-white/10 py-3 rounded-xl flex items-center justify-center gap-2 transition-all group"
-          >
-            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1 2.53-2 3.46v2.87h3.18c1.86-1.71 2.94-4.23 2.94-7.34z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.18-2.87c-.98.66-2.23 1.05-4.1 1.05-3.16 0-5.84-2.14-6.8-5.01H1.93v2.92C3.76 20.08 7.55 23 12 23z" fill="#34A853"/><path d="M5.2 13.51c-.24-.71-.38-1.47-.38-2.26s.14-1.55.38-2.26V6.07H1.93C1.34 7.25 1 8.58 1 10s.34 2.75.93 3.93l3.27-2.42z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.55 1 3.76 3.92 1.93 7.5l3.27 2.42c.96-2.87 3.64-5.01 6.8-5.01z" fill="#EA4335"/></svg>
-            <span className="text-sm font-bold text-white">Google</span>
-          </button>
-          <button 
-            type="button" 
-            onClick={() => signIn('facebook', { callbackUrl: '/' })} 
-            className="flex-1 hover:bg-white/10 border border-white/10 py-3 rounded-xl flex items-center justify-center gap-2 transition-all group text-[#1877F2]"
-          >
-            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-            <span className="text-sm font-bold text-white">Facebook</span>
-          </button>
-        </div>
+       {/* SOSYAL MEDYA BUTONU - SADECE GOOGLE */}
+    <div className="w-full mb-6">
+      <button
+        type="button"
+        onClick={() => signIn('google', { callbackUrl: '/' })}
+        className="w-full hover:bg-white/5 border border-white/10 py-3.5 rounded-xl flex items-center justify-center gap-3 transition-all group shadow-md hover:shadow-white/5 hover:border-white/30"
+      >
+        {/* Google İkonu (Tam Boyutlu, Efsane SVG) */}
+        <svg className="w-5 h-5 group-hover:scale-110 transition-transform text-white" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+        </svg>
+        <span className="text-sm font-bold text-white tracking-wide">Google ile Giriş Yap</span>
+      </button>
+    </div>
 
         <div className="flex items-center gap-4 mb-6">
           <div className="h-px bg-white/10 flex-1"></div>
