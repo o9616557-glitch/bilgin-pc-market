@@ -1,10 +1,20 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
-// 🔥 ŞEFİN TÜRKÇE ÇEVİRMENİ 🔥
+// 🔥 ŞEFİN TÜRKÇE VE BOŞLUK ÇEVİRMENİ 🔥
 function guvenliRegex(metin: string) {
   if (!metin) return "";
-  let temiz = metin.replace(/[-[\]{}()*+?.,\\^$|#]/g, '\\$&');
+  
+  // 1. Önce her harfin arasına gizli bir işaret koyuyoruz (örn: %%%)
+  let aralikli = metin.split('').join('%%%');
+  
+  // 2. Özel karakterleri (artı, nokta vs.) sistemi bozmasın diye kaçırıyoruz
+  let temiz = aralikli.replace(/[-[\]{}()*+?.,\\^$|#]/g, '\\$&');
+  
+  // 3. O gizli işaretleri "\s*" (burada boşluk olabilir de olmayabilir de) koduna çeviriyoruz
+  temiz = temiz.split('%%%').join('\\s*');
+  
+  // 4. Şefin meşhur Türkçe karakter neşteri!
   return temiz
     .replace(/[iİıI]/g, "[iİıI]")
     .replace(/[gĞğG]/g, "[gĞğG]")
