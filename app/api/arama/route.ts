@@ -1,20 +1,16 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
-
-// 🔥 ŞEFİN TÜRKÇE VE BOŞLUK ÇEVİRMENİ 🔥
+// 🔥 ŞEFİN TÜRKÇE VE BOŞLUK ÇEVİRMENİ (HATASIZ SÜRÜM) 🔥
 function guvenliRegex(metin: string) {
   if (!metin) return "";
   
-  // 1. Önce her harfin arasına gizli bir işaret koyuyoruz (örn: %%%)
   let aralikli = metin.split('').join('%%%');
-  
-  // 2. Özel karakterleri (artı, nokta vs.) sistemi bozmasın diye kaçırıyoruz
   let temiz = aralikli.replace(/[-[\]{}()*+?.,\\^$|#]/g, '\\$&');
   
-  // 3. O gizli işaretleri "\s*" (burada boşluk olabilir de olmayabilir de) koduna çeviriyoruz
-  temiz = temiz.split('%%%').join('\\s*');
+  // 🔥 İŞTE BÜYÜ BURADA: \s yerine köşeli parantez içinde boşluk [ ]* kullanıyoruz. 
+  // Böylece içindeki s harfi Türkçe çevirmene takılıp sistemi patlatmıyor!
+  temiz = temiz.split('%%%').join('[ ]*');
   
-  // 4. Şefin meşhur Türkçe karakter neşteri!
   return temiz
     .replace(/[iİıI]/g, "[iİıI]")
     .replace(/[gĞğG]/g, "[gĞğG]")
@@ -23,7 +19,6 @@ function guvenliRegex(metin: string) {
     .replace(/[oÖöO]/g, "[oÖöO]")
     .replace(/[uÜüU]/g, "[uÜüU]");
 }
-
 // 🚀 ŞEFİN HARF VE RAKAM NEŞTERİ (asus5070 -> asus 5070 yapar)
 function harfRakamAyir(metin: string) {
   if (!metin) return "";
