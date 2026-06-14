@@ -223,7 +223,7 @@ export default function Header() {
 
               <nav className="flex items-center space-x-6">
                 {/* 🔥 ŞEFİM, YER DEĞİŞTİ! ÜST MENÜDE ARTIK KENDİN TOPLA EN BAŞTA PARLIYOR! */}
-              <Link href="/kategori/kendin-topla" prefetch={true} className="text-gray-300 hover:text-[#00d2ff] text-sm font-black transition-colors tracking-wide">🔧 Kendin Topla</Link>
+             <Link href="/kategori/kendin-topla" prefetch={true} className="text-gray-300 hover:text-[#00d2ff] text-sm font-medium transition-colors">🔧 Kendin Topla</Link>
                 <Link href="/kategori/ekran-karti" prefetch={true} className="text-gray-300 hover:text-[#00d2ff] text-sm font-medium transition-colors">Ekran Kartları</Link>
                 <Link href="/kategori/islemci" prefetch={true} className="text-gray-300 hover:text-[#00d2ff] text-sm font-medium transition-colors">İşlemciler</Link>
                 <Link href="/kategori/anakart" prefetch={true} className="text-gray-300 hover:text-[#00d2ff] text-sm font-medium transition-colors">Anakartlar</Link>
