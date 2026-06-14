@@ -102,13 +102,14 @@ export default function SiparisTakipPage() {
                 className="w-full bg-[#050B14] border border-white/5 rounded-xl pl-12 pr-4 py-4 text-white placeholder-slate-500 focus:outline-none focus:border-[#3b82f6]/40 transition-all font-bold tracking-wider"
               />
             </div>
-            <button
-              type="submit"
-              disabled={yukleniyor}
-              className="bg-[#3b82f6] hover:bg-[#00c4db] text-black font-black uppercase tracking-widest text-xs px-10 py-4 sm:py-0 rounded-xl transition-all disabled:opacity-50 shadow-[0_0_20px_rgba(0,229,255,0.2)]"
-            >
-              {yukleniyor ? "ARANIYOR..." : "SORGULA"}
-            </button>
+         {/* 🚀 SİPARİŞ SORGULA BUTONU (PREMIUM RENKLER İLE) 🚀 */}
+        <button
+          type="submit"
+          disabled={yukleniyor}
+          className="bg-[#3b82f6] text-white font-black uppercase tracking-widest text-xs px-10 py-4 sm:py-0 rounded-xl transition-all duration-300 hover:bg-[#1e40af] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {yukleniyor ? "ARANIYOR..." : "SORGULA"}
+        </button>
           </form>
         </div>
 
