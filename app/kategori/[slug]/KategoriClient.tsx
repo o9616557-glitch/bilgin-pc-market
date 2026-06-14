@@ -465,7 +465,7 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
                   let yorumSayisi = urun.yorumSayisi ? Number(urun.yorumSayisi) : 0;
 
                   return (
-                    <div key={String(targetId)} className="group relative isolate z-0 flex flex-col w-full flex-shrink-0 bg-[#09090b]/40 backdrop-blur-3xl rounded-3xl overflow-hidden border border-white/5 transition-all duration-700 ease-out hover:border-white/20 hover:shadow-[0_15px_60px_rgba(255,255,255,0.05)]">
+                  <div key={String(targetId)} className="group relative isolate z-0 flex flex-col w-full flex-shrink-0 bg-[#18181b]/90 backdrop-blur-3xl rounded-3xl overflow-hidden border border-white/20 shadow-[0_0_15px_rgba(0,0,0,0.8)] transition-all duration-700 ease-out hover:border-white/40 hover:shadow-[0_15px_60px_rgba(255,255,255,0.05)]">
                       <div className="relative aspect-[4/3] w-full bg-gradient-to-b from-white/[0.01] to-transparent flex items-center justify-center p-6 overflow-hidden pointer-events-none">
                         
                         {indirimVarMi && !tukendiMi && (
