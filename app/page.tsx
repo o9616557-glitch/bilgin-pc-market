@@ -77,15 +77,24 @@ export default async function HomePage() {
                 </a>
               </div>
             </div>
-            <div className="relative hidden lg:block select-none pointer-events-none">
-              <div className="relative bg-zinc-900/60 backdrop-blur-xl border border-white/10 rounded-none p-6 shadow-2xl">
-                <div className="absolute -top-[1px] -right-[1px] bg-white text-black text-[10px] font-black px-4 py-2 rounded-none uppercase tracking-widest z-20">
+           <div className="relative hidden lg:block select-none">
+              <Link href="/kategori/ekran-karti" prefetch={true} className="block relative bg-zinc-900/60 backdrop-blur-xl border border-white/10 rounded-none p-6 shadow-2xl hover:border-[#00d2ff]/50 transition-colors duration-500 group cursor-pointer">
+                
+                {/* 🎯 Etiket (Hoverda Maviye Döner) */}
+                <div className="absolute -top-[1px] -right-[1px] bg-white text-black text-[10px] font-black px-4 py-2 rounded-none uppercase tracking-widest z-20 group-hover:bg-[#00d2ff] transition-colors duration-500 shadow-lg">
                   Öne Çıkanlar
                 </div>
-                <div className="w-full h-[350px] bg-black/60 rounded-none border border-white/5 flex items-center justify-center overflow-hidden relative p-8 group">
-                   <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/v1781456011/kv_mxdcuq.jpg" alt="Amiral Gemisi Ekran Kartı" className="w-full h-full object-contain filter drop-shadow-[0_15px_20px_rgba(0,0,0,0.8)] transition-transform duration-1000 ease-out group-hover:scale-105 z-10 relative" />
+                
+                <div className="w-full h-[350px] bg-black/60 rounded-none border border-white/5 flex items-center justify-center overflow-hidden relative p-8">
+                   {/* RESMİN BURADA ŞEFİM, SAPASAĞLAM DURUYOR */}
+                   <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/v1781456011/kv_mxdcuq.jpg" alt="Amiral Gemisi Ekran Kartı" className="w-full h-full object-contain filter drop-shadow-[0_15px_20px_rgba(0,0,0,0.8)] transition-transform duration-1000 ease-out group-hover:scale-110 z-10 relative" />
+                   
+                   {/* 🚀 Hover'da Çıkan Zıplayan Ok Butonu 🚀 */}
+                   <div className="absolute bottom-6 right-6 z-20 w-12 h-12 bg-[#00d2ff] rounded-none flex items-center justify-center text-black opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 shadow-[0_0_20px_rgba(0,210,255,0.6)] border border-[#00d2ff]">
+                     <ArrowRight className="w-6 h-6" />
+                   </div>
                 </div>
-              </div>
+              </Link>
             </div>
           </div>
         </div>
