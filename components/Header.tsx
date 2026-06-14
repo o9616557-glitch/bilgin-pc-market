@@ -64,8 +64,8 @@ const menuCategories = [
 
 // SADECE 2 ÜRÜN VE SLUG MANTIĞI
 const HIZLI_LINKLER = [
-  { isim: "ASUS ROG Ryuo", slug: "asus-rog-ryuo-iv-360-argb-white" }, // Buraya admin panelindeki gerçek slug'ı yazacaksın
-  { isim: "TUF 5070", slug: "asus-tuf-gaming-geforce-rtx-5070" } // Buraya admin panelindeki gerçek slug'ı yazacaksın
+  { isim: "ASUS ROG Ryuo", slug: "asus-rog-ryuo-iv-360-argb-white-edition-360mm-beyaz-sivi-islemci-sogutucu" },
+  { isim: "TUF 5070", slug: "asus-tuf-gaming-geforce-rtx-5070-12gb-gddr7-oc-edition" }
 ];
 
 const akilliKategoriBul = (metin: string) => {
