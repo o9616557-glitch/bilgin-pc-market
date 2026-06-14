@@ -355,21 +355,123 @@ export default function OdemeSayfasi() {
         </div>
       </div>
 
-      {acikSozlesme && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#09090b] border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden">
-            <div className="flex justify-between items-center p-3 sm:p-4 border-b border-slate-800 bg-[#121215]"><h3 className="text-white font-bold uppercase tracking-wider text-sm sm:text-base">{acikSozlesme === "mesafeli" ? "Mesafeli Satış Sözleşmesi" : "Gizlilik Politikası"}</h3><button onClick={() => setAcikSozlesme(null)} className="text-slate-400 hover:text-white p-1"><X className="w-5 h-5" /></button></div>
-            <div className="p-4 sm:p-6 overflow-y-auto custom-scrollbar text-xs sm:text-sm text-slate-300 leading-relaxed space-y-3 sm:space-y-4">
-              {acikSozlesme === "mesafeli" ? (
-                <><p><strong>Madde 1: Taraflar</strong><br/>Bu sözleşme, alıcı ve satıcı (Bilgin PC) arasında dijital ortamda kurulmuştur.</p><p><strong>Madde 2: Sözleşmenin Konusu</strong><br/>Alıcının sipariş ettiği bilgisayar ve donanım ürünlerinin satışı, teslimatı ve garanti şartlarıdır.</p><p><strong>Madde 3: İade ve İptal Şartları</strong><br/>Alıcı, ürün kendisine teslim edildikten sonra 14 gün içinde cayma hakkını kullanabilir (kutu açılmamış ve zarar görmemişse).</p></>
-              ) : (
-                <><p><strong>Veri Güvenliği:</strong><br/>Bilgin PC, müşteri bilgilerini (adres, e-posta, telefon) yalnızca siparişin teslimatı ve faturalandırma süreçleri için kullanır.</p><p><strong>Üçüncü Şahıslar:</strong><br/>Hiçbir kişisel veri, kargo firmaları haricinde 3. şahıslarla paylaşılmaz veya satılamaz.</p><p><strong>Ödeme Güvenliği:</strong><br/>Kredi kartı bilgileriniz sistemimizde saklanmaz. Ödemeler 256-bit SSL sertifikası ile doğrudan banka altyapısında gerçekleşir.</p></>
-              )}
+     {acikSozlesme && (
+  <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-[#050505]/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl w-full max-w-2xl flex flex-col max-h-[85vh] shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+      
+      {/* BAŞLIK KISMI */}
+      <div className="flex items-center justify-between p-5 sm:p-6 border-b border-white/10 shrink-0">
+        <h2 className="text-base sm:text-lg font-black text-white tracking-widest uppercase">
+          {acikSozlesme === "mesafeli" ? "Mesafeli Satış Sözleşmesi" : "Gizlilik ve KVKK Politikası"}
+        </h2>
+        <button onClick={() => setAcikSozlesme(null)} className="text-gray-500 hover:text-white transition-colors">
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      {/* AŞAĞI KAYDIRILABİLİR İÇERİK (SCROLL ALANI) */}
+      <div className="p-5 sm:p-6 overflow-y-auto text-sm text-gray-300 space-y-6 leading-relaxed [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/10 hover:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded-full">
+        {acikSozlesme === "mesafeli" ? (
+          <>
+            <div>
+              <h3 className="text-white font-bold text-base mb-2">1.1. Satıcı Bilgileri</h3>
+              <p className="text-gray-400"><strong>Ünvanı:</strong> Bilgin PC Market (Bireysel/Kurumsal Vergi Mükellefi)</p>
+              <p className="text-gray-400"><strong>Merkez:</strong> İstanbul</p>
+              <p className="text-gray-400 text-xs italic mt-2 mb-2">* Bilgin PC Market, tüm Türkiye'ye hizmet veren e-ticaret odaklı bir teknoloji tedarikçisidir. Açık depo ve merkez adresimiz, güvenlik protokolleri gereği yalnızca sipariş sonrası tarafınıza iletilen resmi e-fatura üzerinde yer almaktadır.</p>
+              <p className="text-gray-400"><strong>E-posta:</strong> info@bilginpcmarket.com</p>
             </div>
-            <div className="p-3 sm:p-4 border-t border-slate-800 bg-[#121215] flex justify-end"><button onClick={() => setAcikSozlesme(null)} className="bg-[#3b82f6] text-white font-bold px-5 sm:px-6 py-2 rounded-lg hover:bg-[#2563eb] transition-colors text-[10px] sm:text-xs uppercase tracking-wider">Okudum, Kapat</button></div>
-          </div>
+
+            <div>
+              <h3 className="text-white font-bold text-base mb-2">1.2. Alıcı Bilgileri</h3>
+              <p className="text-gray-400">Siparişi veren, ödeme sayfasında bilgileri yer alan ve platform üzerinden alışveriş yapan tüketiciyi ifade eder.</p>
+            </div>
+
+            <div>
+              <h3 className="text-white font-bold text-base mb-2">2. Konu</h3>
+              <p className="text-gray-400">İşbu sözleşmenin konusu, ALICI'nın SATICI'ya ait Bilgin PC Market internet sitesinden elektronik ortamda siparişini yaptığı, sözleşmede ve ödeme sayfasında nitelikleri ile satış fiyatı belirtilen donanım ve elektronik ürünün/ürünlerin satışı ve teslimi ile ilgili olarak yasal mevzuat hükümleri gereğince tarafların hak ve yükümlülüklerinin saptanmasıdır.</p>
+            </div>
+
+            <div>
+              <h3 className="text-white font-bold text-base mb-2">3. Teslimat Şartları</h3>
+              <p className="text-gray-400 mb-2">Ürün, yasal 30 günlük süreyi aşmamak koşulu ile her bir ürün için ALICI'nın yerleşim yerinin uzaklığına bağlı olarak internet sitesinde ön bilgiler kısmında açıklanan süre zarfında ALICI veya gösterdiği adresteki kişi/kuruluşa teslim edilir.</p>
+              <div className="bg-red-500/10 border border-red-500/20 p-3 rounded-xl mt-3">
+                <p className="text-red-400 text-xs sm:text-sm font-medium"><strong>Önemli:</strong> ALICI, kargo paketini teslim alırken hasar kontrolü yapmakla ve koli üzerinde ezilme, yırtılma veya ıslanma gibi olağandışı bir durum tespit etmesi halinde ürünü teslim almayarak kargo yetkilisine tutanak tutturmakla yükümlüdür.</p>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-white font-bold text-base mb-2">4. Cayma Hakkı ve İstisnaları</h3>
+              <p className="text-gray-400 mb-4">ALICI, satın aldığı ürünün kendisine veya gösterdiği adresteki kişi/kuruluşa teslim tarihinden itibaren 14 (on dört) gün içerisinde hiçbir hukuki ve cezai sorumluluk üstlenmeksizin ve hiçbir gerekçe göstermeksizin malı reddederek sözleşmeden cayma hakkına sahiptir.</p>
+              
+              <h4 className="text-white font-bold text-sm mb-2 text-[#00d2ff]">Cayma Hakkının Kullanılamayacağı Durumlar</h4>
+              <p className="text-gray-400 mb-2">Bilgisayar donanımları yüksek hassasiyet içeren elektronik bileşenlerdir. Aşağıdaki durumlarda yasa gereği cayma hakkı kullanılamaz:</p>
+              <ul className="space-y-2 text-gray-400 pl-2">
+                <li className="flex items-start gap-2"><span className="text-[#00d2ff] mt-0.5">▹</span> <span>Ambalajı, güvenlik bandı, mührü, paketi gibi koruyucu unsurları açılmış olan elektronik aletler ve bilgisayar bileşenleri.</span></li>
+                <li className="flex items-start gap-2"><span className="text-[#00d2ff] mt-0.5">▹</span> <span>İşlemci (CPU) ve Anakart gibi montajı yapıldıktan sonra "ikinci el" statüsüne düşen, statik elektrik riski taşıyan ürünler (Pinlerin montaj izi taşıması durumu).</span></li>
+                <li className="flex items-start gap-2"><span className="text-[#00d2ff] mt-0.5">▹</span> <span>Termal macunu sürülmüş veya soğutucu montajı yapılmış bileşenler.</span></li>
+                <li className="flex items-start gap-2"><span className="text-[#00d2ff] mt-0.5">▹</span> <span>Lisans gerektiren yazılımlar ve dijital aktivasyon kodları içeren ürünler.</span></li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-white font-bold text-base mb-2">5. Uyuşmazlıkların Çözümü</h3>
+              <p className="text-gray-400">İşbu sözleşmenin uygulanmasında doğabilecek uyuşmazlıklarda, Gümrük ve Ticaret Bakanlığınca ilan edilen değere kadar Tüketici Hakem Heyetleri ile ALICI'nın veya SATICI'nın yerleşim yerindeki Tüketici Mahkemeleri yetkilidir.</p>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="text-gray-400">Bilgin PC Market olarak kişisel verilerinizin güvenliğine en üst düzeyde önem veriyoruz. Dijital dünyadaki ayak izinizin güvende olması, yüksek performanslı sistemlerimiz kadar hassas olduğumuz bir konudur.</p>
+
+            <div className="mt-4">
+              <h3 className="text-white font-bold text-base mb-2">1. Veri Sorumlusu Kimliği</h3>
+              <p className="text-gray-400">6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, Bilgin PC Market olarak, veri sorumlusu sıfatıyla kişisel verilerinizi aşağıda açıklanan amaçlar kapsamında; hukuka ve dürüstlük kurallarına uygun bir şekilde kaydedecek, saklayacak, güncelleyecek ve mevzuatın izin verdiği durumlarda üçüncü kişilere aktarabileceğiz.</p>
+            </div>
+
+            <div className="mt-4">
+              <h3 className="text-white font-bold text-base mb-2">2. İşlenen Kişisel Verileriniz</h3>
+              <p className="text-gray-400 mb-2">Platformumuz üzerinden alışveriş yapmanız veya üye olmanız durumunda aşağıdaki verileriniz işlenmektedir:</p>
+              <ul className="space-y-2 text-gray-400 pl-2">
+                <li className="flex items-start gap-2"><span className="text-[#00d2ff] mt-0.5">▹</span> <span><strong>Kimlik ve İletişim Verileri:</strong> Ad, soyad, T.C. kimlik numarası (fatura kesimi için yasal zorunluluk), e-posta adresi, telefon numarası, fatura ve teslimat adresi.</span></li>
+                <li className="flex items-start gap-2"><span className="text-[#00d2ff] mt-0.5">▹</span> <span><strong>İşlem Güvenliği Verileri:</strong> IP adresi bilgileri, site içi gezinme bilgileri, şifre ve parola bilgileri.</span></li>
+                <li className="flex items-start gap-2"><span className="text-[#00d2ff] mt-0.5">▹</span> <span><strong>Finansal Veriler:</strong> Ödeme yöntemine ilişkin bilgiler (Kredi kartı bilgileriniz sistemlerimizde tutulmaz, doğrudan lisanslı ödeme kuruluşlarına 256-bit SSL ile şifrelenerek iletilir).</span></li>
+              </ul>
+            </div>
+
+            <div className="mt-4">
+              <h3 className="text-white font-bold text-base mb-2">3. Verilerinizin İşlenme Amacı</h3>
+              <p className="text-gray-400">Toplanan kişisel verileriniz; sipariş süreçlerinin yürütülmesi, faturalandırma işlemlerinin yasal mevzuata uygun yapılması, kargo teslimatlarının gerçekleştirilmesi, satış sonrası teknik destek hizmetlerinin sağlanması, distribütör garanti süreçlerinin takibi ve yetkili kamu kurumlarına yasal bilgi verilmesi amaçlarıyla işlenmektedir.</p>
+            </div>
+
+            <div className="mt-4">
+              <h3 className="text-white font-bold text-base mb-2">4. Verilerin Aktarımı (Kime ve Neden?)</h3>
+              <p className="text-gray-400 mb-2">Kişisel verileriniz, gizlilik sözleşmeleri ile güvence altına alınmış olmak şartıyla yalnızca işin gerektirdiği kurumlarla paylaşılır:</p>
+              <ul className="space-y-2 text-gray-400 pl-2 mb-4">
+                <li className="flex items-start gap-2"><span className="text-[#00d2ff] mt-0.5">▹</span> <span>Ürün teslimatı için sözleşmeli kargo firmalarıyla.</span></li>
+                <li className="flex items-start gap-2"><span className="text-[#00d2ff] mt-0.5">▹</span> <span>Ödeme tahsilatı için BDDK lisanslı güvenli ödeme altyapısı sağlayıcılarıyla.</span></li>
+                <li className="flex items-start gap-2"><span className="text-[#00d2ff] mt-0.5">▹</span> <span>Garanti süreçlerinin işletilebilmesi için resmi distribütörler ve yetkili teknik servislerle.</span></li>
+              </ul>
+              <p className="text-gray-400"><strong>Veri Güvenliği Taahhüdümüz:</strong> Bilgin PC Market altyapısı, uluslararası güvenlik standartlarına uygun olarak tasarlanmıştır. Sitemizde gerçekleşen tüm veri alışverişleri 256-bit şifreleme algoritmaları ve SSL sertifikaları ile korunmaktadır. Sunucularımız düzenli siber güvenlik testlerinden geçirilmekte ve yetkisiz erişimlere karşı kapalı tutulmaktadır.</p>
+            </div>
+
+            <div className="mt-4">
+              <h3 className="text-white font-bold text-base mb-2">5. KVKK Kapsamındaki Haklarınız</h3>
+              <p className="text-gray-400">KVKK'nın 11. maddesi uyarınca; kişisel verilerinizin işlenip işlenmediğini öğrenme, işlenmişse bilgi talep etme, işlenme amacına uygun kullanılıp kullanılmadığını öğrenme, verilerin düzeltilmesini veya silinmesini talep etme hakkına sahipsiniz. Bu taleplerinizi <span className="text-[#00d2ff]">info@bilginpcmarket.com</span> adresi üzerinden bizimle iletişime geçerek iletebilirsiniz. Talepleriniz en geç 30 gün içerisinde ücretsiz olarak sonuçlandırılacaktır.</p>
         </div>
-      )}
+          </>
+        )}
+      </div>
+
+      {/* BUTON KISMI */}
+      <div className="p-4 sm:p-5 border-t border-white/10 shrink-0 bg-[#0a0a0a] rounded-b-2xl">
+        <button onClick={() => setAcikSozlesme(null)} className="w-full py-3.5 bg-[#3b82f6] hover:bg-[#2563eb] text-white text-sm font-black tracking-widest rounded-xl transition-all duration-300 shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+          OKUDUM, KAPAT
+        </button>
+      </div>
+
     </div>
-  );
+  </div>
+)}
+
+  </div>
+);
 }
