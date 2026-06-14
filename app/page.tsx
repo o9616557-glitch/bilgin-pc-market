@@ -1,9 +1,8 @@
 import clientPromise from "@/lib/mongodb";
 import Link from "next/link";
 import { Cpu, Crosshair, Sparkles, Star, ShieldCheck, Zap, ArrowRight } from "lucide-react";
-import OkluSlider from "@/components/OkluSlider"; // 🔥 ŞEFİN YENİ OK SİSTEMİ EKLENDİ!
+import OkluSlider from "@/components/OkluSlider";
 
-// 🚀 HIZLANDIRMA AYARI: Ana sayfayı 60 saniyede bir günceller, sürekli veritabanını yormaz
 export const revalidate = 60; 
 
 export default async function HomePage() {
@@ -12,10 +11,7 @@ export default async function HomePage() {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
     
-    // 1. Ürünleri Çek
     const rawUrunler = await db.collection("products").find({}).limit(12).toArray();
-    
-    // 2. Yorumları Çek (Gerçek Yıldız ve Değerlendirme Sayısı İçin)
     const productIds = rawUrunler.map(p => p._id.toString());
     let reviewsData: any[] = [];
     
@@ -28,7 +24,6 @@ export default async function HomePage() {
         console.log("Yorumlar çekilemedi, varsayılan değerler kullanılacak.");
     }
 
-    // 3. Ürünler ile Yorumları Eşleştir
     urunler = rawUrunler.map(urun => {
         const pid = urun._id.toString();
         const pReviews = reviewsData.filter(r => r.productId === pid);
@@ -42,7 +37,6 @@ export default async function HomePage() {
   return (
     <main className="min-h-screen bg-black text-white font-sans overflow-hidden select-none touch-manipulation">
       
-      {/* 🚀 GOOGLE ARAMASINI ENGELLEYEN VE İNDİRİM ROZETİNİ DÜZENLEYEN CSS 🚀 */}
       <style dangerouslySetInnerHTML={{ __html: `
         body { -webkit-tap-highlight-color: transparent; }
         button, img, a, div, span, p, h1, h2, h3 { -webkit-touch-callout: none !important; user-select: none !important; }
@@ -55,7 +49,7 @@ export default async function HomePage() {
         .badge-ribbon-home-right { right: 8px; transform: rotate(-20deg); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%); }
       `}} />
 
-      {/* ==================== 1. HERO (GİRİŞ BÖLÜMÜ) ==================== */}
+      {/* ==================== 1. HERO ==================== */}
       <section className="relative w-full min-h-[55vh] flex items-center justify-center pt-24 pb-6 border-b border-white/10 select-none">
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_20%,transparent_100%)] pointer-events-none" />
 
@@ -108,7 +102,6 @@ export default async function HomePage() {
           </div>
         </div>
         <div className="w-full">
-          {/* 🔥 OKLU SLIDER BURADA BAŞLIYOR 🔥 */}
           <OkluSlider>
             <div className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#10b981] transition-colors duration-700 ease-out">
               <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781456009/depositphotos_76643017-stock-photo-illustration-of-great-sales-and_qvv12v.webp" alt="Havale İndirimi" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-60 transition-all duration-1000 ease-out pointer-events-none" />
@@ -166,14 +159,9 @@ export default async function HomePage() {
               Güncel <span className="text-gray-400">Ürünler</span>
             </h2>
           </div>
-          <div className="text-xs font-bold tracking-widest text-gray-400 uppercase flex items-center gap-2">
-            <div className="w-2 h-2 rounded-none bg-[#10b981] animate-ping"></div>
-            Aktif Stok: {urunler.length}
-          </div>
         </div>
 
         <div className="w-full">
-          {/* 🔥 OKLU SLIDER BURADA DA BAŞLIYOR 🔥 */}
           <OkluSlider>
             {urunler.length > 0 ? (
               urunler.map((urun: any) => {
@@ -330,7 +318,6 @@ export default async function HomePage() {
           </h2>
         </div>
         <div className="w-full">
-          {/* 🔥 OKLU SLIDER BURADA DA BAŞLIYOR 🔥 */}
           <OkluSlider>
             <Link href="/kategori/ekran-karti" prefetch={true} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
               <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781456502/5789-amdnin-cine-ozel-ekran-karti-dunyaya-aciliyor_hdqtwp.webp" alt="Yüksek Performanslı Ekran Kartı" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-1000 ease-out grayscale group-hover:grayscale-0 pointer-events-none" />
@@ -400,7 +387,7 @@ export default async function HomePage() {
               Bilgin PC Market olarak, sizlere her zaman en pahalı olanı değil; ihtiyacınıza ve bütçenize en uygun olan doğru parçayı sunmayı amaçlıyoruz. Sadece satış yapana kadar değil, satış sonrasında da yanınızda olan dürüst bir hizmet anlayışını benimsiyoruz.
             </p>
             <p>
-              RTX 5070 gibi yeni nesil güncel ekran kartlarından, fiyat performans odaklı işlemcilere kadar aradığınız donanımları mağazamızda stoklu bulundurmaya gayret ediyoruz. Sipariş ettiğiniz her sistemi kendi evimize götürecekmiş gibi özenle topluyor, tüm testlerini bizzat tamamlamadan kargoya vermiyoruz.
+              RTX 5080 gibi yeni nesil güncel ekran kartlarından, fiyat performans odaklı işlemcilere kadar aradığınız donanımları mağazamızda stoklu bulundurmaya gayret ediyoruz. Sipariş ettiğiniz her sistemi kendi evimize götürecekmiş gibi özenle topluyor, tüm testlerini bizzat tamamlamadan kargoya vermiyoruz.
             </p>
             <p className="text-white font-bold tracking-wide pt-4">
               Bize duyduğunuz güven ve samimiyet, bizim için her şeyden önemlidir.

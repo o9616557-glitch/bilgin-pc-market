@@ -15,30 +15,40 @@ export default function OkluSlider({ children }: { children: React.ReactNode }) 
   };
 
   return (
-    <div className="relative w-full group">
-      {/* ⬅️ SOL OK */}
-      <button
-        onClick={() => kaydir("sol")}
-        className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-40 w-12 h-12 flex items-center justify-center rounded-full bg-[#050505]/90 backdrop-blur-md border border-white/10 text-white opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-[#00d2ff] hover:border-[#00d2ff] hover:scale-110 shadow-[0_0_20px_rgba(0,0,0,0.8)] hidden lg:flex"
-      >
-        <ChevronLeft className="w-6 h-6" />
-      </button>
-
-      {/* ➡️ SAĞ OK */}
-      <button
-        onClick={() => kaydir("sag")}
-        className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-40 w-12 h-12 flex items-center justify-center rounded-full bg-[#050505]/90 backdrop-blur-md border border-white/10 text-white opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-[#00d2ff] hover:border-[#00d2ff] hover:scale-110 shadow-[0_0_20px_rgba(0,0,0,0.8)] hidden lg:flex"
-      >
-        <ChevronRight className="w-6 h-6" />
-      </button>
-
-      {/* 🚀 KAYDIRMA ALANI - O ÇİRKİN MAVİ ÇİZGİ TAMAMEN GİZLENDİ! 🚀 */}
+    <div className="w-full flex flex-col">
+      
+      {/* 🚀 ÜST KISIM: KAYDIRMA ALANI (RESİMLERİN ÜSTÜNDE HİÇBİR ŞEY YOK) 🚀 */}
       <div
         ref={sliderRef}
-        className="flex flex-nowrap overflow-x-auto snap-x snap-mandatory gap-4 pb-8 px-[7.5vw] sm:px-[10vw] lg:px-8 scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden relative z-30"
+        className="flex flex-nowrap overflow-x-auto snap-x snap-mandatory gap-4 pb-4 px-[7.5vw] sm:px-[10vw] lg:px-8 scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
       >
         {children}
       </div>
+
+      {/* 🎯 ALT KISIM: KİBAR VE MODERN KONTROL PANELİ 🎯 */}
+      <div className="flex items-center justify-center gap-6 mt-6">
+        
+        {/* ⬅️ SOL OK */}
+        <button
+          onClick={() => kaydir("sol")}
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-gray-400 hover:bg-[#00d2ff] hover:text-black hover:border-[#00d2ff] transition-all duration-300 shadow-lg hover:scale-110"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+
+        {/* ➖ ORTADAKİ ZARİF ÇİZGİ (Neon Efektli) */}
+        <div className="w-16 sm:w-24 h-1 bg-gradient-to-r from-transparent via-[#00d2ff]/50 to-transparent rounded-full opacity-50"></div>
+
+        {/* ➡️ SAĞ OK */}
+        <button
+          onClick={() => kaydir("sag")}
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-gray-400 hover:bg-[#00d2ff] hover:text-black hover:border-[#00d2ff] transition-all duration-300 shadow-lg hover:scale-110"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
+        
+      </div>
+
     </div>
   );
 }
