@@ -426,10 +426,10 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
           </div>
         </aside>
 
-       {/* 🛠 Sağ ÜRÜN IZGARASI */}
+    {/* 🛠 Sağ ÜRÜN IZGARASI */}
 <main className="flex-1 w-full min-w-0 pb-12">
   {filtrelenmisUrunler.length === 0 ? (
-    <div className="w-full flex flex-col items-center justify-center text-center gap-4 py-20 select-none border border-white/5 bg-black/20 rounded-2xl px-4">
+    <div className="w-full flex flex-col items-center justify-center text-center gap-4 py-24 select-none border border-white/5 bg-black/20 rounded-2xl px-4">
       <span className="text-[#00d2ff] font-black text-xs uppercase tracking-widest animate-pulse">
         Sistem Güncelleniyor
       </span>
@@ -438,11 +438,8 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
       </h3>
       <div className="h-px w-16 bg-gradient-to-r from-transparent via-[#00d2ff] to-transparent my-1"></div>
       <p className="text-xs sm:text-sm font-medium leading-relaxed text-gray-400 max-w-lg">
-        Aradığınız kriterlere uygun donanım yapılandırmaları ve güncel stok listeleri arka planda optimize ediliyor olabilir. Mevcut filtrelerinizi sıfırlayarak dükkandaki diğer canavar bileşenleri ve hazır sistemleri hemen inceleyebilirsiniz.
+        Aradığınız kriterlere uygun donanım yapılandırmaları ve güncel stok listeleri optimize ediliyor olabilir. Sol paneldeki aktif filtreleri kaldırarak veya diğer ana kategorilere geçiş yaparak dükkandaki canavar bileşenleri hemen inceleyebilirsiniz.
       </p>
-      <button onClick={filtreleriTemizle} className="mt-4 px-6 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-xs font-black uppercase tracking-wider transition-all duration-200 hover:bg-[#00d2ff]/10 hover:border-[#00d2ff] hover:text-white">
-        Filtreleri Temizle ve Keşfet
-      </button>
     </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
