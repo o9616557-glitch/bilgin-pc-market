@@ -39,8 +39,8 @@ import ProductClient from "./ProductClient";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+// 🔥 ŞEFİN HIZ OPTİMİZASYONU: Sayfayı 60 saniyede bir hafızaya alır, her tıklamada veritabanını yormaz!
+export const revalidate = 60;
 
 export default async function ProductDetailPage({
   params,
@@ -49,13 +49,12 @@ export default async function ProductDetailPage({
 }) {
   const { slug } = await params;
 
-  // 1. ANA ÜRÜNÜ FİŞEK GİBİ KENDİ MONGO KASAMIZDAN ÇEKİYORUZ!
   const client = await clientPromise;
   const db = client.db("bilginpcmarket");
 
   let product = null;
   try {
-    // Önce ID'ye göre ara, bulamazsa slug(isim) olarak ara
+    // 1. ANA ÜRÜNÜ FİŞEK GİBİ ÇEKİYORUZ
     if (ObjectId.isValid(slug)) {
       product = await db.collection("products").findOne({ _id: new ObjectId(slug) });
     }
@@ -63,31 +62,41 @@ export default async function ProductDetailPage({
       product = await db.collection("products").findOne({ slug: slug });
     }
     if (!product) {
-      // Slug olarak da bulamadıysa, adından veya isimden bul
       product = await db.collection("products").findOne({ $or: [{ name: slug }, { isim: slug }] });
     }
   } catch (e) {
     console.error("Ürün çekilirken hata:", e);
   }
 
-  // 2. RAKİP ÜRÜNLERİ DE KENDİ VERİTABANIMIZDAN ÇEKİYORUZ
+  // 2. YORUMLARI ÇEKİYORUZ (GERÇEK DEĞERLENDİRMELER İÇİN EKSİK OLAN KABLO BUYDU!)
+  let reviewsData: any[] = [];
+  if (product) {
+    try {
+      reviewsData = await db.collection("reviews").find({ 
+        productId: product._id.toString() 
+      }).toArray();
+    } catch (reviewErr) {
+      console.log("Yorumlar çekilemedi şefim.");
+    }
+  }
+
+  // 3. FRENİ SÖKTÜK! Sadece 12 adet diğer ürünü çekiyoruz (300 taneyi birden indirip sistemi kitlemiyoruz)
   let allProducts: any[] = [];
   try {
-    allProducts = await db.collection("products").find({}).toArray();
+    allProducts = await db.collection("products").find({}).limit(12).toArray();
   } catch (error) {
     console.error("Diğer ürünler çekilemedi şefim:", error);
   }
 
-  // ŞEFİM: İŞTE O KIRMIZI ÇİZGİLERİ YOK EDEN KURŞUN GEÇİRMEZ TEMİZLİK MOTORU!
-  // MongoDB objelerini frontend'in anlayacağı kusursuz ve saf JSON formatına çeviriyoruz.
+  // ŞEFİN KURŞUN GEÇİRMEZ TEMİZLİK MOTORU
+  // Yorumları da ürünün içine paketliyoruz ki vitrinde şakır şakır yıldızlar görünsün!
   const temizUrun = product 
-    ? JSON.parse(JSON.stringify({ ...product, _id: product._id.toString() })) 
+    ? JSON.parse(JSON.stringify({ ...product, _id: product._id.toString(), fetchedReviews: reviewsData })) 
     : null;
 
   const temizTumUrunler = allProducts.map(p => 
     JSON.parse(JSON.stringify({ ...p, _id: p._id ? p._id.toString() : p.id }))
   );
 
-  // 3. FİŞEK GİBİ ARAYÜZE (PRODUCT CLIENT) TERTEMİZ PASLA
   return <ProductClient product={temizUrun} allProducts={temizTumUrunler} />;
 }
