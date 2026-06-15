@@ -282,23 +282,9 @@ export default function KendinToplaPage() {
 
       {loading ? (
             <div className="flex flex-col w-full animate-in fade-in duration-300">
-              {/* 1. ÜST KISIM: Neon Parlama ve Zıplayan İşlemci */}
-              <div className="flex flex-col items-center justify-center py-12 mb-2">
-                <div className="relative flex justify-center items-center mb-4">
-                  <div className="absolute inset-0 bg-[#00d2ff] blur-[40px] opacity-20 rounded-full w-16 h-16 animate-pulse"></div>
-                  <Cpu className="w-12 h-12 text-[#00d2ff] animate-bounce relative z-10" />
-                </div>
-                <span className="text-xs uppercase tracking-widest font-black text-[#00d2ff] animate-pulse">
-                  Uyum Matrisi Hesaplanıyor...
-                </span>
-                <span className="text-[10px] text-gray-500 font-medium mt-1 animate-pulse">
-                  Parçalar veritabanından çekiliyor
-                </span>
-              </div>
-
-              {/* 2. ALT KISIM: PC Sihirbazına Özel İskelet Kartlar (4 Adet) */}
+              {/* SADECE İSKELET KARTLAR - YAZI VE SİMGE YOK */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[1, 2, 3, 4].map((i) => (
+                {[1, 2, 3, 4, 5, 6].map((i) => (
                   <div key={i} className="bg-[#18181b] border-2 rounded-2xl p-4 flex gap-4 border-white/5 animate-pulse">
                     {/* Resim İskeleti */}
                     <div className="w-20 h-20 bg-white/5 rounded-xl shrink-0 border border-white/5"></div>
