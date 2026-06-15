@@ -129,8 +129,9 @@ export default function Footer() {
           <p className="text-slate-500 text-xs font-medium text-center md:text-left">
             © {new Date().getFullYear()} Bilgin PC Market Tüm Hakları Saklıdır.
           </p>
-       <div className="flex items-center justify-center md:justify-start gap-3">
+     <div className="flex items-center justify-center md:justify-start gap-4">
     <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781544026/iyzico_blue-1024x576_kl0i8d.png" alt="iyzico" className="h-8 object-contain" />
+    <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781544625/WhatsApp-Image-2025-07-18-at-12.03.53-1200x675_hpqyxg.png" alt="Visa Mastercard" className="h-8 object-contain" />
     <span className="text-slate-600 text-xl">|</span>
     <span className="text-slate-500 text-xs font-bold uppercase tracking-widest">Güvenli Alışveriş</span>
 </div>
