@@ -104,14 +104,22 @@ export default function Header() {
   const sepetAdedi = sepet.reduce((toplam: number, urun: any) => toplam + (urun.adet || 1), 0);
   const { data: session } = useSession();
   const isAdmin = session?.user?.email?.toLowerCase() === "o9616557@gmail.com";
-// 🔥 KATEGORİ BULUCU MOTOR 🔥
-  const aramaMetniTemiz = aramaMetni.toLowerCase().trim();
-  const bulunanKategoriler = aramaMetniTemiz.length > 1 
-    ? menuCategories.flatMap(kat => kat.items).filter(item => 
-        item.name.toLowerCase().includes(aramaMetniTemiz) || 
-        item.slug.toLowerCase().includes(aramaMetniTemiz)
-      )
-    : [];
+// 🔥 ŞEFİN KUSURSUZ KATEGORİ BULUCU MOTORU 🔥
+const kelimeTemizle = (metin: string) => {
+  return metin.toLowerCase()
+    .replace(/[\s-]/g, '') 
+    .replace(/ı/g, 'i').replace(/ü/g, 'u').replace(/ö/g, 'o')
+    .replace(/ş/g, 's').replace(/ç/g, 'c').replace(/ğ/g, 'g');
+};
+
+const aramaMetniTemiz = kelimeTemizle(aramaMetni);
+
+const bulunanKategoriler = aramaMetniTemiz.length > 1 
+  ? menuCategories.flatMap(kat => kat.items).filter(item => 
+      kelimeTemizle(item.name).includes(aramaMetniTemiz) || 
+      kelimeTemizle(item.slug).includes(aramaMetniTemiz)
+    )
+  : [];
   useEffect(() => {
     const kayitliAramalar = localStorage.getItem("sonAramalar");
     if (kayitliAramalar) setSonAramalar(JSON.parse(kayitliAramalar));
