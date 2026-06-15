@@ -195,12 +195,7 @@ export default async function HomePage() {
     <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity duration-700">Rekabetçi oyunlar için tasarlanan yüksek performanslı işlemciler ve en güncel ekran kartlarında geçerli özel fiyat avantajlarını kaçırmayın. Kampanyalı ürünleri hemen sepetinize ekleyin.</p>
 </div>
             </div>
-<div className="relative z-10 transform group-hover:-translate-y-2 transition-transform duration-700 ease-out pointer-events-none">
-    <div className="text-white font-black text-4xl tracking-tighter mb-1 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">SEPETTE İNDİRİM</div>
-    <h3 className="text-white font-black text-base uppercase tracking-widest mb-3 group-hover:text-[#10b981] transition-colors duration-700">ÜST DÜZEY DONANIM FIRSATLARI</h3>
-    <div className="w-8 h-1 bg-[#10b981] mb-3 transition-all duration-700 ease-out group-hover:w-full"></div>
-    <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity duration-700">Rekabetçi oyunlar için tasarlanan yüksek performanslı işlemciler ve en güncel ekran kartlarında geçerli özel fiyat avantajlarını kaçırmayın. Kampanyalı ürünleri hemen sepetinize ekleyin.</p>
-</div>
+
             <div className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-white transition-colors duration-700 ease-out">
               <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781456013/image-8-1024x682_s06r1u.png" alt="Hızlı Teslimat" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 transition-all duration-1000 ease-out grayscale pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent pointer-events-none"></div>
