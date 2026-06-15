@@ -310,7 +310,7 @@ export default async function HomePage() {
                         
                         <div className="flex items-center gap-1 text-[10px] text-gray-400 font-bold">
                           <Star className={`w-3 h-3 ${yorumSayisi > 0 ? 'text-[#d4af37] fill-[#d4af37]' : 'text-gray-700'}`} />
-                          <span>{yorumSayisi > 0 ? `${yildizSayisi.toFixed(1)} (${yorumSayisi})` : 'Değerlendirme Yok'}</span>
+                          <span>{yorumSayisi > 0 ? `${yildizSayisi.toFixed(1)} (${yorumSayisi})` : 'Henüz Değerlendirilmedi'}</span>
                         </div>
                       </div>
 

@@ -512,7 +512,7 @@ if (urun.fetchedReviews && urun.fetchedReviews.length > 0) {
                           <span className="text-gray-400 text-[10px] font-black tracking-[0.2em] uppercase">{getMarka(urun)}</span>
                           <div className="flex items-center gap-1 text-[10px] text-gray-500 font-black">
                             <Star className={`w-3.5 h-3.5 ${yorumSayisi > 0 ? 'text-[#d4af37] fill-[#d4af37]' : 'text-gray-800'}`} />
-                            <span>{yorumSayisi > 0 ? `${yildizSayisi.toFixed(1)} (${yorumSayisi})` : 'Değerlendirme Yok'}</span>
+                            <span>{yorumSayisi > 0 ? `${yildizSayisi.toFixed(1)} (${yorumSayisi})` : 'Henüz Değerlendirilmedi'}</span>
                           </div>
                         </div>
 
