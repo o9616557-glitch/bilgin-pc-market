@@ -217,7 +217,17 @@ export default async function HomePage() {
                 <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity duration-700">Bizden aldığınız sistemler titizlikle toplanır. Gerekli tüm performans testlerinden geçtikten sonra size teslim edilir.</p>
               </div>
             </div>
-
+<div className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 overflow-hidden flex flex-col justify-end p-6 sm:p-8 hover:border-[#10b981]/50 transition-colors duration-700">
+    <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781542680/images_o28u1h.png" alt="12 Taksit Seçeneği" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition-opacity duration-700 ease-out" />
+    <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent pointer-events-none"></div>
+    
+    <div className="relative z-10 transform group-hover:-translate-y-2 transition-transform duration-700 ease-out pointer-events-none">
+        <div className="text-[#10b981] font-black text-4xl tracking-tighter mb-1 drop-shadow-[0_0_15px_rgba(16,185,129,0.2)]">12 TAKSİT</div>
+        <h3 className="text-white font-black text-base uppercase tracking-widest mb-3 group-hover:text-[#10b981] transition-colors duration-700">KREDİ KARTINA ÖDEME KOLAYLIĞI</h3>
+        <div className="w-8 h-1 bg-[#10b981] mb-3 transition-all duration-700 ease-out group-hover:w-full"></div>
+        <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity duration-700">Hayalinizdeki sisteme bütçenizi zorlamadan sahip olun. Tüm anlaşmalı kredi kartlarında 12 aya varan taksit imkanıyla ödemelerinizi rahatça planlayın.</p>
+    </div>
+</div>
             <div className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#3b82f6] transition-colors duration-700 ease-out">
               <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781456009/pngtree-one-hundred-percent-original-render-check-mark-approved-photo-png-image_16957598_uvrexo.png" alt="Orijinal Distribütör Garantisi" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 transition-all duration-1000 ease-out pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent pointer-events-none"></div>
