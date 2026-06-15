@@ -18,22 +18,25 @@ const STEPS = [
   { id: "sogutma", name: "Soğutma Sistemi", icon: Wind },
 ];
 
-export default function KendinToplaPage() {
+// 🔥 ŞEFİN EKLENTİSİ: initialProcessors prop'u ile işlemciler hazır gelir!
+export default function KendinToplaClient({ initialProcessors }: { initialProcessors: any[] }) {
   const { sepeteEkle } = useCart();
   const [currentStep, setCurrentStep] = useState(0);
-  const [products, setProducts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  
+  // 🔥 FRENİ SÖKTÜK: İlk açılışta yükleniyor dönmesin, direkt sunucudan gelen işlemcileri göstersin!
+  const [products, setProducts] = useState<any[]>(initialProcessors || []);
+  const [loading, setLoading] = useState(false); 
 
-  // Kalıcı hafızalı seçim state yapısı
   const [selections, setSelections] = useState<Record<string, any>>({});
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
   
-  // KUANTUM HAFIZA: İlk tıklama gecikmesini yok eden akıllı client-side cache ref yapısı
-  const cacheRef = useRef<Record<string, any[]>>({});
+  // 🔥 KUANTUM HAFIZA: Sunucudan gelen ilk işlemcileri direkt hafızaya kazıyoruz
+  const cacheRef = useRef<Record<string, any[]>>({
+    "islemci____": initialProcessors || []
+  });
   
   const activeStepInfo = STEPS[currentStep];
 
-  // Tarayıcı hafızasından eski seçimleri geri yükleme motoru
   useEffect(() => {
     const eskiSecimler = localStorage.getItem("bilgin_sihirbaz_selections");
     if (eskiSecimler) {
@@ -45,14 +48,12 @@ export default function KendinToplaPage() {
     }
   }, []);
 
-  // Seçimler değiştikçe hafızayı anında güncelleme motoru
   useEffect(() => {
     if (Object.keys(selections).length > 0) {
       localStorage.setItem("bilgin_sihirbaz_selections", JSON.stringify(selections));
     }
   }, [selections]);
 
-  // Pop-up açılınca arka plan kaymasını engelleyen kilit
   useEffect(() => {
     if (previewProduct) {
       document.body.style.overflow = "hidden";
@@ -109,7 +110,6 @@ export default function KendinToplaPage() {
 
   const { soket, bellek, yapi, radyator } = dinamikFiltreleriHesapla(activeStepInfo.id);
 
-  // PARALEL ARKA PLAN MOTORU: İlk tıklama yavaşlığını tamamen yok eden mekanizma
   useEffect(() => {
     const currentCacheKey = `${activeStepInfo.id}_${soket}_${bellek}_${yapi}_${radyator}`;
     
@@ -197,7 +197,6 @@ export default function KendinToplaPage() {
   const ekranKartiBoyutu = Number(selections["ekran-karti"]?.sihirbaz_ozellikleri?.gpu_boyutu) || 0;
   const gpuKasaAşimi = kasaGpuLimiti > 0 && ekranKartiBoyutu > 0 && ekranKartiBoyutu > kasaGpuLimiti;
 
-  // Sistem tamamlandı mı kontrol eden kural (8 parçanın hepsi seçildi mi?)
   const isSystemComplete = STEPS.every(step => !!selections[step.id]);
 
   const handleAddSystemToCart = () => {
@@ -340,7 +339,6 @@ export default function KendinToplaPage() {
             </div>
           )}
 
-          {/* SADE VE ELİT TEBRİKLER ALANI */}
           {isSystemComplete && (
             <div className="w-full bg-emerald-500/10 border-2 border-emerald-500/20 rounded-2xl p-5 md:p-6 text-center mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300 select-none">
               <h3 className="text-emerald-400 font-black text-base md:text-lg uppercase tracking-wider mb-1 flex items-center justify-center gap-2">
