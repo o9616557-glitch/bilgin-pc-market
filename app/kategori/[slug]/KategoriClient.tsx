@@ -275,19 +275,30 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
     setSeciliDinamik({}); 
   };
 
-  const handleSepeteEkle = (urun: any) => {
-    const targetId = urun._id || urun.id;
-    const normalFiyat = Number(urun.regular_price || urun.fiyat || urun.price || 0);
-    const gecerliFiyat = urun.indirimliFiyat ? Number(urun.indirimliFiyat) : normalFiyat;
+ const handleSepeteEkle = (urun: any) => {
+  const targetId = urun._id || urun.id;
+  const normalFiyat = Number(urun.regular_price || urun.fiyat || urun.price || 0);
+  const gecerliFiyat = urun.indirimliFiyat ? Number(urun.indirimliFiyat) : normalFiyat;
+  
+  // 🧠 Sepetin ihtiyaç duyduğu havale oranını yakalıyoruz
+  const havaleOrani = urun.havaleIndirimi !== undefined ? Number(urun.havaleIndirimi) : 5;
 
-    sepeteEkle({
-      id: targetId, isim: urun.isim || urun.title || urun.name, fiyat: gecerliFiyat,
-      resim: (urun.resimler && urun.resimler[0]) || urun.resim || urun.image || "/placeholder.jpg", adet: 1, varyasyon: "Standart" 
-    });
-    setSepeteEklenenler(prev => [...prev, targetId]);
-    setTimeout(() => { setSepeteEklenenler(prev => prev.filter(id => id !== targetId)); }, 2000);
-  };
-
+  sepeteEkle({
+    id: targetId, 
+    isim: urun.isim || urun.title || urun.name, 
+    fiyat: gecerliFiyat,
+    resim: (urun.resimler && urun.resimler[0]) || urun.resim || urun.image || "/placeholder.jpg", 
+    adet: 1, 
+    varyasyon: "Standart",
+    // 🔥 EKSİK OLAN KABLOLARI BURAYA BAĞLADIK 🔥
+    havaleIndirimi: havaleOrani,
+    stokKodu: urun.stokKodu || "",
+    kategori: urun.kategori || ""
+  });
+  
+  setSepeteEklenenler(prev => [...prev, targetId]);
+  setTimeout(() => { setSepeteEklenenler(prev => prev.filter(id => id !== targetId)); }, 2000);
+};
   const handleKarsilastir = (urun: any) => { 
     karsilastirmayaEkle(urun); 
     setBarGizli(false);
