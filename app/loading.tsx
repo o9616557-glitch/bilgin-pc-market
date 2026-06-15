@@ -1,38 +1,33 @@
 export default function Loading() {
   return (
-    <div style={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      minHeight: "100vh",
-      backgroundColor: "#0f172a", // Senin Bilgin PC temanın koyu arka planı
-      padding: "20px" // Telefondaki sıkışmayı önleyen padding
-    }}>
-      <style>{`
-        @keyframes spinner-dual-ring {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        .modern-loader {
-          display: inline-block;
-          width: 60px; // Responsive boyut
-          height: 60px; // Responsive boyut
-        }
-        .modern-loader::after {
-          content: "";
-          display: block;
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-          border: 4px solid #3b82f6; // Senin meşhur Neon Mavi Rengin
-          border-color: #3b82f6 transparent #3b82f6 transparent;
-          animation: spinner-dual-ring 1.2s linear infinite;
-          box-shadow: 0 0 15px rgba(0, 229, 255, 0.4); // Sleek neon efekt
-        }
-      `}</style>
+    <div className="min-h-screen bg-black pt-32 pb-24 px-4 flex flex-col items-center">
+      
+      {/* ŞEFİN İMZASI: SİTE GENELİ PREMIUM GÖLGE (SKELETON) YÜKLEME EKRANI */}
+      <div className="max-w-[1400px] w-full mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-4 sm:px-0 animate-in fade-in duration-300">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+          <div key={i} className="w-full h-[450px] bg-[#09090b] rounded-2xl border border-white/5 animate-pulse flex flex-col p-5 shadow-2xl">
+            {/* Dev Resim İskeleti */}
+            <div className="w-full h-48 bg-white/5 rounded-xl mb-5"></div>
+            
+            {/* Marka ve Puan İskeleti */}
+            <div className="flex justify-between items-center mb-4">
+               <div className="w-1/4 h-3 bg-white/10 rounded"></div>
+               <div className="w-1/5 h-3 bg-white/10 rounded"></div>
+            </div>
 
-      {/* ŞEFİM: İşte requested minimalist ve sleek loader iconumuz */}
-      <div className="modern-loader"></div>
+            {/* Ürün İsmi İskeleti */}
+            <div className="w-full h-5 bg-white/10 rounded mb-2"></div>
+            <div className="w-2/3 h-5 bg-white/10 rounded mb-8"></div>
+            
+            {/* Fiyat ve Sepet Butonu İskeleti */}
+            <div className="mt-auto flex justify-between items-end border-t border-white/5 pt-4">
+               <div className="w-1/2 h-8 bg-white/10 rounded"></div>
+               <div className="w-1/3 h-10 bg-white/10 rounded-xl"></div>
+            </div>
+          </div>
+        ))}
+      </div>
+      
     </div>
   );
 }
