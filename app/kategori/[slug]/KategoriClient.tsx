@@ -125,13 +125,15 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
   const isAnakart = b.includes("ANAKART") || b.includes("MOTHERBOARD");
   const isPsu = b.includes("PSU") || b.includes("GÜÇ");
 
-  // 🧠 HAFIZA OPTİMİZASYONU: Ürün ham verilerini sadece bir kez işler, şişmeyi önler.
+  // 🧠 HAFIZA OPTİMİZASYONU
   const urunOzellikleriHaritasi = useMemo(() => {
     const harita = new Map<string, Record<string, string>>();
     urunler.forEach(urun => {
       const targetId = String(urun._id || urun.id);
       let dbObj: Record<string, string> = {};
-      const rawDb = urun.teknik_ozellikler || urun.teknik_ozeller || urun.ozellikler || urun.attributes;
+      
+      // 🎯 KABLOYU BAĞLADIK PATRON! Önce Compass'taki filtre_ozellikleri kutusuna bakar, bulamazsa eski teknik_ozellikler'e geçer!
+      const rawDb = urun.filtre_ozellikleri || urun.teknik_ozellikler || urun.teknik_ozeller || urun.ozellikler || urun.attributes;
       
       if (rawDb) {
         try {
@@ -209,9 +211,8 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
     Object.keys(filtreHaritasi).forEach(baslik => {
       const secenekSayisi = filtreHaritasi[baslik].size;
       
-      // 🎯 ESNAF KİLİDİ: Eğer 50 üründe bir başlığın 12'den fazla farklı çeşidi varsa (Ağırlık, Boyut veya özel seri noları gibi)
-      // O başlığı filtre listesinden eler ki sol taraf kilometrelerce uzayıp şişmesin!
-      if (secenekSayisi > 1 && secenekSayisi <= 12) { 
+      // 🎯 Şefim test ederken tek ürün olsa bile gözüksün diye alt sınırı >= 1 yaptık! Üst sınırı koruduk ki şişmesin!
+      if (secenekSayisi >= 1 && secenekSayisi <= 15) { 
         sonuc[baslik] = Array.from(filtreHaritasi[baslik]).sort();
       }
     });
@@ -274,19 +275,30 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
     setSeciliDinamik({}); 
   };
 
-  const handleSepeteEkle = (urun: any) => {
-    const targetId = urun._id || urun.id;
-    const normalFiyat = Number(urun.regular_price || urun.fiyat || urun.price || 0);
-    const gecerliFiyat = urun.indirimliFiyat ? Number(urun.indirimliFiyat) : normalFiyat;
+ const handleSepeteEkle = (urun: any) => {
+  const targetId = urun._id || urun.id;
+  const normalFiyat = Number(urun.regular_price || urun.fiyat || urun.price || 0);
+  const gecerliFiyat = urun.indirimliFiyat ? Number(urun.indirimliFiyat) : normalFiyat;
+  
+  // 🧠 Sepetin ihtiyaç duyduğu havale oranını yakalıyoruz
+  const havaleOrani = urun.havaleIndirimi !== undefined ? Number(urun.havaleIndirimi) : 5;
 
-    sepeteEkle({
-      id: targetId, isim: urun.isim || urun.title || urun.name, fiyat: gecerliFiyat,
-      resim: (urun.resimler && urun.resimler[0]) || urun.resim || urun.image || "/placeholder.jpg", adet: 1, varyasyon: "Standart" 
-    });
-    setSepeteEklenenler(prev => [...prev, targetId]);
-    setTimeout(() => { setSepeteEklenenler(prev => prev.filter(id => id !== targetId)); }, 2000);
-  };
-
+  sepeteEkle({
+    id: targetId, 
+    isim: urun.isim || urun.title || urun.name, 
+    fiyat: gecerliFiyat,
+    resim: (urun.resimler && urun.resimler[0]) || urun.resim || urun.image || "/placeholder.jpg", 
+    adet: 1, 
+    varyasyon: "Standart",
+    // 🔥 EKSİK OLAN KABLOLARI BURAYA BAĞLADIK 🔥
+    havaleIndirimi: havaleOrani,
+    stokKodu: urun.stokKodu || "",
+    kategori: urun.kategori || ""
+  });
+  
+  setSepeteEklenenler(prev => [...prev, targetId]);
+  setTimeout(() => { setSepeteEklenenler(prev => prev.filter(id => id !== targetId)); }, 2000);
+};
   const handleKarsilastir = (urun: any) => { 
     karsilastirmayaEkle(urun); 
     setBarGizli(false);
@@ -323,7 +335,7 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
 
       <div className="flex flex-col lg:flex-row gap-6 px-4 sm:px-0 relative items-start">
         
-        {/* 🛠 McKay SOL FİLTRE PANELİ */}
+        {/* 🛠 SOL FİLTRE PANELİ */}
         <aside className={`fixed top-[81px] bottom-0 left-0 right-0 z-[40] lg:sticky lg:top-24 lg:w-[260px] xl:w-[280px] lg:max-h-[calc(100vh-100px)] lg:shrink-0 transition-transform duration-300 flex flex-col ${mobilFiltreAcik ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
           <div className="absolute inset-0 bg-black/60 lg:hidden" onClick={() => setMobilFiltreAcik(false)}></div>
           
@@ -425,14 +437,21 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
           </div>
         </aside>
 
-        {/* 🛠 Sağ ÜRÜN IZGARASI */}
-        <main className="flex-1 w-full min-w-0 pb-12">
-          {filtrelenmisUrunler.length === 0 ? (
-            <div className="w-full py-24 flex flex-col items-center justify-center border border-dashed border-white/5 rounded-2xl bg-white/[0.01]">
-              <PackageX className="w-12 h-12 text-gray-600 mb-4" />
-              <h3 className="text-xl font-black text-gray-400 uppercase tracking-widest mb-2 text-center px-4">Aradığınız Kriterlerde Ürün Bulunamadı</h3>
-              <button onClick={filtreleriTemizle} className="mt-4 text-white text-sm font-bold underline transition-colors hover:text-gray-300">Filtreleri Temizle</button>
-            </div>
+    {/* 🛠 Sağ ÜRÜN IZGARASI */}
+<main className="flex-1 w-full min-w-0 pb-12">
+  {filtrelenmisUrunler.length === 0 ? (
+    <div className="w-full flex flex-col items-center justify-center text-center gap-4 py-24 select-none border border-white/5 bg-black/20 rounded-2xl px-4">
+      <span className="text-[#00d2ff] font-black text-xs uppercase tracking-widest animate-pulse">
+        Sistem Güncelleniyor
+      </span>
+      <h3 className="text-xl sm:text-2xl font-black text-white leading-tight uppercase max-w-md">
+        Seçilen Kombinasyon Şu An Hazırlık Aşamasında
+      </h3>
+      <div className="h-px w-16 bg-gradient-to-r from-transparent via-[#00d2ff] to-transparent my-1"></div>
+      <p className="text-xs sm:text-sm font-medium leading-relaxed text-gray-400 max-w-lg">
+        Aradığınız kriterlere uygun donanım yapılandırmaları ve güncel stok listeleri optimize ediliyor olabilir. Sol paneldeki aktif filtreleri kaldırarak veya diğer ana kategorilere geçiş yaparak dükkandaki canavar bileşenleri hemen inceleyebilirsiniz.
+      </p>
+    </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
               {filtrelenmisUrunler.map((urun: any) => {
@@ -454,11 +473,11 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
                   let yorumSayisi = urun.yorumSayisi ? Number(urun.yorumSayisi) : 0;
 
                   return (
-                    <div key={String(targetId)} className="group relative isolate z-0 flex flex-col w-full flex-shrink-0 bg-[#09090b]/40 backdrop-blur-3xl rounded-3xl overflow-hidden border border-white/5 transition-all duration-700 ease-out hover:border-white/20 hover:shadow-[0_15px_60px_rgba(255,255,255,0.05)]">
+                  <div key={String(targetId)} className="group relative isolate z-0 flex flex-col w-full flex-shrink-0 bg-[#18181b]/90 backdrop-blur-3xl rounded-3xl overflow-hidden border border-white/20 shadow-[0_0_15px_rgba(0,0,0,0.8)] transition-all duration-700 ease-out hover:border-white/40 hover:shadow-[0_15px_60px_rgba(255,255,255,0.05)]">
                       <div className="relative aspect-[4/3] w-full bg-gradient-to-b from-white/[0.01] to-transparent flex items-center justify-center p-6 overflow-hidden pointer-events-none">
                         
                         {indirimVarMi && !tukendiMi && (
-                          <div className="absolute top-4 right-4 discount-badge-container pointer-events-none !z-10">
+                         <div className="absolute top-4 right-7 discount-badge-container pointer-events-none !z-20">
                               <div className="badge-ribbon-home-left"></div>
                               <div className="badge-ribbon-home-right"></div>
                               <div className="badge-rosette-home">
