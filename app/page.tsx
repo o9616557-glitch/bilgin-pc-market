@@ -189,7 +189,7 @@ export default async function HomePage() {
               <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781456009/depositphotos_76643017-stock-photo-illustration-of-great-sales-and_qvv12v.webp" alt="Havale İndirimi" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-60 transition-all duration-1000 ease-out pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent pointer-events-none"></div>
             <div className="relative z-10 transform group-hover:-translate-y-2 transition-transform duration-700 ease-out pointer-events-none">
-    <div className="text-white font-black text-4xl tracking-tighter mb-1 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">SEPETTE İNDİRİM</div>
+ <div className="text-[#10b981] font-black text-4xl tracking-tighter mb-1 drop-shadow-[0_0_15px_rgba(16,185,129,0.2)]">SEPETTE<span className="text-white">İNDİRİM</span></div>
     <h3 className="text-white font-black text-base uppercase tracking-widest mb-3 group-hover:text-[#10b981] transition-colors duration-700">ÜST DÜZEY DONANIM FIRSATLARI</h3>
     <div className="w-8 h-1 bg-[#10b981] mb-3 transition-all duration-700 ease-out group-hover:w-full"></div>
     <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity duration-700">Rekabetçi oyunlar için tasarlanan yüksek performanslı işlemciler ve en güncel ekran kartlarında geçerli özel fiyat avantajlarını kaçırmayın. Kampanyalı ürünleri hemen sepetinize ekleyin.</p>
@@ -222,7 +222,7 @@ export default async function HomePage() {
     <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent pointer-events-none"></div>
     
     <div className="relative z-10 transform group-hover:-translate-y-2 transition-transform duration-700 ease-out pointer-events-none">
-        <div className="text-[#10b981] font-black text-4xl tracking-tighter mb-1 drop-shadow-[0_0_15px_rgba(16,185,129,0.2)]">12 TAKSİT</div>
+      <div className="text-[#10b981] font-black text-4xl tracking-tighter mb-1 drop-shadow-[0_0_15px_rgba(16,185,129,0.2)]">12<span className="text-white">TAKSİT</span></div>
         <h3 className="text-white font-black text-base uppercase tracking-widest mb-3 group-hover:text-[#10b981] transition-colors duration-700">KREDİ KARTINA ÖDEME KOLAYLIĞI</h3>
         <div className="w-8 h-1 bg-[#10b981] mb-3 transition-all duration-700 ease-out group-hover:w-full"></div>
         <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity duration-700">Hayalinizdeki sisteme bütçenizi zorlamadan sahip olun. Tüm anlaşmalı kredi kartlarında 12 aya varan taksit imkanıyla ödemelerinizi rahatça planlayın.</p>
