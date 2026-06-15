@@ -100,7 +100,7 @@ export default function Footer() {
             
             {/* 🚀 BİNGO: Butonları "grid grid-cols-2" ile yan yana sabitledik! */}
             <div className="grid grid-cols-2 gap-3 w-full">
-              <a href="https://wa.me/905000000000" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-[#10b981]/10 border border-[#10b981]/30 hover:bg-[#10b981]/20 transition-all p-3 rounded-xl group w-full">
+              <a href="https://wa.me/05327345023" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-[#10b981]/10 border border-[#10b981]/30 hover:bg-[#10b981]/20 transition-all p-3 rounded-xl group w-full">
                 <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 text-[#10b981] shrink-0" />
                 <div className="flex flex-col overflow-hidden">
                   <span className="text-white font-bold text-xs sm:text-sm truncate">WhatsApp</span>
