@@ -1,6 +1,8 @@
 import React from "react";
-
 import { Metadata } from "next";
+import ProductClient from "./ProductClient";
+import clientPromise from "@/lib/mongodb";
+import { ObjectId } from "mongodb";
 
 // 🚀 SİHİRLİ SEO MOTORU: Google bu sayfaya girdiği an bu fonksiyon çalışır!
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -35,9 +37,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 } 
 
-import ProductClient from "./ProductClient";
-import clientPromise from "@/lib/mongodb";
-import { ObjectId } from "mongodb";
+// 🔥 ŞEFİN ÖN YÜKLEME MOTORU (BÜTÜN ÜRÜNLERİ TIK DİYE AÇAR) 🔥
+// Canlıya alındığında (npm run build) 300 ürünün hepsini şimdiden hafızaya kazır.
+export async function generateStaticParams() {
+  try {
+    const client = await clientPromise;
+    const db = client.db("bilginpcmarket");
+    
+    // Sadece ürünlerin ID ve Slug'larını olabilecek en hafif şekilde çekiyoruz
+    const urunler = await db.collection("products").find({}, { projection: { slug: 1, _id: 1 } }).toArray();
+    
+    return urunler.map((urun) => ({
+      slug: urun.slug ? String(urun.slug) : String(urun._id),
+    }));
+  } catch (error) {
+    console.error("Ön yükleme hatası:", error);
+    return [];
+  }
+}
 
 // 🔥 ŞEFİN HIZ OPTİMİZASYONU: Sayfayı 60 saniyede bir hafızaya alır, her tıklamada veritabanını yormaz!
 export const revalidate = 60;
@@ -68,7 +85,7 @@ export default async function ProductDetailPage({
     console.error("Ürün çekilirken hata:", e);
   }
 
-  // 2. YORUMLARI ÇEKİYORUZ (GERÇEK DEĞERLENDİRMELER İÇİN EKSİK OLAN KABLO BUYDU!)
+  // 2. YORUMLARI ÇEKİYORUZ (GERÇEK DEĞERLENDİRMELER İÇİN EKSİK OLAN KABLO)
   let reviewsData: any[] = [];
   if (product) {
     try {
@@ -80,7 +97,7 @@ export default async function ProductDetailPage({
     }
   }
 
-  // 3. FRENİ SÖKTÜK! Sadece 12 adet diğer ürünü çekiyoruz (300 taneyi birden indirip sistemi kitlemiyoruz)
+  // 3. FRENİ SÖKTÜK! Sadece 12 adet diğer ürünü çekiyoruz (Sistemi kitlemiyoruz)
   let allProducts: any[] = [];
   try {
     allProducts = await db.collection("products").find({}).limit(12).toArray();
@@ -89,7 +106,6 @@ export default async function ProductDetailPage({
   }
 
   // ŞEFİN KURŞUN GEÇİRMEZ TEMİZLİK MOTORU
-  // Yorumları da ürünün içine paketliyoruz ki vitrinde şakır şakır yıldızlar görünsün!
   const temizUrun = product 
     ? JSON.parse(JSON.stringify({ ...product, _id: product._id.toString(), fetchedReviews: reviewsData })) 
     : null;
