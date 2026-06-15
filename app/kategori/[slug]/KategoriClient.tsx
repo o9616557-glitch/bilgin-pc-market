@@ -549,7 +549,7 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
                         </div>
                       </div>
                       
-                      <Link href={"/product/" + (urun.slug || targetId)} prefetch={true} onMouseEnter={(e) => { const router = require('next/navigation').useRouter; router().prefetch("/product/" + (urun.slug || targetId)); }} className="absolute inset-0 z-10" />
+                    <Link href={"/product/" + (urun.slug || targetId)} className="absolute inset-0 z-10" />
 
                     </div>
                   );
