@@ -1,27 +1,9 @@
-import { Cpu } from "lucide-react";
-
 export default function Loading() {
   return (
     <div className="min-h-screen bg-black text-white pt-32 pb-24 px-4 font-sans flex flex-col items-center">
       
-      {/* 1. ÜST KISIM: Yükleniyor Animasyonu */}
-      <div className="relative flex flex-col items-center justify-center mb-16">
-        {/* Neon Parlama Efekti */}
-        <div className="absolute inset-0 bg-[#00d2ff] blur-[80px] opacity-20 rounded-full w-32 h-32 mx-auto animate-pulse"></div>
-
-        {/* Dönen İşlemci İkonu */}
-        <Cpu className="w-16 h-16 text-[#00d2ff] animate-bounce relative z-10" />
-
-        <h2 className="mt-6 text-2xl md:text-3xl font-black uppercase tracking-widest text-white animate-pulse relative z-10">
-          Katalog Yükleniyor...
-        </h2>
-        <p className="text-gray-500 text-sm font-medium mt-2 animate-pulse relative z-10 text-center">
-          Donanımlar veritabanından getiriliyor, lütfen bekleyin.
-        </p>
-      </div>
-
-      {/* 2. ALT KISIM: İskelet Kartlar (Skeleton) */}
-      <div className="max-w-[1400px] w-full mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-4 sm:px-0">
+      {/* SADECE İSKELET KARTLAR - YAZI, SİMGE VE NEON YOK */}
+      <div className="max-w-[1400px] w-full mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-4 sm:px-0 animate-in fade-in duration-300">
         {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
           <div key={i} className="w-full h-[450px] bg-[#09090b] rounded-2xl border border-white/5 animate-pulse flex flex-col p-5">
             {/* Resim İskeleti */}
