@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { MongoClient } from "mongodb";
-
+export const revalidate = 60;
 const uri = process.env.MONGODB_URI || "mongodb://localhost:27017/bilginpc"; 
 let client: MongoClient;
 
