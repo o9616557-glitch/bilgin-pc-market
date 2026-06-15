@@ -471,7 +471,12 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
 
                   let yildizSayisi = urun.rating ? Number(urun.rating) : 0;
                   let yorumSayisi = urun.yorumSayisi ? Number(urun.yorumSayisi) : 0;
-
+// 🌟 ŞEFİN VİTRİN YILDIZ MOTORU 🌟
+if (urun.fetchedReviews && urun.fetchedReviews.length > 0) {
+    yorumSayisi = urun.fetchedReviews.length;
+    const totalRating = urun.fetchedReviews.reduce((acc: any, curr: any) => acc + Number(curr.rating || 0), 0);
+    yildizSayisi = totalRating / yorumSayisi;
+}
                   return (
                   <div key={String(targetId)} className="group relative isolate z-0 flex flex-col w-full flex-shrink-0 bg-[#18181b]/90 backdrop-blur-3xl rounded-3xl overflow-hidden border border-white/20 shadow-[0_0_15px_rgba(0,0,0,0.8)] transition-all duration-700 ease-out hover:border-white/40 hover:shadow-[0_15px_60px_rgba(255,255,255,0.05)]">
                       <div className="relative aspect-[4/3] w-full bg-gradient-to-b from-white/[0.01] to-transparent flex items-center justify-center p-6 overflow-hidden pointer-events-none">
