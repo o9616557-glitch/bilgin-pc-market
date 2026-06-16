@@ -305,30 +305,33 @@ export default function AdminPaneli() {
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "20px" }}>
                 <div>
-              <div>
-  <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "5px" }}>Müşteri Bilgileri</p>
-  <p style={{ color: "#fff", fontSize: "0.85rem", lineHeight: "1.6" }}>
-    <strong>{siparis.musteri?.ad} {siparis.musteri?.soyad}</strong><br />
-    📞 {siparis.musteri?.telefon} | ✉️ {siparis.musteri?.eposta}<br />
-    📍 {siparis.musteri?.adres ? `${siparis.musteri.adres} - ` : ""} {siparis.musteri?.ilce} / {siparis.musteri?.sehir}
-  </p>
-  
-  {/* --- MÜŞTERİ NOTU ALANI BAŞLANGIÇ --- */}
-  {siparis.siparisNotu && siparis.siparisNotu !== "Not eklenmemiş" && (
-    <div style={{ marginTop: "12px", padding: "10px", background: "rgba(59, 130, 246, 0.05)", borderLeft: "3px solid #3b82f6", borderRadius: "0 6px 6px 0" }}>
-      <span style={{ color: "#3b82f6", fontWeight: "900", fontSize: "0.7rem", display: "block", marginBottom: "3px", textTransform: "uppercase" }}>📝 MÜŞTERİ NOTU:</span>
-      <span style={{ color: "#e4e4e7", fontSize: "0.85rem", fontStyle: "italic" }}>"{siparis.siparisNotu}"</span>
-    </div>
-  )}
-  {/* --- MÜŞTERİ NOTU ALANI BİTİŞ --- */}
-</div>
+               {/* 1. SÜTUN: MÜŞTERİ BİLGİLERİ VE NOTU */}
+                <div>
+                  <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "5px" }}>Müşteri Bilgileri</p>
+                  <p style={{ color: "#fff", fontSize: "0.85rem", lineHeight: "1.6" }}>
+                    <strong>{siparis.musteri?.ad} {siparis.musteri?.soyad}</strong><br />
+                    📞 {siparis.musteri?.telefon} | ✉️ {siparis.musteri?.eposta}<br />
+                    📍 {siparis.musteri?.adres ? `${siparis.musteri.adres} - ` : ""} {siparis.musteri?.ilce} / {siparis.musteri?.sehir}
+                  </p>
+                  
+                  {/* --- MÜŞTERİ NOTU ALANI BAŞLANGIÇ --- */}
+                  {siparis.siparisNotu && siparis.siparisNotu !== "Not eklenmemiş" && (
+                    <div style={{ marginTop: "12px", padding: "10px", background: "rgba(59, 130, 246, 0.05)", borderLeft: "3px solid #3b82f6", borderRadius: "0 6px 6px 0" }}>
+                      <span style={{ color: "#3b82f6", fontWeight: "900", fontSize: "0.7rem", display: "block", marginBottom: "3px", textTransform: "uppercase" }}>📝 MÜŞTERİ NOTU:</span>
+                      <span style={{ color: "#e4e4e7", fontSize: "0.85rem", fontStyle: "italic" }}>"{siparis.siparisNotu}"</span>
+                    </div>
+                  )}
+                  {/* --- MÜŞTERİ NOTU ALANI BİTİŞ --- */}
+                </div>
+
+                {/* 2. SÜTUN: ÖDEME DETAYI (İşte yıkılan duvarı buraya geri ördük!) */}
+                <div>
                   <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "5px" }}>Ödeme Detayı</p>
                   <p style={{ color: "#fff", fontSize: "0.85rem", lineHeight: "1.6" }}>
                     Yöntem: <strong>{siparis.odemeYontemi === "kart" ? "Kredi Kartı" : "Havale / EFT"}</strong><br />
                     Tutar: <strong style={{ color: "#3b82f6", fontSize: "1.1rem" }}>{Number((siparis.toplamTutar) || (siparis.Tutar) || 0).toLocaleString("tr-TR")} TL</strong>
                   </p>
                 </div>
-                <div>
                   <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "5px" }}>Satın Alınanlar</p>
                   <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
                     {siparis.sepet?.map((urun: any, i: number) => (
