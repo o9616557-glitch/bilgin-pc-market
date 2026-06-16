@@ -67,7 +67,7 @@ export async function POST(request: Request) {
               
               <h2 style="color: #3b82f6; letter-spacing: 1px; margin-bottom: 24px; font-size: 26px; font-weight: 900; text-shadow: 0 0 10px rgba(0,229,255,0.4); text-align: center;">${baslik}</h2>
               
-              {/* 🛠️ SONDAN VİRGÜLÜ TAMAMEN UÇURDUK */}
+             
               <p style="color: #e4e4e7; font-size: 16px; line-height: 1.6; margin-bottom: 16px; text-align: center;">Merhaba <strong style="color: #fff;">${musteri?.ad || ""} ${musteri?.soyad || ""}</strong></p>
               
               <p style="color: #a1a1aa; font-size: 15px; line-height: 1.6; margin-bottom: 35px; padding: 0 15px; text-align: center;">${altMesaj}</p>
