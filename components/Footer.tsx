@@ -23,7 +23,7 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           
-          {/* 1. Sütun: Logo ve Açıklama */}
+          {/* 1. Sütun: Logo ve ESKİ GOOGLE PLAY KUTUSU GERİ GELDİ */}
           <div className="flex flex-col gap-6">
             <div>
               <h2 className="text-2xl font-black text-white uppercase tracking-wider mb-2">
@@ -32,6 +32,18 @@ export default function Footer() {
               <p className="text-slate-400 text-sm leading-relaxed">
                 Yüksek performanslı bilgisayar bileşenleri ve yeni nesil donanım çözümleri. Güvenli alışveriş altyapısı ve kurumsal destekle hizmetinizdeyiz.
               </p>
+            </div>
+            
+            {/* Orijinal Google Play Kutusu */}
+            <div>
+              <span className="text-white font-bold text-sm uppercase tracking-wider block mb-3">Uygulamamızı İndirin</span>
+              <a href="#" className="flex items-center gap-3 bg-[#121215] border border-slate-700 hover:border-[#3b82f6]/50 transition-all p-3 rounded-xl group w-max">
+                <Smartphone className="w-8 h-8 text-[#3b82f6] group-hover:scale-110 transition-transform" />
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-1">Hemen İndir</span>
+                  <span className="text-white font-bold text-sm leading-none">Google Play</span>
+                </div>
+              </a>
             </div>
           </div>
 
@@ -86,59 +98,27 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* 4. Sütun: Bize Ulaşın & Sosyal Medya */}
+          {/* 4. Sütun: Bize Ulaşın (ORİJİNAL RENKLİ SOSYAL MEDYA) */}
           <div className="flex flex-col gap-4">
             <h3 className="text-white font-black text-lg uppercase tracking-wider mb-2">Bize Ulaşın</h3>
             
-            <div className="flex items-center gap-3">
-              {/* Instagram Butonu */}
-              <a 
-                href="https://www.instagram.com/bilginpcmarket" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="group flex items-center justify-center w-10 h-10 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 hover:text-white hover:border-[#10b981] hover:shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all duration-300 transform hover:-translate-y-1"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform duration-300">
-                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
-                </svg>
+            <div className="flex flex-col gap-3">
+              {/* Instagram: Orijinal Renkli */}
+              <a href="https://www.instagram.com/bilginpcmarket" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white hover:scale-105 transition-transform shadow-lg shadow-pink-500/20 w-max">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                <span className="font-bold text-sm tracking-wide">Instagram</span>
               </a>
 
-              {/* YouTube Butonu */}
-              <a 
-                href="https://www.youtube.com/@bilginpcmarket" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="group flex items-center justify-center w-10 h-10 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 hover:text-white hover:border-[#ef4444] hover:shadow-[0_0_15px_rgba(239,68,68,0.3)] transition-all duration-300 transform hover:-translate-y-1"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform duration-300">
-                  <path d="M2.5 7.1C2.5 5.9 3.5 5 4.7 5h14.6c1.2 0 2.2.9 2.2 2.1v9.8c0 1.2-1 2.1-2.2 2.1H4.7c-1.2 0-2.2-.9-2.2-2.1V7.1z"/>
-                  <path d="M10 15l5-3-5-3v6z" fill="currentColor"/>
-                </svg>
+              {/* YouTube: Orijinal Kırmızı */}
+              <a href="https://www.youtube.com/@bilginpcmarket" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-[#FF0000] text-white hover:scale-105 transition-transform shadow-lg shadow-red-500/20 w-max">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                <span className="font-bold text-sm tracking-wide">YouTube</span>
               </a>
 
-              {/* WhatsApp Butonu */}
-              <a 
-                href="https://wa.me/905327345023" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="group flex items-center justify-center w-10 h-10 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 hover:text-white hover:border-[#25D366] hover:shadow-[0_0_15px_rgba(37,211,102,0.3)] transition-all duration-300 transform hover:-translate-y-1"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform duration-300">
-                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-                </svg>
-              </a>
-
-              {/* Google Play Butonu */}
-              <a 
-                href="#" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="group flex items-center justify-center w-10 h-10 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 hover:text-white hover:border-[#3b82f6] hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all duration-300 transform hover:-translate-y-1"
-                title="Google Play'den İndirin"
-              >
-                <Smartphone className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" strokeWidth="2" />
+              {/* WhatsApp: Orijinal Yeşil */}
+              <a href="https://wa.me/905327345023" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-[#25D366] text-white hover:scale-105 transition-transform shadow-lg shadow-green-500/20 w-max">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-2.622-1.313-4.521-3.66-5.074-4.606-.057-.101-.013-.2.062-.276.069-.069.149-.174.223-.261.075-.088.099-.15.15-.248.049-.1.024-.186-.013-.261-.037-.074-.67-1.615-.918-2.21-.242-.58-.487-.502-.67-.512-.173-.008-.371-.008-.57-.008-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487 2.413 1.042 3.16.891 3.738.835.637-.061 1.758-.717 2.005-1.41.248-.693.248-1.289.173-1.41-.074-.124-.272-.198-.57-.347zM12 21.841c-1.745 0-3.456-.47-4.948-1.356l-.355-.21-3.673.963.98-3.582-.23-.365A9.794 9.794 0 0 1 2.22 12c0-5.395 4.385-9.78 9.78-9.78 5.395 0 9.78 4.385 9.78 9.78 0 5.394-4.385 9.78-9.78 9.78zm0-21.619C5.586.222.368 5.438.368 11.832c0 2.052.535 4.056 1.553 5.82L0 24l6.495-1.703a11.604 11.604 0 0 0 5.505 1.383h.005c6.393 0 11.61-5.215 11.61-11.609 0-6.393-5.216-11.61-11.615-11.61z"/></svg>
+                <span className="font-bold text-sm tracking-wide">WhatsApp</span>
               </a>
             </div>
           </div>
