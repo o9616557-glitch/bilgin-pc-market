@@ -273,11 +273,11 @@ export default function OdemeSayfasi() {
       className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 pr-6 pb-6 text-sm text-white outline-none focus:border-[#3b82f6] resize-y [&::-webkit-resizer]:hidden"
     ></textarea>
     
-    {/* Daha belirgin (beyaza yakın) ve köşeye milimetrik oturtulmuş çizgiler */}
-    <div className="absolute bottom-1.5 right-1.5 pointer-events-none text-slate-300">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    {/* BİRBİRİNE GİRMEYEN, ARASI AÇIK VE NET PC ÇİZGİLERİ */}
+    <div className="absolute bottom-2 right-2 pointer-events-none text-slate-400">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         <line x1="21" y1="14" x2="14" y2="21"></line>
-        <line x1="21" y1="7" x2="7" y2="21"></line>
+        <line x1="21" y1="6" x2="6" y2="21"></line>
       </svg>
     </div>
   </div>
