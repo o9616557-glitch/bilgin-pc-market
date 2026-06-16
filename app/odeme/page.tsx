@@ -323,8 +323,8 @@ export default function OdemeSayfasi() {
             )}
           </div>
 
-          <div className="w-full lg:w-1/3">
-             <div className="bg-[#09090b] border border-white/5 rounded-3xl p-5 sm:p-6 lg:p-8 sticky top-28 shadow-2xl">
+         <div className="w-full lg:w-1/3 sticky top-28 h-fit">
+            <div className="bg-[#09090b] border border-white/5 rounded-3xl p-5 sm:p-6 lg:p-8 shadow-2xl">
                 <h2 className="font-black text-lg sm:text-xl mb-5 pb-3 border-b border-white/10 text-white uppercase tracking-wider">Sipariş <span className="text-[#3b82f6]">Özeti</span></h2>
                 
                 {/* 🚀 BİNGO: Liste boşluğu ve yüksekliği ayarlandı */}
