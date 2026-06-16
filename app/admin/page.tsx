@@ -8,17 +8,17 @@ export default function AdminPaneli() {
   const { data: session, status } = useSession();
   const router = useRouter();
   
-  // 🚨 BURAYA KENDİ GOOGLE E-POSTA ADRESİNİ YAZMAYI UNUTMA! (Örn: "ozkan@gmail.com")
+  // 🚨 BURAYA KENDİ GOOGLE E-POSTA ADRESİNİ YAZMAYI UNUTMA!
   const ADMIN_EMAIL = "o9616557@gmail.com"; 
 
   useEffect(() => {
     if (status !== "loading") {
-      // Eğer giriş yapılmamışsa veya giren kişi sen değilsen, anasayfaya fırlat!
       if (!session || session?.user?.email?.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
         router.push("/"); 
       }
     }
   }, [session, status, router]);
+
   const [sifre, setSifre] = useState("");
   const [girisYapildi, setGirisYapildi] = useState(false);
   const [aktifSekme, setAktifSekme] = useState<"siparisler" | "urunler">("urunler");
@@ -151,7 +151,6 @@ export default function AdminPaneli() {
     setDuzenlenenUrun(urun);
     setFormIsim(urun.isim || urun.name || "");
     
-    // ŞEFİM: İŞTE O İNDİRİMİ BOZAN HATA BURADAYDI! Artık düzenle dediğinde GERÇEK normal fiyatı gösterecek.
     const orjFiyat = urun.regular_price || urun.fiyat || urun.price || 0;
     setFormFiyat(orjFiyat.toString());
     
@@ -277,6 +276,7 @@ export default function AdminPaneli() {
         <button onClick={() => setAktifSekme("urunler")} style={{ flex: "1 1 auto", background: aktifSekme === "urunler" ? "#3b82f6" : "transparent", color: aktifSekme === "urunler" ? "#000" : "#a1a1aa", border: aktifSekme === "urunler" ? "none" : "1px solid #27272a", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", textAlign: "center", transition: "0.2s" }}>💻 Ürün Yönetimi ({urunler.length})</button>
       </div>
       <button onClick={() => window.location.href = "/admin/reviews"} style={{ flex: "1 1 auto", background: "rgba(0, 229, 255, 0.1)", color: "#3b82f6", border: "1px solid rgba(0, 229, 255, 0.3)", borderRadius: "8px", padding: "10px 15px", cursor: "pointer", fontWeight: "900", textTransform: "uppercase" }}>⭐ YORUM YÖNETİMİ</button>
+      
       {yukleniyor ? <div style={{ textAlign: "center", padding: "50px", color: "#3b82f6", fontWeight: "900" }}>Veriler Çekiliyor Patron...</div> : aktifSekme === "siparisler" ? (
         
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
@@ -304,6 +304,7 @@ export default function AdminPaneli() {
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "20px" }}>
+                {/* 1. SÜTUN: MÜŞTERİ BİLGİLERİ VE NOTU */}
                 <div>
                   <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "5px" }}>Müşteri Bilgileri</p>
                   <p style={{ color: "#fff", fontSize: "0.85rem", lineHeight: "1.6" }}>
@@ -311,7 +312,18 @@ export default function AdminPaneli() {
                     📞 {siparis.musteri?.telefon} | ✉️ {siparis.musteri?.eposta}<br />
                     📍 {siparis.musteri?.adres ? `${siparis.musteri.adres} - ` : ""} {siparis.musteri?.ilce} / {siparis.musteri?.sehir}
                   </p>
+                  
+                  {/* --- MÜŞTERİ NOTU ALANI BAŞLANGIÇ --- */}
+                  {siparis.siparisNotu && siparis.siparisNotu !== "Not eklenmemiş" && (
+                    <div style={{ marginTop: "12px", padding: "10px", background: "rgba(59, 130, 246, 0.05)", borderLeft: "3px solid #3b82f6", borderRadius: "0 6px 6px 0" }}>
+                      <span style={{ color: "#3b82f6", fontWeight: "900", fontSize: "0.7rem", display: "block", marginBottom: "3px", textTransform: "uppercase" }}>📝 MÜŞTERİ NOTU:</span>
+                      <span style={{ color: "#e4e4e7", fontSize: "0.85rem", fontStyle: "italic" }}>"{siparis.siparisNotu}"</span>
+                    </div>
+                  )}
+                  {/* --- MÜŞTERİ NOTU ALANI BİTİŞ --- */}
                 </div>
+
+                {/* 2. SÜTUN: ÖDEME DETAYI */}
                 <div>
                   <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "5px" }}>Ödeme Detayı</p>
                   <p style={{ color: "#fff", fontSize: "0.85rem", lineHeight: "1.6" }}>
@@ -319,36 +331,22 @@ export default function AdminPaneli() {
                     Tutar: <strong style={{ color: "#3b82f6", fontSize: "1.1rem" }}>{Number((siparis.toplamTutar) || (siparis.Tutar) || 0).toLocaleString("tr-TR")} TL</strong>
                   </p>
                 </div>
-                <div>
-                  <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "5px" }}>Satın Alınanlar</p>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                    {siparis.sepet?.map((urun: any, i: number) => (
-                      <div key={i} style={{ color: "#fff", fontSize: "0.8rem", background: "#09090b", padding: "8px 10px", borderRadius: "6px", border: "1px solid #27272a" }}>
-                        <span style={{ color: "#3b82f6", fontWeight: "800", marginRight: "5px" }}>{urun.adet}x</span> {urun.isim || urun.name}
-                      </div>
-                    ))}
-                  </div>
-                  {/* 3. SÜTUN: SATIN ALINANLAR VE ÜRÜN ID KODU */}
+
+                {/* 3. SÜTUN: SATIN ALINANLAR VE ÜRÜN ID KODU */}
                 <div>
                   <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "5px" }}>Satın Alınanlar</p>
                   <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
                     {siparis.sepet?.map((urun: any, i: number) => (
                       <div key={i} style={{ background: "#09090b", padding: "8px 10px", borderRadius: "6px", border: "1px solid #27272a" }}>
-                        
-                        {/* Ürün İsmi ve Adedi */}
                         <div style={{ color: "#fff", fontSize: "0.85rem", fontWeight: "600", marginBottom: "3px" }}>
                           <span style={{ color: "#3b82f6", fontWeight: "900", marginRight: "5px" }}>{urun.adet}x</span> {urun.isim || urun.name}
                         </div>
-                        
-                        {/* Ürünü Depoda Bulmanı Sağlayacak Benzersiz Kod (ID) */}
                         <div style={{ color: "#71717a", fontSize: "0.7rem", fontFamily: "monospace", display: "flex", alignItems: "center", gap: "4px" }}>
                           <span style={{ color: "#a1a1aa", fontSize: "10px" }}>📦</span> KOD: {urun.id || urun._id || "Tanımsız"}
                         </div>
-                        
                       </div>
                     ))}
                   </div>
-                </div>
                 </div>
               </div>
 
@@ -371,7 +369,6 @@ export default function AdminPaneli() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))", gap: "15px" }}>
             {urunler.map((urun, index) => {
               
-              // ŞEFİM: BURADA DA GERÇEK NORMAL FİYATI BULUYORUZ Kİ İNDİRİM GÖZÜKSÜN
               const normalFiyat = Number(urun.regular_price || urun.fiyat || urun.price || 0);
               const indirimliFiyat = urun.indirimliFiyat ? Number(urun.indirimliFiyat) : null;
               const gosterilenFiyat = indirimliFiyat ? indirimliFiyat : normalFiyat;
@@ -386,13 +383,17 @@ export default function AdminPaneli() {
                 <div key={urun._id || index} style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "20px", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "15px", transition: "0.3s" }}>
                   <div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px", flexWrap: "wrap", gap: "10px" }}>
-                      <span style={{ background: "#27272a", color: "#a1a1aa", fontSize: "0.7rem", padding: "4px 8px", borderRadius: "4px", textTransform: "uppercase" }}>{urun.kategori || "Genel"}</span>
+                      
+                      {/* --- ÜRÜN KATEGORİSİ VE YENİ EKLENEN KİMLİK KODU --- */}
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <span style={{ background: "#27272a", color: "#a1a1aa", fontSize: "0.7rem", padding: "4px 8px", borderRadius: "4px", textTransform: "uppercase" }}>{urun.kategori || "Genel"}</span>
+                        <span style={{ color: "#71717a", fontSize: "0.7rem", fontFamily: "monospace" }}>📦 KOD: {urun._id}</span>
+                      </div>
+
                       <div style={{display: "flex", alignItems: "center", gap: "6px"}}>
-                        
                         {adetGosterilecekMi && (
                           <span style={{ background: "rgba(0, 229, 255, 0.1)", color: "#3b82f6", fontSize: "0.7rem", padding: "4px 8px", borderRadius: "4px", fontWeight: "900" }}>{urun.stokAdedi} Adet</span>
                         )}
-
                         <span style={{ color: durumRengiCode, fontWeight: "800", fontSize: "0.75rem" }}>● {gosterilecekDurum}</span>
                       </div>
                     </div>
