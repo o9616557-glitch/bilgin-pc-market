@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     const gercekOdemeYontemi = odemeYontemi === "havale" ? "havale" : "kart";
     const ilkDurum = odemeYontemi === "havale" ? "Havale Bekliyor" : "Ödeme Bekliyor";
 
-    const yeniSiparis = {
+  const yeniSiparis = {
       siparisKodu,
       musteri,
       sepet,
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       siparisNotu: siparisNotu || "Not eklenmemiş",
       toplamTutar,
       durum: ilkDurum, 
-      tاريخ: new Date(),
+      tarih: new Date(), // 🚀 İŞTE SORUN BURADAYDI, ŞİMDİ DÜZELDİ!
       userEmail: musteri?.eposta || musteri?.email || "",
       email: musteri?.eposta || musteri?.email || "",
       items: sepet, 
