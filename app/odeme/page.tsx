@@ -103,8 +103,14 @@ export default function OdemeSayfasi() {
     if (iyzicoFormHtml) {
       const gonderilenScript = document.getElementById("iyzico-script");
       if (gonderilenScript) gonderilenScript.remove();
-      const icerik = document.createRange().createContextualFragment(iyzicoFormHtml);
-      document.getElementById("iyzipay-checkout-form")?.appendChild(icerik);
+
+      const formKutusu = document.getElementById("iyzipay-checkout-form");
+      if (formKutusu) {
+        // 1. YENİ FORM YÜKLENMEDEN ÖNCE ESKİ KALINTILARI TEMİZLE
+        formKutusu.innerHTML = ""; 
+        const icerik = document.createRange().createContextualFragment(iyzicoFormHtml);
+        formKutusu.appendChild(icerik);
+      }
 
       setTimeout(() => {
         const panel = document.getElementById("iyzico-panel");
@@ -114,6 +120,14 @@ export default function OdemeSayfasi() {
         }
       }, 300);
     }
+
+    // 2. KULLANICI SEPETE DÖNERSE VEYA ÇIKARSA İYZİCO'YU SIFIRLA (ÇÖZÜM BURADA)
+    return () => {
+      const formKutusu = document.getElementById("iyzipay-checkout-form");
+      if (formKutusu) {
+        formKutusu.innerHTML = "";
+      }
+    };
   }, [iyzicoFormHtml]);
 
   const siparisTamamla = async (e: React.FormEvent) => {
