@@ -33,7 +33,6 @@ export async function POST(request: Request) {
       const client = await clientPromise;
       const db = client.db("bilginpcmarket");
       
-      // 🚀 BİNGO: Burada da yöntemi "kart" olarak perçinledik ki sistem Kredi Kartı yazısını tetiklesin!
       await db.collection("orders").updateOne(
         { siparisKodu: siparisKodu },
         { $set: { durum: "Ödendi / Hazırlanıyor", status: "Ödendi / Hazırlanıyor", odemeYontemi: "kart", odemeId: sonuc.paymentId } }
@@ -53,7 +52,7 @@ export async function POST(request: Request) {
           tls: { rejectUnauthorized: false }
         });
 
-        // ================= 1. MÜŞTERİYE GİDEN O JİLET GİBİ KURUMSAL ONAY MAİLİ =================
+        // ================= MÜŞTERİYE GİDEN ONAY MAİLİ (VİRGÜLSÜZ JİLET SÜRÜM) =================
         const baslik = "SİPARİŞİNİZ ONAYLANDI 🚀";
         const altMesaj = `Ödemeniz başarıyla tarafımıza ulaşmış ve siparişiniz hazırlık aşamasına geçmiştir. Ürünleriniz uzman ekibimiz tarafından özenle paketleniyor! En kısa sürede kargoya teslim edilecektir.<br><br>
         <span style="color: #3b82f6; font-weight: bold;">Ödenen Tutar: ${toplamTutar} TL</span><br>
@@ -68,7 +67,8 @@ export async function POST(request: Request) {
               
               <h2 style="color: #3b82f6; letter-spacing: 1px; margin-bottom: 24px; font-size: 26px; font-weight: 900; text-shadow: 0 0 10px rgba(0,229,255,0.4); text-align: center;">${baslik}</h2>
               
-              <p style="color: #e4e4e7; font-size: 16px; line-height: 1.6; margin-bottom: 16px; text-align: center;">Merhaba <strong style="color: #fff;">${musteri?.ad || ""} ${musteri?.soyad || ""}</strong>,</p>
+              {/* 🛠️ SONDAN VİRGÜLÜ TAMAMEN UÇURDUK */}
+              <p style="color: #e4e4e7; font-size: 16px; line-height: 1.6; margin-bottom: 16px; text-align: center;">Merhaba <strong style="color: #fff;">${musteri?.ad || ""} ${musteri?.soyad || ""}</strong></p>
               
               <p style="color: #a1a1aa; font-size: 15px; line-height: 1.6; margin-bottom: 35px; padding: 0 15px; text-align: center;">${altMesaj}</p>
 
@@ -123,10 +123,10 @@ export async function POST(request: Request) {
           `
         };
 
-        // ================= 2. ADMİNE (SANA) GİDEN BİLDİRİM MAİLİ =================
+        // ================= ADMİNE GİDEN BİLDİRİM MAİLİ =================
         const adminMailSecenekleri = {
           from: `"Bilgin PC Sistem" <o9616557@gmail.com>`,
-          to: "o9616557@gmail.com", // Kendi mailin
+          to: "o9616557@gmail.com",
           subject: `🚨 YENİ SİPARİŞ GELDİ! - Tutar: ${toplamTutar} TL`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #050505; color: #ffffff; padding: 30px; border-radius: 12px; border: 2px solid #10b981;">
@@ -143,7 +143,6 @@ export async function POST(request: Request) {
           `
         };
 
-        // İki maili de aynı anda havada fırlatıyoruz!
         transporter.sendMail(musteriMailSecenekleri).catch((err: any) => console.log(err));
         transporter.sendMail(adminMailSecenekleri).catch((err: any) => console.log(err));
 
