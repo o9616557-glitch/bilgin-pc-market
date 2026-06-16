@@ -178,171 +178,183 @@ export default function AdminPaneli() {
   };
 
   const durumRengi = (durum: string) => {
-    if (!durum) return "#f59e0b";
-    if (durum === "Ödendi / Hazırlanıyor" || durum.includes("Başarılı")) return "#10b981"; 
-    if (durum === "Kargoya Verildi") return "#3b82f6"; 
-    if (durum === "İptal Edildi") return "#ef4444"; 
-    return "#f59e0b"; 
+    if (!durum) return "#d97706";
+    if (durum === "Ödendi / Hazırlanıyor" || durum.includes("Başarılı")) return "#059669"; 
+    if (durum === "Kargoya Verildi") return "#2563eb"; 
+    if (durum === "İptal Edildi") return "#dc2626"; 
+    return "#d97706"; 
   };
 
-  if (yukleniyor && !girisYapildi) return <div style={{ textAlign: "center", padding: "100px", color: "#3b82f6" }}>Yükleniyor...</div>;
+  if (yukleniyor && !girisYapildi) return <div style={{ textAlign: "center", padding: "100px", color: "#64748b", fontFamily: "sans-serif" }}>Sistem Yükleniyor...</div>;
 
   if (!girisYapildi) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh", padding: "20px" }}>
-        {bildirim && <div style={{ position: "fixed", top: 20, right: 20, background: "#121214", border: `1px solid ${bildirim.tip === "basari" ? "#3b82f6" : "#ef4444"}`, borderRadius: "10px", padding: "15px 25px", color: "#fff", zIndex: 99999 }}>{bildirim.mesaj}</div>}
-        <form onSubmit={girisYap} style={{ background: "#121214", border: "1px solid #27272a", padding: "40px", borderRadius: "20px", textAlign: "center", width: "100%", maxWidth: "400px" }}>
-          <h2 style={{ color: "#fff", marginBottom: "25px", fontWeight: "900" }}>Patron Girişi</h2>
-          <input type="password" value={sifre} onChange={(e) => setSifre(e.target.value)} placeholder="Şifreyi Girin..." style={{ width: "100%", padding: "15px", background: "#09090b", border: "1px solid #27272a", borderRadius: "10px", color: "#fff", marginBottom: "20px", outline: "none" }} required />
-          <button type="submit" style={{ width: "100%", padding: "15px", background: "#3b82f6", color: "#000", border: "none", borderRadius: "10px", fontWeight: "900", cursor: "pointer" }}>Kilidi Aç</button>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh", padding: "20px", fontFamily: "sans-serif", backgroundColor: "#0f172a" }}>
+        {bildirim && <div style={{ position: "fixed", top: 20, right: 20, background: "#1e293b", border: `1px solid ${bildirim.tip === "basari" ? "#3b82f6" : "#ef4444"}`, borderRadius: "8px", padding: "15px 20px", color: "#f8fafc", zIndex: 99999, fontSize: "14px" }}>{bildirim.mesaj}</div>}
+        <form onSubmit={girisYap} style={{ background: "#1e293b", border: "1px solid #334155", padding: "40px", borderRadius: "12px", textAlign: "center", width: "100%", maxWidth: "360px" }}>
+          <h2 style={{ color: "#f8fafc", marginBottom: "25px", fontWeight: "600", fontSize: "20px" }}>Yönetim Girişi</h2>
+          <input type="password" value={sifre} onChange={(e) => setSifre(e.target.value)} placeholder="Şifrenizi Girin..." style={{ width: "100%", padding: "12px", background: "#0f172a", border: "1px solid #334155", borderRadius: "6px", color: "#f8fafc", marginBottom: "20px", outline: "none", fontSize: "14px" }} required />
+          <button type="submit" style={{ width: "100%", padding: "12px", background: "#3b82f6", color: "#fff", border: "none", borderRadius: "6px", fontWeight: "500", cursor: "pointer", fontSize: "14px" }}>Giriş Yap</button>
         </form>
       </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
+    <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px", fontFamily: "system-ui, -apple-system, sans-serif", color: "#e2e8f0" }}>
       
+      {/* BİLDİRİM POPUP */}
       {bildirim && (
-        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0, 0, 0, 0.7)", zIndex: 99999, display: "flex", justifyContent: "center", alignItems: "center", backdropFilter: "blur(4px)" }}>
-          <div style={{ background: "#121214", border: `1px solid ${bildirim.tip === "basari" ? "#3b82f6" : "#ef4444"}`, borderRadius: "16px", padding: "30px", maxWidth: "400px", width: "90%", textAlign: "center" }}>
-            <h3 style={{ color: "#fff", fontWeight: "900", marginBottom: "15px" }}>{bildirim.tip === "basari" ? "Başarılı" : "Hata"}</h3>
-            <p style={{ color: "#a1a1aa", marginBottom: "25px" }}>{bildirim.mesaj}</p>
-            <button onClick={() => setBildirim(null)} style={{ width: "100%", background: bildirim.tip === "basari" ? "#3b82f6" : "#ef4444", color: bildirim.tip === "basari" ? "#000" : "#fff", border: "none", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer" }}>Tamam</button>
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(15, 23, 42, 0.7)", zIndex: 99999, display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <div style={{ background: "#1e293b", border: `1px solid ${bildirim.tip === "basari" ? "#3b82f6" : "#ef4444"}`, borderRadius: "8px", padding: "24px", maxWidth: "320px", width: "90%", textAlign: "center", boxShadow: "0 10px 25px rgba(0,0,0,0.5)" }}>
+            <h3 style={{ color: "#f8fafc", fontWeight: "600", marginBottom: "10px", fontSize: "16px" }}>{bildirim.tip === "basari" ? "İşlem Başarılı" : "Hata Oluştu"}</h3>
+            <p style={{ color: "#cbd5e1", marginBottom: "20px", fontSize: "14px" }}>{bildirim.mesaj}</p>
+            <button onClick={() => setBildirim(null)} style={{ width: "100%", background: bildirim.tip === "basari" ? "#3b82f6" : "#ef4444", color: "#fff", border: "none", padding: "10px", borderRadius: "6px", fontWeight: "500", cursor: "pointer", fontSize: "14px" }}>Kapat</button>
           </div>
         </div>
       )}
 
+      {/* SİLME ONAYI */}
       {silinecekSiparisID && (
-        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0, 0, 0, 0.8)", zIndex: 9999, display: "flex", justifyContent: "center", alignItems: "center" }}>
-          <div style={{ background: "#121214", border: "1px solid #ef4444", borderRadius: "16px", padding: "30px", maxWidth: "400px", textAlign: "center", width: "90%" }}>
-            <h3 style={{ color: "#fff", fontWeight: "900", marginBottom: "15px" }}>Siparişi Sil?</h3>
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(15, 23, 42, 0.7)", zIndex: 9999, display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <div style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "8px", padding: "24px", maxWidth: "320px", textAlign: "center", width: "90%", boxShadow: "0 10px 25px rgba(0,0,0,0.5)" }}>
+            <h3 style={{ color: "#f8fafc", fontWeight: "600", marginBottom: "15px", fontSize: "16px" }}>Siparişi Silmek İstediğinize Emin Misiniz?</h3>
             <div style={{ display: "flex", gap: "10px" }}>
-              <button onClick={() => setSilinecekSiparisID(null)} style={{ flex: 1, background: "#27272a", color: "#fff", border: "none", padding: "12px", borderRadius: "8px", fontWeight: "800", cursor: "pointer" }}>Vazgeç</button>
-              <button onClick={siparisSilmeIslemi} style={{ flex: 1, background: "#ef4444", color: "#fff", border: "none", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer" }}>Evet, Sil</button>
+              <button onClick={() => setSilinecekSiparisID(null)} style={{ flex: 1, background: "#334155", color: "#f8fafc", border: "none", padding: "10px", borderRadius: "6px", fontWeight: "500", cursor: "pointer", fontSize: "14px" }}>İptal</button>
+              <button onClick={siparisSilmeIslemi} style={{ flex: 1, background: "#ef4444", color: "#fff", border: "none", padding: "10px", borderRadius: "6px", fontWeight: "500", cursor: "pointer", fontSize: "14px" }}>Sil</button>
             </div>
           </div>
         </div>
       )}
 
+      {/* YENİ ÜRÜN / DÜZENLEME FORMU */}
       {yeniUrunModu && (
-        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0, 0, 0, 0.85)", zIndex: 9999, display: "flex", justifyContent: "center", alignItems: "center", backdropFilter: "blur(5px)" }}>
-          <form onSubmit={urunKaydet} style={{ background: "#121214", border: "1px solid #3b82f6", borderRadius: "16px", padding: "20px", maxWidth: "520px", width: "90%", display: "flex", flexDirection: "column", gap: "12px", maxHeight: "95vh", overflowY: "auto" }}>
-            <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: "900", borderBottom: "1px solid #27272a", paddingBottom: "10px", margin: 0 }}>{duzenlenenUrun ? "⚙️ ÜRÜNÜ DÜZENLE" : "🚀 YENİ ÜRÜN EKLE"}</h3>
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(15, 23, 42, 0.8)", zIndex: 9999, display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <form onSubmit={urunKaydet} style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "12px", padding: "24px", maxWidth: "500px", width: "90%", display: "flex", flexDirection: "column", gap: "12px", maxHeight: "90vh", overflowY: "auto", boxShadow: "0 10px 25px rgba(0,0,0,0.5)" }}>
+            <h3 style={{ color: "#f8fafc", fontSize: "16px", fontWeight: "600", borderBottom: "1px solid #334155", paddingBottom: "10px", margin: "0 0 5px 0" }}>{duzenlenenUrun ? "Ürünü Düzenle" : "Yeni Ürün Ekle"}</h3>
             
-            <div><label style={{ color: "#a1a1aa", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Ürün Adı</label><input type="text" value={formIsim} onChange={(e) => setFormIsim(e.target.value)} required style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }} /></div>
+            <div><label style={{ color: "#cbd5e1", fontSize: "12px", display: "block", marginBottom:"4px" }}>Ürün Adı</label><input type="text" value={formIsim} onChange={(e) => setFormIsim(e.target.value)} required style={{ width: "100%", padding: "10px", background: "#0f172a", border: "1px solid #334155", borderRadius: "6px", color: "#f8fafc", outline: "none", fontSize: "14px" }} /></div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              <div><label style={{ color: "#a1a1aa", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Normal Fiyat (TL)</label><input type="number" value={formFiyat} onChange={(e) => setFormFiyat(e.target.value)} required style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }} /></div>
-              <div><label style={{ color: "#ffb300", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>İndirimli Fiyat (TL)</label><input type="number" value={formIndirimliFiyat} onChange={(e) => setFormIndirimliFiyat(e.target.value)} placeholder="Yoksa boş bırak" style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#ffb300", outline: "none", fontWeight: "bold" }} /></div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <div><label style={{ color: "#cbd5e1", fontSize: "12px", display: "block", marginBottom:"4px" }}>Normal Fiyat (TL)</label><input type="number" value={formFiyat} onChange={(e) => setFormFiyat(e.target.value)} required style={{ width: "100%", padding: "10px", background: "#0f172a", border: "1px solid #334155", borderRadius: "6px", color: "#f8fafc", outline: "none", fontSize: "14px" }} /></div>
+              <div><label style={{ color: "#cbd5e1", fontSize: "12px", display: "block", marginBottom:"4px" }}>İndirimli Fiyat (TL)</label><input type="number" value={formIndirimliFiyat} onChange={(e) => setFormIndirimliFiyat(e.target.value)} placeholder="İsteğe bağlı" style={{ width: "100%", padding: "10px", background: "#0f172a", border: "1px solid #334155", borderRadius: "6px", color: "#f8fafc", outline: "none", fontSize: "14px" }} /></div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
               <div>
-                <label style={{ color: "#3b82f6", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Stok Adedi (İsteğe Bağlı)</label>
-                <input type="number" value={formStokAdedi} onChange={(e) => setFormStokAdedi(e.target.value)} placeholder="Sadece Var yazsın istiyorsan BOŞ BIRAK" style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#3b82f6", fontWeight: "900", outline: "none" }} />
+                <label style={{ color: "#cbd5e1", fontSize: "12px", display: "block", marginBottom:"4px" }}>Stok Adedi</label>
+                <input type="number" value={formStokAdedi} onChange={(e) => setFormStokAdedi(e.target.value)} placeholder="Boş = Sınırsız" style={{ width: "100%", padding: "10px", background: "#0f172a", border: "1px solid #334155", borderRadius: "6px", color: "#f8fafc", outline: "none", fontSize: "14px" }} />
               </div>
-              <div><label style={{ color: "#10b981", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Özel Havale İndirimi (%)</label><input type="number" value={formHavaleIndirimi} onChange={(e) => setFormHavaleIndirimi(e.target.value)} min="0" max="100" style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#10b981", fontWeight: "900", outline: "none" }} /></div>
+              <div><label style={{ color: "#cbd5e1", fontSize: "12px", display: "block", marginBottom:"4px" }}>Havale İndirimi (%)</label><input type="number" value={formHavaleIndirimi} onChange={(e) => setFormHavaleIndirimi(e.target.value)} min="0" max="100" style={{ width: "100%", padding: "10px", background: "#0f172a", border: "1px solid #334155", borderRadius: "6px", color: "#f8fafc", outline: "none", fontSize: "14px" }} /></div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
               <div>
-                <label style={{ color: "#a1a1aa", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Stok Durumu</label>
-                <select value={formStok} onChange={(e) => setFormStok(e.target.value)} style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }}>
+                <label style={{ color: "#cbd5e1", fontSize: "12px", display: "block", marginBottom:"4px" }}>Stok Durumu</label>
+                <select value={formStok} onChange={(e) => setFormStok(e.target.value)} style={{ width: "100%", padding: "10px", background: "#0f172a", border: "1px solid #334155", borderRadius: "6px", color: "#f8fafc", outline: "none", fontSize: "14px" }}>
                   <option value="Stokta Var">Stokta Var</option>
                   <option value="Tükendi">Tükendi</option>
                 </select>
               </div>
-              <div><label style={{ color: "#a1a1aa", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Kategori</label><input type="text" value={formKategori} onChange={(e) => setFormKategori(e.target.value)} style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }} /></div>
+              <div><label style={{ color: "#cbd5e1", fontSize: "12px", display: "block", marginBottom:"4px" }}>Kategori</label><input type="text" value={formKategori} onChange={(e) => setFormKategori(e.target.value)} style={{ width: "100%", padding: "10px", background: "#0f172a", border: "1px solid #334155", borderRadius: "6px", color: "#f8fafc", outline: "none", fontSize: "14px" }} /></div>
             </div>
 
-            <div><label style={{ color: "#a1a1aa", fontSize: "0.75rem", display: "block", marginBottom:"3px" }}>Resim URL Yolu</label><input type="text" value={formResim} onChange={(e) => setFormResim(e.target.value)} style={{ width: "100%", padding: "10px", background: "#09090b", border: "1px solid #27272a", borderRadius: "6px", color: "#fff", outline: "none" }} /></div>
+            <div><label style={{ color: "#cbd5e1", fontSize: "12px", display: "block", marginBottom:"4px" }}>Resim URL Yolu</label><input type="text" value={formResim} onChange={(e) => setFormResim(e.target.value)} style={{ width: "100%", padding: "10px", background: "#0f172a", border: "1px solid #334155", borderRadius: "6px", color: "#f8fafc", outline: "none", fontSize: "14px" }} /></div>
 
-            <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-              <button type="button" onClick={formuKapat} style={{ flex: 1, padding: "12px", background: "#27272a", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "800", cursor: "pointer" }}>Kapat</button>
-              <button type="submit" style={{ flex: 1, padding: "12px", background: "#3b82f6", color: "#000", border: "none", borderRadius: "8px", fontWeight: "900", cursor: "pointer" }}>Kaydet</button>
+            <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
+              <button type="button" onClick={formuKapat} style={{ flex: 1, padding: "10px", background: "#334155", color: "#f8fafc", border: "none", borderRadius: "6px", fontWeight: "500", cursor: "pointer", fontSize: "14px" }}>İptal</button>
+              <button type="submit" style={{ flex: 1, padding: "10px", background: "#3b82f6", color: "#fff", border: "none", borderRadius: "6px", fontWeight: "500", cursor: "pointer", fontSize: "14px" }}>Kaydet</button>
             </div>
           </form>
         </div>
       )}
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px", flexWrap: "wrap", gap: "15px" }}>
-        <h1 style={{ color: "#fff", fontSize: "2rem", fontWeight: "900", borderLeft: "6px solid #3b82f6", paddingLeft: "15px" }}>PATRON <span style={{ color: "#3b82f6" }}>PANELİ</span></h1>
-        <button onClick={cikisYap} style={{ background: "rgba(239, 68, 68, 0.1)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.3)", padding: "10px 15px", borderRadius: "8px", cursor: "pointer", fontWeight: "700" }}>Çıkış</button>
+      {/* ÜST BİLGİ & ÇIKIŞ */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", paddingBottom: "16px", borderBottom: "1px solid #334155" }}>
+        <h1 style={{ color: "#f8fafc", fontSize: "20px", fontWeight: "600", margin: 0 }}>Yönetim Paneli</h1>
+        <button onClick={cikisYap} style={{ background: "transparent", color: "#94a3b8", border: "1px solid #334155", padding: "6px 12px", borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontWeight: "500" }}>Çıkış Yap</button>
       </div>
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginBottom: "30px", borderBottom: "1px solid #27272a", paddingBottom: "15px" }}>
-        <button onClick={() => setAktifSekme("siparisler")} style={{ flex: "1 1 auto", background: aktifSekme === "siparisler" ? "#3b82f6" : "transparent", color: aktifSekme === "siparisler" ? "#000" : "#a1a1aa", border: aktifSekme === "siparisler" ? "none" : "1px solid #27272a", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", textAlign: "center", transition: "0.2s" }}>📦 Sipariş Yönetimi ({siparisler.length})</button>
-        <button onClick={() => setAktifSekme("urunler")} style={{ flex: "1 1 auto", background: aktifSekme === "urunler" ? "#3b82f6" : "transparent", color: aktifSekme === "urunler" ? "#000" : "#a1a1aa", border: aktifSekme === "urunler" ? "none" : "1px solid #27272a", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", textAlign: "center", transition: "0.2s" }}>💻 Ürün Yönetimi ({urunler.length})</button>
+      {/* SEKMELER (TABS) */}
+      <div style={{ display: "flex", gap: "10px", marginBottom: "24px" }}>
+        <button onClick={() => setAktifSekme("siparisler")} style={{ background: aktifSekme === "siparisler" ? "#e2e8f0" : "transparent", color: aktifSekme === "siparisler" ? "#0f172a" : "#94a3b8", border: "1px solid", borderColor: aktifSekme === "siparisler" ? "#e2e8f0" : "#334155", padding: "8px 16px", borderRadius: "6px", fontWeight: "500", cursor: "pointer", fontSize: "14px", transition: "all 0.2s" }}>
+          📦 Siparişler ({siparisler.length})
+        </button>
+        <button onClick={() => setAktifSekme("urunler")} style={{ background: aktifSekme === "urunler" ? "#e2e8f0" : "transparent", color: aktifSekme === "urunler" ? "#0f172a" : "#94a3b8", border: "1px solid", borderColor: aktifSekme === "urunler" ? "#e2e8f0" : "#334155", padding: "8px 16px", borderRadius: "6px", fontWeight: "500", cursor: "pointer", fontSize: "14px", transition: "all 0.2s" }}>
+          💻 Ürünler ({urunler.length})
+        </button>
+        <button onClick={() => window.location.href = "/admin/reviews"} style={{ background: "transparent", color: "#94a3b8", border: "1px solid #334155", padding: "8px 16px", borderRadius: "6px", fontWeight: "500", cursor: "pointer", fontSize: "14px", marginLeft: "auto", transition: "all 0.2s" }}>
+          ⭐ Yorumlar
+        </button>
       </div>
-      <button onClick={() => window.location.href = "/admin/reviews"} style={{ flex: "1 1 auto", background: "rgba(0, 229, 255, 0.1)", color: "#3b82f6", border: "1px solid rgba(0, 229, 255, 0.3)", borderRadius: "8px", padding: "10px 15px", cursor: "pointer", fontWeight: "900", textTransform: "uppercase" }}>⭐ YORUM YÖNETİMİ</button>
       
-      {yukleniyor ? <div style={{ textAlign: "center", padding: "50px", color: "#3b82f6", fontWeight: "900" }}>Veriler Çekiliyor Patron...</div> : aktifSekme === "siparisler" ? (
+      {yukleniyor ? <div style={{ padding: "40px 0", color: "#94a3b8", fontSize: "14px" }}>Veriler yükleniyor...</div> : aktifSekme === "siparisler" ? (
         
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           {siparisler.map((siparis) => (
-            <div key={siparis._id} style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "24px", display: "flex", flexDirection: "column", gap: "20px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "15px", borderBottom: "1px solid #27272a", paddingBottom: "15px" }}>
-                <div style={{ width: "100%", maxWidth: "300px" }}>
-                  <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: "800", marginBottom: "5px" }}>{siparis.siparisKodu}</h3>
-                  <p style={{ color: "#a1a1aa", fontSize: "0.85rem" }}>{new Date(siparis.tarih).toLocaleString("tr-TR")}</p>
+            <div key={siparis._id} style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "8px", padding: "20px", display: "flex", flexDirection: "column", gap: "16px" }}>
+              
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "15px", borderBottom: "1px solid #334155", paddingBottom: "12px" }}>
+                <div>
+                  <div style={{ color: "#f8fafc", fontSize: "16px", fontWeight: "600", marginBottom: "4px" }}>{siparis.siparisKodu}</div>
+                  <div style={{ color: "#94a3b8", fontSize: "12px" }}>{new Date(siparis.tarih).toLocaleString("tr-TR")}</div>
                 </div>
                 
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", width: "100%", flex: 1, justifyContent: "flex-end" }}>
-                  <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px", background: "#09090b", padding: "8px", borderRadius: "10px", border: "1px solid #27272a", flex: "1 1 auto" }}>
-                    <span style={{ color: durumRengi(siparis.durum), fontWeight: "900", fontSize: "0.85rem", whiteSpace: "nowrap" }}>Mevcut: {siparis.durum}</span>
-                    <select onChange={(e) => durumGuncelle(siparis._id, e.target.value)} value={siparis.durum} style={{ flex: 1, minWidth: "120px", background: "#18181b", color: "#fff", border: "1px solid #27272a", padding: "8px", borderRadius: "6px", cursor: "pointer", fontSize: "0.85rem", outline: "none" }}>
-                      <option value="Ödeme Bekliyor (Havale)">Ödeme Bekliyor (Havale)</option>
-                      <option value="Ödendi / Hazırlanıyor">Ödendi / Hazırlanıyor</option>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "#0f172a", padding: "6px 10px", borderRadius: "6px", border: "1px solid #334155" }}>
+                    <span style={{ color: durumRengi(siparis.durum), fontSize: "12px", fontWeight: "500" }}>{siparis.durum}</span>
+                    <span style={{ color: "#334155" }}>|</span>
+                    <select onChange={(e) => durumGuncelle(siparis._id, e.target.value)} value={siparis.durum} style={{ background: "transparent", color: "#cbd5e1", border: "none", cursor: "pointer", fontSize: "13px", outline: "none" }}>
+                      <option value="Ödeme Bekliyor (Havale)">Bekliyor (Havale)</option>
+                      <option value="Ödendi / Hazırlanıyor">Hazırlanıyor</option>
                       <option value="Kargoya Verildi">Kargoya Verildi</option>
                       <option value="Tamamlandı">Tamamlandı</option>
                       <option value="İptal Edildi">İptal Edildi</option>
                     </select>
                   </div>
-                  <button onClick={() => setSilinecekSiparisID(siparis._id)} style={{ background: "rgba(239, 68, 68, 0.1)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.3)", padding: "10px 15px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", flex: "0 0 auto", transition: "0.2s" }}>🗑️ Sil</button>
+                  <button onClick={() => setSilinecekSiparisID(siparis._id)} style={{ background: "transparent", color: "#ef4444", border: "1px solid #ef4444", padding: "6px 12px", borderRadius: "6px", fontSize: "13px", cursor: "pointer" }}>Sil</button>
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "20px" }}>
-                {/* 1. SÜTUN: MÜŞTERİ BİLGİLERİ VE NOTU */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "24px" }}>
+                
+                {/* SÜTUN 1: MÜŞTERİ */}
                 <div>
-                  <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "5px" }}>Müşteri Bilgileri</p>
-                  <p style={{ color: "#fff", fontSize: "0.85rem", lineHeight: "1.6" }}>
-                    <strong>{siparis.musteri?.ad} {siparis.musteri?.soyad}</strong><br />
-                    📞 {siparis.musteri?.telefon} | ✉️ {siparis.musteri?.eposta}<br />
-                    📍 {siparis.musteri?.adres ? `${siparis.musteri.adres} - ` : ""} {siparis.musteri?.ilce} / {siparis.musteri?.sehir}
-                  </p>
+                  <div style={{ color: "#94a3b8", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "8px", fontWeight: "600" }}>Müşteri Bilgileri</div>
+                  <div style={{ color: "#e2e8f0", fontSize: "13px", lineHeight: "1.6" }}>
+                    <span style={{ fontWeight: "600", color: "#f8fafc" }}>{siparis.musteri?.ad} {siparis.musteri?.soyad}</span><br />
+                    {siparis.musteri?.telefon} <span style={{color: "#475569"}}>•</span> {siparis.musteri?.eposta}<br />
+                    <span style={{ color: "#cbd5e1" }}>{siparis.musteri?.adres ? `${siparis.musteri.adres}, ` : ""}{siparis.musteri?.ilce} / {siparis.musteri?.sehir}</span>
+                  </div>
                   
-                  {/* --- MÜŞTERİ NOTU ALANI BAŞLANGIÇ --- */}
                   {siparis.siparisNotu && siparis.siparisNotu !== "Not eklenmemiş" && (
-                    <div style={{ marginTop: "12px", padding: "10px", background: "rgba(59, 130, 246, 0.05)", borderLeft: "3px solid #3b82f6", borderRadius: "0 6px 6px 0" }}>
-                      <span style={{ color: "#3b82f6", fontWeight: "900", fontSize: "0.7rem", display: "block", marginBottom: "3px", textTransform: "uppercase" }}>📝 MÜŞTERİ NOTU:</span>
-                      <span style={{ color: "#e4e4e7", fontSize: "0.85rem", fontStyle: "italic" }}>"{siparis.siparisNotu}"</span>
+                    <div style={{ marginTop: "12px", padding: "10px", background: "#0f172a", borderLeft: "3px solid #3b82f6", borderRadius: "4px" }}>
+                      <div style={{ color: "#94a3b8", fontSize: "11px", marginBottom: "4px" }}>Sipariş Notu:</div>
+                      <div style={{ color: "#e2e8f0", fontSize: "13px", fontStyle: "italic" }}>"{siparis.siparisNotu}"</div>
                     </div>
                   )}
-                  {/* --- MÜŞTERİ NOTU ALANI BİTİŞ --- */}
                 </div>
 
-                {/* 2. SÜTUN: ÖDEME DETAYI */}
+                {/* SÜTUN 2: ÖDEME */}
                 <div>
-                  <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "5px" }}>Ödeme Detayı</p>
-                  <p style={{ color: "#fff", fontSize: "0.85rem", lineHeight: "1.6" }}>
-                    Yöntem: <strong>{siparis.odemeYontemi === "kart" ? "Kredi Kartı" : "Havale / EFT"}</strong><br />
-                    Tutar: <strong style={{ color: "#3b82f6", fontSize: "1.1rem" }}>{Number((siparis.toplamTutar) || (siparis.Tutar) || 0).toLocaleString("tr-TR")} TL</strong>
-                  </p>
+                  <div style={{ color: "#94a3b8", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "8px", fontWeight: "600" }}>Ödeme Özeti</div>
+                  <div style={{ color: "#e2e8f0", fontSize: "13px", lineHeight: "1.6" }}>
+                    Yöntem: <span style={{ color: "#f8fafc" }}>{siparis.odemeYontemi === "kart" ? "Kredi Kartı" : "Havale / EFT"}</span><br />
+                    Tutar: <span style={{ color: "#f8fafc", fontWeight: "600" }}>{Number((siparis.toplamTutar) || (siparis.Tutar) || 0).toLocaleString("tr-TR")} TL</span>
+                  </div>
                 </div>
 
-                {/* 3. SÜTUN: SATIN ALINANLAR VE ÜRÜN ID KODU */}
+                {/* SÜTUN 3: ÜRÜNLER */}
                 <div>
-                  <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "5px" }}>Satın Alınanlar</p>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+                  <div style={{ color: "#94a3b8", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "8px", fontWeight: "600" }}>Sipariş İçeriği</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                     {siparis.sepet?.map((urun: any, i: number) => (
-                      <div key={i} style={{ background: "#09090b", padding: "8px 10px", borderRadius: "6px", border: "1px solid #27272a" }}>
-                        <div style={{ color: "#fff", fontSize: "0.85rem", fontWeight: "600", marginBottom: "3px" }}>
-                          <span style={{ color: "#3b82f6", fontWeight: "900", marginRight: "5px" }}>{urun.adet}x</span> {urun.isim || urun.name}
+                      <div key={i} style={{ background: "#0f172a", padding: "8px 10px", borderRadius: "6px", border: "1px solid #334155" }}>
+                        <div style={{ color: "#e2e8f0", fontSize: "13px", marginBottom: "4px" }}>
+                          <span style={{ color: "#94a3b8", marginRight: "6px" }}>{urun.adet}x</span>{urun.isim || urun.name}
                         </div>
-                        <div style={{ color: "#71717a", fontSize: "0.7rem", fontFamily: "monospace", display: "flex", alignItems: "center", gap: "4px" }}>
-                          <span style={{ color: "#a1a1aa", fontSize: "10px" }}>📦</span> KOD: {urun.id || urun._id || "Tanımsız"}
+                        <div style={{ color: "#64748b", fontSize: "11px", fontFamily: "monospace" }}>
+                          KOD: {urun.id || urun._id || "Tanımsız"}
                         </div>
                       </div>
                     ))}
@@ -350,11 +362,10 @@ export default function AdminPaneli() {
                 </div>
               </div>
 
-              <div style={{ marginTop: "10px", borderTop: "1px solid #27272a", paddingTop: "15px" }}>
-                <p style={{ color: "#a1a1aa", fontSize: "0.75rem", textTransform: "uppercase", marginBottom: "8px", fontWeight: "700" }}>💬 Müşteriye İletilecek Mesaj</p>
-                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                  <input type="text" defaultValue={siparis.musteriMesaji || ""} onBlur={(e) => mesajGuncelle(siparis._id, e.target.value)} placeholder="Müşteriye sipariş takip ekranında görünecek bir mesaj yazın ve dışarı tıklayın..." style={{ flex: "1 1 200px", padding: "12px 15px", background: "rgba(0, 229, 255, 0.05)", color: "#3b82f6", border: "1px solid rgba(0, 229, 255, 0.3)", borderRadius: "8px", outline: "none", fontSize: "0.85rem" }} />
-                </div>
+              {/* MÜŞTERİ MESAJI ALANI */}
+              <div style={{ borderTop: "1px solid #334155", paddingTop: "12px" }}>
+                <div style={{ color: "#94a3b8", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "8px", fontWeight: "600" }}>Müşteri Takip Ekranı Mesajı</div>
+                <input type="text" defaultValue={siparis.musteriMesaji || ""} onBlur={(e) => mesajGuncelle(siparis._id, e.target.value)} placeholder="Müşteriye iletilecek notu yazıp boşluğa tıklayın..." style={{ width: "100%", padding: "10px 12px", background: "#0f172a", color: "#e2e8f0", border: "1px solid #334155", borderRadius: "6px", outline: "none", fontSize: "13px" }} />
               </div>
             </div>
           ))}
@@ -363,10 +374,10 @@ export default function AdminPaneli() {
         
         <div>
           <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "20px" }}>
-            <button onClick={yeniUrunModunuAc} style={{ width: "100%", maxWidth: "200px", background: "#3b82f6", color: "#000", border: "none", padding: "12px", borderRadius: "8px", fontWeight: "900", cursor: "pointer", transition: "0.2s" }}>➕ Yeni Ürün Ekle</button>
+            <button onClick={yeniUrunModunuAc} style={{ background: "#f8fafc", color: "#0f172a", border: "none", padding: "8px 16px", borderRadius: "6px", fontWeight: "500", cursor: "pointer", fontSize: "14px" }}>+ Yeni Ürün</button>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))", gap: "15px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "16px" }}>
             {urunler.map((urun, index) => {
               
               const normalFiyat = Number(urun.regular_price || urun.fiyat || urun.price || 0);
@@ -375,56 +386,51 @@ export default function AdminPaneli() {
 
               const stokSifirMi = urun.stokAdedi === 0 || urun.stokAdedi === "0";
               const gosterilecekDurum = (urun.stokDurumu === "Tükendi" || stokSifirMi) ? "Tükendi" : "Stokta Var";
-              const durumRengiCode = gosterilecekDurum === "Tükendi" ? "#ef4444" : "#10b981";
               
               const adetGosterilecekMi = urun.stokAdedi !== null && urun.stokAdedi !== undefined && urun.stokAdedi !== "" && Number(urun.stokAdedi) !== 10 && Number(urun.stokAdedi) > 0;
 
               return (
-                <div key={urun._id || index} style={{ background: "#121214", border: "1px solid #27272a", borderRadius: "16px", padding: "20px", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "15px", transition: "0.3s" }}>
+                <div key={urun._id || index} style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "8px", padding: "16px", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "16px" }}>
                   <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px", flexWrap: "wrap", gap: "10px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px", gap: "8px" }}>
                       
-                      {/* --- ÜRÜN KATEGORİSİ VE YENİ EKLENEN KİMLİK KODU --- */}
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <span style={{ background: "#27272a", color: "#a1a1aa", fontSize: "0.7rem", padding: "4px 8px", borderRadius: "4px", textTransform: "uppercase" }}>{urun.kategori || "Genel"}</span>
-                        <span style={{ color: "#71717a", fontSize: "0.7rem", fontFamily: "monospace" }}>📦 KOD: {urun._id}</span>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                        <span style={{ color: "#94a3b8", fontSize: "11px", textTransform: "uppercase" }}>{urun.kategori || "Genel"}</span>
+                        <span style={{ color: "#64748b", fontSize: "10px", fontFamily: "monospace" }}>ID: {urun._id}</span>
                       </div>
 
-                      <div style={{display: "flex", alignItems: "center", gap: "6px"}}>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "4px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          <span style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: gosterilecekDurum === "Tükendi" ? "#ef4444" : "#10b981" }}></span>
+                          <span style={{ color: "#cbd5e1", fontSize: "12px" }}>{gosterilecekDurum}</span>
+                        </div>
                         {adetGosterilecekMi && (
-                          <span style={{ background: "rgba(0, 229, 255, 0.1)", color: "#3b82f6", fontSize: "0.7rem", padding: "4px 8px", borderRadius: "4px", fontWeight: "900" }}>{urun.stokAdedi} Adet</span>
+                          <span style={{ color: "#94a3b8", fontSize: "11px" }}>{urun.stokAdedi} Adet Kaldı</span>
                         )}
-                        <span style={{ color: durumRengiCode, fontWeight: "800", fontSize: "0.75rem" }}>● {gosterilecekDurum}</span>
                       </div>
                     </div>
                     
-                    <h3 style={{ color: "#fff", fontSize: "1rem", fontWeight: "700" }}>{urun.isim || urun.name}</h3>
+                    <div style={{ color: "#f8fafc", fontSize: "14px", fontWeight: "500", lineHeight: "1.4" }}>{urun.isim || urun.name}</div>
 
-                    <div style={{ marginTop: "10px" }}>
+                    <div style={{ marginTop: "12px" }}>
                       {indirimliFiyat ? (
-                        <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
-                          <span style={{ color: "#ef4444", fontSize: "0.9rem", textDecoration: "line-through", opacity: 0.6 }}>
-                            {normalFiyat.toLocaleString("tr-TR")} TL
-                          </span>
-                          <span style={{ color: "#3b82f6", fontSize: "1.3rem", fontWeight: "900" }}>
-                            {gosterilenFiyat.toLocaleString("tr-TR")} TL
-                          </span>
+                        <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
+                          <span style={{ color: "#64748b", fontSize: "12px", textDecoration: "line-through" }}>{normalFiyat.toLocaleString("tr-TR")} TL</span>
+                          <span style={{ color: "#f8fafc", fontSize: "16px", fontWeight: "600" }}>{gosterilenFiyat.toLocaleString("tr-TR")} TL</span>
                         </div>
                       ) : (
-                        <span style={{ color: "#3b82f6", fontSize: "1.3rem", fontWeight: "900" }}>
-                          {gosterilenFiyat.toLocaleString("tr-TR")} TL
-                        </span>
+                        <div style={{ color: "#f8fafc", fontSize: "16px", fontWeight: "600" }}>{gosterilenFiyat.toLocaleString("tr-TR")} TL</div>
                       )}
                       
-                      <div style={{ color: "#10b981", fontSize: "0.75rem", fontWeight: "800", marginTop: "5px" }}>
+                      <div style={{ color: "#94a3b8", fontSize: "11px", marginTop: "4px" }}>
                         Havale İndirimi: %{urun.havaleIndirimi !== undefined ? urun.havaleIndirimi : 5}
                       </div>
                     </div>
 
                   </div>
-                  <div style={{ display: "flex", gap: "10px", borderTop: "1px solid #27272a", paddingTop: "15px" }}>
-                    <button onClick={() => urunDuzenleModunuAc(urun)} style={{ flex: 1, background: "rgba(0, 229, 255, 0.1)", color: "#3b82f6", border: "1px solid rgba(0, 229, 255, 0.2)", padding: "8px", borderRadius: "6px", fontWeight: "800", cursor: "pointer", fontSize: "0.85rem", transition: "0.2s" }}>⚙️ Düzenle</button>
-                    <button onClick={() => urunSilmeIslemi(urun._id)} style={{ background: "rgba(239, 68, 68, 0.1)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.2)", padding: "8px 12px", borderRadius: "6px", fontWeight: "800", cursor: "pointer", fontSize: "0.85rem", transition: "0.2s" }}>🗑️ Sil</button>
+                  <div style={{ display: "flex", gap: "8px", borderTop: "1px solid #334155", paddingTop: "12px" }}>
+                    <button onClick={() => urunDuzenleModunuAc(urun)} style={{ flex: 1, background: "transparent", color: "#e2e8f0", border: "1px solid #475569", padding: "6px", borderRadius: "4px", fontSize: "13px", cursor: "pointer" }}>Düzenle</button>
+                    <button onClick={() => urunSilmeIslemi(urun._id)} style={{ flex: 1, background: "transparent", color: "#ef4444", border: "1px solid #ef4444", padding: "6px", borderRadius: "4px", fontSize: "13px", cursor: "pointer" }}>Sil</button>
                   </div>
                 </div>
               );
