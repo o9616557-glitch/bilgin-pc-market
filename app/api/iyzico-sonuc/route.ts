@@ -166,7 +166,7 @@ export async function POST(request: Request) {
           <body style="background-color: #050814; color: #3b82f6; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif; margin: 0;">
             <div style="text-align: center;">
               <div style="width: 50px; height: 50px; border: 4px solid rgba(59, 130, 246, 0.2); border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px auto;"></div>
-              <h2 style="margin: 0; font-size: 18px; letter-spacing: 1px;">ÖDEMENİZ ONAYLANDI 🚀</h2>
+              <p style="color: #a1a1aa; font-size: 18px; margin-top: 15px;">Siparişiniz işleniyor, lütfen bekleyin...</p>
               <p style="color: #a1a1aa; font-size: 14px; margin-top: 10px;">Siparişiniz işleniyor, lütfen bekleyin...</p>
               <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
             </div>
