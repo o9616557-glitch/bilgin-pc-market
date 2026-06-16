@@ -44,9 +44,15 @@ export async function POST(request: Request) {
         const musteri = siparis?.musteri || {};
         const toplamTutar = siparis?.toplamTutar || siparis?.totalPrice || 0;
         
-        // 🛠️ NOT KONTROL MOTORU: Not boşsa veya varsayılan metinse mailde gizlenecek
-        const hamNot = siparis?.siparisNotu;
-        const notVarMi = hamNot && hamNot !== "Not eklenmemiş" && hamNot.trim() !== "";
+        // 🛠️ NOT KONTROLÜ: Eğer boşsa veya "Not eklenmemiş" ise tamamen yok say!
+        const musteriNotu = siparis?.siparisNotu;
+        let musteriNotuHtml = "";
+        let adminNotuHtml = "";
+        
+        if (musteriNotu && musteriNotu !== "Not eklenmemiş" && musteriNotu !== "") {
+            musteriNotuHtml = `<br><span style="color: #10b981; font-style: italic; font-size: 13px;">Sipariş Notunuz: "${musteriNotu}"</span>`;
+            adminNotuHtml = `<p style="color: #a1a1aa; font-size: 15px;"><strong>Müşterinin Notu:</strong> <span style="color: #ffb300; font-weight: bold; font-style: italic;">"${musteriNotu}"</span></p>`;
+        }
 
         const nodemailer = require("nodemailer");
         const transporter = nodemailer.createTransport({
@@ -54,15 +60,6 @@ export async function POST(request: Request) {
           auth: { user: "o9616557@gmail.com", pass: process.env.EMAIL_PASS },
           tls: { rejectUnauthorized: false }
         });
-
-        // Not varsa şablona eklenecek kısım, yoksa bomboş kalacak
-        const musteriNotuHtml = notVarMi 
-          ? `<br><span style="color: #10b981; font-style: italic; font-size: 13px;">Sipariş Notunuz: "${hamNot}"</span>` 
-          : "";
-
-        const adminNotuHtml = notVarMi 
-          ? `<p style="color: #a1a1aa; font-size: 15px;"><strong>Müşterinin Notu:</strong> <span style="color: #ffb300; font-weight: bold; font-style: italic;">"${hamNot}"</span></p>` 
-          : "";
 
         // ================= 1. MÜŞTERİYE GİDEN ONAY MAİLİ =================
         const baslik = "SİPARİŞİNİZ ONAYLANDI 🚀";
@@ -156,7 +153,7 @@ export async function POST(request: Request) {
         transporter.sendMail(musteriMailSecenekleri).catch((err: any) => console.log(err));
         transporter.sendMail(adminMailSecenekleri).catch((err: any) => console.log(err));
 
-      } catch (mailHatasi) { }
+      } catch (mailHatasi) { console.log(mailHatasi) }
 
       return NextResponse.redirect(new URL(`/siparis-basarili?kodu=${siparisKodu}`, request.url), 303);
     } else {
