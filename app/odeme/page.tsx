@@ -226,7 +226,7 @@ export default function OdemeSayfasi() {
     value={form.adres} 
     onChange={inputDegis} 
     required 
-    className="w-full bg-[#121215] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6] resize-y [&::-webkit-resizer]:bg-transparent [&::-webkit-resizer]:bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgdmlld0JveD0iMCAwIDE0IDE0IiBmaWxsPSJub25lIiBzdHJva2U9IiM5NGEzYjgiIHN0cm9rZS13aWR0aD0iMS41Ij48bGluZSB4MT0iMTQiIHkxPSI0IiB4Mj0iNCIgeTI9IjE0Ii8+PGxpbmUgeDE9IjE0IiB5MT0iMTAiIHgyPSIxMCIgeTI9IjE0Ii8+PC9zdmc+')] [&::-webkit-resizer]:bg-no-repeat [&::-webkit-resizer]:bg-center sm:[&::-webkit-resizer]:bg-none"
+    className="w-full bg-[#121215] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6] resize-none"
   ></textarea>
 </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
@@ -251,7 +251,7 @@ export default function OdemeSayfasi() {
                     <div><label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">Telefon *</label><input type="tel" name="telefon" value={faturaForm.telefon} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6]" /></div>
                     <div><label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">E-Posta *</label><input type="email" name="eposta" value={faturaForm.eposta} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6]" /></div>
                   </div>
-                 <div>
+              <div>
   <label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">Açık Adres *</label>
   <textarea 
     rows={3} 
@@ -259,7 +259,7 @@ export default function OdemeSayfasi() {
     value={form.adres} 
     onChange={inputDegis} 
     required 
-    className="w-full bg-[#121215] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6] resize-y [&::-webkit-resizer]:bg-transparent [&::-webkit-resizer]:bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgdmlld0JveD0iMCAwIDE0IDE0IiBmaWxsPSJub25lIiBzdHJva2U9IiM5NGEzYjgiIHN0cm9rZS13aWR0aD0iMS41Ij48bGluZSB4MT0iMTQiIHkxPSI0IiB4Mj0iNCIgeTI9IjE0Ii8+PGxpbmUgeDE9IjE0IiB5MT0iMTAiIHgyPSIxMCIgeTI9IjE0Ii8+PC9zdmc+')] [&::-webkit-resizer]:bg-no-repeat [&::-webkit-resizer]:bg-center sm:[&::-webkit-resizer]:bg-none"
+    className="w-full bg-[#121215] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6] resize-none"
   ></textarea>
 </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
