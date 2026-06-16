@@ -193,11 +193,12 @@ export default function OdemeSayfasi() {
   return (
     <div className="min-h-screen bg-[#050814] text-white pb-12 relative font-sans">
       <div className="border-b border-white/5 bg-[#09090b]/90 backdrop-blur-md sticky top-0 z-50 shadow-lg mb-8">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-4 flex items-center justify-between">
-          <Link href="/sepet" replace className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-400 hover:text-[#3b82f6] transition-colors uppercase tracking-wider"><ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">Sepete Dön</span></Link>
-          <Link href="/" className="font-black text-xl sm:text-2xl tracking-tight text-white hover:opacity-80 transition-opacity">BİLGİN <span className="text-[#3b82f6]">PC</span></Link>
-          <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] sm:text-xs font-black uppercase tracking-widest bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20"><ShieldCheck className="w-4 h-4" /> <span className="hidden sm:inline">Güvenli Ödeme</span></div>
-        </div>
+   <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-4 flex items-center justify-between">
+  {/* Link yerine 'a' etiketi kullandık ki sayfa tam yenilensin ve İyzico sıfırlansın */}
+  <a href="/sepet" className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-400 hover:text-[#3b82f6] transition-colors uppercase tracking-wider"><ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">Sepete Dön</span></a>
+  <a href="/" className="font-black text-xl sm:text-2xl tracking-tight text-white hover:opacity-80 transition-opacity">BİLGİN <span className="text-[#3b82f6]">PC</span></a>
+  <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] sm:text-xs font-black uppercase tracking-widest bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20"><ShieldCheck className="w-4 h-4" /> <span className="hidden sm:inline">Güvenli Ödeme</span></div>
+</div>
       </div>
 
       <div className="max-w-[1200px] mx-auto px-4 sm:px-8">
