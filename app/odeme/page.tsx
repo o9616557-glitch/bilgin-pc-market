@@ -371,8 +371,8 @@ export default function OdemeSayfasi() {
                 <div className="flex justify-between text-slate-400 mb-5 sm:mb-6 font-medium text-xs sm:text-sm"><span>Kargo Ücreti</span><span>{kargo === 0 ? <span className="text-emerald-400 font-black uppercase tracking-wider text-[10px] sm:text-xs bg-emerald-400/10 px-2 py-1 rounded">Ücretsiz</span> : <span className="text-white font-bold">{kargo} TL</span>}</span></div>
                 <div className="flex justify-between items-center text-white font-black border-t border-white/10 pt-5 sm:pt-6 mt-3 sm:mt-4"><span className="text-xs sm:text-sm uppercase tracking-wider text-slate-400">Genel Toplam</span><span className="text-xl sm:text-2xl lg:text-3xl text-[#3b82f6] drop-shadow-[0_0_10px_rgba(59,130,246,0.3)]">{genelToplam.toLocaleString("tr-TR")} <span className="text-xs sm:text-sm text-white">TL</span></span></div>
              </div>
-          {/* --- MODERN SİPARİŞ NOTU ALANI BAŞLANGIÇ --- */}
-<div className="mt-6 mb-28 sm:mb-0">
+        {/* --- MODERN SİPARİŞ NOTU ALANI BAŞLANGIÇ --- */}
+<div className="mt-6 mb-28 sm:mb-0 bg-[#09090b] border border-white/5 rounded-2xl p-5 shadow-lg">
   <div className="flex items-center gap-2 mb-2">
     <Edit3 className="w-4 h-4 text-[#3b82f6]" />
     <h3 className="text-sm font-bold text-white uppercase tracking-wider">Sipariş Notu</h3>
