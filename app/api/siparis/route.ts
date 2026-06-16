@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     });
     
     const body = await request.json();
-    const { musteri, sepet, odemeYontemi, toplamTutar } = body;
+  const { musteri, sepet, odemeYontemi, toplamTutar, siparisNotu } = body;
 
     if (!musteri || !sepet || !odemeYontemi || !toplamTutar) {
       return NextResponse.json({ error: "Formda eksik bilgi var şef!" }, { status: 400 });
@@ -33,6 +33,7 @@ export async function POST(request: Request) {
       musteri,
       sepet,
       odemeYontemi: gercekOdemeYontemi, 
+      siparisNotu: siparisNotu || "Not eklenmemiş",
       toplamTutar,
       durum: ilkDurum, 
       tarih: new Date(),
@@ -73,6 +74,7 @@ export async function POST(request: Request) {
                 <p style="color: #a1a1aa; font-size: 14px;"><strong>Telefon:</strong> <span style="color: #fff;">${musteri?.telefon || "-"}</span></p>
                 <p style="color: #a1a1aa; font-size: 14px;"><strong>Şehir / İlçe:</strong> <span style="color: #fff;">${musteri?.sehir || ""} / ${musteri?.ilce || ""}</span></p>
                 <p style="color: #a1a1aa; font-size: 14px;"><strong>Teslimat Adresi:</strong> <span style="color: #fff;">${musteri?.adres || "-"}</span></p>
+                <p style="color: #a1a1aa; font-size: 14px;"><strong>Sipariş Notu:</strong> <span style="color: #fff;">${siparisNotu || "Not eklenmemiş"}</span></p>
                 <p style="color: #a1a1aa; font-size: 14px;"><strong>Ödenecek Tutar:</strong> <span style="color: #3b82f6; font-weight: bold; font-size: 18px;">${toplamTutar} TL</span></p>
               </div>
               
