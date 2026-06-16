@@ -43,7 +43,10 @@ export async function POST(request: Request) {
         const musteriMaili = siparis?.email || siparis?.userEmail || siparis?.musteri?.eposta || "o9616557@gmail.com";
         const musteri = siparis?.musteri || {};
         const toplamTutar = siparis?.toplamTutar || siparis?.totalPrice || 0;
-        const musteriNotu = siparis?.siparisNotu || "Not eklenmemiş";
+        
+        // 🛠️ NOT KONTROL MOTORU: Not boşsa veya varsayılan metinse mailde gizlenecek
+        const hamNot = siparis?.siparisNotu;
+        const notVarMi = hamNot && hamNot !== "Not eklenmemiş" && hamNot.trim() !== "";
 
         const nodemailer = require("nodemailer");
         const transporter = nodemailer.createTransport({
@@ -52,11 +55,19 @@ export async function POST(request: Request) {
           tls: { rejectUnauthorized: false }
         });
 
-        // ================= MÜŞTERİYE GİDEN ONAY MAİLİ (VİRGÜLSÜZ JİLET SÜRÜM) =================
+        // Not varsa şablona eklenecek kısım, yoksa bomboş kalacak
+        const musteriNotuHtml = notVarMi 
+          ? `<br><span style="color: #10b981; font-style: italic; font-size: 13px;">Sipariş Notunuz: "${hamNot}"</span>` 
+          : "";
+
+        const adminNotuHtml = notVarMi 
+          ? `<p style="color: #a1a1aa; font-size: 15px;"><strong>Müşterinin Notu:</strong> <span style="color: #ffb300; font-weight: bold; font-style: italic;">"${hamNot}"</span></p>` 
+          : "";
+
+        // ================= 1. MÜŞTERİYE GİDEN ONAY MAİLİ =================
         const baslik = "SİPARİŞİNİZ ONAYLANDI 🚀";
         const altMesaj = `Ödemeniz başarıyla tarafımıza ulaşmış ve siparişiniz hazırlık aşamasına geçmiştir. Ürünleriniz uzman ekibimiz tarafından özenle paketleniyor! En kısa sürede kargoya teslim edilecektir.<br><br>
-        <span style="color: #3b82f6; font-weight: bold;">Ödenen Tutar: ${toplamTutar} TL</span><br>
-        <span style="color: #10b981; font-style: italic; font-size: 13px;">Sipariş Notunuz: "${musteriNotu}"</span>`;
+        <span style="color: #3b82f6; font-weight: bold;">Ödenen Tutar: ${toplamTutar} TL</span>${musteriNotuHtml}`;
 
         const musteriMailSecenekleri = {
           from: `"Bilgin PC Market" <o9616557@gmail.com>`,
@@ -67,7 +78,6 @@ export async function POST(request: Request) {
               
               <h2 style="color: #3b82f6; letter-spacing: 1px; margin-bottom: 24px; font-size: 26px; font-weight: 900; text-shadow: 0 0 10px rgba(0,229,255,0.4); text-align: center;">${baslik}</h2>
               
-             
               <p style="color: #e4e4e7; font-size: 16px; line-height: 1.6; margin-bottom: 16px; text-align: center;">Merhaba <strong style="color: #fff;">${musteri?.ad || ""} ${musteri?.soyad || ""}</strong></p>
               
               <p style="color: #a1a1aa; font-size: 15px; line-height: 1.6; margin-bottom: 35px; padding: 0 15px; text-align: center;">${altMesaj}</p>
@@ -123,7 +133,7 @@ export async function POST(request: Request) {
           `
         };
 
-        // ================= ADMİNE GİDEN BİLDİRİM MAİLİ =================
+        // ================= 2. ADMİNE GİDEN BİLDİRİM MAİLİ =================
         const adminMailSecenekleri = {
           from: `"Bilgin PC Sistem" <o9616557@gmail.com>`,
           to: "o9616557@gmail.com",
@@ -135,7 +145,7 @@ export async function POST(request: Request) {
               <div style="background-color: #121215; padding: 25px; border-radius: 8px; margin: 25px 0; border: 1px solid #27272a;">
                 <p style="color: #a1a1aa; font-size: 15px;"><strong>Müşteri:</strong> <span style="color: #fff;">${musteri?.ad || ""} ${musteri?.soyad || ""}</span></p>
                 <p style="color: #a1a1aa; font-size: 15px;"><strong>Ödenen Para:</strong> <span style="color: #10b981; font-weight: bold; font-size: 18px;">${toplamTutar} TL (Kredi Kartı)</span></p>
-                <p style="color: #a1a1aa; font-size: 15px;"><strong>Müşterinin Notu:</strong> <span style="color: #ffb300; font-weight: bold; font-style: italic;">"${musteriNotu}"</span></p>
+                ${adminNotuHtml}
               </div>
               
               <p style="color: #a1a1aa; font-size: 14px; text-align: center;">Hemen admin paneline girip detayları kontrol edebilirsin.<br><br>Hayırlı İşler!</p>
