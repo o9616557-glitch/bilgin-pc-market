@@ -371,10 +371,7 @@ export default function OdemeSayfasi() {
                 <div className="flex justify-between text-slate-400 mb-5 sm:mb-6 font-medium text-xs sm:text-sm"><span>Kargo Ücreti</span><span>{kargo === 0 ? <span className="text-emerald-400 font-black uppercase tracking-wider text-[10px] sm:text-xs bg-emerald-400/10 px-2 py-1 rounded">Ücretsiz</span> : <span className="text-white font-bold">{kargo} TL</span>}</span></div>
                 <div className="flex justify-between items-center text-white font-black border-t border-white/10 pt-5 sm:pt-6 mt-3 sm:mt-4"><span className="text-xs sm:text-sm uppercase tracking-wider text-slate-400">Genel Toplam</span><span className="text-xl sm:text-2xl lg:text-3xl text-[#3b82f6] drop-shadow-[0_0_10px_rgba(59,130,246,0.3)]">{genelToplam.toLocaleString("tr-TR")} <span className="text-xs sm:text-sm text-white">TL</span></span></div>
              </div>
-          </div>
-        </div>
-      </div>
-{/* --- MODERN SİPARİŞ NOTU ALANI BAŞLANGIÇ --- */}
+             {/* --- MODERN SİPARİŞ NOTU ALANI BAŞLANGIÇ --- */}
 <div className="mt-6 bg-[#121215]/80 border border-white/5 rounded-2xl p-5 shadow-lg">
   <div className="flex items-center gap-2 mb-2">
     <Edit3 className="w-4 h-4 text-[#3b82f6]" />
@@ -393,6 +390,10 @@ export default function OdemeSayfasi() {
   ></textarea>
 </div>
 {/* --- MODERN SİPARİŞ NOTU ALANI BİTİŞ --- */}
+          </div>
+        </div>
+      </div>
+
      {acikSozlesme && (
   <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
     <div className="bg-white border border-gray-100 rounded-2xl w-full max-w-2xl flex flex-col max-h-[85vh] shadow-[0_30px_60px_rgba(0,0,0,0.2)]">
