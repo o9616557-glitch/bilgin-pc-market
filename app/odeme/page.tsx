@@ -235,9 +235,29 @@ export default function OdemeSayfasi() {
                   <h4 className="text-[#3b82f6] text-sm font-black uppercase tracking-wider mb-3">Farklı Fatura Bilgileri</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
                     <div><label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">Adınız *</label><input type="text" name="ad" value={faturaForm.ad} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6]" /></div>
-                    <div><label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">Soyadınız *</label><input type="text" name="soyad" value={faturaForm.soyad} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6]" /></div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
+                  <div>
+      <label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">Açık Adres *</label>
+      
+      {/* ŞEFİM SADECE BU KISMI RELATIVE İÇİNE ALDIM Kİ ÇİZGİ KÖŞEYE YAPIŞSIN */}
+      <div className="relative w-full">
+        <textarea 
+          rows={3} 
+          name="adres" 
+          value={form.adres} 
+          onChange={inputDegis} 
+          required 
+          className="w-full bg-[#121215] border border-white/5 rounded-xl p-3 pr-6 pb-6 text-white text-sm focus:outline-none focus:border-[#3b82f6] focus:ring-1 focus:ring-[#3b82f6] resize-y"
+        ></textarea>
+        
+        {/* SADECE GÖRÜNTÜ OLAN PC TUTMA İKONU (TELEFONDA DA GÖRÜNÜR) */}
+        <div className="absolute bottom-1.5 right-1.5 pointer-events-none text-slate-500/40">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15L15 21" />
+            <path d="M21 8L8 21" />
+          </svg>
+        </div>
+      </div>
+    </div>
                     <div><label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">Telefon *</label><input type="tel" name="telefon" value={faturaForm.telefon} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6]" /></div>
                     <div><label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">E-Posta *</label><input type="email" name="eposta" value={faturaForm.eposta} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6]" /></div>
                   </div>
