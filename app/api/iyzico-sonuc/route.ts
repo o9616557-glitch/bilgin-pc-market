@@ -155,7 +155,37 @@ export async function POST(request: Request) {
 
       } catch (mailHatasi) { console.log(mailHatasi) }
 
-      return NextResponse.redirect(new URL(`/siparis-basarili?kodu=${siparisKodu}`, request.url), 303);
+    // 🚀 BİNGO: İYZİCO'DAN DÖNEN MÜŞTERİYİ KARŞILAYAN GİZLİ GÜMRÜK KAPISI (SEPET İMHA MOTORU)
+      const yonlendirmeHtml = `
+        <!DOCTYPE html>
+        <html lang="tr">
+          <head>
+            <meta charset="UTF-8">
+            <title>Ödeme Onaylandı, Yönlendiriliyor...</title>
+          </head>
+          <body style="background-color: #050814; color: #3b82f6; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif; margin: 0;">
+            <div style="text-align: center;">
+              <div style="width: 50px; height: 50px; border: 4px solid rgba(59, 130, 246, 0.2); border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px auto;"></div>
+              <h2 style="margin: 0; font-size: 18px; letter-spacing: 1px;">ÖDEMENİZ ONAYLANDI 🚀</h2>
+              <p style="color: #a1a1aa; font-size: 14px; margin-top: 10px;">Siparişiniz işleniyor, lütfen bekleyin...</p>
+              <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+            </div>
+            <script>
+              // 1. Tarayıcının deposundaki sepeti acımadan yok et!
+              localStorage.removeItem("bilgin-sepet");
+              
+              // 2. Müşteriyi sepeti tertemiz edilmiş şekilde başarılı sayfasına fırlat!
+              setTimeout(function() {
+                window.location.replace("/siparis-basarili?kodu=${siparisKodu}");
+              }, 500); // Müşteri bu ekranı sadece yarım saniye görecek
+            </script>
+          </body>
+        </html>
+      `;
+      
+      return new NextResponse(yonlendirmeHtml, { 
+        headers: { "Content-Type": "text/html; charset=utf-8" } 
+      });
     } else {
       return NextResponse.redirect(new URL("/odeme?hata=odeme_reddedildi", request.url), 303);
     }
