@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
-  <!-- Header ile birebir aynı olan karanlık arka plan rengi ve yuvarlak köşeler -->
-  <rect width="512" height="512" rx="112" fill="#09090b"/>
+  <!-- Header ile birebir aynı olan o derin karanlık renk (#050814) ve yuvarlak köşeler -->
+  <rect width="512" height="512" rx="112" fill="#050814"/>
   
-  <!-- Dimdik (dümdüz), asil ve elektrik mavisi B harfi -->
-  <text x="256" y="265" font-family="'Segoe UI', Arial, sans-serif" font-size="340" font-weight="900" fill="#3b82f6" text-anchor="middle" dominant-baseline="middle">B</text>
+  <!-- Dimdik (dümdüz), asil ve bembeyaz B harfi -->
+  <text x="256" y="265" font-family="'Segoe UI', Arial, sans-serif" font-size="340" font-weight="900" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">B</text>
 </svg>
