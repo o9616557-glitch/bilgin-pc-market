@@ -1,15 +1,30 @@
 "use client";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
+// 🚀 BİNGO: Sepeti temizlemek için CartContext'i buraya çağırdık!
+import { useCart } from "../CartContext"; 
 
 function BasariliIcerik() {
   const searchParams = useSearchParams();
   const siparisKodu = searchParams?.get("kodu");
   const gosterilecekKod = siparisKodu || "BPC-XXXXXX";
 
+  // 🚀 BİNGO: Sepeti getiren hook'u kullandık
+  const { sepet, sepetiTemizle } = useCart();
+
   // Kopyalama butonu için durum tutucu
   const [kopyalandi, setKopyalandi] = useState(false);
+
+  // 🚀 BİNGO: Sayfa açıldığı SİYAH SANİYEDE SEPETİ KÖKÜNDEN SİL!
+  useEffect(() => {
+    // Hem bizim özel yazdığımız sepeti temizleme fonksiyonunu çalıştır
+    if (sepetiTemizle) {
+        sepetiTemizle();
+    }
+    // Hem de garanti olsun diye tarayıcının hafızasındaki (localStorage) sepeti zorla sil
+    localStorage.removeItem("bilgin-sepet");
+  }, []); // Sadece sayfa ilk açıldığında 1 kere çalışır
 
   // Kopyalama Fonksiyonu
   const handleKopyala = () => {
