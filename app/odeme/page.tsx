@@ -374,7 +374,25 @@ export default function OdemeSayfasi() {
           </div>
         </div>
       </div>
-
+{/* --- MODERN SİPARİŞ NOTU ALANI BAŞLANGIÇ --- */}
+<div className="mt-6 bg-[#121215]/80 border border-white/5 rounded-2xl p-5 shadow-lg">
+  <div className="flex items-center gap-2 mb-2">
+    <Edit3 className="w-4 h-4 text-[#3b82f6]" />
+    <h3 className="text-sm font-bold text-white uppercase tracking-wider">Sipariş Notu</h3>
+  </div>
+  <p className="text-slate-400 text-[11px] mb-3 leading-relaxed">
+    Kargocuya veya tarafımıza iletmek istediğiniz özel bir detay varsa buraya ekleyebilirsiniz <span className="text-slate-500">(İsteğe Bağlı)</span>.
+  </p>
+  <textarea 
+    rows={3} 
+    name="siparisNotu" 
+    value={form.siparisNotu} 
+    onChange={inputDegis} 
+    placeholder="Örn: Lütfen kargoyu kapıya bırakın..."
+    className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 text-sm text-white placeholder-slate-600 outline-none focus:border-[#3b82f6] resize-none transition-all duration-300"
+  ></textarea>
+</div>
+{/* --- MODERN SİPARİŞ NOTU ALANI BİTİŞ --- */}
      {acikSozlesme && (
   <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
     <div className="bg-white border border-gray-100 rounded-2xl w-full max-w-2xl flex flex-col max-h-[85vh] shadow-[0_30px_60px_rgba(0,0,0,0.2)]">
