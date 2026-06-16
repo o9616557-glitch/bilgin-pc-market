@@ -19,7 +19,7 @@ export default function OdemeSayfasi() {
   const [adresAraniyor, setAdresAraniyor] = useState(true);
   const [adresKilitli, setAdresKilitli] = useState(false);
 
-  const [form, setForm] = useState({ ad: "", soyad: "", telefon: "", eposta: "", adres: "", sehir: "", ilce: "" });
+ const [form, setForm] = useState({ ad: "", soyad: "", telefon: "", eposta: "", adres: "", sehir: "", ilce: "", siparisNotu: "" });
   const [faturaForm, setFaturaForm] = useState({ ad: "", soyad: "", telefon: "", eposta: "", adres: "", sehir: "", ilce: "" });
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export default function OdemeSayfasi() {
             const sessionEmail = (session && session.user && session.user.email) ? session.user.email : "";
             const kesinEposta = varsayilanTeslimat.email || varsayilanTeslimat.eposta || sessionEmail;
 
-            setForm({ ad: ad, soyad: soyad, telefon: varsayilanTeslimat.phone, sehir: varsayilanTeslimat.city, ilce: varsayilanTeslimat.district, adres: varsayilanTeslimat.fullAddress, eposta: kesinEposta });
+         setForm({ ad: ad, soyad: soyad, telefon: varsayilanTeslimat.phone, sehir: varsayilanTeslimat.city, ilce: varsayilanTeslimat.district, adres: varsayilanTeslimat.fullAddress, eposta: kesinEposta, siparisNotu: "" });
             setAdresKilitli(true);
           }
 
@@ -123,7 +123,7 @@ export default function OdemeSayfasi() {
 
     const sessionEmail = (session && session.user && session.user.email) ? session.user.email : form.eposta;
 
-    const siparisVerisi = {
+   const siparisVerisi = {
       musteri: { ...form, eposta: sessionEmail, faturaBilgileri: faturaAyni ? form : faturaForm },
       sepet: sepet.map((item: any) => {
         const indirimOrani = (item.havaleIndirimi !== undefined && item.havaleIndirimi !== null) ? Number(item.havaleIndirimi) : 0;
@@ -133,11 +133,11 @@ export default function OdemeSayfasi() {
         return { id: item.id, isim: item.isim, title: item.isim, miktar: item.adet, quantity: item.adet, adet: item.adet, fiyat: sonFiyat, price: sonFiyat, varyasyon: item.varyasyon, resim: urunResmi, image: urunResmi };
       }),
       odemeYontemi: odemeYontemi,
+      siparisNotu: form.siparisNotu, // <--- İŞTE JİLET GİBİ BURAYA EKLENDİ ŞEFİM
       toplamTutar: genelToplam,
       totalPrice: genelToplam,
       genelToplam: genelToplam
     };
-
     try {
       const response = await fetch("/api/siparis", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(siparisVerisi) });
       const data = await response.json();
