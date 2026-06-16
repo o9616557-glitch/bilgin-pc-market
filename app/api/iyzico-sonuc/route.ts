@@ -44,6 +44,7 @@ export async function POST(request: Request) {
         const musteriMaili = siparis?.email || siparis?.userEmail || siparis?.musteri?.eposta || "o9616557@gmail.com";
         const musteri = siparis?.musteri || {};
         const toplamTutar = siparis?.toplamTutar || siparis?.totalPrice || 0;
+        const musteriNotu = siparis?.siparisNotu || "Not eklenmemiş";
 
         const nodemailer = require("nodemailer");
         const transporter = nodemailer.createTransport({
@@ -52,7 +53,8 @@ export async function POST(request: Request) {
           tls: { rejectUnauthorized: false }
         });
 
-        const mailSecenekleri = {
+        // ================= 1. MÜŞTERİYE GİDEN ONAY MAİLİ =================
+        const musteriMailSecenekleri = {
           from: `"Bilgin PC Market" <o9616557@gmail.com>`,
           to: musteriMaili,
           subject: "Ödemeniz Başarılı! 🚀 (Siparişiniz Hazırlanıyor)",
@@ -69,6 +71,7 @@ export async function POST(request: Request) {
                 <p style="color: #a1a1aa; font-size: 14px;"><strong>Telefon:</strong> <span style="color: #fff;">${musteri?.telefon || "-"}</span></p>
                 <p style="color: #a1a1aa; font-size: 14px;"><strong>Şehir / İlçe:</strong> <span style="color: #fff;">${musteri?.sehir || ""} / ${musteri?.ilce || ""}</span></p>
                 <p style="color: #a1a1aa; font-size: 14px;"><strong>Teslimat Adresi:</strong> <span style="color: #fff;">${musteri?.adres || "-"}</span></p>
+                <p style="color: #a1a1aa; font-size: 14px;"><strong>Sipariş Notu:</strong> <span style="color: #fff;">${musteriNotu}</span></p>
                 <p style="color: #a1a1aa; font-size: 14px;"><strong>Ödenen Tutar:</strong> <span style="color: #3b82f6; font-weight: bold; font-size: 18px;">${toplamTutar} TL</span></p>
               </div>
               
@@ -76,7 +79,31 @@ export async function POST(request: Request) {
             </div>
           `
         };
-        transporter.sendMail(mailSecenekleri).catch((err: any) => console.log(err));
+
+        // ================= 2. ADMİNE (SANA) GİDEN BİLDİRİM MAİLİ =================
+        const adminMailSecenekleri = {
+          from: `"Bilgin PC Sistem" <o9616557@gmail.com>`,
+          to: "o9616557@gmail.com", // Kendi mailin
+          subject: `🚨 YENİ SİPARİŞ GELDİ! - Tutar: ${toplamTutar} TL`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #050505; color: #ffffff; padding: 30px; border-radius: 12px; border: 2px solid #10b981;">
+              <h2 style="color: #10b981; text-align: center; text-transform: uppercase;">Şefim, Dükkana Yeni Sipariş Düştü! 💰</h2>
+              
+              <div style="background-color: #121215; padding: 25px; border-radius: 8px; margin: 25px 0; border: 1px solid #27272a;">
+                <p style="color: #a1a1aa; font-size: 15px;"><strong>Müşteri:</strong> <span style="color: #fff;">${musteri?.ad || ""} ${musteri?.soyad || ""}</span></p>
+                <p style="color: #a1a1aa; font-size: 15px;"><strong>Ödenen Para:</strong> <span style="color: #10b981; font-weight: bold; font-size: 18px;">${toplamTutar} TL (Kredi Kartı)</span></p>
+                <p style="color: #a1a1aa; font-size: 15px;"><strong>Müşterinin Notu:</strong> <span style="color: #ffb300; font-weight: bold; font-style: italic;">"${musteriNotu}"</span></p>
+              </div>
+              
+              <p style="color: #a1a1aa; font-size: 14px; text-align: center;">Hemen admin paneline girip detayları kontrol edebilirsin.<br><br>Hayırlı İşler!</p>
+            </div>
+          `
+        };
+
+        // İki maili de aynı anda havada fırlatıyoruz!
+        transporter.sendMail(musteriMailSecenekleri).catch((err: any) => console.log(err));
+        transporter.sendMail(adminMailSecenekleri).catch((err: any) => console.log(err));
+
       } catch (mailHatasi) { }
 
       return NextResponse.redirect(new URL(`/siparis-basarili?kodu=${siparisKodu}`, request.url), 303);
