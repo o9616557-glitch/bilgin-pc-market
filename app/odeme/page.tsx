@@ -371,24 +371,33 @@ export default function OdemeSayfasi() {
                 <div className="flex justify-between text-slate-400 mb-5 sm:mb-6 font-medium text-xs sm:text-sm"><span>Kargo Ücreti</span><span>{kargo === 0 ? <span className="text-emerald-400 font-black uppercase tracking-wider text-[10px] sm:text-xs bg-emerald-400/10 px-2 py-1 rounded">Ücretsiz</span> : <span className="text-white font-bold">{kargo} TL</span>}</span></div>
                 <div className="flex justify-between items-center text-white font-black border-t border-white/10 pt-5 sm:pt-6 mt-3 sm:mt-4"><span className="text-xs sm:text-sm uppercase tracking-wider text-slate-400">Genel Toplam</span><span className="text-xl sm:text-2xl lg:text-3xl text-[#3b82f6] drop-shadow-[0_0_10px_rgba(59,130,246,0.3)]">{genelToplam.toLocaleString("tr-TR")} <span className="text-xs sm:text-sm text-white">TL</span></span></div>
              </div>
-        {/* --- MODERN SİPARİŞ NOTU ALANI BAŞLANGIÇ --- */}
-<div className="mt-6 mb-28 sm:mb-0 bg-[#09090b] border border-white/5 rounded-2xl p-5 shadow-lg">
-  <div className="flex items-center gap-2 mb-2">
-    <Edit3 className="w-4 h-4 text-[#3b82f6]" />
-    <h3 className="text-sm font-bold text-white uppercase tracking-wider">Sipariş Notu</h3>
-  </div>
-  <p className="text-slate-400 text-[11px] mb-3 leading-relaxed">
-    Kargocuya veya tarafımıza iletmek istediğiniz özel bir detay varsa buraya ekleyebilirsiniz <span className="text-slate-500">(İsteğe Bağlı)</span>.
-  </p>
-  <textarea 
-    rows={3} 
-    name="siparisNotu" 
-    value={form.siparisNotu} 
-    onChange={inputDegis} 
-    className="w-full bg-[#121215] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6] resize-none transition-all duration-300"
-  ></textarea>
-</div>
-{/* --- MODERN SİPARİŞ NOTU ALANI BİTİŞ --- */}
+      {/* --- MODERN SİPARİŞ NOTU ALANI BAŞLANGIÇ --- */}
+        <div className={["mt-6 mb-28 sm:mb-0 bg-[#09090b] border rounded-2xl p-5 shadow-lg transition-all duration-300", iyzicoFormHtml ? "border-[#ef4444]/30 opacity-70" : "border-white/5"].join(" ")}>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Edit3 className={["w-4 h-4", iyzicoFormHtml ? "text-slate-500" : "text-[#3b82f6]"].join(" ")} />
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider">Sipariş Notu</h3>
+            </div>
+            {iyzicoFormHtml && (
+              <span className="text-[#ef4444] text-[10px] font-black uppercase tracking-widest bg-[#ef4444]/10 px-2 py-1 rounded animate-pulse">
+                🔒 KAYDEDİLDİ
+              </span>
+            )}
+          </div>
+          <p className="text-slate-400 text-[11px] mb-3 leading-relaxed">
+            {iyzicoFormHtml ? "Ödeme aşamasına geçildiği için notunuz donduruldu." : "Kargocuya veya tarafımıza iletmek istediğiniz özel bir detay varsa buraya ekleyebilirsiniz (İsteğe Bağlı)."}
+          </p>
+          <textarea 
+            rows={3} 
+            name="siparisNotu" 
+            value={form.siparisNotu} 
+            onChange={inputDegis} 
+            disabled={iyzicoFormHtml !== ""}
+            placeholder={iyzicoFormHtml ? "Notunuz sisteme işlendi..." : ""}
+            className={["w-full rounded-xl p-3 text-sm outline-none resize-none transition-all duration-300", iyzicoFormHtml ? "bg-[#121215]/50 border border-transparent text-slate-500 cursor-not-allowed" : "bg-[#121215] border border-white/10 text-white focus:border-[#3b82f6]"].join(" ")}
+          ></textarea>
+        </div>
+        {/* --- MODERN SİPARİŞ NOTU ALANI BİTİŞ --- */}
           </div>
         </div>
       </div>
