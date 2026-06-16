@@ -241,7 +241,27 @@ export default function OdemeSayfasi() {
                     <div><label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">Telefon *</label><input type="tel" name="telefon" value={faturaForm.telefon} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6]" /></div>
                     <div><label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">E-Posta *</label><input type="email" name="eposta" value={faturaForm.eposta} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6]" /></div>
                   </div>
-                  <div className="mb-3 sm:mb-4"><label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">Açık Adres *</label><textarea rows={2} name="adres" value={faturaForm.adres} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6]"></textarea></div>
+                 <div className="mb-3 sm:mb-4">
+  <label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">Açık Adres *</label>
+  <div className="relative w-full">
+    <textarea 
+      rows={2} 
+      name="adres" 
+      value={faturaForm.adres} 
+      onChange={faturaInputDegis} 
+      required={!faturaAyni} 
+      className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 pr-6 pb-6 text-sm text-white outline-none focus:border-[#3b82f6] resize-y [&::-webkit-resizer]:hidden"
+    ></textarea>
+    
+    {/* Sadece görüntü olan PC Tarzı Çizgiler */}
+    <div className="absolute bottom-2 right-2 pointer-events-none text-slate-500/50">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="21" y1="15" x2="15" y2="21"></line>
+        <line x1="21" y1="8" x2="8" y2="21"></line>
+      </svg>
+    </div>
+  </div>
+</div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div><label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">Şehir *</label><input type="text" name="sehir" value={faturaForm.sehir} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6]" /></div>
                     <div><label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">İlçe *</label><input type="text" name="ilce" value={faturaForm.ilce} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6]" /></div>
