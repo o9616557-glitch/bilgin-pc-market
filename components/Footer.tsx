@@ -124,7 +124,43 @@ export default function Footer() {
           </div>
 
         </div>
+<div className="flex flex-col md:flex-row items-center justify-between border-t border-slate-800 pt-6 mt-8 gap-4">
+  {/* Sol Taraf: Marka Telif ve Kısa Bilgi */}
+  <p className="text-sm text-slate-400">
+    © 2026 Bilgin PC Market. Tüm Hakları Saklıdır.
+  </p>
 
+  {/* Sağ Taraf: Modern Sosyal Medya Butonları */}
+  <div className="flex items-center gap-3">
+    {/* Instagram Butonu */}
+   {/* Instagram Butonu */}
+    <a 
+      href="https://www.instagram.com/bilginpcmarket" 
+      target="_blank" 
+      rel="noopener noreferrer" 
+      className="group flex items-center justify-center w-10 h-10 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 hover:text-white hover:border-[#10b981] hover:shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all duration-300 transform hover:-translate-y-1"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform duration-300">
+        <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+        <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+      </svg>
+    </a>
+
+    {/* YouTube Butonu */}
+    <a 
+      href="https://www.youtube.com/@bilginpcmarket" 
+      target="_blank" 
+      rel="noopener noreferrer" 
+      className="group flex items-center justify-center w-10 h-10 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 hover:text-white hover:border-[#ef4444] hover:shadow-[0_0_15px_rgba(239,68,68,0.3)] transition-all duration-300 transform hover:-translate-y-1"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform duration-300">
+        <path d="M2.5 7.1C2.5 5.9 3.5 5 4.7 5h14.6c1.2 0 2.2.9 2.2 2.1v9.8c0 1.2-1 2.1-2.2 2.1H4.7c-1.2 0-2.2-.9-2.2-2.1V7.1z"/>
+        <path d="M10 15l5-3-5-3v6z" fill="currentColor"/>
+      </svg>
+    </a>
+  </div>
+</div>
         <div className="border-t border-slate-800/80 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-slate-500 text-xs font-medium text-center md:text-left">
             © {new Date().getFullYear()} Bilgin PC Market Tüm Hakları Saklıdır.
