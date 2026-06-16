@@ -261,7 +261,7 @@ export default function OdemeSayfasi() {
                     <div><label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">Telefon *</label><input type="tel" name="telefon" value={faturaForm.telefon} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6]" /></div>
                     <div><label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">E-Posta *</label><input type="email" name="eposta" value={faturaForm.eposta} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6]" /></div>
                   </div>
-               <div className="mb-3 sm:mb-4">
+              <div className="mb-3 sm:mb-4">
   <label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">Açık Adres *</label>
   <div className="relative w-full">
     <textarea 
@@ -273,12 +273,10 @@ export default function OdemeSayfasi() {
       className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 pr-6 pb-6 text-sm text-white outline-none focus:border-[#3b82f6] resize-y [&::-webkit-resizer]:hidden"
     ></textarea>
     
-    {/* UÇLARI SIFIRA SIFIR DUVARA VE DİBE DEĞEN ÇİZGİLER */}
-    <div className="absolute bottom-1.5 right-1.5 pointer-events-none text-slate-400">
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square">
-        {/* Uzun çizgi: Tam sağ duvardan başlayıp -> Tam sol en dibe yapışır */}
+    {/* HAVADA DURMAYAN, UÇLARI TAM SAĞ VE ALT DUVARA YAPIŞAN ÇİZGİLER */}
+    <div className="absolute bottom-[3px] right-[3px] pointer-events-none text-slate-400">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
         <line x1="12" y1="0" x2="0" y2="12"></line>
-        {/* Kısa çizgi: Tam sağ duvarın ortasından -> Tam alt tabana yapışır */}
         <line x1="12" y1="6" x2="6" y2="12"></line>
       </svg>
     </div>
