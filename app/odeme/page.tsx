@@ -375,7 +375,7 @@ export default function OdemeSayfasi() {
           <>
             <div>
               <h3 className="text-black font-bold text-base mb-2">1.1. Satıcı Bilgileri</h3>
-              <p className="text-gray-600"><strong>Ünvanı:</strong> Bilgin PC Market (Bireysel/Kurumsal Vergi Mükellefi)</p>
+              <p className="text-gray-600"><strong>Ünvanı:</strong> ÖZKAN BİLGİN </p>
               <p className="text-gray-600"><strong>Merkez:</strong> İstanbul</p>
               <p className="text-gray-600 text-xs italic mt-2 mb-2">* Bilgin PC Market, tüm Türkiye'ye hizmet veren e-ticaret odaklı bir teknoloji tedarikçisidir. Açık depo ve merkez adresimiz, güvenlik protokolleri gereği yalnızca sipariş sonrası tarafınıza iletilen resmi e-fatura üzerinde yer almaktadır.</p>
               <p className="text-gray-600"><strong>E-posta:</strong> info@bilginpcmarket.com</p>
