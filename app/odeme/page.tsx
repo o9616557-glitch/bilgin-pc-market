@@ -218,7 +218,7 @@ export default function OdemeSayfasi() {
                     <div><label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">Telefon *</label><input type="tel" name="telefon" value={form.telefon} onChange={inputDegis} required className="w-full bg-[#121215] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6]" /></div>
                     <div><label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">E-Posta Adresi *</label><input type="email" name="eposta" value={form.eposta} onChange={inputDegis} required className="w-full bg-[#121215] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6]" /></div>
                   </div>
-                <div className="mb-3 sm:mb-4">
+               <div className="mb-3 sm:mb-4">
   <label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">Açık Adres *</label>
   <div className="relative w-full">
     <textarea 
@@ -261,7 +261,7 @@ export default function OdemeSayfasi() {
                     <div><label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">Telefon *</label><input type="tel" name="telefon" value={faturaForm.telefon} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6]" /></div>
                     <div><label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">E-Posta *</label><input type="email" name="eposta" value={faturaForm.eposta} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6]" /></div>
                   </div>
-                 <div className="mb-3 sm:mb-4">
+                <div className="mb-3 sm:mb-4">
   <label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">Açık Adres *</label>
   <div className="relative w-full">
     <textarea 
