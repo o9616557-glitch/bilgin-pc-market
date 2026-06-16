@@ -218,16 +218,26 @@ export default function OdemeSayfasi() {
                     <div><label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">Telefon *</label><input type="tel" name="telefon" value={form.telefon} onChange={inputDegis} required className="w-full bg-[#121215] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6]" /></div>
                     <div><label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">E-Posta Adresi *</label><input type="email" name="eposta" value={form.eposta} onChange={inputDegis} required className="w-full bg-[#121215] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6]" /></div>
                   </div>
-                <div>
+                <div className="mb-3 sm:mb-4">
   <label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">Açık Adres *</label>
-  <textarea 
-    rows={3} 
-    name="adres" 
-    value={form.adres} 
-    onChange={inputDegis} 
-    required 
-    className="w-full bg-[#121215] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6] resize-y bg-[url('data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20width=%2210%22%20height=%2210%22%20fill=%22none%22%3E%3Cpath%20d=%22M10%200L0%2010M10%205L5%2010%22%20stroke=%22%23475569%22%20stroke-width=%221.5%22/%3E%3C/svg%3E')] bg-no-repeat bg-[position:calc(100%-8px)_calc(100%-8px)] sm:bg-none [&::-webkit-resizer]:opacity-0 sm:[&::-webkit-resizer]:opacity-100"
-  ></textarea>
+  <div className="relative w-full">
+    <textarea 
+      rows={2} 
+      name="adres" 
+      value={faturaForm.adres} 
+      onChange={faturaInputDegis} 
+      required={!faturaAyni} 
+      className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 pr-6 pb-6 text-sm text-white outline-none focus:border-[#3b82f6] resize-y [&::-webkit-resizer]:hidden"
+    ></textarea>
+    
+    {/* HAVADA DURMAYAN, UÇLARI TAM SAĞ VE ALT DUVARA YAPIŞAN ÇİZGİLER */}
+    <div className="absolute bottom-[3px] right-[3px] pointer-events-none text-slate-400">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <line x1="12" y1="0" x2="0" y2="12"></line>
+        <line x1="12" y1="6" x2="6" y2="12"></line>
+      </svg>
+    </div>
+  </div>
 </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div><label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">Şehir *</label><input type="text" name="sehir" value={form.sehir} onChange={inputDegis} required className="w-full bg-[#121215] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6]" /></div>
@@ -251,7 +261,7 @@ export default function OdemeSayfasi() {
                     <div><label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">Telefon *</label><input type="tel" name="telefon" value={faturaForm.telefon} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6]" /></div>
                     <div><label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">E-Posta *</label><input type="email" name="eposta" value={faturaForm.eposta} onChange={faturaInputDegis} required={!faturaAyni} className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#3b82f6]" /></div>
                   </div>
-                 <div className="mb-3 sm:mb-4">
+                <div className="mb-3 sm:mb-4">
   <label className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider block mb-1.5">Açık Adres *</label>
   <div className="relative w-full">
     <textarea 
@@ -263,11 +273,11 @@ export default function OdemeSayfasi() {
       className="w-full bg-[#09090b] border border-white/10 rounded-xl p-3 pr-6 pb-6 text-sm text-white outline-none focus:border-[#3b82f6] resize-y [&::-webkit-resizer]:hidden"
     ></textarea>
     
-    {/* Daha belirgin (beyaza yakın) ve köşeye milimetrik oturtulmuş çizgiler */}
-    <div className="absolute bottom-1.5 right-1.5 pointer-events-none text-slate-300">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="21" y1="14" x2="14" y2="21"></line>
-        <line x1="21" y1="7" x2="7" y2="21"></line>
+    {/* HAVADA DURMAYAN, UÇLARI TAM SAĞ VE ALT DUVARA YAPIŞAN ÇİZGİLER */}
+    <div className="absolute bottom-[3px] right-[3px] pointer-events-none text-slate-400">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <line x1="12" y1="0" x2="0" y2="12"></line>
+        <line x1="12" y1="6" x2="6" y2="12"></line>
       </svg>
     </div>
   </div>
