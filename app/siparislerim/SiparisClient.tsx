@@ -26,6 +26,7 @@ export default function SiparisClient({ initialOrders }: Props) {
     }
   }, [initialOrders]);
 
+ // 🚀 ZIPLAMA YAPMAYAN, SESSİZ VE AKILLI CANLI TAKİP MOTORU
   useEffect(() => {
     const radar = setInterval(async () => {
       if (refreshing) return; 
@@ -39,19 +40,22 @@ export default function SiparisClient({ initialOrders }: Props) {
         
         if (res.ok && data.orders) {
            const eskiDurumlar = JSON.stringify(ordersRef.current.map(o => ({id: o._id, durum: o.durum})));
-           const yeniDurumlar = JSON.stringify(data.orders.map((o:any) => ({id: o._id, durum: o.durum})));
+           
+           // 🔥 BİNGO: Arka plandan gelen yeni veriyi "En Yeni En Üste" olacak şekilde hizalıyoruz
+           const sortedYeniData = [...data.orders].sort((a: any, b: any) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
+           const yeniDurumlar = JSON.stringify(sortedYeniData.map((o:any) => ({id: o._id, durum: o.durum})));
 
            if (eskiDurumlar !== yeniDurumlar) {
               setRefreshing(true); 
               
               setTimeout(() => {
-                 setOrders(data.orders); 
-                 ordersRef.current = data.orders;
+                 setOrders(sortedYeniData); // Artık karışık değil, hizalanmış listeyi basar
+                 ordersRef.current = sortedYeniData;
                  setRefreshing(false);
               }, 2000); 
            } else {
-              setOrders(data.orders);
-              ordersRef.current = data.orders;
+              setOrders(sortedYeniData);
+              ordersRef.current = sortedYeniData;
            }
         }
       } catch (error) {
