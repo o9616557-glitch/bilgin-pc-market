@@ -128,7 +128,7 @@ export default function SiparisTakipPage() {
               <div className="mb-8 p-5 bg-amber-500/10 border border-amber-500/20 text-amber-200 rounded-2xl shadow-lg relative overflow-hidden group">
                 <div className="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
                 <p className="font-black text-amber-500 uppercase tracking-widest text-[10px] mb-2 flex items-center gap-2">
-                  <Info size={14} /> MAĞAZA BİLDİRİMİ
+                  <Info size={14} /> MAĞAZA MESAJI
                 </p>
                 <p className="font-bold text-sm leading-relaxed">{magazaMesaji}</p>
               </div>
