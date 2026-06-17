@@ -88,13 +88,10 @@ export default function SepetSayfasi() {
               return (
                 <div key={index} className="flex flex-col sm:flex-row items-center sm:items-stretch bg-[#09090b] border border-white/5 rounded-2xl p-4 gap-4 transition-all hover:border-[#3b82f6]/30 shadow-sm">
                   
-                  {/* 🚀 BİNGO: Mobilde büyük (h-40 w-full), PC'de standart (w-28 h-28) resim boyutu */}
-                  <div className="w-full sm:w-28 h-40 sm:h-28 shrink-0 bg-[#121215] rounded-xl border border-white/10 flex items-center justify-center p-2 shadow-inner">
-                    <img src={urun.resim || "/placeholder.jpg"} alt={urun.isim} className="max-w-full max-h-full object-contain" />
-                  </div>
-                  
-                  <div className="flex-1 flex flex-col text-center sm:text-left w-full justify-center">
-                    <h3 className="font-bold text-sm sm:text-base text-white mb-1.5 leading-snug break-words">{urun.isim}</h3>
+                <div className="flex-1 flex flex-col text-center sm:text-left w-full justify-center">
+                <Link href={`/urun/${urun.slug}`} className="cursor-pointer hover:text-[#3b82f6] transition-colors">
+                  <h3 className="font-bold text-sm sm:text-base text-white mb-1.5 leading-snug break-words hover:text-[#3b82f6] transition-colors">{urun.isim}</h3>
+                </Link>
                     {urun.varyasyon && !urun.varyasyon.toLowerCase().includes("standart") && (
                       <div className="flex justify-center sm:justify-start mb-2">
                          <span className="text-[#3b82f6] text-[10px] sm:text-xs font-bold bg-[#3b82f6]/10 px-2 py-1 rounded border border-[#3b82f6]/20 tracking-wide">{urun.varyasyon}</span>
