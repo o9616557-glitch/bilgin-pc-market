@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useCart } from "@/app/CartContext";
 import toast from "react-hot-toast";
 import { 
-  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, Loader2, Check, AlertTriangle, Trash2, RefreshCw, ExternalLink 
+  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, Check, AlertTriangle, Trash2, RefreshCw, ExternalLink 
 } from "lucide-react";
 
 const STEPS = [
@@ -18,41 +18,27 @@ const STEPS = [
   { id: "sogutma", name: "Soğutma Sistemi", icon: Wind },
 ];
 
-export default function KendinToplaPage() {
+export default function KendinToplaClient({ initialProducts }: { initialProducts: any[] }) {
   const { sepeteEkle } = useCart();
   const [currentStep, setCurrentStep] = useState(0);
-  const [products, setProducts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // Kalıcı hafızalı seçim state yapısı
   const [selections, setSelections] = useState<Record<string, any>>({});
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
   
-  // KUANTUM HAFIZA: İlk tıklama gecikmesini yok eden akıllı client-side cache ref yapısı
-  const cacheRef = useRef<Record<string, any[]>>({});
-  
   const activeStepInfo = STEPS[currentStep];
 
-  // Tarayıcı hafızasından eski seçimleri geri yükleme motoru
   useEffect(() => {
     const eskiSecimler = localStorage.getItem("bilgin_sihirbaz_selections");
     if (eskiSecimler) {
-      try {
-        setSelections(JSON.parse(eskiSecimler));
-      } catch (e) {
-        console.error("Hafıza okuma hatası:", e);
-      }
+      try { setSelections(JSON.parse(eskiSecimler)); } catch (e) {}
     }
   }, []);
 
-  // Seçimler değiştikçe hafızayı anında güncelleme motoru
   useEffect(() => {
     if (Object.keys(selections).length > 0) {
       localStorage.setItem("bilgin_sihirbaz_selections", JSON.stringify(selections));
     }
   }, [selections]);
 
-  // Pop-up açılınca arka plan kaymasını engelleyen kilit
   useEffect(() => {
     if (previewProduct) {
       document.body.style.overflow = "hidden";
@@ -61,10 +47,6 @@ export default function KendinToplaPage() {
       document.body.style.overflow = "unset";
       document.body.style.height = "unset";
     }
-    return () => {
-      document.body.style.overflow = "unset";
-      document.body.style.height = "unset";
-    };
   }, [previewProduct]);
 
   const dinamikFiltreleriHesapla = (stepToIgnore: string) => {
@@ -80,26 +62,20 @@ export default function KendinToplaPage() {
     const sKasa = stepToIgnore === "kasa" ? null : selections["kasa"];
 
     if (sIslemci?.sihirbaz_ozellikleri) {
-      const sz = sIslemci.sihirbaz_ozellikleri;
-      soket = sz.soket || soket;
-      bellek = sz.bellek_tipi || bellek;
+      soket = sIslemci.sihirbaz_ozellikleri.soket || soket;
+      bellek = sIslemci.sihirbaz_ozellikleri.bellek_tipi || bellek;
     }
-
     if (sAnakart?.sihirbaz_ozellikleri) {
-      const sz = sAnakart.sihirbaz_ozellikleri;
-      if (!soket) soket = sz.soket;
-      if (!bellek) bellek = sz.bellek_tipi;
-      yapi = sz.anakart_yapisi || yapi;
+      if (!soket) soket = sAnakart.sihirbaz_ozellikleri.soket;
+      if (!bellek) bellek = sAnakart.sihirbaz_ozellikleri.bellek_tipi;
+      yapi = sAnakart.sihirbaz_ozellikleri.anakart_yapisi || yapi;
     }
-
     if (sRam?.sihirbaz_ozellikleri && !bellek) {
       bellek = sRam.sihirbaz_ozellikleri.bellek_tipi;
     }
-
     if (sSogutma?.sihirbaz_ozellikleri) {
       radyator = sSogutma.sihirbaz_ozellikleri.radyator_boyutu || radyator;
     }
-
     if (sKasa?.sihirbaz_ozellikleri && !radyator) {
       radyator = sKasa.sihirbaz_ozellikleri.radyator_boyutu || radyator;
     }
@@ -109,53 +85,19 @@ export default function KendinToplaPage() {
 
   const { soket, bellek, yapi, radyator } = dinamikFiltreleriHesapla(activeStepInfo.id);
 
-  // PARALEL ARKA PLAN MOTORU: İlk tıklama yavaşlığını tamamen yok eden mekanizma
-  useEffect(() => {
-    const currentCacheKey = `${activeStepInfo.id}_${soket}_${bellek}_${yapi}_${radyator}`;
-    
-    if (cacheRef.current[currentCacheKey]) {
-      setProducts(cacheRef.current[currentCacheKey]);
-      setLoading(false);
-    } else {
-      setLoading(true);
-    }
+  // 🚀 İŞTE IŞIK HIZI BURADA! API yok, bekleme yok!
+  const gosterilecekUrunler = initialProducts.filter((urun) => {
+    if (urun.kategoriSlug !== activeStepInfo.id) return false;
 
-    const fetchAllStepsParallel = async () => {
-      if (!cacheRef.current[currentCacheKey]) {
-        try {
-          let url = `/api/kendin-topla?kategori=${activeStepInfo.id}&soket=${encodeURIComponent(soket)}&bellek=${encodeURIComponent(bellek)}&yapi=${encodeURIComponent(yapi)}&radyator=${encodeURIComponent(radyator)}`;
-          const res = await fetch(url);
-          const resData = await res.json();
-          if (resData.success) {
-            cacheRef.current[currentCacheKey] = resData.data;
-            setProducts(resData.data);
-          }
-        } catch (e) {
-          setProducts([]);
-        } finally {
-          setLoading(false);
-        }
-      }
+    const sz = urun.sihirbaz_ozellikleri || {};
 
-      STEPS.forEach(async (step) => {
-        if (step.id === activeStepInfo.id) return; 
-        const stepCacheKey = `${step.id}_${soket}_${bellek}_${yapi}_${radyator}`;
-        
-        if (!cacheRef.current[stepCacheKey]) {
-          try {
-            let url = `/api/kendin-topla?kategori=${step.id}&soket=${encodeURIComponent(soket)}&bellek=${encodeURIComponent(bellek)}&yapi=${encodeURIComponent(yapi)}&radyator=${encodeURIComponent(radyator)}`;
-            const res = await fetch(url);
-            const resData = await res.json();
-            if (resData.success) {
-              cacheRef.current[stepCacheKey] = resData.data; 
-            }
-          } catch (e) {}
-        }
-      });
-    };
+    if (soket && sz.soket && sz.soket !== soket) return false;
+    if (bellek && sz.bellek_tipi && sz.bellek_tipi !== bellek) return false;
+    if (yapi && sz.anakart_yapisi && sz.anakart_yapisi !== yapi) return false;
+    if (radyator && sz.radyator_boyutu && sz.radyator_boyutu !== radyator) return false;
 
-    fetchAllStepsParallel();
-  }, [currentStep, soket, bellek, yapi, radyator]);
+    return true;
+  });
 
   const handleSelectComponent = (product: any) => {
     setSelections((prev) => ({ ...prev, [activeStepInfo.id]: product }));
@@ -197,7 +139,6 @@ export default function KendinToplaPage() {
   const ekranKartiBoyutu = Number(selections["ekran-karti"]?.sihirbaz_ozellikleri?.gpu_boyutu) || 0;
   const gpuKasaAşimi = kasaGpuLimiti > 0 && ekranKartiBoyutu > 0 && ekranKartiBoyutu > kasaGpuLimiti;
 
-  // Sistem tamamlandı mı kontrol eden kural (8 parçanın hepsi seçildi mi?)
   const isSystemComplete = STEPS.every(step => !!selections[step.id]);
 
   const handleAddSystemToCart = () => {
@@ -271,7 +212,6 @@ export default function KendinToplaPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col lg:flex-row gap-8 items-start">
-        {/* SOL TARAF: ÜRÜN LİSTESİ */}
         <div className="w-full lg:w-[65%] flex flex-col gap-6">
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <h2 className="text-lg sm:text-2xl font-black uppercase tracking-tight flex items-center gap-3">
@@ -280,35 +220,9 @@ export default function KendinToplaPage() {
             </h2>
           </div>
 
-      {loading ? (
-            <div className="flex flex-col w-full animate-in fade-in duration-300">
-              {/* SADECE İSKELET KARTLAR - YAZI VE SİMGE YOK */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="bg-[#18181b] border-2 rounded-2xl p-4 flex gap-4 border-white/5 animate-pulse">
-                    {/* Resim İskeleti */}
-                    <div className="w-20 h-20 bg-white/5 rounded-xl shrink-0 border border-white/5"></div>
-                    
-                    <div className="flex flex-col justify-between flex-1 min-w-0">
-                      <div>
-                        {/* Başlık ve Özellik İskeletleri */}
-                        <div className="w-3/4 h-4 bg-white/10 rounded mb-2.5"></div>
-                        <div className="w-1/2 h-2.5 bg-white/5 rounded mb-1.5"></div>
-                        <div className="w-1/3 h-2.5 bg-white/5 rounded"></div>
-                      </div>
-                      {/* Alt Fiyat ve Buton İskeleti */}
-                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5">
-                        <div className="w-20 h-5 bg-white/10 rounded"></div>
-                        <div className="w-16 h-8 bg-white/10 rounded-xl"></div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : products.length > 0 ? (
+          {gosterilecekUrunler.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {products.map((urun) => {
+              {gosterilecekUrunler.map((urun) => {
                 const isItemChosen = selections[activeStepInfo.id]?._id === urun._id;
                 return (
                   <div key={urun._id} className={`bg-[#18181b] border-2 rounded-2xl p-4 flex gap-4 hover:border-white/20 transition-all group shadow-md ${isItemChosen ? "border-emerald-500 bg-emerald-500/5" : "border-white/10"}`}>
@@ -334,7 +248,7 @@ export default function KendinToplaPage() {
                         
                         <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-gray-300 font-medium break-all break-words">
                           {urun.sihirbaz_ozellikleri && Object.entries(urun.sihirbaz_ozellikleri).filter(([_, v]) => v).slice(0, 3).map(([k, v]: any) => (
-                            <span key={k} className="capitalize">{k.replace('_', ' ')}: <strong className="text-gray-100">{v}</strong></span>
+                            <span key={k} className="capitalize">{k.replace(/_/g, ' ')}: <strong className="text-gray-100">{v}</strong></span>
                           ))}
                         </div>
                       </div>
@@ -357,11 +271,10 @@ export default function KendinToplaPage() {
             </div>
           ) : (
             <div className="text-center py-16 bg-[#18181b] border-2 border-white/10 rounded-2xl p-6 text-gray-400 text-sm">
-              Bu kriterlere uygun parça bulunmamaktadır.
+              Bu kriterlere (veya mevcut sisteminize) uygun parça bulunmamaktadır.
             </div>
           )}
 
-          {/* SADE VE ELİT TEBRİKLER ALANI */}
           {isSystemComplete && (
             <div className="w-full bg-emerald-500/10 border-2 border-emerald-500/20 rounded-2xl p-5 md:p-6 text-center mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300 select-none">
               <h3 className="text-emerald-400 font-black text-base md:text-lg uppercase tracking-wider mb-1 flex items-center justify-center gap-2">
@@ -374,7 +287,6 @@ export default function KendinToplaPage() {
           )}
         </div>
 
-        {/* SAĞ TARAF: SİSTEM ÖZETİ */}
         <div className="w-full lg:w-[35%] lg:sticky lg:top-40 flex flex-col gap-6">
           <div className="bg-[#18181b] border-2 border-white/10 rounded-2xl p-6 shadow-2xl flex flex-col w-full">
             
@@ -464,7 +376,6 @@ export default function KendinToplaPage() {
         </div>
       </div>
 
-      {/* MOBİL ALT BAR */}
       <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#18181b]/95 backdrop-blur-2xl border-t-2 border-white/10 px-4 sm:px-6 py-4 z-50 flex items-center justify-between shadow-[0_-15px_30px_rgba(0,0,0,0.8)] select-none">
          <div className="flex flex-col">
             <span className="text-gray-400 text-[10px] font-black tracking-wider uppercase mb-0.5">TOPLAM TUTAR</span>
@@ -485,7 +396,6 @@ export default function KendinToplaPage() {
          </div>
       </div>
 
-      {/* DETAY İNCELEME MODAL PANELİ */}
       {previewProduct && (
         <div className="fixed inset-0 bg-black/95 z-[9999] flex items-center justify-center p-4 animate-in fade-in duration-100">
           <div className="bg-[#121214] border-2 border-white/10 w-full max-w-5xl max-h-[90vh] rounded-2xl overflow-hidden flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.8)]">
