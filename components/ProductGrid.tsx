@@ -9,7 +9,7 @@ export default function ProductGrid({ initialProducts }: { initialProducts: any[
   // 🚀 ŞEFİM İŞTE EKSİK OLAN ANA KABLO BU! Asıl sepetin beynini buraya bağladık:
   const { sepeteEkle } = useCart();
 
-  const handleAddToCart = (e: React.MouseEvent, product: any) => {
+ const handleAddToCart = (e: React.MouseEvent, product: any) => {
     e.preventDefault();
     try {
       // Artık kafamıza göre değil, ana motorun kurallarıyla sepete atıyoruz
@@ -18,12 +18,12 @@ export default function ProductGrid({ initialProducts }: { initialProducts: any[
         isim: product.isim || product.name || "İsimsiz Ürün",
         fiyat: Number(product.indirimliFiyat || product.price || product.fiyat || 0),
         resim: product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/300",
-        varyasyon: "Standart Model"
+        varyasyon: "Standart Model",
+        slug: product.slug // 🚀 BİNGO: Adresi (slug) vitrindeki butona da ekledik!
       });
 
       setToastMessage("Sepete eklendi ✓");
       setTimeout(() => setToastMessage(""), 3000);
-      
     } catch (err) {
       console.error("Sepet hatası:", err);
     }
