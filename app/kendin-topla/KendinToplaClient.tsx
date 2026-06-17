@@ -86,18 +86,25 @@ export default function KendinToplaClient({ initialProducts }: { initialProducts
   const { soket, bellek, yapi, radyator } = dinamikFiltreleriHesapla(activeStepInfo.id);
 
   // 🚀 AKILLI UYUM MOTORU: Boşlukları ve harf büyüklüklerini affeder, seni kısıtlamaz.
+  // 🚀 AKILLI UYUM MOTORU: Birebir eşleşme aramaz, "içinde geçiyor mu?" diye bakar!
+  // Sıvı soğutuculardaki çoklu soketleri (AM4, AM5, LGA1700) artık saniyesinde anlar.
   const gosterilecekUrunler = initialProducts.filter((urun) => {
     if (urun.kategoriSlug !== activeStepInfo.id) return false;
 
     const sz = urun.sihirbaz_ozellikleri || {};
-    const temizle = (metin: any) => (metin || "").toString().toLowerCase().trim();
-
-    if (soket && sz.soket && temizle(sz.soket) !== temizle(soket)) return false;
-    if (bellek && sz.bellek_tipi && temizle(sz.bellek_tipi) !== temizle(bellek)) return false;
-    if (yapi && sz.anakart_yapisi && temizle(sz.anakart_yapisi) !== temizle(yapi)) return false;
     
-    // Kasa ve Soğutucu eklerken daha özgür bırakmak için radyatör filtresini çok sıkı tutmuyoruz.
-    if (radyator && sz.radyator_boyutu && temizle(sz.radyator_boyutu) !== "" && temizle(sz.radyator_boyutu) !== temizle(radyator)) return false;
+    // Boşlukları silip küçük harf yapan ve birbirinin içinde geçiyor mu diye bakan esnek fonksiyon
+    const temizle = (metin: any) => (metin || "").toString().toLowerCase().replace(/\s+/g, '');
+    
+    const uyumluMu = (aranan: string, urundeki: string) => {
+      if (!aranan || !urundeki) return true; // İkisinden biri boşsa serbest bırak (kısıtlama)
+      return temizle(urundeki).includes(temizle(aranan)) || temizle(aranan).includes(temizle(urundeki));
+    };
+
+    if (soket && sz.soket && !uyumluMu(soket, sz.soket)) return false;
+    if (bellek && sz.bellek_tipi && !uyumluMu(bellek, sz.bellek_tipi)) return false;
+    if (yapi && sz.anakart_yapisi && !uyumluMu(yapi, sz.anakart_yapisi)) return false;
+    if (radyator && sz.radyator_boyutu && !uyumluMu(radyator, sz.radyator_boyutu)) return false;
 
     return true;
   });
