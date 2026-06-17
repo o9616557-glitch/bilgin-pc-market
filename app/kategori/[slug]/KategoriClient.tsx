@@ -352,7 +352,8 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
               <div className="p-4 lg:p-0 overflow-y-auto [&::-webkit-scrollbar]:hidden flex-1 select-none">
                 
                 <div className="mb-6 pb-6 border-b border-white/20">
-                  <label className="flex items-center gap-3 cursor-pointer group mb-5">
+                 {/* 🚀 mt-6 eklenerek tavana yapışması engellendi, rahatça nefes alıyor */}
+<label className="flex items-center gap-3 cursor-pointer group mb-5 mt-6">
                     <div className="relative">
                       <input type="checkbox" className="sr-only" checked={sadeceStokta} onChange={(e) => setSadeceStokta(e.target.checked)} />
                       <div className={`block w-9 h-5 rounded-full transition-colors border border-white/20 ${sadeceStokta ? 'bg-[#10b981]' : 'bg-white/20'}`}></div>
