@@ -330,14 +330,13 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                         </>
                       ) : (
                         <>
-                        {/* GİRİŞ YAPMAMIŞ KULLANICI İÇİN ŞIK TASARIM */}
+                       {/* GİRİŞ YAPMAMIŞ KULLANICI İÇİN ŞIK TASARIM */}
                           <div className="flex flex-col items-center justify-center p-4 mb-2 text-center">
                             <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#3b82f6] mb-3 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
-                              {/* 🚀 PARMAK İZİ GİTTİ, YERİNE GÜVEN VEREN MODERN KULLANICI İKONU GELDİ */}
                               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                             </div>
                             <span className="text-white font-black text-sm mb-1">Hesabınıza Erişin</span>
-                            <span className="text-gray-400 text-xs">Siparişlerinizi takip etmek için giriş yapın.</span>
+                            <span className="text-gray-400 text-xs leading-relaxed">Siparişlerinizi, adreslerinizi ve favorilerinizi yönetmek için giriş yapın.</span>
                           </div>
                           <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center justify-center gap-2 px-4 py-3 mb-3 text-[#3b82f6] bg-[#3b82f6]/10 hover:bg-[#3b82f6]/20 border border-[#3b82f6]/20 rounded-xl text-sm font-black uppercase tracking-wider transition-all">📦 Hızlı Sipariş Takibi</Link>
                           
