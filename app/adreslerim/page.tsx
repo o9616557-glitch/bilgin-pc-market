@@ -6,8 +6,9 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // Kendi yolun
 import { redirect } from "next/navigation";
 import AdresYoneticisi from "./AdresYoneticisi";
 
-// Bu sayfa artık bir Server Component. "use client" yok!
-// Veritabanına direkt bağlanıp veriyi şak diye çeker.
+// 🚀 Sayfanın her girişte taze kalması için Next.js'e emir veriyoruz
+export const dynamic = "force-dynamic";
+
 export default async function AdreslerimPage() {
   const session = await getServerSession(authOptions);
 
@@ -21,8 +22,10 @@ export default async function AdreslerimPage() {
     await mongoose.connect(process.env.MONGODB_URI as string);
   }
 
-  // Kullanıcının adreslerini sunucuda (jet hızıyla) bul
-  const user = await User.findOne({ email: session.user.email }).lean();
+  // 🚀 NOKTA ATIŞI: Bütün profili (siparişler, şifreler vs.) değil, SADECE adresleri çekip sunucuyu rahatlatıyoruz!
+  const user = await User.findOne({ email: session.user.email })
+    .select("addresses") 
+    .lean();
   
   // Veriyi Client bileşeninin anlayacağı düz (plain) objeye çeviriyoruz
   const addresses = user?.addresses ? JSON.parse(JSON.stringify(user.addresses)) : [];
