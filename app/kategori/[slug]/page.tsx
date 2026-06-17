@@ -1,5 +1,5 @@
 import clientPromise from "@/lib/mongodb";
-import KategoriClient from "./KategoriClient"; // Az önce oluşturduğumuz dosyayı çağırıyoruz
+import KategoriClient from "./KategoriClient"; 
 
 // 🚀 Motoru 1 saat (3600 sn) sıcak tutar. İlk girenden sonra 1 saat boyunca kimse bekleyemez!
 export const revalidate = 3600;
@@ -23,6 +23,9 @@ export default async function KategoriSayfasi({ params }: any) {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
     
+    // ⚠️ DİKKAT: find({}) bütün veritabanını tek seferde çeker. 
+    // Sistemde 300 civarı donanım ürünü olduğu için şu an hızda zerre problem yaratmaz, milisaniyede gelir.
+    // Ama ileride ürün sayısı 10.000'leri geçerse, veritabanına doğrudan "kategoriSlug" diye bir alan kaydetmek gerekecek. Şimdilik jilet gibi çalışır!
     const rawUrunler = await db.collection("products").find({}).toArray();
     
     const productIds = rawUrunler.map(p => p._id.toString());
@@ -68,4 +71,41 @@ export default async function KategoriSayfasi({ params }: any) {
       </div>
     </main>
   );
+}
+
+// 🚀 OTOMATİK VİTRİN MOTORU: Sitenin tüm kategorilerini veritabanından bulup önceden saniyesinde hazır eder
+export async function generateStaticParams() {
+  try {
+    const client = await clientPromise;
+    const db = client.db("bilginpcmarket");
+    
+    // Sadece kategori isimlerini çekeriz (işlem ışık hızında bitsin diye)
+    const rawUrunler = await db.collection("products").find({}, { projection: { kategori: 1, category: 1 } }).toArray();
+    
+    const slugify = (text: string) => {
+      return (text || "").toString().toLowerCase()
+        .replace(/ı/g, "i").replace(/ş/g, "s").replace(/ç/g, "c")
+        .replace(/ö/g, "o").replace(/ğ/g, "g").replace(/ü/g, "u")
+        .replace(/\s+/g, "-").replace(/[^\w-]+/g, "");
+    };
+
+    // Benzersiz kategorileri süzüyoruz (Aynı kategoriden 50 anakart varsa bile 1 kere listeye alır)
+    const benzersizKategoriler = new Set<string>();
+    
+    rawUrunler.forEach((urun) => {
+      const catName = urun.kategori || urun.category || "";
+      if (catName) {
+        benzersizKategoriler.add(slugify(catName));
+      }
+    });
+
+    // Next.js'in istediği özel formata çevirip motoru ateşliyoruz
+    return Array.from(benzersizKategoriler).map((slug) => ({
+      slug: slug,
+    }));
+    
+  } catch (error) {
+    console.error("Vitrin kategorileri oluşturulamadı:", error);
+    return []; // Hata olursa sistemi çökertmeden yola devam eder
+  }
 }
