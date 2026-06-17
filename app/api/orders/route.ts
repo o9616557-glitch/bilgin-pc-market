@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 // =================================================================
-// 1. SİPARİŞLERİ EKRANA GETİRME MOTORU (GÜNCELLENDİ 🎯)
+// 1. SİPARİŞLERİ EKRANA GETİRME MOTORU (GİZLENENLERİ GÖSTERMEZ 🎯)
 // =================================================================
 export async function GET() {
   try {
@@ -25,12 +25,18 @@ export async function GET() {
     const db = client.db("bilginpcmarket"); 
     const userEmail = session.user.email;
 
+    // 🔥 BİNGO 1: Siparişleri çekerken "gizlendi: true OLMAYANLARI" getir diyoruz!
     const rawOrders = await db.collection("orders").find({
-      $or: [
-        { userEmail: userEmail },
-        { email: userEmail },
-        { "customerDetails.email": userEmail },
-        { "musteri.eposta": userEmail }
+      $and: [
+        {
+          $or: [
+            { userEmail: userEmail },
+            { email: userEmail },
+            { "customerDetails.email": userEmail },
+            { "musteri.eposta": userEmail }
+          ]
+        },
+        { gizlendi: { $ne: true } } // Müşterinin sildiği (gizlediği) siparişler ekrana gelmez
       ]
     }).sort({ _id: -1 }).toArray();
 
@@ -44,13 +50,11 @@ export async function GET() {
         image: item.image || item.resim || "https://app.bilginpcmarket.com/placeholder.png"
       }));
 
-      // 🚀 AKILLI MÜHÜR MOTORU: Admin nereye ne yazdıysa hepsini birleştirip tarıyoruz
+      // 🚀 AKILLI MÜHÜR MOTORU
       const hamDurumMetni = `${order.durum || ""} ${order.status || ""} ${order.paymentMethod || ""}`.toLowerCase();
       
-      // Varsayılan durum ataması
       let sonDurum = order.durum || order.status || "Hazırlanıyor";
       
-      // Eğer herhangi bir hücrede iptal kelimesi geçiyorsa durumu zorla "İptal Edildi" yap!
       if (hamDurumMetni.includes("iptal") || hamDurumMetni.includes("red") || hamDurumMetni.includes("iade")) {
         sonDurum = "İptal Edildi";
       }
@@ -63,7 +67,7 @@ export async function GET() {
         createdAt: order.createdAt || order.tarih || new Date().toISOString(),
         shippingAddress: order.shippingAddress || order.musteri || order.customerDetails || {},
         searchableStatus: hamDurumMetni,
-        status: sonDurum, // Artık kilitlenen eski durumların önceliği kırıldı!
+        status: sonDurum, 
         durum: sonDurum
       };
     });
@@ -107,7 +111,7 @@ export async function POST(req: Request) {
 }
 
 // =================================================================
-// 3. SİPARİŞ SİLME MOTORU
+// 3. SİPARİŞ SİLME MOTORU (YALANCI SİLME - MONGODB'DE KALIR)
 // =================================================================
 export async function DELETE(req: Request) {
   try {
@@ -118,8 +122,15 @@ export async function DELETE(req: Request) {
     if (!orderId) return NextResponse.json({ message: "ID eksik." }, { status: 400 });
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
-    await db.collection("orders").deleteOne({ _id: new ObjectId(orderId) });
-    return NextResponse.json({ message: "Silindi." }, { status: 200 });
+    
+    // 🔥 BİNGO 2: DeleteOne (yok et) komutunu sildik, yerine UpdateOne (güncelle) koyduk! 
+    // Siparişin veritabanındaki kaydına "gizlendi: true" etiketi yapıştırıyoruz.
+    await db.collection("orders").updateOne(
+      { _id: new ObjectId(orderId) },
+      { $set: { gizlendi: true } }
+    );
+    
+    return NextResponse.json({ message: "Sipariş siteden başarıyla gizlendi." }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ message: "Hata." }, { status: 500 });
   }
