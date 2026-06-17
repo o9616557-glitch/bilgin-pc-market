@@ -13,7 +13,7 @@ interface Props {
 export default function SiparisClient({ initialOrders }: Props) {
   const router = useRouter();
   
-  // 🔥 SADECE BURAYA DOKUNDUM: İlk açılışta zıplama olmasın diye "En Yeni En Üste" diziyoruz
+  // 🔥 İLK AÇILIŞ: Sıralamayı sabitledik
   const siraliBaslangic = [...initialOrders].sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
   
   const [orders, setOrders] = useState<any[]>(siraliBaslangic);
@@ -25,7 +25,6 @@ export default function SiparisClient({ initialOrders }: Props) {
 
   useEffect(() => {
     if (initialOrders.length > 0) {
-      // 🔥 SADECE BURAYA DOKUNDUM
       const siraliGelen = [...initialOrders].sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
       setOrders(siraliGelen);
       ordersRef.current = siraliGelen;
@@ -47,7 +46,7 @@ export default function SiparisClient({ initialOrders }: Props) {
            const eskiDurumlar = JSON.stringify(ordersRef.current.map(o => ({id: o._id, durum: o.durum})));
            const yeniDurumlar = JSON.stringify(data.orders.map((o:any) => ({id: o._id, durum: o.durum})));
 
-           // 🔥 SADECE BURAYA DOKUNDUM: 10 saniye sonra gelen veriyi de sıraya diziyoruz
+           // 🔥 10 SANİYE GÜNCELLEMESİ: Sıralama bozulmasın diye ayarlandı
            const siraliYeni = [...data.orders].sort((a: any, b: any) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
 
            if (eskiDurumlar !== yeniDurumlar) {
@@ -64,7 +63,6 @@ export default function SiparisClient({ initialOrders }: Props) {
            }
         }
       } catch (error) {
-        // Sessizce hata geç
       }
     }, 10000); 
 
@@ -77,7 +75,6 @@ export default function SiparisClient({ initialOrders }: Props) {
       const res = await fetch("/api/orders?t=" + new Date().getTime(), { cache: "no-store" });
       const data = await res.json();
       if (res.ok) {
-         // 🔥 SADECE BURAYA DOKUNDUM
          const siraliYeni = [...(data.orders || [])].sort((a: any, b: any) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
          setOrders(siraliYeni);
          ordersRef.current = siraliYeni;
@@ -226,10 +223,9 @@ export default function SiparisClient({ initialOrders }: Props) {
             {orders.map((order: any) => {
               const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase();
               
-              // KENDİ YAZDIĞIN KOD - DOKUNMADIM
-            const adminMesaji = order.adminMesaj || order.adminNotu || order.magazaNotu || order.kargoNotu || order.kargoTakipNo || "";
+              // 🔥 İŞTE ÇÖZÜLEN O SATIRLAR: Admin notu ve müşteri notunu tamamen ayırdık
+              const adminMesaji = order.musteriMesaji || order.mesaj || order.adminMesaj || order.kargoNotu || order.kargoTakipNo || "";
               const durumMetni = order.durum || order.status || "";
-              
               const gosterilecekYontem = getGuzelOdemeYontemi(order.odemeYontemi || order.paymentMethod);
 
               return (
@@ -270,6 +266,7 @@ export default function SiparisClient({ initialOrders }: Props) {
                     </div>
                   </div>
 
+{/* MÜŞTERİ NOTU KUTUSU */}
 {order.siparisNotu && order.siparisNotu.trim() !== "" && order.siparisNotu !== "Not eklenmemiş" && (
   <div className={`mt-6 bg-white/5 border border-white/10 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
     <MessageSquare className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5" />
@@ -279,7 +276,8 @@ export default function SiparisClient({ initialOrders }: Props) {
     </div>
   </div>
 )}
-{/* 🔥 BİNGO: Eğer admin kutusuna gelen yazı, müşterinin notuyla BİREBİR AYNIYSA bu kutuyu gizle! Böylece kopya yazı çıkmaz! */}
+
+{/* MAĞAZA (ADMİN) NOTU KUTUSU - KOPYALAMAYI ENGELLEYEN KALKAN EKLENDİ */}
 {adminMesaji && adminMesaji.trim() !== "" && adminMesaji !== "Not eklenmemiş" && adminMesaji !== order.siparisNotu && (
   <div className={`mt-4 bg-[#0088ff]/10 border border-[#0088ff]/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
     <MessageSquare className="w-5 h-5 text-[#3b82f6] flex-shrink-0 mt-0.5" />
@@ -289,6 +287,7 @@ export default function SiparisClient({ initialOrders }: Props) {
     </div>
   </div>
 )}
+
                   <div className={`border-t border-slate-800/80 pt-6 mt-6 space-y-4 transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
                     {order.items?.map((item: any, idx: number) => (
                       <div key={idx} className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-[#121215] p-4 sm:p-5 rounded-2xl border border-slate-800/60 shadow-lg">
