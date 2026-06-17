@@ -316,7 +316,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
           
           {/* Telefonda yine en üstte "Kendin Topla" parlıyor patron */}
           <Link 
-            href="/kategori/kendin-topla" 
+           href="/kendin-topla"
             prefetch={true}
             onClick={() => setMenuAcik(false)}
             className="mb-8 flex items-center justify-between px-5 py-4 bg-gradient-to-r from-[#3b82f6]/20 to-transparent border border-[#3b82f6]/30 rounded-2xl text-[#3b82f6] shadow-[0_0_15px_rgba(0,210,255,0.15)] group"
