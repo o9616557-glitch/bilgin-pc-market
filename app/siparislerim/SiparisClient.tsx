@@ -276,7 +276,7 @@ export default function SiparisClient({ initialOrders }: Props) {
   <div className={`mt-4 bg-[#0088ff]/10 border border-[#0088ff]/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
     <MessageSquare className="w-5 h-5 text-[#3b82f6] flex-shrink-0 mt-0.5" />
     <div>
-      <p className="text-[10px] text-[#3b82f6] font-black uppercase tracking-widest mb-1">MAĞAZA MESAJI / KARGO NOTU</p>
+      <p className="text-[10px] text-[#3b82f6] font-black uppercase tracking-widest mb-1">MAĞAZA MESAJI</p>
       <p className="text-sm text-slate-200 font-medium leading-relaxed">{adminMesaji}</p>
     </div>
   </div>
