@@ -260,11 +260,23 @@ export default function SiparisClient({ initialOrders }: Props) {
                     </div>
                   </div>
 
-              {adminMesaji && adminMesaji.trim() !== "" && adminMesaji !== "Not eklenmemiş" && (
-  <div className={`mt-6 bg-[#0088ff]/10 border border-[#0088ff]/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
+             {/* 1. KUTU: MÜŞTERİNİN SİPARİŞ ERKEN YAZDIĞI NOT (Eğer varsa görünür) */}
+{order.siparisNotu && order.siparisNotu.trim() !== "" && order.siparisNotu !== "Not eklenmemiş" && (
+  <div className={`mt-6 bg-white/5 border border-white/10 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
+    <MessageSquare className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5" />
+    <div>
+      <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">SİPARİŞ NOTUNUZ</p>
+      <p className="text-sm text-slate-200 font-medium leading-relaxed">{order.siparisNotu}</p>
+    </div>
+  </div>
+)}
+
+{/* 2. KUTU: ADMİNİN (SENİN) MÜŞTERİYE YAZDIĞIN CEVAP (Eğer varsa görünür) */}
+{adminMesaji && adminMesaji.trim() !== "" && adminMesaji !== "Not eklenmemiş" && (
+  <div className={`mt-4 bg-[#0088ff]/10 border border-[#0088ff]/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
     <MessageSquare className="w-5 h-5 text-[#3b82f6] flex-shrink-0 mt-0.5" />
     <div>
-      <p className="text-[10px] text-[#3b82f6] font-black uppercase tracking-widest mb-1">SİPARİŞ NOTUNUZ</p>
+      <p className="text-[10px] text-[#3b82f6] font-black uppercase tracking-widest mb-1">MAĞAZA MESAJI / KARGO NOTU</p>
       <p className="text-sm text-slate-200 font-medium leading-relaxed">{adminMesaji}</p>
     </div>
   </div>
