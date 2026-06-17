@@ -166,9 +166,9 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
     document.addEventListener("mousedown", disariTiklandi);
     return () => document.removeEventListener("mousedown", disariTiklandi);
   }, []);
-// 🚀 HESABIM AÇILINCA SAYFAYI BETON GİBİ DONDURAN KİLİT
+// 🚀 HAMBURGER VEYA HESABIM AÇILINCA SAYFAYI BETON GİBİ DONDURAN KİLİT
   useEffect(() => {
-    if (hesabimAcik) {
+    if (menuAcik || hesabimAcik) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
@@ -176,7 +176,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
     return () => {
       document.body.style.overflow = "unset";
     };
-  }, [hesabimAcik]);
+  }, [menuAcik, hesabimAcik]);
   const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
     if (e) e.preventDefault();
     const aranacak = ozelKelime || aramaMetni;
