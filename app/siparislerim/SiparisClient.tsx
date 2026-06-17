@@ -12,65 +12,21 @@ interface Props {
 
 export default function SiparisClient({ initialOrders }: Props) {
   const router = useRouter();
-  
-  // 🔥 BİNGO 1: Sayfa açıldığı milisaniyede "En Yeni En Üste" dizecek motor
-  const baslangicSiralama = [...initialOrders].sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
-  
-  const [orders, setOrders] = useState<any[]>(baslangicSiralama);
-  const ordersRef = useRef<any[]>(baslangicSiralama);
+  const [orders, setOrders] = useState<any[]>(initialOrders);
+  const ordersRef = useRef<any[]>(initialOrders);
   const [refreshing, setRefreshing] = useState(false); 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
 
-// 🔥 BİNGO 2: Sunucudan veri geldiği an ilk işi hizalamak olacak
   useEffect(() => {
     if (initialOrders.length > 0) {
-      const hizaliGelenler = [...initialOrders].sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
-      setOrders(hizaliGelenler);
-      ordersRef.current = hizaliGelenler;
+      setOrders(initialOrders);
+      ordersRef.current = initialOrders;
     }
   }, [initialOrders]);
 
- // 🚀 ZIPLAMA YAPMAYAN, SESSİZ VE AKILLI CANLI TAKİP MOTORU
-  useEffect(() => {
-    const radar = setInterval(async () => {
-      if (refreshing) return; 
 
-      try {
-        const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
-          cache: "no-store",
-          headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
-        });
-        const data = await res.json();
-        
-        if (res.ok && data.orders) {
-           const eskiDurumlar = JSON.stringify(ordersRef.current.map(o => ({id: o._id, durum: o.durum})));
-           
-           // 🔥 BİNGO: Arka plandan gelen yeni veriyi "En Yeni En Üste" olacak şekilde hizalıyoruz
-           const sortedYeniData = [...data.orders].sort((a: any, b: any) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
-           const yeniDurumlar = JSON.stringify(sortedYeniData.map((o:any) => ({id: o._id, durum: o.durum})));
-
-           if (eskiDurumlar !== yeniDurumlar) {
-              setRefreshing(true); 
-              
-              setTimeout(() => {
-                 setOrders(sortedYeniData); // Artık karışık değil, hizalanmış listeyi basar
-                 ordersRef.current = sortedYeniData;
-                 setRefreshing(false);
-              }, 2000); 
-           } else {
-              setOrders(sortedYeniData);
-              ordersRef.current = sortedYeniData;
-           }
-        }
-      } catch (error) {
-        // Sessizce hata geç
-      }
-    }, 10000); 
-
-    return () => clearInterval(radar); 
-  }, [refreshing]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
