@@ -200,9 +200,9 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                 <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "opacity-0" : "")}></span>
                 <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "-rotate-45 -translate-y-1.5" : "")}></span>
               </button>
-              <Link href="/" prefetch={true} className="text-white font-black text-2xl tracking-tight flex items-center relative z-[100]">
-                BİLGİN <span className="text-[#3b82f6] ml-1">PC</span>
-              </Link>
+            <Link href="/" prefetch={true} className={`text-white font-black text-2xl tracking-tight flex items-center relative z-[100] transition-all duration-300 ${menuAcik ? "pointer-events-none opacity-20 md:pointer-events-auto md:opacity-100" : ""}`}>
+  BİLGİN <span className="text-[#3b82f6] ml-1">PC</span>
+</Link>
             </div>
 
             {/* ORTA: MASAÜSTÜ MEGA MENÜ */}
@@ -245,7 +245,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
             </div>
 
             {/* SAĞ TARAF: SİMGE SOLDA, YAZI SAĞDA */}
-            <div className="flex items-center gap-2 md:gap-4 shrink-0 h-full">
+           <div className={`flex items-center gap-2 md:gap-4 shrink-0 h-full transition-all duration-300 ${menuAcik ? "pointer-events-none opacity-20 md:pointer-events-auto md:opacity-100" : ""}`}>
               
               {/* ARAMA */}
               <button onClick={() => setAramaAcik(true)} className="flex items-center gap-2 text-gray-300 hover:text-[#3b82f6] transition-colors p-2 group">
