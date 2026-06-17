@@ -227,7 +227,7 @@ export default function SiparisClient({ initialOrders }: Props) {
               const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase();
               
               // KENDİ YAZDIĞIN KOD - DOKUNMADIM
-              const adminMesaji = order.musteriMesaji || order.mesaj || order.adminMesaj || order.siparisNotu || order.kargoNotu || order.kargoTakipNo;
+            const adminMesaji = order.adminMesaj || order.adminNotu || order.magazaNotu || order.kargoNotu || order.kargoTakipNo || "";
               const durumMetni = order.durum || order.status || "";
               
               const gosterilecekYontem = getGuzelOdemeYontemi(order.odemeYontemi || order.paymentMethod);
