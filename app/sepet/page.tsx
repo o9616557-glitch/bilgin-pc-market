@@ -88,15 +88,15 @@ export default function SepetSayfasi() {
               return (
                 <div key={index} className="flex flex-col sm:flex-row items-center sm:items-stretch bg-[#09090b] border border-white/5 rounded-2xl p-4 gap-4 transition-all hover:border-[#3b82f6]/30 shadow-sm">
                   
-               {/* 🚀 BİNGO: Dış kutu tamamen orijinal haline döndü, resim kesinlikle geri gelecek */}
+             {/* 🚀 BİNGO: Adres /product/ klasörüne ve slug (isim) yapısına göre uyarlandı */}
                   <div className="w-full sm:w-28 h-40 sm:h-28 shrink-0 bg-[#121215] rounded-xl border border-white/10 flex items-center justify-center p-2 shadow-inner">
-                    <Link href={`/urun/${urun.id}`} className="w-full h-full flex items-center justify-center hover:opacity-80 transition-opacity">
+                    <Link href={`/product/${urun.slug}`} className="w-full h-full flex items-center justify-center hover:opacity-80 transition-opacity">
                       <img src={urun.resim || "/placeholder.jpg"} alt={urun.isim} className="max-w-full max-h-full object-contain cursor-pointer" />
                     </Link>
                   </div>
                   
                   <div className="flex-1 flex flex-col text-center sm:text-left w-full justify-center">
-                    <Link href={`/urun/${urun.id}`} className="hover:text-[#3b82f6] transition-colors cursor-pointer">
+                    <Link href={`/product/${urun.slug}`} className="hover:text-[#3b82f6] transition-colors cursor-pointer">
                       <h3 className="font-bold text-sm sm:text-base text-white mb-1.5 leading-snug break-words">{urun.isim}</h3>
                     </Link>
                     {urun.varyasyon && !urun.varyasyon.toLowerCase().includes("standart") && (
