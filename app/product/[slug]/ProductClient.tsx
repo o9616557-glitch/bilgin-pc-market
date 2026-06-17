@@ -110,9 +110,20 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     } catch (error) {} setIsSubmitting(false);
   };
 
-  const handleAddToCart = () => {
+ const handleAddToCart = () => {
     setAddingToCart(true);
-    try { sepeteEkle({ id: String(pId), isim: urunAdi, fiyat: gecerliFiyat, resim: product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/400", varyasyon: "Standart Model", havaleIndirimi: havaleYuzdesi }); toast.success("Sepete eklendi!"); } catch (error) {} finally { setAddingToCart(false); }
+    try { 
+      sepeteEkle({ 
+        id: String(pId), 
+        isim: urunAdi, 
+        fiyat: gecerliFiyat, 
+        resim: product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/400", 
+        varyasyon: "Standart Model", 
+        havaleIndirimi: havaleYuzdesi,
+        slug: product.slug // 🚀 BİNGO: Adres bilgisini (slug) sepete ekledik!
+      }); 
+      toast.success("Sepete eklendi!"); 
+    } catch (error) {} finally { setAddingToCart(false); }
   };
   
   const handleShare = async () => {
