@@ -309,7 +309,6 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
 
   return (
       <>
-        {/* 🚀 Üst başlık altındaki ayırıcı çizgi belirginleştirildi (border-white/20) */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-white/20 pb-6 mb-8 px-4 sm:px-0 select-none">
           <div>
             <Link href="/" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 hover:text-white transition-all mb-3">
@@ -337,14 +336,11 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
 
         <div className="flex flex-col lg:flex-row gap-6 px-4 sm:px-0 relative items-start">
           
-          {/* 🛠 SOL FİLTRE PANELİ */}
           <aside className={`fixed top-[81px] bottom-0 left-0 right-0 z-[40] lg:sticky lg:top-24 lg:w-[260px] xl:w-[280px] lg:max-h-[calc(100vh-100px)] lg:shrink-0 transition-transform duration-300 flex flex-col ${mobilFiltreAcik ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
             <div className="absolute inset-0 bg-black/60 lg:hidden" onClick={() => setMobilFiltreAcik(false)}></div>
             
-            {/* 🚀 Panel sağ çizgisi belirginleştirildi */}
             <div className="relative w-4/5 max-w-sm h-full bg-[#050505]/95 border-r border-white/20 lg:w-full lg:bg-transparent lg:border-none lg:shadow-none flex flex-col overflow-hidden">
               
-              {/* 🚀 Filtre başlığı altı çizgisi belirginleştirildi */}
               <div className="p-4 border-b border-white/20 flex justify-between items-center shrink-0 bg-[#050505] lg:bg-transparent lg:px-0 z-10">
                 <h3 className="font-bold text-white uppercase tracking-wider flex items-center gap-2 text-sm"><Filter className="w-4 h-4 text-gray-300" /> Filtreler</h3>
                 <div className="flex items-center gap-3">
@@ -355,14 +351,10 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
 
               <div className="p-4 lg:p-0 overflow-y-auto [&::-webkit-scrollbar]:hidden flex-1 select-none">
                 
-                {/* 🚀 Fiyat alanı altı çizgisi belirginleştirildi */}
                 <div className="mb-6 pb-6 border-b border-white/20">
-                  
-                  {/* STOK BUTONU */}
                   <label className="flex items-center gap-3 cursor-pointer group mb-5">
                     <div className="relative">
                       <input type="checkbox" className="sr-only" checked={sadeceStokta} onChange={(e) => setSadeceStokta(e.target.checked)} />
-                      {/* 🚀 Buton kapalıykenki sönük hali düzeltildi, ekstra ince çerçeve eklendi */}
                       <div className={`block w-9 h-5 rounded-full transition-colors border border-white/20 ${sadeceStokta ? 'bg-[#10b981]' : 'bg-white/20'}`}></div>
                       <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition-transform shadow-sm ${sadeceStokta ? 'translate-x-4' : 'translate-x-0'}`}></div>
                     </div>
@@ -371,7 +363,6 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
 
                   <h4 className="text-[10px] font-black text-gray-200 uppercase tracking-widest mb-3">Fiyat Aralığı (TL)</h4>
                   <div className="flex items-center gap-2">
-                    {/* 🚀 Fiyat kutuları zifiri siyahlıktan çıkarıldı, çerçeveleri kalınlaştı, tıklayınca MAVİ PARLAMA eklendi */}
                     <input type="number" placeholder="Min" value={minFiyat} onChange={(e) => setMinFiyat(e.target.value)} className="w-full bg-[#121215] border border-white/20 rounded-lg p-2.5 text-xs text-white focus:border-[#00d2ff] focus:ring-1 focus:ring-[#00d2ff]/50 outline-none transition-all placeholder:text-gray-600" />
                     <span className="text-gray-400 font-bold">-</span>
                     <input type="number" placeholder="Max" value={maxFiyat} onChange={(e) => setMaxFiyat(e.target.value)} className="w-full bg-[#121215] border border-white/20 rounded-lg p-2.5 text-xs text-white focus:border-[#00d2ff] focus:ring-1 focus:ring-[#00d2ff]/50 outline-none transition-all placeholder:text-gray-600" />
@@ -379,15 +370,15 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
                 </div>
 
               {gecerliMarkalar.length > 0 && (
-                <div className="mb-6 pb-6 border-b border-white/5">
-                  <h4 className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-3">Markalar</h4>
+                <div className="mb-6 pb-6 border-b border-white/20">
+                  <h4 className="text-[10px] font-black text-gray-200 uppercase tracking-widest mb-3">Markalar</h4>
                   <div className="space-y-2.5">
                     {gecerliMarkalar.map((marka: any) => (
                       <label key={marka} className="flex items-center gap-3 cursor-pointer group" onClick={() => setSeciliMarkalar(prev => prev.includes(marka) ? prev.filter(m => m !== marka) : [...prev, marka])}>
-                        <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${seciliMarkalar.includes(marka) ? 'bg-[#00d2ff] border-[#00d2ff]' : 'bg-black border-white/10 group-hover:border-white/30'}`}>
+                        <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${seciliMarkalar.includes(marka) ? 'bg-[#00d2ff] border-[#00d2ff]' : 'bg-[#121215] border-white/30 group-hover:border-white/50'}`}>
                           {seciliMarkalar.includes(marka) && <CheckIcon />}
                         </div>
-                        <span className={`text-xs font-bold transition-colors ${seciliMarkalar.includes(marka) ? 'text-white' : 'text-gray-400 group-hover:text-gray-300'}`}>{marka}</span>
+                        <span className={`text-xs font-bold transition-colors ${seciliMarkalar.includes(marka) ? 'text-white' : 'text-gray-300 group-hover:text-white'}`}>{marka}</span>
                       </label>
                     ))}
                   </div>
@@ -399,15 +390,15 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
                 if (gecerliDegerler.length === 0) return null;
 
                 return (
-                  <div key={baslik} className="mb-6 pb-6 border-b border-white/5 last:border-0 last:pb-0">
-                    <h4 className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-3">{baslik}</h4>
+                  <div key={baslik} className="mb-6 pb-6 border-b border-white/20 last:border-0 last:pb-0">
+                    <h4 className="text-[10px] font-black text-gray-200 uppercase tracking-widest mb-3">{baslik}</h4>
                     
                     {gecerliDegerler.every(d => d.length <= 12) ? (
                       <div className="flex flex-wrap gap-1.5">
                         {gecerliDegerler.map(deger => {
                           const seciliMi = (seciliDinamik[baslik] || []).includes(deger);
                           return (
-                            <button key={deger} onClick={() => toggleDinamik(baslik, deger)} className={`px-2.5 py-1.5 rounded-lg border text-[10px] font-bold transition-all ${seciliMi ? 'bg-white/10 border-white/30 text-white' : 'bg-black border-white/5 text-gray-400 hover:border-white/20 hover:text-gray-300'}`} >
+                            <button key={deger} onClick={() => toggleDinamik(baslik, deger)} className={`px-2.5 py-1.5 rounded-lg border text-[10px] font-bold transition-all ${seciliMi ? 'bg-white/10 border-white/30 text-white' : 'bg-[#121215] border-white/20 text-gray-300 hover:border-white/40 hover:text-white'}`} >
                               {deger}
                             </button>
                           );
@@ -419,10 +410,10 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
                           const seciliMi = (seciliDinamik[baslik] || []).includes(deger);
                           return (
                             <label key={deger} className="flex items-center gap-3 cursor-pointer group" onClick={() => toggleDinamik(baslik, deger)}>
-                              <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${seciliMi ? 'bg-[#00d2ff] border-[#00d2ff]' : 'bg-black border-white/10 group-hover:border-white/30'}`}>
+                              <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${seciliMi ? 'bg-[#00d2ff] border-[#00d2ff]' : 'bg-[#121215] border-white/30 group-hover:border-white/50'}`}>
                                 {seciliMi && <CheckIcon />}
                               </div>
-                              <span className={`text-xs font-bold transition-colors ${seciliMi ? 'text-white' : 'text-gray-400 group-hover:text-gray-300'} break-words`}>{deger}</span>
+                              <span className={`text-xs font-bold transition-colors ${seciliMi ? 'text-white' : 'text-gray-300 group-hover:text-white'} break-words`}>{deger}</span>
                             </label>
                           );
                         })}
@@ -439,7 +430,7 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
               </div>
 
               <div className="mb-6 lg:hidden">
-                <button onClick={filtreleriTemizle} className="w-full text-center bg-black border border-white/10 text-gray-400 text-xs font-black uppercase tracking-widest py-3 rounded-none hover:text-white transition-colors">Filtreleri Temizle</button>
+                <button onClick={filtreleriTemizle} className="w-full text-center bg-[#121215] border border-white/20 text-gray-300 text-xs font-black uppercase tracking-widest py-3 rounded-none hover:text-white transition-colors">Filtreleri Temizle</button>
               </div>
 
             </div>
