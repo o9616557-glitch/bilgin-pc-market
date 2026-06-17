@@ -270,7 +270,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                   <svg className={`w-5 h-5 md:w-5 md:h-5 shrink-0 transition-transform ${hesabimAcik ? "scale-110" : "group-hover:scale-110"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 </button>
 
-              {hesabimAcik && (
+           {hesabimAcik && (
                   <>
                     {/* 🚀 ARKA PLANI FELÇ EDEN CAM DUVAR */}
                     <div 
@@ -278,8 +278,17 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                       onClick={(e) => { e.stopPropagation(); setHesabimAcik(false); }}
                     />
                     
-                    {/* HESABIM AÇILIR MENÜSÜ (Cam duvarın üstünde kalır) */}
+                    {/* HESABIM AÇILIR MENÜSÜ */}
                     <div className="absolute top-[75px] right-0 w-56 bg-[#09090b] border border-white/10 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.8)] p-2 z-[999] flex flex-col gap-1">
+                      
+                      {/* 🚀 ŞEFİN İSTEDİĞİ NET KAPATMA BUTONU */}
+                      <div className="flex items-center justify-between px-3 py-2 border-b border-white/10 mb-1">
+                        <span className="text-gray-400 text-xs font-black tracking-widest uppercase">Hesabım</span>
+                        <button onClick={() => setHesabimAcik(false)} className="text-gray-400 hover:text-red-500 hover:bg-red-500/10 p-1.5 rounded-lg transition-all group">
+                          <X className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                        </button>
+                      </div>
+
                       <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2.5 text-[#3b82f6] bg-[#3b82f6]/10 hover:bg-[#3b82f6]/20 rounded-xl text-sm font-bold transition-colors">📦 Sipariş Takip</Link>
                       <div className="h-px bg-white/5 my-1"></div>
                       {session ? (
