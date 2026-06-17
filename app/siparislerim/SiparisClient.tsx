@@ -13,11 +13,11 @@ interface Props {
 export default function SiparisClient({ initialOrders }: Props) {
   const router = useRouter();
   
-  // 🚀 1. ÇÖZÜM: İlk açılışta zıplama olmasın diye en baştan "En Yeni En Üste" diziyoruz
-  const sortedInitial = [...initialOrders].sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
+  // 🔥 SADECE BURAYA DOKUNDUM: İlk açılışta zıplama olmasın diye "En Yeni En Üste" diziyoruz
+  const siraliBaslangic = [...initialOrders].sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
   
-  const [orders, setOrders] = useState<any[]>(sortedInitial);
-  const ordersRef = useRef<any[]>(sortedInitial);
+  const [orders, setOrders] = useState<any[]>(siraliBaslangic);
+  const ordersRef = useRef<any[]>(siraliBaslangic);
   const [refreshing, setRefreshing] = useState(false); 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
@@ -25,13 +25,13 @@ export default function SiparisClient({ initialOrders }: Props) {
 
   useEffect(() => {
     if (initialOrders.length > 0) {
-      const sorted = [...initialOrders].sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
-      setOrders(sorted);
-      ordersRef.current = sorted;
+      // 🔥 SADECE BURAYA DOKUNDUM
+      const siraliGelen = [...initialOrders].sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
+      setOrders(siraliGelen);
+      ordersRef.current = siraliGelen;
     }
   }, [initialOrders]);
 
-  // 🚀 SESSİZ CANLI TAKİP MOTORU
   useEffect(() => {
     const radar = setInterval(async () => {
       if (refreshing) return; 
@@ -45,15 +45,22 @@ export default function SiparisClient({ initialOrders }: Props) {
         
         if (res.ok && data.orders) {
            const eskiDurumlar = JSON.stringify(ordersRef.current.map(o => ({id: o._id, durum: o.durum})));
-           
-           // Yeni veriyi de tarihe göre dizeriz ki zıplama yapmasın
-           const sortedYeniData = [...data.orders].sort((a: any, b: any) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
-           const yeniDurumlar = JSON.stringify(sortedYeniData.map((o:any) => ({id: o._id, durum: o.durum})));
+           const yeniDurumlar = JSON.stringify(data.orders.map((o:any) => ({id: o._id, durum: o.durum})));
+
+           // 🔥 SADECE BURAYA DOKUNDUM: 10 saniye sonra gelen veriyi de sıraya diziyoruz
+           const siraliYeni = [...data.orders].sort((a: any, b: any) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
 
            if (eskiDurumlar !== yeniDurumlar) {
-              // Sessizce günceller, zıplatmaz ve "Güncelleniyor" yazısını döndürmez
-              setOrders(sortedYeniData); 
-              ordersRef.current = sortedYeniData;
+              setRefreshing(true); 
+              
+              setTimeout(() => {
+                 setOrders(siraliYeni); 
+                 ordersRef.current = siraliYeni;
+                 setRefreshing(false);
+              }, 2000); 
+           } else {
+              setOrders(siraliYeni);
+              ordersRef.current = siraliYeni;
            }
         }
       } catch (error) {
@@ -70,9 +77,10 @@ export default function SiparisClient({ initialOrders }: Props) {
       const res = await fetch("/api/orders?t=" + new Date().getTime(), { cache: "no-store" });
       const data = await res.json();
       if (res.ok) {
-         const sortedManual = [...(data.orders || [])].sort((a: any, b: any) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
-         setOrders(sortedManual);
-         ordersRef.current = sortedManual;
+         // 🔥 SADECE BURAYA DOKUNDUM
+         const siraliYeni = [...(data.orders || [])].sort((a: any, b: any) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
+         setOrders(siraliYeni);
+         ordersRef.current = siraliYeni;
       } else {
          setErrorMsg(data.message || "Siparişler güncellenemedi.");
       }
@@ -218,11 +226,10 @@ export default function SiparisClient({ initialOrders }: Props) {
             {orders.map((order: any) => {
               const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase();
               
-              // 🚀 2. ÇÖZÜM: KUSURSUZ MESAJ AYIRICI (Asla birbirinin verisini çalmaz)
-              const musteriNotu = order.siparisNotu || order.musteriMesaji || order.mesaj || "";
-              const magazaMesaji = order.adminMesaj || order.adminMesaji || order.magazaNotu || order.adminNotu || order.kargoNotu || order.kargoTakipNo || "";
-              
+              // KENDİ YAZDIĞIN KOD - DOKUNMADIM
+              const adminMesaji = order.musteriMesaji || order.mesaj || order.adminMesaj || order.siparisNotu || order.kargoNotu || order.kargoTakipNo;
               const durumMetni = order.durum || order.status || "";
+              
               const gosterilecekYontem = getGuzelOdemeYontemi(order.odemeYontemi || order.paymentMethod);
 
               return (
@@ -263,28 +270,25 @@ export default function SiparisClient({ initialOrders }: Props) {
                     </div>
                   </div>
 
-                  {/* MÜŞTERİ NOTU KUTUSU */}
-                  {musteriNotu && musteriNotu.trim() !== "" && musteriNotu !== "Not eklenmemiş" && (
-                    <div className={`mt-6 bg-white/5 border border-white/10 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
-                      <MessageSquare className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">SİPARİŞ NOTUNUZ</p>
-                        <p className="text-sm text-slate-200 font-medium leading-relaxed">{musteriNotu}</p>
-                      </div>
-                    </div>
-                  )}
+{order.siparisNotu && order.siparisNotu.trim() !== "" && order.siparisNotu !== "Not eklenmemiş" && (
+  <div className={`mt-6 bg-white/5 border border-white/10 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
+    <MessageSquare className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5" />
+    <div>
+      <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">SİPARİŞ NOTUNUZ</p>
+      <p className="text-sm text-slate-200 font-medium leading-relaxed">{order.siparisNotu}</p>
+    </div>
+  </div>
+)}
 
-                  {/* MAĞAZA (ADMİN) MESAJI KUTUSU */}
-                  {magazaMesaji && magazaMesaji.trim() !== "" && magazaMesaji !== "Not eklenmemiş" && magazaMesaji !== musteriNotu && (
-                    <div className={`mt-4 bg-[#0088ff]/10 border border-[#0088ff]/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
-                      <MessageSquare className="w-5 h-5 text-[#3b82f6] flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-[10px] text-[#3b82f6] font-black uppercase tracking-widest mb-1">MAĞAZA MESAJI</p>
-                        <p className="text-sm text-slate-200 font-medium leading-relaxed">{magazaMesaji}</p>
-                      </div>
-                    </div>
-                  )}
-
+{adminMesaji && adminMesaji.trim() !== "" && adminMesaji !== "Not eklenmemiş" && (
+  <div className={`mt-4 bg-[#0088ff]/10 border border-[#0088ff]/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
+    <MessageSquare className="w-5 h-5 text-[#3b82f6] flex-shrink-0 mt-0.5" />
+    <div>
+      <p className="text-[10px] text-[#3b82f6] font-black uppercase tracking-widest mb-1">MAĞAZA MESAJI</p>
+      <p className="text-sm text-slate-200 font-medium leading-relaxed">{adminMesaji}</p>
+    </div>
+  </div>
+)}
                   <div className={`border-t border-slate-800/80 pt-6 mt-6 space-y-4 transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
                     {order.items?.map((item: any, idx: number) => (
                       <div key={idx} className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-[#121215] p-4 sm:p-5 rounded-2xl border border-slate-800/60 shadow-lg">
