@@ -270,7 +270,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                   <svg className={`w-5 h-5 md:w-5 md:h-5 shrink-0 transition-transform ${hesabimAcik ? "scale-110" : "group-hover:scale-110"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 </button>
 
-        {hesabimAcik && (
+      {hesabimAcik && (
                   <>
                     {/* 🚀 ARKA PLANI FELÇ EDEN CAM DUVAR */}
                     <div 
@@ -278,8 +278,8 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                       onClick={(e) => { e.stopPropagation(); setHesabimAcik(false); }}
                     />
                     
-                    {/* 🚀 ELİT VE GENİŞ HESABIM MENÜSÜ */}
-                    <div className="absolute top-[75px] right-0 w-[320px] bg-[#09090b]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.9)] p-4 z-[999] flex flex-col gap-2 ring-1 ring-white/5">
+                    {/* 🚀 ELİT VE TELEFONDA TAM ORTALANMIŞ HESABIM MENÜSÜ */}
+                    <div className="fixed top-[85px] left-1/2 -translate-x-1/2 w-[calc(100vw-32px)] max-w-[340px] md:absolute md:top-[75px] md:left-auto md:right-0 md:translate-x-0 md:w-[320px] bg-[#09090b]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.9)] p-4 z-[999] flex flex-col gap-2 ring-1 ring-white/5">
                       
                       {/* ÜST BİLGİ VE KAPATMA */}
                       <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-2">
@@ -294,20 +294,20 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
 
                       {session ? (
                         <>
-                          {/* KULLANICI PROFİL KARTI (YENİ MODERN TASARIM) */}
+                          {/* KULLANICI PROFİL KARTI */}
                           <div className="flex items-center gap-4 p-3 bg-gradient-to-r from-white/5 to-transparent rounded-xl border border-white/5 mb-2">
                             <div className="w-12 h-12 rounded-full bg-[#3b82f6]/20 border border-[#3b82f6]/50 flex items-center justify-center shrink-0 text-[#3b82f6] font-black text-xl shadow-[0_0_15px_rgba(59,130,246,0.3)]">
                               {session.user?.name ? session.user.name.charAt(0).toUpperCase() : "B"}
                             </div>
                             <div className="flex flex-col min-w-0">
-                              <span className="text-gray-400 text-[10px] font-black tracking-widest uppercase mb-0.5">Hoş Geldin, Şef</span>
+                              <span className="text-gray-400 text-[10px] font-black tracking-widest uppercase mb-0.5">Hoş Geldin</span>
                               <span className="text-white text-base font-black truncate">{session.user?.name || session.user?.email}</span>
                             </div>
                           </div>
 
                           <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center justify-center gap-2 px-4 py-3 text-[#3b82f6] bg-[#3b82f6]/10 hover:bg-[#3b82f6]/20 rounded-xl text-sm font-black tracking-wider uppercase transition-all border border-[#3b82f6]/20 hover:border-[#3b82f6]/50">📦 Hızlı Sipariş Takip</Link>
                           
-                          {/* YAN YANA İKİLİ MENÜ (İnce uzunluğu kırar, genişletir) */}
+                          {/* YAN YANA İKİLİ MENÜ */}
                           <div className="grid grid-cols-2 gap-2 mt-1">
                             <Link href="/siparislerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex flex-col items-center justify-center gap-2 p-3 text-gray-300 hover:text-white hover:bg-white/10 border border-white/5 hover:border-white/20 rounded-xl text-xs font-bold transition-all group">
                               <span className="text-xl group-hover:scale-110 transition-transform">📋</span> Siparişlerim
@@ -330,15 +330,15 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                         </>
                       ) : (
                         <>
-                          {/* GİRİŞ YAPMAMIŞ KULLANICI İÇİN ŞIK TASARIM */}
+                        {/* GİRİŞ YAPMAMIŞ KULLANICI İÇİN ŞIK TASARIM */}
                           <div className="flex flex-col items-center justify-center p-4 mb-2 text-center">
                             <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#3b82f6] mb-3 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
-                              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
+                              {/* 🚀 PARMAK İZİ GİTTİ, YERİNE GÜVEN VEREN MODERN KULLANICI İKONU GELDİ */}
+                              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                             </div>
                             <span className="text-white font-black text-sm mb-1">Hesabınıza Erişin</span>
                             <span className="text-gray-400 text-xs">Siparişlerinizi takip etmek için giriş yapın.</span>
                           </div>
-
                           <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center justify-center gap-2 px-4 py-3 mb-3 text-[#3b82f6] bg-[#3b82f6]/10 hover:bg-[#3b82f6]/20 border border-[#3b82f6]/20 rounded-xl text-sm font-black uppercase tracking-wider transition-all">📦 Hızlı Sipariş Takibi</Link>
                           
                           <div className="grid grid-cols-2 gap-2">
