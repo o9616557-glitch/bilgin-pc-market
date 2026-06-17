@@ -166,7 +166,17 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
     document.addEventListener("mousedown", disariTiklandi);
     return () => document.removeEventListener("mousedown", disariTiklandi);
   }, []);
-
+// 🚀 HESABIM AÇILINCA SAYFAYI BETON GİBİ DONDURAN KİLİT
+  useEffect(() => {
+    if (hesabimAcik) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [hesabimAcik]);
   const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
     if (e) e.preventDefault();
     const aranacak = ozelKelime || aramaMetni;
@@ -260,35 +270,44 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                   <svg className={`w-5 h-5 md:w-5 md:h-5 shrink-0 transition-transform ${hesabimAcik ? "scale-110" : "group-hover:scale-110"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 </button>
 
-                {hesabimAcik && (
-                  <div className="absolute top-[75px] right-0 w-56 bg-[#09090b] border border-white/10 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.8)] p-2 z-[999] flex flex-col gap-1">
-                    <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2.5 text-[#3b82f6] bg-[#3b82f6]/10 hover:bg-[#3b82f6]/20 rounded-xl text-sm font-bold transition-colors">📦 Sipariş Takip</Link>
-                    <div className="h-px bg-white/5 my-1"></div>
-                    {session ? (
-                      <>
-                        <div className="px-3 py-3 border-b border-white/5 mb-2">
-                          <p className="text-white text-sm font-black mb-0.5">Hoş Geldin, 👋</p>
-                          <p className="text-[#3b82f6] text-base font-black truncate">{session.user?.name || session.user?.email}</p>
-                        </div>
-                        <Link href="/siparislerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl text-sm transition-colors">📋 Siparişlerim</Link>
-                        <Link href="/adreslerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl text-sm transition-colors">📍 Adreslerim</Link>
-                        <Link href="/favorilerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl text-sm transition-colors">❤️ Favorilerim</Link>
-                        <div className="h-px bg-white/5 my-1"></div>
-                        {isAdmin && (
-                          <>
-                            <Link href="/admin" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-[#10b981] bg-[#10b981]/10 hover:bg-[#10b981]/20 rounded-xl text-sm font-bold transition-colors">👑 Yönetim Paneli</Link>
-                            <div className="h-px bg-white/5 my-1"></div>
-                          </>
-                        )}
-                        <button onClick={() => { setHesabimAcik(false); signOut({ callbackUrl: "/" }); }} className="flex items-center gap-3 px-3 py-2 w-full text-left text-red-500 hover:bg-red-500/10 rounded-xl text-sm transition-colors">🚪 Çıkış Yap</button>
-                      </>
-                    ) : (
-                      <>
-                      <Link href="/giris" onClick={() => setHesabimAcik(false)} className="flex items-center justify-center gap-2 px-3 py-2 text-white bg-[#3b82f6] hover:bg-[#1e40af] rounded-xl text-sm font-bold transition-all duration-300 shadow-md hover:shadow-[0_0_15px_rgba(59,130,246,0.3)]">🔑 Giriş Yap</Link>
-<Link href="/kayit" onClick={() => setHesabimAcik(false)} className="flex items-center justify-center gap-2 px-3 py-2 text-gray-300 hover:text-white hover:bg-white/10 border border-white/10 rounded-xl text-sm font-bold transition-all duration-300">📝 Yeni Kayıt</Link>
-                      </>
-                    )}
-                  </div>
+              {hesabimAcik && (
+                  <>
+                    {/* 🚀 ARKA PLANI FELÇ EDEN CAM DUVAR */}
+                    <div 
+                      className="fixed inset-0 w-full h-[100vh] bg-black/50 backdrop-blur-[2px] z-[998] cursor-default"
+                      onClick={(e) => { e.stopPropagation(); setHesabimAcik(false); }}
+                    />
+                    
+                    {/* HESABIM AÇILIR MENÜSÜ (Cam duvarın üstünde kalır) */}
+                    <div className="absolute top-[75px] right-0 w-56 bg-[#09090b] border border-white/10 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.8)] p-2 z-[999] flex flex-col gap-1">
+                      <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2.5 text-[#3b82f6] bg-[#3b82f6]/10 hover:bg-[#3b82f6]/20 rounded-xl text-sm font-bold transition-colors">📦 Sipariş Takip</Link>
+                      <div className="h-px bg-white/5 my-1"></div>
+                      {session ? (
+                        <>
+                          <div className="px-3 py-3 border-b border-white/5 mb-2">
+                            <p className="text-white text-sm font-black mb-0.5">Hoş Geldin, 👋</p>
+                            <p className="text-[#3b82f6] text-base font-black truncate">{session.user?.name || session.user?.email}</p>
+                          </div>
+                          <Link href="/siparislerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl text-sm transition-colors">📋 Siparişlerim</Link>
+                          <Link href="/adreslerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl text-sm transition-colors">📍 Adreslerim</Link>
+                          <Link href="/favorilerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl text-sm transition-colors">❤️ Favorilerim</Link>
+                          <div className="h-px bg-white/5 my-1"></div>
+                          {isAdmin && (
+                            <>
+                              <Link href="/admin" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 px-3 py-2 text-[#10b981] bg-[#10b981]/10 hover:bg-[#10b981]/20 rounded-xl text-sm font-bold transition-colors">👑 Yönetim Paneli</Link>
+                              <div className="h-px bg-white/5 my-1"></div>
+                            </>
+                          )}
+                          <button onClick={() => { setHesabimAcik(false); signOut({ callbackUrl: "/" }); }} className="flex items-center gap-3 px-3 py-2 w-full text-left text-red-500 hover:bg-red-500/10 rounded-xl text-sm transition-colors">🚪 Çıkış Yap</button>
+                        </>
+                      ) : (
+                        <>
+                          <Link href="/giris" onClick={() => setHesabimAcik(false)} className="flex items-center justify-center gap-2 px-3 py-2 text-white bg-[#3b82f6] hover:bg-[#1e40af] rounded-xl text-sm font-bold transition-all duration-300 shadow-md hover:shadow-[0_0_15px_rgba(59,130,246,0.3)]">🔑 Giriş Yap</Link>
+                          <Link href="/kayit" onClick={() => setHesabimAcik(false)} className="flex items-center justify-center gap-2 px-3 py-2 text-gray-300 hover:text-white hover:bg-white/10 border border-white/10 rounded-xl text-sm font-bold transition-all duration-300">📝 Yeni Kayıt</Link>
+                        </>
+                      )}
+                    </div>
+                  </>
                 )}
               </div>
 
