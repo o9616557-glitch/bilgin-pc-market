@@ -12,24 +12,28 @@ interface Props {
 
 export default function SiparisClient({ initialOrders }: Props) {
   const router = useRouter();
-  const [orders, setOrders] = useState<any[]>(initialOrders);
-  const ordersRef = useRef<any[]>(initialOrders);
-  const [refreshing, setRefreshing] = useState(false); 
+  
+  // 🔥 BİNGO 1: İlk gelen siparişleri anında "En Yeni En Üste" olacak şekilde sıraya diziyoruz
+  const sortedInitial = [...initialOrders].sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
+  
+  const [orders, setOrders] = useState<any[]>(sortedInitial);
+  const ordersRef = useRef<any[]>(sortedInitial);
+  const [refreshing, setRefreshing] = useState(false); // Sadece butona basılırsa dönecek
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialOrders.length > 0) {
-      setOrders(initialOrders);
-      ordersRef.current = initialOrders;
+      const sorted = [...initialOrders].sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
+      setOrders(sorted);
+      ordersRef.current = sorted;
     }
   }, [initialOrders]);
 
+  // 🚀 SESSİZ SEDASIZ CANLI TAKİP MOTORU (HİÇBİR EFEKT ÇIKARMAYACAK)
   useEffect(() => {
     const radar = setInterval(async () => {
-      if (refreshing) return; 
-
       try {
         const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
           cache: "no-store",
@@ -39,37 +43,36 @@ export default function SiparisClient({ initialOrders }: Props) {
         
         if (res.ok && data.orders) {
            const eskiDurumlar = JSON.stringify(ordersRef.current.map(o => ({id: o._id, durum: o.durum})));
-           const yeniDurumlar = JSON.stringify(data.orders.map((o:any) => ({id: o._id, durum: o.durum})));
+           
+           // 🔥 BİNGO 2: Arka plandan gelen yeni veriyi de "En Yeni En Üste" yapıyoruz ki zıplama olmasın
+           const sortedYeniData = [...data.orders].sort((a: any, b: any) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
+           const yeniDurumlar = JSON.stringify(sortedYeniData.map((o:any) => ({id: o._id, durum: o.durum})));
 
            if (eskiDurumlar !== yeniDurumlar) {
-              setRefreshing(true); 
-              
-              setTimeout(() => {
-                 setOrders(data.orders); 
-                 ordersRef.current = data.orders;
-                 setRefreshing(false);
-              }, 2000); 
-           } else {
-              setOrders(data.orders);
-              ordersRef.current = data.orders;
+              // Eskiden burada setRefreshing(true) vardı, sayfayı donduruyordu. ŞİMDİ YOK.
+              // Sadece veriyi çaktırmadan değiştirip bırakacak.
+              setOrders(sortedYeniData); 
+              ordersRef.current = sortedYeniData;
            }
         }
       } catch (error) {
         // Sessizce hata geç
       }
-    }, 10000); 
+    }, 15000); // 15 saniyede bir
 
     return () => clearInterval(radar); 
-  }, [refreshing]);
+  }, []);
 
+  // KULLANICI KENDİ ELİYLE BUTONA BASARSA ÇALIŞACAK MOTOR
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
       const res = await fetch("/api/orders?t=" + new Date().getTime(), { cache: "no-store" });
       const data = await res.json();
       if (res.ok) {
-         setOrders(data.orders || []);
-         ordersRef.current = data.orders || [];
+         const sortedManual = [...(data.orders || [])].sort((a: any, b: any) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
+         setOrders(sortedManual);
+         ordersRef.current = sortedManual;
       } else {
          setErrorMsg(data.message || "Siparişler güncellenemedi.");
       }
@@ -155,7 +158,6 @@ export default function SiparisClient({ initialOrders }: Props) {
       );
   };
 
-  // 🔥 EFSANE ÇÖZÜM: Yöntemi düzgünce Türkçe "Kredi Kartı" veya "Havale / EFT" olarak yazan ufak çevirici motor
   const getGuzelOdemeYontemi = (metin: string) => {
     if (!metin) return "Havale / EFT";
     const m = metin.toLowerCase();
@@ -218,7 +220,6 @@ export default function SiparisClient({ initialOrders }: Props) {
               const adminMesaji = order.musteriMesaji || order.mesaj || order.adminMesaj || order.siparisNotu || order.kargoNotu || order.kargoTakipNo;
               const durumMetni = order.durum || order.status || "";
               
-              // 🔥 BİNGO: Veritabanındaki odemeYontemi (veya eski adıyla paymentMethod) değerini şık kelimeye çeviriyoruz
               const gosterilecekYontem = getGuzelOdemeYontemi(order.odemeYontemi || order.paymentMethod);
 
               return (
@@ -254,13 +255,11 @@ export default function SiparisClient({ initialOrders }: Props) {
 
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] bg-[#121215] text-slate-300 px-3 py-1.5 rounded-lg border border-slate-800 font-black uppercase tracking-wider">
-                        {/* 🔥 BİNGO: Artık kafadan "Havale" değil, sistemin doğru okuduğu metin yazacak */}
                         {gosterilecekYontem}
                       </span>
                     </div>
                   </div>
 
-             {/* 1. KUTU: MÜŞTERİNİN SİPARİŞ ERKEN YAZDIĞI NOT (Eğer varsa görünür) */}
 {order.siparisNotu && order.siparisNotu.trim() !== "" && order.siparisNotu !== "Not eklenmemiş" && (
   <div className={`mt-6 bg-white/5 border border-white/10 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
     <MessageSquare className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5" />
@@ -271,7 +270,6 @@ export default function SiparisClient({ initialOrders }: Props) {
   </div>
 )}
 
-{/* 2. KUTU: ADMİNİN (SENİN) MÜŞTERİYE YAZDIĞIN CEVAP (Eğer varsa görünür) */}
 {adminMesaji && adminMesaji.trim() !== "" && adminMesaji !== "Not eklenmemiş" && (
   <div className={`mt-4 bg-[#0088ff]/10 border border-[#0088ff]/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
     <MessageSquare className="w-5 h-5 text-[#3b82f6] flex-shrink-0 mt-0.5" />
