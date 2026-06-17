@@ -1,7 +1,8 @@
 import clientPromise from "@/lib/mongodb";
 import KategoriClient from "./KategoriClient"; // Az önce oluşturduğumuz dosyayı çağırıyoruz
 
-export const revalidate = 60;
+// 🚀 Motoru 1 saat (3600 sn) sıcak tutar. İlk girenden sonra 1 saat boyunca kimse bekleyemez!
+export const revalidate = 3600;
 
 export default async function KategoriSayfasi({ params }: any) {
   const resolvedParams = await params;
