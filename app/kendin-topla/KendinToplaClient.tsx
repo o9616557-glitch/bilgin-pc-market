@@ -88,23 +88,32 @@ export default function KendinToplaClient({ initialProducts }: { initialProducts
   // 🚀 AKILLI UYUM MOTORU: Boşlukları ve harf büyüklüklerini affeder, seni kısıtlamaz.
   // 🚀 AKILLI UYUM MOTORU: Birebir eşleşme aramaz, "içinde geçiyor mu?" diye bakar!
   // Sıvı soğutuculardaki çoklu soketleri (AM4, AM5, LGA1700) artık saniyesinde anlar.
+  // 🚀 KUSURSUZ UYUM MOTORU: Virgüllü listeleri anlar, boşlukları affeder!
   const gosterilecekUrunler = initialProducts.filter((urun) => {
     if (urun.kategoriSlug !== activeStepInfo.id) return false;
 
     const sz = urun.sihirbaz_ozellikleri || {};
     
-    // Boşlukları silip küçük harf yapan ve birbirinin içinde geçiyor mu diye bakan esnek fonksiyon
-    const temizle = (metin: any) => (metin || "").toString().toLowerCase().replace(/\s+/g, '');
-    
-    const uyumluMu = (aranan: string, urundeki: string) => {
-      if (!aranan || !urundeki) return true; // İkisinden biri boşsa serbest bırak (kısıtlama)
-      return temizle(urundeki).includes(temizle(aranan)) || temizle(aranan).includes(temizle(urundeki));
+    // Eğer iki taraftan biri boşsa (yani kısıtlama yoksa) direkt geçir
+    const uyumluMu = (secilenDeger: any, urundekiDeger: any) => {
+      if (!secilenDeger || !urundekiDeger) return true; 
+
+      // Örn: "AM4, AM5, LGA1700" -> virgülle böl, boşlukları sil, ufak harf yap
+      // Sonuç: ["am4", "am5", "lga1700"]
+      const sListesi = secilenDeger.toString().toLowerCase().split(",").map((s: string) => s.replace(/\s+/g, ''));
+      const uListesi = urundekiDeger.toString().toLowerCase().split(",").map((s: string) => s.replace(/\s+/g, ''));
+
+      // Listelerden herhangi biri, diğerinin içindeki bir parçayla eşleşiyor mu?
+      return sListesi.some((s: string) => 
+        uListesi.some((u: string) => u.includes(s) || s.includes(u))
+      );
     };
 
-    if (soket && sz.soket && !uyumluMu(soket, sz.soket)) return false;
-    if (bellek && sz.bellek_tipi && !uyumluMu(bellek, sz.bellek_tipi)) return false;
-    if (yapi && sz.anakart_yapisi && !uyumluMu(yapi, sz.anakart_yapisi)) return false;
-    if (radyator && sz.radyator_boyutu && !uyumluMu(radyator, sz.radyator_boyutu)) return false;
+    // UYUMLULUK KONTROLLERİ
+    if (!uyumluMu(soket, sz.soket)) return false;
+    if (!uyumluMu(bellek, sz.bellek_tipi)) return false;
+    if (!uyumluMu(yapi, sz.anakart_yapisi)) return false;
+    if (!uyumluMu(radyator, sz.radyator_boyutu)) return false;
 
     return true;
   });
