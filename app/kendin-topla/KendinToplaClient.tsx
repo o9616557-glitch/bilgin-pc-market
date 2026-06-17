@@ -85,22 +85,37 @@ export default function KendinToplaClient({ initialProducts }: { initialProducts
 
   const { soket, bellek, yapi, radyator } = dinamikFiltreleriHesapla(activeStepInfo.id);
 
-  // 🚀 İŞTE IŞIK HIZI BURADA! API yok, bekleme yok!
+  // 🚀 AKILLI UYUM MOTORU: Boşlukları ve harf büyüklüklerini affeder, seni kısıtlamaz.
   const gosterilecekUrunler = initialProducts.filter((urun) => {
     if (urun.kategoriSlug !== activeStepInfo.id) return false;
 
     const sz = urun.sihirbaz_ozellikleri || {};
+    const temizle = (metin: any) => (metin || "").toString().toLowerCase().trim();
 
-    if (soket && sz.soket && sz.soket !== soket) return false;
-    if (bellek && sz.bellek_tipi && sz.bellek_tipi !== bellek) return false;
-    if (yapi && sz.anakart_yapisi && sz.anakart_yapisi !== yapi) return false;
-    if (radyator && sz.radyator_boyutu && sz.radyator_boyutu !== radyator) return false;
+    if (soket && sz.soket && temizle(sz.soket) !== temizle(soket)) return false;
+    if (bellek && sz.bellek_tipi && temizle(sz.bellek_tipi) !== temizle(bellek)) return false;
+    if (yapi && sz.anakart_yapisi && temizle(sz.anakart_yapisi) !== temizle(yapi)) return false;
+    
+    // Kasa ve Soğutucu eklerken daha özgür bırakmak için radyatör filtresini çok sıkı tutmuyoruz.
+    if (radyator && sz.radyator_boyutu && temizle(sz.radyator_boyutu) !== "" && temizle(sz.radyator_boyutu) !== temizle(radyator)) return false;
 
     return true;
   });
 
   const handleSelectComponent = (product: any) => {
-    setSelections((prev) => ({ ...prev, [activeStepInfo.id]: product }));
+    // 🚀 ÇÖKME KALKANI: Seçilen ürünü hafızaya yazarken destan uzunluğundaki HTML'i siliyoruz.
+    const hafifUrun = {
+      _id: product._id,
+      isim: product.isim,
+      fiyat: product.fiyat,
+      indirimliFiyat: product.indirimliFiyat,
+      resim: product.resim,
+      havaleIndirimi: product.havaleIndirimi || 0,
+      sihirbaz_ozellikleri: product.sihirbaz_ozellikleri || {},
+      kategoriSlug: product.kategoriSlug
+    };
+    
+    setSelections((prev) => ({ ...prev, [activeStepInfo.id]: hafifUrun }));
   };
 
   const handleRemoveComponent = (stepId: string) => {
@@ -271,7 +286,7 @@ export default function KendinToplaClient({ initialProducts }: { initialProducts
             </div>
           ) : (
             <div className="text-center py-16 bg-[#18181b] border-2 border-white/10 rounded-2xl p-6 text-gray-400 text-sm">
-              Bu kriterlere (veya mevcut sisteminize) uygun parça bulunmamaktadır.
+              Bu kriterlere uygun parça bulunmamaktadır.
             </div>
           )}
 
