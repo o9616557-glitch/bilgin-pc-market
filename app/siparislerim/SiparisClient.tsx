@@ -12,12 +12,8 @@ interface Props {
 
 export default function SiparisClient({ initialOrders }: Props) {
   const router = useRouter();
-  
-  // 🔥 İLK AÇILIŞ: Siparişleri anında "En Yeni En Üste" olacak şekilde sıraya diziyoruz
-  const sortedInitial = [...initialOrders].sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
-  
-  const [orders, setOrders] = useState<any[]>(sortedInitial);
-  const ordersRef = useRef<any[]>(sortedInitial);
+  const [orders, setOrders] = useState<any[]>(initialOrders);
+  const ordersRef = useRef<any[]>(initialOrders);
   const [refreshing, setRefreshing] = useState(false); 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
@@ -25,15 +21,15 @@ export default function SiparisClient({ initialOrders }: Props) {
 
   useEffect(() => {
     if (initialOrders.length > 0) {
-      const sorted = [...initialOrders].sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
-      setOrders(sorted);
-      ordersRef.current = sorted;
+      setOrders(initialOrders);
+      ordersRef.current = initialOrders;
     }
   }, [initialOrders]);
 
-  // 🚀 SESSİZ SEDASIZ CANLI TAKİP MOTORU
   useEffect(() => {
     const radar = setInterval(async () => {
+      if (refreshing) return; 
+
       try {
         const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
           cache: "no-store",
@@ -43,34 +39,37 @@ export default function SiparisClient({ initialOrders }: Props) {
         
         if (res.ok && data.orders) {
            const eskiDurumlar = JSON.stringify(ordersRef.current.map(o => ({id: o._id, durum: o.durum})));
-           
-           // 🔥 ARKA PLAN GÜNCELLEMESİ: Gelen yeni veriyi de "En Yeni En Üste" yapıyoruz (Zıplama olmasın diye)
-           const sortedYeniData = [...data.orders].sort((a: any, b: any) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
-           const yeniDurumlar = JSON.stringify(sortedYeniData.map((o:any) => ({id: o._id, durum: o.durum})));
+           const yeniDurumlar = JSON.stringify(data.orders.map((o:any) => ({id: o._id, durum: o.durum})));
 
            if (eskiDurumlar !== yeniDurumlar) {
-              setOrders(sortedYeniData); 
-              ordersRef.current = sortedYeniData;
+              setRefreshing(true); 
+              
+              setTimeout(() => {
+                 setOrders(data.orders); 
+                 ordersRef.current = data.orders;
+                 setRefreshing(false);
+              }, 2000); 
+           } else {
+              setOrders(data.orders);
+              ordersRef.current = data.orders;
            }
         }
       } catch (error) {
         // Sessizce hata geç
       }
-    }, 15000); 
+    }, 10000); 
 
     return () => clearInterval(radar); 
-  }, []);
+  }, [refreshing]);
 
-  // BUTONA BASILINCA ÇALIŞACAK MOTOR
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
       const res = await fetch("/api/orders?t=" + new Date().getTime(), { cache: "no-store" });
       const data = await res.json();
       if (res.ok) {
-         const sortedManual = [...(data.orders || [])].sort((a: any, b: any) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
-         setOrders(sortedManual);
-         ordersRef.current = sortedManual;
+         setOrders(data.orders || []);
+         ordersRef.current = data.orders || [];
       } else {
          setErrorMsg(data.message || "Siparişler güncellenemedi.");
       }
@@ -156,6 +155,7 @@ export default function SiparisClient({ initialOrders }: Props) {
       );
   };
 
+  // 🔥 EFSANE ÇÖZÜM: Yöntemi düzgünce Türkçe "Kredi Kartı" veya "Havale / EFT" olarak yazan ufak çevirici motor
   const getGuzelOdemeYontemi = (metin: string) => {
     if (!metin) return "Havale / EFT";
     const m = metin.toLowerCase();
@@ -215,12 +215,10 @@ export default function SiparisClient({ initialOrders }: Props) {
           <div className="grid grid-cols-1 gap-6">
             {orders.map((order: any) => {
               const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase();
-              
-              // 🔥 MESAJ AYIRICI MOTOR
-              const musteriNotu = order.siparisNotu || order.musteriMesaji || order.mesaj || "";
-              const magazaMesaji = order.adminMesaj || order.adminMesaji || order.magazaNotu || order.kargoNotu || order.kargoTakipNo || "";
-              
+              const adminMesaji = order.musteriMesaji || order.mesaj || order.adminMesaj || order.siparisNotu || order.kargoNotu || order.kargoTakipNo;
               const durumMetni = order.durum || order.status || "";
+              
+              // 🔥 BİNGO: Veritabanındaki odemeYontemi (veya eski adıyla paymentMethod) değerini şık kelimeye çeviriyoruz
               const gosterilecekYontem = getGuzelOdemeYontemi(order.odemeYontemi || order.paymentMethod);
 
               return (
@@ -256,31 +254,33 @@ export default function SiparisClient({ initialOrders }: Props) {
 
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] bg-[#121215] text-slate-300 px-3 py-1.5 rounded-lg border border-slate-800 font-black uppercase tracking-wider">
+                        {/* 🔥 BİNGO: Artık kafadan "Havale" değil, sistemin doğru okuduğu metin yazacak */}
                         {gosterilecekYontem}
                       </span>
                     </div>
                   </div>
 
-                  {musteriNotu && musteriNotu.trim() !== "" && musteriNotu !== "Not eklenmemiş" && (
-                    <div className={`mt-6 bg-white/5 border border-white/10 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
-                      <MessageSquare className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">SİPARİŞ NOTUNUZ</p>
-                        <p className="text-sm text-slate-200 font-medium leading-relaxed">{musteriNotu}</p>
-                      </div>
-                    </div>
-                  )}
+             {/* 1. KUTU: MÜŞTERİNİN SİPARİŞ ERKEN YAZDIĞI NOT (Eğer varsa görünür) */}
+{order.siparisNotu && order.siparisNotu.trim() !== "" && order.siparisNotu !== "Not eklenmemiş" && (
+  <div className={`mt-6 bg-white/5 border border-white/10 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
+    <MessageSquare className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5" />
+    <div>
+      <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">SİPARİŞ NOTUNUZ</p>
+      <p className="text-sm text-slate-200 font-medium leading-relaxed">{order.siparisNotu}</p>
+    </div>
+  </div>
+)}
 
-                  {magazaMesaji && magazaMesaji.trim() !== "" && magazaMesaji !== "Not eklenmemiş" && magazaMesaji !== musteriNotu && (
-                    <div className={`mt-4 bg-[#0088ff]/10 border border-[#0088ff]/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
-                      <MessageSquare className="w-5 h-5 text-[#3b82f6] flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-[10px] text-[#3b82f6] font-black uppercase tracking-widest mb-1">MAĞAZA MESAJI</p>
-                        <p className="text-sm text-slate-200 font-medium leading-relaxed">{magazaMesaji}</p>
-                      </div>
-                    </div>
-                  )}
-
+{/* 2. KUTU: ADMİNİN (SENİN) MÜŞTERİYE YAZDIĞIN CEVAP (Eğer varsa görünür) */}
+{adminMesaji && adminMesaji.trim() !== "" && adminMesaji !== "Not eklenmemiş" && (
+  <div className={`mt-4 bg-[#0088ff]/10 border border-[#0088ff]/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
+    <MessageSquare className="w-5 h-5 text-[#3b82f6] flex-shrink-0 mt-0.5" />
+    <div>
+      <p className="text-[10px] text-[#3b82f6] font-black uppercase tracking-widest mb-1">MAĞAZA MESAJI</p>
+      <p className="text-sm text-slate-200 font-medium leading-relaxed">{adminMesaji}</p>
+    </div>
+  </div>
+)}
                   <div className={`border-t border-slate-800/80 pt-6 mt-6 space-y-4 transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
                     {order.items?.map((item: any, idx: number) => (
                       <div key={idx} className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-[#121215] p-4 sm:p-5 rounded-2xl border border-slate-800/60 shadow-lg">
