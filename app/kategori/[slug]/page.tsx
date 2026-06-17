@@ -1,21 +1,12 @@
 import clientPromise from "@/lib/mongodb";
-import KategoriClient from "./KategoriClient"; 
+import KategoriClient from "./KategoriClient";
 
-// 🚀 Motoru 1 saat (3600 sn) sıcak tutar. İlk girenden sonra 1 saat boyunca kimse bekleyemez!
 export const revalidate = 3600;
 
 export default async function KategoriSayfasi({ params }: any) {
   const resolvedParams = await params;
   const rawSlug = resolvedParams?.slug || "";
-
   const sayfaBasligi = rawSlug.replace(/-/g, " ").toUpperCase();
-
-  const slugify = (text: string) => {
-    return (text || "").toString().toLowerCase()
-      .replace(/ı/g, "i").replace(/ş/g, "s").replace(/ç/g, "c")
-      .replace(/ö/g, "o").replace(/ğ/g, "g").replace(/ü/g, "u")
-      .replace(/\s+/g, "-").replace(/[^\w-]+/g, "");
-  };
 
   let urunler: any[] = [];
 
@@ -23,10 +14,9 @@ export default async function KategoriSayfasi({ params }: any) {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
     
-    // ⚠️ DİKKAT: find({}) bütün veritabanını tek seferde çeker. 
-    // Sistemde 300 civarı donanım ürünü olduğu için şu an hızda zerre problem yaratmaz, milisaniyede gelir.
-    // Ama ileride ürün sayısı 10.000'leri geçerse, veritabanına doğrudan "kategoriSlug" diye bir alan kaydetmek gerekecek. Şimdilik jilet gibi çalışır!
-    const rawUrunler = await db.collection("products").find({}).toArray();
+    // 🚀 İŞTE YENİ NESİL NOKTA ATIŞI! (Hamallık bitti)
+    // Veritabanına "Bütün dükkanı değil, sadece kategoriSlug'ı adresle uyuşanları getir" diyoruz.
+    const rawUrunler = await db.collection("products").find({ kategoriSlug: rawSlug }).toArray();
     
     const productIds = rawUrunler.map(p => p._id.toString());
     let reviewsData: any[] = [];
@@ -37,15 +27,10 @@ export default async function KategoriSayfasi({ params }: any) {
       }).toArray();
     } catch (reviewErr) {}
 
-    const filtrelenmisUrunler = rawUrunler.filter((urun: any) => {
-      const urunKategorisi = slugify(urun.kategori || urun.category || "");
-      return urunKategorisi === rawSlug;
-    });
-
-    urunler = filtrelenmisUrunler.map(urun => {
+    // 🚀 Artık Next.js tarafında filtrelemeye gerek kalmadı! Veritabanı zaten süzüp gönderdi.
+    urunler = rawUrunler.map(urun => {
       const pid = urun._id.toString();
       const pReviews = reviewsData.filter(r => r.productId === pid);
-      // Mongo ID'lerini client tarafında sorun çıkarmaması için string'e zorluyoruz
       return { ...urun, _id: pid, fetchedReviews: pReviews };
     });
 
@@ -55,7 +40,6 @@ export default async function KategoriSayfasi({ params }: any) {
 
   return (
     <main className="min-h-screen bg-black text-white pt-12 pb-24 px-4 font-sans select-none touch-manipulation">
-      {/* İndirim Rozeti CSS'i */}
       <style dangerouslySetInnerHTML={{ __html: `
         .discount-badge-home { position: absolute; top: 10px; right: 10px; width: 65px; height: 90px; z-index: 50; filter: drop-shadow(0px 6px 8px rgba(0,0,0,0.6)); pointer-events: none; }
         .badge-rosette-home { position: relative; width: 65px; height: 65px; background: #e60000; clip-path: polygon(50% 0%, 60% 10%, 75% 5%, 80% 20%, 95% 25%, 90% 40%, 100% 50%, 90% 60%, 95% 75%, 80% 80%, 75% 95%, 60% 90%, 50% 100%, 40% 90%, 25% 95%, 20% 80%, 5% 75%, 10% 60%, 0% 50%, 10% 40%, 5% 25%, 20% 20%, 25% 5%, 40% 10%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 2; }
@@ -66,46 +50,27 @@ export default async function KategoriSayfasi({ params }: any) {
         .badge-ribbon-home-right { right: 8px; transform: rotate(-20deg); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%); }
       `}} />
       <div className="max-w-[1400px] mx-auto">
-         {/* ÇAĞIRILAN İSTEMCİ MOTORU */}
          <KategoriClient urunler={urunler} sayfaBasligi={sayfaBasligi} />
       </div>
     </main>
   );
 }
 
-// 🚀 OTOMATİK VİTRİN MOTORU: Sitenin tüm kategorilerini veritabanından bulup önceden saniyesinde hazır eder
 export async function generateStaticParams() {
   try {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
     
-    // Sadece kategori isimlerini çekeriz (işlem ışık hızında bitsin diye)
-    const rawUrunler = await db.collection("products").find({}, { projection: { kategori: 1, category: 1 } }).toArray();
+    // Sadece benzersiz kategori slug'larını çekiyoruz
+    const rawUrunler = await db.collection("products").find({}, { projection: { kategoriSlug: 1 } }).toArray();
     
-    const slugify = (text: string) => {
-      return (text || "").toString().toLowerCase()
-        .replace(/ı/g, "i").replace(/ş/g, "s").replace(/ç/g, "c")
-        .replace(/ö/g, "o").replace(/ğ/g, "g").replace(/ü/g, "u")
-        .replace(/\s+/g, "-").replace(/[^\w-]+/g, "");
-    };
-
-    // Benzersiz kategorileri süzüyoruz (Aynı kategoriden 50 anakart varsa bile 1 kere listeye alır)
     const benzersizKategoriler = new Set<string>();
-    
     rawUrunler.forEach((urun) => {
-      const catName = urun.kategori || urun.category || "";
-      if (catName) {
-        benzersizKategoriler.add(slugify(catName));
-      }
+      if (urun.kategoriSlug) benzersizKategoriler.add(urun.kategoriSlug);
     });
 
-    // Next.js'in istediği özel formata çevirip motoru ateşliyoruz
-    return Array.from(benzersizKategoriler).map((slug) => ({
-      slug: slug,
-    }));
-    
+    return Array.from(benzersizKategoriler).map((slug) => ({ slug }));
   } catch (error) {
-    console.error("Vitrin kategorileri oluşturulamadı:", error);
-    return []; // Hata olursa sistemi çökertmeden yola devam eder
+    return [];
   }
 }
