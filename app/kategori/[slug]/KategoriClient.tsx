@@ -308,67 +308,75 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
   const gecerliMarkalar = markalar.filter(m => markaGecerliMi(m));
 
   return (
-    <>
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-white/5 pb-6 mb-8 px-4 sm:px-0 select-none">
-        <div>
-          <Link href="/" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-500 hover:text-white transition-all mb-3">
-            <ArrowLeft className="w-4 h-4" /> Mağazaya Geri Dön
-          </Link>
-          <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tight text-white leading-none">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">
-              {sayfaBasligi}
-            </span> MODELLERİ
-          </h1>
-        </div>
-        <div className="flex gap-2">
-          <button 
-            onClick={() => setMobilFiltreAcik(true)}
-            className="lg:hidden flex items-center justify-center gap-2 bg-white/5 text-white px-4 py-2.5 rounded-none font-bold text-xs uppercase tracking-wider border border-white/10"
-          >
-            <Filter className="w-4 h-4" /> Filtrele
-          </button>
-          <div className="flex items-center justify-start gap-2 bg-white/[0.02] border border-white/5 px-4 py-2.5 rounded-none text-xs font-black tracking-widest text-gray-400 uppercase">
-            <div className="w-2 h-2 rounded-none bg-[#10b981] animate-ping"></div>
-            Sonuç: {filtrelenmisUrunler.length}
+      <>
+        {/* 🚀 Üst başlık altındaki ayırıcı çizgi belirginleştirildi (border-white/20) */}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-white/20 pb-6 mb-8 px-4 sm:px-0 select-none">
+          <div>
+            <Link href="/" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 hover:text-white transition-all mb-3">
+              <ArrowLeft className="w-4 h-4" /> Mağazaya Geri Dön
+            </Link>
+            <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tight text-white leading-none">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
+                {sayfaBasligi}
+              </span> MODELLERİ
+            </h1>
+          </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => setMobilFiltreAcik(true)}
+              className="lg:hidden flex items-center justify-center gap-2 bg-white/10 text-white px-4 py-2.5 rounded-none font-bold text-xs uppercase tracking-wider border border-white/20"
+            >
+              <Filter className="w-4 h-4" /> Filtrele
+            </button>
+            <div className="flex items-center justify-start gap-2 bg-[#121215] border border-white/20 px-4 py-2.5 rounded-none text-xs font-black tracking-widest text-gray-300 uppercase">
+              <div className="w-2 h-2 rounded-none bg-[#10b981] animate-ping"></div>
+              Sonuç: {filtrelenmisUrunler.length}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="flex flex-col lg:flex-row gap-6 px-4 sm:px-0 relative items-start">
-        
-        {/* 🛠 SOL FİLTRE PANELİ */}
-        <aside className={`fixed top-[81px] bottom-0 left-0 right-0 z-[40] lg:sticky lg:top-24 lg:w-[260px] xl:w-[280px] lg:max-h-[calc(100vh-100px)] lg:shrink-0 transition-transform duration-300 flex flex-col ${mobilFiltreAcik ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
-          <div className="absolute inset-0 bg-black/60 lg:hidden" onClick={() => setMobilFiltreAcik(false)}></div>
+        <div className="flex flex-col lg:flex-row gap-6 px-4 sm:px-0 relative items-start">
           
-          <div className="relative w-4/5 max-w-sm h-full bg-[#050505]/90 border-r border-white/5 lg:w-full lg:bg-transparent lg:border-none lg:shadow-none flex flex-col overflow-hidden">
+          {/* 🛠 SOL FİLTRE PANELİ */}
+          <aside className={`fixed top-[81px] bottom-0 left-0 right-0 z-[40] lg:sticky lg:top-24 lg:w-[260px] xl:w-[280px] lg:max-h-[calc(100vh-100px)] lg:shrink-0 transition-transform duration-300 flex flex-col ${mobilFiltreAcik ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
+            <div className="absolute inset-0 bg-black/60 lg:hidden" onClick={() => setMobilFiltreAcik(false)}></div>
             
-            <div className="p-4 border-b border-white/5 flex justify-between items-center shrink-0 bg-[#050505] lg:bg-transparent lg:px-0 z-10">
-              <h3 className="font-bold text-white uppercase tracking-wider flex items-center gap-2 text-sm"><Filter className="w-4 h-4 text-gray-400" /> Filtreler</h3>
-              <div className="flex items-center gap-3">
-                <button onClick={filtreleriTemizle} className="text-gray-400 text-xs font-bold hover:text-white transition-all">Temizle</button>
-                <button onClick={() => setMobilFiltreAcik(false)} className="lg:hidden text-gray-400 hover:text-white"><X className="w-5 h-5" /></button>
-              </div>
-            </div>
-
-            <div className="p-4 lg:p-0 overflow-y-auto [&::-webkit-scrollbar]:hidden flex-1 select-none">
+            {/* 🚀 Panel sağ çizgisi belirginleştirildi */}
+            <div className="relative w-4/5 max-w-sm h-full bg-[#050505]/95 border-r border-white/20 lg:w-full lg:bg-transparent lg:border-none lg:shadow-none flex flex-col overflow-hidden">
               
-              <div className="mb-6 pb-6 border-b border-white/5">
-                <label className="flex items-center gap-3 cursor-pointer group mb-5">
-                  <div className="relative">
-                    <input type="checkbox" className="sr-only" checked={sadeceStokta} onChange={(e) => setSadeceStokta(e.target.checked)} />
-                    <div className={`block w-9 h-5 rounded-full transition-colors ${sadeceStokta ? 'bg-[#10b981]' : 'bg-white/10'}`}></div>
-                    <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition-transform ${sadeceStokta ? 'translate-x-4' : 'translate-x-0'}`}></div>
-                  </div>
-                  <span className="text-xs font-bold text-gray-400 group-hover:text-white transition-colors">Sadece Stoktakiler</span>
-                </label>
-
-                <h4 className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-3">Fiyat Aralığı (TL)</h4>
-                <div className="flex items-center gap-2">
-                  <input type="number" placeholder="Min" value={minFiyat} onChange={(e) => setMinFiyat(e.target.value)} className="w-full bg-black border border-white/5 rounded-lg p-2.5 text-xs text-white focus:border-white/30 outline-none transition-colors" />
-                  <span className="text-gray-500">-</span>
-                  <input type="number" placeholder="Max" value={maxFiyat} onChange={(e) => setMaxFiyat(e.target.value)} className="w-full bg-black border border-white/5 rounded-lg p-2.5 text-xs text-white focus:border-white/30 outline-none transition-colors" />
+              {/* 🚀 Filtre başlığı altı çizgisi belirginleştirildi */}
+              <div className="p-4 border-b border-white/20 flex justify-between items-center shrink-0 bg-[#050505] lg:bg-transparent lg:px-0 z-10">
+                <h3 className="font-bold text-white uppercase tracking-wider flex items-center gap-2 text-sm"><Filter className="w-4 h-4 text-gray-300" /> Filtreler</h3>
+                <div className="flex items-center gap-3">
+                  <button onClick={filtreleriTemizle} className="text-gray-300 text-xs font-bold hover:text-white transition-all">Temizle</button>
+                  <button onClick={() => setMobilFiltreAcik(false)} className="lg:hidden text-gray-300 hover:text-white"><X className="w-5 h-5" /></button>
                 </div>
               </div>
+
+              <div className="p-4 lg:p-0 overflow-y-auto [&::-webkit-scrollbar]:hidden flex-1 select-none">
+                
+                {/* 🚀 Fiyat alanı altı çizgisi belirginleştirildi */}
+                <div className="mb-6 pb-6 border-b border-white/20">
+                  
+                  {/* STOK BUTONU */}
+                  <label className="flex items-center gap-3 cursor-pointer group mb-5">
+                    <div className="relative">
+                      <input type="checkbox" className="sr-only" checked={sadeceStokta} onChange={(e) => setSadeceStokta(e.target.checked)} />
+                      {/* 🚀 Buton kapalıykenki sönük hali düzeltildi, ekstra ince çerçeve eklendi */}
+                      <div className={`block w-9 h-5 rounded-full transition-colors border border-white/20 ${sadeceStokta ? 'bg-[#10b981]' : 'bg-white/20'}`}></div>
+                      <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition-transform shadow-sm ${sadeceStokta ? 'translate-x-4' : 'translate-x-0'}`}></div>
+                    </div>
+                    <span className="text-xs font-bold text-gray-300 group-hover:text-white transition-colors">Sadece Stoktakiler</span>
+                  </label>
+
+                  <h4 className="text-[10px] font-black text-gray-200 uppercase tracking-widest mb-3">Fiyat Aralığı (TL)</h4>
+                  <div className="flex items-center gap-2">
+                    {/* 🚀 Fiyat kutuları zifiri siyahlıktan çıkarıldı, çerçeveleri kalınlaştı, tıklayınca MAVİ PARLAMA eklendi */}
+                    <input type="number" placeholder="Min" value={minFiyat} onChange={(e) => setMinFiyat(e.target.value)} className="w-full bg-[#121215] border border-white/20 rounded-lg p-2.5 text-xs text-white focus:border-[#00d2ff] focus:ring-1 focus:ring-[#00d2ff]/50 outline-none transition-all placeholder:text-gray-600" />
+                    <span className="text-gray-400 font-bold">-</span>
+                    <input type="number" placeholder="Max" value={maxFiyat} onChange={(e) => setMaxFiyat(e.target.value)} className="w-full bg-[#121215] border border-white/20 rounded-lg p-2.5 text-xs text-white focus:border-[#00d2ff] focus:ring-1 focus:ring-[#00d2ff]/50 outline-none transition-all placeholder:text-gray-600" />
+                  </div>
+                </div>
 
               {gecerliMarkalar.length > 0 && (
                 <div className="mb-6 pb-6 border-b border-white/5">
