@@ -279,8 +279,8 @@ export default function SiparisClient({ initialOrders }: Props) {
     </div>
   </div>
 )}
-
-{adminMesaji && adminMesaji.trim() !== "" && adminMesaji !== "Not eklenmemiş" && (
+{/* 🔥 BİNGO: Eğer admin kutusuna gelen yazı, müşterinin notuyla BİREBİR AYNIYSA bu kutuyu gizle! Böylece kopya yazı çıkmaz! */}
+{adminMesaji && adminMesaji.trim() !== "" && adminMesaji !== "Not eklenmemiş" && adminMesaji !== order.siparisNotu && (
   <div className={`mt-4 bg-[#0088ff]/10 border border-[#0088ff]/20 p-4 rounded-xl flex items-start gap-3 backdrop-blur-sm transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
     <MessageSquare className="w-5 h-5 text-[#3b82f6] flex-shrink-0 mt-0.5" />
     <div>
