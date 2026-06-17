@@ -12,17 +12,23 @@ interface Props {
 
 export default function SiparisClient({ initialOrders }: Props) {
   const router = useRouter();
-  const [orders, setOrders] = useState<any[]>(initialOrders);
-  const ordersRef = useRef<any[]>(initialOrders);
+  
+  // 🔥 BİNGO 1: Sayfa açıldığı milisaniyede "En Yeni En Üste" dizecek motor
+  const baslangicSiralama = [...initialOrders].sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
+  
+  const [orders, setOrders] = useState<any[]>(baslangicSiralama);
+  const ordersRef = useRef<any[]>(baslangicSiralama);
   const [refreshing, setRefreshing] = useState(false); 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
 
+// 🔥 BİNGO 2: Sunucudan veri geldiği an ilk işi hizalamak olacak
   useEffect(() => {
     if (initialOrders.length > 0) {
-      setOrders(initialOrders);
-      ordersRef.current = initialOrders;
+      const hizaliGelenler = [...initialOrders].sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
+      setOrders(hizaliGelenler);
+      ordersRef.current = hizaliGelenler;
     }
   }, [initialOrders]);
 
