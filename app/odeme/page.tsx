@@ -31,6 +31,20 @@ export default function OdemeSayfasi() {
     }
   }, [session, status]);
 
+  // 🚀 TELEFONUN FİZİKSEL GERİ TUŞUNU (VEYA İPHONE KAYDIRMA HAREKETİNİ) YAKALAMA RADARI
+  useEffect(() => {
+    const telefonGerisi = () => {
+      // Müşteri telefonun kendi geri tuşuna bastığı an sayfayı zorla yeniler
+      window.location.reload();
+    };
+
+    window.addEventListener("popstate", telefonGerisi);
+
+    return () => {
+      window.removeEventListener("popstate", telefonGerisi);
+    };
+  }, []);
+
   useEffect(() => {
     if (status === "loading") {
       setAdresAraniyor(true);
