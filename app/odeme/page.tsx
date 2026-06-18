@@ -48,62 +48,62 @@ export default function OdemeSayfasi() {
       sessionStorage.setItem("iyzico_temizle", "evet");
     };
   }, []);
-// 🚀 ERKENCİ ÇIRAK MOTORU (ADRESLERİ IŞIK HIZINDA GETİRİR)
+// 🚀 ERKENCİ ÇIRAK MOTORU V2 (0 MİLİSANİYE - SIFIR GECİKME!)
   useEffect(() => {
+    // 🛠️ YARDIMCI MAKİNE: Adresi forma yapıştıran sistem
+    const adresleriFormaDoldur = (adresler: any[]) => {
+      const varsayilanTeslimat = adresler.find((a: any) => a.isDefaultDelivery);
+      if (varsayilanTeslimat) {
+        const nameParts = varsayilanTeslimat.fullName.trim().split(" ");
+        const soyad = nameParts.length > 1 ? nameParts.pop() : "";
+        const ad = nameParts.join(" ");
+        const sessionEmail = (session && session.user && session.user.email) ? session.user.email : "";
+        const kesinEposta = varsayilanTeslimat.email || varsayilanTeslimat.eposta || sessionEmail;
+
+        setForm(prev => ({ ...prev, ad: ad, soyad: soyad, telefon: varsayilanTeslimat.phone, sehir: varsayilanTeslimat.city, ilce: varsayilanTeslimat.district, adres: varsayilanTeslimat.fullAddress, eposta: kesinEposta, siparisNotu: prev.siparisNotu || "" }));
+        setAdresKilitli(true);
+        setAdresAraniyor(false); // 🔥 Ekranı anında aç!
+      }
+
+      const varsayilanFatura = adresler.find((a: any) => a.isDefaultBilling);
+      if (varsayilanFatura) {
+        const nameParts = varsayilanFatura.fullName.trim().split(" ");
+        const soyad = nameParts.length > 1 ? nameParts.pop() : "";
+        const ad = nameParts.join(" ");
+        const sessionEmail = (session && session.user && session.user.email) ? session.user.email : "";
+        const faturaKesinEposta = varsayilanFatura.email || varsayilanFatura.eposta || sessionEmail;
+
+        setFaturaForm(prev => ({ ...prev, ad: ad, soyad: soyad, telefon: varsayilanFatura.phone, sehir: varsayilanFatura.city, ilce: varsayilanFatura.district, adres: varsayilanFatura.fullAddress, eposta: faturaKesinEposta }));
+
+        if (varsayilanTeslimat && varsayilanFatura._id !== varsayilanTeslimat._id) {
+          setFaturaAyni(false);
+        }
+      }
+    };
+
+    // 🚀 AŞAMA 1 (IŞIK HIZI): Oturum kontrolünü falan bekleme, hafızayı saniyesinde bas!
+    const hafiza = localStorage.getItem("bilgin_hizli_adresler");
+    if (hafiza) {
+      try {
+        adresleriFormaDoldur(JSON.parse(hafiza));
+      } catch(e) {}
+    }
+
+    // Eğer oturum hala yükleniyorsa ve hafıza BOMBOŞSA mecburen beklet. 
+    // Ama hafızada adres varsa zerre kadar bekleme yapmaz!
     if (status === "loading") {
-      setAdresAraniyor(true);
+      if (!hafiza) setAdresAraniyor(true);
       return;
     }
 
+    // 🚀 AŞAMA 2 (SESSİZ GÜNCELLEME): Sayfa açıldıktan sonra arkadan veritabanını kontrol et
     const fetchKayitliAdresler = async () => {
-      // 🛠️ YARDIMCI MAKİNE: Gelen adresi anında forma dolduran sistem
-      const adresleriFormaDoldur = (adresler: any[]) => {
-        const varsayilanTeslimat = adresler.find((a: any) => a.isDefaultDelivery);
-        if (varsayilanTeslimat) {
-          const nameParts = varsayilanTeslimat.fullName.trim().split(" ");
-          const soyad = nameParts.length > 1 ? nameParts.pop() : "";
-          const ad = nameParts.join(" ");
-          const sessionEmail = (session && session.user && session.user.email) ? session.user.email : "";
-          const kesinEposta = varsayilanTeslimat.email || varsayilanTeslimat.eposta || sessionEmail;
-
-          setForm({ ad: ad, soyad: soyad, telefon: varsayilanTeslimat.phone, sehir: varsayilanTeslimat.city, ilce: varsayilanTeslimat.district, adres: varsayilanTeslimat.fullAddress, eposta: kesinEposta, siparisNotu: "" });
-          setAdresKilitli(true);
-          setAdresAraniyor(false); // 🔥 ERKENCİ ÇIRAK ADRESİ BULDUĞU AN BEKLEME EKRANINI ŞAK DİYE KAPATIR!
-        }
-
-        const varsayilanFatura = adresler.find((a: any) => a.isDefaultBilling);
-        if (varsayilanFatura) {
-          const nameParts = varsayilanFatura.fullName.trim().split(" ");
-          const soyad = nameParts.length > 1 ? nameParts.pop() : "";
-          const ad = nameParts.join(" ");
-          const sessionEmail = (session && session.user && session.user.email) ? session.user.email : "";
-          const faturaKesinEposta = varsayilanFatura.email || varsayilanFatura.eposta || sessionEmail;
-
-          setFaturaForm({ ad: ad, soyad: soyad, telefon: varsayilanFatura.phone, sehir: varsayilanFatura.city, ilce: varsayilanFatura.district, adres: varsayilanFatura.fullAddress, eposta: faturaKesinEposta });
-
-          if (varsayilanTeslimat && varsayilanFatura._id !== varsayilanTeslimat._id) {
-            setFaturaAyni(false);
-          }
-        }
-      };
-
       try {
-        // 🚀 1. AŞAMA (IŞIK HIZI): Tarayıcı hafızasında adres var mı bak, varsa hemen masaya vur!
-        const hafiza = localStorage.getItem("bilgin_hizli_adresler");
-        if (hafiza) {
-          adresleriFormaDoldur(JSON.parse(hafiza));
-        }
-
-        // 🚀 2. AŞAMA (SESSİZ KONTROL): Sen adresi ekranda görürken, asıl çırak arkadan gidip veritabanını kontrol eder.
         const res = await fetch("/api/addresses");
         if (res.ok) {
           const data = await res.json();
           const adresler = data.addresses || [];
-          
-          // Gelecek sefer daha da hızlı açılsın diye en güncel halini hafızaya kopyala
           localStorage.setItem("bilgin_hizli_adresler", JSON.stringify(adresler)); 
-          
-          // Eğer arkadan gelen adres değişmişse, ekrandakini çaktırmadan düzelt
           adresleriFormaDoldur(adresler); 
         }
       } catch (error) {
@@ -115,7 +115,7 @@ export default function OdemeSayfasi() {
     if (status === "authenticated" && session) {
       fetchKayitliAdresler();
     } else {
-      setAdresAraniyor(false);
+      if (!hafiza) setAdresAraniyor(false);
     }
   }, [session, status]);
 
