@@ -135,4 +135,4 @@ export async function DELETE(req: Request) {
   } catch (error) {
     return NextResponse.json({ message: "Hata." }, { status: 500 });
   }
-} dıu
+}
