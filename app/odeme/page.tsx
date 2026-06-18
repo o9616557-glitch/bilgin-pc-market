@@ -31,17 +31,21 @@ export default function OdemeSayfasi() {
     }
   }, [session, status]);
 
-  // 🚀 TELEFONUN FİZİKSEL GERİ TUŞUNU (VEYA İPHONE KAYDIRMA HAREKETİNİ) YAKALAMA RADARI
+  // 🚀 İYZİCO'NUN KORKULU RÜYASI: HAFIZA BOMBASI (KESİN ÇÖZÜM)
   useEffect(() => {
-    const telefonGerisi = () => {
-      // Müşteri telefonun kendi geri tuşuna bastığı an sayfayı zorla yeniler
+    // 1. Sayfa açıldığında tarayıcının cebine bak: "Bu müşteri buraya daha önce girip çıkmış mı?"
+    const eskiKalinintiVarMi = sessionStorage.getItem("iyzico_temizle");
+
+    if (eskiKalinintiVarMi) {
+      // Eğer önceden girip çıktıysa, notu sil ve sayfayı acımadan ZORLA YENİLE!
+      sessionStorage.removeItem("iyzico_temizle");
       window.location.reload();
-    };
+    }
 
-    window.addEventListener("popstate", telefonGerisi);
-
+    // 2. Müşteri sayfadan ÇIKTIĞI AN (Geri tuşu, sepet, anasayfa hiç fark etmez) bu kısım çalışır
     return () => {
-      window.removeEventListener("popstate", telefonGerisi);
+      // Çıkarken tarayıcının cebine gizli notu bırakıyoruz ki, bir dahaki gelişinde tetiklensin.
+      sessionStorage.setItem("iyzico_temizle", "evet");
     };
   }, []);
 
