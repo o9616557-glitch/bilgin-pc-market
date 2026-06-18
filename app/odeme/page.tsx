@@ -612,10 +612,16 @@ export default function OdemeSayfasi() {
 
           </div>
         </div>
-      )}
+     )}
 
-      {/* İŞTE EKSİK OLAN KAPAK BURASI ŞEFİM! */}
+      {/* 💎 MOBİLE ÖZEL JİLET GİBİ ELMASLI ÇİZGİ (SAYFA EN ALTI) 💎 */}
+      <div className="flex md:hidden items-center justify-center w-full py-10 opacity-80">
+        <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent to-slate-600"></div>
+        <div className="mx-4 w-2.5 h-2.5 rotate-45 bg-[#3b82f6] shadow-[0_0_15px_rgba(59,130,246,0.9)] rounded-sm"></div>
+        <div className="flex-1 h-[1px] bg-gradient-to-l from-transparent to-slate-600"></div>
       </div>
 
+      {/* İŞTE EKSİK OLAN KAPAK BURASI ŞEFİM! */}
+    </div>
   );
 }
