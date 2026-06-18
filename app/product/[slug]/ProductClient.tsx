@@ -122,7 +122,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         havaleIndirimi: havaleYuzdesi,
         slug: product.slug // 🚀 BİNGO: Adres bilgisini (slug) sepete ekledik!
       }); 
-      toast.success("Sepete eklendi!"); 
+      // toast.success("Sepete eklendi!");
     } catch (error) {} finally { setAddingToCart(false); }
   };
   
