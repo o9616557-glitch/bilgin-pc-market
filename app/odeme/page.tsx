@@ -119,6 +119,22 @@ export default function OdemeSayfasi() {
     }
   }, [session, status]);
 
+// 🚀 SÖZLEŞME ZORUNLU OKUMA KİLİDİ VE RADARI
+  const [sozlesmeOkundu, setSozlesmeOkundu] = useState(false);
+
+  // Müşteri sözleşmeyi her açtığında kilit tekrar başa sarsın (kapansın)
+  useEffect(() => {
+    if (acikSozlesme) setSozlesmeOkundu(false);
+  }, [acikSozlesme]);
+
+  // 📜 Kaydırma (Scroll) Radarı: En aşağı inildiğini milimi milimine anlar
+  const sozlesmeKaydirmaRadari = (e: any) => {
+    const { scrollHeight, scrollTop, clientHeight } = e.target;
+    // En aşağı inmeye 5 piksel (hata payı) kaldığında kilidi açar
+    if (scrollHeight - scrollTop <= clientHeight + 5) {
+      setSozlesmeOkundu(true);
+    }
+  };
   // 🚀 ARKA PLANI TAŞ GİBİ KİLİTLEYEN MOTOR (Kaydırma İptali)
   useEffect(() => {
     if (acikSozlesme) {
@@ -488,8 +504,11 @@ export default function OdemeSayfasi() {
               </button>
             </div>
 
-            {/* 📜 AŞAĞI KAYDIRILABİLİR İÇERİK (LIGHT MODE SCROLL ALANI) 📜 */}
-            <div className="p-5 sm:p-6 overflow-y-auto text-sm text-gray-700 space-y-6 leading-relaxed [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 hover:[&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-thumb]:rounded-full bg-zinc-50">
+          {/* 📜 AŞAĞI KAYDIRILABİLİR İÇERİK (LIGHT MODE SCROLL ALANI) 📜 */}
+            <div 
+              onScroll={sozlesmeKaydirmaRadari} 
+              className="p-5 sm:p-6 overflow-y-auto text-sm text-gray-700 space-y-6 leading-relaxed [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 hover:[&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-thumb]:rounded-full bg-zinc-50"
+            >
               {acikSozlesme === "mesafeli" ? (
                 <>
                   <div>
@@ -580,10 +599,18 @@ export default function OdemeSayfasi() {
               )}
             </div>
 
-          {/* 🛑 BUTON KISMI (KAPANIŞ) 🛑 */}
+        {/* 🛑 BUTON KISMI (AKILLI KİLİT) 🛑 */}
             <div className="p-4 sm:p-5 border-t border-white/10 shrink-0 bg-[#0a0a0a] rounded-b-2xl">
-              <button onClick={() => setAcikSozlesme(null)} className="w-full py-3.5 bg-[#3b82f6] hover:bg-[#2563eb] text-white text-sm font-black tracking-widest rounded-xl transition-all duration-300 shadow-[0_0_20px_rgba(59,130,246,0.3)]">
-                OKUDUM, KAPAT
+              <button 
+                onClick={() => setAcikSozlesme(null)} 
+                disabled={!sozlesmeOkundu}
+                className={`w-full py-3.5 text-sm font-black tracking-widest rounded-xl transition-all duration-300 ${
+                  sozlesmeOkundu 
+                    ? "bg-[#3b82f6] hover:bg-[#2563eb] text-white shadow-[0_0_20px_rgba(59,130,246,0.3)] cursor-pointer" 
+                    : "bg-slate-800 text-slate-500 cursor-not-allowed opacity-60"
+                }`}
+              >
+                {sozlesmeOkundu ? "OKUDUM, KAPAT" : "ONAYLAMAK İÇİN METNİ AŞAĞI KAYDIRIN"}
               </button>
             </div>
 
