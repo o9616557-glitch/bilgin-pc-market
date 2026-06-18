@@ -151,7 +151,7 @@ export default function KendinToplaClient({ initialProducts }: { initialProducts
     setSelections({});
     setCurrentStep(0);
     localStorage.removeItem("bilgin_sihirbaz_selections");
-    toast.success("Sistem başarıyla sıfırlandı.");
+   // toast.success("Sistem başarıyla sıfırlandı.");
   };
 
   const toplamFiyat = Object.values(selections).reduce((acc, curr) => {
