@@ -32,10 +32,12 @@ export default function RootLayout({
     <html lang="tr">
       {/* 🚀 İŞTE BURASI: font-sans eklendi, artık o premium Geist fontu tüm siteye HD kalitesinde basılacak 🚀 */}
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased min-h-screen flex flex-col bg-[#050814] overflow-x-hidden`}>
-        <Toaster
+       <Toaster 
           position="top-right"
           containerStyle={{
-            zIndex: 2147483647
+            zIndex: 2147483647,
+            top: 80,    /* 🚀 Menünün üstüne binmesin diye biraz aşağı aldık */
+            right: 60   /* 🚀 Ta fizandan kurtarıp içeriye, Sepet yazısının hizasına çektik */
           }}
           toastOptions={{
             style: {
@@ -45,7 +47,6 @@ export default function RootLayout({
             }
           }}
         />
-
         <AuthProvider>
           <CartProvider>
             <CompareProvider>
