@@ -173,7 +173,7 @@ const siraliBaslangic = [...initialOrders]
 
       <div className="max-w-4xl mx-auto relative z-10">
         
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-800 pb-6 mb-10">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-800 pb-6 mb-10">
           <div>
             <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#3b82f6] transition-all mb-3">
               <ArrowLeft className="w-4 h-4" /> MAĞAZAYA GERİ DÖN
@@ -182,9 +182,14 @@ const siraliBaslangic = [...initialOrders]
               SİPARİŞ <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3b82f6] to-[#0088ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.2)]">GEÇMİŞİM</span>
             </h1>
           </div>
-       
+          
+          {/* 🔥 BUTON GİTTİ, YERİNE JİLET GİBİ SAYAÇ GELDİ */}
+          <div className="flex items-center bg-[#09090b] px-5 py-3 rounded-xl border border-slate-800/80 shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+            <span className="text-xs font-black uppercase tracking-widest text-slate-300">
+              LİSTELENEN: <span className="text-[#3b82f6] text-base mx-1 font-bold">{orders.length}</span> SİPARİŞ
+            </span>
+          </div>
         </div>
-
         {errorMsg && (
             <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl text-red-400 text-sm mb-6 flex justify-between items-center shadow-lg">
                 <span className="font-medium">{errorMsg}</span>
