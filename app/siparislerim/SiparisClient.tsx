@@ -14,8 +14,10 @@ export default function SiparisClient({ initialOrders }: Props) {
   const router = useRouter();
   
   // 🔥 İLK AÇILIŞ: Sıralamayı sabitledik
-  const siraliBaslangic = [...initialOrders].sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
-  
+// 🔥 BİNGO 1: Sayfa ilk açıldığı milisaniyede gizlenenleri eler, sayı API ile eşitlenir!
+const siraliBaslangic = [...initialOrders]
+  .filter(o => o.gizlendi !== true)
+  .sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
   const [orders, setOrders] = useState<any[]>(siraliBaslangic);
   const ordersRef = useRef<any[]>(siraliBaslangic);
   const [refreshing, setRefreshing] = useState(false); 
@@ -23,9 +25,12 @@ export default function SiparisClient({ initialOrders }: Props) {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
 
+ // 🔥 BİNGO 2: Sunucudan yeni veri akarsa yine gizlenenleri temizler
   useEffect(() => {
     if (initialOrders.length > 0) {
-      const siraliGelen = [...initialOrders].sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
+      const siraliGelen = [...initialOrders]
+        .filter(o => o.gizlendi !== true)
+        .sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
       setOrders(siraliGelen);
       ordersRef.current = siraliGelen;
     }
