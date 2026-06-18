@@ -35,11 +35,10 @@ const siraliBaslangic = [...initialOrders]
       ordersRef.current = siraliGelen;
     }
   }, [initialOrders]);
-
+// 🚀 SESSİZ CANLI TAKİP MOTORU (İLK AÇILIŞTA ANINDA VURUR!)
   useEffect(() => {
-    const radar = setInterval(async () => {
+    const gercegiKontrolEt = async () => {
       if (refreshing) return; 
-
       try {
         const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
           cache: "no-store",
@@ -48,28 +47,18 @@ const siraliBaslangic = [...initialOrders]
         const data = await res.json();
         
         if (res.ok && data.orders) {
-           const eskiDurumlar = JSON.stringify(ordersRef.current.map(o => ({id: o._id, durum: o.durum})));
-           const yeniDurumlar = JSON.stringify(data.orders.map((o:any) => ({id: o._id, durum: o.durum})));
-
-           // 🔥 10 SANİYE GÜNCELLEMESİ: Sıralama bozulmasın diye ayarlandı
            const siraliYeni = [...data.orders].sort((a: any, b: any) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
-
-           if (eskiDurumlar !== yeniDurumlar) {
-              setRefreshing(true); 
-              
-              setTimeout(() => {
-                 setOrders(siraliYeni); 
-                 ordersRef.current = siraliYeni;
-                 setRefreshing(false);
-              }, 2000); 
-           } else {
-              setOrders(siraliYeni);
-              ordersRef.current = siraliYeni;
-           }
+           setOrders(siraliYeni);
+           ordersRef.current = siraliYeni;
         }
       } catch (error) {
       }
-    }, 10000); 
+    };
+
+    // 🔥 Sayfaya girildiği an 10 saniye beklemeden gerçeği kontrol eder!
+    gercegiKontrolEt();
+
+    const radar = setInterval(gercegiKontrolEt, 10000); 
 
     return () => clearInterval(radar); 
   }, [refreshing]);
