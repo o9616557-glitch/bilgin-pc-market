@@ -16,11 +16,43 @@ export default function OdemeSayfasi() {
   const [faturaAyni, setFaturaAyni] = useState(true);
   const [acikSozlesme, setAcikSozlesme] = useState<"mesafeli" | "gizlilik" | null>(null);
 
-  const [adresAraniyor, setAdresAraniyor] = useState(true);
-  const [adresKilitli, setAdresKilitli] = useState(false);
+ // 🚀 ÇIRAK MATBAA SİSTEMİ (0.00 MİLİSANİYE): Adresler sonradan yazılmaz, sayfa açılmadan önce kutulara preslenir!
+  const getHafiza = (tip: "teslimat" | "fatura") => {
+    if (typeof window !== "undefined") {
+      const hafiza = localStorage.getItem("bilgin_hizli_adresler");
+      if (hafiza) {
+        try {
+          const adresler = JSON.parse(hafiza);
+          const hedef = adresler.find((a: any) => tip === "teslimat" ? a.isDefaultDelivery : a.isDefaultBilling);
+          if (hedef) {
+            const nameParts = hedef.fullName.trim().split(" ");
+            return { 
+              ad: nameParts.join(" "), 
+              soyad: nameParts.length > 1 ? nameParts.pop() : "", 
+              telefon: hedef.phone, sehir: hedef.city, ilce: hedef.district, adres: hedef.fullAddress, 
+              eposta: hedef.email || hedef.eposta || "" 
+            };
+          }
+        } catch(e) {}
+      }
+    }
+    return null;
+  };
 
- const [form, setForm] = useState({ ad: "", soyad: "", telefon: "", eposta: "", adres: "", sehir: "", ilce: "", siparisNotu: "" });
-  const [faturaForm, setFaturaForm] = useState({ ad: "", soyad: "", telefon: "", eposta: "", adres: "", sehir: "", ilce: "" });
+  // KUTULAR DİREKT DOLU DOĞAR:
+  const [form, setForm] = useState(() => {
+    const hazir = getHafiza("teslimat");
+    return hazir ? { ...hazir, siparisNotu: "" } : { ad: "", soyad: "", telefon: "", eposta: "", adres: "", sehir: "", ilce: "", siparisNotu: "" };
+  });
+
+  const [faturaForm, setFaturaForm] = useState(() => {
+    const hazir = getHafiza("fatura");
+    return hazir ? hazir : { ad: "", soyad: "", telefon: "", eposta: "", adres: "", sehir: "", ilce: "" };
+  });
+
+  // BEKLEME EKRANI HİÇ AÇILMADAN İPTAL EDİLİR:
+  const [adresAraniyor, setAdresAraniyor] = useState(() => typeof window !== "undefined" && getHafiza("teslimat") ? false : true);
+  const [adresKilitli, setAdresKilitli] = useState(() => typeof window !== "undefined" && getHafiza("teslimat") ? true : false);
 
   useEffect(() => {
     if (status === "loading") return;
