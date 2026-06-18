@@ -182,14 +182,7 @@ const siraliBaslangic = [...initialOrders]
               SİPARİŞ <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3b82f6] to-[#0088ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.2)]">GEÇMİŞİM</span>
             </h1>
           </div>
-        <button 
-          onClick={handleRefresh}
-          disabled={refreshing}
-          className={`flex items-center gap-2 bg-[#09090b] text-[#3b82f6] px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all border shadow-lg ${refreshing ? 'border-[#3b82f6]/50 bg-[#3b82f6]/5 opacity-80 cursor-wait' : 'hover:bg-[#121215] border-slate-800/80 hover:border-[#3b82f6]/50 hover:shadow-[0_0_20px_rgba(0,229,255,0.2)]'}`}
-        >
-          <RefreshCw className={"w-4 h-4 " + (refreshing ? "animate-spin" : "")} />
-          {refreshing ? "Güncelleniyor..." : "Durumları Güncelle"}
-        </button>
+       
         </div>
 
         {errorMsg && (
