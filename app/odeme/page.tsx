@@ -463,24 +463,7 @@ export default function OdemeSayfasi() {
               <Edit3 className={["w-4 h-4", iyzicoFormHtml ? "text-slate-500" : "text-[#3b82f6]"].join(" ")} />
               <h3 className="text-sm font-bold text-white uppercase tracking-wider">Sipariş Notu</h3>
             </div>
-            {/* ... SİPARİŞ NOTU BÖLÜMÜNÜN KODLARI ... */}
-        <div className="mt-4">
-           {/* Not alanı input/textarea vs. */}
-           <textarea placeholder="Sipariş notunuzu buraya ekleyebilirsiniz..." />
-        </div>
-        {/* SİPARİŞ NOTU BURADA BİTİYOR */}
-
-        {/* 💎 MOBİLE ÖZEL GÜNCEL KESKİN ELMAS AYRAÇ (TAM NOTUN ALTINA GELDİ) 💎 */}
-        <div className="flex md:hidden items-center justify-center w-full py-6 opacity-90 transition-all">
-          <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent to-slate-500"></div>
-          <div className="relative mx-3.5 flex items-center justify-center">
-            <div className="absolute w-4 h-4 rotate-45 bg-[#3b82f6]/40 blur-sm"></div>
-            <div className="w-3.5 h-3.5 rotate-45 bg-[#3b82f6] rounded-none shadow-[0_0_8px_rgba(59,130,246,0.6)]"></div>
-          </div>
-          <div className="flex-1 h-[1px] bg-gradient-to-l from-transparent to-slate-500"></div>
-        </div>
-
-        {/* ... ALTINDAKİ DİĞER KISIMLAR (Ödeme butonu, sözleşme vs.) DEVAM EDER ... */}
+            
             {iyzicoFormHtml && (
               <span className="text-[#ef4444] text-[10px] font-black uppercase tracking-widest bg-[#ef4444]/10 px-2 py-1 rounded animate-pulse">
                 🔒 DÜZENLEMEYE KAPALI
@@ -500,6 +483,24 @@ export default function OdemeSayfasi() {
             className={["w-full rounded-xl p-3 text-sm outline-none resize-none transition-all duration-300", iyzicoFormHtml ? "bg-[#121215]/50 border border-transparent text-slate-500 cursor-not-allowed" : "bg-[#121215] border border-white/10 text-white focus:border-[#3b82f6]"].join(" ")}
           ></textarea>
         </div>
+        {/* ... SİPARİŞ NOTU BÖLÜMÜNÜN KODLARI ... */}
+        <div className="mt-4">
+           {/* Not alanı input/textarea vs. */}
+           <textarea placeholder="Sipariş notunuzu buraya ekleyebilirsiniz..." />
+        </div>
+        {/* SİPARİŞ NOTU BURADA BİTİYOR */}
+
+        {/* 💎 MOBİLE ÖZEL GÜNCEL KESKİN ELMAS AYRAÇ (TAM NOTUN ALTINA GELDİ) 💎 */}
+        <div className="flex md:hidden items-center justify-center w-full py-6 opacity-90 transition-all">
+          <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent to-slate-500"></div>
+          <div className="relative mx-3.5 flex items-center justify-center">
+            <div className="absolute w-4 h-4 rotate-45 bg-[#3b82f6]/40 blur-sm"></div>
+            <div className="w-3.5 h-3.5 rotate-45 bg-[#3b82f6] rounded-none shadow-[0_0_8px_rgba(59,130,246,0.6)]"></div>
+          </div>
+          <div className="flex-1 h-[1px] bg-gradient-to-l from-transparent to-slate-500"></div>
+        </div>
+
+        {/* ... ALTINDAKİ DİĞER KISIMLAR (Ödeme butonu, sözleşme vs.) DEVAM EDER ... */}
         {/* --- MODERN SİPARİŞ NOTU ALANI BİTİŞ --- */}
           </div>
         </div>
