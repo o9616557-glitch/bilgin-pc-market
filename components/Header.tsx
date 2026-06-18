@@ -411,27 +411,39 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
       {/* 🔥 TAM EKRAN ARAMA MODALI 🔥 */}
       {aramaAcik && (
         <div className="fixed inset-0 z-[99999] bg-[#09090b]/98 backdrop-blur-3xl flex flex-col overflow-hidden animate-in fade-in duration-100">
-          <div className="p-4 md:p-6 border-b border-white/10 flex items-center gap-4">
-            <form onSubmit={handleAramaSubmit} className="relative w-full max-w-4xl mx-auto flex-1">
-              <button type="submit" className="absolute inset-y-0 left-0 pl-4 flex items-center z-10">
-                <Search className="w-5 h-5 text-[#3b82f6]" />
-              </button>
-              <input
-                ref={searchInputRef}
-                type="text"
-                placeholder="Ürün, Marka veya Kategori Ara..."
-                value={aramaMetni}
-                onChange={(e) => setAramaMetni(e.target.value)}
-                className="w-full h-14 bg-white/5 border border-white/10 focus:border-[#3b82f6] focus:bg-[#121212] rounded-2xl pl-12 pr-12 text-lg text-white placeholder-gray-500 outline-none transition-all"
-              />
-              {aramaMetni && (
-                <button type="button" onClick={() => setAramaMetni("")} className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-white z-10">
-                  <X className="w-5 h-5" />
-                </button>
-              )}
-            </form>
-            <button onClick={() => setAramaAcik(false)} className="text-gray-400 hover:text-white p-2 font-bold text-sm">Kapat</button>
-          </div>
+         <div className="border-b border-white/10">
+      {/* 🚀 İKİSİNİ AYNI HİZAYA SOKAN VE DIŞARI TAŞIRMAYAN ANA KUTU */}
+      <div className="w-full max-w-4xl mx-auto p-4 md:p-6 flex items-center gap-4">
+        
+        {/* ARAMA ÇUBUĞU KISMI */}
+        <form onSubmit={handleAramaSubmit} className="relative flex-1 w-full">
+          <button type="submit" className="absolute inset-y-0 left-0 pl-4 flex items-center z-10">
+            <Search className="w-5 h-5 text-[#3b82f6]" />
+          </button>
+          
+          <input
+            ref={searchInputRef}
+            type="text"
+            placeholder="Ürün, Marka veya Kategori Ara..."
+            value={aramaMetni}
+            onChange={(e) => setAramaMetni(e.target.value)}
+            className="w-full h-14 bg-white/5 border border-white/10 focus:border-[#3b82f6] focus:bg-[#121212] rounded-2xl pl-12 pr-12 text-lg text-white placeholder-gray-500 outline-none transition-all"
+          />
+          
+          {aramaMetni && (
+            <button type="button" onClick={() => setAramaMetni("")} className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-white z-10">
+              <X className="w-5 h-5" />
+            </button>
+          )}
+        </form>
+
+        {/* 🔥 KAPAT BUTONU ARTIK KUTUNUN İÇİNDE, SAĞA KAÇAMAZ! */}
+        <button onClick={() => setAramaAcik(false)} className="text-gray-400 hover:text-white p-2 font-bold text-sm shrink-0 uppercase tracking-widest transition-colors">
+          KAPAT
+        </button>
+
+      </div>
+    </div>
 
           <div className="flex-1 overflow-y-auto p-4 md:p-8 max-w-4xl mx-auto w-full pb-32">
          {aramaMetni.length > 0 ? (
