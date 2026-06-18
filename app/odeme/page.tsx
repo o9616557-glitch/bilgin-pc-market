@@ -119,6 +119,22 @@ export default function OdemeSayfasi() {
     }
   }, [session, status]);
 
+  // 🚀 ARKA PLANI TAŞ GİBİ KİLİTLEYEN MOTOR (Kaydırma İptali)
+  useEffect(() => {
+    if (acikSozlesme) {
+      // Sözleşme açıldığında sitenin ana kaydırmasını (scroll) tamamen kilitler
+      document.body.style.overflow = "hidden";
+    } else {
+      // Sözleşme kapandığında kilidi açar, site normale döner
+      document.body.style.overflow = "unset";
+    }
+
+    // Müşteri sayfadan aniden çıkarsa kilidi garanti olsun diye açıyoruz
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [acikSozlesme]);
+
   const hesaplaTutar = () => {
     let hesaplananAraToplam = 0;
     sepet.forEach((urun: any) => {
