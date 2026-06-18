@@ -457,7 +457,7 @@ export default function OdemeSayfasi() {
                 <div className="flex justify-between items-center text-white font-black border-t border-white/10 pt-5 sm:pt-6 mt-3 sm:mt-4"><span className="text-xs sm:text-sm uppercase tracking-wider text-slate-400">Genel Toplam</span><span className="text-xl sm:text-2xl lg:text-3xl text-[#3b82f6] drop-shadow-[0_0_10px_rgba(59,130,246,0.3)]">{genelToplam.toLocaleString("tr-TR")} <span className="text-xs sm:text-sm text-white">TL</span></span></div>
              </div>
     {/* --- MODERN SİPARİŞ NOTU ALANI BAŞLANGIÇ --- */}
-        <div className={["mt-6 mb-28 sm:mb-0 bg-[#09090b] border rounded-2xl p-5 shadow-lg transition-all duration-300", iyzicoFormHtml ? "border-[#ef4444]/30 opacity-70" : "border-white/5"].join(" ")}>
+     <div className={["mt-6 mb-4 sm:mb-0 bg-[#09090b] border rounded-2xl p-5 shadow-lg transition-all duration-300", iyzicoFormHtml ? "border-[#ef4444]/30 opacity-70" : "border-white/5"].join(" ")}>
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <Edit3 className={["w-4 h-4", iyzicoFormHtml ? "text-slate-500" : "text-[#3b82f6]"].join(" ")} />
@@ -487,7 +487,7 @@ export default function OdemeSayfasi() {
        {/* --- MODERN SİPARİŞ NOTU ALANI BİTİŞ --- */}
 
         {/* 💎 MOBİLE ÖZEL GÜNCEL KESKİN ELMAS AYRAÇ (TAM NOTUN ALTINA GELDİ) 💎 */}
-        <div className="flex md:hidden items-center justify-center w-full py-6 opacity-90 transition-all">
+      <div className="flex md:hidden items-center justify-center w-full py-4 opacity-90 transition-all">
           <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent to-slate-500"></div>
           <div className="relative mx-3.5 flex items-center justify-center">
             <div className="absolute w-4 h-4 rotate-45 bg-[#3b82f6]/40 blur-sm"></div>
