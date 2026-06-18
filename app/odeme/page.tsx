@@ -493,15 +493,11 @@ export default function OdemeSayfasi() {
           
           {/* 📜 SÖZLEŞME KUTUSUNUN ANA ÇERÇEVESİ */}
           <div className="relative w-[95%] sm:w-[90%] max-w-3xl max-h-[90vh] flex flex-col rounded-2xl shadow-[0_0_60px_rgba(0,0,0,0.8)] animate-in zoom-in-95 duration-300">
-            
-            {/* 🚀 BAŞLIK KISMI (LIGHT MODE) 🚀 */}
-            <div className="flex items-center justify-between p-5 sm:p-6 border-b border-gray-100 shrink-0 bg-white rounded-t-2xl">
+       {/* 🚀 BAŞLIK KISMI (X BUTONU UÇURULDU - KAÇIŞ YOK!) 🚀 */}
+            <div className="flex items-center justify-center text-center p-5 sm:p-6 border-b border-gray-100 shrink-0 bg-white rounded-t-2xl">
               <h2 className="text-base sm:text-lg font-black text-black tracking-widest uppercase">
                 {acikSozlesme === "mesafeli" ? "Mesafeli Satış Sözleşmesi" : "Gizlilik ve KVKK Politikası"}
               </h2>
-              <button onClick={() => setAcikSozlesme(null)} className="text-gray-400 hover:text-red-500 transition-colors bg-gray-100 hover:bg-red-50 p-2 rounded-xl">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-              </button>
             </div>
 
           {/* 📜 AŞAĞI KAYDIRILABİLİR İÇERİK (LIGHT MODE SCROLL ALANI) 📜 */}
