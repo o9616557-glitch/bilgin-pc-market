@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 // =================================================================
-// 1. SİPARİŞLERİ EKRANA GETİRME MOTORU (GÜNCELLENDİ 🎯)
+// 1. SİPARİŞLERİ EKRANA GETİRME MOTORU (GİZLENENLER HARİÇ)
 // =================================================================
 export async function GET() {
   try {
@@ -25,12 +25,18 @@ export async function GET() {
     const db = client.db("bilginpcmarket"); 
     const userEmail = session.user.email;
 
+    // 🔥 BURASI DEĞİŞTİ: "gizlendi: true" OLMAYANLARI getir diyoruz!
     const rawOrders = await db.collection("orders").find({
-      $or: [
-        { userEmail: userEmail },
-        { email: userEmail },
-        { "customerDetails.email": userEmail },
-        { "musteri.eposta": userEmail }
+      $and: [
+        {
+          $or: [
+            { userEmail: userEmail },
+            { email: userEmail },
+            { "customerDetails.email": userEmail },
+            { "musteri.eposta": userEmail }
+          ]
+        },
+        { gizlendi: { $ne: true } } // Müşterinin ekrandan sildiklerini MongoDB'den çekerken filtreler
       ]
     }).sort({ _id: -1 }).toArray();
 
@@ -76,7 +82,7 @@ export async function GET() {
 }
 
 // =================================================================
-// 2. YENİ SİPARİŞ OLUŞTURMA MOTORU
+// 2. YENİ SİPARİŞ OLUŞTURMA MOTORU (DOKUNULMADI)
 // =================================================================
 export async function POST(req: Request) {
   try {
@@ -107,7 +113,7 @@ export async function POST(req: Request) {
 }
 
 // =================================================================
-// 3. SİPARİŞ SİLME MOTORU
+// 3. SİPARİŞ SİLME MOTORU (YALANCI SİLME - MONGODB'DE KALIR)
 // =================================================================
 export async function DELETE(req: Request) {
   try {
@@ -118,8 +124,14 @@ export async function DELETE(req: Request) {
     if (!orderId) return NextResponse.json({ message: "ID eksik." }, { status: 400 });
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
-    await db.collection("orders").deleteOne({ _id: new ObjectId(orderId) });
-    return NextResponse.json({ message: "Silindi." }, { status: 200 });
+    
+    // 🔥 BURASI DEĞİŞTİ: deleteOne (yok et) yerine updateOne (gizle) kullanıyoruz
+    await db.collection("orders").updateOne(
+      { _id: new ObjectId(orderId) },
+      { $set: { gizlendi: true } }
+    );
+    
+    return NextResponse.json({ message: "Sipariş gizlendi." }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ message: "Hata." }, { status: 500 });
   }
