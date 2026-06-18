@@ -483,12 +483,8 @@ export default function OdemeSayfasi() {
             className={["w-full rounded-xl p-3 text-sm outline-none resize-none transition-all duration-300", iyzicoFormHtml ? "bg-[#121215]/50 border border-transparent text-slate-500 cursor-not-allowed" : "bg-[#121215] border border-white/10 text-white focus:border-[#3b82f6]"].join(" ")}
           ></textarea>
         </div>
-        {/* ... SİPARİŞ NOTU BÖLÜMÜNÜN KODLARI ... */}
-        <div className="mt-4">
-           {/* Not alanı input/textarea vs. */}
-           <textarea placeholder="Sipariş notunuzu buraya ekleyebilirsiniz..." />
-        </div>
-        {/* SİPARİŞ NOTU BURADA BİTİYOR */}
+        
+       {/* --- MODERN SİPARİŞ NOTU ALANI BİTİŞ --- */}
 
         {/* 💎 MOBİLE ÖZEL GÜNCEL KESKİN ELMAS AYRAÇ (TAM NOTUN ALTINA GELDİ) 💎 */}
         <div className="flex md:hidden items-center justify-center w-full py-6 opacity-90 transition-all">
@@ -500,8 +496,6 @@ export default function OdemeSayfasi() {
           <div className="flex-1 h-[1px] bg-gradient-to-l from-transparent to-slate-500"></div>
         </div>
 
-        {/* ... ALTINDAKİ DİĞER KISIMLAR (Ödeme butonu, sözleşme vs.) DEVAM EDER ... */}
-        {/* --- MODERN SİPARİŞ NOTU ALANI BİTİŞ --- */}
           </div>
         </div>
       </div>
