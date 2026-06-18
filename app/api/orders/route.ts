@@ -25,12 +25,18 @@ export async function GET() {
     const db = client.db("bilginpcmarket"); 
     const userEmail = session.user.email;
 
+    // 🔥 SADECE BURASI DEĞİŞTİ: Siteden silinenleri (gizlenenleri) listeye dahil etme dedik
     const rawOrders = await db.collection("orders").find({
-      $or: [
-        { userEmail: userEmail },
-        { email: userEmail },
-        { "customerDetails.email": userEmail },
-        { "musteri.eposta": userEmail }
+      $and: [
+        {
+          $or: [
+            { userEmail: userEmail },
+            { email: userEmail },
+            { "customerDetails.email": userEmail },
+            { "musteri.eposta": userEmail }
+          ]
+        },
+        { gizlendi: { $ne: true } } 
       ]
     }).sort({ _id: -1 }).toArray();
 
@@ -76,7 +82,7 @@ export async function GET() {
 }
 
 // =================================================================
-// 2. YENİ SİPARİŞ OLUŞTURMA MOTORU
+// 2. YENİ SİPARİŞ OLUŞTURMA MOTORU (ORİJİNAL - DOKUNULMADI)
 // =================================================================
 export async function POST(req: Request) {
   try {
@@ -107,7 +113,7 @@ export async function POST(req: Request) {
 }
 
 // =================================================================
-// 3. SİPARİŞ SİLME MOTORU
+// 3. SİPARİŞ SİLME MOTORU (GÜNCELLENDİ 🎯)
 // =================================================================
 export async function DELETE(req: Request) {
   try {
@@ -118,7 +124,14 @@ export async function DELETE(req: Request) {
     if (!orderId) return NextResponse.json({ message: "ID eksik." }, { status: 400 });
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
-    await db.collection("orders").deleteOne({ _id: new ObjectId(orderId) });
+    
+    // 🔥 SADECE BURASI DEĞİŞTİ: deleteOne yerine updateOne yaptık.
+    // Siparişi MongoDB'den silmez, üzerine sadece "gizlendi: true" etiketi koyar.
+    await db.collection("orders").updateOne(
+      { _id: new ObjectId(orderId) },
+      { $set: { gizlendi: true } }
+    );
+    
     return NextResponse.json({ message: "Silindi." }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ message: "Hata." }, { status: 500 });
