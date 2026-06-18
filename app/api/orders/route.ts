@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 // =================================================================
-// 1. SİPARİŞLERİ EKRANA GETİRME MOTORU (GİZLENENLER HARİÇ)
+// 1. SİPARİŞLERİ EKRANA GETİRME MOTORU
 // =================================================================
 export async function GET() {
   try {
@@ -25,7 +25,6 @@ export async function GET() {
     const db = client.db("bilginpcmarket"); 
     const userEmail = session.user.email;
 
-    // 🔥 BURASI DEĞİŞTİ: "gizlendi: true" OLMAYANLARI getir diyoruz!
     const rawOrders = await db.collection("orders").find({
       $and: [
         {
@@ -36,7 +35,7 @@ export async function GET() {
             { "musteri.eposta": userEmail }
           ]
         },
-        { gizlendi: { $ne: true } } // Müşterinin ekrandan sildiklerini MongoDB'den çekerken filtreler
+        { gizlendi: { $ne: true } } // Müşterinin ekrandan sildiklerini getirmez
       ]
     }).sort({ _id: -1 }).toArray();
 
@@ -50,13 +49,9 @@ export async function GET() {
         image: item.image || item.resim || "https://app.bilginpcmarket.com/placeholder.png"
       }));
 
-      // 🚀 AKILLI MÜHÜR MOTORU: Admin nereye ne yazdıysa hepsini birleştirip tarıyoruz
       const hamDurumMetni = `${order.durum || ""} ${order.status || ""} ${order.paymentMethod || ""}`.toLowerCase();
-      
-      // Varsayılan durum ataması
       let sonDurum = order.durum || order.status || "Hazırlanıyor";
       
-      // Eğer herhangi bir hücrede iptal kelimesi geçiyorsa durumu zorla "İptal Edildi" yap!
       if (hamDurumMetni.includes("iptal") || hamDurumMetni.includes("red") || hamDurumMetni.includes("iade")) {
         sonDurum = "İptal Edildi";
       }
@@ -66,10 +61,12 @@ export async function GET() {
         _id: order._id.toString(),
         items: safeItems,
         totalPrice: Number(order.totalPrice || order.toplamTutar || order.genelToplam || 0),
-        createdAt: order.createdAt || order.tarih || new Date().toISOString(),
+        // 🔥 İŞTE SENİ HAKLI ÇIKARAN, SİSTEMİ BOZAN O KODU DÜZELTTİK:
+        // Artık her 10 saniyede bir yeni saat uydurmuyor. Tarih yoksa sabit bir eski tarih veriyor ki sistem çıldırmasın.
+        createdAt: order.createdAt || order.tarih || "2024-01-01T00:00:00.000Z",
         shippingAddress: order.shippingAddress || order.musteri || order.customerDetails || {},
         searchableStatus: hamDurumMetni,
-        status: sonDurum, // Artık kilitlenen eski durumların önceliği kırıldı!
+        status: sonDurum, 
         durum: sonDurum
       };
     });
@@ -82,7 +79,7 @@ export async function GET() {
 }
 
 // =================================================================
-// 2. YENİ SİPARİŞ OLUŞTURMA MOTORU (DOKUNULMADI)
+// 2. YENİ SİPARİŞ OLUŞTURMA MOTORU
 // =================================================================
 export async function POST(req: Request) {
   try {
@@ -125,7 +122,7 @@ export async function DELETE(req: Request) {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
     
-    // 🔥 BURASI DEĞİŞTİ: deleteOne (yok et) yerine updateOne (gizle) kullanıyoruz
+    // 🔥 MongoDB'den kazımıyor, sadece gizliyor.
     await db.collection("orders").updateOne(
       { _id: new ObjectId(orderId) },
       { $set: { gizlendi: true } }
