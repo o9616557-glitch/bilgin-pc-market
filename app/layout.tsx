@@ -32,18 +32,22 @@ export default function RootLayout({
     <html lang="tr">
       {/* 🚀 İŞTE BURASI: font-sans eklendi, artık o premium Geist fontu tüm siteye HD kalitesinde basılacak 🚀 */}
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased min-h-screen flex flex-col bg-[#050814] overflow-x-hidden`}>
-       <Toaster 
+<Toaster 
           position="top-right"
           containerStyle={{
             zIndex: 2147483647,
-            top: 80,    /* 🚀 Menünün üstüne binmesin diye biraz aşağı aldık */
-            right: 60   /* 🚀 Ta fizandan kurtarıp içeriye, Sepet yazısının hizasına çektik */
+            top: '90px',          /* Yukarıdan boşluk (Header'ın altına inmesi için) */
+            left: '0',            /* Sola yapışma emri (ortalamak için) */
+            right: '0',           /* Sağa yapışma emri (ortalamak için) */
+            margin: '0 auto',     /* Sağdan soldan eşit boşluk bırakıp tam ortaya kilitler */
+            maxWidth: '1200px'    /* 🚀 İŞTE SİHRİN KOPTUĞU YER: Sitenin orta alan genişliği! */
           }}
           toastOptions={{
             style: {
               background: '#09090b',
               color: '#fff',
-              border: '1px solid rgba(255,255,255,0.1)'
+              border: '1px solid rgba(255,255,255,0.1)',
+              margin: '0'         /* Eski itme ayarlarını tamamen sıfırladık */
             }
           }}
         />
