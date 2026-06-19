@@ -30,7 +30,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [questions, setQuestions] = useState([] as any[]);
   const [reviewsLoading, setReviewsLoading] = useState(true); 
   const [addingToCart, setAddingToCart] = useState(false);
-  const [eklendi, setEklendi] = useState(false);
   const [isFav, setIsFav] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -111,8 +110,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     } catch (error) {} setIsSubmitting(false);
   };
 
-const handleAddToCart = () => {
-    if (tukendiMi || eklendi) return;
+ const handleAddToCart = () => {
     setAddingToCart(true);
     try { 
       sepeteEkle({ 
@@ -122,15 +120,12 @@ const handleAddToCart = () => {
         resim: product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/400", 
         varyasyon: "Standart Model", 
         havaleIndirimi: havaleYuzdesi,
-        slug: product.slug
+        slug: product.slug // 🚀 BİNGO: Adres bilgisini (slug) sepete ekledik!
       }); 
-      
-      // 🚀 BİNGO: Animasyon tetikleyicisi burada çalışıyor
-      setEklendi(true);
-      setTimeout(() => setEklendi(false), 1500);
-
+      // toast.success("Sepete eklendi!");
     } catch (error) {} finally { setAddingToCart(false); }
   };
+  
   const handleShare = async () => {
     if (navigator.share) { try { await navigator.share({ title: urunAdi, text: "Bu ürüne bak!", url: window.location.href }); } catch (err) {} } else { navigator.clipboard.writeText(window.location.href); setCopied(true); setTimeout(() => setCopied(false), 2000); toast.success("Bağlantı kopyalandı"); }
   };
@@ -361,18 +356,9 @@ const handleAddToCart = () => {
             </div>
 
             <div className="flex gap-2 sm:gap-4 mb-8 sm:mb-10 select-none">
-              <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi || eklendi} className={`h-12 px-6 rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-300 touch-manipulation ${tukendiMi ? 'bg-zinc-800 text-zinc-500' : eklendi ? 'bg-[#10b981] text-white scale-95 shadow-[0_0_20px_rgba(16,185,129,0.5)]' : 'bg-[#00d2ff] text-black shadow-[0_0_20px_rgba(0,210,255,0.3)] hover:bg-[#00c4db]'}`}>
-            {eklendi ? (
-              <>
-                <svg className="w-5 h-5 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                Eklendi
-              </>
-            ) : (
-              <>
-                <ShoppingCart className="w-4 h-4" /> {tukendiMi ? "Tükendi" : "Sepete Ekle"}
-              </>
-            )}
-         </button>
+               <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`hidden sm:flex flex-1 h-14 sm:h-16 rounded-2xl font-black text-sm sm:text-lg uppercase tracking-widest items-center justify-center gap-2 sm:gap-3 transition-all touch-manipulation ${tukendiMi ? 'bg-zinc-800 text-zinc-500' : 'bg-[#3b82f6] text-black hover:bg-[#00c4db] shadow-[0_0_20px_rgba(0,229,255,0.2)]'}`}>
+                  <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" /> {tukendiMi ? "Tükendi" : "Sepete Ekle"}
+               </button>
                <button onClick={handleToggleFavorite} className={`w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl flex items-center justify-center border transition-all touch-manipulation ${isFav ? 'bg-red-500/10 border-red-500 text-red-500' : 'bg-[#09090b] border-white/10 hover:border-[#00d2ff] hover:text-[#00d2ff]'}`} title="Favori">
                   <Heart className={`w-5 h-5 sm:w-6 sm:h-6 ${isFav ? 'fill-red-500' : ''}`} />
                </button>
