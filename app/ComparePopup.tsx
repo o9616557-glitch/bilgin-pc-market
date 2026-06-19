@@ -1,11 +1,27 @@
 "use client";
+
 import { useCompare } from "./CompareContext"; 
 import { X, MinusCircle, Trash2 } from "lucide-react";
 import Link from "next/link"; 
 import { Toaster } from "react-hot-toast"; 
+import React, { useEffect } from "react";
 
 export default function ComparePopup() {
   const { karsilastirilanlar, karsilastirmadanCikar, popupAcik, setPopupAcik, karsilastirmayiTemizle } = useCompare();
+
+  // 🚀 ZİNDAN KİLİDİ: Popup açıldığında arkadaki sayfayı kilitler!
+  useEffect(() => {
+    if (popupAcik) {
+      document.body.style.overflow = "hidden"; // Kaydırmayı kapat
+    } else {
+      document.body.style.overflow = "unset"; // Popup kapanınca geri aç
+    }
+
+    // Güvenlik: Bileşen bir hatadan dolayı aniden yok olursa kilidi yine de aç.
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [popupAcik]);
 
   if (!popupAcik) return null;
 
@@ -31,10 +47,9 @@ export default function ComparePopup() {
       justifyContent: "start" 
     };
   };
+
   return (
     <div className="fixed inset-0 z-[9999] flex justify-center items-center p-0 sm:p-4 bg-black/80 backdrop-blur-md transition-all">
-      
-      
       
       <div className="absolute inset-0 hidden sm:block" onClick={() => setPopupAcik(false)}></div>
       
