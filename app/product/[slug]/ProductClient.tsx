@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useCart } from "../../CartContext"; 
 import toast from "react-hot-toast";
 import { useCompare } from "@/app/CompareContext";
-import { X, Gamepad2, ChevronLeft, ChevronRight, ShoppingCart, Heart, GitCompare, Share2, Star, Zap, Info, Gauge, Crosshair, Check } from "lucide-react";
+import { X, Gamepad2, ChevronLeft, ChevronRight, ShoppingCart, Heart, GitCompare, Share2, Star, Zap, Info, Gauge, Crosshair } from "lucide-react";
 import Link from "next/link"; 
 
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
@@ -28,7 +28,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [reviews, setReviews] = useState([] as any[]);
   const [questions, setQuestions] = useState([] as any[]);
-  const [eklendiMi, setEklendiMi] = useState(false);
   const [reviewsLoading, setReviewsLoading] = useState(true); 
   const [addingToCart, setAddingToCart] = useState(false);
   const [isFav, setIsFav] = useState(false);
@@ -110,8 +109,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       if (res.ok) { toast.success("Sorunuz gönderildi!"); setQuestionText(""); setQuestionName(""); } else toast.error("Hata oluştu.");
     } catch (error) {} setIsSubmitting(false);
   };
-const handleAddToCart = () => {
-    if (tukendiMi) return;
+
+ const handleAddToCart = () => {
     setAddingToCart(true);
     try { 
       sepeteEkle({ 
@@ -121,15 +120,12 @@ const handleAddToCart = () => {
         resim: product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/400", 
         varyasyon: "Standart Model", 
         havaleIndirimi: havaleYuzdesi,
-        slug: product.slug 
+        slug: product.slug // 🚀 BİNGO: Adres bilgisini (slug) sepete ekledik!
       }); 
-      
-      // 🚀 BİNGO: Butonu yeşil yapıp 1.5 saniye sonra eski haline döndürüyoruz
-      setEklendiMi(true);
-      setTimeout(() => setEklendiMi(false), 1500);
-
+      // toast.success("Sepete eklendi!");
     } catch (error) {} finally { setAddingToCart(false); }
   };
+  
   const handleShare = async () => {
     if (navigator.share) { try { await navigator.share({ title: urunAdi, text: "Bu ürüne bak!", url: window.location.href }); } catch (err) {} } else { navigator.clipboard.writeText(window.location.href); setCopied(true); setTimeout(() => setCopied(false), 2000); toast.success("Bağlantı kopyalandı"); }
   };
@@ -360,55 +356,18 @@ const handleAddToCart = () => {
             </div>
 
             <div className="flex gap-2 sm:gap-4 mb-8 sm:mb-10 select-none">
-              <button 
-                 onClick={handleAddToCart} 
-                 disabled={addingToCart || tukendiMi} 
-                 className={`hidden sm:flex flex-1 h-14 sm:h-16 rounded-2xl font-black text-sm sm:text-lg uppercase tracking-widest items-center justify-center gap-2 sm:gap-3 transition-all duration-300 touch-manipulation ${
-                   tukendiMi ? 'bg-zinc-800 text-zinc-500' : 
-                   eklendiMi ? 'bg-[#10b981] text-white shadow-[0_0_30px_rgba(16,185,129,0.5)] scale-[0.98]' : 
-                   'bg-[#3b82f6] text-black hover:bg-[#00c4db] shadow-[0_0_20px_rgba(0,229,255,0.2)]'
-                 }`}
-               >
-                 {tukendiMi ? (
-                   <><ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" /> Tükendi</>
-                 ) : eklendiMi ? (
-                   <><Check className="w-5 h-5 sm:w-6 sm:h-6 animate-bounce" /> Eklendi</>
-                 ) : (
-                   <><ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" /> Sepete Ekle</>
-                 )}
+               <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`hidden sm:flex flex-1 h-14 sm:h-16 rounded-2xl font-black text-sm sm:text-lg uppercase tracking-widest items-center justify-center gap-2 sm:gap-3 transition-all touch-manipulation ${tukendiMi ? 'bg-zinc-800 text-zinc-500' : 'bg-[#3b82f6] text-black hover:bg-[#00c4db] shadow-[0_0_20px_rgba(0,229,255,0.2)]'}`}>
+                  <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" /> {tukendiMi ? "Tükendi" : "Sepete Ekle"}
                </button>
-               {/* 🚀 UÇURDUĞUMUZ EKSTRA BUTONLAR GERİ GELDİ */}
-<div className="flex items-center justify-start gap-6 mt-6 text-sm font-bold text-gray-400 select-none">
-  
-  <button 
-    type="button" 
-    onClick={(e) => {
-      e.preventDefault();
-      // Eğer burada useCompare() kullanıyorsan: karsilastirmayaEkle(urun); setPopupAcik(true);
-    }} 
-    className="flex items-center gap-2 hover:text-[#00d2ff] transition-colors group"
-  >
-    <GitCompare className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />
-    <span>Karşılaştır</span>
-  </button>
-
-  <button 
-    type="button"
-    className="flex items-center gap-2 hover:text-red-500 transition-colors group"
-  >
-    <Heart className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
-    <span>Favorilere Ekle</span>
-  </button>
-
-  <button 
-    type="button"
-    className="flex items-center gap-2 hover:text-[#10b981] transition-colors group"
-  >
-    <Share2 className="w-5 h-5 group-hover:-rotate-12 transition-transform duration-300" />
-    <span>Paylaş</span>
-  </button>
-
-</div>
+               <button onClick={handleToggleFavorite} className={`w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl flex items-center justify-center border transition-all touch-manipulation ${isFav ? 'bg-red-500/10 border-red-500 text-red-500' : 'bg-[#09090b] border-white/10 hover:border-[#00d2ff] hover:text-[#00d2ff]'}`} title="Favori">
+                  <Heart className={`w-5 h-5 sm:w-6 sm:h-6 ${isFav ? 'fill-red-500' : ''}`} />
+               </button>
+               <button onClick={handleCompare} className="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl bg-[#09090b] border border-white/10 flex items-center justify-center transition-all touch-manipulation hover:border-[#00d2ff] hover:text-[#00d2ff]" title="Karşılaştır">
+                  <GitCompare className="w-5 h-5 sm:w-6 sm:h-6" />
+               </button>
+               <button onClick={handleShare} className="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl bg-[#09090b] border border-white/10 flex items-center justify-center transition-all touch-manipulation hover:border-[#00d2ff] hover:text-[#00d2ff]" title="Paylaş">
+                  <Share2 className="w-5 h-5 sm:w-6 sm:h-6" />
+               </button>
             </div>
 
            {kategoriIsmi.includes("Ekran") && (
@@ -608,22 +567,8 @@ const handleAddToCart = () => {
                </span>
             )}
          </div>
-         <button 
-           onClick={handleAddToCart} 
-           disabled={addingToCart || tukendiMi} 
-           className={`h-12 px-6 rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-300 touch-manipulation ${
-             tukendiMi ? 'bg-zinc-800 text-zinc-500' : 
-             eklendiMi ? 'bg-[#10b981] text-white shadow-[0_0_20px_rgba(16,185,129,0.5)] scale-[0.95]' : 
-             'bg-[#00d2ff] text-black shadow-[0_0_20px_rgba(0,210,255,0.3)] hover:bg-[#00c4db]'
-           }`}
-         >
-           {tukendiMi ? (
-             <><ShoppingCart className="w-4 h-4" /> Tükendi</>
-           ) : eklendiMi ? (
-             <><Check className="w-5 h-5 animate-bounce" /> Eklendi</>
-           ) : (
-             <><ShoppingCart className="w-4 h-4" /> Sepete Ekle</>
-           )}
+         <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`h-12 px-6 rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 transition-all touch-manipulation ${tukendiMi ? 'bg-zinc-800 text-zinc-500' : 'bg-[#00d2ff] text-black shadow-[0_0_20px_rgba(0,210,255,0.3)] hover:bg-[#00c4db]'}`}>
+            <ShoppingCart className="w-4 h-4" /> {tukendiMi ? "Tükendi" : "Sepete Ekle"}
          </button>
       </div>
 
