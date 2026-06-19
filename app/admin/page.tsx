@@ -28,6 +28,9 @@ export default function AdminPaneli() {
 
   const [siparisler, setSiparisler] = useState<any[]>([]);
   const [silinecekSiparisID, setSilinecekSiparisID] = useState<string | null>(null);
+  
+  // 🚀 SİHİR BURADA: Kargo bekleme kilidi
+  const [kargoBekleyenID, setKargoBekleyenID] = useState<string | null>(null);
 
   const [urunler, setUrunler] = useState<any[]>([]);
   const [duzenlenenUrun, setDuzenlenenUrun] = useState<any | null>(null);
@@ -99,17 +102,21 @@ export default function AdminPaneli() {
     } catch (e) {}
   };
 
-  // 🚀 İŞTE KARGO MOTORU BURADA (SENİN ESKİ SİSTEME HİÇ DOKUNMADIK)
-  const kargoGuncelle = async (id: string, kargoFirmasi: string, takipNo: string) => {
+  // 🚀 AKILLI KARGO MOTORU: Emniyet kilidi açıksa durumu da günceller!
+  const kargoGuncelle = async (id: string, kargoFirmasi: string, takipNo: string, durumuGuncelle: boolean) => {
     try {
+      const gonderilecekVeri: any = { id, kargoFirmasi, takipNo };
+      if (durumuGuncelle) gonderilecekVeri.yeniDurum = "Kargoya Verildi";
+
       const res = await fetch("/api/admin/siparisler", { 
         method: "PUT", 
         headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI }, 
-        body: JSON.stringify({ id, kargoFirmasi, takipNo }) 
+        body: JSON.stringify(gonderilecekVeri) 
       });
       if ((await res.json()).success) {
-        setSiparisler(siparisler.map(s => s._id === id ? { ...s, kargoFirmasi, takipNo } : s));
-        setBildirim({tip: "basari", mesaj: "Kargo Bilgileri Başarıyla Kaydedildi!"});
+        setSiparisler(siparisler.map(s => s._id === id ? { ...s, kargoFirmasi, takipNo, durum: durumuGuncelle ? "Kargoya Verildi" : s.durum } : s));
+        setKargoBekleyenID(null); // İşlem bitince kilidi aç
+        setBildirim({tip: "basari", mesaj: durumuGuncelle ? "Kargo Girildi ve E-Posta Gönderildi!" : "Kargo Bilgileri Güncellendi!"});
       }
     } catch (e) {
       setBildirim({tip: "hata", mesaj: "Kargo kaydedilemedi."});
@@ -292,7 +299,7 @@ export default function AdminPaneli() {
         <button onClick={cikisYap} style={{ background: "transparent", color: "#94a3b8", border: "1px solid #334155", padding: "6px 12px", borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontWeight: "500" }}>Çıkış Yap</button>
       </div>
 
-      {/* SEKMELER (TABS) */}
+     {/* SEKMELER (TABS) */}
       <div style={{ display: "flex", gap: "10px", marginBottom: "24px" }}>
         <button onClick={() => setAktifSekme("siparisler")} style={{ background: aktifSekme === "siparisler" ? "#e2e8f0" : "transparent", color: aktifSekme === "siparisler" ? "#0f172a" : "#94a3b8", border: "1px solid", borderColor: aktifSekme === "siparisler" ? "#e2e8f0" : "#334155", padding: "8px 16px", borderRadius: "6px", fontWeight: "500", cursor: "pointer", fontSize: "14px", transition: "all 0.2s" }}>
           📦 Siparişler ({siparisler.length})
@@ -321,13 +328,29 @@ export default function AdminPaneli() {
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "#0f172a", padding: "6px 10px", borderRadius: "6px", border: "1px solid #334155" }}>
                     <span style={{ color: durumRengi(siparis.durum), fontSize: "12px", fontWeight: "500" }}>{siparis.durum}</span>
                     <span style={{ color: "#334155" }}>|</span>
-                    <select onChange={(e) => durumGuncelle(siparis._id, e.target.value)} value={siparis.durum} style={{ background: "transparent", color: "#cbd5e1", border: "none", cursor: "pointer", fontSize: "13px", outline: "none" }}>
+                    
+                    {/* 🚀 AKILLI AÇILIR MENÜ BURADA */}
+                    <select 
+                      onChange={(e) => {
+                        if (e.target.value === "Kargoya Verildi") {
+                          // API'ye gitme, maili ateşleme, sadece kutuyu aç!
+                          setKargoBekleyenID(siparis._id);
+                        } else {
+                          durumGuncelle(siparis._id, e.target.value);
+                          if (kargoBekleyenID === siparis._id) setKargoBekleyenID(null);
+                        }
+                      }} 
+                      value={kargoBekleyenID === siparis._id ? "kargo_bekleniyor" : siparis.durum} 
+                      style={{ background: "transparent", color: "#cbd5e1", border: "none", cursor: "pointer", fontSize: "13px", outline: "none" }}
+                    >
                       <option value="Ödeme Bekliyor (Havale)">Bekliyor (Havale)</option>
                       <option value="Ödendi / Hazırlanıyor">Hazırlanıyor</option>
+                      {kargoBekleyenID === siparis._id && <option value="kargo_bekleniyor">Bilgiler Giriliyor...</option>}
                       <option value="Kargoya Verildi">Kargoya Verildi</option>
                       <option value="Tamamlandı">Tamamlandı</option>
                       <option value="İptal Edildi">İptal Edildi</option>
                     </select>
+
                   </div>
                   <button onClick={() => setSilinecekSiparisID(siparis._id)} style={{ background: "transparent", color: "#ef4444", border: "1px solid #ef4444", padding: "6px 12px", borderRadius: "6px", fontSize: "13px", cursor: "pointer" }}>Sil</button>
                 </div>
@@ -385,8 +408,8 @@ export default function AdminPaneli() {
                 <input type="text" defaultValue={siparis.musteriMesaji || ""} onBlur={(e) => mesajGuncelle(siparis._id, e.target.value)} placeholder="Müşteriye iletilecek notu yazıp boşluğa tıklayın..." style={{ width: "100%", padding: "10px 12px", background: "#0f172a", color: "#e2e8f0", border: "1px solid #334155", borderRadius: "6px", outline: "none", fontSize: "13px" }} />
               </div>
 
-              {/* 🚀 EN BASİT, SORUNSUZ KARGO KUTUSU 🚀 */}
-              {siparis.durum === "Kargoya Verildi" && (
+              {/* 🚀 AKILLI KARGO KUTUSU: Emniyet kilidi aktifse de, kargoya verildiyse de görünür! 🚀 */}
+              {(siparis.durum === "Kargoya Verildi" || kargoBekleyenID === siparis._id) && (
                 <div style={{ borderTop: "1px dashed #3b82f6", paddingTop: "12px", marginTop: "12px", background: "#3b82f610", padding: "12px", borderRadius: "8px" }}>
                   <div style={{ color: "#3b82f6", fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "10px", fontWeight: "800" }}>
                     Kargo Takip Bilgilerini Gir
@@ -409,11 +432,13 @@ export default function AdminPaneli() {
                         const f = (document.getElementById(`firma-${siparis._id}`) as HTMLInputElement).value;
                         const t = (document.getElementById(`takip-${siparis._id}`) as HTMLInputElement).value;
                         if(!f || !t) return alert("Şefim, Firma ve Takip Numarası boş olamaz!");
-                        kargoGuncelle(siparis._id, f, t);
+                        
+                        // Son parametre kilit durumu. Kilit açıksa 'Kargoya Verildi' durumu API'ye kargoyla beraber gider.
+                        kargoGuncelle(siparis._id, f, t, kargoBekleyenID === siparis._id);
                       }} 
                       style={{ background: "#3b82f6", color: "#fff", padding: "10px 20px", border: "none", borderRadius: "6px", fontWeight: "bold", cursor: "pointer", fontSize: "13px" }}
                     >
-                      KAYDET
+                      {kargoBekleyenID === siparis._id ? "KAYDET VE BİLDİR" : "KAYDET"}
                     </button>
                   </div>
                 </div>
