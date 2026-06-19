@@ -385,49 +385,56 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         {/* 🚀 ALT KISIM: HEM GALERİNİN HEM SAĞ TARAFIN TAM ALTINA (100% GENİŞLİK) YERLEŞEN ALAN 🚀 */}
         <div ref={tabsRef} className="w-full border-t border-white/10 pt-10 mt-10 scroll-mt-24">
             
-            {/* SIFIR KUTU, KİBAR VE ASİL SEKME BAŞLIKLARI */}
-            <div className="flex overflow-x-auto gap-8 sm:gap-12 border-b border-white/5 pb-0 mb-8 select-none [&::-webkit-scrollbar]:hidden">
-                {product.aciklama && (
-                  <button 
-                    onClick={() => setActiveTab('aciklama')} 
-                    className={`pb-4 font-black text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest relative touch-manipulation ${activeTab === 'aciklama' ? 'text-[#00d2ff]' : 'text-gray-400 hover:text-white'}`}
-                  >
-                    Ürün Açıklaması
-                    {activeTab === 'aciklama' && (
-                      <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#00d2ff] shadow-[0_0_10px_rgba(0,210,255,0.6)] rounded-full"></div>
-                    )}
-                  </button>
-                )}
-                
+          {/* 🚀 JİLET GİBİ SIKIŞTIRILMIŞ VE KİBARLAŞTIRILMIŞ SEKME (TAB) MENÜSÜ */}
+            <div className="flex items-center justify-between w-full bg-[#09090b] border border-white/10 p-1 rounded-2xl mb-8 shadow-sm select-none">
+              
+              {/* 1. AÇIKLAMA */}
+              {product.aciklama && (
                 <button 
-                  onClick={() => setActiveTab('teknik')} 
-                  className={`pb-4 font-black text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest relative touch-manipulation ${activeTab === 'teknik' ? 'text-[#00d2ff]' : 'text-gray-400 hover:text-white'}`}
+                  onClick={() => setActiveTab("aciklama")}
+                  className={`flex-1 py-2 sm:py-3 text-center transition-all duration-300 rounded-xl touch-manipulation ${
+                    activeTab === "aciklama" ? "bg-[#00d2ff] text-black font-black shadow-[0_0_15px_rgba(0,210,255,0.3)]" : "text-gray-400 hover:text-white hover:bg-white/5 font-bold"
+                  }`}
                 >
-                  Teknik Özellikler
-                  {activeTab === 'teknik' && (
-                    <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#00d2ff] shadow-[0_0_10px_rgba(0,210,255,0.6)] rounded-full"></div>
-                  )}
+                  {/* Mobilde dar, PC'de uzun yazı */}
+                  <span className="block sm:hidden text-[10px] uppercase tracking-wider">Açıklama</span>
+                  <span className="hidden sm:block text-xs sm:text-sm uppercase tracking-wider">Ürün Açıklaması</span>
                 </button>
-                
-                <button 
-                  onClick={() => setActiveTab('yorumlar')} 
-                  className={`pb-4 font-black text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest relative touch-manipulation ${activeTab === 'yorumlar' ? 'text-[#00d2ff]' : 'text-gray-400 hover:text-white'}`}
-                >
-                  Yorumlar ({totalReviews})
-                  {activeTab === 'yorumlar' && (
-                    <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#00d2ff] shadow-[0_0_10px_rgba(0,210,255,0.6)] rounded-full"></div>
-                  )}
-                </button>
-                
-                <button 
-                  onClick={() => setActiveTab('sorular')} 
-                  className={`pb-4 font-black text-xs sm:text-sm whitespace-nowrap transition-all uppercase tracking-widest relative touch-manipulation ${activeTab === 'sorular' ? 'text-[#00d2ff]' : 'text-gray-400 hover:text-white'}`}
-                >
-                  Sorular ({questions.length})
-                  {activeTab === 'sorular' && (
-                    <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#00d2ff] shadow-[0_0_10px_rgba(0,210,255,0.6)] rounded-full"></div>
-                  )}
-                </button>
+              )}
+
+              {/* 2. ÖZELLİKLER */}
+              <button 
+                onClick={() => setActiveTab("teknik")}
+                className={`flex-1 py-2 sm:py-3 text-center transition-all duration-300 rounded-xl touch-manipulation ${
+                  activeTab === "teknik" ? "bg-[#00d2ff] text-black font-black shadow-[0_0_15px_rgba(0,210,255,0.3)]" : "text-gray-400 hover:text-white hover:bg-white/5 font-bold"
+                }`}
+              >
+                <span className="block sm:hidden text-[10px] uppercase tracking-wider">Özellikler</span>
+                <span className="hidden sm:block text-xs sm:text-sm uppercase tracking-wider">Teknik Özellikler</span>
+              </button>
+
+              {/* 3. YORUMLAR */}
+              <button 
+                onClick={() => setActiveTab("yorumlar")}
+                className={`flex-1 py-2 sm:py-3 text-center transition-all duration-300 rounded-xl touch-manipulation ${
+                  activeTab === "yorumlar" ? "bg-[#00d2ff] text-black font-black shadow-[0_0_15px_rgba(0,210,255,0.3)]" : "text-gray-400 hover:text-white hover:bg-white/5 font-bold"
+                }`}
+              >
+                <span className="text-[10px] sm:text-sm uppercase tracking-wider block sm:hidden">Yorumlar ({totalReviews})</span>
+                <span className="text-xs sm:text-sm uppercase tracking-wider hidden sm:block">Yorumlar ({totalReviews})</span>
+              </button>
+
+              {/* 4. SORULAR */}
+              <button 
+                onClick={() => setActiveTab("sorular")}
+                className={`flex-1 py-2 sm:py-3 text-center transition-all duration-300 rounded-xl touch-manipulation ${
+                  activeTab === "sorular" ? "bg-[#00d2ff] text-black font-black shadow-[0_0_15px_rgba(0,210,255,0.3)]" : "text-gray-400 hover:text-white hover:bg-white/5 font-bold"
+                }`}
+              >
+                <span className="text-[10px] sm:text-sm uppercase tracking-wider block sm:hidden">Sorular ({questions.length})</span>
+                <span className="text-xs sm:text-sm uppercase tracking-wider hidden sm:block">Sorular ({questions.length})</span>
+              </button>
+
             </div>
 
             {/* SEKMELERİN İÇERİK ALANI (TAM EKRAN GENİŞLİĞİNDE) */}
