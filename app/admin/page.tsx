@@ -28,7 +28,7 @@ export default function AdminPaneli() {
 
   const [siparisler, setSiparisler] = useState<any[]>([]);
   const [silinecekSiparisID, setSilinecekSiparisID] = useState<string | null>(null);
-const [kargoHazirlik, setKargoHazirlik] = useState<string | null>(null);
+
   const [urunler, setUrunler] = useState<any[]>([]);
   const [duzenlenenUrun, setDuzenlenenUrun] = useState<any | null>(null);
   const [yeniUrunModu, setYeniUrunModu] = useState(false);
@@ -98,28 +98,24 @@ const [kargoHazirlik, setKargoHazirlik] = useState<string | null>(null);
       if ((await res.json()).success) setBildirim({tip: "basari", mesaj: "Mesaj İletildi!"});
     } catch (e) {}
   };
-const kargoGuncelle = async (id: string, kargoFirmasi: string, takipNo: string, durumDaGuncellensinMi: boolean = false) => {
-    try {
-      const gonderilecekVeri: any = { id, kargoFirmasi, takipNo };
-      
-      // Şefim işte sihir burada: Eğer emniyet kilidi açıksa, statüyü de bu paketin içine koyup API'ye tek seferde atıyoruz.
-      if (durumDaGuncellensinMi) gonderilecekVeri.yeniDurum = "Kargoya Verildi"; 
 
+  // 🚀 İŞTE KARGO MOTORU BURADA (SENİN ESKİ SİSTEME HİÇ DOKUNMADIK)
+  const kargoGuncelle = async (id: string, kargoFirmasi: string, takipNo: string) => {
+    try {
       const res = await fetch("/api/admin/siparisler", { 
         method: "PUT", 
         headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI }, 
-        body: JSON.stringify(gonderilecekVeri) 
+        body: JSON.stringify({ id, kargoFirmasi, takipNo }) 
       });
-      
       if ((await res.json()).success) {
-        setSiparisler(siparisler.map(s => s._id === id ? { ...s, kargoFirmasi, takipNo, durum: durumDaGuncellensinMi ? "Kargoya Verildi" : s.durum } : s));
-        setKargoHazirlik(null); // İşlem bitince kilidi kapat
-        setBildirim({tip: "basari", mesaj: durumDaGuncellensinMi ? "Kargoya Verildi ve Müşteriye E-Posta Uçtu!" : "Kargo Bilgileri Güncellendi!"});
+        setSiparisler(siparisler.map(s => s._id === id ? { ...s, kargoFirmasi, takipNo } : s));
+        setBildirim({tip: "basari", mesaj: "Kargo Bilgileri Başarıyla Kaydedildi!"});
       }
     } catch (e) {
       setBildirim({tip: "hata", mesaj: "Kargo kaydedilemedi."});
     }
   };
+
   const siparisSilmeIslemi = async () => {
     if (!silinecekSiparisID) return;
     try {
@@ -383,7 +379,7 @@ const kargoGuncelle = async (id: string, kargoFirmasi: string, takipNo: string, 
                 </div>
               </div>
 
-          {/* MÜŞTERİ MESAJI ALANI (Senin mevcut kodun) */}
+              {/* MÜŞTERİ MESAJI ALANI */}
               <div style={{ borderTop: "1px solid #334155", paddingTop: "12px" }}>
                 <div style={{ color: "#94a3b8", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "8px", fontWeight: "600" }}>Müşteri Takip Ekranı Mesajı</div>
                 <input type="text" defaultValue={siparis.musteriMesaji || ""} onBlur={(e) => mesajGuncelle(siparis._id, e.target.value)} placeholder="Müşteriye iletilecek notu yazıp boşluğa tıklayın..." style={{ width: "100%", padding: "10px 12px", background: "#0f172a", color: "#e2e8f0", border: "1px solid #334155", borderRadius: "6px", outline: "none", fontSize: "13px" }} />
