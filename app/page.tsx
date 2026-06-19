@@ -2,7 +2,7 @@ import clientPromise from "@/lib/mongodb";
 import Link from "next/link";
 import { Cpu, Crosshair, Sparkles, Star, ShieldCheck, Zap, ArrowRight } from "lucide-react";
 import OkluSlider from "@/components/OkluSlider";
-import VitrinButon from "@/components/VitrinButon";
+
 export const revalidate = 60; 
 
 export default async function HomePage() {
@@ -255,7 +255,7 @@ export default async function HomePage() {
 
         <div className="w-full">
           <OkluSlider>
-           {urunler.length > 0 ? (
+            {urunler.length > 0 ? (
               urunler.map((urun: any) => {
                 const vitrinResmi = urun.resimler && urun.resimler.length > 0 ? urun.resimler[0] : urun.resim;
                 const normalFiyat = Number(urun.regular_price || urun.fiyat || urun.price || 0);
@@ -330,8 +330,7 @@ export default async function HomePage() {
                         </h3>
                       </div>
 
-                      {/* DÜZELTİLMİŞ FİYAT VE BUTON ALANI */}
-                      <div className="flex items-end justify-between mt-auto pt-4 border-t border-white/5 pointer-events-auto relative z-50">
+                      <div className="flex items-end justify-between mt-auto pt-4 border-t border-white/5 pointer-events-auto">
                         <div className="flex flex-col relative z-20 pointer-events-none">
                           {indirimVarMi && !tukendiMi && (
                             <span className="text-gray-600 text-[11px] line-through font-medium mb-0.5">{normalFiyat.toLocaleString("tr-TR")} ₺</span>
@@ -346,20 +345,21 @@ export default async function HomePage() {
                           )}
                         </div>
 
-                        <div className="relative z-20 flex gap-2 pointer-events-auto">
+                        <div className="relative z-20">
                           {tukendiMi ? (
                               <div className="h-10 px-4 sm:h-11 bg-white/5 border border-white/5 rounded-xl flex items-center justify-center cursor-not-allowed" title="Tükendi">
                                 <span className="text-xs font-black text-zinc-600 uppercase tracking-widest">Tükendi</span>
                               </div>
                           ) : (
-                              <VitrinButon urun={urun} />
+                              <Link href={"/product/" + (urun.slug || urun._id)} prefetch={true} className="relative overflow-hidden h-10 px-4 sm:h-11 sm:px-5 bg-white/5 border border-white/10 hover:bg-[#00d2ff] hover:border-[#00d2ff] rounded-xl flex items-center justify-center group/btn transition-all duration-700 shadow-md hover:shadow-[0_0_15px_rgba(0,210,255,0.4)] pointer-events-auto">
+                                <span className="text-xs sm:text-sm font-black text-gray-300 group-hover/btn:text-black transition-colors uppercase tracking-widest flex items-center gap-2 duration-700">
+                                  İncele <ArrowRight className="w-4 h-4 hidden sm:block transition-transform duration-700 group-hover/btn:translate-x-1" />
+                                </span>
+                              </Link>
                           )}
                         </div>
                       </div>
                     </div>
-
-                    {/* GİZLİ LİNK - TÜM KARTI TIKLANABİLİR YAPAR */}
-                    <Link href={"/product/" + (urun.slug || urun._id)} prefetch={true} className="absolute inset-0 z-40" />
 
                   </div>
                 )
@@ -400,6 +400,7 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
       {/* ==================== 5. HIZLI ERİŞİM ==================== */}
       <section className="max-w-[1400px] mx-auto pt-8 pb-12 select-none touch-manipulation">
         <div className="flex items-center gap-4 mb-6 px-6 lg:px-8 pointer-events-none">
