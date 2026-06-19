@@ -289,7 +289,7 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
     fiyat: gecerliFiyat,
     resim: (urun.resimler && urun.resimler[0]) || urun.resim || urun.image || "/placeholder.jpg",
     adet: 1,
-    varyasyon: "Standart",
+   varyasyon: "Standart Model",
     // 🔥 EKSİK OLAN KABLOLARI BURAYA BAĞLADIK 🔥
     havaleIndirimi: havaleOrani,
     stokKodu: urun.stokKodu || "",
