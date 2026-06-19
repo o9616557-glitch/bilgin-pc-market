@@ -13,26 +13,33 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const sepeteEkle = (urun: any) => {
     setSepet((eskiSepet) => {
-      // 🚀 BİNGO 1: KİMLİK UYUŞMAZLIĞINI ÇÖZEN AMELİYAT!
-      // Nereden eklenirse eklensin (Katalog veya Detay), ID'yi ve Varyasyonu tek tipe çeviriyoruz.
+      
       const urunId = String(urun.id || urun._id);
+      const urunSlug = urun.slug || "";
       const urunVaryasyon = urun.varyasyon || "Standart Model";
 
-      // Sepette ararken de artık standartlaşmış kimliklerle arıyoruz
-      const varMi = eskiSepet.find(
-        (i) => String(i.id || i._id) === urunId && (i.varyasyon || "Standart Model") === urunVaryasyon
-      );
+      // 🚀 TİTANYUM ZIRH: Hem ID'ye hem _id'ye hem de Slug'a (URL) bakarak eşleştirme yapar!
+      const varMi = eskiSepet.find((i) => {
+        const idEslesiyor = String(i.id || i._id) === urunId;
+        const slugEslesiyor = (i.slug && urunSlug) ? i.slug === urunSlug : false;
+        const varyasyonEslesiyor = (i.varyasyon || "Standart Model") === urunVaryasyon;
+        
+        return (idEslesiyor || slugEslesiyor) && varyasyonEslesiyor;
+      });
       
       let yeni;
       if (varMi) {
-        // Ürün zaten sepette varsa sadece adeti artır ve bilgileri (örn: fiyat) güncelle
-        yeni = eskiSepet.map((i) => 
-          String(i.id || i._id) === urunId && (i.varyasyon || "Standart Model") === urunVaryasyon 
-            ? { ...i, ...urun, id: urunId, varyasyon: urunVaryasyon, adet: i.adet + 1 } 
-            : i
-        );
+        yeni = eskiSepet.map((i) => {
+          const idEslesiyor = String(i.id || i._id) === urunId;
+          const slugEslesiyor = (i.slug && urunSlug) ? i.slug === urunSlug : false;
+          const varyasyonEslesiyor = (i.varyasyon || "Standart Model") === urunVaryasyon;
+
+          if ((idEslesiyor || slugEslesiyor) && varyasyonEslesiyor) {
+            return { ...i, ...urun, adet: i.adet + 1 };
+          }
+          return i;
+        });
       } else {
-        // Ürün sepette yoksa yeni bir satır olarak ekle
         yeni = [...eskiSepet, { ...urun, id: urunId, varyasyon: urunVaryasyon, adet: 1 }];
       }
       
@@ -41,22 +48,32 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  // --- YENİ YETENEKLER (Silme ve Güncelleme de Akıllandırıldı) ---
-  const sepettenSil = (id: string, varyasyon: string) => {
+  const sepettenSil = (id: string, varyasyon: string, slug?: string) => {
     const arananId = String(id);
     const arananVaryasyon = varyasyon || "Standart Model";
     
-    const yeni = sepet.filter((i) => !(String(i.id || i._id) === arananId && (i.varyasyon || "Standart Model") === arananVaryasyon));
+    const yeni = sepet.filter((i) => {
+      const idEslesiyor = String(i.id || i._id) === arananId;
+      const slugEslesiyor = (i.slug && slug) ? i.slug === slug : false;
+      const varyasyonEslesiyor = (i.varyasyon || "Standart Model") === arananVaryasyon;
+      
+      return !((idEslesiyor || slugEslesiyor) && varyasyonEslesiyor);
+    });
+    
     setSepet(yeni);
     localStorage.setItem("bilgin-sepet", JSON.stringify(yeni));
   };
 
-  const adetGuncelle = (id: string, varyasyon: string, miktar: number) => {
+  const adetGuncelle = (id: string, varyasyon: string, miktar: number, slug?: string) => {
     const arananId = String(id);
     const arananVaryasyon = varyasyon || "Standart Model";
 
     const yeni = sepet.map((i) => {
-      if (String(i.id || i._id) === arananId && (i.varyasyon || "Standart Model") === arananVaryasyon) {
+      const idEslesiyor = String(i.id || i._id) === arananId;
+      const slugEslesiyor = (i.slug && slug) ? i.slug === slug : false;
+      const varyasyonEslesiyor = (i.varyasyon || "Standart Model") === arananVaryasyon;
+
+      if ((idEslesiyor || slugEslesiyor) && varyasyonEslesiyor) {
         const yeniAdet = Math.max(1, i.adet + miktar);
         return { ...i, adet: yeniAdet };
       }
