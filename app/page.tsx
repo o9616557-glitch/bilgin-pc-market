@@ -2,7 +2,7 @@ import clientPromise from "@/lib/mongodb";
 import Link from "next/link";
 import { Cpu, Crosshair, Sparkles, Star, ShieldCheck, Zap, ArrowRight } from "lucide-react";
 import OkluSlider from "@/components/OkluSlider";
-
+import VitrinButon from "@/components/VitrinButon";
 export const revalidate = 60; 
 
 export default async function HomePage() {
@@ -343,23 +343,20 @@ export default async function HomePage() {
                               <BanknoteIcon className="w-3 h-3" /> Havale: {havaleFiyati.toLocaleString("tr-TR", {maximumFractionDigits: 0})} ₺
                             </span>
                           )}
-                        </div>
-
-                        <div className="relative z-20">
-                          {tukendiMi ? (
-                              <div className="h-10 px-4 sm:h-11 bg-white/5 border border-white/5 rounded-xl flex items-center justify-center cursor-not-allowed" title="Tükendi">
-                                <span className="text-xs font-black text-zinc-600 uppercase tracking-widest">Tükendi</span>
-                              </div>
-                          ) : (
-                              <Link href={"/product/" + (urun.slug || urun._id)} prefetch={true} className="relative overflow-hidden h-10 px-4 sm:h-11 sm:px-5 bg-white/5 border border-white/10 hover:bg-[#00d2ff] hover:border-[#00d2ff] rounded-xl flex items-center justify-center group/btn transition-all duration-700 shadow-md hover:shadow-[0_0_15px_rgba(0,210,255,0.4)] pointer-events-auto">
-                                <span className="text-xs sm:text-sm font-black text-gray-300 group-hover/btn:text-black transition-colors uppercase tracking-widest flex items-center gap-2 duration-700">
-                                  İncele <ArrowRight className="w-4 h-4 hidden sm:block transition-transform duration-700 group-hover/btn:translate-x-1" />
-                                </span>
-                              </Link>
-                          )}
+                      <div className="relative z-20 flex gap-2">
+  {tukendiMi ? (
+      <div className="h-10 px-4 sm:h-11 bg-white/5 border border-white/5 rounded-xl flex items-center justify-center cursor-not-allowed" title="Tükendi">
+        <span className="text-xs font-black text-zinc-600 uppercase tracking-widest">Tükendi</span>
+      </div>
+  ) : (
+      <VitrinButon urun={urun} />
+  )}
+</div>
                         </div>
                       </div>
                     </div>
+
+                      
 
                   </div>
                 )
