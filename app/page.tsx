@@ -2,7 +2,7 @@ import clientPromise from "@/lib/mongodb";
 import Link from "next/link";
 import { Cpu, Crosshair, Sparkles, Star, ShieldCheck, Zap, ArrowRight } from "lucide-react";
 import OkluSlider from "@/components/OkluSlider";
-
+import VitrinButon from "@/components/VitrinButon";
 export const revalidate = 60; 
 
 export default async function HomePage() {
@@ -255,7 +255,7 @@ export default async function HomePage() {
 
         <div className="w-full">
           <OkluSlider>
-            {urunler.length > 0 ? (
+           {urunler.length > 0 ? (
               urunler.map((urun: any) => {
                 const vitrinResmi = urun.resimler && urun.resimler.length > 0 ? urun.resimler[0] : urun.resim;
                 const normalFiyat = Number(urun.regular_price || urun.fiyat || urun.price || 0);
@@ -278,7 +278,8 @@ export default async function HomePage() {
                 return (
                   <div key={urun._id.toString()} className="group relative flex-none snap-center snap-always lg:snap-start flex flex-col w-[85vw] sm:w-[320px] lg:w-[calc(25%-0.75rem)] flex-shrink-0 bg-[#09090b] rounded-2xl overflow-hidden border border-white/5 transition-all duration-700 ease-out hover:border-[#00d2ff]/40 hover:shadow-[0_0_30px_rgba(0,210,255,0.15)]">
                     
-                    <div className="relative aspect-[4/3] w-full bg-gradient-to-b from-white/5 to-transparent flex items-center justify-center p-6 overflow-hidden pointer-events-none">
+                    {/* ÜST KISIM: RESİM VE ROZETLER */}
+                    <div className="relative aspect-[4/3] w-full bg-gradient-to-b from-white/5 to-transparent flex items-center justify-center p-6 overflow-hidden">
                       
                       {indirimVarMi && !tukendiMi && (
                         <div className="discount-badge-home pointer-events-none">
@@ -301,7 +302,8 @@ export default async function HomePage() {
                          </div>
                       )}
 
-                      <div className="w-full h-full flex items-center justify-center relative z-10">
+                      {/* 🚀 HEDEF 3: SADECE RESME TIKLAYINCA ÜRÜNE GİTME */}
+                      <Link href={"/product/" + (urun.slug || urun._id)} prefetch={true} className="w-full h-full flex items-center justify-center relative z-10 pointer-events-auto cursor-pointer">
                         {vitrinResmi ? (
                           <img 
                             src={vitrinResmi} 
@@ -311,11 +313,12 @@ export default async function HomePage() {
                         ) : (
                           <Cpu className="w-16 h-16 text-white/10" />
                         )}
-                      </div>
+                      </Link>
                     </div>
 
-                    <div className="p-5 flex flex-col flex-grow relative z-20 bg-transparent pointer-events-none">
-                      <div className="flex justify-between items-center mb-2">
+                    {/* ALT KISIM: BİLGİLER VE BUTONLAR */}
+                    <div className="p-5 flex flex-col flex-grow relative z-20 bg-transparent">
+                      <div className="flex justify-between items-center mb-2 pointer-events-none">
                         <span className="text-gray-500 text-[10px] font-black tracking-[0.2em] uppercase">{urun.marka || "DONANIM"}</span>
                         
                         <div className="flex items-center gap-1 text-[10px] text-gray-400 font-bold">
@@ -324,13 +327,19 @@ export default async function HomePage() {
                         </div>
                       </div>
 
-                      <div className="block mt-1">
-                        <h3 className="text-white text-sm font-bold leading-relaxed line-clamp-2 mb-4 group-hover:text-[#00d2ff] transition-colors duration-700">
-                          {urun.isim || urun.name}
-                        </h3>
+                      {/* 🚀 HEDEF 3 (Devamı): İSME TIKLAYINCA ÜRÜNE GİTME */}
+                      <div className="block mt-1 pointer-events-auto">
+                        <Link href={"/product/" + (urun.slug || urun._id)} prefetch={true}>
+                          <h3 className="text-white text-sm font-bold leading-relaxed line-clamp-2 mb-4 hover:text-[#00d2ff] transition-colors duration-700 cursor-pointer">
+                            {urun.isim || urun.name}
+                          </h3>
+                        </Link>
                       </div>
 
-                      <div className="flex items-end justify-between mt-auto pt-4 border-t border-white/5 pointer-events-auto">
+                      {/* FİYAT VE BUTON HİZASI */}
+                      <div className="flex items-end justify-between mt-auto pt-4 border-t border-white/5 pointer-events-auto relative z-50">
+                        
+                        {/* Fiyatlar */}
                         <div className="flex flex-col relative z-20 pointer-events-none">
                           {indirimVarMi && !tukendiMi && (
                             <span className="text-gray-600 text-[11px] line-through font-medium mb-0.5">{normalFiyat.toLocaleString("tr-TR")} ₺</span>
@@ -345,17 +354,14 @@ export default async function HomePage() {
                           )}
                         </div>
 
-                        <div className="relative z-20">
+                        {/* 🚀 HEDEF 1 VE 2: BAĞIMSIZ BUTONLAR */}
+                        <div className="relative z-50 flex gap-2 pointer-events-auto">
                           {tukendiMi ? (
                               <div className="h-10 px-4 sm:h-11 bg-white/5 border border-white/5 rounded-xl flex items-center justify-center cursor-not-allowed" title="Tükendi">
                                 <span className="text-xs font-black text-zinc-600 uppercase tracking-widest">Tükendi</span>
                               </div>
                           ) : (
-                              <Link href={"/product/" + (urun.slug || urun._id)} prefetch={true} className="relative overflow-hidden h-10 px-4 sm:h-11 sm:px-5 bg-white/5 border border-white/10 hover:bg-[#00d2ff] hover:border-[#00d2ff] rounded-xl flex items-center justify-center group/btn transition-all duration-700 shadow-md hover:shadow-[0_0_15px_rgba(0,210,255,0.4)] pointer-events-auto">
-                                <span className="text-xs sm:text-sm font-black text-gray-300 group-hover/btn:text-black transition-colors uppercase tracking-widest flex items-center gap-2 duration-700">
-                                  İncele <ArrowRight className="w-4 h-4 hidden sm:block transition-transform duration-700 group-hover/btn:translate-x-1" />
-                                </span>
-                              </Link>
+                              <VitrinButon urun={urun} />
                           )}
                         </div>
                       </div>
@@ -373,7 +379,6 @@ export default async function HomePage() {
           </OkluSlider>
         </div>
       </div>
-
       {/* ==================== 4. KALİTE & GÜVEN ==================== */}
       <section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4 select-none pointer-events-none">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center bg-[#121212] border border-white/10 p-8 lg:p-12 relative overflow-hidden shadow-[5px_5px_0px_rgba(0,0,0,0.8)]">
