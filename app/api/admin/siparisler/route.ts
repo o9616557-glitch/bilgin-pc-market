@@ -40,7 +40,8 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Erişim Engellendi!" }, { status: 401 });
     }
 
-    const { id, yeniDurum, musteriMesaji } = await request.json();
+    // 🚀 SİHİR 1: Ön taraftan gelen KARGO FİRMASI ve TAKİP NO bilgilerini de yakalıyoruz!
+    const { id, yeniDurum, musteriMesaji, kargoFirmasi, takipNo } = await request.json();
 
     if (!id) {
       return NextResponse.json({ error: "Sipariş ID eksik." }, { status: 400 });
@@ -48,23 +49,23 @@ export async function PUT(request: Request) {
 
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
-
-    // 1. Önce siparişi bulalım ki mail atacağımız müşterinin bilgilerini çekelim
     const ObjectId = require("mongodb").ObjectId;
     const siparis = await db.collection("orders").findOne({ _id: new ObjectId(id) });
 
     const guncellenecekler: any = {};
     if (yeniDurum !== undefined) guncellenecekler.durum = yeniDurum;
     if (musteriMesaji !== undefined) guncellenecekler.musteriMesaji = musteriMesaji;
+    if (kargoFirmasi !== undefined) guncellenecekler.kargoFirmasi = kargoFirmasi;
+    if (takipNo !== undefined) guncellenecekler.takipNo = takipNo;
 
-    // 2. Veritabanında güncelleme yapıyoruz
+    // 2. Veritabanında güncelleme yapıyoruz (Kargo bilgileri artık DB'de kalıcı!)
     await db.collection("orders").updateOne(
       { _id: new ObjectId(id) },
       { $set: guncellenecekler }
     );
 
-    // 🚀 3. AKILLI POSTACI MÜHÜRÜ: Sadece senin onay verdiğin durumlarda tetiklenir!
-    if (siparis && yeniDurum && (yeniDurum === "Ödendi / Hazırlanıyor" || yeniDurum === "Kargoya Verildi" || yeniDurum === "İptal Edildi")) {
+    // 🚀 3. AKILLI POSTACI MÜHÜRÜ: Tamamlandı (Teslim edildi) durumunu da ekledik!
+    if (siparis && yeniDurum && (yeniDurum === "Ödendi / Hazırlanıyor" || yeniDurum === "Kargoya Verildi" || yeniDurum === "Tamamlandı" || yeniDurum === "İptal Edildi")) {
       const nodemailer = require("nodemailer");
       const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
@@ -72,90 +73,117 @@ export async function PUT(request: Request) {
         secure: true,
         auth: {
           user: "o9616557@gmail.com",
-          pass: "vfph bxkd gzsv enpg", // Gizli uygulama şifren
+          pass: "vfph bxkd gzsv enpg", 
         },
         tls: { rejectUnauthorized: false }
       });
 
-      // Müşteri mailini sipariş kayıtlarından güvenli bir şekilde cımbızlıyoruz
       const musteriMaili = siparis.userEmail || siparis.email || siparis.musteri?.eposta || siparis.musteri?.email;
 
       if (musteriMaili) {
+        
+        // --- 🎨 DİNAMİK TASARIM MOTORU ---
         let baslik = "SİPARİŞ DURUMUNUZ GÜNCELLENDİ";
         let altMesaj = `Siparişinizin durumu <strong>${yeniDurum}</strong> olarak güncellenmiştir.`;
+        let anaRenk = "#3b82f6"; // Varsayılan mavi
+        let ikon = "🔄";
 
         if (yeniDurum === "Ödendi / Hazırlanıyor") {
-          baslik = "SİPARİŞİNİZ ONAYLANDI 🚀";
+          baslik = "SİPARİŞ ONAYLANDI";
           altMesaj = "Ödemeniz başarıyla tarafımıza ulaşmış ve siparişiniz hazırlık aşamasına geçmiştir. Ürünleriniz uzman ekibimiz tarafından özenle paketleniyor! En kısa sürede kargoya teslim edilecektir.";
+          anaRenk = "#f59e0b"; // Turuncu/Sarımsı (Hazırlanıyor rengi)
+          ikon = "⏳";
         } else if (yeniDurum === "Kargoya Verildi") {
-          baslik = "SİPARİŞİNİZ KARGOYA VERİLDİ 📦";
-          altMesaj = "Paketiniz başarıyla yola çıkmıştır. Sipariş takip kodunuzu sitemizdeki <strong>Sipariş Takip</strong> ekranına yazarak kargonuzun nerede olduğunu anlık olarak izleyebilirsiniz.";
+          baslik = "KARGONUZ YOLA ÇIKTI";
+          altMesaj = "Paketiniz özenle hazırlandı ve kargo firmasına teslim edildi! Çok yakında adresinize ulaşacaktır.";
+          anaRenk = "#10b981"; // Yeşil (Başarı/Yola çıktı rengi)
+          ikon = "🚀";
+        } else if (yeniDurum === "Tamamlandı") {
+          baslik = "SİPARİŞ TESLİM EDİLDİ";
+          altMesaj = "Siparişiniz başarıyla teslim edilmiştir. Bizi tercih ettiğiniz için teşekkür ederiz. Yeni sisteminizle bol FPS'li oyunlar dileriz!";
+          anaRenk = "#00d2ff"; // Neon Mavi
+          ikon = "🎉";
         } else if (yeniDurum === "İptal Edildi") {
-          baslik = "SİPARİŞİNİZ İPTAL EDİLDİ ❌";
-          altMesaj = "Siparişiniz mağazamız tarafından iptal edilmiştir. İptal süreci veya ücret iadeniz hakkında detaylı bilgi almak için dükkanımızla doğrudan iletişime geçebilirsiniz.";
+          baslik = "SİPARİŞ İPTAL EDİLDİ";
+          altMesaj = "Siparişiniz mağazamız tarafından iptal edilmiştir. İptal süreci veya ücret iadeniz hakkında detaylı bilgi almak için bizimle iletişime geçebilirsiniz.";
+          anaRenk = "#ef4444"; // Kırmızı
+          ikon = "❌";
         }
 
-        // 🛠️ AD VE SOYADI BİRLEŞTİRİYORUZ
         const aliciAdSoyad = (siparis.musteri?.ad || siparis.musteri?.isim) 
           ? `${siparis.musteri?.ad || siparis.musteri?.isim} ${siparis.musteri?.soyad || ""}`.trim() 
           : "Değerli Müşterimiz";
 
+        // --- 📦 KARGO KUTUSU OLUŞTURUCU (Sadece Kargoya Verildi ise ekranda görünür) ---
+        let kargoAlaniHtml = "";
+        const finalKargoFirma = kargoFirmasi || siparis.kargoFirmasi || "Standart Kargo";
+        const finalTakipNo = takipNo || siparis.takipNo;
+
+        if (yeniDurum === "Kargoya Verildi" && finalTakipNo) {
+          kargoAlaniHtml = `
+            <div style="background-color: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.4); padding: 25px; border-radius: 12px; margin: 0 auto 35px auto; max-width: 320px; text-align: left; box-shadow: 0 5px 15px rgba(16,185,129,0.1);">
+              <h3 style="color: #10b981; font-size: 14px; margin-top: 0; margin-bottom: 15px; letter-spacing: 1px; text-align: center; border-bottom: 1px dashed rgba(16, 185, 129, 0.2); padding-bottom: 10px;">📦 KARGO BİLGİSİ</h3>
+              
+              <div style="margin-bottom: 12px; font-size: 15px; overflow: hidden;">
+                <span style="color: #a1a1aa; float: left;">Firma:</span>
+                <strong style="color: #ffffff; float: right; text-transform: uppercase;">${finalKargoFirma}</strong>
+              </div>
+              <div style="font-size: 15px; overflow: hidden;">
+                <span style="color: #a1a1aa; float: left;">Takip No:</span>
+                <strong style="color: #10b981; float: right; letter-spacing: 1px;">${finalTakipNo}</strong>
+              </div>
+            </div>
+          `;
+        }
+
         const mailSecenekleri = {
           from: '"Bilgin PC Market" <o9616557@gmail.com>', 
           to: musteriMaili,
-          subject: baslik,
+          subject: `${ikon} ${baslik} - Bilgin PC Market`,
           html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #03050a; color: #ffffff; padding: 40px 30px; border-radius: 16px; border: 1px solid rgba(0, 229, 255, 0.1); box-shadow: 0 10px 40px rgba(0,0,0,0.8);">
+            <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #050505; color: #ffffff; padding: 40px 20px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 10px 40px rgba(0,0,0,0.8);">
               
-              <h2 style="color: #3b82f6; letter-spacing: 1px; margin-bottom: 24px; font-size: 26px; font-weight: 900; text-shadow: 0 0 10px rgba(0,229,255,0.4); text-align: center;">${baslik}</h2>
+              <h2 style="color: ${anaRenk}; letter-spacing: 1px; margin-bottom: 24px; font-size: 24px; font-weight: 900; text-align: center; text-transform: uppercase;">${ikon} ${baslik}</h2>
               
-            
               <p style="color: #e4e4e7; font-size: 16px; line-height: 1.6; margin-bottom: 16px; text-align: center;">Merhaba <strong style="color: #fff;">${aliciAdSoyad}</strong></p>
               
-              <p style="color: #a1a1aa; font-size: 15px; line-height: 1.6; margin-bottom: 35px; padding: 0 15px; text-align: center;">${altMesaj}</p>
+              <p style="color: #a1a1aa; font-size: 15px; line-height: 1.6; margin-bottom: 35px; padding: 0 10px; text-align: center;">${altMesaj}</p>
 
-              <div style="background-color: rgba(255, 255, 255, 0.05); padding: 25px; border-radius: 12px; margin: 0 auto 35px auto; border: 1px dashed rgba(0, 229, 255, 0.4); max-width: 320px; text-align: center;">
-                <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 12px; letter-spacing: 1px;">SİPARİŞ TAKİP KODUNUZ</p>
+              ${kargoAlaniHtml}
+
+              <div style="background-color: rgba(255, 255, 255, 0.02); padding: 25px; border-radius: 12px; margin: 0 auto 35px auto; border: 1px dashed rgba(255, 255, 255, 0.1); max-width: 320px; text-align: center;">
+                <p style="color: #71717a; font-size: 11px; margin-bottom: 12px; letter-spacing: 1px;">SİTE İÇİ SİPARİŞ TAKİP KODUNUZ</p>
                 
-                <div style="background-color: #000000; padding: 12px 20px; border-radius: 8px; display: inline-block; border: 1px solid rgba(0,229,255,0.2); user-select: all; -webkit-user-select: all;">
-                  <h1 style="color: #3b82f6; margin: 0; font-size: 26px; letter-spacing: 2px; font-weight: 900; display: inline-block;">${siparis.siparisKodu || "BPC-SIPARIS"}</h1>
+                <div style="background-color: #0a0a0a; padding: 12px 20px; border-radius: 8px; display: inline-block; border: 1px solid rgba(255,255,255,0.05); user-select: all; -webkit-user-select: all;">
+                  <h1 style="color: #e4e4e7; margin: 0; font-size: 22px; letter-spacing: 2px; font-weight: 900; display: inline-block;">${siparis.siparisKodu || "BPC-SIPARIS"}</h1>
                 </div>
-                
-                <p style="color: #71717a; font-size: 12px; margin-top: 15px; margin-bottom: 0;">
-                  <span style="font-size: 14px; vertical-align: middle;">📋</span> Kodu kopyalamak için üzerine basılı tutun
-                </p>
               </div>
+
               <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 30px; text-align: center;">
                 
-                <h3 style="color: #ffffff; font-size: 18px; margin-bottom: 8px; letter-spacing: 0.5px;">Yardıma mı İhtiyacınız Var?</h3>
+                <h3 style="color: #ffffff; font-size: 17px; margin-bottom: 8px; letter-spacing: 0.5px;">Yardıma mı İhtiyacınız Var?</h3>
                 <p style="color: #a1a1aa; font-size: 13px; line-height: 1.6; margin-top: 0; margin-bottom: 25px; padding: 0 10px;">
-                  Siparişinizle ilgili en ufak bir sorunuzda veya talebinizde  endişelenmeyin. Uzman ekibimiz size destek olmak için bir mesaj uzağınızda!
+                  Siparişinizle ilgili en ufak bir sorunuzda veya talebinizde endişelenmeyin. Uzman ekibimiz size destek olmak için bir mesaj uzağınızda!
                 </p>
 
-                <div style="background-color: rgba(255, 255, 255, 0.03); border: 1px solid rgba(0, 229, 255, 0.15); border-radius: 12px; padding: 20px; text-align: left; max-width: 350px; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <div style="background-color: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 20px; text-align: left; max-width: 350px; margin: 0 auto;">
                   
-                  <div style="margin-bottom: 14px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 10px;">
-                    <span style="font-size: 16px; margin-right: 8px;">💬</span>
-                    <span style="color: #e4e4e7; font-size: 14px; font-weight: bold;">WhatsApp Destek:</span> 
+                  <div style="margin-bottom: 14px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 10px; overflow: hidden;">
+                    <span style="font-size: 16px; margin-right: 8px; float: left;">💬</span>
+                    <span style="color: #e4e4e7; font-size: 14px; font-weight: bold; float: left;">WhatsApp:</span> 
                     <span style="color: #10b981; font-weight: 900; font-size: 14px; float: right;">0532 734 50 23</span>
                   </div>
 
-                  <div style="margin-bottom: 14px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 10px;">
-                    <span style="font-size: 16px; margin-right: 8px;">📞</span>
-                    <span style="color: #e4e4e7; font-size: 14px; font-weight: bold;">Müşteri Hizm:</span> 
+                  <div style="margin-bottom: 14px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 10px; overflow: hidden;">
+                    <span style="font-size: 16px; margin-right: 8px; float: left;">📞</span>
+                    <span style="color: #e4e4e7; font-size: 14px; font-weight: bold; float: left;">Müşteri Hizm:</span> 
                     <span style="color: #3b82f6; font-weight: 900; font-size: 14px; float: right;">0850 305 59 68</span>
                   </div>
 
-                  <div style="margin-bottom: 14px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 10px;">
-                    <span style="font-size: 16px; margin-right: 8px;">✉️</span>
-                    <span style="color: #e4e4e7; font-size: 14px; font-weight: bold;">E-posta:</span> 
-                    <a href="mailto:info@bilginpcmarket.com" style="color: #a1a1aa; font-size: 13px; text-decoration: none; float: right;">info@bilginpcmarket.com</a>
-                  </div>
-
-                  <div style="margin-bottom: 0;">
-                    <span style="font-size: 16px; margin-right: 8px;">🌐</span>
-                    <span style="color: #e4e4e7; font-size: 14px; font-weight: bold;">Web:</span> 
-                    <a href="https://www.bilginpcmarket.com" style="color: #a1a1aa; font-size: 13px; text-decoration: none; float: right;">www.bilginpcmarket.com</a>
+                  <div style="overflow: hidden;">
+                    <span style="font-size: 16px; margin-right: 8px; float: left;">🌐</span>
+                    <span style="color: #e4e4e7; font-size: 14px; font-weight: bold; float: left;">Web:</span> 
+                    <a href="https://www.bilginpcmarket.com" style="color: #a1a1aa; font-size: 13px; text-decoration: none; float: right;">bilginpcmarket.com</a>
                   </div>
 
                 </div>
