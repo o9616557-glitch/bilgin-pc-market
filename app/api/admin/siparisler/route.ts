@@ -40,7 +40,6 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Erişim Engellendi!" }, { status: 401 });
     }
 
-    // 🚀 SİHİR 1: Ön taraftan gelen KARGO FİRMASI ve TAKİP NO bilgilerini de yakalıyoruz!
     const { id, yeniDurum, musteriMesaji, kargoFirmasi, takipNo } = await request.json();
 
     if (!id) {
@@ -58,13 +57,11 @@ export async function PUT(request: Request) {
     if (kargoFirmasi !== undefined) guncellenecekler.kargoFirmasi = kargoFirmasi;
     if (takipNo !== undefined) guncellenecekler.takipNo = takipNo;
 
-    // 2. Veritabanında güncelleme yapıyoruz (Kargo bilgileri artık DB'de kalıcı!)
     await db.collection("orders").updateOne(
       { _id: new ObjectId(id) },
       { $set: guncellenecekler }
     );
 
-    // 🚀 3. AKILLI POSTACI MÜHÜRÜ: Tamamlandı (Teslim edildi) durumunu da ekledik!
     if (siparis && yeniDurum && (yeniDurum === "Ödendi / Hazırlanıyor" || yeniDurum === "Kargoya Verildi" || yeniDurum === "Tamamlandı" || yeniDurum === "İptal Edildi")) {
       const nodemailer = require("nodemailer");
       const transporter = nodemailer.createTransport({
@@ -81,32 +78,30 @@ export async function PUT(request: Request) {
       const musteriMaili = siparis.userEmail || siparis.email || siparis.musteri?.eposta || siparis.musteri?.email;
 
       if (musteriMaili) {
-        
-        // --- 🎨 DİNAMİK TASARIM MOTORU ---
         let baslik = "SİPARİŞ DURUMUNUZ GÜNCELLENDİ";
         let altMesaj = `Siparişinizin durumu <strong>${yeniDurum}</strong> olarak güncellenmiştir.`;
-        let anaRenk = "#3b82f6"; // Varsayılan mavi
+        let anaRenk = "#3b82f6"; 
         let ikon = "🔄";
 
         if (yeniDurum === "Ödendi / Hazırlanıyor") {
           baslik = "SİPARİŞ ONAYLANDI";
           altMesaj = "Ödemeniz başarıyla tarafımıza ulaşmış ve siparişiniz hazırlık aşamasına geçmiştir. Ürünleriniz uzman ekibimiz tarafından özenle paketleniyor! En kısa sürede kargoya teslim edilecektir.";
-          anaRenk = "#f59e0b"; // Turuncu/Sarımsı (Hazırlanıyor rengi)
+          anaRenk = "#f59e0b"; 
           ikon = "⏳";
         } else if (yeniDurum === "Kargoya Verildi") {
           baslik = "KARGONUZ YOLA ÇIKTI";
-          altMesaj = "Paketiniz özenle hazırlandı ve kargo firmasına teslim edildi! Çok yakında adresinize ulaşacaktır.";
-          anaRenk = "#10b981"; // Yeşil (Başarı/Yola çıktı rengi)
+          altMesaj = "Paketiniz başarıyla kargo firmasına teslim edildi! Takip kodunuzu kullanarak siparişinizi anlık olarak izleyebilirsiniz.";
+          anaRenk = "#10b981"; 
           ikon = "🚀";
         } else if (yeniDurum === "Tamamlandı") {
           baslik = "SİPARİŞ TESLİM EDİLDİ";
           altMesaj = "Siparişiniz başarıyla teslim edilmiştir. Bizi tercih ettiğiniz için teşekkür ederiz. Yeni sisteminizle bol FPS'li oyunlar dileriz!";
-          anaRenk = "#00d2ff"; // Neon Mavi
+          anaRenk = "#00d2ff"; 
           ikon = "🎉";
         } else if (yeniDurum === "İptal Edildi") {
           baslik = "SİPARİŞ İPTAL EDİLDİ";
           altMesaj = "Siparişiniz mağazamız tarafından iptal edilmiştir. İptal süreci veya ücret iadeniz hakkında detaylı bilgi almak için bizimle iletişime geçebilirsiniz.";
-          anaRenk = "#ef4444"; // Kırmızı
+          anaRenk = "#ef4444"; 
           ikon = "❌";
         }
 
@@ -114,15 +109,15 @@ export async function PUT(request: Request) {
           ? `${siparis.musteri?.ad || siparis.musteri?.isim} ${siparis.musteri?.soyad || ""}`.trim() 
           : "Değerli Müşterimiz";
 
-        // --- 📦 KARGO KUTUSU OLUŞTURUCU (Sadece Kargoya Verildi ise ekranda görünür) ---
+        // 📦 GÜVENLİ VE KATRE SİYAHI KARGO TAKİP KUTUSU
         let kargoAlaniHtml = "";
         const finalKargoFirma = kargoFirmasi || siparis.kargoFirmasi || "Standart Kargo";
         const finalTakipNo = takipNo || siparis.takipNo;
 
         if (yeniDurum === "Kargoya Verildi" && finalTakipNo) {
           kargoAlaniHtml = `
-            <div style="background-color: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.4); padding: 25px; border-radius: 12px; margin: 0 auto 35px auto; max-width: 320px; text-align: left; box-shadow: 0 5px 15px rgba(16,185,129,0.1);">
-              <h3 style="color: #10b981; font-size: 14px; margin-top: 0; margin-bottom: 15px; letter-spacing: 1px; text-align: center; border-bottom: 1px dashed rgba(16, 185, 129, 0.2); padding-bottom: 10px;">📦 KARGO BİLGİSİ</h3>
+            <div style="background-color: #0b1712; border: 1px solid #10b981; padding: 25px; border-radius: 12px; margin: 0 auto 35px auto; max-width: 320px; text-align: left; box-shadow: 0 5px 15px rgba(16,185,129,0.15);">
+              <h3 style="color: #10b981; font-size: 14px; margin-top: 0; margin-bottom: 15px; letter-spacing: 1px; text-align: center; border-bottom: 1px dashed rgba(16, 185, 129, 0.3); padding-bottom: 10px;">📦 KARGO BİLGİSİ</h3>
               
               <div style="margin-bottom: 12px; font-size: 15px; overflow: hidden;">
                 <span style="color: #a1a1aa; float: left;">Firma:</span>
@@ -135,6 +130,20 @@ export async function PUT(request: Request) {
             </div>
           `;
         }
+
+        // 💎 SİTENİN ÖZEL NEON MAVİSİ İLE MODERLEŞTİRİLMİŞ SİTE İÇİ SİPARİŞ KUTUSU
+        const siteIciTakipHtml = `
+          <div style="background-color: #0b0e17; border: 1px solid #00d2ff; padding: 25px; border-radius: 12px; margin: 0 auto 35px auto; max-width: 320px; text-align: left; box-shadow: 0 5px 15px rgba(0,210,255,0.15);">
+            <h3 style="color: #00d2ff; font-size: 14px; margin-top: 0; margin-bottom: 15px; letter-spacing: 1px; text-align: center; border-bottom: 1px dashed rgba(0, 210, 255, 0.3); padding-bottom: 10px;">📋 SİTE İÇİ SİPARİŞ KODU</h3>
+            
+            <div style="text-align: center; margin-top: 15px; margin-bottom: 10px;">
+              <div style="background-color: #000000; padding: 12px 20px; border-radius: 8px; display: inline-block; border: 1px solid #1e293b;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 2px; font-weight: 900; display: inline-block;">${siparis.siparisKodu || "BPC-SIPARIS"}</h1>
+              </div>
+            </div>
+            <p style="color: #94a3b8; font-size: 11px; margin-top: 15px; margin-bottom: 0; text-align: center;">Sitemizdeki <strong>Sipariş Takip</strong> ekranından bu kod ile sorgulama yapabilirsiniz.</p>
+          </div>
+        `;
 
         const mailSecenekleri = {
           from: '"Bilgin PC Market" <o9616557@gmail.com>', 
@@ -151,13 +160,7 @@ export async function PUT(request: Request) {
 
               ${kargoAlaniHtml}
 
-              <div style="background-color: rgba(255, 255, 255, 0.02); padding: 25px; border-radius: 12px; margin: 0 auto 35px auto; border: 1px dashed rgba(255, 255, 255, 0.1); max-width: 320px; text-align: center;">
-                <p style="color: #71717a; font-size: 11px; margin-bottom: 12px; letter-spacing: 1px;">SİTE İÇİ SİPARİŞ TAKİP KODUNUZ</p>
-                
-                <div style="background-color: #0a0a0a; padding: 12px 20px; border-radius: 8px; display: inline-block; border: 1px solid rgba(255,255,255,0.05); user-select: all; -webkit-user-select: all;">
-                  <h1 style="color: #e4e4e7; margin: 0; font-size: 22px; letter-spacing: 2px; font-weight: 900; display: inline-block;">${siparis.siparisKodu || "BPC-SIPARIS"}</h1>
-                </div>
-              </div>
+              ${siteIciTakipHtml}
 
               <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 30px; text-align: center;">
                 
@@ -204,7 +207,6 @@ export async function PUT(request: Request) {
   }
 }
 
-// ŞEFİM: İŞTE YENİ SİLME MOTORUMUZ!
 export async function DELETE(request: Request) {
   try {
     const gelenAnahtar = request.headers.get("x-patron-anahtar");
@@ -222,7 +224,6 @@ export async function DELETE(request: Request) {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
     
-    // Veritabanından o siparişi kökünden siliyoruz
     await db.collection("orders").deleteOne({ _id: new ObjectId(id) });
     
     return NextResponse.json({ success: true });
