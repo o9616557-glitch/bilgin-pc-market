@@ -13,29 +13,50 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const sepeteEkle = (urun: any) => {
     setSepet((eskiSepet) => {
-      const varMi = eskiSepet.find((i) => i.id === urun.id && i.varyasyon === urun.varyasyon);
+      // 🚀 BİNGO 1: KİMLİK UYUŞMAZLIĞINI ÇÖZEN AMELİYAT!
+      // Nereden eklenirse eklensin (Katalog veya Detay), ID'yi ve Varyasyonu tek tipe çeviriyoruz.
+      const urunId = String(urun.id || urun._id);
+      const urunVaryasyon = urun.varyasyon || "Standart Model";
+
+      // Sepette ararken de artık standartlaşmış kimliklerle arıyoruz
+      const varMi = eskiSepet.find(
+        (i) => String(i.id || i._id) === urunId && (i.varyasyon || "Standart Model") === urunVaryasyon
+      );
+      
       let yeni;
       if (varMi) {
-        // 🚀 BİNGO: Ürün zaten sepette varsa sadece adeti artırma, YENİ İNDİRİM ORANI GİBİ GÜNCEL BİLGİLERİ DE ÜSTÜNE YAZ (...urun eklendi)!
-        yeni = eskiSepet.map((i) => i.id === urun.id && i.varyasyon === urun.varyasyon ? { ...i, ...urun, adet: i.adet + 1 } : i);
+        // Ürün zaten sepette varsa sadece adeti artır ve bilgileri (örn: fiyat) güncelle
+        yeni = eskiSepet.map((i) => 
+          String(i.id || i._id) === urunId && (i.varyasyon || "Standart Model") === urunVaryasyon 
+            ? { ...i, ...urun, id: urunId, varyasyon: urunVaryasyon, adet: i.adet + 1 } 
+            : i
+        );
       } else {
-        yeni = [...eskiSepet, { ...urun, adet: 1 }];
+        // Ürün sepette yoksa yeni bir satır olarak ekle
+        yeni = [...eskiSepet, { ...urun, id: urunId, varyasyon: urunVaryasyon, adet: 1 }];
       }
+      
       localStorage.setItem("bilgin-sepet", JSON.stringify(yeni));
       return yeni;
     });
   };
 
-  // --- YENİ YETENEKLER ---
+  // --- YENİ YETENEKLER (Silme ve Güncelleme de Akıllandırıldı) ---
   const sepettenSil = (id: string, varyasyon: string) => {
-    const yeni = sepet.filter((i) => !(i.id === id && i.varyasyon === varyasyon));
+    const arananId = String(id);
+    const arananVaryasyon = varyasyon || "Standart Model";
+    
+    const yeni = sepet.filter((i) => !(String(i.id || i._id) === arananId && (i.varyasyon || "Standart Model") === arananVaryasyon));
     setSepet(yeni);
     localStorage.setItem("bilgin-sepet", JSON.stringify(yeni));
   };
 
   const adetGuncelle = (id: string, varyasyon: string, miktar: number) => {
+    const arananId = String(id);
+    const arananVaryasyon = varyasyon || "Standart Model";
+
     const yeni = sepet.map((i) => {
-      if (i.id === id && i.varyasyon === varyasyon) {
+      if (String(i.id || i._id) === arananId && (i.varyasyon || "Standart Model") === arananVaryasyon) {
         const yeniAdet = Math.max(1, i.adet + miktar);
         return { ...i, adet: yeniAdet };
       }
