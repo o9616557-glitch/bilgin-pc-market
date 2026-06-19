@@ -255,7 +255,7 @@ export default async function HomePage() {
 
         <div className="w-full">
           <OkluSlider>
-            {urunler.length > 0 ? (
+           {urunler.length > 0 ? (
               urunler.map((urun: any) => {
                 const vitrinResmi = urun.resimler && urun.resimler.length > 0 ? urun.resimler[0] : urun.resim;
                 const normalFiyat = Number(urun.regular_price || urun.fiyat || urun.price || 0);
@@ -330,7 +330,8 @@ export default async function HomePage() {
                         </h3>
                       </div>
 
-                      <div className="flex items-end justify-between mt-auto pt-4 border-t border-white/5 pointer-events-auto">
+                      {/* DÜZELTİLMİŞ FİYAT VE BUTON ALANI */}
+                      <div className="flex items-end justify-between mt-auto pt-4 border-t border-white/5 pointer-events-auto relative z-50">
                         <div className="flex flex-col relative z-20 pointer-events-none">
                           {indirimVarMi && !tukendiMi && (
                             <span className="text-gray-600 text-[11px] line-through font-medium mb-0.5">{normalFiyat.toLocaleString("tr-TR")} ₺</span>
@@ -343,20 +344,22 @@ export default async function HomePage() {
                               <BanknoteIcon className="w-3 h-3" /> Havale: {havaleFiyati.toLocaleString("tr-TR", {maximumFractionDigits: 0})} ₺
                             </span>
                           )}
-                      <div className="relative z-20 flex gap-2">
-  {tukendiMi ? (
-      <div className="h-10 px-4 sm:h-11 bg-white/5 border border-white/5 rounded-xl flex items-center justify-center cursor-not-allowed" title="Tükendi">
-        <span className="text-xs font-black text-zinc-600 uppercase tracking-widest">Tükendi</span>
-      </div>
-  ) : (
-      <VitrinButon urun={urun} />
-  )}
-</div>
+                        </div>
+
+                        <div className="relative z-20 flex gap-2 pointer-events-auto">
+                          {tukendiMi ? (
+                              <div className="h-10 px-4 sm:h-11 bg-white/5 border border-white/5 rounded-xl flex items-center justify-center cursor-not-allowed" title="Tükendi">
+                                <span className="text-xs font-black text-zinc-600 uppercase tracking-widest">Tükendi</span>
+                              </div>
+                          ) : (
+                              <VitrinButon urun={urun} />
+                          )}
                         </div>
                       </div>
                     </div>
 
-                      
+                    {/* GİZLİ LİNK - TÜM KARTI TIKLANABİLİR YAPAR */}
+                    <Link href={"/product/" + (urun.slug || urun._id)} prefetch={true} className="absolute inset-0 z-40" />
 
                   </div>
                 )
@@ -397,7 +400,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
       {/* ==================== 5. HIZLI ERİŞİM ==================== */}
       <section className="max-w-[1400px] mx-auto pt-8 pb-12 select-none touch-manipulation">
         <div className="flex items-center gap-4 mb-6 px-6 lg:px-8 pointer-events-none">
