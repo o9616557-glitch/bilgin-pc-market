@@ -36,6 +36,15 @@ const orderSchema = new mongoose.Schema({
     type: String,
     default: 'Hazırlanıyor',
   },
+  // 📦 İŞTE YENİ EKLENEN KARGO BİLGİLERİ (MUTFAĞA RAFLARI ÇAKTIK)
+  kargoFirmasi: {
+    type: String,
+    default: '',
+  },
+  takipNo: {
+    type: String,
+    default: '',
+  }
 }, {
   timestamps: true,
   strict: false // 🚀 NÜKLEER SİHİR: Veritabanındaki hiçbir Türkçe/İngilizce kelimeyi gizleme, hepsini Siparişlerim sayfasına yolla!

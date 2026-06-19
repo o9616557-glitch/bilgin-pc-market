@@ -98,7 +98,21 @@ export default function AdminPaneli() {
       if ((await res.json()).success) setBildirim({tip: "basari", mesaj: "Mesaj İletildi!"});
     } catch (e) {}
   };
-
+const kargoGuncelle = async (id: string, kargoFirmasi: string, takipNo: string) => {
+    try {
+      const res = await fetch("/api/admin/siparisler", { 
+        method: "PUT", 
+        headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI }, 
+        body: JSON.stringify({ id, kargoFirmasi, takipNo }) 
+      });
+      if ((await res.json()).success) {
+        setSiparisler(siparisler.map(s => s._id === id ? { ...s, kargoFirmasi, takipNo } : s));
+        setBildirim({tip: "basari", mesaj: "Kargo Bilgileri Başarıyla Kaydedildi!"});
+      }
+    } catch (e) {
+      setBildirim({tip: "hata", mesaj: "Kargo kaydedilemedi."});
+    }
+  };
   const siparisSilmeIslemi = async () => {
     if (!silinecekSiparisID) return;
     try {
@@ -362,14 +376,51 @@ export default function AdminPaneli() {
                 </div>
               </div>
 
-              {/* MÜŞTERİ MESAJI ALANI */}
+           {/* MÜŞTERİ MESAJI ALANI */}
               <div style={{ borderTop: "1px solid #334155", paddingTop: "12px" }}>
                 <div style={{ color: "#94a3b8", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "8px", fontWeight: "600" }}>Müşteri Takip Ekranı Mesajı</div>
                 <input type="text" defaultValue={siparis.musteriMesaji || ""} onBlur={(e) => mesajGuncelle(siparis._id, e.target.value)} placeholder="Müşteriye iletilecek notu yazıp boşluğa tıklayın..." style={{ width: "100%", padding: "10px 12px", background: "#0f172a", color: "#e2e8f0", border: "1px solid #334155", borderRadius: "6px", outline: "none", fontSize: "13px" }} />
               </div>
+
+              {/* 🚀 📦 KARGO BİLGİLERİ (SADECE KARGOYA VERİLDİ İSE ÇIKAR - SIFIR LAG) 📦 🚀 */}
+              {siparis.durum === "Kargoya Verildi" && (
+                <div style={{ borderTop: "1px dashed #3b82f6", paddingTop: "12px", marginTop: "12px", background: "#3b82f610", padding: "12px", borderRadius: "8px" }}>
+                  <div style={{ color: "#3b82f6", fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "10px", fontWeight: "800", display: "flex", alignItems: "center", gap: "6px" }}>
+                    <span style={{ display: "inline-block", width: "8px", height: "8px", background: "#3b82f6", borderRadius: "50%", animation: "pulse 2s infinite" }}></span>
+                    Kargo Takip Bilgilerini Gir
+                  </div>
+                  <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+                    <input 
+                      id={`firma-${siparis._id}`} 
+                      defaultValue={siparis.kargoFirmasi || ""} 
+                      placeholder="Firma (Örn: Yurtiçi)" 
+                      style={{ flex: 1, minWidth: "120px", padding: "10px", background: "#0f172a", color: "#f8fafc", border: "1px solid #3b82f650", borderRadius: "6px", outline: "none", fontSize: "13px" }} 
+                    />
+                    <input 
+                      id={`takip-${siparis._id}`} 
+                      defaultValue={siparis.takipNo || ""} 
+                      placeholder="Takip Numarası" 
+                      style={{ flex: 2, minWidth: "180px", padding: "10px", background: "#0f172a", color: "#f8fafc", border: "1px solid #3b82f650", borderRadius: "6px", outline: "none", fontSize: "13px", letterSpacing: "1px" }} 
+                    />
+                    <button 
+                      onClick={() => {
+                        const f = (document.getElementById(`firma-${siparis._id}`) as HTMLInputElement).value;
+                        const t = (document.getElementById(`takip-${siparis._id}`) as HTMLInputElement).value;
+                        if(!f || !t) return alert("Şefim, Firma ve Takip Numarası boş olamaz!");
+                        kargoGuncelle(siparis._id, f, t);
+                      }} 
+                      style={{ background: "#3b82f6", color: "#fff", padding: "10px 20px", border: "none", borderRadius: "6px", fontWeight: "bold", cursor: "pointer", fontSize: "13px", boxShadow: "0 4px 10px rgba(59,130,246,0.3)", transition: "0.2s" }}
+                    >
+                      KAYDET
+                    </button>
+                  </div>
+                </div>
+              )}
+
             </div>
           ))}
         </div>
+        
       ) : (
         
         <div>
@@ -432,12 +483,16 @@ export default function AdminPaneli() {
                     <button onClick={() => urunDuzenleModunuAc(urun)} style={{ flex: 1, background: "transparent", color: "#e2e8f0", border: "1px solid #475569", padding: "6px", borderRadius: "4px", fontSize: "13px", cursor: "pointer" }}>Düzenle</button>
                     <button onClick={() => urunSilmeIslemi(urun._id)} style={{ flex: 1, background: "transparent", color: "#ef4444", border: "1px solid #ef4444", padding: "6px", borderRadius: "4px", fontSize: "13px", cursor: "pointer" }}>Sil</button>
                   </div>
+                  
                 </div>
               );
             })}
           </div>
+          
         </div>
       )}
+
     </div>
+    
   );
 }
