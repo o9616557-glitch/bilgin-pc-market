@@ -377,6 +377,38 @@ const handleAddToCart = () => {
                    <><ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" /> Sepete Ekle</>
                  )}
                </button>
+               {/* 🚀 UÇURDUĞUMUZ EKSTRA BUTONLAR GERİ GELDİ */}
+<div className="flex items-center justify-start gap-6 mt-6 text-sm font-bold text-gray-400 select-none">
+  
+  <button 
+    type="button" 
+    onClick={(e) => {
+      e.preventDefault();
+      // Eğer burada useCompare() kullanıyorsan: karsilastirmayaEkle(urun); setPopupAcik(true);
+    }} 
+    className="flex items-center gap-2 hover:text-[#00d2ff] transition-colors group"
+  >
+    <GitCompare className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />
+    <span>Karşılaştır</span>
+  </button>
+
+  <button 
+    type="button"
+    className="flex items-center gap-2 hover:text-red-500 transition-colors group"
+  >
+    <Heart className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+    <span>Favorilere Ekle</span>
+  </button>
+
+  <button 
+    type="button"
+    className="flex items-center gap-2 hover:text-[#10b981] transition-colors group"
+  >
+    <Share2 className="w-5 h-5 group-hover:-rotate-12 transition-transform duration-300" />
+    <span>Paylaş</span>
+  </button>
+
+</div>
             </div>
 
            {kategoriIsmi.includes("Ekran") && (
