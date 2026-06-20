@@ -52,35 +52,27 @@ export default function SistemlerimPage() {
     sessizGuncelleme();
   }, []);
 
- // 🚀 async kelimesini ekledik ki bekletme motoru çalışsın
-  const handleSepeteEkle = async (sistem: any) => {
+ const handleSepeteEkle = (sistem: any) => {
     const parcalar = Object.values(sistem.selections);
     if (parcalar.length === 0) return;
 
-    // Müşteriye işlemin başladığını gösteren havalı bir yükleniyor bildirimi
-    const toastId = toast.loading(`"${sistem.name}" parçaları sepete diziliyor...`);
-
-    // forEach yerine for...of kullandık (Çünkü forEach "await" komutunu dinlemez, beklemeden basar geçer)
-    for (const urun of parcalar as any[]) {
+    parcalar.forEach((urun: any) => {
       sepeteEkle({
-        id: urun._id?.toString() || Math.random().toString(),
+        id: urun._id?.toString(),
         isim: `[${sistem.name}] ${urun.isim}`,
         fiyat: Number(urun.indirimliFiyat || urun.fiyat || 0),
         resim: urun.resim || "https://via.placeholder.com/150",
-        varyasyon: "Sistem Parçası",
+        varyasyon: "Sihirbaz Parçası",
         havaleIndirimi: urun.havaleIndirimi || 5,
+        // 🚀 SADECE BURAYI EKLEDİK: Siyah ekran çökmesini engelleyen can damarı
         slug: urun.slug || "sistem-parcasi",
         stok: urun.stok || 10
       });
+    });
 
-      // 🚀 HAYAT KURTARAN NOKTA: Her ürün eklendikten sonra sepete 100 milisaniye (salise) kayıt yapma süresi tanıyoruz.
-      // Böylece ürünler birbirini ezmiyor, sepete jilet gibi sırayla diziliyor.
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
-
-    // İşlem bitince yükleniyor bildirimini başarı bildirimine çeviriyoruz
-    toast.success(`"${sistem.name}" eksiksiz olarak sepete eklendi! 🛒`, { id: toastId });
+    toast.success(`"${sistem.name}" başarıyla sepete eklendi! 🛒`);
   };
+
   // 🚀 GERÇEK SİLME MOTORU
   const sistemiKalicOlarakSil = async () => {
     if (!silinecekSistem) return;
