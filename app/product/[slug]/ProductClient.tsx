@@ -574,7 +574,20 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         </div>
 
       </div>
-<button 
+
+     {/* MOBİL ALT SEPET BAR ALANI */}
+      <div className="sm:hidden fixed bottom-0 left-0 w-full bg-[#050505]/95 backdrop-blur-2xl border-t border-white/10 px-4 py-3 z-50 flex items-center justify-between shadow-[0_-20px_40px_rgba(0,0,0,0.8)] select-none">
+         <div className="flex flex-col">
+            {indirimVarMi && !tukendiMi && <span className="text-gray-500 text-[11px] line-through font-medium mb-0.5">{normalFiyat.toLocaleString("tr-TR")} ₺</span>}
+            <span className="text-[22px] font-black text-white leading-none mb-1.5">{gecerliFiyat.toLocaleString("tr-TR")} <span className="text-[#00d2ff] text-lg">₺</span></span>
+            
+            {havaleYuzdesi > 0 && !tukendiMi && (
+               <span className="text-[#10b981] text-[10px] font-black tracking-wide flex items-center gap-1">
+                  <Zap className="w-3 h-3" /> HAVALE: {havaleFiyati.toLocaleString("tr-TR", {maximumFractionDigits: 0})} ₺
+               </span>
+            )}
+         </div>
+         <button 
            onClick={(e) => {
              e.preventDefault();
              if (tukendiMi) return;
@@ -602,10 +615,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
              } catch (error) { btn.disabled = false; }
            }} 
            disabled={tukendiMi} 
-           className={`h-12 px-6 rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 transition-all touch-manipulation ${tukendiMi ? 'bg-zinc-800 text-zinc-500' : 'bg-[#00d2ff] text-black shadow-[0_0_20px_rgba(0,210,255,0.3)] hover:bg-[#00c4db]'}`}
+           className={`h-12 px-6 rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-300 touch-manipulation ${tukendiMi ? 'bg-zinc-800 text-zinc-500' : 'bg-[#00d2ff] text-black shadow-[0_0_20px_rgba(0,210,255,0.3)] hover:bg-[#00c4db]'}`}
          >
             <ShoppingCart className="w-4 h-4" /> {tukendiMi ? "Tükendi" : "Sepete Ekle"}
          </button>
+      </div>
 
       {/* LIGHTBOX ALANI */}
       {lightboxAcik && (
