@@ -555,7 +555,7 @@ export default function KendinToplaClient({ initialProducts }: { initialProducts
                 Kapat
               </button>
               
-              <button 
+           <button 
                 onClick={() => {
                   handleSelectComponent(previewProduct);
                   setPreviewProduct(null);
@@ -565,42 +565,48 @@ export default function KendinToplaClient({ initialProducts }: { initialProducts
                 <ShoppingBag className="w-4 h-4" /> Ekle
               </button>
             </div>
-{/* 🚀 YENİ: SİSTEMİ KAYDET MODALI */}
+            
+          </div>
+        </div>
+      )}
+
+      {/* 🚀 SİSTEMİ KAYDET MODALI (GARANTİLİ GÖRÜNÜR VERSİYON) */}
       {saveModalOpen && (
-        <div className="fixed inset-0 bg-black/90 z-[10000] flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-[#121214] border border-white/10 w-full max-w-sm rounded-3xl p-6 md:p-8 flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.8)]">
-            <div className="w-14 h-14 rounded-full border border-[#00d2ff]/30 flex items-center justify-center mb-6 bg-[#00d2ff]/10 shadow-inner mx-auto">
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
+          <div className="bg-[#121214] border border-white/10 w-full max-w-sm rounded-3xl p-6 md:p-8 flex flex-col relative shadow-2xl">
+            
+            <div className="w-14 h-14 rounded-full border border-[#00d2ff]/30 flex items-center justify-center mb-6 bg-[#00d2ff]/10 mx-auto">
               <Save className="w-6 h-6 text-[#00d2ff]" />
             </div>
+            
             <h3 className="text-xl font-black text-white uppercase tracking-wider mb-2 text-center">Sistemi Kaydet</h3>
-            <p className="text-gray-400 text-xs text-center mb-6 leading-relaxed">Topladığınız bu sisteme bir isim verin. Profilinizdeki "Sistemlerim" sekmesinden istediğiniz zaman ulaşabilirsiniz.</p>
+            <p className="text-gray-400 text-xs text-center mb-6 leading-relaxed">
+              Topladığınız bu sisteme bir isim verin. Profilinizdeki "Sistemlerim" sekmesinden istediğiniz zaman ulaşabilirsiniz.
+            </p>
             
             <input 
               type="text" 
               value={systemName}
               onChange={(e) => setSystemName(e.target.value)}
-              placeholder="Örn: Hayalimdeki RTX 5090 Kasa"
+              placeholder="Örn: Hayalimdeki Canavar Sistem"
               className="w-full bg-[#18181b] border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:outline-none focus:border-[#00d2ff]/50 transition-colors font-bold mb-6"
               autoFocus
             />
 
             <div className="flex gap-3">
               <button 
-                onClick={() => setSaveModalOpen(false)}
+                onClick={() => { setSaveModalOpen(false); setSystemName(""); }}
                 className="flex-1 px-4 py-3.5 rounded-xl text-xs font-black uppercase bg-zinc-800 border border-white/10 text-gray-300 hover:text-white transition-colors"
               >
                 İptal
               </button>
               <button 
                 onClick={handleSaveSystem}
-                className="flex-1 px-4 py-3.5 rounded-xl text-xs font-black uppercase bg-[#00d2ff] text-black hover:bg-[#00c4db] transition-colors shadow-[0_0_15px_rgba(0,210,255,0.3)]"
+                className="flex-1 px-4 py-3.5 rounded-xl text-xs font-black uppercase bg-[#00d2ff] text-black hover:bg-[#00c4db] transition-colors shadow-lg"
               >
                 Kaydet
               </button>
             </div>
-          </div>
-        </div>
-      )}
           </div>
         </div>
       )}
