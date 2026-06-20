@@ -240,7 +240,7 @@ export default function KendinToplaClient({ initialProducts }: { initialProducts
       <div className="border-b border-white/5 bg-[#09090b]/90 backdrop-blur-xl lg:sticky lg:top-20 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col lg:flex-row lg:items-start justify-between gap-4">
           <div className="flex items-center space-x-3 shrink-0 pt-1">
-            <span className="text-[#00d2ff] font-black text-xl tracking-tight">🔧 PC SİHİRBAZI</span>
+            <span className="text-[#00d2ff] font-black text-xl tracking-tight">🔧 SİSTEM ATÖLYESİ </span>
           </div>
           
           <div className="w-full lg:flex-1 lg:pl-6">

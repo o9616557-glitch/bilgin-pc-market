@@ -114,7 +114,7 @@ export default function SistemlerimPage() {
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-white/10 pb-6 mb-10">
           <div>
             <Link href="/kendin-topla" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00d2ff] transition-all mb-3">
-              <ArrowLeft className="w-4 h-4" /> PC SİHİRBAZINA DÖN
+              <ArrowLeft className="w-4 h-4" /> PC ATÖLYESİNE DÖN
             </Link>
             <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-white flex items-center gap-3">
               KAYITLI <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00d2ff] to-[#3b82f6]">SİSTEMLERİM</span>
@@ -136,9 +136,9 @@ export default function SistemlerimPage() {
             <div className="w-24 h-24 rounded-full bg-[#18181b] border border-white/10 flex items-center justify-center mx-auto mb-6">
               <Server className="w-12 h-12 text-slate-600" />
             </div>
-            <h2 className="text-2xl font-black uppercase tracking-wide mb-3 text-white">Sistemleriniz Bomboş</h2>
+            <h2 className="text-2xl font-black uppercase tracking-wide mb-3 text-white">Sistemleriniz boş</h2>
             <p className="text-slate-400 text-sm max-w-md mx-auto mb-8 font-medium leading-relaxed">
-              Henüz hayalinizdeki bilgisayarı toplayıp kaydetmediniz. PC Sihirbazı'na giderek hemen bir canavar yaratabilirsiniz!
+             "Henüz hayalinizdeki bilgisayarı toplayıp kaydetmediniz. PC Atölyesi'ne giderek hemen bir canavar toplayabilirsiniz!"
             </p>
             <Link href="/kendin-topla" className="inline-block bg-[#00d2ff] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#00c4db] transition-all shadow-[0_0_20px_rgba(0,210,255,0.2)] hover:-translate-y-0.5">
               Sistem Toplamaya Başla
