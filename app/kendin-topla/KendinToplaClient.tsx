@@ -192,6 +192,22 @@ export default function KendinToplaClient({ initialProducts }: { initialProducts
     setCurrentStep(0);
     toast.success("Sistem başarıyla sepete eklendi ve sihirbaz temizlendi.");
   };
+  // 🚀 BUTONA BASILINCA GİRİŞ KONTROLÜ YAPAN MOTOR
+  const handleSaveButtonClick = async () => {
+    if (Object.keys(selections).length === 0) {
+      return toast.error("Lütfen kaydetmek için en az bir parça seçiniz.");
+    }
+    
+    try {
+      const res = await fetch("/api/sistemlerim");
+      if (res.status === 401) {
+        return toast.error("Lütfen sisteminizi kaydetmek için önce üye girişi yapın! 🔑");
+      }
+      setSaveModalOpen(true);
+    } catch (e) {
+      setSaveModalOpen(true); 
+    }
+  };
 // 🚀 YENİ: SİSTEM KAYDETME FONKSİYONU (GERÇEK VERİTABANI BAĞLANTISI)
   const handleSaveSystem = async () => {
     if (!systemName.trim()) return toast.error("Lütfen sisteminize bir isim verin!");
@@ -431,7 +447,7 @@ export default function KendinToplaClient({ initialProducts }: { initialProducts
             </div>
             {/* 🚀 YENİ: SİSTEMİ KAYDET BUTONU (MASAÜSTÜ) */}
               <button 
-                onClick={() => setSaveModalOpen(true)} 
+               onClick={handleSaveButtonClick}
                 disabled={Object.keys(selections).length === 0}
                 className={`w-full h-12 rounded-xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 transition-all border mt-3 ${
                   Object.keys(selections).length === 0 ? "bg-zinc-800/50 text-gray-600 cursor-not-allowed border-white/5" : "bg-transparent text-[#00d2ff] border-[#00d2ff]/30 hover:bg-[#00d2ff]/10 hover:border-[#00d2ff]"
@@ -453,7 +469,7 @@ export default function KendinToplaClient({ initialProducts }: { initialProducts
         <div className="flex items-center gap-2">
            {/* 🚀 YENİ: SİSTEMİ KAYDET BUTONU (MOBİL) */}
            <button 
-             onClick={() => setSaveModalOpen(true)}
+          onClick={handleSaveButtonClick}
              disabled={Object.keys(selections).length === 0}
              className={`h-12 w-12 shrink-0 rounded-xl flex items-center justify-center transition-all shadow-lg border ${
                Object.keys(selections).length === 0 ? "bg-zinc-800/50 text-gray-600 cursor-not-allowed border-white/5" : "bg-[#18181b] text-[#00d2ff] border-[#00d2ff]/30 hover:bg-[#00d2ff]/10"
