@@ -190,7 +190,7 @@ export default function SistemlerimPage() {
           <div className="w-full lg:w-2/3 flex flex-col">
                     <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 border-b border-white/5 pb-2">Bileşen Listesi ({parcalar.length} Parça)</h3>
                     
-             {/* 🚀 YENİ NESİL OKLU KAYDIRMA SARMALAYICISI (Zıplama Yok, Jilet Elmas Var!) */}
+        {/* 🚀 YENİ NESİL OKLU KAYDIRMA SARMALAYICISI (Zıplama Yok, Jilet Elmas Var!) */}
                     <div className="relative flex-1 group mt-2">
                       
                       {/* YUKARI OK */}
@@ -206,8 +206,8 @@ export default function SistemlerimPage() {
                         </button>
                       )}
 
-                      {/* LİSTE */}
-                      <div className="bilgin-scroll-alani grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[350px] overflow-y-auto pb-6 pt-1 px-1 items-start content-start [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                      {/* LİSTE (pb-6 yerine pb-12 yaptık ki elmas okun altında sıkışmasın) */}
+                      <div className="bilgin-scroll-alani grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[350px] overflow-y-auto pb-12 pt-1 px-1 items-start content-start [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                         {parcalar.map((urun: any, i: number) => (
                           <div key={i} className="flex items-start gap-3 bg-[#121215] p-3 rounded-xl border border-white/5 relative z-10 transition-colors hover:border-white/10">
                             <div className="w-12 h-12 rounded-lg bg-black border border-white/5 p-1 shrink-0 flex items-center justify-center mt-1">
@@ -229,17 +229,18 @@ export default function SistemlerimPage() {
                           </div>
                         ))}
 
-                        {/* 💎 LİSTE SONU ELMASI (Ürünler bitince en altta çıkar) */}
+                        {/* 💎 LİSTE SONU ELMASI (Kutu gölgesi kaldırıldı, saf metin parlaması eklendi) */}
                         {parcalar.length > 0 && (
-                          <div className="col-span-1 md:col-span-2 flex items-center justify-center pt-4 pb-2 opacity-30 select-none">
-                            <div className="h-px bg-gradient-to-r from-transparent to-white/30 flex-1"></div>
-                            <div className="mx-3 text-[#00d2ff] text-[10px] transform rotate-45 shadow-[0_0_10px_rgba(0,210,255,0.5)]">◆</div>
-                            <div className="h-px bg-gradient-to-l from-transparent to-white/30 flex-1"></div>
+                          <div className="col-span-1 md:col-span-2 flex items-center justify-center pt-6 pb-2 opacity-50 select-none">
+                            <div className="h-px bg-gradient-to-r from-transparent to-white/20 flex-1"></div>
+                            {/* drop-shadow ile sadece elmas parlar, arkada siyah kutu oluşmaz */}
+                            <div className="mx-4 text-[#00d2ff] text-xs drop-shadow-[0_0_8px_rgba(0,210,255,0.8)]">◆</div>
+                            <div className="h-px bg-gradient-to-l from-transparent to-white/20 flex-1"></div>
                           </div>
                         )}
                       </div>
 
-                      {/* AŞAĞI OK (Zıplama kaldırıldı, asil duruş) */}
+                      {/* AŞAĞI OK */}
                       {parcalar.length > 4 && (
                         <button 
                           onClick={(e) => {
