@@ -118,15 +118,26 @@ export default function FavoriClient({ initialFavorites }: Props) {
               return (
                 /* 🚀 YENİ TASARIM: KOMPAKT VE ŞIK YATAY LİSTE */
                 <div key={index} className="group flex flex-col sm:flex-row items-center bg-[#09090b] border border-slate-800/60 rounded-2xl p-4 gap-4 sm:gap-6 transition-all duration-300 hover:border-[#3b82f6]/40 shadow-lg hover:shadow-[0_0_25px_rgba(0,229,255,0.05)] relative overflow-hidden">
-                  
-                  {/* GÖRSEL KUTUSU - Küçültüldü ve dolgunlaştırıldı */}
-                  <div className="w-full sm:w-28 h-40 sm:h-28 shrink-0 bg-[#121215] rounded-xl border border-slate-800 flex items-center justify-center p-2 relative overflow-hidden group-hover:border-[#3b82f6]/20 transition-colors">
+                {/* 🚀 GÖRSEL KUTUSU - TIKLANABİLİR LİNK YAPILDI */}
+                  <Link href={"/product/" + (urun.slug || urun._id || urun.id)} prefetch={true} className="w-full sm:w-28 h-40 sm:h-28 shrink-0 bg-[#121215] rounded-xl border border-slate-800 flex items-center justify-center p-2 relative overflow-hidden hover:border-[#3b82f6]/50 transition-colors block cursor-pointer">
                     <div className="absolute inset-0 bg-gradient-to-t from-[#3b82f6]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     <img 
                       src={urun.resim || "/placeholder.jpg"} 
-                      alt={urun.isim} 
-                      className="w-full h-full object-contain filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] transition-transform duration-500 ease-out group-hover:scale-110 z-10" 
+                      alt={urun.isim || urun.name} 
+                      className="w-full h-full object-contain filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] transition-transform duration-500 ease-out group-hover:scale-110 z-10 relative" 
                     />
+                  </Link>
+
+                  {/* 🚀 BAŞLIK VE FİYAT - İSİM TIKLANABİLİR YAPILDI */}
+                  <div className="flex-1 flex flex-col justify-center text-center sm:text-left w-full h-full">
+                      <Link href={"/product/" + (urun.slug || urun._id || urun.id)} prefetch={true} className="block w-fit mx-auto sm:mx-0">
+                        <h3 className="text-sm sm:text-base font-bold text-slate-200 mb-2 leading-relaxed break-words whitespace-normal hover:text-[#3b82f6] transition-colors line-clamp-2 cursor-pointer">
+                          {urun.isim || urun.name}
+                        </h3>
+                      </Link>
+                      <div className="text-xl sm:text-2xl font-black text-[#3b82f6] tracking-tight mt-auto pointer-events-none">
+                        {Number(urun.fiyat || 0).toLocaleString("tr-TR")} <span className="text-sm font-bold text-slate-500 uppercase">TL</span>
+                      </div>
                   </div>
 
                   {/* BAŞLIK VE FİYAT - Özgür bırakıldı, sıkışmaz */}
