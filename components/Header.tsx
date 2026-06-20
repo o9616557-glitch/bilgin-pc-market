@@ -105,30 +105,47 @@ export default function Header() {
   const { data: session } = useSession();
   const isAdmin = session?.user?.email?.toLowerCase() === "o9616557@gmail.com";
   const [cikisOnayAcik, setCikisOnayAcik] = useState(false); // 🚀 YENİ EKLEDİĞİMİZ MERKEZİ ONAY MOTORU
-  // 🚀 GÜVENLİK MOTORU: Çıkış yaparken çırağın defterini yakar
+  // 🚀 GÜVENLİK MOTORU: Çıkış yaparken çırağın BÜTÜN defterlerini yakar (Gizlilik!)
   const guvenliCikisYap = async () => {
     localStorage.removeItem("bilgin_kayitli_sistemler");
+    localStorage.removeItem("bilgin_kayitli_siparisler");
+    localStorage.removeItem("bilgin_kayitli_favoriler");
+    localStorage.removeItem("bilgin_kayitli_adresler");
     await signOut(); 
   };
-  // 🚀 KAPIDAKİ AKILLI ÇIRAK MOTORU (SADECE GİRİŞ YAPINCA ÇALIŞIR)
+
+  // 🚀 KAPIDAKİ SESSİZ NİNJA ÇIRAK MOTORU (ŞEFİN VİZYONU)
   useEffect(() => {
     // Şefim giriş yapmadıysa çırak yerinden kıpırdamaz, bekler.
     if (!session?.user?.email) return;
 
-    const cirakDepoyaKossun = async () => {
-      try {
-        const res = await fetch("/api/sistemlerim?t=" + new Date().getTime());
-        
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success) {
-            localStorage.setItem("bilgin_kayitli_sistemler", JSON.stringify(data.systems));
-          }
-        }
-      } catch (error) {}
+    const cirakButunDepoyuHazirlasin = async () => {
+      // Çırak 4 farklı depoya (API'ye) aynı anda, birbirini beklemeden koşuyor!
+      const timestamp = new Date().getTime();
+
+      // 1. Sistemleri Rafa Diz
+      fetch("/api/sistemlerim?t=" + timestamp).then(res => res.json()).then(data => {
+        if (data.success) localStorage.setItem("bilgin_kayitli_sistemler", JSON.stringify(data.systems));
+      }).catch(() => {});
+
+      // 2. Siparişleri Rafa Diz
+      fetch("/api/siparisler?t=" + timestamp).then(res => res.json()).then(data => {
+        if (data.success) localStorage.setItem("bilgin_kayitli_siparisler", JSON.stringify(data.siparisler));
+      }).catch(() => {});
+
+      // 3. Favorileri Rafa Diz
+      fetch("/api/favoriler?t=" + timestamp).then(res => res.json()).then(data => {
+        if (data.success) localStorage.setItem("bilgin_kayitli_favoriler", JSON.stringify(data.favoriler));
+      }).catch(() => {});
+
+      // 4. Adresleri Rafa Diz
+      fetch("/api/adresler?t=" + timestamp).then(res => res.json()).then(data => {
+        if (data.success) localStorage.setItem("bilgin_kayitli_adresler", JSON.stringify(data.adresler));
+      }).catch(() => {});
     };
 
-    cirakDepoyaKossun();
+    // Müşteri siteye girdiği an, çırak arkadan sessizce işe başlar
+    cirakButunDepoyuHazirlasin();
   }, [session]);
 // 🔥 ŞEFİN KUSURSUZ KATEGORİ BULUCU MOTORU 🔥
 const kelimeTemizle = (metin: string) => {
