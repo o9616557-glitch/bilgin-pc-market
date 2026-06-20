@@ -190,10 +190,10 @@ export default function SistemlerimPage() {
           <div className="w-full lg:w-2/3 flex flex-col">
                     <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 border-b border-white/5 pb-2">Bileşen Listesi ({parcalar.length} Parça)</h3>
                     
-                 {/* 🚀 YENİ NESİL OKLU KAYDIRMA SARMALAYICISI (Sis Yok, Çubuk Yok!) */}
+             {/* 🚀 YENİ NESİL OKLU KAYDIRMA SARMALAYICISI (Zıplama Yok, Jilet Elmas Var!) */}
                     <div className="relative flex-1 group mt-2">
                       
-                      {/* YUKARI OK (Sadece üzerine gelince veya tıklayınca kibarca belirir) */}
+                      {/* YUKARI OK */}
                       {parcalar.length > 4 && (
                         <button 
                           onClick={(e) => {
@@ -202,13 +202,12 @@ export default function SistemlerimPage() {
                           }}
                           className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 w-8 h-8 flex items-center justify-center bg-[#09090b]/90 hover:bg-[#00d2ff]/20 border border-white/10 hover:border-[#00d2ff]/50 rounded-full text-slate-400 hover:text-[#00d2ff] backdrop-blur-xl transition-all shadow-[0_0_15px_rgba(0,0,0,0.8)] opacity-0 group-hover:opacity-100"
                         >
-                          {/* İçe aktarmaya gerek kalmasın diye saf SVG Ok Çizimi */}
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 15l7-7 7 7"></path></svg>
                         </button>
                       )}
 
-                      {/* LİSTE (Sağdaki o çirkin çubuk tamamen gizlendi!) */}
-                      <div className="bilgin-scroll-alani grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[350px] overflow-y-auto pb-4 pt-1 px-1 items-start content-start [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                      {/* LİSTE */}
+                      <div className="bilgin-scroll-alani grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[350px] overflow-y-auto pb-6 pt-1 px-1 items-start content-start [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                         {parcalar.map((urun: any, i: number) => (
                           <div key={i} className="flex items-start gap-3 bg-[#121215] p-3 rounded-xl border border-white/5 relative z-10 transition-colors hover:border-white/10">
                             <div className="w-12 h-12 rounded-lg bg-black border border-white/5 p-1 shrink-0 flex items-center justify-center mt-1">
@@ -229,22 +228,30 @@ export default function SistemlerimPage() {
                             </div>
                           </div>
                         ))}
+
+                        {/* 💎 LİSTE SONU ELMASI (Ürünler bitince en altta çıkar) */}
+                        {parcalar.length > 0 && (
+                          <div className="col-span-1 md:col-span-2 flex items-center justify-center pt-4 pb-2 opacity-30 select-none">
+                            <div className="h-px bg-gradient-to-r from-transparent to-white/30 flex-1"></div>
+                            <div className="mx-3 text-[#00d2ff] text-[10px] transform rotate-45 shadow-[0_0_10px_rgba(0,210,255,0.5)]">◆</div>
+                            <div className="h-px bg-gradient-to-l from-transparent to-white/30 flex-1"></div>
+                          </div>
+                        )}
                       </div>
 
-                      {/* AŞAĞI OK (Listede 4'ten fazla ürün varsa en altta tam ortada çıkar) */}
+                      {/* AŞAĞI OK (Zıplama kaldırıldı, asil duruş) */}
                       {parcalar.length > 4 && (
                         <button 
                           onClick={(e) => {
                             const container = e.currentTarget.parentElement?.querySelector('.bilgin-scroll-alani');
                             container?.scrollBy({ top: 200, behavior: 'smooth' });
                           }}
-                          className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-20 w-8 h-8 flex items-center justify-center bg-[#09090b]/90 hover:bg-[#00d2ff]/20 border border-white/10 hover:border-[#00d2ff]/50 rounded-full text-slate-400 hover:text-[#00d2ff] backdrop-blur-xl transition-all shadow-[0_0_15px_rgba(0,0,0,0.8)] opacity-100 animate-bounce hover:animate-none"
+                          className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-20 w-8 h-8 flex items-center justify-center bg-[#09090b]/90 hover:bg-[#00d2ff]/20 border border-white/10 hover:border-[#00d2ff]/50 rounded-full text-slate-400 hover:text-[#00d2ff] backdrop-blur-xl transition-all shadow-[0_0_15px_rgba(0,0,0,0.8)] opacity-100 hover:scale-110"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
                       )}
                     </div>
-
                     <div className="flex lg:hidden flex-col gap-3 mt-6 pt-6 border-t border-white/10">
                       <button 
                         onClick={() => handleSepeteEkle(sistem)}
