@@ -8,28 +8,48 @@ import { Server, ArrowLeft, ShoppingBag, Trash2, Cpu, HardDrive, LayoutGrid, Mon
 
 export default function SistemlerimPage() {
   const { sepeteEkle } = useCart();
-  const [sistemler, setSistemler] = useState<any[]>([]);
-  const [yukleniyor, setYukleniyor] = useState(true);
-  
-  // 🚀 YENİ: ŞIK SİLME PENCERESİ İÇİN KONTROL
+  // 🚀 ÇIRAK ARTIK SAYFA DAHA ÇİZİLMEDEN RAFA BAKIYOR (SIFIR GECİKME)
+  const [sistemler, setSistemler] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      const cirakHafizasi = localStorage.getItem("bilgin_kayitli_sistemler");
+      if (cirakHafizasi) return JSON.parse(cirakHafizasi);
+    }
+    return [];
+  });
+
+  // 🚀 Veri hafızada varsa, "Yükleniyor" ekranını iptal ediyoruz, saniyesinde açılıyor!
+  const [yukleniyor, setYukleniyor] = useState(() => {
+    if (typeof window !== "undefined") {
+      return !localStorage.getItem("bilgin_kayitli_sistemler");
+    }
+    return true;
+  });
+
+  // 🚀 ŞIK SİLME PENCERESİ İÇİN KONTROL (Bunu kaybetmiyoruz)
   const [silinecekSistem, setSilinecekSistem] = useState<{id: string, name: string} | null>(null);
 
-  const sistemleriGetir = async () => {
-    try {
-      const res = await fetch("/api/sistemlerim");
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setSistemler(data.systems);
-      }
-    } catch (error) {
-      toast.error("Sistemler yüklenirken hata oluştu.");
-    } finally {
-      setYukleniyor(false);
-    }
-  };
-
   useEffect(() => {
-    sistemleriGetir();
+    // 🚀 USTA (Bulut Motoru): Çırak ekranı sıfır saniyede doldurdu, usta sadece arkadan sessizce güncel veri var mı diye kontrol ediyor
+    const sessizGuncelleme = async () => {
+      try {
+        const res = await fetch("/api/sistemlerim?t=" + new Date().getTime());
+        const data = await res.json();
+        if (res.ok && data.success) {
+          const yeniDurum = JSON.stringify(data.systems);
+          const eskiDurum = localStorage.getItem("bilgin_kayitli_sistemler");
+          
+          if (eskiDurum !== yeniDurum) {
+            setSistemler(data.systems);
+            localStorage.setItem("bilgin_kayitli_sistemler", yeniDurum);
+          }
+        }
+      } catch (error) {
+      } finally {
+        setYukleniyor(false);
+      }
+    };
+
+    sessizGuncelleme();
   }, []);
 
   const handleSepeteEkle = (sistem: any) => {
