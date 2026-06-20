@@ -373,17 +373,17 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
           <p className="mt-1 text-xs text-gray-400">Hesabınızdan çıkış yapmak istediğinize emin misiniz?</p>
         </div>
       </div>
-      <div className="flex border-t border-white/5 bg-[#121215]">
-        <button onClick={() => toast.dismiss(t.id)} className="w-full border-r border-white/5 px-4 py-3 text-xs font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+    <div className="flex border-t border-white/5 bg-[#121215]">
+        <button onClick={() => toast.remove(t.id)} className="w-full border-r border-white/5 px-4 py-3 text-xs font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
           İPTAL
         </button>
         <button onClick={async () => { 
-          toast.dismiss(t.id); 
+          toast.remove(t.id); 
           setHesabimAcik(false); 
           localStorage.removeItem("bilgin_kayitli_sistemler"); 
           await signOut({ callbackUrl: "/" }); 
         }} className="w-full px-4 py-3 text-xs font-black text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors uppercase tracking-wider">
-          Evet, Çıkış Yap
+           Çıkış Yap
         </button>
       </div>
     </div>
