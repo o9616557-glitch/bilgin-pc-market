@@ -294,8 +294,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                   <span className="hidden sm:block text-sm font-bold">{session?.user?.name ? session.user.name.split(" ")[0] : "Hesabım"}</span>
                   <svg className={`w-5 h-5 md:w-5 md:h-5 shrink-0 transition-transform ${hesabimAcik ? "scale-110" : "group-hover:scale-110"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 </button>
-
-  {hesabimAcik && (
+{hesabimAcik && (
           <>
             {/* ARKA PLAN KARARTMASI */}
             <div className="fixed inset-0 z-[99998] hidden md:block" onClick={() => setHesabimAcik(false)}></div>
@@ -315,7 +314,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
               <div className="flex-1 flex flex-col">
                 {session?.user ? (
                   <>
-                    {/* 🟢 GİRİŞ YAPMIŞ KULLANICI (Burası senin o kusursuz jilet gibi olan eski kısım) */}
+                    {/* 🟢 GİRİŞ YAPMIŞ KULLANICI */}
                     <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-[#3b82f6]/10 to-transparent rounded-xl border border-[#3b82f6]/20 mb-4 shrink-0">
                       <div className="w-10 h-10 rounded-full bg-[#3b82f6]/20 border border-[#3b82f6]/50 flex items-center justify-center shrink-0 text-[#3b82f6] font-black text-lg shadow-[0_0_10px_rgba(59,130,246,0.2)]">
                         {session.user?.name ? session.user.name.charAt(0).toUpperCase() : "B"}
@@ -372,7 +371,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                       <span className="text-white font-black text-sm mb-1">Hesabınıza Erişin</span>
                     </div>
                     
-                    {/* HIZLI SİPARİŞ TAKİBİ - Özgür, tıklandığında çalışır */}
+                    {/* HIZLI SİPARİŞ TAKİBİ */}
                     <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center justify-between p-3 mb-4 text-white bg-gradient-to-r from-[#3b82f6]/80 to-[#00d2ff]/80 hover:opacity-100 rounded-xl text-xs font-black tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(59,130,246,0.2)] shrink-0">
                       <span className="flex items-center gap-2">📦 Sipariş Takibi</span>
                       <ChevronRight className="w-4 h-4 opacity-70" />
@@ -380,36 +379,30 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
 
                     <div className="h-px bg-white/5 my-1 shrink-0"></div>
 
-                    {/* 🛡️ CAM KALKANLI ALAN (Örümcek Ağı Efekti) */}
-                    <div className="relative mt-2 mb-2 shrink-0 group rounded-xl overflow-hidden">
+                    {/* 🛡️ ŞEFFAF KALKANLI ALAN (Yazılar cam gibi net!) */}
+                    <div className="relative mt-2 mb-2 shrink-0 group">
                       
-                      {/* TIKLANABİLİR GÖRÜNMEZ KALKAN (Bütün kutuyu kaplar) */}
+                      {/* GÖRÜNMEZ TIKLAMA ALANI (Üstüne tıkladığı an mesajı patlatır) */}
                       <button 
                         onClick={(e) => { 
                           e.preventDefault(); 
-                          toast("Garajınıza ve bilgilerinize ulaşmak için ufak bir giriş işlemi gerekiyor patron! 🚀", { style: { background: '#09090b', color: '#fff', border: '1px solid #3b82f6' } }); 
+                          toast("Lütfen giriş yapın.", { style: { background: '#09090b', color: '#fff', border: '1px solid #3b82f6' } }); 
                         }} 
-                        className="absolute inset-0 w-full h-full z-10 flex items-center justify-center bg-[#050814]/40 backdrop-blur-[1.5px] cursor-pointer transition-all hover:bg-[#050814]/20"
-                      >
-                        {/* Üstüne gelince (Hover) ortada kibarca beliren kilit uyarısı */}
-                        <div className="bg-[#09090b] border border-white/10 px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-xl opacity-0 group-hover:opacity-100 transition-opacity transform scale-95 group-hover:scale-100">
-                           <span className="text-[10px] font-bold text-gray-300 tracking-wider uppercase">Giriş Gerekli</span>
-                           <span className="text-[#3b82f6]">🔒</span>
-                        </div>
-                      </button>
+                        className="absolute inset-0 w-full h-full z-10 cursor-pointer"
+                      ></button>
 
-                      {/* KALKANIN ARKASINDAKİ MENÜ (Soluk, tıklanamaz, sadece vitrin) */}
-                      <div className="flex flex-col gap-1 opacity-60 pointer-events-none select-none">
-                        <div className="flex items-center gap-3 p-2.5 text-gray-400 rounded-xl text-xs font-bold w-full">
+                      {/* ARKA PLANDAKİ MENÜ (Matlık kaldırıldı, yazılar pırıl pırıl) */}
+                      <div className="flex flex-col gap-1 opacity-95 pointer-events-none select-none">
+                        <div className="flex items-center gap-3 p-2.5 text-gray-300 rounded-xl text-xs font-bold w-full">
                           <span className="w-7 h-7 rounded-lg bg-[#121215] border border-white/5 flex items-center justify-center text-sm">📋</span> Siparişlerim
                         </div>
-                        <div className="flex items-center gap-3 p-2.5 text-gray-400 rounded-xl text-xs font-bold w-full">
+                        <div className="flex items-center gap-3 p-2.5 text-gray-300 rounded-xl text-xs font-bold w-full">
                           <span className="w-7 h-7 rounded-lg bg-[#121215] border border-white/5 flex items-center justify-center text-sm">❤️</span> Favorilerim
                         </div>
-                        <div className="flex items-center gap-3 p-2.5 text-gray-400 rounded-xl text-xs font-bold w-full">
+                        <div className="flex items-center gap-3 p-2.5 text-gray-300 rounded-xl text-xs font-bold w-full">
                           <span className="w-7 h-7 rounded-lg bg-[#121215] border border-white/5 flex items-center justify-center text-sm">💻</span> Sistemlerim
                         </div>
-                        <div className="flex items-center gap-3 p-2.5 text-gray-400 rounded-xl text-xs font-bold w-full">
+                        <div className="flex items-center gap-3 p-2.5 text-gray-300 rounded-xl text-xs font-bold w-full">
                           <span className="w-7 h-7 rounded-lg bg-[#121215] border border-white/5 flex items-center justify-center text-sm">📍</span> Adreslerim
                         </div>
                       </div>
