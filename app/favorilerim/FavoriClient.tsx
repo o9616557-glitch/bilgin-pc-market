@@ -56,15 +56,20 @@ export default function FavoriClient({ initialFavorites }: Props) {
     }
   };
 
-  const handleSepeteEkle = (urun: any) => {
-    const targetId = urun._id || urun.id;
+ const handleSepeteEkle = (urun: any) => {
+    const targetId = String(urun._id || urun.id);
+    const havaleOrani = urun.havaleIndirimi !== undefined ? Number(urun.havaleIndirimi) : 5;
+    const gecerliFiyat = Number(urun.indirimliFiyat || urun.fiyat || urun.price || 0);
+
     sepeteEkle({
       id: targetId,
-      isim: urun.isim || urun.title,
-      fiyat: urun.fiyat,
-      resim: urun.resim || urun.image,
+      isim: urun.isim || urun.title || urun.name,
+      fiyat: gecerliFiyat,
+      resim: (urun.resimler && urun.resimler.length > 0 ? urun.resimler[0] : urun.resim) || urun.image || "/placeholder.jpg",
       adet: 1,
-      varyasyon: "Standart" 
+      varyasyon: "Standart Model", // 🚀 BİNGO: DİĞER SAYFALARLA BİREBİR AYNI OLDU
+      havaleIndirimi: havaleOrani, // 🚀 EKSİK OLAN HAVALE İNDİRİMİ EKLENDİ
+      slug: urun.slug // 🚀 EKSİK OLAN LİNK BİLGİSİ EKLENDİ
     });
 
     setSepeteEklenenler(prev => [...prev, targetId]);
