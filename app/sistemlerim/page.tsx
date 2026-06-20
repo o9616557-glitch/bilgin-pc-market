@@ -53,32 +53,46 @@ export default function SistemlerimPage() {
   }, []);
 
 const handleSepeteEkle = async (sistem: any) => {
-    const parcalar = Object.values(sistem.selections);
-    if (parcalar.length === 0) return;
+  const parcalar = Object.values(sistem.selections);
+  if (parcalar.length === 0) return;
 
-    // 🚀 ZIRHLI KAPI: Patronu bilgilendiriyoruz ki işlem bitmeden sayfadan çıkmasın
-    const toastId = toast.loading("📦 Sistem parçaları sepete zırhlanarak yükleniyor... Lütfen sayfadan ayrılmayın!");
+  // 🚀 ZIRHLI KAPI
+  const toastId = toast.loading(`📦 "${sistem.name}" parçaları sepete zırhlanarak yükleniyor... Lütfen sayfadan ayrılmayın!`);
 
-    // forEach iptal, sırayla ve güvenli (for...of) işliyoruz
-    for (const urun of parcalar as any[]) {
-      sepeteEkle({
-        id: urun._id?.toString() || Math.random().toString(),
-        isim: `[${sistem.name}] ${urun.isim}`,
-        fiyat: Number(urun.indirimliFiyat || urun.fiyat || 0),
-        resim: urun.resim || "https://via.placeholder.com/150",
-        varyasyon: "Sistem Parçası",
-        havaleIndirimi: urun.havaleIndirimi || 5,
-        slug: urun.slug || urun._id?.toString() || Math.random().toString(),
-        stok: urun.stok || 10
-      });
+  // forEach iptal, sırayla ve güvenli (for...of) işliyoruz
+  for (const urun of parcalar as any[]) {
+    sepeteEkle({
+      id: urun._id?.toString() || Math.random().toString(),
+      isim: `[${sistem.name}] ${urun.isim}`,
+      fiyat: Number(urun.indirimliFiyat || urun.fiyat || 0),
+      resim: urun.resim || "https://via.placeholder.com/150",
+      varyasyon: "Sistem Parçası",
+      havaleIndirimi: urun.havaleIndirimi || 5,
+      slug: urun.slug || urun._id?.toString() || Math.random().toString(),
+      stok: urun.stok || 10
+    }, true); // 🚀 İŞTE SİHİRLİ TRUE: Bulutu kilitleyip motoru rahatlattık!
 
-      // 🚀 HAYAT KURTARAN FREN: Tarayıcıya "bu ürünü hard diske (localStorage) yazıp kaydetmen için sana 150 salise süre veriyorum, sakın yutma" diyoruz.
-      await new Promise(resolve => setTimeout(resolve, 150));
-    }
+    // 🚀 Hızı 150'den 50 saliseye çektik (Çırak ışık hızına çıktı)
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
 
-    // İşlem tamamen bitince zırhı açıyoruz
-    toast.success(`"${sistem.name}" canavarı sepete eksiksiz yüklendi! Artık sepetinize gidebilirsiniz. 🛒`, { id: toastId });
-  };
+  // 🚀 ALTIN VURUŞ: 
+  // Bütün ürünler tarayıcıya (lokale) sorunsuz dizildi. 
+  // Şimdi sayfayı yenileyince silinmesin diye TEK BİR PAKET halinde buluta fırlatıyoruz!
+  try {
+    const sonSepet = JSON.parse(localStorage.getItem("bilgin-sepet") || "[]");
+    await fetch("/api/sepet", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items: sonSepet })
+    });
+  } catch (error) {
+    // Hata olsa bile lokalde kusursuz çalışmaya devam eder
+  }
+
+  // İşlem tamamen bitince zırhı açıyoruz
+  toast.success(`"${sistem.name}" canavarı sepete eksiksiz yüklendi! Artık sepetinize gidebilirsiniz. 🛒`, { id: toastId });
+};
   // 🚀 GERÇEK SİLME MOTORU
   const sistemiKalicOlarakSil = async () => {
     if (!silinecekSistem) return;
