@@ -357,9 +357,15 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                     <div className="flex-1 min-h-[20px]"></div>
 
                     <div className="h-px bg-white/10 my-2 shrink-0"></div>
-                    <button onClick={async () => { setHesabimAcik(false); localStorage.removeItem("bilgin_kayitli_sistemler"); await signOut({ callbackUrl: "/" }); }} className="flex items-center justify-center gap-2 p-3 w-full text-red-400 hover:text-white hover:bg-red-500 rounded-xl text-xs font-black uppercase tracking-wider transition-all border border-transparent hover:border-red-500 shadow-sm hover:shadow-[0_0_15px_rgba(239,68,68,0.3)] shrink-0">
-                      🚪 Çıkış Yap
-                    </button>
+                 <button onClick={async () => { 
+  if (window.confirm("Hesabınızdan çıkış yapmak istediğinize emin misiniz?")) {
+    setHesabimAcik(false); 
+    localStorage.removeItem("bilgin_kayitli_sistemler"); 
+    await signOut({ callbackUrl: "/" }); 
+  }
+}} className="flex items-center justify-center gap-2 p-3 w-full text-red-400 hover:text-white hover:bg-red-500 rounded-xl text-xs font-black uppercase tracking-wider transition-all border border-transparent hover:border-red-500 shadow-sm hover:shadow-[0_0_15px_rgba(239,68,68,0.3)] shrink-0">
+  🚪 Çıkış Yap
+</button>
                   </>
                 ) : (
                   <>
