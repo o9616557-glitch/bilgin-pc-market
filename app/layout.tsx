@@ -5,6 +5,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import { CartProvider } from "./CartContext";
+import { HesapProvider } from "./HesapContext"; // 🚀 YENİ RAM ÇİPİ İTHAL EDİLDİ
 import Footer from "@/components/Footer"; 
 import { CompareProvider } from "./CompareContext";
 import ComparePopup from "./ComparePopup";
@@ -32,7 +33,7 @@ export default function RootLayout({
     <html lang="tr">
       {/* 🚀 İŞTE BURASI: font-sans eklendi, artık o premium Geist fontu tüm siteye HD kalitesinde basılacak 🚀 */}
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased min-h-screen flex flex-col bg-[#050814] overflow-x-hidden`}>
-<Toaster 
+        <Toaster 
           position="top-right"
           containerStyle={{
             zIndex: 2147483647,
@@ -54,12 +55,14 @@ export default function RootLayout({
         <AuthProvider>
           <CartProvider>
             <CompareProvider>
-              <Header />
-              <main className="flex-grow w-full">
-                {children}
-              </main>
-              <Footer />
-              <ComparePopup />
+              <HesapProvider> {/* 🚀 YENİ RAM ÇİPİ ANAKARTA TAM OTURDU */}
+                <Header />
+                <main className="flex-grow w-full">
+                  {children}
+                </main>
+                <Footer />
+                <ComparePopup />
+              </HesapProvider>
             </CompareProvider>
           </CartProvider>
         </AuthProvider>
