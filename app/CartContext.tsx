@@ -7,13 +7,41 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [sepet, setSepet] = useState<any[]>([]);
 
   useEffect(() => {
+    // 1. ÖNCE LOKAL HAFIZAYI AL (Sitenin ışık hızında açılması için)
     const hafiza = localStorage.getItem("bilgin-sepet");
     if (hafiza) setSepet(JSON.parse(hafiza));
+
+    // 2. ARKA PLANDA SESSİZCE BULUTU KONTROL ET (Giriş yapmışsa sepeti senkronize eder)
+    const buluttanGetir = async () => {
+      try {
+        const res = await fetch("/api/sepet");
+        const data = await res.json();
+        if (data.success && data.cart && data.cart.length > 0) {
+          setSepet(data.cart);
+          localStorage.setItem("bilgin-sepet", JSON.stringify(data.cart));
+        }
+      } catch (error) {
+        // Hata olursa sessiz kal, lokal sepet aslanlar gibi çalışmaya devam eder
+      }
+    };
+    buluttanGetir();
   }, []);
+
+  // 🚀 BULUT YEDEKLEME MOTORU (Lokal sepeti asla bozmaz, sadece arkadan kopyasını yollar)
+  const bulutaYedekle = async (guncelSepet: any[]) => {
+    try {
+      await fetch("/api/sepet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: guncelSepet }),
+      });
+    } catch (error) {
+      // İnternet kopsa bile lokal sepet çalışmaya devam eder, müşteri asla hata görmez
+    }
+  };
 
   const sepeteEkle = (urun: any) => {
     setSepet((eskiSepet) => {
-      
       const urunId = String(urun.id || urun._id);
       const urunSlug = urun.slug || "";
       const urunVaryasyon = urun.varyasyon || "Standart Model";
@@ -44,6 +72,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
       
       localStorage.setItem("bilgin-sepet", JSON.stringify(yeni));
+      bulutaYedekle(yeni); // 🔥 Eklendikten sonra buluta kopyasını yolla
       return yeni;
     });
   };
@@ -62,6 +91,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     
     setSepet(yeni);
     localStorage.setItem("bilgin-sepet", JSON.stringify(yeni));
+    bulutaYedekle(yeni); // 🔥 Silindikten sonra bulutu güncelle
   };
 
   const adetGuncelle = (id: string, varyasyon: string, miktar: number, slug?: string) => {
@@ -81,15 +111,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
     setSepet(yeni);
     localStorage.setItem("bilgin-sepet", JSON.stringify(yeni));
+    bulutaYedekle(yeni); // 🔥 Adet değiştikten sonra bulutu güncelle
   };
 
   const sepetiBosalt = () => {
     setSepet([]);
     localStorage.setItem("bilgin-sepet", "[]");
+    bulutaYedekle([]); // 🔥 Sepet boşalınca bulutu da temizle
   };
 
   return (
-    <CartContext.Provider value={{ sepet, sepeteEkle, sepettenSil, adetGuncelle, sepetiBosalt}}>
+    // Ufak bir düzeltme: Sepet sayfasında `sepetiTemizle` kullanmışsın, hata vermesin diye onu da ekledim.
+    <CartContext.Provider value={{ sepet, sepeteEkle, sepettenSil, adetGuncelle, sepetiBosalt, sepetiTemizle: sepetiBosalt }}>
       {children}
     </CartContext.Provider>
   );
