@@ -82,7 +82,28 @@ function akilliKategoriBul(metin: string) {
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
+// 🚀 KAPIDAKİ ÇIRAK MOTORU (GLOBAL PREFETCH)
+  useEffect(() => {
+    const cirakDepoyaKossun = async () => {
+      try {
+        // Kullanıcı siteye girdiği an sessizce arka kapıdan veritabanını yoklar
+        const res = await fetch("/api/sistemlerim?t=" + new Date().getTime());
+        
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+            // Veriyi bulduğu an, müşteri daha o sayfaya tıklamadan lokal hafızaya (rafa) dizer
+            localStorage.setItem("bilgin_kayitli_sistemler", JSON.stringify(data.systems));
+          }
+        }
+      } catch (error) {
+        // Hata olursa müşteriye çaktırmaz, sessizce yerine döner
+      }
+    };
 
+    // Site yüklendiğinde çırağa "koş" emri verilir
+    cirakDepoyaKossun();
+  }, []);
   const gizlenecekSayfalar = ["/sepet", "/odeme", "/giris", "/kayit", "/checkout"];
   if (gizlenecekSayfalar.includes(pathname)) return null; 
 

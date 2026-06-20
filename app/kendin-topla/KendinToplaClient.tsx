@@ -225,7 +225,7 @@ export default function KendinToplaClient({ initialProducts }: { initialProducts
       const data = await res.json();
 
       if (res.ok && data.success) {
-        toast.success(`"${systemName}" başarıyla garajınıza eklendi!`, { id: toastId });
+        toast.success(`"${systemName}" başarıyla sisteminize eklendi!`, { id: toastId });
         setSaveModalOpen(false);
         setSystemName("");
       } else {
