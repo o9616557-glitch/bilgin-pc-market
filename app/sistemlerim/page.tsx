@@ -81,7 +81,7 @@ export default function SistemlerimPage() {
     }
   };
 
-  return (
+ return (
     <div className="min-h-screen bg-[#050814] text-white pt-12 pb-24 px-4 relative overflow-hidden font-sans">
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#00d2ff] blur-[150px] opacity-10 pointer-events-none"></div>
 
@@ -94,7 +94,7 @@ export default function SistemlerimPage() {
               <ArrowLeft className="w-4 h-4" /> PC SİHİRBAZINA DÖN
             </Link>
             <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-white flex items-center gap-3">
-             KAYITLI <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00d2ff] to-[#3b82f6]">SİSTEMLERİM</span>
+              KAYITLI <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00d2ff] to-[#3b82f6]">SİSTEMLERİM</span>
             </h1>
           </div>
           <div className="flex items-center bg-[#09090b] text-slate-300 px-5 py-3 rounded-xl border border-white/10 shadow-sm w-max">
@@ -114,7 +114,7 @@ export default function SistemlerimPage() {
             <div className="w-24 h-24 rounded-full bg-[#18181b] border border-white/10 flex items-center justify-center mx-auto mb-6">
               <Server className="w-12 h-12 text-slate-600" />
             </div>
-            <h2 className="text-2xl font-black uppercase tracking-wide mb-3 text-white">PC Arşiviniz Bomboş</h2>
+            <h2 className="text-2xl font-black uppercase tracking-wide mb-3 text-white">Sistemleriniz Bomboş</h2>
             <p className="text-slate-400 text-sm max-w-md mx-auto mb-8 font-medium leading-relaxed">
               Henüz hayalinizdeki bilgisayarı toplayıp kaydetmediniz. PC Sihirbazı'na giderek hemen bir canavar yaratabilirsiniz!
             </p>
@@ -129,9 +129,9 @@ export default function SistemlerimPage() {
               const toplamFiyat = parcalar.reduce((acc, curr) => acc + Number(curr.indirimliFiyat || curr.fiyat || 0), 0);
               
               return (
-                <div key={sistem._id} className="bg-[#09090b] border border-white/10 rounded-3xl p-6 sm:p-8 flex flex-col lg:flex-row gap-8 shadow-xl transition-all hover:border-[#00d2ff]/30 group">
+                <div key={sistem._id} className="bg-[#09090b] border border-white/10 rounded-3xl p-6 sm:p-8 flex flex-col lg:flex-row gap-6 lg:gap-8 shadow-xl transition-all hover:border-[#00d2ff]/30 group">
                   
-                  {/* SOL: SİSTEM BİLGİLERİ VE BUTONLAR */}
+                  {/* SOL: SİSTEM BİLGİLERİ */}
                   <div className="w-full lg:w-1/3 flex flex-col border-b lg:border-b-0 lg:border-r border-white/10 pb-6 lg:pb-0 lg:pr-8">
                     <div className="flex-1">
                       <div className="text-[10px] text-slate-500 font-black tracking-widest uppercase mb-2 flex items-center gap-2">
@@ -142,7 +142,7 @@ export default function SistemlerimPage() {
                         Oluşturulma: {new Date(sistem.createdAt).toLocaleDateString("tr-TR")}
                       </p>
                       
-                      <div className="bg-[#121215] border border-white/5 rounded-2xl p-5 mb-6">
+                      <div className="bg-[#121215] border border-white/5 rounded-2xl p-5 mb-0 lg:mb-6">
                         <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Toplam Tutar</div>
                         <div className="text-3xl font-black text-[#00d2ff] tracking-tight">
                           {toplamFiyat.toLocaleString("tr-TR")} <span className="text-base text-white">TL</span>
@@ -150,7 +150,8 @@ export default function SistemlerimPage() {
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-3">
+                    {/* 💻 MASAÜSTÜ BUTONLARI (SADECE BİLGİSAYARDA SOLDA GÖRÜNÜR) */}
+                    <div className="hidden lg:flex flex-col gap-3">
                       <button 
                         onClick={() => handleSepeteEkle(sistem)}
                         className="w-full py-4 rounded-xl font-black uppercase tracking-widest text-xs bg-[#00d2ff] text-black hover:bg-[#00c4db] transition-all shadow-[0_0_15px_rgba(0,210,255,0.2)] flex justify-center items-center gap-2"
@@ -166,10 +167,10 @@ export default function SistemlerimPage() {
                     </div>
                   </div>
 
-                  {/* SAĞ: PARÇA LİSTESİ */}
-                  <div className="w-full lg:w-2/3">
+                  {/* SAĞ: PARÇA LİSTESİ VE MOBİL BUTONLAR */}
+                  <div className="w-full lg:w-2/3 flex flex-col">
                     <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 border-b border-white/5 pb-2">Bileşen Listesi ({parcalar.length} Parça)</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar flex-1">
                       {parcalar.map((urun: any, i: number) => (
                         <div key={i} className="flex items-start gap-3 bg-[#121215] p-3 rounded-xl border border-white/5">
                           <div className="w-12 h-12 rounded-lg bg-black border border-white/5 p-1 shrink-0 flex items-center justify-center mt-1">
@@ -190,6 +191,22 @@ export default function SistemlerimPage() {
                           </div>
                         </div>
                       ))}
+                    </div>
+
+                    {/* 📱 MOBİL BUTONLARI (SADECE TELEFONDA BİLEŞEN LİSTESİNİN ALTINDA GÖRÜNÜR) */}
+                    <div className="flex lg:hidden flex-col gap-3 mt-6 pt-6 border-t border-white/10">
+                      <button 
+                        onClick={() => handleSepeteEkle(sistem)}
+                        className="w-full py-4 rounded-xl font-black uppercase tracking-widest text-xs bg-[#00d2ff] text-black hover:bg-[#00c4db] transition-all shadow-[0_0_15px_rgba(0,210,255,0.2)] flex justify-center items-center gap-2"
+                      >
+                        <ShoppingBag className="w-4 h-4" /> Sistemi Sepete Ekle
+                      </button>
+                      <button 
+                        onClick={() => handleSistemiSil(sistem._id, sistem.name)}
+                        className="w-full py-3.5 rounded-xl font-black uppercase tracking-widest text-xs bg-zinc-900 border border-white/5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20 transition-all flex justify-center items-center gap-2"
+                      >
+                        <Trash2 className="w-4 h-4" /> Sistemlerimden Sil
+                      </button>
                     </div>
                   </div>
 

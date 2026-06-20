@@ -373,7 +373,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
       <div className={`md:hidden fixed top-[80px] left-0 w-full h-[calc(100vh-80px)] bg-[#050814] z-[98] overflow-y-auto transition-transform duration-300 ${menuAcik ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="px-6 py-8 pb-32">
           
-        {/* 🚀 ÖZEL MENÜ BÖLÜMÜ (KUTUSUZ, SADE VE ŞIK) */}
+      {/* 🚀 ÖZEL MENÜ BÖLÜMÜ (KUTUSUZ, SADE VE YEŞİL TASARIM) */}
           <div className="flex flex-col mb-8">
             
             {/* 1. SİSTEMLERİM (EN ÜSTTE) */}
@@ -381,25 +381,25 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
               href="/sistemlerim"
               prefetch={true}
               onClick={() => setMenuAcik(false)}
-              className="flex items-center justify-between py-4 border-b border-[#00d2ff]/20 group"
+              className="flex items-center justify-between py-4 border-b border-emerald-500/20 group"
             >
-              <span className="font-black tracking-widest text-[#00d2ff] uppercase text-sm flex items-center gap-3">
+              <span className="font-black tracking-widest text-emerald-400 uppercase text-sm flex items-center gap-3">
                 💻 Sistemlerim
               </span>
-              <ArrowRight className="w-5 h-5 text-[#00d2ff] opacity-70 group-hover:opacity-100 transform group-hover:translate-x-1 transition-all" />
+              <ArrowRight className="w-5 h-5 text-emerald-400 opacity-70 group-hover:opacity-100 transform group-hover:translate-x-1 transition-all" />
             </Link>
 
-            {/* 2. KENDİN TOPLA (ALTTA, KUTUSUZ VE YAZISI SADELEŞMİŞ) */}
+            {/* 2. KENDİN TOPLA (ALTTA) */}
             <Link
               href="/kendin-topla"
               prefetch={true}
               onClick={() => setMenuAcik(false)}
-              className="flex items-center justify-between py-4 border-b border-[#00d2ff]/20 group mb-2"
+              className="flex items-center justify-between py-4 border-b border-emerald-500/20 group mb-2"
             >
-              <span className="font-black tracking-widest text-[#00d2ff] uppercase text-sm flex items-center gap-3">
+              <span className="font-black tracking-widest text-emerald-400 uppercase text-sm flex items-center gap-3">
                 🔧 Kendin Topla
               </span>
-              <ArrowRight className="w-5 h-5 text-[#00d2ff] opacity-70 group-hover:opacity-100 transform group-hover:translate-x-1 transition-all" />
+              <ArrowRight className="w-5 h-5 text-emerald-400 opacity-70 group-hover:opacity-100 transform group-hover:translate-x-1 transition-all" />
             </Link>
             
           </div>
