@@ -52,35 +52,27 @@ export default function SistemlerimPage() {
     sessizGuncelleme();
   }, []);
 
-const handleSepeteEkle = async (sistem: any) => {
-  const parcalar = Object.values(sistem.selections);
-  if (parcalar.length === 0) return;
+const handleSepeteEkle = (sistem: any) => {
+    const parcalar = Object.values(sistem.selections);
+    if (parcalar.length === 0) return;
 
-  // Müşteriye işlemin başladığını gösterelim
-  const toastId = toast.loading("Parçalar sepete sırayla diziliyor...");
-
-  // forEach yerine for...of kullanıyoruz ki sırayı bozmasın
-  for (const urun of parcalar as any[]) {
-    sepeteEkle({
-      id: urun._id?.toString(),
-      isim: `[${sistem.name}] ${urun.isim}`,
-      fiyat: Number(urun.indirimliFiyat || urun.fiyat || 0),
-      resim: urun.resim || "https://via.placeholder.com/150",
-      varyasyon: "Sihirbaz Parçası",
-      havaleIndirimi: urun.havaleIndirimi || 5,
-      // 🚀 Siyah ekran çökmesini engelleyen link (slug) ve stok:
-      slug: urun.slug || "sistem-parcasi",
-      stok: urun.stok || 10
+    parcalar.forEach((urun: any) => {
+      sepeteEkle({
+        id: urun._id?.toString(),
+        isim: `[${sistem.name}] ${urun.isim}`,
+        fiyat: Number(urun.indirimliFiyat || urun.fiyat || 0),
+        resim: urun.resim || "https://via.placeholder.com/150",
+        varyasyon: "Sihirbaz Parçası",
+        havaleIndirimi: urun.havaleIndirimi || 5,
+        // 🚀 İŞTE ÇÖZÜM: Parçalar aynı ismi alıp birbirini ezmesin diye
+        // kendi benzersiz ID'lerini link olarak veriyoruz. Siyah ekran da olmuyor, ezilme de!
+        slug: urun.slug || urun._id?.toString(),
+        stok: urun.stok || 10
+      });
     });
 
-    // 🚀 HAYAT KURTARAN FREN: Her parçadan sonra çırak 50 milisaniye bekliyor.
-    // Gözle görülmez bir hızdır ama sistemin ürünleri ezmesini kesinlikle engeller.
-    await new Promise(resolve => setTimeout(resolve, 50));
-  }
-
-  // İşlem bitince yükleniyor bildirimini başarıya çeviriyoruz
-  toast.success(`"${sistem.name}" eksiksiz olarak sepete eklendi! 🛒`, { id: toastId });
-};
+    toast.success(`"${sistem.name}" başarıyla sepete eklendi! 🛒`);
+  };
   // 🚀 GERÇEK SİLME MOTORU
   const sistemiKalicOlarakSil = async () => {
     if (!silinecekSistem) return;
