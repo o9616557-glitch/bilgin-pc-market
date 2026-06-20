@@ -5,6 +5,7 @@ import { MapPin, Plus, Trash2, ArrowLeft, Mail, Phone, Edit2, X } from "lucide-r
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useHesap } from "@/app/HesapContext"; // 🚀 YENİ RAM KABLOSU BAĞLANDI
 
 interface Address {
   _id: string;
@@ -19,25 +20,44 @@ interface Address {
   isDefaultBilling?: boolean;
 }
 
-interface Props {
-  initialAddresses: Address[];
-}
-
-export default function AdresYoneticisi({ initialAddresses }: Props) {
+export default function AdresYoneticisi() { // 🚀 initialAddresses parametresi çöp oldu, direkt RAM'den çekiyoruz
   const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
   const router = useRouter();
   
-  // 🚀 ADRESLERİ SIKI SIKIYA TUTAN HAFIZA
-  const [addresses, setAddresses] = useState<Address[]>(initialAddresses);
+  // 🚀 DDR5 RAM'DEN VERİYİ ŞAK DİYE ÇEKİYORUZ
+  const { adresler: ramAdresler, verileriRAMeCek } = useHesap();
+
+  // RAM'de veri varsa anında ekrana yansıt
+  const [addresses, setAddresses] = useState<Address[]>(ramAdresler || []);
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  // Veritabanı yenilendiğinde hafızayı senkronize et
+  // 🚀 İLK AÇILIŞ VE SESSİZ RADAR
   useEffect(() => {
-    setAddresses(initialAddresses);
-  }, [initialAddresses]);
+    // 1. RAM'den gelen veriyi anında ekrana bas
+    if (ramAdresler && ramAdresler.length > 0) {
+      setAddresses(ramAdresler);
+    }
 
+    // 2. Müşteri ekrana bakarken, arkadan çaktırmadan yeni veri var mı diye kontrol et
+    const sessizGuncelleme = async () => {
+      try {
+        const res = await fetch("/api/addresses?t=" + new Date().getTime());
+        const data = await res.json();
+        if (res.ok && data.addresses) {
+           setAddresses(data.addresses);
+           // Eğer farklı sekmede ekleme olduysa RAM'i de güncelle
+           verileriRAMeCek(); 
+        }
+      } catch (error) {}
+    };
+
+    sessizGuncelleme(); // Sayfa açılınca bir kez çalışsın
+    const radar = setInterval(sessizGuncelleme, 10000); // 10 saniyede bir arkadan kontrol etsin
+
+    return () => clearInterval(radar);
+  }, [ramAdresler, verileriRAMeCek]);
   const formBaslangic = {
     title: "", fullName: "", phone: "", email: "", city: "", district: "", fullAddress: "", isDefaultDelivery: false, isDefaultBilling: false
   };
@@ -47,87 +67,87 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Form kapatıldığında veya kaydedildiğinde düzenleme modu biter
-    setShowForm(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    const loadingToast = toast.loading(editingId ? "Adres güncelleniyor..." : "Adres ekleniyor...");
+   // Form kapatıldığında veya kaydedildiğinde düzenleme modu biter
+  setShowForm(false);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  const loadingToast = toast.loading(editingId ? "Adres güncelleniyor..." : "Adres ekleniyor...");
 
-    try {
-      if (editingId) {
-        // Eski adresi sil
-        await fetch("/api/addresses?id=" + editingId, { method: "DELETE" });
-      }
-
-      // Yeni/Güncel adresi ekle
-      const res = await fetch("/api/addresses", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        toast.dismiss(loadingToast);
-        toast.success(editingId ? "Adres başarıyla güncellendi." : "Adres başarıyla eklendi.");
-        setFormData(formBaslangic);
-        setEditingId(null);
-        
-        // 🚀 BİNGO: Sayfayı yenile ki veritabanından en güncel liste gelsin!
-        router.refresh(); 
-      } else {
-        toast.dismiss(loadingToast);
-        toast.error(data.message || "İşlem başarısız oldu.");
-      }
-    } catch (error) {
-      toast.dismiss(loadingToast);
-      toast.error("Sunucuya bağlanılamadı.");
-    } finally {
-      setIsSubmitting(false);
+  try {
+    if (editingId) {
+      // Eski adresi sil
+      await fetch("/api/addresses?id=" + editingId, { method: "DELETE" });
     }
-  };
 
-  const handleDeleteAddress = async (id: string) => {
-    // Sadece ekrandan anlık sil (Hızlı tepki hissi için)
-    setAddresses(prev => prev.filter(addr => addr._id !== id)); 
-    try {
-      await fetch("/api/addresses?id=" + id, { method: "DELETE" });
-      toast.success("Adres silindi.");
-      router.refresh(); 
-    } catch (error) {
-      toast.error("Silme işlemi başarısız.");
-      router.refresh(); 
-    }
-  };
-
-  const handleEditClick = (address: Address) => {
-    setFormData({
-      title: address.title, 
-      fullName: address.fullName, 
-      phone: address.phone, 
-      email: address.email || "", 
-      city: address.city, 
-      district: address.district, 
-      fullAddress: address.fullAddress, 
-      isDefaultDelivery: address.isDefaultDelivery || false, 
-      isDefaultBilling: address.isDefaultBilling || false,
+    // Yeni/Güncel adresi ekle
+    const res = await fetch("/api/addresses", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
     });
-    setEditingId(address._id);
-    setShowForm(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+    const data = await res.json();
 
-  // Form Kapatıldığında her şeyi sıfırla (Adreslerin kaybolmasını engeller)
-  const handleCloseForm = () => {
-    setShowForm(false);
-    setEditingId(null);
-    setFormData(formBaslangic);
+    if (res.ok) {
+      toast.dismiss(loadingToast);
+      toast.success(editingId ? "Adres başarıyla güncellendi." : "Adres başarıyla eklendi.");
+      setFormData(formBaslangic);
+      setEditingId(null);
+      
+      verileriRAMeCek(); // 🚀 ESKİ router.refresh() SİLİNDİ, RAM MOTORU GELDİ
+    } else {
+      toast.dismiss(loadingToast);
+      toast.error(data.message || "İşlem başarısız oldu.");
+    }
+  } catch (error) {
+    toast.dismiss(loadingToast);
+    toast.error("Sunucuya bağlanılamadı.");
+  } finally {
+    setIsSubmitting(false);
   }
+};
 
+const handleDeleteAddress = async (id: string) => {
+  // Sadece ekrandan anlık sil (Hızlı tepki hissi için)
+  setAddresses(prev => prev.filter(addr => addr._id !== id)); 
+  try {
+    await fetch("/api/addresses?id=" + id, { method: "DELETE" });
+    toast.success("Adres silindi.");
+    
+    verileriRAMeCek(); // 🚀 BİNGO: Yenilemek yerine RAM'i saniyesinde tazele
+  } catch (error) {
+    toast.error("Silme işlemi başarısız.");
+    
+    verileriRAMeCek(); // 🚀 Hata olsa bile RAM'deki gerçek veriyi ekrana geri çağırır
+  }
+};
+
+const handleEditClick = (address: Address) => {
+  setFormData({
+    title: address.title, 
+    fullName: address.fullName, 
+    phone: address.phone, 
+    email: address.email || "", 
+    city: address.city, 
+    district: address.district, 
+    fullAddress: address.fullAddress, 
+    isDefaultDelivery: address.isDefaultDelivery || false, 
+    isDefaultBilling: address.isDefaultBilling || false,
+  });
+  setEditingId(address._id);
+  setShowForm(true);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  setFormData({ ...formData, [e.target.name]: e.target.value });
+};
+
+// Form Kapatıldığında her şeyi sıfırla (Adreslerin kaybolmasını engeller)
+const handleCloseForm = () => {
+  setShowForm(false);
+  setEditingId(null);
+  setFormData(formBaslangic);
+}
   return (
    <div className="w-full max-w-4xl mx-auto relative z-10 pt-8 md:pt-0 px-0 md:px-0">
       
