@@ -13,25 +13,45 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     const buluttanGetir = async () => {
       try {
-        const res = await fetch("/api/sepet");
+        // Ön belleğe takılmaması için sonuna saat damgası ekledik
+        const res = await fetch("/api/sepet?t=" + new Date().getTime(), { 
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache" }
+        });
         const data = await res.json();
         
-        // 🚀 BİNGO: .length > 0 şartını kaldırdık! Artık telefonda sepet sıfırlansa bile PC bunu anlar.
         if (data.success && data.cart) {
-          setSepet(data.cart);
-          localStorage.setItem("bilgin-sepet", JSON.stringify(data.cart));
+          // 🚀 EKRAN TİTREMESİN DİYE AKILLI KONTROL: Sadece gerçekten değişiklik varsa günceller
+          setSepet((eskiSepet) => {
+            const eskiDurum = JSON.stringify(eskiSepet);
+            const yeniDurum = JSON.stringify(data.cart);
+            
+            if (eskiDurum !== yeniDurum) {
+              localStorage.setItem("bilgin-sepet", yeniDurum);
+              return data.cart;
+            }
+            return eskiSepet; // Değişiklik yoksa ekranı hiç yorma
+          });
         }
       } catch (error) {
-        // Hata olursa sessiz kal, lokal sepet çalışmaya devam eder
+        // Hata olursa sessiz kal
       }
     };
 
     buluttanGetir();
 
-    // 🚀 PREMIUM CANLI SENKRONİZASYON: 
-    // Müşteri telefonda işlem yapıp PC sekmesine geri döndüğü (odaklandığı) an sepet anında güncellenir!
+    // 1. YÖNTEM: Müşteri sekmeye geri döndüğünde anında günceller
     window.addEventListener("focus", buluttanGetir);
-    return () => window.removeEventListener("focus", buluttanGetir);
+
+    // 🚀 2. YÖNTEM (SENİN İSTEDİĞİN SİHİR): SESSİZ RADAR
+    // Arkada sayfa açıkken her 3 saniyede bir bulutu kontrol eder, 
+    // telefondan bir şey silinirse PC'de anında yok olur!
+    const radar = setInterval(buluttanGetir, 3000);
+
+    return () => {
+      window.removeEventListener("focus", buluttanGetir);
+      clearInterval(radar); // Başka sayfaya geçince radarı kapatır ki sistemi yormasın
+    };
   }, []);
   // 🚀 BULUT YEDEKLEME MOTORU (Lokal sepeti asla bozmaz, sadece arkadan kopyasını yollar)
   const bulutaYedekle = async (guncelSepet: any[]) => {
