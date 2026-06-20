@@ -357,12 +357,37 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                     <div className="flex-1 min-h-[20px]"></div>
 
                     <div className="h-px bg-white/10 my-2 shrink-0"></div>
-                 <button onClick={async () => { 
-  if (window.confirm("Hesabınızdan çıkış yapmak istediğinize emin misiniz?")) {
-    setHesabimAcik(false); 
-    localStorage.removeItem("bilgin_kayitli_sistemler"); 
-    await signOut({ callbackUrl: "/" }); 
-  }
+               <button onClick={(e) => { 
+  e.preventDefault();
+  // Tarayıcının çirkin uyarısı yerine bizim özel neon uyarı kutumuz çıkıyor
+  toast.custom((t) => (
+    <div className={`${t.visible ? 'animate-enter' : 'animate-leave'} max-w-sm w-full bg-[#09090b] shadow-[0_0_30px_rgba(239,68,68,0.2)] rounded-2xl border border-red-500/30 pointer-events-auto flex flex-col overflow-hidden`}>
+      <div className="p-4 flex items-start gap-4">
+        <div className="flex-shrink-0 pt-0.5">
+          <div className="w-10 h-10 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-500 text-xl shadow-[0_0_15px_rgba(239,68,68,0.2)]">
+            🚪
+          </div>
+        </div>
+        <div className="flex-1 w-0">
+          <p className="text-sm font-black text-white uppercase tracking-wider">Çıkış Yapılacak</p>
+          <p className="mt-1 text-xs text-gray-400">Hesabınızdan çıkış yapmak istediğinize emin misiniz?</p>
+        </div>
+      </div>
+      <div className="flex border-t border-white/5 bg-[#121215]">
+        <button onClick={() => toast.dismiss(t.id)} className="w-full border-r border-white/5 px-4 py-3 text-xs font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+          İPTAL
+        </button>
+        <button onClick={async () => { 
+          toast.dismiss(t.id); 
+          setHesabimAcik(false); 
+          localStorage.removeItem("bilgin_kayitli_sistemler"); 
+          await signOut({ callbackUrl: "/" }); 
+        }} className="w-full px-4 py-3 text-xs font-black text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors uppercase tracking-wider">
+          Evet, Çıkış Yap
+        </button>
+      </div>
+    </div>
+  ), { duration: Infinity }); // Müşteri bir şeye basana kadar ekranda kalır
 }} className="flex items-center justify-center gap-2 p-3 w-full text-red-400 hover:text-white hover:bg-red-500 rounded-xl text-xs font-black uppercase tracking-wider transition-all border border-transparent hover:border-red-500 shadow-sm hover:shadow-[0_0_15px_rgba(239,68,68,0.3)] shrink-0">
   🚪 Çıkış Yap
 </button>
