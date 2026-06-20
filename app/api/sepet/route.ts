@@ -1,24 +1,34 @@
 import clientPromise from "@/lib/mongodb";
 import { NextResponse } from "next/server";
+// Eğer NextAuth kullanıyorsan burayı açabilirsin:
+// import { getServerSession } from "next-auth"; 
+// import { authOptions } from "@/app/api/auth/[...nextauth]/route"; 
 
-// 1. KULLANICININ VERİTABANINDAKİ SEPETİNİ ÇEKME (TELEFONDAN GİRİNCE)
+// 1. BULUTTAN SEPETİ ÇEKME
 export async function GET(request: Request) {
   try {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
 
-    // NOT: /api/favorites içinde giriş yapan kullanıcıyı nasıl buluyorsan 
-    // (Örn: session, cookie veya token), o mekanizmayı buraya koyuyoruz.
-    // Şimdilik standart bir session/user kontrolü olduğunu varsayalım.
-    const session = request.headers.get("x-user-id"); // Veya senin mevcut auth sistemin
+    // 🚀 HESAP YAKALAMA MOTORU
+    // Şefim, /api/favorites/route.ts dosyasında giriş yapan adamın ID'sini nasıl buluyorsan 
+    // o kodu buraya yapıştırman lazım. Örnek popüler yöntemler:
     
-    // Şefim burası senin favorilerdeki gibi kullanıcıyı yakaladığın yer olacak.
-    // Eğer kullanıcı giriş yapmadıysa boş döner.
-    if (!session) {
+    // Yöntem A (NextAuth kullanıyorsan):
+    // const session = await getServerSession(authOptions);
+    // const userId = session?.user?.id;
+
+    // Yöntem B (Custom Token/Cookie kullanıyorsan):
+    // const userId = request.headers.get("Authorization") VEYA çerez kontrolü;
+
+    // Şimdilik test etmek için buraya senin kendi kullanıcı ID'ni veya session yöntemini koyalım:
+    const userId = "GIRIS_YAPAN_KULLANICI_ID_BURAYA"; // 👈 Burayı favorites'teki gibi bağlamalıyız patron
+
+    if (!userId) {
       return NextResponse.json({ success: false, message: "Giriş yapılmadı" }, { status: 401 });
     }
 
-    const userCart = await db.collection("carts").findOne({ userId: session });
+    const userCart = await db.collection("carts").findOne({ userId: String(userId) });
     
     return NextResponse.json({ 
       success: true, 
@@ -30,20 +40,23 @@ export async function GET(request: Request) {
   }
 }
 
-// 2. SEPET DEĞİŞTİKÇE VERİTABANINA ANINDA KAYDETME (BULUT YEDEKLEME)
+// 2. BULUTA SEPETİ YEDEKLEME
 export async function POST(request: Request) {
   try {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
-    const { items, userId } = await request.json(); // Sepetteki ürünler ve kullanıcı id'si
+    const { items } = await request.json(); 
+
+    // 🚀 Aynı şekilde kullanıcıyı burada da yakalıyoruz
+    const userId = "GIRIS_YAPAN_KULLANICI_ID_BURAYA"; // 👈 Giriş yapan adamın ID'si
 
     if (!userId) {
       return NextResponse.json({ success: false, message: "Giriş yapılmadı" }, { status: 401 });
     }
 
-    // Kullanıcının sepeti varsa güncelle, yoksa yeni sepet kaydı aç (upsert)
+    // Kullanıcının sepetini veritabanında güncelle veya yoksa yarat
     await db.collection("carts").updateOne(
-      { userId: userId },
+      { userId: String(userId) },
       { $set: { items, updatedAt: new Date() } },
       { upsert: true }
     );
