@@ -14,10 +14,11 @@ export default function SiparisClient({ initialOrders }: Props) {
   const router = useRouter();
   
   // 🔥 İLK AÇILIŞ: Sıralamayı sabitledik
-// 🔥 BİNGO 1: Sayfa ilk açıldığı milisaniyede gizlenenleri eler, sayı API ile eşitlenir!
-const siraliBaslangic = [...initialOrders]
-  .filter(o => o.gizlendi !== true)
-  .sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
+  // 🔥 BİNGO 1: Sayfa ilk açıldığı milisaniyede gizlenenleri eler, sayı API ile eşitlenir!
+  const siraliBaslangic = [...initialOrders]
+    .filter(o => o.gizlendi !== true)
+    .sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
+    
   const [orders, setOrders] = useState<any[]>(siraliBaslangic);
   const ordersRef = useRef<any[]>(siraliBaslangic);
   const [refreshing, setRefreshing] = useState(false); 
@@ -25,7 +26,7 @@ const siraliBaslangic = [...initialOrders]
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
 
- // 🔥 BİNGO 2: Sunucudan yeni veri akarsa yine gizlenenleri temizler
+  // 🔥 BİNGO 2: Sunucudan yeni veri akarsa yine gizlenenleri temizler
   useEffect(() => {
     if (initialOrders.length > 0) {
       const siraliGelen = [...initialOrders]
@@ -35,7 +36,8 @@ const siraliBaslangic = [...initialOrders]
       ordersRef.current = siraliGelen;
     }
   }, [initialOrders]);
-// 🚀 SESSİZ CANLI TAKİP MOTORU (İLK AÇILIŞTA ANINDA VURUR!)
+
+  // 🚀 SESSİZ CANLI TAKİP MOTORU (İLK AÇILIŞTA ANINDA VURUR!)
   useEffect(() => {
     const gercegiKontrolEt = async () => {
       if (refreshing) return; 
@@ -164,7 +166,6 @@ const siraliBaslangic = [...initialOrders]
     if (m === "havale" || m.includes("eft")) return "Havale / EFT";
     return metin; 
   };
-
   return (
     <div className="min-h-screen bg-[#070b1a] text-white pt-12 md:pt-12 pb-24 px-4 relative overflow-hidden font-sans">
       
