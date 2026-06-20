@@ -215,13 +215,9 @@ export default function SistemlerimPage() {
                         ))}
                       </div>
 
-                      {/* 🌫️ SİS EFEKTİ VE KAYDIRMA UYARISI */}
+                    {/* 🌫️ SİS EFEKTİ (Sadece karartma, yazı yok - Zeki adama ince mesaj) */}
                       {parcalar.length > 4 && (
-                        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#09090b] to-transparent pointer-events-none flex items-end justify-center pb-2 rounded-b-xl z-20">
-                          <span className="text-[10px] font-black tracking-widest text-[#00d2ff] uppercase animate-bounce drop-shadow-[0_0_8px_rgba(0,210,255,0.8)]">
-                            Devamını Gör ↓
-                          </span>
-                        </div>
+                        <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#09090b] via-[#09090b]/90 to-transparent pointer-events-none rounded-b-xl z-20"></div>
                       )}
                     </div>
 
