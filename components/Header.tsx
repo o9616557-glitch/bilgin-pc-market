@@ -113,14 +113,12 @@ export default function Header() {
     localStorage.removeItem("bilgin_kayitli_adresler");
     await signOut(); 
   };
-
-  // 🚀 KAPIDAKİ SESSİZ NİNJA ÇIRAK MOTORU (ŞEFİN VİZYONU)
+// 🚀 KAPIDAKİ SESSİZ NİNJA ÇIRAK MOTORU (ŞEFİN VİZYONU)
   useEffect(() => {
     // Şefim giriş yapmadıysa çırak yerinden kıpırdamaz, bekler.
     if (!session?.user?.email) return;
 
     const cirakButunDepoyuHazirlasin = async () => {
-      // Çırak 4 farklı depoya (API'ye) aynı anda, birbirini beklemeden koşuyor!
       const timestamp = new Date().getTime();
 
       // 1. Sistemleri Rafa Diz
@@ -128,23 +126,22 @@ export default function Header() {
         if (data.success) localStorage.setItem("bilgin_kayitli_sistemler", JSON.stringify(data.systems));
       }).catch(() => {});
 
-      // 2. Siparişleri Rafa Diz
-      fetch("/api/siparisler?t=" + timestamp).then(res => res.json()).then(data => {
-        if (data.success) localStorage.setItem("bilgin_kayitli_siparisler", JSON.stringify(data.siparisler));
+      // 2. Siparişleri Rafa Diz (Kapı adını api/siparislerim yaptık)
+      fetch("/api/siparislerim?t=" + timestamp).then(res => res.json()).then(data => {
+        if (data.success) localStorage.setItem("bilgin_kayitli_siparisler", JSON.stringify(data.siparisler || data.data || []));
       }).catch(() => {});
 
-      // 3. Favorileri Rafa Diz
-      fetch("/api/favoriler?t=" + timestamp).then(res => res.json()).then(data => {
-        if (data.success) localStorage.setItem("bilgin_kayitli_favoriler", JSON.stringify(data.favoriler));
+      // 3. Favorileri Rafa Diz (Kapı adını api/favorilerim yaptık)
+      fetch("/api/favorilerim?t=" + timestamp).then(res => res.json()).then(data => {
+        if (data.success) localStorage.setItem("bilgin_kayitli_favoriler", JSON.stringify(data.favoriler || data.data || []));
       }).catch(() => {});
 
-      // 4. Adresleri Rafa Diz
-      fetch("/api/adresler?t=" + timestamp).then(res => res.json()).then(data => {
-        if (data.success) localStorage.setItem("bilgin_kayitli_adresler", JSON.stringify(data.adresler));
+      // 4. Adresleri Rafa Diz (Kapı adını api/adreslerim yaptık)
+      fetch("/api/adreslerim?t=" + timestamp).then(res => res.json()).then(data => {
+        if (data.success) localStorage.setItem("bilgin_kayitli_adresler", JSON.stringify(data.adresler || data.data || []));
       }).catch(() => {});
     };
 
-    // Müşteri siteye girdiği an, çırak arkadan sessizce işe başlar
     cirakButunDepoyuHazirlasin();
   }, [session]);
 // 🔥 ŞEFİN KUSURSUZ KATEGORİ BULUCU MOTORU 🔥
