@@ -6,7 +6,7 @@ const CartContext = createContext<any>(null);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [sepet, setSepet] = useState<any[]>([]);
 
-  useEffect(() => {
+useEffect(() => {
     // 1. ÖNCE LOKAL HAFIZAYI AL (Sitenin ışık hızında açılması için)
     const hafiza = localStorage.getItem("bilgin-sepet");
     if (hafiza) setSepet(JSON.parse(hafiza));
@@ -21,7 +21,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         const data = await res.json();
         
         if (data.success && data.cart) {
-          // 🚀 EKRAN TİTREMESİN DİYE AKILLI KONTROL: Sadece gerçekten değişiklik varsa günceller
+          // EKRAN TİTREMESİN DİYE AKILLI KONTROL
           setSepet((eskiSepet) => {
             const eskiDurum = JSON.stringify(eskiSepet);
             const yeniDurum = JSON.stringify(data.cart);
@@ -30,7 +30,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               localStorage.setItem("bilgin-sepet", yeniDurum);
               return data.cart;
             }
-            return eskiSepet; // Değişiklik yoksa ekranı hiç yorma
+            return eskiSepet; 
           });
         }
       } catch (error) {
@@ -38,19 +38,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
+    // İlk açılışta bir kez çalıştır
     buluttanGetir();
 
-    // 1. YÖNTEM: Müşteri sekmeye geri döndüğünde anında günceller
+    // 🚀 SADECE SEKMEYE GERİ DÖNÜLDÜĞÜNDE GÜNCELLER (SİSTEMİ YORMAZ)
     window.addEventListener("focus", buluttanGetir);
-
-    // 🚀 2. YÖNTEM (SENİN İSTEDİĞİN SİHİR): SESSİZ RADAR
-    // Arkada sayfa açıkken her 3 saniyede bir bulutu kontrol eder, 
-    // telefondan bir şey silinirse PC'de anında yok olur!
-    const radar = setInterval(buluttanGetir, 3000);
 
     return () => {
       window.removeEventListener("focus", buluttanGetir);
-      clearInterval(radar); // Başka sayfaya geçince radarı kapatır ki sistemi yormasın
     };
   }, []);
   // 🚀 BULUT YEDEKLEME MOTORU (Lokal sepeti asla bozmaz, sadece arkadan kopyasını yollar)
