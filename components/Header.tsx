@@ -244,14 +244,14 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                   </div>
                 )}
               </div>
-
-              <nav className="flex items-center space-x-6">
-                {/* 🔥 ŞEFİM, YER DEĞİŞTİ! ÜST MENÜDE ARTIK KENDİN TOPLA EN BAŞTA PARLIYOR! */}
-         <Link href="/kendin-topla" prefetch={true} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">🔧 Kendin Topla</Link>
-                <Link href="/kategori/ekran-karti" prefetch={true} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">Ekran Kartları</Link>
-                <Link href="/kategori/islemci" prefetch={true} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">İşlemciler</Link>
-                <Link href="/kategori/anakart" prefetch={true} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">Anakartlar</Link>
-              </nav>
+<nav className="flex items-center space-x-6">
+          {/* 🔥 ŞEFİM, YER DEĞİŞTİ! ÜST MENÜDE ARTIK KENDİN TOPLA EN BAŞTA PARLIYOR! */}
+          <Link href="/kendin-topla" prefetch={true} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">🔧 Kendin Topla</Link>
+          <Link href="/sistemlerim" prefetch={true} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">💻 Sistemlerim</Link>
+          <Link href="/kategori/ekran-karti" prefetch={true} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">Ekran Kartları</Link>
+          <Link href="/kategori/islemci" prefetch={true} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">İşlemciler</Link>
+          <Link href="/kategori/anakart" prefetch={true} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">Anakartlar</Link>
+        </nav>
             </div>
 
             {/* SAĞ TARAF: SİMGE SOLDA, YAZI SAĞDA */}
@@ -373,19 +373,36 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
       <div className={`md:hidden fixed top-[80px] left-0 w-full h-[calc(100vh-80px)] bg-[#050814] z-[98] overflow-y-auto transition-transform duration-300 ${menuAcik ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="px-6 py-8 pb-32">
           
-          {/* Telefonda yine en üstte "Kendin Topla" parlıyor patron */}
-          <Link 
-           href="/kendin-topla"
-            prefetch={true}
-            onClick={() => setMenuAcik(false)}
-            className="mb-8 flex items-center justify-between px-5 py-4 bg-gradient-to-r from-[#3b82f6]/20 to-transparent border border-[#3b82f6]/30 rounded-2xl text-[#3b82f6] shadow-[0_0_15px_rgba(0,210,255,0.15)] group"
-          >
-            <span className="font-black tracking-wide text-base flex items-center gap-2.5">
-              🔧 Kendin Topla (PC Sihirbazı)
-            </span>
-            <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
-          </Link>
+        {/* 🚀 ÖZEL MENÜ BÖLÜMÜ (KUTUSUZ, SADE VE ŞIK) */}
+          <div className="flex flex-col mb-8">
+            
+            {/* 1. SİSTEMLERİM (EN ÜSTTE) */}
+            <Link
+              href="/sistemlerim"
+              prefetch={true}
+              onClick={() => setMenuAcik(false)}
+              className="flex items-center justify-between py-4 border-b border-[#00d2ff]/20 group"
+            >
+              <span className="font-black tracking-widest text-[#00d2ff] uppercase text-sm flex items-center gap-3">
+                💻 Sistemlerim
+              </span>
+              <ArrowRight className="w-5 h-5 text-[#00d2ff] opacity-70 group-hover:opacity-100 transform group-hover:translate-x-1 transition-all" />
+            </Link>
 
+            {/* 2. KENDİN TOPLA (ALTTA, KUTUSUZ VE YAZISI SADELEŞMİŞ) */}
+            <Link
+              href="/kendin-topla"
+              prefetch={true}
+              onClick={() => setMenuAcik(false)}
+              className="flex items-center justify-between py-4 border-b border-[#00d2ff]/20 group mb-2"
+            >
+              <span className="font-black tracking-widest text-[#00d2ff] uppercase text-sm flex items-center gap-3">
+                🔧 Kendin Topla
+              </span>
+              <ArrowRight className="w-5 h-5 text-[#00d2ff] opacity-70 group-hover:opacity-100 transform group-hover:translate-x-1 transition-all" />
+            </Link>
+            
+          </div>
           {menuCategories.map((category, index) => (
             <div key={index} className="mb-8">
               <h3 className="text-[#3b82f6] font-black text-sm tracking-widest uppercase mb-4 border-b border-white/10 pb-3">{category.title}</h3>
