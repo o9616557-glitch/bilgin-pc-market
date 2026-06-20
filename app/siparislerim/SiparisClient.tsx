@@ -35,8 +35,26 @@ const siraliBaslangic = [...initialOrders]
       ordersRef.current = siraliGelen;
     }
   }, [initialOrders]);
-// 🚀 SESSİZ CANLI TAKİP MOTORU (İLK AÇILIŞTA ANINDA VURUR!)
+// 🚀 SESSİZ NINJA & IŞIK HIZI MOTORU (ŞEFİN VİZYONU)
   useEffect(() => {
+    // 1. AŞAMA: ÖNCE RAFA BAK (0.001 Saniyede Ekrana Bas)
+    // Ninja Çırak'ın Header'da hazırladığı paketi anında raftan alıyoruz
+    const raftakiSiparisler = localStorage.getItem("bilgin_kayitli_siparisler");
+    if (raftakiSiparisler) {
+      try {
+        const parseEdilen = JSON.parse(raftakiSiparisler);
+        const siraliRaf = [...parseEdilen]
+          .filter((o: any) => o.gizlendi !== true)
+          .sort((a: any, b: any) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
+        
+        // Müşteri sayfaya girdiği milisaniyede veriyi yapıştır!
+        setOrders(siraliRaf);
+        ordersRef.current = siraliRaf;
+      } catch (e) {}
+    }
+
+    // 2. AŞAMA: ARKADAN ÇAKTIRMADAN GÜNCELLE
+    // Ekranda eski siparişler görünürken, çırak arkadan veritabanını kontrol eder.
     const gercegiKontrolEt = async () => {
       if (refreshing) return; 
       try {
@@ -47,17 +65,23 @@ const siraliBaslangic = [...initialOrders]
         const data = await res.json();
         
         if (res.ok && data.orders) {
-           const siraliYeni = [...data.orders].sort((a: any, b: any) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
+           const siraliYeni = [...data.orders]
+             .filter((o: any) => o.gizlendi !== true)
+             .sort((a: any, b: any) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
+           
+           // Eğer yeni bir sipariş veya durum değişikliği varsa ekranı hissettirmeden günceller
            setOrders(siraliYeni);
            ordersRef.current = siraliYeni;
+           
+           // Raftaki paketi de yenisiyle değiştirir ki bir sonraki girişte taze kalsın
+           localStorage.setItem("bilgin_kayitli_siparisler", JSON.stringify(data.orders));
         }
       } catch (error) {
       }
     };
 
-    // 🔥 Sayfaya girildiği an 10 saniye beklemeden gerçeği kontrol eder!
+    // Arkadan kontrolü başlat ve her 10 saniyede bir radarı çalıştır
     gercegiKontrolEt();
-
     const radar = setInterval(gercegiKontrolEt, 10000); 
 
     return () => clearInterval(radar); 

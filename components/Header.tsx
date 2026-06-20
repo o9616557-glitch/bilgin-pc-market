@@ -123,22 +123,22 @@ export default function Header() {
 
       // 1. Sistemleri Rafa Diz
       fetch("/api/sistemlerim?t=" + timestamp).then(res => res.json()).then(data => {
-        if (data.success) localStorage.setItem("bilgin_kayitli_sistemlerim", JSON.stringify(data.systems));
+        if (data.success) localStorage.setItem("bilgin_kayitli_sistemler", JSON.stringify(data.systems));
       }).catch(() => {});
 
       // 2. Siparişleri Rafa Diz (Kapı adını api/siparislerim yaptık)
       fetch("/api/siparislerim?t=" + timestamp).then(res => res.json()).then(data => {
-        if (data.success) localStorage.setItem("bilgin_kayitli_siparislerim", JSON.stringify(data.siparisler || data.data || []));
+        if (data.success) localStorage.setItem("bilgin_kayitli_siparisler", JSON.stringify(data.siparisler || data.data || []));
       }).catch(() => {});
 
       // 3. Favorileri Rafa Diz (Kapı adını api/favorilerim yaptık)
       fetch("/api/favorilerim?t=" + timestamp).then(res => res.json()).then(data => {
-        if (data.success) localStorage.setItem("bilgin_kayitli_favorilerim", JSON.stringify(data.favoriler || data.data || []));
+        if (data.success) localStorage.setItem("bilgin_kayitli_favoriler", JSON.stringify(data.favoriler || data.data || []));
       }).catch(() => {});
 
       // 4. Adresleri Rafa Diz (Kapı adını api/adreslerim yaptık)
       fetch("/api/adreslerim?t=" + timestamp).then(res => res.json()).then(data => {
-        if (data.success) localStorage.setItem("bilgin_kayitli_adreslerim", JSON.stringify(data.adresler || data.data || []));
+        if (data.success) localStorage.setItem("bilgin_kayitli_adresler", JSON.stringify(data.adresler || data.data || []));
       }).catch(() => {});
     };
 
