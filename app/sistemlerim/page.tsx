@@ -4,12 +4,15 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/app/CartContext";
 import toast from "react-hot-toast";
-import { Server, ArrowLeft, ShoppingBag, Trash2, Cpu, HardDrive, LayoutGrid, Monitor, Wind, Zap } from "lucide-react";
+import { Server, ArrowLeft, ShoppingBag, Trash2, Cpu, HardDrive, LayoutGrid, Monitor, Wind, Zap, AlertTriangle } from "lucide-react";
 
 export default function SistemlerimPage() {
   const { sepeteEkle } = useCart();
   const [sistemler, setSistemler] = useState<any[]>([]);
   const [yukleniyor, setYukleniyor] = useState(true);
+  
+  // 🚀 YENİ: ŞIK SİLME PENCERESİ İÇİN KONTROL
+  const [silinecekSistem, setSilinecekSistem] = useState<{id: string, name: string} | null>(null);
 
   const sistemleriGetir = async () => {
     try {
@@ -47,25 +50,26 @@ export default function SistemlerimPage() {
     toast.success(`"${sistem.name}" başarıyla sepete eklendi! 🛒`);
   };
 
-  const handleSistemiSil = async (id: string, name: string) => {
-    const onay = window.confirm(`"${name}" adlı sistemi silmek istediğinize emin misiniz?`);
-    if(!onay) return;
-
-    const toastId = toast.loading("Sistem siliniyor...");
+  // 🚀 GERÇEK SİLME MOTORU
+  const sistemiKalicOlarakSil = async () => {
+    if (!silinecekSistem) return;
+    
+    const toastId = toast.loading("Sistem arşivden siliniyor...");
     try {
       const res = await fetch("/api/sistemlerim", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
+        body: JSON.stringify({ id: silinecekSistem.id })
       });
       if(res.ok) {
         toast.success("Sistem başarıyla silindi!", { id: toastId });
-        setSistemler(prev => prev.filter(s => s._id !== id));
+        setSistemler(prev => prev.filter(s => s._id !== silinecekSistem.id));
+        setSilinecekSistem(null); // Pencereyi kapat
       } else {
-        toast.error("Silinemedi", { id: toastId });
+        toast.error("Silinemedi, tekrar deneyin.", { id: toastId });
       }
     } catch(e) {
-      toast.error("Hata oluştu", { id: toastId });
+      toast.error("Bağlantı hatası oluştu.", { id: toastId });
     }
   }
 
@@ -81,13 +85,12 @@ export default function SistemlerimPage() {
     }
   };
 
- return (
+  return (
     <div className="min-h-screen bg-[#050814] text-white pt-12 pb-24 px-4 relative overflow-hidden font-sans">
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#00d2ff] blur-[150px] opacity-10 pointer-events-none"></div>
 
       <div className="max-w-5xl mx-auto relative z-10">
         
-        {/* ÜST BAŞLIK */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-white/10 pb-6 mb-10">
           <div>
             <Link href="/kendin-topla" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#00d2ff] transition-all mb-3">
@@ -104,7 +107,6 @@ export default function SistemlerimPage() {
           </div>
         </div>
 
-        {/* İÇERİK KISMI */}
         {yukleniyor ? (
           <div className="text-center py-20 text-[#00d2ff] font-black uppercase tracking-widest animate-pulse">
             Sistemler Yükleniyor...
@@ -131,7 +133,6 @@ export default function SistemlerimPage() {
               return (
                 <div key={sistem._id} className="bg-[#09090b] border border-white/10 rounded-3xl p-6 sm:p-8 flex flex-col lg:flex-row gap-6 lg:gap-8 shadow-xl transition-all hover:border-[#00d2ff]/30 group">
                   
-                  {/* SOL: SİSTEM BİLGİLERİ */}
                   <div className="w-full lg:w-1/3 flex flex-col border-b lg:border-b-0 lg:border-r border-white/10 pb-6 lg:pb-0 lg:pr-8">
                     <div className="flex-1">
                       <div className="text-[10px] text-slate-500 font-black tracking-widest uppercase mb-2 flex items-center gap-2">
@@ -150,7 +151,6 @@ export default function SistemlerimPage() {
                       </div>
                     </div>
 
-                    {/* 💻 MASAÜSTÜ BUTONLARI (SADECE BİLGİSAYARDA SOLDA GÖRÜNÜR) */}
                     <div className="hidden lg:flex flex-col gap-3">
                       <button 
                         onClick={() => handleSepeteEkle(sistem)}
@@ -159,7 +159,7 @@ export default function SistemlerimPage() {
                         <ShoppingBag className="w-4 h-4" /> Sistemi Sepete Ekle
                       </button>
                       <button 
-                        onClick={() => handleSistemiSil(sistem._id, sistem.name)}
+                        onClick={() => setSilinecekSistem({id: sistem._id, name: sistem.name})}
                         className="w-full py-3.5 rounded-xl font-black uppercase tracking-widest text-xs bg-zinc-900 border border-white/5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20 transition-all flex justify-center items-center gap-2"
                       >
                         <Trash2 className="w-4 h-4" /> Sistemlerimden Sil
@@ -167,7 +167,6 @@ export default function SistemlerimPage() {
                     </div>
                   </div>
 
-                  {/* SAĞ: PARÇA LİSTESİ VE MOBİL BUTONLAR */}
                   <div className="w-full lg:w-2/3 flex flex-col">
                     <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 border-b border-white/5 pb-2">Bileşen Listesi ({parcalar.length} Parça)</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar flex-1">
@@ -193,7 +192,6 @@ export default function SistemlerimPage() {
                       ))}
                     </div>
 
-                    {/* 📱 MOBİL BUTONLARI (SADECE TELEFONDA BİLEŞEN LİSTESİNİN ALTINDA GÖRÜNÜR) */}
                     <div className="flex lg:hidden flex-col gap-3 mt-6 pt-6 border-t border-white/10">
                       <button 
                         onClick={() => handleSepeteEkle(sistem)}
@@ -202,7 +200,7 @@ export default function SistemlerimPage() {
                         <ShoppingBag className="w-4 h-4" /> Sistemi Sepete Ekle
                       </button>
                       <button 
-                        onClick={() => handleSistemiSil(sistem._id, sistem.name)}
+                        onClick={() => setSilinecekSistem({id: sistem._id, name: sistem.name})}
                         className="w-full py-3.5 rounded-xl font-black uppercase tracking-widest text-xs bg-zinc-900 border border-white/5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20 transition-all flex justify-center items-center gap-2"
                       >
                         <Trash2 className="w-4 h-4" /> Sistemlerimden Sil
@@ -216,6 +214,39 @@ export default function SistemlerimPage() {
           </div>
         )}
       </div>
+
+      {/* 🚀 ŞIK SİLME ONAY PENCERESİ */}
+      {silinecekSistem && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
+          <div className="bg-[#121214] border border-red-500/20 w-full max-w-sm rounded-3xl p-6 md:p-8 flex flex-col relative shadow-[0_0_50px_rgba(239,68,68,0.1)]">
+            
+            <div className="w-14 h-14 rounded-full border border-red-500/30 flex items-center justify-center mb-6 bg-red-500/10 mx-auto">
+              <AlertTriangle className="w-6 h-6 text-red-500" />
+            </div>
+            
+            <h3 className="text-xl font-black text-white uppercase tracking-wider mb-2 text-center">SİSTEMİ SİL</h3>
+            <p className="text-gray-400 text-xs text-center mb-6 leading-relaxed">
+              <strong className="text-white block mb-1">"{silinecekSistem.name}"</strong> 
+              Bu sistemi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.
+            </p>
+
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setSilinecekSistem(null)}
+                className="flex-1 px-4 py-3.5 rounded-xl text-xs font-black uppercase bg-zinc-800 border border-white/10 text-gray-300 hover:text-white transition-colors"
+              >
+                Vazgeç
+              </button>
+              <button 
+                onClick={sistemiKalicOlarakSil}
+                className="flex-1 px-4 py-3.5 rounded-xl text-xs font-black uppercase bg-red-500 text-white hover:bg-red-600 transition-colors shadow-lg"
+              >
+                Evet, Sil
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
