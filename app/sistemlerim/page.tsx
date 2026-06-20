@@ -94,7 +94,7 @@ export default function SistemlerimPage() {
               <ArrowLeft className="w-4 h-4" /> PC SİHİRBAZINA DÖN
             </Link>
             <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-white flex items-center gap-3">
-              PC <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00d2ff] to-[#3b82f6]">ARŞİVİM</span>
+             KAYITLI <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00d2ff] to-[#3b82f6]">SİSTEMLERİM</span>
             </h1>
           </div>
           <div className="flex items-center bg-[#09090b] text-slate-300 px-5 py-3 rounded-xl border border-white/10 shadow-sm w-max">
