@@ -220,20 +220,34 @@ export default function SiparisTakipPage() {
                  {siparis.items && siparis.items.length > 0 && (
                   <div>
                     <p className="text-slate-500 text-[10px] uppercase tracking-[0.2em] font-black mb-4">PAKET İÇERİĞİ</p>
-                    <div className="space-y-3 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
+                 <div className="space-y-3 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
                       {siparis.items.map((urun: any, i: number) => (
-                        <div key={i} className="flex items-center gap-4 bg-[#050B14] p-3 rounded-2xl border border-white/5 group hover:border-[#3b82f6]/20 transition-all">
-                          <div className="w-16 h-16 rounded-xl overflow-hidden bg-black flex-shrink-0 border border-white/5">
+                        <div key={i} className="flex items-center gap-4 bg-[#050B14] p-3 rounded-2xl border border-white/5 group hover:border-[#3b82f6]/40 transition-all shadow-sm hover:shadow-[0_0_15px_rgba(0,229,255,0.05)]">
+                          
+                          {/* 🚀 GÖRSEL TIKLANABİLİR VE YÜKSEK KALİTELİ YAPILDI */}
+                          <Link href={"/product/" + (urun.slug || urun.id || urun._id)} prefetch={true} className="w-16 h-16 rounded-xl overflow-hidden bg-[#121215] flex-shrink-0 border border-slate-800 relative block cursor-pointer">
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#3b82f6]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                             {urun.resim || urun.gorsel || urun.image ? (
-                              <img src={urun.resim || urun.gorsel || urun.image} alt="" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                              <img 
+                                src={urun.resim || urun.gorsel || urun.image} 
+                                alt={urun.isim || "Ürün"} 
+                                className="w-full h-full object-contain p-1 filter drop-shadow-md group-hover:scale-105 transition-transform duration-300"
+                              />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-xl">🛍️</div>
+                              <div className="w-full h-full flex items-center justify-center text-slate-600 group-hover:text-[#3b82f6] transition-colors"><Package className="w-6 h-6" /></div>
                             )}
+                          </Link>
+
+                          <div className="flex-1 flex flex-col justify-center">
+                            {/* 🚀 İSİM TIKLANABİLİR YAPILDI */}
+                            <Link href={"/product/" + (urun.slug || urun.id || urun._id)} prefetch={true} className="block w-fit">
+                              <p className="text-sm font-black text-slate-200 leading-tight mb-1 hover:text-[#3b82f6] transition-colors cursor-pointer line-clamp-2">
+                                {urun.isim || "Ürün"}
+                              </p>
+                            </Link>
+                            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider pointer-events-none">{urun.adet} ADET</p>
                           </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-black text-white leading-tight mb-1">{urun.isim || "Ürün"}</p>
-                            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">{urun.adet} ADET</p>
-                          </div>
+                          
                         </div>
                       ))}
                     </div>
