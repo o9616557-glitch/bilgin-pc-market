@@ -20,7 +20,7 @@ interface Address {
   isDefaultBilling?: boolean;
 }
 
-export default function AdresYoneticisi() { // 🚀 initialAddresses parametresi çöp oldu, direkt RAM'den çekiyoruz
+export default function AdresYoneticisi() { 
   const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
   const router = useRouter();
   
@@ -33,11 +33,15 @@ export default function AdresYoneticisi() { // 🚀 initialAddresses parametresi
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
+  // 🚀 YÜKLEME KALKANI: RAM boşsa kontrol edene kadar true (Açık), doluysa false (Kapalı)
+  const [yukleniyor, setYukleniyor] = useState(ramAdresler ? ramAdresler.length === 0 : true);
+
   // 🚀 İLK AÇILIŞ VE SESSİZ RADAR
   useEffect(() => {
-    // 1. RAM'den gelen veriyi anında ekrana bas
+    // 1. RAM'den gelen veriyi anında ekrana bas ve kalkanı kaldır
     if (ramAdresler && ramAdresler.length > 0) {
       setAddresses(ramAdresler);
+      setYukleniyor(false); 
     }
 
     // 2. Müşteri ekrana bakarken, arkadan çaktırmadan yeni veri var mı diye kontrol et
@@ -47,14 +51,16 @@ export default function AdresYoneticisi() { // 🚀 initialAddresses parametresi
         const data = await res.json();
         if (res.ok && data.addresses) {
            setAddresses(data.addresses);
-           // Eğer farklı sekmede ekleme olduysa RAM'i de güncelle
            verileriRAMeCek(); 
         }
       } catch (error) {}
+      finally {
+        setYukleniyor(false); // 🚀 Kontrol bitti, kalkanı kesinlikle indir!
+      }
     };
 
-    sessizGuncelleme(); // Sayfa açılınca bir kez çalışsın
-    const radar = setInterval(sessizGuncelleme, 10000); // 10 saniyede bir arkadan kontrol etsin
+    sessizGuncelleme(); 
+    const radar = setInterval(sessizGuncelleme, 10000); 
 
     return () => clearInterval(radar);
   }, [ramAdresler, verileriRAMeCek]);
@@ -176,9 +182,10 @@ const handleCloseForm = () => {
         </div>
       </div>
 
+  {/* 🚀 FORM EKRANI (AÇIKSA SADECE BU GÖRÜNÜR) */}
       {showForm && (
         <div className="bg-[#080d1a] border border-white/10 rounded-2xl p-6 mb-8 animate-in fade-in slide-in-from-top-4 shadow-2xl">
-         <div className="mb-6 border-b border-white/10 pb-4 flex justify-between items-center">
+          <div className="mb-6 border-b border-white/10 pb-4 flex justify-between items-center">
             <h2 className="text-xl font-bold flex items-center gap-2 text-[#3b82f6]">
               <MapPin /> {editingId ? "Adresi Düzenle" : "Yeni Adres Bilgileri"}
             </h2>
@@ -233,19 +240,25 @@ const handleCloseForm = () => {
             </div>
 
             <div className="md:col-span-2 flex justify-end mt-2">
-             <button 
-          type="submit" 
-          disabled={isSubmitting} 
-          className="bg-[#3b82f6] text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest hover:bg-[#1e40af] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isSubmitting ? "İŞLENİYOR..." : editingId ? "DEĞİŞİKLİKLERİ KAYDET" : "ADRESİ KAYDET"}
-        </button>
+              <button 
+                type="submit" 
+                disabled={isSubmitting} 
+                className="bg-[#3b82f6] text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest hover:bg-[#1e40af] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? "İŞLENİYOR..." : editingId ? "DEĞİŞİKLİKLERİ KAYDET" : "ADRESİ KAYDET"}
+              </button>
             </div>
           </form>
         </div>
       )}
 
-      {addresses.length === 0 && !showForm && (
+      {/* 🚀 KALKAN BURADA DEVREYE GİRİYOR */}
+      {yukleniyor && !showForm ? (
+        <div className="text-center py-20 text-[#3b82f6] font-black uppercase tracking-widest animate-pulse">
+          Adres Bilgileriniz Getiriliyor...
+        </div>
+      ) : addresses.length === 0 && !showForm ? (
+        /* 🚀 BOŞ EKRAN VİTRİNİ (Gerçekten Boşsa) */
         <div className="text-center p-10 sm:p-16 bg-transparent relative">
           <div className="w-20 h-20 rounded-full bg-[#121215]/50 border border-slate-800/50 flex items-center justify-center mx-auto mb-6 shadow-inner">
             <MapPin className="w-10 h-10 text-slate-500" />
@@ -258,44 +271,45 @@ const handleCloseForm = () => {
             Yeni Adres Ekle
           </button>
         </div>
-      )}
-
-      {addresses.length > 0 && !showForm && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {addresses.map((address) => (
-            <div key={address._id} className="bg-[#09090b] border border-white/10 rounded-2xl p-6 relative group hover:border-[#3b82f6]/30 transition-colors">
-              <div className="flex justify-between items-start mb-4 border-b border-white/10 pb-3">
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2 text-[#3b82f6] font-bold">
-                    <MapPin size={18} />
-                    <span>{address.title}</span>
+      ) : (
+        /* 🚀 LİSTE VİTRİNİ (Doluysa) */
+        !showForm && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {addresses.map((address) => (
+              <div key={address._id} className="bg-[#09090b] border border-white/10 rounded-2xl p-6 relative group hover:border-[#3b82f6]/30 transition-colors">
+                <div className="flex justify-between items-start mb-4 border-b border-white/10 pb-3">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2 text-[#3b82f6] font-bold">
+                      <MapPin size={18} />
+                      <span>{address.title}</span>
+                    </div>
+                    <div className="flex gap-2 flex-wrap">
+                      {address.isDefaultDelivery && <span className="px-2 py-1 bg-[#3b82f6]/10 text-[#3b82f6] text-[10px] rounded border border-[#3b82f6]/20 font-medium tracking-wider">VARS. TESLİMAT</span>}
+                      {address.isDefaultBilling && <span className="px-2 py-1 bg-amber-500/10 text-amber-400 text-[10px] rounded border border-amber-500/20 font-medium tracking-wider">FATURA ADRESİ</span>}
+                    </div>
                   </div>
-                  <div className="flex gap-2 flex-wrap">
-                    {address.isDefaultDelivery && <span className="px-2 py-1 bg-[#3b82f6]/10 text-[#3b82f6] text-[10px] rounded border border-[#3b82f6]/20 font-medium tracking-wider">VARS. TESLİMAT</span>}
-                    {address.isDefaultBilling && <span className="px-2 py-1 bg-amber-500/10 text-amber-400 text-[10px] rounded border border-amber-500/20 font-medium tracking-wider">FATURA ADRESİ</span>}
+                  <div className="flex items-center gap-4">
+                    <button onClick={() => handleEditClick(address)} className="text-slate-400 hover:text-[#3b82f6] transition-colors" title="Bu Adresi Düzenle">
+                      <Edit2 className="w-[18px] h-[18px]" />
+                    </button>
+                    <button onClick={() => setAddressToDelete(address._id)} className="text-slate-400 hover:text-rose-500 transition-colors" title="Adresi Sil">
+                      <Trash2 size={18} />
+                    </button>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <button onClick={() => handleEditClick(address)} className="text-slate-400 hover:text-[#3b82f6] transition-colors" title="Bu Adresi Düzenle">
-                    <Edit2 className="w-[18px] h-[18px]" />
-                  </button>
-                  <button onClick={() => setAddressToDelete(address._id)} className="text-slate-400 hover:text-rose-500 transition-colors" title="Adresi Sil">
-                    <Trash2 size={18} />
-                  </button>
+                <div className="space-y-2 text-sm text-slate-300">
+                  <p className="font-bold text-white">{address.fullName}</p>
+                  <div className="flex flex-col gap-1 text-slate-400 text-xs">
+                     <p className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> {address.phone}</p>
+                     {address.email && <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> {address.email}</p>}
+                  </div>
+                  <p className="mt-2 line-clamp-2 pt-2 border-t border-slate-800/50" title={address.fullAddress}>{address.fullAddress}</p>
+                  <p className="text-[#3b82f6]/80 font-medium">{address.district} / {address.city}</p>
                 </div>
               </div>
-              <div className="space-y-2 text-sm text-slate-300">
-                <p className="font-bold text-white">{address.fullName}</p>
-                <div className="flex flex-col gap-1 text-slate-400 text-xs">
-                   <p className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> {address.phone}</p>
-                   {address.email && <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> {address.email}</p>}
-                </div>
-                <p className="mt-2 line-clamp-2 pt-2 border-t border-slate-800/50" title={address.fullAddress}>{address.fullAddress}</p>
-                <p className="text-[#3b82f6]/80 font-medium">{address.district} / {address.city}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )
       )}
 
       {addressToDelete && (
