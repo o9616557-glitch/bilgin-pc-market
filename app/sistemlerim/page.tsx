@@ -52,24 +52,26 @@ export default function SistemlerimPage() {
     sessizGuncelleme();
   }, []);
 
-  const handleSepeteEkle = (sistem: any) => {
-    const parcalar = Object.values(sistem.selections);
-    if (parcalar.length === 0) return;
+const handleSepeteEkle = (sistem: any) => {
+  const parcalar = Object.values(sistem.selections);
+  if (parcalar.length === 0) return;
 
-    parcalar.forEach((urun: any) => {
-      sepeteEkle({
-        id: urun._id?.toString(),
-        isim: `[${sistem.name}] ${urun.isim}`,
-        fiyat: Number(urun.indirimliFiyat || urun.fiyat || 0),
-        resim: urun.resim || "https://via.placeholder.com/150",
-        varyasyon: "Sihirbaz Parçası",
-        havaleIndirimi: urun.havaleIndirimi || 5
-      });
+  parcalar.forEach((urun: any) => {
+    sepeteEkle({
+      id: urun._id?.toString(),
+      isim: `[${sistem.name}] ${urun.isim}`,
+      fiyat: Number(urun.indirimliFiyat || urun.fiyat || 0),
+      resim: urun.resim || "https://via.placeholder.com/150",
+      varyasyon: "Sihirbaz Parçası",
+      havaleIndirimi: urun.havaleIndirimi || 5,
+      // 🚀 SİYAH EKRAN ÇÖKMESİNİ ENGELLEYEN LİNK (SLUG) EKLENDİ
+      slug: urun.slug || "sistem-parcasi",
+      stok: urun.stok || 10
     });
+  });
 
-    toast.success(`"${sistem.name}" başarıyla sepete eklendi! 🛒`);
-  };
-
+  toast.success(`"${sistem.name}" başarıyla sepete eklendi! 🛒`);
+};
   // 🚀 GERÇEK SİLME MOTORU
   const sistemiKalicOlarakSil = async () => {
     if (!silinecekSistem) return;
