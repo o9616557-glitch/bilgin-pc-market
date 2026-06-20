@@ -58,18 +58,20 @@ export default function SistemlerimPage() {
 
     parcalar.forEach((urun: any) => {
       sepeteEkle({
-        id: urun._id?.toString(),
+        id: urun._id?.toString() || Math.random().toString(), // Garanti ID
         isim: `[${sistem.name}] ${urun.isim}`,
         fiyat: Number(urun.indirimliFiyat || urun.fiyat || 0),
         resim: urun.resim || "https://via.placeholder.com/150",
-        varyasyon: "Sihirbaz Parçası",
-        havaleIndirimi: urun.havaleIndirimi || 5
+        varyasyon: "Sistem Parçası",
+        havaleIndirimi: urun.havaleIndirimi || 5,
+        // 🚀 SAYFAYI ÇÖKERTEN EKSİKLER AŞAĞIDA TAMAMLANDI:
+        slug: urun.slug || "sistem-parcasi", // Sepet link arayıp patlamasın diye
+        stok: urun.stok || 10 // Sepet stok limiti arayıp hata vermesin diye
       });
     });
 
     toast.success(`"${sistem.name}" başarıyla sepete eklendi! 🛒`);
   };
-
   // 🚀 GERÇEK SİLME MOTORU
   const sistemiKalicOlarakSil = async () => {
     if (!silinecekSistem) return;
