@@ -174,26 +174,40 @@ const handleSelectComponent = (product: any) => {
 
   const isSystemComplete = STEPS.every(step => !!selections[step.id]);
 
-  const handleAddSystemToCart = () => {
-    if (Object.keys(selections).length === 0) return toast.error("Lütfen sepete eklemek için en az bir parça seçiniz.");
-    if (psuYetersiz) return toast.error("Güç kaynağı yetersiz. Lütfen daha yüksek kapasiteli bir güç kaynağı seçiniz.");
+ const handleAddSystemToCart = async () => {
+      if (Object.keys(selections).length === 0) return toast.error("Lütfen sepete eklemek için en az bir parça seçiniz.");
+      if (psuYetersiz) return toast.error("Güç kaynağı yetersiz. Lütfen daha yüksek kapasiteli bir güç kaynağı seçiniz.");
     if (gpuKasaAşimi) return toast.error("Seçilen ekran kartı mevcut kasaya sığmamaktadır. Lütfen uyumlu parçalar seçiniz.");
 
-    Object.values(selections).forEach((urun) => {
-      sepeteEkle({
-        id: urun._id?.toString(),
-        isim: `[Toplama PC] ${urun.isim}`,
-        fiyat: Number(urun.indirimliFiyat || urun.fiyat || 0),
-        resim: urun.resim || "https://via.placeholder.com/150",
-        varyasyon: "Sihirbaz Parçası",
-        havaleIndirimi: urun.havaleIndirimi || 5
-      });
-    });
-    localStorage.removeItem("bilgin_sihirbaz_selections");
-    setSelections({});
-    setCurrentStep(0);
-    toast.success("Sistem başarıyla sepete eklendi ve sihirbaz temizlendi.");
-  };
+      // 🚀 ZIRHLI KAPI: Patronu bilgilendiriyoruz ki işlem bitmeden sayfadan çıkmasın
+      const toastId = toast.loading("📦 Sistem parçaları sepete zırhlanarak yükleniyor... Lütfen sayfadan ayrılmayın!");
+
+      // forEach iptal, sırayla ve güvenli (for...of) işliyoruz
+      for (const urun of Object.values(selections) as any[]) {
+        sepeteEkle({
+          id: urun._id?.toString() || Math.random().toString(),
+          isim: `[Toplama PC] ${urun.isim}`,
+          fiyat: Number(urun.indirimliFiyat || urun.fiyat || 0),
+          resim: urun.resim || "https://via.placeholder.com/150",
+          varyasyon: "Sihirbaz Parçası",
+          havaleIndirimi: urun.havaleIndirimi || 5,
+          // 🚀 SİYAH EKRAN ÇÖZÜMÜ: Linki (slug) ve stoğu ekledik
+          slug: urun.slug || urun.kategoriSlug || urun._id?.toString() || Math.random().toString(),
+          stok: urun.stok || 10
+        });
+
+        // 🚀 HAYAT KURTARAN FREN: Tarayıcıya parçayı kaydetmesi için 150 salise süre veriyoruz.
+        await new Promise(resolve => setTimeout(resolve, 150));
+      }
+
+      // Sepete başarıyla gittikten sonra masayı (sihirbazı) temizliyoruz
+      localStorage.removeItem("bilgin_sihirbaz_selections");
+      setSelections({});
+      setCurrentStep(0);
+      
+      // İşlem tamamen bitince zırhı açıyoruz
+      toast.success("Sistem başarıyla sepete eklendi ve PC Atölyesi temizlendi! 🛒", { id: toastId });
+    };
   // 🚀 BUTONA BASILINCA GİRİŞ KONTROLÜ YAPAN MOTOR
   const handleSaveButtonClick = async () => {
     if (Object.keys(selections).length === 0) {
