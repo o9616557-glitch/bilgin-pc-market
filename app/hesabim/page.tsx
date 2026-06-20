@@ -3,18 +3,16 @@
 import React from "react";
 import Link from "next/link";
 import { Package, Heart, Server, MapPin, ShieldAlert, LogOut, ArrowRight, Truck } from "lucide-react";
-import { useSession, signOut } from "next-auth/react"; // 🚀 EKLENDİ: Oturum ve Çıkış Motoru
+import { useSession, signOut } from "next-auth/react";
 
 export default function HesabimPage() {
-  const { data: session } = useSession(); // Gerçek giriş yapan kişinin bilgilerini çeker
+  const { data: session } = useSession();
 
-  // 🚀 GERÇEK ÇIKIŞ YAPMA MOTORU
   const handleCikisYap = async () => {
-    localStorage.removeItem("bilgin_kayitli_sistemler"); // Çıkarken güvenliği sağla, sistemi sil
-    await signOut({ callbackUrl: "/" }); // Müşteriyi ana sayfaya şutla
+    localStorage.removeItem("bilgin_kayitli_sistemler");
+    await signOut({ callbackUrl: "/" }); 
   };
 
-  // 🚗 LÜKS GARAJLARIMIZ
   const garajlar = [
     { 
       id: "siparisler", 
@@ -78,28 +76,23 @@ export default function HesabimPage() {
     },
   ];
 
-  // Kullanıcının ilk harfini almak için güvenli kontrol
   const basHarf = session?.user?.name ? session.user.name.charAt(0).toUpperCase() : "V";
 
   return (
     <div className="min-h-screen bg-[#050814] text-white pt-12 pb-24 px-4 relative overflow-hidden font-sans">
-      {/* 🌫️ ARKA PLAN SİS VE IŞIK EFEKTLERİ */}
       <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#00d2ff] blur-[150px] opacity-[0.03] pointer-events-none rounded-full"></div>
 
       <div className="max-w-5xl mx-auto relative z-10">
         
-        {/* 👑 PROFİL KARŞILAMA ALANI */}
         <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-6 border-b border-white/10 pb-10 mb-12">
           <div className="flex items-center gap-6">
             <div className="w-20 h-20 rounded-full border border-white/10 bg-[#121215] flex items-center justify-center shadow-[0_0_30px_rgba(0,210,255,0.1)]">
-              {/* 🚀 AKILLI BAŞ HARF YAZICI */}
               <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00d2ff] to-blue-500">
                 {basHarf}
               </span>
             </div>
             <div>
               <div className="text-xs text-slate-400 font-black tracking-widest uppercase mb-1">VIP ÜYE • Hoş Geldin</div>
-              {/* 🚀 AKILLI İSİM YAZICI */}
               <h1 className="text-4xl font-black uppercase tracking-tight text-white">
                 {session?.user?.name ? (
                   <>
@@ -112,7 +105,6 @@ export default function HesabimPage() {
             </div>
           </div>
 
-          {/* 🚀 İŞTE CANAVAR GİBİ ÇALIŞAN GERÇEK ÇIKIŞ BUTONU */}
           <button 
             onClick={handleCikisYap} 
             className="flex items-center gap-2 px-5 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all font-black uppercase tracking-widest text-xs shadow-lg"
@@ -121,16 +113,15 @@ export default function HesabimPage() {
           </button>
         </div>
 
-        {/* 🚗 VIP GARAJLAR (GRID SİSTEMİ) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {garajlar.map((garaj) => {
             const Icon = garaj.ikon;
-            // Admin değilse Yönetim Paneli butonunu gizle (İsteğe bağlı güvenlik zırhı)
             if (garaj.id === "yonetim" && session?.user?.email?.toLowerCase() !== "o9616557@gmail.com") return null;
 
             return (
               <Link 
                 href={garaj.link} 
+                prefetch={true} // 🚀 İŞTE POPUP'TAKİ O FİŞEK MOTORU BURAYA TAKILDI!
                 key={garaj.id}
                 className={`group relative overflow-hidden rounded-3xl border border-white/5 bg-[#09090b] p-8 transition-all duration-300 hover:-translate-y-1 ${garaj.borderHover} ${garaj.bgAura}`}
               >
