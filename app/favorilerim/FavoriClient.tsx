@@ -129,14 +129,14 @@ export default function FavoriClient({ initialFavorites }: Props) {
                     />
                   </Link>
 
-                  {/* 🚀 BAŞLIK VE FİYAT - İSİM TIKLANABİLİR YAPILDI */}
-                  <div className="flex-1 flex flex-col justify-center text-center sm:text-left w-full h-full">
+                 {/* 🚀 BAŞLIK VE FİYAT - TAM ORTAYA HİZALANDI */}
+                  <div className="flex-1 flex flex-col justify-center text-center sm:text-left w-full h-full gap-1.5">
                       <Link href={"/product/" + (urun.slug || urun._id || urun.id)} prefetch={true} className="block w-fit mx-auto sm:mx-0">
-                        <h3 className="text-sm sm:text-base font-bold text-slate-200 mb-2 leading-relaxed break-words whitespace-normal hover:text-[#3b82f6] transition-colors line-clamp-2 cursor-pointer">
+                        <h3 className="text-sm sm:text-base font-bold text-slate-200 leading-relaxed break-words whitespace-normal hover:text-[#3b82f6] transition-colors line-clamp-2 cursor-pointer">
                           {urun.isim || urun.name}
                         </h3>
                       </Link>
-                      <div className="text-xl sm:text-2xl font-black text-[#3b82f6] tracking-tight mt-auto pointer-events-none">
+                      <div className="text-xl sm:text-2xl font-black text-[#3b82f6] tracking-tight pointer-events-none">
                         {Number(urun.fiyat || 0).toLocaleString("tr-TR")} <span className="text-sm font-bold text-slate-500 uppercase">TL</span>
                       </div>
                   </div>
