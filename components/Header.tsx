@@ -379,10 +379,10 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
 
                     <div className="h-px bg-white/5 my-1 shrink-0"></div>
 
-                    {/* 🛡️ ŞEFFAF KALKANLI ALAN (Yazılar cam gibi net!) */}
+                    {/* 🛡️ ŞEFFAF KALKANLI ALAN (Sadece %40 Opaklık, PC düzenine dokunulmadı) */}
                     <div className="relative mt-2 mb-2 shrink-0 group">
                       
-                      {/* GÖRÜNMEZ TIKLAMA ALANI (Üstüne tıkladığı an mesajı patlatır) */}
+                      {/* GÖRÜNMEZ TIKLAMA ALANI */}
                       <button 
                         onClick={(e) => { 
                           e.preventDefault(); 
@@ -391,8 +391,8 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                         className="absolute inset-0 w-full h-full z-10 cursor-pointer"
                       ></button>
 
-                      {/* ARKA PLANDAKİ MENÜ (Matlık kaldırıldı, yazılar pırıl pırıl) */}
-                      <div className="flex flex-col gap-1 opacity-95 pointer-events-none select-none">
+                      {/* ARKA PLANDAKİ MENÜ (opacity-95'ten opacity-40'a düşürüldü) */}
+                      <div className="flex flex-col gap-1 opacity-40 pointer-events-none select-none transition-opacity duration-300 group-hover:opacity-50">
                         <div className="flex items-center gap-3 p-2.5 text-gray-300 rounded-xl text-xs font-bold w-full">
                           <span className="w-7 h-7 rounded-lg bg-[#121215] border border-white/5 flex items-center justify-center text-sm">📋</span> Siparişlerim
                         </div>
