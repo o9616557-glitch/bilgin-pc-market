@@ -179,10 +179,10 @@ const handleAddSystemToCart = async () => {
       if (psuYetersiz) return toast.error("Güç kaynağı yetersiz. Lütfen daha yüksek kapasiteli bir güç kaynağı seçiniz.");
       if (gpuKasaAşimi) return toast.error("Seçilen ekran kartı mevcut kasaya sığmamaktadır. Lütfen uyumlu parçalar seçiniz.");
 
-      // 🚀 ZIRHLI KAPI: Patronu bilgilendiriyoruz ki işlem bitmeden sayfadan çıkmasın
+      // 🚀 ZIRHLI KAPI
       const toastId = toast.loading("📦 Sistem parçaları sepete zırhlanarak yükleniyor... Lütfen sayfadan ayrılmayın!");
 
-      // forEach iptal, sırayla ve güvenli (for...of) işliyoruz
+      // for...of ile sırayla işliyoruz
       for (const urun of Object.values(selections) as any[]) {
         sepeteEkle({
           id: urun._id?.toString() || Math.random().toString(),
@@ -193,18 +193,32 @@ const handleAddSystemToCart = async () => {
           havaleIndirimi: urun.havaleIndirimi || 5,
           slug: urun.slug || urun.kategoriSlug || urun._id?.toString() || Math.random().toString(),
           stok: urun.stok || 10
-        }, true); // 🚀 İŞTE SİHİRLİ TRUE BURADA: Bulut kilitlenmesini engeller!
+        }, true); // Bulutu geçici olarak kilitledik
 
-        // 🚀 HIZI ARTTIRDIK: Artık bulutu beklemediği için 50 salisede (göz kırpma hızında) yazar
+        // Göz kırpma hızında tarayıcıya yazıyoruz
         await new Promise(resolve => setTimeout(resolve, 50));
       }
 
-      // Sepete başarıyla gittikten sonra masayı (sihirbazı) temizliyoruz
+      // 🚀 İŞTE ALTIN VURUŞ BURASI: 
+      // Döngü bitti, 8 parça lokal hafızaya sorunsuz dizildi. 
+      // Sayfayı yenilediğinde silinmesin diye TEK BİR PAKET halinde buluta yolluyoruz!
+      try {
+        const sonSepet = JSON.parse(localStorage.getItem("bilgin-sepet") || "[]");
+        await fetch("/api/sepet", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items: sonSepet })
+        });
+      } catch (error) {
+        // Hata olursa en azından lokal çalışmaya devam eder
+      }
+
+      // Masayı temizliyoruz
       localStorage.removeItem("bilgin_sihirbaz_selections");
       setSelections({});
       setCurrentStep(0);
       
-      // İşlem tamamen bitince zırhı açıyoruz
+      // Zırhı açıyoruz
       toast.success("Sistem başarıyla sepete eklendi ve PC Atölyesi temizlendi! 🛒", { id: toastId });
     };
   // 🚀 BUTONA BASILINCA GİRİŞ KONTROLÜ YAPAN MOTOR
