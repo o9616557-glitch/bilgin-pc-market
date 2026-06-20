@@ -2,27 +2,37 @@
 
 import React from "react";
 import Link from "next/link";
-import { Package, Heart, Server, MapPin, ShieldAlert, LogOut, ArrowRight } from "lucide-react";
+import { Package, Heart, Server, MapPin, ShieldAlert, LogOut, ArrowRight, Truck } from "lucide-react";
 
 export default function HesabimPage() {
-  // 🚀 LÜKS GARAJLARIMIZ (Her birinin kendi aurası ve neon rengi var)
+// 🚗 LÜKS GARAJLARIMIZ (Gerçek Canlı Linklere Bağlandı!)
   const garajlar = [
     { 
       id: "siparisler", 
       isim: "Siparişlerim", 
       aciklama: "Kargodaki ve geçmiş siparişlerin", 
       ikon: Package, 
-      link: "/hesabim/siparisler", 
+      link: "/siparislerim", // 🚀 DÜZELTİLDİ
       renk: "text-blue-400", 
       bgAura: "bg-blue-500/5", 
       borderHover: "hover:border-blue-500/40" 
+    },
+    { 
+      id: "siparis-takip", 
+      isim: "Sipariş Takip", 
+      aciklama: "Kargonun anlık durumunu ve konumunu izle", 
+      ikon: Truck, 
+      link: "/siparis-takip", // 🚀 DÜZELTİLDİ
+      renk: "text-purple-400", 
+      bgAura: "bg-purple-500/5", 
+      borderHover: "hover:border-purple-500/40" 
     },
     { 
       id: "sistemlerim", 
       isim: "Sistemlerim", 
       aciklama: "Topladığın özel PC canavarları", 
       ikon: Server, 
-      link: "/sistemlerim", 
+      link: "/sistemlerim", // Zaten doğruydu
       renk: "text-[#00d2ff]", 
       bgAura: "bg-[#00d2ff]/5", 
       borderHover: "hover:border-[#00d2ff]/40" 
@@ -32,7 +42,7 @@ export default function HesabimPage() {
       isim: "Favorilerim", 
       aciklama: "Gözüne kestirdiğin parçalar", 
       ikon: Heart, 
-      link: "/hesabim/favoriler", 
+      link: "/favorilerim", // 🚀 DÜZELTİLDİ
       renk: "text-rose-400", 
       bgAura: "bg-rose-500/5", 
       borderHover: "hover:border-rose-500/40" 
@@ -42,7 +52,7 @@ export default function HesabimPage() {
       isim: "Adreslerim", 
       aciklama: "Teslimat ve fatura bilgilerin", 
       ikon: MapPin, 
-      link: "/hesabim/adresler", 
+      link: "/adreslerim", // 🚀 DÜZELTİLDİ
       renk: "text-emerald-400", 
       bgAura: "bg-emerald-500/5", 
       borderHover: "hover:border-emerald-500/40" 
@@ -58,7 +68,6 @@ export default function HesabimPage() {
       borderHover: "hover:border-amber-500/40" 
     },
   ];
-
   return (
     <div className="min-h-screen bg-[#050814] text-white pt-12 pb-24 px-4 relative overflow-hidden font-sans">
       {/* 🌫️ ARKA PLAN SİS VE IŞIK EFEKTLERİ */}
