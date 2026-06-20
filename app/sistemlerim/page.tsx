@@ -52,25 +52,34 @@ export default function SistemlerimPage() {
     sessizGuncelleme();
   }, []);
 
-  const handleSepeteEkle = (sistem: any) => {
+ // 🚀 async kelimesini ekledik ki bekletme motoru çalışsın
+  const handleSepeteEkle = async (sistem: any) => {
     const parcalar = Object.values(sistem.selections);
     if (parcalar.length === 0) return;
 
-    parcalar.forEach((urun: any) => {
+    // Müşteriye işlemin başladığını gösteren havalı bir yükleniyor bildirimi
+    const toastId = toast.loading(`"${sistem.name}" parçaları sepete diziliyor...`);
+
+    // forEach yerine for...of kullandık (Çünkü forEach "await" komutunu dinlemez, beklemeden basar geçer)
+    for (const urun of parcalar as any[]) {
       sepeteEkle({
-        id: urun._id?.toString() || Math.random().toString(), // Garanti ID
+        id: urun._id?.toString() || Math.random().toString(),
         isim: `[${sistem.name}] ${urun.isim}`,
         fiyat: Number(urun.indirimliFiyat || urun.fiyat || 0),
         resim: urun.resim || "https://via.placeholder.com/150",
         varyasyon: "Sistem Parçası",
         havaleIndirimi: urun.havaleIndirimi || 5,
-        // 🚀 SAYFAYI ÇÖKERTEN EKSİKLER AŞAĞIDA TAMAMLANDI:
-        slug: urun.slug || "sistem-parcasi", // Sepet link arayıp patlamasın diye
-        stok: urun.stok || 10 // Sepet stok limiti arayıp hata vermesin diye
+        slug: urun.slug || "sistem-parcasi",
+        stok: urun.stok || 10
       });
-    });
 
-    toast.success(`"${sistem.name}" başarıyla sepete eklendi! 🛒`);
+      // 🚀 HAYAT KURTARAN NOKTA: Her ürün eklendikten sonra sepete 100 milisaniye (salise) kayıt yapma süresi tanıyoruz.
+      // Böylece ürünler birbirini ezmiyor, sepete jilet gibi sırayla diziliyor.
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    // İşlem bitince yükleniyor bildirimini başarı bildirimine çeviriyoruz
+    toast.success(`"${sistem.name}" eksiksiz olarak sepete eklendi! 🛒`, { id: toastId });
   };
   // 🚀 GERÇEK SİLME MOTORU
   const sistemiKalicOlarakSil = async () => {
