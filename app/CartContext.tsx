@@ -61,7 +61,7 @@ useEffect(() => {
     }
   };
 
-  const sepeteEkle = (urun: any) => {
+ const sepeteEkle = (urun: any, topluIslemMi = false) => {
     setSepet((eskiSepet) => {
       const urunId = String(urun.id || urun._id);
       const urunSlug = urun.slug || "";
@@ -92,8 +92,15 @@ useEffect(() => {
         yeni = [...eskiSepet, { ...urun, id: urunId, varyasyon: urunVaryasyon, adet: 1 }];
       }
       
+      // Lokal hafızaya anında, acımasızca yazıyor
       localStorage.setItem("bilgin-sepet", JSON.stringify(yeni));
-      bulutaYedekle(yeni); // 🔥 Eklendikten sonra buluta kopyasını yolla
+      
+      // 🚀 HAYAT KURTARAN DÜĞME: Eğer "Sistem Toplama" veya "Sistemlerim" sayfasından toplu ürün atılıyorsa,
+      // her saniye bulutu darlayıp kilitlenmesin diye bulut yedeğini KESİYORUZ. (Onu sayfa yapacak)
+      if (!topluIslemMi) {
+        bulutaYedekle(yeni); 
+      }
+      
       return yeni;
     });
   };

@@ -174,10 +174,10 @@ const handleSelectComponent = (product: any) => {
 
   const isSystemComplete = STEPS.every(step => !!selections[step.id]);
 
- const handleAddSystemToCart = async () => {
+const handleAddSystemToCart = async () => {
       if (Object.keys(selections).length === 0) return toast.error("Lütfen sepete eklemek için en az bir parça seçiniz.");
       if (psuYetersiz) return toast.error("Güç kaynağı yetersiz. Lütfen daha yüksek kapasiteli bir güç kaynağı seçiniz.");
-    if (gpuKasaAşimi) return toast.error("Seçilen ekran kartı mevcut kasaya sığmamaktadır. Lütfen uyumlu parçalar seçiniz.");
+      if (gpuKasaAşimi) return toast.error("Seçilen ekran kartı mevcut kasaya sığmamaktadır. Lütfen uyumlu parçalar seçiniz.");
 
       // 🚀 ZIRHLI KAPI: Patronu bilgilendiriyoruz ki işlem bitmeden sayfadan çıkmasın
       const toastId = toast.loading("📦 Sistem parçaları sepete zırhlanarak yükleniyor... Lütfen sayfadan ayrılmayın!");
@@ -191,13 +191,12 @@ const handleSelectComponent = (product: any) => {
           resim: urun.resim || "https://via.placeholder.com/150",
           varyasyon: "Sihirbaz Parçası",
           havaleIndirimi: urun.havaleIndirimi || 5,
-          // 🚀 SİYAH EKRAN ÇÖZÜMÜ: Linki (slug) ve stoğu ekledik
           slug: urun.slug || urun.kategoriSlug || urun._id?.toString() || Math.random().toString(),
           stok: urun.stok || 10
-        });
+        }, true); // 🚀 İŞTE SİHİRLİ TRUE BURADA: Bulut kilitlenmesini engeller!
 
-        // 🚀 HAYAT KURTARAN FREN: Tarayıcıya parçayı kaydetmesi için 150 salise süre veriyoruz.
-        await new Promise(resolve => setTimeout(resolve, 150));
+        // 🚀 HIZI ARTTIRDIK: Artık bulutu beklemediği için 50 salisede (göz kırpma hızında) yazar
+        await new Promise(resolve => setTimeout(resolve, 50));
       }
 
       // Sepete başarıyla gittikten sonra masayı (sihirbazı) temizliyoruz
