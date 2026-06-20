@@ -118,22 +118,24 @@ export default function KendinToplaClient({ initialProducts }: { initialProducts
     return true;
   });
 
-  const handleSelectComponent = (product: any) => {
-    // 🚀 ÇÖKME KALKANI: Seçilen ürünü hafızaya yazarken destan uzunluğundaki HTML'i siliyoruz.
-    const hafifUrun = {
-      _id: product._id,
-      isim: product.isim,
-      fiyat: product.fiyat,
-      indirimliFiyat: product.indirimliFiyat,
-      resim: product.resim,
-      havaleIndirimi: product.havaleIndirimi || 0,
-      sihirbaz_ozellikleri: product.sihirbaz_ozellikleri || {},
-      kategoriSlug: product.kategoriSlug
-    };
-    
-    setSelections((prev) => ({ ...prev, [activeStepInfo.id]: hafifUrun }));
+const handleSelectComponent = (product: any) => {
+  // 🚀 ÇÖKME KALKANI: Seçilen ürünü hafızaya yazarken destan uzunluğundaki HTML'i siliyoruz.
+  const hafifUrun = {
+    _id: product._id,
+    isim: product.isim,
+    fiyat: product.fiyat,
+    indirimliFiyat: product.indirimliFiyat,
+    resim: product.resim,
+    havaleIndirimi: product.havaleIndirimi || 0,
+    sihirbaz_ozellikleri: product.sihirbaz_ozellikleri || {},
+    kategoriSlug: product.kategoriSlug,
+    // 🚀 İŞTE EKSİK OLAN HAYAT KURTARICI PARÇALAR:
+    slug: product.slug || product._id?.toString(),
+    stok: product.stok || 10
   };
 
+  setSelections((prev) => ({ ...prev, [activeStepInfo.id]: hafifUrun }));
+};
   const handleRemoveComponent = (stepId: string) => {
     setSelections((prev) => {
       const yeni = { ...prev };
