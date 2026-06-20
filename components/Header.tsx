@@ -295,16 +295,16 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                   <svg className={`w-5 h-5 md:w-5 md:h-5 shrink-0 transition-transform ${hesabimAcik ? "scale-110" : "group-hover:scale-110"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 </button>
 
-     {hesabimAcik && (
+    {hesabimAcik && (
           <>
-            {/* ARKA PLAN KARARTMASI (Sadece PC'de dışarı tıklamak için, Mobilde zaten tam ekran) */}
+            {/* ARKA PLAN KARARTMASI (Sadece PC'de dışarı tıklamak için) */}
             <div className="fixed inset-0 z-[99998] hidden md:block" onClick={() => setHesabimAcik(false)}></div>
 
-            {/* 🚀 TELEFONDA TAM EKRAN, BİLGİSAYARDA AÇILIR MENÜ (KUSURSUZ UYUM) */}
-            <div className="fixed inset-0 z-[99999] bg-[#050814] flex flex-col p-6 overflow-y-auto animate-in fade-in zoom-in-95 duration-200
-                            md:absolute md:inset-auto md:right-0 md:top-[calc(100%+1rem)] md:w-[350px] md:p-5 md:bg-[#09090b] md:border md:border-white/10 md:rounded-3xl md:shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+            {/* 🚀 DÜZELTME: "Hedira Sıkışmaması" için w-[100vw] ve h-[100dvh] ile ekrandan zorla fırlatıldı! */}
+            <div className="fixed top-0 left-0 w-[100vw] h-[100dvh] z-[99999] bg-[#050814] flex flex-col p-6 overflow-y-auto animate-in fade-in zoom-in-95 duration-200
+                            md:absolute md:w-[350px] md:h-auto md:top-[calc(100%+1rem)] md:right-0 md:left-auto md:p-5 md:bg-[#09090b] md:border md:border-white/10 md:rounded-3xl md:shadow-[0_0_50px_rgba(0,0,0,0.5)]">
               
-              {/* 📱 MOBİL ÜST BAR (Sadece telefonda görünür, Kapatma butonu sağ üstte) */}
+              {/* 📱 MOBİL ÜST BAR */}
               <div className="flex md:hidden justify-between items-center mb-6 pb-4 border-b border-white/10 shrink-0">
                 <span className="font-black text-white text-xl tracking-widest uppercase flex items-center gap-2">
                   <span className="text-[#3b82f6]">Hesabım</span> Merkezi
@@ -332,7 +332,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                       📦 Hızlı Sipariş Takip
                     </Link>
                     
-                    {/* 🚀 JİLET GİBİ 4'LÜ KARE MENÜ (Sistemlerim Dahil) */}
+                    {/* 🚀 JİLET GİBİ 4'LÜ KARE MENÜ */}
                     <div className="grid grid-cols-2 gap-3 mb-3 shrink-0">
                       <Link href="/siparislerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex flex-col items-center justify-center gap-2 p-4 bg-[#121215] text-gray-300 hover:text-white hover:bg-white/10 border border-white/5 hover:border-white/20 rounded-2xl text-xs font-bold transition-all group shadow-sm hover:shadow-md">
                         <span className="text-2xl group-hover:scale-110 transition-transform">📋</span> Siparişlerim
@@ -367,7 +367,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                   </>
                 ) : (
                   <>
-                    {/* GİRİŞ YAPMAMIŞ KULLANICI İÇİN ŞIK TASARIM */}
+                    {/* GİRİŞ YAPMAMIŞ KULLANICI */}
                     <div className="flex flex-col items-center justify-center p-6 mb-4 mt-4 text-center shrink-0">
                       <div className="w-20 h-20 rounded-full bg-gradient-to-b from-[#3b82f6]/20 to-transparent border border-[#3b82f6]/30 flex items-center justify-center text-[#3b82f6] mb-4 shadow-[0_0_30px_rgba(59,130,246,0.15)]">
                         <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
