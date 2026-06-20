@@ -3,9 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useCart } from "@/app/CartContext";
 import toast from "react-hot-toast";
-import { 
-  Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, Check, AlertTriangle, Trash2, RefreshCw, ExternalLink 
-} from "lucide-react";
+import { Cpu, Monitor, HardDrive, Zap, Wind, LayoutGrid, ShoppingBag, Check, AlertTriangle, Trash2, RefreshCw, ExternalLink, Save } from "lucide-react";
 
 const STEPS = [
   { id: "islemci", name: "İşlemci (CPU)", icon: Cpu },
@@ -23,7 +21,9 @@ export default function KendinToplaClient({ initialProducts }: { initialProducts
   const [currentStep, setCurrentStep] = useState(0);
   const [selections, setSelections] = useState<Record<string, any>>({});
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
-  
+  // 🚀 YENİ: SİSTEM KAYDETME STATELERİ
+  const [saveModalOpen, setSaveModalOpen] = useState(false);
+  const [systemName, setSystemName] = useState("");
   const activeStepInfo = STEPS[currentStep];
 
   useEffect(() => {
@@ -192,7 +192,14 @@ export default function KendinToplaClient({ initialProducts }: { initialProducts
     setCurrentStep(0);
     toast.success("Sistem başarıyla sepete eklendi ve sihirbaz temizlendi.");
   };
-
+// 🚀 YENİ: SİSTEM KAYDETME FONKSİYONU (ADIM 1 - ARAYÜZ)
+  const handleSaveSystem = () => {
+    if (!systemName.trim()) return toast.error("Lütfen sisteminize bir isim verin!");
+    // Veritabanı API bağlantısı Adım 2'de eklenecek.
+    toast.success(`"${systemName}" başarıyla kaydedildi! (Veritabanı bağlantısı kurulacak)`);
+    setSaveModalOpen(false);
+    setSystemName("");
+  };
   return (
     <div className="bg-[#050505] text-white min-h-screen font-sans pb-32">
       <div className="border-b border-white/5 bg-[#09090b]/90 backdrop-blur-xl lg:sticky lg:top-20 z-40">
@@ -403,6 +410,16 @@ export default function KendinToplaClient({ initialProducts }: { initialProducts
                 <ShoppingBag className="w-4 h-4" /> { (psuYetersiz || gpuKasaAşimi) ? "Uyumsuzlukları Gideriniz" : "Sistemi Sepete Ekle" }
               </button>
             </div>
+            {/* 🚀 YENİ: SİSTEMİ KAYDET BUTONU (MASAÜSTÜ) */}
+              <button 
+                onClick={() => setSaveModalOpen(true)} 
+                disabled={Object.keys(selections).length === 0}
+                className={`w-full h-12 rounded-xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 transition-all border mt-3 ${
+                  Object.keys(selections).length === 0 ? "bg-zinc-800/50 text-gray-600 cursor-not-allowed border-white/5" : "bg-transparent text-[#00d2ff] border-[#00d2ff]/30 hover:bg-[#00d2ff]/10 hover:border-[#00d2ff]"
+                }`}
+              >
+                <Save className="w-4 h-4" /> Sistemi Kaydet
+              </button>
           </div>
         </div>
       </div>
@@ -414,7 +431,18 @@ export default function KendinToplaClient({ initialProducts }: { initialProducts
               {toplamFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">₺</span>
             </span>
          </div>
-         <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
+           {/* 🚀 YENİ: SİSTEMİ KAYDET BUTONU (MOBİL) */}
+           <button 
+             onClick={() => setSaveModalOpen(true)}
+             disabled={Object.keys(selections).length === 0}
+             className={`h-12 w-12 shrink-0 rounded-xl flex items-center justify-center transition-all shadow-lg border ${
+               Object.keys(selections).length === 0 ? "bg-zinc-800/50 text-gray-600 cursor-not-allowed border-white/5" : "bg-[#18181b] text-[#00d2ff] border-[#00d2ff]/30 hover:bg-[#00d2ff]/10"
+             }`}
+           >
+             <Save className="w-5 h-5" />
+           </button>
+
            <button 
              onClick={handleAddSystemToCart}
              disabled={psuYetersiz || gpuKasaAşimi}
@@ -423,7 +451,7 @@ export default function KendinToplaClient({ initialProducts }: { initialProducts
              }`}
            >
               <ShoppingBag className="w-4 h-4" /> Sepete Ekle
-         </button>
+           </button>
          </div>
       </div>
 
@@ -502,7 +530,42 @@ export default function KendinToplaClient({ initialProducts }: { initialProducts
                 <ShoppingBag className="w-4 h-4" /> Ekle
               </button>
             </div>
+{/* 🚀 YENİ: SİSTEMİ KAYDET MODALI */}
+      {saveModalOpen && (
+        <div className="fixed inset-0 bg-black/90 z-[10000] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-[#121214] border border-white/10 w-full max-w-sm rounded-3xl p-6 md:p-8 flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+            <div className="w-14 h-14 rounded-full border border-[#00d2ff]/30 flex items-center justify-center mb-6 bg-[#00d2ff]/10 shadow-inner mx-auto">
+              <Save className="w-6 h-6 text-[#00d2ff]" />
+            </div>
+            <h3 className="text-xl font-black text-white uppercase tracking-wider mb-2 text-center">Sistemi Kaydet</h3>
+            <p className="text-gray-400 text-xs text-center mb-6 leading-relaxed">Topladığınız bu sisteme bir isim verin. Profilinizdeki "Sistemlerim" sekmesinden istediğiniz zaman ulaşabilirsiniz.</p>
+            
+            <input 
+              type="text" 
+              value={systemName}
+              onChange={(e) => setSystemName(e.target.value)}
+              placeholder="Örn: Hayalimdeki RTX 5090 Kasa"
+              className="w-full bg-[#18181b] border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:outline-none focus:border-[#00d2ff]/50 transition-colors font-bold mb-6"
+              autoFocus
+            />
 
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setSaveModalOpen(false)}
+                className="flex-1 px-4 py-3.5 rounded-xl text-xs font-black uppercase bg-zinc-800 border border-white/10 text-gray-300 hover:text-white transition-colors"
+              >
+                İptal
+              </button>
+              <button 
+                onClick={handleSaveSystem}
+                className="flex-1 px-4 py-3.5 rounded-xl text-xs font-black uppercase bg-[#00d2ff] text-black hover:bg-[#00c4db] transition-colors shadow-[0_0_15px_rgba(0,210,255,0.3)]"
+              >
+                Kaydet
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
           </div>
         </div>
       )}
