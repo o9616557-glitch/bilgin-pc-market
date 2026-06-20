@@ -118,6 +118,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
               return (
                 /* 🚀 YENİ TASARIM: KOMPAKT VE ŞIK YATAY LİSTE */
                 <div key={index} className="group flex flex-col sm:flex-row items-center bg-[#09090b] border border-slate-800/60 rounded-2xl p-4 gap-4 sm:gap-6 transition-all duration-300 hover:border-[#3b82f6]/40 shadow-lg hover:shadow-[0_0_25px_rgba(0,229,255,0.05)] relative overflow-hidden">
+                  
                 {/* 🚀 GÖRSEL KUTUSU - TIKLANABİLİR LİNK YAPILDI */}
                   <Link href={"/product/" + (urun.slug || urun._id || urun.id)} prefetch={true} className="w-full sm:w-28 h-40 sm:h-28 shrink-0 bg-[#121215] rounded-xl border border-slate-800 flex items-center justify-center p-2 relative overflow-hidden hover:border-[#3b82f6]/50 transition-colors block cursor-pointer">
                     <div className="absolute inset-0 bg-gradient-to-t from-[#3b82f6]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -136,16 +137,6 @@ export default function FavoriClient({ initialFavorites }: Props) {
                         </h3>
                       </Link>
                       <div className="text-xl sm:text-2xl font-black text-[#3b82f6] tracking-tight mt-auto pointer-events-none">
-                        {Number(urun.fiyat || 0).toLocaleString("tr-TR")} <span className="text-sm font-bold text-slate-500 uppercase">TL</span>
-                      </div>
-                  </div>
-
-                  {/* BAŞLIK VE FİYAT - Özgür bırakıldı, sıkışmaz */}
-                  <div className="flex-1 flex flex-col justify-center text-center sm:text-left w-full h-full">
-                      <h3 className="text-sm sm:text-base font-bold text-slate-200 mb-2 leading-relaxed break-words whitespace-normal group-hover:text-white transition-colors line-clamp-2">
-                        {urun.isim || urun.name}
-                      </h3>
-                      <div className="text-xl sm:text-2xl font-black text-[#3b82f6] tracking-tight mt-auto">
                         {Number(urun.fiyat || 0).toLocaleString("tr-TR")} <span className="text-sm font-bold text-slate-500 uppercase">TL</span>
                       </div>
                   </div>
