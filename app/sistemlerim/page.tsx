@@ -187,29 +187,42 @@ export default function SistemlerimPage() {
                     </div>
                   </div>
 
-                  <div className="w-full lg:w-2/3 flex flex-col">
+          <div className="w-full lg:w-2/3 flex flex-col">
                     <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 border-b border-white/5 pb-2">Bileşen Listesi ({parcalar.length} Parça)</h3>
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar flex-1 items-start content-start">
-                      {parcalar.map((urun: any, i: number) => (
-                        <div key={i} className="flex items-start gap-3 bg-[#121215] p-3 rounded-xl border border-white/5">
-                          <div className="w-12 h-12 rounded-lg bg-black border border-white/5 p-1 shrink-0 flex items-center justify-center mt-1">
-                            {urun.resim ? (
-                              <img src={urun.resim} alt={urun.isim} className="max-w-full max-h-full object-contain" />
-                            ) : (
-                              <Server className="w-5 h-5 text-slate-600" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-[9px] text-[#00d2ff] font-black uppercase tracking-wider mb-1 flex items-center gap-1">
-                              {getIconForCategory(urun.kategoriSlug)} {urun.kategoriSlug?.replace("-", " ")}
+                    
+                    {/* 🚀 LÜKS KAYDIRMA EFEKTİ SARMALAYICISI */}
+                    <div className="relative flex-1">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[350px] overflow-y-auto pr-2 pb-8 custom-scrollbar items-start content-start">
+                        {parcalar.map((urun: any, i: number) => (
+                          <div key={i} className="flex items-start gap-3 bg-[#121215] p-3 rounded-xl border border-white/5 relative z-10">
+                            <div className="w-12 h-12 rounded-lg bg-black border border-white/5 p-1 shrink-0 flex items-center justify-center mt-1">
+                              {urun.resim ? (
+                                <img src={urun.resim} alt={urun.isim} className="max-w-full max-h-full object-contain" />
+                              ) : (
+                                <Server className="w-5 h-5 text-slate-600" />
+                              )}
                             </div>
-                            <div className="text-xs font-bold text-white leading-snug mb-1">{urun.isim}</div>
-                            <div className="text-[10px] text-emerald-400 font-bold mt-0.5">
-                              {Number(urun.indirimliFiyat || urun.fiyat || 0).toLocaleString("tr-TR")} ₺
+                            <div className="flex-1 min-w-0">
+                              <div className="text-[9px] text-[#00d2ff] font-black uppercase tracking-wider mb-1 flex items-center gap-1">
+                                {getIconForCategory(urun.kategoriSlug)} {urun.kategoriSlug?.replace("-", " ")}
+                              </div>
+                              <div className="text-xs font-bold text-white leading-snug mb-1">{urun.isim}</div>
+                              <div className="text-[10px] text-emerald-400 font-bold mt-0.5">
+                                {Number(urun.indirimliFiyat || urun.fiyat || 0).toLocaleString("tr-TR")} ₺
+                              </div>
                             </div>
                           </div>
+                        ))}
+                      </div>
+
+                      {/* 🌫️ SİS EFEKTİ VE KAYDIRMA UYARISI */}
+                      {parcalar.length > 4 && (
+                        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#09090b] to-transparent pointer-events-none flex items-end justify-center pb-2 rounded-b-xl z-20">
+                          <span className="text-[10px] font-black tracking-widest text-[#00d2ff] uppercase animate-bounce drop-shadow-[0_0_8px_rgba(0,210,255,0.8)]">
+                            Devamını Gör ↓
+                          </span>
                         </div>
-                      ))}
+                      )}
                     </div>
 
                     <div className="flex lg:hidden flex-col gap-3 mt-6 pt-6 border-t border-white/10">
