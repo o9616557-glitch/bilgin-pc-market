@@ -11,22 +11,28 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const hafiza = localStorage.getItem("bilgin-sepet");
     if (hafiza) setSepet(JSON.parse(hafiza));
 
-    // 2. ARKA PLANDA SESSİZCE BULUTU KONTROL ET (Giriş yapmışsa sepeti senkronize eder)
     const buluttanGetir = async () => {
       try {
         const res = await fetch("/api/sepet");
         const data = await res.json();
-        if (data.success && data.cart && data.cart.length > 0) {
+        
+        // 🚀 BİNGO: .length > 0 şartını kaldırdık! Artık telefonda sepet sıfırlansa bile PC bunu anlar.
+        if (data.success && data.cart) {
           setSepet(data.cart);
           localStorage.setItem("bilgin-sepet", JSON.stringify(data.cart));
         }
       } catch (error) {
-        // Hata olursa sessiz kal, lokal sepet aslanlar gibi çalışmaya devam eder
+        // Hata olursa sessiz kal, lokal sepet çalışmaya devam eder
       }
     };
-    buluttanGetir();
-  }, []);
 
+    buluttanGetir();
+
+    // 🚀 PREMIUM CANLI SENKRONİZASYON: 
+    // Müşteri telefonda işlem yapıp PC sekmesine geri döndüğü (odaklandığı) an sepet anında güncellenir!
+    window.addEventListener("focus", buluttanGetir);
+    return () => window.removeEventListener("focus", buluttanGetir);
+  }, []);
   // 🚀 BULUT YEDEKLEME MOTORU (Lokal sepeti asla bozmaz, sadece arkadan kopyasını yollar)
   const bulutaYedekle = async (guncelSepet: any[]) => {
     try {
