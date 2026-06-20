@@ -61,42 +61,43 @@ useEffect(() => {
     }
   };
 
- const sepeteEkle = (urun: any, topluIslemMi = false) => {
+const sepeteEkle = (urun: any, topluIslemMi = false) => {
     setSepet((eskiSepet) => {
+      // Gelen ürünün verilerini temizleyip standart hale getiriyoruz
       const urunId = String(urun.id || urun._id);
-      const urunSlug = urun.slug || "";
       const urunVaryasyon = urun.varyasyon || "Standart Model";
-
-      // 🚀 TİTANYUM ZIRH: Hem ID'ye hem _id'ye hem de Slug'a (URL) bakarak eşleştirme yapar!
+      
+      // 🚀 AYNI ÜRÜNÜ YAKALAMA RADARI:
+      // Eğer gelen ürünün ID'si ve Varyasyonu sepetteki bir ürünle BİREBİR aynıysa yakala!
       const varMi = eskiSepet.find((i) => {
         const idEslesiyor = String(i.id || i._id) === urunId;
-        const slugEslesiyor = (i.slug && urunSlug) ? i.slug === urunSlug : false;
         const varyasyonEslesiyor = (i.varyasyon || "Standart Model") === urunVaryasyon;
-        
-        return (idEslesiyor || slugEslesiyor) && varyasyonEslesiyor;
+        return idEslesiyor && varyasyonEslesiyor;
       });
       
       let yeni;
       if (varMi) {
+        // 🚀 BİRLEŞTİRME MOTORU: Ürün zaten sepette varmış! 
+        // Ayrı satır açma, o ürünü bul ve adedini 1 arttır (veya gelen adet kadar ekle)
         yeni = eskiSepet.map((i) => {
           const idEslesiyor = String(i.id || i._id) === urunId;
-          const slugEslesiyor = (i.slug && urunSlug) ? i.slug === urunSlug : false;
           const varyasyonEslesiyor = (i.varyasyon || "Standart Model") === urunVaryasyon;
 
-          if ((idEslesiyor || slugEslesiyor) && varyasyonEslesiyor) {
-            return { ...i, ...urun, adet: i.adet + 1 };
+          if (idEslesiyor && varyasyonEslesiyor) {
+            const eklenecekAdet = urun.adet || 1;
+            return { ...i, adet: i.adet + eklenecekAdet };
           }
           return i;
         });
       } else {
-        yeni = [...eskiSepet, { ...urun, id: urunId, varyasyon: urunVaryasyon, adet: 1 }];
+        // Ürün sepette ilk defa boy gösterecek, sıfırdan ekle
+        yeni = [...eskiSepet, { ...urun, id: urunId, varyasyon: urunVaryasyon, adet: urun.adet || 1 }];
       }
       
-      // Lokal hafızaya anında, acımasızca yazıyor
+      // Deftere (lokale) jilet gibi işliyoruz
       localStorage.setItem("bilgin-sepet", JSON.stringify(yeni));
       
-      // 🚀 HAYAT KURTARAN DÜĞME: Eğer "Sistem Toplama" veya "Sistemlerim" sayfasından toplu ürün atılıyorsa,
-      // her saniye bulutu darlayıp kilitlenmesin diye bulut yedeğini KESİYORUZ. (Onu sayfa yapacak)
+      // Toplu işlem değilse (tekil tıklandıysa) buluta kopyasını fırlat
       if (!topluIslemMi) {
         bulutaYedekle(yeni); 
       }
