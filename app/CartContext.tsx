@@ -63,41 +63,52 @@ useEffect(() => {
 
 const sepeteEkle = (urun: any, topluIslemMi = false) => {
     setSepet((eskiSepet) => {
-      // Gelen ürünün verilerini temizleyip standart hale getiriyoruz
       const urunId = String(urun.id || urun._id);
-      const urunVaryasyon = urun.varyasyon || "Standart Model";
       
-      // 🚀 AYNI ÜRÜNÜ YAKALAMA RADARI:
-      // Eğer gelen ürünün ID'si ve Varyasyonu sepetteki bir ürünle BİREBİR aynıysa yakala!
+      // 🚀 VARYASYON KÖPRÜSÜ: Eğer gelen varyasyon "Sistem Parçası" veya "Sihirbaz Parçası" ise
+      // ikisini de tek bir isimde ("Sihirbaz Parçası") eşitliyoruz ki sepet bunları aynı ürün saysın!
+      let urunVaryasyon = urun.varyasyon || "Standart Model";
+      if (urunVaryasyon === "Sistem Parçası" || urunVaryasyon === "Sihirbaz Parçası") {
+        urunVaryasyon = "Sihirbaz Parçası";
+      }
+      
+      // 🚀 AYNI ÜRÜNÜ YAKALAMA RADARI
       const varMi = eskiSepet.find((i) => {
         const idEslesiyor = String(i.id || i._id) === urunId;
-        const varyasyonEslesiyor = (i.varyasyon || "Standart Model") === urunVaryasyon;
-        return idEslesiyor && varyasyonEslesiyor;
+        
+        // Sepetteki eski ürünlerin de varyasyonunu kontrol ederken aynı mantıkla bakıyoruz
+        let eskiVaryasyon = i.varyasyon || "Standart Model";
+        if (eskiVaryasyon === "Sistem Parçası" || eskiVaryasyon === "Sihirbaz Parçası") {
+          eskiVaryasyon = "Sihirbaz Parçası";
+        }
+        
+        return idEslesiyor && eskiVaryasyon === urunVaryasyon;
       });
       
       let yeni;
       if (varMi) {
-        // 🚀 BİRLEŞTİRME MOTORU: Ürün zaten sepette varmış! 
-        // Ayrı satır açma, o ürünü bul ve adedini 1 arttır (veya gelen adet kadar ekle)
+        // 🚀 BİRLEŞTİRME MOTORU
         yeni = eskiSepet.map((i) => {
           const idEslesiyor = String(i.id || i._id) === urunId;
-          const varyasyonEslesiyor = (i.varyasyon || "Standart Model") === urunVaryasyon;
+          
+          let eskiVaryasyon = i.varyasyon || "Standart Model";
+          if (eskiVaryasyon === "Sistem Parçası" || eskiVaryasyon === "Sihirbaz Parçası") {
+            eskiVaryasyon = "Sihirbaz Parçası";
+          }
 
-          if (idEslesiyor && varyasyonEslesiyor) {
+          if (idEslesiyor && eskiVaryasyon === urunVaryasyon) {
             const eklenecekAdet = urun.adet || 1;
             return { ...i, adet: i.adet + eklenecekAdet };
           }
           return i;
         });
       } else {
-        // Ürün sepette ilk defa boy gösterecek, sıfırdan ekle
+        // İlk defa ekleniyorsa, normalize edilmiş varyasyon adıyla ekle
         yeni = [...eskiSepet, { ...urun, id: urunId, varyasyon: urunVaryasyon, adet: urun.adet || 1 }];
       }
       
-      // Deftere (lokale) jilet gibi işliyoruz
       localStorage.setItem("bilgin-sepet", JSON.stringify(yeni));
       
-      // Toplu işlem değilse (tekil tıklandıysa) buluta kopyasını fırlat
       if (!topluIslemMi) {
         bulutaYedekle(yeni); 
       }
