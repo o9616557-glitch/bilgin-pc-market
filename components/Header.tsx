@@ -104,6 +104,11 @@ export default function Header() {
   const sepetAdedi = sepet.reduce((toplam: number, urun: any) => toplam + (urun.adet || 1), 0);
   const { data: session } = useSession();
   const isAdmin = session?.user?.email?.toLowerCase() === "o9616557@gmail.com";
+  // 🚀 GÜVENLİK MOTORU: Çıkış yaparken çırağın defterini yakar
+  const guvenliCikisYap = async () => {
+    localStorage.removeItem("bilgin_kayitli_sistemler");
+    await signOut(); 
+  };
   // 🚀 KAPIDAKİ AKILLI ÇIRAK MOTORU (SADECE GİRİŞ YAPINCA ÇALIŞIR)
   useEffect(() => {
     // Şefim giriş yapmadıysa çırak yerinden kıpırdamaz, bekler.
@@ -346,7 +351,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                             </>
                           )}
                           <div className="h-px bg-white/10 my-1"></div>
-                          <button onClick={() => { setHesabimAcik(false); signOut({ callbackUrl: "/" }); }} className="flex items-center justify-center gap-2 px-4 py-3 w-full text-red-400 hover:text-red-300 hover:bg-red-500/15 rounded-xl text-sm font-bold transition-colors border border-transparent hover:border-red-500/20">🚪 Güvenli Çıkış Yap</button>
+                          <button onClick={async () => { setHesabimAcik(false); localStorage.removeItem("bilgin_kayitli_sistemler"); await signOut({ callbackUrl: "/" }); }} className="flex items-center justify-center gap-2 px-4 py-3 w-full text-red-400 hover:text-red-300 hover:bg-red-500/15 rounded-xl text-sm font-bold transition-colors border border-transparent hover:border-red-500/20">🚪 Güvenli Çıkış Yap</button>
                         </>
                       ) : (
                         <>
