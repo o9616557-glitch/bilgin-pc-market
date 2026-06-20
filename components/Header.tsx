@@ -82,28 +82,7 @@ function akilliKategoriBul(metin: string) {
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
-// 🚀 KAPIDAKİ ÇIRAK MOTORU (GLOBAL PREFETCH)
-  useEffect(() => {
-    const cirakDepoyaKossun = async () => {
-      try {
-        // Kullanıcı siteye girdiği an sessizce arka kapıdan veritabanını yoklar
-        const res = await fetch("/api/sistemlerim?t=" + new Date().getTime());
-        
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success) {
-            // Veriyi bulduğu an, müşteri daha o sayfaya tıklamadan lokal hafızaya (rafa) dizer
-            localStorage.setItem("bilgin_kayitli_sistemler", JSON.stringify(data.systems));
-          }
-        }
-      } catch (error) {
-        // Hata olursa müşteriye çaktırmaz, sessizce yerine döner
-      }
-    };
 
-    // Site yüklendiğinde çırağa "koş" emri verilir
-    cirakDepoyaKossun();
-  }, []);
   const gizlenecekSayfalar = ["/sepet", "/odeme", "/giris", "/kayit", "/checkout"];
   if (gizlenecekSayfalar.includes(pathname)) return null; 
 
@@ -125,6 +104,26 @@ export default function Header() {
   const sepetAdedi = sepet.reduce((toplam: number, urun: any) => toplam + (urun.adet || 1), 0);
   const { data: session } = useSession();
   const isAdmin = session?.user?.email?.toLowerCase() === "o9616557@gmail.com";
+  // 🚀 KAPIDAKİ AKILLI ÇIRAK MOTORU (SADECE GİRİŞ YAPINCA ÇALIŞIR)
+  useEffect(() => {
+    // Şefim giriş yapmadıysa çırak yerinden kıpırdamaz, bekler.
+    if (!session?.user?.email) return;
+
+    const cirakDepoyaKossun = async () => {
+      try {
+        const res = await fetch("/api/sistemlerim?t=" + new Date().getTime());
+        
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+            localStorage.setItem("bilgin_kayitli_sistemler", JSON.stringify(data.systems));
+          }
+        }
+      } catch (error) {}
+    };
+
+    cirakDepoyaKossun();
+  }, [session]);
 // 🔥 ŞEFİN KUSURSUZ KATEGORİ BULUCU MOTORU 🔥
 const kelimeTemizle = (metin: string) => {
   return metin.toLowerCase()
