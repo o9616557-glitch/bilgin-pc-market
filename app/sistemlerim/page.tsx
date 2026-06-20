@@ -52,26 +52,32 @@ export default function SistemlerimPage() {
     sessizGuncelleme();
   }, []);
 
-const handleSepeteEkle = (sistem: any) => {
+const handleSepeteEkle = async (sistem: any) => {
     const parcalar = Object.values(sistem.selections);
     if (parcalar.length === 0) return;
 
-    parcalar.forEach((urun: any) => {
+    // 🚀 ZIRHLI KAPI: Patronu bilgilendiriyoruz ki işlem bitmeden sayfadan çıkmasın
+    const toastId = toast.loading("📦 Sistem parçaları sepete zırhlanarak yükleniyor... Lütfen sayfadan ayrılmayın!");
+
+    // forEach iptal, sırayla ve güvenli (for...of) işliyoruz
+    for (const urun of parcalar as any[]) {
       sepeteEkle({
-        id: urun._id?.toString(),
+        id: urun._id?.toString() || Math.random().toString(),
         isim: `[${sistem.name}] ${urun.isim}`,
         fiyat: Number(urun.indirimliFiyat || urun.fiyat || 0),
         resim: urun.resim || "https://via.placeholder.com/150",
-        varyasyon: "Sihirbaz Parçası",
+        varyasyon: "Sistem Parçası",
         havaleIndirimi: urun.havaleIndirimi || 5,
-        // 🚀 İŞTE ÇÖZÜM: Parçalar aynı ismi alıp birbirini ezmesin diye
-        // kendi benzersiz ID'lerini link olarak veriyoruz. Siyah ekran da olmuyor, ezilme de!
-        slug: urun.slug || urun._id?.toString(),
+        slug: urun.slug || urun._id?.toString() || Math.random().toString(),
         stok: urun.stok || 10
       });
-    });
 
-    toast.success(`"${sistem.name}" başarıyla sepete eklendi! 🛒`);
+      // 🚀 HAYAT KURTARAN FREN: Tarayıcıya "bu ürünü hard diske (localStorage) yazıp kaydetmen için sana 150 salise süre veriyorum, sakın yutma" diyoruz.
+      await new Promise(resolve => setTimeout(resolve, 150));
+    }
+
+    // İşlem tamamen bitince zırhı açıyoruz
+    toast.success(`"${sistem.name}" canavarı sepete eksiksiz yüklendi! Artık sepetinize gidebilirsiniz. 🛒`, { id: toastId });
   };
   // 🚀 GERÇEK SİLME MOTORU
   const sistemiKalicOlarakSil = async () => {
