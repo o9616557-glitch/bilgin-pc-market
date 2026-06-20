@@ -189,7 +189,7 @@ export default function SistemlerimPage() {
 
                   <div className="w-full lg:w-2/3 flex flex-col">
                     <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 border-b border-white/5 pb-2">Bileşen Listesi ({parcalar.length} Parça)</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar flex-1">
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar flex-1 items-start content-start">
                       {parcalar.map((urun: any, i: number) => (
                         <div key={i} className="flex items-start gap-3 bg-[#121215] p-3 rounded-xl border border-white/5">
                           <div className="w-12 h-12 rounded-lg bg-black border border-white/5 p-1 shrink-0 flex items-center justify-center mt-1">
