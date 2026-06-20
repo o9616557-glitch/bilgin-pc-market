@@ -19,17 +19,34 @@ export default function FavoriClient({ initialFavorites }: Props) {
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
 
-  // 1. Senin orijinal 'page.tsx' dosyan taze veriyi getirdiğinde ekrana basar.
+// 🚀 FAVORİLER İÇİN SESSİZ CANLI TAKİP MOTORU
   useEffect(() => {
+    // 1. İLK AÇILIŞ: Sayfa açıldığı an orijinal veriyi hemen bas
     setFavoriteProducts(initialFavorites);
-  }, [initialFavorites]);
 
-  // 2. 🚀 SİHİRLİ DOKUNUŞ: Sadece sayfa açıldığında 1 kez çalışır.
-  // Müşteri sayfaya girdiği an beklemeden eski listeyi görür, bu kod ise
-  // arka planda sessizce taze veriyi kontrol eder. Varsa saniyesinde ekrana düşürür!
-  useEffect(() => {
-    router.refresh();
-  }, []);
+    const gercegiKontrolEt = async () => {
+      try {
+        const res = await fetch("/api/favorites?t=" + new Date().getTime(), { 
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
+        });
+        const data = await res.json();
+        
+        if (res.ok && data.favorites) {
+           // Veriyi sessizce çekip anında ekrana güncelliyoruz
+           setFavoriteProducts(data.favorites);
+        }
+      } catch (error) {
+      }
+    };
+
+    // 🔥 Sayfaya girildiği an arkadan veritabanını tarar
+    gercegiKontrolEt();
+
+    // 10 saniyede bir arkadan sessizce günceller
+    const radar = setInterval(gercegiKontrolEt, 10000); 
+    return () => clearInterval(radar); 
+  }, [initialFavorites]);
 
   const handleDeleteFavorite = async () => {
     if (!productToDelete) return;
