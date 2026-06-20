@@ -372,7 +372,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                       <span className="text-white font-black text-sm mb-1">Hesabınıza Erişin</span>
                     </div>
                     
-                    {/* HIZLI SİPARİŞ TAKİBİ - Ziyaretçiler tıklar, takır takır çalışır */}
+                    {/* HIZLI SİPARİŞ TAKİBİ - Özgür, tıklandığında çalışır */}
                     <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center justify-between p-3 mb-4 text-white bg-gradient-to-r from-[#3b82f6]/80 to-[#00d2ff]/80 hover:opacity-100 rounded-xl text-xs font-black tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(59,130,246,0.2)] shrink-0">
                       <span className="flex items-center gap-2">📦 Sipariş Takibi</span>
                       <ChevronRight className="w-4 h-4 opacity-70" />
@@ -380,35 +380,39 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
 
                     <div className="h-px bg-white/5 my-1 shrink-0"></div>
 
-                    {/* 🔒 KİLİTLİ MENÜLER (Görüntü var, ses var, gidiş yok!) */}
-                    <div className="flex flex-col gap-1 mb-2 shrink-0">
-                      <div className="text-[9px] font-black text-gray-500 uppercase tracking-widest pl-2 mb-1 mt-2 flex items-center gap-1.5">
-                        <span className="opacity-70">🔒</span> Üyelere Özel Alan
+                    {/* 🛡️ CAM KALKANLI ALAN (Örümcek Ağı Efekti) */}
+                    <div className="relative mt-2 mb-2 shrink-0 group rounded-xl overflow-hidden">
+                      
+                      {/* TIKLANABİLİR GÖRÜNMEZ KALKAN (Bütün kutuyu kaplar) */}
+                      <button 
+                        onClick={(e) => { 
+                          e.preventDefault(); 
+                          toast("Garajınıza ve bilgilerinize ulaşmak için ufak bir giriş işlemi gerekiyor patron! 🚀", { style: { background: '#09090b', color: '#fff', border: '1px solid #3b82f6' } }); 
+                        }} 
+                        className="absolute inset-0 w-full h-full z-10 flex items-center justify-center bg-[#050814]/40 backdrop-blur-[1.5px] cursor-pointer transition-all hover:bg-[#050814]/20"
+                      >
+                        {/* Üstüne gelince (Hover) ortada kibarca beliren kilit uyarısı */}
+                        <div className="bg-[#09090b] border border-white/10 px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-xl opacity-0 group-hover:opacity-100 transition-opacity transform scale-95 group-hover:scale-100">
+                           <span className="text-[10px] font-bold text-gray-300 tracking-wider uppercase">Giriş Gerekli</span>
+                           <span className="text-[#3b82f6]">🔒</span>
+                        </div>
+                      </button>
+
+                      {/* KALKANIN ARKASINDAKİ MENÜ (Soluk, tıklanamaz, sadece vitrin) */}
+                      <div className="flex flex-col gap-1 opacity-60 pointer-events-none select-none">
+                        <div className="flex items-center gap-3 p-2.5 text-gray-400 rounded-xl text-xs font-bold w-full">
+                          <span className="w-7 h-7 rounded-lg bg-[#121215] border border-white/5 flex items-center justify-center text-sm">📋</span> Siparişlerim
+                        </div>
+                        <div className="flex items-center gap-3 p-2.5 text-gray-400 rounded-xl text-xs font-bold w-full">
+                          <span className="w-7 h-7 rounded-lg bg-[#121215] border border-white/5 flex items-center justify-center text-sm">❤️</span> Favorilerim
+                        </div>
+                        <div className="flex items-center gap-3 p-2.5 text-gray-400 rounded-xl text-xs font-bold w-full">
+                          <span className="w-7 h-7 rounded-lg bg-[#121215] border border-white/5 flex items-center justify-center text-sm">💻</span> Sistemlerim
+                        </div>
+                        <div className="flex items-center gap-3 p-2.5 text-gray-400 rounded-xl text-xs font-bold w-full">
+                          <span className="w-7 h-7 rounded-lg bg-[#121215] border border-white/5 flex items-center justify-center text-sm">📍</span> Adreslerim
+                        </div>
                       </div>
-
-                      <button onClick={(e) => { e.preventDefault(); toast("Bu ayrıcalıklı alana erişmek için ufak bir giriş işlemi gerekiyor. Sizi de aramızda görmek isteriz! ✨", { style: { background: '#09090b', color: '#fff', border: '1px solid #3b82f6' } }); }} className="flex items-center justify-between p-2.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl text-xs font-bold transition-all group w-full text-left">
-                        <div className="flex items-center gap-3">
-                          <span className="w-7 h-7 rounded-lg bg-[#121215] border border-white/5 flex items-center justify-center text-sm opacity-50 group-hover:scale-110 group-hover:border-white/20 transition-all">📋</span> Siparişlerim
-                        </div>
-                      </button>
-
-                      <button onClick={(e) => { e.preventDefault(); toast("Favori ürünlerinize ulaşmak için lütfen giriş yapın. 🌟", { style: { background: '#09090b', color: '#fff', border: '1px solid #ec4899' } }); }} className="flex items-center justify-between p-2.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl text-xs font-bold transition-all group w-full text-left">
-                        <div className="flex items-center gap-3">
-                          <span className="w-7 h-7 rounded-lg bg-[#121215] border border-white/5 flex items-center justify-center text-sm opacity-50 group-hover:scale-110 group-hover:border-pink-500/30 transition-all">❤️</span> Favorilerim
-                        </div>
-                      </button>
-
-                      <button onClick={(e) => { e.preventDefault(); toast("Kendi garajınızdaki sistemlere ulaşmak için giriş yapmanız gerekiyor patron! 🚀", { style: { background: '#09090b', color: '#fff', border: '1px solid #00d2ff' } }); }} className="flex items-center justify-between p-2.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl text-xs font-bold transition-all group w-full text-left">
-                        <div className="flex items-center gap-3">
-                          <span className="w-7 h-7 rounded-lg bg-[#121215] border border-white/5 flex items-center justify-center text-sm opacity-50 group-hover:scale-110 group-hover:border-[#00d2ff]/30 transition-all">💻</span> Sistemlerim
-                        </div>
-                      </button>
-
-                      <button onClick={(e) => { e.preventDefault(); toast("Kişisel adres bilgilerinize erişmek için güvenli giriş yapmalısınız. 🛡️", { style: { background: '#09090b', color: '#fff', border: '1px solid #10b981' } }); }} className="flex items-center justify-between p-2.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl text-xs font-bold transition-all group w-full text-left">
-                        <div className="flex items-center gap-3">
-                          <span className="w-7 h-7 rounded-lg bg-[#121215] border border-white/5 flex items-center justify-center text-sm opacity-50 group-hover:scale-110 group-hover:border-emerald-500/30 transition-all">📍</span> Adreslerim
-                        </div>
-                      </button>
                     </div>
                     
                     <div className="flex-1 min-h-[20px]"></div>
