@@ -104,6 +104,7 @@ export default function Header() {
   const sepetAdedi = sepet.reduce((toplam: number, urun: any) => toplam + (urun.adet || 1), 0);
   const { data: session } = useSession();
   const isAdmin = session?.user?.email?.toLowerCase() === "o9616557@gmail.com";
+  const [cikisOnayAcik, setCikisOnayAcik] = useState(false); // 🚀 YENİ EKLEDİĞİMİZ MERKEZİ ONAY MOTORU
   // 🚀 GÜVENLİK MOTORU: Çıkış yaparken çırağın defterini yakar
   const guvenliCikisYap = async () => {
     localStorage.removeItem("bilgin_kayitli_sistemler");
@@ -357,41 +358,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                     <div className="flex-1 min-h-[20px]"></div>
 
                     <div className="h-px bg-white/10 my-2 shrink-0"></div>
-           <button onClick={(e) => { 
-  e.preventDefault();
-  // 🚀 MERKEZİ VE ZARİF POP-UP EKRANI (Arka planı dondurur)
-  toast.custom((t) => (
-    <div className={`fixed inset-0 z-[100000] flex items-center justify-center bg-[#050814]/70 backdrop-blur-sm transition-opacity duration-300 ${t.visible ? 'opacity-100' : 'opacity-0'}`}>
-      
-      {/* KİBAR VE ORTALANMIŞ ONAY KUTUSU */}
-      <div className="bg-[#09090b] border border-white/10 shadow-[0_0_50px_rgba(239,68,68,0.15)] rounded-2xl w-[85%] max-w-[320px] overflow-hidden transform transition-all duration-300 scale-100">
-        
-        <div className="p-6 flex flex-col items-center text-center">
-          <div className="w-14 h-14 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 text-2xl mb-4 shadow-[0_0_15px_rgba(239,68,68,0.2)]">
-            🚪
-          </div>
-          <h3 className="text-white font-bold text-lg mb-1.5 tracking-wide">Çıkış Yapılıyor</h3>
-          <p className="text-gray-400 text-xs leading-relaxed px-2">Hesabınızdan güvenli bir şekilde ayrılmak istediğinize emin misiniz?</p>
-        </div>
-
-        <div className="flex border-t border-white/5 bg-[#121215]">
-          <button onClick={() => toast.remove(t.id)} className="w-full border-r border-white/5 px-4 py-3.5 text-xs font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-colors tracking-wide">
-            İptal Et
-          </button>
-          <button onClick={async () => { 
-            toast.remove(t.id); 
-            setHesabimAcik(false); 
-            localStorage.removeItem("bilgin_kayitli_sistemler"); 
-            // 🚀 callbackUrl: "/" kısmını sildik, yerine redirect: false koyduk! Olduğu sayfada kalır.
-            await signOut({ redirect: false }); 
-          }} className="w-full px-4 py-3.5 text-xs font-bold text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors tracking-wide">
-            Çıkış Yap
-          </button>
-        </div>
-      </div>
-    </div>
-  ), { duration: Infinity }); 
-}} className="flex items-center justify-center gap-2 p-3 w-full text-red-400 hover:text-white hover:bg-red-500 rounded-xl text-xs font-black uppercase tracking-wider transition-all border border-transparent hover:border-red-500 shadow-sm hover:shadow-[0_0_15px_rgba(239,68,68,0.3)] shrink-0">
+    <button onClick={() => setCikisOnayAcik(true)} className="flex items-center justify-center gap-2 p-3 w-full text-red-400 hover:text-white hover:bg-red-500 rounded-xl text-xs font-black uppercase tracking-wider transition-all border border-transparent hover:border-red-500 shadow-sm hover:shadow-[0_0_15px_rgba(239,68,68,0.3)] shrink-0">
   🚪 Çıkış Yap
 </button>
                   </>
@@ -690,6 +657,37 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                 )}
               </div>
             )}
+          </div>
+        </div>
+      )}
+      {/* 🚀 HEM PC HEM MOBİLDE EKRANIN TAM ORTASINA ÇÖKEN ULTRA LÜKS ONAY PANELİ */}
+      {cikisOnayAcik && (
+        <div className="fixed inset-0 z-[100005] flex items-center justify-center bg-[#050814]/80 backdrop-blur-md p-4 animate-in fade-in duration-150">
+          
+          <div className="bg-[#09090b] border border-white/10 shadow-[0_0_50px_rgba(239,68,68,0.2)] rounded-2xl w-full max-w-[320px] overflow-hidden animate-in zoom-in-95 duration-150">
+            
+            <div className="p-6 flex flex-col items-center text-center">
+              <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 text-xl mb-4 shadow-[0_0_15px_rgba(239,68,68,0.15)]">
+                🚪
+              </div>
+              <h3 className="text-white font-bold text-base mb-1 tracking-wide">Çıkış Yapılıyor</h3>
+              <p className="text-gray-400 text-xs leading-relaxed px-2">Hesabınızdan güvenli bir şekilde ayrılmak istediğinize emin misiniz?</p>
+            </div>
+
+            <div className="flex border-t border-white/5 bg-[#121215]">
+              <button onClick={() => setCikisOnayAcik(false)} className="w-full border-r border-white/5 px-4 py-3 text-xs font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-colors tracking-wide">
+                İptal Et
+              </button>
+              <button onClick={async () => { 
+                setCikisOnayAcik(false); 
+                setHesabimAcik(false); 
+                localStorage.removeItem("bilgin_kayitli_sistemler"); 
+                await signOut({ redirect: false }); 
+              }} className="w-full px-4 py-3 text-xs font-bold text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors tracking-wide uppercase">
+                Çıkış Yap
+              </button>
+            </div>
+
           </div>
         </div>
       )}
