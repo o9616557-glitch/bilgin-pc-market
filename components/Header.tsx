@@ -295,97 +295,101 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                   <svg className={`w-5 h-5 md:w-5 md:h-5 shrink-0 transition-transform ${hesabimAcik ? "scale-110" : "group-hover:scale-110"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 </button>
 
-    {hesabimAcik && (
+   {hesabimAcik && (
           <>
-            {/* ARKA PLAN KARARTMASI (Sadece PC'de dışarı tıklamak için) */}
+            {/* ARKA PLAN KARARTMASI */}
             <div className="fixed inset-0 z-[99998] hidden md:block" onClick={() => setHesabimAcik(false)}></div>
 
-            {/* 🚀 DÜZELTME: "Hedira Sıkışmaması" için w-[100vw] ve h-[100dvh] ile ekrandan zorla fırlatıldı! */}
-            <div className="fixed top-0 left-0 w-[100vw] h-[100dvh] z-[99999] bg-[#050814] flex flex-col p-6 overflow-y-auto animate-in fade-in zoom-in-95 duration-200
-                            md:absolute md:w-[350px] md:h-auto md:top-[calc(100%+1rem)] md:right-0 md:left-auto md:p-5 md:bg-[#09090b] md:border md:border-white/10 md:rounded-3xl md:shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+            {/* 🚀 JİLET GİBİ PRO ARAYÜZ (İnce, Keskin ve Kompakt) */}
+            <div className="fixed top-0 left-0 w-[100vw] h-[100dvh] z-[99999] bg-[#050814]/95 backdrop-blur-xl flex flex-col p-5 overflow-y-auto animate-in fade-in zoom-in-95 duration-200
+                            md:absolute md:w-[320px] md:h-auto md:top-[calc(100%+1rem)] md:right-0 md:left-auto md:p-4 md:bg-[#09090b] md:border md:border-white/10 md:rounded-2xl md:shadow-[0_0_50px_rgba(0,0,0,0.5)]">
               
               {/* 📱 MOBİL ÜST BAR */}
-              <div className="flex md:hidden justify-between items-center mb-6 pb-4 border-b border-white/10 shrink-0">
-                <span className="font-black text-white text-xl tracking-widest uppercase flex items-center gap-2">
-                  <span className="text-[#3b82f6]">Hesabım</span> Merkezi
+              <div className="flex md:hidden justify-between items-center mb-5 pb-3 border-b border-white/10 shrink-0">
+                <span className="font-black text-white text-lg tracking-widest uppercase flex items-center gap-2">
+                  <span className="text-[#3b82f6]">Hesabım</span>
                 </span>
-                <button onClick={() => setHesabimAcik(false)} className="w-10 h-10 bg-white/5 border border-white/10 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-red-500/20 hover:border-red-500/50 transition-all">
-                  <X className="w-5 h-5" />
+                <button onClick={() => setHesabimAcik(false)} className="w-8 h-8 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-red-500/20 hover:border-red-500/50 transition-all">
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
               <div className="flex-1 flex flex-col">
                 {session?.user ? (
                   <>
-                    {/* KULLANICI PROFİL KARTI */}
-                    <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-[#3b82f6]/10 to-transparent rounded-2xl border border-[#3b82f6]/20 mb-4 shrink-0">
-                      <div className="w-14 h-14 rounded-full bg-[#3b82f6]/20 border border-[#3b82f6]/50 flex items-center justify-center shrink-0 text-[#3b82f6] font-black text-2xl shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                    {/* KULLANICI PROFİL KARTI (Kompakt) */}
+                    <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-[#3b82f6]/10 to-transparent rounded-xl border border-[#3b82f6]/20 mb-4 shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-[#3b82f6]/20 border border-[#3b82f6]/50 flex items-center justify-center shrink-0 text-[#3b82f6] font-black text-lg shadow-[0_0_10px_rgba(59,130,246,0.2)]">
                         {session.user?.name ? session.user.name.charAt(0).toUpperCase() : "B"}
                       </div>
                       <div className="flex flex-col min-w-0">
-                        <span className="text-[#3b82f6] text-[10px] font-black tracking-widest uppercase mb-0.5">Hoş Geldin</span>
-                        <span className="text-white text-lg font-black truncate">{session.user?.name || session.user?.email}</span>
+                        <span className="text-[#3b82f6] text-[9px] font-black tracking-widest uppercase mb-0.5">Hoş Geldin</span>
+                        <span className="text-white text-sm font-black truncate">{session.user?.name || session.user?.email}</span>
                       </div>
                     </div>
 
-                    <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center justify-center gap-2 px-4 py-3.5 mb-3 text-white bg-gradient-to-r from-[#3b82f6] to-[#00d2ff] hover:opacity-90 rounded-xl text-sm font-black tracking-wider uppercase transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] shrink-0">
-                      📦 Hızlı Sipariş Takip
+                    <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center justify-between p-3 mb-2 text-white bg-gradient-to-r from-[#3b82f6]/80 to-[#00d2ff]/80 hover:opacity-100 rounded-xl text-xs font-black tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(59,130,246,0.2)] shrink-0">
+                      <span className="flex items-center gap-2">📦 Sipariş Takip</span>
+                      <ChevronRight className="w-4 h-4 opacity-70" />
                     </Link>
                     
-                    {/* 🚀 JİLET GİBİ 4'LÜ KARE MENÜ */}
-                    <div className="grid grid-cols-2 gap-3 mb-3 shrink-0">
-                      <Link href="/siparislerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex flex-col items-center justify-center gap-2 p-4 bg-[#121215] text-gray-300 hover:text-white hover:bg-white/10 border border-white/5 hover:border-white/20 rounded-2xl text-xs font-bold transition-all group shadow-sm hover:shadow-md">
-                        <span className="text-2xl group-hover:scale-110 transition-transform">📋</span> Siparişlerim
+                    {/* 🚀 LİSTE TASARIMI (Yaşlı amca butonları çöpe gitti, jilet gibi dikey liste geldi) */}
+                    <div className="flex flex-col gap-1 mb-2 shrink-0">
+                      <Link href="/siparislerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 p-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-xl text-xs font-bold transition-all group">
+                        <span className="w-7 h-7 rounded-lg bg-[#121215] border border-white/5 flex items-center justify-center text-sm group-hover:scale-110 group-hover:border-white/20 transition-all">📋</span> 
+                        Siparişlerim
                       </Link>
-                      <Link href="/favorilerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex flex-col items-center justify-center gap-2 p-4 bg-[#121215] text-gray-300 hover:text-white hover:bg-pink-500/10 border border-white/5 hover:border-pink-500/30 rounded-2xl text-xs font-bold transition-all group shadow-sm hover:shadow-md">
-                        <span className="text-2xl group-hover:scale-110 transition-transform">❤️</span> Favorilerim
+                      <Link href="/favorilerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 p-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-xl text-xs font-bold transition-all group">
+                        <span className="w-7 h-7 rounded-lg bg-[#121215] border border-white/5 flex items-center justify-center text-sm group-hover:scale-110 group-hover:border-pink-500/30 transition-all">❤️</span> 
+                        Favorilerim
                       </Link>
-                      <Link href="/sistemlerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex flex-col items-center justify-center gap-2 p-4 bg-[#121215] text-gray-300 hover:text-[#00d2ff] hover:bg-[#00d2ff]/10 border border-white/5 hover:border-[#00d2ff]/30 rounded-2xl text-xs font-bold transition-all group shadow-sm hover:shadow-md">
-                        <span className="text-2xl group-hover:scale-110 transition-transform">💻</span> Sistemlerim
+                      <Link href="/sistemlerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 p-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-xl text-xs font-bold transition-all group">
+                        <span className="w-7 h-7 rounded-lg bg-[#121215] border border-white/5 flex items-center justify-center text-sm group-hover:scale-110 group-hover:border-[#00d2ff]/30 transition-all">💻</span> 
+                        Sistemlerim
                       </Link>
-                      <Link href="/adreslerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex flex-col items-center justify-center gap-2 p-4 bg-[#121215] text-gray-300 hover:text-emerald-400 hover:bg-emerald-500/10 border border-white/5 hover:border-emerald-500/30 rounded-2xl text-xs font-bold transition-all group shadow-sm hover:shadow-md">
-                        <span className="text-2xl group-hover:scale-110 transition-transform">📍</span> Adreslerim
+                      <Link href="/adreslerim" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 p-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-xl text-xs font-bold transition-all group">
+                        <span className="w-7 h-7 rounded-lg bg-[#121215] border border-white/5 flex items-center justify-center text-sm group-hover:scale-110 group-hover:border-emerald-500/30 transition-all">📍</span> 
+                        Adreslerim
                       </Link>
                     </div>
 
                     {isAdmin && (
                       <>
-                        <div className="h-px bg-white/10 my-2 shrink-0"></div>
-                        <Link href="/admin" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center justify-center gap-2 px-4 py-3.5 mb-2 text-[#10b981] bg-[#10b981]/10 hover:bg-[#10b981]/20 rounded-xl text-sm font-black uppercase tracking-wider transition-colors border border-[#10b981]/20 shrink-0">
-                          👑 Yönetim Paneli
+                        <div className="h-px bg-white/10 my-1 shrink-0"></div>
+                        <Link href="/admin" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center gap-3 p-2.5 text-[#10b981] hover:bg-[#10b981]/10 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shrink-0">
+                          <span className="w-7 h-7 rounded-lg bg-[#10b981]/10 border border-[#10b981]/20 flex items-center justify-center text-sm">👑</span>
+                          Yönetim Paneli
                         </Link>
                       </>
                     )}
                     
-                    {/* Mobilde alt kısmı aşağı itmek için esnek boşluk */}
                     <div className="flex-1 min-h-[20px]"></div>
 
-                    <div className="h-px bg-white/10 my-3 shrink-0"></div>
-                    <button onClick={async () => { setHesabimAcik(false); localStorage.removeItem("bilgin_kayitli_sistemler"); await signOut({ callbackUrl: "/" }); }} className="flex items-center justify-center gap-2 px-4 py-4 w-full text-red-400 hover:text-white hover:bg-red-500 rounded-xl text-sm font-black uppercase tracking-wider transition-all border border-red-500/20 hover:border-red-500 shadow-sm hover:shadow-[0_0_20px_rgba(239,68,68,0.3)] shrink-0">
-                      🚪 Güvenli Çıkış Yap
+                    <div className="h-px bg-white/10 my-2 shrink-0"></div>
+                    <button onClick={async () => { setHesabimAcik(false); localStorage.removeItem("bilgin_kayitli_sistemler"); await signOut({ callbackUrl: "/" }); }} className="flex items-center justify-center gap-2 p-3 w-full text-red-400 hover:text-white hover:bg-red-500 rounded-xl text-xs font-black uppercase tracking-wider transition-all border border-transparent hover:border-red-500 shadow-sm hover:shadow-[0_0_15px_rgba(239,68,68,0.3)] shrink-0">
+                      🚪 Çıkış Yap
                     </button>
                   </>
                 ) : (
                   <>
-                    {/* GİRİŞ YAPMAMIŞ KULLANICI */}
-                    <div className="flex flex-col items-center justify-center p-6 mb-4 mt-4 text-center shrink-0">
-                      <div className="w-20 h-20 rounded-full bg-gradient-to-b from-[#3b82f6]/20 to-transparent border border-[#3b82f6]/30 flex items-center justify-center text-[#3b82f6] mb-4 shadow-[0_0_30px_rgba(59,130,246,0.15)]">
-                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    {/* GİRİŞ YAPMAMIŞ KULLANICI (Kompakt) */}
+                    <div className="flex flex-col items-center justify-center p-4 mb-2 text-center shrink-0">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-b from-[#3b82f6]/20 to-transparent border border-[#3b82f6]/30 flex items-center justify-center text-[#3b82f6] mb-3 shadow-[0_0_20px_rgba(59,130,246,0.15)]">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                       </div>
-                      <span className="text-white font-black text-lg mb-2">Hesabınıza Erişin</span>
-                      <span className="text-gray-400 text-sm leading-relaxed max-w-[250px] mx-auto">Siparişlerinizi, sistemlerinizi ve favorilerinizi yönetmek için giriş yapın.</span>
+                      <span className="text-white font-black text-sm mb-1">Hesabınıza Erişin</span>
+                      <span className="text-gray-400 text-xs leading-relaxed max-w-[200px] mx-auto">Tüm işlemlerinizi yönetmek için giriş yapın.</span>
                     </div>
                     
-                    <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center justify-center gap-2 px-4 py-4 mb-4 text-[#3b82f6] bg-[#3b82f6]/10 hover:bg-[#3b82f6]/20 border border-[#3b82f6]/20 rounded-xl text-sm font-black uppercase tracking-wider transition-all shrink-0">
-                      📦 Hızlı Sipariş Takibi
+                    <Link href="/siparis-takip" prefetch={true} onClick={() => setHesabimAcik(false)} className="flex items-center justify-center gap-2 p-3 mb-4 text-[#3b82f6] bg-[#3b82f6]/10 hover:bg-[#3b82f6]/20 border border-[#3b82f6]/20 rounded-xl text-xs font-black uppercase tracking-wider transition-all shrink-0">
+                      📦 Sipariş Takibi
                     </Link>
                     
-                    {/* Mobilde butonları alta itmek için esnek boşluk */}
                     <div className="flex-1 min-h-[20px]"></div>
 
-                    <div className="grid grid-cols-2 gap-3 mt-auto shrink-0 pb-4 md:pb-0">
-                      <Link href="/giris" onClick={() => setHesabimAcik(false)} className="flex items-center justify-center gap-2 px-4 py-4 text-black bg-gradient-to-r from-[#3b82f6] to-[#00d2ff] hover:opacity-90 rounded-xl text-sm font-black uppercase tracking-wider transition-all duration-300 shadow-[0_0_20px_rgba(59,130,246,0.3)]">Giriş Yap</Link>
-                      <Link href="/kayit" onClick={() => setHesabimAcik(false)} className="flex items-center justify-center gap-2 px-4 py-4 text-white hover:bg-white/10 border border-white/10 rounded-xl text-sm font-black uppercase tracking-wider transition-all duration-300">Kayıt Ol</Link>
+                    <div className="grid grid-cols-2 gap-2 mt-auto shrink-0 pb-4 md:pb-0">
+                      <Link href="/giris" onClick={() => setHesabimAcik(false)} className="flex items-center justify-center p-3 text-black bg-gradient-to-r from-[#3b82f6] to-[#00d2ff] hover:opacity-90 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)]">Giriş</Link>
+                      <Link href="/kayit" onClick={() => setHesabimAcik(false)} className="flex items-center justify-center p-3 text-white hover:bg-white/10 border border-white/10 rounded-xl text-xs font-black uppercase tracking-wider transition-all">Kayıt Ol</Link>
                     </div>
                   </>
                 )}
