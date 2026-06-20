@@ -192,13 +192,32 @@ export default function KendinToplaClient({ initialProducts }: { initialProducts
     setCurrentStep(0);
     toast.success("Sistem başarıyla sepete eklendi ve sihirbaz temizlendi.");
   };
-// 🚀 YENİ: SİSTEM KAYDETME FONKSİYONU (ADIM 1 - ARAYÜZ)
-  const handleSaveSystem = () => {
+// 🚀 YENİ: SİSTEM KAYDETME FONKSİYONU (GERÇEK VERİTABANI BAĞLANTISI)
+  const handleSaveSystem = async () => {
     if (!systemName.trim()) return toast.error("Lütfen sisteminize bir isim verin!");
-    // Veritabanı API bağlantısı Adım 2'de eklenecek.
-    toast.success(`"${systemName}" başarıyla kaydedildi! (Veritabanı bağlantısı kurulacak)`);
-    setSaveModalOpen(false);
-    setSystemName("");
+
+    // Kullanıcıya hissettirmeden arkaplanda kayıt başlıyor
+    const toastId = toast.loading("Sisteminiz buluta kaydediliyor...");
+
+    try {
+      const res = await fetch("/api/sistemlerim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: systemName, selections: selections })
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        toast.success(`"${systemName}" başarıyla garajınıza eklendi!`, { id: toastId });
+        setSaveModalOpen(false);
+        setSystemName("");
+      } else {
+        toast.error(data.message || "Kaydedilirken bir hata oluştu.", { id: toastId });
+      }
+    } catch (error) {
+      toast.error("Bağlantı hatası oluştu, lütfen tekrar deneyin.", { id: toastId });
+    }
   };
   return (
     <div className="bg-[#050505] text-white min-h-screen font-sans pb-32">
