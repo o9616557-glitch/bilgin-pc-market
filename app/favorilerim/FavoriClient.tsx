@@ -13,39 +13,29 @@ interface Props {
 
 export default function FavoriClient({ initialFavorites }: Props) {
   const router = useRouter();
-  const [favoriteProducts, setFavoriteProducts] = useState<any[]>(initialFavorites);
+  
+  // 🚀 ZIRHLI BAŞLANGIÇ: İlk açılışta zombi (çift) kayıt varsa anında temizler!
+  const baslangicTemiz = (initialFavorites || []).filter(
+    (v, i, a) => a.findIndex(v2 => (v2._id || v2.id) === (v._id || v.id)) === i
+  );
+
+  const [favoriteProducts, setFavoriteProducts] = useState<any[]>(baslangicTemiz);
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
 
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
 
-// 🚀 FAVORİLER İÇİN SESSİZ CANLI TAKİP MOTORU
+  // 🚀 1. GÜVENİLİR ANA MOTOR: Sadece server'dan gelen içi dolu, kusursuz veriyi kullanır.
+  // Arkadan gelen 0 fiyatlı bozuk listeleri içeri almaz!
   useEffect(() => {
-    // 1. İLK AÇILIŞ: Sayfa açıldığı an orijinal veriyi hemen bas
-    setFavoriteProducts(initialFavorites);
-
-    const gercegiKontrolEt = async () => {
-      try {
-        const res = await fetch("/api/favorites?t=" + new Date().getTime(), { 
-          cache: "no-store",
-          headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
-        });
-        const data = await res.json();
-        
-        if (res.ok && data.favorites) {
-           // Veriyi sessizce çekip anında ekrana güncelliyoruz
-           setFavoriteProducts(data.favorites);
-        }
-      } catch (error) {
-      }
-    };
-
-    // 🔥 Sayfaya girildiği an arkadan veritabanını tarar
-    gercegiKontrolEt();
-
-    // 10 saniyede bir arkadan sessizce günceller
-    const radar = setInterval(gercegiKontrolEt, 10000); 
-    return () => clearInterval(radar); 
+    if (initialFavorites && initialFavorites.length > 0) {
+      const benzersiz = initialFavorites.filter(
+        (v, i, a) => a.findIndex(v2 => (v2._id || v2.id) === (v._id || v.id)) === i
+      );
+      setFavoriteProducts(benzersiz);
+    } else {
+      setFavoriteProducts([]);
+    }
   }, [initialFavorites]);
 
   const handleDeleteFavorite = async () => {
@@ -53,6 +43,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
 
     const targetId = String(productToDelete._id || productToDelete.id);
     
+    // 🚀 Ekrandan saniyesinde uçurur (Sayfa asla yenilenip kafayı yemez!)
     setFavoriteProducts(prev => prev.filter(p => String(p._id || p.id) !== targetId));
     setProductToDelete(null);
 
@@ -66,13 +57,13 @@ export default function FavoriClient({ initialFavorites }: Props) {
       if (!res.ok) throw new Error("Veritabanı reddetti");
       toast.success("Ürün favorilerden kaldırıldı. 🤍");
       
-      // Sildikten sonra da arka planda sessizce günceller
-      router.refresh(); 
+      // DİKKAT: router.refresh() komutunu tamamen kaldırdık! Sayfa artık zıplamayacak.
     } catch (error: any) {
       toast.error("Sistem hatası: Veritabanından silinemedi!");
+      // Hata olursa silinen ürünü ekrana geri getir
+      router.refresh(); 
     }
   };
-
  const handleSepeteEkle = (urun: any) => {
     const targetId = String(urun._id || urun.id);
     const havaleOrani = urun.havaleIndirimi !== undefined ? Number(urun.havaleIndirimi) : 5;
