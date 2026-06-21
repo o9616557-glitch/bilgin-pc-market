@@ -6,14 +6,14 @@ import { useSession, signOut } from "next-auth/react";
 import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function HesabimPage() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   
   // 🧠 CANLI VERİ VE GRAFİK MOTORLARI
   const [hamSiparisler, setHamSiparisler] = useState<any[]>([]);
   const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
   const [grafikVerisi, setGrafikVerisi] = useState<any[]>([]);
 
-  // 🎛️ DİNAMİK METRİK HAFIZALARI (SAHTE RAKAMLARIN YERİNE)
+  // 🎛️ DİNAMİK METRİK HAFIZALARI
   const [adresSayisi, setAdresSayisi] = useState<number>(0);
   const [favoriSayisi, setFavoriSayisi] = useState<number>(0);
   const [sistemSayisi, setSistemSayisi] = useState<number>(0);
@@ -44,7 +44,6 @@ export default function HesabimPage() {
   // 🚀 AŞAMA 0: SIFIR GECİKME MOTORU VE SİSTEMLERİ OKUMA
   useEffect(() => {
     try {
-      // Siparişleri oku
       const hafiza = sessionStorage.getItem("bilgin_hesabim_data");
       if (hafiza) {
         const parsed = JSON.parse(hafiza);
@@ -54,7 +53,6 @@ export default function HesabimPage() {
         }
       }
 
-      // 🔥 Kayıtlı Sistem Sayısını Tarayıcıdan Oku
       const kayitliSistemler = localStorage.getItem("bilgin_kayitli_sistemler");
       if (kayitliSistemler) {
         const parsedSistemler = JSON.parse(kayitliSistemler);
@@ -67,12 +65,13 @@ export default function HesabimPage() {
     }
   }, []);
 
-  // 🚀 AŞAMA 1: SESSİZ RADAR (ARKADAN GÜNCELLER)
+  // 🚀 AŞAMA 1: SESSİZ RADAR (SİPARİŞLERİ VE ADRESLERİ GÜNCELLER)
   useEffect(() => {
     if (!session?.user?.email) return;
 
     const gercegiKontrolEt = async () => {
       try {
+        // 1. Siparişleri Çek
         const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
@@ -91,9 +90,19 @@ export default function HesabimPage() {
           setLoading(false);
         }
 
-        // 🔥 İleride Adres ve Favoriler için API yazarsan buraya ekleyebilirsin:
-        // const adresRes = await fetch("/api/adreslerim"); ... setAdresSayisi(adresData.length);
-        // const favoriRes = await fetch("/api/favoriler"); ... setFavoriSayisi(favoriData.length);
+        // 2. 🔥 ADRESLERİ CANLI ÇEKEN MOTOR
+        // (Eğer API klasörünün adı farklıysa buradaki '/api/adreslerim' kısmını değiştir şefim)
+        const adresRes = await fetch("/api/adreslerim?t=" + new Date().getTime(), {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
+        });
+
+        if (adresRes.ok) {
+          const adresData = await adresRes.json();
+          if (adresData.addresses) {
+            setAdresSayisi(adresData.addresses.length);
+          }
+        }
 
       } catch (error) {
         console.error("Radar bağlantı hatası:", error);
@@ -435,7 +444,7 @@ export default function HesabimPage() {
                  </div>
               </div>
 
-              {/* 3. METRİKLER (🔥 İŞTE CANLI BAĞLANAN YERLER) */}
+              {/* 3. METRİKLER (🔥 DİNAMİK) */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
                  
                  <Link href="/adreslerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-cyan-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
