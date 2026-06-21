@@ -89,21 +89,16 @@ export default function HesabimPage() {
 
       <div className="max-w-4xl mx-auto relative z-10">
         
-        {/* 🏆 ÜST GİRİŞ LOBİSİ (Cam Etkili, Minimal ve Yeşil Rozetli) */}
-        <div className="bg-[#09090b]/80 backdrop-blur-xl border border-white/5 rounded-3xl p-6 sm:p-8 mb-8 shadow-2xl relative overflow-hidden">
+      {/* 🏆 ÜST GİRİŞ LOBİSİ (Tamamen Düz Renk, Sıfır Bulanıklık) */}
+        <div className="bg-[#09090b] border border-white/5 rounded-3xl p-6 sm:p-8 mb-8 shadow-xl">
           
-          {/* Arka plan süsü */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#3b82f6]/5 to-transparent pointer-events-none"></div>
-
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-6 relative z-10">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-6">
             
-            {/* AVATAR (Kusursuz Yuvarlak, Kibar) */}
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-[#3b82f6] to-[#00d2ff] p-[2px] shrink-0 shadow-[0_0_20px_rgba(0,210,255,0.15)]">
-              <div className="w-full h-full bg-[#050814] rounded-full flex items-center justify-center">
-                 <span className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#3b82f6] to-[#00d2ff]">
-                   {basHarf}
-                 </span>
-              </div>
+            {/* AVATAR (Düz Renk, Kusursuz Yuvarlak, Sıfır Parlama) */}
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-[#121215] border border-[#3b82f6]/30 flex items-center justify-center shrink-0">
+               <span className="text-3xl sm:text-4xl font-black text-[#3b82f6]">
+                 {basHarf}
+               </span>
             </div>
             
             {/* KULLANICI BİLGİLERİ VE YEŞİL ROZET */}
