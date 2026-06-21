@@ -132,9 +132,9 @@ export default function HesabimPage() {
                 <Link href="/giris" className="flex items-center justify-center px-8 py-3.5 rounded-xl bg-[#3b82f6] text-white font-black uppercase tracking-widest text-xs hover:bg-blue-600 transition-all shadow-[0_0_15px_rgba(59,130,246,0.2)]">
                   Giriş Yap
                 </Link>
-                <Link href="/giris" className="flex items-center justify-center px-8 py-3.5 rounded-xl bg-[#121215] border border-white/10 text-white font-black uppercase tracking-widest text-xs hover:bg-white/5 hover:border-white/20 transition-all">
-                  Yeni Kayıt
-                </Link>
+               <Link href="https://www.bilginpcmarket.com/kayit" className="flex items-center justify-center px-8 py-3.5 rounded-xl bg-[#121215] border border-white/10 text-white font-black uppercase tracking-widest text-xs hover:bg-white/5 hover:border-white/20 transition-all">
+  Yeni Kayıt
+</Link>
               </div>
             </div>
           </div>
