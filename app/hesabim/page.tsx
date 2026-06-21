@@ -96,7 +96,7 @@ export default function HesabimPage() {
             setAdresSayisi(adresData.addresses.length);
           }
         }
-// 🚀 SENİN EFSANE API'Nİ KULLANAN NET MOTOR (Sadece net hayaletleri siler)
+// 🚀 SENİN EFSANE API'Nİ KULLANAN NET MOTOR (Zombi Yok Edici)
         const favoriRes = await fetch("/api/favorites?t=" + new Date().getTime(), {
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
@@ -106,11 +106,12 @@ export default function HesabimPage() {
           const favoriData = await favoriRes.json();
           
           if (favoriData.favorites && Array.isArray(favoriData.favorites)) {
-            // 🧠 DÜZELTİLDİ: Sadece 'null' veya 'undefined' olan hayaletleri atar.
-            // Ürünler sadece düz ID (metin) olarak geliyorsa onları silmez, sayar!
-            const gercekFavoriler = favoriData.favorites.filter((urun: any) => 
-              urun !== null && urun !== undefined
-            );
+            // 🧠 ZOMBİ YOK EDİCİ FİLTRE:
+            // Sadece içinde gerçekten "isim", "name" veya "title" olan KANLI CANLI ÜRÜNLERİ sayar.
+            // Sadece ID'si kalmış veya içi boşalmış hayaletleri anında siler!
+            const gercekFavoriler = favoriData.favorites.filter((urun: any) => {
+              return urun && typeof urun === "object" && (urun.isim || urun.name || urun.title);
+            });
             
             setFavoriSayisi(gercekFavoriler.length);
           } else {
