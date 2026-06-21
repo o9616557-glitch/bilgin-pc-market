@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Package, Heart, Server, MapPin, ShieldAlert, LogOut, ArrowRight, Truck } from "lucide-react";
+import { Package, Heart, Server, MapPin, ShieldAlert, LogOut, ChevronRight, Truck } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 
 export default function HesabimPage() {
@@ -20,19 +20,19 @@ export default function HesabimPage() {
       aciklama: "Kargodaki ve geçmiş siparişlerin", 
       ikon: Package, 
       link: "/siparislerim", 
-      renk: "text-blue-400", 
-      bgAura: "bg-blue-500/5", 
-      borderHover: "hover:border-blue-500/40" 
+      renk: "text-[#3b82f6]", 
+      bg: "bg-[#3b82f6]/10",
+      border: "group-hover:border-[#3b82f6]/30" 
     },
     { 
       id: "siparis-takip", 
       isim: "Sipariş Takip", 
-      aciklama: "Kargonun anlık durumunu ve konumunu izle", 
+      aciklama: "Kargonun anlık durumunu izle", 
       ikon: Truck, 
       link: "/siparis-takip", 
       renk: "text-purple-400", 
-      bgAura: "bg-purple-500/5", 
-      borderHover: "hover:border-purple-500/40" 
+      bg: "bg-purple-500/10",
+      border: "group-hover:border-purple-500/30" 
     },
     { 
       id: "sistemlerim", 
@@ -41,18 +41,18 @@ export default function HesabimPage() {
       ikon: Server, 
       link: "/sistemlerim", 
       renk: "text-[#00d2ff]", 
-      bgAura: "bg-[#00d2ff]/5", 
-      borderHover: "hover:border-[#00d2ff]/40" 
+      bg: "bg-[#00d2ff]/10",
+      border: "group-hover:border-[#00d2ff]/30" 
     },
     { 
       id: "favoriler", 
       isim: "Favorilerim", 
-      aciklama: "Gözüne kestirdiğin parçalar", 
+      aciklama: "Gözüne kestirdiğin donanımlar", 
       ikon: Heart, 
       link: "/favorilerim", 
       renk: "text-rose-400", 
-      bgAura: "bg-rose-500/5", 
-      borderHover: "hover:border-rose-500/40" 
+      bg: "bg-rose-500/10",
+      border: "group-hover:border-rose-500/30" 
     },
     { 
       id: "adresler", 
@@ -61,8 +61,8 @@ export default function HesabimPage() {
       ikon: MapPin, 
       link: "/adreslerim", 
       renk: "text-emerald-400", 
-      bgAura: "bg-emerald-500/5", 
-      borderHover: "hover:border-emerald-500/40" 
+      bg: "bg-emerald-500/10",
+      border: "group-hover:border-emerald-500/30" 
     },
     { 
       id: "yonetim", 
@@ -71,76 +71,98 @@ export default function HesabimPage() {
       ikon: ShieldAlert, 
       link: "/admin", 
       renk: "text-amber-400", 
-      bgAura: "bg-amber-500/5", 
-      borderHover: "hover:border-amber-500/40" 
+      bg: "bg-amber-500/10",
+      border: "group-hover:border-amber-500/30" 
     },
   ];
 
-  const basHarf = session?.user?.name ? session.user.name.charAt(0).toUpperCase() : "V";
+  const userName = session?.user?.name || "Değerli Müşterimiz";
+  const userEmail = session?.user?.email || "";
+  const basHarf = userName !== "Değerli Müşterimiz" ? userName.charAt(0).toUpperCase() : "V";
+  const isAdmin = userEmail.toLowerCase() === "o9616557@gmail.com";
 
   return (
-    <div className="min-h-screen bg-[#050814] text-white pt-12 pb-24 px-4 relative overflow-hidden font-sans">
-      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#00d2ff] blur-[150px] opacity-[0.03] pointer-events-none rounded-full"></div>
+    <div className="min-h-screen bg-[#050814] text-white pt-8 sm:pt-12 pb-24 px-4 relative overflow-hidden font-sans">
+      
+      {/* ZARİF ARKA PLAN IŞIĞI */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-[#00d2ff] blur-[150px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
-      <div className="max-w-5xl mx-auto relative z-10">
+      <div className="max-w-4xl mx-auto relative z-10">
         
-        <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-6 border-b border-white/10 pb-10 mb-12">
-          <div className="flex items-center gap-6">
-            <div className="w-20 h-20 rounded-full border border-white/10 bg-[#121215] flex items-center justify-center shadow-[0_0_30px_rgba(0,210,255,0.1)]">
-              <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00d2ff] to-blue-500">
-                {basHarf}
-              </span>
-            </div>
-            <div>
-              <div className="text-xs text-slate-400 font-black tracking-widest uppercase mb-1">VIP ÜYE • Hoş Geldin</div>
-              <h1 className="text-4xl font-black uppercase tracking-tight text-white">
-                {session?.user?.name ? (
-                  <>
-                    {session.user.name.split(" ")[0]} <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00d2ff] to-blue-500">{session.user.name.split(" ").slice(1).join(" ")}</span>
-                  </>
-                ) : (
-                  "Değerli Müşterimiz"
-                )}
-              </h1>
+        {/* 🏆 ÜST PROFİL KARTI (Telefonda ortalı, PC'de sola dayalı) */}
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-6 bg-[#09090b]/80 backdrop-blur-xl border border-white/5 rounded-3xl p-6 sm:p-8 mb-8 shadow-2xl relative overflow-hidden">
+          
+          {/* Arka plan süsü */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#3b82f6]/5 to-transparent pointer-events-none"></div>
+
+          {/* AVATAR (Kusursuz Orantı, Asla Yamulmaz) */}
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-[#3b82f6] to-[#00d2ff] p-[2px] shrink-0 shadow-[0_0_20px_rgba(0,210,255,0.2)]">
+            <div className="w-full h-full bg-[#050814] rounded-[14px] flex items-center justify-center">
+               <span className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#3b82f6] to-[#00d2ff]">
+                 {basHarf}
+               </span>
             </div>
           </div>
+          
+          {/* KULLANICI BİLGİLERİ */}
+          <div className="text-center sm:text-left flex-1 flex flex-col justify-center h-full mt-2 sm:mt-0">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#3b82f6]/10 border border-[#3b82f6]/20 text-[#3b82f6] text-[10px] font-black tracking-widest uppercase mb-3 mx-auto sm:mx-0 w-fit">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#3b82f6] animate-pulse"></span> VIP Üye
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight break-words leading-none">
+              {userName}
+            </h1>
+            {userEmail && <p className="text-slate-400 text-xs sm:text-sm mt-2 font-medium">{userEmail}</p>}
+          </div>
 
+          {/* ÇIKIŞ BUTONU */}
           <button 
             onClick={handleCikisYap} 
-            className="flex items-center gap-2 px-5 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all font-black uppercase tracking-widest text-xs shadow-lg"
+            className="mt-4 sm:mt-0 sm:self-center flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all font-black uppercase tracking-widest text-[10px] sm:text-xs shrink-0"
           >
-            <LogOut className="w-4 h-4" /> Çıkış Yap
+            <LogOut className="w-3.5 h-3.5" /> Çıkış
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-4 ml-2">Hesap Yönetimi</h2>
+
+        {/* 🚀 KİBAR & ZARİF MENÜ LİSTESİ (Kaba Kutular Gitti!) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           {garajlar.map((garaj) => {
             const Icon = garaj.ikon;
-            if (garaj.id === "yonetim" && session?.user?.email?.toLowerCase() !== "o9616557@gmail.com") return null;
+            if (garaj.id === "yonetim" && !isAdmin) return null;
 
             return (
               <Link 
                 href={garaj.link} 
-                prefetch={true} // 🚀 İŞTE POPUP'TAKİ O FİŞEK MOTORU BURAYA TAKILDI!
+                prefetch={true} 
                 key={garaj.id}
-                className={`group relative overflow-hidden rounded-3xl border border-white/5 bg-[#09090b] p-8 transition-all duration-300 hover:-translate-y-1 ${garaj.borderHover} ${garaj.bgAura}`}
+                className={`group flex items-center p-4 sm:p-5 rounded-2xl bg-[#09090b] border border-white/5 hover:bg-white/[0.02] transition-all duration-300 ${garaj.border}`}
               >
-                <div className="absolute top-6 right-6 opacity-0 -translate-x-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
-                  <ArrowRight className={`w-5 h-5 ${garaj.renk}`} />
+                {/* İKON ALANI (Kompakt ve Zarif) */}
+                <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center border border-white/5 shrink-0 transition-transform duration-300 group-hover:scale-110 ${garaj.bg}`}>
+                  <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${garaj.renk}`} />
                 </div>
 
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 bg-black border border-white/5 shadow-xl transition-transform duration-300 group-hover:scale-110`}>
-                  <Icon className={`w-6 h-6 ${garaj.renk}`} />
+                {/* YAZI ALANI */}
+                <div className="ml-4 flex-1 min-w-0">
+                  <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-white transition-colors truncate">
+                    {garaj.isim}
+                  </h3>
+                  <p className="text-[10px] sm:text-xs font-medium text-slate-500 mt-1 truncate">
+                    {garaj.aciklama}
+                  </p>
                 </div>
 
-                <h2 className="text-xl font-black uppercase tracking-wide text-white mb-2">{garaj.isim}</h2>
-                <p className="text-xs font-medium text-slate-400 leading-relaxed max-w-[200px]">{garaj.aciklama}</p>
-
-                <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-transparent via-current to-transparent opacity-50 transition-all duration-500 group-hover:w-full" style={{ color: "inherit" }}></div>
+                {/* OK İŞARETİ */}
+                <div className="w-8 h-8 rounded-full bg-[#121215] flex items-center justify-center border border-white/5 group-hover:border-white/10 group-hover:bg-white/5 transition-all ml-2 shrink-0">
+                   <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-white transition-colors group-hover:translate-x-0.5" />
+                </div>
               </Link>
             );
           })}
         </div>
+
       </div>
     </div>
   );
