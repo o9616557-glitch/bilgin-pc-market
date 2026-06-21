@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
   User, ShieldCheck, CreditCard, Lock, KeyRound, 
@@ -20,10 +20,33 @@ export default function GuvenlikPage() {
   const [yukleniyor, setYukleniyor] = useState(false);
 
   // 🛡️ 2FA (İKİ ADIMLI DOĞRULAMA) HAFIZALARI
-  const [ikiAdimEmail, setIkiAdimEmail] = useState(true);
+  // 🚀 Başlangıçta ikisini de false (kapalı) yapıyoruz ki veritabanından gelene kadar kapalı dursun
+  const [ikiAdimEmail, setIkiAdimEmail] = useState(false);
   const [ikiAdimSms, setIkiAdimSms] = useState(false);
   const [ikiAdimDurum, setIkiAdimDurum] = useState({ tip: "", mesaj: "" });
   const [ikiAdimYukleniyor, setIkiAdimYukleniyor] = useState(false);
+
+  // =========================================================
+  // 🚀 YENİ MOTOR: SAYFA AÇILDIĞINDA GERÇEK AYARLARI DEPODAN ÇEK
+  // =========================================================
+  useEffect(() => {
+    const ayarlariGetir = async () => {
+      try {
+        const res = await fetch("/api/user/get-2fa");
+        if (res.ok) {
+          const data = await res.json();
+          // Arka depodan (Veritabanından) gelen gerçek ayarı şalterlere yansıt
+          setIkiAdimEmail(data.twoFactorEmail);
+          setIkiAdimSms(data.twoFactorSms);
+        }
+      } catch (error) {
+        console.error("Ayarlar çekilemedi:", error);
+      }
+    };
+    
+    ayarlariGetir();
+  }, []); // Sadece sayfa ilk açıldığında 1 kere çalışır
+  // =========================================================
 
   // Şifre Gücü Hesaplama
   const sifreGucuHesapla = (s: string) => {
@@ -103,7 +126,6 @@ export default function GuvenlikPage() {
       setIkiAdimYukleniyor(false);
     }
   };
-
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
