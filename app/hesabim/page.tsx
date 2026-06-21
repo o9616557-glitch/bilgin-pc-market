@@ -87,29 +87,26 @@ export default function HesabimPage() {
         
         {/* 🏆 ÜST LOBİ EKRANI */}
         {session ? (
-          /* GİRİŞ YAPAN MÜŞTERİ KARTI */
+      /* GİRİŞ YAPAN MÜŞTERİ KARTI */
           <div className="bg-[#09090b] border border-white/5 rounded-2xl sm:rounded-3xl p-4 sm:p-10 mb-8 sm:mb-12 shadow-xl">
             <div className="flex flex-row items-center gap-3 sm:gap-8">
               
-              {/* AVATAR (Telefonda Kibar ve Küçük, PC'de Büyük) */}
+              {/* AVATAR */}
               <div className="w-14 h-14 sm:w-28 sm:h-28 rounded-full bg-[#121215] border border-[#3b82f6]/30 flex items-center justify-center shrink-0">
                  <span className="text-2xl sm:text-5xl font-black text-[#3b82f6]">
                    {basHarf}
                  </span>
               </div>
               
-              {/* KULLANICI BİLGİLERİ (Telefonda İnce Fontlar) */}
-              <div className="text-left flex-1 flex flex-col justify-center min-w-0">
-                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 sm:px-3 sm:py-1.5 rounded-full bg-[#3b82f6]/10 border border-[#3b82f6]/20 text-[#3b82f6] text-[8px] sm:text-xs font-black tracking-widest uppercase mb-1 sm:mb-4 w-fit">
-                  <span className="w-1 h-1 sm:w-2 sm:h-2 rounded-full bg-[#3b82f6]"></span> BİLGİN PC 
-                </div>
-                <h1 className="text-lg sm:text-4xl font-bold sm:font-black text-white tracking-tight truncate leading-tight">
+              {/* 🚀 KULLANICI BİLGİLERİ (Etiket silindi ve yazılar ortalandı) */}
+              <div className="text-center flex-1 flex flex-col justify-center min-w-0">
+                <h1 className="text-lg sm:text-2xl font-bold text-white tracking-tight truncate leading-none">
                   {userName}
                 </h1>
-                {userEmail && <p className="text-slate-400 text-[10px] sm:text-base mt-0.5 sm:mt-3 font-medium truncate">{userEmail}</p>}
+                {userEmail && <p className="text-slate-400 text-[10px] sm:text-xs mt-1.5 font-medium truncate">{userEmail}</p>}
               </div>
               
-              {/* ÇIKIŞ BUTONU (Telefonda Çok Kibar Sadece İkon) */}
+              {/* ÇIKIŞ BUTONU */}
               <button 
                 onClick={handleCikisYap} 
                 className="flex items-center justify-center p-2.5 sm:px-6 sm:py-3.5 rounded-xl sm:rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all font-black uppercase tracking-widest shrink-0"
