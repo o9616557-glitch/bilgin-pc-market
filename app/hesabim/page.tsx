@@ -17,6 +17,9 @@ export default function HesabimPage() {
 
   const [isKargoModalOpen, setIsKargoModalOpen] = useState(false);
   const [kopyalananKod, setKopyalananKargo] = useState<string | null>(null);
+  
+  // 🚀 YENİ: ÜYE OLMAYANLAR İÇİN UYARI MODALI STATE'İ
+  const [girisSartModal, setGirisSartModal] = useState(false);
 
   const [pastaVerisi, setPastaVerisi] = useState({
     kendinTopla: { yuzde: 35, tutar: 0, offset: 0 },
@@ -39,7 +42,28 @@ export default function HesabimPage() {
     await signOut({ callbackUrl: "/" });
   };
 
+  // 🚀 YENİ: ÜYE OLMAYANLARI ENGELLEYEN AKILLI ŞALTER
+  const kilitliIslem = (e: React.MouseEvent) => {
+    if (status === "unauthenticated") {
+      e.preventDefault(); // Sayfanın gitmesini engeller
+      setGirisSartModal(true); // Uyarıyı açar
+    }
+  };
+
+  const handleKargoClick = (e: React.MouseEvent) => {
+    if (status === "unauthenticated") {
+      kilitliIslem(e);
+    } else {
+      setIsKargoModalOpen(true);
+    }
+  };
+
   useEffect(() => {
+    if (status === "unauthenticated") {
+      setLoading(false);
+      return;
+    }
+
     try {
       const hafiza = sessionStorage.getItem("bilgin_hesabim_data");
       if (hafiza) {
@@ -48,25 +72,19 @@ export default function HesabimPage() {
           setHamSiparisler(parsed.tumSiparisler);
           setLoading(false); 
         }
-        if (parsed.favoriSayisi !== undefined) {
-          setFavoriSayisi(parsed.favoriSayisi);
-        }
-        if (parsed.adresSayisi !== undefined) {
-          setAdresSayisi(parsed.adresSayisi);
-        }
+        if (parsed.favoriSayisi !== undefined) setFavoriSayisi(parsed.favoriSayisi);
+        if (parsed.adresSayisi !== undefined) setAdresSayisi(parsed.adresSayisi);
       }
 
       const kayitliSistemler = localStorage.getItem("bilgin_kayitli_sistemler");
       if (kayitliSistemler) {
         const parsedSistemler = JSON.parse(kayitliSistemler);
-        if (Array.isArray(parsedSistemler)) {
-          setSistemSayisi(parsedSistemler.length);
-        }
+        if (Array.isArray(parsedSistemler)) setSistemSayisi(parsedSistemler.length);
       }
     } catch (error) {
       console.error("Hafıza okuma hatası:", error);
     }
-  }, []);
+  }, [status]);
 
   useEffect(() => {
     if (!session?.user?.email) return;
@@ -93,32 +111,16 @@ export default function HesabimPage() {
           setLoading(false);
         }
 
-        const adresRes = await fetch("/api/addresses?t=" + new Date().getTime(), {
-          cache: "no-store",
-          headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
-        });
-
+        const adresRes = await fetch("/api/addresses?t=" + new Date().getTime(), { cache: "no-store" });
         if (adresRes.ok) {
           const adresData = await adresRes.json();
-          const sayi = adresData.addresses?.length || 0;
-          setAdresSayisi(sayi);
-          
-          const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
-          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, adresSayisi: sayi }));
+          setAdresSayisi(adresData.addresses?.length || 0);
         }
 
-        const favoriRes = await fetch("/api/favorites?t=" + new Date().getTime(), {
-          cache: "no-store",
-          headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
-        });
-        
+        const favoriRes = await fetch("/api/favorites?t=" + new Date().getTime(), { cache: "no-store" });
         if (favoriRes.ok) {
           const favoriData = await favoriRes.json();
-          const sayi = favoriData.favorites?.length || 0;
-          setFavoriSayisi(sayi);
-          
-          const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
-          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, favoriSayisi: sayi }));
+          setFavoriSayisi(favoriData.favorites?.length || 0);
         }
 
       } catch (error) {
@@ -227,14 +229,13 @@ export default function HesabimPage() {
   const handleTakipEt = (takipNumarasi: string) => {
     navigator.clipboard.writeText(takipNumarasi);
     setKopyalananKargo(takipNumarasi);
-    setTimeout(() => {
-      setKopyalananKargo(null);
-    }, 2000);
+    setTimeout(() => setKopyalananKargo(null), 2000);
   };
 
-  const userName = session?.user?.name || "Özkan";
-  const userEmail = session?.user?.email || "";
-  const basHarf = userName ? userName.charAt(0).toUpperCase() : "Ö";
+  // 🚀 YENİ: ÜYE OLMAYANLAR İÇİN MİSAFİR GÖRÜNÜMÜ
+  const userName = status === "unauthenticated" ? "Misafir" : (session?.user?.name || "Özkan");
+  const userEmail = status === "unauthenticated" ? "Lütfen giriş yapın" : (session?.user?.email || "");
+  const basHarf = userName.charAt(0).toUpperCase();
 
   if (status === "loading") {
     return (
@@ -249,23 +250,35 @@ export default function HesabimPage() {
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
-      {/* 🚀 ARKA PLAN BELİRGİNLİĞİ ARTIRILDI: blur azaldı, opacity arttı, pointer events kapatıldı */}
-      <div className={`max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-6 relative z-10 transition-all duration-500 ${status === "unauthenticated" ? "blur-[4px] opacity-60 pointer-events-none select-none" : ""}`}>
+      {/* 🚀 ARTIK KİMSE İÇİN BLUR YOK, VİTRİN HERKESE AÇIK */}
+      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-6 relative z-10">
 
         {/* ⬅️ SOL MENÜ */}
         <div className="w-full lg:w-64 shrink-0 flex flex-col gap-2">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-xl">
             <nav className="flex flex-col gap-1.5">
-              <Link href="/hesabim" prefetch={true} className="flex items-center gap-3 px-4 py-3.5 bg-white/[0.05] border border-white/10 rounded-xl text-white font-bold shadow-inner transition-all">
+              <Link href="/hesabim" onClick={kilitliIslem} className="flex items-center gap-3 px-4 py-3.5 bg-white/[0.05] border border-white/10 rounded-xl text-white font-bold shadow-inner transition-all">
                 <User className="w-5 h-5 text-cyan-400" /> Profil
               </Link>
-              <Link href="/hesabim" prefetch={true} className="flex items-center gap-3 px-4 py-3.5 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+              <Link href="/hesabim" onClick={kilitliIslem} className="flex items-center gap-3 px-4 py-3.5 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
                 <CreditCard className="w-5 h-5" /> Ödeme Yöntemleri
               </Link>
-              <Link href="/hesabim" prefetch={true} className="flex items-center gap-3 px-4 py-3.5 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+              <Link href="/hesabim" onClick={kilitliIslem} className="flex items-center gap-3 px-4 py-3.5 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
                 <ShieldCheck className="w-5 h-5" /> Güvenlik
               </Link>
             </nav>
+
+            {/* 🚀 YENİ: SADECE ÜYE OLMAYANLARA GÖZÜKEN BUTONLAR */}
+            {status === "unauthenticated" && (
+              <div className="mt-4 pt-4 border-t border-slate-800 flex flex-col gap-2">
+                <Link href="/giris" className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest text-center transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+                  <LogIn className="w-4 h-4" /> Giriş Yap
+                </Link>
+                <Link href="/kayit" className="w-full py-2.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-slate-700 hover:border-slate-500 text-slate-300 font-bold text-xs uppercase tracking-widest text-center transition-all flex items-center justify-center gap-2">
+                  <UserPlus className="w-4 h-4" /> Kayıt Ol
+                </Link>
+              </div>
+            )}
           </div>
         </div>
 
@@ -296,10 +309,13 @@ export default function HesabimPage() {
                   {userEmail}
                 </p>
               </div>
-
-              <button onClick={handleCikisYap} className="relative z-10 flex items-center gap-2 px-6 py-3.5 rounded-xl bg-red-950/40 border border-red-900/50 text-red-400 hover:bg-red-900/60 hover:text-red-300 hover:border-red-500/50 transition-all font-bold uppercase tracking-widest text-xs shadow-[0_0_20px_rgba(220,38,38,0.1)]">
-                <LogOut className="w-4 h-4" /> Çıkış
-              </button>
+              
+              {/* ÇIKIŞ BUTONU SADECE GİRİŞ YAPMIŞLARA GÖZÜKÜR */}
+              {status === "authenticated" && (
+                <button onClick={handleCikisYap} className="relative z-10 flex items-center gap-2 px-6 py-3.5 rounded-xl bg-red-950/40 border border-red-900/50 text-red-400 hover:bg-red-900/60 hover:text-red-300 hover:border-red-500/50 transition-all font-bold uppercase tracking-widest text-xs shadow-[0_0_20px_rgba(220,38,38,0.1)]">
+                  <LogOut className="w-4 h-4" /> Çıkış
+                </button>
+              )}
             </div>
           </div>
 
@@ -308,14 +324,14 @@ export default function HesabimPage() {
           </h2>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 w-full">
-             <Link href="/adreslerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-cyan-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
+             <Link href="/adreslerim" onClick={kilitliIslem} prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-cyan-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
                <MapPin className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" />
                <p className="text-xl sm:text-2xl font-black text-white">{adresSayisi}</p>
                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Adresler</p>
              </Link>
              
              <div 
-               onClick={() => setIsKargoModalOpen(true)} 
+               onClick={handleKargoClick} 
                className="bg-[#0f172a] border border-slate-800 hover:border-rose-500/30 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors cursor-pointer select-none"
              >
                <Truck className="w-6 h-6 sm:w-7 sm:h-7 text-rose-400" />
@@ -323,19 +339,19 @@ export default function HesabimPage() {
                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Kargolar</p>
              </div>
 
-             <Link href="/siparis-takip" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-blue-500/30 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
+             <Link href="/siparis-takip" onClick={kilitliIslem} prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-blue-500/30 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
                <Search className="w-6 h-6 sm:w-7 sm:h-7 text-blue-400" />
                <p className="text-sm sm:text-base font-black text-slate-400 mt-1">Sorgula</p>
                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Sipariş Takip</p>
              </Link>
              
-             <Link href="https://www.bilginpcmarket.com/favorilerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-purple-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
+             <Link href="https://www.bilginpcmarket.com/favorilerim" onClick={kilitliIslem} prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-purple-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
                <Star className="w-6 h-6 sm:w-7 sm:h-7 text-purple-400" />
                <p className="text-xl sm:text-2xl font-black text-white">{favoriSayisi}</p>
                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Favoriler</p>
              </Link>
 
-             <Link href="/sistemlerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-emerald-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
+             <Link href="/sistemlerim" onClick={kilitliIslem} prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-emerald-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
                <Server className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-400" />
                <p className="text-xl sm:text-2xl font-black text-white">{sistemSayisi}</p>
                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Sistemler</p>
@@ -349,7 +365,7 @@ export default function HesabimPage() {
                 
                 <div className="flex items-center justify-between mb-6 relative z-10 shrink-0">
                   <h3 className="text-white font-bold text-lg">Son İşlemler</h3>
-                  <Link href="/siparislerim" prefetch={true} className="text-xs font-bold text-cyan-400 hover:underline">
+                  <Link href="/siparislerim" onClick={kilitliIslem} prefetch={true} className="text-xs font-bold text-cyan-400 hover:underline">
                     Tümünü Gör
                   </Link>
                 </div>
@@ -604,33 +620,24 @@ export default function HesabimPage() {
         </div>
       )}
 
-      {/* 🚀 GİRİŞ YAPMAMIŞ KULLANICIYI ENGELLEYEN ŞEFFAF KATMAN (Overlay) */}
-      {status === "unauthenticated" && (
-        // Konumlandırma Ayarı: justify-center (yatay orta), items-end (mobil dikey alt), pb-20 (mobil boşluk), sm:items-center (PC dikey orta), sm:pb-4 (PC boşluk)
-        <div className="fixed inset-0 z-[5000] flex justify-center p-4 bg-black/50 backdrop-blur-[2px] animate-in fade-in duration-300 items-end pb-20 sm:items-center sm:pb-4">
-          
-          {/* Neon Kutu Tasarımı */}
-          <div className="bg-[#0f172a]/90 backdrop-blur-2xl border border-slate-800 rounded-3xl p-8 sm:p-12 max-w-md w-full text-center relative shadow-[0_0_80px_rgba(6,182,212,0.15)] animate-in zoom-in-95 duration-300">
-            {/* Üst Kısma Neon Çizgi Dokunuşu */}
-            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
-
-            <div className="w-24 h-24 bg-gradient-to-br from-[#0f172a] to-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.2)]">
-              <User className="w-10 h-10 text-cyan-400" />
+      {/* 🚀 YENİ: VİTRİNE BAKIP DOKUNANLARI YAKALAYAN "LÜTFEN GİRİŞ YAPIN" UYARISI */}
+      {girisSartModal && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-8 max-w-sm w-full text-center shadow-[0_0_50px_rgba(6,182,212,0.15)] relative animate-in zoom-in-95 duration-200">
+            <div className="w-16 h-16 bg-[#020617] rounded-full flex items-center justify-center mx-auto mb-4 border border-cyan-500/30">
+              <ShieldCheck className="w-8 h-8 text-cyan-400" />
             </div>
-            
-            <h1 className="text-3xl font-black text-white mb-3 tracking-tight">Hesabım</h1>
-            <p className="text-slate-400 font-medium mb-8 text-sm leading-relaxed">
-              Siparişlerinizi takip etmek, favorilerinizi görmek ve hesabınızı yönetmek için giriş yapmalısınız.
+            <h3 className="text-xl font-black text-white mb-2 tracking-tight">Erişim Kısıtlı</h3>
+            <p className="text-slate-400 text-sm mb-6">
+              Lütfen işlem yapabilmek ve hesap detaylarınızı görüntüleyebilmek için giriş yapınız.
             </p>
-            
             <div className="flex flex-col gap-3">
-              <Link href="/giris" prefetch={true} className="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2 outline-none">
+              <Link href="/giris" className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2">
                 <LogIn className="w-4 h-4" /> Giriş Yap
               </Link>
-              
-              <Link href="/kayit" prefetch={true} className="w-full py-4 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-slate-700 hover:border-slate-500 text-slate-300 font-bold uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 outline-none">
-                <UserPlus className="w-4 h-4" /> Kayıt Ol
-              </Link>
+              <button onClick={() => setGirisSartModal(false)} className="w-full py-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-slate-700 text-slate-300 font-bold text-xs uppercase tracking-widest transition-all">
+                Kapat
+              </button>
             </div>
           </div>
         </div>
