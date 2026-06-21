@@ -26,13 +26,15 @@ export default function GuvenlikPage() {
   const [ikiAdimDurum, setIkiAdimDurum] = useState({ tip: "", mesaj: "" });
   const [ikiAdimYukleniyor, setIkiAdimYukleniyor] = useState(false);
 
-  // =========================================================
+// =========================================================
   // 🚀 YENİ MOTOR: SAYFA AÇILDIĞINDA GERÇEK AYARLARI DEPODAN ÇEK
   // =========================================================
   useEffect(() => {
     const ayarlariGetir = async () => {
       try {
-        const res = await fetch("/api/user/get-2fa");
+        // 🚀 ŞEFİM DİKKAT: Buraya { cache: 'no-store' } ekledik. 
+        // Anlamı: "Geçmişi unut, her F5 atıldığında gidip veritabanına canlı canlı bak!"
+        const res = await fetch("/api/user/get-2fa", { cache: 'no-store' }); 
         if (res.ok) {
           const data = await res.json();
           // Arka depodan (Veritabanından) gelen gerçek ayarı şalterlere yansıt
@@ -45,9 +47,8 @@ export default function GuvenlikPage() {
     };
     
     ayarlariGetir();
-  }, []); // Sadece sayfa ilk açıldığında 1 kere çalışır
+  }, []); 
   // =========================================================
-
   // Şifre Gücü Hesaplama
   const sifreGucuHesapla = (s: string) => {
     let guc = 0;
