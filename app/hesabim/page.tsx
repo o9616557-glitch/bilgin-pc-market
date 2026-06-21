@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { User, ShieldCheck, CreditCard, Package, LogOut } from "lucide-react";
+import { User, ShieldCheck, CreditCard, Package, LogOut, Server } from "lucide-react";
 
 export default function HesabimPage() {
   const { data: session } = useSession();
@@ -24,21 +24,24 @@ export default function HesabimPage() {
 
       <div className="max-w-[1500px] mx-auto flex flex-col lg:flex-row gap-6 relative z-10">
 
-        {/* ⬅️ SOL MENÜ (SİDEBAR) */}
+        {/* ⬅️ SOL MENÜ (SİDEBAR - Çıraklar Arkada Hazırda Bekliyor: prefetch={true} ) */}
         <div className="w-full lg:w-64 shrink-0 flex flex-col gap-2">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-xl">
             <nav className="flex flex-col gap-1">
-              <Link href="/hesabim" className="flex items-center gap-3 px-4 py-3 bg-white/[0.05] border border-white/10 rounded-xl text-white font-medium shadow-inner transition-all">
+              <Link href="/hesabim" prefetch={true} className="flex items-center gap-3 px-4 py-3 bg-white/[0.05] border border-white/10 rounded-xl text-white font-medium shadow-inner transition-all">
                 <User className="w-5 h-5 text-slate-400" /> Profil
               </Link>
-              <Link href="/hesabim" className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
-                <ShieldCheck className="w-5 h-5" /> Güvenlik
+              <Link href="/sistemlerim" prefetch={true} className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+                <Server className="w-5 h-5" /> Sistemlerim
               </Link>
-              <Link href="/hesabim" className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+              <Link href="/siparislerim" prefetch={true} className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+                <Package className="w-5 h-5" /> Siparişlerim
+              </Link>
+              <Link href="/hesabim" prefetch={true} className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
                 <CreditCard className="w-5 h-5" /> Ödeme Yöntemleri
               </Link>
-              <Link href="/siparislerim" className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
-                <Package className="w-5 h-5" /> Siparişlerim
+              <Link href="/hesabim" prefetch={true} className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+                <ShieldCheck className="w-5 h-5" /> Güvenlik
               </Link>
             </nav>
           </div>
@@ -47,7 +50,7 @@ export default function HesabimPage() {
         {/* ➡️ SAĞ TARAF (ANA KUMANDA MERKEZİ) */}
         <div className="flex-1 flex flex-col min-w-0 gap-6">
 
-          {/* 🏆 1. ADIM: NEON PROFİL KARTI (Görselin Birebir Aynısı!) */}
+          {/* 🏆 1. ADIM: NEON PROFİL KARTI */}
           <div className="relative rounded-[2rem] p-[2px] bg-gradient-to-r from-cyan-500/30 via-[#0f172a] to-cyan-500/10 shadow-[0_0_50px_rgba(0,210,255,0.15)] group">
             {/* Dış Parlama Efekti */}
             <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-transparent opacity-20 blur-xl rounded-[2rem] transition-opacity duration-500"></div>
@@ -57,15 +60,10 @@ export default function HesabimPage() {
               {/* Sol Arka Plan Işığı */}
               <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-gradient-to-r from-cyan-500/10 to-transparent pointer-events-none"></div>
 
-              {/* ⚡ CYBERPUNK AVATAR (Metalik Halkalar ve Neon Parlamalar) */}
+              {/* ⚡ CYBERPUNK AVATAR */}
               <div className="relative w-28 h-28 sm:w-32 sm:h-32 shrink-0 flex items-center justify-center">
-                {/* Dış Metalik Kasa */}
                 <div className="absolute inset-0 rounded-full bg-gradient-to-b from-slate-600 to-slate-900 border-[3px] border-slate-700 shadow-[inset_0_0_20px_rgba(0,0,0,0.8),_0_10px_20px_rgba(0,0,0,0.5)]"></div>
-                
-                {/* İç Neon Halka (Dönen Işık Efekti) */}
                 <div className="absolute inset-2.5 rounded-full border border-cyan-400/30 shadow-[0_0_20px_rgba(34,211,255,0.4),inset_0_0_20px_rgba(34,211,255,0.2)] border-t-cyan-300 animate-[spin_8s_linear_infinite]"></div>
-                
-                {/* En İç Karanlık Göbek */}
                 <div className="absolute inset-4 bg-[#020617] rounded-full flex items-center justify-center shadow-[inset_0_0_30px_rgba(0,0,0,0.9)] border border-cyan-900/50">
                   <span className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-cyan-100 to-cyan-500 drop-shadow-[0_0_15px_rgba(34,211,255,0.8)]">
                     {basHarf}
