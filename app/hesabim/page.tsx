@@ -10,31 +10,33 @@ export default function HesabimPage() {
   
   // 🧠 CANLI VE HAFIZALI VERİ MOTORLARI
   const [siparisler, setSiparisler] = useState<any[]>([]);
+  const [grafikVerisi, setGrafikVerisi] = useState<number[]>(new Array(12).fill(2)); // Varsayılan boş grafik (%2 yükseklik)
   const [loading, setLoading] = useState(true);
 
   const handleCikisYap = async () => {
     localStorage.removeItem("bilgin_kayitli_sistemler");
-    sessionStorage.removeItem("bilgin_hesabim_siparisler"); // Çıkışta hafızayı temizle
+    sessionStorage.removeItem("bilgin_hesabim_data"); // Çıkışta hafızayı temizle
     await signOut({ callbackUrl: "/" });
   };
 
-  // 🚀 HIZLI ÇIRAK (ÖNBELLEK + SESSİZ GÜNCELLEME)
+  // 🚀 HIZLI ÇIRAK VE İSTATİSTİK UZMANI
   useEffect(() => {
     if (!session?.user?.email) {
       setLoading(false);
       return;
     }
 
-    // 1. AŞAMA: Önce tarayıcı hafızasına (Cache) bak, varsa anında ekrana bas!
-    const hafizadakiSiparisler = sessionStorage.getItem("bilgin_hesabim_siparisler");
-    if (hafizadakiSiparisler) {
-      setSiparisler(JSON.parse(hafizadakiSiparisler));
-      // Hafızada varsa loading'i kapat ki adam beklediğini hissetmesin
+    // 1. AŞAMA: Hafızada sipariş ve grafik var mı? Varsa anında ekrana bas!
+    const hafizadakiData = sessionStorage.getItem("bilgin_hesabim_data");
+    if (hafizadakiData) {
+      const parsedData = JSON.parse(hafizadakiData);
+      setSiparisler(parsedData.siparisler || []);
+      setGrafikVerisi(parsedData.grafik || new Array(12).fill(2));
       setLoading(false);
     }
 
-    // 2. AŞAMA: Arka planda sessizce gerçeği kontrol et (Yeni sipariş gelmiş olabilir)
-    const siparisleriGetir = async () => {
+    // 2. AŞAMA: Arka planda sessizce gerçeği kontrol et ve grafiği hesapla
+    const verileriGetir = async () => {
       try {
         const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
           cache: "no-store",
@@ -44,11 +46,40 @@ export default function HesabimPage() {
         const data = await res.json();
         
         if (res.ok && data.orders) {
+          // 1. Sadece kullanıcının kendi siparişlerini süz
           const benimSiparislerim = data.orders.filter((siparis: any) => {
             const siparisMaili = siparis.userEmail || siparis.email || siparis.musteri?.eposta || siparis.musteri?.email || "";
             const musteriMaili = session?.user?.email || ""; 
             return siparisMaili.toLowerCase() === musteriMaili.toLowerCase();
           });
+
+          // --- 📊 GRAFİK MOTORU (Son 12 Ayın Harcamalarını Hesaplar) ---
+          const aylikToplamlar = new Array(12).fill(0);
+          const simdi = new Date();
+
+          benimSiparislerim.forEach((siparis: any) => {
+            const orderDate = new Date(siparis.createdAt || siparis.tarih);
+            if (isNaN(orderDate.getTime())) return;
+
+            // Bu siparişin kaç ay önce verildiğini buluyoruz
+            const monthsAgo = (simdi.getFullYear() - orderDate.getFullYear()) * 12 + (simdi.getMonth() - orderDate.getMonth());
+
+            // Eğer sipariş son 12 ay içindeyse ilgili aya tutarı ekliyoruz
+            if (monthsAgo >= 0 && monthsAgo < 12) {
+              const tutar = Number(siparis.totalPrice || siparis.toplamTutar) || 0;
+              // 11 en son ay (bu ay), 0 ise 11 ay öncesi
+              aylikToplamlar[11 - monthsAgo] += tutar;
+            }
+          });
+
+          // En yüksek harcama yapılan ayı bul ki çubukları ona göre oranlayalım
+          const maxTutar = Math.max(...aylikToplamlar);
+          
+          // Çubuk yüksekliklerini % olarak hesapla (Boş aylara %2 veriyoruz ki tamamen kaybolmasınlar)
+          const dinamikGrafik = aylikToplamlar.map(tutar => 
+            maxTutar > 0 && tutar > 0 ? Math.max((tutar / maxTutar) * 100, 5) : 2
+          );
+          // -------------------------------------------------------------
 
           const siraliSiparisler = benimSiparislerim.sort((a: any, b: any) => 
             new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime()
@@ -56,9 +87,14 @@ export default function HesabimPage() {
 
           const guncelListe = siraliSiparisler.slice(0, 6);
           
-          // Ekrana yansıt ve hafızayı güncelle
+          // Ekrana yansıt ve her ikisini de tek bir paket yapıp hafızaya kaydet
           setSiparisler(guncelListe);
-          sessionStorage.setItem("bilgin_hesabim_siparisler", JSON.stringify(guncelListe));
+          setGrafikVerisi(dinamikGrafik);
+          
+          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({
+            siparisler: guncelListe,
+            grafik: dinamikGrafik
+          }));
         }
       } catch (error) {
         console.error("Çırak arka planda verilere ulaşamadı:", error);
@@ -67,7 +103,7 @@ export default function HesabimPage() {
       }
     };
 
-    siparisleriGetir();
+    verileriGetir();
   }, [session]);
 
   const userName = session?.user?.name || "Özkan";
@@ -75,7 +111,6 @@ export default function HesabimPage() {
   const basHarf = userName ? userName.charAt(0).toUpperCase() : "Ö";
 
   return (
-    // 🔥 max-w-[1400px] ile ekranı tekrar merkeze topladık, sağdan soldan nefes aldı.
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-hidden">
       {/* 🌌 ARKA PLAN UZAY IŞIKLARI */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
@@ -141,12 +176,11 @@ export default function HesabimPage() {
             HESAP YÖNETİMİ
           </h2>
 
-          {/* 🧩 DASHBOARD BİLEŞENLERİ - KUTULAR EŞİTLENDİ VE HİZALANDI */}
+          {/* 🧩 DASHBOARD BİLEŞENLERİ */}
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 items-stretch">
 
-            {/* 🔥 SON İŞLEMLER / SİPARİŞLERİM */}
+            {/* 🔥 SON İŞLEMLER */}
             <div className="xl:col-span-1 flex flex-col">
-              {/* h-full ekleyerek yanındaki kutularla boyunu eşitliyoruz */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group hover:border-cyan-500/30 transition-all duration-300 flex flex-col h-full min-h-[400px]">
                 <div className="absolute -top-10 -left-10 w-40 h-40 bg-cyan-500/10 blur-[50px] pointer-events-none rounded-full"></div>
                 
@@ -158,7 +192,6 @@ export default function HesabimPage() {
                 </div>
 
                 <div className="space-y-3 relative z-10 flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                  {/* Yükleniyor durumunda VE hafızada hiç veri yoksa Loader göster */}
                   {loading && siparisler.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center gap-3 opacity-80">
                       <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
@@ -205,20 +238,27 @@ export default function HesabimPage() {
               </div>
             </div>
 
-            {/* GRAFİKLER */}
+            {/* 📊 GRAFİKLER (CANLI VERİYE BAĞLANDI) */}
             <div className="xl:col-span-2 flex flex-col">
               <div className="flex-1 h-full bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row gap-6">
                 <div className="flex-1 space-y-3 flex flex-col">
                    <h3 className="text-white font-bold text-lg">Sipariş Geçmişi</h3>
                    <div className="flex-1 bg-white/[0.02] border border-white/5 rounded-xl flex items-center justify-center pt-4 min-h-[150px]">
                      <div className="flex items-end gap-1.5 h-full pb-4 px-4 w-full">
-                       {[60, 40, 80, 50, 70, 90, 40, 60, 30, 70, 50, 80].map((h, i) => (
-                         <div key={i} className="flex-1 bg-gradient-to-b from-cyan-400 to-cyan-600 rounded-sm hover:from-cyan-300 hover:to-cyan-500 transition-colors" style={{ height: `${h}%` }}></div>
+                       
+                       {/* 🔥 CANLI ÇUBUKLAR: Hesaplanan veriye göre boyları uzayıp kısalıyor */}
+                       {grafikVerisi.map((yukseklik, i) => (
+                         <div 
+                           key={i} 
+                           className="flex-1 bg-gradient-to-b from-cyan-400 to-cyan-600 rounded-sm hover:from-cyan-300 hover:to-cyan-500 transition-all duration-700 ease-out" 
+                           style={{ height: `${yukseklik}%` }}
+                         ></div>
                        ))}
+
                      </div>
                    </div>
                    <div className="flex justify-center pt-1 shrink-0">
-                      <span className="text-[10px] text-slate-500 font-medium tracking-wide">Son 12 Ay (Örnek Grafik)</span>
+                      <span className="text-[10px] text-slate-500 font-medium tracking-wide">Son 12 Ay (Gerçek Veri)</span>
                    </div>
                 </div>
 
