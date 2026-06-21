@@ -2,27 +2,24 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight, X, ExternalLink, Copy, CheckCircle2 } from "lucide-react";
 
 export default function HesabimPage() {
   const { data: session } = useSession();
+  const router = useRouter();
   
-  // 🧠 CANLI VERİ VE GRAFİK MOTORLARI
   const [hamSiparisler, setHamSiparisler] = useState<any[]>([]);
   const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
   const [grafikVerisi, setGrafikVerisi] = useState<any[]>([]);
-
-  // 🎛️ DİNAMİK METRİK HAFIZALARI
   const [adresSayisi, setAdresSayisi] = useState<number>(0);
   const [favoriSayisi, setFavoriSayisi] = useState<number>(0);
   const [sistemSayisi, setSistemSayisi] = useState<number>(0);
 
-  // 🛑 PREMIUM KARGO MODAL KONTROLÜ
   const [isKargoModalOpen, setIsKargoModalOpen] = useState(false);
   const [kopyalananKod, setKopyalananKargo] = useState<string | null>(null);
 
-  // 🍩 CANLI PASTA MOTORU
   const [pastaVerisi, setPastaVerisi] = useState({
     kendinTopla: { yuzde: 35, tutar: 0, offset: 0 },
     bilesen: { yuzde: 25, tutar: 0, offset: 35 },
@@ -32,7 +29,6 @@ export default function HesabimPage() {
     maxYuzde: 35
   });
   
-  // 📅 YIL, AY VE TIKLAMA KONTROLLERİ
   const suAnkiTarih = new Date();
   const [seciliYil, setSeciliYil] = useState<number>(suAnkiTarih.getFullYear());
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -45,7 +41,6 @@ export default function HesabimPage() {
     await signOut({ callbackUrl: "/" });
   };
 
-  // 🚀 AŞAMA 0: SIFIR GECİKME MOTORU VE SİSTEMLERİ OKUMA
   useEffect(() => {
     try {
       const hafiza = sessionStorage.getItem("bilgin_hesabim_data");
@@ -69,7 +64,6 @@ export default function HesabimPage() {
     }
   }, []);
 
-  // 🚀 AŞAMA 1: SESSİZ RADAR (SİPARİŞLERİ VE ADRESLERİ GÜNCELLER)
   useEffect(() => {
     if (!session?.user?.email) return;
 
@@ -116,12 +110,11 @@ export default function HesabimPage() {
     return () => clearInterval(radar); 
   }, [session]);
 
-  // 🚀 AŞAMA 2: SEÇİLİ YILA GÖRE GRAFİĞİ VE PASTAYI HESAPLA
   useEffect(() => {
     if (!hamSiparisler || hamSiparisler.length === 0) return;
 
     const sirali = [...hamSiparisler].sort((a: any, b: any) => 
-      new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tAGeh).getTime()
+      new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime()
     );
     setSonSiparislerListesi(sirali.slice(0, 6));
 
@@ -195,16 +188,18 @@ export default function HesabimPage() {
 
   }, [hamSiparisler, seciliYil]);
 
-  // 🔥 BİNGO: Sadece kargoda olan ve iptal/teslim edilmemiş siparişleri süzen akıllı filtre
   const kargoSiparisleri = hamSiparisler.filter(s => {
     const d = (s.status || s.durum || "").toLowerCase();
     return d.includes("kargo") && !d.includes("teslim") && !d.includes("iptal");
   });
 
-  const handleKopyala = (kod: string) => {
-    navigator.clipboard.writeText(kod);
-    setKopyalananKargo(kod);
-    setTimeout(() => setKopyalananKargo(null), 2000);
+  const handleTakipEt = (siparisKodu: string) => {
+    navigator.clipboard.writeText(siparisKodu);
+    setKopyalananKargo(siparisKodu);
+    setTimeout(() => {
+      setIsKargoModalOpen(false);
+      router.push("/siparis-takip");
+    }, 300);
   };
 
   const userName = session?.user?.name || "Özkan";
@@ -316,7 +311,9 @@ export default function HesabimPage() {
                                 : durum.toLowerCase().includes('iptal')
                                 ? 'bg-red-500/10 text-red-400 border border-red-500/20'
                                 : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
-                            }`}>{durum}</span>
+                            }`}>
+                              {durum}
+                            </span>
                           </div>
                         </div>
                       );
@@ -500,7 +497,6 @@ export default function HesabimPage() {
           <div className="bg-[#09090b] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.9)] relative overflow-hidden animate-in zoom-in-95 duration-200 max-h-[85vh]">
             <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-rose-500/50 to-transparent"></div>
             
-            {/* Modal Başlığı */}
             <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
               <h3 className="text-lg font-black text-white uppercase tracking-wider flex items-center gap-2">
                 <Truck className="w-5 h-5 text-rose-400" /> AKTİF KARGOLARINIZ
@@ -513,7 +509,6 @@ export default function HesabimPage() {
               </button>
             </div>
 
-            {/* İçerik Listesi */}
             <div className="flex-1 overflow-y-auto pr-1 space-y-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {kargoSiparisleri.length === 0 ? (
                 <div className="text-center py-12 text-slate-500 font-medium text-sm">
@@ -523,39 +518,53 @@ export default function HesabimPage() {
                 kargoSiparisleri.map((siparis: any, idx: number) => {
                   const siparisKodu = siparis.siparisKodu || siparis._id?.slice(-8).toUpperCase() || "SİPARİŞ";
                   const tarih = siparis.createdAt ? new Date(siparis.createdAt).toLocaleDateString("tr-TR") : siparis.tarih ? new Date(siparis.tarih).toLocaleDateString("tr-TR") : "";
-                  const toplamFiyat = siparis.totalPrice || siparis.toplamTutar || "0";
                   
+                  // 🔥 ADMIN PANELİNDEN GELEN İSİMLER
+                  const firma = siparis.kargoFirmasi || "Belirtilmemiş";
+                  const takipNo = siparis.takipNo || "Takip No Girilmemiş";
+
                   return (
-                    <div key={siparis._id || idx} className="bg-[#121215] border border-slate-800/80 p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 group/item hover:border-slate-700 transition-colors">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 mb-1.5">
+                    <div key={siparis._id || idx} className="bg-[#121215] border border-slate-800/80 p-4 rounded-2xl flex flex-col gap-4 group/item hover:border-slate-700 transition-colors">
+                      
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
                           <span className="text-white font-black text-sm tracking-wide">{siparisKodu}</span>
                           <span className="text-[10px] px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-black uppercase tracking-widest">YOLDA</span>
                         </div>
-                        <p className="text-slate-500 text-xs font-medium">Tarih: <span className="text-slate-300">{tarih}</span></p>
-                        <p className="text-slate-400 text-xs font-bold mt-1">Tutar: <span className="text-white font-black">{Number(toplamFiyat).toLocaleString("tr-TR")} ₺</span></p>
+                        <span className="text-[10px] text-slate-500 font-bold">{tarih}</span>
                       </div>
 
-                      <div className="shrink-0 flex items-center gap-2">
-                        {/* Kargo Takip Sorgu Butonu */}
-                        <Link 
-                          href="/siparis-takip" 
-                          onClick={() => setIsKargoModalOpen(false)}
-                          className="flex items-center gap-1.5 bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-500 hover:to-orange-500 text-white font-black px-4 py-2.5 rounded-xl transition-all text-[11px] uppercase tracking-wider shadow-[0_0_15px_rgba(239,68,68,0.2)]"
-                        >
-                          <ExternalLink className="w-3.5 h-3.5" /> TAKİP ET
-                        </Link>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="bg-[#0f172a] p-3 rounded-xl border border-slate-800">
+                           <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Firma</p>
+                           <p className="text-xs font-bold text-white mt-0.5 truncate" title={firma}>{firma}</p>
+                        </div>
+                        <div className="bg-[#0f172a] p-3 rounded-xl border border-slate-800">
+                           <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Takip No</p>
+                           <p className="text-xs font-bold text-cyan-400 mt-0.5 truncate" title={takipNo}>{takipNo}</p>
+                        </div>
                       </div>
+
+                      <button 
+                        onClick={() => handleTakipEt(takipNo)}
+                        className="flex items-center justify-center gap-2 bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-500 hover:to-orange-500 text-white font-black px-4 py-3 rounded-xl transition-all text-[11px] uppercase tracking-wider shadow-[0_0_15px_rgba(239,68,68,0.2)] w-full"
+                      >
+                        {kopyalananKod === takipNo ? (
+                          <><CheckCircle2 className="w-3.5 h-3.5" /> KOPYALANDI!</>
+                        ) : (
+                          <><Copy className="w-3.5 h-3.5" /> {takipNo} KOPYALA VE GİT</>
+                        )}
+                      </button>
+
                     </div>
                   );
                 })
               )}
             </div>
 
-            {/* Alt Bilgi */}
             <div className="mt-6 border-t border-slate-800 pt-4 text-center">
               <p className="text-[11px] text-slate-500 font-medium">
-                Siparişleriniz teslim edildikten sonra bu listeden otomatik olarak kaldırılır.
+                Siparişiniz teslim edildiğinde bu listeden otomatik olarak kaldırılır.
               </p>
             </div>
           </div>
