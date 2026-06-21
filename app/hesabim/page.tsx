@@ -96,7 +96,7 @@ export default function HesabimPage() {
             setAdresSayisi(adresData.addresses.length);
           }
         }
-// 🚀 PREMIUM AKILLI FAVORİ MOTORU
+/// 🚀 SENİN EFSANE API'Nİ KULLANAN NET MOTOR (Sadece senin sayını çeker)
         const favoriRes = await fetch("/api/favorites?t=" + new Date().getTime(), {
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
@@ -104,21 +104,11 @@ export default function HesabimPage() {
         
         if (favoriRes.ok) {
           const favoriData = await favoriRes.json();
-          const tumFavoriler = Array.isArray(favoriData) ? favoriData : (favoriData.favorites || favoriData.data || favoriData.urunler || []);
-          
-          const benimEmail = (session?.user?.email || "").toLowerCase();
-
-          // 🧠 DEDEKTİF FİLTRE: Veritabanındaki satırın neresinde senin e-postan yazıyorsa şak diye bulur!
-          const benimFavorilerim = tumFavoriler.filter((f: any) => {
-            return Object.values(f).some(deger => 
-              typeof deger === "string" && deger.toLowerCase() === benimEmail
-            );
-          });
-
-          if (benimFavorilerim.length > 0) {
-            setFavoriSayisi(benimFavorilerim.length);
+          // Senin API zaten paketi sadece sana özel "favorites" adıyla gönderiyor. Direkt sayısını alıyoruz!
+          if (favoriData.favorites) {
+            setFavoriSayisi(favoriData.favorites.length);
           } else {
-            setFavoriSayisi(tumFavoriler.length);
+            setFavoriSayisi(0);
           }
         }
       } catch (error) {
