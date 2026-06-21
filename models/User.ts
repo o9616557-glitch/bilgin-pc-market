@@ -40,6 +40,11 @@ const userSchema = new mongoose.Schema(
       type: String // Ürün ID'lerini string olarak tutacağız
     }],
     addresses: [addressSchema], // Kullanıcının birden fazla adresi olabilir
+    
+    // 🚀 ŞEFİM YENİ EKLENDİ (Eski Şifreler Hafızası - Son 3 Şifre Kuralı İçin)
+    passwordHistory: [{ 
+      type: String 
+    }],
   },
   { timestamps: true } 
 );

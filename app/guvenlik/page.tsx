@@ -5,16 +5,19 @@ import Link from "next/link";
 import { 
   User, ShieldCheck, CreditCard, Lock, KeyRound, 
   Smartphone, Laptop, Mail, MessageSquare, 
-  PowerOff, AlertTriangle, Snowflake, Trash2, MapPin, Loader2, CheckCircle2, XCircle
+  PowerOff, AlertTriangle, Snowflake, Trash2, MapPin, Loader2, CheckCircle2, XCircle, Eye, EyeOff
 } from "lucide-react";
 
 export default function GuvenlikPage() {
-  // 🚀 ŞİFRE MOTORU HAFIZALARI
   const [mevcutSifre, setMevcutSifre] = useState("");
   const [sifre, setSifre] = useState("");
   const [sifreTekrar, setSifreTekrar] = useState("");
   
-  // 🚀 İŞLEM DURUMU VE YÜKLENİYOR EFEKTİ
+  // 🚀 GÖZ İKONU (GÖSTER/GİZLE) HAFIZALARI
+  const [gosterMevcut, setGosterMevcut] = useState(false);
+  const [gosterYeni, setGosterYeni] = useState(false);
+  const [gosterTekrar, setGosterTekrar] = useState(false);
+  
   const [islemDurumu, setIslemDurumu] = useState({ tip: "", mesaj: "" });
   const [yukleniyor, setYukleniyor] = useState(false);
 
@@ -34,11 +37,9 @@ export default function GuvenlikPage() {
   const gucYuzdesi = gucSeviyesi === 0 ? 0 : (gucSeviyesi / 4) * 100;
   const gucRengi = gucSeviyesi < 2 ? "bg-rose-500 shadow-[0_0_10px_#f43f5e]" : gucSeviyesi === 2 ? "bg-amber-500 shadow-[0_0_10px_#f59e0b]" : "bg-emerald-500 shadow-[0_0_10px_#10b981]";
 
-  // 🚀 ŞİFRE GÜNCELLEME TETİKLEYİCİSİ
   const handleSifreGuncelle = async (e: React.FormEvent) => {
-    e.preventDefault(); // Sayfanın yenilenmesini engeller
+    e.preventDefault(); 
     
-    // 1. Güvenlik Kontrolleri
     if (!mevcutSifre || !sifre || !sifreTekrar) {
       setIslemDurumu({ tip: "hata", mesaj: "Lütfen tüm şifre alanlarını doldurun." });
       return;
@@ -52,12 +53,10 @@ export default function GuvenlikPage() {
       return;
     }
 
-    // 2. İşlemi Başlat
     setYukleniyor(true);
     setIslemDurumu({ tip: "", mesaj: "" });
 
     try {
-      // Arka kapıya (API'ye) şifreleri gönderiyoruz
       const res = await fetch("/api/user/change-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -70,7 +69,6 @@ export default function GuvenlikPage() {
         setIslemDurumu({ tip: "hata", mesaj: data.message || "Şifre güncellenemedi. Mevcut şifrenizi kontrol edin." });
       } else {
         setIslemDurumu({ tip: "basari", mesaj: "Şifreniz başarıyla güncellendi!" });
-        // Başarılıysa kutuları temizle
         setMevcutSifre("");
         setSifre("");
         setSifreTekrar("");
@@ -121,7 +119,6 @@ export default function GuvenlikPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             
-            {/* 🔑 ŞİFRE YÖNETİMİ (FORM EKLENDİ) */}
             <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col h-full">
               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800/80">
                 <KeyRound className="w-5 h-5 text-cyan-400" />
@@ -129,26 +126,38 @@ export default function GuvenlikPage() {
               </div>
 
               <form onSubmit={handleSifreGuncelle} className="flex flex-col gap-4 flex-1">
+                {/* 👁️ MEVCUT ŞİFRE */}
                 <div>
                   <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Mevcut Şifreniz</label>
-                  <input 
-                    type="password" 
-                    placeholder="••••••••" 
-                    value={mevcutSifre}
-                    onChange={(e) => setMevcutSifre(e.target.value)}
-                    className="w-full bg-[#020617] border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-white text-sm outline-none transition-all focus:shadow-[0_0_15px_rgba(6,182,212,0.1)]" 
-                  />
+                  <div className="relative">
+                    <input 
+                      type={gosterMevcut ? "text" : "password"} 
+                      placeholder="••••••••" 
+                      value={mevcutSifre}
+                      onChange={(e) => setMevcutSifre(e.target.value)}
+                      className="w-full bg-[#020617] border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 pr-10 text-white text-sm outline-none transition-all focus:shadow-[0_0_15px_rgba(6,182,212,0.1)]" 
+                    />
+                    <button type="button" onClick={() => setGosterMevcut(!gosterMevcut)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-cyan-400 transition-colors">
+                      {gosterMevcut ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
                 
+                {/* 👁️ YENİ ŞİFRE */}
                 <div>
                   <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Yeni Şifre</label>
-                  <input 
-                    type="password" 
-                    placeholder="••••••••" 
-                    value={sifre}
-                    onChange={(e) => setSifre(e.target.value)}
-                    className="w-full bg-[#020617] border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-white text-sm outline-none transition-all focus:shadow-[0_0_15px_rgba(6,182,212,0.1)]" 
-                  />
+                  <div className="relative">
+                    <input 
+                      type={gosterYeni ? "text" : "password"} 
+                      placeholder="••••••••" 
+                      value={sifre}
+                      onChange={(e) => setSifre(e.target.value)}
+                      className="w-full bg-[#020617] border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 pr-10 text-white text-sm outline-none transition-all focus:shadow-[0_0_15px_rgba(6,182,212,0.1)]" 
+                    />
+                    <button type="button" onClick={() => setGosterYeni(!gosterYeni)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-cyan-400 transition-colors">
+                      {gosterYeni ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                   <div className="h-1.5 w-full bg-[#020617] rounded-full mt-2 overflow-hidden border border-slate-800">
                     <div className={`h-full transition-all duration-300 ${gucRengi}`} style={{ width: `${gucYuzdesi}%` }}></div>
                   </div>
@@ -157,18 +166,23 @@ export default function GuvenlikPage() {
                   </p>
                 </div>
 
+                {/* 👁️ YENİ ŞİFRE TEKRAR */}
                 <div>
                   <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Yeni Şifre (Tekrar)</label>
-                  <input 
-                    type="password" 
-                    placeholder="••••••••" 
-                    value={sifreTekrar}
-                    onChange={(e) => setSifreTekrar(e.target.value)}
-                    className="w-full bg-[#020617] border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-white text-sm outline-none transition-all focus:shadow-[0_0_15px_rgba(6,182,212,0.1)]" 
-                  />
+                  <div className="relative">
+                    <input 
+                      type={gosterTekrar ? "text" : "password"} 
+                      placeholder="••••••••" 
+                      value={sifreTekrar}
+                      onChange={(e) => setSifreTekrar(e.target.value)}
+                      className="w-full bg-[#020617] border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 pr-10 text-white text-sm outline-none transition-all focus:shadow-[0_0_15px_rgba(6,182,212,0.1)]" 
+                    />
+                    <button type="button" onClick={() => setGosterTekrar(!gosterTekrar)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-cyan-400 transition-colors">
+                      {gosterTekrar ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
 
-                {/* Uyarı Mesajı Alanı */}
                 {islemDurumu.mesaj && (
                   <div className={`p-3 rounded-xl border flex items-center gap-2 text-xs font-bold ${
                     islemDurumu.tip === "hata" ? "bg-rose-500/10 border-rose-500/20 text-rose-400" : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
@@ -188,7 +202,6 @@ export default function GuvenlikPage() {
               </form>
             </div>
 
-            {/* 📱 İKİ ADIMLI DOĞRULAMA (2FA) */}
             <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col h-full relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-[60px] pointer-events-none rounded-full"></div>
               
@@ -239,7 +252,6 @@ export default function GuvenlikPage() {
             </div>
           </div>
 
-          {/* 📡 2. SATIR: AKTİF CİHAZLAR RADARI */}
           <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col">
             <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800/80">
               <Laptop className="w-5 h-5 text-emerald-400" />
@@ -293,7 +305,6 @@ export default function GuvenlikPage() {
             </div>
           </div>
 
-          {/* ⚙️ 3. SATIR: HESAP İŞLEMLERİ */}
           <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col">
             <div className="flex items-center gap-3 mb-4 pb-4 border-b border-slate-800/80">
               <AlertTriangle className="w-5 h-5 text-slate-400" />
