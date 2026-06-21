@@ -6,7 +6,7 @@ import { useSession, signOut } from "next-auth/react";
 import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, Search, LogIn, UserPlus } from "lucide-react";
 
 export default function HesabimPage() {
- const { data: session, status } = useSession();
+  const { data: session, status } = useSession();
   
   const [hamSiparisler, setHamSiparisler] = useState<any[]>([]);
   const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
@@ -39,7 +39,7 @@ export default function HesabimPage() {
     await signOut({ callbackUrl: "/" });
   };
 
-  // 1. SIFIR GECİKME MOTORU: Sayfa açıldığı an her şeyi hafızadan basar
+  // 1. SIFIR GECİKME MOTORU
   useEffect(() => {
     try {
       const hafiza = sessionStorage.getItem("bilgin_hesabim_data");
@@ -52,7 +52,6 @@ export default function HesabimPage() {
         if (parsed.favoriSayisi !== undefined) {
           setFavoriSayisi(parsed.favoriSayisi);
         }
-        // Adresleri de anında hafızadan bas!
         if (parsed.adresSayisi !== undefined) {
           setAdresSayisi(parsed.adresSayisi);
         }
@@ -70,13 +69,12 @@ export default function HesabimPage() {
     }
   }, []);
 
-  // 2. ARKA PLAN RADARI: Verileri günceller ve hafızaya kaydeder
+  // 2. ARKA PLAN RADARI
   useEffect(() => {
     if (!session?.user?.email) return;
 
     const gercegiKontrolEt = async () => {
       try {
-        // --- SİPARİŞLER ---
         const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
@@ -97,7 +95,6 @@ export default function HesabimPage() {
           setLoading(false);
         }
 
-     // --- ADRESLER ---
         const adresRes = await fetch("/api/addresses?t=" + new Date().getTime(), {
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
@@ -108,11 +105,10 @@ export default function HesabimPage() {
           const sayi = adresData.addresses?.length || 0;
           setAdresSayisi(sayi);
           
-          // Güncel sayıyı hemen hafızaya kaydet ki bekleme yapmasın!
           const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
           sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, adresSayisi: sayi }));
         }
-        // --- FAVORİLER ---
+
         const favoriRes = await fetch("/api/favorites?t=" + new Date().getTime(), {
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
@@ -152,16 +148,10 @@ export default function HesabimPage() {
     let cK_toplam = 0, cB_toplam = 0, cC_toplam = 0, cS_toplam = 0, cA_toplam = 0;
 
     hamSiparisler.forEach((siparis: any) => {
-      // 🧠 1. ADIM: Siparişin durumunu alıyoruz
       const durum = (siparis.status || siparis.durum || "").toLowerCase();
-      
-      // 🛑 2. ADIM: KESİN RET SÜZGECİ (İçinde iptal, iade veya red geçiyorsa anında fişini çeker)
       const iptalMi = durum.includes("iptal") || durum.includes("iade") || durum.includes("red");
-      
-      // ✅ 3. ADIM: ONAY SÜZGECİ (Sadece başarılı olanlar)
       const tamamlandiMi = durum.includes("tamam") || durum.includes("teslim") || durum.includes("aktif");
       
-      // EĞER İPTAL EDİLMİŞSE VEYA TAMAMLANMAMIŞSA KESİNLİKLE HESAPLAMA, PAS GEÇ!
       if (iptalMi || !tamamlandiMi) return; 
 
       const d = new Date(siparis.createdAt || siparis.tarih);
@@ -173,36 +163,23 @@ export default function HesabimPage() {
         aylikToplamlar[d.getMonth()] += siparisTutar;
       }
 
-const urunler = siparis.items || siparis.sepet || [];
+      const urunler = siparis.items || siparis.sepet || [];
       urunler.forEach((item: any) => {
-        // 🧠 ZIRHLI KİMLİK TARAMASI: Ürünün adı, kategorisi ve slug'ı ne varsa tek bir metinde birleştirip küçük harfe çeviriyoruz.
-        // Böylece eski siparişte kategoriSlug olmasa bile ürünün isminden veya linkinden ŞAK diye yakalar! (Birebir eşitlik aramaz, içinde var mı diye bakar)
         const kimlik = `${item.kategoriSlug || ''} ${item.kategori || ''} ${item.slug || ''} ${item.isim || ''} ${item.title || ''}`.toLocaleLowerCase('tr-TR');
         const urunTutar = (Number(item.fiyat || item.price) * (item.adet || item.quantity)) || 0;
 
-        // 1. KENDİN TOPLA (VIP)
         if (kimlik.includes("kendin") || kimlik.includes("topla") || kimlik.includes("sihirbaz")) {
           cK_toplam += urunTutar;
         } 
-        // 2. SİSTEM, LAPTOP & YAZILIM
-        else if (
-          ["oyun-bilgisayari", "laptop", "notebook", "masaüstü", "masaustu", "oem-paket", "isletim", "yazılım", "yazilim"].some(k => kimlik.includes(k))
-        ) {
+        else if (["oyun-bilgisayari", "laptop", "notebook", "masaüstü", "masaustu", "oem-paket", "isletim", "yazılım", "yazilim"].some(k => kimlik.includes(k))) {
           cS_toplam += urunTutar;
         } 
-        // 3. BİLGİSAYAR BİLEŞENLERİ
-        else if (
-          ["anakart", "ekran-kart", "ekran kart", "islemci", "işlemci", "ram", "ssd", "hdd", "kasa", "psu", "sogutma", "soğutma"].some(k => kimlik.includes(k))
-        ) {
+        else if (["anakart", "ekran-kart", "ekran kart", "islemci", "işlemci", "ram", "ssd", "hdd", "kasa", "psu", "sogutma", "soğutma"].some(k => kimlik.includes(k))) {
           cB_toplam += urunTutar;
         } 
-        // 4. ÇEVRE BİRİMLERİ & OYUNCU
-        else if (
-          ["monitör", "monitor", "klavye", "mouse", "kulaklık", "kulaklik", "mikrofon", "oyun-kolu", "direksiyon", "hoparlör", "hoparlor"].some(k => kimlik.includes(k))
-        ) {
+        else if (["monitör", "monitor", "klavye", "mouse", "kulaklık", "kulaklik", "mikrofon", "oyun-kolu", "direksiyon", "hoparlör", "hoparlor"].some(k => kimlik.includes(k))) {
           cC_toplam += urunTutar;
         } 
-        // 5. AĞ, AKSESUAR & KABLO (Kayıp Eşya Bürosu)
         else {
           cA_toplam += urunTutar;
         }
@@ -260,7 +237,8 @@ const urunler = siparis.items || siparis.sepet || [];
   const userName = session?.user?.name || "Özkan";
   const userEmail = session?.user?.email || "";
   const basHarf = userName ? userName.charAt(0).toUpperCase() : "Ö";
-// 🚀 VIP GÜVENLİK KAPISI (Yüklenirken dönen radar)
+
+  // SADECE YÜKLENİYOR RADARI KALDI (Erken kesici siyah ekran SİLİNDİ!)
   if (status === "loading") {
     return (
       <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center relative overflow-hidden">
@@ -270,42 +248,13 @@ const urunler = siparis.items || siparis.sepet || [];
     );
   }
 
-  // 🚀 GİRİŞ YAPMAMIŞ KULLANICIYI KARŞILAYAN LÜKS EKRAN
-  if (status === "unauthenticated") {
-    return (
-      <div className="min-h-screen bg-[#020617] text-white flex items-center justify-center p-4 relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-cyan-500/10 blur-[150px] rounded-full pointer-events-none"></div>
-        
-        <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 sm:p-12 max-w-md w-full text-center relative z-10 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-          <div className="w-24 h-24 bg-gradient-to-br from-[#0f172a] to-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.2)]">
-            <User className="w-10 h-10 text-cyan-400" />
-          </div>
-          
-          <h1 className="text-3xl font-black text-white mb-3 tracking-tight">Hesabım</h1>
-          <p className="text-slate-400 font-medium mb-8 text-sm leading-relaxed">
-            Siparişlerinizi takip etmek, favorilerinizi görmek ve hesabınızı yönetmek için giriş yapmalısınız.
-          </p>
-          
-          <div className="flex flex-col gap-3">
-            <Link href="/login" prefetch={true} className="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2">
-              <LogIn className="w-4 h-4" /> Giriş Yap
-            </Link>
-            
-            <Link href="/register" prefetch={true} className="w-full py-4 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-slate-700 hover:border-slate-500 text-slate-300 font-bold uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2">
-              <UserPlus className="w-4 h-4" /> Kayıt Ol
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // BURANIN ALTINDA SENİN ESKİ NORMAL "return (" KISMIN BAŞLIYOR OLACAK...
+  // BURASI ANA GÖVDE
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
-      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-6 relative z-10">
+      {/* 🚀 EĞER GİRİŞ YAPILMAMIŞSA ARKAYI CAM GİBİ BULANIKLAŞTIRAN BLUR ZIRHI */}
+      <div className={`max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-6 relative z-10 transition-all duration-500 ${status === "unauthenticated" ? "blur-[8px] opacity-40 pointer-events-none select-none" : ""}`}>
 
         {/* ⬅️ SOL MENÜ */}
         <div className="w-full lg:w-64 shrink-0 flex flex-col gap-2">
@@ -362,9 +311,7 @@ const urunler = siparis.items || siparis.sepet || [];
             HESAP YÖNETİMİ
           </h2>
 
-          {/* 🔥 1. YENİ YERİ: 5'Lİ METRİK PANALİ ARTIK EN ÜSTTE */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 w-full">
-             
              <Link href="/adreslerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-cyan-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
                <MapPin className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" />
                <p className="text-xl sm:text-2xl font-black text-white">{adresSayisi}</p>
@@ -380,7 +327,6 @@ const urunler = siparis.items || siparis.sepet || [];
                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Kargolar</p>
              </div>
 
-             {/* 🚀 5. YENİ KUTU: SİPARİŞ TAKİP */}
              <Link href="/siparis-takip" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-blue-500/30 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
                <Search className="w-6 h-6 sm:w-7 sm:h-7 text-blue-400" />
                <p className="text-sm sm:text-base font-black text-slate-400 mt-1">Sorgula</p>
@@ -398,12 +344,9 @@ const urunler = siparis.items || siparis.sepet || [];
                <p className="text-xl sm:text-2xl font-black text-white">{sistemSayisi}</p>
                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Sistemler</p>
              </Link>
-
           </div>
 
-          {/* 2. ALTTTAKİ BÖLÜM: GRAFİKLER VE LİSTELER */}
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
-
             {/* 🔥 SOL SÜTUN: SON İŞLEMLER */}
             <div className="xl:col-span-1 flex flex-col h-full">
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group hover:border-cyan-500/30 transition-all duration-300 flex flex-col min-h-[450px] xl:h-[550px]">
@@ -466,7 +409,6 @@ const urunler = siparis.items || siparis.sepet || [];
             {/* 📊 SAĞ SÜTUN: GRAFİKLER */}
             <div className="xl:col-span-2 flex flex-col gap-6">
               
-              {/* SİPARİŞ GEÇMİŞİ GRAFİĞİ */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
                 <div className="flex flex-row items-center justify-between gap-2 mb-2">
                    <h3 className="text-white font-bold text-base sm:text-lg">Aylık Harcama Grafiği</h3>
@@ -483,7 +425,6 @@ const urunler = siparis.items || siparis.sepet || [];
                 </div>
                 
                 <div className="bg-white/[0.02] border border-white/5 rounded-xl flex items-end justify-between pt-10 pb-4 px-1 sm:px-4 h-[220px] relative mt-2">
-                  
                   {grafikVerisi.length > 0 ? grafikVerisi.map((item, i) => {
                     const isSecili = tiklananAy === i;
                     const isHovered = hoveredIndex === i;
@@ -516,11 +457,9 @@ const urunler = siparis.items || siparis.sepet || [];
                       </div>
                     )
                   }) : null}
-
                 </div>
               </div>
 
-              {/* HARCAMA DAĞILIMI */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col sm:flex-row items-center gap-8">
                  <div className="shrink-0 space-y-1.5 text-center sm:text-left">
                    <h3 className="text-white font-bold text-base sm:text-lg">Harcama Dağılımı</h3>
@@ -665,12 +604,39 @@ const urunler = siparis.items || siparis.sepet || [];
 
             <div className="mt-6 border-t border-slate-800 pt-4 text-center">
               <p className="text-[11px] text-slate-500 font-medium">
-                Siparişiniz teslim edildiğinde bu列表den otomatik olarak kaldırılır.
+                Siparişiniz teslim edildiğinde bu listeden otomatik olarak kaldırılır.
               </p>
             </div>
           </div>
         </div>
       )}
+
+      {/* 🚀 GİRİŞ YAPMAMIŞ KULLANICIYI ENGELLEYEN ŞEFFAF KATMAN (Overlay) */}
+      {status === "unauthenticated" && (
+        <div className="absolute inset-0 z-[5000] flex items-center justify-center p-4 bg-[#020617]/30 backdrop-blur-[2px]">
+          <div className="bg-[#0f172a]/90 backdrop-blur-2xl border border-slate-800 rounded-3xl p-8 sm:p-12 max-w-md w-full text-center relative shadow-[0_0_80px_rgba(6,182,212,0.15)]">
+            <div className="w-24 h-24 bg-gradient-to-br from-[#0f172a] to-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.2)]">
+              <User className="w-10 h-10 text-cyan-400" />
+            </div>
+            
+            <h1 className="text-3xl font-black text-white mb-3 tracking-tight">Hesabım</h1>
+            <p className="text-slate-400 font-medium mb-8 text-sm leading-relaxed">
+              Siparişlerinizi takip etmek, favorilerinizi görmek ve hesabınızı yönetmek için giriş yapmalısınız.
+            </p>
+            
+            <div className="flex flex-col gap-3">
+              <Link href="/giris" prefetch={true} className="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2">
+                <LogIn className="w-4 h-4" /> Giriş Yap
+              </Link>
+              
+              <Link href="/kayit" prefetch={true} className="w-full py-4 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-slate-700 hover:border-slate-500 text-slate-300 font-bold uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2">
+                <UserPlus className="w-4 h-4" /> Kayıt Ol
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+      
     </div>
   );
 }
