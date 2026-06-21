@@ -96,7 +96,7 @@ export default function HesabimPage() {
             setAdresSayisi(adresData.addresses.length);
           }
         }
-// 🚀 SENİN EFSANE API'Nİ KULLANAN NET MOTOR (Zombi Yok Edici)
+// 🚀 TERTEMİZ VE EN DOĞRU FAVORİ SAYACI
         const favoriRes = await fetch("/api/favorites?t=" + new Date().getTime(), {
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
@@ -104,19 +104,8 @@ export default function HesabimPage() {
         
         if (favoriRes.ok) {
           const favoriData = await favoriRes.json();
-          
-          if (favoriData.favorites && Array.isArray(favoriData.favorites)) {
-            // 🧠 ZOMBİ YOK EDİCİ FİLTRE:
-            // Sadece içinde gerçekten "isim", "name" veya "title" olan KANLI CANLI ÜRÜNLERİ sayar.
-            // Sadece ID'si kalmış veya içi boşalmış hayaletleri anında siler!
-            const gercekFavoriler = favoriData.favorites.filter((urun: any) => {
-              return urun && typeof urun === "object" && (urun.isim || urun.name || urun.title);
-            });
-            
-            setFavoriSayisi(gercekFavoriler.length);
-          } else {
-            setFavoriSayisi(0);
-          }
+          // API artık sadece gerçek ürünleri döndürdüğü için direkt uzunluğunu alıyoruz!
+          setFavoriSayisi(favoriData.favorites?.length || 0);
         }
       } catch (error) {
         console.error("Radar bağlantı hatası:", error);

@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
-import User from "@/models/User"; // Kendi model yoluna göre kontrol et
+import User from "@/models/User"; 
+import clientPromise from "@/lib/mongodb";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route"; // Kendi authOptions yoluna göre kontrol et
-import { revalidatePath } from "next/cache"; // 🚀 1. ŞOK DALGASI İÇİN İTHAL EDİLDİ
+import { authOptions } from "../auth/[...nextauth]/route"; 
+import { revalidatePath } from "next/cache"; 
+
+export const dynamic = "force-dynamic";
 
 // 1. Kullanıcının Favori Listesini Tam Detaylarıyla Getir (GET)
 export async function GET() {
@@ -17,21 +20,42 @@ export async function GET() {
       await mongoose.connect(process.env.MONGODB_URI as string);
     }
 
-    // 🚀 SİHİRLİ DOKUNUŞ: .populate("favorites") ekledik!
-    // Artık sistem sadece ID numaralarını değil; o ID'ye ait ürünün 
-    // adını, fiyatını, resmini de veritabanından paket yapıp getirecek!
-    const user = await User.findOne({ email: session.user.email }).populate("favorites");
-    
-    if (!user) {
+    // 1. Önce kullanıcının favori ID listesini alıyoruz
+    const user = await User.findOne({ email: session.user.email }).lean();
+    const favoriteIds = user?.favorites || [];
+
+    if (favoriteIds.length === 0) {
       return NextResponse.json({ favorites: [] }, { status: 200 });
     }
 
-    return NextResponse.json({ favorites: user.favorites || [] }, { status: 200 });
+    // 2. 🚀 JİLET GİBİ SÜZGEÇ: Sadece veritabanında hala VAR OLAN (silinmemiş) ürünleri çekiyoruz
+    const client = await clientPromise;
+    const db = client.db("bilginpcmarket");
+
+    const objectIdArray = favoriteIds.map((id: string) => {
+      try { return new mongoose.Types.ObjectId(id); } catch(e) { return id; }
+    });
+
+    const rawUrunler = await db.collection("products").find({
+      $or: [
+        { _id: { $in: objectIdArray } },
+        { id: { $in: favoriteIds } }
+      ]
+    }).toArray();
+
+    const matchedProducts = rawUrunler.map(urun => ({
+      ...urun,
+      _id: urun._id.toString()
+    }));
+
+    // Sadece dükkanda gerçekten var olan sağlam ürünleri döndürüyoruz!
+    return NextResponse.json({ favorites: matchedProducts }, { status: 200 });
   } catch (error: any) {
     console.error("Favoriler Getirilirken Hata:", error);
     return NextResponse.json({ message: "Sunucu hatası oluştu." }, { status: 500 });
   }
 }
+
 // 2. Favorilere Ürün Ekle veya Çıkar (POST)
 export async function POST(req: Request) {
   try {
@@ -51,30 +75,24 @@ export async function POST(req: Request) {
 
     let user = await User.findOne({ email: session.user.email });
     
-   // 🚀 SİHİRLİ DOKUNUŞ 2: Kullanıcı DB'de yoksa (Google kullanıcısıysa)
     if (!user) {
       user = new User({
         email: session.user.email,
         name: session.user.name || "Google Kullanıcısı",
-        // VERİTABANI KIZMASIN DİYE RASTGELE SAHTE BİR ŞİFRE VERİYORUZ:
         password: "google_" + Math.random().toString(36).slice(-8), 
         favorites: []
       });
-      // Veritabanına bu yeni adamı ekledik!
     }
 
-    // Eğer ürün zaten favorilerde varsa listeden çıkar, yoksa ekle (Toggle mantığı - KORUNDU)
     const favoriteIndex = user.favorites.indexOf(productId);
     if (favoriteIndex > -1) {
-      user.favorites.splice(favoriteIndex, 1); // Listeden sil
+      user.favorites.splice(favoriteIndex, 1); 
     } else {
-      user.favorites.push(productId); // Listeye ekle
+      user.favorites.push(productId); 
     }
 
     await user.save();
 
-    // 🚀 İŞTE ATOM BOMBASI BURASI: 
-    // Ürün veritabanına kaydedildiği salise, Favorilerim sayfasının önbelleğini (cache) imha eder.
     revalidatePath("/favorilerim");
 
     return NextResponse.json({
