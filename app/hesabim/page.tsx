@@ -8,7 +8,7 @@ import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, Ma
 export default function HesabimPage() {
   const { data: session } = useSession();
   
-  // 🧠 CANLI VERİ MOTORLARI (STATE)
+  // 🧠 CANLI VERİ MOTORLARI
   const [siparisler, setSiparisler] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -17,7 +17,7 @@ export default function HesabimPage() {
     await signOut({ callbackUrl: "/" });
   };
 
-  // 🚀 VERİTABANINDAN SİPARİŞLERİ ÇEKEN AKTİF ÇIRAK
+  // 🚀 TÜM FORMATLARI COZEN AKILLI ÇIRAK MOTORU
   useEffect(() => {
     if (!session?.user?.email) {
       setLoading(false);
@@ -26,22 +26,31 @@ export default function HesabimPage() {
 
     const siparisleriGetir = async () => {
       try {
-        // Senin mevcut sipariş API rotana istek atıyoruz (Gerekirse adresi kendine göre revize edebilirsin şefim)
+        // NOT: Eğer API rotanın adı farklıysa (örn: /api/orders) burayı değiştirebiliriz şefim
         const res = await fetch("/api/siparislerim?limit=6&t=" + new Date().getTime());
         
         if (res.ok) {
           const data = await res.json();
-          // Eğer API'den gelen veri direkt diziyse data, nesne içindeyse data.orders veya data.orders şeklinde ayarlanır
+          
+          // 🔍 RADAR: Tarayıcının F12 -> Console kısmına veriyi canlı basar, hatayı anında görürüz!
+          console.log("Şefim API'den gelen ham veri paketi:", data);
+
           if (Array.isArray(data)) {
             setSiparisler(data);
           } else if (data.orders && Array.isArray(data.orders)) {
             setSiparisler(data.orders);
+          } else if (data.siparisler && Array.isArray(data.siparisler)) {
+            setSiparisler(data.siparisler);
+          } else if (data.data && Array.isArray(data.data)) {
+            setSiparisler(data.data);
           } else if (data.success && Array.isArray(data.orders)) {
             setSiparisler(data.orders);
           }
+        } else {
+          console.log("Şefim API bağlantısı başarısız oldu, durum kodu:", res.status);
         }
       } catch (error) {
-        console.error("Siparişler çekilirken hata oluştu şefim:", error);
+        console.error("Sipariş motoru kaza yaptı şefim:", error);
       } finally {
         setLoading(false);
       }
@@ -123,7 +132,7 @@ export default function HesabimPage() {
           {/* 🧩 DASHBOARD BİLEŞENLERİ */}
           <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 
-            {/* 🔥 SON İŞLEMLER / SİPARİŞLERİM (CANLI BAĞLANTI NOKTASI) */}
+            {/* SON İŞLEMLER / SİPARİŞLERİM */}
             <div className="lg:col-span-1 xl:col-span-1 flex flex-col gap-6">
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group hover:border-cyan-500/30 transition-all duration-300 flex flex-col h-full min-h-[420px]">
                 <div className="absolute -top-10 -left-10 w-40 h-40 bg-cyan-500/10 blur-[50px] pointer-events-none rounded-full"></div>
@@ -137,15 +146,12 @@ export default function HesabimPage() {
 
                 <div className="space-y-4 relative z-10 flex-1 overflow-y-auto pr-1 custom-scrollbar">
                   {loading ? (
-                    /* Yükleniyor Animasyonu */
                     <div className="h-full min-h-[250px] flex flex-col items-center justify-center gap-2">
                       <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
                       <span className="text-xs text-slate-500 font-medium">Siparişler çekiliyor...</span>
                     </div>
                   ) : siparisler.length > 0 ? (
-                    /* Gerçek Veri Döngüsü */
                     siparisler.map((item: any, idx: number) => {
-                      // Veritabanı modelindeki alan isimlerine göre burayı (item.fiyat, item.durum vb.) eşleştirebilirsin şefim
                       const tarih = item.createdAt ? new Date(item.createdAt).toLocaleDateString("tr-TR") : item.date || "";
                       const urunAdi = item.urunler?.[0]?.isim || item.system || "Sipariş";
                       const toplamFiyat = item.toplamFiyat || item.price || "0";
@@ -171,7 +177,6 @@ export default function HesabimPage() {
                       );
                     })
                   ) : (
-                    /* Sipariş Yoksa Boş Ekran */
                     <div className="h-full min-h-[250px] flex flex-col items-center justify-center text-center opacity-40">
                       <Package className="w-10 h-10 text-slate-500 mb-2" />
                       <span className="text-xs text-slate-400 font-medium">Henüz bir siparişiniz bulunmuyor.</span>
