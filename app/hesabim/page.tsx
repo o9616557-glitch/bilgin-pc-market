@@ -2,13 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight, X, ExternalLink, Copy, CheckCircle2 } from "lucide-react";
+import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight, X, Copy, CheckCircle2 } from "lucide-react";
 
 export default function HesabimPage() {
   const { data: session } = useSession();
-  const router = useRouter();
   
   const [hamSiparisler, setHamSiparisler] = useState<any[]>([]);
   const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
@@ -193,7 +191,7 @@ export default function HesabimPage() {
     return d.includes("kargo") && !d.includes("teslim") && !d.includes("iptal");
   });
 
-// 🔥 SADECE KOPYALAMA YAPAN BUTON (Müşteriyi dükkanda tutar)
+  // 🔥 SADECE KOPYALAMA YAPAN BUTON (Müşteriyi dükkanda tutar)
   const handleTakipEt = (takipNumarasi: string) => {
     navigator.clipboard.writeText(takipNumarasi);
     setKopyalananKargo(takipNumarasi);
@@ -201,6 +199,7 @@ export default function HesabimPage() {
       setKopyalananKargo(null);
     }, 2000);
   };
+
   const userName = session?.user?.name || "Özkan";
   const userEmail = session?.user?.email || "";
   const basHarf = userName ? userName.charAt(0).toUpperCase() : "Ö";
@@ -543,7 +542,7 @@ export default function HesabimPage() {
                         </div>
                       </div>
 
-                   <button 
+                      <button 
                         onClick={() => handleTakipEt(takipNo)}
                         className="flex items-center justify-center gap-2 bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-500 hover:to-orange-500 text-white font-black px-4 py-3 rounded-xl transition-all text-[11px] uppercase tracking-wider shadow-[0_0_15px_rgba(239,68,68,0.2)] w-full"
                       >
