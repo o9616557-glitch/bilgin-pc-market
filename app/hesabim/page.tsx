@@ -11,19 +11,34 @@ export default function HesabimPage() {
   const suAnkiTarih = new Date();
   const yil = suAnkiTarih.getFullYear();
 
+  // 🚀 VİTRİN SİPARİŞLERİ RENKLENDİRİLDİ (Aralık, Haziran, Ocak aylarına farklı kategoriler eklendi ki pastalar tek renk durmasın)
   const vitrinSiparisleri = [
-    { _id: "SP-101", tarih: new Date(yil, 0, 15).toISOString(), status: "Teslim Edildi", totalPrice: 45000, items: [{ isim: "ASUS ROG Strix G16 Laptop", kategoriSlug: "laptop", fiyat: 45000, adet: 1 }] },
+    { _id: "SP-101", tarih: new Date(yil, 0, 15).toISOString(), status: "Teslim Edildi", totalPrice: 45000, items: [
+      { isim: "ASUS ROG Strix G16 Laptop", kategoriSlug: "laptop", fiyat: 35000, adet: 1 },
+      { isim: "Logitech Mouse", kategoriSlug: "mouse", fiyat: 5000, adet: 1 },
+      { isim: "Taşıma Çantası", kategoriSlug: "aksesuar", fiyat: 5000, adet: 1 }
+    ] },
     { _id: "SP-102", tarih: new Date(yil, 1, 10).toISOString(), status: "Tamamlandı", totalPrice: 18500, items: [{ isim: "MSI 27' Oyuncu Monitörü", kategoriSlug: "monitor", fiyat: 18500, adet: 1 }] },
     { _id: "SP-103", tarih: new Date(yil, 2, 5).toISOString(), status: "Tamamlandı", totalPrice: 8500, items: [{ isim: "Intel Core i5 14400F İşlemci", kategoriSlug: "islemci", fiyat: 8500, adet: 1 }] },
     { _id: "SP-104", tarih: new Date(yil, 3, 20).toISOString(), status: "Tamamlandı", totalPrice: 64000, items: [{ isim: "PC Toplama Sihirbazı", kategoriSlug: "kendin", fiyat: 64000, adet: 1 }] },
     { _id: "SP-105", tarih: new Date(yil, 4, 12).toISOString(), status: "Teslim Edildi", totalPrice: 32000, items: [{ isim: "ASUS TUF RTX 4070 Ti", kategoriSlug: "ekran-kart", fiyat: 32000, adet: 1 }] },
-    { _id: "SP-106", tarih: new Date(yil, 5, 2).toISOString(), status: "Kargoya Verildi", kargoFirmasi: "Yurtiçi Kargo", takipNo: "YRTC-84759201", totalPrice: 110000, items: [{ isim: "Premium Özel Sistem", kategoriSlug: "topla", fiyat: 110000, adet: 1 }] },
+    { _id: "SP-106", tarih: new Date(yil, 5, 2).toISOString(), status: "Kargoya Verildi", kargoFirmasi: "Yurtiçi Kargo", takipNo: "YRTC-84759201", totalPrice: 110000, items: [
+      { isim: "Premium Özel Sistem", kategoriSlug: "topla", fiyat: 85000, adet: 1 },
+      { isim: "ASUS 27' Monitör", kategoriSlug: "monitor", fiyat: 15000, adet: 1 },
+      { isim: "Akım Korumalı Priz", kategoriSlug: "aksesuar", fiyat: 10000, adet: 1 }
+    ] },
     { _id: "SP-107", tarih: new Date(yil, 6, 18).toISOString(), status: "Kargoya Verildi", kargoFirmasi: "Aras Kargo", takipNo: "ARAS-10293847", totalPrice: 85000, items: [{ isim: "Masaüstü Oyun Bilgisayarı", kategoriSlug: "masaustu", fiyat: 85000, adet: 1 }] },
     { _id: "SP-108", tarih: new Date(yil, 7, 22).toISOString(), status: "Tamamlandı", totalPrice: 35000, items: [{ isim: "AMD Ryzen 9 İşlemci", kategoriSlug: "islemci", fiyat: 35000, adet: 1 }] },
     { _id: "SP-109", tarih: new Date(yil, 8, 5).toISOString(), status: "Tamamlandı", totalPrice: 5000, items: [{ isim: "Premium Örgü Kablo & Priz Seti", kategoriSlug: "kablo", fiyat: 5000, adet: 1 }] },
     { _id: "SP-110", tarih: new Date(yil, 9, 14).toISOString(), status: "Kargoya Verildi", kargoFirmasi: "MNG Kargo", takipNo: "MNG-55443322", totalPrice: 125000, items: [{ isim: "ASUS ROG Oyun Bilgisayarı", kategoriSlug: "oyun-bilgisayari", fiyat: 125000, adet: 1 }] },
     { _id: "SP-111", tarih: new Date(yil, 10, 27).toISOString(), status: "Tamamlandı", totalPrice: 95000, items: [{ isim: "Kendin Topla PC", kategoriSlug: "sihirbaz", fiyat: 95000, adet: 1 }] },
-    { _id: "SP-112", tarih: new Date(yil, 11, 8).toISOString(), status: "Tamamlandı", totalPrice: 42000, items: [{ isim: "Razer Klavye & Mouse Seti", kategoriSlug: "mouse", fiyat: 42000, adet: 1 }] },
+    { _id: "SP-112", tarih: new Date(yil, 11, 8).toISOString(), status: "Tamamlandı", totalPrice: 42000, items: [
+      { isim: "Razer Klavye & Mouse Seti", kategoriSlug: "mouse", fiyat: 8000, adet: 1 },
+      { isim: "ASUS ROG Anakart", kategoriSlug: "anakart", fiyat: 14000, adet: 1 },
+      { isim: "Corsair 32GB RAM", kategoriSlug: "ram", fiyat: 6000, adet: 1 },
+      { isim: "Tunçmatik Priz", kategoriSlug: "aksesuar", fiyat: 1000, adet: 1 },
+      { isim: "Kendin Topla PC Sihirbazı", kategoriSlug: "kendin", fiyat: 13000, adet: 1 }
+    ] },
   ];
 
   const [hamSiparisler, setHamSiparisler] = useState<any[]>(() => {
@@ -112,6 +127,31 @@ export default function HesabimPage() {
       setFavoriSayisi(4);
       setSistemSayisi(5);
       setLoading(false);
+    }
+  }, [status]);
+
+  useEffect(() => {
+    if (status !== "authenticated") return;
+
+    try {
+      const hafiza = sessionStorage.getItem("bilgin_hesabim_data");
+      if (hafiza) {
+        const parsed = JSON.parse(hafiza);
+        if (parsed.tumSiparisler && parsed.tumSiparisler.length > 0) {
+          setHamSiparisler(parsed.tumSiparisler);
+          setLoading(false); 
+        }
+        if (parsed.favoriSayisi !== undefined) setFavoriSayisi(parsed.favoriSayisi);
+        if (parsed.adresSayisi !== undefined) setAdresSayisi(parsed.adresSayisi);
+      }
+
+      const kayitliSistemler = localStorage.getItem("bilgin_kayitli_sistemler");
+      if (kayitliSistemler) {
+        const parsedSistemler = JSON.parse(kayitliSistemler);
+        if (Array.isArray(parsedSistemler)) setSistemSayisi(parsedSistemler.length);
+      }
+    } catch (error) {
+      console.error("Hafıza okuma hatası:", error);
     }
   }, [status]);
 
@@ -473,7 +513,7 @@ export default function HesabimPage() {
 
             <div className="xl:col-span-2 flex flex-col gap-6">
 
-              {/* 🚀 KUSURSUZ SİMETRİK İKİLİ IZGARA (GRID) */}
+              {/* 🚀 KUSURSUZ SİMETRİK İKİLİ IZGARA (GRID) - BAŞLIKLAR ORTALANDI, AYI SÖZÜ DÜZELTİLDİ */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col xl:flex-row items-center gap-6 overflow-hidden">
                  
                  <div className="shrink-0 space-y-1.5 text-center xl:text-left xl:w-[140px] w-full">
@@ -486,8 +526,8 @@ export default function HesabimPage() {
                    
                    {/* SOL TARAF: AYLIK PASTA */}
                    <div className="flex flex-col items-center gap-4 w-full pr-2 sm:pr-6 border-r border-slate-800/80">
-                     <span className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[9px] sm:text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest shadow-[0_0_10px_rgba(6,182,212,0.4)] whitespace-nowrap">
-                       {aylikPastaVerisi.ayAdi} AYI
+                     <span className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[9px] sm:text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest shadow-[0_0_10px_rgba(6,182,212,0.4)] whitespace-nowrap text-center">
+                       {aylikPastaVerisi.ayAdi ? `${aylikPastaVerisi.ayAdi} ÖZETİ` : "AYLIK ÖZET"}
                      </span>
                      
                      <div className="relative w-24 h-24 sm:w-32 sm:h-32 shrink-0">
@@ -555,7 +595,7 @@ export default function HesabimPage() {
 
                    {/* SAĞ TARAF: GENEL PASTA */}
                    <div className="flex flex-col items-center gap-4 w-full pl-2 sm:pl-6">
-                     <span className="bg-slate-800 text-slate-400 text-[9px] sm:text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest whitespace-nowrap">
+                     <span className="bg-slate-800 text-slate-400 text-[9px] sm:text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest whitespace-nowrap text-center">
                        TÜM ZAMANLAR
                      </span>
                      
