@@ -173,21 +173,30 @@ export default function HesabimPage() {
         aylikToplamlar[d.getMonth()] += siparisTutar;
       }
 
-      const urunler = siparis.items || siparis.sepet || [];
+const urunler = siparis.items || siparis.sepet || [];
       urunler.forEach((item: any) => {
         const ad = (item.isim || item.title || "").toLowerCase();
         const cat = (item.kategori || "").toLowerCase();
         const urunTutar = (Number(item.fiyat || item.price) * (item.adet || item.quantity)) || 0;
 
+        // 1. Önce "Kendin Topla"
         if (ad.includes("topla") || ad.includes("sihirbaz") || cat.includes("kendin")) {
           cK_toplam += urunTutar;
-        } else if (cat.includes("bileşen") || ad.includes("ekran") || ad.includes("işlemci") || ad.includes("anakart") || ad.includes("ram")) {
-          cB_toplam += urunTutar;
-        } else if (cat.includes("çevre") || cat.includes("oyuncu") || ad.includes("mouse") || ad.includes("klavye")) {
-          cC_toplam += urunTutar;
-        } else if (cat.includes("sistem") || cat.includes("laptop") || cat.includes("yazılım")) {
+        } 
+        // 2. 🚀 SİSTEM VE LAPTOP (Önceliğe alındı ve kelimeler genişletildi)
+        else if (cat.includes("sistem") || cat.includes("laptop") || cat.includes("yazılım") || ad.includes("laptop") || ad.includes("notebook") || ad.includes("bilgisayar") || ad.includes("masaüstü") || ad.includes("dizüstü") || ad.includes("pc")) {
           cS_toplam += urunTutar;
-        } else {
+        } 
+        // 3. Bileşenler
+        else if (cat.includes("bileşen") || ad.includes("ekran") || ad.includes("işlemci") || ad.includes("anakart") || ad.includes("ram") || ad.includes("kasa") || ad.includes("soğutucu") || ad.includes("ssd") || ad.includes("hdd") || ad.includes("vga")) {
+          cB_toplam += urunTutar;
+        } 
+        // 4. Çevre Birimleri ve Oyuncu Ekipmanları
+        else if (cat.includes("çevre") || cat.includes("oyuncu") || ad.includes("mouse") || ad.includes("klavye") || ad.includes("kulaklık") || ad.includes("monitör") || ad.includes("kamera")) {
+          cC_toplam += urunTutar;
+        } 
+        // 5. Geriye Kalanlar (Ağ ve Aksesuar)
+        else {
           cA_toplam += urunTutar;
         }
       });
