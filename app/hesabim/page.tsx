@@ -17,7 +17,7 @@ export default function HesabimPage() {
     await signOut({ callbackUrl: "/" });
   };
 
-  // 🚀 TÜM FORMATLARI COZEN AKILLI ÇIRAK MOTORU
+  // 🚀 TÜM FORMATLARI COZEN VE GİZLİ ANAHTARLA GİREN ÇIRAK MOTORU
   useEffect(() => {
     if (!session?.user?.email) {
       setLoading(false);
@@ -26,28 +26,30 @@ export default function HesabimPage() {
 
     const siparisleriGetir = async () => {
       try {
-        // NOT: Eğer API rotanın adı farklıysa (örn: /api/orders) burayı değiştirebiliriz şefim
-        const res = await fetch("/api/siparislerim?limit=6&t=" + new Date().getTime());
+        // 🚀 ŞEFİN GİZLİ ANAHTARI CEBİMİZDE KAPIYI ÇALIYORUZ
+        const res = await fetch("/api/siparislerim", {
+          method: "GET",
+          headers: {
+            "x-patron-anahtar": "Bilgin123", // İŞTE KAPININ ŞİFRESİ BURADA!
+            "Content-Type": "application/json"
+          }
+        });
         
         if (res.ok) {
           const data = await res.json();
           
-          // 🔍 RADAR: Tarayıcının F12 -> Console kısmına veriyi canlı basar, hatayı anında görürüz!
-          console.log("Şefim API'den gelen ham veri paketi:", data);
-
           if (Array.isArray(data)) {
             setSiparisler(data);
           } else if (data.orders && Array.isArray(data.orders)) {
             setSiparisler(data.orders);
           } else if (data.siparisler && Array.isArray(data.siparisler)) {
+            // Senin API "siparisler" dizisi dönüyor, burası tam senin dükkana göre!
             setSiparisler(data.siparisler);
           } else if (data.data && Array.isArray(data.data)) {
             setSiparisler(data.data);
-          } else if (data.success && Array.isArray(data.orders)) {
-            setSiparisler(data.orders);
           }
         } else {
-          console.log("Şefim API bağlantısı başarısız oldu, durum kodu:", res.status);
+          console.log("Şefim API kapıdan kovdu, parola yanlış olabilir! Durum:", res.status);
         }
       } catch (error) {
         console.error("Sipariş motoru kaza yaptı şefim:", error);
