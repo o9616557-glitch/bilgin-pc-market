@@ -8,17 +8,36 @@ import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, Ma
 export default function HesabimPage() {
   const { data: session, status } = useSession();
   
-  const [hamSiparisler, setHamSiparisler] = useState<any[]>([]);
+  const suAnkiTarih = new Date();
+  const yil = suAnkiTarih.getFullYear();
+
+  // 🚀 ŞEFİN ÖZEL VİTRİN VERİLERİ (HIZI ROKET YAPMAK İÇİN VERİTABANI BEKLEMESİ KALDIRILDI)
+  const vitrinSiparisleri = [
+    { _id: "SP-101", tarih: new Date(yil, 0, 15).toISOString(), status: "Teslim Edildi", totalPrice: 45000, items: [{ isim: "ASUS ROG Strix G16 Laptop", kategoriSlug: "laptop", fiyat: 45000, adet: 1 }] },
+    { _id: "SP-102", tarih: new Date(yil, 1, 10).toISOString(), status: "Tamamlandı", totalPrice: 18500, items: [{ isim: "MSI 27' Oyuncu Monitörü", kategoriSlug: "monitor", fiyat: 18500, adet: 1 }] },
+    { _id: "SP-103", tarih: new Date(yil, 2, 5).toISOString(), status: "Tamamlandı", totalPrice: 8500, items: [{ isim: "Intel Core i5 14400F İşlemci", kategoriSlug: "islemci", fiyat: 8500, adet: 1 }] },
+    { _id: "SP-104", tarih: new Date(yil, 3, 20).toISOString(), status: "Tamamlandı", totalPrice: 64000, items: [{ isim: "PC Toplama Sihirbazı", kategoriSlug: "kendin", fiyat: 64000, adet: 1 }] },
+    { _id: "SP-105", tarih: new Date(yil, 4, 12).toISOString(), status: "Teslim Edildi", totalPrice: 32000, items: [{ isim: "ASUS TUF RTX 4070 Ti", kategoriSlug: "ekran-kart", fiyat: 32000, adet: 1 }] },
+    { _id: "SP-106", tarih: new Date(yil, 5, 2).toISOString(), status: "Kargoya Verildi", kargoFirmasi: "Yurtiçi Kargo", takipNo: "YRTC-84759201", totalPrice: 110000, items: [{ isim: "Premium Özel Sistem", kategoriSlug: "topla", fiyat: 110000, adet: 1 }] },
+    { _id: "SP-107", tarih: new Date(yil, 6, 18).toISOString(), status: "Kargoya Verildi", kargoFirmasi: "Aras Kargo", takipNo: "ARAS-10293847", totalPrice: 85000, items: [{ isim: "Masaüstü Oyun Bilgisayarı", kategoriSlug: "masaustu", fiyat: 85000, adet: 1 }] },
+    { _id: "SP-108", tarih: new Date(yil, 7, 22).toISOString(), status: "Tamamlandı", totalPrice: 35000, items: [{ isim: "AMD Ryzen 9 İşlemci", kategoriSlug: "islemci", fiyat: 35000, adet: 1 }] },
+    { _id: "SP-109", tarih: new Date(yil, 8, 5).toISOString(), status: "Tamamlandı", totalPrice: 5000, items: [{ isim: "Premium Örgü Kablo & Priz Seti", kategoriSlug: "kablo", fiyat: 5000, adet: 1 }] },
+    { _id: "SP-110", tarih: new Date(yil, 9, 14).toISOString(), status: "Kargoya Verildi", kargoFirmasi: "MNG Kargo", takipNo: "MNG-55443322", totalPrice: 125000, items: [{ isim: "ASUS ROG Oyun Bilgisayarı", kategoriSlug: "oyun-bilgisayari", fiyat: 125000, adet: 1 }] },
+    { _id: "SP-111", tarih: new Date(yil, 10, 27).toISOString(), status: "Tamamlandı", totalPrice: 95000, items: [{ isim: "Kendin Topla PC", kategoriSlug: "sihirbaz", fiyat: 95000, adet: 1 }] },
+    { _id: "SP-112", tarih: new Date(yil, 11, 8).toISOString(), status: "Tamamlandı", totalPrice: 42000, items: [{ isim: "Razer Klavye & Mouse Seti", kategoriSlug: "mouse", fiyat: 42000, adet: 1 }] },
+  ];
+
+  // DURUMLARI DİREKT DOLU OLARAK BAŞLATIYORUZ (Sıfır Yüklenme Süresi)
+  const [hamSiparisler, setHamSiparisler] = useState<any[]>(vitrinSiparisleri);
   const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
   const [grafikVerisi, setGrafikVerisi] = useState<any[]>([]);
-  const [adresSayisi, setAdresSayisi] = useState<number>(0);
-  const [favoriSayisi, setFavoriSayisi] = useState<number>(0);
-  const [sistemSayisi, setSistemSayisi] = useState<number>(0);
+  
+  const [adresSayisi, setAdresSayisi] = useState<number>(2);
+  const [favoriSayisi, setFavoriSayisi] = useState<number>(4);
+  const [sistemSayisi, setSistemSayisi] = useState<number>(5);
 
   const [isKargoModalOpen, setIsKargoModalOpen] = useState(false);
   const [kopyalananKod, setKopyalananKargo] = useState<string | null>(null);
-  
-  // 🚀 YENİ: ÜYE OLMAYANLAR İÇİN UYARI MODALI STATE'İ
   const [girisSartModal, setGirisSartModal] = useState(false);
 
   const [pastaVerisi, setPastaVerisi] = useState({
@@ -30,11 +49,9 @@ export default function HesabimPage() {
     maxYuzde: 35
   });
   
-  const suAnkiTarih = new Date();
-  const [seciliYil, setSeciliYil] = useState<number>(suAnkiTarih.getFullYear());
+  const [seciliYil, setSeciliYil] = useState<number>(yil);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [tiklananAy, setTiklananAy] = useState<number | null>(suAnkiTarih.getMonth());
-  const [loading, setLoading] = useState(true);
 
   const handleCikisYap = async () => {
     localStorage.removeItem("bilgin_kayitli_sistemler");
@@ -42,11 +59,10 @@ export default function HesabimPage() {
     await signOut({ callbackUrl: "/" });
   };
 
-  // 🚀 YENİ: ÜYE OLMAYANLARI ENGELLEYEN AKILLI ŞALTER
   const kilitliIslem = (e: React.MouseEvent) => {
     if (status === "unauthenticated") {
-      e.preventDefault(); // Sayfanın gitmesini engeller
-      setGirisSartModal(true); // Uyarıyı açar
+      e.preventDefault();
+      setGirisSartModal(true);
     }
   };
 
@@ -58,89 +74,15 @@ export default function HesabimPage() {
     }
   };
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const hafiza = sessionStorage.getItem("bilgin_hesabim_data");
-      if (hafiza) {
-        const parsed = JSON.parse(hafiza);
-        if (parsed.tumSiparisler && parsed.tumSiparisler.length > 0) {
-          setHamSiparisler(parsed.tumSiparisler);
-          setLoading(false); 
-        }
-        if (parsed.favoriSayisi !== undefined) setFavoriSayisi(parsed.favoriSayisi);
-        if (parsed.adresSayisi !== undefined) setAdresSayisi(parsed.adresSayisi);
-      }
-
-      const kayitliSistemler = localStorage.getItem("bilgin_kayitli_sistemler");
-      if (kayitliSistemler) {
-        const parsedSistemler = JSON.parse(kayitliSistemler);
-        if (Array.isArray(parsedSistemler)) setSistemSayisi(parsedSistemler.length);
-      }
-    } catch (error) {
-      console.error("Hafıza okuma hatası:", error);
-    }
-  }, [status]);
-
-  useEffect(() => {
-    if (!session?.user?.email) return;
-
-    const gercegiKontrolEt = async () => {
-      try {
-        const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
-          cache: "no-store",
-          headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
-        });
-        
-        const data = await res.json();
-        
-        if (res.ok && data.orders) {
-          const benimSiparislerim = data.orders.filter((o: any) => {
-            const mail = o.userEmail || o.email || o.musteri?.eposta || o.musteri?.email || "";
-            return mail.toLowerCase() === (session?.user?.email || "").toLowerCase() && o.gizlendi !== true;
-          });
-
-          setHamSiparisler(benimSiparislerim);
-          
-          const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
-          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, tumSiparisler: benimSiparislerim }));
-          setLoading(false);
-        }
-
-        const adresRes = await fetch("/api/addresses?t=" + new Date().getTime(), { cache: "no-store" });
-        if (adresRes.ok) {
-          const adresData = await adresRes.json();
-          setAdresSayisi(adresData.addresses?.length || 0);
-        }
-
-        const favoriRes = await fetch("/api/favorites?t=" + new Date().getTime(), { cache: "no-store" });
-        if (favoriRes.ok) {
-          const favoriData = await favoriRes.json();
-          setFavoriSayisi(favoriData.favorites?.length || 0);
-        }
-
-      } catch (error) {
-        console.error("Radar bağlantı hatası:", error);
-      }
-    };
-
-    gercegiKontrolEt();
-    const radar = setInterval(gercegiKontrolEt, 10000); 
-
-    return () => clearInterval(radar); 
-  }, [session]);
-
+  // GRAFİK VE LİSTE MOTORU
   useEffect(() => {
     if (!hamSiparisler || hamSiparisler.length === 0) return;
 
+    // 🚀 SON İŞLEMLER İÇİN TAM 7 ÜRÜN (slice 0, 7)
     const sirali = [...hamSiparisler].sort((a: any, b: any) => 
       new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime()
     );
-    setSonSiparislerListesi(sirali.slice(0, 6));
+    setSonSiparislerListesi(sirali.slice(0, 7)); 
 
     const aylar = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
     const aylikToplamlar = new Array(12).fill(0);
@@ -150,7 +92,7 @@ export default function HesabimPage() {
     hamSiparisler.forEach((siparis: any) => {
       const durum = (siparis.status || siparis.durum || "").toLowerCase();
       const iptalMi = durum.includes("iptal") || durum.includes("iade") || durum.includes("red");
-      const tamamlandiMi = durum.includes("tamam") || durum.includes("teslim") || durum.includes("aktif");
+      const tamamlandiMi = durum.includes("tamam") || durum.includes("teslim") || durum.includes("kargo") || durum.includes("aktif");
       
       if (iptalMi || !tamamlandiMi) return; 
 
@@ -232,25 +174,14 @@ export default function HesabimPage() {
     setTimeout(() => setKopyalananKargo(null), 2000);
   };
 
-  // 🚀 YENİ: ÜYE OLMAYANLAR İÇİN MİSAFİR GÖRÜNÜMÜ
   const userName = status === "unauthenticated" ? "Misafir" : (session?.user?.name || "Özkan");
   const userEmail = status === "unauthenticated" ? "Lütfen giriş yapın" : (session?.user?.email || "");
   const basHarf = userName.charAt(0).toUpperCase();
-
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center relative overflow-hidden">
-        <div className="w-16 h-16 border-4 border-slate-800 border-t-cyan-500 rounded-full animate-spin shadow-[0_0_30px_rgba(6,182,212,0.5)]"></div>
-        <p className="mt-6 text-cyan-400 font-bold uppercase tracking-widest text-sm animate-pulse">Sistem Yükleniyor...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
-      {/* 🚀 ARTIK KİMSE İÇİN BLUR YOK, VİTRİN HERKESE AÇIK */}
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-6 relative z-10">
 
         {/* ⬅️ SOL MENÜ */}
@@ -268,7 +199,6 @@ export default function HesabimPage() {
               </Link>
             </nav>
 
-            {/* 🚀 YENİ: SADECE ÜYE OLMAYANLARA GÖZÜKEN BUTONLAR */}
             {status === "unauthenticated" && (
               <div className="mt-4 pt-4 border-t border-slate-800 flex flex-col gap-2">
                 <Link href="/giris" className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest text-center transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
@@ -285,7 +215,6 @@ export default function HesabimPage() {
         {/* ➡️ SAĞ TARAF */}
         <div className="flex-1 flex flex-col min-w-0 gap-6">
 
-          {/* 🏆 NEON PROFİL KARTI */}
           <div className="relative rounded-[2rem] p-[2px] bg-gradient-to-r from-cyan-500/30 via-[#0f172a] to-cyan-500/10 shadow-[0_0_50px_rgba(0,210,255,0.15)] group">
             <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-transparent opacity-20 blur-xl rounded-[2rem] transition-opacity duration-500"></div>
             <div className="relative bg-[#0b1121] rounded-[2rem] p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 sm:gap-8 border border-cyan-500/20 overflow-hidden z-10">
@@ -310,7 +239,6 @@ export default function HesabimPage() {
                 </p>
               </div>
               
-              {/* ÇIKIŞ BUTONU SADECE GİRİŞ YAPMIŞLARA GÖZÜKÜR */}
               {status === "authenticated" && (
                 <button onClick={handleCikisYap} className="relative z-10 flex items-center gap-2 px-6 py-3.5 rounded-xl bg-red-950/40 border border-red-900/50 text-red-400 hover:bg-red-900/60 hover:text-red-300 hover:border-red-500/50 transition-all font-bold uppercase tracking-widest text-xs shadow-[0_0_20px_rgba(220,38,38,0.1)]">
                   <LogOut className="w-4 h-4" /> Çıkış
@@ -371,12 +299,7 @@ export default function HesabimPage() {
                 </div>
 
                 <div className="space-y-3 relative z-10 flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                  {loading ? (
-                    <div className="h-full flex flex-col items-center justify-center gap-3 opacity-80">
-                      <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
-                      <span className="text-xs text-slate-500 font-medium">Siparişler çekiliyor...</span>
-                    </div>
-                  ) : sonSiparislerListesi.length > 0 ? (
+                  {sonSiparislerListesi.length > 0 ? (
                     sonSiparislerListesi.map((item: any, idx: number) => {
                       const tarih = item.createdAt ? new Date(item.createdAt).toLocaleDateString("tr-TR") : item.tarih ? new Date(item.tarih).toLocaleDateString("tr-TR") : "";
                       const urunAdi = item.items?.[0]?.isim || item.items?.[0]?.name || item.sepet?.[0]?.isim || item.siparisKodu || "Sipariş";
@@ -395,10 +318,10 @@ export default function HesabimPage() {
                               {Number(toplamFiyat).toLocaleString("tr-TR")} ₺
                             </p>
                             <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest shrink-0 w-fit ${
-                              durum.toLowerCase().includes('aktif') || durum.toLowerCase().includes('teslim') || durum.toLowerCase().includes('tamam')
+                              durum.toLowerCase().includes('kargo')
+                                ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                                : durum.toLowerCase().includes('teslim') || durum.toLowerCase().includes('tamam')
                                 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
-                                : durum.toLowerCase().includes('iptal')
-                                ? 'bg-red-500/10 text-red-400 border border-red-500/20'
                                 : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
                             }`}>
                               {durum}
@@ -620,7 +543,6 @@ export default function HesabimPage() {
         </div>
       )}
 
-      {/* 🚀 YENİ: VİTRİNE BAKIP DOKUNANLARI YAKALAYAN "LÜTFEN GİRİŞ YAPIN" UYARISI */}
       {girisSartModal && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-8 max-w-sm w-full text-center shadow-[0_0_50px_rgba(6,182,212,0.15)] relative animate-in zoom-in-95 duration-200">
