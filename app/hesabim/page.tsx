@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight, X, ExternalLink, Copy, CheckCircle2 } from "lucide-react";
 
 export default function HesabimPage() {
   const { data: session } = useSession();
@@ -17,6 +17,10 @@ export default function HesabimPage() {
   const [adresSayisi, setAdresSayisi] = useState<number>(0);
   const [favoriSayisi, setFavoriSayisi] = useState<number>(0);
   const [sistemSayisi, setSistemSayisi] = useState<number>(0);
+
+  // 🛑 PREMIUM KARGO MODAL KONTROLÜ
+  const [isKargoModalOpen, setIsKargoModalOpen] = useState(false);
+  const [kopyalananKod, setKopyalananKargo] = useState<string | null>(null);
 
   // 🍩 CANLI PASTA MOTORU
   const [pastaVerisi, setPastaVerisi] = useState({
@@ -71,7 +75,6 @@ export default function HesabimPage() {
 
     const gercegiKontrolEt = async () => {
       try {
-        // 1. Siparişleri Çek
         const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
@@ -90,7 +93,6 @@ export default function HesabimPage() {
           setLoading(false);
         }
 
-        // 2. 🔥 ADRESLERİ CANLI ÇEKEN MOTOR (Doğru API Yoluna Bağlandı)
         const adresRes = await fetch("/api/addresses?t=" + new Date().getTime(), {
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
@@ -119,7 +121,7 @@ export default function HesabimPage() {
     if (!hamSiparisler || hamSiparisler.length === 0) return;
 
     const sirali = [...hamSiparisler].sort((a: any, b: any) => 
-      new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime()
+      new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tAGeh).getTime()
     );
     setSonSiparislerListesi(sirali.slice(0, 6));
 
@@ -193,6 +195,17 @@ export default function HesabimPage() {
 
   }, [hamSiparisler, seciliYil]);
 
+  // 🔥 BİNGO: Sadece kargoda olan ve iptal/teslim edilmemiş siparişleri süzen akıllı filtre
+  const kargoSiparisleri = hamSiparisler.filter(s => {
+    const d = (s.status || s.durum || "").toLowerCase();
+    return d.includes("kargo") && !d.includes("teslim") && !d.includes("iptal");
+  });
+
+  const handleKopyala = (kod: string) => {
+    navigator.clipboard.writeText(kod);
+    setKopyalananKargo(kod);
+    setTimeout(() => setKopyalananKargo(null), 2000);
+  };
 
   const userName = session?.user?.name || "Özkan";
   const userEmail = session?.user?.email || "";
@@ -303,9 +316,7 @@ export default function HesabimPage() {
                                 : durum.toLowerCase().includes('iptal')
                                 ? 'bg-red-500/10 text-red-400 border border-red-500/20'
                                 : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
-                            }`}>
-                              {durum}
-                            </span>
+                            }`}>{durum}</span>
                           </div>
                         </div>
                       );
@@ -443,7 +454,7 @@ export default function HesabimPage() {
                  </div>
               </div>
 
-              {/* 3. METRİKLER (🔥 DİNAMİK) */}
+              {/* 3. METRİKLER */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
                  
                  <Link href="/adreslerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-cyan-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
@@ -452,11 +463,15 @@ export default function HesabimPage() {
                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Adresler</p>
                  </Link>
                  
-                 <Link href="/siparis-takip" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-rose-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
+                 {/* 🔥 MODAL TETİKLEYİCİ PREMIUM KUTU */}
+                 <div 
+                   onClick={() => setIsKargoModalOpen(true)} 
+                   className="bg-[#0f172a] border border-slate-800 hover:border-rose-500/30 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors cursor-pointer select-none"
+                 >
                    <Truck className="w-6 h-6 sm:w-7 sm:h-7 text-rose-400" />
-                   <p className="text-xl sm:text-2xl font-black text-white">{hamSiparisler.filter(s => s.status?.toLowerCase().includes("kargo") || s.durum?.toLowerCase().includes("kargo")).length}</p>
+                   <p className="text-xl sm:text-2xl font-black text-white">{kargoSiparisleri.length}</p>
                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Kargolar</p>
-                 </Link>
+                 </div>
                  
                  <Link href="https://www.bilginpcmarket.com/favorilerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-purple-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
                    <Star className="w-6 h-6 sm:w-7 sm:h-7 text-purple-400" />
@@ -478,6 +493,74 @@ export default function HesabimPage() {
 
         </div>
       </div>
+
+      {/* 🚀 PREMIUM AKTİF KARGOLAR PENCERESİ (MODAL) */}
+      {isKargoModalOpen && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+          <div className="bg-[#09090b] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.9)] relative overflow-hidden animate-in zoom-in-95 duration-200 max-h-[85vh]">
+            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-rose-500/50 to-transparent"></div>
+            
+            {/* Modal Başlığı */}
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+              <h3 className="text-lg font-black text-white uppercase tracking-wider flex items-center gap-2">
+                <Truck className="w-5 h-5 text-rose-400" /> AKTİF KARGOLARINIZ
+              </h3>
+              <button 
+                onClick={() => setIsKargoModalOpen(false)}
+                className="p-1.5 text-slate-500 hover:text-white bg-[#121215] border border-slate-800 hover:border-slate-700 rounded-xl transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* İçerik Listesi */}
+            <div className="flex-1 overflow-y-auto pr-1 space-y-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              {kargoSiparisleri.length === 0 ? (
+                <div className="text-center py-12 text-slate-500 font-medium text-sm">
+                  Şu an yolda olan aktif kargonuz bulunmuyor.
+                </div>
+              ) : (
+                kargoSiparisleri.map((siparis: any, idx: number) => {
+                  const siparisKodu = siparis.siparisKodu || siparis._id?.slice(-8).toUpperCase() || "SİPARİŞ";
+                  const tarih = siparis.createdAt ? new Date(siparis.createdAt).toLocaleDateString("tr-TR") : siparis.tarih ? new Date(siparis.tarih).toLocaleDateString("tr-TR") : "";
+                  const toplamFiyat = siparis.totalPrice || siparis.toplamTutar || "0";
+                  
+                  return (
+                    <div key={siparis._id || idx} className="bg-[#121215] border border-slate-800/80 p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 group/item hover:border-slate-700 transition-colors">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <span className="text-white font-black text-sm tracking-wide">{siparisKodu}</span>
+                          <span className="text-[10px] px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-black uppercase tracking-widest">YOLDA</span>
+                        </div>
+                        <p className="text-slate-500 text-xs font-medium">Tarih: <span className="text-slate-300">{tarih}</span></p>
+                        <p className="text-slate-400 text-xs font-bold mt-1">Tutar: <span className="text-white font-black">{Number(toplamFiyat).toLocaleString("tr-TR")} ₺</span></p>
+                      </div>
+
+                      <div className="shrink-0 flex items-center gap-2">
+                        {/* Kargo Takip Sorgu Butonu */}
+                        <Link 
+                          href="/siparis-takip" 
+                          onClick={() => setIsKargoModalOpen(false)}
+                          className="flex items-center gap-1.5 bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-500 hover:to-orange-500 text-white font-black px-4 py-2.5 rounded-xl transition-all text-[11px] uppercase tracking-wider shadow-[0_0_15px_rgba(239,68,68,0.2)]"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" /> TAKİP ET
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Alt Bilgi */}
+            <div className="mt-6 border-t border-slate-800 pt-4 text-center">
+              <p className="text-[11px] text-slate-500 font-medium">
+                Siparişleriniz teslim edildikten sonra bu listeden otomatik olarak kaldırılır.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
