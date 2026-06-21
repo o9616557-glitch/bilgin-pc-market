@@ -193,13 +193,35 @@ export default function HesabimPage() {
     return d.includes("kargo") && !d.includes("teslim") && !d.includes("iptal");
   });
 
-  const handleTakipEt = (siparisKodu: string) => {
+  // 🔥 KARGO FİRMASINA GÖRE ROTA BULAN YENİ AKILLI BUTON
+  const handleTakipEt = (siparisKodu: string, firmaIsmi: string) => {
+    // 1. Önce Kodu Kopyala
     navigator.clipboard.writeText(siparisKodu);
     setKopyalananKargo(siparisKodu);
+    
+    // 2. Firmaya Göre Yeni Sekmede Açılacak Linki Belirle
     setTimeout(() => {
-      setIsKargoModalOpen(false);
-      router.push("/siparis-takip");
-    }, 300);
+      let takipLinki = "#";
+      const firmaKucuk = (firmaIsmi || "").toLowerCase();
+      
+      if (firmaKucuk.includes("yurtiçi") || firmaKucuk.includes("yurtici")) {
+        takipLinki = `https://www.yurticikargo.com/tr/online-servisler/gonderi-sorgula?code=${siparisKodu}`;
+      } else if (firmaKucuk.includes("aras")) {
+        takipLinki = `https://www.araskargo.com.tr/trmobile_takip?takipno=${siparisKodu}`;
+      } else if (firmaKucuk.includes("mng")) {
+        takipLinki = `https://www.mngkargo.com.tr/gonderitakip?takip_no=${siparisKodu}`;
+      } else if (firmaKucuk.includes("sürat") || firmaKucuk.includes("surat")) {
+        takipLinki = `https://suratkargo.com.tr/KargoTakip/?kargotakipno=${siparisKodu}`;
+      } else if (firmaKucuk.includes("ptt")) {
+        takipLinki = `https://gonderitakip.ptt.gov.tr/Track/Verify?q=${siparisKodu}`;
+      } else {
+        // Bilinmeyen bir firmaysa direkt Google'da kargo takip diye aratır
+        takipLinki = `https://www.google.com/search?q=${firmaIsmi}+kargo+takip+${siparisKodu}`;
+      }
+
+      window.open(takipLinki, "_blank");
+      setKopyalananKargo(null); // Buton yazısını geri düzelt
+    }, 500);
   };
 
   const userName = session?.user?.name || "Özkan";
@@ -519,7 +541,6 @@ export default function HesabimPage() {
                   const siparisKodu = siparis.siparisKodu || siparis._id?.slice(-8).toUpperCase() || "SİPARİŞ";
                   const tarih = siparis.createdAt ? new Date(siparis.createdAt).toLocaleDateString("tr-TR") : siparis.tarih ? new Date(siparis.tarih).toLocaleDateString("tr-TR") : "";
                   
-                  // 🔥 ADMIN PANELİNDEN GELEN İSİMLER
                   const firma = siparis.kargoFirmasi || "Belirtilmemiş";
                   const takipNo = siparis.takipNo || "Takip No Girilmemiş";
 
@@ -546,7 +567,7 @@ export default function HesabimPage() {
                       </div>
 
                       <button 
-                        onClick={() => handleTakipEt(takipNo)}
+                        onClick={() => handleTakipEt(takipNo, firma)}
                         className="flex items-center justify-center gap-2 bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-500 hover:to-orange-500 text-white font-black px-4 py-3 rounded-xl transition-all text-[11px] uppercase tracking-wider shadow-[0_0_15px_rgba(239,68,68,0.2)] w-full"
                       >
                         {kopyalananKod === takipNo ? (
