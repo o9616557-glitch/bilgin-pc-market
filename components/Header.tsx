@@ -273,7 +273,6 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
 <nav className="flex items-center space-x-6">
           {/* 🔥 ŞEFİM, YER DEĞİŞTİ! ÜST MENÜDE ARTIK KENDİN TOPLA EN BAŞTA PARLIYOR! */}
           <Link href="/kendin-topla" prefetch={true} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">🔧 Kendin Topla</Link>
-          <Link href="/sistemlerim" prefetch={true} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">💻 Sistemlerim</Link>
           <Link href="/kategori/ekran-karti" prefetch={true} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">Ekran Kartları</Link>
           <Link href="/kategori/islemci" prefetch={true} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">İşlemciler</Link>
           <Link href="/kategori/anakart" prefetch={true} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">Anakartlar</Link>
@@ -326,19 +325,6 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
       {/* 🚀 ÖZEL MENÜ BÖLÜMÜ (KUTUSUZ, SADE VE YEŞİL TASARIM) */}
           <div className="flex flex-col mb-8">
             
-            {/* 1. SİSTEMLERİM (EN ÜSTTE) */}
-            <Link
-              href="/sistemlerim"
-              prefetch={true}
-              onClick={() => setMenuAcik(false)}
-              className="flex items-center justify-between py-4 border-b border-emerald-500/20 group"
-            >
-              <span className="font-black tracking-widest text-emerald-400 uppercase text-sm flex items-center gap-3">
-                💻 Sistemlerim
-              </span>
-              <ArrowRight className="w-5 h-5 text-emerald-400 opacity-70 group-hover:opacity-100 transform group-hover:translate-x-1 transition-all" />
-            </Link>
-
             {/* 2. KENDİN TOPLA (ALTTA) */}
             <Link
               href="/kendin-topla"
