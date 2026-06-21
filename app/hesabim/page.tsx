@@ -473,7 +473,7 @@ export default function HesabimPage() {
 
             <div className="xl:col-span-2 flex flex-col gap-6">
 
-              {/* 🚀 MOBİLDE YAN YANA İKİYE BÖLÜNMÜŞ ÇİFT MOTORLU HARCAMA DAĞILIMI */}
+              {/* 🚀 KUSURSUZ SİMETRİK İKİLİ IZGARA (GRID) */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col xl:flex-row items-center gap-6 overflow-hidden">
                  
                  <div className="shrink-0 space-y-1.5 text-center xl:text-left xl:w-[140px] w-full">
@@ -481,14 +481,16 @@ export default function HesabimPage() {
                    <p className="text-[10px] text-slate-500 font-medium">Satın alınan kategoriler</p>
                  </div>
 
-                 <div className="flex-1 grid grid-cols-2 sm:flex sm:flex-row items-start justify-center xl:justify-end gap-2 sm:gap-6 w-full border-t sm:border-t-0 sm:border-l border-slate-800/80 pt-6 sm:pt-0 sm:pl-6">
+                 {/* ARAYI İKİYE BÖLEN GRID MOTORU */}
+                 <div className="flex-1 grid grid-cols-2 w-full border-t sm:border-t-0 sm:border-l border-slate-800/80 pt-6 sm:pt-0 sm:pl-6">
                    
-                   {/* 1. MİNİ PASTA (AYLIK) */}
-                   <div className="flex flex-col items-center gap-2 sm:gap-3 relative px-1">
-                     <span className="absolute -top-4 sm:-top-4 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-widest shadow-[0_0_10px_rgba(6,182,212,0.4)] whitespace-nowrap">
+                   {/* SOL TARAF: AYLIK PASTA */}
+                   <div className="flex flex-col items-center gap-4 w-full pr-2 sm:pr-6 border-r border-slate-800/80">
+                     <span className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[9px] sm:text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest shadow-[0_0_10px_rgba(6,182,212,0.4)] whitespace-nowrap">
                        {aylikPastaVerisi.ayAdi} AYI
                      </span>
-                     <div className="relative w-16 h-16 sm:w-24 sm:h-24 shrink-0 mt-2 sm:mt-3">
+                     
+                     <div className="relative w-24 h-24 sm:w-32 sm:h-32 shrink-0">
                        <svg className="w-full h-full transform -rotate-90 drop-shadow-md" viewBox="0 0 42 42">
                          <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(255,255,255,0.02)" strokeWidth="4.5"></circle>
                          {aylikPastaVerisi.maxYuzde === 0 ? (
@@ -504,27 +506,60 @@ export default function HesabimPage() {
                          )}
                        </svg>
                        <div className="absolute inset-0 flex flex-col items-center justify-center mt-0.5 sm:mt-1">
-                         <span className="text-xs sm:text-sm font-black text-white">{aylikPastaVerisi.maxYuzde}%</span>
+                         <span className="text-sm sm:text-xl font-black text-white">{aylikPastaVerisi.maxYuzde}%</span>
                        </div>
                      </div>
-                   <div className="flex flex-col gap-1 mt-1 w-full pl-2 sm:pl-4">
-  {aylikPastaVerisi.kendinTopla.yuzde > 0 && <span className="text-[9px] sm:text-[10px] text-amber-400 font-bold flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-amber-500 rounded-full shrink-0"></span><span className="text-slate-300 font-normal">Topla:</span> {aylikPastaVerisi.kendinTopla.yuzde}%</span>}
-  {aylikPastaVerisi.bilesen.yuzde > 0 && <span className="text-[9px] sm:text-[10px] text-cyan-400 font-bold flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-cyan-500 rounded-full shrink-0"></span><span className="text-slate-300 font-normal">Bileşen:</span> {aylikPastaVerisi.bilesen.yuzde}%</span>}
-  {aylikPastaVerisi.cevre.yuzde > 0 && <span className="text-[9px] sm:text-[10px] text-rose-400 font-bold flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span><span className="text-slate-300 font-normal">Çevre:</span> {aylikPastaVerisi.cevre.yuzde}%</span>}
-  {aylikPastaVerisi.sistem.yuzde > 0 && <span className="text-[9px] sm:text-[10px] text-purple-400 font-bold flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-purple-500 rounded-full shrink-0"></span><span className="text-slate-300 font-normal">Sistem:</span> {aylikPastaVerisi.sistem.yuzde}%</span>}
-  {aylikPastaVerisi.aksesuar.yuzde > 0 && <span className="text-[9px] sm:text-[10px] text-emerald-400 font-bold flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0"></span><span className="text-slate-300 font-normal">Aksesuar:</span> {aylikPastaVerisi.aksesuar.yuzde}%</span>}
-  {aylikPastaVerisi.maxYuzde === 0 && <span className="text-[9px] sm:text-[10px] text-slate-500 font-medium text-center">Harcama Yok</span>}
-</div>
+                     
+                     <div className="flex flex-col gap-2 shrink-0 w-full sm:w-[180px]">
+                       <div className="flex items-center justify-between w-full">
+                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] shrink-0"></span>
+                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-bold truncate">Kendin Topla</span>
+                         </div>
+                         <span className="text-[9px] sm:text-[11px] font-black text-amber-400 shrink-0 pl-1">{aylikPastaVerisi.kendinTopla.yuzde}%</span>
+                       </div>
+                       
+                       <div className="flex items-center justify-between w-full">
+                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_#06b6d4] shrink-0"></span>
+                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Bileşenler</span>
+                         </div>
+                         <span className="text-[9px] sm:text-[11px] font-black text-cyan-400 shrink-0 pl-1">{aylikPastaVerisi.bilesen.yuzde}%</span>
+                       </div>
+                       
+                       <div className="flex items-center justify-between w-full">
+                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#fb7185] shrink-0"></span>
+                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Çevre & Oyuncu</span>
+                         </div>
+                         <span className="text-[9px] sm:text-[11px] font-black text-rose-400 shrink-0 pl-1">{aylikPastaVerisi.cevre.yuzde}%</span>
+                       </div>
+                       
+                       <div className="flex items-center justify-between w-full">
+                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-purple-500 shadow-[0_0_8px_#c084fc] shrink-0"></span>
+                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Sistem & Laptop</span>
+                         </div>
+                         <span className="text-[9px] sm:text-[11px] font-black text-purple-400 shrink-0 pl-1">{aylikPastaVerisi.sistem.yuzde}%</span>
+                       </div>
+                       
+                       <div className="flex items-center justify-between w-full">
+                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#34d399] shrink-0"></span>
+                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Ağ & Aksesuar</span>
+                         </div>
+                         <span className="text-[9px] sm:text-[11px] font-black text-emerald-400 shrink-0 pl-1">{aylikPastaVerisi.aksesuar.yuzde}%</span>
+                       </div>
+                     </div>
                    </div>
 
-                   <div className="hidden sm:block w-[1px] h-24 bg-slate-800/80 mx-2"></div>
-
-                   {/* 2. BÜYÜK PASTA (GENEL TOPLAM) */}
-                   <div className="flex flex-col items-center sm:flex-row sm:items-center sm:justify-end gap-2 sm:gap-6 relative border-l border-slate-800/50 sm:border-0 pl-3 sm:pl-0">
-                     <span className="absolute -top-4 sm:-top-4 left-1/2 sm:left-auto sm:right-4 -translate-x-1/2 sm:translate-x-0 bg-slate-800 text-slate-400 text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-widest whitespace-nowrap">
+                   {/* SAĞ TARAF: GENEL PASTA */}
+                   <div className="flex flex-col items-center gap-4 w-full pl-2 sm:pl-6">
+                     <span className="bg-slate-800 text-slate-400 text-[9px] sm:text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest whitespace-nowrap">
                        TÜM ZAMANLAR
                      </span>
-                     <div className="relative w-16 h-16 sm:w-32 sm:h-32 shrink-0 mt-2 sm:mt-0">
+                     
+                     <div className="relative w-24 h-24 sm:w-32 sm:h-32 shrink-0">
                        <svg className="w-full h-full transform -rotate-90 drop-shadow-xl" viewBox="0 0 42 42">
                          <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(255,255,255,0.03)" strokeWidth="4.5"></circle>
                          {pastaVerisi.maxYuzde === 0 ? (
@@ -540,11 +575,11 @@ export default function HesabimPage() {
                          )}
                        </svg>
                        <div className="absolute inset-0 flex flex-col items-center justify-center mt-0.5 sm:mt-1">
-                         <span className="text-xs sm:text-xl font-black text-white tracking-tight">{pastaVerisi.maxYuzde}%</span>
+                         <span className="text-sm sm:text-xl font-black text-white tracking-tight">{pastaVerisi.maxYuzde}%</span>
                        </div>
                      </div>
 
-                     <div className="flex flex-col gap-1.5 sm:gap-2 shrink-0 w-full sm:w-[180px]">
+                     <div className="flex flex-col gap-2 shrink-0 w-full sm:w-[180px]">
                        <div className="flex items-center justify-between w-full">
                          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                            <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] shrink-0"></span>
@@ -584,7 +619,7 @@ export default function HesabimPage() {
                          </div>
                          <span className="text-[9px] sm:text-[11px] font-black text-emerald-400 shrink-0 pl-1">{pastaVerisi.aksesuar.yuzde}%</span>
                        </div>
-                    </div>
+                     </div>
                    </div>
 
                  </div>
