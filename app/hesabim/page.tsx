@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight, X, Copy, CheckCircle2 } from "lucide-react";
+import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, Search } from "lucide-react";
 
 export default function HesabimPage() {
   const { data: session } = useSession();
@@ -39,6 +39,7 @@ export default function HesabimPage() {
     await signOut({ callbackUrl: "/" });
   };
 
+  // 1. SIFIR GECİKME MOTORU: Sayfa açıldığı an her şeyi hafızadan basar
   useEffect(() => {
     try {
       const hafiza = sessionStorage.getItem("bilgin_hesabim_data");
@@ -47,6 +48,9 @@ export default function HesabimPage() {
         if (parsed.tumSiparisler && parsed.tumSiparisler.length > 0) {
           setHamSiparisler(parsed.tumSiparisler);
           setLoading(false); 
+        }
+        if (parsed.favoriSayisi !== undefined) {
+          setFavoriSayisi(parsed.favoriSayisi);
         }
       }
 
@@ -62,11 +66,13 @@ export default function HesabimPage() {
     }
   }, []);
 
+  // 2. ARKA PLAN RADARI: Verileri günceller ve hafızaya kaydeder
   useEffect(() => {
     if (!session?.user?.email) return;
 
     const gercegiKontrolEt = async () => {
       try {
+        // --- SİPARİŞLER ---
         const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
@@ -81,10 +87,13 @@ export default function HesabimPage() {
           });
 
           setHamSiparisler(benimSiparislerim);
-          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ tumSiparisler: benimSiparislerim }));
+          
+          const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
+          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, tumSiparisler: benimSiparislerim }));
           setLoading(false);
         }
 
+        // --- ADRESLER ---
         const adresRes = await fetch("/api/addresses?t=" + new Date().getTime(), {
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
@@ -96,7 +105,8 @@ export default function HesabimPage() {
             setAdresSayisi(adresData.addresses.length);
           }
         }
-// 🚀 TERTEMİZ VE EN DOĞRU FAVORİ SAYACI
+
+        // --- FAVORİLER ---
         const favoriRes = await fetch("/api/favorites?t=" + new Date().getTime(), {
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
@@ -104,9 +114,13 @@ export default function HesabimPage() {
         
         if (favoriRes.ok) {
           const favoriData = await favoriRes.json();
-          // API artık sadece gerçek ürünleri döndürdüğü için direkt uzunluğunu alıyoruz!
-          setFavoriSayisi(favoriData.favorites?.length || 0);
+          const sayi = favoriData.favorites?.length || 0;
+          setFavoriSayisi(sayi);
+          
+          const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
+          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, favoriSayisi: sayi }));
         }
+
       } catch (error) {
         console.error("Radar bağlantı hatası:", error);
       }
@@ -117,6 +131,16 @@ export default function HesabimPage() {
 
     return () => clearInterval(radar); 
   }, [session]);
+
+  // ARKA PLANI KİLİTLEYEN MOTOR
+  useEffect(() => {
+    if (isKargoModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => { document.body.style.overflow = "unset"; };
+  }, [isKargoModalOpen]);
 
   useEffect(() => {
     if (!hamSiparisler || hamSiparisler.length === 0) return;
@@ -201,7 +225,6 @@ export default function HesabimPage() {
     return d.includes("kargo") && !d.includes("teslim") && !d.includes("iptal");
   });
 
-  // 🔥 SADECE KOPYALAMA YAPAN BUTON (Müşteriyi dükkanda tutar)
   const handleTakipEt = (takipNumarasi: string) => {
     navigator.clipboard.writeText(takipNumarasi);
     setKopyalananKargo(takipNumarasi);
@@ -209,15 +232,7 @@ export default function HesabimPage() {
       setKopyalananKargo(null);
     }, 2000);
   };
-// 🔥 ARKA PLANI KİLİTLEYEN MOTOR (Pencere açıkken arkası oynamaz)
-  useEffect(() => {
-    if (isKargoModalOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => { document.body.style.overflow = "unset"; };
-  }, [isKargoModalOpen]);
+
   const userName = session?.user?.name || "Özkan";
   const userEmail = session?.user?.email || "";
   const basHarf = userName ? userName.charAt(0).toUpperCase() : "Ö";
@@ -283,6 +298,46 @@ export default function HesabimPage() {
             HESAP YÖNETİMİ
           </h2>
 
+          {/* 🔥 1. YENİ YERİ: 5'Lİ METRİK PANALİ ARTIK EN ÜSTTE */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 w-full">
+             
+             <Link href="/adreslerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-cyan-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
+               <MapPin className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" />
+               <p className="text-xl sm:text-2xl font-black text-white">{adresSayisi}</p>
+               <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Adresler</p>
+             </Link>
+             
+             <div 
+               onClick={() => setIsKargoModalOpen(true)} 
+               className="bg-[#0f172a] border border-slate-800 hover:border-rose-500/30 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors cursor-pointer select-none"
+             >
+               <Truck className="w-6 h-6 sm:w-7 sm:h-7 text-rose-400" />
+               <p className="text-xl sm:text-2xl font-black text-white">{kargoSiparisleri.length}</p>
+               <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Kargolar</p>
+             </div>
+
+             {/* 🚀 5. YENİ KUTU: SİPARİŞ TAKİP */}
+             <Link href="/siparis-takip" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-blue-500/30 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
+               <Search className="w-6 h-6 sm:w-7 sm:h-7 text-blue-400" />
+               <p className="text-sm sm:text-base font-black text-slate-400 mt-1">Sorgula</p>
+               <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Sipariş Takip</p>
+             </Link>
+             
+             <Link href="https://www.bilginpcmarket.com/favorilerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-purple-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
+               <Star className="w-6 h-6 sm:w-7 sm:h-7 text-purple-400" />
+               <p className="text-xl sm:text-2xl font-black text-white">{favoriSayisi}</p>
+               <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Favoriler</p>
+             </Link>
+
+             <Link href="/sistemlerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-emerald-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
+               <Server className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-400" />
+               <p className="text-xl sm:text-2xl font-black text-white">{sistemSayisi}</p>
+               <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Sistemler</p>
+             </Link>
+
+          </div>
+
+          {/* 2. ALTTTAKİ BÖLÜM: GRAFİKLER VE LİSTELER */}
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
 
             {/* 🔥 SOL SÜTUN: SON İŞLEMLER */}
@@ -344,10 +399,10 @@ export default function HesabimPage() {
               </div>
             </div>
 
-            {/* 📊 ORTA SÜTUN: GRAFİKLER VE SİSTEMLER */}
+            {/* 📊 SAĞ SÜTUN: GRAFİKLER */}
             <div className="xl:col-span-2 flex flex-col gap-6">
               
-              {/* 1. SİPARİŞ GEÇMİŞİ GRAFİĞİ */}
+              {/* SİPARİŞ GEÇMİŞİ GRAFİĞİ */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
                 <div className="flex flex-row items-center justify-between gap-2 mb-2">
                    <h3 className="text-white font-bold text-base sm:text-lg">Aylık Harcama Grafiği</h3>
@@ -401,7 +456,7 @@ export default function HesabimPage() {
                 </div>
               </div>
 
-              {/* 2. HARCAMA DAĞILIMI */}
+              {/* HARCAMA DAĞILIMI */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col sm:flex-row items-center gap-8">
                  <div className="shrink-0 space-y-1.5 text-center sm:text-left">
                    <h3 className="text-white font-bold text-base sm:text-lg">Harcama Dağılımı</h3>
@@ -465,39 +520,6 @@ export default function HesabimPage() {
                      </div>
                   </div>
                  </div>
-              </div>
-
-              {/* 3. METRİKLER */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
-                 
-                 <Link href="/adreslerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-cyan-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
-                   <MapPin className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" />
-                   <p className="text-xl sm:text-2xl font-black text-white">{adresSayisi}</p>
-                   <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Adresler</p>
-                 </Link>
-                 
-                 {/* 🔥 MODAL TETİKLEYİCİ PREMIUM KUTU */}
-                 <div 
-                   onClick={() => setIsKargoModalOpen(true)} 
-                   className="bg-[#0f172a] border border-slate-800 hover:border-rose-500/30 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors cursor-pointer select-none"
-                 >
-                   <Truck className="w-6 h-6 sm:w-7 sm:h-7 text-rose-400" />
-                   <p className="text-xl sm:text-2xl font-black text-white">{kargoSiparisleri.length}</p>
-                   <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Kargolar</p>
-                 </div>
-                 
-                 <Link href="https://www.bilginpcmarket.com/favorilerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-purple-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
-                   <Star className="w-6 h-6 sm:w-7 sm:h-7 text-purple-400" />
-                   <p className="text-xl sm:text-2xl font-black text-white">{favoriSayisi}</p>
-                   <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Favoriler</p>
-                 </Link>
-
-                 <Link href="/sistemlerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-emerald-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
-                   <Server className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-400" />
-                   <p className="text-xl sm:text-2xl font-black text-white">{sistemSayisi}</p>
-                   <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Sistemler</p>
-                 </Link>
-
               </div>
 
             </div>
@@ -579,7 +601,7 @@ export default function HesabimPage() {
 
             <div className="mt-6 border-t border-slate-800 pt-4 text-center">
               <p className="text-[11px] text-slate-500 font-medium">
-                Siparişiniz teslim edildiğinde bu listeden otomatik olarak kaldırılır.
+                Siparişiniz teslim edildiğinde bu列表den otomatik olarak kaldırılır.
               </p>
             </div>
           </div>
