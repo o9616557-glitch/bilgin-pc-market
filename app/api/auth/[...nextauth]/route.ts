@@ -97,17 +97,16 @@ export const authOptions: NextAuthOptions = {
             };
 
             await transporter.sendMail(mailOptions);
-// 🚀 ŞEFİM SADECE BURAYI DEĞİŞTİRİYORUZ (Kurye Kaza Yaptı Mı Diye Bakıyoruz)
-try {
-  await transporter.sendMail(mailOptions);
-  console.log("🚀 MÜJDE: Kurye maili başarıyla yolladı!");
-} catch (mailHatasi) {
-  console.error("🚨 KURYE KAZA YAPTI (Mail Gidemedi):", mailHatasi);
-  throw new Error("Mail gönderilemedi, Gmail engelledi.");
-}
+// 🚀 TERMİNALİ BOŞVER, HATAYI DİREKT SİTEYE (VİTRİNE) FIRLAT!
+            try {
+              await transporter.sendMail(mailOptions);
+            } catch (error: any) {
+              // Eğer Gmail engelliyorsa, sitede kırmızı hatayla sebebi yazacak
+              throw new Error("GMAIL_HATASI: " + error.message);
+            }
 
-// 4. Kapıyı kapat ve vitrine "KOD LAZIM" diye bağır
-throw new Error("2FA_REQUIRED");
+            // Kapıyı kapat ve vitrine "KOD LAZIM" diye bağır
+            throw new Error("2FA_REQUIRED");
           }
 // DURUM 2: Adam e-postasındaki kodu alıp gelmiş (Doğrulama)
           if (credentials.code) {
