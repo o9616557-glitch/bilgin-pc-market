@@ -3,28 +3,21 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2 } from "lucide-react";
+import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function HesabimPage() {
   const { data: session } = useSession();
   
-  // 🧠 CANLI VE HAFIZALI VERİ MOTORLARI
-  const [siparisler, setSiparisler] = useState<any[]>([]);
+  // 🧠 CANLI VERİ VE GRAFİK MOTORLARI
+  const [hamSiparisler, setHamSiparisler] = useState<any[]>([]);
+  const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
   const [grafikVerisi, setGrafikVerisi] = useState<any[]>([]);
+  
+  // 📅 YIL VE AY KONTROLLERİ
+  const suAnkiTarih = new Date();
+  const [seciliYil, setSeciliYil] = useState<number>(suAnkiTarih.getFullYear());
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
-
-  // Sayfa ilk açıldığında boş şablon hazır dursun (Aylar havada kalmasın)
-  useEffect(() => {
-    const t = new Date();
-    const aylar = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
-    const taslakGrafik = [];
-    for (let i = 11; i >= 0; i--) {
-      const d = new Date(t.getFullYear(), t.getMonth() - i, 1);
-      taslakGrafik.push({ etiket: aylar[d.getMonth()], yuzde: 2, tutar: 0 });
-    }
-    setGrafikVerisi(taslakGrafik);
-  }, []);
 
   const handleCikisYap = async () => {
     localStorage.removeItem("bilgin_kayitli_sistemler");
@@ -32,25 +25,22 @@ export default function HesabimPage() {
     await signOut({ callbackUrl: "/" });
   };
 
-  // 🚀 İSTATİSTİK VE ÖNBELLEK UZMANI ÇIRAK
+  // 🚀 1. AŞAMA: VERİTABANINDAN TÜM SİPARİŞLERİ ÇEK
   useEffect(() => {
     if (!session?.user?.email) {
       setLoading(false);
       return;
     }
 
-    // 1. Önbellekten verileri anında oku (Sıfır Loading Girişi)
-    const hafizadakiData = sessionStorage.getItem("bilgin_hesabim_data");
-    if (hafizadakiData) {
-      const parsedData = JSON.parse(hafizadakiData);
-      setSiparisler(parsedData.siparisler || []);
-      setGrafikVerisi(parsedData.grafik || []);
-      setLoading(false);
-    }
-
-    // 2. Arka planda sessizce gerçeği sorgula ve grafiği ilmek ilmek işle
     const verileriGetir = async () => {
       try {
+        const hafiza = sessionStorage.getItem("bilgin_hesabim_data");
+        if (hafiza) {
+          const parsed = JSON.parse(hafiza);
+          setHamSiparisler(parsed.tumSiparisler || []);
+          setLoading(false);
+        }
+
         const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
@@ -65,52 +55,11 @@ export default function HesabimPage() {
             return siparisMaili.toLowerCase() === musteriMaili.toLowerCase();
           });
 
-          // 📊 12 AYLIK CİRO MATEMATİĞİ
-          const aylikToplamlar = new Array(12).fill(0);
-          const simdi = new Date();
-          const aylar = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
-
-          benimSiparislerim.forEach((siparis: any) => {
-            const orderDate = new Date(siparis.createdAt || siparis.tarih);
-            if (isNaN(orderDate.getTime())) return;
-
-            const monthsAgo = (simdi.getFullYear() - orderDate.getFullYear()) * 12 + (simdi.getMonth() - orderDate.getMonth());
-
-            if (monthsAgo >= 0 && monthsAgo < 12) {
-              const tutar = Number(siparis.totalPrice || siparis.toplamTutar) || 0;
-              aylikToplamlar[11 - monthsAgo] += tutar;
-            }
-          });
-
-          const maxTutar = Math.max(...aylikToplamlar);
-          
-          // Nesne tabanlı dinamik grafik dizisi oluşturma
-          const dinamikGrafik = aylikToplamlar.map((tutar, index) => {
-            const yuzde = maxTutar > 0 && tutar > 0 ? Math.max((tutar / maxTutar) * 100, 6) : 2;
-            const d = new Date(simdi.getFullYear(), simdi.getMonth() - (11 - index), 1);
-            return {
-              etiket: aylar[d.getMonth()],
-              yuzde: yuzde,
-              tutar: tutar
-            };
-          });
-
-          const siraliSiparisler = benimSiparislerim.sort((a: any, b: any) => 
-            new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime()
-          );
-
-          const guncelListe = siraliSiparisler.slice(0, 6);
-          
-          setSiparisler(guncelListe);
-          setGrafikVerisi(dinamikGrafik);
-          
-          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({
-            siparisler: guncelListe,
-            grafik: dinamikGrafik
-          }));
+          setHamSiparisler(benimSiparislerim);
+          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ tumSiparisler: benimSiparislerim }));
         }
       } catch (error) {
-        console.error("Grafik motoru hesaplama hatası:", error);
+        console.error("Çırak verilere ulaşamadı:", error);
       } finally {
         setLoading(false);
       }
@@ -119,9 +68,53 @@ export default function HesabimPage() {
     verileriGetir();
   }, [session]);
 
+  // 🚀 2. AŞAMA: SEÇİLİ YILA GÖRE GRAFİĞİ VE LİSTEYİ HESAPLA
+  useEffect(() => {
+    if (!hamSiparisler || hamSiparisler.length === 0) return;
+
+    // --- LİSTE İÇİN EN YENİ 6 SİPARİŞ ---
+    const sirali = [...hamSiparisler].sort((a: any, b: any) => 
+      new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime()
+    );
+    setSonSiparislerListesi(sirali.slice(0, 6));
+
+    // --- GRAFİK İÇİN SABİT 12 AY (OCAK - ARALIK) MATEMATİĞİ ---
+    const aylar = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
+    const aylikToplamlar = new Array(12).fill(0);
+
+    hamSiparisler.forEach((siparis: any) => {
+      const d = new Date(siparis.createdAt || siparis.tarih);
+      if (isNaN(d.getTime())) return;
+
+      // Sadece seçili yılın siparişlerini o ayın kutusuna atıyoruz
+      if (d.getFullYear() === seciliYil) {
+        aylikToplamlar[d.getMonth()] += Number(siparis.totalPrice || siparis.toplamTutar) || 0;
+      }
+    });
+
+    const maxTutar = Math.max(...aylikToplamlar);
+    
+    const dinamikGrafik = aylikToplamlar.map((tutar, index) => {
+      const yuzde = maxTutar > 0 && tutar > 0 ? Math.max((tutar / maxTutar) * 100, 5) : 2; // Boş aylar min %2 kalır
+      return {
+        etiket: aylar[index],
+        yuzde: yuzde,
+        tutar: tutar
+      };
+    });
+
+    setGrafikVerisi(dinamikGrafik);
+
+  }, [hamSiparisler, seciliYil]);
+
+
   const userName = session?.user?.name || "Özkan";
   const userEmail = session?.user?.email || "";
   const basHarf = userName ? userName.charAt(0).toUpperCase() : "Ö";
+
+  // Grafik için şu anki ayın tespiti (Varsayılan açık kalması için)
+  const isCurrentYear = suAnkiTarih.getFullYear() === seciliYil;
+  const currentMonthIndex = suAnkiTarih.getMonth(); 
 
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-hidden">
@@ -153,11 +146,9 @@ export default function HesabimPage() {
           {/* 🏆 NEON PROFİL KARTI */}
           <div className="relative rounded-[2rem] p-[2px] bg-gradient-to-r from-cyan-500/30 via-[#0f172a] to-cyan-500/10 shadow-[0_0_50px_rgba(0,210,255,0.15)] group">
             <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-transparent opacity-20 blur-xl rounded-[2rem] transition-opacity duration-500"></div>
-
             <div className="relative bg-[#0b1121] rounded-[2rem] p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 sm:gap-8 border border-cyan-500/20 overflow-hidden z-10">
               <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-gradient-to-r from-cyan-500/10 to-transparent pointer-events-none"></div>
 
-              {/* ⚡ CYBERPUNK AVATAR */}
               <div className="relative w-28 h-28 sm:w-32 sm:h-32 shrink-0 flex items-center justify-center">
                 <div className="absolute inset-0 rounded-full bg-gradient-to-b from-slate-600 to-slate-900 border-[3px] border-slate-700 shadow-[inset_0_0_20px_rgba(0,0,0,0.8),_0_10px_20px_rgba(0,0,0,0.5)]"></div>
                 <div className="absolute inset-2.5 rounded-full border border-cyan-400/30 shadow-[0_0_20px_rgba(34,211,255,0.4),inset_0_0_20px_rgba(34,211,255,0.2)] border-t-cyan-300 animate-[spin_8s_linear_infinite]"></div>
@@ -168,7 +159,6 @@ export default function HesabimPage() {
                 </div>
               </div>
 
-              {/* 👤 İSİM VE E-POSTA */}
               <div className="flex-1 text-center sm:text-left z-10">
                 <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-2 drop-shadow-md">
                   {userName}
@@ -178,7 +168,6 @@ export default function HesabimPage() {
                 </p>
               </div>
 
-              {/* 🚪 ÇIKIŞ BUTONU */}
               <button onClick={handleCikisYap} className="relative z-10 flex items-center gap-2 px-6 py-3.5 rounded-xl bg-red-950/40 border border-red-900/50 text-red-400 hover:bg-red-900/60 hover:text-red-300 hover:border-red-500/50 transition-all font-bold uppercase tracking-widest text-xs shadow-[0_0_20px_rgba(220,38,38,0.1)]">
                 <LogOut className="w-4 h-4" /> Çıkış
               </button>
@@ -189,12 +178,12 @@ export default function HesabimPage() {
             HESAP YÖNETİMİ
           </h2>
 
-          {/* 🧩 DASHBOARD BİLEŞENLERİ */}
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 items-stretch">
+          {/* 🧩 DASHBOARD BİLEŞENLERİ - (3 Sütunlu Izgara Yapısı) */}
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
 
-            {/* 🔥 SON İŞLEMLER */}
-            <div className="xl:col-span-1 flex flex-col">
-              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group hover:border-cyan-500/30 transition-all duration-300 flex flex-col h-full min-h-[400px]">
+            {/* 🔥 SOL SÜTUN: SON İŞLEMLER */}
+            <div className="xl:col-span-1 flex flex-col h-full">
+              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group hover:border-cyan-500/30 transition-all duration-300 flex flex-col min-h-[450px] xl:h-[650px]">
                 <div className="absolute -top-10 -left-10 w-40 h-40 bg-cyan-500/10 blur-[50px] pointer-events-none rounded-full"></div>
                 
                 <div className="flex items-center justify-between mb-6 relative z-10 shrink-0">
@@ -205,26 +194,26 @@ export default function HesabimPage() {
                 </div>
 
                 <div className="space-y-3 relative z-10 flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                  {loading && siparisler.length === 0 ? (
+                  {loading ? (
                     <div className="h-full flex flex-col items-center justify-center gap-3 opacity-80">
                       <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
                       <span className="text-xs text-slate-500 font-medium">Siparişler çekiliyor...</span>
                     </div>
-                  ) : siparisler.length > 0 ? (
-                    siparisler.map((item: any, idx: number) => {
+                  ) : sonSiparislerListesi.length > 0 ? (
+                    sonSiparislerListesi.map((item: any, idx: number) => {
                       const tarih = item.createdAt ? new Date(item.createdAt).toLocaleDateString("tr-TR") : item.tarih ? new Date(item.tarih).toLocaleDateString("tr-TR") : "";
                       const urunAdi = item.items?.[0]?.isim || item.items?.[0]?.name || item.sepet?.[0]?.isim || item.siparisKodu || "Sipariş";
                       const toplamFiyat = item.totalPrice || item.toplamTutar || "0";
                       const durum = item.status || item.durum || "Hazırlanıyor";
 
                       return (
-                        <div key={item._id || idx} className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 py-3 border-b border-white/5 last:border-0 hover:bg-white/[0.03] transition-colors rounded-xl px-2">
+                        <div key={item._id || idx} className="flex flex-col sm:flex-row xl:flex-col 2xl:flex-row sm:items-center justify-between gap-3 py-3 border-b border-white/5 last:border-0 hover:bg-white/[0.03] transition-colors rounded-xl px-2">
                           <div className="flex-1 min-w-0">
                             <p className="text-white font-bold text-sm truncate mb-1" title={urunAdi}>{urunAdi}</p>
                             <p className="text-slate-500 text-[11px]">{tarih}</p>
                           </div>
                           
-                          <div className="flex flex-row xl:flex-col items-center xl:items-end justify-between gap-2 shrink-0">
+                          <div className="flex flex-row sm:flex-col xl:flex-row 2xl:flex-col items-center sm:items-end justify-between gap-2 shrink-0">
                             <p className="text-white font-black text-sm">
                               {Number(toplamFiyat).toLocaleString("tr-TR")} ₺
                             </p>
@@ -251,54 +240,78 @@ export default function HesabimPage() {
               </div>
             </div>
 
-            {/* 📊 SİPARİŞ GEÇMİŞİ (YENİ SÜPER PREMIUM MOTOR) */}
-            <div className="xl:col-span-2 flex flex-col">
-              <div className="flex-1 h-full bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row gap-6">
-                <div className="flex-1 space-y-3 flex flex-col">
-                   <h3 className="text-white font-bold text-lg">Sipariş Geçmişi</h3>
+            {/* 📊 ORTA SÜTUN: GRAFİKLER (ALT ALTA VE GENİŞ YAYILMIŞ) */}
+            <div className="xl:col-span-2 flex flex-col gap-6">
+              
+              {/* 1. SİPARİŞ GEÇMİŞİ GRAFİĞİ (TAM GENİŞLİK) */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col">
+                <div className="flex items-center justify-between mb-4">
+                   <h3 className="text-white font-bold text-lg">Aylık Harcama Grafiği</h3>
                    
-                   {/* Grafik Haznesi */}
-                   <div className="flex-1 bg-white/[0.02] border border-white/5 rounded-xl flex items-end justify-between pt-8 pb-2 px-4 min-h-[160px] relative">
-                     
-                     {grafikVerisi.map((item, i) => (
-                       <div 
-                         key={i} 
-                         className="flex-1 flex flex-col items-center justify-end h-full relative group"
-                         onMouseEnter={() => setHoveredIndex(i)}
-                         onMouseLeave={() => setHoveredIndex(null)}
-                       >
-                         {/* 🛸 JİLET TOOLTIP: Üzerine gelince neon pencereyle rakamı basar */}
-                         {hoveredIndex === i && item.tutar > 0 && (
-                           <div className="absolute bottom-[105%] bg-[#090f1e] border border-cyan-500 text-cyan-400 font-black text-[10px] px-2 py-1 rounded-md shadow-[0_0_15px_rgba(6,182,212,0.4)] whitespace-nowrap z-50 animate-in fade-in zoom-in-95 duration-150">
-                             {item.tutar.toLocaleString("tr-TR")} ₺
-                           </div>
-                         )}
-
-                         {/* 📊 ÇUBUK: Yüksekliği dinamik, rengi canlı neon */}
-                         <div 
-                           className="w-[70%] bg-gradient-to-b from-cyan-400 to-cyan-600 rounded-t-sm hover:from-cyan-300 hover:to-cyan-400 transition-all duration-500 ease-out cursor-pointer shadow-[0_0_10px_rgba(6,182,212,0.1)] group-hover:shadow-[0_0_15px_rgba(6,182,212,0.3)]" 
-                           style={{ height: `${item.yuzde}%` }}
-                         ></div>
-
-                         {/* 📅 AY ETİKETİ: Çubuğun tam altına nizamî hizalı */}
-                         <span className="text-[10px] text-slate-500 group-hover:text-cyan-400 font-black mt-2 transition-colors uppercase tracking-wider">
-                           {item.etiket}
-                         </span>
-                       </div>
-                     ))}
-
-                   </div>
-                   
-                   <div className="flex justify-center pt-1 shrink-0">
-                      <span className="text-[10px] text-slate-500 font-medium tracking-wide">Son 12 Ay (Gerçek Zamanlı Harcama)</span>
+                   {/* 📅 YIL DEĞİŞTİRİCİ MOTOR */}
+                   <div className="flex items-center gap-3 bg-[#121215] border border-slate-700/50 rounded-lg px-2 py-1">
+                     <button onClick={() => setSeciliYil(y => y - 1)} className="p-1 text-slate-400 hover:text-cyan-400 transition-colors">
+                       <ChevronLeft className="w-4 h-4" />
+                     </button>
+                     <span className="text-sm font-black text-white w-10 text-center">{seciliYil}</span>
+                     <button onClick={() => setSeciliYil(y => y + 1)} className="p-1 text-slate-400 hover:text-cyan-400 transition-colors">
+                       <ChevronRight className="w-4 h-4" />
+                     </button>
                    </div>
                 </div>
+                
+                {/* Genişletilmiş Grafik Haznesi */}
+                <div className="bg-white/[0.02] border border-white/5 rounded-xl flex items-end justify-between pt-12 pb-2 px-2 sm:px-6 h-[220px] relative mt-2">
+                  
+                  {grafikVerisi.length > 0 ? grafikVerisi.map((item, i) => {
+                    // İçinde bulunduğumuz yıl ve ay ise, varsayılan olarak tooltiği göster
+                    const isVarsayilanAcik = hoveredIndex === null && isCurrentYear && currentMonthIndex === i;
+                    const isTooltipGozukecek = (hoveredIndex === i || isVarsayilanAcik) && item.tutar > 0;
 
-                {/* SVG DONUT GRAFİK */}
-                <div className="w-full md:w-[260px] space-y-3 flex flex-col">
+                    return (
+                      <div 
+                        key={i} 
+                        className="flex-1 flex flex-col items-center justify-end h-full relative group px-0.5 sm:px-2"
+                        onMouseEnter={() => setHoveredIndex(i)}
+                        onMouseLeave={() => setHoveredIndex(null)}
+                      >
+                        {/* 🛸 JİLET TOOLTIP (Bulunduğumuz ay direkt açık) */}
+                        {isTooltipGozukecek && (
+                          <div className={`absolute bottom-[105%] bg-[#090f1e] border border-cyan-500 text-cyan-400 font-black text-[10px] sm:text-xs px-2.5 py-1.5 rounded-md shadow-[0_0_15px_rgba(6,182,212,0.4)] whitespace-nowrap z-50 ${isVarsayilanAcik ? '' : 'animate-in fade-in zoom-in-95 duration-150'}`}>
+                            {item.tutar.toLocaleString("tr-TR")} ₺
+                          </div>
+                        )}
+
+                        {/* 📊 ÇUBUK */}
+                        <div 
+                          className={`w-full max-w-[40px] rounded-t-sm transition-all duration-500 ease-out cursor-pointer ${isVarsayilanAcik ? 'bg-gradient-to-b from-cyan-300 to-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.4)]' : 'bg-gradient-to-b from-slate-600 to-slate-800 hover:from-cyan-400 hover:to-cyan-600 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)]'}`} 
+                          style={{ height: `${item.yuzde}%` }}
+                        ></div>
+
+                        {/* 📅 SABİT AY ETİKETLERİ */}
+                        <span className={`text-[10px] sm:text-xs font-black mt-3 transition-colors uppercase tracking-wider ${isVarsayilanAcik ? 'text-cyan-400' : 'text-slate-500 group-hover:text-cyan-400'}`}>
+                          {item.etiket}
+                        </span>
+                      </div>
+                    )
+                  }) : null}
+
+                </div>
+              </div>
+
+              {/* 2. HARCAMA DAĞILIMI (TAM GENİŞLİK VE YAN YANA İÇERİK) */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col sm:flex-row items-center gap-8">
+                 
+                 <div className="shrink-0 space-y-2 text-center sm:text-left">
                    <h3 className="text-white font-bold text-lg">Harcama Dağılımı</h3>
-                   <div className="flex-1 bg-white/[0.02] border border-white/5 rounded-xl flex items-center justify-center relative min-h-[150px]">
-                     <svg className="w-32 h-32 transform -rotate-90 drop-shadow-xl" viewBox="0 0 42 42">
+                   <p className="text-[11px] text-slate-500 font-medium">Satın alınan ürün kategorileri</p>
+                 </div>
+
+                 {/* SVG DONUT GRAFİK */}
+                 <div className="flex-1 flex flex-col sm:flex-row items-center justify-center sm:justify-end gap-8 w-full">
+                   
+                   <div className="relative w-32 h-32 shrink-0">
+                     <svg className="w-full h-full transform -rotate-90 drop-shadow-xl" viewBox="0 0 42 42">
                        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(255,255,255,0.03)" strokeWidth="4.5"></circle>
                        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#06b6d4" strokeWidth="4.5" strokeDasharray="45 55" strokeDashoffset="0"></circle>
                        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#fb7185" strokeWidth="4.5" strokeDasharray="25 75" strokeDashoffset="-45"></circle>
@@ -307,67 +320,38 @@ export default function HesabimPage() {
                      </svg>
                      <div className="absolute inset-0 flex flex-col items-center justify-center mt-1">
                        <span className="text-xl font-black text-white tracking-tight">45%</span>
-                       <span className="text-[9px] text-cyan-400 font-bold uppercase tracking-widest mt-0.5">PC Donanım</span>
                      </div>
                    </div>
 
-                   <div className="grid grid-cols-2 gap-x-2 gap-y-2 pt-2 shrink-0">
-                      <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_#06b6d4]"></span><span className="text-xs text-slate-400 font-medium">Bileşenler</span></div>
-                      <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#fb7185]"></span><span className="text-xs text-slate-400 font-medium">Laptoplar</span></div>
-                      <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_8px_#c084fc]"></span><span className="text-xs text-slate-400 font-medium">Yazılım</span></div>
-                      <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#34d399]"></span><span className="text-xs text-slate-400 font-medium">Aksesuar</span></div>
+                   <div className="grid grid-cols-2 sm:grid-cols-1 gap-x-6 gap-y-3 shrink-0">
+                      <div className="flex items-center gap-2.5"><span className="w-2.5 h-2.5 rounded-full bg-cyan-500 shadow-[0_0_8px_#06b6d4]"></span><span className="text-sm text-slate-300 font-medium">Bileşenler</span></div>
+                      <div className="flex items-center gap-2.5"><span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_#fb7185]"></span><span className="text-sm text-slate-300 font-medium">Laptoplar</span></div>
+                      <div className="flex items-center gap-2.5"><span className="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-[0_0_8px_#c084fc]"></span><span className="text-sm text-slate-300 font-medium">Yazılım</span></div>
+                      <div className="flex items-center gap-2.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#34d399]"></span><span className="text-sm text-slate-300 font-medium">Aksesuar</span></div>
                    </div>
-                </div>
-              </div>
-            </div>
 
-            {/* METRİKLER VE SİSTEM LİSTESİ */}
-            <div className="xl:col-span-1 flex flex-col gap-6">
-              <div className="grid grid-cols-3 gap-3">
-                 <Link href="/adreslerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-cyan-500/20 rounded-2xl p-4 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
+                 </div>
+              </div>
+
+              {/* 3. METRİKLER (3'LÜ KUTU YATAY YAYILDI) */}
+              <div className="grid grid-cols-3 gap-4">
+                 <Link href="/adreslerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-cyan-500/20 rounded-2xl p-5 shadow-xl flex flex-col items-center gap-2 transition-colors">
                    <MapPin className="w-7 h-7 text-cyan-400" />
                    <p className="text-2xl font-black text-white">2</p>
-                   <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Adresler</p>
+                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Adresler</p>
                  </Link>
-                 <Link href="/siparis-takip" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-rose-500/20 rounded-2xl p-4 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
+                 <Link href="/siparis-takip" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-rose-500/20 rounded-2xl p-5 shadow-xl flex flex-col items-center gap-2 transition-colors">
                    <Truck className="w-7 h-7 text-rose-400" />
-                   <p className="text-2xl font-black text-white">{siparisler.filter(s => s.status?.toLowerCase().includes("kargo") || s.durum?.toLowerCase().includes("kargo")).length}</p>
-                   <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Kargolar</p>
+                   <p className="text-2xl font-black text-white">{hamSiparisler.filter(s => s.status?.toLowerCase().includes("kargo") || s.durum?.toLowerCase().includes("kargo")).length}</p>
+                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Kargolar</p>
                  </Link>
-                 <Link href="https://www.bilginpcmarket.com/favorilerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-purple-500/20 rounded-2xl p-4 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
+                 <Link href="https://www.bilginpcmarket.com/favorilerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-purple-500/20 rounded-2xl p-5 shadow-xl flex flex-col items-center gap-2 transition-colors">
                    <Star className="w-7 h-7 text-purple-400" />
                    <p className="text-2xl font-black text-white">12</p>
-                   <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Favoriler</p>
+                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Favoriler</p>
                  </Link>
               </div>
 
-              {/* Sistem Listesi Kartı */}
-              <Link href="/sistemlerim" prefetch={true} className="flex-1 bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl hover:border-cyan-500/30 transition-all duration-300 group flex flex-col">
-                 <div className="flex items-center justify-between mb-4 shrink-0">
-                   <h3 className="text-white font-bold text-lg">Sistem Listesi</h3>
-                   <span className="text-xs font-bold text-cyan-400 group-hover:underline">Yönet</span>
-                 </div>
-                 <div className="space-y-3 flex-1">
-                   {[
-                     { isim: "Custom Rig V1", resim: "/placeholder-rig.png", status: "Active" },
-                     { isim: "Oyun Laptopu", resim: "/placeholder-laptop.png", status: "Pending" },
-                     { isim: "Yayıncı Sistemi", resim: "/placeholder-laptop.png", status: "Favorite" },
-                   ].map((item, idx) => (
-                     <div key={idx} className="flex items-center gap-3 py-3 border-b border-white/5 last:border-0 hover:bg-white/[0.03] transition-colors rounded-xl px-2">
-                       <div className="w-12 h-12 bg-black/50 rounded-xl p-2 flex items-center justify-center shrink-0">
-                          <img src={item.resim} alt={item.isim} className="max-w-full max-h-full object-contain" />
-                       </div>
-                       <div className="flex-1 min-w-0">
-                         <p className="text-white font-bold text-sm truncate mb-0.5">{item.isim}</p>
-                         <p className="text-slate-500 text-[11px]">Kayıtlı Sistem</p>
-                       </div>
-                       <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest shrink-0 w-fit ${item.status === 'Active' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : item.status === 'Pending' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-purple-500/10 text-purple-400 border border-purple-500/20'}`}>
-                        {item.status}
-                      </span>
-                     </div>
-                   ))}
-                 </div>
-              </Link>
             </div>
 
           </div>
