@@ -5,7 +5,7 @@ import FacebookProvider from "next-auth/providers/facebook";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 import User from "@/models/User"; 
-import nodemailer from "nodemailer"; // 🚀 KURYEMİZİ DÜKKANA ALDIK
+import nodemailer from "nodemailer";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -50,8 +50,12 @@ export const authOptions: NextAuthOptions = {
         // ==========================================
         if (user.twoFactorEmail) {
           
-          // DURUM 1: Adam şifreyi girmiş ama KODU henüz girmemiş (Kuryeyi Yolla)
-          if (!credentials.code) {
+          // 🚨 BÜYÜK HATA BURADAYDI! NextAuth boşluğu "undefined" KELİMESİ yapıyor!
+          // Eğer gelen kod "undefined" kelimesiyse, onu gerçekten BOŞ ("") kabul et!
+          const musteriKodu = (credentials.code === "undefined" || !credentials.code) ? "" : credentials.code;
+
+          // DURUM 1: Adam KODU henüz girmemiş (Kuryeyi Yolla ve VİTES 2'ye geçir)
+          if (musteriKodu === "") {
             
             // 1. 6 Haneli Şifre Üret
             const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
@@ -82,7 +86,7 @@ export const authOptions: NextAuthOptions = {
                     <h2 style="color: #3b82f6; margin: 0; letter-spacing: 2px;">BİLGİN PC</h2>
                   </div>
                   <h3 style="color: #e2e8f0; text-align: center; border-bottom: 1px solid #1e293b; padding-bottom: 10px;">İki Adımlı Doğrulama</h3>
-                  <p style="color: #94a3b8; font-size: 16px; text-align: center;">Hesabınıza giriş yapmak için güvenik kodunuz oluşturuldu.</p>
+                  <p style="color: #94a3b8; font-size: 16px; text-align: center;">Hesabınıza giriş yapmak için güvenlik kodunuz oluşturuldu.</p>
                   
                   <div style="text-align: center; margin: 40px 0;">
                     <div style="display: inline-block; background-color: #020617; border: 2px dashed #3b82f6; color: #ffffff; padding: 20px 40px; font-weight: 900; border-radius: 15px; font-size: 36px; letter-spacing: 15px; text-shadow: 0 0 10px rgba(59,130,246,0.5);">
@@ -96,23 +100,22 @@ export const authOptions: NextAuthOptions = {
               `,
             };
 
-            await transporter.sendMail(mailOptions);
-// 🚀 TERMİNALİ BOŞVER, HATAYI DİREKT SİTEYE (VİTRİNE) FIRLAT!
+            // 🚀 EĞER GMAIL HATA VERİRSE EKRANA YANSIT
             try {
               await transporter.sendMail(mailOptions);
             } catch (error: any) {
-              // Eğer Gmail engelliyorsa, sitede kırmızı hatayla sebebi yazacak
               throw new Error("GMAIL_HATASI: " + error.message);
             }
 
-            // Kapıyı kapat ve vitrine "KOD LAZIM" diye bağır
+            // 4. Kapıyı kapat ve vitrine "KOD LAZIM" diye bağır ki o BOŞ KUTU EKRANA GELSİN!
             throw new Error("2FA_REQUIRED");
           }
-// DURUM 2: Adam e-postasındaki kodu alıp gelmiş (Doğrulama)
-          if (credentials.code) {
+
+          // DURUM 2: Adam e-postasındaki kodu alıp gelmiş (Doğrulama)
+          if (musteriKodu !== "") {
             
             // 1. Şefimin girdiği koddaki olası boşlukları temizle
-            const girilenKod = credentials.code.trim(); 
+            const girilenKod = musteriKodu.trim(); 
             const gercekKod = user.twoFactorCode;
 
             // 🚀 CASUS RADAR (Bunu mutlaka görmek istiyoruz)
