@@ -11,7 +11,6 @@ export default function HesabimPage() {
   const suAnkiTarih = new Date();
   const yil = suAnkiTarih.getFullYear();
 
-  // 🚀 SADECE MİSAFİRLERE (GİRİŞ YAPMAYANLARA) GÖSTERİLECEK SAHTE VİTRİN
   const vitrinSiparisleri = [
     { _id: "SP-101", tarih: new Date(yil, 0, 15).toISOString(), status: "Teslim Edildi", totalPrice: 45000, items: [{ isim: "ASUS ROG Strix G16 Laptop", kategoriSlug: "laptop", fiyat: 45000, adet: 1 }] },
     { _id: "SP-102", tarih: new Date(yil, 1, 10).toISOString(), status: "Tamamlandı", totalPrice: 18500, items: [{ isim: "MSI 27' Oyuncu Monitörü", kategoriSlug: "monitor", fiyat: 18500, adet: 1 }] },
@@ -27,7 +26,6 @@ export default function HesabimPage() {
     { _id: "SP-112", tarih: new Date(yil, 11, 8).toISOString(), status: "Tamamlandı", totalPrice: 42000, items: [{ isim: "Razer Klavye & Mouse Seti", kategoriSlug: "mouse", fiyat: 42000, adet: 1 }] },
   ];
 
-  // Başlangıçta hepsi boş, sistem kim olduğuna bakıp karar verecek
   const [hamSiparisler, setHamSiparisler] = useState<any[]>([]);
   const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
   const [grafikVerisi, setGrafikVerisi] = useState<any[]>([]);
@@ -40,6 +38,7 @@ export default function HesabimPage() {
   const [kopyalananKod, setKopyalananKargo] = useState<string | null>(null);
   const [girisSartModal, setGirisSartModal] = useState(false);
 
+  // GENEL PASTA
   const [pastaVerisi, setPastaVerisi] = useState({
     kendinTopla: { yuzde: 0, tutar: 0, offset: 0 },
     bilesen: { yuzde: 0, tutar: 0, offset: 0 },
@@ -47,6 +46,17 @@ export default function HesabimPage() {
     sistem: { yuzde: 0, tutar: 0, offset: 0 },
     aksesuar: { yuzde: 0, tutar: 0, offset: 0 },
     maxYuzde: 0
+  });
+
+  // YENİ: AYLIK DİNAMİK PASTA
+  const [aylikPastaVerisi, setAylikPastaVerisi] = useState({
+    kendinTopla: { yuzde: 0, offset: 0 },
+    bilesen: { yuzde: 0, offset: 0 },
+    cevre: { yuzde: 0, offset: 0 },
+    sistem: { yuzde: 0, offset: 0 },
+    aksesuar: { yuzde: 0, offset: 0 },
+    maxYuzde: 0,
+    ayAdi: ""
   });
   
   const [seciliYil, setSeciliYil] = useState<number>(yil);
@@ -75,7 +85,6 @@ export default function HesabimPage() {
     }
   };
 
-  // 1. ADIM: EĞER KULLANICI MİSAFİRSE SAHTE VİTRİNİ BAS VE BEKLEMEYİ BİTİR
   useEffect(() => {
     if (status === "unauthenticated") {
       setHamSiparisler(vitrinSiparisleri);
@@ -86,7 +95,6 @@ export default function HesabimPage() {
     }
   }, [status]);
 
-  // 2. ADIM: EĞER KULLANICI ÜYEYSE (ÖZKAN GİRDİYSE) HAFIZADAKİ GERÇEK VERİYİ BAS
   useEffect(() => {
     if (status !== "authenticated") return;
 
@@ -112,7 +120,6 @@ export default function HesabimPage() {
     }
   }, [status]);
 
-  // 3. ADIM: EĞER KULLANICI ÜYEYSE GERÇEK VERİTABANINA BAĞLAN (RADAR)
   useEffect(() => {
     if (status !== "authenticated" || !session?.user?.email) return;
 
@@ -137,7 +144,7 @@ export default function HesabimPage() {
           sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, tumSiparisler: benimSiparislerim }));
           setLoading(false);
         } else {
-          setLoading(false); // Eğer siparişi yoksa yükleniyor ibaresini kapat
+          setLoading(false);
         }
 
         const adresRes = await fetch("/api/addresses?t=" + new Date().getTime(), { cache: "no-store" });
@@ -145,8 +152,6 @@ export default function HesabimPage() {
           const adresData = await adresRes.json();
           const sayi = adresData.addresses?.length || 0;
           setAdresSayisi(sayi);
-          const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
-          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, adresSayisi: sayi }));
         }
 
         const favoriRes = await fetch("/api/favorites?t=" + new Date().getTime(), { cache: "no-store" });
@@ -154,8 +159,6 @@ export default function HesabimPage() {
           const favoriData = await favoriRes.json();
           const sayi = favoriData.favorites?.length || 0;
           setFavoriSayisi(sayi);
-          const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
-          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, favoriSayisi: sayi }));
         }
 
       } catch (error) {
@@ -170,20 +173,25 @@ export default function HesabimPage() {
     return () => clearInterval(radar); 
   }, [session, status]);
 
-  // GRAFİK VE MATEMATİK MOTORU (ORTAK)
+  // ÇİFT MOTORLU MATEMATİK ALANI
   useEffect(() => {
     if (!hamSiparisler || hamSiparisler.length === 0) return;
 
-    // SON İŞLEMLER İÇİN 7 ÜRÜN
     const sirali = [...hamSiparisler].sort((a: any, b: any) => 
       new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime()
     );
     setSonSiparislerListesi(sirali.slice(0, 7)); 
 
     const aylar = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
+    const aylarUzun = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
     const aylikToplamlar = new Array(12).fill(0);
 
+    // Genel Toplam Değişkenleri
     let cK_toplam = 0, cB_toplam = 0, cC_toplam = 0, cS_toplam = 0, cA_toplam = 0;
+    
+    // Tıklanan Ay Toplam Değişkenleri
+    let m_cK = 0, m_cB = 0, m_cC = 0, m_cS = 0, m_cA = 0;
+    const aktifAy = tiklananAy !== null ? tiklananAy : suAnkiTarih.getMonth();
 
     hamSiparisler.forEach((siparis: any) => {
       const durum = (siparis.status || siparis.durum || "").toLowerCase();
@@ -196,9 +204,11 @@ export default function HesabimPage() {
       if (isNaN(d.getTime())) return;
 
       const siparisTutar = Number(siparis.totalPrice || siparis.toplamTutar) || 0;
+      const siparisAyi = d.getMonth();
+      const siparisYili = d.getFullYear();
 
-      if (d.getFullYear() === seciliYil) {
-        aylikToplamlar[d.getMonth()] += siparisTutar;
+      if (siparisYili === seciliYil) {
+        aylikToplamlar[siparisAyi] += siparisTutar;
       }
 
       const urunler = siparis.items || siparis.sepet || [];
@@ -206,33 +216,39 @@ export default function HesabimPage() {
         const kimlik = `${item.kategoriSlug || ''} ${item.kategori || ''} ${item.slug || ''} ${item.isim || ''} ${item.title || ''}`.toLocaleLowerCase('tr-TR');
         const urunTutar = (Number(item.fiyat || item.price) * (item.adet || item.quantity)) || 0;
 
-        if (kimlik.includes("kendin") || kimlik.includes("topla") || kimlik.includes("sihirbaz")) {
-          cK_toplam += urunTutar;
-        } 
-        else if (["oyun-bilgisayari", "laptop", "notebook", "masaüstü", "masaustu", "oem-paket", "isletim", "yazılım", "yazilim"].some(k => kimlik.includes(k))) {
-          cS_toplam += urunTutar;
-        } 
-        else if (["anakart", "ekran-kart", "ekran kart", "islemci", "işlemci", "ram", "ssd", "hdd", "kasa", "psu", "sogutma", "soğutma"].some(k => kimlik.includes(k))) {
-          cB_toplam += urunTutar;
-        } 
-        else if (["monitör", "monitor", "klavye", "mouse", "kulaklık", "kulaklik", "mikrofon", "oyun-kolu", "direksiyon", "hoparlör", "hoparlor"].some(k => kimlik.includes(k))) {
-          cC_toplam += urunTutar;
-        } 
-        else {
-          cA_toplam += urunTutar;
+        // Kategori Tespiti
+        let kategoriTipi = "aksesuar";
+        if (kimlik.includes("kendin") || kimlik.includes("topla") || kimlik.includes("sihirbaz")) kategoriTipi = "kendin";
+        else if (["oyun-bilgisayari", "laptop", "notebook", "masaüstü", "masaustu", "oem-paket", "isletim", "yazılım", "yazilim"].some(k => kimlik.includes(k))) kategoriTipi = "sistem";
+        else if (["anakart", "ekran-kart", "ekran kart", "islemci", "işlemci", "ram", "ssd", "hdd", "kasa", "psu", "sogutma", "soğutma"].some(k => kimlik.includes(k))) kategoriTipi = "bilesen";
+        else if (["monitör", "monitor", "klavye", "mouse", "kulaklık", "kulaklik", "mikrofon", "oyun-kolu", "direksiyon", "hoparlör", "hoparlor"].some(k => kimlik.includes(k))) kategoriTipi = "cevre";
+
+        // Genel Toplama Ekle
+        if (kategoriTipi === "kendin") cK_toplam += urunTutar;
+        else if (kategoriTipi === "sistem") cS_toplam += urunTutar;
+        else if (kategoriTipi === "bilesen") cB_toplam += urunTutar;
+        else if (kategoriTipi === "cevre") cC_toplam += urunTutar;
+        else cA_toplam += urunTutar;
+
+        // EĞER SEÇİLİ YIL VE SEÇİLİ AY İSE AYLIK TOPLAMA DA EKLE
+        if (siparisYili === seciliYil && siparisAyi === aktifAy) {
+          if (kategoriTipi === "kendin") m_cK += urunTutar;
+          else if (kategoriTipi === "sistem") m_cS += urunTutar;
+          else if (kategoriTipi === "bilesen") m_cB += urunTutar;
+          else if (kategoriTipi === "cevre") m_cC += urunTutar;
+          else m_cA += urunTutar;
         }
       });
     });
 
     const maxTutar = Math.max(...aylikToplamlar);
-    
     const dinamikGrafik = aylikToplamlar.map((tutar, index) => {
       const yuzde = maxTutar > 0 && tutar > 0 ? Math.max((tutar / maxTutar) * 100, 5) : 2;
       return { etiket: aylar[index], yuzde: yuzde, tutar: tutar };
     });
-
     setGrafikVerisi(dinamikGrafik);
     
+    // 1. GENEL PASTA HESABI
     const genelToplam = cK_toplam + cB_toplam + cC_toplam + cS_toplam + cA_toplam;
     if (genelToplam > 0) {
       const p1 = (cK_toplam / genelToplam) * 100;
@@ -249,25 +265,35 @@ export default function HesabimPage() {
         aksesuar: { yuzde: Math.round(p5), tutar: cA_toplam, offset: p1 + p2 + p3 + p4 },
         maxYuzde: Math.round(Math.max(p1, p2, p3, p4, p5))
       });
+    }
+
+    // 2. AYLIK DİNAMİK PASTA HESABI
+    const aylikNetToplam = m_cK + m_cB + m_cC + m_cS + m_cA;
+    if (aylikNetToplam > 0) {
+      const ap1 = (m_cK / aylikNetToplam) * 100;
+      const ap2 = (m_cB / aylikNetToplam) * 100;
+      const ap3 = (m_cC / aylikNetToplam) * 100;
+      const ap4 = (m_cS / aylikNetToplam) * 100;
+      const ap5 = (m_cA / aylikNetToplam) * 100;
+
+      setAylikPastaVerisi({
+        kendinTopla: { yuzde: Math.round(ap1), offset: 0 },
+        bilesen: { yuzde: Math.round(ap2), offset: ap1 },
+        cevre: { yuzde: Math.round(ap3), offset: ap1 + ap2 },
+        sistem: { yuzde: Math.round(ap4), offset: ap1 + ap2 + ap3 },
+        aksesuar: { yuzde: Math.round(ap5), offset: ap1 + ap2 + ap3 + ap4 },
+        maxYuzde: Math.round(Math.max(ap1, ap2, ap3, ap4, ap5)),
+        ayAdi: aylarUzun[aktifAy]
+      });
     } else {
-      // Eğer hiç sipariş yoksa pastayı sıfırla
-      setPastaVerisi({
-        kendinTopla: { yuzde: 0, tutar: 0, offset: 0 },
-        bilesen: { yuzde: 0, tutar: 0, offset: 0 },
-        cevre: { yuzde: 0, tutar: 0, offset: 0 },
-        sistem: { yuzde: 0, tutar: 0, offset: 0 },
-        aksesuar: { yuzde: 0, tutar: 0, offset: 0 },
-        maxYuzde: 0
+      setAylikPastaVerisi({
+        kendinTopla: { yuzde: 0, offset: 0 }, bilesen: { yuzde: 0, offset: 0 },
+        cevre: { yuzde: 0, offset: 0 }, sistem: { yuzde: 0, offset: 0 },
+        aksesuar: { yuzde: 0, offset: 0 }, maxYuzde: 0, ayAdi: aylarUzun[aktifAy]
       });
     }
 
-    if (seciliYil === suAnkiTarih.getFullYear()) {
-      setTiklananAy(suAnkiTarih.getMonth());
-    } else {
-      setTiklananAy(null);
-    }
-
-  }, [hamSiparisler, seciliYil]);
+  }, [hamSiparisler, seciliYil, tiklananAy]);
 
   const kargoSiparisleri = hamSiparisler.filter(s => {
     const d = (s.status || s.durum || "").toLowerCase();
@@ -284,7 +310,6 @@ export default function HesabimPage() {
   const userEmail = status === "unauthenticated" ? "Lütfen giriş yapın" : (session?.user?.email || "");
   const basHarf = userName.charAt(0).toUpperCase();
 
-  // 🚀 GERİ GETİRDİĞİMİZ ÇEVİRGE (RADAR)
   if (status === "loading") {
     return (
       <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center relative overflow-hidden">
@@ -404,7 +429,7 @@ export default function HesabimPage() {
 
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
             <div className="xl:col-span-1 flex flex-col h-full">
-          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group hover:border-cyan-500/30 transition-all duration-300 flex flex-col h-[350px] sm:h-[450px] xl:h-[550px]">
+              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group hover:border-cyan-500/30 transition-all duration-300 flex flex-col h-[350px] sm:h-[450px] xl:h-[550px]">
                 <div className="absolute -top-10 -left-10 w-40 h-40 bg-cyan-500/10 blur-[50px] pointer-events-none rounded-full"></div>
                 
                 <div className="flex items-center justify-between mb-6 relative z-10 shrink-0">
@@ -415,12 +440,7 @@ export default function HesabimPage() {
                 </div>
 
                 <div className="space-y-3 relative z-10 flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                  {loading && status === "authenticated" ? (
-                    <div className="h-full flex flex-col items-center justify-center gap-3 opacity-80">
-                      <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
-                      <span className="text-xs text-slate-500 font-medium">Siparişler çekiliyor...</span>
-                    </div>
-                  ) : sonSiparislerListesi.length > 0 ? (
+                  {sonSiparislerListesi.length > 0 ? (
                     sonSiparislerListesi.map((item: any, idx: number) => {
                       const tarih = item.createdAt ? new Date(item.createdAt).toLocaleDateString("tr-TR") : item.tarih ? new Date(item.tarih).toLocaleDateString("tr-TR") : "";
                       const urunAdi = item.items?.[0]?.isim || item.items?.[0]?.name || item.sepet?.[0]?.isim || item.siparisKodu || "Sipariş";
@@ -514,68 +534,122 @@ export default function HesabimPage() {
                 </div>
               </div>
 
-              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col sm:flex-row items-center gap-8">
-                 <div className="shrink-0 space-y-1.5 text-center sm:text-left">
-                   <h3 className="text-white font-bold text-base sm:text-lg">Harcama Dağılımı</h3>
-                   <p className="text-[10px] text-slate-500 font-medium">Satın alınan ürün kategorileri</p>
+              {/* 🚀 YENİ: ÇİFT MOTORLU HARCAMA DAĞILIMI (AYLIK VE GENEL YANYANA) */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col xl:flex-row items-center gap-6 overflow-hidden">
+                 
+                 <div className="shrink-0 space-y-1.5 text-center xl:text-left xl:w-[140px]">
+                   <h3 className="text-white font-bold text-base sm:text-lg leading-tight">Harcama Dağılımı</h3>
+                   <p className="text-[10px] text-slate-500 font-medium">Satın alınan kategoriler</p>
                  </div>
 
-                 <div className="flex-1 flex flex-col sm:flex-row items-center justify-center sm:justify-end gap-6 w-full">
-                   <div className="relative w-28 h-28 sm:w-32 sm:h-32 shrink-0">
-                     <svg className="w-full h-full transform -rotate-90 drop-shadow-xl" viewBox="0 0 42 42">
-                       <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(255,255,255,0.03)" strokeWidth="4.5"></circle>
-                       <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#f59e0b" strokeWidth="4.5" strokeDasharray={`${pastaVerisi.kendinTopla.yuzde} ${100 - pastaVerisi.kendinTopla.yuzde}`} strokeDashoffset={-pastaVerisi.kendinTopla.offset}></circle>
-                       <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#06b6d4" strokeWidth="4.5" strokeDasharray={`${pastaVerisi.bilesen.yuzde} ${100 - pastaVerisi.bilesen.yuzde}`} strokeDashoffset={-pastaVerisi.bilesen.offset}></circle>
-                       <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#fb7185" strokeWidth="4.5" strokeDasharray={`${pastaVerisi.cevre.yuzde} ${100 - pastaVerisi.cevre.yuzde}`} strokeDashoffset={-pastaVerisi.cevre.offset}></circle>
-                       <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#c084fc" strokeWidth="4.5" strokeDasharray={`${pastaVerisi.sistem.yuzde} ${100 - pastaVerisi.sistem.yuzde}`} strokeDashoffset={-pastaVerisi.sistem.offset}></circle>
-                       <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#34d399" strokeWidth="4.5" strokeDasharray={`${pastaVerisi.aksesuar.yuzde} ${100 - pastaVerisi.aksesuar.yuzde}`} strokeDashoffset={-pastaVerisi.aksesuar.offset}></circle>
-                     </svg>
-                     <div className="absolute inset-0 flex flex-col items-center justify-center mt-1">
-                       <span className="text-xl font-black text-white tracking-tight">{pastaVerisi.maxYuzde}%</span>
+                 <div className="flex-1 flex flex-col sm:flex-row items-center justify-center xl:justify-end gap-6 w-full border-t sm:border-t-0 sm:border-l border-slate-800/80 pt-6 sm:pt-0 sm:pl-6">
+                   
+                   {/* 1. MİNİ PASTA (AYLIK) */}
+                   <div className="flex flex-col items-center gap-3 relative">
+                     <span className="absolute -top-3 sm:-top-4 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest shadow-[0_0_10px_rgba(6,182,212,0.4)] whitespace-nowrap">
+                       {aylikPastaVerisi.ayAdi} AYI
+                     </span>
+                     <div className="relative w-20 h-20 sm:w-24 sm:h-24 shrink-0 mt-3">
+                       <svg className="w-full h-full transform -rotate-90 drop-shadow-md" viewBox="0 0 42 42">
+                         <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(255,255,255,0.02)" strokeWidth="4.5"></circle>
+                         {aylikPastaVerisi.maxYuzde === 0 ? (
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#334155" strokeWidth="4.5" strokeDasharray="100 0"></circle>
+                         ) : (
+                           <>
+                             <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#f59e0b" strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.kendinTopla.yuzde} ${100 - aylikPastaVerisi.kendinTopla.yuzde}`} strokeDashoffset={-aylikPastaVerisi.kendinTopla.offset}></circle>
+                             <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#06b6d4" strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.bilesen.yuzde} ${100 - aylikPastaVerisi.bilesen.yuzde}`} strokeDashoffset={-aylikPastaVerisi.bilesen.offset}></circle>
+                             <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#fb7185" strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.cevre.yuzde} ${100 - aylikPastaVerisi.cevre.yuzde}`} strokeDashoffset={-aylikPastaVerisi.cevre.offset}></circle>
+                             <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#c084fc" strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.sistem.yuzde} ${100 - aylikPastaVerisi.sistem.yuzde}`} strokeDashoffset={-aylikPastaVerisi.sistem.offset}></circle>
+                             <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#34d399" strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.aksesuar.yuzde} ${100 - aylikPastaVerisi.aksesuar.yuzde}`} strokeDashoffset={-aylikPastaVerisi.aksesuar.offset}></circle>
+                           </>
+                         )}
+                       </svg>
+                       <div className="absolute inset-0 flex flex-col items-center justify-center mt-1">
+                         <span className="text-sm font-black text-white">{aylikPastaVerisi.maxYuzde}%</span>
+                       </div>
+                     </div>
+                     {/* SADECE YÜZDELER VE RENK NOKTALARI (Yazısız) */}
+                     <div className="flex flex-wrap justify-center gap-2 max-w-[120px]">
+                       {aylikPastaVerisi.kendinTopla.yuzde > 0 && <span className="text-[10px] text-amber-400 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>{aylikPastaVerisi.kendinTopla.yuzde}%</span>}
+                       {aylikPastaVerisi.bilesen.yuzde > 0 && <span className="text-[10px] text-cyan-400 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-cyan-500 rounded-full"></span>{aylikPastaVerisi.bilesen.yuzde}%</span>}
+                       {aylikPastaVerisi.cevre.yuzde > 0 && <span className="text-[10px] text-rose-400 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-rose-500 rounded-full"></span>{aylikPastaVerisi.cevre.yuzde}%</span>}
+                       {aylikPastaVerisi.sistem.yuzde > 0 && <span className="text-[10px] text-purple-400 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-purple-500 rounded-full"></span>{aylikPastaVerisi.sistem.yuzde}%</span>}
+                       {aylikPastaVerisi.aksesuar.yuzde > 0 && <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>{aylikPastaVerisi.aksesuar.yuzde}%</span>}
+                       {aylikPastaVerisi.maxYuzde === 0 && <span className="text-[10px] text-slate-500 font-medium">Harcama Yok</span>}
                      </div>
                    </div>
 
-                   <div className="flex flex-col gap-2.5 shrink-0 w-full sm:w-[220px]">
-                     <div className="flex items-center justify-between w-full">
-                       <div className="flex items-center gap-2 min-w-0">
-                         <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] shrink-0"></span>
-                         <span className="text-[11px] sm:text-xs text-slate-300 font-bold truncate">Kendin Topla</span>
+                   {/* AYIRICI ÇİZGİ */}
+                   <div className="hidden sm:block w-[1px] h-24 bg-slate-800/80 mx-2"></div>
+
+                   {/* 2. BÜYÜK PASTA (GENEL TOPLAM) - Eski Haliyle Aynı */}
+                   <div className="flex flex-col sm:flex-row items-center justify-end gap-6 relative">
+                     <span className="absolute -top-3 sm:-top-4 left-1/2 sm:left-auto sm:right-4 -translate-x-1/2 sm:translate-x-0 bg-slate-800 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest whitespace-nowrap">
+                       TÜM ZAMANLAR
+                     </span>
+                     <div className="relative w-28 h-28 sm:w-32 sm:h-32 shrink-0 mt-2 sm:mt-0">
+                       <svg className="w-full h-full transform -rotate-90 drop-shadow-xl" viewBox="0 0 42 42">
+                         <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(255,255,255,0.03)" strokeWidth="4.5"></circle>
+                         {pastaVerisi.maxYuzde === 0 ? (
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#334155" strokeWidth="4.5" strokeDasharray="100 0"></circle>
+                         ) : (
+                           <>
+                             <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#f59e0b" strokeWidth="4.5" strokeDasharray={`${pastaVerisi.kendinTopla.yuzde} ${100 - pastaVerisi.kendinTopla.yuzde}`} strokeDashoffset={-pastaVerisi.kendinTopla.offset}></circle>
+                             <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#06b6d4" strokeWidth="4.5" strokeDasharray={`${pastaVerisi.bilesen.yuzde} ${100 - pastaVerisi.bilesen.yuzde}`} strokeDashoffset={-pastaVerisi.bilesen.offset}></circle>
+                             <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#fb7185" strokeWidth="4.5" strokeDasharray={`${pastaVerisi.cevre.yuzde} ${100 - pastaVerisi.cevre.yuzde}`} strokeDashoffset={-pastaVerisi.cevre.offset}></circle>
+                             <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#c084fc" strokeWidth="4.5" strokeDasharray={`${pastaVerisi.sistem.yuzde} ${100 - pastaVerisi.sistem.yuzde}`} strokeDashoffset={-pastaVerisi.sistem.offset}></circle>
+                             <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#34d399" strokeWidth="4.5" strokeDasharray={`${pastaVerisi.aksesuar.yuzde} ${100 - pastaVerisi.aksesuar.yuzde}`} strokeDashoffset={-pastaVerisi.aksesuar.offset}></circle>
+                           </>
+                         )}
+                       </svg>
+                       <div className="absolute inset-0 flex flex-col items-center justify-center mt-1">
+                         <span className="text-xl font-black text-white tracking-tight">{pastaVerisi.maxYuzde}%</span>
                        </div>
-                       <span className="text-[10px] sm:text-[11px] font-black text-amber-400 shrink-0">{pastaVerisi.kendinTopla.yuzde}%</span>
                      </div>
-                     
-                     <div className="flex items-center justify-between w-full">
-                       <div className="flex items-center gap-2 min-w-0">
-                         <span className="w-2.5 h-2.5 rounded-full bg-cyan-500 shadow-[0_0_8px_#06b6d4] shrink-0"></span>
-                         <span className="text-[11px] sm:text-xs text-slate-300 font-medium truncate">Bilgisayar Bileşenleri</span>
+
+                     <div className="flex flex-col gap-2 shrink-0 w-full sm:w-[180px]">
+                       <div className="flex items-center justify-between w-full">
+                         <div className="flex items-center gap-2 min-w-0">
+                           <span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] shrink-0"></span>
+                           <span className="text-[10px] sm:text-[11px] text-slate-300 font-bold truncate">Kendin Topla</span>
+                         </div>
+                         <span className="text-[10px] sm:text-[11px] font-black text-amber-400 shrink-0">{pastaVerisi.kendinTopla.yuzde}%</span>
                        </div>
-                       <span className="text-[10px] sm:text-[11px] font-black text-cyan-400 shrink-0">{pastaVerisi.bilesen.yuzde}%</span>
-                     </div>
-                     
-                     <div className="flex items-center justify-between w-full">
-                       <div className="flex items-center gap-2 min-w-0">
-                         <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_#fb7185] shrink-0"></span>
-                         <span className="text-[11px] sm:text-xs text-slate-300 font-medium truncate">Çevre Bir. & Oyuncu</span>
+                       
+                       <div className="flex items-center justify-between w-full">
+                         <div className="flex items-center gap-2 min-w-0">
+                           <span className="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_#06b6d4] shrink-0"></span>
+                           <span className="text-[10px] sm:text-[11px] text-slate-300 font-medium truncate">Bileşenler</span>
+                         </div>
+                         <span className="text-[10px] sm:text-[11px] font-black text-cyan-400 shrink-0">{pastaVerisi.bilesen.yuzde}%</span>
                        </div>
-                       <span className="text-[10px] sm:text-[11px] font-black text-rose-400 shrink-0">{pastaVerisi.cevre.yuzde}%</span>
-                     </div>
-                     
-                     <div className="flex items-center justify-between w-full">
-                       <div className="flex items-center gap-2 min-w-0">
-                         <span className="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-[0_0_8px_#c084fc] shrink-0"></span>
-                         <span className="text-[11px] sm:text-xs text-slate-300 font-medium truncate">Sistem, Laptop & Yazılım</span>
+                       
+                       <div className="flex items-center justify-between w-full">
+                         <div className="flex items-center gap-2 min-w-0">
+                           <span className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#fb7185] shrink-0"></span>
+                           <span className="text-[10px] sm:text-[11px] text-slate-300 font-medium truncate">Çevre & Oyuncu</span>
+                         </div>
+                         <span className="text-[10px] sm:text-[11px] font-black text-rose-400 shrink-0">{pastaVerisi.cevre.yuzde}%</span>
                        </div>
-                       <span className="text-[10px] sm:text-[11px] font-black text-purple-400 shrink-0">{pastaVerisi.sistem.yuzde}%</span>
-                     </div>
-                     
-                     <div className="flex items-center justify-between w-full">
-                       <div className="flex items-center gap-2 min-w-0">
-                         <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#34d399] shrink-0"></span>
-                         <span className="text-[11px] sm:text-xs text-slate-300 font-medium truncate">Ağ, Aksesuar & Kablo</span>
+                       
+                       <div className="flex items-center justify-between w-full">
+                         <div className="flex items-center gap-2 min-w-0">
+                           <span className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_8px_#c084fc] shrink-0"></span>
+                           <span className="text-[10px] sm:text-[11px] text-slate-300 font-medium truncate">Sistem & Laptop</span>
+                         </div>
+                         <span className="text-[10px] sm:text-[11px] font-black text-purple-400 shrink-0">{pastaVerisi.sistem.yuzde}%</span>
                        </div>
-                       <span className="text-[10px] sm:text-[11px] font-black text-emerald-400 shrink-0">{pastaVerisi.aksesuar.yuzde}%</span>
-                     </div>
-                  </div>
+                       
+                       <div className="flex items-center justify-between w-full">
+                         <div className="flex items-center gap-2 min-w-0">
+                           <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#34d399] shrink-0"></span>
+                           <span className="text-[10px] sm:text-[11px] text-slate-300 font-medium truncate">Ağ & Aksesuar</span>
+                         </div>
+                         <span className="text-[10px] sm:text-[11px] font-black text-emerald-400 shrink-0">{pastaVerisi.aksesuar.yuzde}%</span>
+                       </div>
+                    </div>
+                   </div>
+
                  </div>
               </div>
 
