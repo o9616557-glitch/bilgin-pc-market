@@ -13,10 +13,11 @@ export default function HesabimPage() {
   const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
   const [grafikVerisi, setGrafikVerisi] = useState<any[]>([]);
   
-  // 📅 YIL VE AY KONTROLLERİ
+  // 📅 YIL, AY VE TIKLAMA KONTROLLERİ
   const suAnkiTarih = new Date();
   const [seciliYil, setSeciliYil] = useState<number>(suAnkiTarih.getFullYear());
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [tiklananAy, setTiklananAy] = useState<number | null>(suAnkiTarih.getMonth()); // Varsayılan: Bulunduğumuz Ay
   const [loading, setLoading] = useState(true);
 
   const handleCikisYap = async () => {
@@ -68,17 +69,15 @@ export default function HesabimPage() {
     verileriGetir();
   }, [session]);
 
-  // 🚀 2. AŞAMA: SEÇİLİ YILA GÖRE GRAFİĞİ VE LİSTEYİ HESAPLA
+  // 🚀 2. AŞAMA: SEÇİLİ YILA GÖRE GRAFİĞİ HESAPLA
   useEffect(() => {
     if (!hamSiparisler || hamSiparisler.length === 0) return;
 
-    // --- LİSTE İÇİN EN YENİ 6 SİPARİŞ ---
     const sirali = [...hamSiparisler].sort((a: any, b: any) => 
       new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime()
     );
     setSonSiparislerListesi(sirali.slice(0, 6));
 
-    // --- GRAFİK İÇİN SABİT 12 AY MATEMATİĞİ ---
     const aylar = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
     const aylikToplamlar = new Array(12).fill(0);
 
@@ -95,14 +94,17 @@ export default function HesabimPage() {
     
     const dinamikGrafik = aylikToplamlar.map((tutar, index) => {
       const yuzde = maxTutar > 0 && tutar > 0 ? Math.max((tutar / maxTutar) * 100, 5) : 2;
-      return {
-        etiket: aylar[index],
-        yuzde: yuzde,
-        tutar: tutar
-      };
+      return { etiket: aylar[index], yuzde: yuzde, tutar: tutar };
     });
 
     setGrafikVerisi(dinamikGrafik);
+    
+    // Yıl değişince, eğer içinde bulunduğumuz yılsa bugünün ayını, değilse hiçbirini yakma
+    if (seciliYil === suAnkiTarih.getFullYear()) {
+      setTiklananAy(suAnkiTarih.getMonth());
+    } else {
+      setTiklananAy(null);
+    }
 
   }, [hamSiparisler, seciliYil]);
 
@@ -110,9 +112,6 @@ export default function HesabimPage() {
   const userName = session?.user?.name || "Özkan";
   const userEmail = session?.user?.email || "";
   const basHarf = userName ? userName.charAt(0).toUpperCase() : "Ö";
-
-  const isCurrentYear = suAnkiTarih.getFullYear() === seciliYil;
-  const currentMonthIndex = suAnkiTarih.getMonth(); 
 
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-hidden">
@@ -180,7 +179,7 @@ export default function HesabimPage() {
 
             {/* 🔥 SOL SÜTUN: SON İŞLEMLER */}
             <div className="xl:col-span-1 flex flex-col h-full">
-              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group hover:border-cyan-500/30 transition-all duration-300 flex flex-col min-h-[450px] xl:h-[750px]">
+              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group hover:border-cyan-500/30 transition-all duration-300 flex flex-col min-h-[450px] xl:h-[550px]">
                 <div className="absolute -top-10 -left-10 w-40 h-40 bg-cyan-500/10 blur-[50px] pointer-events-none rounded-full"></div>
                 
                 <div className="flex items-center justify-between mb-6 relative z-10 shrink-0">
@@ -240,52 +239,54 @@ export default function HesabimPage() {
             {/* 📊 ORTA SÜTUN: GRAFİKLER VE SİSTEMLER */}
             <div className="xl:col-span-2 flex flex-col gap-6">
               
-              {/* 1. SİPARİŞ GEÇMİŞİ GRAFİĞİ */}
-              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col">
-                {/* 🔥 MOBİLDE ÇARPIŞMAYI ÖNLEYEN BAŞLIK YAPISI */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                   <h3 className="text-white font-bold text-lg">Aylık Harcama Grafiği</h3>
+              {/* 1. SİPARİŞ GEÇMİŞİ GRAFİĞİ (GÜNCELLENMİŞ) */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
+                {/* 🔥 TELEFONDA YAN YANA ZORLAYAN, KİBAR BAŞLIK VE KİBAR SEÇİCİ */}
+                <div className="flex flex-row items-center justify-between gap-2 mb-2">
+                   <h3 className="text-white font-bold text-base sm:text-lg">Aylık Harcama</h3>
                    
-                   <div className="flex items-center self-start sm:self-auto gap-3 bg-[#121215] border border-slate-700/50 rounded-lg px-2 py-1 w-fit">
+                   <div className="flex items-center gap-1.5 bg-slate-800/30 border border-slate-700/50 rounded-lg px-1.5 py-1">
                      <button onClick={() => setSeciliYil(y => y - 1)} className="p-1 text-slate-400 hover:text-cyan-400 transition-colors">
-                       <ChevronLeft className="w-4 h-4" />
+                       <ChevronLeft className="w-3.5 h-3.5" />
                      </button>
-                     <span className="text-sm font-black text-white w-10 text-center">{seciliYil}</span>
+                     <span className="text-[11px] sm:text-xs font-black text-slate-200 w-8 text-center">{seciliYil}</span>
                      <button onClick={() => setSeciliYil(y => y + 1)} className="p-1 text-slate-400 hover:text-cyan-400 transition-colors" disabled={seciliYil >= suAnkiTarih.getFullYear()}>
-                       <ChevronRight className="w-4 h-4" />
+                       <ChevronRight className="w-3.5 h-3.5" />
                      </button>
                    </div>
                 </div>
                 
-                {/* 🔥 AYLARIN TAŞMASINI ENGELLEYEN YENİ GRAFİK ALANI */}
-                <div className="bg-white/[0.02] border border-white/5 rounded-xl flex items-end justify-between pt-10 pb-4 px-1 sm:px-4 h-[260px] relative mt-2">
+                {/* GRAFİK ALANI */}
+                <div className="bg-white/[0.02] border border-white/5 rounded-xl flex items-end justify-between pt-10 pb-4 px-1 sm:px-4 h-[220px] relative mt-2">
                   
                   {grafikVerisi.length > 0 ? grafikVerisi.map((item, i) => {
-                    const isVarsayilanAcik = hoveredIndex === null && isCurrentYear && currentMonthIndex === i;
-                    const isTooltipGozukecek = (hoveredIndex === i || isVarsayilanAcik) && item.tutar > 0;
+                    const isSecili = tiklananAy === i;
+                    const isHovered = hoveredIndex === i;
+                    const isTooltipGozukecek = (isHovered || isSecili) && item.tutar > 0;
 
                     return (
                       <div 
                         key={i} 
-                        className="flex-1 flex flex-col items-center justify-end h-full relative group px-0.5 sm:px-2"
+                        className="flex-1 flex flex-col items-center justify-end h-full relative group px-0.5 sm:px-2 outline-none select-none [-webkit-tap-highlight-color:transparent]"
                         onMouseEnter={() => setHoveredIndex(i)}
                         onMouseLeave={() => setHoveredIndex(null)}
+                        onClick={() => setTiklananAy(i)} // 🔥 Tıklayınca o ay kilitlenir
                       >
+                        {/* 🛸 TOOLTIP */}
                         {isTooltipGozukecek && (
-                          <div className={`absolute bottom-[105%] bg-[#090f1e] border border-cyan-500 text-cyan-400 font-black text-[10px] sm:text-xs px-2.5 py-1.5 rounded-md shadow-[0_0_15px_rgba(6,182,212,0.4)] whitespace-nowrap z-50 ${isVarsayilanAcik ? '' : 'animate-in fade-in zoom-in-95 duration-150'}`}>
+                          <div className={`absolute bottom-[105%] bg-[#090f1e] border border-cyan-500 text-cyan-400 font-black text-[10px] sm:text-xs px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-md shadow-[0_0_15px_rgba(6,182,212,0.4)] whitespace-nowrap z-50 ${isSecili ? '' : 'animate-in fade-in zoom-in-95 duration-150'}`}>
                             {item.tutar.toLocaleString("tr-TR")} ₺
                           </div>
                         )}
 
-                        {/* ÇUBUK İÇİN SABİT YÜKSEKLİK ALANI (TAŞMAYI ÖNLER) */}
-                        <div className="w-full flex items-end justify-center h-[160px]">
+                        <div className="w-full flex items-end justify-center h-[140px]">
                           <div 
-                            className={`w-full max-w-[40px] rounded-t-sm transition-all duration-500 ease-out cursor-pointer ${isVarsayilanAcik ? 'bg-gradient-to-b from-cyan-300 to-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.4)]' : 'bg-gradient-to-b from-slate-600 to-slate-800 hover:from-cyan-400 hover:to-cyan-600 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)]'}`} 
+                            className={`w-full max-w-[36px] rounded-t-sm transition-all duration-500 ease-out cursor-pointer ${isSecili ? 'bg-gradient-to-b from-cyan-300 to-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.4)] scale-[1.05]' : 'bg-gradient-to-b from-slate-600 to-slate-800 hover:from-cyan-400 hover:to-cyan-600 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)]'}`} 
                             style={{ height: `${item.yuzde}%` }}
                           ></div>
                         </div>
 
-                        <span className={`text-[10px] sm:text-xs font-black mt-3 shrink-0 transition-colors uppercase tracking-wider ${isVarsayilanAcik ? 'text-cyan-400' : 'text-slate-500 group-hover:text-cyan-400'}`}>
+                        <span className={`text-[9px] sm:text-[10px] font-black mt-2 shrink-0 transition-colors uppercase tracking-wider ${isSecili ? 'text-cyan-400' : 'text-slate-500 group-hover:text-cyan-400'}`}>
                           {item.etiket}
                         </span>
                       </div>
@@ -297,13 +298,13 @@ export default function HesabimPage() {
 
               {/* 2. HARCAMA DAĞILIMI */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col sm:flex-row items-center gap-8">
-                 <div className="shrink-0 space-y-2 text-center sm:text-left">
-                   <h3 className="text-white font-bold text-lg">Harcama Dağılımı</h3>
-                   <p className="text-[11px] text-slate-500 font-medium">Satın alınan ürün kategorileri</p>
+                 <div className="shrink-0 space-y-1.5 text-center sm:text-left">
+                   <h3 className="text-white font-bold text-base sm:text-lg">Harcama Dağılımı</h3>
+                   <p className="text-[10px] text-slate-500 font-medium">Satın alınan ürün kategorileri</p>
                  </div>
 
-                 <div className="flex-1 flex flex-col sm:flex-row items-center justify-center sm:justify-end gap-8 w-full">
-                   <div className="relative w-32 h-32 shrink-0">
+                 <div className="flex-1 flex flex-col sm:flex-row items-center justify-center sm:justify-end gap-6 w-full">
+                   <div className="relative w-28 h-28 sm:w-32 sm:h-32 shrink-0">
                      <svg className="w-full h-full transform -rotate-90 drop-shadow-xl" viewBox="0 0 42 42">
                        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(255,255,255,0.03)" strokeWidth="4.5"></circle>
                        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#06b6d4" strokeWidth="4.5" strokeDasharray="45 55" strokeDashoffset="0"></circle>
@@ -316,68 +317,48 @@ export default function HesabimPage() {
                      </div>
                    </div>
 
-                   <div className="grid grid-cols-2 sm:grid-cols-1 gap-x-6 gap-y-3 shrink-0">
-                      <div className="flex items-center gap-2.5"><span className="w-2.5 h-2.5 rounded-full bg-cyan-500 shadow-[0_0_8px_#06b6d4]"></span><span className="text-sm text-slate-300 font-medium">Bileşenler</span></div>
-                      <div className="flex items-center gap-2.5"><span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_#fb7185]"></span><span className="text-sm text-slate-300 font-medium">Laptoplar</span></div>
-                      <div className="flex items-center gap-2.5"><span className="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-[0_0_8px_#c084fc]"></span><span className="text-sm text-slate-300 font-medium">Yazılım</span></div>
-                      <div className="flex items-center gap-2.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#34d399]"></span><span className="text-sm text-slate-300 font-medium">Aksesuar</span></div>
+                   <div className="grid grid-cols-2 sm:grid-cols-1 gap-x-4 gap-y-2.5 shrink-0">
+                      <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_#06b6d4]"></span><span className="text-xs text-slate-300 font-medium">Bileşenler</span></div>
+                      <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#fb7185]"></span><span className="text-xs text-slate-300 font-medium">Laptoplar</span></div>
+                      <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_8px_#c084fc]"></span><span className="text-xs text-slate-300 font-medium">Yazılım</span></div>
+                      <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#34d399]"></span><span className="text-xs text-slate-300 font-medium">Aksesuar</span></div>
                    </div>
                  </div>
               </div>
 
-              {/* 3. METRİKLER VE KAYITLI SİSTEMLER */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* 3. METRİKLER (ARTIK SİSTEMLER DE BURADA 4'LÜ OLARAK YER ALIYOR) */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                  
-                 {/* METRİKLER (Üst 3'lü Kutu) */}
-                 <div className="sm:col-span-3 grid grid-cols-3 gap-4">
-                   <Link href="/adreslerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-cyan-500/20 rounded-2xl p-5 shadow-xl flex flex-col items-center gap-2 transition-colors">
-                     <MapPin className="w-7 h-7 text-cyan-400" />
-                     <p className="text-2xl font-black text-white">2</p>
-                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Adresler</p>
-                   </Link>
-                   <Link href="/siparis-takip" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-rose-500/20 rounded-2xl p-5 shadow-xl flex flex-col items-center gap-2 transition-colors">
-                     <Truck className="w-7 h-7 text-rose-400" />
-                     <p className="text-2xl font-black text-white">{hamSiparisler.filter(s => s.status?.toLowerCase().includes("kargo") || s.durum?.toLowerCase().includes("kargo")).length}</p>
-                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Kargolar</p>
-                   </Link>
-                   <Link href="https://www.bilginpcmarket.com/favorilerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-purple-500/20 rounded-2xl p-5 shadow-xl flex flex-col items-center gap-2 transition-colors">
-                     <Star className="w-7 h-7 text-purple-400" />
-                     <p className="text-2xl font-black text-white">12</p>
-                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Favoriler</p>
-                   </Link>
-                 </div>
+                 {/* Adresler */}
+                 <Link href="/adreslerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-cyan-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
+                   <MapPin className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" />
+                   <p className="text-xl sm:text-2xl font-black text-white">2</p>
+                   <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Adresler</p>
+                 </Link>
+                 
+                 {/* Kargolar */}
+                 <Link href="/siparis-takip" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-rose-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
+                   <Truck className="w-6 h-6 sm:w-7 sm:h-7 text-rose-400" />
+                   <p className="text-xl sm:text-2xl font-black text-white">{hamSiparisler.filter(s => s.status?.toLowerCase().includes("kargo") || s.durum?.toLowerCase().includes("kargo")).length}</p>
+                   <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Kargolar</p>
+                 </Link>
+                 
+                 {/* Favoriler */}
+                 <Link href="https://www.bilginpcmarket.com/favorilerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-purple-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
+                   <Star className="w-6 h-6 sm:w-7 sm:h-7 text-purple-400" />
+                   <p className="text-xl sm:text-2xl font-black text-white">12</p>
+                   <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Favoriler</p>
+                 </Link>
 
-                 {/* 🔥 YENİ KAYITLI SİSTEMLER KARTI (Altına Boylu Boyunca Uzanır) */}
-                 <div className="sm:col-span-3 mt-2">
-                   <Link href="/sistemlerim" prefetch={true} className="block bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl hover:border-cyan-500/30 transition-all duration-300 group">
-                     <div className="flex items-center justify-between mb-5">
-                       <div className="flex items-center gap-3">
-                         <Server className="w-6 h-6 text-cyan-400" />
-                         <h3 className="text-white font-bold text-lg">Kayıtlı Sistemlerim</h3>
-                       </div>
-                       <span className="text-xs font-bold text-cyan-400 group-hover:underline">Tümünü Yönet</span>
-                     </div>
-                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                       {/* Örnek 2 Sistem (Fazla yer kaplamasın diye yan yana 2 tane dizildi) */}
-                       {[
-                         { isim: "Custom Rig V1 - Toplama PC", resim: "/placeholder-rig.png", parcaSayisi: "7 Parça" },
-                         { isim: "Yayıncı Sistemi", resim: "/placeholder-laptop.png", parcaSayisi: "5 Parça" },
-                       ].map((item, idx) => (
-                         <div key={idx} className="flex items-center gap-4 py-3 bg-white/[0.01] border border-white/5 hover:bg-white/[0.03] transition-colors rounded-xl px-4">
-                           <div className="w-12 h-12 bg-black/50 rounded-xl p-2 flex items-center justify-center shrink-0 border border-slate-800">
-                              <img src={item.resim} alt={item.isim} className="max-w-full max-h-full object-contain" />
-                           </div>
-                           <div className="flex-1 min-w-0">
-                             <p className="text-white font-bold text-sm truncate mb-0.5">{item.isim}</p>
-                             <p className="text-cyan-400 text-[11px] font-medium">{item.parcaSayisi}</p>
-                           </div>
-                         </div>
-                       ))}
-                     </div>
-                   </Link>
-                 </div>
+                 {/* 🔥 YENİ KUTU: SİSTEMLER */}
+                 <Link href="/sistemlerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-emerald-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
+                   <Server className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-400" />
+                   <p className="text-xl sm:text-2xl font-black text-white">3</p>
+                   <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Sistemler</p>
+                 </Link>
 
               </div>
+
             </div>
 
           </div>
