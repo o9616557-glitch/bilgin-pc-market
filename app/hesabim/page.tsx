@@ -175,34 +175,34 @@ export default function HesabimPage() {
 
 const urunler = siparis.items || siparis.sepet || [];
       urunler.forEach((item: any) => {
-        // 🧠 CIMBIZLA ETİKET ÇEKME: Önce kategoriSlug'ı, yoksa kategori adını temizce alır
-        const slug = (item.kategoriSlug || item.kategori || item.slug || "").toLowerCase().trim();
-        const ad = (item.isim || item.title || "").toLowerCase();
+        // 🧠 ZIRHLI KİMLİK TARAMASI: Ürünün adı, kategorisi ve slug'ı ne varsa tek bir metinde birleştirip küçük harfe çeviriyoruz.
+        // Böylece eski siparişte kategoriSlug olmasa bile ürünün isminden veya linkinden ŞAK diye yakalar! (Birebir eşitlik aramaz, içinde var mı diye bakar)
+        const kimlik = `${item.kategoriSlug || ''} ${item.kategori || ''} ${item.slug || ''} ${item.isim || ''} ${item.title || ''}`.toLocaleLowerCase('tr-TR');
         const urunTutar = (Number(item.fiyat || item.price) * (item.adet || item.quantity)) || 0;
 
-        // 1. KENDİN TOPLA (PC Sihirbazı VIP Girişi)
-        if (slug.includes("kendin") || ad.includes("topla") || ad.includes("sihirbaz")) {
+        // 1. KENDİN TOPLA (VIP)
+        if (kimlik.includes("kendin") || kimlik.includes("topla") || kimlik.includes("sihirbaz")) {
           cK_toplam += urunTutar;
         } 
-        // 2. SİSTEM, LAPTOP & YAZILIM (Masaüstü ve Laptoplar milimetrik yakalanır)
-        else if ([
-          "oyun-bilgisayari", "laptop", "notebook", "masaustu", "oem-paket", "isletim-sistemi", "yazilim"
-        ].includes(slug)) {
+        // 2. SİSTEM, LAPTOP & YAZILIM
+        else if (
+          ["oyun-bilgisayari", "laptop", "notebook", "masaüstü", "masaustu", "oem-paket", "isletim", "yazılım", "yazilim"].some(k => kimlik.includes(k))
+        ) {
           cS_toplam += urunTutar;
         } 
         // 3. BİLGİSAYAR BİLEŞENLERİ
-        else if ([
-          "anakart", "ekran-karti", "islemci", "ram", "ssd", "hdd", "kasa", "psu", "sogutma"
-        ].includes(slug)) {
+        else if (
+          ["anakart", "ekran-kart", "ekran kart", "islemci", "işlemci", "ram", "ssd", "hdd", "kasa", "psu", "sogutma", "soğutma"].some(k => kimlik.includes(k))
+        ) {
           cB_toplam += urunTutar;
         } 
-        // 4. ÇEVRE BİRİMLERİ & OYUNCU (Monitör, Klavye, Mouse tam isabet)
-        else if ([
-          "monitor", "klavye", "mouse", "kulaklik", "mikrofon", "oyun-kolu", "oyun-direksiyonu", "hoparlor"
-        ].includes(slug)) {
+        // 4. ÇEVRE BİRİMLERİ & OYUNCU
+        else if (
+          ["monitör", "monitor", "klavye", "mouse", "kulaklık", "kulaklik", "mikrofon", "oyun-kolu", "direksiyon", "hoparlör", "hoparlor"].some(k => kimlik.includes(k))
+        ) {
           cC_toplam += urunTutar;
         } 
-        // 5. AĞ, AKSESUAR & KABLO (Geriye kalan gerçek ufaklıklar)
+        // 5. AĞ, AKSESUAR & KABLO (Kayıp Eşya Bürosu)
         else {
           cA_toplam += urunTutar;
         }
