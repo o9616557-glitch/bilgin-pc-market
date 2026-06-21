@@ -507,14 +507,14 @@ export default function HesabimPage() {
                          <span className="text-xs sm:text-sm font-black text-white">{aylikPastaVerisi.maxYuzde}%</span>
                        </div>
                      </div>
-                     <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2 max-w-[120px]">
-                       {aylikPastaVerisi.kendinTopla.yuzde > 0 && <span className="text-[9px] sm:text-[10px] text-amber-400 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>{aylikPastaVerisi.kendinTopla.yuzde}%</span>}
-                       {aylikPastaVerisi.bilesen.yuzde > 0 && <span className="text-[9px] sm:text-[10px] text-cyan-400 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-cyan-500 rounded-full"></span>{aylikPastaVerisi.bilesen.yuzde}%</span>}
-                       {aylikPastaVerisi.cevre.yuzde > 0 && <span className="text-[9px] sm:text-[10px] text-rose-400 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-rose-500 rounded-full"></span>{aylikPastaVerisi.cevre.yuzde}%</span>}
-                       {aylikPastaVerisi.sistem.yuzde > 0 && <span className="text-[9px] sm:text-[10px] text-purple-400 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-purple-500 rounded-full"></span>{aylikPastaVerisi.sistem.yuzde}%</span>}
-                       {aylikPastaVerisi.aksesuar.yuzde > 0 && <span className="text-[9px] sm:text-[10px] text-emerald-400 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>{aylikPastaVerisi.aksesuar.yuzde}%</span>}
-                       {aylikPastaVerisi.maxYuzde === 0 && <span className="text-[9px] sm:text-[10px] text-slate-500 font-medium">Harcama Yok</span>}
-                     </div>
+                   <div className="flex flex-col gap-1 mt-1 w-full pl-2 sm:pl-4">
+  {aylikPastaVerisi.kendinTopla.yuzde > 0 && <span className="text-[9px] sm:text-[10px] text-amber-400 font-bold flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-amber-500 rounded-full shrink-0"></span><span className="text-slate-300 font-normal">Topla:</span> {aylikPastaVerisi.kendinTopla.yuzde}%</span>}
+  {aylikPastaVerisi.bilesen.yuzde > 0 && <span className="text-[9px] sm:text-[10px] text-cyan-400 font-bold flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-cyan-500 rounded-full shrink-0"></span><span className="text-slate-300 font-normal">Bileşen:</span> {aylikPastaVerisi.bilesen.yuzde}%</span>}
+  {aylikPastaVerisi.cevre.yuzde > 0 && <span className="text-[9px] sm:text-[10px] text-rose-400 font-bold flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span><span className="text-slate-300 font-normal">Çevre:</span> {aylikPastaVerisi.cevre.yuzde}%</span>}
+  {aylikPastaVerisi.sistem.yuzde > 0 && <span className="text-[9px] sm:text-[10px] text-purple-400 font-bold flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-purple-500 rounded-full shrink-0"></span><span className="text-slate-300 font-normal">Sistem:</span> {aylikPastaVerisi.sistem.yuzde}%</span>}
+  {aylikPastaVerisi.aksesuar.yuzde > 0 && <span className="text-[9px] sm:text-[10px] text-emerald-400 font-bold flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0"></span><span className="text-slate-300 font-normal">Aksesuar:</span> {aylikPastaVerisi.aksesuar.yuzde}%</span>}
+  {aylikPastaVerisi.maxYuzde === 0 && <span className="text-[9px] sm:text-[10px] text-slate-500 font-medium text-center">Harcama Yok</span>}
+</div>
                    </div>
 
                    <div className="hidden sm:block w-[1px] h-24 bg-slate-800/80 mx-2"></div>
