@@ -3,10 +3,10 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, Search } from "lucide-react";
+import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, Search, LogIn, UserPlus } from "lucide-react";
 
 export default function HesabimPage() {
-  const { data: session } = useSession();
+ const { data: session, status } = useSession();
   
   const [hamSiparisler, setHamSiparisler] = useState<any[]>([]);
   const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
@@ -260,7 +260,47 @@ const urunler = siparis.items || siparis.sepet || [];
   const userName = session?.user?.name || "Özkan";
   const userEmail = session?.user?.email || "";
   const basHarf = userName ? userName.charAt(0).toUpperCase() : "Ö";
+// 🚀 VIP GÜVENLİK KAPISI (Yüklenirken dönen radar)
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center relative overflow-hidden">
+        <div className="w-16 h-16 border-4 border-slate-800 border-t-cyan-500 rounded-full animate-spin shadow-[0_0_30px_rgba(6,182,212,0.5)]"></div>
+        <p className="mt-6 text-cyan-400 font-bold uppercase tracking-widest text-sm animate-pulse">Sistem Yükleniyor...</p>
+      </div>
+    );
+  }
 
+  // 🚀 GİRİŞ YAPMAMIŞ KULLANICIYI KARŞILAYAN LÜKS EKRAN
+  if (status === "unauthenticated") {
+    return (
+      <div className="min-h-screen bg-[#020617] text-white flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-cyan-500/10 blur-[150px] rounded-full pointer-events-none"></div>
+        
+        <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 sm:p-12 max-w-md w-full text-center relative z-10 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+          <div className="w-24 h-24 bg-gradient-to-br from-[#0f172a] to-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.2)]">
+            <User className="w-10 h-10 text-cyan-400" />
+          </div>
+          
+          <h1 className="text-3xl font-black text-white mb-3 tracking-tight">Hesabım</h1>
+          <p className="text-slate-400 font-medium mb-8 text-sm leading-relaxed">
+            Siparişlerinizi takip etmek, favorilerinizi görmek ve hesabınızı yönetmek için giriş yapmalısınız.
+          </p>
+          
+          <div className="flex flex-col gap-3">
+            <Link href="/login" prefetch={true} className="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2">
+              <LogIn className="w-4 h-4" /> Giriş Yap
+            </Link>
+            
+            <Link href="/register" prefetch={true} className="w-full py-4 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-slate-700 hover:border-slate-500 text-slate-300 font-bold uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2">
+              <UserPlus className="w-4 h-4" /> Kayıt Ol
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // BURANIN ALTINDA SENİN ESKİ NORMAL "return (" KISMIN BAŞLIYOR OLACAK...
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
