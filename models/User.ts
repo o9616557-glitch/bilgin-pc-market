@@ -47,7 +47,7 @@ const userSchema = new mongoose.Schema(
     }],
 
     // 🚀 ŞEFİM YENİ EKLENDİ (İki Adımlı Doğrulama Tercihleri)
-    twoFactorEmail: { type: Boolean, default: true },
+   twoFactorEmail: { type: Boolean, default: false }, // 🚀 Artık ilk girişte kapalı!
     twoFactorSms: { type: Boolean, default: false },
   },
   { timestamps: true } 

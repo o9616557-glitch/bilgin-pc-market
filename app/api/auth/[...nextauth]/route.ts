@@ -20,12 +20,14 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
     }),
 
-    // 3. E-POSTA VE ŞİFRE ADAPTÖRÜ
+    // 3. E-POSTA VE ŞİFRE ADAPTÖRÜ (BURASI GÜNCELLENDİ 🚀)
     CredentialsProvider({
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "text" },
-        password: { label: "Sifre", type: "password" }
+        password: { label: "Sifre", type: "password" },
+        // 🚀 ŞEFİM YENİ EKLENDİ: Görevlinin adama soracağı 2FA kodu kutusu
+        code: { label: "2FA Kodu", type: "text" } 
       },
       async authorize(credentials) {
         // A. Boş giriş kontrolü
@@ -33,7 +35,7 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Lütfen e-posta ve şifre girin.");
         }
 
-        // B. MongoDB Bağlantı Kontrolü (Eğer bağlı değilse bağlanır)
+        // B. MongoDB Bağlantı Kontrolü
         if (mongoose.connection.readyState !== 1) {
           await mongoose.connect(process.env.MONGODB_URI as string);
         }
@@ -50,22 +52,61 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Şifre hatalı, lütfen tekrar deneyin.");
         }
 
-        // E. Her şey başarılıysa kullanıcı bilgisini döndür
+        // ==========================================
+        // 🚀 YENİ MOTOR: İKİ ADIMLI DOĞRULAMA (2FA) 
+        // ==========================================
+        if (user.twoFactorEmail) {
+          
+          // DURUM 1: Adam şifreyi girmiş ama KODU henüz girmemiş (İlk Tıklama)
+          if (!credentials.code) {
+            
+            // 1. Rastgele 6 haneli kod üret (Örn: 482910)
+            const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+            // 2. Kodu müşterinin defterine yaz ve 3 dakika ömür biç
+            user.twoFactorCode = generatedCode;
+            user.twoFactorExpires = new Date(Date.now() + 3 * 60 * 1000);
+            await user.save();
+
+            // 3. KURYEYİ ÇAĞIRMA (E-Posta Gönderimi)
+            // 🚨 ŞEFİM DİKKAT: Şifremi unuttum kısmında kullandığın o mail gönderme 
+            // kodunu (kuryeni) tam olarak bu satıra yapıştırıp adamın e-postasına 
+            // 'generatedCode' değişkenini yollayacaksın.
+            
+            console.log(`[GİZLİ SİSTEM MESAJI] ${user.email} adresine şu kod gönderildi: ${generatedCode}`);
+
+            // 4. Görevliye "Kapıyı açma, adama 2FA sor" emrini veriyoruz
+            throw new Error("2FA_REQUIRED");
+          }
+
+          // DURUM 2: Adam e-postasındaki kodu alıp gelmiş (İkinci Tıklama)
+          if (credentials.code) {
+            // Kod defterdekiyle aynı mı ve süresi (3 dk) dolmamış mı?
+            if (user.twoFactorCode !== credentials.code || user.twoFactorExpires < new Date()) {
+              throw new Error("Geçersiz veya süresi dolmuş bir kod girdiniz.");
+            }
+            
+            // Kod doğruysa, güvenlik için eski kodu defterden sil
+            user.twoFactorCode = undefined;
+            user.twoFactorExpires = undefined;
+            await user.save();
+          }
+        }
+        // ==========================================
+
+        // E. Her şey başarılıysa kullanıcı bilgisini döndür (İçeri Al!)
         return user;
       }
     })
   ],
   session: {
-    strategy: "jwt", // App Router'da JWT stratejisi en sağlıklısıdır
+    strategy: "jwt", 
   },
-  secret: process.env.NEXTAUTH_SECRET, // Güvenlik anahtarın (.env dosyasında olmalı)
+  secret: process.env.NEXTAUTH_SECRET, 
   pages: {
-    signIn: '/login', // Eğer özel bir giriş sayfan varsa buraya yönlendirir
+    signIn: '/login', 
   }
 };
 
-// 🚀 İŞTE EKSİK OLAN HAYATİ KISIM (APP ROUTER MOTORU)
 const handler = NextAuth(authOptions);
-
-// Next.js App Router'ın API'yi okuyabilmesi için GET ve POST olarak dışa aktarıyoruz
 export { handler as GET, handler as POST };
