@@ -96,7 +96,18 @@ export default function HesabimPage() {
             setAdresSayisi(adresData.addresses.length);
           }
         }
-
+// 🔥 YENİ: FAVORİLERİ ÇEKEN MOTOR
+        const favoriRes = await fetch("/api/favorites?t=" + new Date().getTime(), {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
+        });
+        
+        if (favoriRes.ok) {
+          const favoriData = await favoriRes.json();
+          // Senin API hangisini döndürüyorsa onu yakalar ve uzunluğunu alır
+          const favoriListesi = favoriData.favorites || favoriData.data || favoriData.urunler || [];
+          setFavoriSayisi(favoriListesi.length);
+        }
       } catch (error) {
         console.error("Radar bağlantı hatası:", error);
       }
