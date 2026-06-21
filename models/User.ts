@@ -46,9 +46,13 @@ const userSchema = new mongoose.Schema(
       type: String 
     }],
 
-    // 🚀 ŞEFİM YENİ EKLENDİ (İki Adımlı Doğrulama Tercihleri)
-   twoFactorEmail: { type: Boolean, default: false }, // 🚀 Artık ilk girişte kapalı!
+  // 🚀 İki Adımlı Doğrulama Tercihleri
+    twoFactorEmail: { type: Boolean, default: false }, 
     twoFactorSms: { type: Boolean, default: false },
+
+    // 🚀 ŞEFİM İŞTE EKSİK OLAN RAFLAR BUNLAR! (Kodun ve Sürenin Tutulduğu Yer)
+    twoFactorCode: { type: String },
+    twoFactorExpires: { type: Date },
   },
   { timestamps: true } 
 );
