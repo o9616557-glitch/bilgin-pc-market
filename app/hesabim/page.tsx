@@ -10,32 +10,45 @@ export default function HesabimPage() {
   
   // 🧠 CANLI VE HAFIZALI VERİ MOTORLARI
   const [siparisler, setSiparisler] = useState<any[]>([]);
-  const [grafikVerisi, setGrafikVerisi] = useState<number[]>(new Array(12).fill(2)); // Varsayılan boş grafik (%2 yükseklik)
+  const [grafikVerisi, setGrafikVerisi] = useState<any[]>([]);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Sayfa ilk açıldığında boş şablon hazır dursun (Aylar havada kalmasın)
+  useEffect(() => {
+    const t = new Date();
+    const aylar = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
+    const taslakGrafik = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(t.getFullYear(), t.getMonth() - i, 1);
+      taslakGrafik.push({ etiket: aylar[d.getMonth()], yuzde: 2, tutar: 0 });
+    }
+    setGrafikVerisi(taslakGrafik);
+  }, []);
 
   const handleCikisYap = async () => {
     localStorage.removeItem("bilgin_kayitli_sistemler");
-    sessionStorage.removeItem("bilgin_hesabim_data"); // Çıkışta hafızayı temizle
+    sessionStorage.removeItem("bilgin_hesabim_data");
     await signOut({ callbackUrl: "/" });
   };
 
-  // 🚀 HIZLI ÇIRAK VE İSTATİSTİK UZMANI
+  // 🚀 İSTATİSTİK VE ÖNBELLEK UZMANI ÇIRAK
   useEffect(() => {
     if (!session?.user?.email) {
       setLoading(false);
       return;
     }
 
-    // 1. AŞAMA: Hafızada sipariş ve grafik var mı? Varsa anında ekrana bas!
+    // 1. Önbellekten verileri anında oku (Sıfır Loading Girişi)
     const hafizadakiData = sessionStorage.getItem("bilgin_hesabim_data");
     if (hafizadakiData) {
       const parsedData = JSON.parse(hafizadakiData);
       setSiparisler(parsedData.siparisler || []);
-      setGrafikVerisi(parsedData.grafik || new Array(12).fill(2));
+      setGrafikVerisi(parsedData.grafik || []);
       setLoading(false);
     }
 
-    // 2. AŞAMA: Arka planda sessizce gerçeği kontrol et ve grafiği hesapla
+    // 2. Arka planda sessizce gerçeği sorgula ve grafiği ilmek ilmek işle
     const verileriGetir = async () => {
       try {
         const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
@@ -46,40 +59,41 @@ export default function HesabimPage() {
         const data = await res.json();
         
         if (res.ok && data.orders) {
-          // 1. Sadece kullanıcının kendi siparişlerini süz
           const benimSiparislerim = data.orders.filter((siparis: any) => {
             const siparisMaili = siparis.userEmail || siparis.email || siparis.musteri?.eposta || siparis.musteri?.email || "";
             const musteriMaili = session?.user?.email || ""; 
             return siparisMaili.toLowerCase() === musteriMaili.toLowerCase();
           });
 
-          // --- 📊 GRAFİK MOTORU (Son 12 Ayın Harcamalarını Hesaplar) ---
+          // 📊 12 AYLIK CİRO MATEMATİĞİ
           const aylikToplamlar = new Array(12).fill(0);
           const simdi = new Date();
+          const aylar = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
 
           benimSiparislerim.forEach((siparis: any) => {
             const orderDate = new Date(siparis.createdAt || siparis.tarih);
             if (isNaN(orderDate.getTime())) return;
 
-            // Bu siparişin kaç ay önce verildiğini buluyoruz
             const monthsAgo = (simdi.getFullYear() - orderDate.getFullYear()) * 12 + (simdi.getMonth() - orderDate.getMonth());
 
-            // Eğer sipariş son 12 ay içindeyse ilgili aya tutarı ekliyoruz
             if (monthsAgo >= 0 && monthsAgo < 12) {
               const tutar = Number(siparis.totalPrice || siparis.toplamTutar) || 0;
-              // 11 en son ay (bu ay), 0 ise 11 ay öncesi
               aylikToplamlar[11 - monthsAgo] += tutar;
             }
           });
 
-          // En yüksek harcama yapılan ayı bul ki çubukları ona göre oranlayalım
           const maxTutar = Math.max(...aylikToplamlar);
           
-          // Çubuk yüksekliklerini % olarak hesapla (Boş aylara %2 veriyoruz ki tamamen kaybolmasınlar)
-          const dinamikGrafik = aylikToplamlar.map(tutar => 
-            maxTutar > 0 && tutar > 0 ? Math.max((tutar / maxTutar) * 100, 5) : 2
-          );
-          // -------------------------------------------------------------
+          // Nesne tabanlı dinamik grafik dizisi oluşturma
+          const dinamikGrafik = aylikToplamlar.map((tutar, index) => {
+            const yuzde = maxTutar > 0 && tutar > 0 ? Math.max((tutar / maxTutar) * 100, 6) : 2;
+            const d = new Date(simdi.getFullYear(), simdi.getMonth() - (11 - index), 1);
+            return {
+              etiket: aylar[d.getMonth()],
+              yuzde: yuzde,
+              tutar: tutar
+            };
+          });
 
           const siraliSiparisler = benimSiparislerim.sort((a: any, b: any) => 
             new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime()
@@ -87,7 +101,6 @@ export default function HesabimPage() {
 
           const guncelListe = siraliSiparisler.slice(0, 6);
           
-          // Ekrana yansıt ve her ikisini de tek bir paket yapıp hafızaya kaydet
           setSiparisler(guncelListe);
           setGrafikVerisi(dinamikGrafik);
           
@@ -97,7 +110,7 @@ export default function HesabimPage() {
           }));
         }
       } catch (error) {
-        console.error("Çırak arka planda verilere ulaşamadı:", error);
+        console.error("Grafik motoru hesaplama hatası:", error);
       } finally {
         setLoading(false);
       }
@@ -134,7 +147,7 @@ export default function HesabimPage() {
           </div>
         </div>
 
-        {/* ➡️ SAĞ TARAF (ANA KUMANDA MERKEZİ) */}
+        {/* ➡️ SAĞ TARAF */}
         <div className="flex-1 flex flex-col min-w-0 gap-6">
 
           {/* 🏆 NEON PROFİL KARTI */}
@@ -238,27 +251,46 @@ export default function HesabimPage() {
               </div>
             </div>
 
-            {/* 📊 GRAFİKLER (CANLI VERİYE BAĞLANDI) */}
+            {/* 📊 SİPARİŞ GEÇMİŞİ (YENİ SÜPER PREMIUM MOTOR) */}
             <div className="xl:col-span-2 flex flex-col">
               <div className="flex-1 h-full bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row gap-6">
                 <div className="flex-1 space-y-3 flex flex-col">
                    <h3 className="text-white font-bold text-lg">Sipariş Geçmişi</h3>
-                   <div className="flex-1 bg-white/[0.02] border border-white/5 rounded-xl flex items-center justify-center pt-4 min-h-[150px]">
-                     <div className="flex items-end gap-1.5 h-full pb-4 px-4 w-full">
-                       
-                       {/* 🔥 CANLI ÇUBUKLAR: Hesaplanan veriye göre boyları uzayıp kısalıyor */}
-                       {grafikVerisi.map((yukseklik, i) => (
-                         <div 
-                           key={i} 
-                           className="flex-1 bg-gradient-to-b from-cyan-400 to-cyan-600 rounded-sm hover:from-cyan-300 hover:to-cyan-500 transition-all duration-700 ease-out" 
-                           style={{ height: `${yukseklik}%` }}
-                         ></div>
-                       ))}
+                   
+                   {/* Grafik Haznesi */}
+                   <div className="flex-1 bg-white/[0.02] border border-white/5 rounded-xl flex items-end justify-between pt-8 pb-2 px-4 min-h-[160px] relative">
+                     
+                     {grafikVerisi.map((item, i) => (
+                       <div 
+                         key={i} 
+                         className="flex-1 flex flex-col items-center justify-end h-full relative group"
+                         onMouseEnter={() => setHoveredIndex(i)}
+                         onMouseLeave={() => setHoveredIndex(null)}
+                       >
+                         {/* 🛸 JİLET TOOLTIP: Üzerine gelince neon pencereyle rakamı basar */}
+                         {hoveredIndex === i && item.tutar > 0 && (
+                           <div className="absolute bottom-[105%] bg-[#090f1e] border border-cyan-500 text-cyan-400 font-black text-[10px] px-2 py-1 rounded-md shadow-[0_0_15px_rgba(6,182,212,0.4)] whitespace-nowrap z-50 animate-in fade-in zoom-in-95 duration-150">
+                             {item.tutar.toLocaleString("tr-TR")} ₺
+                           </div>
+                         )}
 
-                     </div>
+                         {/* 📊 ÇUBUK: Yüksekliği dinamik, rengi canlı neon */}
+                         <div 
+                           className="w-[70%] bg-gradient-to-b from-cyan-400 to-cyan-600 rounded-t-sm hover:from-cyan-300 hover:to-cyan-400 transition-all duration-500 ease-out cursor-pointer shadow-[0_0_10px_rgba(6,182,212,0.1)] group-hover:shadow-[0_0_15px_rgba(6,182,212,0.3)]" 
+                           style={{ height: `${item.yuzde}%` }}
+                         ></div>
+
+                         {/* 📅 AY ETİKETİ: Çubuğun tam altına nizamî hizalı */}
+                         <span className="text-[10px] text-slate-500 group-hover:text-cyan-400 font-black mt-2 transition-colors uppercase tracking-wider">
+                           {item.etiket}
+                         </span>
+                       </div>
+                     ))}
+
                    </div>
+                   
                    <div className="flex justify-center pt-1 shrink-0">
-                      <span className="text-[10px] text-slate-500 font-medium tracking-wide">Son 12 Ay (Gerçek Veri)</span>
+                      <span className="text-[10px] text-slate-500 font-medium tracking-wide">Son 12 Ay (Gerçek Zamanlı Harcama)</span>
                    </div>
                 </div>
 
