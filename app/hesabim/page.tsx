@@ -82,33 +82,22 @@ export default function HesabimPage() {
   const isAdmin = userEmail.toLowerCase() === "o9616557@gmail.com";
 
   return (
-    <div className="min-h-screen bg-[#050814] text-white pt-8 sm:pt-12 pb-24 px-4 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-[#050814] text-white pt-8 sm:pt-12 pb-24 px-4 relative font-sans">
       
-      {/* ZARİF ARKA PLAN IŞIĞI */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-[#00d2ff] blur-[150px] opacity-[0.05] pointer-events-none rounded-full"></div>
-
       <div className="max-w-4xl mx-auto relative z-10">
         
-        {/* 🏆 ÜST PROFİL KARTI (Telefonda ortalı, PC'de sola dayalı) */}
-        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-6 bg-[#09090b]/80 backdrop-blur-xl border border-white/5 rounded-3xl p-6 sm:p-8 mb-8 shadow-2xl relative overflow-hidden">
+        {/* 🏆 ÜST PROFİL KARTI (Sade, Pürüzsüz ve Renk Karmaşası Yok) */}
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-6 bg-[#09090b] border border-white/10 rounded-3xl p-6 sm:p-8 mb-8 shadow-xl">
           
-          {/* Arka plan süsü */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#3b82f6]/5 to-transparent pointer-events-none"></div>
-
-          {/* AVATAR (Kusursuz Orantı, Asla Yamulmaz) */}
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-[#3b82f6] to-[#00d2ff] p-[2px] shrink-0 shadow-[0_0_20px_rgba(0,210,255,0.2)]">
-            <div className="w-full h-full bg-[#050814] rounded-[14px] flex items-center justify-center">
-               <span className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#3b82f6] to-[#00d2ff]">
-                 {basHarf}
-               </span>
-            </div>
+          {/* AVATAR (Tam Yuvarlak, Sade) */}
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-[#121215] border border-white/10 flex items-center justify-center shrink-0">
+             <span className="text-3xl sm:text-4xl font-black text-[#3b82f6]">
+               {basHarf}
+             </span>
           </div>
           
           {/* KULLANICI BİLGİLERİ */}
           <div className="text-center sm:text-left flex-1 flex flex-col justify-center h-full mt-2 sm:mt-0">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#3b82f6]/10 border border-[#3b82f6]/20 text-[#3b82f6] text-[10px] font-black tracking-widest uppercase mb-3 mx-auto sm:mx-0 w-fit">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#3b82f6] animate-pulse"></span> VIP Üye
-            </div>
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight break-words leading-none">
               {userName}
             </h1>
@@ -126,7 +115,7 @@ export default function HesabimPage() {
 
         <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-4 ml-2">Hesap Yönetimi</h2>
 
-        {/* 🚀 KİBAR & ZARİF MENÜ LİSTESİ (Kaba Kutular Gitti!) */}
+        {/* 🚀 LİSTE */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           {garajlar.map((garaj) => {
             const Icon = garaj.ikon;
@@ -139,7 +128,7 @@ export default function HesabimPage() {
                 key={garaj.id}
                 className={`group flex items-center p-4 sm:p-5 rounded-2xl bg-[#09090b] border border-white/5 hover:bg-white/[0.02] transition-all duration-300 ${garaj.border}`}
               >
-                {/* İKON ALANI (Kompakt ve Zarif) */}
+                {/* İKON ALANI */}
                 <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center border border-white/5 shrink-0 transition-transform duration-300 group-hover:scale-110 ${garaj.bg}`}>
                   <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${garaj.renk}`} />
                 </div>
