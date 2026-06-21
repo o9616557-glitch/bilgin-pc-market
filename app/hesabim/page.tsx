@@ -175,38 +175,34 @@ export default function HesabimPage() {
 
 const urunler = siparis.items || siparis.sepet || [];
       urunler.forEach((item: any) => {
-        // 🧠 TÜRKÇE KARAKTER ZIRHI: Büyük 'İ', 'I', 'Ş' gibi harfleri kusursuz küçültür
-        const ad = (item.isim || item.title || "").toLocaleLowerCase('tr-TR');
-        const cat = (item.kategori || item.slug || "").toLocaleLowerCase('tr-TR');
+        // 🧠 CIMBIZLA ETİKET ÇEKME: Önce kategoriSlug'ı, yoksa kategori adını temizce alır
+        const slug = (item.kategoriSlug || item.kategori || item.slug || "").toLowerCase().trim();
+        const ad = (item.isim || item.title || "").toLowerCase();
         const urunTutar = (Number(item.fiyat || item.price) * (item.adet || item.quantity)) || 0;
 
-        // 1. KENDİN TOPLA (PC Sihirbazı)
-        if (ad.includes("topla") || ad.includes("sihirbaz") || cat.includes("kendin")) {
+        // 1. KENDİN TOPLA (PC Sihirbazı VIP Girişi)
+        if (slug.includes("kendin") || ad.includes("topla") || ad.includes("sihirbaz")) {
           cK_toplam += urunTutar;
         } 
-        // 2. 🚀 SİSTEM, LAPTOP & YAZILIM (Senin laptop buraya gelecek!)
-        else if (
-          cat.includes("sistem") || cat.includes("laptop") || cat.includes("yazılım") || cat.includes("masaüstü") || cat.includes("oem-paket") || cat.includes("isletim") ||
-          ad.includes("laptop") || ad.includes("leptop") || ad.includes("notebook") || ad.includes("bilgisayar") || ad.includes("masaüstü") || ad.includes("dizüstü") || ad.includes("pc") || ad.includes("macbook") || ad.includes("windows") || ad.includes("office") ||
-          (ad.includes("asus") && !ad.includes("anakart") && !ad.includes("ekran")) || ad.includes("lenovo") || ad.includes("monster") || ad.includes("victus")
-        ) {
+        // 2. SİSTEM, LAPTOP & YAZILIM (Masaüstü ve Laptoplar milimetrik yakalanır)
+        else if ([
+          "oyun-bilgisayari", "laptop", "notebook", "masaustu", "oem-paket", "isletim-sistemi", "yazilim"
+        ].includes(slug)) {
           cS_toplam += urunTutar;
         } 
         // 3. BİLGİSAYAR BİLEŞENLERİ
-        else if (
-          cat.includes("bileşen") || cat.includes("anakart") || cat.includes("ekran-karti") || cat.includes("islemci") || cat.includes("ram") || cat.includes("ssd") || cat.includes("hdd") || cat.includes("kasa") || cat.includes("psu") || cat.includes("sogutma") || 
-          ad.includes("ekran") || ad.includes("işlemci") || ad.includes("anakart") || ad.includes("ram") || ad.includes("kasa") || ad.includes("soğutucu") || ad.includes("ssd") || ad.includes("hdd") || ad.includes("vga") || ad.includes("amd") || ad.includes("intel")
-        ) {
+        else if ([
+          "anakart", "ekran-karti", "islemci", "ram", "ssd", "hdd", "kasa", "psu", "sogutma"
+        ].includes(slug)) {
           cB_toplam += urunTutar;
         } 
-        // 4. ÇEVRE BİRİMLERİ & OYUNCU
-        else if (
-          cat.includes("çevre") || cat.includes("oyuncu") || cat.includes("monitor") || cat.includes("klavye") || cat.includes("mouse") || cat.includes("kulaklik") || cat.includes("mikrofon") || cat.includes("oyun-kolu") || cat.includes("direksiyon") || 
-          ad.includes("mouse") || ad.includes("klavye") || ad.includes("kulaklık") || ad.includes("monitör") || ad.includes("kamera") || ad.includes("kulakici")
-        ) {
+        // 4. ÇEVRE BİRİMLERİ & OYUNCU (Monitör, Klavye, Mouse tam isabet)
+        else if ([
+          "monitor", "klavye", "mouse", "kulaklik", "mikrofon", "oyun-kolu", "oyun-direksiyonu", "hoparlor"
+        ].includes(slug)) {
           cC_toplam += urunTutar;
         } 
-        // 5. AĞ, AKSESUAR & KABLO (Geriye Kalanlar)
+        // 5. AĞ, AKSESUAR & KABLO (Geriye kalan gerçek ufaklıklar)
         else {
           cA_toplam += urunTutar;
         }
