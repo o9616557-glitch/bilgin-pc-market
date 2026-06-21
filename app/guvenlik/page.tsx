@@ -226,25 +226,23 @@ export default function GuvenlikPage() {
             </div>
           </div>
 
-          {/* 🚨 3. SATIR: TEHLİKELİ BÖLGE (KIRMIZI NEON) */}
-          <div className="bg-[#1a0505] border border-red-900/40 rounded-2xl p-6 shadow-[0_0_30px_rgba(220,38,38,0.05)] relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-red-500/50 to-transparent"></div>
-            
-            <div className="flex items-center gap-3 mb-4">
-              <AlertTriangle className="w-5 h-5 text-red-500" />
-              <h2 className="text-lg font-black text-red-500 uppercase tracking-wider">Tehlikeli Bölge</h2>
+       {/* ⚙️ 3. SATIR: HESAP İŞLEMLERİ */}
+          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col">
+            <div className="flex items-center gap-3 mb-4 pb-4 border-b border-slate-800/80">
+              <AlertTriangle className="w-5 h-5 text-slate-400" />
+              <h2 className="text-lg font-black text-white uppercase tracking-wider">Hesap İşlemleri</h2>
             </div>
             
-            <p className="text-red-400/70 text-sm leading-relaxed mb-6 max-w-2xl">
-              Bu alandaki işlemler geri alınamaz. Hesabınızı geçici olarak dondurabilir veya kişisel verilerinizle birlikte kalıcı olarak silebilirsiniz. Lütfen dikkatli işlem yapınız.
+            <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-2xl">
+              Hesabınızı geçici olarak dondurabilir veya kişisel verilerinizle birlikte kalıcı olarak silebilirsiniz. Silme işlemi geri alınamaz.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <button className="flex-1 flex justify-center items-center gap-2 py-4 rounded-xl bg-amber-950/40 border border-amber-900/50 hover:bg-amber-900/60 hover:border-amber-500/50 text-amber-500 transition-all font-black text-xs uppercase tracking-widest">
+              <button className="flex-1 flex justify-center items-center gap-2 py-4 rounded-xl bg-[#020617] border border-slate-800 hover:bg-slate-800/50 hover:text-white text-slate-300 transition-all font-bold text-xs uppercase tracking-widest">
                 <Snowflake className="w-4 h-4" /> Hesabımı Dondur
               </button>
               
-              <button className="flex-1 flex justify-center items-center gap-2 py-4 rounded-xl bg-red-950/40 border border-red-900/50 hover:bg-red-600 hover:text-white hover:shadow-[0_0_20px_rgba(220,38,38,0.4)] text-red-500 transition-all font-black text-xs uppercase tracking-widest">
+              <button className="flex-1 flex justify-center items-center gap-2 py-4 rounded-xl bg-red-950/20 border border-red-900/30 hover:bg-red-900/50 hover:border-red-500/50 text-red-400 transition-all font-bold text-xs uppercase tracking-widest">
                 <Trash2 className="w-4 h-4" /> Hesabımı Kalıcı Olarak Sil
               </button>
             </div>
