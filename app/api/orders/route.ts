@@ -7,12 +7,12 @@ import { ObjectId } from "mongodb";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 
-// 🚀 VERCEL ÖNBELLEK KİLİDİNİ PARÇALAMA EMİRLERİ (Her saniye güncel veri çeker)
+// 🚀 VERCEL ÖNBELLEK KİLİDİNİ PARÇALAMA EMİRLERİ
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 // =================================================================
-// 1. SİPARİŞLERİ EKRANA GETİRME MOTORU (GÜNCELLENDİ 🎯)
+// 1. SİPARİŞLERİ EKRANA GETİRME MOTORU (ZIMBALI KURYE SİSTEMİ 🎯)
 // =================================================================
 export async function GET() {
   try {
@@ -25,7 +25,6 @@ export async function GET() {
     const db = client.db("bilginpcmarket"); 
     const userEmail = session.user.email;
 
-    // 🔥 SADECE BURASI DEĞİŞTİ: Siteden silinenleri (gizlenenleri) listeye dahil etme dedik
     const rawOrders = await db.collection("orders").find({
       $and: [
         {
@@ -40,23 +39,46 @@ export async function GET() {
       ]
     }).sort({ _id: -1 }).toArray();
 
-    const safeOrders = rawOrders.map((order) => {
+    // 🚀 KURYE ARKA ODAYA (PRODUCTS) HIZLI GEÇİŞ YAPIYOR!
+    const safeOrders = await Promise.all(rawOrders.map(async (order) => {
       const rawItems = order.items || order.sepet || order.cartItems || [];
-      const safeItems = rawItems.map((item: any) => ({
-        ...item,
-        title: item.title || item.isim || item.name || "Ürün",
-        quantity: item.quantity || item.adet || item.miktar || 1,
-        price: Number(item.price || item.fiyat || 0),
-        image: item.image || item.resim || "https://app.bilginpcmarket.com/placeholder.png"
+      
+      const safeItems = await Promise.all(rawItems.map(async (item: any) => {
+        let zimbaliKategori = ""; 
+        
+        try {
+          // Kurye barkodu alıyor
+          const queryId = item._id || item.id || item.productId;
+          if (queryId) {
+            const isObjId = typeof queryId === "string" && queryId.length === 24;
+            const filter = isObjId ? { _id: new ObjectId(queryId) } : { id: queryId };
+            
+            // Depoya koşup asıl ürünü buluyor
+            const gercekUrun = await db.collection("products").findOne(filter);
+            if (gercekUrun) {
+              // Bulduğu asıl kategori etiketini (slug) cebe atıyor
+              zimbaliKategori = gercekUrun.kategoriSlug || gercekUrun.kategori || gercekUrun.slug || "";
+            }
+          }
+        } catch (e) {
+           // Depoda hata olursa çaktırmadan devam et
+        }
+
+        return {
+          ...item,
+          // 🧠 MÜKEMMEL DOKUNUŞ: Depodan bulduğu etiketi fişe basıyor!
+          kategoriSlug: zimbaliKategori || item.kategoriSlug || item.kategori || "",
+          title: item.title || item.isim || item.name || "Ürün",
+          quantity: item.quantity || item.adet || item.miktar || 1,
+          price: Number(item.price || item.fiyat || 0),
+          image: item.image || item.resim || "https://app.bilginpcmarket.com/placeholder.png"
+        };
       }));
 
-      // 🚀 AKILLI MÜHÜR MOTORU: Admin nereye ne yazdıysa hepsini birleştirip tarıyoruz
+      // 🚀 AKILLI MÜHÜR MOTORU
       const hamDurumMetni = `${order.durum || ""} ${order.status || ""} ${order.paymentMethod || ""}`.toLowerCase();
       
-      // Varsayılan durum ataması
       let sonDurum = order.durum || order.status || "Hazırlanıyor";
-      
-      // Eğer herhangi bir hücrede iptal kelimesi geçiyorsa durumu zorla "İptal Edildi" yap!
       if (hamDurumMetni.includes("iptal") || hamDurumMetni.includes("red") || hamDurumMetni.includes("iade")) {
         sonDurum = "İptal Edildi";
       }
@@ -69,10 +91,10 @@ export async function GET() {
         createdAt: order.createdAt || order.tarih || new Date().toISOString(),
         shippingAddress: order.shippingAddress || order.musteri || order.customerDetails || {},
         searchableStatus: hamDurumMetni,
-        status: sonDurum, // Artık kilitlenen eski durumların önceliği kırıldı!
+        status: sonDurum, 
         durum: sonDurum
       };
-    });
+    }));
 
     return NextResponse.json({ orders: safeOrders }, { status: 200 });
   } catch (error) {
@@ -82,7 +104,7 @@ export async function GET() {
 }
 
 // =================================================================
-// 2. YENİ SİPARİŞ OLUŞTURMA MOTORU (ORİJİNAL - DOKUNULMADI)
+// 2. YENİ SİPARİŞ OLUŞTURMA MOTORU (ORİJİNAL)
 // =================================================================
 export async function POST(req: Request) {
   try {
@@ -125,8 +147,6 @@ export async function DELETE(req: Request) {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
     
-    // 🔥 SADECE BURASI DEĞİŞTİ: deleteOne yerine updateOne yaptık.
-    // Siparişi MongoDB'den silmez, üzerine sadece "gizlendi: true" etiketi koyar.
     await db.collection("orders").updateOne(
       { _id: new ObjectId(orderId) },
       { $set: { gizlendi: true } }
