@@ -41,14 +41,17 @@ const userSchema = new mongoose.Schema(
     }],
     addresses: [addressSchema], // Kullanıcının birden fazla adresi olabilir
     
-    // 🚀 ŞEFİM YENİ EKLENDİ (Eski Şifreler Hafızası - Son 3 Şifre Kuralı İçin)
+   // 🚀 ŞEFİM YENİ EKLENDİ (Eski Şifreler Hafızası - Son 3 Şifre Kuralı İçin)
     passwordHistory: [{ 
       type: String 
     }],
+
+    // 🚀 ŞEFİM YENİ EKLENDİ (İki Adımlı Doğrulama Tercihleri)
+    twoFactorEmail: { type: Boolean, default: true },
+    twoFactorSms: { type: Boolean, default: false },
   },
   { timestamps: true } 
 );
 
 const User = mongoose.models.User || mongoose.model('User', userSchema);
-
 export default User;
