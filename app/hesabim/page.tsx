@@ -6,7 +6,7 @@ import { useSession, signOut } from "next-auth/react";
 import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function HesabimPage() {
-  const { data: session, status } = useSession(); // 🔥 Session durumunu yakaladık
+  const { data: session, status } = useSession();
   
   // 🧠 CANLI VERİ VE GRAFİK MOTORLARI
   const [hamSiparisler, setHamSiparisler] = useState<any[]>([]);
@@ -27,37 +27,24 @@ export default function HesabimPage() {
   const suAnkiTarih = new Date();
   const [seciliYil, setSeciliYil] = useState<number>(suAnkiTarih.getFullYear());
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [tiklananAy, setTiklananAy] = useState<number | null>(suAnkiTarih.getMonth()); // Varsayılan: Bulunduğumuz Ay
+  const [tiklananAy, setTiklananAy] = useState<number | null>(suAnkiTarih.getMonth());
   const [loading, setLoading] = useState(true);
 
   const handleCikisYap = async () => {
     localStorage.removeItem("bilgin_kayitli_sistemler");
-    sessionStorage.removeItem("bilgin_hesabim_data");
     await signOut({ callbackUrl: "/" });
   };
 
-  // 🚀 AŞAMA 0: HAFIZAYI ANINDA OKU (Sıfır Gecikme - Oturumu Beklemez!)
+  // 🚀 SESSİZ CANLI TAKİP MOTORU (RADAR)
   useEffect(() => {
-    const hafiza = sessionStorage.getItem("bilgin_hesabim_data");
-    if (hafiza) {
-      const parsed = JSON.parse(hafiza);
-      if (parsed.tumSiparisler && parsed.tumSiparisler.length > 0) {
-        setHamSiparisler(parsed.tumSiparisler);
-        setLoading(false); // Hafızada varsa yükleniyor animasyonunu saniyesinde kapat!
-      }
-    }
-  }, []); // Sadece sayfa açıldığında 1 kez çalışır
-
-  // 🚀 1. AŞAMA: VERİTABANINDAN SESSİZCE GÜNCELLE (Arka Plan Motoru)
-  useEffect(() => {
-    if (status === "loading") return; // Session yüklenirken bekle, hata yapma
-
+    if (status === "loading") return;
+    
     if (!session?.user?.email) {
       setLoading(false);
       return;
     }
 
-    const verileriGetir = async () => {
+    const gercegiKontrolEt = async () => {
       try {
         const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
           cache: "no-store",
@@ -67,23 +54,24 @@ export default function HesabimPage() {
         const data = await res.json();
         
         if (res.ok && data.orders) {
-          const benimSiparislerim = data.orders.filter((siparis: any) => {
-            const siparisMaili = siparis.userEmail || siparis.email || siparis.musteri?.eposta || siparis.musteri?.email || "";
-            const musteriMaili = session?.user?.email || ""; 
-            return siparisMaili.toLowerCase() === musteriMaili.toLowerCase();
+          const benimSiparislerim = data.orders.filter((o: any) => {
+            const mail = o.userEmail || o.email || o.musteri?.eposta || o.musteri?.email || "";
+            // 🔥 MÜFETTİŞ HATASI BURADA ÇÖZÜLDÜ: session?.user?.email olarak güncellendi
+            return mail.toLowerCase() === (session?.user?.email || "").toLowerCase() && o.gizlendi !== true;
           });
 
           setHamSiparisler(benimSiparislerim);
-          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ tumSiparisler: benimSiparislerim }));
+          setLoading(false);
         }
       } catch (error) {
-        console.error("Çırak verilere ulaşamadı:", error);
-      } finally {
-        setLoading(false);
+        console.error("Radar bağlantı hatası:", error);
       }
     };
 
-    verileriGetir();
+    gercegiKontrolEt();
+    const radar = setInterval(gercegiKontrolEt, 10000); 
+
+    return () => clearInterval(radar); 
   }, [session, status]);
 
   // 🚀 2. AŞAMA: SEÇİLİ YILA GÖRE GRAFİĞİ VE PASTAYI HESAPLA
@@ -98,7 +86,6 @@ export default function HesabimPage() {
     const aylar = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
     const aylikToplamlar = new Array(12).fill(0);
 
-    // 🍩 Pasta için sayyıcılar
     let cK_toplam = 0, cB_toplam = 0, cC_toplam = 0, cS_toplam = 0, cA_toplam = 0;
 
     hamSiparisler.forEach((siparis: any) => {
@@ -111,7 +98,6 @@ export default function HesabimPage() {
         aylikToplamlar[d.getMonth()] += siparisTutar;
       }
 
-      // Pasta Matematiği
       const urunler = siparis.items || siparis.sepet || [];
       urunler.forEach((item: any) => {
         const ad = (item.isim || item.title || "").toLowerCase();
@@ -140,8 +126,7 @@ export default function HesabimPage() {
     });
 
     setGrafikVerisi(dinamikGrafik);
-
-    // 🍩 Pasta Yüzdelerini Ayarlama
+    
     const genelToplam = cK_toplam + cB_toplam + cC_toplam + cS_toplam + cA_toplam;
     if (genelToplam > 0) {
       const p1 = (cK_toplam / genelToplam) * 100;
@@ -159,8 +144,7 @@ export default function HesabimPage() {
         maxYuzde: Math.round(Math.max(p1, p2, p3, p4, p5))
       });
     }
-    
-    // Yıl değişince, eğer içinde bulunduğumuz yılsa bugünün ayını, değilse hiçbirini yakma
+
     if (seciliYil === suAnkiTarih.getFullYear()) {
       setTiklananAy(suAnkiTarih.getMonth());
     } else {
@@ -176,7 +160,6 @@ export default function HesabimPage() {
 
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-hidden">
-      {/* 🌌 ARKA PLAN UZAY IŞIKLARI */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-6 relative z-10">
@@ -305,7 +288,7 @@ export default function HesabimPage() {
                 <div className="flex flex-row items-center justify-between gap-2 mb-2">
                    <h3 className="text-white font-bold text-base sm:text-lg">Aylık Harcama Grafiği</h3>
                    
-                   <div className="flex items-center gap-1.5 bg-slate-800/30 border border-slate-700/50 rounded-lg px-2 py-1">
+                   <div className="flex items-center gap-1.5 bg-slate-800/30 border border-slate-700/50 rounded-lg px-1.5 py-1">
                      <button onClick={() => setSeciliYil(y => y - 1)} className="p-1 text-slate-400 hover:text-cyan-400 transition-colors">
                        <ChevronLeft className="w-3.5 h-3.5" />
                      </button>
@@ -354,7 +337,7 @@ export default function HesabimPage() {
                 </div>
               </div>
 
-              {/* 2. HARCAMA DAĞILIMI (PASTA MOTORU VE YENİ ETİKETLER) */}
+              {/* 2. HARCAMA DAĞILIMI */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col sm:flex-row items-center gap-8">
                  <div className="shrink-0 space-y-1.5 text-center sm:text-left">
                    <h3 className="text-white font-bold text-base sm:text-lg">Harcama Dağılımı</h3>
@@ -423,28 +406,24 @@ export default function HesabimPage() {
               {/* 3. METRİKLER */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
                  
-                 {/* Adresler */}
                  <Link href="/adreslerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-cyan-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
                    <MapPin className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" />
                    <p className="text-xl sm:text-2xl font-black text-white">2</p>
                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Adresler</p>
                  </Link>
                  
-                 {/* Kargolar */}
                  <Link href="/siparis-takip" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-rose-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
                    <Truck className="w-6 h-6 sm:w-7 sm:h-7 text-rose-400" />
                    <p className="text-xl sm:text-2xl font-black text-white">{hamSiparisler.filter(s => s.status?.toLowerCase().includes("kargo") || s.durum?.toLowerCase().includes("kargo")).length}</p>
                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Kargolar</p>
                  </Link>
                  
-                 {/* Favoriler */}
                  <Link href="https://www.bilginpcmarket.com/favorilerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-purple-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
                    <Star className="w-6 h-6 sm:w-7 sm:h-7 text-purple-400" />
                    <p className="text-xl sm:text-2xl font-black text-white">12</p>
                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Favoriler</p>
                  </Link>
 
-                 {/* 🔥 SİSTEMLER */}
                  <Link href="/sistemlerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-emerald-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
                    <Server className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-400" />
                    <p className="text-xl sm:text-2xl font-black text-white">3</p>
