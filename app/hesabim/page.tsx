@@ -24,7 +24,7 @@ export default function HesabimPage() {
 
       <div className="max-w-[1500px] mx-auto flex flex-col lg:flex-row gap-6 relative z-10">
 
-        {/* ⬅️ SOL MENÜ (SİDEBAR - Adreslerim Buradan Kaldırıldı) */}
+        {/* ⬅️ SOL MENÜ (SİDEBAR) */}
         <div className="w-full lg:w-64 shrink-0 flex flex-col gap-2">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-xl">
             <nav className="flex flex-col gap-1">
@@ -165,7 +165,7 @@ export default function HesabimPage() {
             {/* METRİKLER VE SİSTEM LİSTESİ */}
             <div className="lg:col-span-3 xl:col-span-1 flex flex-col gap-6">
               <div className="grid grid-cols-3 gap-4">
-                 {/* 🚀 YENİ KUTU: ADRESYLERİM ARTIK BURADA PARLIYOR */}
+                 {/* ADRESLERİM KUTUSU */}
                  <Link href="/adreslerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-cyan-500/20 rounded-2xl p-4 shadow-xl flex flex-col items-center gap-2 transition-colors">
                    <MapPin className="w-8 h-8 text-cyan-400" />
                    <p className="text-3xl font-black text-white">2</p>
@@ -176,14 +176,15 @@ export default function HesabimPage() {
                    <p className="text-3xl font-black text-white">1</p>
                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Kargolar</p>
                  </Link>
-                 <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col items-center gap-2">
+                 {/* 🚀 FAVORİLERİM ARTIK SENİN O ÖZEL LİNKE BAĞLANDI VE HIZLANDIRILDI */}
+                 <Link href="https://www.bilginpcmarket.com/favorilerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-purple-500/20 rounded-2xl p-4 shadow-xl flex flex-col items-center gap-2 transition-colors">
                    <Star className="w-8 h-8 text-purple-400" />
                    <p className="text-3xl font-black text-white">12</p>
                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Favoriler</p>
-                 </div>
+                 </Link>
               </div>
 
-              {/* Sistem Listesi Kartı (Dükkanda tek başına netleşti!) */}
+              {/* Sistem Listesi Kartı */}
               <Link href="/sistemlerim" prefetch={true} className="block bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl hover:border-cyan-500/30 transition-all duration-300 group">
                  <div className="flex items-center justify-between mb-6">
                    <h3 className="text-white font-bold text-lg">Sistem Listesi</h3>
