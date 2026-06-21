@@ -30,9 +30,9 @@ export default function HesabimPage() {
       aciklama: "Kargonuzun anlık durumunu izleyin", 
       ikon: Truck, 
       link: "/siparis-takip", 
-      renk: "text-purple-400", 
-      bg: "bg-purple-500/10",
-      border: "group-hover:border-purple-500/30" 
+      renk: "text-orange-400", 
+      bg: "bg-orange-500/10",
+      border: "group-hover:border-orange-500/30" 
     },
     { 
       id: "sistemlerim", 
@@ -87,28 +87,36 @@ export default function HesabimPage() {
         
         {/* 🏆 ÜST LOBİ EKRANI */}
         {session ? (
-          /* GİRİŞ YAPAN MÜŞTERİ KARTI */
-          <div className="bg-[#09090b] border border-white/5 rounded-3xl p-6 sm:p-8 mb-8 shadow-xl">
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-6">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-[#121215] border border-[#3b82f6]/30 flex items-center justify-center shrink-0">
-                 <span className="text-3xl sm:text-4xl font-black text-[#3b82f6]">
+          /* GİRİŞ YAPAN MÜŞTERİ KARTI (Mobil için Yan Yana Dizilim) */
+          <div className="bg-[#09090b] border border-white/5 rounded-3xl p-5 sm:p-8 mb-8 shadow-xl">
+            <div className="flex flex-row items-center gap-4 sm:gap-6">
+              
+              {/* AVATAR */}
+              <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-[#121215] border border-[#3b82f6]/30 flex items-center justify-center shrink-0">
+                 <span className="text-2xl sm:text-4xl font-black text-[#3b82f6]">
                    {basHarf}
                  </span>
               </div>
-              <div className="text-center sm:text-left flex-1 flex flex-col justify-center h-full mt-2 sm:mt-0">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#3b82f6]/10 border border-[#3b82f6]/20 text-[#3b82f6] text-[10px] font-black tracking-widest uppercase mb-3.5 mx-auto sm:mx-0 w-fit">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#3b82f6]"></span> BİLGİN PC ÜYESİ
+              
+              {/* KULLANICI BİLGİLERİ */}
+              <div className="text-left flex-1 flex flex-col justify-center min-w-0">
+                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full bg-[#3b82f6]/10 border border-[#3b82f6]/20 text-[#3b82f6] text-[9px] sm:text-[10px] font-black tracking-widest uppercase mb-1 sm:mb-3.5 w-fit">
+                  <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-[#3b82f6]"></span> BİLGİN PC ÜYESİ
                 </div>
-                <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight break-words leading-none">
+                <h1 className="text-lg sm:text-3xl font-black text-white tracking-tight truncate leading-none">
                   {userName}
                 </h1>
-                {userEmail && <p className="text-slate-400 text-xs sm:text-sm mt-2 font-medium">{userEmail}</p>}
+                {userEmail && <p className="text-slate-400 text-[10px] sm:text-sm mt-1 sm:mt-2 font-medium truncate">{userEmail}</p>}
               </div>
+              
+              {/* ÇIKIŞ BUTONU (Mobilde sadece ikon, PC'de tam yazı) */}
               <button 
                 onClick={handleCikisYap} 
-                className="mt-4 sm:mt-0 sm:self-center flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all font-black uppercase tracking-widest text-[10px] sm:text-xs shrink-0"
+                className="flex items-center justify-center gap-2 p-3 sm:px-5 sm:py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all font-black uppercase tracking-widest shrink-0"
+                title="Çıkış Yap"
               >
-                <LogOut className="w-3.5 h-3.5" /> Çıkış
+                <LogOut className="w-5 h-5 sm:w-3.5 sm:h-3.5" />
+                <span className="hidden sm:block text-xs">Çıkış</span>
               </button>
             </div>
           </div>
@@ -132,9 +140,9 @@ export default function HesabimPage() {
                 <Link href="/giris" className="flex items-center justify-center px-8 py-3.5 rounded-xl bg-[#3b82f6] text-white font-black uppercase tracking-widest text-xs hover:bg-blue-600 transition-all shadow-[0_0_15px_rgba(59,130,246,0.2)]">
                   Giriş Yap
                 </Link>
-               <Link href="https://www.bilginpcmarket.com/kayit" className="flex items-center justify-center px-8 py-3.5 rounded-xl bg-[#121215] border border-white/10 text-white font-black uppercase tracking-widest text-xs hover:bg-white/5 hover:border-white/20 transition-all">
-  Yeni Kayıt
-</Link>
+                <Link href="https://www.bilginpcmarket.com/kayit" className="flex items-center justify-center px-8 py-3.5 rounded-xl bg-[#121215] border border-white/10 text-white font-black uppercase tracking-widest text-xs hover:bg-white/5 hover:border-white/20 transition-all">
+                  Yeni Kayıt
+                </Link>
               </div>
             </div>
           </div>
