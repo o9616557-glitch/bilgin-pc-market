@@ -92,7 +92,7 @@ export default function Footer() {
             {/* Ayrı İndirme Alanı (Üstte) */}
             <div className="flex flex-col gap-3">
               <h3 className="text-white font-black text-lg uppercase tracking-wider mb-1">MOBİL UYGULAMA</h3>
-              <a href="#" className="flex items-center gap-3 bg-transparent border border-slate-700 hover:border-[#3b82f6] transition-all p-3 rounded-xl group w-max">
+            <a href="https://play.google.com/store/apps/details?id=com.bilginpcmarket.bilginpcmarket" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-transparent border border-slate-700 hover:border-[#3b82f6] transition-all p-3 rounded-xl group w-max">
                 <Smartphone className="w-8 h-8 text-[#3b82f6] group-hover:scale-110 transition-transform" />
                 <div className="flex flex-col">
                   <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-1">Hemen İndir</span>
