@@ -288,9 +288,10 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                 <Search className="w-5 h-5 md:w-5 md:h-5 shrink-0 group-hover:scale-110 transition-transform" />
               </button>
 
-           {/* HESABIM (DİREKT LÜKS GARAJA GİDER) */}
+         {/* HESABIM (DİREKT LÜKS GARAJA GİDER) */}
               <div className="relative flex items-center h-full">
-                <Link href={session?.user ? "/hesabim" : "/giris"} prefetch={true} className="flex items-center gap-2 p-2 text-gray-300 hover:text-[#3b82f6] transition-colors group">
+                {/* 🚀 ARTIK HERKESİ HESABIM SAYFASINA ALIYORUZ, VİTRİNİ ORADA GÖRECEKLER */}
+                <Link href="/hesabim" prefetch={true} className="flex items-center gap-2 p-2 text-gray-300 hover:text-[#3b82f6] transition-colors group">
                   <span className="hidden sm:block text-sm font-bold">
                     {session?.user?.name ? session.user.name.split(" ")[0] : "Hesabım"}
                   </span>
