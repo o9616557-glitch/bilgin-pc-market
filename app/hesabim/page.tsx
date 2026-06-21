@@ -38,7 +38,6 @@ export default function HesabimPage() {
   const [kopyalananKod, setKopyalananKargo] = useState<string | null>(null);
   const [girisSartModal, setGirisSartModal] = useState(false);
 
-  // GENEL PASTA
   const [pastaVerisi, setPastaVerisi] = useState({
     kendinTopla: { yuzde: 0, tutar: 0, offset: 0 },
     bilesen: { yuzde: 0, tutar: 0, offset: 0 },
@@ -48,7 +47,6 @@ export default function HesabimPage() {
     maxYuzde: 0
   });
 
-  // YENİ: AYLIK DİNAMİK PASTA
   const [aylikPastaVerisi, setAylikPastaVerisi] = useState({
     kendinTopla: { yuzde: 0, offset: 0 },
     bilesen: { yuzde: 0, offset: 0 },
@@ -173,7 +171,6 @@ export default function HesabimPage() {
     return () => clearInterval(radar); 
   }, [session, status]);
 
-  // ÇİFT MOTORLU MATEMATİK ALANI
   useEffect(() => {
     if (!hamSiparisler || hamSiparisler.length === 0) return;
 
@@ -186,10 +183,8 @@ export default function HesabimPage() {
     const aylarUzun = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
     const aylikToplamlar = new Array(12).fill(0);
 
-    // Genel Toplam Değişkenleri
     let cK_toplam = 0, cB_toplam = 0, cC_toplam = 0, cS_toplam = 0, cA_toplam = 0;
     
-    // Tıklanan Ay Toplam Değişkenleri
     let m_cK = 0, m_cB = 0, m_cC = 0, m_cS = 0, m_cA = 0;
     const aktifAy = tiklananAy !== null ? tiklananAy : suAnkiTarih.getMonth();
 
@@ -216,21 +211,18 @@ export default function HesabimPage() {
         const kimlik = `${item.kategoriSlug || ''} ${item.kategori || ''} ${item.slug || ''} ${item.isim || ''} ${item.title || ''}`.toLocaleLowerCase('tr-TR');
         const urunTutar = (Number(item.fiyat || item.price) * (item.adet || item.quantity)) || 0;
 
-        // Kategori Tespiti
         let kategoriTipi = "aksesuar";
         if (kimlik.includes("kendin") || kimlik.includes("topla") || kimlik.includes("sihirbaz")) kategoriTipi = "kendin";
         else if (["oyun-bilgisayari", "laptop", "notebook", "masaüstü", "masaustu", "oem-paket", "isletim", "yazılım", "yazilim"].some(k => kimlik.includes(k))) kategoriTipi = "sistem";
         else if (["anakart", "ekran-kart", "ekran kart", "islemci", "işlemci", "ram", "ssd", "hdd", "kasa", "psu", "sogutma", "soğutma"].some(k => kimlik.includes(k))) kategoriTipi = "bilesen";
         else if (["monitör", "monitor", "klavye", "mouse", "kulaklık", "kulaklik", "mikrofon", "oyun-kolu", "direksiyon", "hoparlör", "hoparlor"].some(k => kimlik.includes(k))) kategoriTipi = "cevre";
 
-        // Genel Toplama Ekle
         if (kategoriTipi === "kendin") cK_toplam += urunTutar;
         else if (kategoriTipi === "sistem") cS_toplam += urunTutar;
         else if (kategoriTipi === "bilesen") cB_toplam += urunTutar;
         else if (kategoriTipi === "cevre") cC_toplam += urunTutar;
         else cA_toplam += urunTutar;
 
-        // EĞER SEÇİLİ YIL VE SEÇİLİ AY İSE AYLIK TOPLAMA DA EKLE
         if (siparisYili === seciliYil && siparisAyi === aktifAy) {
           if (kategoriTipi === "kendin") m_cK += urunTutar;
           else if (kategoriTipi === "sistem") m_cS += urunTutar;
@@ -248,7 +240,6 @@ export default function HesabimPage() {
     });
     setGrafikVerisi(dinamikGrafik);
     
-    // 1. GENEL PASTA HESABI
     const genelToplam = cK_toplam + cB_toplam + cC_toplam + cS_toplam + cA_toplam;
     if (genelToplam > 0) {
       const p1 = (cK_toplam / genelToplam) * 100;
@@ -267,7 +258,6 @@ export default function HesabimPage() {
       });
     }
 
-    // 2. AYLIK DİNAMİK PASTA HESABI
     const aylikNetToplam = m_cK + m_cB + m_cC + m_cS + m_cA;
     if (aylikNetToplam > 0) {
       const ap1 = (m_cK / aylikNetToplam) * 100;
@@ -482,59 +472,8 @@ export default function HesabimPage() {
             </div>
 
             <div className="xl:col-span-2 flex flex-col gap-6">
-              
-              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
-                <div className="flex flex-row items-center justify-between gap-2 mb-2">
-                   <h3 className="text-white font-bold text-base sm:text-lg">Aylık Harcama Grafiği</h3>
-                   
-                   <div className="flex items-center gap-1.5 bg-slate-800/30 border border-slate-700/50 rounded-lg px-1.5 py-1">
-                     <button onClick={() => setSeciliYil(y => y - 1)} className="p-1 text-slate-400 hover:text-cyan-400 transition-colors">
-                       <ChevronLeft className="w-3.5 h-3.5" />
-                     </button>
-                     <span className="text-[11px] sm:text-xs font-black text-slate-200 w-8 text-center">{seciliYil}</span>
-                     <button onClick={() => setSeciliYil(y => y + 1)} className="p-1 text-slate-400 hover:text-cyan-400 transition-colors" disabled={seciliYil >= suAnkiTarih.getFullYear()}>
-                       <ChevronRight className="w-3.5 h-3.5" />
-                     </button>
-                   </div>
-                </div>
-                
-                <div className="bg-white/[0.02] border border-white/5 rounded-xl flex items-end justify-between pt-10 pb-4 px-1 sm:px-4 h-[220px] relative mt-2">
-                  {grafikVerisi.length > 0 ? grafikVerisi.map((item, i) => {
-                    const isSecili = tiklananAy === i;
-                    const isHovered = hoveredIndex === i;
-                    const isTooltipGozukecek = (isHovered || isSecili) && item.tutar > 0;
 
-                    return (
-                      <div 
-                        key={i} 
-                        className="flex-1 flex flex-col items-center justify-end h-full relative group px-0.5 sm:px-2 outline-none select-none [-webkit-tap-highlight-color:transparent]"
-                        onMouseEnter={() => setHoveredIndex(i)}
-                        onMouseLeave={() => setHoveredIndex(null)}
-                        onClick={() => setTiklananAy(i)} 
-                      >
-                        {isTooltipGozukecek && (
-                          <div className={`absolute bottom-[105%] bg-[#090f1e] border border-cyan-500 text-cyan-400 font-black text-[10px] sm:text-xs px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-md shadow-[0_0_15px_rgba(6,182,212,0.4)] whitespace-nowrap z-50 ${isSecili ? '' : 'animate-in fade-in zoom-in-95 duration-150'}`}>
-                            {item.tutar.toLocaleString("tr-TR")} ₺
-                          </div>
-                        )}
-
-                        <div className="w-full flex items-end justify-center h-[140px]">
-                          <div 
-                            className={`w-full max-w-[36px] rounded-t-sm transition-all duration-500 ease-out cursor-pointer ${isSecili ? 'bg-gradient-to-b from-cyan-300 to-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.4)] scale-[1.05]' : 'bg-gradient-to-b from-slate-600 to-slate-800 hover:from-cyan-400 hover:to-cyan-600 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)]'}`} 
-                            style={{ height: `${item.yuzde}%` }}
-                          ></div>
-                        </div>
-
-                        <span className={`text-[9px] sm:text-[10px] font-black mt-2 shrink-0 transition-colors uppercase tracking-wider ${isSecili ? 'text-cyan-400' : 'text-slate-500 group-hover:text-cyan-400'}`}>
-                          {item.etiket}
-                        </span>
-                      </div>
-                    )
-                  }) : null}
-                </div>
-              </div>
-
-              {/* 🚀 YENİ: ÇİFT MOTORLU HARCAMA DAĞILIMI (AYLIK VE GENEL YANYANA) */}
+              {/* 🚀 ÜSTE ALINAN BÖLÜM: ÇİFT MOTORLU HARCAMA DAĞILIMI */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col xl:flex-row items-center gap-6 overflow-hidden">
                  
                  <div className="shrink-0 space-y-1.5 text-center xl:text-left xl:w-[140px]">
@@ -568,7 +507,6 @@ export default function HesabimPage() {
                          <span className="text-sm font-black text-white">{aylikPastaVerisi.maxYuzde}%</span>
                        </div>
                      </div>
-                     {/* SADECE YÜZDELER VE RENK NOKTALARI (Yazısız) */}
                      <div className="flex flex-wrap justify-center gap-2 max-w-[120px]">
                        {aylikPastaVerisi.kendinTopla.yuzde > 0 && <span className="text-[10px] text-amber-400 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>{aylikPastaVerisi.kendinTopla.yuzde}%</span>}
                        {aylikPastaVerisi.bilesen.yuzde > 0 && <span className="text-[10px] text-cyan-400 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-cyan-500 rounded-full"></span>{aylikPastaVerisi.bilesen.yuzde}%</span>}
@@ -579,10 +517,9 @@ export default function HesabimPage() {
                      </div>
                    </div>
 
-                   {/* AYIRICI ÇİZGİ */}
                    <div className="hidden sm:block w-[1px] h-24 bg-slate-800/80 mx-2"></div>
 
-                   {/* 2. BÜYÜK PASTA (GENEL TOPLAM) - Eski Haliyle Aynı */}
+                   {/* 2. BÜYÜK PASTA (GENEL TOPLAM) */}
                    <div className="flex flex-col sm:flex-row items-center justify-end gap-6 relative">
                      <span className="absolute -top-3 sm:-top-4 left-1/2 sm:left-auto sm:right-4 -translate-x-1/2 sm:translate-x-0 bg-slate-800 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest whitespace-nowrap">
                        TÜM ZAMANLAR
@@ -651,6 +588,58 @@ export default function HesabimPage() {
                    </div>
 
                  </div>
+              </div>
+              
+              {/* 📊 ALTA ALINAN BÖLÜM: AYLIK HARCAMA GRAFİĞİ */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
+                <div className="flex flex-row items-center justify-between gap-2 mb-2">
+                   <h3 className="text-white font-bold text-base sm:text-lg">Aylık Harcama Grafiği</h3>
+                   
+                   <div className="flex items-center gap-1.5 bg-slate-800/30 border border-slate-700/50 rounded-lg px-1.5 py-1">
+                     <button onClick={() => setSeciliYil(y => y - 1)} className="p-1 text-slate-400 hover:text-cyan-400 transition-colors">
+                       <ChevronLeft className="w-3.5 h-3.5" />
+                     </button>
+                     <span className="text-[11px] sm:text-xs font-black text-slate-200 w-8 text-center">{seciliYil}</span>
+                     <button onClick={() => setSeciliYil(y => y + 1)} className="p-1 text-slate-400 hover:text-cyan-400 transition-colors" disabled={seciliYil >= suAnkiTarih.getFullYear()}>
+                       <ChevronRight className="w-3.5 h-3.5" />
+                     </button>
+                   </div>
+                </div>
+                
+                <div className="bg-white/[0.02] border border-white/5 rounded-xl flex items-end justify-between pt-10 pb-4 px-1 sm:px-4 h-[220px] relative mt-2">
+                  {grafikVerisi.length > 0 ? grafikVerisi.map((item, i) => {
+                    const isSecili = tiklananAy === i;
+                    const isHovered = hoveredIndex === i;
+                    const isTooltipGozukecek = (isHovered || isSecili) && item.tutar > 0;
+
+                    return (
+                      <div 
+                        key={i} 
+                        className="flex-1 flex flex-col items-center justify-end h-full relative group px-0.5 sm:px-2 outline-none select-none [-webkit-tap-highlight-color:transparent]"
+                        onMouseEnter={() => setHoveredIndex(i)}
+                        onMouseLeave={() => setHoveredIndex(null)}
+                        onClick={() => setTiklananAy(i)} 
+                      >
+                        {isTooltipGozukecek && (
+                          <div className={`absolute bottom-[105%] bg-[#090f1e] border border-cyan-500 text-cyan-400 font-black text-[10px] sm:text-xs px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-md shadow-[0_0_15px_rgba(6,182,212,0.4)] whitespace-nowrap z-50 ${isSecili ? '' : 'animate-in fade-in zoom-in-95 duration-150'}`}>
+                            {item.tutar.toLocaleString("tr-TR")} ₺
+                          </div>
+                        )}
+
+                        <div className="w-full flex items-end justify-center h-[140px]">
+                          <div 
+                            className={`w-full max-w-[36px] rounded-t-sm transition-all duration-500 ease-out cursor-pointer ${isSecili ? 'bg-gradient-to-b from-cyan-300 to-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.4)] scale-[1.05]' : 'bg-gradient-to-b from-slate-600 to-slate-800 hover:from-cyan-400 hover:to-cyan-600 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)]'}`} 
+                            style={{ height: `${item.yuzde}%` }}
+                          ></div>
+                        </div>
+
+                        <span className={`text-[9px] sm:text-[10px] font-black mt-2 shrink-0 transition-colors uppercase tracking-wider ${isSecili ? 'text-cyan-400' : 'text-slate-500 group-hover:text-cyan-400'}`}>
+                          {item.etiket}
+                        </span>
+                      </div>
+                    )
+                  }) : null}
+                </div>
               </div>
 
             </div>
