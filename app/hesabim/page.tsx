@@ -6,14 +6,14 @@ import { useSession, signOut } from "next-auth/react";
 import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function HesabimPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   
   // 🧠 CANLI VERİ VE GRAFİK MOTORLARI
   const [hamSiparisler, setHamSiparisler] = useState<any[]>([]);
   const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
   const [grafikVerisi, setGrafikVerisi] = useState<any[]>([]);
-
-  // 🍩 CANLI PASTA MOTORU (Sadece burası eklendi)
+  
+  // 🍩 PASTA MOTORU (Sadece burası senin koduna eklendi)
   const [pastaVerisi, setPastaVerisi] = useState({
     kendinTopla: { yuzde: 35, tutar: 0, offset: 0 },
     bilesen: { yuzde: 25, tutar: 0, offset: 35 },
@@ -22,7 +22,7 @@ export default function HesabimPage() {
     aksesuar: { yuzde: 8, tutar: 0, offset: 92 },
     maxYuzde: 35
   });
-  
+
   // 📅 YIL, AY VE TIKLAMA KONTROLLERİ
   const suAnkiTarih = new Date();
   const [seciliYil, setSeciliYil] = useState<number>(suAnkiTarih.getFullYear());
@@ -38,6 +38,8 @@ export default function HesabimPage() {
 
   // 🚀 1. AŞAMA: VERİTABANINDAN TÜM SİPARİŞLERİ ÇEK
   useEffect(() => {
+    if (status === "loading") return; // 🛑 ŞEFİM: SAYFA GEÇİŞİNDEKİ O GICIK LOADING HATASINI BURASI ÇÖZDÜ!
+
     if (!session?.user?.email) {
       setLoading(false);
       return;
@@ -77,9 +79,9 @@ export default function HesabimPage() {
     };
 
     verileriGetir();
-  }, [session]);
+  }, [session, status]);
 
-  // 🚀 2. AŞAMA: SEÇİLİ YILA GÖRE GRAFİĞİ VE PASTAYI HESAPLA
+  // 🚀 2. AŞAMA: SEÇİLİ YILA GÖRE GRAFİĞİ HESAPLA
   useEffect(() => {
     if (!hamSiparisler || hamSiparisler.length === 0) return;
 
@@ -91,15 +93,17 @@ export default function HesabimPage() {
     const aylar = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
     const aylikToplamlar = new Array(12).fill(0);
 
-    // 🍩 Pasta için sayyıcılar (Sadece burası eklendi)
+    // 🍩 Pasta için sayaçlar eklendi
     let cK_toplam = 0, cB_toplam = 0, cC_toplam = 0, cS_toplam = 0, cA_toplam = 0;
 
     hamSiparisler.forEach((siparis: any) => {
       const d = new Date(siparis.createdAt || siparis.tarih);
       if (isNaN(d.getTime())) return;
 
+      const siparisTutar = Number(siparis.totalPrice || siparis.toplamTutar) || 0;
+
       if (d.getFullYear() === seciliYil) {
-        aylikToplamlar[d.getMonth()] += Number(siparis.totalPrice || siparis.toplamTutar) || 0;
+        aylikToplamlar[d.getMonth()] += siparisTutar;
       }
 
       // Pasta Matematiği
@@ -132,7 +136,7 @@ export default function HesabimPage() {
 
     setGrafikVerisi(dinamikGrafik);
     
-    // 🍩 Pasta Yüzdelerini Ayarlama (Sadece burası eklendi)
+    // 🍩 Pasta Yüzdelerini Ayarlama
     const genelToplam = cK_toplam + cB_toplam + cC_toplam + cS_toplam + cA_toplam;
     if (genelToplam > 0) {
       const p1 = (cK_toplam / genelToplam) * 100;
@@ -320,7 +324,7 @@ export default function HesabimPage() {
                         className="flex-1 flex flex-col items-center justify-end h-full relative group px-0.5 sm:px-2 outline-none select-none [-webkit-tap-highlight-color:transparent]"
                         onMouseEnter={() => setHoveredIndex(i)}
                         onMouseLeave={() => setHoveredIndex(null)}
-                        onClick={() => setTiklananAy(i)}
+                        onClick={() => setTiklananAy(i)} 
                       >
                         {isTooltipGozukecek && (
                           <div className={`absolute bottom-[105%] bg-[#090f1e] border border-cyan-500 text-cyan-400 font-black text-[10px] sm:text-xs px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-md shadow-[0_0_15px_rgba(6,182,212,0.4)] whitespace-nowrap z-50 ${isSecili ? '' : 'animate-in fade-in zoom-in-95 duration-150'}`}>
@@ -345,7 +349,7 @@ export default function HesabimPage() {
                 </div>
               </div>
 
-              {/* 2. HARCAMA DAĞILIMI (Sadece burası 5 kategoriye göre güncellendi) */}
+              {/* 2. HARCAMA DAĞILIMI (SADECE BURASI DEĞİŞTİRİLDİ) */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col sm:flex-row items-center gap-8">
                  <div className="shrink-0 space-y-1.5 text-center sm:text-left">
                    <h3 className="text-white font-bold text-base sm:text-lg">Harcama Dağılımı</h3>
@@ -378,7 +382,7 @@ export default function HesabimPage() {
               </div>
 
               {/* 3. METRİKLER */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
                  
                  {/* Adresler */}
                  <Link href="/adreslerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-cyan-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
@@ -401,7 +405,7 @@ export default function HesabimPage() {
                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Favoriler</p>
                  </Link>
 
-                 {/* Sistemler */}
+                 {/* 🔥 SİSTEMLER */}
                  <Link href="/sistemlerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-emerald-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
                    <Server className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-400" />
                    <p className="text-xl sm:text-2xl font-black text-white">3</p>
