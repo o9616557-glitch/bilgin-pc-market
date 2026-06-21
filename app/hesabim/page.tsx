@@ -6,7 +6,7 @@ import { useSession, signOut } from "next-auth/react";
 import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function HesabimPage() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession(); // 🔥 Takoz (status) tamamen kaldırıldı!
   
   // 🧠 CANLI VERİ VE GRAFİK MOTORLARI
   const [hamSiparisler, setHamSiparisler] = useState<any[]>([]);
@@ -27,18 +27,17 @@ export default function HesabimPage() {
   const suAnkiTarih = new Date();
   const [seciliYil, setSeciliYil] = useState<number>(suAnkiTarih.getFullYear());
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [tiklananAy, setTiklananAy] = useState<number | null>(suAnkiTarih.getMonth());
+  const [tiklananAy, setTiklananAy] = useState<number | null>(suAnkiTarih.getMonth()); // Varsayılan: Bulunduğumuz Ay
   const [loading, setLoading] = useState(true);
 
   const handleCikisYap = async () => {
     localStorage.removeItem("bilgin_kayitli_sistemler");
+    sessionStorage.removeItem("bilgin_hesabim_data");
     await signOut({ callbackUrl: "/" });
   };
 
-  // 🚀 SESSİZ CANLI TAKİP MOTORU (RADAR)
+  // 🚀 1. AŞAMA: SESSİZ CANLI TAKİP MOTORU (RADAR)
   useEffect(() => {
-    if (status === "loading") return;
-    
     if (!session?.user?.email) {
       setLoading(false);
       return;
@@ -46,6 +45,15 @@ export default function HesabimPage() {
 
     const gercegiKontrolEt = async () => {
       try {
+        // 🔥 1. ADIM: BEKLEME YOK! Anında hafızadan oku ve ekrana bas.
+        const hafiza = sessionStorage.getItem("bilgin_hesabim_data");
+        if (hafiza) {
+          const parsed = JSON.parse(hafiza);
+          setHamSiparisler(parsed.tumSiparisler || []);
+          setLoading(false);
+        }
+
+        // 🔥 2. ADIM: Arka planda sessizce gerçeği kontrol et (Radar)
         const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
@@ -56,23 +64,26 @@ export default function HesabimPage() {
         if (res.ok && data.orders) {
           const benimSiparislerim = data.orders.filter((o: any) => {
             const mail = o.userEmail || o.email || o.musteri?.eposta || o.musteri?.email || "";
-            // 🔥 MÜFETTİŞ HATASI BURADA ÇÖZÜLDÜ: session?.user?.email olarak güncellendi
             return mail.toLowerCase() === (session?.user?.email || "").toLowerCase() && o.gizlendi !== true;
           });
 
           setHamSiparisler(benimSiparislerim);
+          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ tumSiparisler: benimSiparislerim }));
           setLoading(false);
         }
       } catch (error) {
         console.error("Radar bağlantı hatası:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     gercegiKontrolEt();
+    // 🔥 Siparişler sayfasındaki gibi 10 saniyelik radar
     const radar = setInterval(gercegiKontrolEt, 10000); 
 
     return () => clearInterval(radar); 
-  }, [session, status]);
+  }, [session]);
 
   // 🚀 2. AŞAMA: SEÇİLİ YILA GÖRE GRAFİĞİ VE PASTAYI HESAPLA
   useEffect(() => {
