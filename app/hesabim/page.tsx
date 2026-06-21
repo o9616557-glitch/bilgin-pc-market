@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star } from "lucide-react";
+import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin } from "lucide-react";
 
 export default function HesabimPage() {
   const { data: session } = useSession();
@@ -16,30 +16,35 @@ export default function HesabimPage() {
   const userName = session?.user?.name || "Özkan";
   const userEmail = session?.user?.email || "";
   const basHarf = userName ? userName.charAt(0).toUpperCase() : "Ö";
-  const isAdmin = userEmail.toLowerCase() === "o9616557@gmail.com";
 
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-8 relative overflow-hidden">
-      {/* 🌌 ARKA PLAN UZAY IŞIKLARI (Görseldeki parlayan arka plan) */}
+      {/* 🌌 ARKA PLAN UZAY IŞIKLARI */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
       <div className="max-w-[1500px] mx-auto flex flex-col lg:flex-row gap-6 relative z-10">
 
-        {/* ⬅️ SOL MENÜ (SİDEBAR - Görseldeki Sol Panel) */}
+        {/* ⬅️ SOL MENÜ (SİDEBAR - Adreslerim Eklendi!) */}
         <div className="w-full lg:w-64 shrink-0 flex flex-col gap-2">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-xl">
             <nav className="flex flex-col gap-1">
               <Link href="/hesabim" prefetch={true} className="flex items-center gap-3 px-4 py-3 bg-white/[0.05] border border-white/10 rounded-xl text-white font-medium shadow-inner transition-all">
                 <User className="w-5 h-5 text-slate-400" /> Profil
               </Link>
-              <Link href="/hesabim" prefetch={true} className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
-                <ShieldCheck className="w-5 h-5" /> Güvenlik
+              <Link href="/sistemlerim" prefetch={true} className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+                <Server className="w-5 h-5" /> Sistemlerim
+              </Link>
+              <Link href="/siparislerim" prefetch={true} className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+                <Package className="w-5 h-5" /> Siparişlerim
+              </Link>
+              <Link href="/adreslerim" prefetch={true} className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+                <MapPin className="w-5 h-5" /> Adreslerim
               </Link>
               <Link href="/hesabim" prefetch={true} className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
                 <CreditCard className="w-5 h-5" /> Ödeme Yöntemleri
               </Link>
-              <Link href="/siparislerim" prefetch={true} className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
-                <Package className="w-5 h-5" /> Siparişlerim
+              <Link href="/hesabim" prefetch={true} className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+                <ShieldCheck className="w-5 h-5" /> Güvenlik
               </Link>
             </nav>
           </div>
@@ -48,14 +53,11 @@ export default function HesabimPage() {
         {/* ➡️ SAĞ TARAF (ANA KUMANDA MERKEZİ) */}
         <div className="flex-1 flex flex-col min-w-0 gap-6">
 
-          {/* 🏆 NEON PROFİL KARTI (Görseldeki Üst Panel) */}
+          {/* 🏆 NEON PROFİL KARTI */}
           <div className="relative rounded-[2rem] p-[2px] bg-gradient-to-r from-cyan-500/30 via-[#0f172a] to-cyan-500/10 shadow-[0_0_50px_rgba(0,210,255,0.15)] group">
-            {/* Dış Parlama Efekti */}
             <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-transparent opacity-20 blur-xl rounded-[2rem] transition-opacity duration-500"></div>
 
             <div className="relative bg-[#0b1121] rounded-[2rem] p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 sm:gap-8 border border-cyan-500/20 overflow-hidden z-10">
-
-              {/* Sol Arka Plan Işığı */}
               <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-gradient-to-r from-cyan-500/10 to-transparent pointer-events-none"></div>
 
               {/* ⚡ CYBERPUNK AVATAR */}
@@ -83,11 +85,9 @@ export default function HesabimPage() {
               <button onClick={handleCikisYap} className="relative z-10 flex items-center gap-2 px-6 py-3 rounded-xl bg-red-950/40 border border-red-900/50 text-red-400 hover:bg-red-900/60 hover:text-red-300 hover:border-red-500/50 transition-all font-bold uppercase tracking-widest text-xs shadow-[0_0_20px_rgba(220,38,38,0.1)]">
                 <LogOut className="w-4 h-4" /> Çıkış
               </button>
-
             </div>
           </div>
 
-          {/* ALT KISIM BAŞLIĞI */}
           <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest mt-4 ml-2">
             HESAP YÖNETİMİ
           </h2>
@@ -95,15 +95,12 @@ export default function HesabimPage() {
           {/* 🧩 DASHBOARD BİLEŞENLERİ */}
           <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 
-            {/* ⬅️ SOL SÜTUN */}
+            {/* SON İŞLEMLER */}
             <div className="lg:col-span-1 xl:col-span-1 flex flex-col gap-6">
-              
-              {/* Son İşlemler Tablosu */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
                 <div className="absolute -top-10 -left-10 w-40 h-40 bg-cyan-500/10 blur-[50px] pointer-events-none rounded-full"></div>
                 <h3 className="text-white font-bold text-lg mb-6 relative z-10">Son İşlemler</h3>
                 <div className="space-y-4 relative z-10">
-                  {/* Örnek veri */}
                   {[
                     { date: "20.11.2024", system: "Custom Rig", price: "595,00", status: "Active" },
                     { date: "20.11.2024", system: "Custom Rig", price: "995,00", status: "Active" },
@@ -125,18 +122,14 @@ export default function HesabimPage() {
                   ))}
                 </div>
               </div>
-
             </div>
 
-            {/* ➡️ ORTA SÜTUN */}
+            {/* GRAFİKLER (Harcama Dağılımı Tamamen Değişti!) */}
             <div className="lg:col-span-2 xl:col-span-2 flex flex-col gap-6">
-
-              {/* Grafikler */}
               <div className="flex-1 bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row gap-6">
                 <div className="flex-1 space-y-3">
                    <h3 className="text-white font-bold text-lg">Sipariş Geçmişi</h3>
                    <div className="h-40 bg-white/[0.02] border border-white/5 rounded-xl flex items-center justify-center">
-                     {/* Tailwind ile grafik simülasyonu */}
                      <div className="flex items-end gap-1.5 h-32 px-4 w-full">
                        {[60, 40, 80, 50, 70, 90, 40, 60, 30, 70, 50, 80].map((h, i) => (
                          <div key={i} className="flex-1 bg-gradient-to-b from-cyan-400 to-cyan-600 rounded-sm" style={{ height: `${h}%` }}></div>
@@ -147,42 +140,60 @@ export default function HesabimPage() {
                       <span className="text-[10px] text-slate-500 font-medium">Last 12 Months</span>
                    </div>
                 </div>
+
+                {/* 💎 PREMIUM HARCAMA DAĞILIMI (Gelişmiş SVG Donut Çemberi) */}
                 <div className="w-full md:w-[280px] space-y-3">
                    <h3 className="text-white font-bold text-lg">Harcama Dağılımı</h3>
-                   <div className="h-40 bg-white/[0.02] border border-white/5 rounded-xl flex items-center justify-center">
-                     {/* Tailwind ile pasta grafik simülasyonu */}
-                     <div className="w-32 h-32 rounded-full border-[15px] border-cyan-500 relative flex items-center justify-center shadow-[inset_0_0_20px_rgba(0,0,0,0.5),0_0_20px_rgba(34,211,255,0.3)]">
-                        <span className="text-lg font-black text-white">45%</span>
-                        <div className="absolute top-0 right-0 w-16 h-16 rounded-full border-[15px] border-rose-500" style={{ transform: 'rotate(60deg) translate(-5px, -5px)' }}></div>
-                        <div className="absolute top-0 left-0 w-16 h-16 rounded-full border-[15px] border-purple-500" style={{ transform: 'rotate(150deg) translate(-5px, 5px)' }}></div>
-                        <div className="absolute bottom-0 right-0 w-16 h-16 rounded-full border-[15px] border-emerald-500" style={{ transform: 'rotate(240deg) translate(5px, 5px)' }}></div>
+                   <div className="h-40 bg-white/[0.02] border border-white/5 rounded-xl flex items-center justify-center relative">
+                     
+                     {/* Profesyonel SVG Ring Chart */}
+                     <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 42 42">
+                       {/* Arka plan halkası */}
+                       <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(255,255,255,0.03)" strokeWidth="4.5"></circle>
+                       
+                       {/* PC Components (%45) - Mavi */}
+                       <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#06b6d4" strokeWidth="4.5" strokeDasharray="45 55" strokeDashoffset="0"></circle>
+                       
+                       {/* Laptops (%25) - Rose */}
+                       <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#fb7185" strokeWidth="4.5" strokeDasharray="25 75" strokeDashoffset="-45"></circle>
+                       
+                       {/* Software (%15) - Mor */}
+                       <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#c084fc" strokeWidth="4.5" strokeDasharray="15 85" strokeDashoffset="-70"></circle>
+                       
+                       {/* Accessories (%15) - Yeşil */}
+                       <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#34d399" strokeWidth="4.5" strokeDasharray="15 85" strokeDashoffset="-85"></circle>
+                     </svg>
+                     
+                     {/* Merkezdeki net yüzde verisi */}
+                     <div className="absolute inset-0 flex flex-col items-center justify-center">
+                       <span className="text-xl font-black text-white tracking-tight">45%</span>
+                       <span className="text-[9px] text-cyan-400 font-bold uppercase tracking-widest">PC Donanım</span>
                      </div>
                    </div>
+
+                   {/* Göstergeler (Legend) */}
                    <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 pt-2">
-                      <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-cyan-500"></span><span className="text-xs text-slate-400">PC Components</span></div>
-                      <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-rose-500"></span><span className="text-xs text-slate-400">Laptops</span></div>
-                      <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-purple-500"></span><span className="text-xs text-slate-400">Software</span></div>
-                      <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-emerald-500"></span><span className="text-xs text-slate-400">Accessories</span></div>
+                      <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_#06b6d4]"></span><span className="text-xs text-slate-400 font-medium">PC Components</span></div>
+                      <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#fb7185]"></span><span className="text-xs text-slate-400 font-medium">Laptops</span></div>
+                      <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_8px_#c084fc]"></span><span className="text-xs text-slate-400 font-medium">Software</span></div>
+                      <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#34d399]"></span><span className="text-xs text-slate-400 font-medium">Accessories</span></div>
                    </div>
                 </div>
               </div>
-
             </div>
 
-            {/* ➡️ SAĞ SÜTUN */}
+            {/* METRİKLER VE SİSTEM LİSTESİ */}
             <div className="lg:col-span-3 xl:col-span-1 flex flex-col gap-6">
-
-              {/* Metric Kartları */}
               <div className="grid grid-cols-3 gap-4">
                  <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col items-center gap-2">
                    <Server className="w-8 h-8 text-cyan-400" />
                    <p className="text-3xl font-black text-white">3</p>
-                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Kayıtlı Sistemler</p>
+                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Sistemler</p>
                  </div>
                  <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col items-center gap-2">
                    <Truck className="w-8 h-8 text-rose-400" />
                    <p className="text-3xl font-black text-white">1</p>
-                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Açık Siparişler</p>
+                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Kargolar</p>
                  </div>
                  <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col items-center gap-2">
                    <Star className="w-8 h-8 text-purple-400" />
@@ -191,11 +202,9 @@ export default function HesabimPage() {
                  </div>
               </div>
 
-              {/* Sistem Listesi Kartı */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl">
                  <h3 className="text-white font-bold text-lg mb-6">Sistem Listesi</h3>
                  <div className="space-y-4">
-                   {/* Örnek veri */}
                    {[
                      { isim: "Custom Rig", resim: "/placeholder-rig.png", status: "Active" },
                      { isim: "Laptop", resim: "/placeholder-laptop.png", status: "Pending" },
@@ -216,7 +225,6 @@ export default function HesabimPage() {
                    ))}
                  </div>
               </div>
-
             </div>
 
           </div>
