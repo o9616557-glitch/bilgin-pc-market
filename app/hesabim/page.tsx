@@ -11,7 +11,7 @@ export default function HesabimPage() {
   const suAnkiTarih = new Date();
   const yil = suAnkiTarih.getFullYear();
 
-  // 🚀 ŞEFİN ÖZEL VİTRİN VERİLERİ (HIZI ROKET YAPMAK İÇİN VERİTABANI BEKLEMESİ KALDIRILDI)
+  // 🚀 SADECE MİSAFİRLERE (GİRİŞ YAPMAYANLARA) GÖSTERİLECEK SAHTE VİTRİN
   const vitrinSiparisleri = [
     { _id: "SP-101", tarih: new Date(yil, 0, 15).toISOString(), status: "Teslim Edildi", totalPrice: 45000, items: [{ isim: "ASUS ROG Strix G16 Laptop", kategoriSlug: "laptop", fiyat: 45000, adet: 1 }] },
     { _id: "SP-102", tarih: new Date(yil, 1, 10).toISOString(), status: "Tamamlandı", totalPrice: 18500, items: [{ isim: "MSI 27' Oyuncu Monitörü", kategoriSlug: "monitor", fiyat: 18500, adet: 1 }] },
@@ -27,31 +27,32 @@ export default function HesabimPage() {
     { _id: "SP-112", tarih: new Date(yil, 11, 8).toISOString(), status: "Tamamlandı", totalPrice: 42000, items: [{ isim: "Razer Klavye & Mouse Seti", kategoriSlug: "mouse", fiyat: 42000, adet: 1 }] },
   ];
 
-  // DURUMLARI DİREKT DOLU OLARAK BAŞLATIYORUZ (Sıfır Yüklenme Süresi)
-  const [hamSiparisler, setHamSiparisler] = useState<any[]>(vitrinSiparisleri);
+  // Başlangıçta hepsi boş, sistem kim olduğuna bakıp karar verecek
+  const [hamSiparisler, setHamSiparisler] = useState<any[]>([]);
   const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
   const [grafikVerisi, setGrafikVerisi] = useState<any[]>([]);
   
-  const [adresSayisi, setAdresSayisi] = useState<number>(2);
-  const [favoriSayisi, setFavoriSayisi] = useState<number>(4);
-  const [sistemSayisi, setSistemSayisi] = useState<number>(5);
+  const [adresSayisi, setAdresSayisi] = useState<number>(0);
+  const [favoriSayisi, setFavoriSayisi] = useState<number>(0);
+  const [sistemSayisi, setSistemSayisi] = useState<number>(0);
 
   const [isKargoModalOpen, setIsKargoModalOpen] = useState(false);
   const [kopyalananKod, setKopyalananKargo] = useState<string | null>(null);
   const [girisSartModal, setGirisSartModal] = useState(false);
 
   const [pastaVerisi, setPastaVerisi] = useState({
-    kendinTopla: { yuzde: 35, tutar: 0, offset: 0 },
-    bilesen: { yuzde: 25, tutar: 0, offset: 35 },
-    cevre: { yuzde: 20, tutar: 0, offset: 60 },
-    sistem: { yuzde: 12, tutar: 0, offset: 80 },
-    aksesuar: { yuzde: 8, tutar: 0, offset: 92 },
-    maxYuzde: 35
+    kendinTopla: { yuzde: 0, tutar: 0, offset: 0 },
+    bilesen: { yuzde: 0, tutar: 0, offset: 0 },
+    cevre: { yuzde: 0, tutar: 0, offset: 0 },
+    sistem: { yuzde: 0, tutar: 0, offset: 0 },
+    aksesuar: { yuzde: 0, tutar: 0, offset: 0 },
+    maxYuzde: 0
   });
   
   const [seciliYil, setSeciliYil] = useState<number>(yil);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [tiklananAy, setTiklananAy] = useState<number | null>(suAnkiTarih.getMonth());
+  const [loading, setLoading] = useState(true);
 
   const handleCikisYap = async () => {
     localStorage.removeItem("bilgin_kayitli_sistemler");
@@ -74,11 +75,106 @@ export default function HesabimPage() {
     }
   };
 
-  // GRAFİK VE LİSTE MOTORU
+  // 1. ADIM: EĞER KULLANICI MİSAFİRSE SAHTE VİTRİNİ BAS VE BEKLEMEYİ BİTİR
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      setHamSiparisler(vitrinSiparisleri);
+      setAdresSayisi(2);
+      setFavoriSayisi(4);
+      setSistemSayisi(5);
+      setLoading(false);
+    }
+  }, [status]);
+
+  // 2. ADIM: EĞER KULLANICI ÜYEYSE (ÖZKAN GİRDİYSE) HAFIZADAKİ GERÇEK VERİYİ BAS
+  useEffect(() => {
+    if (status !== "authenticated") return;
+
+    try {
+      const hafiza = sessionStorage.getItem("bilgin_hesabim_data");
+      if (hafiza) {
+        const parsed = JSON.parse(hafiza);
+        if (parsed.tumSiparisler && parsed.tumSiparisler.length > 0) {
+          setHamSiparisler(parsed.tumSiparisler);
+          setLoading(false); 
+        }
+        if (parsed.favoriSayisi !== undefined) setFavoriSayisi(parsed.favoriSayisi);
+        if (parsed.adresSayisi !== undefined) setAdresSayisi(parsed.adresSayisi);
+      }
+
+      const kayitliSistemler = localStorage.getItem("bilgin_kayitli_sistemler");
+      if (kayitliSistemler) {
+        const parsedSistemler = JSON.parse(kayitliSistemler);
+        if (Array.isArray(parsedSistemler)) setSistemSayisi(parsedSistemler.length);
+      }
+    } catch (error) {
+      console.error("Hafıza okuma hatası:", error);
+    }
+  }, [status]);
+
+  // 3. ADIM: EĞER KULLANICI ÜYEYSE GERÇEK VERİTABANINA BAĞLAN (RADAR)
+  useEffect(() => {
+    if (status !== "authenticated" || !session?.user?.email) return;
+
+    const gercegiKontrolEt = async () => {
+      try {
+        const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok && data.orders) {
+          const benimSiparislerim = data.orders.filter((o: any) => {
+            const mail = o.userEmail || o.email || o.musteri?.eposta || o.musteri?.email || "";
+            return mail.toLowerCase() === (session?.user?.email || "").toLowerCase() && o.gizlendi !== true;
+          });
+
+          setHamSiparisler(benimSiparislerim);
+          
+          const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
+          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, tumSiparisler: benimSiparislerim }));
+          setLoading(false);
+        } else {
+          setLoading(false); // Eğer siparişi yoksa yükleniyor ibaresini kapat
+        }
+
+        const adresRes = await fetch("/api/addresses?t=" + new Date().getTime(), { cache: "no-store" });
+        if (adresRes.ok) {
+          const adresData = await adresRes.json();
+          const sayi = adresData.addresses?.length || 0;
+          setAdresSayisi(sayi);
+          const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
+          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, adresSayisi: sayi }));
+        }
+
+        const favoriRes = await fetch("/api/favorites?t=" + new Date().getTime(), { cache: "no-store" });
+        if (favoriRes.ok) {
+          const favoriData = await favoriRes.json();
+          const sayi = favoriData.favorites?.length || 0;
+          setFavoriSayisi(sayi);
+          const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
+          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, favoriSayisi: sayi }));
+        }
+
+      } catch (error) {
+        console.error("Radar bağlantı hatası:", error);
+        setLoading(false);
+      }
+    };
+
+    gercegiKontrolEt();
+    const radar = setInterval(gercegiKontrolEt, 10000); 
+
+    return () => clearInterval(radar); 
+  }, [session, status]);
+
+  // GRAFİK VE MATEMATİK MOTORU (ORTAK)
   useEffect(() => {
     if (!hamSiparisler || hamSiparisler.length === 0) return;
 
-    // 🚀 SON İŞLEMLER İÇİN TAM 7 ÜRÜN (slice 0, 7)
+    // SON İŞLEMLER İÇİN 7 ÜRÜN
     const sirali = [...hamSiparisler].sort((a: any, b: any) => 
       new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime()
     );
@@ -153,6 +249,16 @@ export default function HesabimPage() {
         aksesuar: { yuzde: Math.round(p5), tutar: cA_toplam, offset: p1 + p2 + p3 + p4 },
         maxYuzde: Math.round(Math.max(p1, p2, p3, p4, p5))
       });
+    } else {
+      // Eğer hiç sipariş yoksa pastayı sıfırla
+      setPastaVerisi({
+        kendinTopla: { yuzde: 0, tutar: 0, offset: 0 },
+        bilesen: { yuzde: 0, tutar: 0, offset: 0 },
+        cevre: { yuzde: 0, tutar: 0, offset: 0 },
+        sistem: { yuzde: 0, tutar: 0, offset: 0 },
+        aksesuar: { yuzde: 0, tutar: 0, offset: 0 },
+        maxYuzde: 0
+      });
     }
 
     if (seciliYil === suAnkiTarih.getFullYear()) {
@@ -177,6 +283,16 @@ export default function HesabimPage() {
   const userName = status === "unauthenticated" ? "Misafir" : (session?.user?.name || "Özkan");
   const userEmail = status === "unauthenticated" ? "Lütfen giriş yapın" : (session?.user?.email || "");
   const basHarf = userName.charAt(0).toUpperCase();
+
+  // 🚀 GERİ GETİRDİĞİMİZ ÇEVİRGE (RADAR)
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center relative overflow-hidden">
+        <div className="w-16 h-16 border-4 border-slate-800 border-t-cyan-500 rounded-full animate-spin shadow-[0_0_30px_rgba(6,182,212,0.5)]"></div>
+        <p className="mt-6 text-cyan-400 font-bold uppercase tracking-widest text-sm animate-pulse">Sistem Yükleniyor...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-hidden">
@@ -299,7 +415,12 @@ export default function HesabimPage() {
                 </div>
 
                 <div className="space-y-3 relative z-10 flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                  {sonSiparislerListesi.length > 0 ? (
+                  {loading && status === "authenticated" ? (
+                    <div className="h-full flex flex-col items-center justify-center gap-3 opacity-80">
+                      <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
+                      <span className="text-xs text-slate-500 font-medium">Siparişler çekiliyor...</span>
+                    </div>
+                  ) : sonSiparislerListesi.length > 0 ? (
                     sonSiparislerListesi.map((item: any, idx: number) => {
                       const tarih = item.createdAt ? new Date(item.createdAt).toLocaleDateString("tr-TR") : item.tarih ? new Date(item.tarih).toLocaleDateString("tr-TR") : "";
                       const urunAdi = item.items?.[0]?.isim || item.items?.[0]?.name || item.sepet?.[0]?.isim || item.siparisKodu || "Sipariş";
