@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // 🚀 GİZLİ ANAHTAR GELDİ
 import mongoose from "mongoose";
 import User from "@/models/User";
 
 export async function GET() {
   try {
-    const session = await getServerSession();
+    // 🚀 Anahtarı buraya da verdik ki kimin ayarına bakacağını görevli bilsin
+    const session = await getServerSession(authOptions); 
     if (!session || !session.user?.email) {
-      return NextResponse.json({ message: "İzinsiz" }, { status: 401 });
+      return NextResponse.json({ message: "İzinsiz işlem." }, { status: 401 });
     }
 
     if (mongoose.connection.readyState === 0) {
@@ -19,7 +21,6 @@ export async function GET() {
       return NextResponse.json({ message: "Kullanıcı bulunamadı" }, { status: 404 });
     }
 
-    // Depodaki gerçek ayarları vitrine yolla!
     return NextResponse.json({
       twoFactorEmail: user.twoFactorEmail || false,
       twoFactorSms: user.twoFactorSms || false,
