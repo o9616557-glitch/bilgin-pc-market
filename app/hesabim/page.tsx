@@ -6,12 +6,17 @@ import { useSession, signOut } from "next-auth/react";
 import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function HesabimPage() {
-  const { data: session } = useSession(); // 🔥 Takoz (status) tamamen kaldırıldı!
+  const { data: session, status } = useSession();
   
   // 🧠 CANLI VERİ VE GRAFİK MOTORLARI
   const [hamSiparisler, setHamSiparisler] = useState<any[]>([]);
   const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
   const [grafikVerisi, setGrafikVerisi] = useState<any[]>([]);
+
+  // 🎛️ DİNAMİK METRİK HAFIZALARI (SAHTE RAKAMLARIN YERİNE)
+  const [adresSayisi, setAdresSayisi] = useState<number>(0);
+  const [favoriSayisi, setFavoriSayisi] = useState<number>(0);
+  const [sistemSayisi, setSistemSayisi] = useState<number>(0);
 
   // 🍩 CANLI PASTA MOTORU
   const [pastaVerisi, setPastaVerisi] = useState({
@@ -27,7 +32,7 @@ export default function HesabimPage() {
   const suAnkiTarih = new Date();
   const [seciliYil, setSeciliYil] = useState<number>(suAnkiTarih.getFullYear());
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [tiklananAy, setTiklananAy] = useState<number | null>(suAnkiTarih.getMonth()); // Varsayılan: Bulunduğumuz Ay
+  const [tiklananAy, setTiklananAy] = useState<number | null>(suAnkiTarih.getMonth());
   const [loading, setLoading] = useState(true);
 
   const handleCikisYap = async () => {
@@ -36,24 +41,38 @@ export default function HesabimPage() {
     await signOut({ callbackUrl: "/" });
   };
 
-  // 🚀 1. AŞAMA: SESSİZ CANLI TAKİP MOTORU (RADAR)
+  // 🚀 AŞAMA 0: SIFIR GECİKME MOTORU VE SİSTEMLERİ OKUMA
   useEffect(() => {
-    if (!session?.user?.email) {
-      setLoading(false);
-      return;
+    try {
+      // Siparişleri oku
+      const hafiza = sessionStorage.getItem("bilgin_hesabim_data");
+      if (hafiza) {
+        const parsed = JSON.parse(hafiza);
+        if (parsed.tumSiparisler && parsed.tumSiparisler.length > 0) {
+          setHamSiparisler(parsed.tumSiparisler);
+          setLoading(false); 
+        }
+      }
+
+      // 🔥 Kayıtlı Sistem Sayısını Tarayıcıdan Oku
+      const kayitliSistemler = localStorage.getItem("bilgin_kayitli_sistemler");
+      if (kayitliSistemler) {
+        const parsedSistemler = JSON.parse(kayitliSistemler);
+        if (Array.isArray(parsedSistemler)) {
+          setSistemSayisi(parsedSistemler.length);
+        }
+      }
+    } catch (error) {
+      console.error("Hafıza okuma hatası:", error);
     }
+  }, []);
+
+  // 🚀 AŞAMA 1: SESSİZ RADAR (ARKADAN GÜNCELLER)
+  useEffect(() => {
+    if (!session?.user?.email) return;
 
     const gercegiKontrolEt = async () => {
       try {
-        // 🔥 1. ADIM: BEKLEME YOK! Anında hafızadan oku ve ekrana bas.
-        const hafiza = sessionStorage.getItem("bilgin_hesabim_data");
-        if (hafiza) {
-          const parsed = JSON.parse(hafiza);
-          setHamSiparisler(parsed.tumSiparisler || []);
-          setLoading(false);
-        }
-
-        // 🔥 2. ADIM: Arka planda sessizce gerçeği kontrol et (Radar)
         const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
@@ -71,21 +90,23 @@ export default function HesabimPage() {
           sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ tumSiparisler: benimSiparislerim }));
           setLoading(false);
         }
+
+        // 🔥 İleride Adres ve Favoriler için API yazarsan buraya ekleyebilirsin:
+        // const adresRes = await fetch("/api/adreslerim"); ... setAdresSayisi(adresData.length);
+        // const favoriRes = await fetch("/api/favoriler"); ... setFavoriSayisi(favoriData.length);
+
       } catch (error) {
         console.error("Radar bağlantı hatası:", error);
-      } finally {
-        setLoading(false);
       }
     };
 
     gercegiKontrolEt();
-    // 🔥 Siparişler sayfasındaki gibi 10 saniyelik radar
     const radar = setInterval(gercegiKontrolEt, 10000); 
 
     return () => clearInterval(radar); 
   }, [session]);
 
-  // 🚀 2. AŞAMA: SEÇİLİ YILA GÖRE GRAFİĞİ VE PASTAYI HESAPLA
+  // 🚀 AŞAMA 2: SEÇİLİ YILA GÖRE GRAFİĞİ VE PASTAYI HESAPLA
   useEffect(() => {
     if (!hamSiparisler || hamSiparisler.length === 0) return;
 
@@ -414,12 +435,12 @@ export default function HesabimPage() {
                  </div>
               </div>
 
-              {/* 3. METRİKLER */}
+              {/* 3. METRİKLER (🔥 İŞTE CANLI BAĞLANAN YERLER) */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
                  
                  <Link href="/adreslerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-cyan-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
                    <MapPin className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" />
-                   <p className="text-xl sm:text-2xl font-black text-white">2</p>
+                   <p className="text-xl sm:text-2xl font-black text-white">{adresSayisi}</p>
                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Adresler</p>
                  </Link>
                  
@@ -431,13 +452,13 @@ export default function HesabimPage() {
                  
                  <Link href="https://www.bilginpcmarket.com/favorilerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-purple-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
                    <Star className="w-6 h-6 sm:w-7 sm:h-7 text-purple-400" />
-                   <p className="text-xl sm:text-2xl font-black text-white">12</p>
+                   <p className="text-xl sm:text-2xl font-black text-white">{favoriSayisi}</p>
                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Favoriler</p>
                  </Link>
 
                  <Link href="/sistemlerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-emerald-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center gap-1.5 transition-colors">
                    <Server className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-400" />
-                   <p className="text-xl sm:text-2xl font-black text-white">3</p>
+                   <p className="text-xl sm:text-2xl font-black text-white">{sistemSayisi}</p>
                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Sistemler</p>
                  </Link>
 
