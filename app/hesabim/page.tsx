@@ -96,7 +96,7 @@ export default function HesabimPage() {
             setAdresSayisi(adresData.addresses.length);
           }
         }
-/// 🚀 SENİN EFSANE API'Nİ KULLANAN NET MOTOR (Sadece senin sayını çeker)
+// 🚀 SENİN EFSANE API'Nİ KULLANAN NET MOTOR (Hayalet ürünleri filtreler)
         const favoriRes = await fetch("/api/favorites?t=" + new Date().getTime(), {
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
@@ -104,9 +104,14 @@ export default function HesabimPage() {
         
         if (favoriRes.ok) {
           const favoriData = await favoriRes.json();
-          // Senin API zaten paketi sadece sana özel "favorites" adıyla gönderiyor. Direkt sayısını alıyoruz!
-          if (favoriData.favorites) {
-            setFavoriSayisi(favoriData.favorites.length);
+          
+          if (favoriData.favorites && Array.isArray(favoriData.favorites)) {
+            // 🧠 SİHİRLİ FİLTRE: Veritabanından silinmiş ama listede kalmış "null" hayaletleri saymaz!
+            const gercekFavoriler = favoriData.favorites.filter((urun: any) => 
+              urun !== null && urun !== undefined && (urun._id || urun.id)
+            );
+            
+            setFavoriSayisi(gercekFavoriler.length);
           } else {
             setFavoriSayisi(0);
           }
