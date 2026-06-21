@@ -96,7 +96,7 @@ export default function HesabimPage() {
             setAdresSayisi(adresData.addresses.length);
           }
         }
-/// 🔥 YENİ: FAVORİLERİ ÇEKEN MOTOR (Sadece sana ait olanları süzer)
+// 🔥 YENİ: FAVORİLERİ ÇEKEN MOTOR (Eksik olan fetch kısmı eklendi)
         const favoriRes = await fetch("/api/favorites?t=" + new Date().getTime(), {
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
@@ -106,7 +106,9 @@ export default function HesabimPage() {
           const favoriData = await favoriRes.json();
           const tumFavoriler = favoriData.favorites || favoriData.data || favoriData.urunler || [];
           
-          // Sadece o an giriş yapmış olan müşterinin favorilerini ayıklar
+          // 🔥 ŞU SATIRI EKLE Kİ İÇİNDE NE YAZIYOR GÖRELİM
+          console.log("BÜTÜN FAVORİLER:", tumFavoriler);
+          
           const benimFavorilerim = tumFavoriler.filter((f: any) => {
             const mail = f.userEmail || f.email || f.eposta || "";
             return mail.toLowerCase() === (session?.user?.email || "").toLowerCase();
