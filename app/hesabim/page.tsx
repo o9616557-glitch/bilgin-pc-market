@@ -138,16 +138,6 @@ export default function HesabimPage() {
     return () => clearInterval(radar); 
   }, [session]);
 
-  // ARKA PLANI KİLİTLEYEN MOTOR
-  useEffect(() => {
-    if (isKargoModalOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => { document.body.style.overflow = "unset"; };
-  }, [isKargoModalOpen]);
-
   useEffect(() => {
     if (!hamSiparisler || hamSiparisler.length === 0) return;
 
@@ -162,6 +152,18 @@ export default function HesabimPage() {
     let cK_toplam = 0, cB_toplam = 0, cC_toplam = 0, cS_toplam = 0, cA_toplam = 0;
 
     hamSiparisler.forEach((siparis: any) => {
+      // 🧠 1. ADIM: Siparişin durumunu alıyoruz
+      const durum = (siparis.status || siparis.durum || "").toLowerCase();
+      
+      // 🛑 2. ADIM: KESİN RET SÜZGECİ (İçinde iptal, iade veya red geçiyorsa anında fişini çeker)
+      const iptalMi = durum.includes("iptal") || durum.includes("iade") || durum.includes("red");
+      
+      // ✅ 3. ADIM: ONAY SÜZGECİ (Sadece başarılı olanlar)
+      const tamamlandiMi = durum.includes("tamam") || durum.includes("teslim") || durum.includes("aktif");
+      
+      // EĞER İPTAL EDİLMİŞSE VEYA TAMAMLANMAMIŞSA KESİNLİKLE HESAPLAMA, PAS GEÇ!
+      if (iptalMi || !tamamlandiMi) return; 
+
       const d = new Date(siparis.createdAt || siparis.tarih);
       if (isNaN(d.getTime())) return;
 
