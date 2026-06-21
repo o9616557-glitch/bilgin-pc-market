@@ -24,15 +24,12 @@ export default function HesabimPage() {
 
       <div className="max-w-[1500px] mx-auto flex flex-col lg:flex-row gap-6 relative z-10">
 
-        {/* ⬅️ SOL MENÜ (SİDEBAR - Sadece İstediğin 4 Madde Kaldı!) */}
+        {/* ⬅️ SOL MENÜ (SİDEBAR - Adreslerim Buradan Kaldırıldı) */}
         <div className="w-full lg:w-64 shrink-0 flex flex-col gap-2">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-xl">
             <nav className="flex flex-col gap-1">
               <Link href="/hesabim" prefetch={true} className="flex items-center gap-3 px-4 py-3 bg-white/[0.05] border border-white/10 rounded-xl text-white font-medium shadow-inner transition-all">
                 <User className="w-5 h-5 text-slate-400" /> Profil
-              </Link>
-              <Link href="/adreslerim" prefetch={true} className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
-                <MapPin className="w-5 h-5" /> Adreslerim
               </Link>
               <Link href="/hesabim" prefetch={true} className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
                 <CreditCard className="w-5 h-5" /> Ödeme Yöntemleri
@@ -86,7 +83,7 @@ export default function HesabimPage() {
             HESAP YÖNETİMİ
           </h2>
 
-          {/* 🧩 DASHBOARD BİLEŞENLERİ (Diğerleri Burada Rol Oynuyor!) */}
+          {/* 🧩 DASHBOARD BİLEŞENLERİ */}
           <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 
             {/* SON İŞLEMLER / SİPARİŞLERİM */}
@@ -165,13 +162,14 @@ export default function HesabimPage() {
               </div>
             </div>
 
-            {/* METRİKLER VE SİSTEM LİSTESİ / SİSTEMLERİM */}
+            {/* METRİKLER VE SİSTEM LİSTESİ */}
             <div className="lg:col-span-3 xl:col-span-1 flex flex-col gap-6">
               <div className="grid grid-cols-3 gap-4">
-                 <Link href="/sistemlerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-cyan-500/20 rounded-2xl p-4 shadow-xl flex flex-col items-center gap-2 transition-colors">
-                   <Server className="w-8 h-8 text-cyan-400" />
-                   <p className="text-3xl font-black text-white">3</p>
-                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Sistemler</p>
+                 {/* 🚀 YENİ KUTU: ADRESYLERİM ARTIK BURADA PARLIYOR */}
+                 <Link href="/adreslerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-cyan-500/20 rounded-2xl p-4 shadow-xl flex flex-col items-center gap-2 transition-colors">
+                   <MapPin className="w-8 h-8 text-cyan-400" />
+                   <p className="text-3xl font-black text-white">2</p>
+                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Adreslerim</p>
                  </Link>
                  <Link href="/siparis-takip" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-rose-500/20 rounded-2xl p-4 shadow-xl flex flex-col items-center gap-2 transition-colors">
                    <Truck className="w-8 h-8 text-rose-400" />
@@ -185,7 +183,7 @@ export default function HesabimPage() {
                  </div>
               </div>
 
-              {/* Sistem Listesi Kartı */}
+              {/* Sistem Listesi Kartı (Dükkanda tek başına netleşti!) */}
               <Link href="/sistemlerim" prefetch={true} className="block bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl hover:border-cyan-500/30 transition-all duration-300 group">
                  <div className="flex items-center justify-between mb-6">
                    <h3 className="text-white font-bold text-lg">Sistem Listesi</h3>
