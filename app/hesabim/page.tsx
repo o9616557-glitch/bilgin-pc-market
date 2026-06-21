@@ -365,7 +365,7 @@ export default function HesabimPage() {
               <Link href="/hesabim" onClick={kilitliIslem} className="flex items-center gap-3 px-4 py-3.5 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
                 <CreditCard className="w-5 h-5" /> Ödeme Yöntemleri
               </Link>
-              <Link href="/hesabim" onClick={kilitliIslem} className="flex items-center gap-3 px-4 py-3.5 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+            <Link href="/guvenlik" onClick={kilitliIslem} prefetch={true} className="flex items-center gap-3 px-4 py-3.5 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
                 <ShieldCheck className="w-5 h-5" /> Güvenlik
               </Link>
             </nav>
