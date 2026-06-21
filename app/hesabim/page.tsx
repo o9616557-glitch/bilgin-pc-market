@@ -52,6 +52,10 @@ export default function HesabimPage() {
         if (parsed.favoriSayisi !== undefined) {
           setFavoriSayisi(parsed.favoriSayisi);
         }
+        // Adresleri de anında hafızadan bas!
+        if (parsed.adresSayisi !== undefined) {
+          setAdresSayisi(parsed.adresSayisi);
+        }
       }
 
       const kayitliSistemler = localStorage.getItem("bilgin_kayitli_sistemler");
@@ -93,7 +97,7 @@ export default function HesabimPage() {
           setLoading(false);
         }
 
-        // --- ADRESLER ---
+     // --- ADRESLER ---
         const adresRes = await fetch("/api/addresses?t=" + new Date().getTime(), {
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
@@ -101,11 +105,13 @@ export default function HesabimPage() {
 
         if (adresRes.ok) {
           const adresData = await adresRes.json();
-          if (adresData.addresses) {
-            setAdresSayisi(adresData.addresses.length);
-          }
+          const sayi = adresData.addresses?.length || 0;
+          setAdresSayisi(sayi);
+          
+          // Güncel sayıyı hemen hafızaya kaydet ki bekleme yapmasın!
+          const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
+          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, adresSayisi: sayi }));
         }
-
         // --- FAVORİLER ---
         const favoriRes = await fetch("/api/favorites?t=" + new Date().getTime(), {
           cache: "no-store",
