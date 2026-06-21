@@ -6,14 +6,14 @@ import { useSession, signOut } from "next-auth/react";
 import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function HesabimPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession(); // 🔥 Session durumunu yakaladık
   
   // 🧠 CANLI VERİ VE GRAFİK MOTORLARI
   const [hamSiparisler, setHamSiparisler] = useState<any[]>([]);
   const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
   const [grafikVerisi, setGrafikVerisi] = useState<any[]>([]);
-  
-  // 🍩 PASTA MOTORU (Sadece burası senin koduna eklendi)
+
+  // 🍩 CANLI PASTA MOTORU
   const [pastaVerisi, setPastaVerisi] = useState({
     kendinTopla: { yuzde: 35, tutar: 0, offset: 0 },
     bilesen: { yuzde: 25, tutar: 0, offset: 35 },
@@ -22,7 +22,7 @@ export default function HesabimPage() {
     aksesuar: { yuzde: 8, tutar: 0, offset: 92 },
     maxYuzde: 35
   });
-
+  
   // 📅 YIL, AY VE TIKLAMA KONTROLLERİ
   const suAnkiTarih = new Date();
   const [seciliYil, setSeciliYil] = useState<number>(suAnkiTarih.getFullYear());
@@ -36,9 +36,21 @@ export default function HesabimPage() {
     await signOut({ callbackUrl: "/" });
   };
 
-  // 🚀 1. AŞAMA: VERİTABANINDAN TÜM SİPARİŞLERİ ÇEK
+  // 🚀 AŞAMA 0: HAFIZAYI ANINDA OKU (Sıfır Gecikme - Oturumu Beklemez!)
   useEffect(() => {
-    if (status === "loading") return; // 🛑 ŞEFİM: SAYFA GEÇİŞİNDEKİ O GICIK LOADING HATASINI BURASI ÇÖZDÜ!
+    const hafiza = sessionStorage.getItem("bilgin_hesabim_data");
+    if (hafiza) {
+      const parsed = JSON.parse(hafiza);
+      if (parsed.tumSiparisler && parsed.tumSiparisler.length > 0) {
+        setHamSiparisler(parsed.tumSiparisler);
+        setLoading(false); // Hafızada varsa yükleniyor animasyonunu saniyesinde kapat!
+      }
+    }
+  }, []); // Sadece sayfa açıldığında 1 kez çalışır
+
+  // 🚀 1. AŞAMA: VERİTABANINDAN SESSİZCE GÜNCELLE (Arka Plan Motoru)
+  useEffect(() => {
+    if (status === "loading") return; // Session yüklenirken bekle, hata yapma
 
     if (!session?.user?.email) {
       setLoading(false);
@@ -47,13 +59,6 @@ export default function HesabimPage() {
 
     const verileriGetir = async () => {
       try {
-        const hafiza = sessionStorage.getItem("bilgin_hesabim_data");
-        if (hafiza) {
-          const parsed = JSON.parse(hafiza);
-          setHamSiparisler(parsed.tumSiparisler || []);
-          setLoading(false);
-        }
-
         const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
@@ -81,7 +86,7 @@ export default function HesabimPage() {
     verileriGetir();
   }, [session, status]);
 
-  // 🚀 2. AŞAMA: SEÇİLİ YILA GÖRE GRAFİĞİ HESAPLA
+  // 🚀 2. AŞAMA: SEÇİLİ YILA GÖRE GRAFİĞİ VE PASTAYI HESAPLA
   useEffect(() => {
     if (!hamSiparisler || hamSiparisler.length === 0) return;
 
@@ -93,7 +98,7 @@ export default function HesabimPage() {
     const aylar = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
     const aylikToplamlar = new Array(12).fill(0);
 
-    // 🍩 Pasta için sayaçlar eklendi
+    // 🍩 Pasta için sayyıcılar
     let cK_toplam = 0, cB_toplam = 0, cC_toplam = 0, cS_toplam = 0, cA_toplam = 0;
 
     hamSiparisler.forEach((siparis: any) => {
@@ -135,7 +140,7 @@ export default function HesabimPage() {
     });
 
     setGrafikVerisi(dinamikGrafik);
-    
+
     // 🍩 Pasta Yüzdelerini Ayarlama
     const genelToplam = cK_toplam + cB_toplam + cC_toplam + cS_toplam + cA_toplam;
     if (genelToplam > 0) {
@@ -154,7 +159,7 @@ export default function HesabimPage() {
         maxYuzde: Math.round(Math.max(p1, p2, p3, p4, p5))
       });
     }
-
+    
     // Yıl değişince, eğer içinde bulunduğumuz yılsa bugünün ayını, değilse hiçbirini yakma
     if (seciliYil === suAnkiTarih.getFullYear()) {
       setTiklananAy(suAnkiTarih.getMonth());
@@ -298,9 +303,9 @@ export default function HesabimPage() {
               {/* 1. SİPARİŞ GEÇMİŞİ GRAFİĞİ */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
                 <div className="flex flex-row items-center justify-between gap-2 mb-2">
-                   <h3 className="text-white font-bold text-base sm:text-lg">Aylık Harcama</h3>
+                   <h3 className="text-white font-bold text-base sm:text-lg">Aylık Harcama Grafiği</h3>
                    
-                   <div className="flex items-center gap-1.5 bg-slate-800/30 border border-slate-700/50 rounded-lg px-1.5 py-1">
+                   <div className="flex items-center gap-1.5 bg-slate-800/30 border border-slate-700/50 rounded-lg px-2 py-1">
                      <button onClick={() => setSeciliYil(y => y - 1)} className="p-1 text-slate-400 hover:text-cyan-400 transition-colors">
                        <ChevronLeft className="w-3.5 h-3.5" />
                      </button>
@@ -349,7 +354,7 @@ export default function HesabimPage() {
                 </div>
               </div>
 
-              {/* 2. HARCAMA DAĞILIMI (SADECE BURASI DEĞİŞTİRİLDİ) */}
+              {/* 2. HARCAMA DAĞILIMI (PASTA MOTORU VE YENİ ETİKETLER) */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col sm:flex-row items-center gap-8">
                  <div className="shrink-0 space-y-1.5 text-center sm:text-left">
                    <h3 className="text-white font-bold text-base sm:text-lg">Harcama Dağılımı</h3>
@@ -371,13 +376,47 @@ export default function HesabimPage() {
                      </div>
                    </div>
 
-                   <div className="grid grid-cols-2 sm:grid-cols-1 gap-x-4 gap-y-2.5 shrink-0">
-                      <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]"></span><span className="text-xs text-slate-300 font-medium">Kendin Topla: {pastaVerisi.kendinTopla.yuzde}%</span></div>
-                      <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_#06b6d4]"></span><span className="text-xs text-slate-300 font-medium">Bileşenler: {pastaVerisi.bilesen.yuzde}%</span></div>
-                      <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#fb7185]"></span><span className="text-xs text-slate-300 font-medium">Çevre Bir. & Oyuncu: {pastaVerisi.cevre.yuzde}%</span></div>
-                      <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_8px_#c084fc]"></span><span className="text-xs text-slate-300 font-medium">Sistem & Laptop: {pastaVerisi.sistem.yuzde}%</span></div>
-                      <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#34d399]"></span><span className="text-xs text-slate-300 font-medium">Aksesuar: {pastaVerisi.aksesuar.yuzde}%</span></div>
-                   </div>
+                   <div className="flex flex-col gap-2.5 shrink-0 w-full sm:w-[220px]">
+                     <div className="flex items-center justify-between w-full">
+                       <div className="flex items-center gap-2 min-w-0">
+                         <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] shrink-0"></span>
+                         <span className="text-[11px] sm:text-xs text-slate-300 font-bold truncate">Kendin Topla</span>
+                       </div>
+                       <span className="text-[10px] sm:text-[11px] font-black text-amber-400 shrink-0">{pastaVerisi.kendinTopla.yuzde}%</span>
+                     </div>
+                     
+                     <div className="flex items-center justify-between w-full">
+                       <div className="flex items-center gap-2 min-w-0">
+                         <span className="w-2.5 h-2.5 rounded-full bg-cyan-500 shadow-[0_0_8px_#06b6d4] shrink-0"></span>
+                         <span className="text-[11px] sm:text-xs text-slate-300 font-medium truncate">Bilgisayar Bileşenleri</span>
+                       </div>
+                       <span className="text-[10px] sm:text-[11px] font-black text-cyan-400 shrink-0">{pastaVerisi.bilesen.yuzde}%</span>
+                     </div>
+                     
+                     <div className="flex items-center justify-between w-full">
+                       <div className="flex items-center gap-2 min-w-0">
+                         <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_#fb7185] shrink-0"></span>
+                         <span className="text-[11px] sm:text-xs text-slate-300 font-medium truncate">Çevre Bir. & Oyuncu</span>
+                       </div>
+                       <span className="text-[10px] sm:text-[11px] font-black text-rose-400 shrink-0">{pastaVerisi.cevre.yuzde}%</span>
+                     </div>
+                     
+                     <div className="flex items-center justify-between w-full">
+                       <div className="flex items-center gap-2 min-w-0">
+                         <span className="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-[0_0_8px_#c084fc] shrink-0"></span>
+                         <span className="text-[11px] sm:text-xs text-slate-300 font-medium truncate">Sistem, Laptop & Yazılım</span>
+                       </div>
+                       <span className="text-[10px] sm:text-[11px] font-black text-purple-400 shrink-0">{pastaVerisi.sistem.yuzde}%</span>
+                     </div>
+                     
+                     <div className="flex items-center justify-between w-full">
+                       <div className="flex items-center gap-2 min-w-0">
+                         <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#34d399] shrink-0"></span>
+                         <span className="text-[11px] sm:text-xs text-slate-300 font-medium truncate">Ağ, Aksesuar & Kablo</span>
+                       </div>
+                       <span className="text-[10px] sm:text-[11px] font-black text-emerald-400 shrink-0">{pastaVerisi.aksesuar.yuzde}%</span>
+                     </div>
+                  </div>
                  </div>
               </div>
 
