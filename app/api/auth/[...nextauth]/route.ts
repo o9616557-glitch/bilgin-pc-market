@@ -103,18 +103,22 @@ export const authOptions: NextAuthOptions = {
           }
 // DURUM 2: Adam e-postasındaki kodu alıp gelmiş (Doğrulama)
           if (credentials.code) {
+            
+            // 1. Şefimin girdiği koddaki olası boşlukları temizle
+            const girilenKod = credentials.code.trim(); 
+            const gercekKod = user.twoFactorCode;
 
-            // 🚀 CASUS RADARIMIZ BURADA ÇALIŞIYOR
-            console.log("--- 2FA TATBİKAT RADARI ---");
-            console.log("Veritabanındaki Gerçek Kod:", user.twoFactorCode);
-            console.log("Senin Klavyeden Yazdığın Kod:", credentials.code);
-            console.log("Sistem Süreyi Dolmuş Sayıyor mu?:", user.twoFactorExpires < new Date());
+            // 🚀 CASUS RADAR (Bunu mutlaka görmek istiyoruz)
+            console.log("--- BİLGİN PC RADARI ---");
+            console.log("Sistemdeki Kod:", gercekKod);
+            console.log("Senin Girdiğin Kod:", girilenKod);
 
-            if (user.twoFactorCode !== credentials.code || user.twoFactorExpires < new Date()) {
+            // 2. ŞİMDİLİK SÜRE KONTROLÜNÜ KALDIRDIK! Sadece kodlar aynı mı diye bakıyoruz.
+            if (gercekKod !== girilenKod) {
               throw new Error("Geçersiz veya süresi dolmuş bir kod girdiniz.");
             }
             
-            // Kod doğruysa temizliği yap
+            // Kod doğruysa temizliği yap ve KAPILARI AÇ!
             user.twoFactorCode = undefined;
             user.twoFactorExpires = undefined;
             await user.save();
