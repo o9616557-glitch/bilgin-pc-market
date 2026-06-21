@@ -101,7 +101,7 @@ export default function HesabimPage() {
               {/* KULLANICI BİLGİLERİ */}
               <div className="text-left flex-1 flex flex-col justify-center min-w-0">
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#3b82f6]/10 border border-[#3b82f6]/20 text-[#3b82f6] text-[10px] sm:text-xs font-black tracking-widest uppercase mb-2 sm:mb-4 w-fit">
-                  <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#3b82f6]"></span> BİLGİN PC ÜYESİ
+                  <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#3b82f6]"></span> BİLGİN PC 
                 </div>
                 <h1 className="text-xl sm:text-4xl font-black text-white tracking-tight truncate leading-tight">
                   {userName}
