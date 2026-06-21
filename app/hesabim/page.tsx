@@ -90,9 +90,8 @@ export default function HesabimPage() {
           setLoading(false);
         }
 
-        // 2. 🔥 ADRESLERİ CANLI ÇEKEN MOTOR
-        // (Eğer API klasörünün adı farklıysa buradaki '/api/adreslerim' kısmını değiştir şefim)
-        const adresRes = await fetch("/api/adreslerim?t=" + new Date().getTime(), {
+        // 2. 🔥 ADRESLERİ CANLI ÇEKEN MOTOR (Doğru API Yoluna Bağlandı)
+        const adresRes = await fetch("/api/addresses?t=" + new Date().getTime(), {
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
         });
