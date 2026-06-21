@@ -96,7 +96,7 @@ export default function HesabimPage() {
             setAdresSayisi(adresData.addresses.length);
           }
         }
-// 🚀 SENİN EFSANE API'Nİ KULLANAN NET MOTOR (Hayalet ürünleri filtreler)
+// 🚀 SENİN EFSANE API'Nİ KULLANAN NET MOTOR (Sadece net hayaletleri siler)
         const favoriRes = await fetch("/api/favorites?t=" + new Date().getTime(), {
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
@@ -106,9 +106,10 @@ export default function HesabimPage() {
           const favoriData = await favoriRes.json();
           
           if (favoriData.favorites && Array.isArray(favoriData.favorites)) {
-            // 🧠 SİHİRLİ FİLTRE: Veritabanından silinmiş ama listede kalmış "null" hayaletleri saymaz!
+            // 🧠 DÜZELTİLDİ: Sadece 'null' veya 'undefined' olan hayaletleri atar.
+            // Ürünler sadece düz ID (metin) olarak geliyorsa onları silmez, sayar!
             const gercekFavoriler = favoriData.favorites.filter((urun: any) => 
-              urun !== null && urun !== undefined && (urun._id || urun.id)
+              urun !== null && urun !== undefined
             );
             
             setFavoriSayisi(gercekFavoriler.length);
