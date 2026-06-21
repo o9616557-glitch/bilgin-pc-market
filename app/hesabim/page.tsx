@@ -1,17 +1,54 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin } from "lucide-react";
+import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2 } from "lucide-react";
 
 export default function HesabimPage() {
   const { data: session } = useSession();
+  
+  // 🧠 CANLI VERİ MOTORLARI (STATE)
+  const [siparisler, setSiparisler] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const handleCikisYap = async () => {
     localStorage.removeItem("bilgin_kayitli_sistemler");
     await signOut({ callbackUrl: "/" });
   };
+
+  // 🚀 VERİTABANINDAN SİPARİŞLERİ ÇEKEN AKTİF ÇIRAK
+  useEffect(() => {
+    if (!session?.user?.email) {
+      setLoading(false);
+      return;
+    }
+
+    const siparisleriGetir = async () => {
+      try {
+        // Senin mevcut sipariş API rotana istek atıyoruz (Gerekirse adresi kendine göre revize edebilirsin şefim)
+        const res = await fetch("/api/siparislerim?limit=6&t=" + new Date().getTime());
+        
+        if (res.ok) {
+          const data = await res.json();
+          // Eğer API'den gelen veri direkt diziyse data, nesne içindeyse data.orders veya data.orders şeklinde ayarlanır
+          if (Array.isArray(data)) {
+            setSiparisler(data);
+          } else if (data.orders && Array.isArray(data.orders)) {
+            setSiparisler(data.orders);
+          } else if (data.success && Array.isArray(data.orders)) {
+            setSiparisler(data.orders);
+          }
+        }
+      } catch (error) {
+        console.error("Siparişler çekilirken hata oluştu şefim:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    siparisleriGetir();
+  }, [session]);
 
   const userName = session?.user?.name || "Özkan";
   const userEmail = session?.user?.email || "";
@@ -24,7 +61,7 @@ export default function HesabimPage() {
 
       <div className="max-w-[1500px] mx-auto flex flex-col lg:flex-row gap-6 relative z-10">
 
-        {/* ⬅️ SOL MENÜ (SİDEBAR) */}
+        {/* ⬅️ SOL MENÜ */}
         <div className="w-full lg:w-64 shrink-0 flex flex-col gap-2">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-xl">
             <nav className="flex flex-col gap-1">
@@ -86,36 +123,62 @@ export default function HesabimPage() {
           {/* 🧩 DASHBOARD BİLEŞENLERİ */}
           <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 
-            {/* SON İŞLEMLER / SİPARİŞLERİM */}
+            {/* 🔥 SON İŞLEMLER / SİPARİŞLERİM (CANLI BAĞLANTI NOKTASI) */}
             <div className="lg:col-span-1 xl:col-span-1 flex flex-col gap-6">
-              <Link href="/siparislerim" prefetch={true} className="block bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group hover:border-cyan-500/30 transition-all duration-300">
+              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group hover:border-cyan-500/30 transition-all duration-300 flex flex-col h-full min-h-[420px]">
                 <div className="absolute -top-10 -left-10 w-40 h-40 bg-cyan-500/10 blur-[50px] pointer-events-none rounded-full"></div>
-                <div className="flex items-center justify-between mb-6 relative z-10">
+                
+                <div className="flex items-center justify-between mb-6 relative z-10 shrink-0">
                   <h3 className="text-white font-bold text-lg">Son İşlemler</h3>
-                  <span className="text-xs font-bold text-cyan-400 group-hover:underline">Tümünü Gör</span>
+                  <Link href="/siparislerim" prefetch={true} className="text-xs font-bold text-cyan-400 hover:underline">
+                    Tümünü Gör
+                  </Link>
                 </div>
-                <div className="space-y-4 relative z-10">
-                  {[
-                    { date: "20.11.2024", system: "Custom Rig", price: "595,00", status: "Active" },
-                    { date: "20.11.2024", system: "Custom Rig", price: "995,00", status: "Active" },
-                    { date: "02.11.2024", system: "Custom Rig", price: "1130,00", status: "Pending" },
-                    { date: "09.03.2024", system: "Custom Rig", price: "935,00", status: "Active" },
-                    { date: "29.11.2024", system: "Custom Rig", price: "959,00", status: "Pending" },
-                    { date: "02.01.2024", system: "Custom Rig", price: "253,00", status: "Active" },
-                  ].map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-4 py-3 border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors rounded-lg px-2">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-white font-semibold text-sm truncate">{item.system}</p>
-                        <p className="text-slate-500 text-xs">{item.date}</p>
-                      </div>
-                      <p className="text-white font-bold text-sm text-right shrink-0">{item.price} ₺</p>
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest shrink-0 ${item.status === 'Active' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
-                        {item.status}
-                      </span>
+
+                <div className="space-y-4 relative z-10 flex-1 overflow-y-auto pr-1 custom-scrollbar">
+                  {loading ? (
+                    /* Yükleniyor Animasyonu */
+                    <div className="h-full min-h-[250px] flex flex-col items-center justify-center gap-2">
+                      <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
+                      <span className="text-xs text-slate-500 font-medium">Siparişler çekiliyor...</span>
                     </div>
-                  ))}
+                  ) : siparisler.length > 0 ? (
+                    /* Gerçek Veri Döngüsü */
+                    siparisler.map((item: any, idx: number) => {
+                      // Veritabanı modelindeki alan isimlerine göre burayı (item.fiyat, item.durum vb.) eşleştirebilirsin şefim
+                      const tarih = item.createdAt ? new Date(item.createdAt).toLocaleDateString("tr-TR") : item.date || "";
+                      const urunAdi = item.urunler?.[0]?.isim || item.system || "Sipariş";
+                      const toplamFiyat = item.toplamFiyat || item.price || "0";
+                      const durum = item.durum || item.status || "Hazırlanıyor";
+
+                      return (
+                        <div key={item._id || idx} className="flex items-center gap-4 py-3 border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors rounded-lg px-2">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-white font-semibold text-sm truncate">{urunAdi}</p>
+                            <p className="text-slate-500 text-xs">{tarih}</p>
+                          </div>
+                          <p className="text-white font-bold text-sm text-right shrink-0">
+                            {Number(toplamFiyat).toLocaleString("tr-TR")} ₺
+                          </p>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest shrink-0 ${
+                            durum.toLowerCase() === 'aktif' || durum.toLowerCase() === 'active' || durum.toLowerCase() === 'tamamlandı' || durum.toLowerCase() === 'teslim edildi'
+                              ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' 
+                              : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                          }`}>
+                            {durum}
+                          </span>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    /* Sipariş Yoksa Boş Ekran */
+                    <div className="h-full min-h-[250px] flex flex-col items-center justify-center text-center opacity-40">
+                      <Package className="w-10 h-10 text-slate-500 mb-2" />
+                      <span className="text-xs text-slate-400 font-medium">Henüz bir siparişiniz bulunmuyor.</span>
+                    </div>
+                  )}
                 </div>
-              </Link>
+              </div>
             </div>
 
             {/* GRAFİKLER */}
@@ -165,7 +228,6 @@ export default function HesabimPage() {
             {/* METRİKLER VE SİSTEM LİSTESİ */}
             <div className="lg:col-span-3 xl:col-span-1 flex flex-col gap-6">
               <div className="grid grid-cols-3 gap-4">
-                 {/* ADRESLERİM KUTUSU */}
                  <Link href="/adreslerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-cyan-500/20 rounded-2xl p-4 shadow-xl flex flex-col items-center gap-2 transition-colors">
                    <MapPin className="w-8 h-8 text-cyan-400" />
                    <p className="text-3xl font-black text-white">2</p>
@@ -176,7 +238,6 @@ export default function HesabimPage() {
                    <p className="text-3xl font-black text-white">1</p>
                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Kargolar</p>
                  </Link>
-                 {/* 🚀 FAVORİLERİM ARTIK SENİN O ÖZEL LİNKE BAĞLANDI VE HIZLANDIRILDI */}
                  <Link href="https://www.bilginpcmarket.com/favorilerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-purple-500/20 rounded-2xl p-4 shadow-xl flex flex-col items-center gap-2 transition-colors">
                    <Star className="w-8 h-8 text-purple-400" />
                    <p className="text-3xl font-black text-white">12</p>
