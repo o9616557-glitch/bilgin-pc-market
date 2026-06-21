@@ -39,7 +39,6 @@ export default function HesabimPage() {
     await signOut({ callbackUrl: "/" });
   };
 
-  // 1. SIFIR GECİKME MOTORU
   useEffect(() => {
     try {
       const hafiza = sessionStorage.getItem("bilgin_hesabim_data");
@@ -69,7 +68,6 @@ export default function HesabimPage() {
     }
   }, []);
 
-  // 2. ARKA PLAN RADARI
   useEffect(() => {
     if (!session?.user?.email) return;
 
@@ -238,7 +236,6 @@ export default function HesabimPage() {
   const userEmail = session?.user?.email || "";
   const basHarf = userName ? userName.charAt(0).toUpperCase() : "Ö";
 
-  // SADECE YÜKLENİYOR RADARI KALDI (Erken kesici siyah ekran SİLİNDİ!)
   if (status === "loading") {
     return (
       <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center relative overflow-hidden">
@@ -248,13 +245,12 @@ export default function HesabimPage() {
     );
   }
 
-  // BURASI ANA GÖVDE
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
-      {/* 🚀 EĞER GİRİŞ YAPILMAMIŞSA ARKAYI CAM GİBİ BULANIKLAŞTIRAN BLUR ZIRHI */}
-      <div className={`max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-6 relative z-10 transition-all duration-500 ${status === "unauthenticated" ? "blur-[8px] opacity-40 pointer-events-none select-none" : ""}`}>
+      {/* 🚀 ARKA PLAN BELİRGİNLİĞİ ARTIRILDI: blur azaldı, opacity arttı, pointer events kapatıldı */}
+      <div className={`max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-6 relative z-10 transition-all duration-500 ${status === "unauthenticated" ? "blur-[4px] opacity-60 pointer-events-none select-none" : ""}`}>
 
         {/* ⬅️ SOL MENÜ */}
         <div className="w-full lg:w-64 shrink-0 flex flex-col gap-2">
@@ -347,7 +343,6 @@ export default function HesabimPage() {
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
-            {/* 🔥 SOL SÜTUN: SON İŞLEMLER */}
             <div className="xl:col-span-1 flex flex-col h-full">
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group hover:border-cyan-500/30 transition-all duration-300 flex flex-col min-h-[450px] xl:h-[550px]">
                 <div className="absolute -top-10 -left-10 w-40 h-40 bg-cyan-500/10 blur-[50px] pointer-events-none rounded-full"></div>
@@ -406,7 +401,6 @@ export default function HesabimPage() {
               </div>
             </div>
 
-            {/* 📊 SAĞ SÜTUN: GRAFİKLER */}
             <div className="xl:col-span-2 flex flex-col gap-6">
               
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
@@ -532,7 +526,6 @@ export default function HesabimPage() {
         </div>
       </div>
 
-      {/* 🚀 PREMIUM AKTİF KARGOLAR PENCERESİ (MODAL) */}
       {isKargoModalOpen && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
           <div className="bg-[#09090b] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.9)] relative overflow-hidden animate-in zoom-in-95 duration-200 max-h-[85vh]">
@@ -613,8 +606,14 @@ export default function HesabimPage() {
 
       {/* 🚀 GİRİŞ YAPMAMIŞ KULLANICIYI ENGELLEYEN ŞEFFAF KATMAN (Overlay) */}
       {status === "unauthenticated" && (
-        <div className="absolute inset-0 z-[5000] flex items-center justify-center p-4 bg-[#020617]/30 backdrop-blur-[2px]">
-          <div className="bg-[#0f172a]/90 backdrop-blur-2xl border border-slate-800 rounded-3xl p-8 sm:p-12 max-w-md w-full text-center relative shadow-[0_0_80px_rgba(6,182,212,0.15)]">
+        // Konumlandırma Ayarı: justify-center (yatay orta), items-end (mobil dikey alt), pb-20 (mobil boşluk), sm:items-center (PC dikey orta), sm:pb-4 (PC boşluk)
+        <div className="fixed inset-0 z-[5000] flex justify-center p-4 bg-black/50 backdrop-blur-[2px] animate-in fade-in duration-300 items-end pb-20 sm:items-center sm:pb-4">
+          
+          {/* Neon Kutu Tasarımı */}
+          <div className="bg-[#0f172a]/90 backdrop-blur-2xl border border-slate-800 rounded-3xl p-8 sm:p-12 max-w-md w-full text-center relative shadow-[0_0_80px_rgba(6,182,212,0.15)] animate-in zoom-in-95 duration-300">
+            {/* Üst Kısma Neon Çizgi Dokunuşu */}
+            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
+
             <div className="w-24 h-24 bg-gradient-to-br from-[#0f172a] to-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.2)]">
               <User className="w-10 h-10 text-cyan-400" />
             </div>
@@ -625,11 +624,11 @@ export default function HesabimPage() {
             </p>
             
             <div className="flex flex-col gap-3">
-              <Link href="/giris" prefetch={true} className="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2">
+              <Link href="/giris" prefetch={true} className="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2 outline-none">
                 <LogIn className="w-4 h-4" /> Giriş Yap
               </Link>
               
-              <Link href="/kayit" prefetch={true} className="w-full py-4 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-slate-700 hover:border-slate-500 text-slate-300 font-bold uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2">
+              <Link href="/kayit" prefetch={true} className="w-full py-4 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-slate-700 hover:border-slate-500 text-slate-300 font-bold uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 outline-none">
                 <UserPlus className="w-4 h-4" /> Kayıt Ol
               </Link>
             </div>
