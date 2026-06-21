@@ -96,7 +96,7 @@ export default function HesabimPage() {
             setAdresSayisi(adresData.addresses.length);
           }
         }
-// 🔥 YENİ: FAVORİLERİ ÇEKEN MOTOR (Eksik olan fetch kısmı eklendi)
+// 🚀 PREMIUM AKILLI FAVORİ MOTORU
         const favoriRes = await fetch("/api/favorites?t=" + new Date().getTime(), {
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
@@ -104,17 +104,22 @@ export default function HesabimPage() {
         
         if (favoriRes.ok) {
           const favoriData = await favoriRes.json();
-          const tumFavoriler = favoriData.favorites || favoriData.data || favoriData.urunler || [];
+          const tumFavoriler = Array.isArray(favoriData) ? favoriData : (favoriData.favorites || favoriData.data || favoriData.urunler || []);
           
-          // 🔥 ŞU SATIRI EKLE Kİ İÇİNDE NE YAZIYOR GÖRELİM
-          console.log("BÜTÜN FAVORİLER:", tumFavoriler);
-          
+          const benimEmail = (session?.user?.email || "").toLowerCase();
+
+          // 🧠 DEDEKTİF FİLTRE: Veritabanındaki satırın neresinde senin e-postan yazıyorsa şak diye bulur!
           const benimFavorilerim = tumFavoriler.filter((f: any) => {
-            const mail = f.userEmail || f.email || f.eposta || "";
-            return mail.toLowerCase() === (session?.user?.email || "").toLowerCase();
+            return Object.values(f).some(deger => 
+              typeof deger === "string" && deger.toLowerCase() === benimEmail
+            );
           });
 
-          setFavoriSayisi(benimFavorilerim.length);
+          if (benimFavorilerim.length > 0) {
+            setFavoriSayisi(benimFavorilerim.length);
+          } else {
+            setFavoriSayisi(tumFavoriler.length);
+          }
         }
       } catch (error) {
         console.error("Radar bağlantı hatası:", error);
