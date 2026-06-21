@@ -199,7 +199,15 @@ export default function HesabimPage() {
       setKopyalananKargo(null);
     }, 2000);
   };
-
+// 🔥 ARKA PLANI KİLİTLEYEN MOTOR (Pencere açıkken arkası oynamaz)
+  useEffect(() => {
+    if (isKargoModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => { document.body.style.overflow = "unset"; };
+  }, [isKargoModalOpen]);
   const userName = session?.user?.name || "Özkan";
   const userEmail = session?.user?.email || "";
   const basHarf = userName ? userName.charAt(0).toUpperCase() : "Ö";
