@@ -101,9 +101,15 @@ export const authOptions: NextAuthOptions = {
             // 4. Kapıyı kapat ve vitrine "KOD LAZIM" diye bağır
             throw new Error("2FA_REQUIRED");
           }
-
-          // DURUM 2: Adam e-postasındaki kodu alıp gelmiş (Doğrulama)
+// DURUM 2: Adam e-postasındaki kodu alıp gelmiş (Doğrulama)
           if (credentials.code) {
+
+            // 🚀 CASUS RADARIMIZ BURADA ÇALIŞIYOR
+            console.log("--- 2FA TATBİKAT RADARI ---");
+            console.log("Veritabanındaki Gerçek Kod:", user.twoFactorCode);
+            console.log("Senin Klavyeden Yazdığın Kod:", credentials.code);
+            console.log("Sistem Süreyi Dolmuş Sayıyor mu?:", user.twoFactorExpires < new Date());
+
             if (user.twoFactorCode !== credentials.code || user.twoFactorExpires < new Date()) {
               throw new Error("Geçersiz veya süresi dolmuş bir kod girdiniz.");
             }
