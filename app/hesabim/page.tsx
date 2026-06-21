@@ -26,13 +26,36 @@ export default function HesabimPage() {
     { _id: "SP-112", tarih: new Date(yil, 11, 8).toISOString(), status: "Tamamlandı", totalPrice: 42000, items: [{ isim: "Razer Klavye & Mouse Seti", kategoriSlug: "mouse", fiyat: 42000, adet: 1 }] },
   ];
 
-  const [hamSiparisler, setHamSiparisler] = useState<any[]>([]);
+  // 🚀 ARTIK "0" YERİNE AÇILDIĞI AN DEFTERDEN (HAFIZADAN) SON RAKAMI OKUYAN MOTOR
+  const [hamSiparisler, setHamSiparisler] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      try { return JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}").tumSiparisler || []; } catch { return []; }
+    } return [];
+  });
+  
+  const [adresSayisi, setAdresSayisi] = useState<number>(() => {
+    if (typeof window !== "undefined") {
+      try { return JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}").adresSayisi || 0; } catch { return 0; }
+    } return 0;
+  });
+
+  const [favoriSayisi, setFavoriSayisi] = useState<number>(() => {
+    if (typeof window !== "undefined") {
+      try { return JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}").favoriSayisi || 0; } catch { return 0; }
+    } return 0;
+  });
+
+  const [sistemSayisi, setSistemSayisi] = useState<number>(() => {
+    if (typeof window !== "undefined") {
+      try { 
+        const sys = JSON.parse(localStorage.getItem("bilgin_kayitli_sistemler") || "[]");
+        return Array.isArray(sys) ? sys.length : 0;
+      } catch { return 0; }
+    } return 0;
+  });
+
   const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
   const [grafikVerisi, setGrafikVerisi] = useState<any[]>([]);
-  
-  const [adresSayisi, setAdresSayisi] = useState<number>(0);
-  const [favoriSayisi, setFavoriSayisi] = useState<number>(0);
-  const [sistemSayisi, setSistemSayisi] = useState<number>(0);
 
   const [isKargoModalOpen, setIsKargoModalOpen] = useState(false);
   const [kopyalananKod, setKopyalananKargo] = useState<string | null>(null);
@@ -60,7 +83,8 @@ export default function HesabimPage() {
   const [seciliYil, setSeciliYil] = useState<number>(yil);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [tiklananAy, setTiklananAy] = useState<number | null>(suAnkiTarih.getMonth());
-  const [loading, setLoading] = useState(true);
+  // Hafızada ürün varsa loading'i direkt iptal et ki beklemesin
+  const [loading, setLoading] = useState(hamSiparisler.length === 0);
 
   const handleCikisYap = async () => {
     localStorage.removeItem("bilgin_kayitli_sistemler");
@@ -90,31 +114,6 @@ export default function HesabimPage() {
       setFavoriSayisi(4);
       setSistemSayisi(5);
       setLoading(false);
-    }
-  }, [status]);
-
-  useEffect(() => {
-    if (status !== "authenticated") return;
-
-    try {
-      const hafiza = sessionStorage.getItem("bilgin_hesabim_data");
-      if (hafiza) {
-        const parsed = JSON.parse(hafiza);
-        if (parsed.tumSiparisler && parsed.tumSiparisler.length > 0) {
-          setHamSiparisler(parsed.tumSiparisler);
-          setLoading(false); 
-        }
-        if (parsed.favoriSayisi !== undefined) setFavoriSayisi(parsed.favoriSayisi);
-        if (parsed.adresSayisi !== undefined) setAdresSayisi(parsed.adresSayisi);
-      }
-
-      const kayitliSistemler = localStorage.getItem("bilgin_kayitli_sistemler");
-      if (kayitliSistemler) {
-        const parsedSistemler = JSON.parse(kayitliSistemler);
-        if (Array.isArray(parsedSistemler)) setSistemSayisi(parsedSistemler.length);
-      }
-    } catch (error) {
-      console.error("Hafıza okuma hatası:", error);
     }
   }, [status]);
 
@@ -150,6 +149,8 @@ export default function HesabimPage() {
           const adresData = await adresRes.json();
           const sayi = adresData.addresses?.length || 0;
           setAdresSayisi(sayi);
+          const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
+          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, adresSayisi: sayi }));
         }
 
         const favoriRes = await fetch("/api/favorites?t=" + new Date().getTime(), { cache: "no-store" });
@@ -157,6 +158,8 @@ export default function HesabimPage() {
           const favoriData = await favoriRes.json();
           const sayi = favoriData.favorites?.length || 0;
           setFavoriSayisi(sayi);
+          const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
+          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, favoriSayisi: sayi }));
         }
 
       } catch (error) {
@@ -165,8 +168,11 @@ export default function HesabimPage() {
       }
     };
 
+    // İlk açılışta güncellemeleri çek
     gercegiKontrolEt();
-    const radar = setInterval(gercegiKontrolEt, 10000); 
+    
+    // 🚀 ÇIRAĞIN HIZI ARTIRILDI: 10 saniye (10000) yerine 5 saniye (5000) yapıldı!
+    const radar = setInterval(gercegiKontrolEt, 5000); 
 
     return () => clearInterval(radar); 
   }, [session, status]);
@@ -473,7 +479,6 @@ export default function HesabimPage() {
 
             <div className="xl:col-span-2 flex flex-col gap-6">
 
-              {/* 🚀 ÜSTE ALINAN BÖLÜM: ÇİFT MOTORLU HARCAMA DAĞILIMI */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col xl:flex-row items-center gap-6 overflow-hidden">
                  
                  <div className="shrink-0 space-y-1.5 text-center xl:text-left xl:w-[140px]">
@@ -483,7 +488,6 @@ export default function HesabimPage() {
 
                  <div className="flex-1 flex flex-col sm:flex-row items-center justify-center xl:justify-end gap-6 w-full border-t sm:border-t-0 sm:border-l border-slate-800/80 pt-6 sm:pt-0 sm:pl-6">
                    
-                   {/* 1. MİNİ PASTA (AYLIK) */}
                    <div className="flex flex-col items-center gap-3 relative">
                      <span className="absolute -top-3 sm:-top-4 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest shadow-[0_0_10px_rgba(6,182,212,0.4)] whitespace-nowrap">
                        {aylikPastaVerisi.ayAdi} AYI
@@ -519,7 +523,6 @@ export default function HesabimPage() {
 
                    <div className="hidden sm:block w-[1px] h-24 bg-slate-800/80 mx-2"></div>
 
-                   {/* 2. BÜYÜK PASTA (GENEL TOPLAM) */}
                    <div className="flex flex-col sm:flex-row items-center justify-end gap-6 relative">
                      <span className="absolute -top-3 sm:-top-4 left-1/2 sm:left-auto sm:right-4 -translate-x-1/2 sm:translate-x-0 bg-slate-800 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest whitespace-nowrap">
                        TÜM ZAMANLAR
@@ -590,7 +593,6 @@ export default function HesabimPage() {
                  </div>
               </div>
               
-              {/* 📊 ALTA ALINAN BÖLÜM: AYLIK HARCAMA GRAFİĞİ */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
                 <div className="flex flex-row items-center justify-between gap-2 mb-2">
                    <h3 className="text-white font-bold text-base sm:text-lg">Aylık Harcama Grafiği</h3>
