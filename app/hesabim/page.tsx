@@ -17,7 +17,7 @@ export default function HesabimPage() {
     { 
       id: "siparisler", 
       isim: "Siparişlerim", 
-      aciklama: "Kargodaki ve geçmiş siparişlerin", 
+      aciklama: "Kargodaki ve geçmiş siparişleriniz", 
       ikon: Package, 
       link: session ? "/siparislerim" : "/giris", 
       renk: "text-[#3b82f6]", 
@@ -27,7 +27,7 @@ export default function HesabimPage() {
     { 
       id: "siparis-takip", 
       isim: "Sipariş Takip", 
-      aciklama: "Kargonun anlık durumunu izle", 
+      aciklama: "Kargonuzun anlık durumunu izleyin", 
       ikon: Truck, 
       link: "/siparis-takip", 
       renk: "text-purple-400", 
@@ -37,7 +37,7 @@ export default function HesabimPage() {
     { 
       id: "sistemlerim", 
       isim: "Sistemlerim", 
-      aciklama: "Topladığın özel PC canavarları", 
+      aciklama: "Topladığınız özel bilgisayarlar", 
       ikon: Server, 
       link: session ? "/sistemlerim" : "/giris", 
       renk: "text-[#00d2ff]", 
@@ -47,7 +47,7 @@ export default function HesabimPage() {
     { 
       id: "favoriler", 
       isim: "Favorilerim", 
-      aciklama: "Gözüne kestirdiğin donanımlar", 
+      aciklama: "İlginizi çeken donanımlar", 
       ikon: Heart, 
       link: session ? "/favorilerim" : "/giris", 
       renk: "text-rose-400", 
@@ -57,7 +57,7 @@ export default function HesabimPage() {
     { 
       id: "adresler", 
       isim: "Adreslerim", 
-      aciklama: "Teslimat ve fatura bilgilerin", 
+      aciklama: "Teslimat ve fatura bilgileriniz", 
       ikon: MapPin, 
       link: session ? "/adreslerim" : "/giris", 
       renk: "text-emerald-400", 
@@ -67,7 +67,7 @@ export default function HesabimPage() {
     { 
       id: "yonetim", 
       isim: "Yönetim Paneli", 
-      aciklama: "Dükkanın ana kumanda merkezi", 
+      aciklama: "Mağaza yönetim ekranı", 
       ikon: ShieldAlert, 
       link: session ? "/admin" : "/giris", 
       renk: "text-amber-400", 
@@ -85,9 +85,9 @@ export default function HesabimPage() {
     <div className="min-h-screen bg-[#050814] text-white pt-8 sm:pt-12 pb-24 px-4 relative font-sans">
       <div className="max-w-4xl mx-auto relative z-10">
         
-        {/* 🏆 ÜST LOBİ EKRANI (Giriş Yapılmışsa veya Yapılmamışsa değişir) */}
+        {/* 🏆 ÜST LOBİ EKRANI */}
         {session ? (
-          /* GİRİŞ YAPAN VİP MÜŞTERİ KARTI */
+          /* GİRİŞ YAPAN MÜŞTERİ KARTI */
           <div className="bg-[#09090b] border border-white/5 rounded-3xl p-6 sm:p-8 mb-8 shadow-xl">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-6">
               <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-[#121215] border border-[#3b82f6]/30 flex items-center justify-center shrink-0">
@@ -96,8 +96,8 @@ export default function HesabimPage() {
                  </span>
               </div>
               <div className="text-center sm:text-left flex-1 flex flex-col justify-center h-full mt-2 sm:mt-0">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black tracking-widest uppercase mb-3.5 mx-auto sm:mx-0 w-fit">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> VIP MÜŞTERİ
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#3b82f6]/10 border border-[#3b82f6]/20 text-[#3b82f6] text-[10px] font-black tracking-widest uppercase mb-3.5 mx-auto sm:mx-0 w-fit">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#3b82f6]"></span> BİLGİN PC ÜYESİ
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight break-words leading-none">
                   {userName}
@@ -114,25 +114,22 @@ export default function HesabimPage() {
           </div>
         ) : (
           /* GİRİŞ YAPMAMIŞ (ZİYARETÇİ) KARTI */
-          <div className="bg-[#09090b] border border-[#3b82f6]/20 rounded-3xl p-6 sm:p-8 mb-8 shadow-xl relative overflow-hidden">
-            {/* Hafif mavi bir dokunuş (Parçalanma yapmayacak kadar çok soluk) */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#3b82f6]/5 to-transparent pointer-events-none"></div>
-
+          <div className="bg-[#09090b] border border-white/10 rounded-3xl p-6 sm:p-8 mb-8 shadow-xl relative overflow-hidden">
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8">
               <div className="text-center md:text-left flex-1">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#3b82f6]/10 border border-[#3b82f6]/20 text-[#3b82f6] text-[10px] font-black tracking-widest uppercase mb-3.5 mx-auto md:mx-0 w-fit">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#3b82f6]"></span> PREMİUM DÜNYA
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#3b82f6]"></span> HOŞ GELDİNİZ
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight mb-3 uppercase">
-                  BİLGİN PC'YE <span className="text-[#3b82f6]">KATIL</span>
+                  BİLGİN PC <span className="text-[#3b82f6]">HESABIM</span>
                 </h1>
                 <p className="text-slate-400 text-xs sm:text-sm font-medium leading-relaxed max-w-xl mx-auto md:mx-0">
-                  Siparişlerini ışık hızında takip et, kendi PC canavarlarını atölyede topla ve sana özel indirim avantajlarından anında faydalan.
+                  Siparişlerinizi güvenle takip etmek, hayalinizdeki sistemi toplamak ve size özel fırsatlardan yararlanmak için hemen giriş yapın veya kayıt olun.
                 </p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0 mt-2 md:mt-0">
-                <Link href="/giris" className="flex items-center justify-center px-8 py-3.5 rounded-xl bg-[#3b82f6] text-white font-black uppercase tracking-widest text-xs hover:bg-blue-600 transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                <Link href="/giris" className="flex items-center justify-center px-8 py-3.5 rounded-xl bg-[#3b82f6] text-white font-black uppercase tracking-widest text-xs hover:bg-blue-600 transition-all shadow-[0_0_15px_rgba(59,130,246,0.2)]">
                   Giriş Yap
                 </Link>
                 <Link href="/giris" className="flex items-center justify-center px-8 py-3.5 rounded-xl bg-[#121215] border border-white/10 text-white font-black uppercase tracking-widest text-xs hover:bg-white/5 hover:border-white/20 transition-all">
@@ -144,10 +141,10 @@ export default function HesabimPage() {
         )}
 
         <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-4 ml-2">
-          {session ? "Hesap Kumanda Merkezi" : "VIP Ayrıcalıklar (Önizleme)"}
+          {session ? "Hesap Yönetimi" : "Hesap Yönetimi (Önizleme)"}
         </h2>
 
-        {/* 🚀 LİSTE (Ziyaretçiye de gösteriliyor) */}
+        {/* 🚀 LİSTE */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           {garajlar.map((garaj) => {
             const Icon = garaj.ikon;

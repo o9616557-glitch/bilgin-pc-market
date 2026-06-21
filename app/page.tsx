@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Cpu, Crosshair, Sparkles, Star, ShieldCheck, Zap, ArrowRight } from "lucide-react";
 import OkluSlider from "@/components/OkluSlider";
 import VitrinButon from "@/components/VitrinButon";
+
 export const revalidate = 60; 
 
 export default async function HomePage() {
