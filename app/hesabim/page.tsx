@@ -17,7 +17,7 @@ export default function HesabimPage() {
     await signOut({ callbackUrl: "/" });
   };
 
-  // 🚀 TÜM FORMATLARI COZEN VE GİZLİ ANAHTARLA GİREN ÇIRAK MOTORU
+  // 🚀 DİĞER SAYFADAN ALINAN, ÖNBELLEĞİ KIRAN GERÇEK MOTOR!
   useEffect(() => {
     if (!session?.user?.email) {
       setLoading(false);
@@ -26,33 +26,33 @@ export default function HesabimPage() {
 
     const siparisleriGetir = async () => {
       try {
-        // 🚀 ŞEFİN GİZLİ ANAHTARI CEBİMİZDE KAPIYI ÇALIYORUZ
-        const res = await fetch("/api/siparislerim", {
-          method: "GET",
-          headers: {
-            "x-patron-anahtar": "Bilgin123", // İŞTE KAPININ ŞİFRESİ BURADA!
-            "Content-Type": "application/json"
-          }
+        const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
         });
         
-        if (res.ok) {
-          const data = await res.json();
-          
-          if (Array.isArray(data)) {
-            setSiparisler(data);
-          } else if (data.orders && Array.isArray(data.orders)) {
-            setSiparisler(data.orders);
-          } else if (data.siparisler && Array.isArray(data.siparisler)) {
-            // Senin API "siparisler" dizisi dönüyor, burası tam senin dükkana göre!
-            setSiparisler(data.siparisler);
-          } else if (data.data && Array.isArray(data.data)) {
-            setSiparisler(data.data);
-          }
-        } else {
-          console.log("Şefim API kapıdan kovdu, parola yanlış olabilir! Durum:", res.status);
+        const data = await res.json();
+        
+        if (res.ok && data.orders) {
+          // 1. Sadece giriş yapan müşterinin (senin) siparişlerini süz
+          const benimSiparislerim = data.orders.filter((siparis: any) => {
+            const siparisMaili = siparis.userEmail || siparis.email || siparis.musteri?.eposta || siparis.musteri?.email || "";
+            // 🔥 BİNGO: TypeScript hatasını çözen güvenlik kalkanı burada!
+            const musteriMaili = session?.user?.email || ""; 
+            
+            return siparisMaili.toLowerCase() === musteriMaili.toLowerCase();
+          });
+
+          // 2. En yeni tarihli olanları en üste al (Sıralama)
+          const siraliSiparisler = benimSiparislerim.sort((a: any, b: any) => 
+            new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime()
+          );
+
+          // 3. Ekrana sığması için sadece en güncel 6 tanesini kutuya gönder
+          setSiparisler(siraliSiparisler.slice(0, 6));
         }
       } catch (error) {
-        console.error("Sipariş motoru kaza yaptı şefim:", error);
+        console.error("Siparişler çekilirken bağlantı koptu:", error);
       } finally {
         setLoading(false);
       }
@@ -134,7 +134,7 @@ export default function HesabimPage() {
           {/* 🧩 DASHBOARD BİLEŞENLERİ */}
           <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 
-            {/* SON İŞLEMLER / SİPARİŞLERİM */}
+            {/* 🔥 SON İŞLEMLER / SİPARİŞLERİM */}
             <div className="lg:col-span-1 xl:col-span-1 flex flex-col gap-6">
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group hover:border-cyan-500/30 transition-all duration-300 flex flex-col h-full min-h-[420px]">
                 <div className="absolute -top-10 -left-10 w-40 h-40 bg-cyan-500/10 blur-[50px] pointer-events-none rounded-full"></div>
@@ -154,10 +154,10 @@ export default function HesabimPage() {
                     </div>
                   ) : siparisler.length > 0 ? (
                     siparisler.map((item: any, idx: number) => {
-                      const tarih = item.createdAt ? new Date(item.createdAt).toLocaleDateString("tr-TR") : item.date || "";
-                      const urunAdi = item.urunler?.[0]?.isim || item.system || "Sipariş";
-                      const toplamFiyat = item.toplamFiyat || item.price || "0";
-                      const durum = item.durum || item.status || "Hazırlanıyor";
+                      const tarih = item.createdAt ? new Date(item.createdAt).toLocaleDateString("tr-TR") : item.tarih ? new Date(item.tarih).toLocaleDateString("tr-TR") : "";
+                      const urunAdi = item.items?.[0]?.isim || item.items?.[0]?.name || item.sepet?.[0]?.isim || item.siparisKodu || "Sipariş";
+                      const toplamFiyat = item.totalPrice || item.toplamTutar || "0";
+                      const durum = item.status || item.durum || "Hazırlanıyor";
 
                       return (
                         <div key={item._id || idx} className="flex items-center gap-4 py-3 border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors rounded-lg px-2">
@@ -169,9 +169,11 @@ export default function HesabimPage() {
                             {Number(toplamFiyat).toLocaleString("tr-TR")} ₺
                           </p>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest shrink-0 ${
-                            durum.toLowerCase() === 'aktif' || durum.toLowerCase() === 'active' || durum.toLowerCase() === 'tamamlandı' || durum.toLowerCase() === 'teslim edildi'
-                              ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' 
-                              : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                            durum.toLowerCase().includes('aktif') || durum.toLowerCase().includes('teslim') || durum.toLowerCase().includes('tamam')
+                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                              : durum.toLowerCase().includes('iptal')
+                              ? 'bg-red-500/10 text-red-400 border border-red-500/20'
+                              : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
                           }`}>
                             {durum}
                           </span>
@@ -242,7 +244,7 @@ export default function HesabimPage() {
                  </Link>
                  <Link href="/siparis-takip" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-rose-500/20 rounded-2xl p-4 shadow-xl flex flex-col items-center gap-2 transition-colors">
                    <Truck className="w-8 h-8 text-rose-400" />
-                   <p className="text-3xl font-black text-white">1</p>
+                   <p className="text-3xl font-black text-white">{siparisler.filter(s => s.status?.toLowerCase().includes("kargo") || s.durum?.toLowerCase().includes("kargo")).length}</p>
                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Kargolar</p>
                  </Link>
                  <Link href="https://www.bilginpcmarket.com/favorilerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-purple-500/20 rounded-2xl p-4 shadow-xl flex flex-col items-center gap-2 transition-colors">
