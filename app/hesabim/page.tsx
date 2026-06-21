@@ -26,7 +26,6 @@ export default function HesabimPage() {
     { _id: "SP-112", tarih: new Date(yil, 11, 8).toISOString(), status: "Tamamlandı", totalPrice: 42000, items: [{ isim: "Razer Klavye & Mouse Seti", kategoriSlug: "mouse", fiyat: 42000, adet: 1 }] },
   ];
 
-  // 🚀 ARTIK "0" YERİNE AÇILDIĞI AN DEFTERDEN (HAFIZADAN) SON RAKAMI OKUYAN MOTOR
   const [hamSiparisler, setHamSiparisler] = useState<any[]>(() => {
     if (typeof window !== "undefined") {
       try { return JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}").tumSiparisler || []; } catch { return []; }
@@ -83,7 +82,6 @@ export default function HesabimPage() {
   const [seciliYil, setSeciliYil] = useState<number>(yil);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [tiklananAy, setTiklananAy] = useState<number | null>(suAnkiTarih.getMonth());
-  // Hafızada ürün varsa loading'i direkt iptal et ki beklemesin
   const [loading, setLoading] = useState(hamSiparisler.length === 0);
 
   const handleCikisYap = async () => {
@@ -168,10 +166,7 @@ export default function HesabimPage() {
       }
     };
 
-    // İlk açılışta güncellemeleri çek
     gercegiKontrolEt();
-    
-    // 🚀 ÇIRAĞIN HIZI ARTIRILDI: 10 saniye (10000) yerine 5 saniye (5000) yapıldı!
     const radar = setInterval(gercegiKontrolEt, 5000); 
 
     return () => clearInterval(radar); 
@@ -190,7 +185,6 @@ export default function HesabimPage() {
     const aylikToplamlar = new Array(12).fill(0);
 
     let cK_toplam = 0, cB_toplam = 0, cC_toplam = 0, cS_toplam = 0, cA_toplam = 0;
-    
     let m_cK = 0, m_cB = 0, m_cC = 0, m_cS = 0, m_cA = 0;
     const aktifAy = tiklananAy !== null ? tiklananAy : suAnkiTarih.getMonth();
 
@@ -479,20 +473,22 @@ export default function HesabimPage() {
 
             <div className="xl:col-span-2 flex flex-col gap-6">
 
-              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col xl:flex-row items-center gap-6 overflow-hidden">
+              {/* 🚀 MOBİLDE YAN YANA İKİYE BÖLÜNMÜŞ ÇİFT MOTORLU HARCAMA DAĞILIMI */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col xl:flex-row items-center gap-6 overflow-hidden">
                  
-                 <div className="shrink-0 space-y-1.5 text-center xl:text-left xl:w-[140px]">
+                 <div className="shrink-0 space-y-1.5 text-center xl:text-left xl:w-[140px] w-full">
                    <h3 className="text-white font-bold text-base sm:text-lg leading-tight">Harcama Dağılımı</h3>
                    <p className="text-[10px] text-slate-500 font-medium">Satın alınan kategoriler</p>
                  </div>
 
-                 <div className="flex-1 flex flex-col sm:flex-row items-center justify-center xl:justify-end gap-6 w-full border-t sm:border-t-0 sm:border-l border-slate-800/80 pt-6 sm:pt-0 sm:pl-6">
+                 <div className="flex-1 grid grid-cols-2 sm:flex sm:flex-row items-start justify-center xl:justify-end gap-2 sm:gap-6 w-full border-t sm:border-t-0 sm:border-l border-slate-800/80 pt-6 sm:pt-0 sm:pl-6">
                    
-                   <div className="flex flex-col items-center gap-3 relative">
-                     <span className="absolute -top-3 sm:-top-4 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest shadow-[0_0_10px_rgba(6,182,212,0.4)] whitespace-nowrap">
+                   {/* 1. MİNİ PASTA (AYLIK) */}
+                   <div className="flex flex-col items-center gap-2 sm:gap-3 relative px-1">
+                     <span className="absolute -top-4 sm:-top-4 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-widest shadow-[0_0_10px_rgba(6,182,212,0.4)] whitespace-nowrap">
                        {aylikPastaVerisi.ayAdi} AYI
                      </span>
-                     <div className="relative w-20 h-20 sm:w-24 sm:h-24 shrink-0 mt-3">
+                     <div className="relative w-16 h-16 sm:w-24 sm:h-24 shrink-0 mt-2 sm:mt-3">
                        <svg className="w-full h-full transform -rotate-90 drop-shadow-md" viewBox="0 0 42 42">
                          <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(255,255,255,0.02)" strokeWidth="4.5"></circle>
                          {aylikPastaVerisi.maxYuzde === 0 ? (
@@ -507,27 +503,28 @@ export default function HesabimPage() {
                            </>
                          )}
                        </svg>
-                       <div className="absolute inset-0 flex flex-col items-center justify-center mt-1">
-                         <span className="text-sm font-black text-white">{aylikPastaVerisi.maxYuzde}%</span>
+                       <div className="absolute inset-0 flex flex-col items-center justify-center mt-0.5 sm:mt-1">
+                         <span className="text-xs sm:text-sm font-black text-white">{aylikPastaVerisi.maxYuzde}%</span>
                        </div>
                      </div>
-                     <div className="flex flex-wrap justify-center gap-2 max-w-[120px]">
-                       {aylikPastaVerisi.kendinTopla.yuzde > 0 && <span className="text-[10px] text-amber-400 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>{aylikPastaVerisi.kendinTopla.yuzde}%</span>}
-                       {aylikPastaVerisi.bilesen.yuzde > 0 && <span className="text-[10px] text-cyan-400 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-cyan-500 rounded-full"></span>{aylikPastaVerisi.bilesen.yuzde}%</span>}
-                       {aylikPastaVerisi.cevre.yuzde > 0 && <span className="text-[10px] text-rose-400 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-rose-500 rounded-full"></span>{aylikPastaVerisi.cevre.yuzde}%</span>}
-                       {aylikPastaVerisi.sistem.yuzde > 0 && <span className="text-[10px] text-purple-400 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-purple-500 rounded-full"></span>{aylikPastaVerisi.sistem.yuzde}%</span>}
-                       {aylikPastaVerisi.aksesuar.yuzde > 0 && <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>{aylikPastaVerisi.aksesuar.yuzde}%</span>}
-                       {aylikPastaVerisi.maxYuzde === 0 && <span className="text-[10px] text-slate-500 font-medium">Harcama Yok</span>}
+                     <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2 max-w-[120px]">
+                       {aylikPastaVerisi.kendinTopla.yuzde > 0 && <span className="text-[9px] sm:text-[10px] text-amber-400 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>{aylikPastaVerisi.kendinTopla.yuzde}%</span>}
+                       {aylikPastaVerisi.bilesen.yuzde > 0 && <span className="text-[9px] sm:text-[10px] text-cyan-400 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-cyan-500 rounded-full"></span>{aylikPastaVerisi.bilesen.yuzde}%</span>}
+                       {aylikPastaVerisi.cevre.yuzde > 0 && <span className="text-[9px] sm:text-[10px] text-rose-400 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-rose-500 rounded-full"></span>{aylikPastaVerisi.cevre.yuzde}%</span>}
+                       {aylikPastaVerisi.sistem.yuzde > 0 && <span className="text-[9px] sm:text-[10px] text-purple-400 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-purple-500 rounded-full"></span>{aylikPastaVerisi.sistem.yuzde}%</span>}
+                       {aylikPastaVerisi.aksesuar.yuzde > 0 && <span className="text-[9px] sm:text-[10px] text-emerald-400 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>{aylikPastaVerisi.aksesuar.yuzde}%</span>}
+                       {aylikPastaVerisi.maxYuzde === 0 && <span className="text-[9px] sm:text-[10px] text-slate-500 font-medium">Harcama Yok</span>}
                      </div>
                    </div>
 
                    <div className="hidden sm:block w-[1px] h-24 bg-slate-800/80 mx-2"></div>
 
-                   <div className="flex flex-col sm:flex-row items-center justify-end gap-6 relative">
-                     <span className="absolute -top-3 sm:-top-4 left-1/2 sm:left-auto sm:right-4 -translate-x-1/2 sm:translate-x-0 bg-slate-800 text-slate-400 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest whitespace-nowrap">
+                   {/* 2. BÜYÜK PASTA (GENEL TOPLAM) */}
+                   <div className="flex flex-col items-center sm:flex-row sm:items-center sm:justify-end gap-2 sm:gap-6 relative border-l border-slate-800/50 sm:border-0 pl-3 sm:pl-0">
+                     <span className="absolute -top-4 sm:-top-4 left-1/2 sm:left-auto sm:right-4 -translate-x-1/2 sm:translate-x-0 bg-slate-800 text-slate-400 text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-widest whitespace-nowrap">
                        TÜM ZAMANLAR
                      </span>
-                     <div className="relative w-28 h-28 sm:w-32 sm:h-32 shrink-0 mt-2 sm:mt-0">
+                     <div className="relative w-16 h-16 sm:w-32 sm:h-32 shrink-0 mt-2 sm:mt-0">
                        <svg className="w-full h-full transform -rotate-90 drop-shadow-xl" viewBox="0 0 42 42">
                          <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(255,255,255,0.03)" strokeWidth="4.5"></circle>
                          {pastaVerisi.maxYuzde === 0 ? (
@@ -542,50 +539,50 @@ export default function HesabimPage() {
                            </>
                          )}
                        </svg>
-                       <div className="absolute inset-0 flex flex-col items-center justify-center mt-1">
-                         <span className="text-xl font-black text-white tracking-tight">{pastaVerisi.maxYuzde}%</span>
+                       <div className="absolute inset-0 flex flex-col items-center justify-center mt-0.5 sm:mt-1">
+                         <span className="text-xs sm:text-xl font-black text-white tracking-tight">{pastaVerisi.maxYuzde}%</span>
                        </div>
                      </div>
 
-                     <div className="flex flex-col gap-2 shrink-0 w-full sm:w-[180px]">
+                     <div className="flex flex-col gap-1.5 sm:gap-2 shrink-0 w-full sm:w-[180px]">
                        <div className="flex items-center justify-between w-full">
-                         <div className="flex items-center gap-2 min-w-0">
-                           <span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] shrink-0"></span>
-                           <span className="text-[10px] sm:text-[11px] text-slate-300 font-bold truncate">Kendin Topla</span>
+                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] shrink-0"></span>
+                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-bold truncate">Kendin Topla</span>
                          </div>
-                         <span className="text-[10px] sm:text-[11px] font-black text-amber-400 shrink-0">{pastaVerisi.kendinTopla.yuzde}%</span>
+                         <span className="text-[9px] sm:text-[11px] font-black text-amber-400 shrink-0 pl-1">{pastaVerisi.kendinTopla.yuzde}%</span>
                        </div>
                        
                        <div className="flex items-center justify-between w-full">
-                         <div className="flex items-center gap-2 min-w-0">
-                           <span className="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_#06b6d4] shrink-0"></span>
-                           <span className="text-[10px] sm:text-[11px] text-slate-300 font-medium truncate">Bileşenler</span>
+                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_#06b6d4] shrink-0"></span>
+                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Bileşenler</span>
                          </div>
-                         <span className="text-[10px] sm:text-[11px] font-black text-cyan-400 shrink-0">{pastaVerisi.bilesen.yuzde}%</span>
+                         <span className="text-[9px] sm:text-[11px] font-black text-cyan-400 shrink-0 pl-1">{pastaVerisi.bilesen.yuzde}%</span>
                        </div>
                        
                        <div className="flex items-center justify-between w-full">
-                         <div className="flex items-center gap-2 min-w-0">
-                           <span className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#fb7185] shrink-0"></span>
-                           <span className="text-[10px] sm:text-[11px] text-slate-300 font-medium truncate">Çevre & Oyuncu</span>
+                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#fb7185] shrink-0"></span>
+                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Çevre & Oyuncu</span>
                          </div>
-                         <span className="text-[10px] sm:text-[11px] font-black text-rose-400 shrink-0">{pastaVerisi.cevre.yuzde}%</span>
+                         <span className="text-[9px] sm:text-[11px] font-black text-rose-400 shrink-0 pl-1">{pastaVerisi.cevre.yuzde}%</span>
                        </div>
                        
                        <div className="flex items-center justify-between w-full">
-                         <div className="flex items-center gap-2 min-w-0">
-                           <span className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_8px_#c084fc] shrink-0"></span>
-                           <span className="text-[10px] sm:text-[11px] text-slate-300 font-medium truncate">Sistem & Laptop</span>
+                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-purple-500 shadow-[0_0_8px_#c084fc] shrink-0"></span>
+                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Sistem & Laptop</span>
                          </div>
-                         <span className="text-[10px] sm:text-[11px] font-black text-purple-400 shrink-0">{pastaVerisi.sistem.yuzde}%</span>
+                         <span className="text-[9px] sm:text-[11px] font-black text-purple-400 shrink-0 pl-1">{pastaVerisi.sistem.yuzde}%</span>
                        </div>
                        
                        <div className="flex items-center justify-between w-full">
-                         <div className="flex items-center gap-2 min-w-0">
-                           <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#34d399] shrink-0"></span>
-                           <span className="text-[10px] sm:text-[11px] text-slate-300 font-medium truncate">Ağ & Aksesuar</span>
+                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#34d399] shrink-0"></span>
+                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Ağ & Aksesuar</span>
                          </div>
-                         <span className="text-[10px] sm:text-[11px] font-black text-emerald-400 shrink-0">{pastaVerisi.aksesuar.yuzde}%</span>
+                         <span className="text-[9px] sm:text-[11px] font-black text-emerald-400 shrink-0 pl-1">{pastaVerisi.aksesuar.yuzde}%</span>
                        </div>
                     </div>
                    </div>
