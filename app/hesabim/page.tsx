@@ -24,18 +24,12 @@ export default function HesabimPage() {
 
       <div className="max-w-[1500px] mx-auto flex flex-col lg:flex-row gap-6 relative z-10">
 
-        {/* ⬅️ SOL MENÜ (SİDEBAR - Adreslerim Eklendi!) */}
+        {/* ⬅️ SOL MENÜ (SİDEBAR - Sadece İstediğin 4 Madde Kaldı!) */}
         <div className="w-full lg:w-64 shrink-0 flex flex-col gap-2">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-xl">
             <nav className="flex flex-col gap-1">
               <Link href="/hesabim" prefetch={true} className="flex items-center gap-3 px-4 py-3 bg-white/[0.05] border border-white/10 rounded-xl text-white font-medium shadow-inner transition-all">
                 <User className="w-5 h-5 text-slate-400" /> Profil
-              </Link>
-              <Link href="/sistemlerim" prefetch={true} className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
-                <Server className="w-5 h-5" /> Sistemlerim
-              </Link>
-              <Link href="/siparislerim" prefetch={true} className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
-                <Package className="w-5 h-5" /> Siparişlerim
               </Link>
               <Link href="/adreslerim" prefetch={true} className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
                 <MapPin className="w-5 h-5" /> Adreslerim
@@ -92,14 +86,17 @@ export default function HesabimPage() {
             HESAP YÖNETİMİ
           </h2>
 
-          {/* 🧩 DASHBOARD BİLEŞENLERİ */}
+          {/* 🧩 DASHBOARD BİLEŞENLERİ (Diğerleri Burada Rol Oynuyor!) */}
           <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 
-            {/* SON İŞLEMLER */}
+            {/* SON İŞLEMLER / SİPARİŞLERİM */}
             <div className="lg:col-span-1 xl:col-span-1 flex flex-col gap-6">
-              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+              <Link href="/siparislerim" prefetch={true} className="block bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group hover:border-cyan-500/30 transition-all duration-300">
                 <div className="absolute -top-10 -left-10 w-40 h-40 bg-cyan-500/10 blur-[50px] pointer-events-none rounded-full"></div>
-                <h3 className="text-white font-bold text-lg mb-6 relative z-10">Son İşlemler</h3>
+                <div className="flex items-center justify-between mb-6 relative z-10">
+                  <h3 className="text-white font-bold text-lg">Son İşlemler</h3>
+                  <span className="text-xs font-bold text-cyan-400 group-hover:underline">Tümünü Gör</span>
+                </div>
                 <div className="space-y-4 relative z-10">
                   {[
                     { date: "20.11.2024", system: "Custom Rig", price: "595,00", status: "Active" },
@@ -121,10 +118,10 @@ export default function HesabimPage() {
                     </div>
                   ))}
                 </div>
-              </div>
+              </Link>
             </div>
 
-            {/* GRAFİKLER (Harcama Dağılımı Tamamen Değişti!) */}
+            {/* GRAFİKLER */}
             <div className="lg:col-span-2 xl:col-span-2 flex flex-col gap-6">
               <div className="flex-1 bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row gap-6">
                 <div className="flex-1 space-y-3">
@@ -141,37 +138,23 @@ export default function HesabimPage() {
                    </div>
                 </div>
 
-                {/* 💎 PREMIUM HARCAMA DAĞILIMI (Gelişmiş SVG Donut Çemberi) */}
+                {/* SVG DONUT GRAFİK */}
                 <div className="w-full md:w-[280px] space-y-3">
                    <h3 className="text-white font-bold text-lg">Harcama Dağılımı</h3>
                    <div className="h-40 bg-white/[0.02] border border-white/5 rounded-xl flex items-center justify-center relative">
-                     
-                     {/* Profesyonel SVG Ring Chart */}
                      <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 42 42">
-                       {/* Arka plan halkası */}
                        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(255,255,255,0.03)" strokeWidth="4.5"></circle>
-                       
-                       {/* PC Components (%45) - Mavi */}
                        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#06b6d4" strokeWidth="4.5" strokeDasharray="45 55" strokeDashoffset="0"></circle>
-                       
-                       {/* Laptops (%25) - Rose */}
                        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#fb7185" strokeWidth="4.5" strokeDasharray="25 75" strokeDashoffset="-45"></circle>
-                       
-                       {/* Software (%15) - Mor */}
                        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#c084fc" strokeWidth="4.5" strokeDasharray="15 85" strokeDashoffset="-70"></circle>
-                       
-                       {/* Accessories (%15) - Yeşil */}
                        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#34d399" strokeWidth="4.5" strokeDasharray="15 85" strokeDashoffset="-85"></circle>
                      </svg>
-                     
-                     {/* Merkezdeki net yüzde verisi */}
                      <div className="absolute inset-0 flex flex-col items-center justify-center">
                        <span className="text-xl font-black text-white tracking-tight">45%</span>
                        <span className="text-[9px] text-cyan-400 font-bold uppercase tracking-widest">PC Donanım</span>
                      </div>
                    </div>
 
-                   {/* Göstergeler (Legend) */}
                    <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 pt-2">
                       <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_#06b6d4]"></span><span className="text-xs text-slate-400 font-medium">PC Components</span></div>
                       <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#fb7185]"></span><span className="text-xs text-slate-400 font-medium">Laptops</span></div>
@@ -182,28 +165,32 @@ export default function HesabimPage() {
               </div>
             </div>
 
-            {/* METRİKLER VE SİSTEM LİSTESİ */}
+            {/* METRİKLER VE SİSTEM LİSTESİ / SİSTEMLERİM */}
             <div className="lg:col-span-3 xl:col-span-1 flex flex-col gap-6">
               <div className="grid grid-cols-3 gap-4">
-                 <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col items-center gap-2">
+                 <Link href="/sistemlerim" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-cyan-500/20 rounded-2xl p-4 shadow-xl flex flex-col items-center gap-2 transition-colors">
                    <Server className="w-8 h-8 text-cyan-400" />
                    <p className="text-3xl font-black text-white">3</p>
-                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Sistemler</p>
-                 </div>
-                 <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col items-center gap-2">
+                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Sistemler</p>
+                 </Link>
+                 <Link href="/siparis-takip" prefetch={true} className="bg-[#0f172a] border border-slate-800 hover:border-rose-500/20 rounded-2xl p-4 shadow-xl flex flex-col items-center gap-2 transition-colors">
                    <Truck className="w-8 h-8 text-rose-400" />
                    <p className="text-3xl font-black text-white">1</p>
-                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Kargolar</p>
-                 </div>
+                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Kargolar</p>
+                 </Link>
                  <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col items-center gap-2">
                    <Star className="w-8 h-8 text-purple-400" />
                    <p className="text-3xl font-black text-white">12</p>
-                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Favoriler</p>
+                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Favoriler</p>
                  </div>
               </div>
 
-              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl">
-                 <h3 className="text-white font-bold text-lg mb-6">Sistem Listesi</h3>
+              {/* Sistem Listesi Kartı */}
+              <Link href="/sistemlerim" prefetch={true} className="block bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl hover:border-cyan-500/30 transition-all duration-300 group">
+                 <div className="flex items-center justify-between mb-6">
+                   <h3 className="text-white font-bold text-lg">Sistem Listesi</h3>
+                   <span className="text-xs font-bold text-cyan-400 group-hover:underline">Yönet</span>
+                 </div>
                  <div className="space-y-4">
                    {[
                      { isim: "Custom Rig", resim: "/placeholder-rig.png", status: "Active" },
@@ -224,7 +211,7 @@ export default function HesabimPage() {
                      </div>
                    ))}
                  </div>
-              </div>
+              </Link>
             </div>
 
           </div>
