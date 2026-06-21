@@ -354,8 +354,9 @@ export default function HesabimPage() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-6 relative z-10">
-{/* ⬅️ SOL MENÜ */}
-        <div className="w-full lg:w-64 shrink-0 flex flex-col gap-2 sticky top-28 self-start z-20">
+
+        {/* ⬅️ SOL MENÜ */}
+        <div className="w-full lg:w-64 shrink-0 flex flex-col gap-2">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-xl">
             <nav className="flex flex-col gap-1.5">
               <Link href="/hesabim" onClick={kilitliIslem} className="flex items-center gap-3 px-4 py-3.5 bg-white/[0.05] border border-white/10 rounded-xl text-white font-bold shadow-inner transition-all">
