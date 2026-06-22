@@ -17,32 +17,32 @@ export default function GirisPage() {
   
   const router = useRouter();
 
-  // URL okuyucu
   const searchParams = useSearchParams();
   const urlMessage = searchParams?.get("message");
   const urlError = searchParams?.get("error");
   const urlAlert = searchParams?.get("alert");
 
-  // Sadeleştirilmiş bildirimler (Ekranda 4 saniye kalır)
+  // 🚀 PROFESYONEL VE KİBAR BİLDİRİM SİSTEMİ
   useEffect(() => {
     if (urlMessage === "device_approved") {
-      toast.success("Cihaz onaylandı. Giriş yapabilirsiniz.", { duration: 4000 });
+      toast.success("Cihazınız başarıyla doğrulandı. Sisteme güvenle giriş yapabilirsiniz.", { duration: 5000 });
     }
     if (urlAlert === "security_breach") {
-      toast.error("Giriş işlemi iptal edildi.", { duration: 4000 });
+      toast.error("Güvenliğiniz için bu giriş işlemi sistem tarafından iptal edilmiştir.", { duration: 5000 });
     }
     if (urlError === "token_expired") {
-      toast.error("Bağlantı süresi dolmuş veya geçersiz.", { duration: 4000 });
+      toast.error("Doğrulama bağlantısının süresi dolmuştur. Lütfen tekrar giriş yapmayı deneyiniz.", { duration: 5000 });
     }
-    if (urlError && urlError.includes("Cihaz")) {
-      toast.error("Cihaz onayı gerekiyor. E-postanızı kontrol edin.", { duration: 4000 });
+    // 🚀 GOOGLE VE TAM KARANTİNA YAKALAYICISI (Kelime eklendi)
+    if (urlError && (urlError.includes("Cihaz") || urlError.includes("Karantina"))) {
+      toast.error("Güvenliğiniz bizim için önemlidir. Lütfen e-posta adresinize gönderilen onay bağlantısına tıklayınız.", { duration: 7000 });
     }
   }, [urlMessage, urlAlert, urlError]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const loadingToast = toast.loading(step === 1 ? "Kontrol ediliyor..." : "Doğrulanıyor...");
+    const loadingToast = toast.loading(step === 1 ? "Bilgileriniz kontrol ediliyor..." : "Güvenlik kodu doğrulanıyor...");
 
     try {
       const res = await signIn("credentials", {
@@ -57,25 +57,29 @@ export default function GirisPage() {
         
         if (res.error === "2FA_REQUIRED") {
           setStep(2); 
-          toast.success("E-postanıza güvenlik kodu gönderildi.", { duration: 4000 });
-        } else {
+          toast.success("E-posta adresinize 6 haneli güvenlik kodunuz gönderilmiştir.", { duration: 5000 });
+        } 
+        // Normal girişten gelen Karantina/Cihaz uyarılarını da profesyonelleştirdik
+        else if (res.error.includes("Cihaz") || res.error.includes("KARANTINA")) {
+          toast.error("Güvenliğiniz bizim için önemlidir. Lütfen e-posta adresinize gönderilen onay bağlantısına tıklayınız.", { duration: 7000 });
+        } 
+        else {
+          // Yanlış şifre vb. standart hatalar
           toast.error(res.error, { duration: 4000 }); 
         }
       } else {
         toast.dismiss(loadingToast);
-        toast.success("Giriş başarılı. Yönlendiriliyorsunuz...");
+        toast.success("Giriş işlemi başarılı. Hesabınıza yönlendiriliyorsunuz...");
         router.push("/");
         router.refresh();
       }
     } catch (err) {
       toast.dismiss(loadingToast);
-      toast.error("Sunucuya bağlanırken hata oluştu.");
+      toast.error("Sunucuya bağlanırken beklenmeyen bir hata oluştu.");
     }
   };
 
   // 👇 BURADAN AŞAĞISINA HİÇ DOKUNMUYORSUN (return ( ... ) kısmı aynen kalıyor)
-
-  // ... BUNDAN SONRASI SENDEKİ "return (" KISMI, ORAYA HİÇ DOKUNMUYORSUN!
   return (
     <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center p-0 md:p-4 relative overflow-hidden">
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#3b82f6] rounded-full mix-blend-screen filter blur-[150px] opacity-10"></div>
