@@ -45,9 +45,10 @@ export default function GirisPage() {
     }
   }, [urlMessage, urlAlert, urlError]);
 
-  // 🚀 NORMAL GİRİŞ MOTORU
-  const handleLogin = async (e: React.FormEvent) => {
-    if (e && e.preventDefault) e.preventDefault(); // Otomatik girişte hata vermemesi için koruma
+// 🚀 NORMAL GİRİŞ MOTORU (Artık robotlar da hatasız tetikleyebilir)
+  const handleLogin = async (e?: React.FormEvent) => {
+    // Sadece gerçek müşteri tıklarsa engelleme çalışır, robot otomatik girerse hata vermez
+    if (e && typeof e.preventDefault === 'function') e.preventDefault(); 
 
     const loadingToast = toast.loading(step === 1 ? "Bilgileriniz kontrol ediliyor..." : "Güvenlik kodu doğrulanıyor...", toastAyari);
 
@@ -66,13 +67,11 @@ export default function GirisPage() {
           setStep(2); 
           toast.success("E-posta adresinize 6 haneli güvenlik kodunuz gönderilmiştir.", { ...toastAyari, duration: 5000 });
         } 
-        // Normal girişteki uyarıyı da süreli ve profesyonel hale getirdik
         else if (res.error.includes("Cihaz") || res.error.includes("KARANTINA")) {
-          setWaitingForApproval(true); // 🚀 Telefondan onay beklendiğini sisteme haber veriyoruz
+          setWaitingForApproval(true); // Telefondan onay beklendiğini bildir
           toast.error("Güvenliğiniz için cihaz onayı gerekiyor. Lütfen e-postanıza gönderilen bağlantıya tıklayınız. (Bağlantı 15 dakika geçerlidir)", { ...toastAyari, duration: 8000 });
         } 
         else {
-          // Yanlış şifre vb. standart hatalar
           toast.error(res.error, { ...toastAyari, duration: 4000 }); 
         }
       } else {
@@ -91,7 +90,6 @@ export default function GirisPage() {
   useEffect(() => {
     let kontrolAraligi: NodeJS.Timeout;
 
-    // Hem linkle gelindiğinde hem de formdan şifre yazıp kilit ekranına takılındığında tetiklenir
     const onayBekliyorMu = waitingForApproval || (urlError && (urlError.includes("Cihaz") || urlError.includes("Karantina")));
 
     if (onayBekliyorMu && email) {
@@ -101,26 +99,26 @@ export default function GirisPage() {
           if (res.ok) {
             const data = await res.json();
 
-            // 🎯 TELEFONDAN LİNKE TIKLANDIĞI AN BURASI ÇALIŞIR:
             if (data.approved) {
-              clearInterval(kontrolAraligi); // Kontrolü bitir
+              clearInterval(kontrolAraligi); 
               setWaitingForApproval(false);
               toast.success("Cihaz onayı telefondan alındı! Giriş yapılıyor...", { ...toastAyari, duration: 4000 });
               
-              // Fareye bile dokundurtmadan otomatik sisteme sokuyoruz
-              handleLogin(new Event('submit') as any); 
+              // 🎯 İŞTE HATAYI ÇÖZEN YER: Sahte parmak yerine direkt gerçek motoru çalıştırıyoruz!
+              handleLogin(); 
             }
           }
         } catch (err) {
           console.error("Cihaz durumu sorgulanırken hata oluştu.");
         }
-      }, 2500); // Her 2.5 saniyede bir arkadan çaktırmadan kontrol eder
+      }, 2500); 
     }
 
     return () => {
       if (kontrolAraligi) clearInterval(kontrolAraligi);
     };
-  }, [urlError, waitingForApproval, email]);
+  // 🎯 HAFIZA GÜNCELLEMESİ: Parola ve 6 haneli kodu da robota öğrettik ki unutmasın!
+  }, [urlError, waitingForApproval, email, password, step, twoFactorCode]);
 
   // 👇 BURADAN AŞAĞISINA (return kısmına ve HTML/Tasarım kodlarına) KESİNLİKLE DOKUNMUYORSUN!
   return (
