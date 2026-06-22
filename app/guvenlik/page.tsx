@@ -396,9 +396,10 @@ export default function GuvenlikPage() {
                               <Laptop className={`w-8 h-8 ${aktifGozuksun ? "text-emerald-400" : "text-slate-600"}`} />
                             )}
                             
-                            {aktifGozuksun && (
+                      {aktifGozuksun && (
                               <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
-                                {buCihazMi && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>}
+                                {/* 🚀 ARTIK AKTİF OLAN BÜTÜN CİHAZLAR CAYIR CAYIR YANIP SÖNECEK */}
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border border-[#020617]"></span>
                               </span>
                             )}
