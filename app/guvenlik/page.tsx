@@ -323,8 +323,7 @@ export default function GuvenlikPage() {
               </button>
             </div>
           </div>
-
-          {/* 💻 CANLI AKTİF CİHAZLAR RADARI */}
+{/* 💻 CANLI AKTİF CİHAZLAR RADARI */}
           <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col">
             <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800/80">
               <Laptop className="w-5 h-5 text-emerald-400" />
@@ -341,6 +340,7 @@ export default function GuvenlikPage() {
                 <div className="text-center p-8 text-slate-500 font-medium">Kayıtlı cihaz bulunamadı.</div>
               ) : (
                 aktifCihazlar.map((cihaz, index) => {
+                  // 🚀 KRİTİK NOKTA BURASI: Sadece senin şu an kullandığın cihaz ise "buCihazMi" true olur
                   const buCihazMi = (session?.user as any)?.deviceId === cihaz.deviceId;
                   const isMobile = cihaz.deviceInfo.toLowerCase().includes('mobile') || cihaz.deviceInfo.toLowerCase().includes('android') || cihaz.deviceInfo.toLowerCase().includes('iphone');
                   
@@ -350,29 +350,34 @@ export default function GuvenlikPage() {
                       
                       <div className="flex items-start sm:items-center gap-4 pl-3">
                         <div className="relative shrink-0 mt-1 sm:mt-0">
-                          {/* 🚀 BÜTÜN CİHAZLAR YEŞİL OLDU */}
-                          {isMobile ? <Smartphone className="w-8 h-8 text-emerald-400" /> : <Laptop className="w-8 h-8 text-emerald-400" />}
+                          {/* 🚀 EĞER BU CİHAZSA YEŞİL YANSIN, ESKİ KAYITSA SOLUK (SLATE-500) DURSUN */}
+                          {isMobile ? (
+                            <Smartphone className={`w-8 h-8 ${buCihazMi ? "text-emerald-400" : "text-slate-500"}`} />
+                          ) : (
+                            <Laptop className={`w-8 h-8 ${buCihazMi ? "text-emerald-400" : "text-slate-500"}`} />
+                          )}
                           
-                          {/* 🚀 YEŞİL IŞIK BÜTÜN CİHAZLARDA YANIP SÖNÜYOR */}
-                          <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border border-[#020617]"></span>
-                          </span>
+                          {/* 🚀 YEŞİL IŞIK SADECE SENİN ŞU ANKİ CİHAZINDA YANIP SÖNSÜN */}
+                          {buCihazMi && (
+                            <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border border-[#020617]"></span>
+                            </span>
+                          )}
                         </div>
                         <div>
-                          <p className={`text-sm font-bold flex flex-wrap items-center gap-2 text-white`}>
+                          <p className={`text-sm font-bold flex flex-wrap items-center gap-2 ${buCihazMi ? "text-white" : "text-slate-300"}`}>
                             {cihazAdiniCevir(cihaz.deviceInfo)}
-                            {/* 🚀 SADECE ELİNDEKİ CİHAZDA "BU CİHAZ" YAZAR */}
                             {buCihazMi && <span className="text-[9px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded font-black uppercase tracking-widest border border-emerald-500/20">Bu Cihaz</span>}
                           </p>
-                      <p className="text-xs text-slate-400 mt-1 flex items-center gap-3">
-  <span className="flex items-center gap-1.5">
-    <MapPin className="w-3 h-3 text-emerald-400" /> 
-    {cihaz.location || "Bilinmeyen Konum"} ({cihaz.ipAddress})
-  </span>
-  <span>|</span>
-  <span>{new Date(cihaz.lastActive).toLocaleDateString("tr-TR", {day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit'})}</span>
-</p>
+                          <p className="text-xs text-slate-400 mt-1 flex items-center gap-3">
+                            <span className="flex items-center gap-1.5">
+                              <MapPin className={`w-3 h-3 ${buCihazMi ? "text-emerald-400" : "text-slate-500"}`} /> 
+                              {cihaz.location || "Bilinmeyen Konum"} ({cihaz.ipAddress})
+                            </span>
+                            <span>|</span>
+                            <span>{new Date(cihaz.lastActive).toLocaleDateString("tr-TR", {day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit'})}</span>
+                          </p>
                         </div>
                       </div>
                     </div>
