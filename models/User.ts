@@ -70,7 +70,12 @@ const userSchema = new mongoose.Schema(
     enum: ['all', 'new_device', 'none'], 
     default: 'new_device' 
   },
-  trustedDevices: [String]
+  trustedDevices: [String], // 🚀 DİKKAT: Buraya virgülü çaktık!
+
+  // 🛡️ GUARD (BEKLEYEN CİHAZ ONAY) SİSTEMİ İÇİN YENİ RAFLAR
+  pendingDeviceToken: { type: String },
+  pendingDeviceExpires: { type: Date },
+  pendingDeviceInfo: { type: Object }
   
 },
 { timestamps: true }
