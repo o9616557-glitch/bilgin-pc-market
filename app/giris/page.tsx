@@ -21,20 +21,24 @@ export default function GirisPage() {
   const urlMessage = searchParams?.get("message");
   const urlError = searchParams?.get("error");
   const urlAlert = searchParams?.get("alert");
-// 🚀 PROFESYONEL VE SÜRELİ BİLDİRİM SİSTEMİ
+// 🚀 TELEFONLARDA TAM ORTALANAN VE PROFESYONEL BİLDİRİM MOTORU
   useEffect(() => {
+    const toastAyari = { 
+      duration: 5000, 
+      style: { textAlign: 'center' as const } // Telefonda yazıları tam ortalar, kenara kaçırmaz
+    };
+
     if (urlMessage === "device_approved") {
-      toast.success("Cihazınız başarıyla doğrulandı. Sisteme güvenle giriş yapabilirsiniz.", { duration: 5000 });
+      toast.success("Cihazınız başarıyla doğrulandı. Sisteme güvenle giriş yapabilirsiniz.", toastAyari);
     }
     if (urlAlert === "security_breach") {
-      toast.error("Güvenliğiniz için bu giriş işlemi sistem tarafından iptal edilmiştir.", { duration: 5000 });
+      toast.error("Güvenliğiniz için bu giriş işlemi sistem tarafından iptal edilmiştir.", toastAyari);
     }
     if (urlError === "token_expired") {
-      toast.error("Doğrulama bağlantısının süresi dolmuştur. Lütfen tekrar giriş yapmayı deneyiniz.", { duration: 5000 });
+      toast.error("Doğrulama bağlantısının süresi dolmuştur. Lütfen tekrar giriş yapmayı deneyiniz.", toastAyari);
     }
-    // 🚀 SÜRE BİLGİSİ EKLENDİ
     if (urlError && (urlError.includes("Cihaz") || urlError.includes("Karantina"))) {
-      toast.error("Güvenliğiniz için cihaz onayı gerekiyor. Lütfen e-postanıza gönderilen bağlantıya tıklayınız. (Bağlantı 15 dakika geçerlidir)", { duration: 8000 });
+      toast.error("Güvenliğiniz için cihaz onayı gerekiyor. Lütfen e-postanıza gönderilen bağlantıya tıklayınız. (Bağlantı 15 dakika geçerlidir)", { duration: 8000, style: { textAlign: 'center' } });
     }
   }, [urlMessage, urlAlert, urlError]);
 
