@@ -21,9 +21,11 @@ export async function GET() {
       return NextResponse.json({ message: "Kullanıcı bulunamadı" }, { status: 404 });
     }
 
+    // 🚀 İŞTE VİTRİNE GİDEN PAKET (Kuryenin Cebini Genişlettik)
     return NextResponse.json({
       twoFactorEmail: user.twoFactorEmail || false,
       twoFactorSms: user.twoFactorSms || false,
+      activeDevices: user.activeDevices || [], // 🚀 ŞEFİM EKSİK OLAN RADAR KABLOSU BU!
     }, { status: 200 });
 
   } catch (error) {
