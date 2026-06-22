@@ -12,7 +12,6 @@ import { useSession } from "next-auth/react";
 export default function GuvenlikPage() {
   const { data: session } = useSession(); 
   
-  // 🔑 ŞİFRE YÖNETİMİ HAFIZALARI
   const [mevcutSifre, setMevcutSifre] = useState("");
   const [sifre, setSifre] = useState("");
   const [sifreTekrar, setSifreTekrar] = useState("");
@@ -22,12 +21,10 @@ export default function GuvenlikPage() {
   const [islemDurumu, setIslemDurumu] = useState({ tip: "", mesaj: "" });
   const [yukleniyor, setYukleniyor] = useState(false);
 
-  // 🛡️ 2FA (İKİ ADIMLI DOĞRULAMA) HAFIZALARI
   const [ikiAdimEmail, setIkiAdimEmail] = useState(false);
   const [ikiAdimDurum, setIkiAdimDurum] = useState({ tip: "", mesaj: "" });
   const [ikiAdimYukleniyor, setIkiAdimYukleniyor] = useState(false);
 
-  // 💻 AKTİF CİHAZLAR HAFIZASI
   const [aktifCihazlar, setAktifCihazlar] = useState<any[]>([]);
   const [cihazlarYukleniyor, setCihazlarYukleniyor] = useState(true);
   const [cikisYukleniyor, setCikisYukleniyor] = useState(false);
@@ -69,7 +66,6 @@ export default function GuvenlikPage() {
   const gucYuzdesi = gucSeviyesi === 0 ? 0 : (gucSeviyesi / 4) * 100;
   const gucRengi = gucSeviyesi < 2 ? "bg-rose-500 shadow-[0_0_10px_#f43f5e]" : gucSeviyesi === 2 ? "bg-amber-500 shadow-[0_0_10px_#f59e0b]" : "bg-emerald-500 shadow-[0_0_10px_#10b981]";
 
-  // 🚀 TERCÜMAN ÇİPİ
   const cihazAdiniCevir = (userAgent: string) => {
     if (!userAgent) return "Bilinmeyen Cihaz";
     let isletimSistemi = "Bilinmeyen OS";
@@ -323,7 +319,8 @@ export default function GuvenlikPage() {
               </button>
             </div>
           </div>
-{/* 💻 CANLI AKTİF CİHAZLAR RADARI */}
+
+          {/* 💻 CANLI AKTİF CİHAZLAR RADARI */}
           <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col">
             <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800/80">
               <Laptop className="w-5 h-5 text-emerald-400" />
@@ -340,7 +337,7 @@ export default function GuvenlikPage() {
                 <div className="text-center p-8 text-slate-500 font-medium">Kayıtlı cihaz bulunamadı.</div>
               ) : (
                 aktifCihazlar.map((cihaz, index) => {
-                  // 🚀 KRİTİK NOKTA BURASI: Sadece senin şu an kullandığın cihaz ise "buCihazMi" true olur
+                  // 🚀 SENİN ELİNDEKİ CİHAZ MI KONTROLÜ
                   const buCihazMi = (session?.user as any)?.deviceId === cihaz.deviceId;
                   const isMobile = cihaz.deviceInfo.toLowerCase().includes('mobile') || cihaz.deviceInfo.toLowerCase().includes('android') || cihaz.deviceInfo.toLowerCase().includes('iphone');
                   
@@ -350,29 +347,24 @@ export default function GuvenlikPage() {
                       
                       <div className="flex items-start sm:items-center gap-4 pl-3">
                         <div className="relative shrink-0 mt-1 sm:mt-0">
-                          {/* 🚀 EĞER BU CİHAZSA YEŞİL YANSIN, ESKİ KAYITSA SOLUK (SLATE-500) DURSUN */}
-                          {isMobile ? (
-                            <Smartphone className={`w-8 h-8 ${buCihazMi ? "text-emerald-400" : "text-slate-500"}`} />
-                          ) : (
-                            <Laptop className={`w-8 h-8 ${buCihazMi ? "text-emerald-400" : "text-slate-500"}`} />
-                          )}
+                          {/* 🚀 BÜTÜN CİHAZLAR YEŞİL OLDU */}
+                          {isMobile ? <Smartphone className="w-8 h-8 text-emerald-400" /> : <Laptop className="w-8 h-8 text-emerald-400" />}
                           
-                          {/* 🚀 YEŞİL IŞIK SADECE SENİN ŞU ANKİ CİHAZINDA YANIP SÖNSÜN */}
-                          {buCihazMi && (
-                            <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border border-[#020617]"></span>
-                            </span>
-                          )}
+                          {/* 🚀 BÜTÜN CİHAZLARDA SABİT YEŞİL NOKTA VAR */}
+                          <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
+                            {/* 🚀 YANIP SÖNME EFEKTİ SADECE ŞU AN ELİNDE TUTTUĞUN CİHAZDA ÇALIŞIR */}
+                            {buCihazMi && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>}
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border border-[#020617]"></span>
+                          </span>
                         </div>
                         <div>
-                          <p className={`text-sm font-bold flex flex-wrap items-center gap-2 ${buCihazMi ? "text-white" : "text-slate-300"}`}>
+                          <p className={`text-sm font-bold flex flex-wrap items-center gap-2 text-white`}>
                             {cihazAdiniCevir(cihaz.deviceInfo)}
                             {buCihazMi && <span className="text-[9px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded font-black uppercase tracking-widest border border-emerald-500/20">Bu Cihaz</span>}
                           </p>
                           <p className="text-xs text-slate-400 mt-1 flex items-center gap-3">
                             <span className="flex items-center gap-1.5">
-                              <MapPin className={`w-3 h-3 ${buCihazMi ? "text-emerald-400" : "text-slate-500"}`} /> 
+                              <MapPin className="w-3 h-3 text-emerald-400" /> 
                               {cihaz.location || "Bilinmeyen Konum"} ({cihaz.ipAddress})
                             </span>
                             <span>|</span>
