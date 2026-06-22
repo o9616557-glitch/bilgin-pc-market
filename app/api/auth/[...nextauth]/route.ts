@@ -50,8 +50,7 @@ export const authOptions: NextAuthOptions = {
         // ==========================================
         if (user.twoFactorEmail) {
           
-          // 🚨 BÜYÜK HATA BURADAYDI! NextAuth boşluğu "undefined" KELİMESİ yapıyor!
-          // Eğer gelen kod "undefined" kelimesiyse, onu gerçekten BOŞ ("") kabul et!
+          // NextAuth boşluğu "undefined" KELİMESİ yaparsa bunu BOŞ ("") kabul et
           const musteriKodu = (credentials.code === "undefined" || !credentials.code) ? "" : credentials.code;
 
           // DURUM 1: Adam KODU henüz girmemiş (Kuryeyi Yolla ve VİTES 2'ye geçir)
@@ -65,19 +64,19 @@ export const authOptions: NextAuthOptions = {
             user.twoFactorExpires = new Date(Date.now() + 3 * 60 * 1000);
             await user.save();
 
-            // 3. 🚀 SENİN GMAIL KURYEN ÇALIŞIYOR
+            // 3. 🚀 GMAIL KURYEMİZ BİLGİLERİ GİZLİ KASADAN OKUYOR
             const transporter = nodemailer.createTransport({
               host: "smtp.gmail.com",
               port: 465,
               secure: true,
               auth: {
-                user: "o9616557@gmail.com", 
-                pass: "vfph bxkd gzsv enpg", 
+                user: process.env.EMAIL_USER, // Kasadan alındı 🔐
+                pass: process.env.EMAIL_PASS, // Kasadan alındı 🔐
               },
             });
 
             const mailOptions = {
-              from: '"Bilgin PC Güvenlik" <o9616557@gmail.com>',
+              from: `"Bilgin PC Güvenlik" <${process.env.EMAIL_USER}>`, // Kasadan alındı 🔐
               to: credentials.email,
               subject: "Güvenlik Kodunuz - Bilgin PC Market",
               html: `
@@ -100,30 +99,22 @@ export const authOptions: NextAuthOptions = {
               `,
             };
 
-            // 🚀 EĞER GMAIL HATA VERİRSE EKRANA YANSIT
+            // Eğer Gmail hata verirse ekrana yansıt
             try {
               await transporter.sendMail(mailOptions);
             } catch (error: any) {
               throw new Error("GMAIL_HATASI: " + error.message);
             }
 
-            // 4. Kapıyı kapat ve vitrine "KOD LAZIM" diye bağır ki o BOŞ KUTU EKRANA GELSİN!
+            // Kapıyı kapat ve vitrine "KOD LAZIM" diye bağır
             throw new Error("2FA_REQUIRED");
           }
 
           // DURUM 2: Adam e-postasındaki kodu alıp gelmiş (Doğrulama)
           if (musteriKodu !== "") {
-            
-            // 1. Şefimin girdiği koddaki olası boşlukları temizle
             const girilenKod = musteriKodu.trim(); 
             const gercekKod = user.twoFactorCode;
 
-            // 🚀 CASUS RADAR (Bunu mutlaka görmek istiyoruz)
-            console.log("--- BİLGİN PC RADARI ---");
-            console.log("Sistemdeki Kod:", gercekKod);
-            console.log("Senin Girdiğin Kod:", girilenKod);
-
-            // 2. ŞİMDİLİK SÜRE KONTROLÜNÜ KALDIRDIK! Sadece kodlar aynı mı diye bakıyoruz.
             if (gercekKod !== girilenKod) {
               throw new Error("Geçersiz veya süresi dolmuş bir kod girdiniz.");
             }
