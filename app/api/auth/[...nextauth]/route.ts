@@ -9,6 +9,26 @@ import nodemailer from "nodemailer";
 import crypto from "crypto";
 import { headers } from "next/headers"; 
 
+// 🚀 HARİTA DEDEKTİFİ YARDIMCI MOTORU
+// Plakayı (IP) alır, internetten şehre çevirir. Kendi bilgisayarındayken "Yerel Ağ" yazar.
+async function konumuBul(ip: string) {
+  try {
+    if (ip === "127.0.0.1" || ip === "::1" || ip.includes("192.168") || ip === "Bilinmeyen IP") {
+      return "Yerel Ağ (Localhost)";
+    }
+    // Dünyanın en hızlı ücretsiz Türkçe harita servisine soruyoruz
+    const res = await fetch(`http://ip-api.com/json/${ip}?lang=tr`);
+    if (!res.ok) return "Bilinmeyen Konum";
+    const data = await res.json();
+    if (data.status === "success") {
+      return `${data.city}, ${data.country}`;
+    }
+    return "Bilinmeyen Konum";
+  } catch {
+    return "Bilinmeyen Konum";
+  }
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -47,6 +67,7 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Şifre hatalı, lütfen tekrar deneyin.");
         }
 
+        // --- 2FA MOTORU ---
         if (user.twoFactorEmail) {
           const musteriKodu = (credentials.code === "undefined" || !credentials.code) ? "" : credentials.code;
 
@@ -77,46 +98,36 @@ export const authOptions: NextAuthOptions = {
                   </div>
                   <h3 style="color: #e2e8f0; text-align: center; border-bottom: 1px solid #1e293b; padding-bottom: 10px;">İki Adımlı Doğrulama</h3>
                   <p style="color: #94a3b8; font-size: 16px; text-align: center;">Hesabınıza giriş yapmak için güvenlik kodunuz oluşturuldu.</p>
-                  <div style="text-align: center; margin: 40px 0;">
-                    <div style="display: inline-block; background-color: #020617; border: 2px dashed #3b82f6; color: #ffffff; padding: 20px 40px; font-weight: 900; border-radius: 15px; font-size: 36px; letter-spacing: 15px; text-shadow: 0 0 10px rgba(59,130,246,0.5);">
-                      ${generatedCode}
-                    </div>
-                  </div>
-                  <p style="color: #ef4444; font-size: 13px; text-align: center; font-weight: bold;">Bu kod 3 dakika içinde geçerliliğini yitirecektir.</p>
                 </div>
               `,
             };
 
-            try {
-              await transporter.sendMail(mailOptions);
-            } catch (error: any) {
-              throw new Error("GMAIL_HATASI: " + error.message);
-            }
-
+            try { await transporter.sendMail(mailOptions); } catch (error: any) { throw new Error("GMAIL_HATASI: " + error.message); }
             throw new Error("2FA_REQUIRED");
           }
 
           if (musteriKodu !== "") {
             const girilenKod = musteriKodu.trim(); 
             const gercekKod = user.twoFactorCode;
-
-            if (gercekKod !== girilenKod) {
-              throw new Error("Geçersiz veya süresi dolmuş bir kod girdiniz.");
-            }
-            
+            if (gercekKod !== girilenKod) { throw new Error("Geçersiz veya süresi dolmuş bir kod girdiniz."); }
             user.twoFactorCode = undefined;
             user.twoFactorExpires = undefined;
           }
         }
 
+        // 🚀 NORMAL KAPI RADARI VE HARİTA SORGUSU
         const userAgent = req?.headers?.["user-agent"] || "Bilinmeyen Cihaz";
         const ipAddress = req?.headers?.["x-forwarded-for"] || "Bilinmeyen IP";
         const newDeviceId = crypto.randomUUID();
+        
+        // Dedektif çalışıyor 🕵️‍♂️
+        const konumBilgisi = await konumuBul(ipAddress);
 
         user.activeDevices.push({
           deviceId: newDeviceId,
           deviceInfo: userAgent,
           ipAddress: ipAddress,
+          location: konumBilgisi, // Veritabanına şehir yazıldı! 🔐
           lastActive: new Date()
         });
 
@@ -133,32 +144,31 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
+    // 🚀 VIP KAPISI RADARI VE HARİTA SORGUSU (Google/Facebook)
     async signIn({ user, account }) {
       if (account?.provider === "google" || account?.provider === "facebook") {
         try {
-          if (mongoose.connection.readyState !== 1) {
-            await mongoose.connect(process.env.MONGODB_URI as string);
-          }
-          
+          if (mongoose.connection.readyState !== 1) { await mongoose.connect(process.env.MONGODB_URI as string); }
           const dbUser = await User.findOne({ email: user.email });
           
           if (dbUser) {
-            // 🚀 İŞTE HATAYI ÇÖZDÜĞÜMÜZ YER: "await" EKLENDİ!
             const headersList = await headers(); 
-            
             const userAgent = headersList.get("user-agent") || "Bilinmeyen Cihaz";
             const ipAddress = headersList.get("x-forwarded-for") || headersList.get("x-real-ip") || "Bilinmeyen IP";
             const newDeviceId = crypto.randomUUID();
+
+            // Dedektif VIP kapısında çalışıyor 🕵️‍♂️
+            const konumBilgisi = await konumuBul(ipAddress);
 
             dbUser.activeDevices.push({
               deviceId: newDeviceId,
               deviceInfo: userAgent,
               ipAddress: ipAddress,
+              location: konumBilgisi, // Veritabanına şehir yazıldı! 🔐
               lastActive: new Date()
             });
 
             await dbUser.save();
-            
             (user as any).deviceId = newDeviceId;
           }
         } catch (error) {
@@ -183,13 +193,9 @@ export const authOptions: NextAuthOptions = {
       return session;
     }
   },
-  session: {
-    strategy: "jwt", 
-  },
+  session: { strategy: "jwt" },
   secret: process.env.NEXTAUTH_SECRET, 
-  pages: {
-    signIn: '/login', 
-  }
+  pages: { signIn: '/login' }
 };
 
 const handler = NextAuth(authOptions);

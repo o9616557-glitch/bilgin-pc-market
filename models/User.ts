@@ -56,10 +56,11 @@ const userSchema = new mongoose.Schema(
 
     // 🚀 AKTİF CİHAZLAR RADARI İÇİN HAFIZA RAFI
     activeDevices: [{
-      deviceId: { type: String, required: true }, // Cihazın benzersiz kimlik numarası
-      deviceInfo: { type: String }, // Örn: "Windows - Chrome" veya "iPhone - Safari"
-      ipAddress: { type: String },  // Nereden bağlandığı
-      lastActive: { type: Date, default: Date.now } // Son görülme zamanı
+      deviceId: { type: String, required: true },
+      deviceInfo: { type: String },
+      ipAddress: { type: String },
+      location: { type: String },  // 🚀 İŞTE YENİ EKLENEN KONUM RAFI!
+      lastActive: { type: Date, default: Date.now }
     }]
   },
   { timestamps: true }
