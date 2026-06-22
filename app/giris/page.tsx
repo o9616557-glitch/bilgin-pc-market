@@ -21,8 +21,7 @@ export default function GirisPage() {
   const urlMessage = searchParams?.get("message");
   const urlError = searchParams?.get("error");
   const urlAlert = searchParams?.get("alert");
-
-  // 🚀 PROFESYONEL VE KİBAR BİLDİRİM SİSTEMİ
+// 🚀 PROFESYONEL VE SÜRELİ BİLDİRİM SİSTEMİ
   useEffect(() => {
     if (urlMessage === "device_approved") {
       toast.success("Cihazınız başarıyla doğrulandı. Sisteme güvenle giriş yapabilirsiniz.", { duration: 5000 });
@@ -33,9 +32,9 @@ export default function GirisPage() {
     if (urlError === "token_expired") {
       toast.error("Doğrulama bağlantısının süresi dolmuştur. Lütfen tekrar giriş yapmayı deneyiniz.", { duration: 5000 });
     }
-    // 🚀 GOOGLE VE TAM KARANTİNA YAKALAYICISI (Kelime eklendi)
+    // 🚀 SÜRE BİLGİSİ EKLENDİ
     if (urlError && (urlError.includes("Cihaz") || urlError.includes("Karantina"))) {
-      toast.error("Güvenliğiniz bizim için önemlidir. Lütfen e-posta adresinize gönderilen onay bağlantısına tıklayınız.", { duration: 7000 });
+      toast.error("Güvenliğiniz için cihaz onayı gerekiyor. Lütfen e-postanıza gönderilen bağlantıya tıklayınız. (Bağlantı 15 dakika geçerlidir)", { duration: 8000 });
     }
   }, [urlMessage, urlAlert, urlError]);
 
