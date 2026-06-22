@@ -304,24 +304,31 @@ export default function GuvenlikPage() {
                   </div>
                 </div>
 
-            {/* 🚀 ZIPLAMA ÖNLEYİCİ ŞİFRE MESAJ KUTUSU (Sabit Yükseklik) */}
+        {/* 🚀 ŞEFİN BULUŞU: AKILLI ŞİFRE KUTUSU (Boş durmaz, ipucu verir, duruma göre şekil değiştirir!) */}
                 <div className="h-[44px] sm:h-[48px] mt-1 sm:mt-2 mb-1">
                   <div 
-                    className={`h-full px-3 rounded-xl border flex items-center gap-2 text-[10px] sm:text-xs font-bold transition-all duration-500 ${
+                    className={`h-full px-3 rounded-xl border flex items-center gap-2 text-[10px] sm:text-xs font-bold transition-colors duration-300 overflow-hidden ${
                       islemDurumu.mesaj 
-                        ? `opacity-100 transform translate-y-0 ${islemDurumu.tip === "hata" ? "bg-rose-500/10 border-rose-500/20 text-rose-400" : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"}` 
-                        : "opacity-0 transform translate-y-2 pointer-events-none border-transparent"
+                        ? (islemDurumu.tip === "hata" 
+                            ? "bg-rose-500/10 border-rose-500/20 text-rose-400" 
+                            : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400")
+                        : "bg-emerald-500/5 border-emerald-500/10 text-emerald-400/60" // 🚀 Varsayılan Soluk Yeşil İpucu
                     }`}
                   >
-                    {islemDurumu.mesaj && (
+                    {islemDurumu.mesaj ? (
                       <>
                         {islemDurumu.tip === "hata" ? <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> : <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />}
-                        {islemDurumu.mesaj}
+                        {/* truncate: Uzun yazıları tek satırda tutar, sığmazsa sonuna ... koyar, taşırmaz! */}
+                        <span className="truncate">{islemDurumu.mesaj}</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 opacity-70" />
+                        <span className="truncate">Öneri: Büyük harf, rakam ve sembol kullanın.</span>
                       </>
                     )}
                   </div>
                 </div>
-
                 <button 
                   type="submit" 
                   disabled={yukleniyor}
