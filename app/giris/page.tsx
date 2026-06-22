@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, Lock, ArrowLeft, ArrowRight, UserCircle2, Eye, EyeOff, ShieldCheck } from "lucide-react";
@@ -16,6 +16,9 @@ export default function GirisPage() {
   const [twoFactorCode, setTwoFactorCode] = useState("");
   const [waitingForApproval, setWaitingForApproval] = useState(false); 
   
+  // 🚀 İŞTE YENİ SİLAHIMIZ: UYANDIRMA SERVİSİ ALARMI
+  const [otoGirisTetikle, setOtoGirisTetikle] = useState(false); 
+  
   const router = useRouter();
 
   const searchParams = useSearchParams();
@@ -23,16 +26,11 @@ export default function GirisPage() {
   const urlError = searchParams?.get("error");
   const urlAlert = searchParams?.get("alert");
 
-  // 🚀 ROBOTUN HAFIZASINI SÜREKLİ TAZE TUTACAK GİZLİ ÇİP
-  const handleLoginRef = useRef<any>(null);
-
-  // 🚀 TELEFONLARDA KUTUYU VE YAZIYI TAM MERKEZE ÇİVİLEME AYARI
   const toastAyari = { 
     position: 'top-center' as const, 
     style: { textAlign: 'center' as const } 
   };
 
-  // 🚀 URL'DEN GELEN BİLDİRİMLER
   useEffect(() => {
     if (urlMessage === "device_approved") {
       toast.success("Cihazınız başarıyla doğrulandı. Sisteme güvenle giriş yapabilirsiniz.", { ...toastAyari, duration: 5000 });
@@ -48,7 +46,6 @@ export default function GirisPage() {
     }
   }, [urlMessage, urlAlert, urlError]);
 
-  // 🚀 NORMAL GİRİŞ MOTORU (Artık robotlar da hatasız tetikleyebilir)
   const handleLogin = async (e?: React.FormEvent) => {
     if (e && typeof e.preventDefault === 'function') e.preventDefault(); 
 
@@ -88,10 +85,13 @@ export default function GirisPage() {
     }
   };
 
-  // 🚀 SEN KLAVYEYE DOKUNDUĞUN AN ŞİFREYİ ROBOTUN BEYNİNE YAZDIRAN KOD
+  // 🚀 SİHİR BURADA: Alarm çaldığında sistem en taze 6 haneli kodu görüp kapıyı kendi açar!
   useEffect(() => {
-    handleLoginRef.current = handleLogin;
-  });
+    if (otoGirisTetikle) {
+      handleLogin(); // Taze şifreyle girişi yap
+      setOtoGirisTetikle(false); // Alarmı kapat
+    }
+  }, [otoGirisTetikle]);
 
   // 🚀 BİLGİSAYARIN TELEFONDAKİ ONAYI ANINDA ÇAKMASINI SAĞLAYAN OTOMATİK MOTOR
   useEffect(() => {
@@ -111,10 +111,8 @@ export default function GirisPage() {
               setWaitingForApproval(false);
               toast.success("Cihaz onayı telefondan alındı! Giriş yapılıyor...", { ...toastAyari, duration: 4000 });
               
-              // 🎯 İŞTE SİHİR BURADA: Robot artık eski hafızasıyla değil, senin yazdığın en güncel şifreyle tetikliyor!
-              if (handleLoginRef.current) {
-                handleLoginRef.current(); 
-              }
+              // 🎯 Robot kendi girmeye çalışmıyor, sadece sayfaya "uyan" alarmı veriyor!
+              setOtoGirisTetikle(true); 
             }
           }
         } catch (err) {
