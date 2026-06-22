@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, Lock, ArrowLeft, ArrowRight, UserCircle2, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { signIn } from "next-auth/react";
 import toast from "react-hot-toast"; 
@@ -12,19 +12,39 @@ export default function GirisPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false); 
   
-  // 🚀 ŞEFİM YENİ EKLENDİ: Ekranın Vitesleri (1: Şifre Ekranı, 2: Kod Ekranı)
   const [step, setStep] = useState(1);
   const [twoFactorCode, setTwoFactorCode] = useState("");
   
   const router = useRouter();
 
+  // URL okuyucu
+  const searchParams = useSearchParams();
+  const urlMessage = searchParams?.get("message");
+  const urlError = searchParams?.get("error");
+  const urlAlert = searchParams?.get("alert");
+
+  // Sadeleştirilmiş bildirimler (Ekranda 4 saniye kalır)
+  useEffect(() => {
+    if (urlMessage === "device_approved") {
+      toast.success("Cihaz onaylandı. Giriş yapabilirsiniz.", { duration: 4000 });
+    }
+    if (urlAlert === "security_breach") {
+      toast.error("Giriş işlemi iptal edildi.", { duration: 4000 });
+    }
+    if (urlError === "token_expired") {
+      toast.error("Bağlantı süresi dolmuş veya geçersiz.", { duration: 4000 });
+    }
+    if (urlError && urlError.includes("Cihaz")) {
+      toast.error("Cihaz onayı gerekiyor. E-postanızı kontrol edin.", { duration: 4000 });
+    }
+  }, [urlMessage, urlAlert, urlError]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const loadingToast = toast.loading(step === 1 ? "Bilgiler kontrol ediliyor..." : "Kod doğrulanıyor...");
+    const loadingToast = toast.loading(step === 1 ? "Kontrol ediliyor..." : "Doğrulanıyor...");
 
     try {
-      // 🚀 Motor çalışıyor (step 2'deysek kodu da gönderiyoruz)
       const res = await signIn("credentials", {
         email,
         password,
@@ -35,25 +55,27 @@ export default function GirisPage() {
       if (res?.error) {
         toast.dismiss(loadingToast);
         
-        // 🚀 İŞTE GÜVENLİK GÖREVLİSİNİN BAĞIRIŞINI BURADA YAKALIYORUZ
         if (res.error === "2FA_REQUIRED") {
-          setStep(2); // Vitesi 2'ye at, kod kutusunu göster!
-          toast.success("E-postanıza 6 haneli güvenlik kodu gönderildi!", { duration: 4000 });
+          setStep(2); 
+          toast.success("E-postanıza güvenlik kodu gönderildi.", { duration: 4000 });
         } else {
-          toast.error(res.error);
+          toast.error(res.error, { duration: 4000 }); 
         }
       } else {
         toast.dismiss(loadingToast);
-        toast.success("Giriş başarılı! Yönlendiriliyorsunuz...");
+        toast.success("Giriş başarılı. Yönlendiriliyorsunuz...");
         router.push("/");
         router.refresh();
       }
     } catch (err) {
       toast.dismiss(loadingToast);
-      toast.error("Sunucuya bağlanırken bir hata oluştu.");
+      toast.error("Sunucuya bağlanırken hata oluştu.");
     }
   };
 
+  // 👇 BURADAN AŞAĞISINA HİÇ DOKUNMUYORSUN (return ( ... ) kısmı aynen kalıyor)
+
+  // ... BUNDAN SONRASI SENDEKİ "return (" KISMI, ORAYA HİÇ DOKUNMUYORSUN!
   return (
     <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center p-0 md:p-4 relative overflow-hidden">
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#3b82f6] rounded-full mix-blend-screen filter blur-[150px] opacity-10"></div>
