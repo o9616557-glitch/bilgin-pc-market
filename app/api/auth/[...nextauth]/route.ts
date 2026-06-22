@@ -35,7 +35,7 @@ function cihazBilgisiCevir(cihazStr: string) {
   return `${os} - ${browser}`;
 }
 
-// 📧 SÜPER GÜVENLİ GUARD ONAY MAİLİ GÖNDERİCİSİ
+// 📧 STANDART VE SADE GUARD ONAY MAİLİ
 async function guardMailiGonder(email: string, anlasilirCihaz: string, konum: string, ip: string, onayToken: string, alarmTipi: string) {
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com", port: 465, secure: true,
@@ -46,52 +46,46 @@ async function guardMailiGonder(email: string, anlasilirCihaz: string, konum: st
   const dateStr = new Date().toLocaleString("tr-TR", { timeZone: "Europe/Istanbul" });
 
   const isKarantina = alarmTipi === "TAM_KARANTINA";
-  const mailBaslik = isKarantina ? "🚨 HESAP GÜVENLİK KİLİDİ" : "🛡️ YENİ CİHAZ DOĞRULAMASI";
-  const konuBasligi = isKarantina ? "🚨 Bilgin PC: Hesap Erişimi Onayınız Gerekiyor" : "🛡️ Bilgin PC: Yeni Cihaz Giriş Onayı";
+  const mailBaslik = isKarantina ? "Giriş Onayı Gerekiyor" : "Yeni Cihaz Doğrulaması";
+  const konuBasligi = isKarantina ? "Bilgin PC - Giriş Onayı" : "Bilgin PC - Yeni Cihaz Doğrulaması";
 
   const mailHtml = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #020617; color: #ffffff; border-radius: 12px; border: 1px solid #1e293b;">
+    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 25px; background-color: #0f172a; color: #f8fafc; border-radius: 8px; border: 1px solid #1e293b;">
       
+      <h2 style="color: #0ea5e9; text-align: center; margin-top: 0; font-size: 24px; letter-spacing: 1px;">BİLGİN PC</h2>
+      
+      <h3 style="text-align: center; margin-bottom: 20px; font-weight: normal; font-size: 18px; color: #e2e8f0;">${mailBaslik}</h3>
+      
+      <p style="font-size: 14px; line-height: 1.6; color: #cbd5e1; text-align: center; margin-bottom: 20px;">
+        Hesabınıza aşağıdaki cihaz üzerinden bir giriş isteği yapılmıştır. Devam etmek için lütfen işlemi onaylayın.
+      </p>
+      
+      <div style="background-color: #1e293b; padding: 15px; border-radius: 6px; margin-bottom: 25px;">
+        <p style="margin: 5px 0; font-size: 13px; color: #94a3b8;"><strong>Tarih:</strong> <span style="color: #f8fafc;">${dateStr}</span></p>
+        <p style="margin: 5px 0; font-size: 13px; color: #94a3b8;"><strong>Cihaz:</strong> <span style="color: #f8fafc;">${anlasilirCihaz}</span></p>
+        <p style="margin: 5px 0; font-size: 13px; color: #94a3b8;"><strong>Konum:</strong> <span style="color: #f8fafc;">${konum}</span></p>
+        <p style="margin: 5px 0; font-size: 13px; color: #94a3b8;"><strong>IP Adresi:</strong> <span style="color: #f8fafc;">${ip}</span></p>
+      </div>
+
+      <p style="font-size: 13px; text-align: center; color: #94a3b8; margin-bottom: 15px;">
+        Eğer bu işlemi siz yapmadıysanız, hesabınızı korumak için işlemi reddedin.
+      </p>
+
       <div style="text-align: center; margin-bottom: 25px;">
-        <h2 style="color: #06b6d4; margin: 0; letter-spacing: 3px; font-size: 28px;">BİLGİN PC</h2>
-        <p style="color: #64748b; margin-top: 5px; font-size: 14px;">Güvenlik ve Kimlik Doğrulama Merkezi</p>
-      </div>
-
-      <h3 style="color: ${isKarantina ? '#ef4444' : '#f8fafc'}; text-align: center; border-bottom: 1px solid #1e293b; padding-bottom: 15px; margin-top: 0;">${mailBaslik}</h3>
-      
-      <div style="text-align: center; padding: 15px; background-color: #0f172a; border-radius: 8px; border: 1px solid #1e293b; margin-bottom: 20px;">
-        <p style="color: #f8fafc; font-size: 16px; font-weight: bold; margin: 0 0 10px 0;">❓ BU GİRİŞ İŞLEMİNİ SİZ Mİ YAPIYORSUNUZ?</p>
-        <p style="color: #94a3b8; font-size: 14px; margin: 0; line-height: 1.5;">
-          Şu anda hesabınıza erişim sağlanmaya çalışılmaktadır. <span style="color: #ef4444; font-weight: bold;">Eğer bu giriş denemesini siz yapmadıysanız</span>, yabancı bir konumdan veya şüpheli bir kaynaktan erişim sağlanıyorsa <span style="color: #ef4444; font-weight: bold;">LÜTFEN KESİNLİKLE ONAYLAMAYINIZ</span> ve derhal aşağıdaki kırmızı butona basarak hesabı güvenliğe alınız.
-        </p>
+        <a href="${baseUrl}/api/auth/device-action?token=${onayToken}&action=approve" style="display: inline-block; width: 45%; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 12px 0; border-radius: 4px; font-size: 14px; margin-right: 2%;">Onayla</a>
+        <a href="${baseUrl}/api/auth/device-action?token=${onayToken}&action=reject" style="display: inline-block; width: 45%; background-color: #ef4444; color: #ffffff; text-decoration: none; padding: 12px 0; border-radius: 4px; font-size: 14px; margin-left: 2%;">Reddet</a>
       </div>
       
-      <div style="background-color: #0f172a; padding: 20px; border-radius: 8px; margin: 25px 0; border: 1px solid #334155;">
-        <p style="margin: 8px 0; color: #94a3b8;"><strong>Giriş Zamanı:</strong> <span style="color: #f8fafc;">${dateStr}</span></p>
-        <p style="margin: 8px 0; color: #94a3b8;"><strong>Erişim Sağlayan Cihaz:</strong> <span style="color: #06b6d4; font-weight: bold;">${anlasilirCihaz}</span></p>
-        <p style="margin: 8px 0; color: #94a3b8;"><strong>Tespit Edilen Konum:</strong> <span style="color: #10b981;">${konum}</span></p>
-        <p style="margin: 8px 0; color: #94a3b8;"><strong>IP Adresi:</strong> <span style="color: #f8fafc;">${ip}</span></p>
-      </div>
-
-      <div style="text-align: center; margin-top: 30px;">
-        <div style="margin-bottom: 15px;">
-          <a href="${baseUrl}/api/auth/device-action?token=${onayToken}&action=approve" style="display: inline-block; width: 260px; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 14px 20px; border-radius: 6px; font-weight: bold; font-size: 15px; letter-spacing: 1px;">✅ EVET, BENİM (GİRİŞE İZİN VER)</a>
-        </div>
-        <div>
-          <a href="${baseUrl}/api/auth/device-action?token=${onayToken}&action=reject" style="display: inline-block; width: 260px; background-color: #ef4444; color: #ffffff; text-decoration: none; padding: 14px 20px; border-radius: 6px; font-weight: bold; font-size: 15px; letter-spacing: 1px;">🚨 BEN DEĞİLİM (ERİŞİMİ ENGELLE)</a>
-        </div>
-      </div>
-      
-      <div style="text-align: center; margin-top: 25px; padding: 15px; background-color: #0f172a; border-radius: 8px; border: 1px dashed #334155;">
-        <p style="color: #cbd5e1; font-size: 13px; margin: 0; line-height: 1.5;">
-          ⏳ <strong>Güvenlik Politikası:</strong> Bilgin PC altyapı standartları gereği, hesap güvenliğinizi korumak amacıyla bu doğrulama bağlantısı 15 dakika içerisinde otomatik olarak imha edilecektir.
+      <div style="text-align: center; border-top: 1px solid #1e293b; padding-top: 15px;">
+        <p style="color: #64748b; font-size: 12px; margin: 0;">
+          Bu onay bağlantısı 15 dakika geçerlidir.
         </p>
       </div>
 
     </div>
   `;
 
-  await transporter.sendMail({ from: `"Bilgin PC Güvenlik" <${process.env.EMAIL_USER}>`, to: email, subject: konuBasligi, html: mailHtml });
+  await transporter.sendMail({ from: `"Bilgin PC" <${process.env.EMAIL_USER}>`, to: email, subject: konuBasligi, html: mailHtml });
 }
 
 export const authOptions: NextAuthOptions = {
