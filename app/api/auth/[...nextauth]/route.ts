@@ -35,7 +35,7 @@ function cihazBilgisiCevir(cihazStr: string) {
   return `${os} - ${browser}`;
 }
 
-// 📧 CANLI VE ŞIK GUARD ONAY MAİLİ (ORİJİNAL BİLGİN PC MAVİSİ İLE)
+// 📧 CANLI VE ŞIK GUARD ONAY MAİLİ (BİREBİR ORİJİNAL LOGO RENKLERİYLE)
 async function guardMailiGonder(email: string, anlasilirCihaz: string, konum: string, ip: string, onayToken: string, alarmTipi: string) {
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com", port: 465, secure: true,
@@ -52,7 +52,9 @@ async function guardMailiGonder(email: string, anlasilirCihaz: string, konum: st
   const mailHtml = `
     <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 25px; background-color: #020617; color: #f8fafc; border-radius: 10px; border: 1px solid #1e293b; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
       
-      <h2 style="color: #3b82f6; text-align: center; margin-top: 0; font-size: 26px; letter-spacing: 2px; font-weight: 800;">BİLGİN PC</h2>
+      <h2 style="text-align: center; margin-top: 0; font-size: 26px; letter-spacing: 2px; font-weight: 800;">
+        <span style="color: #ffffff;">BİLGİN</span> <span style="color: #3b82f6;">PC</span>
+      </h2>
       
       <h3 style="text-align: center; margin-bottom: 20px; font-weight: 600; font-size: 18px; color: #ffffff; border-bottom: 1px solid #1e293b; padding-bottom: 15px;">${mailBaslik}</h3>
       
