@@ -154,7 +154,7 @@ export default function GuvenlikPage() {
       if (!res.ok) {
         setIkiAdimDurum({ tip: "hata", mesaj: data.message || "Ayarlar kaydedilemedi." });
       } else {
-        setIkiAdimDurum({ tip: "basari", mesaj: "Ayar anında kaydedildi!" });
+        setIkiAdimDurum({ tip: "basari", mesaj: "Ayar kaydedildi!" });
         setTimeout(() => setIkiAdimDurum({ tip: "", mesaj: "" }), 3000); 
       }
     } catch (error) {
