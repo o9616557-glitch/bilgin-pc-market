@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 import User from "@/models/User"; 
 import nodemailer from "nodemailer";
+import crypto from "crypto"; // 🚀 RADAR ÇİPİ İÇİN EKLENDİ
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -26,7 +27,8 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Sifre", type: "password" },
         code: { label: "2FA Kodu", type: "text" } 
       },
-      async authorize(credentials) {
+      // 🚀 req parametresini ekledik ki adamın tarayıcısını ve IP'sini görebilelim
+      async authorize(credentials, req) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Lütfen e-posta ve şifre girin.");
         }
@@ -49,34 +51,27 @@ export const authOptions: NextAuthOptions = {
         // 🚀 İKİ ADIMLI DOĞRULAMA MOTORU VE KURYESİ
         // ==========================================
         if (user.twoFactorEmail) {
-          
-          // NextAuth boşluğu "undefined" KELİMESİ yaparsa bunu BOŞ ("") kabul et
           const musteriKodu = (credentials.code === "undefined" || !credentials.code) ? "" : credentials.code;
 
-          // DURUM 1: Adam KODU henüz girmemiş (Kuryeyi Yolla ve VİTES 2'ye geçir)
+          // DURUM 1: Adam KODU henüz girmemiş (Kuryeyi Yolla)
           if (musteriKodu === "") {
-            
-            // 1. 6 Haneli Şifre Üret
             const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
-
-            // 2. Şifreyi 3 dakikalığına müşterinin hesabına kazı
             user.twoFactorCode = generatedCode;
             user.twoFactorExpires = new Date(Date.now() + 3 * 60 * 1000);
             await user.save();
 
-            // 3. 🚀 GMAIL KURYEMİZ BİLGİLERİ GİZLİ KASADAN OKUYOR
             const transporter = nodemailer.createTransport({
               host: "smtp.gmail.com",
               port: 465,
               secure: true,
               auth: {
-                user: process.env.EMAIL_USER, // Kasadan alındı 🔐
-                pass: process.env.EMAIL_PASS, // Kasadan alındı 🔐
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS, 
               },
             });
 
             const mailOptions = {
-              from: `"Bilgin PC Güvenlik" <${process.env.EMAIL_USER}>`, // Kasadan alındı 🔐
+              from: `"Bilgin PC Güvenlik" <${process.env.EMAIL_USER}>`, 
               to: credentials.email,
               subject: "Güvenlik Kodunuz - Bilgin PC Market",
               html: `
@@ -94,23 +89,20 @@ export const authOptions: NextAuthOptions = {
                   </div>
                   
                   <p style="color: #ef4444; font-size: 13px; text-align: center; font-weight: bold;">Bu kod 3 dakika içinde geçerliliğini yitirecektir.</p>
-                  <p style="color: #64748b; font-size: 12px; text-align: center; margin-top: 30px;">Eğer bu girişi siz yapmadıysanız, lütfen şifrenizi hemen değiştirin.</p>
                 </div>
               `,
             };
 
-            // Eğer Gmail hata verirse ekrana yansıt
             try {
               await transporter.sendMail(mailOptions);
             } catch (error: any) {
               throw new Error("GMAIL_HATASI: " + error.message);
             }
 
-            // Kapıyı kapat ve vitrine "KOD LAZIM" diye bağır
             throw new Error("2FA_REQUIRED");
           }
 
-          // DURUM 2: Adam e-postasındaki kodu alıp gelmiş (Doğrulama)
+          // DURUM 2: Adam kodu girmiş, doğrulama yapılıyor
           if (musteriKodu !== "") {
             const girilenKod = musteriKodu.trim(); 
             const gercekKod = user.twoFactorCode;
@@ -119,18 +111,63 @@ export const authOptions: NextAuthOptions = {
               throw new Error("Geçersiz veya süresi dolmuş bir kod girdiniz.");
             }
             
-            // Kod doğruysa temizliği yap ve KAPILARI AÇ!
             user.twoFactorCode = undefined;
             user.twoFactorExpires = undefined;
-            await user.save();
+            // Kaydetme işlemini aşağıda radarla birlikte yapacağız
           }
         }
-        // ==========================================
 
-        return user;
+        // ==========================================
+        // 🚀 BİLGİN PC RADAR ÇİPİ (CİHAZ KAYIT MOTORU)
+        // ==========================================
+        
+        // 1. Kapıdan giren adamın tarayıcısını ve IP'sini tespit et
+        const userAgent = req?.headers?.["user-agent"] || "Bilinmeyen Cihaz";
+        const ipAddress = req?.headers?.["x-forwarded-for"] || "Bilinmeyen IP";
+
+        // 2. Bu cihaza eşsiz bir "Yaka Kartı" (Kimlik Numarası) bas
+        const newDeviceId = crypto.randomUUID();
+
+        // 3. Yeni cihazı Müşteri Defterindeki (Veritabanı) rafa ekle
+        user.activeDevices.push({
+          deviceId: newDeviceId,
+          deviceInfo: userAgent,
+          ipAddress: ipAddress,
+          lastActive: new Date()
+        });
+
+        // Tüm değişiklikleri (Cihazlar + 2FA temizliği) veritabanına kaydet
+        await user.save();
+
+        // 4. NextAuth'a adamın düzgün bir profilini ve yeni taktığımız yaka kartını ver
+        return {
+          id: user._id.toString(),
+          name: user.name,
+          email: user.email,
+          image: user.image,
+          deviceId: newDeviceId // 🚀 İşte adama taktığımız çip!
+        };
       }
     })
   ],
+  callbacks: {
+    // 🚀 ÇİPİ YAKA KARTINA GÖMÜYORUZ (JWT)
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.deviceId = (user as any).deviceId; // Çipi token'a yazdık
+      }
+      return token;
+    },
+    // 🚀 DÜKKANIN İÇİNDE BU ÇİPİ OKUNABİLİR YAPIYORUZ (SESSION)
+    async session({ session, token }) {
+      if (session.user) {
+        (session.user as any).id = token.id;
+        (session.user as any).deviceId = token.deviceId; // Vitrinde kullanmak için açtık
+      }
+      return session;
+    }
+  },
   session: {
     strategy: "jwt", 
   },

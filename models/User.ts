@@ -47,14 +47,22 @@ const userSchema = new mongoose.Schema(
     }],
 
   // 🚀 İki Adımlı Doğrulama Tercihleri
-    twoFactorEmail: { type: Boolean, default: false }, 
+    twoFactorEmail: { type: Boolean, default: false },
     twoFactorSms: { type: Boolean, default: false },
 
     // 🚀 ŞEFİM İŞTE EKSİK OLAN RAFLAR BUNLAR! (Kodun ve Sürenin Tutulduğu Yer)
     twoFactorCode: { type: String },
     twoFactorExpires: { type: Date },
+
+    // 🚀 AKTİF CİHAZLAR RADARI İÇİN HAFIZA RAFI
+    activeDevices: [{
+      deviceId: { type: String, required: true }, // Cihazın benzersiz kimlik numarası
+      deviceInfo: { type: String }, // Örn: "Windows - Chrome" veya "iPhone - Safari"
+      ipAddress: { type: String },  // Nereden bağlandığı
+      lastActive: { type: Date, default: Date.now } // Son görülme zamanı
+    }]
   },
-  { timestamps: true } 
+  { timestamps: true }
 );
 
 const User = mongoose.models.User || mongoose.model('User', userSchema);
