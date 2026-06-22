@@ -29,6 +29,9 @@ export default function GuvenlikPage() {
   const [cihazlarYukleniyor, setCihazlarYukleniyor] = useState(true);
   const [cikisYukleniyor, setCikisYukleniyor] = useState(false);
 
+  // =========================================================
+  // 🚀 CANLI ÇIRAK MOTORU: 10 SANİYEDE BİR DEPOYA GİT-GEL YAPAR
+  // =========================================================
   useEffect(() => {
     const ayarlariGetir = async () => {
       try {
@@ -51,7 +54,16 @@ export default function GuvenlikPage() {
       }
     };
     
-    ayarlariGetir();
+    // Sayfa ilk açıldığında hemen bir kere çalıştır
+    ayarlariGetir(); 
+
+    // 🕵️‍♂️ İŞTE 10 SANİYELİK KOŞTURAN ÇIRAK (INTERVAL)
+    const cirak = setInterval(() => {
+      ayarlariGetir(); // 10 saniyede bir çaktırmadan arka planda verileri tazeleyecek
+    }, 10000);
+
+    // Kullanıcı sayfadan çıkınca çırağı durdur (işi bıraksın)
+    return () => clearInterval(cirak); 
   }, []); 
 
   const sifreGucuHesapla = (s: string) => {
@@ -146,7 +158,6 @@ export default function GuvenlikPage() {
     }
   };
 
-  // 🚀 DİĞER CİHAZLARDAN ÇIKIŞ YAP (KIRMIZI BUTON)
   const handleDigerCihazlardanCikis = async () => {
     const mevcutCihazId = (session?.user as any)?.deviceId;
     if (!mevcutCihazId) return;
@@ -160,9 +171,7 @@ export default function GuvenlikPage() {
       });
 
       if (res.ok) {
-        // Ekranda (vitrinde) anında temizlik yap: Sadece bu cihazı bırak!
         setAktifCihazlar(aktifCihazlar.filter(c => c.deviceId === mevcutCihazId));
-        // Başarı mesajı verebiliriz (veya silebilirsin)
         setIslemDurumu({ tip: "basari", mesaj: "Diğer tüm cihazlardaki oturumlarınız sonlandırıldı." });
       }
     } catch (error) {
@@ -171,6 +180,7 @@ export default function GuvenlikPage() {
       setCikisYukleniyor(false);
     }
   };
+
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
@@ -346,7 +356,8 @@ export default function GuvenlikPage() {
               <h2 className="text-lg font-black text-white uppercase tracking-wider">Aktif Cihazlar Radarı</h2>
               <span className="ml-auto text-[10px] bg-slate-800 text-slate-400 px-2 py-1 rounded font-bold uppercase tracking-widest">Son 30 Gün</span>
             </div>
-<div className="flex flex-col gap-3">
+
+            <div className="flex flex-col gap-3">
               {cihazlarYukleniyor ? (
                 <div className="flex justify-center p-8">
                   <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
@@ -355,7 +366,6 @@ export default function GuvenlikPage() {
                 <div className="text-center p-8 text-slate-500 font-medium">Kayıtlı cihaz bulunamadı.</div>
               ) : (
                 (() => {
-                  // 🚀 SENİN EFSANE MANTIĞIN: Her cihaz tipinin (PC, Telefon) sadece EN YENİ olanını bul!
                   const gorulenTipler = new Set();
                   const aktifSayilacakIdler = aktifCihazlar.map(c => {
                     const tip = cihazAdiniCevir(c.deviceInfo);
@@ -368,11 +378,7 @@ export default function GuvenlikPage() {
 
                   return aktifCihazlar.map((cihaz, index) => {
                     const buCihazMi = (session?.user as any)?.deviceId === cihaz.deviceId;
-                    
-                    // Eğer bu cihaz, kendi türünün (PC veya Telefon) en son gireni ise aktif say!
                     const enYeniMi = aktifSayilacakIdler.includes(cihaz.deviceId);
-                    
-                    // İkisinden biri varsa cihaz "Aktif" (Yeşil) görünecek, yoksa sönük kalacak!
                     const aktifGozuksun = buCihazMi || enYeniMi;
                     
                     const isMobile = cihaz.deviceInfo.toLowerCase().includes('mobile') || cihaz.deviceInfo.toLowerCase().includes('android') || cihaz.deviceInfo.toLowerCase().includes('iphone');
@@ -383,17 +389,15 @@ export default function GuvenlikPage() {
                         
                         <div className="flex items-start sm:items-center gap-4 pl-3">
                           <div className="relative shrink-0 mt-1 sm:mt-0">
-                            {/* 🚀 SADECE EN YENİLER YEŞİL YANSIN, ESKİLER GRİ (SÖNÜK) KALSIN */}
                             {isMobile ? (
                               <Smartphone className={`w-8 h-8 ${aktifGozuksun ? "text-emerald-400" : "text-slate-600"}`} />
                             ) : (
                               <Laptop className={`w-8 h-8 ${aktifGozuksun ? "text-emerald-400" : "text-slate-600"}`} />
                             )}
                             
-                            {/* 🚀 YEŞİL YANIP SÖNME IŞIĞI SADECE AKTİF OLANLARDA ÇALIŞSIN */}
                             {aktifGozuksun && (
                               <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                {buCihazMi && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>}
                                 <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border border-[#020617]"></span>
                               </span>
                             )}
@@ -401,7 +405,6 @@ export default function GuvenlikPage() {
                           <div>
                             <p className={`text-sm font-bold flex flex-wrap items-center gap-2 ${aktifGozuksun ? "text-white" : "text-slate-500"}`}>
                               {cihazAdiniCevir(cihaz.deviceInfo)}
-                              {/* 🚀 "BU CİHAZ" etiketi her zaman SADECE senin elindekinde çıksın */}
                               {buCihazMi && <span className="text-[9px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded font-black uppercase tracking-widest border border-emerald-500/20">Bu Cihaz</span>}
                             </p>
                             <p className="text-xs text-slate-500 mt-1 flex items-center gap-3">
