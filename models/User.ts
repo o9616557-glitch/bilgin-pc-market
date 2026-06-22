@@ -62,6 +62,7 @@ const userSchema = new mongoose.Schema(
       location: { type: String },
       isActive: { type: Boolean, default: true }, // 🚀 İŞTE YENİ DAMGAMIZ: İlk girişte otomatik "true" (Aktif) olur
       lastActive: { type: Date, default: Date.now }
+    
   }], // 🚀 ŞEFİM DİKKAT: Buraya virgülü attık!
 
   // 🚀 ŞEFİN EFSANE GÜVENLİK ŞARTELLERİ VE GÜVENLİ CİHAZ HAFIZASI
@@ -75,7 +76,10 @@ const userSchema = new mongoose.Schema(
   // 🛡️ GUARD (BEKLEYEN CİHAZ ONAY) SİSTEMİ İÇİN YENİ RAFLAR
   pendingDeviceToken: { type: String },
   pendingDeviceExpires: { type: Date },
-  pendingDeviceInfo: { type: Object }
+  pendingDeviceInfo: { type: Object }, // <-- BURAYA VİRGÜL ATILDI
+
+  // 🎟️ KISIR DÖNGÜYÜ KIRAN BİLET GİŞESİ (Tam Karantina ve Onay Geçişleri İçin)
+  karantinaPass: { type: Date }
   
 },
 { timestamps: true }
