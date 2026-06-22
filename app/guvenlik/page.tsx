@@ -10,7 +10,7 @@ import {
 import { useSession } from "next-auth/react";
 
 export default function GuvenlikPage() {
-  const { data: session } = useSession(); // 🚀 Dükkana giren adamın kimliğini (çipini) aldık
+  const { data: session } = useSession(); 
   
   // 🔑 ŞİFRE YÖNETİMİ HAFIZALARI
   const [mevcutSifre, setMevcutSifre] = useState("");
@@ -22,7 +22,7 @@ export default function GuvenlikPage() {
   const [islemDurumu, setIslemDurumu] = useState({ tip: "", mesaj: "" });
   const [yukleniyor, setYukleniyor] = useState(false);
 
-  // 🛡️ 2FA (İKİ ADIMLI DOĞRULAMA) HAFIZALARI (SMS Kaldırıldı)
+  // 🛡️ 2FA (İKİ ADIMLI DOĞRULAMA) HAFIZALARI
   const [ikiAdimEmail, setIkiAdimEmail] = useState(false);
   const [ikiAdimDurum, setIkiAdimDurum] = useState({ tip: "", mesaj: "" });
   const [ikiAdimYukleniyor, setIkiAdimYukleniyor] = useState(false);
@@ -42,9 +42,8 @@ export default function GuvenlikPage() {
         if (res.ok) {
           const data = await res.json();
           setIkiAdimEmail(data.twoFactorEmail);
-          // 🚀 Arka depodan gelen gerçek cihazları vitrine aldık
+          
           if (data.activeDevices) {
-            // Cihazları tarihe göre (en yeni en üstte) sıralayalım
             const siraliCihazlar = data.activeDevices.sort((a: any, b: any) => 
               new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime()
             );
@@ -73,6 +72,25 @@ export default function GuvenlikPage() {
   const gucSeviyesi = sifreGucuHesapla(sifre);
   const gucYuzdesi = gucSeviyesi === 0 ? 0 : (gucSeviyesi / 4) * 100;
   const gucRengi = gucSeviyesi < 2 ? "bg-rose-500 shadow-[0_0_10px_#f43f5e]" : gucSeviyesi === 2 ? "bg-amber-500 shadow-[0_0_10px_#f59e0b]" : "bg-emerald-500 shadow-[0_0_10px_#10b981]";
+
+  // 🚀 TERCÜMAN ÇİPİ (Karmaşık cihaz adını Türkçeye çevirir)
+  const cihazAdiniCevir = (userAgent: string) => {
+    if (!userAgent) return "Bilinmeyen Cihaz";
+    
+    let isletimSistemi = "Bilinmeyen OS";
+    if (userAgent.includes("Windows")) isletimSistemi = "Windows PC";
+    else if (userAgent.includes("Mac")) isletimSistemi = "Macintosh";
+    else if (userAgent.includes("iPhone")) isletimSistemi = "iPhone";
+    else if (userAgent.includes("Android")) isletimSistemi = "Android Telefon";
+
+    let tarayici = "Bilinmeyen Tarayıcı";
+    if (userAgent.includes("Edg")) tarayici = "Microsoft Edge";
+    else if (userAgent.includes("Chrome")) tarayici = "Google Chrome";
+    else if (userAgent.includes("Firefox")) tarayici = "Mozilla Firefox";
+    else if (userAgent.includes("Safari") && !userAgent.includes("Chrome")) tarayici = "Apple Safari";
+
+    return `${isletimSistemi} - ${tarayici}`;
+  };
 
   // 🚀 MOTOR 1: ŞİFRE GÜNCELLEME
   const handleSifreGuncelle = async (e: React.FormEvent) => {
@@ -122,7 +140,7 @@ export default function GuvenlikPage() {
       const res = await fetch("/api/user/update-2fa", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ twoFactorEmail: ikiAdimEmail, twoFactorSms: false }), // SMS her zaman false gidiyor
+        body: JSON.stringify({ twoFactorEmail: ikiAdimEmail, twoFactorSms: false }), 
       });
       const data = await res.json();
       
@@ -139,9 +157,8 @@ export default function GuvenlikPage() {
     }
   };
 
-  // 🚀 MOTOR 3: DİĞER CİHAZLARDAN ÇIKIŞ YAP (Kablosu şimdilik bağlandı, arka depoyu sonra yapacağız)
+  // 🚀 MOTOR 3: DİĞER CİHAZLARDAN ÇIKIŞ YAP
   const handleDigerCihazlardanCikis = async () => {
-    // Burada adama bir "Emin misin?" popup'ı çıkaracağız ama şimdilik sadece loading yansıtıyorum
     setCikisYukleniyor(true);
     alert("Şefim bu butonun arka depo bağlantısını (API'sini) bir sonraki adımda yazacağız!");
     setCikisYukleniyor(false);
@@ -153,7 +170,7 @@ export default function GuvenlikPage() {
 
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-6 relative z-10 items-start">
         
-        {/* SOL MENÜ (Seninle Beraber İnen Kısım - sticky top-28) */}
+        {/* SOL MENÜ */}
         <div className="w-full lg:w-64 shrink-0 flex flex-col gap-2 sticky top-28 z-20">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-xl">
             <nav className="flex flex-col gap-1.5">
@@ -333,10 +350,8 @@ export default function GuvenlikPage() {
                 <div className="text-center p-8 text-slate-500 font-medium">Kayıtlı cihaz bulunamadı.</div>
               ) : (
                 aktifCihazlar.map((cihaz, index) => {
-                  // Cihazın senin şu an girdiğin cihaz olup olmadığını çipten anlıyoruz
                   const buCihazMi = (session?.user as any)?.deviceId === cihaz.deviceId;
-                  // Cihazın simgesini belirle (Mobilden mi girmiş PC'den mi)
-                  const isMobile = cihaz.deviceInfo.toLowerCase().includes('mobile');
+                  const isMobile = cihaz.deviceInfo.toLowerCase().includes('mobile') || cihaz.deviceInfo.toLowerCase().includes('android') || cihaz.deviceInfo.toLowerCase().includes('iphone');
                   
                   return (
                     <div key={cihaz.deviceId || index} className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#020617] border rounded-xl relative overflow-hidden group ${buCihazMi ? "border-emerald-500/30" : "border-slate-800"}`}>
@@ -354,7 +369,8 @@ export default function GuvenlikPage() {
                         </div>
                         <div>
                           <p className={`text-sm font-bold flex flex-wrap items-center gap-2 ${buCihazMi ? "text-white" : "text-slate-300"}`}>
-                            {cihaz.deviceInfo.length > 30 ? cihaz.deviceInfo.substring(0, 30) + "..." : cihaz.deviceInfo}
+                            {/* 🚀 TERCÜMAN BURADA DEVREYE GİRİYOR */}
+                            {cihazAdiniCevir(cihaz.deviceInfo)}
                             {buCihazMi && <span className="text-[9px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded font-black uppercase tracking-widest border border-emerald-500/20">Bu Cihaz</span>}
                           </p>
                           <p className="text-xs text-slate-500 mt-1 flex items-center gap-3">
