@@ -15,8 +15,6 @@ export default function GirisPage() {
   const [step, setStep] = useState(1);
   const [twoFactorCode, setTwoFactorCode] = useState("");
   const [waitingForApproval, setWaitingForApproval] = useState(false); 
-  
-  // 🚀 İŞTE YENİ SİLAHIMIZ: UYANDIRMA SERVİSİ ALARMI
   const [otoGirisTetikle, setOtoGirisTetikle] = useState(false); 
   
   const router = useRouter();
@@ -25,6 +23,10 @@ export default function GirisPage() {
   const urlMessage = searchParams?.get("message");
   const urlError = searchParams?.get("error");
   const urlAlert = searchParams?.get("alert");
+  
+  // 🚀 YENİ SİNYALLER: Google ile mi gelmiş? E-postası neymiş?
+  const urlProvider = searchParams?.get("provider"); 
+  const urlUserMail = searchParams?.get("userMail"); 
 
   const toastAyari = { 
     position: 'top-center' as const, 
@@ -85,34 +87,42 @@ export default function GirisPage() {
     }
   };
 
-  // 🚀 SİHİR BURADA: Alarm çaldığında sistem en taze 6 haneli kodu görüp kapıyı kendi açar!
   useEffect(() => {
     if (otoGirisTetikle) {
-      handleLogin(); // Taze şifreyle girişi yap
-      setOtoGirisTetikle(false); // Alarmı kapat
+      handleLogin(); 
+      setOtoGirisTetikle(false); 
     }
   }, [otoGirisTetikle]);
 
-  // 🚀 BİLGİSAYARIN TELEFONDAKİ ONAYI ANINDA ÇAKMASINI SAĞLAYAN OTOMATİK MOTOR
+  // 🚀 ROBOTUN GOOGLE VERSİYONU: Artık Google girişlerinde de alarm zili çalıyor!
   useEffect(() => {
     let kontrolAraligi: NodeJS.Timeout;
 
     const onayBekliyorMu = waitingForApproval || (urlError && (urlError.includes("Cihaz") || urlError.includes("Karantina")));
+    
+    // Kutudaki e-posta boşsa (Google girişiyse), URL'den gelen gizli e-postayı takip et!
+    const takipEdilecekEmail = email || urlUserMail; 
 
-    if (onayBekliyorMu && email) {
+    if (onayBekliyorMu && takipEdilecekEmail) {
       kontrolAraligi = setInterval(async () => {
         try {
-          const res = await fetch(`/api/auth/check-device-status?email=${encodeURIComponent(email)}`);
+          const res = await fetch(`/api/auth/check-device-status?email=${encodeURIComponent(takipEdilecekEmail)}`);
           if (res.ok) {
             const data = await res.json();
 
             if (data.approved) {
               clearInterval(kontrolAraligi); 
               setWaitingForApproval(false);
-              toast.success("Cihaz onayı telefondan alındı! Giriş yapılıyor...", { ...toastAyari, duration: 4000 });
+              toast.success("Cihaz onayı telefondan alındı! Otomatik giriş yapılıyor...", { ...toastAyari, duration: 4000 });
               
-              // 🎯 Robot kendi girmeye çalışmıyor, sadece sayfaya "uyan" alarmı veriyor!
-              setOtoGirisTetikle(true); 
+              // 🎯 SİHİR BURADA: Adam Google ile geldiyse robot Google'ı tetikler!
+              if (urlProvider === "google") {
+                signIn('google', { callbackUrl: '/' });
+              } else if (urlProvider === "facebook") {
+                signIn('facebook', { callbackUrl: '/' });
+              } else {
+                setOtoGirisTetikle(true); // Normal e-postaysa normal robotu uyandır
+              }
             }
           }
         } catch (err) {
@@ -124,7 +134,7 @@ export default function GirisPage() {
     return () => {
       if (kontrolAraligi) clearInterval(kontrolAraligi);
     };
-  }, [urlError, waitingForApproval, email]); 
+  }, [urlError, waitingForApproval, email, urlUserMail, urlProvider]); 
 
   // 👇 BURADAN AŞAĞISINA (return kısmına ve HTML/Tasarım kodlarına) KESİNLİKLE DOKUNMUYORSUN!
   return (

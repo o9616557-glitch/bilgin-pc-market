@@ -157,7 +157,7 @@ export const authOptions: NextAuthOptions = {
       }
     })
   ],
-  callbacks: {
+callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === "google" || account?.provider === "facebook") {
         try {
@@ -189,13 +189,14 @@ export const authOptions: NextAuthOptions = {
                 await guardMailiGonder(dbUser.email, anlasilirCihaz, konumBilgisi, ipAddress, onayToken, alarmTipi);
                 
                 const urlHata = alarmTipi === "TAM_KARANTINA" ? "Tam+Karantina+Aktif:+E-postanizi+onaylayin." : "Cihaz+onayi+gerekiyor.+E-postanizi+kontrol+edin.";
-                return `/giris?error=${urlHata}`;
+                
+                // 🚀 DEĞİŞİKLİK BURADA: Robot anlasın diye URL'ye provider ve e-posta bilgisini gizlice yapıştırıyoruz!
+                const userMailEnc = encodeURIComponent(dbUser.email);
+                return `/giris?error=${urlHata}&provider=${account.provider}&userMail=${userMailEnc}`;
               }
             }
             
-            // Google ile girişte bileti başarıyla içeri girerken yırtıyoruz
             dbUser.karantinaPass = undefined;
-
             const newDeviceId = crypto.randomUUID();
             dbUser.activeDevices.push({ deviceId: newDeviceId, deviceInfo: userAgent, ipAddress: ipAddress, location: konumBilgisi, lastActive: new Date(), isActive: true });
             await dbUser.save(); (user as any).deviceId = newDeviceId;
