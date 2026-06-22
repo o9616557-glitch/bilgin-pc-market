@@ -21,11 +21,11 @@ export async function GET(req: Request) {
       pendingDeviceExpires: { $gt: Date.now() }
     });
 
-    // 🚀 DÜKKANIN KESİN ADRESİ (Boşluğa düşmeyi engeller)
+    // 🚀 DÜKKANIN KESİN ADRESİ
     const baseUrl = process.env.NEXTAUTH_URL || "https://bilginpcmarket.com";
 
     if (!user) {
-      return NextResponse.redirect(`${baseUrl}/login?error=token_expired`);
+      return NextResponse.redirect(`${baseUrl}/giris?error=token_expired`);
     }
 
     if (action === "approve") {
@@ -39,8 +39,8 @@ export async function GET(req: Request) {
       
       await user.save();
 
-      // 🚀 ZIRHLI YÖNLENDİRME (Artık 404 vermez)
-      return NextResponse.redirect(`${baseUrl}/login?message=device_approved`);
+      // 🚀 ONAYLANINCA DOĞRUDAN GİRİŞ SAYFANA YÖNLENDİRİR
+      return NextResponse.redirect(`${baseUrl}/giris?message=device_approved`);
     } 
     
     else if (action === "reject") {
@@ -51,8 +51,8 @@ export async function GET(req: Request) {
 
       await user.save();
 
-      // 🚀 ZIRHLI YÖNLENDİRME
-      return NextResponse.redirect(`${baseUrl}/sifre-sifirla?alert=security_breach`);
+      // 🚀 REDDEDİLİNCE GÜVENLİK UYARISIYLA GİRİŞ SAYFANA ATAR
+      return NextResponse.redirect(`${baseUrl}/giris?alert=security_breach`);
     }
 
   } catch (error) {
