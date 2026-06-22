@@ -6,7 +6,8 @@ import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 import User from "@/models/User"; 
 import nodemailer from "nodemailer";
-import crypto from "crypto"; // 🚀 RADAR ÇİPİ İÇİN EKLENDİ
+import crypto from "crypto";
+import { headers } from "next/headers"; 
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -27,7 +28,6 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Sifre", type: "password" },
         code: { label: "2FA Kodu", type: "text" } 
       },
-      // 🚀 req parametresini ekledik ki adamın tarayıcısını ve IP'sini görebilelim
       async authorize(credentials, req) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Lütfen e-posta ve şifre girin.");
@@ -47,13 +47,9 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Şifre hatalı, lütfen tekrar deneyin.");
         }
 
-        // ==========================================
-        // 🚀 İKİ ADIMLI DOĞRULAMA MOTORU VE KURYESİ
-        // ==========================================
         if (user.twoFactorEmail) {
           const musteriKodu = (credentials.code === "undefined" || !credentials.code) ? "" : credentials.code;
 
-          // DURUM 1: Adam KODU henüz girmemiş (Kuryeyi Yolla)
           if (musteriKodu === "") {
             const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
             user.twoFactorCode = generatedCode;
@@ -81,13 +77,11 @@ export const authOptions: NextAuthOptions = {
                   </div>
                   <h3 style="color: #e2e8f0; text-align: center; border-bottom: 1px solid #1e293b; padding-bottom: 10px;">İki Adımlı Doğrulama</h3>
                   <p style="color: #94a3b8; font-size: 16px; text-align: center;">Hesabınıza giriş yapmak için güvenlik kodunuz oluşturuldu.</p>
-                  
                   <div style="text-align: center; margin: 40px 0;">
                     <div style="display: inline-block; background-color: #020617; border: 2px dashed #3b82f6; color: #ffffff; padding: 20px 40px; font-weight: 900; border-radius: 15px; font-size: 36px; letter-spacing: 15px; text-shadow: 0 0 10px rgba(59,130,246,0.5);">
                       ${generatedCode}
                     </div>
                   </div>
-                  
                   <p style="color: #ef4444; font-size: 13px; text-align: center; font-weight: bold;">Bu kod 3 dakika içinde geçerliliğini yitirecektir.</p>
                 </div>
               `,
@@ -102,7 +96,6 @@ export const authOptions: NextAuthOptions = {
             throw new Error("2FA_REQUIRED");
           }
 
-          // DURUM 2: Adam kodu girmiş, doğrulama yapılıyor
           if (musteriKodu !== "") {
             const girilenKod = musteriKodu.trim(); 
             const gercekKod = user.twoFactorCode;
@@ -113,22 +106,13 @@ export const authOptions: NextAuthOptions = {
             
             user.twoFactorCode = undefined;
             user.twoFactorExpires = undefined;
-            // Kaydetme işlemini aşağıda radarla birlikte yapacağız
           }
         }
 
-        // ==========================================
-        // 🚀 BİLGİN PC RADAR ÇİPİ (CİHAZ KAYIT MOTORU)
-        // ==========================================
-        
-        // 1. Kapıdan giren adamın tarayıcısını ve IP'sini tespit et
         const userAgent = req?.headers?.["user-agent"] || "Bilinmeyen Cihaz";
         const ipAddress = req?.headers?.["x-forwarded-for"] || "Bilinmeyen IP";
-
-        // 2. Bu cihaza eşsiz bir "Yaka Kartı" (Kimlik Numarası) bas
         const newDeviceId = crypto.randomUUID();
 
-        // 3. Yeni cihazı Müşteri Defterindeki (Veritabanı) rafa ekle
         user.activeDevices.push({
           deviceId: newDeviceId,
           deviceInfo: userAgent,
@@ -136,34 +120,65 @@ export const authOptions: NextAuthOptions = {
           lastActive: new Date()
         });
 
-        // Tüm değişiklikleri (Cihazlar + 2FA temizliği) veritabanına kaydet
         await user.save();
 
-        // 4. NextAuth'a adamın düzgün bir profilini ve yeni taktığımız yaka kartını ver
         return {
           id: user._id.toString(),
           name: user.name,
           email: user.email,
           image: user.image,
-          deviceId: newDeviceId // 🚀 İşte adama taktığımız çip!
+          deviceId: newDeviceId 
         };
       }
     })
   ],
   callbacks: {
-    // 🚀 ÇİPİ YAKA KARTINA GÖMÜYORUZ (JWT)
+    async signIn({ user, account }) {
+      if (account?.provider === "google" || account?.provider === "facebook") {
+        try {
+          if (mongoose.connection.readyState !== 1) {
+            await mongoose.connect(process.env.MONGODB_URI as string);
+          }
+          
+          const dbUser = await User.findOne({ email: user.email });
+          
+          if (dbUser) {
+            // 🚀 İŞTE HATAYI ÇÖZDÜĞÜMÜZ YER: "await" EKLENDİ!
+            const headersList = await headers(); 
+            
+            const userAgent = headersList.get("user-agent") || "Bilinmeyen Cihaz";
+            const ipAddress = headersList.get("x-forwarded-for") || headersList.get("x-real-ip") || "Bilinmeyen IP";
+            const newDeviceId = crypto.randomUUID();
+
+            dbUser.activeDevices.push({
+              deviceId: newDeviceId,
+              deviceInfo: userAgent,
+              ipAddress: ipAddress,
+              lastActive: new Date()
+            });
+
+            await dbUser.save();
+            
+            (user as any).deviceId = newDeviceId;
+          }
+        } catch (error) {
+          console.error("VIP Radar Hatası:", error);
+        }
+      }
+      return true; 
+    },
+
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.deviceId = (user as any).deviceId; // Çipi token'a yazdık
+        token.deviceId = (user as any).deviceId; 
       }
       return token;
     },
-    // 🚀 DÜKKANIN İÇİNDE BU ÇİPİ OKUNABİLİR YAPIYORUZ (SESSION)
     async session({ session, token }) {
       if (session.user) {
         (session.user as any).id = token.id;
-        (session.user as any).deviceId = token.deviceId; // Vitrinde kullanmak için açtık
+        (session.user as any).deviceId = token.deviceId; 
       }
       return session;
     }
