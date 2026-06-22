@@ -176,13 +176,15 @@ export default function GuvenlikPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#020617] text-white font-sans p-3 sm:p-6 lg:p-8 relative overflow-hidden">
+    // 🚀 1. HATA ÇÖZÜLDÜ: "overflow-hidden" kodunu "overflow-clip" yaptık. Artık PC'de menü aslanlar gibi aşağı kayacak!
+    <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
-      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-4 sm:gap-6 relative z-10 items-start">
+      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
         
-        {/* 🚀 ÜST ÜSTE BİNME HATASI BURADAN ÇÖZÜLDÜ: z-20 yerine z-10 yapıldı */}
-        <div className="w-full lg:w-64 shrink-0 flex flex-col gap-2 sticky top-24 z-10">
+        {/* SOL MENÜ */}
+        {/* 🚀 2. ve 3. HATA ÇÖZÜLDÜ: Sadece PC'de yapışkan olacak (lg:sticky). Hizalaması jilet gibi yapıldı. */}
+        <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-3 sm:p-4 shadow-xl">
             <nav className="flex flex-col gap-1.5">
               <Link href="/hesabim" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
@@ -199,9 +201,9 @@ export default function GuvenlikPage() {
         </div>
 
         {/* SAĞ İÇERİK */}
-        <div className="flex-1 flex flex-col min-w-0 gap-4 sm:gap-6 w-full">
+        <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
           
-          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xl relative overflow-hidden group">
+          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 lg:p-8 shadow-xl relative overflow-hidden group">
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-cyan-500/10 blur-[50px] pointer-events-none rounded-full"></div>
             <div className="flex items-center gap-3 sm:gap-4 relative z-10">
               <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#020617] border border-cyan-500/30 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.2)] shrink-0">
@@ -214,10 +216,10 @@ export default function GuvenlikPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6">
             
             {/* ŞİFRE YÖNETİMİ */}
-            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col h-full">
+            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col h-full">
               <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-800/80">
                 <KeyRound className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
                 <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Şifre Yönetimi</h2>
@@ -295,7 +297,7 @@ export default function GuvenlikPage() {
             </div>
 
             {/* 2FA BÖLÜMÜ */}
-            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col h-full relative overflow-hidden group">
+            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col h-full relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-[60px] pointer-events-none rounded-full"></div>
               
               <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-800/80">
@@ -344,14 +346,13 @@ export default function GuvenlikPage() {
           </div>
 
           {/* 💻 CANLI AKTİF CİHAZLAR RADARI */}
-          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col">
+          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
             <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-800/80">
               <Laptop className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
               <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Aktif Cihazlar Radarı</h2>
               <span className="ml-auto text-[8px] sm:text-[10px] bg-slate-800 text-slate-400 px-1.5 py-1 rounded font-bold uppercase tracking-widest">Son 30 Gün</span>
             </div>
 
-            {/* 🚀 LİSTE UZAMASIN DİYE MAX BOY VE SCROLL (KAYDIRMA) EKLENDİ */}
             <div className="flex flex-col gap-2 sm:gap-3 max-h-[260px] overflow-y-auto pr-1 sm:pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-500">
               {cihazlarYukleniyor ? (
                 <div className="flex justify-center p-6 sm:p-8">
@@ -384,7 +385,6 @@ export default function GuvenlikPage() {
                         
                         <div className="flex items-start sm:items-center gap-3 sm:gap-4 pl-2 sm:pl-3">
                           <div className="relative shrink-0 mt-0.5 sm:mt-0">
-                            {/* 🚀 TELEFON İÇİN KİBAR İKONLAR */}
                             {isMobile ? (
                               <Smartphone className={`w-6 h-6 sm:w-8 sm:h-8 ${aktifGozuksun ? "text-emerald-400" : "text-slate-600"}`} />
                             ) : (
@@ -399,7 +399,6 @@ export default function GuvenlikPage() {
                             )}
                           </div>
                           <div>
-                            {/* 🚀 TELEFON İÇİN KİBAR YAZILAR */}
                             <p className={`text-xs sm:text-sm font-bold flex flex-wrap items-center gap-1.5 sm:gap-2 ${aktifGozuksun ? "text-white" : "text-slate-500"}`}>
                               {cihazAdiniCevir(cihaz.deviceInfo)}
                               {buCihazMi && <span className="text-[8px] sm:text-[9px] bg-emerald-500/10 text-emerald-400 px-1 sm:px-1.5 py-0.5 rounded font-black uppercase tracking-widest border border-emerald-500/20">Bu Cihaz</span>}
@@ -435,7 +434,7 @@ export default function GuvenlikPage() {
             )}
           </div>
 
-          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col">
+          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
             <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-slate-800/80">
               <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
               <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Hesap İşlemleri</h2>
