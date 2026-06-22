@@ -55,11 +55,12 @@ const userSchema = new mongoose.Schema(
     twoFactorExpires: { type: Date },
 
     // 🚀 AKTİF CİHAZLAR RADARI İÇİN HAFIZA RAFI
-    activeDevices: [{
+  activeDevices: [{
       deviceId: { type: String, required: true },
       deviceInfo: { type: String },
       ipAddress: { type: String },
-      location: { type: String },  // 🚀 İŞTE YENİ EKLENEN KONUM RAFI!
+      location: { type: String },
+      isActive: { type: Boolean, default: true }, // 🚀 İŞTE YENİ DAMGAMIZ: İlk girişte otomatik "true" (Aktif) olur
       lastActive: { type: Date, default: Date.now }
     }]
   },

@@ -379,7 +379,8 @@ export default function GuvenlikPage() {
                   return aktifCihazlar.map((cihaz, index) => {
                     const buCihazMi = (session?.user as any)?.deviceId === cihaz.deviceId;
                     const enYeniMi = aktifSayilacakIdler.includes(cihaz.deviceId);
-                    const aktifGozuksun = buCihazMi || enYeniMi;
+                   // 🚀 EĞER CİHAZ KENDİ ÇIKMIŞSA (isActive: false) ASLA YEŞİL YAKMA!
+                    const aktifGozuksun = (buCihazMi || enYeniMi) && cihaz.isActive !== false;
                     
                     const isMobile = cihaz.deviceInfo.toLowerCase().includes('mobile') || cihaz.deviceInfo.toLowerCase().includes('android') || cihaz.deviceInfo.toLowerCase().includes('iphone');
                     

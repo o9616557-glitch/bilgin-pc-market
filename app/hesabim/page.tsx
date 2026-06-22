@@ -99,9 +99,26 @@ export default function HesabimPage() {
   const [tiklananAy, setTiklananAy] = useState<number | null>(suAnkiTarih.getMonth());
   const [loading, setLoading] = useState(hamSiparisler.length === 0);
 
-  const handleCikisYap = async () => {
+ const handleCikisYap = async () => {
+    // 1. Senin eski süpürge (Tarayıcı hafızasını temizler)
     localStorage.removeItem("bilgin_kayitli_sistemler");
     sessionStorage.removeItem("bilgin_hesabim_data");
+
+    // 2. Bizim yeni mühür motoru (Radar'daki yeşil ışığı söndürür)
+    const cihazId = (session?.user as any)?.deviceId;
+    if (cihazId) {
+      try {
+        await fetch("/api/user/logout-device", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ deviceId: cihazId })
+        });
+      } catch (error) {
+        console.error("Çıkış mühürü vurulamadı:", error);
+      }
+    }
+
+    // 3. Adamı dükkandan at ve anasayfaya ("/") yolla
     await signOut({ callbackUrl: "/" });
   };
 
