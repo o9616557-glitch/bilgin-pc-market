@@ -27,14 +27,11 @@ export default function GuvenlikPage() {
   const [ikiAdimDurum, setIkiAdimDurum] = useState({ tip: "", mesaj: "" });
   const [ikiAdimYukleniyor, setIkiAdimYukleniyor] = useState(false);
 
-  // 💻 AKTİF CİHAZLAR HAFIZASI (Gerçek Radar)
+  // 💻 AKTİF CİHAZLAR HAFIZASI
   const [aktifCihazlar, setAktifCihazlar] = useState<any[]>([]);
   const [cihazlarYukleniyor, setCihazlarYukleniyor] = useState(true);
   const [cikisYukleniyor, setCikisYukleniyor] = useState(false);
 
-  // =========================================================
-  // 🚀 YENİ MOTOR: SAYFA AÇILDIĞINDA GERÇEK AYARLARI VE CİHAZLARI DEPODAN ÇEK
-  // =========================================================
   useEffect(() => {
     const ayarlariGetir = async () => {
       try {
@@ -60,7 +57,6 @@ export default function GuvenlikPage() {
     ayarlariGetir();
   }, []); 
 
-  // Şifre Gücü Hesaplama
   const sifreGucuHesapla = (s: string) => {
     let guc = 0;
     if (s.length > 5) guc += 1;
@@ -73,10 +69,9 @@ export default function GuvenlikPage() {
   const gucYuzdesi = gucSeviyesi === 0 ? 0 : (gucSeviyesi / 4) * 100;
   const gucRengi = gucSeviyesi < 2 ? "bg-rose-500 shadow-[0_0_10px_#f43f5e]" : gucSeviyesi === 2 ? "bg-amber-500 shadow-[0_0_10px_#f59e0b]" : "bg-emerald-500 shadow-[0_0_10px_#10b981]";
 
-  // 🚀 TERCÜMAN ÇİPİ (Karmaşık cihaz adını Türkçeye çevirir)
+  // 🚀 TERCÜMAN ÇİPİ
   const cihazAdiniCevir = (userAgent: string) => {
     if (!userAgent) return "Bilinmeyen Cihaz";
-    
     let isletimSistemi = "Bilinmeyen OS";
     if (userAgent.includes("Windows")) isletimSistemi = "Windows PC";
     else if (userAgent.includes("Mac")) isletimSistemi = "Macintosh";
@@ -92,7 +87,6 @@ export default function GuvenlikPage() {
     return `${isletimSistemi} - ${tarayici}`;
   };
 
-  // 🚀 MOTOR 1: ŞİFRE GÜNCELLEME
   const handleSifreGuncelle = async (e: React.FormEvent) => {
     e.preventDefault(); 
     if (!mevcutSifre || !sifre || !sifreTekrar) {
@@ -131,7 +125,6 @@ export default function GuvenlikPage() {
     }
   };
 
-  // 🚀 MOTOR 2: İKİ ADIMLI DOĞRULAMA (2FA) KAYDETME
   const handle2FAKaydet = async () => {
     setIkiAdimYukleniyor(true);
     setIkiAdimDurum({ tip: "", mesaj: "" });
@@ -157,7 +150,6 @@ export default function GuvenlikPage() {
     }
   };
 
-  // 🚀 MOTOR 3: DİĞER CİHAZLARDAN ÇIKIŞ YAP
   const handleDigerCihazlardanCikis = async () => {
     setCikisYukleniyor(true);
     alert("Şefim bu butonun arka depo bağlantısını (API'sini) bir sonraki adımda yazacağız!");
@@ -190,7 +182,6 @@ export default function GuvenlikPage() {
         {/* SAĞ İÇERİK */}
         <div className="flex-1 flex flex-col min-w-0 gap-6 w-full">
           
-          {/* BAŞLIK */}
           <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden group">
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-cyan-500/10 blur-[50px] pointer-events-none rounded-full"></div>
             <div className="flex items-center gap-4 relative z-10">
@@ -206,7 +197,7 @@ export default function GuvenlikPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             
-            {/* 🔑 ŞİFRE YÖNETİMİ PANELİ */}
+            {/* ŞİFRE YÖNETİMİ */}
             <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col h-full">
               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800/80">
                 <KeyRound className="w-5 h-5 text-cyan-400" />
@@ -284,7 +275,7 @@ export default function GuvenlikPage() {
               </form>
             </div>
 
-            {/* 📱 İKİ ADIMLI DOĞRULAMA PANELİ (Sadece Email Var) */}
+            {/* 2FA BÖLÜMÜ */}
             <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col h-full relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-[60px] pointer-events-none rounded-full"></div>
               
@@ -359,21 +350,22 @@ export default function GuvenlikPage() {
                       
                       <div className="flex items-start sm:items-center gap-4 pl-3">
                         <div className="relative shrink-0 mt-1 sm:mt-0">
-                          {isMobile ? <Smartphone className={`w-8 h-8 ${buCihazMi ? "text-emerald-400" : "text-slate-500"}`} /> : <Laptop className={`w-8 h-8 ${buCihazMi ? "text-emerald-400" : "text-slate-500"}`} />}
-                          {buCihazMi && (
-                            <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border border-[#020617]"></span>
-                            </span>
-                          )}
+                          {/* 🚀 BÜTÜN CİHAZLAR YEŞİL OLDU */}
+                          {isMobile ? <Smartphone className="w-8 h-8 text-emerald-400" /> : <Laptop className="w-8 h-8 text-emerald-400" />}
+                          
+                          {/* 🚀 YEŞİL IŞIK BÜTÜN CİHAZLARDA YANIP SÖNÜYOR */}
+                          <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border border-[#020617]"></span>
+                          </span>
                         </div>
                         <div>
-                          <p className={`text-sm font-bold flex flex-wrap items-center gap-2 ${buCihazMi ? "text-white" : "text-slate-300"}`}>
-                            {/* 🚀 TERCÜMAN BURADA DEVREYE GİRİYOR */}
+                          <p className={`text-sm font-bold flex flex-wrap items-center gap-2 text-white`}>
                             {cihazAdiniCevir(cihaz.deviceInfo)}
+                            {/* 🚀 SADECE ELİNDEKİ CİHAZDA "BU CİHAZ" YAZAR */}
                             {buCihazMi && <span className="text-[9px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded font-black uppercase tracking-widest border border-emerald-500/20">Bu Cihaz</span>}
                           </p>
-                          <p className="text-xs text-slate-500 mt-1 flex items-center gap-3">
+                          <p className="text-xs text-slate-400 mt-1 flex items-center gap-3">
                             <span className="flex items-center gap-1.5"><MapPin className="w-3 h-3" /> {cihaz.ipAddress}</span>
                             <span>|</span>
                             <span>{new Date(cihaz.lastActive).toLocaleDateString("tr-TR", {day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit'})}</span>
