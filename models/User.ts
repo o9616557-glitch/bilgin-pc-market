@@ -62,8 +62,6 @@ const userSchema = new mongoose.Schema(
       location: { type: String },
       isActive: { type: Boolean, default: true }, // 🚀 İŞTE YENİ DAMGAMIZ: İlk girişte otomatik "true" (Aktif) olur
       lastActive: { type: Date, default: Date.now }
-  isActive: { type: Boolean, default: true }, // 🚀 İŞTE YENİ DAMGAMIZ: İlk girişte otomatik "true" (Aktif) olur
-    lastActive: { type: Date, default: Date.now }
   }], // 🚀 ŞEFİM DİKKAT: Buraya virgülü attık!
 
   // 🚀 ŞEFİN EFSANE GÜVENLİK ŞARTELLERİ VE GÜVENLİ CİHAZ HAFIZASI
