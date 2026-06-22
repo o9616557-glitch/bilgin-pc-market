@@ -225,7 +225,7 @@ export const authOptions: NextAuthOptions = {
               await guardMailiGonder(dbUser.email, anlasilirCihaz, konumBilgisi, ipAddress, onayToken);
               
               // Sosyal girişi durdur
-              return '/login?error=Cihaz+onayi+gerekiyor.+E-postanizi+kontrol+edin.';
+             return '/giris?error=Cihaz+onayi+gerekiyor.+E-postanizi+kontrol+edin.';
             }
 
             const newDeviceId = crypto.randomUUID();
@@ -275,7 +275,7 @@ export const authOptions: NextAuthOptions = {
   },
   session: { strategy: "jwt" },
   secret: process.env.NEXTAUTH_SECRET, 
-  pages: { signIn: '/login' }
+ pages: { signIn: '/giris' }
 };
 
 const handler = NextAuth(authOptions);
