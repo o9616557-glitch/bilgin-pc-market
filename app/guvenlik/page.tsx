@@ -146,12 +146,31 @@ export default function GuvenlikPage() {
     }
   };
 
+  // 🚀 DİĞER CİHAZLARDAN ÇIKIŞ YAP (KIRMIZI BUTON)
   const handleDigerCihazlardanCikis = async () => {
-    setCikisYukleniyor(true);
-    alert("Şefim bu butonun arka depo bağlantısını (API'sini) bir sonraki adımda yazacağız!");
-    setCikisYukleniyor(false);
-  };
+    const mevcutCihazId = (session?.user as any)?.deviceId;
+    if (!mevcutCihazId) return;
 
+    setCikisYukleniyor(true);
+    try {
+      const res = await fetch("/api/user/remove-other-devices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentDeviceId: mevcutCihazId }),
+      });
+
+      if (res.ok) {
+        // Ekranda (vitrinde) anında temizlik yap: Sadece bu cihazı bırak!
+        setAktifCihazlar(aktifCihazlar.filter(c => c.deviceId === mevcutCihazId));
+        // Başarı mesajı verebiliriz (veya silebilirsin)
+        setIslemDurumu({ tip: "basari", mesaj: "Diğer tüm cihazlardaki oturumlarınız sonlandırıldı." });
+      }
+    } catch (error) {
+      console.error("Çıkış işlemi başarısız:", error);
+    } finally {
+      setCikisYukleniyor(false);
+    }
+  };
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
