@@ -304,14 +304,23 @@ export default function GuvenlikPage() {
                   </div>
                 </div>
 
-                {islemDurumu.mesaj && (
-                  <div className={`p-2.5 sm:p-3 rounded-xl border flex items-center gap-2 text-[10px] sm:text-xs font-bold ${
-                    islemDurumu.tip === "hata" ? "bg-rose-500/10 border-rose-500/20 text-rose-400" : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                  }`}>
-                    {islemDurumu.tip === "hata" ? <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> : <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />}
-                    {islemDurumu.mesaj}
+            {/* 🚀 ZIPLAMA ÖNLEYİCİ ŞİFRE MESAJ KUTUSU (Sabit Yükseklik) */}
+                <div className="h-[44px] sm:h-[48px] mt-1 sm:mt-2 mb-1">
+                  <div 
+                    className={`h-full px-3 rounded-xl border flex items-center gap-2 text-[10px] sm:text-xs font-bold transition-all duration-500 ${
+                      islemDurumu.mesaj 
+                        ? `opacity-100 transform translate-y-0 ${islemDurumu.tip === "hata" ? "bg-rose-500/10 border-rose-500/20 text-rose-400" : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"}` 
+                        : "opacity-0 transform translate-y-2 pointer-events-none border-transparent"
+                    }`}
+                  >
+                    {islemDurumu.mesaj && (
+                      <>
+                        {islemDurumu.tip === "hata" ? <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> : <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />}
+                        {islemDurumu.mesaj}
+                      </>
+                    )}
                   </div>
-                )}
+                </div>
 
                 <button 
                   type="submit" 
