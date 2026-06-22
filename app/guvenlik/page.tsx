@@ -30,15 +30,21 @@ export default function GuvenlikPage() {
   const [cihazlarYukleniyor, setCihazlarYukleniyor] = useState(true);
   const [cikisYukleniyor, setCikisYukleniyor] = useState(false);
 
-  useEffect(() => {
-    const ayarlariGetir = async () => {
+ useEffect(() => {
+    // 🚀 ilkYukleme adında bir kural ekledik. Çırak ne zaman şaltere dokunacağını bilecek.
+    const ayarlariGetir = async (ilkYukleme = false) => {
       try {
         const res = await fetch("/api/user/get-2fa", { cache: 'no-store' }); 
         if (res.ok) {
           const data = await res.json();
-         setIkiAdimEmail(data.twoFactorEmail);
-          setBildirimTercihi(data.notificationPreference || 'new_device'); // 🚀 KURYEDEN ŞARTELİ AL
           
+          // 🎯 ÇIRAK SADECE SAYFA İLK AÇILDIĞINDA ŞARTELLERİ ELLER!
+          if (ilkYukleme) {
+            setIkiAdimEmail(data.twoFactorEmail);
+            setBildirimTercihi(data.notificationPreference || 'none'); 
+          }
+          
+          // 💻 AMA CİHAZ RADARI SÜREKLİ GÜNCELLENİR (Yeni biri girerse anında görmek için)
           if (data.activeDevices) {
             const siraliCihazlar = data.activeDevices.sort((a: any, b: any) => 
               new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime()
@@ -53,15 +59,16 @@ export default function GuvenlikPage() {
       }
     };
     
-    ayarlariGetir(); 
+    // 1. Sayfa ilk açıldığında her şeyi (Şalterler + Radar) masaya koy
+    ayarlariGetir(true); 
 
+    // 2. Çırak her 10 saniyede bir gidip SADECE Cihaz Radarı'na baksın (Şalterlere dokunmasın)
     const cirak = setInterval(() => {
-      ayarlariGetir();
+      ayarlariGetir(false);
     }, 10000);
 
     return () => clearInterval(cirak); 
-  }, []); 
-
+  }, []);
   const sifreGucuHesapla = (s: string) => {
     let guc = 0;
     if (s.length > 5) guc += 1;
