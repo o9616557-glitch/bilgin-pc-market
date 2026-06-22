@@ -167,7 +167,7 @@ export const authOptions: NextAuthOptions = {
         const cihazTanindikMi = user.trustedDevices && user.trustedDevices.includes(anlasilirCihaz);
 
         // Eğer ayar "Akıllı Muhafız" ise ve cihaz tanınmıyorsa KAPIDA BEKLET
-        if (bildirimTercihi === 'new_device' && !cihazTanindikMi) {
+       if (bildirimTercihi === 'all' || (bildirimTercihi === 'new_device' && !cihazTanindikMi)) {
           const onayToken = crypto.randomBytes(32).toString('hex');
           
           user.pendingDeviceToken = onayToken;
