@@ -22,9 +22,10 @@ export default function GirisPage() {
   const urlError = searchParams?.get("error");
   const urlAlert = searchParams?.get("alert");
 
-  // 🚀 TELEFONLARDA TAM ORTALAMA AYARI (Artık tüm bildirimleri kapsıyor)
+  // 🚀 TELEFONLARDA KUTUYU VE YAZIYI TAM MERKEZE ÇİVİLEME AYARI
   const toastAyari = { 
-    style: { textAlign: 'center' as const } 
+    position: 'top-center' as const, // Kutuyu ekranın tam ortasına alır
+    style: { textAlign: 'center' as const } // İçindeki yazıyı ortalar
   };
 
   // 🚀 URL'DEN GELEN BİLDİRİMLER
@@ -114,12 +115,12 @@ export default function GirisPage() {
         <div className="w-full mb-6 animate-in fade-in duration-500">
           <button
             type="button"
-            onClick={() => {
-              toast.loading("Google ile güvenli bağlantı kuruluyor. Lütfen bekleyin...", { duration: 5000 });
-              setTimeout(() => {
-                signIn('google', { callbackUrl: '/' });
-              }, 150);
-            }}
+          onClick={() => {
+  toast.loading("Google ile güvenli bağlantı kuruluyor. Lütfen bekleyin...", { duration: 5000, position: 'top-center', style: { textAlign: 'center' } });
+  setTimeout(() => {
+    signIn('google', { callbackUrl: '/' });
+  }, 150);
+}}
             className="w-full hover:bg-white/5 border border-white/10 py-3.5 rounded-xl flex items-center justify-center gap-3 transition-colors group"
           >
             <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
