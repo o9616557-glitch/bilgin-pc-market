@@ -27,9 +27,24 @@ async function konumuBul(ip: string) {
   }
 }
 
-// 🚀 POSTACI MOTORU: ALARM DURUMUNDA ŞEFE MAİL ATAR
+/// 🚀 POSTACI MOTORU: ALARM DURUMUNDA ŞEFE MAİL ATAR
 async function guvenlikMailiGonder(email: string, alarmTipi: string, konum: string, ip: string, cihaz: string) {
   try {
+    // 🚀 TERCÜMAN: Karmaşık robot dilini insan diline çevirir
+    let isletimSistemi = "Bilinmeyen OS";
+    if (cihaz.includes("Windows")) isletimSistemi = "Windows PC";
+    else if (cihaz.includes("Mac")) isletimSistemi = "Macintosh";
+    else if (cihaz.includes("iPhone")) isletimSistemi = "iPhone";
+    else if (cihaz.includes("Android")) isletimSistemi = "Android Telefon";
+
+    let tarayici = "Bilinmeyen Tarayıcı";
+    if (cihaz.includes("Edg")) tarayici = "Microsoft Edge";
+    else if (cihaz.includes("Chrome")) tarayici = "Google Chrome";
+    else if (cihaz.includes("Firefox")) tarayici = "Mozilla Firefox";
+    else if (cihaz.includes("Safari") && !cihaz.includes("Chrome")) tarayici = "Apple Safari";
+
+    const anlasilirCihaz = `${isletimSistemi} - ${tarayici}`;
+
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 465,
@@ -54,7 +69,7 @@ async function guvenlikMailiGonder(email: string, alarmTipi: string, konum: stri
           <p style="margin: 8px 0; color: #94a3b8;"><strong>Tarih/Saat:</strong> <span style="color: #fff;">${dateStr}</span></p>
           <p style="margin: 8px 0; color: #94a3b8;"><strong>Tahmini Konum:</strong> <span style="color: #10b981;">${konum}</span></p>
           <p style="margin: 8px 0; color: #94a3b8;"><strong>IP Adresi:</strong> <span style="color: #fff;">${ip}</span></p>
-          <p style="margin: 8px 0; color: #94a3b8;"><strong>Cihaz Bilgisi:</strong> <span style="color: #fff; font-size: 12px;">${cihaz}</span></p>
+          <p style="margin: 8px 0; color: #94a3b8;"><strong>Cihaz Bilgisi:</strong> <span style="color: #06b6d4; font-size: 14px; font-weight: bold;">${anlasilirCihaz}</span></p>
         </div>
         
         <p style="color: #64748b; font-size: 12px; text-align: center; margin-top: 25px; line-height: 1.5;">
