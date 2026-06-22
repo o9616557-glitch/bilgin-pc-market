@@ -255,6 +255,24 @@ export const authOptions: NextAuthOptions = {
       return session;
     }
   },
+  events: {
+    async signOut({ token }) {
+      try {
+        if (mongoose.connection.readyState !== 1) {
+          await mongoose.connect(process.env.MONGODB_URI as string);
+        }
+        
+        if (token?.id && token?.deviceId) {
+          await User.updateOne(
+            { _id: token.id, "activeDevices.deviceId": token.deviceId },
+            { $set: { "activeDevices.$.isActive": false } }
+          );
+        }
+      } catch (error) {
+        console.error("Veritabanından cihaz çıkışı silinirken hata:", error);
+      }
+    }
+  },
   session: { strategy: "jwt" },
   secret: process.env.NEXTAUTH_SECRET, 
   pages: { signIn: '/login' }
