@@ -68,13 +68,11 @@ export async function GET(req: Request) {
       user.pendingDeviceExpires = undefined;
       user.pendingDeviceInfo = undefined;
       await user.save();
-
-      const kurumsalMesaj = `
+const kurumsalMesaj = `
         <span style="color: #f8fafc; font-weight: bold;">Güvenlik protokolleri başarıyla tamamlandı.</span><br><br>
-        Bu cihaz sistemlerimizde güvenilir olarak yetkilendirilmiştir. Lütfen giriş yapmaya çalıştığınız <b>asıl ekrana (bilgisayarınıza)</b> geri dönünüz.<br><br>
-        <strong style="color:#10b981;">Sistem işleminizi algılayarak sizi otomatik olarak bir sonraki güvenlik adımına (veya panele) yönlendirecektir.</strong>
+        Bu cihaz sistemlerimizde güvenilir olarak yetkilendirilmiştir. Lütfen giriş işlemini başlattığınız <b>asıl ekrana (ana cihazınıza)</b> geri dönünüz.<br><br>
+        <strong style="color:#10b981;">Sistem işleminizi algılayarak sizi otomatik olarak bir sonraki güvenlik adımına veya panele yönlendirecektir.</strong>
       `;
-
       const html = htmlSayfaUret("CİHAZ YETKİLENDİRİLDİ", kurumsalMesaj, "🛡️", "#3b82f6");
       return new NextResponse(html, { status: 200, headers: { "Content-Type": "text/html; charset=utf-8" } });
     } 
