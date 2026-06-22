@@ -6,7 +6,7 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const token = searchParams.get("token");
-    const action = searchParams.get("action"); // 'approve' veya 'reject'
+    const action = searchParams.get("action");
 
     if (!token || !action) {
       return NextResponse.json({ message: "Geçersiz bağlantı." }, { status: 400 });
@@ -16,46 +16,43 @@ export async function GET(req: Request) {
       await mongoose.connect(process.env.MONGODB_URI as string);
     }
 
-    // Token'a sahip ve süresi dolmamış kullanıcıyı bul
     const user = await User.findOne({
       pendingDeviceToken: token,
       pendingDeviceExpires: { $gt: Date.now() }
     });
 
+    // 🚀 DÜKKANIN KESİN ADRESİ (Boşluğa düşmeyi engeller)
+    const baseUrl = process.env.NEXTAUTH_URL || "https://bilginpcmarket.com";
+
     if (!user) {
-      return NextResponse.redirect(new URL('/login?error=token_expired', req.url));
+      return NextResponse.redirect(`${baseUrl}/login?error=token_expired`);
     }
 
     if (action === "approve") {
-      // 1. Cihazı güvenilir listesine ekle
       if (!user.trustedDevices.includes(user.pendingDeviceInfo.cihaz)) {
         user.trustedDevices.push(user.pendingDeviceInfo.cihaz);
       }
       
-      // 2. Bekleyen onay verilerini temizle
       user.pendingDeviceToken = undefined;
       user.pendingDeviceExpires = undefined;
       user.pendingDeviceInfo = undefined;
       
       await user.save();
 
-      // Onay başarılı, kullanıcıyı giriş sayfasına yönlendir
-      return NextResponse.redirect(new URL('/login?message=device_approved', req.url));
+      // 🚀 ZIRHLI YÖNLENDİRME (Artık 404 vermez)
+      return NextResponse.redirect(`${baseUrl}/login?message=device_approved`);
     } 
     
     else if (action === "reject") {
-      // 1. Şüpheli durum tespit edildi: Tüm aktif cihazlardan çıkış yap (Oturumları sonlandır)
       user.activeDevices = [];
-      
-      // 2. Bekleyen verileri temizle
       user.pendingDeviceToken = undefined;
       user.pendingDeviceExpires = undefined;
       user.pendingDeviceInfo = undefined;
 
       await user.save();
 
-      // Kullanıcıyı şifre sıfırlama veya güvenlik uyarı sayfasına yönlendir
-      return NextResponse.redirect(new URL('/sifre-sifirla?alert=security_breach', req.url));
+      // 🚀 ZIRHLI YÖNLENDİRME
+      return NextResponse.redirect(`${baseUrl}/sifre-sifirla?alert=security_breach`);
     }
 
   } catch (error) {
