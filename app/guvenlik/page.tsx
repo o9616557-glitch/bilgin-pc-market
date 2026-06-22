@@ -308,8 +308,7 @@ export default function GuvenlikPage() {
                 </button>
               </form>
             </div>
-
-            {/* 2FA BÖLÜMÜ */}
+{/* 2FA BÖLÜMÜ */}
             <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col h-full relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-[60px] pointer-events-none rounded-full"></div>
               
@@ -323,38 +322,42 @@ export default function GuvenlikPage() {
               </p>
 
               <div className="flex flex-col gap-3 sm:gap-4 flex-1">
-                <div className="flex items-center justify-between p-3 sm:p-4 bg-[#020617] border border-slate-800 rounded-xl">
+                
+                {/* 🚀 E-POSTA ONAYI (YEŞİL / EMERALD YAPILDI) */}
+                <div className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all duration-300 ${ikiAdimEmail ? "bg-emerald-500/10 border-emerald-500/50" : "bg-[#020617] border-slate-800"}`}>
                   <div className="flex items-center gap-2.5 sm:gap-3">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-800/50 flex items-center justify-center">
-                      <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-slate-300" />
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors duration-300 ${ikiAdimEmail ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-800/50 text-slate-400"}`}>
+                      <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
                     <div>
                       <p className="text-xs sm:text-sm font-bold text-white">E-Posta Onayı</p>
                       <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium">Girişlerde e-postanıza kod gelir.</p>
                     </div>
                   </div>
-                  <button onClick={() => setIkiAdimEmail(!ikiAdimEmail)} className={`w-10 h-5 sm:w-12 sm:h-6 rounded-full relative transition-colors duration-300 outline-none ${ikiAdimEmail ? "bg-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.4)]" : "bg-slate-700"}`}>
+                  {/* Yeşil Neon Şartel */}
+                  <button onClick={() => setIkiAdimEmail(!ikiAdimEmail)} className={`w-10 h-5 sm:w-12 sm:h-6 rounded-full relative transition-all duration-300 outline-none ${ikiAdimEmail ? "bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]" : "bg-slate-700"}`}>
                     <div className={`absolute top-0.5 sm:top-1 left-0.5 sm:left-1 w-4 h-4 rounded-full bg-white transition-transform duration-300 ${ikiAdimEmail ? "translate-x-5 sm:translate-x-6" : "translate-x-0"}`}></div>
                   </button>
                 </div>
               </div>
 
-           {/* 🚀 ŞEFİN EFSANE AÇ-KAPA ŞARTELLERİ BAŞLIYOR */}
+              {/* 🚀 ŞEFİN EFSANE AÇ-KAPA ŞARTELLERİ BAŞLIYOR */}
               <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-slate-800">
                 <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-                  <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
+                  <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-slate-300" />
                   <h3 className="text-xs sm:text-sm font-black text-white uppercase tracking-wider">Giriş Bildirim Ayarları</h3>
                 </div>
 
                 <div className="flex flex-col gap-2 sm:gap-3">
-                  {/* TAM KARANTİNA ŞARTELİ */}
+                  
+                  {/* 🚀 TAM KARANTİNA (KURUMSAL MAVİ YAPILDI) */}
                   <button 
                     type="button"
                     onClick={() => setBildirimTercihi(bildirimTercihi === 'all' ? 'none' : 'all')}
-                    className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all ${bildirimTercihi === 'all' ? "bg-cyan-500/10 border-cyan-500/50" : "bg-[#020617] border-slate-800 hover:border-slate-700"}`}
+                    className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all duration-300 ${bildirimTercihi === 'all' ? "bg-blue-500/10 border-blue-500/50" : "bg-[#020617] border-slate-800 hover:border-slate-700"}`}
                   >
                     <div className="flex items-center gap-2.5 sm:gap-3">
-                      <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 ${bildirimTercihi === 'all' ? "bg-cyan-500/20 text-cyan-400" : "bg-slate-800 text-slate-500"}`}>
+                      <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300 ${bildirimTercihi === 'all' ? "bg-blue-500/20 text-blue-400" : "bg-slate-800 text-slate-500"}`}>
                         <i className="fa-solid fa-bell text-xs sm:text-sm"></i>
                       </div>
                       <div className="text-left">
@@ -362,20 +365,20 @@ export default function GuvenlikPage() {
                         <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium">Kim girerse girsin anında mail at.</p>
                       </div>
                     </div>
-                    {/* ŞARTEL TASARIMI */}
-                    <div className={`relative inline-flex h-5 sm:h-6 w-9 sm:w-11 items-center rounded-full transition-colors ${bildirimTercihi === 'all' ? 'bg-cyan-500' : 'bg-slate-700'}`}>
-                      <span className={`inline-block h-3.5 sm:h-4 w-3.5 sm:w-4 transform rounded-full bg-white transition-transform ${bildirimTercihi === 'all' ? 'translate-x-4 sm:translate-x-6' : 'translate-x-1'}`} />
+                    {/* Mavi Neon Şartel */}
+                    <div className={`relative inline-flex h-5 sm:h-6 w-9 sm:w-11 items-center rounded-full transition-all duration-300 ${bildirimTercihi === 'all' ? 'bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 'bg-slate-700'}`}>
+                      <span className={`inline-block h-3.5 sm:h-4 w-3.5 sm:w-4 transform rounded-full bg-white transition-transform duration-300 ${bildirimTercihi === 'all' ? 'translate-x-4 sm:translate-x-6' : 'translate-x-1'}`} />
                     </div>
                   </button>
 
-                  {/* AKILLI MUHAFIZ ŞARTELİ */}
+                  {/* 🚀 AKILLI MUHAFIZ (YEŞİL / EMERALD) */}
                   <button 
                     type="button"
                     onClick={() => setBildirimTercihi(bildirimTercihi === 'new_device' ? 'none' : 'new_device')}
-                    className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all ${bildirimTercihi === 'new_device' ? "bg-emerald-500/10 border-emerald-500/50" : "bg-[#020617] border-slate-800 hover:border-slate-700"}`}
+                    className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all duration-300 ${bildirimTercihi === 'new_device' ? "bg-emerald-500/10 border-emerald-500/50" : "bg-[#020617] border-slate-800 hover:border-slate-700"}`}
                   >
                     <div className="flex items-center gap-2.5 sm:gap-3">
-                      <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 ${bildirimTercihi === 'new_device' ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-800 text-slate-500"}`}>
+                      <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300 ${bildirimTercihi === 'new_device' ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-800 text-slate-500"}`}>
                         <i className="fa-solid fa-shield-halved text-xs sm:text-sm"></i>
                       </div>
                       <div className="text-left">
@@ -383,15 +386,15 @@ export default function GuvenlikPage() {
                         <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium">Sadece tanınmayan cihazda mail at.</p>
                       </div>
                     </div>
-                    {/* ŞARTEL TASARIMI */}
-                    <div className={`relative inline-flex h-5 sm:h-6 w-9 sm:w-11 items-center rounded-full transition-colors ${bildirimTercihi === 'new_device' ? 'bg-emerald-500' : 'bg-slate-700'}`}>
-                      <span className={`inline-block h-3.5 sm:h-4 w-3.5 sm:w-4 transform rounded-full bg-white transition-transform ${bildirimTercihi === 'new_device' ? 'translate-x-4 sm:translate-x-6' : 'translate-x-1'}`} />
+                    {/* Yeşil Neon Şartel */}
+                    <div className={`relative inline-flex h-5 sm:h-6 w-9 sm:w-11 items-center rounded-full transition-all duration-300 ${bildirimTercihi === 'new_device' ? 'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'bg-slate-700'}`}>
+                      <span className={`inline-block h-3.5 sm:h-4 w-3.5 sm:w-4 transform rounded-full bg-white transition-transform duration-300 ${bildirimTercihi === 'new_device' ? 'translate-x-4 sm:translate-x-6' : 'translate-x-1'}`} />
                     </div>
                   </button>
                 </div>
               </div>
 
-              {/* 🚀 SİLDİĞİMİZ HATA MESAJI KUTUSUNU ŞARTELLERİN ALTINA GERİ KOYDUK Kİ DÜZEN BOZULMASIN */}
+              {/* BİLDİRİM VE KAYDET BUTONU */}
               {ikiAdimDurum.mesaj && (
                 <div className={`mt-3 sm:mt-4 p-2.5 sm:p-3 rounded-xl border flex items-center gap-2 text-[10px] sm:text-xs font-bold ${
                   ikiAdimDurum.tip === "hata" ? "bg-rose-500/10 border-rose-500/20 text-rose-400" : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
