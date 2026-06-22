@@ -35,7 +35,7 @@ function cihazBilgisiCevir(cihazStr: string) {
   return `${os} - ${browser}`;
 }
 
-// 📧 STANDART VE SADE GUARD ONAY MAİLİ
+// 📧 CANLI VE ŞIK GUARD ONAY MAİLİ
 async function guardMailiGonder(email: string, anlasilirCihaz: string, konum: string, ip: string, onayToken: string, alarmTipi: string) {
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com", port: 465, secure: true,
@@ -50,35 +50,35 @@ async function guardMailiGonder(email: string, anlasilirCihaz: string, konum: st
   const konuBasligi = isKarantina ? "Bilgin PC - Giriş Onayı" : "Bilgin PC - Yeni Cihaz Doğrulaması";
 
   const mailHtml = `
-    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 25px; background-color: #0f172a; color: #f8fafc; border-radius: 8px; border: 1px solid #1e293b;">
+    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 25px; background-color: #020617; color: #f8fafc; border-radius: 10px; border: 1px solid #1e293b; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
       
-      <h2 style="color: #0ea5e9; text-align: center; margin-top: 0; font-size: 24px; letter-spacing: 1px;">BİLGİN PC</h2>
+      <h2 style="color: #06b6d4; text-align: center; margin-top: 0; font-size: 26px; letter-spacing: 2px; font-weight: 800;">BİLGİN PC</h2>
       
-      <h3 style="text-align: center; margin-bottom: 20px; font-weight: normal; font-size: 18px; color: #e2e8f0;">${mailBaslik}</h3>
+      <h3 style="text-align: center; margin-bottom: 20px; font-weight: 600; font-size: 18px; color: #ffffff; border-bottom: 1px solid #1e293b; padding-bottom: 15px;">${mailBaslik}</h3>
       
       <p style="font-size: 14px; line-height: 1.6; color: #cbd5e1; text-align: center; margin-bottom: 20px;">
         Hesabınıza aşağıdaki cihaz üzerinden bir giriş isteği yapılmıştır. Devam etmek için lütfen işlemi onaylayın.
       </p>
       
-      <div style="background-color: #1e293b; padding: 15px; border-radius: 6px; margin-bottom: 25px;">
-        <p style="margin: 5px 0; font-size: 13px; color: #94a3b8;"><strong>Tarih:</strong> <span style="color: #f8fafc;">${dateStr}</span></p>
-        <p style="margin: 5px 0; font-size: 13px; color: #94a3b8;"><strong>Cihaz:</strong> <span style="color: #f8fafc;">${anlasilirCihaz}</span></p>
-        <p style="margin: 5px 0; font-size: 13px; color: #94a3b8;"><strong>Konum:</strong> <span style="color: #f8fafc;">${konum}</span></p>
-        <p style="margin: 5px 0; font-size: 13px; color: #94a3b8;"><strong>IP Adresi:</strong> <span style="color: #f8fafc;">${ip}</span></p>
+      <div style="background-color: #0f172a; padding: 15px; border-radius: 8px; margin-bottom: 25px; border-left: 4px solid #06b6d4;">
+        <p style="margin: 6px 0; font-size: 14px; color: #94a3b8;"><strong>Tarih:</strong> <span style="color: #ffffff;">${dateStr}</span></p>
+        <p style="margin: 6px 0; font-size: 14px; color: #94a3b8;"><strong>Cihaz:</strong> <span style="color: #0ea5e9; font-weight: bold;">${anlasilirCihaz}</span></p>
+        <p style="margin: 6px 0; font-size: 14px; color: #94a3b8;"><strong>Konum:</strong> <span style="color: #ffffff;">${konum}</span></p>
+        <p style="margin: 6px 0; font-size: 14px; color: #94a3b8;"><strong>IP Adresi:</strong> <span style="color: #ffffff;">${ip}</span></p>
       </div>
 
-      <p style="font-size: 13px; text-align: center; color: #94a3b8; margin-bottom: 15px;">
+      <p style="font-size: 13px; text-align: center; color: #94a3b8; margin-bottom: 20px;">
         Eğer bu işlemi siz yapmadıysanız, hesabınızı korumak için işlemi reddedin.
       </p>
 
       <div style="text-align: center; margin-bottom: 25px;">
-        <a href="${baseUrl}/api/auth/device-action?token=${onayToken}&action=approve" style="display: inline-block; width: 45%; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 12px 0; border-radius: 4px; font-size: 14px; margin-right: 2%;">Onayla</a>
-        <a href="${baseUrl}/api/auth/device-action?token=${onayToken}&action=reject" style="display: inline-block; width: 45%; background-color: #ef4444; color: #ffffff; text-decoration: none; padding: 12px 0; border-radius: 4px; font-size: 14px; margin-left: 2%;">Reddet</a>
+        <a href="${baseUrl}/api/auth/device-action?token=${onayToken}&action=approve" style="display: inline-block; width: 44%; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 12px 0; border-radius: 6px; font-weight: bold; font-size: 14px; margin-right: 2%;">Onayla</a>
+        <a href="${baseUrl}/api/auth/device-action?token=${onayToken}&action=reject" style="display: inline-block; width: 44%; background-color: #f43f5e; color: #ffffff; text-decoration: none; padding: 12px 0; border-radius: 6px; font-weight: bold; font-size: 14px; margin-left: 2%;">Reddet</a>
       </div>
       
       <div style="text-align: center; border-top: 1px solid #1e293b; padding-top: 15px;">
         <p style="color: #64748b; font-size: 12px; margin: 0;">
-          Bu onay bağlantısı 15 dakika geçerlidir.
+          Bu onay bağlantısı <strong style="color: #94a3b8;">15 dakika</strong> geçerlidir.
         </p>
       </div>
 
@@ -87,7 +87,6 @@ async function guardMailiGonder(email: string, anlasilirCihaz: string, konum: st
 
   await transporter.sendMail({ from: `"Bilgin PC" <${process.env.EMAIL_USER}>`, to: email, subject: konuBasligi, html: mailHtml });
 }
-
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({ clientId: process.env.GOOGLE_CLIENT_ID as string, clientSecret: process.env.GOOGLE_CLIENT_SECRET as string }),
