@@ -346,8 +346,7 @@ export default function GuvenlikPage() {
               <h2 className="text-lg font-black text-white uppercase tracking-wider">Aktif Cihazlar Radarı</h2>
               <span className="ml-auto text-[10px] bg-slate-800 text-slate-400 px-2 py-1 rounded font-bold uppercase tracking-widest">Son 30 Gün</span>
             </div>
-
-            <div className="flex flex-col gap-3">
+<div className="flex flex-col gap-3">
               {cihazlarYukleniyor ? (
                 <div className="flex justify-center p-8">
                   <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
@@ -355,45 +354,70 @@ export default function GuvenlikPage() {
               ) : aktifCihazlar.length === 0 ? (
                 <div className="text-center p-8 text-slate-500 font-medium">Kayıtlı cihaz bulunamadı.</div>
               ) : (
-                aktifCihazlar.map((cihaz, index) => {
-                  // 🚀 SENİN ELİNDEKİ CİHAZ MI KONTROLÜ
-                  const buCihazMi = (session?.user as any)?.deviceId === cihaz.deviceId;
-                  const isMobile = cihaz.deviceInfo.toLowerCase().includes('mobile') || cihaz.deviceInfo.toLowerCase().includes('android') || cihaz.deviceInfo.toLowerCase().includes('iphone');
-                  
-                  return (
-                    <div key={cihaz.deviceId || index} className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#020617] border rounded-xl relative overflow-hidden group ${buCihazMi ? "border-emerald-500/30" : "border-slate-800"}`}>
-                      {buCihazMi && <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 shadow-[0_0_10px_#10b981]"></div>}
-                      
-                      <div className="flex items-start sm:items-center gap-4 pl-3">
-                        <div className="relative shrink-0 mt-1 sm:mt-0">
-                          {/* 🚀 BÜTÜN CİHAZLAR YEŞİL OLDU */}
-                          {isMobile ? <Smartphone className="w-8 h-8 text-emerald-400" /> : <Laptop className="w-8 h-8 text-emerald-400" />}
-                          
-                          {/* 🚀 BÜTÜN CİHAZLARDA SABİT YEŞİL NOKTA VAR */}
-                          <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
-                            {/* 🚀 YANIP SÖNME EFEKTİ SADECE ŞU AN ELİNDE TUTTUĞUN CİHAZDA ÇALIŞIR */}
-                            {buCihazMi && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>}
-                            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border border-[#020617]"></span>
-                          </span>
-                        </div>
-                        <div>
-                          <p className={`text-sm font-bold flex flex-wrap items-center gap-2 text-white`}>
-                            {cihazAdiniCevir(cihaz.deviceInfo)}
-                            {buCihazMi && <span className="text-[9px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded font-black uppercase tracking-widest border border-emerald-500/20">Bu Cihaz</span>}
-                          </p>
-                          <p className="text-xs text-slate-400 mt-1 flex items-center gap-3">
-                            <span className="flex items-center gap-1.5">
-                              <MapPin className="w-3 h-3 text-emerald-400" /> 
-                              {cihaz.location || "Bilinmeyen Konum"} ({cihaz.ipAddress})
-                            </span>
-                            <span>|</span>
-                            <span>{new Date(cihaz.lastActive).toLocaleDateString("tr-TR", {day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit'})}</span>
-                          </p>
+                (() => {
+                  // 🚀 SENİN EFSANE MANTIĞIN: Her cihaz tipinin (PC, Telefon) sadece EN YENİ olanını bul!
+                  const gorulenTipler = new Set();
+                  const aktifSayilacakIdler = aktifCihazlar.map(c => {
+                    const tip = cihazAdiniCevir(c.deviceInfo);
+                    if (!gorulenTipler.has(tip)) {
+                      gorulenTipler.add(tip);
+                      return c.deviceId;
+                    }
+                    return null;
+                  }).filter(Boolean);
+
+                  return aktifCihazlar.map((cihaz, index) => {
+                    const buCihazMi = (session?.user as any)?.deviceId === cihaz.deviceId;
+                    
+                    // Eğer bu cihaz, kendi türünün (PC veya Telefon) en son gireni ise aktif say!
+                    const enYeniMi = aktifSayilacakIdler.includes(cihaz.deviceId);
+                    
+                    // İkisinden biri varsa cihaz "Aktif" (Yeşil) görünecek, yoksa sönük kalacak!
+                    const aktifGozuksun = buCihazMi || enYeniMi;
+                    
+                    const isMobile = cihaz.deviceInfo.toLowerCase().includes('mobile') || cihaz.deviceInfo.toLowerCase().includes('android') || cihaz.deviceInfo.toLowerCase().includes('iphone');
+                    
+                    return (
+                      <div key={cihaz.deviceId || index} className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#020617] border rounded-xl relative overflow-hidden group ${aktifGozuksun ? "border-emerald-500/30" : "border-slate-800"}`}>
+                        {aktifGozuksun && <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 shadow-[0_0_10px_#10b981]"></div>}
+                        
+                        <div className="flex items-start sm:items-center gap-4 pl-3">
+                          <div className="relative shrink-0 mt-1 sm:mt-0">
+                            {/* 🚀 SADECE EN YENİLER YEŞİL YANSIN, ESKİLER GRİ (SÖNÜK) KALSIN */}
+                            {isMobile ? (
+                              <Smartphone className={`w-8 h-8 ${aktifGozuksun ? "text-emerald-400" : "text-slate-600"}`} />
+                            ) : (
+                              <Laptop className={`w-8 h-8 ${aktifGozuksun ? "text-emerald-400" : "text-slate-600"}`} />
+                            )}
+                            
+                            {/* 🚀 YEŞİL YANIP SÖNME IŞIĞI SADECE AKTİF OLANLARDA ÇALIŞSIN */}
+                            {aktifGozuksun && (
+                              <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border border-[#020617]"></span>
+                              </span>
+                            )}
+                          </div>
+                          <div>
+                            <p className={`text-sm font-bold flex flex-wrap items-center gap-2 ${aktifGozuksun ? "text-white" : "text-slate-500"}`}>
+                              {cihazAdiniCevir(cihaz.deviceInfo)}
+                              {/* 🚀 "BU CİHAZ" etiketi her zaman SADECE senin elindekinde çıksın */}
+                              {buCihazMi && <span className="text-[9px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded font-black uppercase tracking-widest border border-emerald-500/20">Bu Cihaz</span>}
+                            </p>
+                            <p className="text-xs text-slate-500 mt-1 flex items-center gap-3">
+                              <span className="flex items-center gap-1.5">
+                                <MapPin className={`w-3 h-3 ${aktifGozuksun ? "text-emerald-400" : "text-slate-600"}`} /> 
+                                {cihaz.location || "Bilinmeyen Konum"} ({cihaz.ipAddress})
+                              </span>
+                              <span>|</span>
+                              <span>{new Date(cihaz.lastActive).toLocaleDateString("tr-TR", {day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit'})}</span>
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })
+                    );
+                  });
+                })()
               )}
             </div>
 
