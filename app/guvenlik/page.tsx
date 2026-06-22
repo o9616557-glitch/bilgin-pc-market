@@ -469,7 +469,7 @@ export default function GuvenlikPage() {
                   ) : (
                     <>
                       <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 opacity-70" />
-                      <span className="truncate">Bilgi: Tercihleriniz anında sunucuya kaydedilir.</span>
+                      <span className="truncate">Ayarlar arasında geçiş yapın.</span>
                     </>
                   )}
                 </div>
