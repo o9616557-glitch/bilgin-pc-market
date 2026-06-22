@@ -21,7 +21,8 @@ export default function GuvenlikPage() {
   const [islemDurumu, setIslemDurumu] = useState({ tip: "", mesaj: "" });
   const [yukleniyor, setYukleniyor] = useState(false);
 
-  const [ikiAdimEmail, setIkiAdimEmail] = useState(false);
+ const [ikiAdimEmail, setIkiAdimEmail] = useState(false);
+  const [bildirimTercihi, setBildirimTercihi] = useState('new_device'); // 🚀 YENİ ŞARTEL HAFIZASI
   const [ikiAdimDurum, setIkiAdimDurum] = useState({ tip: "", mesaj: "" });
   const [ikiAdimYukleniyor, setIkiAdimYukleniyor] = useState(false);
 
@@ -35,7 +36,8 @@ export default function GuvenlikPage() {
         const res = await fetch("/api/user/get-2fa", { cache: 'no-store' }); 
         if (res.ok) {
           const data = await res.json();
-          setIkiAdimEmail(data.twoFactorEmail);
+         setIkiAdimEmail(data.twoFactorEmail);
+          setBildirimTercihi(data.notificationPreference || 'new_device'); // 🚀 KURYEDEN ŞARTELİ AL
           
           if (data.activeDevices) {
             const siraliCihazlar = data.activeDevices.sort((a: any, b: any) => 
@@ -135,7 +137,11 @@ export default function GuvenlikPage() {
       const res = await fetch("/api/user/update-2fa", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ twoFactorEmail: ikiAdimEmail, twoFactorSms: false }), 
+     body: JSON.stringify({ 
+          twoFactorEmail: ikiAdimEmail, 
+          twoFactorSms: false,
+          notificationPreference: bildirimTercihi // 🚀 SEÇİLEN ŞARTELİ DEPOYA YOLLA
+        }),
       });
       const data = await res.json();
       
@@ -326,6 +332,53 @@ export default function GuvenlikPage() {
                 </div>
               </div>
 
+              {/* 🚀 ŞEFİN EFSANE ŞARTELLERİ BAŞLIYOR */}
+              <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-slate-800">
+                <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                  <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
+                  <h3 className="text-xs sm:text-sm font-black text-white uppercase tracking-wider">Giriş Bildirim Ayarları</h3>
+                </div>
+
+                <div className="flex flex-col gap-2 sm:gap-3">
+                  <button 
+                    onClick={() => setBildirimTercihi('all')}
+                    className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all ${bildirimTercihi === 'all' ? "bg-cyan-500/10 border-cyan-500/50" : "bg-[#020617] border-slate-800 hover:border-slate-700"}`}
+                  >
+                    <div className="flex items-center gap-2.5 sm:gap-3">
+                      <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 ${bildirimTercihi === 'all' ? "bg-cyan-500/20 text-cyan-400" : "bg-slate-800 text-slate-500"}`}>
+                        <i className="fa-solid fa-bell text-xs sm:text-sm"></i>
+                      </div>
+                      <div className="text-left">
+                        <p className="text-xs sm:text-sm font-bold text-white">Tam Karantina</p>
+                        <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium">Kim girerse girsin anında mail at.</p>
+                      </div>
+                    </div>
+                    <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${bildirimTercihi === 'all' ? "border-cyan-500" : "border-slate-700"}`}>
+                      {bildirimTercihi === 'all' && <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-cyan-500"></div>}
+                    </div>
+                  </button>
+
+                  <button 
+                    onClick={() => setBildirimTercihi('new_device')}
+                    className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all ${bildirimTercihi === 'new_device' ? "bg-emerald-500/10 border-emerald-500/50" : "bg-[#020617] border-slate-800 hover:border-slate-700"}`}
+                  >
+                    <div className="flex items-center gap-2.5 sm:gap-3">
+                      <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 ${bildirimTercihi === 'new_device' ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-800 text-slate-500"}`}>
+                        <i className="fa-solid fa-shield-halved text-xs sm:text-sm"></i>
+                      </div>
+                      <div className="text-left">
+                        <p className="text-xs sm:text-sm font-bold text-white">Akıllı Muhafız</p>
+                        <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium">Sadece tanınmayan cihazda mail at.</p>
+                      </div>
+                    </div>
+                    <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${bildirimTercihi === 'new_device' ? "border-emerald-500" : "border-slate-700"}`}>
+                      {bildirimTercihi === 'new_device' && <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500"></div>}
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* 🚀 SİLDİĞİMİZ HATA MESAJI KUTUSUNU ŞARTELLERİN ALTINA GERİ KOYDUK Kİ DÜZEN BOZULMASIN */}
               {ikiAdimDurum.mesaj && (
                 <div className={`mt-3 sm:mt-4 p-2.5 sm:p-3 rounded-xl border flex items-center gap-2 text-[10px] sm:text-xs font-bold ${
                   ikiAdimDurum.tip === "hata" ? "bg-rose-500/10 border-rose-500/20 text-rose-400" : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
@@ -432,9 +485,7 @@ export default function GuvenlikPage() {
                 </button>
               </div>
             )}
-          </div>
-
-          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
+          </div>          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
             <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-slate-800/80">
               <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
               <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Hesap İşlemleri</h2>

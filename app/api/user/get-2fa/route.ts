@@ -22,10 +22,12 @@ export async function GET() {
     }
 
     // 🚀 İŞTE VİTRİNE GİDEN PAKET (Kuryenin Cebini Genişlettik)
+   // 🚀 İŞTE VİTRİNE GİDEN PAKET (Kuryenin Cebini Genişlettik)
     return NextResponse.json({
       twoFactorEmail: user.twoFactorEmail || false,
       twoFactorSms: user.twoFactorSms || false,
       activeDevices: user.activeDevices || [], // 🚀 ŞEFİM EKSİK OLAN RADAR KABLOSU BU!
+      notificationPreference: user.notificationPreference || 'new_device' // 🚀 ŞEFİN YENİ GÜVENLİK ŞARTELİ KURYEYE VERİLDİ!
     }, { status: 200 });
 
   } catch (error) {
