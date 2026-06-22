@@ -332,7 +332,7 @@ export default function GuvenlikPage() {
                 </div>
               </div>
 
-              {/* 🚀 ŞEFİN EFSANE ŞARTELLERİ BAŞLIYOR */}
+           {/* 🚀 ŞEFİN EFSANE AÇ-KAPA ŞARTELLERİ BAŞLIYOR */}
               <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-slate-800">
                 <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                   <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
@@ -340,8 +340,10 @@ export default function GuvenlikPage() {
                 </div>
 
                 <div className="flex flex-col gap-2 sm:gap-3">
+                  {/* TAM KARANTİNA ŞARTELİ */}
                   <button 
-                    onClick={() => setBildirimTercihi('all')}
+                    type="button"
+                    onClick={() => setBildirimTercihi(bildirimTercihi === 'all' ? 'none' : 'all')}
                     className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all ${bildirimTercihi === 'all' ? "bg-cyan-500/10 border-cyan-500/50" : "bg-[#020617] border-slate-800 hover:border-slate-700"}`}
                   >
                     <div className="flex items-center gap-2.5 sm:gap-3">
@@ -353,13 +355,16 @@ export default function GuvenlikPage() {
                         <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium">Kim girerse girsin anında mail at.</p>
                       </div>
                     </div>
-                    <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${bildirimTercihi === 'all' ? "border-cyan-500" : "border-slate-700"}`}>
-                      {bildirimTercihi === 'all' && <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-cyan-500"></div>}
+                    {/* ŞARTEL TASARIMI */}
+                    <div className={`relative inline-flex h-5 sm:h-6 w-9 sm:w-11 items-center rounded-full transition-colors ${bildirimTercihi === 'all' ? 'bg-cyan-500' : 'bg-slate-700'}`}>
+                      <span className={`inline-block h-3.5 sm:h-4 w-3.5 sm:w-4 transform rounded-full bg-white transition-transform ${bildirimTercihi === 'all' ? 'translate-x-4 sm:translate-x-6' : 'translate-x-1'}`} />
                     </div>
                   </button>
 
+                  {/* AKILLI MUHAFIZ ŞARTELİ */}
                   <button 
-                    onClick={() => setBildirimTercihi('new_device')}
+                    type="button"
+                    onClick={() => setBildirimTercihi(bildirimTercihi === 'new_device' ? 'none' : 'new_device')}
                     className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all ${bildirimTercihi === 'new_device' ? "bg-emerald-500/10 border-emerald-500/50" : "bg-[#020617] border-slate-800 hover:border-slate-700"}`}
                   >
                     <div className="flex items-center gap-2.5 sm:gap-3">
@@ -371,8 +376,9 @@ export default function GuvenlikPage() {
                         <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium">Sadece tanınmayan cihazda mail at.</p>
                       </div>
                     </div>
-                    <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${bildirimTercihi === 'new_device' ? "border-emerald-500" : "border-slate-700"}`}>
-                      {bildirimTercihi === 'new_device' && <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500"></div>}
+                    {/* ŞARTEL TASARIMI */}
+                    <div className={`relative inline-flex h-5 sm:h-6 w-9 sm:w-11 items-center rounded-full transition-colors ${bildirimTercihi === 'new_device' ? 'bg-emerald-500' : 'bg-slate-700'}`}>
+                      <span className={`inline-block h-3.5 sm:h-4 w-3.5 sm:w-4 transform rounded-full bg-white transition-transform ${bildirimTercihi === 'new_device' ? 'translate-x-4 sm:translate-x-6' : 'translate-x-1'}`} />
                     </div>
                   </button>
                 </div>
