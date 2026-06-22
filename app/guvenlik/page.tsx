@@ -21,8 +21,8 @@ export default function GuvenlikPage() {
   const [islemDurumu, setIslemDurumu] = useState({ tip: "", mesaj: "" });
   const [yukleniyor, setYukleniyor] = useState(false);
 
- const [ikiAdimEmail, setIkiAdimEmail] = useState(false);
-  const [bildirimTercihi, setBildirimTercihi] = useState('new_device'); // 🚀 YENİ ŞARTEL HAFIZASI
+  const [ikiAdimEmail, setIkiAdimEmail] = useState(false);
+  const [bildirimTercihi, setBildirimTercihi] = useState('new_device'); 
   const [ikiAdimDurum, setIkiAdimDurum] = useState({ tip: "", mesaj: "" });
   const [ikiAdimYukleniyor, setIkiAdimYukleniyor] = useState(false);
 
@@ -30,21 +30,19 @@ export default function GuvenlikPage() {
   const [cihazlarYukleniyor, setCihazlarYukleniyor] = useState(true);
   const [cikisYukleniyor, setCikisYukleniyor] = useState(false);
 
- useEffect(() => {
-    // 🚀 ilkYukleme adında bir kural ekledik. Çırak ne zaman şaltere dokunacağını bilecek.
+  // 🚀 TERBİYE EDİLMİŞ ÇIRAK: Sadece radar günceller, şalterlere dokunmaz
+  useEffect(() => {
     const ayarlariGetir = async (ilkYukleme = false) => {
       try {
         const res = await fetch("/api/user/get-2fa", { cache: 'no-store' }); 
         if (res.ok) {
           const data = await res.json();
           
-          // 🎯 ÇIRAK SADECE SAYFA İLK AÇILDIĞINDA ŞARTELLERİ ELLER!
           if (ilkYukleme) {
             setIkiAdimEmail(data.twoFactorEmail);
             setBildirimTercihi(data.notificationPreference || 'none'); 
           }
           
-          // 💻 AMA CİHAZ RADARI SÜREKLİ GÜNCELLENİR (Yeni biri girerse anında görmek için)
           if (data.activeDevices) {
             const siraliCihazlar = data.activeDevices.sort((a: any, b: any) => 
               new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime()
@@ -59,16 +57,15 @@ export default function GuvenlikPage() {
       }
     };
     
-    // 1. Sayfa ilk açıldığında her şeyi (Şalterler + Radar) masaya koy
     ayarlariGetir(true); 
 
-    // 2. Çırak her 10 saniyede bir gidip SADECE Cihaz Radarı'na baksın (Şalterlere dokunmasın)
     const cirak = setInterval(() => {
       ayarlariGetir(false);
     }, 10000);
 
     return () => clearInterval(cirak); 
-  }, []);
+  }, []); 
+
   const sifreGucuHesapla = (s: string) => {
     let guc = 0;
     if (s.length > 5) guc += 1;
@@ -77,6 +74,7 @@ export default function GuvenlikPage() {
     if (/[0-9!@#$%^&*]/.test(s)) guc += 1;
     return guc;
   };
+  
   const gucSeviyesi = sifreGucuHesapla(sifre);
   const gucYuzdesi = gucSeviyesi === 0 ? 0 : (gucSeviyesi / 4) * 100;
   const gucRengi = gucSeviyesi < 2 ? "bg-rose-500 shadow-[0_0_10px_#f43f5e]" : gucSeviyesi === 2 ? "bg-amber-500 shadow-[0_0_10px_#f59e0b]" : "bg-emerald-500 shadow-[0_0_10px_#10b981]";
@@ -136,7 +134,8 @@ export default function GuvenlikPage() {
     }
   };
 
-  const handle2FAKaydet = async () => {
+  // 🚀 OTOMATİK KAYIT MOTORU (Kaydet butonuna gerek bırakmaz!)
+  const handleOtomatikKaydet = async (yeniEmail: boolean, yeniBildirim: string) => {
     setIkiAdimYukleniyor(true);
     setIkiAdimDurum({ tip: "", mesaj: "" });
 
@@ -144,10 +143,10 @@ export default function GuvenlikPage() {
       const res = await fetch("/api/user/update-2fa", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-     body: JSON.stringify({ 
-          twoFactorEmail: ikiAdimEmail, 
+        body: JSON.stringify({ 
+          twoFactorEmail: yeniEmail, 
           twoFactorSms: false,
-          notificationPreference: bildirimTercihi // 🚀 SEÇİLEN ŞARTELİ DEPOYA YOLLA
+          notificationPreference: yeniBildirim 
         }),
       });
       const data = await res.json();
@@ -155,8 +154,8 @@ export default function GuvenlikPage() {
       if (!res.ok) {
         setIkiAdimDurum({ tip: "hata", mesaj: data.message || "Ayarlar kaydedilemedi." });
       } else {
-        setIkiAdimDurum({ tip: "basari", mesaj: "Güvenlik ayarları kaydedildi!" });
-        setTimeout(() => setIkiAdimDurum({ tip: "", mesaj: "" }), 3000);
+        setIkiAdimDurum({ tip: "basari", mesaj: "Ayar anında kaydedildi!" });
+        setTimeout(() => setIkiAdimDurum({ tip: "", mesaj: "" }), 3000); 
       }
     } catch (error) {
       setIkiAdimDurum({ tip: "hata", mesaj: "Sunucu bağlantı hatası." });
@@ -189,14 +188,12 @@ export default function GuvenlikPage() {
   };
 
   return (
-    // 🚀 1. HATA ÇÖZÜLDÜ: "overflow-hidden" kodunu "overflow-clip" yaptık. Artık PC'de menü aslanlar gibi aşağı kayacak!
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
         
         {/* SOL MENÜ */}
-        {/* 🚀 2. ve 3. HATA ÇÖZÜLDÜ: Sadece PC'de yapışkan olacak (lg:sticky). Hizalaması jilet gibi yapıldı. */}
         <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-3 sm:p-4 shadow-xl">
             <nav className="flex flex-col gap-1.5">
@@ -308,22 +305,29 @@ export default function GuvenlikPage() {
                 </button>
               </form>
             </div>
-{/* 2FA BÖLÜMÜ */}
+
+            {/* 2FA BÖLÜMÜ */}
             <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col h-full relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-[60px] pointer-events-none rounded-full"></div>
               
               <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-800/80">
                 <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
                 <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">İki Adımlı Doğrulama</h2>
+                
+                {ikiAdimYukleniyor && (
+                  <div className="ml-auto flex items-center gap-1.5 text-[9px] sm:text-[10px] text-cyan-400 font-bold uppercase tracking-widest bg-cyan-500/10 px-2 py-1 rounded-md border border-cyan-500/20">
+                    <Loader2 className="w-3 h-3 animate-spin" /> Kaydediliyor...
+                  </div>
+                )}
               </div>
 
               <p className="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6">
-                Hesabınıza giriş yapıldığında şifrenize ek ekstra güvenlik katmanı sağlar.
+                Hesabınıza giriş yapıldığında şifrenize ek ekstra güvenlik katmanı sağlar. Tüm ayarlar anında otomatik kaydedilir.
               </p>
 
               <div className="flex flex-col gap-3 sm:gap-4 flex-1">
                 
-                {/* 🚀 E-POSTA ONAYI (YEŞİL / EMERALD YAPILDI) */}
+                {/* 🚀 E-POSTA ONAYI (YEŞİL) */}
                 <div className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all duration-300 ${ikiAdimEmail ? "bg-emerald-500/10 border-emerald-500/50" : "bg-[#020617] border-slate-800"}`}>
                   <div className="flex items-center gap-2.5 sm:gap-3">
                     <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors duration-300 ${ikiAdimEmail ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-800/50 text-slate-400"}`}>
@@ -334,14 +338,21 @@ export default function GuvenlikPage() {
                       <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium">Girişlerde e-postanıza kod gelir.</p>
                     </div>
                   </div>
-                  {/* Yeşil Neon Şartel */}
-                  <button onClick={() => setIkiAdimEmail(!ikiAdimEmail)} className={`w-10 h-5 sm:w-12 sm:h-6 rounded-full relative transition-all duration-300 outline-none ${ikiAdimEmail ? "bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]" : "bg-slate-700"}`}>
+                  <button 
+                    disabled={ikiAdimYukleniyor}
+                    onClick={() => {
+                      const yeniDurum = !ikiAdimEmail;
+                      setIkiAdimEmail(yeniDurum);
+                      handleOtomatikKaydet(yeniDurum, bildirimTercihi); 
+                    }} 
+                    className={`w-10 h-5 sm:w-12 sm:h-6 rounded-full relative transition-all duration-300 outline-none disabled:opacity-50 ${ikiAdimEmail ? "bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]" : "bg-slate-700"}`}
+                  >
                     <div className={`absolute top-0.5 sm:top-1 left-0.5 sm:left-1 w-4 h-4 rounded-full bg-white transition-transform duration-300 ${ikiAdimEmail ? "translate-x-5 sm:translate-x-6" : "translate-x-0"}`}></div>
                   </button>
                 </div>
               </div>
 
-              {/* 🚀 ŞEFİN EFSANE AÇ-KAPA ŞARTELLERİ BAŞLIYOR */}
+              {/* ŞEFİN EFSANE AÇ-KAPA ŞARTELLERİ */}
               <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-slate-800">
                 <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                   <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-slate-300" />
@@ -350,11 +361,16 @@ export default function GuvenlikPage() {
 
                 <div className="flex flex-col gap-2 sm:gap-3">
                   
-                  {/* 🚀 TAM KARANTİNA (KURUMSAL MAVİ YAPILDI) */}
+                  {/* 🚀 TAM KARANTİNA (MAVİ) */}
                   <button 
                     type="button"
-                    onClick={() => setBildirimTercihi(bildirimTercihi === 'all' ? 'none' : 'all')}
-                    className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all duration-300 ${bildirimTercihi === 'all' ? "bg-blue-500/10 border-blue-500/50" : "bg-[#020617] border-slate-800 hover:border-slate-700"}`}
+                    disabled={ikiAdimYukleniyor}
+                    onClick={() => {
+                      const yeniDurum = bildirimTercihi === 'all' ? 'none' : 'all';
+                      setBildirimTercihi(yeniDurum);
+                      handleOtomatikKaydet(ikiAdimEmail, yeniDurum); 
+                    }}
+                    className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all duration-300 disabled:opacity-50 ${bildirimTercihi === 'all' ? "bg-blue-500/10 border-blue-500/50" : "bg-[#020617] border-slate-800 hover:border-slate-700"}`}
                   >
                     <div className="flex items-center gap-2.5 sm:gap-3">
                       <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300 ${bildirimTercihi === 'all' ? "bg-blue-500/20 text-blue-400" : "bg-slate-800 text-slate-500"}`}>
@@ -365,17 +381,21 @@ export default function GuvenlikPage() {
                         <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium">Kim girerse girsin anında mail at.</p>
                       </div>
                     </div>
-                    {/* Mavi Neon Şartel */}
                     <div className={`relative inline-flex h-5 sm:h-6 w-9 sm:w-11 items-center rounded-full transition-all duration-300 ${bildirimTercihi === 'all' ? 'bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 'bg-slate-700'}`}>
                       <span className={`inline-block h-3.5 sm:h-4 w-3.5 sm:w-4 transform rounded-full bg-white transition-transform duration-300 ${bildirimTercihi === 'all' ? 'translate-x-4 sm:translate-x-6' : 'translate-x-1'}`} />
                     </div>
                   </button>
 
-                  {/* 🚀 AKILLI MUHAFIZ (YEŞİL / EMERALD) */}
+                  {/* 🚀 AKILLI MUHAFIZ (YEŞİL) */}
                   <button 
                     type="button"
-                    onClick={() => setBildirimTercihi(bildirimTercihi === 'new_device' ? 'none' : 'new_device')}
-                    className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all duration-300 ${bildirimTercihi === 'new_device' ? "bg-emerald-500/10 border-emerald-500/50" : "bg-[#020617] border-slate-800 hover:border-slate-700"}`}
+                    disabled={ikiAdimYukleniyor}
+                    onClick={() => {
+                      const yeniDurum = bildirimTercihi === 'new_device' ? 'none' : 'new_device';
+                      setBildirimTercihi(yeniDurum);
+                      handleOtomatikKaydet(ikiAdimEmail, yeniDurum); 
+                    }}
+                    className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all duration-300 disabled:opacity-50 ${bildirimTercihi === 'new_device' ? "bg-emerald-500/10 border-emerald-500/50" : "bg-[#020617] border-slate-800 hover:border-slate-700"}`}
                   >
                     <div className="flex items-center gap-2.5 sm:gap-3">
                       <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300 ${bildirimTercihi === 'new_device' ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-800 text-slate-500"}`}>
@@ -386,7 +406,6 @@ export default function GuvenlikPage() {
                         <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium">Sadece tanınmayan cihazda mail at.</p>
                       </div>
                     </div>
-                    {/* Yeşil Neon Şartel */}
                     <div className={`relative inline-flex h-5 sm:h-6 w-9 sm:w-11 items-center rounded-full transition-all duration-300 ${bildirimTercihi === 'new_device' ? 'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'bg-slate-700'}`}>
                       <span className={`inline-block h-3.5 sm:h-4 w-3.5 sm:w-4 transform rounded-full bg-white transition-transform duration-300 ${bildirimTercihi === 'new_device' ? 'translate-x-4 sm:translate-x-6' : 'translate-x-1'}`} />
                     </div>
@@ -394,27 +413,18 @@ export default function GuvenlikPage() {
                 </div>
               </div>
 
-              {/* BİLDİRİM VE KAYDET BUTONU */}
               {ikiAdimDurum.mesaj && (
-                <div className={`mt-3 sm:mt-4 p-2.5 sm:p-3 rounded-xl border flex items-center gap-2 text-[10px] sm:text-xs font-bold ${
+                <div className={`mt-3 sm:mt-4 p-2.5 sm:p-3 rounded-xl border flex items-center gap-2 text-[10px] sm:text-xs font-bold transition-all ${
                   ikiAdimDurum.tip === "hata" ? "bg-rose-500/10 border-rose-500/20 text-rose-400" : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
                 }`}>
                   {ikiAdimDurum.tip === "hata" ? <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> : <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />}
                   {ikiAdimDurum.mesaj}
                 </div>
               )}
-
-              <button 
-                onClick={handle2FAKaydet}
-                disabled={ikiAdimYukleniyor}
-                className="mt-4 sm:mt-6 w-full py-3 sm:py-3.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-slate-700 text-slate-300 font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all flex justify-center items-center gap-2 disabled:opacity-50"
-              >
-                {ikiAdimYukleniyor ? <><Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" /> KAYDEDİLİYOR...</> : "AYARLARI KAYDET"}
-              </button>
             </div>
           </div>
 
-          {/* 💻 CANLI AKTİF CİHAZLAR RADARI */}
+          {/* AKTİF CİHAZLAR RADARI */}
           <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
             <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-800/80">
               <Laptop className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
@@ -501,7 +511,10 @@ export default function GuvenlikPage() {
                 </button>
               </div>
             )}
-          </div>          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
+          </div>
+
+          {/* HESAP İŞLEMLERİ */}
+          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
             <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-slate-800/80">
               <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
               <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Hesap İşlemleri</h2>
