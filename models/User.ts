@@ -46,23 +46,23 @@ const userSchema = new mongoose.Schema(
       type: String 
     }],
 
-  // İki Adımlı Doğrulama Tercihleri
-  twoFactorEmail: { type: Boolean, default: false },
-  twoFactorSms: { type: Boolean, default: false },
+  // 🚀 İki Adımlı Doğrulama Tercihleri
+    twoFactorEmail: { type: Boolean, default: false },
+    twoFactorSms: { type: Boolean, default: false },
 
-  // Kodun ve Sürenin Tutulduğu Yer
-  twoFactorCode: { type: String },
-  twoFactorExpires: { type: Date },
+    // 🚀 ŞEFİM İŞTE EKSİK OLAN RAFLAR BUNLAR! (Kodun ve Sürenin Tutulduğu Yer)
+    twoFactorCode: { type: String },
+    twoFactorExpires: { type: Date },
 
-  // AKTİF CİHAZLAR RADARI İÇİN HAFIZA RAFI
+    // 🚀 AKTİF CİHAZLAR RADARI İÇİN HAFIZA RAFI
   activeDevices: [{
-    deviceId: { type: String, required: true },
-    deviceInfo: { type: String },
-    ipAddress: { type: String },
-    location: { type: String },
-    isActive: { type: Boolean, default: true },
-    lastActive: { type: Date, default: Date.now }
-  }],
+      deviceId: { type: String, required: true },
+      deviceInfo: { type: String },
+      ipAddress: { type: String },
+      location: { type: String },
+      isActive: { type: Boolean, default: true }, // 🚀 İŞTE YENİ DAMGAMIZ: İlk girişte otomatik "true" (Aktif) olur
+      lastActive: { type: Date, default: Date.now }
+  }], // 🚀 ŞEFİM DİKKAT: Buraya virgülü attık!
 
   // 🚀 ŞEFİN EFSANE GÜVENLİK ŞARTELLERİ VE GÜVENLİ CİHAZ HAFIZASI
   notificationPreference: { 
@@ -72,7 +72,9 @@ const userSchema = new mongoose.Schema(
   },
   trustedDevices: [String]
   
-}, { timestamps: true });
+},
+{ timestamps: true }
+);
 
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 export default User;
