@@ -40,43 +40,56 @@ function cihazBilgisiCevir(cihazStr: string) {
   return `${os} - ${browser}`;
 }
 
-// 📧 GUARD ONAY MAİLİ GÖNDERİCİSİ
+/// 📧 GUARD ONAY MAİLİ GÖNDERİCİSİ
 async function guardMailiGonder(email: string, anlasilirCihaz: string, konum: string, ip: string, onayToken: string) {
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com", port: 465, secure: true,
     auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
   });
 
-  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXTAUTH_URL || "https://bilginpcmarket.com";
   const dateStr = new Date().toLocaleString("tr-TR", { timeZone: "Europe/Istanbul" });
 
   const mailHtml = `
-    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px;">
-      <div style="text-align: center; margin-bottom: 20px;">
-        <h2 style="color: #06b6d4; margin: 0; letter-spacing: 2px;">BİLGİN PC</h2>
-      </div>
-      <h2 style="color: #0f172a; text-align: center; margin-bottom: 20px;">Yeni Cihaz Onayı Gerekiyor</h2>
-      <p style="color: #334155; font-size: 16px; line-height: 1.6;">Merhaba,</p>
-      <p style="color: #334155; font-size: 16px; line-height: 1.6;">Hesabınıza daha önce kullanılmamış yeni bir cihazdan giriş yapılmaya çalışılıyor. Güvenliğiniz için bu işlemi onaylamanız gerekmektedir.</p>
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #020617; color: #ffffff; border-radius: 12px; border: 1px solid #1e293b;">
       
-      <div style="background-color: #f8fafc; padding: 20px; border-radius: 6px; margin: 25px 0; border: 1px solid #e2e8f0;">
-        <p style="margin: 8px 0; color: #475569;"><strong>Tarih/Saat:</strong> ${dateStr}</p>
-        <p style="margin: 8px 0; color: #475569;"><strong>Cihaz:</strong> <span style="color: #06b6d4; font-weight: bold;">${anlasilirCihaz}</span></p>
-        <p style="margin: 8px 0; color: #475569;"><strong>Konum:</strong> ${konum}</p>
-        <p style="margin: 8px 0; color: #475569;"><strong>IP Adresi:</strong> ${ip}</p>
+      <div style="text-align: center; margin-bottom: 25px;">
+        <h2 style="color: #06b6d4; margin: 0; letter-spacing: 3px; font-size: 28px;">BİLGİN PC</h2>
+        <p style="color: #64748b; margin-top: 5px; font-size: 14px;">Güvenlik Merkezi</p>
       </div>
 
-      <div style="text-align: center; margin-top: 30px; display: flex; flex-direction: column; gap: 15px;">
-        <a href="${baseUrl}/api/auth/device-action?token=${onayToken}&action=approve" style="display: block; background-color: #10b981; color: white; text-decoration: none; padding: 14px 24px; border-radius: 6px; font-weight: bold; text-align: center;">Bunu Ben Yaptım (Girişi Onayla)</a>
-        <a href="${baseUrl}/api/auth/device-action?token=${onayToken}&action=reject" style="display: block; background-color: #ef4444; color: white; text-decoration: none; padding: 14px 24px; border-radius: 6px; font-weight: bold; text-align: center;">Ben Değilim (Hesabı Kilitle)</a>
+      <h3 style="color: #f8fafc; text-align: center; border-bottom: 1px solid #1e293b; padding-bottom: 15px; margin-top: 0;">🛡️ Yeni Cihaz Onayı</h3>
+      
+      <p style="color: #94a3b8; font-size: 15px; line-height: 1.6; text-align: center;">
+        Hesabınıza daha önce kullanılmamış yeni bir cihazdan giriş yapılmaya çalışılıyor. Güvenliğiniz için bu işlemi onaylamanız gerekmektedir.
+      </p>
+      
+      <div style="background-color: #0f172a; padding: 20px; border-radius: 8px; margin: 25px 0; border: 1px solid #334155;">
+        <p style="margin: 8px 0; color: #94a3b8;"><strong>Tarih/Saat:</strong> <span style="color: #f8fafc;">${dateStr}</span></p>
+        <p style="margin: 8px 0; color: #94a3b8;"><strong>Cihaz:</strong> <span style="color: #06b6d4; font-weight: bold;">${anlasilirCihaz}</span></p>
+        <p style="margin: 8px 0; color: #94a3b8;"><strong>Konum:</strong> <span style="color: #10b981;">${konum}</span></p>
+        <p style="margin: 8px 0; color: #94a3b8;"><strong>IP Adresi:</strong> <span style="color: #f8fafc;">${ip}</span></p>
       </div>
+
+      <div style="text-align: center; margin-top: 30px;">
+        <div style="margin-bottom: 15px;">
+          <a href="${baseUrl}/api/auth/device-action?token=${onayToken}&action=approve" style="display: inline-block; width: 250px; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 14px 20px; border-radius: 6px; font-weight: bold; font-size: 15px; letter-spacing: 1px;">✅ GİRİŞİ ONAYLA</a>
+        </div>
+        <div>
+          <a href="${baseUrl}/api/auth/device-action?token=${onayToken}&action=reject" style="display: inline-block; width: 250px; background-color: #ef4444; color: #ffffff; text-decoration: none; padding: 14px 20px; border-radius: 6px; font-weight: bold; font-size: 15px; letter-spacing: 1px;">🚨 BEN DEĞİLİM (KİLİTLE)</a>
+        </div>
+      </div>
+      
+      <p style="color: #64748b; font-size: 12px; text-align: center; margin-top: 35px; border-top: 1px solid #1e293b; padding-top: 15px;">
+        Eğer bu işlemi siz yapmadıysanız, derhal kırmızı butona basarak hesabınızı güvence altına alın.
+      </p>
     </div>
   `;
 
   await transporter.sendMail({
     from: `"Bilgin PC Güvenlik" <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: "Cihaz Onayı Gerekiyor - Bilgin PC",
+    subject: "🛡️ Yeni Cihaz Onayı Gerekiyor - Bilgin PC",
     html: mailHtml
   });
 }
