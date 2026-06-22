@@ -7,11 +7,28 @@ import {
   Smartphone, Laptop, Mail, PowerOff, AlertTriangle, 
   Snowflake, Trash2, MapPin, Loader2, CheckCircle2, XCircle, Eye, EyeOff
 } from "lucide-react";
-import { useSession } from "next-auth/react";
+// 🚀 1. DEĞİŞİKLİK: signOut eklendi!
+import { useSession, signOut } from "next-auth/react"; 
 
 export default function GuvenlikPage() {
-  const { data: session } = useSession(); 
+  // 🚀 2. DEĞİŞİKLİK: update motoru eklendi!
+  const { data: session, update } = useSession(); 
   
+  // 🚀 3. DEĞİŞİKLİK: YENİ FIRLATMA KOLTUĞU (DEVRİYE) MOTORU BURAYA GELDİ
+  useEffect(() => {
+    // Eğer güvenlik görevlisi dosyaya "KickedOut" yazdıysa saniyesinde kapı dışarı at!
+    if ((session as any)?.error === "KickedOut") {
+      signOut({ callbackUrl: '/giris?alert=security_breach' });
+    }
+
+    // Adam sayfada boş boş dursa bile DEVRİYE at! (Her 5 saniyede bir çipi kontrol ettir)
+    const devriye = setInterval(() => {
+      update(); 
+    }, 5000); 
+
+    return () => clearInterval(devriye);
+  }, [session, update]);
+
   const [mevcutSifre, setMevcutSifre] = useState("");
   const [sifre, setSifre] = useState("");
   const [sifreTekrar, setSifreTekrar] = useState("");

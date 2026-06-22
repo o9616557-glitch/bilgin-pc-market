@@ -230,17 +230,14 @@ callbacks: {
       return token;
     },
 
-    // 🚀 ÖLÜM DAMGALI ADAMI SİSTEMDEN ATAN MOTOR
+   // 🚀 ÖLÜM DAMGALI ADAMI SİSTEMDEN ATAN MOTOR
     async session({ session, token }) {
-      // Eğer token'da ölüm damgası varsa adamın session'ını anında boşalt ve dışarı at!
+      // Eğer token'da ölüm damgası varsa adamın dosyasına kırmızı kalemle "KOVULDU" yaz!
       if (token.isLoggedOut) {
-         return {} as any; 
-      }
-
-      // Her şey yolundaysa normal çalışmaya devam et
-      if (session.user) { 
-        (session.user as any).id = token.id; 
-        (session.user as any).deviceId = token.deviceId; 
+         (session as any).error = "KickedOut";
+      } else if (session.user) {
+        (session.user as any).id = token.id;
+        (session.user as any).deviceId = token.deviceId;
       }
       return session;
     }
