@@ -430,14 +430,23 @@ export default function GuvenlikPage() {
                 </div>
               </div>
 
-              {ikiAdimDurum.mesaj && (
-                <div className={`mt-3 sm:mt-4 p-2.5 sm:p-3 rounded-xl border flex items-center gap-2 text-[10px] sm:text-xs font-bold transition-all ${
-                  ikiAdimDurum.tip === "hata" ? "bg-rose-500/10 border-rose-500/20 text-rose-400" : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                }`}>
-                  {ikiAdimDurum.tip === "hata" ? <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> : <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />}
-                  {ikiAdimDurum.mesaj}
+              {/* 🚀 ZIPLAMA ÖNLEYİCİ MESAJ KUTUSU (Sabit Yükseklik) */}
+              <div className="h-[48px] sm:h-[52px] mt-3 sm:mt-4">
+                <div 
+                  className={`h-full px-3 rounded-xl border flex items-center gap-2 text-[10px] sm:text-xs font-bold transition-all duration-500 ${
+                    ikiAdimDurum.mesaj 
+                      ? `opacity-100 transform translate-y-0 ${ikiAdimDurum.tip === "hata" ? "bg-rose-500/10 border-rose-500/20 text-rose-400" : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"}` 
+                      : "opacity-0 transform translate-y-2 pointer-events-none border-transparent"
+                  }`}
+                >
+                  {ikiAdimDurum.mesaj && (
+                    <>
+                      {ikiAdimDurum.tip === "hata" ? <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> : <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />}
+                      {ikiAdimDurum.mesaj}
+                    </>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           </div>
 
