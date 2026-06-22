@@ -190,7 +190,6 @@ callbacks: {
                 
                 const urlHata = alarmTipi === "TAM_KARANTINA" ? "Tam+Karantina+Aktif:+E-postanizi+onaylayin." : "Cihaz+onayi+gerekiyor.+E-postanizi+kontrol+edin.";
                 
-                // 🚀 DEĞİŞİKLİK BURADA: Robot anlasın diye URL'ye provider ve e-posta bilgisini gizlice yapıştırıyoruz!
                 const userMailEnc = encodeURIComponent(dbUser.email);
                 return `/giris?error=${urlHata}&provider=${account.provider}&userMail=${userMailEnc}`;
               }
@@ -205,12 +204,44 @@ callbacks: {
       }
       return true; 
     },
+
+    // 🚀 İŞTE LEHİMİN KOPTUĞU YER BURASIYDI:
     async jwt({ token, user }) {
-      if (user) { token.id = user.id; token.deviceId = (user as any).deviceId; }
+      // Adam ilk defa girdiğinde cebine cihaz ID'sini koy
+      if (user) { 
+        token.id = user.id; 
+        token.deviceId = (user as any).deviceId; 
+      }
+
+      // Adam sayfada gezinirken telsizle veritabanına sor: "Bu adamı başka cihazdan attılar mı?"
+      if (!user && token?.id && token?.deviceId) {
+        try {
+          if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
+          const dbUser = await User.findById(token.id).select("activeDevices");
+          if (dbUser) {
+            const buCihaz = dbUser.activeDevices.find((c: any) => c.deviceId === token.deviceId);
+            // Cihazı sildiysek veya isActive false yapıldıysa token'a "ÖLÜM DAMGASI" vur!
+            if (!buCihaz || buCihaz.isActive === false) {
+              return { ...token, isLoggedOut: true }; 
+            }
+          }
+        } catch (err) { console.error("Cihaz kontrol hatası:", err); }
+      }
       return token;
     },
+
+    // 🚀 ÖLÜM DAMGALI ADAMI SİSTEMDEN ATAN MOTOR
     async session({ session, token }) {
-      if (session.user) { (session.user as any).id = token.id; (session.user as any).deviceId = token.deviceId; }
+      // Eğer token'da ölüm damgası varsa adamın session'ını anında boşalt ve dışarı at!
+      if (token.isLoggedOut) {
+         return {} as any; 
+      }
+
+      // Her şey yolundaysa normal çalışmaya devam et
+      if (session.user) { 
+        (session.user as any).id = token.id; 
+        (session.user as any).deviceId = token.deviceId; 
+      }
       return session;
     }
   },
