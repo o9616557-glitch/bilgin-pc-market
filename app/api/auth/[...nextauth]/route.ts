@@ -10,13 +10,11 @@ import crypto from "crypto";
 import { headers } from "next/headers"; 
 
 // 🚀 HARİTA DEDEKTİFİ YARDIMCI MOTORU
-// Plakayı (IP) alır, internetten şehre çevirir. Kendi bilgisayarındayken "Yerel Ağ" yazar.
 async function konumuBul(ip: string) {
   try {
     if (ip === "127.0.0.1" || ip === "::1" || ip.includes("192.168") || ip === "Bilinmeyen IP") {
       return "Yerel Ağ (Localhost)";
     }
-    // Dünyanın en hızlı ücretsiz Türkçe harita servisine soruyoruz
     const res = await fetch(`http://ip-api.com/json/${ip}?lang=tr`);
     if (!res.ok) return "Bilinmeyen Konum";
     const data = await res.json();
@@ -26,6 +24,53 @@ async function konumuBul(ip: string) {
     return "Bilinmeyen Konum";
   } catch {
     return "Bilinmeyen Konum";
+  }
+}
+
+// 🚀 POSTACI MOTORU: ALARM DURUMUNDA ŞEFE MAİL ATAR
+async function guvenlikMailiGonder(email: string, alarmTipi: string, konum: string, ip: string, cihaz: string) {
+  try {
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const dateStr = new Date().toLocaleString("tr-TR", { timeZone: "Europe/Istanbul" });
+    const mailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #020617; color: #ffffff; border-radius: 12px; border: 1px solid #1e293b;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h2 style="color: #06b6d4; margin: 0; letter-spacing: 2px;">BİLGİN PC</h2>
+        </div>
+        <h3 style="color: #ef4444; text-align: center; border-bottom: 1px solid #1e293b; padding-bottom: 15px; margin-top: 0;">🚨 GÜVENLİK ALARMI</h3>
+        <p style="color: #e2e8f0; text-align: center; font-size: 16px; font-weight: bold;">${alarmTipi}</p>
+        <p style="color: #94a3b8; text-align: center; font-size: 14px;">Hesabınıza aşağıdaki bilgilerle bir giriş yapıldı.</p>
+        
+        <div style="background-color: #0f172a; padding: 20px; border-radius: 8px; margin-top: 25px; border: 1px solid #334155;">
+          <p style="margin: 8px 0; color: #94a3b8;"><strong>Tarih/Saat:</strong> <span style="color: #fff;">${dateStr}</span></p>
+          <p style="margin: 8px 0; color: #94a3b8;"><strong>Tahmini Konum:</strong> <span style="color: #10b981;">${konum}</span></p>
+          <p style="margin: 8px 0; color: #94a3b8;"><strong>IP Adresi:</strong> <span style="color: #fff;">${ip}</span></p>
+          <p style="margin: 8px 0; color: #94a3b8;"><strong>Cihaz Bilgisi:</strong> <span style="color: #fff; font-size: 12px;">${cihaz}</span></p>
+        </div>
+        
+        <p style="color: #64748b; font-size: 12px; text-align: center; margin-top: 25px; line-height: 1.5;">
+          Bu işlemi siz yapmadıysanız, derhal Bilgin PC Güvenlik Merkezi'ne gidip <strong>"Diğer Tüm Cihazlardan Çıkış Yap"</strong> butonuna basın ve şifrenizi değiştirin.
+        </p>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: `"Bilgin PC Güvenlik" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "🚨 Hesabınıza Giriş Yapıldı!",
+      html: mailHtml
+    });
+  } catch (error) {
+    console.error("Postacı Motoru Arıza Yaptı:", error);
   }
 }
 
@@ -97,7 +142,7 @@ export const authOptions: NextAuthOptions = {
                     <h2 style="color: #3b82f6; margin: 0; letter-spacing: 2px;">BİLGİN PC</h2>
                   </div>
                   <h3 style="color: #e2e8f0; text-align: center; border-bottom: 1px solid #1e293b; padding-bottom: 10px;">İki Adımlı Doğrulama</h3>
-                  <p style="color: #94a3b8; font-size: 16px; text-align: center;">Hesabınıza giriş yapmak için güvenlik kodunuz oluşturuldu.</p>
+                  <p style="color: #94a3b8; font-size: 16px; text-align: center;">Güvenlik kodunuz: <strong style="color: #10b981; font-size: 24px;">${generatedCode}</strong></p>
                 </div>
               `,
             };
@@ -120,15 +165,36 @@ export const authOptions: NextAuthOptions = {
         const ipAddress = req?.headers?.["x-forwarded-for"] || "Bilinmeyen IP";
         const newDeviceId = crypto.randomUUID();
         
-        // Dedektif çalışıyor 🕵️‍♂️
         const konumBilgisi = await konumuBul(ipAddress);
+
+        // 🕵️‍♂️ ŞEFİN DEDEKTİF MOTORU BAŞLIYOR (Cihazı kaydetmeden önce bakar)
+        const dahaOnceGirmisMi = user.activeDevices && user.activeDevices.some((c: any) => c.deviceInfo === userAgent);
+        const bildirimTercihi = user.notificationPreference || 'new_device';
+
+        let alarmVer = false;
+        let alarmMesaji = "";
+
+        if (bildirimTercihi === 'all') {
+          alarmVer = true;
+          alarmMesaji = "Yeni Bir Giriş İşlemi Gerçekleşti (Tam Karantina)";
+        } else if (bildirimTercihi === 'new_device' && !dahaOnceGirmisMi) {
+          alarmVer = true;
+          alarmMesaji = "Tanınmayan Yeni Bir Cihazdan Giriş Yapıldı (Akıllı Muhafız)";
+        }
+
+        if (alarmVer) {
+          // Postacıyı yola çıkar (Arkada çalışır, kullanıcının girişini yavaşlatmaz)
+          guvenlikMailiGonder(user.email, alarmMesaji, konumBilgisi, ipAddress, userAgent);
+        }
+        // 🕵️‍♂️ DEDEKTİF MOTORU BİTTİ
 
         user.activeDevices.push({
           deviceId: newDeviceId,
           deviceInfo: userAgent,
           ipAddress: ipAddress,
-          location: konumBilgisi, // Veritabanına şehir yazıldı! 🔐
-          lastActive: new Date()
+          location: konumBilgisi,
+          lastActive: new Date(),
+          isActive: true
         });
 
         await user.save();
@@ -157,15 +223,35 @@ export const authOptions: NextAuthOptions = {
             const ipAddress = headersList.get("x-forwarded-for") || headersList.get("x-real-ip") || "Bilinmeyen IP";
             const newDeviceId = crypto.randomUUID();
 
-            // Dedektif VIP kapısında çalışıyor 🕵️‍♂️
             const konumBilgisi = await konumuBul(ipAddress);
+
+            // 🕵️‍♂️ VIP KAPI DEDEKTİFİ BAŞLIYOR
+            const dahaOnceGirmisMi = dbUser.activeDevices && dbUser.activeDevices.some((c: any) => c.deviceInfo === userAgent);
+            const bildirimTercihi = dbUser.notificationPreference || 'new_device';
+
+            let alarmVer = false;
+            let alarmMesaji = "";
+
+            if (bildirimTercihi === 'all') {
+              alarmVer = true;
+              alarmMesaji = `${account.provider.toUpperCase()} Hesabı İle Giriş Yapıldı (Tam Karantina)`;
+            } else if (bildirimTercihi === 'new_device' && !dahaOnceGirmisMi) {
+              alarmVer = true;
+              alarmMesaji = `${account.provider.toUpperCase()} Üzerinden Yabancı Cihazla Giriş (Akıllı Muhafız)`;
+            }
+
+            if (alarmVer) {
+              guvenlikMailiGonder(dbUser.email, alarmMesaji, konumBilgisi, ipAddress, userAgent);
+            }
+            // 🕵️‍♂️ VIP DEDEKTİF BİTTİ
 
             dbUser.activeDevices.push({
               deviceId: newDeviceId,
               deviceInfo: userAgent,
               ipAddress: ipAddress,
-              location: konumBilgisi, // Veritabanına şehir yazıldı! 🔐
-              lastActive: new Date()
+              location: konumBilgisi,
+              lastActive: new Date(),
+              isActive: true
             });
 
             await dbUser.save();
