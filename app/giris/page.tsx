@@ -14,6 +14,7 @@ export default function GirisPage() {
   
   const [step, setStep] = useState(1);
   const [twoFactorCode, setTwoFactorCode] = useState("");
+  const [waitingForApproval, setWaitingForApproval] = useState(false); // 🚀 Otomatik kontrol tetikleyicisi
   
   const router = useRouter();
 
@@ -46,7 +47,7 @@ export default function GirisPage() {
 
   // 🚀 NORMAL GİRİŞ MOTORU
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault(); // Otomatik girişte hata vermemesi için koruma
 
     const loadingToast = toast.loading(step === 1 ? "Bilgileriniz kontrol ediliyor..." : "Güvenlik kodu doğrulanıyor...", toastAyari);
 
@@ -67,6 +68,7 @@ export default function GirisPage() {
         } 
         // Normal girişteki uyarıyı da süreli ve profesyonel hale getirdik
         else if (res.error.includes("Cihaz") || res.error.includes("KARANTINA")) {
+          setWaitingForApproval(true); // 🚀 Telefondan onay beklendiğini sisteme haber veriyoruz
           toast.error("Güvenliğiniz için cihaz onayı gerekiyor. Lütfen e-postanıza gönderilen bağlantıya tıklayınız. (Bağlantı 15 dakika geçerlidir)", { ...toastAyari, duration: 8000 });
         } 
         else {
@@ -85,7 +87,42 @@ export default function GirisPage() {
     }
   };
 
-  // 👇 BURADAN AŞAĞISINA (return kısmına ve HTML/Tasarım kodlarına) KESİNLİKLE DOKUNMUYORSUN!)
+  // 🚀 BİLGİSAYARIN TELEFONDAKİ ONAYI ANINDA ÇAKMASINI SAĞLAYAN OTOMATİK MOTOR
+  useEffect(() => {
+    let kontrolAraligi: NodeJS.Timeout;
+
+    // Hem linkle gelindiğinde hem de formdan şifre yazıp kilit ekranına takılındığında tetiklenir
+    const onayBekliyorMu = waitingForApproval || (urlError && (urlError.includes("Cihaz") || urlError.includes("Karantina")));
+
+    if (onayBekliyorMu && email) {
+      kontrolAraligi = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/auth/check-device-status?email=${encodeURIComponent(email)}`);
+          if (res.ok) {
+            const data = await res.json();
+
+            // 🎯 TELEFONDAN LİNKE TIKLANDIĞI AN BURASI ÇALIŞIR:
+            if (data.approved) {
+              clearInterval(kontrolAraligi); // Kontrolü bitir
+              setWaitingForApproval(false);
+              toast.success("Cihaz onayı telefondan alındı! Giriş yapılıyor...", { ...toastAyari, duration: 4000 });
+              
+              // Fareye bile dokundurtmadan otomatik sisteme sokuyoruz
+              handleLogin(new Event('submit') as any); 
+            }
+          }
+        } catch (err) {
+          console.error("Cihaz durumu sorgulanırken hata oluştu.");
+        }
+      }, 2500); // Her 2.5 saniyede bir arkadan çaktırmadan kontrol eder
+    }
+
+    return () => {
+      if (kontrolAraligi) clearInterval(kontrolAraligi);
+    };
+  }, [urlError, waitingForApproval, email]);
+
+  // 👇 BURADAN AŞAĞISINA (return kısmına ve HTML/Tasarım kodlarına) KESİNLİKLE DOKUNMUYORSUN!
   return (
     <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center p-0 md:p-4 relative overflow-hidden">
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#3b82f6] rounded-full mix-blend-screen filter blur-[150px] opacity-10"></div>
