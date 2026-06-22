@@ -73,7 +73,7 @@ async function guvenlikMailiGonder(email: string, alarmTipi: string, konum: stri
         </div>
         
         <p style="color: #64748b; font-size: 12px; text-align: center; margin-top: 25px; line-height: 1.5;">
-          Bu işlemi siz yapmadıysanız, derhal Bilgin PC Güvenlik Merkezi'ne gidip <strong>"Diğer Tüm Cihazlardan Çıkış Yap"</strong> butonuna basın ve şifrenizi değiştirin.
+          Bu işlemi siz yapmadıysanız, Bilgin PC Güvenlik Merkezi'ne gidip <strong>"Diğer Tüm Cihazlardan Çıkış Yap"</strong> butonuna basın ve şifrenizi değiştirin.
         </p>
       </div>
     `;
