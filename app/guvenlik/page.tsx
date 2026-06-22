@@ -327,15 +327,20 @@ export default function GuvenlikPage() {
             <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col h-full relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-[60px] pointer-events-none rounded-full"></div>
               
-              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-800/80">
+            {/* 🚀 ÜSTTEKİ ZIPLAMA ÇÖZÜLDÜ: relative ve min-h eklendi, Kaydediliyor radarı havaya (absolute) asıldı! */}
+              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-800/80 relative min-h-[44px] sm:min-h-[52px]">
                 <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
-                <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">İki Adımlı Doğrulama</h2>
+                {/* Telefondaysa sağdan biraz boşluk bırakır ki havada asılı yazıyla üst üste binmesin (pr-20) */}
+                <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider pr-20 sm:pr-0">İki Adımlı Doğrulama</h2>
                 
-                {ikiAdimYukleniyor && (
-                  <div className="ml-auto flex items-center gap-1.5 text-[9px] sm:text-[10px] text-cyan-400 font-bold uppercase tracking-widest bg-cyan-500/10 px-2 py-1 rounded-md border border-cyan-500/20">
-                    <Loader2 className="w-3 h-3 animate-spin" /> Kaydediliyor...
-                  </div>
-                )}
+                {/* 🎯 "Kaydediliyor" radarı artık havada asılı duruyor, asla aşağıyı ittiremez! */}
+                <div className={`absolute right-0 top-0 sm:top-1 flex items-center gap-1.5 text-[9px] sm:text-[10px] text-cyan-400 font-bold uppercase tracking-widest bg-cyan-500/10 px-2 py-1 rounded-md border border-cyan-500/20 transition-all duration-300 ${
+                  ikiAdimYukleniyor ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
+                }`}>
+                  <Loader2 className="w-3 h-3 animate-spin" /> 
+                  <span className="hidden sm:inline">Kaydediliyor...</span>
+                  <span className="inline sm:hidden">Kayıt...</span>
+                </div>
               </div>
 
               <p className="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6">
