@@ -7,27 +7,13 @@ import {
   Smartphone, Laptop, Mail, PowerOff, AlertTriangle, 
   Snowflake, Trash2, MapPin, Loader2, CheckCircle2, XCircle, Eye, EyeOff
 } from "lucide-react";
-// 🚀 1. DEĞİŞİKLİK: signOut eklendi!
+// 🚀 1. DEĞİŞİKLİK: signOut eklendiğinden emin ol!
 import { useSession, signOut } from "next-auth/react"; 
 
 export default function GuvenlikPage() {
-  // 🚀 2. DEĞİŞİKLİK: update motoru eklendi!
-  const { data: session, update } = useSession(); 
-  
-  // 🚀 3. DEĞİŞİKLİK: YENİ FIRLATMA KOLTUĞU (DEVRİYE) MOTORU BURAYA GELDİ
-  useEffect(() => {
-    // Eğer güvenlik görevlisi dosyaya "KickedOut" yazdıysa saniyesinde kapı dışarı at!
-    if ((session as any)?.error === "KickedOut") {
-      signOut({ callbackUrl: '/giris?alert=security_breach' });
-    }
-
-    // Adam sayfada boş boş dursa bile DEVRİYE at! (Her 5 saniyede bir çipi kontrol ettir)
-    const devriye = setInterval(() => {
-      update(); 
-    }, 5000); 
-
-    return () => clearInterval(devriye);
-  }, [session, update]);
+  // 🚀 2. DEĞİŞİKLİK: update motorunu sildik, sadece session ve mevcutCihazId var!
+  const { data: session } = useSession(); 
+  const mevcutCihazId = (session?.user as any)?.deviceId; 
 
   const [mevcutSifre, setMevcutSifre] = useState("");
   const [sifre, setSifre] = useState("");
@@ -47,7 +33,7 @@ export default function GuvenlikPage() {
   const [cihazlarYukleniyor, setCihazlarYukleniyor] = useState(true);
   const [cikisYukleniyor, setCikisYukleniyor] = useState(false);
 
-  // 🚀 TERBİYE EDİLMİŞ ÇIRAK: Sadece radar günceller, şalterlere dokunmaz
+  // 🚀 3. DEĞİŞİKLİK: KESKİN NİŞANCI ÇIRAK (Hem radarı çizer hem de adamı kovarsa kapı dışarı eder!)
   useEffect(() => {
     const ayarlariGetir = async (ilkYukleme = false) => {
       try {
@@ -61,7 +47,20 @@ export default function GuvenlikPage() {
           }
           
           if (data.activeDevices) {
-            const siraliCihazlar = data.activeDevices.sort((a: any, b: any) => 
+            
+            // 🎯 A) FIRLATMA KOLTUĞU KONTROLÜ: Benim bu cihazım hala yaşıyor mu?
+            if (mevcutCihazId) {
+              const benimCihaz = data.activeDevices.find((c: any) => c.deviceId === mevcutCihazId);
+              // Eğer benim cihazım listede yoksa veya isActive: false yapıldıysa:
+              if (!benimCihaz || benimCihaz.isActive === false) {
+                 signOut({ callbackUrl: '/giris?alert=security_breach' }); // ACIMADAN FİŞİ ÇEK!
+                 return; 
+              }
+            }
+
+            // 🎯 B) RADAR GÜNCELLEMESİ: Sadece yaşayanları ekranda göster (Ölüler gizlenir)
+            const yasayanCihazlar = data.activeDevices.filter((c: any) => c.isActive !== false);
+            const siraliCihazlar = yasayanCihazlar.sort((a: any, b: any) => 
               new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime()
             );
             setAktifCihazlar(siraliCihazlar);
@@ -76,12 +75,13 @@ export default function GuvenlikPage() {
     
     ayarlariGetir(true); 
 
+    // Çırak her 5 saniyede bir depoya gidip hem radara hem senin hayatta olup olmadığına bakar
     const cirak = setInterval(() => {
       ayarlariGetir(false);
-    }, 10000);
+    }, 5000); 
 
     return () => clearInterval(cirak); 
-  }, []); 
+  }, [mevcutCihazId]); 
 
   const sifreGucuHesapla = (s: string) => {
     let guc = 0;
