@@ -21,31 +21,33 @@ export default function GirisPage() {
   const urlMessage = searchParams?.get("message");
   const urlError = searchParams?.get("error");
   const urlAlert = searchParams?.get("alert");
-// 🚀 TELEFONLARDA TAM ORTALANAN VE PROFESYONEL BİLDİRİM MOTORU
-  useEffect(() => {
-    const toastAyari = { 
-      duration: 5000, 
-      style: { textAlign: 'center' as const } // Telefonda yazıları tam ortalar, kenara kaçırmaz
-    };
 
+  // 🚀 TELEFONLARDA TAM ORTALAMA AYARI (Artık tüm bildirimleri kapsıyor)
+  const toastAyari = { 
+    style: { textAlign: 'center' as const } 
+  };
+
+  // 🚀 URL'DEN GELEN BİLDİRİMLER
+  useEffect(() => {
     if (urlMessage === "device_approved") {
-      toast.success("Cihazınız başarıyla doğrulandı. Sisteme güvenle giriş yapabilirsiniz.", toastAyari);
+      toast.success("Cihazınız başarıyla doğrulandı. Sisteme güvenle giriş yapabilirsiniz.", { ...toastAyari, duration: 5000 });
     }
     if (urlAlert === "security_breach") {
-      toast.error("Güvenliğiniz için bu giriş işlemi sistem tarafından iptal edilmiştir.", toastAyari);
+      toast.error("Güvenliğiniz için bu giriş işlemi sistem tarafından iptal edilmiştir.", { ...toastAyari, duration: 5000 });
     }
     if (urlError === "token_expired") {
-      toast.error("Doğrulama bağlantısının süresi dolmuştur. Lütfen tekrar giriş yapmayı deneyiniz.", toastAyari);
+      toast.error("Doğrulama bağlantısının süresi dolmuştur. Lütfen tekrar giriş yapmayı deneyiniz.", { ...toastAyari, duration: 5000 });
     }
     if (urlError && (urlError.includes("Cihaz") || urlError.includes("Karantina"))) {
-      toast.error("Güvenliğiniz için cihaz onayı gerekiyor. Lütfen e-postanıza gönderilen bağlantıya tıklayınız. (Bağlantı 15 dakika geçerlidir)", { duration: 8000, style: { textAlign: 'center' } });
+      toast.error("Güvenliğiniz için cihaz onayı gerekiyor. Lütfen e-postanıza gönderilen bağlantıya tıklayınız. (Bağlantı 15 dakika geçerlidir)", { ...toastAyari, duration: 8000 });
     }
   }, [urlMessage, urlAlert, urlError]);
 
+  // 🚀 NORMAL GİRİŞ MOTORU
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const loadingToast = toast.loading(step === 1 ? "Bilgileriniz kontrol ediliyor..." : "Güvenlik kodu doğrulanıyor...");
+    const loadingToast = toast.loading(step === 1 ? "Bilgileriniz kontrol ediliyor..." : "Güvenlik kodu doğrulanıyor...", toastAyari);
 
     try {
       const res = await signIn("credentials", {
@@ -60,30 +62,29 @@ export default function GirisPage() {
         
         if (res.error === "2FA_REQUIRED") {
           setStep(2); 
-          toast.success("E-posta adresinize 6 haneli güvenlik kodunuz gönderilmiştir.", { duration: 5000 });
+          toast.success("E-posta adresinize 6 haneli güvenlik kodunuz gönderilmiştir.", { ...toastAyari, duration: 5000 });
         } 
-        // Normal girişten gelen Karantina/Cihaz uyarılarını da profesyonelleştirdik
+        // Normal girişteki uyarıyı da süreli ve profesyonel hale getirdik
         else if (res.error.includes("Cihaz") || res.error.includes("KARANTINA")) {
-          toast.error("Güvenliğiniz bizim için önemlidir. Lütfen e-posta adresinize gönderilen onay bağlantısına tıklayınız.", { duration: 7000 });
+          toast.error("Güvenliğiniz için cihaz onayı gerekiyor. Lütfen e-postanıza gönderilen bağlantıya tıklayınız. (Bağlantı 15 dakika geçerlidir)", { ...toastAyari, duration: 8000 });
         } 
         else {
           // Yanlış şifre vb. standart hatalar
-          toast.error(res.error, { duration: 4000 }); 
+          toast.error(res.error, { ...toastAyari, duration: 4000 }); 
         }
       } else {
         toast.dismiss(loadingToast);
-        toast.success("Giriş işlemi başarılı. Hesabınıza yönlendiriliyorsunuz...");
+        toast.success("Giriş işlemi başarılı. Hesabınıza yönlendiriliyorsunuz...", { ...toastAyari, duration: 3000 });
         router.push("/");
         router.refresh();
       }
     } catch (err) {
       toast.dismiss(loadingToast);
-      toast.error("Sunucuya bağlanırken beklenmeyen bir hata oluştu.");
+      toast.error("Sunucuya bağlanırken beklenmeyen bir hata oluştu.", toastAyari);
     }
-    
   };
 
-  // 👇 BURADAN AŞAĞISINA HİÇ DOKUNMUYORSUN (return ( ... ) kısmı aynen kalıyor)
+  // 👇 BURADAN AŞAĞISINA (return kısmına ve HTML/Tasarım kodlarına) KESİNLİKLE DOKUNMUYORSUN!)
   return (
     <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center p-0 md:p-4 relative overflow-hidden">
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#3b82f6] rounded-full mix-blend-screen filter blur-[150px] opacity-10"></div>
