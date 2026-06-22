@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, Lock, ArrowLeft, ArrowRight, UserCircle2, Eye, EyeOff, ShieldCheck } from "lucide-react";
@@ -14,7 +14,7 @@ export default function GirisPage() {
   
   const [step, setStep] = useState(1);
   const [twoFactorCode, setTwoFactorCode] = useState("");
-  const [waitingForApproval, setWaitingForApproval] = useState(false); // 🚀 Otomatik kontrol tetikleyicisi
+  const [waitingForApproval, setWaitingForApproval] = useState(false); 
   
   const router = useRouter();
 
@@ -23,10 +23,13 @@ export default function GirisPage() {
   const urlError = searchParams?.get("error");
   const urlAlert = searchParams?.get("alert");
 
+  // 🚀 ROBOTUN HAFIZASINI SÜREKLİ TAZE TUTACAK GİZLİ ÇİP
+  const handleLoginRef = useRef<any>(null);
+
   // 🚀 TELEFONLARDA KUTUYU VE YAZIYI TAM MERKEZE ÇİVİLEME AYARI
   const toastAyari = { 
-    position: 'top-center' as const, // Kutuyu ekranın tam ortasına alır
-    style: { textAlign: 'center' as const } // İçindeki yazıyı ortalar
+    position: 'top-center' as const, 
+    style: { textAlign: 'center' as const } 
   };
 
   // 🚀 URL'DEN GELEN BİLDİRİMLER
@@ -45,9 +48,8 @@ export default function GirisPage() {
     }
   }, [urlMessage, urlAlert, urlError]);
 
-// 🚀 NORMAL GİRİŞ MOTORU (Artık robotlar da hatasız tetikleyebilir)
+  // 🚀 NORMAL GİRİŞ MOTORU (Artık robotlar da hatasız tetikleyebilir)
   const handleLogin = async (e?: React.FormEvent) => {
-    // Sadece gerçek müşteri tıklarsa engelleme çalışır, robot otomatik girerse hata vermez
     if (e && typeof e.preventDefault === 'function') e.preventDefault(); 
 
     const loadingToast = toast.loading(step === 1 ? "Bilgileriniz kontrol ediliyor..." : "Güvenlik kodu doğrulanıyor...", toastAyari);
@@ -68,7 +70,7 @@ export default function GirisPage() {
           toast.success("E-posta adresinize 6 haneli güvenlik kodunuz gönderilmiştir.", { ...toastAyari, duration: 5000 });
         } 
         else if (res.error.includes("Cihaz") || res.error.includes("KARANTINA")) {
-          setWaitingForApproval(true); // Telefondan onay beklendiğini bildir
+          setWaitingForApproval(true); 
           toast.error("Güvenliğiniz için cihaz onayı gerekiyor. Lütfen e-postanıza gönderilen bağlantıya tıklayınız. (Bağlantı 15 dakika geçerlidir)", { ...toastAyari, duration: 8000 });
         } 
         else {
@@ -85,6 +87,11 @@ export default function GirisPage() {
       toast.error("Sunucuya bağlanırken beklenmeyen bir hata oluştu.", toastAyari);
     }
   };
+
+  // 🚀 SEN KLAVYEYE DOKUNDUĞUN AN ŞİFREYİ ROBOTUN BEYNİNE YAZDIRAN KOD
+  useEffect(() => {
+    handleLoginRef.current = handleLogin;
+  });
 
   // 🚀 BİLGİSAYARIN TELEFONDAKİ ONAYI ANINDA ÇAKMASINI SAĞLAYAN OTOMATİK MOTOR
   useEffect(() => {
@@ -104,8 +111,10 @@ export default function GirisPage() {
               setWaitingForApproval(false);
               toast.success("Cihaz onayı telefondan alındı! Giriş yapılıyor...", { ...toastAyari, duration: 4000 });
               
-              // 🎯 İŞTE HATAYI ÇÖZEN YER: Sahte parmak yerine direkt gerçek motoru çalıştırıyoruz!
-              handleLogin(); 
+              // 🎯 İŞTE SİHİR BURADA: Robot artık eski hafızasıyla değil, senin yazdığın en güncel şifreyle tetikliyor!
+              if (handleLoginRef.current) {
+                handleLoginRef.current(); 
+              }
             }
           }
         } catch (err) {
@@ -117,8 +126,7 @@ export default function GirisPage() {
     return () => {
       if (kontrolAraligi) clearInterval(kontrolAraligi);
     };
-  // 🎯 HAFIZA GÜNCELLEMESİ: Parola ve 6 haneli kodu da robota öğrettik ki unutmasın!
-  }, [urlError, waitingForApproval, email, password, step, twoFactorCode]);
+  }, [urlError, waitingForApproval, email]); 
 
   // 👇 BURADAN AŞAĞISINA (return kısmına ve HTML/Tasarım kodlarına) KESİNLİKLE DOKUNMUYORSUN!
   return (
