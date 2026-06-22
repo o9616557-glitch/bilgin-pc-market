@@ -4,11 +4,14 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
   User, ShieldCheck, CreditCard, Lock, KeyRound, 
-  Smartphone, Laptop, Mail, MessageSquare, 
-  PowerOff, AlertTriangle, Snowflake, Trash2, MapPin, Loader2, CheckCircle2, XCircle, Eye, EyeOff
+  Smartphone, Laptop, Mail, PowerOff, AlertTriangle, 
+  Snowflake, Trash2, MapPin, Loader2, CheckCircle2, XCircle, Eye, EyeOff
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 export default function GuvenlikPage() {
+  const { data: session } = useSession(); // 🚀 Dükkana giren adamın kimliğini (çipini) aldık
+  
   // 🔑 ŞİFRE YÖNETİMİ HAFIZALARI
   const [mevcutSifre, setMevcutSifre] = useState("");
   const [sifre, setSifre] = useState("");
@@ -19,36 +22,45 @@ export default function GuvenlikPage() {
   const [islemDurumu, setIslemDurumu] = useState({ tip: "", mesaj: "" });
   const [yukleniyor, setYukleniyor] = useState(false);
 
-  // 🛡️ 2FA (İKİ ADIMLI DOĞRULAMA) HAFIZALARI
-  // 🚀 Başlangıçta ikisini de false (kapalı) yapıyoruz ki veritabanından gelene kadar kapalı dursun
+  // 🛡️ 2FA (İKİ ADIMLI DOĞRULAMA) HAFIZALARI (SMS Kaldırıldı)
   const [ikiAdimEmail, setIkiAdimEmail] = useState(false);
-  const [ikiAdimSms, setIkiAdimSms] = useState(false);
   const [ikiAdimDurum, setIkiAdimDurum] = useState({ tip: "", mesaj: "" });
   const [ikiAdimYukleniyor, setIkiAdimYukleniyor] = useState(false);
 
-// =========================================================
-  // 🚀 YENİ MOTOR: SAYFA AÇILDIĞINDA GERÇEK AYARLARI DEPODAN ÇEK
+  // 💻 AKTİF CİHAZLAR HAFIZASI (Gerçek Radar)
+  const [aktifCihazlar, setAktifCihazlar] = useState<any[]>([]);
+  const [cihazlarYukleniyor, setCihazlarYukleniyor] = useState(true);
+  const [cikisYukleniyor, setCikisYukleniyor] = useState(false);
+
+  // =========================================================
+  // 🚀 YENİ MOTOR: SAYFA AÇILDIĞINDA GERÇEK AYARLARI VE CİHAZLARI DEPODAN ÇEK
   // =========================================================
   useEffect(() => {
     const ayarlariGetir = async () => {
       try {
-        // 🚀 ŞEFİM DİKKAT: Buraya { cache: 'no-store' } ekledik. 
-        // Anlamı: "Geçmişi unut, her F5 atıldığında gidip veritabanına canlı canlı bak!"
         const res = await fetch("/api/user/get-2fa", { cache: 'no-store' }); 
         if (res.ok) {
           const data = await res.json();
-          // Arka depodan (Veritabanından) gelen gerçek ayarı şalterlere yansıt
           setIkiAdimEmail(data.twoFactorEmail);
-          setIkiAdimSms(data.twoFactorSms);
+          // 🚀 Arka depodan gelen gerçek cihazları vitrine aldık
+          if (data.activeDevices) {
+            // Cihazları tarihe göre (en yeni en üstte) sıralayalım
+            const siraliCihazlar = data.activeDevices.sort((a: any, b: any) => 
+              new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime()
+            );
+            setAktifCihazlar(siraliCihazlar);
+          }
         }
       } catch (error) {
         console.error("Ayarlar çekilemedi:", error);
+      } finally {
+        setCihazlarYukleniyor(false);
       }
     };
     
     ayarlariGetir();
   }, []); 
-  // =========================================================
+
   // Şifre Gücü Hesaplama
   const sifreGucuHesapla = (s: string) => {
     let guc = 0;
@@ -110,7 +122,7 @@ export default function GuvenlikPage() {
       const res = await fetch("/api/user/update-2fa", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ twoFactorEmail: ikiAdimEmail, twoFactorSms: ikiAdimSms }),
+        body: JSON.stringify({ twoFactorEmail: ikiAdimEmail, twoFactorSms: false }), // SMS her zaman false gidiyor
       });
       const data = await res.json();
       
@@ -118,7 +130,6 @@ export default function GuvenlikPage() {
         setIkiAdimDurum({ tip: "hata", mesaj: data.message || "Ayarlar kaydedilemedi." });
       } else {
         setIkiAdimDurum({ tip: "basari", mesaj: "Güvenlik ayarları kaydedildi!" });
-        // Başarı mesajını 3 saniye sonra ekrandan sil
         setTimeout(() => setIkiAdimDurum({ tip: "", mesaj: "" }), 3000);
       }
     } catch (error) {
@@ -127,14 +138,23 @@ export default function GuvenlikPage() {
       setIkiAdimYukleniyor(false);
     }
   };
+
+  // 🚀 MOTOR 3: DİĞER CİHAZLARDAN ÇIKIŞ YAP (Kablosu şimdilik bağlandı, arka depoyu sonra yapacağız)
+  const handleDigerCihazlardanCikis = async () => {
+    // Burada adama bir "Emin misin?" popup'ı çıkaracağız ama şimdilik sadece loading yansıtıyorum
+    setCikisYukleniyor(true);
+    alert("Şefim bu butonun arka depo bağlantısını (API'sini) bir sonraki adımda yazacağız!");
+    setCikisYukleniyor(false);
+  };
+
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
-      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-6 relative z-10">
+      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-6 relative z-10 items-start">
         
-        {/* SOL MENÜ */}
-        <div className="w-full lg:w-64 shrink-0 flex flex-col gap-2 sticky top-28 self-start z-20">
+        {/* SOL MENÜ (Seninle Beraber İnen Kısım - sticky top-28) */}
+        <div className="w-full lg:w-64 shrink-0 flex flex-col gap-2 sticky top-28 z-20">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-xl">
             <nav className="flex flex-col gap-1.5">
               <Link href="/hesabim" className="flex items-center gap-3 px-4 py-3.5 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
@@ -150,7 +170,8 @@ export default function GuvenlikPage() {
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col min-w-0 gap-6">
+        {/* SAĞ İÇERİK */}
+        <div className="flex-1 flex flex-col min-w-0 gap-6 w-full">
           
           {/* BAŞLIK */}
           <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden group">
@@ -246,7 +267,7 @@ export default function GuvenlikPage() {
               </form>
             </div>
 
-            {/* 📱 İKİ ADIMLI DOĞRULAMA PANELİ */}
+            {/* 📱 İKİ ADIMLI DOĞRULAMA PANELİ (Sadece Email Var) */}
             <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col h-full relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-[60px] pointer-events-none rounded-full"></div>
               
@@ -274,24 +295,8 @@ export default function GuvenlikPage() {
                     <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform duration-300 ${ikiAdimEmail ? "translate-x-6" : "translate-x-0"}`}></div>
                   </button>
                 </div>
-
-                <div className="flex items-center justify-between p-4 bg-[#020617] border border-slate-800 rounded-xl">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-slate-800/50 flex items-center justify-center">
-                      <MessageSquare className="w-5 h-5 text-slate-300" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-white">SMS Onayı</p>
-                      <p className="text-[10px] text-slate-500 font-medium">Telefon numaranıza SMS gönderilir.</p>
-                    </div>
-                  </div>
-                  <button onClick={() => setIkiAdimSms(!ikiAdimSms)} className={`w-12 h-6 rounded-full relative transition-colors duration-300 outline-none ${ikiAdimSms ? "bg-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.4)]" : "bg-slate-700"}`}>
-                    <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform duration-300 ${ikiAdimSms ? "translate-x-6" : "translate-x-0"}`}></div>
-                  </button>
-                </div>
               </div>
 
-              {/* UYARI MESAJI (2FA İÇİN) */}
               {ikiAdimDurum.mesaj && (
                 <div className={`mt-4 p-3 rounded-xl border flex items-center gap-2 text-xs font-bold ${
                   ikiAdimDurum.tip === "hata" ? "bg-rose-500/10 border-rose-500/20 text-rose-400" : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
@@ -311,7 +316,7 @@ export default function GuvenlikPage() {
             </div>
           </div>
 
-          {/* DİĞER KISIMLAR (AKTİF CİHAZLAR VE HESAP İŞLEMLERİ) */}
+          {/* 💻 CANLI AKTİF CİHAZLAR RADARI */}
           <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col">
             <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800/80">
               <Laptop className="w-5 h-5 text-emerald-400" />
@@ -320,34 +325,63 @@ export default function GuvenlikPage() {
             </div>
 
             <div className="flex flex-col gap-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#020617] border border-emerald-500/20 rounded-xl relative overflow-hidden group">
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 shadow-[0_0_10px_#10b981]"></div>
-                
-                <div className="flex items-start sm:items-center gap-4 pl-3">
-                  <div className="relative shrink-0 mt-1 sm:mt-0">
-                    <Laptop className="w-8 h-8 text-slate-300" />
-                    <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border border-[#020617]"></span>
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-white flex items-center gap-2">
-                      Windows 11 PC - Google Chrome
-                      <span className="text-[9px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded font-black uppercase tracking-widest border border-emerald-500/20">Şu An</span>
-                    </p>
-                    <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
-                      <MapPin className="w-3 h-3" /> İstanbul, Türkiye
-                    </p>
-                  </div>
+              {cihazlarYukleniyor ? (
+                <div className="flex justify-center p-8">
+                  <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
                 </div>
+              ) : aktifCihazlar.length === 0 ? (
+                <div className="text-center p-8 text-slate-500 font-medium">Kayıtlı cihaz bulunamadı.</div>
+              ) : (
+                aktifCihazlar.map((cihaz, index) => {
+                  // Cihazın senin şu an girdiğin cihaz olup olmadığını çipten anlıyoruz
+                  const buCihazMi = (session?.user as any)?.deviceId === cihaz.deviceId;
+                  // Cihazın simgesini belirle (Mobilden mi girmiş PC'den mi)
+                  const isMobile = cihaz.deviceInfo.toLowerCase().includes('mobile');
+                  
+                  return (
+                    <div key={cihaz.deviceId || index} className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#020617] border rounded-xl relative overflow-hidden group ${buCihazMi ? "border-emerald-500/30" : "border-slate-800"}`}>
+                      {buCihazMi && <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 shadow-[0_0_10px_#10b981]"></div>}
+                      
+                      <div className="flex items-start sm:items-center gap-4 pl-3">
+                        <div className="relative shrink-0 mt-1 sm:mt-0">
+                          {isMobile ? <Smartphone className={`w-8 h-8 ${buCihazMi ? "text-emerald-400" : "text-slate-500"}`} /> : <Laptop className={`w-8 h-8 ${buCihazMi ? "text-emerald-400" : "text-slate-500"}`} />}
+                          {buCihazMi && (
+                            <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border border-[#020617]"></span>
+                            </span>
+                          )}
+                        </div>
+                        <div>
+                          <p className={`text-sm font-bold flex flex-wrap items-center gap-2 ${buCihazMi ? "text-white" : "text-slate-300"}`}>
+                            {cihaz.deviceInfo.length > 30 ? cihaz.deviceInfo.substring(0, 30) + "..." : cihaz.deviceInfo}
+                            {buCihazMi && <span className="text-[9px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded font-black uppercase tracking-widest border border-emerald-500/20">Bu Cihaz</span>}
+                          </p>
+                          <p className="text-xs text-slate-500 mt-1 flex items-center gap-3">
+                            <span className="flex items-center gap-1.5"><MapPin className="w-3 h-3" /> {cihaz.ipAddress}</span>
+                            <span>|</span>
+                            <span>{new Date(cihaz.lastActive).toLocaleDateString("tr-TR", {day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit'})}</span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {aktifCihazlar.length > 1 && (
+              <div className="mt-6 flex justify-end">
+                <button 
+                  onClick={handleDigerCihazlardanCikis}
+                  disabled={cikisYukleniyor}
+                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-red-950/40 border border-red-900/50 hover:bg-red-900/60 text-red-400 hover:text-red-300 hover:border-red-500/50 transition-all font-black text-xs uppercase tracking-widest shadow-[0_0_20px_rgba(220,38,38,0.1)] disabled:opacity-50"
+                >
+                  {cikisYukleniyor ? <Loader2 className="w-4 h-4 animate-spin" /> : <PowerOff className="w-4 h-4" />}
+                  Diğer Tüm Cihazlardan Çıkış Yap
+                </button>
               </div>
-            </div>
-            <div className="mt-6 flex justify-end">
-              <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-red-950/40 border border-red-900/50 hover:bg-red-900/60 text-red-400 hover:text-red-300 hover:border-red-500/50 transition-all font-black text-xs uppercase tracking-widest shadow-[0_0_20px_rgba(220,38,38,0.1)]">
-                <PowerOff className="w-4 h-4" /> Diğer Tüm Cihazlardan Çıkış Yap
-              </button>
-            </div>
+            )}
           </div>
 
           <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col">
