@@ -450,20 +450,26 @@ export default function GuvenlikPage() {
                   </button>
                 </div>
               </div>
-
-              {/* 🚀 ZIPLAMA ÖNLEYİCİ MESAJ KUTUSU (Sabit Yükseklik) */}
+{/* 🚀 SAĞ TARAFIN AKILLI İPUCU KUTUSU (Sabit Yükseklik, Taşmaz, Zıplamaz) */}
               <div className="h-[48px] sm:h-[52px] mt-3 sm:mt-4">
                 <div 
-                  className={`h-full px-3 rounded-xl border flex items-center gap-2 text-[10px] sm:text-xs font-bold transition-all duration-500 ${
+                  className={`h-full px-3 rounded-xl border flex items-center gap-2 text-[10px] sm:text-xs font-bold transition-colors duration-300 overflow-hidden ${
                     ikiAdimDurum.mesaj 
-                      ? `opacity-100 transform translate-y-0 ${ikiAdimDurum.tip === "hata" ? "bg-rose-500/10 border-rose-500/20 text-rose-400" : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"}` 
-                      : "opacity-0 transform translate-y-2 pointer-events-none border-transparent"
+                      ? (ikiAdimDurum.tip === "hata" 
+                          ? "bg-rose-500/10 border-rose-500/20 text-rose-400" 
+                          : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400")
+                      : "bg-emerald-500/5 border-emerald-500/10 text-emerald-400/60" // 🚀 Soluk Yeşil Sabit İpucu
                   }`}
                 >
-                  {ikiAdimDurum.mesaj && (
+                  {ikiAdimDurum.mesaj ? (
                     <>
                       {ikiAdimDurum.tip === "hata" ? <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> : <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />}
-                      {ikiAdimDurum.mesaj}
+                      <span className="truncate">{ikiAdimDurum.mesaj}</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 opacity-70" />
+                      <span className="truncate">Bilgi: Tercihleriniz anında sunucuya kaydedilir.</span>
                     </>
                   )}
                 </div>
