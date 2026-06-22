@@ -106,22 +106,7 @@ export const authOptions: NextAuthOptions = {
         const isPasswordMatch = await bcrypt.compare(credentials.password, user.password);
         if (!isPasswordMatch) throw new Error("Şifre hatalı, lütfen tekrar deneyin.");
 
-        // 2FA MOTORU
-        if (user.twoFactorEmail) {
-          const musteriKodu = (credentials.code === "undefined" || !credentials.code) ? "" : credentials.code;
-          if (musteriKodu === "") {
-            const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
-            user.twoFactorCode = generatedCode; user.twoFactorExpires = new Date(Date.now() + 3 * 60 * 1000);
-            await user.save();
-            const transporter = nodemailer.createTransport({ host: "smtp.gmail.com", port: 465, secure: true, auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }});
-            await transporter.sendMail({ from: `"Bilgin PC" <${process.env.EMAIL_USER}>`, to: credentials.email, subject: "Güvenlik Kodunuz", html: `<p>Kodunuz: <strong>${generatedCode}</strong></p>` });
-            throw new Error("2FA_REQUIRED");
-          }
-          if (musteriKodu !== "" && user.twoFactorCode !== musteriKodu.trim()) throw new Error("Geçersiz kod.");
-          user.twoFactorCode = undefined; user.twoFactorExpires = undefined;
-        }
-
-        // 🚀 CİHAZ VE KARANTİNA KONTROL MOTORU
+        // 🚀 BİRİNCİ AŞAMA: ÖNCE CİHAZ VE KARANTİNA KONTROL MOTORU (2FA Kodunu yakmadan önce cihaza bakılır)
         const userAgent = req?.headers?.["user-agent"] || "Bilinmeyen Cihaz";
         const ipAddress = req?.headers?.["x-forwarded-for"] || "Bilinmeyen IP";
         const anlasilirCihaz = cihazBilgisiCevir(userAgent);
@@ -130,11 +115,8 @@ export const authOptions: NextAuthOptions = {
         const suAnkiZaman = new Date();
         const biletVarMi = user.karantinaPass && user.karantinaPass > suAnkiZaman;
 
-        // Bilet varsa döngüyü kırıp direkt içeri alıyoruz!
-        if (biletVarMi) {
-          user.karantinaPass = undefined; // Bileti yırtıp çöpe atıyoruz ki bir dahaki sefere tekrar sorsun
-        } else {
-          // Bileti yoksa kurallara bakıyoruz
+        // Bilet varsa direkt geçecek, bilet yoksa karantina var mı diye kontrol edeceğiz
+        if (!biletVarMi) {
           const bildirimTercihi = user.notificationPreference || 'new_device';
           const cihazTanindikMi = user.trustedDevices && user.trustedDevices.includes(anlasilirCihaz);
           
@@ -155,10 +137,29 @@ export const authOptions: NextAuthOptions = {
             const ekrandakiHata = alarmTipi === "TAM_KARANTINA" 
               ? "TAM_KARANTINA: Giriş için e-postanıza gönderilen onayı verin." 
               : "Cihaz onayı gerekiyor. Lütfen e-postanızı kontrol edin.";
-            throw new Error(ekrandakiHata);
+            throw new Error(ekrandakiHata); // 🎯 Karantina varsa burada durur ve 2FA kodunu yakmaz!
           }
+        } else {
+            // Eğer VIP biletle geldiyse, bu girişten sonra bileti yırt (başka cihaz kullanmasın diye)
+            user.karantinaPass = undefined; 
         }
 
+        // 🚀 İKİNCİ AŞAMA: 2FA MOTORU (Cihaz onaylıysa veya karantinaya takılmadıysa buraya gelir)
+        if (user.twoFactorEmail) {
+          const musteriKodu = (credentials.code === "undefined" || !credentials.code) ? "" : credentials.code;
+          if (musteriKodu === "") {
+            const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+            user.twoFactorCode = generatedCode; user.twoFactorExpires = new Date(Date.now() + 3 * 60 * 1000);
+            await user.save();
+            const transporter = nodemailer.createTransport({ host: "smtp.gmail.com", port: 465, secure: true, auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }});
+            await transporter.sendMail({ from: `"Bilgin PC" <${process.env.EMAIL_USER}>`, to: credentials.email, subject: "Güvenlik Kodunuz", html: `<p>Kodunuz: <strong>${generatedCode}</strong></p>` });
+            throw new Error("2FA_REQUIRED");
+          }
+          if (musteriKodu !== "" && user.twoFactorCode !== musteriKodu.trim()) throw new Error("Geçersiz kod.");
+          user.twoFactorCode = undefined; user.twoFactorExpires = undefined; // 🎯 Kod sadece başarılı olunca yanar
+        }
+
+        // HER İKİ GÜVENLİK DE GEÇİLDİ: GİRİŞ BAŞARILI
         const newDeviceId = crypto.randomUUID();
         user.activeDevices.push({ deviceId: newDeviceId, deviceInfo: userAgent, ipAddress: ipAddress, location: konumBilgisi, lastActive: new Date(), isActive: true });
         await user.save();
@@ -199,7 +200,6 @@ export const authOptions: NextAuthOptions = {
                 await dbUser.save();
                 await guardMailiGonder(dbUser.email, anlasilirCihaz, konumBilgisi, ipAddress, onayToken, alarmTipi);
                 
-                // Google/Facebook için kırmızı hata linkini ayırdık
                 const urlHata = alarmTipi === "TAM_KARANTINA" ? "Tam+Karantina+Aktif:+E-postanizi+onaylayin." : "Cihaz+onayi+gerekiyor.+E-postanizi+kontrol+edin.";
                 return `/giris?error=${urlHata}`;
               }
