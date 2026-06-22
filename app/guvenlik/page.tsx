@@ -365,11 +365,14 @@ export default function GuvenlikPage() {
                             {/* 🚀 SADECE ELİNDEKİ CİHAZDA "BU CİHAZ" YAZAR */}
                             {buCihazMi && <span className="text-[9px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded font-black uppercase tracking-widest border border-emerald-500/20">Bu Cihaz</span>}
                           </p>
-                          <p className="text-xs text-slate-400 mt-1 flex items-center gap-3">
-                            <span className="flex items-center gap-1.5"><MapPin className="w-3 h-3" /> {cihaz.ipAddress}</span>
-                            <span>|</span>
-                            <span>{new Date(cihaz.lastActive).toLocaleDateString("tr-TR", {day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit'})}</span>
-                          </p>
+                      <p className="text-xs text-slate-400 mt-1 flex items-center gap-3">
+  <span className="flex items-center gap-1.5">
+    <MapPin className="w-3 h-3 text-emerald-400" /> 
+    {cihaz.location || "Bilinmeyen Konum"} ({cihaz.ipAddress})
+  </span>
+  <span>|</span>
+  <span>{new Date(cihaz.lastActive).toLocaleDateString("tr-TR", {day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit'})}</span>
+</p>
                         </div>
                       </div>
                     </div>
