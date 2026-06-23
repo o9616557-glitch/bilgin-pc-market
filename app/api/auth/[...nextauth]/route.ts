@@ -95,21 +95,25 @@ export const authOptions: NextAuthOptions = {
 
       const isPasswordMatch = await bcrypt.compare(credentials.password, user.password);
         if (!isPasswordMatch) throw new Error("Şifre hatalı, lütfen tekrar deneyin.");
+// 🧊 EĞER HESAP DONDURULMUŞSA ZİNCİRLERİ KIR (Buzu Çöz - Mongoose Sansürünü Aşarak)
+        // 1. Mongoose modelini boşverip direkt veritabanının kendisine soruyoruz: Adam donuk mu?
+        const hamKullanici = await mongoose.connection.db!.collection("users").findOne({ email: credentials.email });
 
-     // 🧊 EĞER HESAP DONDURULMUŞSA ZİNCİRLERİ KIR (Buzu Çöz)
-        if (user.isActive === false) {
-          user.isActive = true;
-          await user.save();
+        if (hamKullanici && hamKullanici.isActive === false) {
+          // 2. Adamın zincirini kır (Hesabı Aktif Et)
+          await mongoose.connection.db!.collection("users").updateOne(
+            { email: credentials.email },
+            { $set: { isActive: true } }
+          );
           
-          // Mongoose üzerinden doğrudan MongoDB'ye bağlanıp yorumları tekrar görünür yapıyoruz
-        await mongoose.connection.db!.collection("reviews").updateMany(
-            { email: user.email },
+          // 3. Yorumların üzerindeki görünmezlik pelerinini kaldır
+          await mongoose.connection.db!.collection("reviews").updateMany(
+            { email: credentials.email },
             { $set: { isVisible: true } }
           );
           
-          console.log("Buzlar kırıldı, yorumlar geri geldi!");
+          console.log("Zincirler kırıldı! Adam ve yorumları dükkana geri döndü!");
         }
-
         // 🚀 BİRİNCİ AŞAMA: ÖNCE CİHAZ VE KARANTİNA KONTROL MOTORU
         const userAgent = req?.headers?.["user-agent"] || "Bilinmeyen Cihaz";
         const ipAddress = req?.headers?.["x-forwarded-for"] || "Bilinmeyen IP";
