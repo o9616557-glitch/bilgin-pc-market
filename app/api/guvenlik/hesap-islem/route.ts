@@ -34,10 +34,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ hata: "Kullanıcı bulunamadı." }, { status: 404 });
     }
 
-    // 5. Şifre Doğrulama (Bcrypt ile kriptoyu çöz)
-    const sifreDogruMu = await bcrypt.compare(sifre, dbKullanici.password);
-    if (!sifreDogruMu) {
-      return NextResponse.json({ hata: "Girdiğiniz şifre hatalı." }, { status: 400 });
+   // 5. Şifre Doğrulama (Google ile girenlerde şifre olmadığı için bu adımı akıllıca yönetiyoruz)
+    if (dbKullanici.password) {
+      // Eğer kullanıcının veritabanında şifresi varsa (Normal e-posta ile üye olmuşsa) şifreyi kontrol et
+      const sifreDogruMu = await bcrypt.compare(sifre, dbKullanici.password);
+      if (!sifreDogruMu) {
+        return NextResponse.json({ hata: "Girdiğiniz şifre hatalı." }, { status: 400 });
+      }
+    } else {
+      // ŞEFİM DİKKAT: Eğer dbKullanici.password YOKSA, adam Google veya Facebook ile girmiş demektir.
+      // Zaten oturumu açık (session var), o yüzden şifre kontrolünü es geçip işleme onay veriyoruz.
     }
 
     // 🚀 6. ŞİFRE DOĞRUYSA İŞLEMİ ATEŞLE
