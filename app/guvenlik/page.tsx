@@ -669,21 +669,40 @@ export default function GuvenlikPage() {
             </button>
             <button 
               disabled={islemYukleniyor || islemSifresi.length < 6}
-              onClick={async () => {
+          onClick={async () => {
                 setIslemYukleniyor(true);
-                // 🚀 API KODU BURAYA GELECEK
-                setTimeout(() => {
-                  setIslemYukleniyor(false);
+                
+                try {
+                  // 🚀 Gerçek Telsiz Bağlantısı (API'ye İstek Atıyoruz)
+                  const response = await fetch('/api/guvenlik/hesap-islem', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                      islem: islemModali.tur, // 'dondur' veya 'sil'
+                      sifre: islemSifresi 
+                    })
+                  });
+
+                  const data = await response.json();
+
+                  if (!response.ok) {
+                    throw new Error(data.hata || "Bir hata oluştu şefim!");
+                  }
+// 🎯 İşlem Başarılıysa
+                  alert(islemModali.tur === 'sil' ? "Hesap kalıcı olarak silindi! Dükkandan çıkış yapılıyor..." : "Hesap başarıyla donduruldu! Dükkandan çıkış yapılıyor...");
+                  
                   setIslemModali({acik: false, tur: 'dondur'});
                   setIslemSifresi("");
-                  alert(islemModali.tur === 'sil' ? "Dükkan dinamitlendi!" : "Dükkan uykuya yattı!");
-                }, 1500);
+                  
+                  // 🚀 ADAMI SİSTEMDEN AT VE GİRİŞ SAYFASINA YOLLA
+                  await signOut({ callbackUrl: '/login' });
+                  
+                } catch (error: any) {
+                  alert(error.message); // Şifre yanlışsa ekrana uyarı basar
+                } finally {
+                  setIslemYukleniyor(false);
+                }
               }}
-              className={`flex-1 px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider text-white transition-all disabled:opacity-50 flex items-center justify-center gap-2 ${
-                islemModali.tur === 'sil' 
-                ? 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 shadow-[0_0_20px_rgba(225,29,72,0.2)]' 
-                : 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-[0_0_20px_rgba(37,99,235,0.2)]'
-              }`}
             >
               {islemYukleniyor 
                 ? <Loader2 className="w-4 h-4 animate-spin" /> 
