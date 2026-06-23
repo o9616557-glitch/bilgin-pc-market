@@ -30,10 +30,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ hata: "Kullanıcı bulunamadı!" }, { status: 404 });
     }
 
-    // 5. Şifre Doğrulama (Bcrypt ile kriptoyu çöz)
+   // 5. Şifre Doğrulama (Bcrypt ile kriptoyu çöz)
     const sifreDogruMu = await bcrypt.compare(sifre, dbKullanici.password);
     if (!sifreDogruMu) {
-      return NextResponse.json({ hata: "Girdiğiniz şifre hatalı usta!" }, { status: 400 });
+      return NextResponse.json({ hata: "Girdiğiniz şifre hatalı." }, { status: 400 });
     }
 
     // 🚀 6. ŞİFRE DOĞRUYSA İŞLEMİ ATEŞLE (SAF MONGODB KOMUTLARI)

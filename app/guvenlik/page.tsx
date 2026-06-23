@@ -716,11 +716,11 @@ export default function GuvenlikPage() {
                         throw new Error(data.hata || "Bir hata oluştu şefim!");
                       }
 
-                   // 🎯 İŞLEM BAŞARILI (Yeşil Ekran ve Samimi Veda)
+                // 🎯 İŞLEM BAŞARILI (Kısa ve Net)
                       setIslemBasariliMesaj(
                         islemModali.tur === 'sil' 
-                        ? "Hesabınız kalıcı olarak silindi. Aramızdan ayrıldığınız için gerçekten üzgünüz, sizi ileride tekrar aramızda görmeyi çok isteriz. Çıkış yapılıyor..." 
-                        : "Hesabınız başarıyla donduruldu. Sadece kısa bir mola verdik sayıyoruz, dükkanın kapısı size her zaman sonuna kadar açık! Çıkış yapılıyor..."
+                        ? "Hesabınız başarıyla silinmiştir. İyi günler dileriz." 
+                        : "Hesabınız başarıyla dondurulmuştur. İyi günler dileriz."
                       );
                       
                       // 2 saniye sonra adamı ZORLA giriş sayfasına atıyoruz
