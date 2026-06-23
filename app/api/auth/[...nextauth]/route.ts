@@ -96,11 +96,18 @@ export const authOptions: NextAuthOptions = {
       const isPasswordMatch = await bcrypt.compare(credentials.password, user.password);
         if (!isPasswordMatch) throw new Error("Şifre hatalı, lütfen tekrar deneyin.");
 
-        // 🧊 EĞER HESAP DONDURULMUŞSA ZİNCİRLERİ KIR (Buzu Çöz)
+     // 🧊 EĞER HESAP DONDURULMUŞSA ZİNCİRLERİ KIR (Buzu Çöz)
         if (user.isActive === false) {
           user.isActive = true;
           await user.save();
-          console.log("Buzlar kırıldı, müşteri dükkana geri döndü!");
+          
+          // Mongoose üzerinden doğrudan MongoDB'ye bağlanıp yorumları tekrar görünür yapıyoruz
+        await mongoose.connection.db!.collection("comments").updateMany(
+            { email: user.email },
+            { $set: { isVisible: true } }
+          );
+          
+          console.log("Buzlar kırıldı, yorumlar geri geldi!");
         }
 
         // 🚀 BİRİNCİ AŞAMA: ÖNCE CİHAZ VE KARANTİNA KONTROL MOTORU

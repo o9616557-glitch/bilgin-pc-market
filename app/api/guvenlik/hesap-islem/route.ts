@@ -4,51 +4,66 @@ import { getServerSession } from "next-auth";
 
 // ⚠️ ŞEFİN DİKKATİNE: Kendi auth ve mongodb bağlantı yollarını buraya yazmalısın
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"; 
-import clientPromise from "@/lib/mongodb"; // Saf MongoDB bağlantı dosyan (genelde böyledir)
+import clientPromise from "@/lib/mongodb"; // Saf MongoDB bağlantı dosyan
 
 export async function POST(req: Request) {
   try {
     // 1. Gelen Paketi Teslim Al
     const { islem, sifre } = await req.json();
 
-    // 2. Güvenlik Duvarı: Oturum Açmış Adamı Bul
+    // 2. Güvenlik Duvarı: Oturum Açmış Kullanıcıyı Bul
     const session = await getServerSession(authOptions);
     if (!session || !session.user || !session.user.email) {
-      return NextResponse.json({ hata: "Önce giriş yapmalısınız şefim!" }, { status: 401 });
+      return NextResponse.json({ hata: "Önce giriş yapmalısınız." }, { status: 401 });
     }
 
     // 3. SAF MONGODB'YE BAĞLAN
     const client = await clientPromise;
-    // ⚠️ DİKKAT: Veritabanı adını (test, mydatabase vs.) kendininkine göre ayarla
     const db = client.db(); 
-    // ⚠️ DİKKAT: Kullanıcıların olduğu koleksiyonun adını yaz (genelde 'users' olur)
+    
+    // Koleksiyonları Tanımla
     const usersCollection = db.collection("users"); 
+    
+    // ⚠️ DİKKAT: Yorumların/değerlendirmelerin kaydedildiği koleksiyonun adı "comments" veya "reviews" olabilir.
+    // Senin veritabanında hangisiyse burayı ona göre değiştir:
+    const commentsCollection = db.collection("comments"); 
 
     // 4. Veritabanından Kullanıcıyı Bul
     const dbKullanici = await usersCollection.findOne({ email: session.user.email });
     if (!dbKullanici) {
-      return NextResponse.json({ hata: "Kullanıcı bulunamadı!" }, { status: 404 });
+      return NextResponse.json({ hata: "Kullanıcı bulunamadı." }, { status: 404 });
     }
 
-   // 5. Şifre Doğrulama (Bcrypt ile kriptoyu çöz)
+    // 5. Şifre Doğrulama (Bcrypt ile kriptoyu çöz)
     const sifreDogruMu = await bcrypt.compare(sifre, dbKullanici.password);
     if (!sifreDogruMu) {
       return NextResponse.json({ hata: "Girdiğiniz şifre hatalı." }, { status: 400 });
     }
 
-    // 🚀 6. ŞİFRE DOĞRUYSA İŞLEMİ ATEŞLE (SAF MONGODB KOMUTLARI)
+    // 🚀 6. ŞİFRE DOĞRUYSA İŞLEMİ ATEŞLE
     if (islem === 'sil') {
-      // Dükkanı Dinamitle: Kullanıcıyı koleksiyondan acımadan sil
+      // 1. Kullanıcıyı hesaptan tamamen sil
       await usersCollection.deleteOne({ _id: dbKullanici._id });
-      return NextResponse.json({ mesaj: "Hesap kalıcı olarak silindi." }, { status: 200 });
+      
+      // 2. Bu kullanıcının yaptığı TÜM yorumları kalıcı olarak sil
+      await commentsCollection.deleteMany({ email: session.user.email });
+
+      return NextResponse.json({ mesaj: "Hesabınız başarıyla silinmiştir. İyi günler dileriz." }, { status: 200 });
       
     } else if (islem === 'dondur') {
-      // Uykuya Yatır: Kullanıcının verisini pasif yap
+      // 1. Kullanıcının profilini pasif yap
       await usersCollection.updateOne(
         { _id: dbKullanici._id },
-        { $set: { isActive: false } } // Senin sistemde dondurulma ibaresi neyse onu yazabilirsin
+        { $set: { isActive: false } } 
       );
-      return NextResponse.json({ mesaj: "Hesap başarıyla donduruldu." }, { status: 200 });
+      
+      // 2. Kullanıcının yorumlarını GEÇİCİ OLARAK GİZLE
+      await commentsCollection.updateMany(
+        { email: session.user.email },
+        { $set: { isVisible: false } } 
+      );
+
+      return NextResponse.json({ mesaj: "Hesabınız başarıyla dondurulmuştur. İyi günler dileriz." }, { status: 200 });
       
     } else {
       return NextResponse.json({ hata: "Geçersiz işlem türü!" }, { status: 400 });
@@ -56,6 +71,6 @@ export async function POST(req: Request) {
 
   } catch (error: any) {
     console.error("Hesap İşlem Hatası:", error);
-    return NextResponse.json({ hata: "Sunucu tarafında bir arıza çıktı usta." }, { status: 500 });
+    return NextResponse.json({ hata: "Sunucu tarafında bir arıza çıktı." }, { status: 500 });
   }
 }
