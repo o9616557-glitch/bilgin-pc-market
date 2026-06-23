@@ -32,7 +32,10 @@ export default function GuvenlikPage() {
   const [aktifCihazlar, setAktifCihazlar] = useState<any[]>([]);
   const [cihazlarYukleniyor, setCihazlarYukleniyor] = useState(true);
   const [cikisYukleniyor, setCikisYukleniyor] = useState(false);
-
+// 🔒 HESAP DONDURMA VE SİLME MODALI ŞALTERLERİ
+  const [islemModali, setIslemModali] = useState<{acik: boolean, tur: 'dondur' | 'sil'}>({acik: false, tur: 'dondur'});
+  const [islemSifresi, setIslemSifresi] = useState("");
+  const [islemYukleniyor, setIslemYukleniyor] = useState(false);
   // 🚀 3. DEĞİŞİKLİK: KESKİN NİŞANCI ÇIRAK (Hem radarı çizer hem de adamı kovarsa kapı dışarı eder!)
   useEffect(() => {
     const ayarlariGetir = async (ilkYukleme = false) => {
@@ -204,14 +207,15 @@ export default function GuvenlikPage() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
+ return (
+    <> {/* İŞTE GÖRÜNMEZ ÇUVALIN AĞZINI BURADA AÇTIK! */}
+      <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
-      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
-        
-        {/* SOL MENÜ */}
-        <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
+        <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
+          
+          {/* SOL MENÜ */}
+          <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-3 sm:p-4 shadow-xl">
        <nav className="flex flex-col gap-1.5">
               <Link href="/hesabim" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
@@ -578,12 +582,21 @@ export default function GuvenlikPage() {
             <p className="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6 max-w-2xl">
               Hesabınızı geçici olarak dondurabilir veya kişisel verilerinizle birlikte kalıcı olarak silebilirsiniz. Silme işlemi geri alınamaz.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <button className="flex-1 flex justify-center items-center gap-1.5 sm:gap-2 py-3 sm:py-4 rounded-xl bg-[#020617] border border-slate-800 hover:bg-slate-800/50 text-slate-300 transition-all font-bold text-[9px] sm:text-xs uppercase tracking-widest">
-                <Snowflake className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Hesabımı Dondur
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <button 
+                onClick={() => setIslemModali({acik: true, tur: 'dondur'})}
+                className="flex-1 flex justify-center items-center gap-1.5 sm:gap-2 py-3 sm:py-4 rounded-xl bg-[#020617] border border-slate-800 hover:bg-slate-800/50 text-white font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all group"
+              >
+                <Snowflake className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-500 group-hover:text-blue-400 transition-colors" /> 
+                Hesabımı Dondur
               </button>
-              <button className="flex-1 flex justify-center items-center gap-1.5 sm:gap-2 py-3 sm:py-4 rounded-xl bg-red-950/20 border border-red-900/30 hover:bg-red-900/50 text-red-400 transition-all font-bold text-[9px] sm:text-xs uppercase tracking-widest">
-                <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Hesabımı Kalıcı Olarak Sil
+
+              <button 
+                onClick={() => setIslemModali({acik: true, tur: 'sil'})}
+                className="flex-1 flex justify-center items-center gap-1.5 sm:gap-2 py-3 sm:py-4 rounded-xl bg-red-950/20 border border-red-900/30 hover:bg-red-900/50 text-red-400 transition-all font-bold text-[9px] sm:text-xs uppercase tracking-widest group"
+              >
+                <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:scale-110 transition-transform" /> 
+                Hesabımı Kalıcı Olarak Sil
               </button>
             </div>
           </div>
@@ -591,5 +604,97 @@ export default function GuvenlikPage() {
         </div>
       </div>
     </div>
-  );
+    {/* 🚀 ŞİFRELİ GÜVENLİK ONAY PENCERESİ (Dondur & Sil Ortak Modalı) */}
+      <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ${
+        islemModali.acik ? 'opacity-100 pointer-events-auto backdrop-blur-md bg-black/70' : 'opacity-0 pointer-events-none'
+      }`}>
+        <div className={`bg-[#0f172a] border ${islemModali.tur === 'sil' ? 'border-red-900/50' : 'border-slate-800'} rounded-2xl p-5 sm:p-6 max-w-md w-full shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform transition-all duration-300 relative overflow-hidden ${
+          islemModali.acik ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'
+        }`}>
+          
+          {/* Arkaplan Işık Efekti */}
+          <div className={`absolute -top-10 -right-10 w-32 h-32 blur-[40px] rounded-full pointer-events-none ${islemModali.tur === 'sil' ? 'bg-red-500/10' : 'bg-blue-500/10'}`}></div>
+
+          {/* İkon ve Başlık */}
+          <div className="flex items-center gap-3 mb-4 relative z-10">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 border ${
+              islemModali.tur === 'sil' ? 'bg-red-500/10 border-red-500/20' : 'bg-blue-500/10 border-blue-500/20'
+            }`}>
+              {islemModali.tur === 'sil' ? (
+                <Trash2 className="w-5 h-5 text-red-400 animate-pulse" />
+              ) : (
+                <Snowflake className="w-5 h-5 text-blue-400 animate-pulse" />
+              )}
+            </div>
+            <div>
+              <h3 className="text-sm sm:text-base font-black text-white uppercase tracking-wider">
+                {islemModali.tur === 'sil' ? 'Hesabı Kalıcı Olarak Sil' : 'Hesabınızı Dondurun'}
+              </h3>
+              <p className={`text-[10px] sm:text-xs font-medium ${islemModali.tur === 'sil' ? 'text-red-400' : 'text-slate-400'}`}>
+                {islemModali.tur === 'sil' ? 'Bu işlem geri alınamaz!' : 'Geçici bir süre aramızdan ayrılın.'}
+              </p>
+            </div>
+          </div>
+
+          {/* İçerik Yazısı */}
+          <p className="text-xs text-slate-300 leading-relaxed bg-[#020617] p-3 rounded-xl border border-slate-900 mb-5 relative z-10">
+            {islemModali.tur === 'sil' 
+              ? 'Hesabınız ve tüm kişisel verileriniz sistemden kalıcı olarak silinecektir. Devam etmek için lütfen mevcut şifrenizi girerek kimliğinizi doğrulayın.' 
+              : 'Hesabınız geçici olarak uyku moduna alınacaktır. Devam etmek için lütfen şifrenizi girerek bu işlemin size ait olduğunu doğrulayın.'}
+          </p>
+
+          {/* Şifre Giriş Alanı */}
+          <div className="mb-6 relative z-10">
+            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Mevcut Şifreniz</label>
+            <input 
+              type="password" 
+              value={islemSifresi}
+              onChange={(e) => setIslemSifresi(e.target.value)}
+              placeholder="Şifrenizi girin..."
+              className={`w-full bg-[#020617] border ${islemModali.tur === 'sil' ? 'focus:border-red-500' : 'focus:border-blue-500'} border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors`}
+            />
+          </div>
+
+          {/* Butonlar */}
+          <div className="flex items-center gap-2.5 relative z-10">
+            <button 
+              onClick={() => {
+                setIslemModali({acik: false, tur: 'dondur'});
+                setIslemSifresi("");
+              }}
+              disabled={islemYukleniyor}
+              className="flex-1 px-4 py-3 rounded-xl border border-slate-800 bg-transparent hover:bg-slate-800/30 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-all disabled:opacity-50"
+            >
+              İptal
+            </button>
+            <button 
+              disabled={islemYukleniyor || islemSifresi.length < 6}
+              onClick={async () => {
+                setIslemYukleniyor(true);
+                // 🚀 API KODU BURAYA GELECEK
+                setTimeout(() => {
+                  setIslemYukleniyor(false);
+                  setIslemModali({acik: false, tur: 'dondur'});
+                  setIslemSifresi("");
+                  alert(islemModali.tur === 'sil' ? "Dükkan dinamitlendi!" : "Dükkan uykuya yattı!");
+                }, 1500);
+              }}
+              className={`flex-1 px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider text-white transition-all disabled:opacity-50 flex items-center justify-center gap-2 ${
+                islemModali.tur === 'sil' 
+                ? 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 shadow-[0_0_20px_rgba(225,29,72,0.2)]' 
+                : 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-[0_0_20px_rgba(37,99,235,0.2)]'
+              }`}
+            >
+              {islemYukleniyor 
+                ? <Loader2 className="w-4 h-4 animate-spin" /> 
+                : (islemModali.tur === 'sil' ? 'Kalıcı Olarak Sil' : 'Hesabı Dondur')}
+            </button>
+          </div>
+
+    </div>
+      </div>
+      {/* Modal kutusunun son div'i buradaydı */}
+      
+      </>
+    );
 }
