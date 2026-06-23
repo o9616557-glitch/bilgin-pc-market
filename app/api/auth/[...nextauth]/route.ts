@@ -93,27 +93,9 @@ export const authOptions: NextAuthOptions = {
         const user = await User.findOne({ email: credentials.email });
         if (!user) throw new Error("Bu e-posta adresiyle kayıtlı kullanıcı bulunamadı.");
 
-      const isPasswordMatch = await bcrypt.compare(credentials.password, user.password);
+        const isPasswordMatch = await bcrypt.compare(credentials.password, user.password);
         if (!isPasswordMatch) throw new Error("Şifre hatalı, lütfen tekrar deneyin.");
-// 🧊 EĞER HESAP DONDURULMUŞSA ZİNCİRLERİ KIR (Buzu Çöz - Mongoose Sansürünü Aşarak)
-        // 1. Mongoose modelini boşverip direkt veritabanının kendisine soruyoruz: Adam donuk mu?
-        const hamKullanici = await mongoose.connection.db!.collection("users").findOne({ email: credentials.email });
 
-        if (hamKullanici && hamKullanici.isActive === false) {
-          // 2. Adamın zincirini kır (Hesabı Aktif Et)
-          await mongoose.connection.db!.collection("users").updateOne(
-            { email: credentials.email },
-            { $set: { isActive: true } }
-          );
-          
-          // 3. Yorumların üzerindeki görünmezlik pelerinini kaldır
-          await mongoose.connection.db!.collection("reviews").updateMany(
-            { email: credentials.email },
-            { $set: { isVisible: true } }
-          );
-          
-          console.log("Zincirler kırıldı! Adam ve yorumları dükkana geri döndü!");
-        }
         // 🚀 BİRİNCİ AŞAMA: ÖNCE CİHAZ VE KARANTİNA KONTROL MOTORU
         const userAgent = req?.headers?.["user-agent"] || "Bilinmeyen Cihaz";
         const ipAddress = req?.headers?.["x-forwarded-for"] || "Bilinmeyen IP";
@@ -123,7 +105,6 @@ export const authOptions: NextAuthOptions = {
         const suAnkiZaman = new Date();
         const biletVarMi = user.karantinaPass && user.karantinaPass > suAnkiZaman;
 
-        // Bilet varsa karışmıyoruz, bilet yoksa karantina kontrolü yapıyoruz
         if (!biletVarMi) {
           const bildirimTercihi = user.notificationPreference || 'new_device';
           const cihazTanindikMi = user.trustedDevices && user.trustedDevices.includes(anlasilirCihaz);
@@ -148,7 +129,6 @@ export const authOptions: NextAuthOptions = {
             throw new Error(ekrandakiHata); 
           }
         }
-        // DİKKAT: Eskiden burada bileti yırtan kodu sildik! Bilet artık sen 6 haneli şifreyi girene kadar güvende.
 
         // 🚀 İKİNCİ AŞAMA: 2FA MOTORU
         if (user.twoFactorEmail) {
@@ -175,11 +155,32 @@ export const authOptions: NextAuthOptions = {
       }
     })
   ],
-callbacks: {
+  callbacks: {
     async signIn({ user, account }) {
-      if (account?.provider === "google" || account?.provider === "facebook") {
-        try {
-          if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
+      try {
+        if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
+
+        // 🧊 İŞTE DÜZELTTİĞİMİZ BUZ ÇÖZME MOTORU: HERKES İÇİN (Google, Facebook, Şifre) BURADA ÇALIŞIR
+        if (user && user.email) {
+          const hamKullanici = await mongoose.connection.db!.collection("users").findOne({ email: user.email });
+
+          if (hamKullanici && hamKullanici.isActive === false) {
+            await mongoose.connection.db!.collection("users").updateOne(
+              { email: user.email },
+              { $set: { isActive: true } }
+            );
+            
+            await mongoose.connection.db!.collection("reviews").updateMany(
+              { email: user.email },
+              { $set: { isVisible: true } }
+            );
+            
+            console.log("Zincirler kırıldı! Adam ve yorumları dükkana geri döndü!");
+          }
+        }
+
+        // 🚀 KARANTİNA KONTROLÜ (SADECE GOOGLE/FACEBOOK İÇİN - HİÇ DOKUNULMADI)
+        if (account?.provider === "google" || account?.provider === "facebook") {
           const dbUser = await User.findOne({ email: user.email });
           if (dbUser) {
             const headersList = await headers(); 
@@ -218,27 +219,26 @@ callbacks: {
             dbUser.activeDevices.push({ deviceId: newDeviceId, deviceInfo: userAgent, ipAddress: ipAddress, location: konumBilgisi, lastActive: new Date(), isActive: true });
             await dbUser.save(); (user as any).deviceId = newDeviceId;
           }
-        } catch (error) { console.error("VIP Guard Hatası:", error); }
+        }
+      } catch (error) { 
+        console.error("Giriş İşlemi Hatası:", error); 
       }
       return true; 
     },
 
-    // 🚀 İŞTE LEHİMİN KOPTUĞU YER BURASIYDI:
+    // 🚀 İŞTE LEHİMİN KOPTUĞU YER BURASIYDI (HİÇ DOKUNULMADI):
     async jwt({ token, user }) {
-      // Adam ilk defa girdiğinde cebine cihaz ID'sini koy
       if (user) { 
         token.id = user.id; 
         token.deviceId = (user as any).deviceId; 
       }
 
-      // Adam sayfada gezinirken telsizle veritabanına sor: "Bu adamı başka cihazdan attılar mı?"
       if (!user && token?.id && token?.deviceId) {
         try {
           if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
           const dbUser = await User.findById(token.id).select("activeDevices");
           if (dbUser) {
             const buCihaz = dbUser.activeDevices.find((c: any) => c.deviceId === token.deviceId);
-            // Cihazı sildiysek veya isActive false yapıldıysa token'a "ÖLÜM DAMGASI" vur!
             if (!buCihaz || buCihaz.isActive === false) {
               return { ...token, isLoggedOut: true }; 
             }
@@ -248,9 +248,8 @@ callbacks: {
       return token;
     },
 
-   // 🚀 ÖLÜM DAMGALI ADAMI SİSTEMDEN ATAN MOTOR
+   // 🚀 ÖLÜM DAMGALI ADAMI SİSTEMDEN ATAN MOTOR (HİÇ DOKUNULMADI)
     async session({ session, token }) {
-      // Eğer token'da ölüm damgası varsa adamın dosyasına kırmızı kalemle "KOVULDU" yaz!
       if (token.isLoggedOut) {
          (session as any).error = "KickedOut";
       } else if (session.user) {
