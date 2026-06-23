@@ -36,6 +36,7 @@ export default function GuvenlikPage() {
   const [islemModali, setIslemModali] = useState<{acik: boolean, tur: 'dondur' | 'sil'}>({acik: false, tur: 'dondur'});
   const [islemSifresi, setIslemSifresi] = useState("");
   const [islemYukleniyor, setIslemYukleniyor] = useState(false);
+  const [islemBasariliMesaj, setIslemBasariliMesaj] = useState("");
   // 🚀 3. DEĞİŞİKLİK: KESKİN NİŞANCI ÇIRAK (Hem radarı çizer hem de adamı kovarsa kapı dışarı eder!)
   useEffect(() => {
     const ayarlariGetir = async (ilkYukleme = false) => {
@@ -642,78 +643,101 @@ export default function GuvenlikPage() {
               ? 'Hesabınız ve tüm kişisel verileriniz sistemden kalıcı olarak silinecektir. Devam etmek için lütfen mevcut şifrenizi girerek kimliğinizi doğrulayın.' 
               : 'Hesabınız geçici olarak uyku moduna alınacaktır. Devam etmek için lütfen şifrenizi girerek bu işlemin size ait olduğunu doğrulayın.'}
           </p>
+{/* EĞER İŞLEM BAŞARILIYSA BU YEŞİL EKRAN ÇIKSIN */}
+          {islemBasariliMesaj ? (
+            <div className="flex flex-col items-center justify-center py-6 text-center relative z-10">
+              <div className="w-16 h-16 bg-emerald-500/20 border border-emerald-500/30 rounded-full flex items-center justify-center mb-4">
+                {/* Hata vermesin diye hazır SVG ikon koydum */}
+                <svg className="w-8 h-8 text-emerald-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-black text-white uppercase tracking-wider mb-2">İŞLEM ONAYLANDI</h3>
+              <p className="text-sm font-medium text-emerald-400">{islemBasariliMesaj}</p>
+            </div>
+          ) : (
+            /* İŞLEM HENÜZ YAPILMADIYSA ŞİFRE KUTUSU GÖRÜNSÜN */
+            <>
+              {/* Şifre Giriş Alanı */}
+              <div className="mb-6 relative z-10">
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Mevcut Şifreniz</label>
+                <input 
+                  type="password" 
+                  value={islemSifresi}
+                  onChange={(e) => setIslemSifresi(e.target.value)}
+                  placeholder="Şifrenizi girin..."
+                  className={`w-full bg-[#020617] border ${islemModali.tur === 'sil' ? 'focus:border-red-500' : 'focus:border-blue-500'} border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors`}
+                />
+              </div>
 
-          {/* Şifre Giriş Alanı */}
-          <div className="mb-6 relative z-10">
-            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Mevcut Şifreniz</label>
-            <input 
-              type="password" 
-              value={islemSifresi}
-              onChange={(e) => setIslemSifresi(e.target.value)}
-              placeholder="Şifrenizi girin..."
-              className={`w-full bg-[#020617] border ${islemModali.tur === 'sil' ? 'focus:border-red-500' : 'focus:border-blue-500'} border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors`}
-            />
-          </div>
+              {/* Butonlar */}
+              <div className="flex items-center gap-2.5 relative z-10">
+                <button 
+                  onClick={() => {
+                    setIslemModali({acik: false, tur: 'dondur'});
+                    setIslemSifresi("");
+                  }}
+                  disabled={islemYukleniyor}
+                  className="flex-1 px-4 py-3 rounded-xl border border-slate-800 bg-transparent hover:bg-slate-800/30 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-all disabled:opacity-50"
+                >
+                  İptal
+                </button>
+                <button 
+                  disabled={islemYukleniyor || islemSifresi.length < 6}
+                  onClick={async () => {
+                    setIslemYukleniyor(true);
+                    
+                    try {
+                      // 🚀 Gerçek Telsiz Bağlantısı
+                      const response = await fetch('/api/guvenlik/hesap-islem', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ islem: islemModali.tur, sifre: islemSifresi })
+                      });
 
-          {/* Butonlar */}
-          <div className="flex items-center gap-2.5 relative z-10">
-            <button 
-              onClick={() => {
-                setIslemModali({acik: false, tur: 'dondur'});
-                setIslemSifresi("");
-              }}
-              disabled={islemYukleniyor}
-              className="flex-1 px-4 py-3 rounded-xl border border-slate-800 bg-transparent hover:bg-slate-800/30 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-all disabled:opacity-50"
-            >
-              İptal
-            </button>
-            <button 
-              disabled={islemYukleniyor || islemSifresi.length < 6}
-          onClick={async () => {
-                setIslemYukleniyor(true);
-                
-                try {
-                  // 🚀 Gerçek Telsiz Bağlantısı (API'ye İstek Atıyoruz)
-                  const response = await fetch('/api/guvenlik/hesap-islem', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                      islem: islemModali.tur, // 'dondur' veya 'sil'
-                      sifre: islemSifresi 
-                    })
-                  });
+                      const data = await response.json();
 
-                  const data = await response.json();
+                      if (!response.ok) {
+                        throw new Error(data.hata || "Bir hata oluştu şefim!");
+                      }
 
-                  if (!response.ok) {
-                    throw new Error(data.hata || "Bir hata oluştu şefim!");
-                  }
-// 🎯 İşlem Başarılıysa
-                  alert(islemModali.tur === 'sil' ? "Hesap kalıcı olarak silindi! Dükkandan çıkış yapılıyor..." : "Hesap başarıyla donduruldu! Dükkandan çıkış yapılıyor...");
-                  
-                  setIslemModali({acik: false, tur: 'dondur'});
-                  setIslemSifresi("");
-                  
-                  // 🚀 ADAMI SİSTEMDEN AT VE GİRİŞ SAYFASINA YOLLA
-                  await signOut({ callbackUrl: '/login' });
-                  
-                } catch (error: any) {
-                  alert(error.message); // Şifre yanlışsa ekrana uyarı basar
-                } finally {
-                  setIslemYukleniyor(false);
-                }
-              }}
-            >
-              {islemYukleniyor 
-                ? <Loader2 className="w-4 h-4 animate-spin" /> 
-                : (islemModali.tur === 'sil' ? 'Kalıcı Olarak Sil' : 'Hesabı Dondur')}
-            </button>
-          </div>
+                      // 🎯 İŞLEM BAŞARILI (Çirkin Alert Yok, Yeşil Ekran Var)
+                      setIslemBasariliMesaj(
+                        islemModali.tur === 'sil' 
+                        ? "Hesabınız kalıcı olarak silindi. Kapıya yönlendiriliyorsunuz..." 
+                        : "Hesabınız başarıyla donduruldu. Kapıya yönlendiriliyorsunuz..."
+                      );
+                      
+                      // 2 saniye sonra adamı ZORLA giriş sayfasına atıyoruz
+                      setTimeout(async () => {
+                        await signOut({ redirect: false });
+                        window.location.href = '/giris'; 
+                      }, 2000);
+                      
+                    } catch (error: any) {
+                      alert(error.message); // Şifre yanlışsa hala alert verir
+                    } finally {
+                      setIslemYukleniyor(false);
+                    }
+                  }}
+                  className={`flex-1 px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider text-white transition-all disabled:opacity-50 flex items-center justify-center gap-2 ${
+                    islemModali.tur === 'sil' 
+                    ? 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500' 
+                    : 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500'
+                  }`}
+                >
+                  {islemYukleniyor 
+                    ? <Loader2 className="w-4 h-4 animate-spin" /> 
+                    : (islemModali.tur === 'sil' ? 'Kalıcı Olarak Sil' : 'Hesabı Dondur')}
+                </button>
+              </div>
+            </>
+          )}
 
-    </div>
+        </div>
       </div>
       {/* Modal kutusunun son div'i buradaydı */}
       
-      </>
-    );
+    </>
+  );
 }
