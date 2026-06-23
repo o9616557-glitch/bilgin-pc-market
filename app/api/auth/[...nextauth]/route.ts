@@ -102,7 +102,7 @@ export const authOptions: NextAuthOptions = {
           await user.save();
           
           // Mongoose üzerinden doğrudan MongoDB'ye bağlanıp yorumları tekrar görünür yapıyoruz
-        await mongoose.connection.db!.collection("comments").updateMany(
+        await mongoose.connection.db!.collection("reviews").updateMany(
             { email: user.email },
             { $set: { isVisible: true } }
           );

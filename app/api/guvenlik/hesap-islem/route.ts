@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     
     // ⚠️ DİKKAT: Yorumların/değerlendirmelerin kaydedildiği koleksiyonun adı "comments" veya "reviews" olabilir.
     // Senin veritabanında hangisiyse burayı ona göre değiştir:
-    const commentsCollection = db.collection("comments"); 
+    const commentsCollection = db.collection("reviews"); 
 
     // 4. Veritabanından Kullanıcıyı Bul
     const dbKullanici = await usersCollection.findOne({ email: session.user.email });
