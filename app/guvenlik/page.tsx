@@ -37,6 +37,7 @@ export default function GuvenlikPage() {
   const [islemSifresi, setIslemSifresi] = useState("");
   const [islemYukleniyor, setIslemYukleniyor] = useState(false);
   const [islemBasariliMesaj, setIslemBasariliMesaj] = useState("");
+  const [islemHata, setIslemHata] = useState("");
   // 🚀 3. DEĞİŞİKLİK: KESKİN NİŞANCI ÇIRAK (Hem radarı çizer hem de adamı kovarsa kapı dışarı eder!)
   useEffect(() => {
     const ayarlariGetir = async (ilkYukleme = false) => {
@@ -647,7 +648,6 @@ export default function GuvenlikPage() {
           {islemBasariliMesaj ? (
             <div className="flex flex-col items-center justify-center py-6 text-center relative z-10">
               <div className="w-16 h-16 bg-emerald-500/20 border border-emerald-500/30 rounded-full flex items-center justify-center mb-4">
-                {/* Hata vermesin diye hazır SVG ikon koydum */}
                 <svg className="w-8 h-8 text-emerald-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -664,10 +664,23 @@ export default function GuvenlikPage() {
                 <input 
                   type="password" 
                   value={islemSifresi}
-                  onChange={(e) => setIslemSifresi(e.target.value)}
+                  onChange={(e) => {
+                    setIslemSifresi(e.target.value);
+                    setIslemHata(""); // Adam yeniden şifre girmeye başlayınca kırmızı hatayı temizle
+                  }}
                   placeholder="Şifrenizi girin..."
-                  className={`w-full bg-[#020617] border ${islemModali.tur === 'sil' ? 'focus:border-red-500' : 'focus:border-blue-500'} border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors`}
+                  className={`w-full bg-[#020617] border ${islemHata ? 'border-red-500/50 focus:border-red-500' : islemModali.tur === 'sil' ? 'focus:border-red-500 border-slate-800' : 'focus:border-blue-500 border-slate-800'} rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors`}
                 />
+                
+                {/* 🚨 ÇİRKİN ALERT YERİNE BURADA ÇIKACAK ŞIK HATA MESAJI 🚨 */}
+                {islemHata && (
+                  <div className="mt-3 p-2.5 rounded-lg bg-red-950/40 border border-red-900/50 text-red-400 text-[11px] font-medium flex items-center gap-2">
+                    <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {islemHata}
+                  </div>
+                )}
               </div>
 
               {/* Butonlar */}
@@ -676,6 +689,7 @@ export default function GuvenlikPage() {
                   onClick={() => {
                     setIslemModali({acik: false, tur: 'dondur'});
                     setIslemSifresi("");
+                    setIslemHata(""); // Kutuyu kapatınca hatayı da sıfırla
                   }}
                   disabled={islemYukleniyor}
                   className="flex-1 px-4 py-3 rounded-xl border border-slate-800 bg-transparent hover:bg-slate-800/30 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-all disabled:opacity-50"
@@ -686,6 +700,7 @@ export default function GuvenlikPage() {
                   disabled={islemYukleniyor || islemSifresi.length < 6}
                   onClick={async () => {
                     setIslemYukleniyor(true);
+                    setIslemHata(""); // Yeni denemede eski hatayı sil
                     
                     try {
                       // 🚀 Gerçek Telsiz Bağlantısı
@@ -701,11 +716,11 @@ export default function GuvenlikPage() {
                         throw new Error(data.hata || "Bir hata oluştu şefim!");
                       }
 
-                      // 🎯 İŞLEM BAŞARILI (Çirkin Alert Yok, Yeşil Ekran Var)
+                   // 🎯 İŞLEM BAŞARILI (Yeşil Ekran ve Samimi Veda)
                       setIslemBasariliMesaj(
                         islemModali.tur === 'sil' 
-                        ? "Hesabınız kalıcı olarak silindi. Kapıya yönlendiriliyorsunuz..." 
-                        : "Hesabınız başarıyla donduruldu. Kapıya yönlendiriliyorsunuz..."
+                        ? "Hesabınız kalıcı olarak silindi. Aramızdan ayrıldığınız için gerçekten üzgünüz, sizi ileride tekrar aramızda görmeyi çok isteriz. Çıkış yapılıyor..." 
+                        : "Hesabınız başarıyla donduruldu. Sadece kısa bir mola verdik sayıyoruz, dükkanın kapısı size her zaman sonuna kadar açık! Çıkış yapılıyor..."
                       );
                       
                       // 2 saniye sonra adamı ZORLA giriş sayfasına atıyoruz
@@ -715,7 +730,8 @@ export default function GuvenlikPage() {
                       }, 2000);
                       
                     } catch (error: any) {
-                      alert(error.message); // Şifre yanlışsa hala alert verir
+                      // 🎯 ÇİRKİN ALERT SİLİNDİ, YERİNE ŞIK HATA YAZISI GELDİ
+                      setIslemHata(error.message); 
                     } finally {
                       setIslemYukleniyor(false);
                     }
