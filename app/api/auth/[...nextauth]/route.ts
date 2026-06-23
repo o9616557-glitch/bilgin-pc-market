@@ -93,8 +93,15 @@ export const authOptions: NextAuthOptions = {
         const user = await User.findOne({ email: credentials.email });
         if (!user) throw new Error("Bu e-posta adresiyle kayıtlı kullanıcı bulunamadı.");
 
-        const isPasswordMatch = await bcrypt.compare(credentials.password, user.password);
+      const isPasswordMatch = await bcrypt.compare(credentials.password, user.password);
         if (!isPasswordMatch) throw new Error("Şifre hatalı, lütfen tekrar deneyin.");
+
+        // 🧊 EĞER HESAP DONDURULMUŞSA ZİNCİRLERİ KIR (Buzu Çöz)
+        if (user.isActive === false) {
+          user.isActive = true;
+          await user.save();
+          console.log("Buzlar kırıldı, müşteri dükkana geri döndü!");
+        }
 
         // 🚀 BİRİNCİ AŞAMA: ÖNCE CİHAZ VE KARANTİNA KONTROL MOTORU
         const userAgent = req?.headers?.["user-agent"] || "Bilinmeyen Cihaz";
