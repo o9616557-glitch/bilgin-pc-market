@@ -642,7 +642,7 @@ export default function GuvenlikPage() {
           <p className="text-xs text-slate-300 leading-relaxed bg-[#020617] p-3 rounded-xl border border-slate-900 mb-5 relative z-10">
             {islemModali.tur === 'sil' 
               ? 'Hesabınız ve tüm kişisel verileriniz sistemden kalıcı olarak silinecektir. Devam etmek için lütfen mevcut şifrenizi girerek kimliğinizi doğrulayın.' 
-              : 'Hesabınız geçici olarak uyku moduna alınacaktır. Devam etmek için lütfen şifrenizi girerek bu işlemin size ait olduğunu doğrulayın.'}
+              : 'Hesabınız geçici olarak dondurulacaktır. Devam etmek için lütfen şifrenizi girerek bu işlemin size ait olduğunu doğrulayın.'}
           </p>
 {/* EĞER İŞLEM BAŞARILIYSA BU YEŞİL EKRAN ÇIKSIN */}
           {islemBasariliMesaj ? (
