@@ -134,7 +134,7 @@ const talepCevapGonder = async (id: string) => {
       
       const data = await res.json();
       
-      if (res.ok && data.success) {
+if (res.ok && data.success) {
         toast.success("Cevap müşteriye iletildi! 🚀", { id: toastId });
         setTalepCevaplari(prev => ({...prev, [id]: ""}));
         talepleriGetir();
@@ -152,7 +152,7 @@ const talepCevapGonder = async (id: string) => {
       const res = await fetch("/api/admin/destek", { method: "PUT", headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI }, body: JSON.stringify({ id, action: "status", durum: yeniDurum }) });
       if ((await res.json()).success) {
         toast.success("Talep durumu güncellendi.");
-        talepleriGetir();
+        talepleriGetir(); // Durum değişince ekranı hemen yeniler
       }
     } catch (e) { toast.error("Güncellenemedi."); }
   };
@@ -164,6 +164,7 @@ const talepCevapGonder = async (id: string) => {
       if ((await res.json()).success) {
         setTalepler(talepler.filter(t => t._id !== silinecekTalepID));
         setSilinecekTalepID(null);
+        talepleriGetir(); // 🚀 BİNGO: Silme işleminden sonra veritabanını anında sorgular, radarı beklemez!
         toast.success("Talep silindi.");
       }
     } catch (e) { toast.error("Silinemedi."); }
