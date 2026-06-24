@@ -343,7 +343,7 @@ export default function AdminPaneli() {
                           </span>
                           <span className="text-xs text-slate-500 font-bold bg-[#0b1120] px-2 py-1 rounded border border-slate-800">#{talep.talepNo}</span>
                         </div>
-                        <div className="text-slate-400 text-sm font-medium"><span className="text-slate-300 font-bold">{talep.kullaniciEposta}</span> tarafından açıldı</div>
+                        <div className="text-slate-400 text-sm font-medium"><span className="text-slate-300 font-bold">{talep.kullaniciEmail}</span> tarafından açıldı</div>
                       </div>
                       <div className="text-right">
                         <span className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border ${talep.durum === 'Çözüldü' ? 'bg-emerald-950/30 text-emerald-500 border-emerald-900/50' : talep.durum === 'Yanıt Bekleniyor' ? 'bg-amber-950/30 text-amber-500 border-amber-900/50' : 'bg-slate-800 text-slate-300 border-slate-700'}`}>
