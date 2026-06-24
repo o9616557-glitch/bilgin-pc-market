@@ -81,3 +81,22 @@ export async function PUT(request: Request) {
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }
+// ⬇️ 4. DELETE METODU: Müşterinin kendi talebini silmesini sağlar
+export async function DELETE(request: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.email) return NextResponse.json({ success: false }, { status: 401 });
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
+
+    // Müşteri sadece kendi e-postasına ait olan talebi silebilir (Güvenlik Kalkanı)
+    if (id) await Destek.findOneAndDelete({ _id: id, kullaniciEmail: session.user.email });
+    
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    return NextResponse.json({ success: false }, { status: 500 });
+  }
+}
