@@ -76,7 +76,21 @@ export default function DestekIadePage() {
       setYukleniyor(false);
     }
   }, [status]);
+// 🚀 GİZLİ RADAR: Sipariş sayfasından gelen yönlendirmeyi havada yakalar
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const urlSiparisNo = params.get("siparisNo");
+      const urlKonu = params.get("konu");
 
+      // Eğer sipariş sayfasından bir numara gelmişse, form alanlarını otomatik doldur ve modalı aç!
+      if (urlSiparisNo) {
+        setTalepBaslik(urlSiparisNo);
+        setTalepKonusu(urlKonu || "iade");
+        setYeniTalepModal(true);
+      }
+    }
+  }, [status]); // Kullanıcı doğrulandığı an parametreleri kontrol et
   // ⬇️ 4. YENİ TALEP GÖNDERME VE HAFIZAYA KAZIMA MOTORU
   const handleTalepGonder = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -331,7 +331,15 @@ export default function SiparisClient({ initialOrders }: Props) {
                         {Number(order.totalPrice || order.toplamTutar).toLocaleString("tr-TR")} <span className="text-sm text-slate-500">TL</span>
                       </span>
                     </div>
-                    
+                    {/* 🚀 GİZLİ KABLO: İptal / İade Talebi Başlatma Butonu */}
+                    <div className="mt-3 flex justify-end">
+                      <Link 
+                        href={`/destek-taleplerim?siparisNo=${currentSiparisKodu}&konu=${durumMetni.toLowerCase().includes('teslim') ? 'iade' : 'iade'}`}
+                        className="w-full sm:w-auto text-center px-5 py-3 rounded-xl bg-[#020617] border border-slate-800 hover:bg-slate-800/80 text-cyan-400 hover:text-cyan-300 font-black text-xs uppercase tracking-widest transition-all duration-300"
+                      >
+                        İptal / İade Talebi Aç
+                      </Link>
+                    </div>
                   </div>
                 );
               })}
