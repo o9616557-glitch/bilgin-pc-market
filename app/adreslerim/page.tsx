@@ -31,11 +31,6 @@ export default async function AdreslerimPage() {
   const addresses = user?.addresses ? JSON.parse(JSON.stringify(user.addresses)) : [];
 
   return (
-   <div className="min-h-screen bg-[#050B14] text-white px-4 py-4 md:p-12 relative overflow-hidden">
-      <div className="max-w-6xl mx-auto relative z-10">
-        {/* İşlem bileşenini (Client) çağırıyor ve veriyi içine atıyoruz */}
-        <AdresYoneticisi initialAddresses={addresses} />
-      </div>
-    </div>
+    <AdresYoneticisi initialAddresses={addresses} />
   );
 }
