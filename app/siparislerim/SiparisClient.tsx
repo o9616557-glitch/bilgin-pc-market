@@ -280,46 +280,49 @@ export default function SiparisClient({ initialOrders }: Props) {
                       </div>
                     )}
 
-                    <div className={`border-t border-slate-800/80 pt-6 mt-6 space-y-4 transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
-                      {order.items?.map((item: any, idx: number) => (
-                        <div key={idx} className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-[#020617] p-4 sm:p-5 rounded-2xl border border-slate-800 transition-colors hover:border-cyan-500/30">
-                          
-                          <div className="w-full sm:w-28 sm:h-28 flex-shrink-0 flex justify-center items-center bg-[#0f172a] py-6 sm:py-0 rounded-xl border border-slate-800 relative overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/10 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            {item.image || item.resim ? (
-                              <img 
-                                src={item.image || item.resim} 
-                                alt={item.title || item.isim} 
-                                className="w-24 h-24 sm:w-20 sm:h-20 object-contain drop-shadow-md z-10"
-                                onError={(e) => { 
-                                  e.currentTarget.src = "https://placehold.co/200x200/0f172a/06b6d4?text=Gorsel+Yok" 
-                                }}
-                              />
-                            ) : (
-                              <div className="w-12 h-12 rounded-xl bg-[#0f172a] border border-slate-700 flex items-center justify-center z-10">
-                                <PackageOpen className="w-6 h-6 text-slate-500" />
+                  {/* 🚀 ÜRÜNLER LİSTESİ (SABİT YÜKSEKLİK VE KAYDIRMA ÇUBUĞU) */}
+                    <div className={`border-t border-slate-800/80 pt-6 mt-6 transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
+                      <div className="max-h-[340px] overflow-y-auto pr-2 custom-scrollbar space-y-4">
+                        {order.items?.map((item: any, idx: number) => (
+                          <div key={idx} className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-[#020617] p-4 sm:p-5 rounded-2xl border border-slate-800 transition-colors hover:border-cyan-500/30 shrink-0">
+                            
+                            <div className="w-full sm:w-28 sm:h-28 flex-shrink-0 flex justify-center items-center bg-[#0f172a] py-6 sm:py-0 rounded-xl border border-slate-800 relative overflow-hidden">
+                              <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/10 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                              {item.image || item.resim ? (
+                                <img 
+                                  src={item.image || item.resim} 
+                                  alt={item.title || item.isim} 
+                                  className="w-24 h-24 sm:w-20 sm:h-20 object-contain drop-shadow-md z-10"
+                                  onError={(e) => { 
+                                    e.currentTarget.src = "https://placehold.co/200x200/0f172a/06b6d4?text=Gorsel+Yok" 
+                                  }}
+                                />
+                              ) : (
+                                <div className="w-12 h-12 rounded-xl bg-[#0f172a] border border-slate-700 flex items-center justify-center z-10">
+                                  <PackageOpen className="w-6 h-6 text-slate-500" />
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row flex-grow w-full justify-between sm:items-center gap-4">
+                              <div className="w-full sm:w-auto flex-grow text-center sm:text-left">
+                                <p className="font-bold text-slate-200 break-words whitespace-normal leading-relaxed text-sm">
+                                  {item.title || item.isim}
+                                </p>
                               </div>
-                            )}
-                          </div>
 
-                          <div className="flex flex-col sm:flex-row flex-grow w-full justify-between sm:items-center gap-4">
-                            <div className="w-full sm:w-auto flex-grow text-center sm:text-left">
-                              <p className="font-bold text-slate-200 break-words whitespace-normal leading-relaxed text-sm">
-                                {item.title || item.isim}
-                              </p>
-                            </div>
-
-                            <div className="w-full sm:w-auto flex flex-row sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 sm:border-l border-slate-800/80 pt-4 sm:pt-0 sm:pl-6 mt-2 sm:mt-0 flex-shrink-0 gap-2">
-                              <p className="text-[10px] text-slate-400 font-bold uppercase bg-[#0f172a] px-3 py-1.5 rounded-lg border border-slate-800">
-                                {item.quantity || item.adet} ADET
-                              </p>
-                              <p className="font-black text-cyan-400 text-lg whitespace-nowrap">
-                                {Number((item.price || item.fiyat || 0) * (item.quantity || item.adet || 1)).toLocaleString("tr-TR")} TL
-                              </p>
+                              <div className="w-full sm:w-auto flex flex-row sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 sm:border-l border-slate-800/80 pt-4 sm:pt-0 sm:pl-6 mt-2 sm:mt-0 flex-shrink-0 gap-2">
+                                <p className="text-[10px] text-slate-400 font-bold uppercase bg-[#0f172a] px-3 py-1.5 rounded-lg border border-slate-800">
+                                  {item.quantity || item.adet} ADET
+                                </p>
+                                <p className="font-black text-cyan-400 text-lg whitespace-nowrap">
+                                  {Number((item.price || item.fiyat || 0) * (item.quantity || item.adet || 1)).toLocaleString("tr-TR")} TL
+                                </p>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
 
                     <div className={`mt-6 flex justify-between items-center bg-[#020617] border border-slate-800 p-5 rounded-xl transition-opacity duration-500 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
