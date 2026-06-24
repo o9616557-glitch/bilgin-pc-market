@@ -12,28 +12,49 @@ import toast from "react-hot-toast";
 
 export default function DestekIadePage() {
   const { data: session, status } = useSession();
-  const [yukleniyor, setYukleniyor] = useState(true);
+  
+  // 🚀 1. ÇIRAK MOTORU (SIFIR GECİKME): Veriyi hafızadan saniyesinde çeker!
+  const [talepler, setTalepler] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      const cirakHafizasi = localStorage.getItem("bilgin_destek_talepleri");
+      if (cirakHafizasi) return JSON.parse(cirakHafizasi);
+    }
+    return [];
+  });
+
+  // Eğer hafızada veri varsa, yükleniyor ekranını hiç gösterme!
+  const [yukleniyor, setYukleniyor] = useState(() => {
+    if (typeof window !== "undefined") {
+      return !localStorage.getItem("bilgin_destek_talepleri");
+    }
+    return true;
+  });
   
   // MODAL VE TAB STATE'LERİ
   const [yeniTalepModal, setYeniTalepModal] = useState(false);
   const [aktifTab, setAktifTab] = useState<'acik' | 'gecmis'>('acik');
   const [talepGonderiliyor, setTalepGonderiliyor] = useState(false);
 
-// FORM STATE'LERİ
+  // FORM STATE'LERİ
   const [talepKonusu, setTalepKonusu] = useState("");
-  const [talepBaslik, setTalepBaslik] = useState(""); // 🚀 YENİ EKLENEN BAŞLIK
+  const [talepBaslik, setTalepBaslik] = useState("");
   const [talepMesaji, setTalepMesaji] = useState("");
 
-  // 🚀 GERÇEK VERİ MOTORU (Sahte veriler çöpe atıldı, artık boş array ile başlıyor)
-  const [talepler, setTalepler] = useState<any[]>([]);
-
-  // ⬇️ 1. CANLI MOTOR: Sayfa açıldığında kullanıcının veritabanındaki gerçek taleplerini çeker
+  // ⬇️ 2. USTA MOTORU (SESSİZ GÜNCELLEME): Arkadan çaktırmadan yeni mesaj var mı diye bakar
   const talepleriGetir = async () => {
+    if (!session?.user?.email) return;
     try {
       const res = await fetch("/api/destek?t=" + new Date().getTime(), { cache: "no-store" });
       const data = await res.json();
       if (res.ok && data.success) {
-        setTalepler(data.talepler || []);
+        const yeniDurum = JSON.stringify(data.talepler || []);
+        const eskiDurum = localStorage.getItem("bilgin_destek_talepleri");
+        
+        // Eğer veritabanında yeni bir şey varsa (veya admin cevap yazmışsa) çaktırmadan ekrana basar
+        if (eskiDurum !== yeniDurum) {
+          setTalepler(data.talepler || []);
+          localStorage.setItem("bilgin_destek_talepleri", yeniDurum);
+        }
       }
     } catch (error) {
       console.error("Destek talepleri çekilemedi:", error);
@@ -42,24 +63,30 @@ export default function DestekIadePage() {
     }
   };
 
+  // 🚀 3. RADAR SİSTEMİ (10 Saniyede bir sessizce kontrol eder)
   useEffect(() => {
     if (status === "authenticated") {
-      talepleriGetir();
+      talepleriGetir(); // Sayfaya girince hemen 1 kere kontrol et
+      
+      // 10 saniyede bir arkadan veritabanını yokla (Admin cevap yazdı mı diye)
+      const radar = setInterval(talepleriGetir, 10000); 
+      return () => clearInterval(radar); // Adam sayfadan çıkınca radarı kapat ki sistemi yormasın
+      
     } else if (status === "unauthenticated") {
       setYukleniyor(false);
     }
   }, [status]);
 
-  // ⬇️ 2. CANLI MOTOR: Yeni talep formunu zırhlı API köprümüze fırlatır
+  // ⬇️ 4. YENİ TALEP GÖNDERME VE HAFIZAYA KAZIMA MOTORU
   const handleTalepGonder = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!talepKonusu || !talepMesaji) return;
+    if (!talepKonusu || !talepMesaji || !talepBaslik) return;
     
     setTalepGonderiliyor(true);
     const toastId = toast.loading("Destek talebiniz iletiliyor...");
 
     try {
-   const res = await fetch("/api/destek", {
+      const res = await fetch("/api/destek", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -74,10 +101,15 @@ export default function DestekIadePage() {
         toast.success("Talebiniz başarıyla oluşturuldu! 🚀", { id: toastId });
         setYeniTalepModal(false);
         setTalepKonusu("");
+        setTalepBaslik("");
         setTalepMesaji("");
         
-        //  binGO: Sayfayı yenilemeden yeni açılan talebi en üste saniyesinde ekle!
-        setTalepler(prev => [data.talep, ...prev]);
+        // BİNGO: Sayfayı yenilemeden yeni açılan talebi en üste saniyesinde ekle ve hafızaya (localStorage) kazı!
+        setTalepler(prev => {
+          const yeniListe = [data.talep, ...prev];
+          localStorage.setItem("bilgin_destek_talepleri", JSON.stringify(yeniListe));
+          return yeniListe;
+        });
       } else {
         toast.error(data.message || "Talep iletilemedi.", { id: toastId });
       }
@@ -125,7 +157,7 @@ export default function DestekIadePage() {
 
         <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
           
-          {/* ⬅️ SOL MENÜ (Sabit ve Kararlı 3'lü) */}
+          {/* ⬅️ SOL MENÜ */}
           <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
             <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-3 sm:p-4 shadow-xl">
               <nav className="flex flex-col gap-1.5">
@@ -194,6 +226,8 @@ export default function DestekIadePage() {
 
             {/* TABLAR VE TALEPLER LİSTESİ */}
             <div className="bg-[#0f172a] border border-slate-800 rounded-2xl shadow-xl flex flex-col overflow-hidden">
+              
+              {/* 🚀 TABLAR (Boşluk eklendi, kasma ve zıplama sorunu çözüldü) */}
               <div className="flex items-center gap-2 sm:gap-4 border-b border-slate-800/80 p-2 sm:p-3">
                 <button 
                   onClick={() => setAktifTab('acik')}
@@ -217,7 +251,7 @@ export default function DestekIadePage() {
                 </button>
               </div>
 
-         {/* 🚀 key={aktifTab} ve animate-in ile küt diye geçişi engelledik, yağ gibi kayacak */}
+              {/* 🚀 key={aktifTab} ve animate-in ile küt diye geçişi engelledik, yağ gibi kayacak */}
               <div key={aktifTab} className="flex flex-col p-3 sm:p-5 gap-3 animate-in fade-in duration-300 ease-out">
                 {gosterilenTalepler.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 opacity-50">
@@ -292,7 +326,9 @@ export default function DestekIadePage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-<form onSubmit={handleTalepGonder} className="flex flex-col gap-4">
+
+            <form onSubmit={handleTalepGonder} className="flex flex-col gap-4">
+              
               {/* 1. KUTU: İŞLEM KONUSU */}
               <div>
                 <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">İşlem Konusu</label>
@@ -310,7 +346,7 @@ export default function DestekIadePage() {
                 </select>
               </div>
 
-              {/* 🚀 2. KUTU: YENİ EKLENEN BAŞLIK KUTUSU (Tam buraya girdi) */}
+              {/* 🚀 2. KUTU: YENİ EKLENEN BAŞLIK KUTUSU */}
               <div>
                 <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Talep Başlığı / Sipariş No</label>
                 <input 
@@ -343,7 +379,7 @@ export default function DestekIadePage() {
                 </p>
               </div>
 
-              {/* 🚀 325. SATIRDAKİ GÜNCEL BUTON (!talepBaslik eklendi) */}
+              {/* 🚀 GÜNCEL BUTON (!talepBaslik eklendi) */}
               <button 
                 type="submit" 
                 disabled={talepGonderiliyor || !talepKonusu || !talepMesaji || !talepBaslik}
