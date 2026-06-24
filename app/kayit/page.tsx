@@ -3,43 +3,44 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-// 🚀 Info, X ve CheckCircle2 ikonları eklendi
 import { User, Mail, Lock, ArrowLeft, Eye, EyeOff, Info, X, CheckCircle2 } from "lucide-react";
 import { signIn } from "next-auth/react";
-import toast from "react-hot-toast"; // 🚀 Modern bildirim motoru devrede!
+import toast from "react-hot-toast";
 
 export default function KayitPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // 🚀 Şifre göster/gizle motoru
+  const [showPassword, setShowPassword] = useState(false); 
   const [isLoading, setIsLoading] = useState(false);
   
-  // 🚀 ŞİFRE BİLGİ PENCERESİNİ AÇIP KAPATACAK MOTOR
   const [showInfoModal, setShowInfoModal] = useState(false);
   
   const router = useRouter();
 
+  // 🚀 YENİ EKLENDİ: Google Butonuna Tıklanınca Çalışacak Motor 🚀
+  const handleGoogleSignIn = () => {
+    setIsLoading(true); // Tüm butonları kilitle ki çift tıklamasın
+    toast.loading("Google ile güvenli bağlantı kuruluyor. Lütfen bekleyin...");
+    signIn('google', { callbackUrl: '/' }); // Google'a yönlendir
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 🚀 ŞİFRE GÜVENLİK RADARI (Yükleme başlamadan hemen önce kapıda çevirir) 🚀
+    // 🚀 ŞİFRE GÜVENLİK RADARI 🚀
     if (password.length < 5) {
       toast.error("Şifreniz en az 5 karakter uzunluğunda olmalıdır!");
       return; 
     }
-
     if (!/[a-zA-Z]/.test(password)) {
       toast.error("Şifrenizde en az bir tane harf bulunmalıdır!");
       return; 
     }
-
     if (!/[0-9]/.test(password)) {
       toast.error("Şifrenizde en az bir tane rakam bulunmalıdır!");
       return; 
     }
-
-    // 🚀 YENİ RADAR: Ardışık (Sıralı) Karakter Engelleyici
     const siraliKontrol = /(0123|1234|2345|3456|4567|5678|6789|9876|8765|7654|6543|5432|4321|3210|abcd|bcde|cdef|defg|efgh|fghi|ghij|hijk|ijkl|jklm|klmn|lmno|mnop|nopq|opqr|pqrs|qrst|rstu|stuv|tuvw|uvwx|vwxy|wxyz|zyxw|yxwv|xwvu|wvut|vuts|utsr|tsrq|srqp|rqpo|qpon|ponm|onml|nmlk|mlkj|lkji|kjih|jihg|ihgf|hgfe|gfed|fedc|edcb|dcba)/i;
     
     if (siraliKontrol.test(password)) {
@@ -48,10 +49,7 @@ export default function KayitPage() {
     }
     // 🚀 RADAR BİTİŞİ 🚀
 
-    // Radardan sorunsuz geçtiyse yükleme animasyonunu başlat
     setIsLoading(true);
-
-    // 🚀 Eski alert() yerine şık Toast bildirimi
     const loadingToast = toast.loading("Kayıt oluşturuluyor...");
 
     try {
@@ -65,14 +63,10 @@ export default function KayitPage() {
 
       if (res.ok) {
         toast.dismiss(loadingToast);
-        
-        // 🚀 ESKİ YAZIYI SİLDİK, YERİNE BU UYARIYI KOYDUK (Ekranda 5 saniye kalacak)
         toast.success("Kayıt başarılı! Lütfen e-postanıza giderek hesabınızı onaylayın.", { duration: 5000 });
-        
         router.push("/giris");
       } else {
         toast.dismiss(loadingToast);
-        // 🚀 Zaten kayıtlı hatasını sağ üstten kırmızı şık bir şekilde çıkarır
         toast.error(data.message || "Bir hata oluştu.");
       }
     } catch (err) {
@@ -90,7 +84,7 @@ export default function KayitPage() {
       
       <div className="w-full max-w-md bg-[#09090b] border-none sm:border border-white/10 rounded-none sm:rounded-2xl p-6 sm:p-8 min-h-[100dvh] sm:min-h-[auto] flex flex-col justify-center shadow-2xl relative z-10 box-border overflow-y-auto">
 
-        {/* BİLGİN PC LOGO (Orijinal İki Renkli Tasarım) */}
+        {/* BİLGİN PC LOGO */}
         <div className="flex flex-col items-center justify-center w-full mb-8 shrink-0 mt-8 sm:mt-0">
           <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tight drop-shadow-[0_0_10px_rgba(0,0,0,0.5)]">
             <span className="text-white">BİLGİN</span>
@@ -99,7 +93,6 @@ export default function KayitPage() {
           <div className="h-[2px] w-12 bg-[#3b82f6]/50 mt-2"></div>
         </div>
 
-        {/* YENİ KAYIT BAŞLIĞI VE ALT YAZISI (uppercase silindi, kibarlaştırıldı) */}
         <h1 className="text-lg sm:text-xl font-bold uppercase tracking-wide text-white drop-shadow-md mb-2 border-l-4 border-[#3b82f6] pl-4">
           YENİ <span className="text-[#3b82f6] font-black">KAYIT</span>
         </h1>
@@ -107,12 +100,13 @@ export default function KayitPage() {
           Bilgin PC Market'e katılın ve avantajlardan yararlanın.
         </p>
         
-        {/* ✅ TERTEMİZ VE RENKLİ GOOGLE KAYIT MOTORU ✅ */}
+        {/* ✅ GOOGLE KAYIT MOTORU (Yükleme Animasyonlu ve Kilit Korumalı) ✅ */}
         <div className="w-full mb-6">
           <button
             type="button"
-            onClick={() => signIn('google', { callbackUrl: '/' })}
-            className="w-full hover:bg-white/5 border border-white/10 py-3.5 rounded-xl flex items-center justify-center gap-3 transition-all group shadow-md hover:shadow-white/5 hover:border-white/30"
+            onClick={handleGoogleSignIn}
+            disabled={isLoading}
+            className="w-full hover:bg-white/5 border border-white/10 py-3.5 rounded-xl flex items-center justify-center gap-3 transition-all group shadow-md hover:shadow-white/5 hover:border-white/30 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
               <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -157,7 +151,6 @@ export default function KayitPage() {
             />
           </div>
 
-          {/* 🚀 ŞİFRE KUTUSU VE İKON GRUBU (BİLGİ + GÖZ) */}
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
             <input 
@@ -170,7 +163,6 @@ export default function KayitPage() {
             />
             
             <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-3">
-              {/* Bilgi İkonu */}
               <button 
                 type="button" 
                 onClick={() => setShowInfoModal(true)} 
@@ -179,7 +171,6 @@ export default function KayitPage() {
               >
                 <Info size={18} />
               </button>
-              {/* Göz İkonu */}
               <button 
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
@@ -190,7 +181,6 @@ export default function KayitPage() {
             </div>
           </div>
 
-          {/* 🚀 KAYIT OL BUTONU (YÜKLENİYOR MOTORU VE PREMIUM RENKLER İLE) 🚀 */}
           <button
             type="submit"
             disabled={isLoading}
@@ -211,7 +201,6 @@ export default function KayitPage() {
       {showInfoModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="bg-[#09090b] border border-white/10 rounded-2xl p-6 max-w-sm w-full shadow-2xl relative">
-            {/* Çarpı Butonu */}
             <button 
               onClick={() => setShowInfoModal(false)} 
               className="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors"
