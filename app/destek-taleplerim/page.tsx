@@ -290,12 +290,12 @@ useEffect(() => {
                           </div>
                         </div>
                       </div>
-
-             {seciliTalepId === talep._id && (
-                        <div className="fixed inset-0 z-[100] bg-[#020617] p-4 flex flex-col animate-in slide-in-from-bottom-4 duration-200 sm:static sm:z-auto sm:bg-[#0f172a]/50 sm:p-6 sm:border-t sm:border-slate-800 sm:rounded-b-xl sm:animate-in sm:slide-in-from-top-2">
+{seciliTalepId === talep._id && (
+                        // 🚀 Katmanı z-[99999] yaparak header/footer'ın üstüne çıkarttık. pt-12 ve pb-8 ile nefes aldırdık!
+                        <div className="fixed inset-0 z-[99999] bg-[#020617] px-4 pt-12 pb-8 flex flex-col animate-in slide-in-from-bottom-4 duration-200 sm:static sm:z-auto sm:bg-[#0f172a]/50 sm:p-6 sm:border-t sm:border-slate-800 sm:rounded-b-xl sm:animate-in sm:slide-in-from-top-2">
                           
-                          {/* 🚀 MOBİL İÇİN ÖZEL ÜST BAR (Sadece telefonda WhatsApp gibi görünür, PC'de gizlenir) */}
-                          <div className="flex sm:hidden items-center justify-between pb-3 mb-2 border-b border-slate-800 shrink-0 pt-2">
+                          {/* 🚀 MOBİL İÇİN ÖZEL ÜST BAR */}
+                          <div className="flex sm:hidden items-center justify-between pb-3 mb-4 border-b border-slate-800 shrink-0 pt-2">
                             <div className="flex items-center gap-3">
                               <button onClick={(e) => { e.stopPropagation(); setSeciliTalepId(null); }} className="w-8 h-8 flex items-center justify-center bg-slate-800/80 hover:bg-slate-700 rounded-xl text-white border border-slate-700 transition-colors">
                                 <X className="w-5 h-5" />
