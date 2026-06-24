@@ -249,9 +249,9 @@ export default function KayitPage() {
             
             <button 
               onClick={() => setShowInfoModal(false)} 
-              className="w-full py-3 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl text-sm font-bold transition-colors"
+              className="w-full py-3 bg-[#3b82f6]/10 hover:bg-[#3b82f6]/20 text-[#3b82f6] border border-[#3b82f6]/30 rounded-xl text-sm font-bold transition-colors"
             >
-              Anladım, Kapat
+              Tamamdır, Teşekkürler
             </button>
           </div>
         </div>
