@@ -174,13 +174,13 @@ export default function FavoriClient({ initialFavorites }: Props) {
                         >
                           <Trash2 className="w-5 h-5" />
                         </button>
-                        <button 
+                     <button 
                           onClick={() => handleSepeteEkle(urun)} 
                           disabled={isAdded} 
-                          className={`flex-1 sm:flex-none h-12 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wider px-6 rounded-xl transition-all duration-300 shadow-md ${
+                          className={`flex-1 sm:flex-none h-12 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wider px-6 rounded-xl transition-all duration-300 shadow-md border-none ${
                             isAdded 
-                            ? "bg-gradient-to-r from-emerald-600 to-blue-600 text-white border-none shadow-[0_0_15px_rgba(16,185,129,0.3)]" 
-                            : "bg-[#020617] text-slate-300 border border-slate-800 hover:bg-cyan-600 hover:text-white hover:border-cyan-500 hover:shadow-[0_0_20px_rgba(6,182,212,0.3)]"
+                            ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.3)]" 
+                            : "bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.2)] hover:shadow-[0_0_25px_rgba(6,182,212,0.4)]"
                           }`}
                         >
                           {isAdded ? (<><CheckCircle2 className="w-4 h-4" /> Eklendi</>) : (<><ShoppingCart className="w-4 h-4" /> Sepete Ekle</>)}
