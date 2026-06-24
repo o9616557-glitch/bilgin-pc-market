@@ -353,11 +353,11 @@ return (
                 <User className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" /> Profil
               </Link>
               
-              <Link href="/cuzdan" onClick={kilitliIslem} className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+             <Link href="/cuzdan" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
                 <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" /> Dijital Cüzdanım
               </Link>
               
-              <Link href="/guvenlik" onClick={kilitliIslem} prefetch={true} className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+              <Link href="/guvenlik" prefetch={true} className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
                 <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" /> Güvenlik
               </Link>
             </nav>
