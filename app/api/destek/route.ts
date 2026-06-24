@@ -8,6 +8,7 @@ function talepNoUret() {
   return `DST-${Math.floor(100000 + Math.random() * 900000)}`;
 }
 
+// ⬇️ 1. GET METODU (Müşterinin sadece gizlemediği talepleri getirir)
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -15,13 +16,19 @@ export async function GET() {
     
     if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
     
-    const talepler = await Destek.find({ kullaniciEmail: session.user.email }).sort({ createdAt: -1 });
+    // BİNGO: musteriGizledi değeri true OLMAYANLARI getir. (Yani sildiklerini getirme)
+    const talepler = await Destek.find({ 
+      kullaniciEmail: session.user.email,
+      musteriGizledi: { $ne: true } 
+    }).sort({ createdAt: -1 });
+
     return NextResponse.json({ success: true, talepler });
   } catch (error: any) {
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }
 
+// ⬇️ 2. POST METODU (Yeni Talep)
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -55,6 +62,7 @@ export async function POST(request: Request) {
   }
 }
 
+// ⬇️ 3. PUT METODU (Müşteri Cevap Yazar)
 export async function PUT(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -81,7 +89,8 @@ export async function PUT(request: Request) {
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }
-// ⬇️ 4. DELETE METODU: Müşterinin kendi talebini silmesini sağlar
+
+// ⬇️ 4. DELETE METODU (Sanal Silme / Arşivleme) 🚀
 export async function DELETE(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -92,8 +101,15 @@ export async function DELETE(request: Request) {
 
     if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
 
-    // Müşteri sadece kendi e-postasına ait olan talebi silebilir (Güvenlik Kalkanı)
-    if (id) await Destek.findOneAndDelete({ _id: id, kullaniciEmail: session.user.email });
+    // BİNGO: "findOneAndDelete" yerine "findOneAndUpdate" kullanıyoruz.
+    // Veriyi silmiyoruz, içine { musteriGizledi: true } damgası vuruyoruz.
+    if (id) {
+      await Destek.findOneAndUpdate(
+        { _id: id, kullaniciEmail: session.user.email },
+        { $set: { musteriGizledi: true } },
+        { new: true, strict: false } // Modelde bu alan olmasa bile zorla kaydeder
+      );
+    }
     
     return NextResponse.json({ success: true });
   } catch (error: any) {
