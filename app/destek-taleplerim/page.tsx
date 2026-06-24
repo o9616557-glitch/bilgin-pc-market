@@ -109,7 +109,7 @@ export default function DestekIadePage() {
           {/* ⬅️ SOL MENÜ (Standart ve Sabit) */}
           <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
             <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-3 sm:p-4 shadow-xl">
-              <nav className="flex flex-col gap-1.5">
+         <nav className="flex flex-col gap-1.5">
                 <Link href="/hesabim" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
                   <User className="w-4 h-4 sm:w-5 sm:h-5" /> Profil
                 </Link>
@@ -118,9 +118,6 @@ export default function DestekIadePage() {
                 </Link>
                 <Link href="/guvenlik" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
                   <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" /> Güvenlik
-                </Link>
-                <Link href="/destek-taleplerim" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 bg-white/[0.05] border border-white/10 rounded-xl text-white font-bold shadow-inner transition-all text-sm sm:text-base">
-                  <Headset className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-400" /> Destek & İade
                 </Link>
               </nav>
             </div>
