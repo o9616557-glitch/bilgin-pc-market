@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User, Mail, Lock, ArrowLeft, Eye, EyeOff } from "lucide-react";
+// 🚀 Info, X ve CheckCircle2 ikonları eklendi
+import { User, Mail, Lock, ArrowLeft, Eye, EyeOff, Info, X, CheckCircle2 } from "lucide-react";
 import { signIn } from "next-auth/react";
 import toast from "react-hot-toast"; // 🚀 Modern bildirim motoru devrede!
 
@@ -13,6 +14,9 @@ export default function KayitPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false); // 🚀 Şifre göster/gizle motoru
   const [isLoading, setIsLoading] = useState(false);
+  
+  // 🚀 ŞİFRE BİLGİ PENCERESİNİ AÇIP KAPATACAK MOTOR
+  const [showInfoModal, setShowInfoModal] = useState(false);
   
   const router = useRouter();
 
@@ -36,7 +40,6 @@ export default function KayitPage() {
     }
 
     // 🚀 YENİ RADAR: Ardışık (Sıralı) Karakter Engelleyici
-    // Bu kod, 4 ve daha fazla yan yana sıralı rakam veya harfi (ileri veya geri) anında yakalar!
     const siraliKontrol = /(0123|1234|2345|3456|4567|5678|6789|9876|8765|7654|6543|5432|4321|3210|abcd|bcde|cdef|defg|efgh|fghi|ghij|hijk|ijkl|jklm|klmn|lmno|mnop|nopq|opqr|pqrs|qrst|rstu|stuv|tuvw|uvwx|vwxy|wxyz|zyxw|yxwv|xwvu|wvut|vuts|utsr|tsrq|srqp|rqpo|qpon|ponm|onml|nmlk|mlkj|lkji|kjih|jihg|ihgf|hgfe|gfed|fedc|edcb|dcba)/i;
     
     if (siraliKontrol.test(password)) {
@@ -79,6 +82,7 @@ export default function KayitPage() {
       setIsLoading(false);
     }
   };
+  
   return (
     <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center p-0 sm:p-4 relative overflow-hidden">
       {/* Arka Plan Efekti */}
@@ -86,23 +90,24 @@ export default function KayitPage() {
       
       <div className="w-full max-w-md bg-[#09090b] border-none sm:border border-white/10 rounded-none sm:rounded-2xl p-6 sm:p-8 min-h-[100dvh] sm:min-h-[auto] flex flex-col justify-center shadow-2xl relative z-10 box-border overflow-y-auto">
 
-  {/* BİLGİN PC LOGO (Orijinal İki Renkli Tasarım) */}
-  <div className="flex flex-col items-center justify-center w-full mb-8 shrink-0 mt-8 sm:mt-0">
-    <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tight drop-shadow-[0_0_10px_rgba(0,0,0,0.5)]">
-      <span className="text-white">BİLGİN</span>
-      <span className="text-[#3b82f6]">PC</span>
-    </div>
-    <div className="h-[2px] w-12 bg-[#3b82f6]/50 mt-2"></div>
-  </div>
+        {/* BİLGİN PC LOGO (Orijinal İki Renkli Tasarım) */}
+        <div className="flex flex-col items-center justify-center w-full mb-8 shrink-0 mt-8 sm:mt-0">
+          <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tight drop-shadow-[0_0_10px_rgba(0,0,0,0.5)]">
+            <span className="text-white">BİLGİN</span>
+            <span className="text-[#3b82f6]">PC</span>
+          </div>
+          <div className="h-[2px] w-12 bg-[#3b82f6]/50 mt-2"></div>
+        </div>
 
-  {/* YENİ KAYIT BAŞLIĞI VE ALT YAZISI (uppercase silindi, kibarlaştırıldı) */}
-  <h1 className="text-lg sm:text-xl font-bold uppercase tracking-wide text-white drop-shadow-md mb-2 border-l-4 border-[#3b82f6] pl-4">
-    YENİ <span className="text-[#3b82f6] font-black">KAYIT</span>
-   </h1>
-  <p className="text-slate-400 text-sm mb-8 font-medium">
-    Bilgin PC Market'e katılın ve avantajlardan yararlanın.
-  </p>
-       {/* ✅ TERTEMİZ VE RENKLİ GOOGLE KAYIT MOTORU ✅ */}
+        {/* YENİ KAYIT BAŞLIĞI VE ALT YAZISI (uppercase silindi, kibarlaştırıldı) */}
+        <h1 className="text-lg sm:text-xl font-bold uppercase tracking-wide text-white drop-shadow-md mb-2 border-l-4 border-[#3b82f6] pl-4">
+          YENİ <span className="text-[#3b82f6] font-black">KAYIT</span>
+        </h1>
+        <p className="text-slate-400 text-sm mb-8 font-medium">
+          Bilgin PC Market'e katılın ve avantajlardan yararlanın.
+        </p>
+        
+        {/* ✅ TERTEMİZ VE RENKLİ GOOGLE KAYIT MOTORU ✅ */}
         <div className="w-full mb-6">
           <button
             type="button"
@@ -152,7 +157,7 @@ export default function KayitPage() {
             />
           </div>
 
-          {/* 🚀 ŞİFRE KUTUSU VE GÖZ İKONU */}
+          {/* 🚀 ŞİFRE KUTUSU VE İKON GRUBU (BİLGİ + GÖZ) */}
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
             <input 
@@ -160,26 +165,39 @@ export default function KayitPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Şifreniz" 
-              className="w-full bg-[#050814] border border-white/10 rounded-xl py-3 pl-12 pr-12 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#3b82f6]/50 transition-colors"
+              className="w-full bg-[#050814] border border-white/10 rounded-xl py-3 pl-12 pr-20 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#3b82f6]/50 transition-colors"
               required 
             />
-            <button 
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
-            >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
+            
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-3">
+              {/* Bilgi İkonu */}
+              <button 
+                type="button" 
+                onClick={() => setShowInfoModal(true)} 
+                className="text-slate-500 hover:text-[#3b82f6] transition-colors"
+                title="Şifre Kuralları"
+              >
+                <Info size={18} />
+              </button>
+              {/* Göz İkonu */}
+              <button 
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="text-slate-500 hover:text-white transition-colors"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
-       {/* 🚀 KAYIT OL BUTONU (YÜKLENİYOR MOTORU VE PREMIUM RENKLER İLE) 🚀 */}
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full py-3.5 mt-2 bg-[#3b82f6] text-white text-sm font-black uppercase tracking-widest rounded-xl transition-all duration-300 hover:bg-[#1e40af] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isLoading ? "KAYIT OLUŞTURULUYOR..." : "KAYIT OL"}
-        </button>
+          {/* 🚀 KAYIT OL BUTONU (YÜKLENİYOR MOTORU VE PREMIUM RENKLER İLE) 🚀 */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full py-3.5 mt-2 bg-[#3b82f6] text-white text-sm font-black uppercase tracking-widest rounded-xl transition-all duration-300 hover:bg-[#1e40af] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? "KAYIT OLUŞTURULUYOR..." : "KAYIT OL"}
+          </button>
         </form>
 
         <div className="text-center">
@@ -188,6 +206,57 @@ export default function KayitPage() {
           </p>
         </div>
       </div>
+
+      {/* 🚀 ŞİFRE KURALLARI BİLGİLENDİRME PENCERESİ (MODAL) 🚀 */}
+      {showInfoModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-[#09090b] border border-white/10 rounded-2xl p-6 max-w-sm w-full shadow-2xl relative">
+            {/* Çarpı Butonu */}
+            <button 
+              onClick={() => setShowInfoModal(false)} 
+              className="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors"
+            >
+              <X size={20} />
+            </button>
+            
+            <h3 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
+              <Lock className="text-[#3b82f6]" size={20} />
+              Şifre Kuralları
+            </h3>
+            
+            <p className="text-sm text-slate-400 mb-5 leading-relaxed">
+              Hesabınızın güvenliği bizim için önemli. Lütfen şifrenizi belirlerken aşağıdaki kurallara dikkat ediniz:
+            </p>
+            
+            <ul className="space-y-3 mb-6">
+              <li className="flex items-start gap-2 text-sm text-slate-300">
+                <CheckCircle2 size={16} className="text-[#3b82f6] mt-0.5 shrink-0" />
+                <span>En az <strong className="text-white font-semibold">5 karakter</strong> uzunluğunda olmalıdır.</span>
+              </li>
+              <li className="flex items-start gap-2 text-sm text-slate-300">
+                <CheckCircle2 size={16} className="text-[#3b82f6] mt-0.5 shrink-0" />
+                <span>İçerisinde en az <strong className="text-white font-semibold">bir harf</strong> bulunmalıdır.</span>
+              </li>
+              <li className="flex items-start gap-2 text-sm text-slate-300">
+                <CheckCircle2 size={16} className="text-[#3b82f6] mt-0.5 shrink-0" />
+                <span>İçerisinde en az <strong className="text-white font-semibold">bir rakam</strong> bulunmalıdır.</span>
+              </li>
+              <li className="flex items-start gap-2 text-sm text-slate-300">
+                <CheckCircle2 size={16} className="text-[#3b82f6] mt-0.5 shrink-0" />
+                <span>"1234" veya "abcd" gibi <strong className="text-white font-semibold">ardışık sıralı</strong> karakterler içermemelidir.</span>
+              </li>
+            </ul>
+            
+            <button 
+              onClick={() => setShowInfoModal(false)} 
+              className="w-full py-3 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl text-sm font-bold transition-colors"
+            >
+              Anladım, Kapat
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
