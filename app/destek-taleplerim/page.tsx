@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 
 export default function DestekIadePage() {
   const { data: session, status } = useSession();
-  const sohbetSonuRef = useRef<HTMLDivElement>(null); 
+const mesajKutusuRef = useRef<HTMLDivElement>(null);
   
   const [talepler, setTalepler] = useState<any[]>(() => {
     if (typeof window !== "undefined") {
@@ -78,10 +78,10 @@ export default function DestekIadePage() {
       setYukleniyor(false);
     }
   }, [status]);
-
-  useEffect(() => {
-    if (seciliTalepId) {
-      sohbetSonuRef.current?.scrollIntoView({ behavior: "smooth" });
+useEffect(() => {
+    // Sayfayı zıplatmaz, SADECE sohbetin içini en aşağıya (son mesaja) indirir!
+    if (seciliTalepId && mesajKutusuRef.current) {
+      mesajKutusuRef.current.scrollTop = mesajKutusuRef.current.scrollHeight;
     }
   }, [seciliTalepId, talepler]);
 
@@ -289,7 +289,7 @@ export default function DestekIadePage() {
 
                       {seciliTalepId === talep._id && (
                         <div className="border-t border-slate-800 bg-[#0f172a]/50 p-4 sm:p-6 animate-in slide-in-from-top-2 duration-300 rounded-b-xl flex flex-col gap-5">
-                          <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
+                       <div ref={mesajKutusuRef} className="flex flex-col gap-4 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
                             {talep.mesajlar?.map((msg: any, index: number) => {
                               const isMusteri = msg.gonderen === 'Musteri';
                               return (
@@ -302,7 +302,6 @@ export default function DestekIadePage() {
                                 </div>
                               );
                             })}
-                            <div ref={sohbetSonuRef} />
                           </div>
 
                           {talep.durum !== 'Çözüldü' ? (
