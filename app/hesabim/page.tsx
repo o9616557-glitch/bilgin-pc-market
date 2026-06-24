@@ -417,25 +417,24 @@ return (
                   </span>
                 </div>
               </div>
-
-              <div className="flex-1 text-center sm:text-left z-10">
-                <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-2 drop-shadow-md">
+<div className="flex-1 text-center sm:text-left z-10">
+                <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight mb-0.5 sm:mb-2 drop-shadow-md">
                   {userName}
                 </h1>
-                <p className="text-slate-400 text-sm sm:text-base font-medium tracking-wide">
+                <p className="text-slate-400 text-xs sm:text-sm font-medium tracking-wide">
                   {userEmail}
                 </p>
               </div>
               
               {status === "authenticated" && (
-                <button onClick={handleCikisYap} className="relative z-10 flex items-center gap-2 px-6 py-3.5 rounded-xl bg-red-950/40 border border-red-900/50 text-red-400 hover:bg-red-900/60 hover:text-red-300 hover:border-red-500/50 transition-all font-bold uppercase tracking-widest text-xs shadow-[0_0_20px_rgba(220,38,38,0.1)]">
-                  <LogOut className="w-4 h-4" /> Çıkış
+                <button onClick={handleCikisYap} className="relative z-10 flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl bg-red-950/40 border border-red-900/50 text-red-400 hover:bg-red-900/60 hover:text-red-300 hover:border-red-500/50 transition-all font-black uppercase tracking-widest text-[10px] sm:text-xs shadow-[0_0_20px_rgba(220,38,38,0.1)]">
+                  <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Çıkış
                 </button>
               )}
             </div>
           </div>
 
-          <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest mt-2 ml-2">
+          <h2 className="text-[10px] sm:text-xs font-black text-slate-500 uppercase tracking-widest mt-1 sm:mt-2 ml-1 sm:ml-2">
             HESAP YÖNETİMİ
           </h2>
 
@@ -478,11 +477,10 @@ return (
             <div className="xl:col-span-1 flex flex-col h-full">
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group hover:border-cyan-500/30 transition-all duration-300 flex flex-col h-[350px] sm:h-[450px] xl:h-[550px]">
                 <div className="absolute -top-10 -left-10 w-40 h-40 bg-cyan-500/10 blur-[50px] pointer-events-none rounded-full"></div>
-                
-                <div className="flex items-center justify-between mb-6 relative z-10 shrink-0">
-                  <h3 className="text-white font-bold text-lg">Son İşlemler</h3>
-                  <Link href="/siparislerim" onClick={kilitliIslem} prefetch={true} className="text-xs font-bold text-cyan-400 hover:underline">
-                    Tümünü Gör
+               <div className="flex items-center justify-between mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-800/80 relative z-10 shrink-0">
+                  <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Son İşlemler</h3>
+                  <Link href="/siparislerim" onClick={kilitliIslem} prefetch={true} className="text-[10px] sm:text-xs font-bold text-cyan-400 hover:underline tracking-widest uppercase">
+                    TÜMÜNÜ GÖR
                   </Link>
                 </div>
 
@@ -496,16 +494,16 @@ return (
 
                       return (
                         <div key={item._id || idx} className="flex flex-col sm:flex-row xl:flex-col 2xl:flex-row sm:items-center justify-between gap-3 py-3 border-b border-white/5 last:border-0 hover:bg-white/[0.03] transition-colors rounded-xl px-2">
-                          <div className="flex-1 min-w-0">
-                            <p className="text-white font-bold text-sm truncate mb-1" title={urunAdi}>{urunAdi}</p>
-                            <p className="text-slate-500 text-[11px]">{tarih}</p>
+                    <div className="flex-1 min-w-0">
+                            <p className="text-white font-bold text-xs sm:text-sm truncate mb-0.5 sm:mb-1" title={urunAdi}>{urunAdi}</p>
+                            <p className="text-slate-500 text-[9px] sm:text-[10px] font-medium">{tarih}</p>
                           </div>
                           
-                          <div className="flex flex-row sm:flex-col xl:flex-row 2xl:flex-col items-center sm:items-end justify-between gap-2 shrink-0">
-                            <p className="text-white font-black text-sm">
+                          <div className="flex flex-row sm:flex-col xl:flex-row 2xl:flex-col items-center sm:items-end justify-between gap-1 sm:gap-2 shrink-0">
+                            <p className="text-white font-black text-xs sm:text-sm">
                               {Number(toplamFiyat).toLocaleString("tr-TR")} ₺
                             </p>
-                            <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest shrink-0 w-fit ${
+                            <span className={`px-1.5 sm:px-2 py-0.5 rounded text-[8px] sm:text-[9px] font-black uppercase tracking-widest shrink-0 w-fit ${
                               durum.toLowerCase().includes('kargo')
                                 ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
                                 : durum.toLowerCase().includes('teslim') || durum.toLowerCase().includes('tamam')
@@ -534,7 +532,7 @@ return (
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col xl:flex-row items-center gap-6 overflow-hidden">
                  
                  <div className="shrink-0 space-y-1.5 text-center xl:text-left xl:w-[140px] w-full">
-                   <h3 className="text-white font-bold text-base sm:text-lg leading-tight">Harcama Dağılımı</h3>
+                 <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider leading-tight">Harcama Dağılımı</h3>
                    <p className="text-[10px] text-slate-500 font-medium">Satın alınan kategoriler</p>
                  </div>
 
@@ -684,7 +682,7 @@ return (
               
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
                 <div className="flex flex-row items-center justify-between gap-2 mb-2">
-                   <h3 className="text-white font-bold text-base sm:text-lg">Aylık Harcama Grafiği</h3>
+              <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Aylık Harcama Grafiği</h3>
                    
                    <div className="flex items-center gap-1.5 bg-slate-800/30 border border-slate-700/50 rounded-lg px-1.5 py-1">
                      <button onClick={() => setSeciliYil(y => y - 1)} className="p-1 text-slate-400 hover:text-cyan-400 transition-colors">
