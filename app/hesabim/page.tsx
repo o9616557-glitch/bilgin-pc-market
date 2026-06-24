@@ -411,50 +411,51 @@ return (
           <h2 className="text-[10px] sm:text-xs font-black text-slate-500 uppercase tracking-widest mt-1 sm:mt-2 ml-1 sm:ml-2">
             HESAP YÖNETİMİ
           </h2>
-<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-4 gap-y-5 sm:gap-4 w-full">
+<div className="grid grid-cols-3 lg:grid-cols-5 gap-x-2 gap-y-4 sm:gap-4 w-full">
              <Link href="/adreslerim" onClick={kilitliIslem} prefetch={true} className="flex flex-col gap-1.5 group">
-               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-cyan-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1.5 transition-colors h-full w-full">
-                 <MapPin className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" />
-                 <p className="text-xl sm:text-2xl font-black text-white">{adresSayisi}</p>
+               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-cyan-500/20 rounded-2xl p-3 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1 sm:gap-1.5 transition-colors h-full w-full">
+                 <MapPin className="w-5 h-5 sm:w-7 sm:h-7 text-cyan-400" />
+                 <p className="text-lg sm:text-2xl font-black text-white">{adresSayisi}</p>
                  <p className="hidden sm:block text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Adresler</p>
                </div>
-               <p className="sm:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Adresler</p>
+               <p className="sm:hidden text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Adresler</p>
              </Link>
              
              <div onClick={handleKargoClick} className="flex flex-col gap-1.5 group cursor-pointer select-none">
-               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-rose-500/30 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1.5 transition-colors h-full w-full">
-                 <Truck className="w-6 h-6 sm:w-7 sm:h-7 text-rose-400" />
-                 <p className="text-xl sm:text-2xl font-black text-white">{kargoSiparisleri.length}</p>
+               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-rose-500/30 rounded-2xl p-3 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1 sm:gap-1.5 transition-colors h-full w-full">
+                 <Truck className="w-5 h-5 sm:w-7 sm:h-7 text-rose-400" />
+                 <p className="text-lg sm:text-2xl font-black text-white">{kargoSiparisleri.length}</p>
                  <p className="hidden sm:block text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Kargolar</p>
                </div>
-               <p className="sm:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Kargolar</p>
+               <p className="sm:hidden text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Kargolar</p>
              </div>
 
              <Link href="/siparis-takip" onClick={kilitliIslem} prefetch={true} className="flex flex-col gap-1.5 group">
-               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-blue-500/30 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1.5 transition-colors h-full w-full">
-                 <Search className="w-6 h-6 sm:w-7 sm:h-7 text-blue-400" />
-                 <p className="text-sm sm:text-base font-black text-slate-400 mt-1">Sorgula</p>
+               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-blue-500/30 rounded-2xl p-3 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1 sm:gap-1.5 transition-colors h-full w-full">
+                 <Search className="w-5 h-5 sm:w-7 sm:h-7 text-blue-400" />
+                 <p className="text-xs sm:text-base font-black text-slate-400 mt-0.5 sm:mt-1">Sorgula</p>
                  <p className="hidden sm:block text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Sipariş Takip</p>
                </div>
-               <p className="sm:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Sipariş Takip</p>
+               {/* "Sipariş Takip" yazısı uzun olduğu için telefonda yanlara taşmasın diye text-[8px] yapıldı */}
+               <p className="sm:hidden text-[8px] font-black text-slate-400 uppercase tracking-widest text-center">Sipariş Takip</p>
              </Link>
              
              <Link href="https://www.bilginpcmarket.com/favorilerim" onClick={kilitliIslem} prefetch={true} className="flex flex-col gap-1.5 group">
-               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-purple-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1.5 transition-colors h-full w-full">
-                 <Star className="w-6 h-6 sm:w-7 sm:h-7 text-purple-400" />
-                 <p className="text-xl sm:text-2xl font-black text-white">{favoriSayisi}</p>
+               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-purple-500/20 rounded-2xl p-3 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1 sm:gap-1.5 transition-colors h-full w-full">
+                 <Star className="w-5 h-5 sm:w-7 sm:h-7 text-purple-400" />
+                 <p className="text-lg sm:text-2xl font-black text-white">{favoriSayisi}</p>
                  <p className="hidden sm:block text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Favoriler</p>
                </div>
-               <p className="sm:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Favoriler</p>
+               <p className="sm:hidden text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Favoriler</p>
              </Link>
 
              <Link href="/sistemlerim" onClick={kilitliIslem} prefetch={true} className="flex flex-col gap-1.5 group">
-               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-emerald-500/20 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1.5 transition-colors h-full w-full">
-                 <Server className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-400" />
-                 <p className="text-xl sm:text-2xl font-black text-white">{sistemSayisi}</p>
+               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-emerald-500/20 rounded-2xl p-3 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1 sm:gap-1.5 transition-colors h-full w-full">
+                 <Server className="w-5 h-5 sm:w-7 sm:h-7 text-emerald-400" />
+                 <p className="text-lg sm:text-2xl font-black text-white">{sistemSayisi}</p>
                  <p className="hidden sm:block text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Sistemler</p>
                </div>
-               <p className="sm:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Sistemler</p>
+               <p className="sm:hidden text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Sistemler</p>
              </Link>
           </div>
 
