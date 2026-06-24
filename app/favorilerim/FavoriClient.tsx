@@ -167,20 +167,13 @@ export default function FavoriClient({ initialFavorites }: Props) {
                     </div>
 
                     <div className="flex flex-row items-center gap-2 sm:gap-3 shrink-0 w-full sm:w-auto mt-2 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-none border-slate-800/50">
-                        <button 
-                          onClick={() => setProductToDelete(urun)} 
-                          className="w-12 h-12 flex items-center justify-center text-slate-400 bg-[#020617] border border-slate-800 hover:bg-rose-500/10 hover:border-rose-500/30 hover:text-rose-400 rounded-xl transition-all shadow-md shrink-0"
-                          title="Favorilerden Kaldır"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                     <button 
+                    <button 
                           onClick={() => handleSepeteEkle(urun)} 
                           disabled={isAdded} 
-                          className={`flex-1 sm:flex-none h-12 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wider px-6 rounded-xl transition-all duration-300 shadow-md border-none ${
+                          className={`flex-1 sm:flex-none h-12 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wider px-6 rounded-xl transition-all duration-300 border-none ${
                             isAdded 
                             ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.3)]" 
-                            : "bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.2)] hover:shadow-[0_0_25px_rgba(6,182,212,0.4)]"
+                            : "bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)]"
                           }`}
                         >
                           {isAdded ? (<><CheckCircle2 className="w-4 h-4" /> Eklendi</>) : (<><ShoppingCart className="w-4 h-4" /> Sepete Ekle</>)}
