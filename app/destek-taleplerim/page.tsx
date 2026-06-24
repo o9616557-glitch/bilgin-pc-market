@@ -331,9 +331,9 @@ useEffect(() => {
         </div>
       </div>
 
-      {/* 🚀 MOBİL İÇİN TAM EKRAN ÖZGÜR SOHBET (Z-Index En Üst Seviyede) */}
+ {/* 🚀 MOBİL İÇİN TAM EKRAN ÖZGÜR SOHBET (Z-Index En Üst Seviyede) */}
       {seciliTalepId && talepler.find(t => t._id === seciliTalepId) && (
-        <div style={{ zIndex: 999999 }} className="fixed inset-0 bg-[#020617] px-4 pt-16 pb-6 flex flex-col sm:hidden animate-in slide-in-from-bottom-4 duration-200">
+        <div style={{ zIndex: 999999 }} className="fixed inset-0 bg-[#020617] px-4 pt-8 pb-6 flex flex-col sm:hidden animate-in slide-in-from-bottom-4 duration-200">
           {(() => {
             const talep = talepler.find(t => t._id === seciliTalepId);
             return (
