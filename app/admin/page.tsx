@@ -2,13 +2,22 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { 
+  Package, ShoppingCart, LayoutDashboard, LogOut, 
+  Trash2, Edit, Plus, Truck, AlertCircle, CheckCircle2, 
+  Search, X, Save, Crown, MessageSquare, Image as ImageIcon,
+  Loader2,
+  Clock,
+  User,
+  CreditCard
+} from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function AdminPaneli() {
   // 👑 1. GÜVENLİK DUVARI: GOOGLE VIP KONTROLÜ
   const { data: session, status } = useSession();
   const router = useRouter();
   
-  // 🚨 BURAYA KENDİ GOOGLE E-POSTA ADRESİNİ YAZMAYI UNUTMA!
   const ADMIN_EMAIL = "o9616557@gmail.com"; 
 
   useEffect(() => {
@@ -21,15 +30,11 @@ export default function AdminPaneli() {
 
   const [sifre, setSifre] = useState("");
   const [girisYapildi, setGirisYapildi] = useState(false);
-  const [aktifSekme, setAktifSekme] = useState<"siparisler" | "urunler">("urunler");
+  const [aktifSekme, setAktifSekme] = useState<"siparisler" | "urunler">("siparisler");
   const [yukleniyor, setYukleniyor] = useState(true);
-
-  const [bildirim, setBildirim] = useState<{tip: "basari" | "hata", mesaj: string} | null>(null);
 
   const [siparisler, setSiparisler] = useState<any[]>([]);
   const [silinecekSiparisID, setSilinecekSiparisID] = useState<string | null>(null);
-  
-  // 🚀 SİHİR BURADA: Kargo bekleme kilidi
   const [kargoBekleyenID, setKargoBekleyenID] = useState<string | null>(null);
 
   const [urunler, setUrunler] = useState<any[]>([]);
@@ -70,12 +75,17 @@ export default function AdminPaneli() {
       sessionStorage.setItem("patronGiris", "basarili"); 
       setGirisYapildi(true);
       verileriYukle();
+      toast.success("Komuta Merkezine Hoş Geldiniz!");
     } else {
-      setBildirim({tip: "hata", mesaj: "Hatalı Şifre!"});
+      toast.error("Hatalı Şifre!");
     }
   };
 
-  const cikisYap = () => { sessionStorage.removeItem("patronGiris"); setGirisYapildi(false); };
+  const cikisYap = () => { 
+    sessionStorage.removeItem("patronGiris"); 
+    setGirisYapildi(false); 
+    toast.success("Sistemden çıkış yapıldı.");
+  };
 
   const siparisleriGetir = async () => {
     try {
@@ -90,19 +100,18 @@ export default function AdminPaneli() {
       const res = await fetch("/api/admin/siparisler", { method: "PUT", headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI }, body: JSON.stringify({ id, yeniDurum }) });
       if ((await res.json()).success) {
         setSiparisler(siparisler.map(s => s._id === id ? { ...s, durum: yeniDurum } : s));
-        setBildirim({tip: "basari", mesaj: "Durum Güncellendi!"});
+        toast.success("Sipariş durumu güncellendi!");
       }
-    } catch (e) {}
+    } catch (e) { toast.error("Durum güncellenemedi."); }
   };
 
   const mesajGuncelle = async (id: string, musteriMesaji: string) => {
     try {
       const res = await fetch("/api/admin/siparisler", { method: "PUT", headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI }, body: JSON.stringify({ id, musteriMesaji }) });
-      if ((await res.json()).success) setBildirim({tip: "basari", mesaj: "Mesaj İletildi!"});
-    } catch (e) {}
+      if ((await res.json()).success) toast.success("Mesaj müşteriye iletildi!");
+    } catch (e) { toast.error("Mesaj iletilemedi."); }
   };
 
-  // 🚀 AKILLI KARGO MOTORU: Emniyet kilidi açıksa durumu da günceller!
   const kargoGuncelle = async (id: string, kargoFirmasi: string, takipNo: string, durumuGuncelle: boolean) => {
     try {
       const gonderilecekVeri: any = { id, kargoFirmasi, takipNo };
@@ -115,11 +124,11 @@ export default function AdminPaneli() {
       });
       if ((await res.json()).success) {
         setSiparisler(siparisler.map(s => s._id === id ? { ...s, kargoFirmasi, takipNo, durum: durumuGuncelle ? "Kargoya Verildi" : s.durum } : s));
-        setKargoBekleyenID(null); // İşlem bitince kilidi aç
-        setBildirim({tip: "basari", mesaj: durumuGuncelle ? "Kargo Girildi ve E-Posta Gönderildi!" : "Kargo Bilgileri Güncellendi!"});
+        setKargoBekleyenID(null); 
+        toast.success(durumuGuncelle ? "Kargo Girildi ve Müşteriye Bildirildi!" : "Kargo Bilgileri Güncellendi!");
       }
     } catch (e) {
-      setBildirim({tip: "hata", mesaj: "Kargo kaydedilemedi."});
+      toast.error("Kargo kaydedilemedi.");
     }
   };
 
@@ -130,9 +139,9 @@ export default function AdminPaneli() {
       if ((await res.json()).success) {
         setSiparisler(siparisler.filter(s => s._id !== silinecekSiparisID));
         setSilinecekSiparisID(null);
-        setBildirim({tip: "basari", mesaj: "Silindi!"});
+        toast.success("Sipariş kalıcı olarak silindi!");
       }
-    } catch (e) {}
+    } catch (e) { toast.error("Silinemedi."); }
   };
 
   const urunleriGetir = async () => {
@@ -153,11 +162,11 @@ export default function AdminPaneli() {
 
       const res = await fetch("/api/admin/products", { method: "PUT", headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI }, body: JSON.stringify(gonderilecekVeri) });
       if ((await res.json()).success) {
-        setBildirim({tip: "basari", mesaj: "Ürün Kaydedildi!"});
+        toast.success(duzenlenenUrun ? "Ürün güncellendi!" : "Yeni ürün eklendi!");
         formuKapat();
         urunleriGetir();
       }
-    } catch (e) { setBildirim({tip: "hata", mesaj: "Hata oluştu."}); }
+    } catch (e) { toast.error("Hata oluştu."); }
   };
 
   const urunSilmeIslemi = async (id: string) => {
@@ -166,25 +175,21 @@ export default function AdminPaneli() {
       const res = await fetch(`/api/admin/products?id=${id}`, { method: "DELETE", headers: { "x-patron-anahtar": PATRON_SIFRESI }});
       if ((await res.json()).success) {
         setUrunler(urunler.filter(u => u._id !== id));
-        setBildirim({tip: "basari", mesaj: "Silindi!"});
+        toast.success("Ürün silindi!");
       }
-    } catch (e) {}
+    } catch (e) { toast.error("Silinemedi."); }
   };
 
   const urunDuzenleModunuAc = (urun: any) => {
     setDuzenlenenUrun(urun);
     setFormIsim(urun.isim || urun.name || "");
-    
     const orjFiyat = urun.regular_price || urun.fiyat || urun.price || 0;
     setFormFiyat(orjFiyat.toString());
-    
     setFormIndirimliFiyat(urun.indirimliFiyat ? urun.indirimliFiyat.toString() : ""); 
     setFormHavaleIndirimi(urun.havaleIndirimi !== undefined ? urun.havaleIndirimi.toString() : "5");
     setFormStok(urun.stokDurumu || "Stokta Var");
-    
     const temizAdet = (urun.stokAdedi !== null && urun.stokAdedi !== undefined && urun.stokAdedi !== "" && Number(urun.stokAdedi) !== 10) ? urun.stokAdedi.toString() : "";
     setFormStokAdedi(temizAdet);
-    
     setFormResim(urun.resim || "");
     setFormKategori(urun.kategori || "Bilgisayar");
     setYeniUrunModu(true);
@@ -202,324 +207,393 @@ export default function AdminPaneli() {
   };
 
   const durumRengi = (durum: string) => {
-    if (!durum) return "#d97706";
-    if (durum === "Ödendi / Hazırlanıyor" || durum.includes("Başarılı")) return "#059669"; 
-    if (durum === "Kargoya Verildi") return "#2563eb"; 
-    if (durum === "İptal Edildi") return "#dc2626"; 
-    return "#d97706"; 
+    if (!durum) return "text-amber-400 bg-amber-400/10 border-amber-400/20";
+    if (durum === "Ödendi / Hazırlanıyor" || durum.includes("Başarılı")) return "text-emerald-400 bg-emerald-400/10 border-emerald-400/20"; 
+    if (durum === "Kargoya Verildi") return "text-blue-400 bg-blue-400/10 border-blue-400/20"; 
+    if (durum === "İptal Edildi") return "text-rose-400 bg-rose-400/10 border-rose-400/20"; 
+    return "text-amber-400 bg-amber-400/10 border-amber-400/20"; 
   };
 
-  if (yukleniyor && !girisYapildi) return <div style={{ textAlign: "center", padding: "100px", color: "#64748b", fontFamily: "sans-serif" }}>Sistem Yükleniyor...</div>;
+  if (status === "loading" || (yukleniyor && !girisYapildi)) {
+    return (
+      <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center relative overflow-hidden">
+        <div className="w-16 h-16 border-4 border-slate-800 border-t-indigo-500 rounded-full animate-spin shadow-[0_0_30px_rgba(99,102,241,0.3)]"></div>
+        <p className="mt-6 text-indigo-400 font-bold uppercase tracking-widest text-sm animate-pulse">Güvenlik Duvarı Geçiliyor...</p>
+      </div>
+    );
+  }
 
+  // 🔒 ŞİFRE EKRANI (VIP KAPI)
   if (!girisYapildi) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh", padding: "20px", fontFamily: "sans-serif", backgroundColor: "#0f172a" }}>
-        {bildirim && <div style={{ position: "fixed", top: 20, right: 20, background: "#1e293b", border: `1px solid ${bildirim.tip === "basari" ? "#3b82f6" : "#ef4444"}`, borderRadius: "8px", padding: "15px 20px", color: "#f8fafc", zIndex: 99999, fontSize: "14px" }}>{bildirim.mesaj}</div>}
-        <form onSubmit={girisYap} style={{ background: "#1e293b", border: "1px solid #334155", padding: "40px", borderRadius: "12px", textAlign: "center", width: "100%", maxWidth: "360px" }}>
-          <h2 style={{ color: "#f8fafc", marginBottom: "25px", fontWeight: "600", fontSize: "20px" }}>Yönetim Girişi</h2>
-          <input type="password" value={sifre} onChange={(e) => setSifre(e.target.value)} placeholder="Şifrenizi Girin..." style={{ width: "100%", padding: "12px", background: "#0f172a", border: "1px solid #334155", borderRadius: "6px", color: "#f8fafc", marginBottom: "20px", outline: "none", fontSize: "14px" }} required />
-          <button type="submit" style={{ width: "100%", padding: "12px", background: "#3b82f6", color: "#fff", border: "none", borderRadius: "6px", fontWeight: "500", cursor: "pointer", fontSize: "14px" }}>Giriş Yap</button>
+      <div className="min-h-screen bg-[#020617] flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-rose-600 blur-[250px] opacity-10 pointer-events-none rounded-full"></div>
+        
+        <form onSubmit={girisYap} className="bg-[#0f172a] border border-slate-800 rounded-3xl p-8 sm:p-10 w-full max-w-md flex flex-col items-center shadow-2xl relative z-10 animate-in fade-in zoom-in-95 duration-500">
+          <div className="w-20 h-20 bg-[#020617] border border-rose-500/30 rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(225,29,72,0.2)]">
+            <Crown className="w-10 h-10 text-rose-500" />
+          </div>
+          <h2 className="text-2xl font-black text-white uppercase tracking-widest mb-2">Komuta Merkezi</h2>
+          <p className="text-slate-400 text-sm mb-8 text-center font-medium">Lütfen yönetici şifrenizi girerek kimliğinizi doğrulayın.</p>
+          
+          <input 
+            type="password" 
+            value={sifre} 
+            onChange={(e) => setSifre(e.target.value)} 
+            placeholder="Yönetici Şifresi" 
+            className="w-full bg-[#020617] border border-slate-800 focus:border-rose-500/50 rounded-xl px-5 py-4 text-white text-center tracking-widest focus:outline-none transition-all mb-6" 
+            required 
+          />
+          <button type="submit" className="w-full bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-black uppercase tracking-widest text-sm py-4 rounded-xl shadow-[0_0_20px_rgba(225,29,72,0.3)] transition-all">
+            KİLİDİ AÇ
+          </button>
         </form>
       </div>
     );
   }
 
+  // 🚀 ANA KONTROL PANELİ
   return (
-    <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px", fontFamily: "system-ui, -apple-system, sans-serif", color: "#e2e8f0" }}>
+    <div className="min-h-screen bg-[#020617] text-white font-sans flex flex-col md:flex-row overflow-hidden">
       
-      {/* BİLDİRİM POPUP */}
-      {bildirim && (
-        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(15, 23, 42, 0.7)", zIndex: 99999, display: "flex", justifyContent: "center", alignItems: "center" }}>
-          <div style={{ background: "#1e293b", border: `1px solid ${bildirim.tip === "basari" ? "#3b82f6" : "#ef4444"}`, borderRadius: "8px", padding: "24px", maxWidth: "320px", width: "90%", textAlign: "center", boxShadow: "0 10px 25px rgba(0,0,0,0.5)" }}>
-            <h3 style={{ color: "#f8fafc", fontWeight: "600", marginBottom: "10px", fontSize: "16px" }}>{bildirim.tip === "basari" ? "İşlem Başarılı" : "Hata Oluştu"}</h3>
-            <p style={{ color: "#cbd5e1", marginBottom: "20px", fontSize: "14px" }}>{bildirim.mesaj}</p>
-            <button onClick={() => setBildirim(null)} style={{ width: "100%", background: bildirim.tip === "basari" ? "#3b82f6" : "#ef4444", color: "#fff", border: "none", padding: "10px", borderRadius: "6px", fontWeight: "500", cursor: "pointer", fontSize: "14px" }}>Kapat</button>
+      {/* ⬅️ SOL MENÜ (SIDEBAR) */}
+      <div className="w-full md:w-64 bg-[#0f172a] border-r border-slate-800 flex flex-col shrink-0 h-auto md:h-screen sticky top-0 z-20 shadow-2xl">
+        <div className="p-6 border-b border-slate-800/80 flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-lg flex items-center justify-center shadow-lg">
+            <Crown className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h1 className="font-black text-white tracking-widest text-sm uppercase">Bilgin PC</h1>
+            <p className="text-[10px] text-slate-400 font-bold tracking-wider">Yönetim Katı</p>
           </div>
         </div>
-      )}
 
-      {/* SİLME ONAYI */}
-      {silinecekSiparisID && (
-        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(15, 23, 42, 0.7)", zIndex: 9999, display: "flex", justifyContent: "center", alignItems: "center" }}>
-          <div style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "8px", padding: "24px", maxWidth: "320px", textAlign: "center", width: "90%", boxShadow: "0 10px 25px rgba(0,0,0,0.5)" }}>
-            <h3 style={{ color: "#f8fafc", fontWeight: "600", marginBottom: "15px", fontSize: "16px" }}>Siparişi Silmek İstediğinize Emin Misiniz?</h3>
-            <div style={{ display: "flex", gap: "10px" }}>
-              <button onClick={() => setSilinecekSiparisID(null)} style={{ flex: 1, background: "#334155", color: "#f8fafc", border: "none", padding: "10px", borderRadius: "6px", fontWeight: "500", cursor: "pointer", fontSize: "14px" }}>İptal</button>
-              <button onClick={siparisSilmeIslemi} style={{ flex: 1, background: "#ef4444", color: "#fff", border: "none", padding: "10px", borderRadius: "6px", fontWeight: "500", cursor: "pointer", fontSize: "14px" }}>Sil</button>
+        <nav className="flex-1 p-4 flex flex-col gap-2 overflow-y-auto">
+          <button onClick={() => setAktifSekme("siparisler")} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-black uppercase tracking-widest transition-all ${aktifSekme === "siparisler" ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-inner" : "text-slate-400 hover:bg-[#020617] hover:text-white border border-transparent"}`}>
+            <ShoppingCart className="w-5 h-5" /> Siparişler <span className="ml-auto bg-[#020617] px-2 py-0.5 rounded text-[10px] border border-slate-800">{siparisler.length}</span>
+          </button>
+          
+          <button onClick={() => setAktifSekme("urunler")} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-black uppercase tracking-widest transition-all ${aktifSekme === "urunler" ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-inner" : "text-slate-400 hover:bg-[#020617] hover:text-white border border-transparent"}`}>
+            <Package className="w-5 h-5" /> Ürünler <span className="ml-auto bg-[#020617] px-2 py-0.5 rounded text-[10px] border border-slate-800">{urunler.length}</span>
+          </button>
+
+          <button onClick={() => window.location.href = "/admin/reviews"} className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-black uppercase tracking-widest text-slate-400 hover:bg-[#020617] hover:text-white border border-transparent transition-all">
+            <MessageSquare className="w-5 h-5" /> Yorumlar
+          </button>
+        </nav>
+
+        <div className="p-4 border-t border-slate-800/80">
+          <button onClick={cikisYap} className="w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-[#020617] border border-slate-800 text-slate-400 hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/10 font-black uppercase tracking-widest text-xs transition-all shadow-md">
+            <LogOut className="w-4 h-4" /> Güvenli Çıkış
+          </button>
+        </div>
+      </div>
+
+      {/* ➡️ SAĞ İÇERİK ALANI */}
+      <div className="flex-1 flex flex-col h-screen overflow-y-auto bg-[#020617] relative">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-indigo-600 blur-[200px] opacity-[0.03] pointer-events-none rounded-full"></div>
+        
+        <div className="p-6 md:p-8 max-w-7xl mx-auto w-full relative z-10">
+          
+          {/* ÜST BAR */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+            <div>
+              <h2 className="text-2xl font-black text-white uppercase tracking-tight">
+                {aktifSekme === "siparisler" ? "Sipariş Yönetimi" : "Envanter ve Ürünler"}
+              </h2>
+              <p className="text-slate-400 text-sm mt-1">
+                {aktifSekme === "siparisler" ? "Müşteri siparişlerini, kargo durumlarını ve ödemeleri buradan yönetin." : "Mağazadaki donanımları, stokları ve fiyatları güncelleyin."}
+              </p>
             </div>
-          </div>
-        </div>
-      )}
 
-      {/* YENİ ÜRÜN / DÜZENLEME FORMU */}
-      {yeniUrunModu && (
-        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(15, 23, 42, 0.8)", zIndex: 9999, display: "flex", justifyContent: "center", alignItems: "center" }}>
-          <form onSubmit={urunKaydet} style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "12px", padding: "24px", maxWidth: "500px", width: "90%", display: "flex", flexDirection: "column", gap: "12px", maxHeight: "90vh", overflowY: "auto", boxShadow: "0 10px 25px rgba(0,0,0,0.5)" }}>
-            <h3 style={{ color: "#f8fafc", fontSize: "16px", fontWeight: "600", borderBottom: "1px solid #334155", paddingBottom: "10px", margin: "0 0 5px 0" }}>{duzenlenenUrun ? "Ürünü Düzenle" : "Yeni Ürün Ekle"}</h3>
+            {aktifSekme === "urunler" && (
+              <button onClick={yeniUrunModunuAc} className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white px-6 py-3.5 rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] shrink-0">
+                <Plus className="w-4 h-4" /> Yeni Ürün Ekle
+              </button>
+            )}
+          </div>
+
+          {yukleniyor ? (
+            <div className="flex flex-col items-center justify-center py-20 opacity-50">
+              <Loader2 className="w-10 h-10 text-indigo-500 animate-spin mb-4" />
+              <p className="font-black text-indigo-400 uppercase tracking-widest">Veriler Çekiliyor...</p>
+            </div>
+          ) : aktifSekme === "siparisler" ? (
             
-            <div><label style={{ color: "#cbd5e1", fontSize: "12px", display: "block", marginBottom:"4px" }}>Ürün Adı</label><input type="text" value={formIsim} onChange={(e) => setFormIsim(e.target.value)} required style={{ width: "100%", padding: "10px", background: "#0f172a", border: "1px solid #334155", borderRadius: "6px", color: "#f8fafc", outline: "none", fontSize: "14px" }} /></div>
+            /* 📦 SİPARİŞLER LİSTESİ */
+            <div className="flex flex-col gap-6">
+              {siparisler.map((siparis) => (
+                <div key={siparis._id} className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col gap-6 transition-all hover:border-indigo-500/30">
+                  
+                  {/* BAŞLIK & DURUM */}
+                  <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 border-b border-slate-800/80 pb-5">
+                    <div>
+                      <div className="text-xl font-black text-white tracking-tight mb-1">{siparis.siparisKodu}</div>
+                      <div className="text-xs text-slate-500 font-bold uppercase tracking-wider flex items-center gap-2">
+                        <Clock className="w-3.5 h-3.5" /> {new Date(siparis.tarih).toLocaleString("tr-TR")}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border font-black uppercase tracking-widest text-[10px] ${durumRengi(siparis.durum)}`}>
+                        <CheckCircle2 className="w-4 h-4" />
+                        <select 
+                          onChange={(e) => {
+                            if (e.target.value === "Kargoya Verildi") {
+                              setKargoBekleyenID(siparis._id);
+                            } else {
+                              durumGuncelle(siparis._id, e.target.value);
+                              if (kargoBekleyenID === siparis._id) setKargoBekleyenID(null);
+                            }
+                          }} 
+                          value={kargoBekleyenID === siparis._id ? "kargo_bekleniyor" : siparis.durum} 
+                          className="bg-transparent border-none outline-none cursor-pointer appearance-none"
+                        >
+                          <option value="Ödeme Bekliyor (Havale)" className="bg-[#0f172a] text-slate-300">Bekliyor (Havale)</option>
+                          <option value="Ödendi / Hazırlanıyor" className="bg-[#0f172a] text-slate-300">Hazırlanıyor</option>
+                          {kargoBekleyenID === siparis._id && <option value="kargo_bekleniyor" className="bg-[#0f172a] text-slate-300">Bilgiler Giriliyor...</option>}
+                          <option value="Kargoya Verildi" className="bg-[#0f172a] text-slate-300">Kargoya Verildi</option>
+                          <option value="Tamamlandı" className="bg-[#0f172a] text-slate-300">Tamamlandı</option>
+                          <option value="İptal Edildi" className="bg-[#0f172a] text-slate-300">İptal Edildi</option>
+                        </select>
+                      </div>
+                      <button onClick={() => setSilinecekSiparisID(siparis._id)} className="w-10 h-10 flex items-center justify-center bg-[#020617] border border-slate-800 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/30 rounded-xl transition-all shadow-md" title="Siparişi Sil">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-              <div><label style={{ color: "#cbd5e1", fontSize: "12px", display: "block", marginBottom:"4px" }}>Normal Fiyat (TL)</label><input type="number" value={formFiyat} onChange={(e) => setFormFiyat(e.target.value)} required style={{ width: "100%", padding: "10px", background: "#0f172a", border: "1px solid #334155", borderRadius: "6px", color: "#f8fafc", outline: "none", fontSize: "14px" }} /></div>
-              <div><label style={{ color: "#cbd5e1", fontSize: "12px", display: "block", marginBottom:"4px" }}>İndirimli Fiyat (TL)</label><input type="number" value={formIndirimliFiyat} onChange={(e) => setFormIndirimliFiyat(e.target.value)} placeholder="İsteğe bağlı" style={{ width: "100%", padding: "10px", background: "#0f172a", border: "1px solid #334155", borderRadius: "6px", color: "#f8fafc", outline: "none", fontSize: "14px" }} /></div>
+                  {/* BİLGİ KARTLARI */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Müşteri */}
+                    <div className="bg-[#020617] p-5 rounded-xl border border-slate-800">
+                      <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-3 flex items-center gap-2"><User className="w-4 h-4 text-indigo-400" /> Müşteri Bilgileri</div>
+                      <div className="text-sm font-bold text-white mb-1">{siparis.musteri?.ad} {siparis.musteri?.soyad}</div>
+                      <div className="text-xs text-slate-400 mb-1">{siparis.musteri?.telefon} • {siparis.musteri?.eposta}</div>
+                      <div className="text-xs text-slate-400">{siparis.musteri?.adres ? `${siparis.musteri.adres}, ` : ""}{siparis.musteri?.ilce} / {siparis.musteri?.sehir}</div>
+                    </div>
+
+                    {/* Ödeme */}
+                    <div className="bg-[#020617] p-5 rounded-xl border border-slate-800 flex flex-col justify-center items-center text-center">
+                      <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-2 flex items-center justify-center gap-2 w-full"><CreditCard className="w-4 h-4 text-emerald-400" /> Ödeme Özeti</div>
+                      <div className="text-xs font-bold text-slate-400 bg-slate-800/50 px-3 py-1 rounded-lg mb-2 uppercase tracking-wider">{siparis.odemeYontemi === "kart" ? "Kredi Kartı" : "Havale / EFT"}</div>
+                      <div className="text-2xl font-black text-emerald-400">{Number((siparis.toplamTutar) || (siparis.Tutar) || 0).toLocaleString("tr-TR")} <span className="text-sm">TL</span></div>
+                    </div>
+
+                    {/* Ürünler */}
+                    <div className="bg-[#020617] p-5 rounded-xl border border-slate-800 max-h-[160px] overflow-y-auto custom-scrollbar">
+                      <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-3 flex items-center gap-2 sticky top-0 bg-[#020617] pb-2"><Package className="w-4 h-4 text-cyan-400" /> Sipariş İçeriği</div>
+                      <div className="flex flex-col gap-3">
+                        {siparis.sepet?.map((urun: any, i: number) => (
+                          <div key={i} className="flex flex-col border-b border-slate-800/50 pb-2 last:border-0 last:pb-0">
+                            <div className="text-xs font-bold text-slate-200 line-clamp-1"><span className="text-indigo-400 mr-1">{urun.adet}x</span>{urun.isim || urun.name}</div>
+                            <div className="text-[9px] text-slate-500 font-mono mt-0.5">ID: {urun.id || urun._id || "Tanımsız"}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* NOTLAR VE KARGO */}
+                  <div className="flex flex-col lg:flex-row gap-4 border-t border-slate-800/80 pt-5">
+                    
+                    <div className="flex-1 flex flex-col gap-3">
+                      {siparis.siparisNotu && siparis.siparisNotu !== "Not eklenmemiş" && (
+                        <div className="p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
+                          <div className="text-[10px] text-indigo-400 font-black uppercase tracking-widest mb-1 flex items-center gap-2"><MessageSquare className="w-3.5 h-3.5" /> Müşterinin Sipariş Notu</div>
+                          <div className="text-sm text-slate-300 font-medium italic">"{siparis.siparisNotu}"</div>
+                        </div>
+                      )}
+                      <div>
+                        <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-2 ml-1">Müşteri Takip Ekranına Mesaj Bırak</div>
+                        <input type="text" defaultValue={siparis.musteriMesaji || ""} onBlur={(e) => mesajGuncelle(siparis._id, e.target.value)} placeholder="Müşteriye iletilecek notu yazıp boşluğa tıklayın..." className="w-full bg-[#020617] border border-slate-800 focus:border-indigo-500/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors" />
+                      </div>
+                    </div>
+
+                    {(siparis.durum === "Kargoya Verildi" || kargoBekleyenID === siparis._id) && (
+                      <div className="flex-1 bg-blue-500/5 border border-blue-500/20 rounded-xl p-5 flex flex-col justify-center">
+                        <div className="text-[10px] text-blue-400 font-black uppercase tracking-widest mb-3 flex items-center gap-2"><Truck className="w-4 h-4" /> Kargo Takip Bilgileri</div>
+                        <div className="flex flex-col sm:flex-row gap-3">
+                          <input id={`firma-${siparis._id}`} defaultValue={siparis.kargoFirmasi || ""} placeholder="Firma (Örn: Yurtiçi)" className="flex-1 bg-[#020617] border border-blue-500/30 focus:border-blue-500 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors" />
+                          <input id={`takip-${siparis._id}`} defaultValue={siparis.takipNo || ""} placeholder="Takip Numarası" className="flex-[2] bg-[#020617] border border-blue-500/30 focus:border-blue-500 rounded-xl px-4 py-3 text-sm text-white focus:outline-none tracking-widest transition-colors" />
+                        </div>
+                        <button 
+                          onClick={() => {
+                            const f = (document.getElementById(`firma-${siparis._id}`) as HTMLInputElement).value;
+                            const t = (document.getElementById(`takip-${siparis._id}`) as HTMLInputElement).value;
+                            if(!f || !t) return toast.error("Şefim, Firma ve Takip Numarası boş olamaz!");
+                            kargoGuncelle(siparis._id, f, t, kargoBekleyenID === siparis._id);
+                          }} 
+                          className="mt-3 w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)]"
+                        >
+                          {kargoBekleyenID === siparis._id ? "KAYDET VE BİLDİR" : "GÜNCELLE"}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                </div>
+              ))}
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+          ) : (
+            
+            /* 💻 ÜRÜNLER LİSTESİ */
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {urunler.map((urun) => {
+                const normalFiyat = Number(urun.regular_price || urun.fiyat || urun.price || 0);
+                const indirimliFiyat = urun.indirimliFiyat ? Number(urun.indirimliFiyat) : null;
+                const gosterilenFiyat = indirimliFiyat ? indirimliFiyat : normalFiyat;
+                const stokSifirMi = urun.stokAdedi === 0 || urun.stokAdedi === "0";
+                const gosterilecekDurum = (urun.stokDurumu === "Tükendi" || stokSifirMi) ? "Tükendi" : "Stokta Var";
+                const adetGosterilecekMi = urun.stokAdedi !== null && urun.stokAdedi !== undefined && urun.stokAdedi !== "" && Number(urun.stokAdedi) !== 10 && Number(urun.stokAdedi) > 0;
+
+                return (
+                  <div key={urun._id} className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between transition-all hover:border-indigo-500/40 hover:shadow-[0_0_25px_rgba(99,102,241,0.05)] group">
+                    <div>
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex flex-col gap-1">
+                          <span className="bg-[#020617] border border-slate-800 text-indigo-400 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg w-fit">{urun.kategori || "Genel"}</span>
+                        </div>
+                        <div className="flex flex-col items-end gap-1.5">
+                          <div className={`flex items-center gap-1.5 px-2 py-1 rounded border text-[9px] font-black uppercase tracking-widest ${gosterilecekDurum === "Tükendi" ? "bg-rose-500/10 border-rose-500/20 text-rose-400" : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${gosterilecekDurum === "Tükendi" ? "bg-rose-500" : "bg-emerald-500 animate-pulse"}`}></span>
+                            {gosterilecekDurum}
+                          </div>
+                          {adetGosterilecekMi && <span className="text-[10px] text-slate-500 font-bold">{urun.stokAdedi} Adet</span>}
+                        </div>
+                      </div>
+                      
+                      <div className="text-sm font-bold text-slate-200 leading-snug mb-4 line-clamp-2 min-h-[40px] group-hover:text-white transition-colors">{urun.isim || urun.name}</div>
+
+                      <div className="bg-[#020617] border border-slate-800 rounded-xl p-4 mb-5">
+                        {indirimliFiyat ? (
+                          <div className="flex flex-col">
+                            <span className="text-xs text-slate-500 line-through decoration-rose-500/50 mb-0.5">{normalFiyat.toLocaleString("tr-TR")} TL</span>
+                            <span className="text-xl font-black text-indigo-400">{gosterilenFiyat.toLocaleString("tr-TR")} <span className="text-sm text-slate-500 font-bold">TL</span></span>
+                          </div>
+                        ) : (
+                          <div className="text-xl font-black text-indigo-400">{gosterilenFiyat.toLocaleString("tr-TR")} <span className="text-sm text-slate-500 font-bold">TL</span></div>
+                        )}
+                        <div className="text-[10px] text-slate-500 font-bold mt-2 uppercase tracking-wider">Havale İndirimi: <span className="text-white">%{(urun.havaleIndirimi !== undefined ? urun.havaleIndirimi : 5)}</span></div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-3">
+                      <button onClick={() => urunDuzenleModunuAc(urun)} className="flex-1 flex justify-center items-center gap-2 bg-[#020617] border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                        <Edit className="w-3.5 h-3.5" /> Düzenle
+                      </button>
+                      <button onClick={() => urunSilmeIslemi(urun._id)} className="flex-1 flex justify-center items-center gap-2 bg-[#020617] border border-slate-800 text-slate-400 hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/10 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md">
+                        <Trash2 className="w-3.5 h-3.5" /> Sil
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+        </div>
+      </div>
+
+      {/* 🚀 YENİ ÜRÜN / DÜZENLEME MODALI */}
+      {yeniUrunModu && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <form onSubmit={urunKaydet} className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 w-full max-w-2xl flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-blue-500"></div>
+            
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-black text-white uppercase tracking-wider flex items-center gap-2">
+                <Package className="w-6 h-6 text-indigo-400" /> {duzenlenenUrun ? "Ürünü Düzenle" : "Yeni Ürün Ekle"}
+              </h3>
+              <button type="button" onClick={formuKapat} className="text-slate-500 hover:text-white bg-[#020617] p-1.5 rounded-xl border border-slate-800 transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-4">
               <div>
-                <label style={{ color: "#cbd5e1", fontSize: "12px", display: "block", marginBottom:"4px" }}>Stok Adedi</label>
-                <input type="number" value={formStokAdedi} onChange={(e) => setFormStokAdedi(e.target.value)} placeholder="Boş = Sınırsız" style={{ width: "100%", padding: "10px", background: "#0f172a", border: "1px solid #334155", borderRadius: "6px", color: "#f8fafc", outline: "none", fontSize: "14px" }} />
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Ürün Adı</label>
+                <input type="text" value={formIsim} onChange={(e) => setFormIsim(e.target.value)} required className="w-full bg-[#020617] border border-slate-800 focus:border-indigo-500/50 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none transition-colors" />
               </div>
-              <div><label style={{ color: "#cbd5e1", fontSize: "12px", display: "block", marginBottom:"4px" }}>Havale İndirimi (%)</label><input type="number" value={formHavaleIndirimi} onChange={(e) => setFormHavaleIndirimi(e.target.value)} min="0" max="100" style={{ width: "100%", padding: "10px", background: "#0f172a", border: "1px solid #334155", borderRadius: "6px", color: "#f8fafc", outline: "none", fontSize: "14px" }} /></div>
-            </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Normal Fiyat (TL)</label>
+                  <input type="number" value={formFiyat} onChange={(e) => setFormFiyat(e.target.value)} required className="w-full bg-[#020617] border border-slate-800 focus:border-indigo-500/50 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none transition-colors" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">İndirimli Fiyat (TL)</label>
+                  <input type="number" value={formIndirimliFiyat} onChange={(e) => setFormIndirimliFiyat(e.target.value)} placeholder="İsteğe bağlı" className="w-full bg-[#020617] border border-slate-800 focus:border-indigo-500/50 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none transition-colors" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Stok Adedi</label>
+                  <input type="number" value={formStokAdedi} onChange={(e) => setFormStokAdedi(e.target.value)} placeholder="Boş = Sınırsız" className="w-full bg-[#020617] border border-slate-800 focus:border-indigo-500/50 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none transition-colors" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Havale İndirimi (%)</label>
+                  <input type="number" value={formHavaleIndirimi} onChange={(e) => setFormHavaleIndirimi(e.target.value)} min="0" max="100" className="w-full bg-[#020617] border border-slate-800 focus:border-indigo-500/50 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none transition-colors" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Stok Durumu</label>
+                  <select value={formStok} onChange={(e) => setFormStok(e.target.value)} className="w-full bg-[#020617] border border-slate-800 focus:border-indigo-500/50 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none transition-colors appearance-none">
+                    <option value="Stokta Var">Stokta Var</option>
+                    <option value="Tükendi">Tükendi</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Kategori</label>
+                  <input type="text" value={formKategori} onChange={(e) => setFormKategori(e.target.value)} className="w-full bg-[#020617] border border-slate-800 focus:border-indigo-500/50 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none transition-colors" />
+                </div>
+              </div>
+
               <div>
-                <label style={{ color: "#cbd5e1", fontSize: "12px", display: "block", marginBottom:"4px" }}>Stok Durumu</label>
-                <select value={formStok} onChange={(e) => setFormStok(e.target.value)} style={{ width: "100%", padding: "10px", background: "#0f172a", border: "1px solid #334155", borderRadius: "6px", color: "#f8fafc", outline: "none", fontSize: "14px" }}>
-                  <option value="Stokta Var">Stokta Var</option>
-                  <option value="Tükendi">Tükendi</option>
-                </select>
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Resim URL Yolu</label>
+                <div className="relative">
+                  <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" />
+                  <input type="text" value={formResim} onChange={(e) => setFormResim(e.target.value)} placeholder="https://..." className="w-full bg-[#020617] border border-slate-800 focus:border-indigo-500/50 rounded-xl pl-12 pr-4 py-3.5 text-sm text-white focus:outline-none transition-colors" />
+                </div>
               </div>
-              <div><label style={{ color: "#cbd5e1", fontSize: "12px", display: "block", marginBottom:"4px" }}>Kategori</label><input type="text" value={formKategori} onChange={(e) => setFormKategori(e.target.value)} style={{ width: "100%", padding: "10px", background: "#0f172a", border: "1px solid #334155", borderRadius: "6px", color: "#f8fafc", outline: "none", fontSize: "14px" }} /></div>
-            </div>
 
-            <div><label style={{ color: "#cbd5e1", fontSize: "12px", display: "block", marginBottom:"4px" }}>Resim URL Yolu</label><input type="text" value={formResim} onChange={(e) => setFormResim(e.target.value)} style={{ width: "100%", padding: "10px", background: "#0f172a", border: "1px solid #334155", borderRadius: "6px", color: "#f8fafc", outline: "none", fontSize: "14px" }} /></div>
-
-            <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
-              <button type="button" onClick={formuKapat} style={{ flex: 1, padding: "10px", background: "#334155", color: "#f8fafc", border: "none", borderRadius: "6px", fontWeight: "500", cursor: "pointer", fontSize: "14px" }}>İptal</button>
-              <button type="submit" style={{ flex: 1, padding: "10px", background: "#3b82f6", color: "#fff", border: "none", borderRadius: "6px", fontWeight: "500", cursor: "pointer", fontSize: "14px" }}>Kaydet</button>
+              <div className="flex gap-3 mt-4 pt-4 border-t border-slate-800/80">
+                <button type="button" onClick={formuKapat} className="flex-1 bg-[#020617] border border-slate-800 hover:bg-slate-800 text-slate-300 font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-all">İptal</button>
+                <button type="submit" className="flex-1 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-black uppercase tracking-widest text-xs py-4 rounded-xl shadow-[0_0_20px_rgba(99,102,241,0.3)] transition-all flex justify-center items-center gap-2">
+                  <Save className="w-4 h-4" /> Kaydet
+                </button>
+              </div>
             </div>
           </form>
         </div>
       )}
 
-      {/* ÜST BİLGİ & ÇIKIŞ */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", paddingBottom: "16px", borderBottom: "1px solid #334155" }}>
-        <h1 style={{ color: "#f8fafc", fontSize: "20px", fontWeight: "600", margin: 0 }}>Yönetim Paneli</h1>
-        <button onClick={cikisYap} style={{ background: "transparent", color: "#94a3b8", border: "1px solid #334155", padding: "6px 12px", borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontWeight: "500" }}>Çıkış Yap</button>
-      </div>
-
-     {/* SEKMELER (TABS) */}
-      <div style={{ display: "flex", gap: "10px", marginBottom: "24px" }}>
-        <button onClick={() => setAktifSekme("siparisler")} style={{ background: aktifSekme === "siparisler" ? "#e2e8f0" : "transparent", color: aktifSekme === "siparisler" ? "#0f172a" : "#94a3b8", border: "1px solid", borderColor: aktifSekme === "siparisler" ? "#e2e8f0" : "#334155", padding: "8px 16px", borderRadius: "6px", fontWeight: "500", cursor: "pointer", fontSize: "14px", transition: "all 0.2s" }}>
-          📦 Siparişler ({siparisler.length})
-        </button>
-        <button onClick={() => setAktifSekme("urunler")} style={{ background: aktifSekme === "urunler" ? "#e2e8f0" : "transparent", color: aktifSekme === "urunler" ? "#0f172a" : "#94a3b8", border: "1px solid", borderColor: aktifSekme === "urunler" ? "#e2e8f0" : "#334155", padding: "8px 16px", borderRadius: "6px", fontWeight: "500", cursor: "pointer", fontSize: "14px", transition: "all 0.2s" }}>
-          💻 Ürünler ({urunler.length})
-        </button>
-        <button onClick={() => window.location.href = "/admin/reviews"} style={{ background: "transparent", color: "#94a3b8", border: "1px solid #334155", padding: "8px 16px", borderRadius: "6px", fontWeight: "500", cursor: "pointer", fontSize: "14px", marginLeft: "auto", transition: "all 0.2s" }}>
-          ⭐ Yorumlar
-        </button>
-      </div>
-      
-      {yukleniyor ? <div style={{ padding: "40px 0", color: "#94a3b8", fontSize: "14px" }}>Veriler yükleniyor...</div> : aktifSekme === "siparisler" ? (
-        
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          {siparisler.map((siparis) => (
-            <div key={siparis._id} style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "8px", padding: "20px", display: "flex", flexDirection: "column", gap: "16px" }}>
-              
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "15px", borderBottom: "1px solid #334155", paddingBottom: "12px" }}>
-                <div>
-                  <div style={{ color: "#f8fafc", fontSize: "16px", fontWeight: "600", marginBottom: "4px" }}>{siparis.siparisKodu}</div>
-                  <div style={{ color: "#94a3b8", fontSize: "12px" }}>{new Date(siparis.tarih).toLocaleString("tr-TR")}</div>
-                </div>
-                
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "#0f172a", padding: "6px 10px", borderRadius: "6px", border: "1px solid #334155" }}>
-                    <span style={{ color: durumRengi(siparis.durum), fontSize: "12px", fontWeight: "500" }}>{siparis.durum}</span>
-                    <span style={{ color: "#334155" }}>|</span>
-                    
-                    {/* 🚀 AKILLI AÇILIR MENÜ BURADA */}
-                    <select 
-                      onChange={(e) => {
-                        if (e.target.value === "Kargoya Verildi") {
-                          // API'ye gitme, maili ateşleme, sadece kutuyu aç!
-                          setKargoBekleyenID(siparis._id);
-                        } else {
-                          durumGuncelle(siparis._id, e.target.value);
-                          if (kargoBekleyenID === siparis._id) setKargoBekleyenID(null);
-                        }
-                      }} 
-                      value={kargoBekleyenID === siparis._id ? "kargo_bekleniyor" : siparis.durum} 
-                      style={{ background: "transparent", color: "#cbd5e1", border: "none", cursor: "pointer", fontSize: "13px", outline: "none" }}
-                    >
-                      <option value="Ödeme Bekliyor (Havale)">Bekliyor (Havale)</option>
-                      <option value="Ödendi / Hazırlanıyor">Hazırlanıyor</option>
-                      {kargoBekleyenID === siparis._id && <option value="kargo_bekleniyor">Bilgiler Giriliyor...</option>}
-                      <option value="Kargoya Verildi">Kargoya Verildi</option>
-                      <option value="Tamamlandı">Tamamlandı</option>
-                      <option value="İptal Edildi">İptal Edildi</option>
-                    </select>
-
-                  </div>
-                  <button onClick={() => setSilinecekSiparisID(siparis._id)} style={{ background: "transparent", color: "#ef4444", border: "1px solid #ef4444", padding: "6px 12px", borderRadius: "6px", fontSize: "13px", cursor: "pointer" }}>Sil</button>
-                </div>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "24px" }}>
-                
-                {/* SÜTUN 1: MÜŞTERİ */}
-                <div>
-                  <div style={{ color: "#94a3b8", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "8px", fontWeight: "600" }}>Müşteri Bilgileri</div>
-                  <div style={{ color: "#e2e8f0", fontSize: "13px", lineHeight: "1.6" }}>
-                    <span style={{ fontWeight: "600", color: "#f8fafc" }}>{siparis.musteri?.ad} {siparis.musteri?.soyad}</span><br />
-                    {siparis.musteri?.telefon} <span style={{color: "#475569"}}>•</span> {siparis.musteri?.eposta}<br />
-                    <span style={{ color: "#cbd5e1" }}>{siparis.musteri?.adres ? `${siparis.musteri.adres}, ` : ""}{siparis.musteri?.ilce} / {siparis.musteri?.sehir}</span>
-                  </div>
-                  
-                  {siparis.siparisNotu && siparis.siparisNotu !== "Not eklenmemiş" && (
-                    <div style={{ marginTop: "12px", padding: "10px", background: "#0f172a", borderLeft: "3px solid #3b82f6", borderRadius: "4px" }}>
-                      <div style={{ color: "#94a3b8", fontSize: "11px", marginBottom: "4px" }}>Sipariş Notu:</div>
-                      <div style={{ color: "#e2e8f0", fontSize: "13px", fontStyle: "italic" }}>"{siparis.siparisNotu}"</div>
-                    </div>
-                  )}
-                </div>
-
-                {/* SÜTUN 2: ÖDEME */}
-                <div>
-                  <div style={{ color: "#94a3b8", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "8px", fontWeight: "600" }}>Ödeme Özeti</div>
-                  <div style={{ color: "#e2e8f0", fontSize: "13px", lineHeight: "1.6" }}>
-                    Yöntem: <span style={{ color: "#f8fafc" }}>{siparis.odemeYontemi === "kart" ? "Kredi Kartı" : "Havale / EFT"}</span><br />
-                    Tutar: <span style={{ color: "#f8fafc", fontWeight: "600" }}>{Number((siparis.toplamTutar) || (siparis.Tutar) || 0).toLocaleString("tr-TR")} TL</span>
-                  </div>
-                </div>
-
-                {/* SÜTUN 3: ÜRÜNLER */}
-                <div>
-                  <div style={{ color: "#94a3b8", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "8px", fontWeight: "600" }}>Sipariş İçeriği</div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                    {siparis.sepet?.map((urun: any, i: number) => (
-                      <div key={i} style={{ background: "#0f172a", padding: "8px 10px", borderRadius: "6px", border: "1px solid #334155" }}>
-                        <div style={{ color: "#e2e8f0", fontSize: "13px", marginBottom: "4px" }}>
-                          <span style={{ color: "#94a3b8", marginRight: "6px" }}>{urun.adet}x</span>{urun.isim || urun.name}
-                        </div>
-                        <div style={{ color: "#64748b", fontSize: "11px", fontFamily: "monospace" }}>
-                          KOD: {urun.id || urun._id || "Tanımsız"}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* MÜŞTERİ MESAJI ALANI */}
-              <div style={{ borderTop: "1px solid #334155", paddingTop: "12px" }}>
-                <div style={{ color: "#94a3b8", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "8px", fontWeight: "600" }}>Müşteri Takip Ekranı Mesajı</div>
-                <input type="text" defaultValue={siparis.musteriMesaji || ""} onBlur={(e) => mesajGuncelle(siparis._id, e.target.value)} placeholder="Müşteriye iletilecek notu yazıp boşluğa tıklayın..." style={{ width: "100%", padding: "10px 12px", background: "#0f172a", color: "#e2e8f0", border: "1px solid #334155", borderRadius: "6px", outline: "none", fontSize: "13px" }} />
-              </div>
-
-              {/* 🚀 AKILLI KARGO KUTUSU: Emniyet kilidi aktifse de, kargoya verildiyse de görünür! 🚀 */}
-              {(siparis.durum === "Kargoya Verildi" || kargoBekleyenID === siparis._id) && (
-                <div style={{ borderTop: "1px dashed #3b82f6", paddingTop: "12px", marginTop: "12px", background: "#3b82f610", padding: "12px", borderRadius: "8px" }}>
-                  <div style={{ color: "#3b82f6", fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "10px", fontWeight: "800" }}>
-                    Kargo Takip Bilgilerini Gir
-                  </div>
-                  <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
-                    <input 
-                      id={`firma-${siparis._id}`} 
-                      defaultValue={siparis.kargoFirmasi || ""} 
-                      placeholder="Firma (Örn: Yurtiçi)" 
-                      style={{ flex: 1, minWidth: "120px", padding: "10px", background: "#0f172a", color: "#f8fafc", border: "1px solid #3b82f650", borderRadius: "6px", outline: "none", fontSize: "13px" }} 
-                    />
-                    <input 
-                      id={`takip-${siparis._id}`} 
-                      defaultValue={siparis.takipNo || ""} 
-                      placeholder="Takip Numarası" 
-                      style={{ flex: 2, minWidth: "180px", padding: "10px", background: "#0f172a", color: "#f8fafc", border: "1px solid #3b82f650", borderRadius: "6px", outline: "none", fontSize: "13px", letterSpacing: "1px" }} 
-                    />
-                    <button 
-                      onClick={() => {
-                        const f = (document.getElementById(`firma-${siparis._id}`) as HTMLInputElement).value;
-                        const t = (document.getElementById(`takip-${siparis._id}`) as HTMLInputElement).value;
-                        if(!f || !t) return alert("Şefim, Firma ve Takip Numarası boş olamaz!");
-                        
-                        // Son parametre kilit durumu. Kilit açıksa 'Kargoya Verildi' durumu API'ye kargoyla beraber gider.
-                        kargoGuncelle(siparis._id, f, t, kargoBekleyenID === siparis._id);
-                      }} 
-                      style={{ background: "#3b82f6", color: "#fff", padding: "10px 20px", border: "none", borderRadius: "6px", fontWeight: "bold", cursor: "pointer", fontSize: "13px" }}
-                    >
-                      {kargoBekleyenID === siparis._id ? "KAYDET VE BİLDİR" : "KAYDET"}
-                    </button>
-                  </div>
-                </div>
-              )}
-
+      {/* SİLME ONAY MODALI */}
+      {silinecekSiparisID && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-8 max-w-sm w-full flex flex-col items-center text-center shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden animate-in zoom-in-95">
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-red-500/10 blur-[40px] pointer-events-none rounded-full"></div>
+            <div className="w-16 h-16 rounded-full border border-red-500/20 flex items-center justify-center mb-5 bg-red-500/10 relative z-10"><Trash2 className="w-7 h-7 text-red-400 animate-pulse" /></div>
+            <h3 className="text-lg font-black text-white uppercase tracking-wider mb-2 relative z-10">Siparişi Sil</h3>
+            <p className="text-slate-400 text-sm mb-6 font-medium leading-relaxed relative z-10">Bu siparişi kalıcı olarak silmek istediğinize emin misiniz?<span className="block text-red-400 font-bold mt-2">Bu işlem geri alınamaz!</span></p>
+            <div className="flex w-full gap-3 relative z-10">
+              <button onClick={() => setSilinecekSiparisID(null)} className="flex-1 bg-[#020617] border border-slate-800 hover:bg-slate-800/50 text-slate-400 font-bold py-3.5 rounded-xl transition-all text-xs uppercase tracking-wider">İptal</button>
+              <button onClick={siparisSilmeIslemi} className="flex-1 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold py-3.5 rounded-xl transition-all text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(220,38,38,0.2)]">Evet, Sil</button>
             </div>
-          ))}
-        </div>
-        
-      ) : (
-        
-        <div>
-          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "20px" }}>
-            <button onClick={yeniUrunModunuAc} style={{ background: "#f8fafc", color: "#0f172a", border: "none", padding: "8px 16px", borderRadius: "6px", fontWeight: "500", cursor: "pointer", fontSize: "14px" }}>+ Yeni Ürün</button>
           </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "16px" }}>
-            {urunler.map((urun, index) => {
-              
-              const normalFiyat = Number(urun.regular_price || urun.fiyat || urun.price || 0);
-              const indirimliFiyat = urun.indirimliFiyat ? Number(urun.indirimliFiyat) : null;
-              const gosterilenFiyat = indirimliFiyat ? indirimliFiyat : normalFiyat;
-
-              const stokSifirMi = urun.stokAdedi === 0 || urun.stokAdedi === "0";
-              const gosterilecekDurum = (urun.stokDurumu === "Tükendi" || stokSifirMi) ? "Tükendi" : "Stokta Var";
-              
-              const adetGosterilecekMi = urun.stokAdedi !== null && urun.stokAdedi !== undefined && urun.stokAdedi !== "" && Number(urun.stokAdedi) !== 10 && Number(urun.stokAdedi) > 0;
-
-              return (
-                <div key={urun._id || index} style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "8px", padding: "16px", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "16px" }}>
-                  <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px", gap: "8px" }}>
-                      
-                      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                        <span style={{ color: "#94a3b8", fontSize: "11px", textTransform: "uppercase" }}>{urun.kategori || "Genel"}</span>
-                        <span style={{ color: "#64748b", fontSize: "10px", fontFamily: "monospace" }}>ID: {urun._id}</span>
-                      </div>
-
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "4px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                          <span style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: gosterilecekDurum === "Tükendi" ? "#ef4444" : "#10b981" }}></span>
-                          <span style={{ color: "#cbd5e1", fontSize: "12px" }}>{gosterilecekDurum}</span>
-                        </div>
-                        {adetGosterilecekMi && (
-                          <span style={{ color: "#94a3b8", fontSize: "11px" }}>{urun.stokAdedi} Adet Kaldı</span>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div style={{ color: "#f8fafc", fontSize: "14px", fontWeight: "500", lineHeight: "1.4" }}>{urun.isim || urun.name}</div>
-
-                    <div style={{ marginTop: "12px" }}>
-                      {indirimliFiyat ? (
-                        <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
-                          <span style={{ color: "#64748b", fontSize: "12px", textDecoration: "line-through" }}>{normalFiyat.toLocaleString("tr-TR")} TL</span>
-                          <span style={{ color: "#f8fafc", fontSize: "16px", fontWeight: "600" }}>{gosterilenFiyat.toLocaleString("tr-TR")} TL</span>
-                        </div>
-                      ) : (
-                        <div style={{ color: "#f8fafc", fontSize: "16px", fontWeight: "600" }}>{gosterilenFiyat.toLocaleString("tr-TR")} TL</div>
-                      )}
-                      
-                      <div style={{ color: "#94a3b8", fontSize: "11px", marginTop: "4px" }}>
-                        Havale İndirimi: %{urun.havaleIndirimi !== undefined ? urun.havaleIndirimi : 5}
-                      </div>
-                    </div>
-
-                  </div>
-                  <div style={{ display: "flex", gap: "8px", borderTop: "1px solid #334155", paddingTop: "12px" }}>
-                    <button onClick={() => urunDuzenleModunuAc(urun)} style={{ flex: 1, background: "transparent", color: "#e2e8f0", border: "1px solid #475569", padding: "6px", borderRadius: "4px", fontSize: "13px", cursor: "pointer" }}>Düzenle</button>
-                    <button onClick={() => urunSilmeIslemi(urun._id)} style={{ flex: 1, background: "transparent", color: "#ef4444", border: "1px solid #ef4444", padding: "6px", borderRadius: "4px", fontSize: "13px", cursor: "pointer" }}>Sil</button>
-                  </div>
-                  
-                </div>
-              );
-            })}
-          </div>
-          
         </div>
       )}
 
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.2); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(99,102,241,0.4); }
+      `}</style>
     </div>
-    
   );
 }
