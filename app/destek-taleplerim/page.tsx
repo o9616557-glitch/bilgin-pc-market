@@ -40,9 +40,17 @@ export default function DestekIadePage() {
   const [talepKonusu, setTalepKonusu] = useState("");
   const [talepBaslik, setTalepBaslik] = useState("");
   const [talepMesaji, setTalepMesaji] = useState("");
-
-  // 🚀 ÇİRKİN GOOGLE KUTUSU YERİNE ÖZEL SİLME MODALI İÇİN STATE
   const [silinecekTalepId, setSilinecekTalepId] = useState<string | null>(null);
+
+  // 🚀 BİNGO 1: MODAL AÇILINCA ARKA PLANI (SAYFAYI) DONDURAN MOTOR
+  useEffect(() => {
+    if (yeniTalepModal || silinecekTalepId) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => { document.body.style.overflow = 'unset'; }; // Sayfadan çıkarsa kilidi aç
+  }, [yeniTalepModal, silinecekTalepId]);
 
   const talepleriGetir = async () => {
     if (!session?.user?.email) return;
@@ -145,10 +153,9 @@ export default function DestekIadePage() {
     finally { setCevapGonderiliyor(false); }
   };
 
-  // 🚀 YENİ SİLME MOTORU (Pencereyi Gösterir)
   const handleTalepSilOnay = (talepId: string, e: React.MouseEvent) => {
     e.stopPropagation(); 
-    setSilinecekTalepId(talepId); // Çirkin uyarı yerine bizim jilet modalı açar
+    setSilinecekTalepId(talepId);
   };
 
   const gercektenSil = async () => {
@@ -165,7 +172,7 @@ export default function DestekIadePage() {
           return yeniListe;
         });
         if (seciliTalepId === silinecekTalepId) setSeciliTalepId(null);
-        setSilinecekTalepId(null); // Modalı kapat
+        setSilinecekTalepId(null); 
       } else { toast.error("Silinemedi.", { id: toastId }); }
     } catch (error) { toast.error("Bağlantı hatası.", { id: toastId }); }
   };
@@ -225,7 +232,7 @@ export default function DestekIadePage() {
                   <p className="text-indigo-400/80 text-xs sm:text-sm font-medium tracking-wide">Sorunlarınızı en hızlı şekilde çözmek için buradayız.</p>
                 </div>
               </div>
-              <button onClick={() => setYeniTalepModal(true)} className="relative z-10 w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 sm:py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-black text-xs sm:text-sm uppercase tracking-widest transition-all shrink-0"><PlusCircle className="w-4 h-4 sm:w-5 sm:h-5" /> YENİ TALEP</button>
+              <button onClick={() => setYeniTalepModal(true)} className="relative z-10 w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-black text-xs sm:text-sm uppercase tracking-widest transition-all shrink-0"><PlusCircle className="w-4 h-4 sm:w-5 sm:h-5" /> YENİ TALEP</button>
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
@@ -261,20 +268,22 @@ export default function DestekIadePage() {
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 mt-2 sm:mt-0 border-t sm:border-0 border-slate-800 pt-3 sm:pt-0">
+                        {/* 🚀 BİNGO 2: BUTONLARI BİRLEŞTİRDİK (KOPMASINLAR DİYE) */}
+                        <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 w-full sm:w-auto mt-2 sm:mt-0 border-t sm:border-0 border-slate-800 pt-3 sm:pt-0">
                           <div className="flex flex-col sm:items-end">
                             <span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${talep.durum === 'Çözüldü' ? 'text-emerald-400' : talep.durum === 'Yanıt Bekleniyor' ? 'text-amber-400' : 'text-indigo-400'}`}>{talep.durum}</span>
                             <span className="text-[9px] text-slate-500">{new Date(talep.createdAt).toLocaleDateString("tr-TR")}</span>
                           </div>
                           
-                          {/* YENİ ÖZEL SİLME BUTONU (Google Uyarı Kutusu Kalktı) */}
-                          <button onClick={(e) => handleTalepSilOnay(talep._id, e)} title="Talebi Sil" className="w-8 h-8 rounded-lg flex items-center justify-center bg-rose-500/10 text-rose-400 border border-transparent hover:border-rose-500/30 hover:bg-rose-500/20 transition-all z-10">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                          
-                          <button className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${seciliTalepId === talep._id ? 'bg-indigo-600 text-white' : 'bg-[#0f172a] border border-slate-700 text-slate-400 group-hover:bg-indigo-500/10 group-hover:text-indigo-400'}`}>
-                            {seciliTalepId === talep._id ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                          </button>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <button onClick={(e) => handleTalepSilOnay(talep._id, e)} title="Talebi Sil" className="w-9 h-9 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center bg-rose-500/10 text-rose-400 border border-transparent hover:border-rose-500/30 hover:bg-rose-500/20 transition-all z-10">
+                              <Trash2 className="w-4 h-4 sm:w-4 sm:h-4" />
+                            </button>
+                            
+                            <button className={`w-9 h-9 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all ${seciliTalepId === talep._id ? 'bg-indigo-600 text-white' : 'bg-[#0f172a] border border-slate-700 text-slate-400 group-hover:bg-indigo-500/10 group-hover:text-indigo-400'}`}>
+                              {seciliTalepId === talep._id ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                            </button>
+                          </div>
                         </div>
                       </div>
 
@@ -304,8 +313,9 @@ export default function DestekIadePage() {
                                 placeholder="Cevabınızı yazın..." 
                                 className="flex-1 bg-[#020617] border border-slate-700 focus:border-indigo-500 rounded-xl p-3 sm:p-4 text-xs sm:text-sm text-white focus:outline-none transition-colors min-h-[60px] sm:min-h-[80px] resize-none" 
                               />
-                              <button onClick={() => handleCevapGonder(talep._id)} disabled={cevapGonderiliyor || !(cevapMesajlari[talep._id] || "").trim()} className="sm:w-[140px] flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white rounded-xl font-black uppercase text-[10px] sm:text-xs tracking-widest transition-all shadow-lg disabled:opacity-50">
-                                {cevapGonderiliyor ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4" /> GÖNDER</>}
+                              {/* 🚀 BİNGO 3: GÖNDER BUTONUNA KALINLIK EKLENDİ (min-h-[48px]) */}
+                              <button onClick={() => handleCevapGonder(talep._id)} disabled={cevapGonderiliyor || !(cevapMesajlari[talep._id] || "").trim()} className="sm:w-[140px] w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white rounded-xl font-black uppercase text-[11px] sm:text-xs tracking-widest transition-all shadow-lg disabled:opacity-50 min-h-[48px] sm:min-h-[80px]">
+                                {cevapGonderiliyor ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-4 h-4 sm:w-5 sm:h-5" /> GÖNDER</>}
                               </button>
                             </div>
                           ) : (
@@ -346,7 +356,6 @@ export default function DestekIadePage() {
         </div>
       )}
 
-      {/* 🚀 JİLET GİBİ YENİ SİLME ONAY MODALI */}
       {silinecekTalepId && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-200">
