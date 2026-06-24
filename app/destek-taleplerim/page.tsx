@@ -255,7 +255,7 @@ useEffect(() => {
                 {gosterilenTalepler.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 opacity-50"><CheckCircle2 className="w-12 h-12 text-slate-500 mb-3" /><p className="text-sm font-bold text-slate-400">Bekleyen hiçbir işleminiz yok.</p></div>
                 ) : (
-                  gosterilenTalepler.map((talep) => (
+            gosterilenTalepler.map((talep) => (
                     <div key={talep._id} className={`bg-[#020617] border rounded-xl flex flex-col transition-all ${seciliTalepId === talep._id ? 'border-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.1)]' : 'border-slate-800 hover:border-slate-700'}`}>
                       
                       <div onClick={() => setSeciliTalepId(seciliTalepId === talep._id ? null : talep._id)} className="p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 cursor-pointer group">
@@ -272,52 +272,32 @@ useEffect(() => {
                           </div>
                         </div>
 
-                        {/* 🚀 BİNGO 2: BUTONLARI BİRLEŞTİRDİK (KOPMASINLAR DİYE) */}
                         <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 w-full sm:w-auto mt-2 sm:mt-0 border-t sm:border-0 border-slate-800 pt-3 sm:pt-0">
                           <div className="flex flex-col sm:items-end">
                             <span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${talep.durum === 'Çözüldü' ? 'text-emerald-400' : talep.durum === 'Yanıt Bekleniyor' ? 'text-amber-400' : 'text-indigo-400'}`}>{talep.durum}</span>
                             <span className="text-[9px] text-slate-500">{new Date(talep.createdAt).toLocaleDateString("tr-TR")}</span>
                           </div>
-                          
                           <div className="flex items-center gap-2 shrink-0">
                             <button onClick={(e) => handleTalepSilOnay(talep._id, e)} title="Talebi Sil" className="w-9 h-9 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center bg-rose-500/10 text-rose-400 border border-transparent hover:border-rose-500/30 hover:bg-rose-500/20 transition-all z-10">
                               <Trash2 className="w-4 h-4 sm:w-4 sm:h-4" />
                             </button>
-                            
                             <button className={`w-9 h-9 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all ${seciliTalepId === talep._id ? 'bg-indigo-600 text-white' : 'bg-[#0f172a] border border-slate-700 text-slate-400 group-hover:bg-indigo-500/10 group-hover:text-indigo-400'}`}>
                               {seciliTalepId === talep._id ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                             </button>
                           </div>
                         </div>
                       </div>
-                     {seciliTalepId === talep._id && (
-                        // 🚀 NÜKLEER GÜÇ: CSS'in alabileceği maksimum sınır (2147483647). Artık Header/Footer altta kalmaya mahkum!
-                        <div style={{ zIndex: 2147483647 }} className="fixed inset-0 bg-[#020617] px-4 pt-16 pb-12 flex flex-col animate-in slide-in-from-bottom-4 duration-200 sm:static sm:z-auto sm:bg-[#0f172a]/50 sm:p-6 sm:border-t sm:border-slate-800 sm:rounded-b-xl sm:animate-in sm:slide-in-from-top-2">
-                          
-                          {/* 🚀 MOBİL İÇİN ÖZEL ÜST BAR */}
-                          <div className="flex sm:hidden items-center justify-between pb-3 mb-4 border-b border-slate-800 shrink-0 pt-2">
-                            <div className="flex items-center gap-3">
-                              <button onClick={(e) => { e.stopPropagation(); setSeciliTalepId(null); }} className="w-8 h-8 flex items-center justify-center bg-slate-800/80 hover:bg-slate-700 rounded-xl text-white border border-slate-700 transition-colors">
-                                <X className="w-5 h-5" />
-                              </button>
-                              <div className="flex flex-col">
-                                <span className="text-sm font-black text-white">{getGuzelKonuAdi(talep.konu)}</span>
-                                <span className="text-[10px] text-slate-400">{talep.talepNo}</span>
-                              </div>
-                            </div>
-                            <span className={`text-[9px] font-black uppercase tracking-widest ${talep.durum === 'Çözüldü' ? 'text-emerald-400' : 'text-indigo-400'}`}>
-                              {talep.durum}
-                            </span>
-                          </div>
 
-                          {/* MESAJLARIN LİSTESİ (Mobilde ortayı kaplar, esner) */}
-                          <div ref={mesajKutusuRef} className="flex-1 sm:flex-none sm:max-h-[400px] overflow-y-auto custom-scrollbar pr-2 flex flex-col gap-4 pb-2">
+                      {/* 🚀 SADECE PC İÇİN AÇILIR KUTU */}
+                      {seciliTalepId === talep._id && (
+                        <div className="hidden sm:flex flex-col border-t border-slate-800 bg-[#0f172a]/50 p-6 rounded-b-xl animate-in slide-in-from-top-2 duration-300 gap-5">
+                          <div ref={mesajKutusuRef} className="flex flex-col gap-4 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
                             {talep.mesajlar?.map((msg: any, index: number) => {
                               const isMusteri = msg.gonderen === 'Musteri';
                               return (
-                                <div key={index} className={`flex flex-col max-w-[85%] sm:max-w-[75%] shrink-0 ${isMusteri ? 'self-end items-end' : 'self-start items-start'}`}>
+                                <div key={index} className={`flex flex-col max-w-[75%] shrink-0 ${isMusteri ? 'self-end items-end' : 'self-start items-start'}`}>
                                   <div className={`text-[9px] font-bold uppercase tracking-widest mb-1 px-1 ${isMusteri ? 'text-indigo-400' : 'text-slate-500'}`}>{isMusteri ? 'Siz' : 'Mağaza Temsilcisi'}</div>
-                                  <div className={`p-3.5 sm:p-4 rounded-2xl text-xs sm:text-sm leading-relaxed ${isMusteri ? 'bg-indigo-600 text-white rounded-tr-sm shadow-[0_4px_15px_rgba(79,70,229,0.2)]' : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-tl-sm'}`}>
+                                  <div className={`p-4 rounded-2xl text-sm leading-relaxed ${isMusteri ? 'bg-indigo-600 text-white rounded-tr-sm shadow-[0_4px_15px_rgba(79,70,229,0.2)]' : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-tl-sm'}`}>
                                     {msg.metin.split('\n').map((satir: string, i: number) => <span key={i}>{satir}<br/></span>)}
                                   </div>
                                   <div className="text-[9px] text-slate-500 mt-1 font-medium">{new Date(msg.tarih).toLocaleString("tr-TR")}</div>
@@ -326,23 +306,17 @@ useEffect(() => {
                             })}
                           </div>
 
-                          {/* GÖNDERME KUTUSU (Mobilde en alta yapışır) */}
                           {talep.durum !== 'Çözüldü' ? (
-                            <div className="shrink-0 flex flex-col sm:flex-row gap-3 pt-3 border-t border-slate-800/80 mt-auto sm:mt-4">
-                              <textarea 
-                                value={cevapMesajlari[talep._id] || ""}
-                                onChange={(e) => setCevapMesajlari(prev => ({...prev, [talep._id]: e.target.value}))}
-                                placeholder="Cevabınızı yazın..." 
-                                className="flex-1 bg-[#020617] border border-slate-700 focus:border-indigo-500 rounded-xl p-3 sm:p-4 text-xs sm:text-sm text-white focus:outline-none transition-colors min-h-[50px] sm:min-h-[80px] resize-none" 
-                              />
-                              <button onClick={() => handleCevapGonder(talep._id)} disabled={cevapGonderiliyor || !(cevapMesajlari[talep._id] || "").trim()} className="sm:w-[140px] w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white rounded-xl font-black uppercase text-[11px] sm:text-xs tracking-widest transition-all shadow-lg disabled:opacity-50 min-h-[48px] sm:min-h-[80px] shrink-0">
-                                {cevapGonderiliyor ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-4 h-4 sm:w-5 sm:h-5" /> GÖNDER</>}
+                            <div className="flex gap-3 pt-4 border-t border-slate-800/80">
+                              <textarea value={cevapMesajlari[talep._id] || ""} onChange={(e) => setCevapMesajlari(prev => ({...prev, [talep._id]: e.target.value}))} placeholder="Cevabınızı yazın..." className="flex-1 bg-[#020617] border border-slate-700 focus:border-indigo-500 rounded-xl p-4 text-sm text-white focus:outline-none transition-colors min-h-[80px] resize-none" />
+                              <button onClick={() => handleCevapGonder(talep._id)} disabled={cevapGonderiliyor || !(cevapMesajlari[talep._id] || "").trim()} className="w-[140px] flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white rounded-xl font-black uppercase text-xs tracking-widest transition-all shadow-lg disabled:opacity-50 min-h-[80px]">
+                                {cevapGonderiliyor ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-5 h-5" /> GÖNDER</>}
                               </button>
                             </div>
                           ) : (
-                            <div className="shrink-0 pt-4 sm:pt-6 border-t border-slate-800/80 flex flex-col items-center justify-center gap-2 text-center bg-slate-800/20 rounded-xl p-4 mt-auto sm:mt-2">
-                              <CheckCircle2 className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-500/60 mb-1" />
-                              <p className="text-xs sm:text-sm font-black text-emerald-400 uppercase tracking-widest">Bu talep çözüldü olarak kapatılmıştır</p>
+                            <div className="pt-6 border-t border-slate-800/80 flex flex-col items-center justify-center gap-2 text-center bg-slate-800/20 rounded-xl p-4">
+                              <CheckCircle2 className="w-8 h-8 text-emerald-500/60 mb-1" />
+                              <p className="text-sm font-black text-emerald-400 uppercase tracking-widest">Bu talep çözüldü olarak kapatılmıştır</p>
                             </div>
                           )}
                         </div>
@@ -356,8 +330,69 @@ useEffect(() => {
           </div>
         </div>
       </div>
-{yeniTalepModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+
+      {/* 🚀 MOBİL İÇİN TAM EKRAN ÖZGÜR SOHBET (Z-Index En Üst Seviyede) */}
+      {seciliTalepId && talepler.find(t => t._id === seciliTalepId) && (
+        <div style={{ zIndex: 999999 }} className="fixed inset-0 bg-[#020617] px-4 pt-16 pb-6 flex flex-col sm:hidden animate-in slide-in-from-bottom-4 duration-200">
+          {(() => {
+            const talep = talepler.find(t => t._id === seciliTalepId);
+            return (
+              <>
+                <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-800 shrink-0 pt-2">
+                  <div className="flex items-center gap-3">
+                    <button onClick={(e) => { e.stopPropagation(); setSeciliTalepId(null); }} className="w-8 h-8 flex items-center justify-center bg-slate-800/80 hover:bg-slate-700 rounded-xl text-white border border-slate-700 transition-colors">
+                      <X className="w-5 h-5" />
+                    </button>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-black text-white">{getGuzelKonuAdi(talep.konu)}</span>
+                      <span className="text-[10px] text-slate-400">{talep.talepNo}</span>
+                    </div>
+                  </div>
+                  <span className={`text-[9px] font-black uppercase tracking-widest ${talep.durum === 'Çözüldü' ? 'text-emerald-400' : 'text-indigo-400'}`}>{talep.durum}</span>
+                </div>
+
+                <div ref={mesajKutusuRef} className="flex-1 overflow-y-auto custom-scrollbar pr-1 flex flex-col gap-4 pb-2">
+                  {talep.mesajlar?.map((msg: any, index: number) => {
+                    const isMusteri = msg.gonderen === 'Musteri';
+                    return (
+                      <div key={index} className={`flex flex-col max-w-[85%] shrink-0 ${isMusteri ? 'self-end items-end' : 'self-start items-start'}`}>
+                        <div className={`text-[9px] font-bold uppercase tracking-widest mb-1 px-1 ${isMusteri ? 'text-indigo-400' : 'text-slate-500'}`}>{isMusteri ? 'Siz' : 'Mağaza Temsilcisi'}</div>
+                        <div className={`p-3.5 rounded-2xl text-xs leading-relaxed ${isMusteri ? 'bg-indigo-600 text-white rounded-tr-sm shadow-[0_4px_15px_rgba(79,70,229,0.2)]' : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-tl-sm'}`}>
+                          {msg.metin.split('\n').map((satir: string, i: number) => <span key={i}>{satir}<br/></span>)}
+                        </div>
+                        <div className="text-[9px] text-slate-500 mt-1 font-medium">{new Date(msg.tarih).toLocaleString("tr-TR")}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {talep.durum !== 'Çözüldü' ? (
+                  <div className="shrink-0 flex flex-col gap-3 pt-3 border-t border-slate-800/80 mt-auto">
+                    <textarea 
+                      value={cevapMesajlari[talep._id] || ""}
+                      onChange={(e) => setCevapMesajlari(prev => ({...prev, [talep._id]: e.target.value}))}
+                      placeholder="Cevabınızı yazın..." 
+                      className="w-full bg-[#020617] border border-slate-700 focus:border-indigo-500 rounded-xl p-3 text-xs text-white focus:outline-none transition-colors min-h-[50px] resize-none" 
+                    />
+                    <button onClick={() => handleCevapGonder(talep._id)} disabled={cevapGonderiliyor || !(cevapMesajlari[talep._id] || "").trim()} className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white rounded-xl font-black uppercase text-[11px] tracking-widest transition-all shadow-lg disabled:opacity-50 min-h-[48px] shrink-0">
+                      {cevapGonderiliyor ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4" /> GÖNDER</>}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="shrink-0 pt-4 border-t border-slate-800/80 flex flex-col items-center justify-center gap-2 text-center bg-slate-800/20 rounded-xl p-4 mt-auto">
+                    <CheckCircle2 className="w-6 h-6 text-emerald-500/60 mb-1" />
+                    <p className="text-xs font-black text-emerald-400 uppercase tracking-widest">Bu talep çözüldü olarak kapatılmıştır</p>
+                  </div>
+                )}
+              </>
+            );
+          })()}
+        </div>
+      )}
+
+      {/* 🚀 YENİ TALEP OLUŞTUR MODALI */}
+      {yeniTalepModal && (
+        <div style={{ zIndex: 999999 }} className="fixed inset-0 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full flex flex-col shadow-2xl relative overflow-y-auto max-h-[85vh] custom-scrollbar animate-in zoom-in-95 duration-200">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-blue-500"></div>
             <div className="flex items-center justify-between mb-6">
@@ -375,8 +410,9 @@ useEffect(() => {
         </div>
       )}
 
+      {/* 🚀 SİLME ONAY MODALI */}
       {silinecekTalepId && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div style={{ zIndex: 999999 }} className="fixed inset-0 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-500 to-red-500"></div>
             <div className="w-16 h-16 rounded-full border border-rose-500/20 flex items-center justify-center mb-5 bg-rose-500/10">
