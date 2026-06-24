@@ -290,9 +290,9 @@ useEffect(() => {
                           </div>
                         </div>
                       </div>
-{seciliTalepId === talep._id && (
-                        // 🚀 Katmanı z-[99999] yaparak header/footer'ın üstüne çıkarttık. pt-12 ve pb-8 ile nefes aldırdık!
-                        <div className="fixed inset-0 z-[99999] bg-[#020617] px-4 pt-12 pb-8 flex flex-col animate-in slide-in-from-bottom-4 duration-200 sm:static sm:z-auto sm:bg-[#0f172a]/50 sm:p-6 sm:border-t sm:border-slate-800 sm:rounded-b-xl sm:animate-in sm:slide-in-from-top-2">
+                      {seciliTalepId === talep._id && (
+                        // 🚀 Katmanı z-[999999] yaparak her şeyi ezmesini sağladık. pt-16 ile telefonun üst çentiğinden (saat/şarj) kurtardık!
+                        <div className="fixed inset-0 z-[999999] bg-[#020617] px-4 pt-16 pb-8 flex flex-col animate-in slide-in-from-bottom-4 duration-200 sm:static sm:z-auto sm:bg-[#0f172a]/50 sm:p-6 sm:border-t sm:border-slate-800 sm:rounded-b-xl sm:animate-in sm:slide-in-from-top-2">
                           
                           {/* 🚀 MOBİL İÇİN ÖZEL ÜST BAR */}
                           <div className="flex sm:hidden items-center justify-between pb-3 mb-4 border-b border-slate-800 shrink-0 pt-2">
