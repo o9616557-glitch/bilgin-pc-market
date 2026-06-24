@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, Search, LogIn, UserPlus, Headset } from "lucide-react";
+import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, Search, LogIn, UserPlus, Headset, Crown } from "lucide-react";
 
 export default function HesabimPage() {
   const { data: session, status } = useSession();
@@ -348,19 +348,24 @@ return (
      {/* ⬅️ SOL MENÜ */}
         <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-3 sm:p-4 shadow-xl">
-            <nav className="flex flex-col gap-1.5">
-              <Link href="/hesabim" onClick={kilitliIslem} className="flex items-center gap-3 px-4 py-3 sm:py-3.5 bg-white/[0.05] border border-white/10 rounded-xl text-white font-bold shadow-inner transition-all text-sm sm:text-base">
-                <User className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" /> Profil
-              </Link>
-              
-             <Link href="/cuzdan" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
-                <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" /> Dijital Cüzdanım
-              </Link>
-              
-              <Link href="/guvenlik" prefetch={true} className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
-                <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" /> Güvenlik
-              </Link>
-            </nav>
+       <nav className="flex flex-col gap-1.5">
+                <Link href="/hesabim" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+                  <User className="w-4 h-4 sm:w-5 sm:h-5" /> Profil
+                </Link>
+                <Link href="/cuzdan" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+                  <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" /> Dijital Cüzdanım
+                </Link>
+                <Link href="/guvenlik" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+                  <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" /> Güvenlik
+                </Link>
+
+                {/* 👑 SADECE ÖZKAN ŞEFE GÖRÜNEN VIP ADMIN BUTONU */}
+                {session?.user?.email === "o9616557@gmail.com" && (
+                  <Link href="/admin" className="mt-4 flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 border border-rose-500/20 rounded-xl transition-all font-black shadow-[0_0_15px_rgba(225,29,72,0.1)] group">
+                    <Crown className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" /> Admin Paneli
+                  </Link>
+                )}
+              </nav>
 
             {status === "unauthenticated" && (
               <div className="mt-4 pt-4 border-t border-slate-800 flex flex-col gap-2">
