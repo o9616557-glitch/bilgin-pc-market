@@ -4,8 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
   HeartCrack, Trash2, ShoppingCart, Heart, 
-  User, ShieldCheck, CreditCard, Star, X, 
-  CheckCircle2
+  User, ShieldCheck, CreditCard, Star, X, CheckCircle2 
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/app/CartContext";
@@ -25,12 +24,10 @@ export default function FavoriClient({ initialFavorites }: Props) {
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
 
-  // 1. Senin orijinal 'page.tsx' dosyan taze veriyi getirdiğinde ekrana basar.
   useEffect(() => {
     setFavoriteProducts(initialFavorites);
   }, [initialFavorites]);
 
-  // 2. 🚀 SİHİRLİ DOKUNUŞ: Sadece sayfa açıldığında 1 kez çalışır.
   useEffect(() => {
     router.refresh();
   }, []);
@@ -78,8 +75,8 @@ export default function FavoriClient({ initialFavorites }: Props) {
 
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip">
-      {/* 🚀 ARKA PLAN PARLAMASI (Favoriler teması: MOR) */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-purple-600 blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
+      {/* 🚀 ARKA PLAN PARLAMASI (VIP ALTIN SARISI) */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-amber-600 blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
         
@@ -105,16 +102,16 @@ export default function FavoriClient({ initialFavorites }: Props) {
           
           {/* 🚀 HERO ALANI */}
           <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 lg:p-8 shadow-xl relative overflow-hidden group flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-            <div className="absolute -top-20 -right-20 w-64 h-64 bg-purple-500/10 blur-[60px] pointer-events-none rounded-full"></div>
+            <div className="absolute -top-20 -right-20 w-64 h-64 bg-amber-500/10 blur-[60px] pointer-events-none rounded-full"></div>
             
             <div className="flex items-center gap-3 sm:gap-4 relative z-10">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#020617] border border-purple-500/30 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.2)] shrink-0">
-                <Star className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400" />
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#020617] border border-amber-500/30 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(245,158,11,0.2)] shrink-0">
+                <Star className="w-6 h-6 sm:w-8 sm:h-8 text-amber-400" />
               </div>
               <div>
                 <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight mb-0.5 sm:mb-1">Favori Ürünlerim</h1>
-                <p className="text-purple-400/80 text-xs sm:text-sm font-medium tracking-wide">
-                  Listelenen: <span className="font-black text-purple-400">{favoriteProducts.length}</span> Donanım
+                <p className="text-amber-400/80 text-xs sm:text-sm font-medium tracking-wide">
+                  Listelenen: <span className="font-black text-amber-400">{favoriteProducts.length}</span> Donanım
                 </p>
               </div>
             </div>
@@ -132,8 +129,8 @@ export default function FavoriClient({ initialFavorites }: Props) {
           {favoriteProducts.length === 0 ? (
             /* BOŞ EKRAN */
             <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-10 sm:p-16 flex flex-col items-center justify-center text-center shadow-xl">
-              <div className="w-20 h-20 rounded-full bg-[#020617] border border-purple-500/20 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(168,85,247,0.1)]">
-                <HeartCrack className="w-10 h-10 text-purple-400" />
+              <div className="w-20 h-20 rounded-full bg-[#020617] border border-amber-500/20 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(245,158,11,0.1)]">
+                <HeartCrack className="w-10 h-10 text-amber-400" />
               </div>
               <h2 className="text-xl font-black uppercase tracking-wide mb-2 text-white">Henüz Favori Öğe Yok</h2>
               <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">
@@ -142,7 +139,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
               <Link 
                 href="/" 
                 prefetch={true} 
-                className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white px-8 py-3.5 rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_20px_rgba(168,85,247,0.3)]"
+                className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black px-8 py-3.5 rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_20px_rgba(245,158,11,0.3)]"
               >
                 <Star className="w-4 h-4" /> Donanımları İncele
               </Link>
@@ -153,11 +150,11 @@ export default function FavoriClient({ initialFavorites }: Props) {
               {favoriteProducts.map((urun: any, index: number) => {
                 const isAdded = sepeteEklenenler.includes(urun._id || urun.id);
                 return (
-                  <div key={index} className="group flex flex-col sm:flex-row items-center bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-5 gap-4 sm:gap-6 transition-all duration-300 hover:border-purple-500/40 shadow-xl hover:shadow-[0_0_30px_rgba(168,85,247,0.05)] relative overflow-hidden">
+                  <div key={index} className="group flex flex-col sm:flex-row items-center bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-5 gap-4 sm:gap-6 transition-all duration-300 hover:border-amber-500/40 shadow-xl hover:shadow-[0_0_30px_rgba(245,158,11,0.05)] relative overflow-hidden">
                     
                     {/* GÖRSEL KUTUSU */}
-                    <div className="w-full sm:w-32 h-48 sm:h-32 shrink-0 bg-[#020617] rounded-xl border border-slate-800 flex items-center justify-center p-3 relative overflow-hidden group-hover:border-purple-500/20 transition-colors">
-                      <div className="absolute inset-0 bg-gradient-to-t from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div className="w-full sm:w-32 h-48 sm:h-32 shrink-0 bg-[#020617] rounded-xl border border-slate-800 flex items-center justify-center p-3 relative overflow-hidden group-hover:border-amber-500/20 transition-colors">
+                      <div className="absolute inset-0 bg-gradient-to-t from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                       <img 
                         src={urun.resim || "/placeholder.jpg"} 
                         alt={urun.isim} 
@@ -170,7 +167,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
                         <h3 className="text-sm sm:text-base font-bold text-slate-200 mb-2 leading-relaxed line-clamp-2 group-hover:text-white transition-colors">
                           {urun.isim || urun.name}
                         </h3>
-                        <div className="text-xl sm:text-2xl font-black text-purple-400 tracking-tight mt-auto">
+                        <div className="text-xl sm:text-2xl font-black text-amber-400 tracking-tight mt-auto">
                           {Number(urun.fiyat || 0).toLocaleString("tr-TR")} <span className="text-xs sm:text-sm font-bold text-slate-500 uppercase">TL</span>
                         </div>
                     </div>
@@ -190,7 +187,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
                           className={`flex-1 sm:flex-none h-12 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wider px-6 rounded-xl transition-all duration-300 shadow-md ${
                             isAdded 
                             ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-none shadow-[0_0_15px_rgba(16,185,129,0.3)]" 
-                            : "bg-[#020617] text-slate-300 border border-slate-800 hover:bg-purple-600 hover:text-white hover:border-purple-500 hover:shadow-[0_0_20px_rgba(168,85,247,0.3)]"
+                            : "bg-[#020617] text-slate-300 border border-slate-800 hover:bg-amber-500 hover:text-black hover:border-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.3)]"
                           }`}
                         >
                           {isAdded ? (<><CheckCircle2 className="w-4 h-4" /> Eklendi</>) : (<><ShoppingCart className="w-4 h-4" /> Sepete Ekle</>)}
