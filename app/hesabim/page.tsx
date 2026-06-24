@@ -452,12 +452,12 @@ return (
                <p className="text-[9px] sm:text-[10px] font-black text-slate-400 group-hover:text-emerald-400 transition-colors uppercase tracking-widest text-center">Sistemler</p>
              </Link>
 
-             <Link href="/destek-taleplerim" onClick={kilitliIslem} prefetch={true} className="flex flex-col gap-1.5 group">
-               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-orange-500/30 rounded-2xl p-3 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1 sm:gap-1.5 transition-colors h-full w-full">
-                 <Headset className="w-5 h-5 sm:w-7 sm:h-7 text-orange-400 transition-transform group-hover:scale-110" />
+          <Link href="/destek-taleplerim" onClick={kilitliIslem} prefetch={true} className="flex flex-col gap-1.5 group">
+               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-indigo-500/40 rounded-2xl p-3 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1 sm:gap-1.5 transition-colors h-full w-full">
+                 <Headset className="w-5 h-5 sm:w-7 sm:h-7 text-indigo-400 transition-transform group-hover:scale-110" />
                  <p className="text-lg sm:text-2xl font-black text-white">0</p>
                </div>
-               <p className="text-[8px] sm:text-[10px] font-black text-slate-400 group-hover:text-orange-400 transition-colors uppercase tracking-widest text-center">Destek / İade</p>
+               <p className="text-[8px] sm:text-[10px] font-black text-slate-400 group-hover:text-indigo-400 transition-colors uppercase tracking-widest text-center">Destek / İade</p>
              </Link>
           </div>
 
