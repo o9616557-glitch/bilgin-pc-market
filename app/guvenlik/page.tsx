@@ -5,15 +5,23 @@ import Link from "next/link";
 import { 
   User, ShieldCheck, CreditCard, Lock, KeyRound, 
   Smartphone, Laptop, Mail, PowerOff, AlertTriangle, 
-  Snowflake, Trash2, MapPin, Loader2, CheckCircle2, XCircle, Eye, EyeOff
+  Snowflake, Trash2, MapPin, Loader2, CheckCircle2, XCircle, Eye, EyeOff, LogIn, 
+  UserPlus
 } from "lucide-react";
-// 🚀 1. DEĞİŞİKLİK: signOut eklendiğinden emin ol!
 import { useSession, signOut } from "next-auth/react"; 
 
 export default function GuvenlikPage() {
-  // 🚀 2. DEĞİŞİKLİK: update motorunu sildik, sadece session ve mevcutCihazId var!
-  const { data: session } = useSession(); 
+  // 🚀 STATUS MOTORU EKLENDİ (Misafir mi değil mi anlamak için)
+  const { data: session, status } = useSession(); 
   const mevcutCihazId = (session?.user as any)?.deviceId; 
+
+  // 🚀 MİSAFİRLERİ ENGELLEYEN ŞIK UYARI MODALI
+  const [girisSartModal, setGirisSartModal] = useState(false);
+
+  const kilitliIslem = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    setGirisSartModal(true);
+  };
 
   const [mevcutSifre, setMevcutSifre] = useState("");
   const [sifre, setSifre] = useState("");
@@ -32,14 +40,22 @@ export default function GuvenlikPage() {
   const [aktifCihazlar, setAktifCihazlar] = useState<any[]>([]);
   const [cihazlarYukleniyor, setCihazlarYukleniyor] = useState(true);
   const [cikisYukleniyor, setCikisYukleniyor] = useState(false);
-// 🔒 HESAP DONDURMA VE SİLME MODALI ŞALTERLERİ
+
   const [islemModali, setIslemModali] = useState<{acik: boolean, tur: 'dondur' | 'sil'}>({acik: false, tur: 'dondur'});
   const [islemSifresi, setIslemSifresi] = useState("");
   const [islemYukleniyor, setIslemYukleniyor] = useState(false);
   const [islemBasariliMesaj, setIslemBasariliMesaj] = useState("");
   const [islemHata, setIslemHata] = useState("");
-  // 🚀 3. DEĞİŞİKLİK: KESKİN NİŞANCI ÇIRAK (Hem radarı çizer hem de adamı kovarsa kapı dışarı eder!)
+
+  // 🚀 KESKİN NİŞANCI ÇIRAK (Misafir ise boşuna sunucuyu yormaz, sıfır çeker!)
   useEffect(() => {
+    if (status === "unauthenticated") {
+      setCihazlarYukleniyor(false);
+      return;
+    }
+
+    if (status !== "authenticated") return;
+
     const ayarlariGetir = async (ilkYukleme = false) => {
       try {
         const res = await fetch("/api/user/get-2fa", { cache: 'no-store' }); 
@@ -52,18 +68,14 @@ export default function GuvenlikPage() {
           }
           
           if (data.activeDevices) {
-            
-            // 🎯 A) FIRLATMA KOLTUĞU KONTROLÜ: Benim bu cihazım hala yaşıyor mu?
             if (mevcutCihazId) {
               const benimCihaz = data.activeDevices.find((c: any) => c.deviceId === mevcutCihazId);
-              // Eğer benim cihazım listede yoksa veya isActive: false yapıldıysa:
               if (!benimCihaz || benimCihaz.isActive === false) {
-                 signOut({ callbackUrl: '/giris?alert=security_breach' }); // ACIMADAN FİŞİ ÇEK!
+                 signOut({ callbackUrl: '/giris?alert=security_breach' });
                  return; 
               }
             }
 
-            // 🎯 B) RADAR GÜNCELLEMESİ: Sadece yaşayanları ekranda göster (Ölüler gizlenir)
             const yasayanCihazlar = data.activeDevices.filter((c: any) => c.isActive !== false);
             const siraliCihazlar = yasayanCihazlar.sort((a: any, b: any) => 
               new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime()
@@ -80,13 +92,12 @@ export default function GuvenlikPage() {
     
     ayarlariGetir(true); 
 
-    // Çırak her 5 saniyede bir depoya gidip hem radara hem senin hayatta olup olmadığına bakar
     const cirak = setInterval(() => {
       ayarlariGetir(false);
     }, 5000); 
 
     return () => clearInterval(cirak); 
-  }, [mevcutCihazId]); 
+  }, [mevcutCihazId, status]); 
 
   const sifreGucuHesapla = (s: string) => {
     let guc = 0;
@@ -120,6 +131,9 @@ export default function GuvenlikPage() {
 
   const handleSifreGuncelle = async (e: React.FormEvent) => {
     e.preventDefault(); 
+    // 🚀 MİSAFİR KONTROLÜ
+    if (status === "unauthenticated") return kilitliIslem();
+
     if (!mevcutSifre || !sifre || !sifreTekrar) {
       setIslemDurumu({ tip: "hata", mesaj: "Lütfen tüm şifre alanlarını doldurun." });
       return;
@@ -156,7 +170,6 @@ export default function GuvenlikPage() {
     }
   };
 
-  // 🚀 OTOMATİK KAYIT MOTORU (Kaydet butonuna gerek bırakmaz!)
   const handleOtomatikKaydet = async (yeniEmail: boolean, yeniBildirim: string) => {
     setIkiAdimYukleniyor(true);
     setIkiAdimDurum({ tip: "", mesaj: "" });
@@ -210,7 +223,7 @@ export default function GuvenlikPage() {
   };
 
  return (
-    <> {/* İŞTE GÖRÜNMEZ ÇUVALIN AĞZINI BURADA AÇTIK! */}
+    <> 
       <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
@@ -218,395 +231,413 @@ export default function GuvenlikPage() {
           
           {/* SOL MENÜ */}
           <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
-          <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-3 sm:p-4 shadow-xl">
-       <nav className="flex flex-col gap-1.5">
-              <Link href="/hesabim" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
-                <User className="w-4 h-4 sm:w-5 sm:h-5" /> Profil
-              </Link>
-              
-              {/* 🎯 İŞTE DÜZELEN YER BURASI: href="/cuzdan" yapıldı ve ismi "Dijital Cüzdanım" oldu! */}
-              <Link href="/cuzdan" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
-                <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" /> Dijital Cüzdanım
-              </Link>
-              
-              <Link href="/guvenlik" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 bg-white/[0.05] border border-white/10 rounded-xl text-white font-bold shadow-inner transition-all text-sm sm:text-base">
-                <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" /> Güvenlik
-              </Link>
-            </nav>
-          </div>
-        </div>
+            <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-3 sm:p-4 shadow-xl">
+              <nav className="flex flex-col gap-1.5">
+                <Link href="/hesabim" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+                  <User className="w-4 h-4 sm:w-5 sm:h-5" /> Profil
+                </Link>
+                
+                <Link href="/cuzdan" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+                  <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" /> Dijital Cüzdanım
+                </Link>
+                
+                <Link href="/guvenlik" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 bg-white/[0.05] border border-white/10 rounded-xl text-white font-bold shadow-inner transition-all text-sm sm:text-base">
+                  <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" /> Güvenlik
+                </Link>
+              </nav>
 
-        {/* SAĞ İÇERİK */}
-        <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
-          
-          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 lg:p-8 shadow-xl relative overflow-hidden group">
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-cyan-500/10 blur-[50px] pointer-events-none rounded-full"></div>
-            <div className="flex items-center gap-3 sm:gap-4 relative z-10">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#020617] border border-cyan-500/30 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.2)] shrink-0">
-                <Lock className="w-6 h-6 sm:w-8 sm:h-8 text-cyan-400" />
-              </div>
-              <div>
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight mb-0.5 sm:mb-1">Güvenlik Merkezi</h1>
-                <p className="text-slate-400 text-xs sm:text-sm font-medium">Hesabınızı 256-bit şifreleme ile koruyun.</p>
-              </div>
+              {/* MİSAFİR İSE GİRİŞ/KAYIT BUTONLARI ÇIKAR */}
+              {status === "unauthenticated" && (
+                <div className="mt-4 pt-4 border-t border-slate-800 flex flex-col gap-2">
+                  <Link href="/giris" className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest text-center transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+                    <LogIn className="w-4 h-4" /> Giriş Yap
+                  </Link>
+                  <Link href="/kayit" className="w-full py-2.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-slate-700 hover:border-slate-500 text-slate-300 font-bold text-xs uppercase tracking-widest text-center transition-all flex items-center justify-center gap-2">
+                    <UserPlus className="w-4 h-4" /> Kayıt Ol
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6">
+          {/* SAĞ İÇERİK */}
+          <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
             
-            {/* ŞİFRE YÖNETİMİ */}
-            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col h-full">
-              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-800/80">
-                <KeyRound className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
-                <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Şifre Yönetimi</h2>
+            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 lg:p-8 shadow-xl relative overflow-hidden group">
+              <div className="absolute -top-10 -right-10 w-40 h-40 bg-cyan-500/10 blur-[50px] pointer-events-none rounded-full"></div>
+              <div className="flex items-center gap-3 sm:gap-4 relative z-10">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#020617] border border-cyan-500/30 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.2)] shrink-0">
+                  <Lock className="w-6 h-6 sm:w-8 sm:h-8 text-cyan-400" />
+                </div>
+                <div>
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight mb-0.5 sm:mb-1">Güvenlik Merkezi</h1>
+                  <p className="text-slate-400 text-xs sm:text-sm font-medium">Hesabınızı 256-bit şifreleme ile koruyun.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6">
+              
+              {/* ŞİFRE YÖNETİMİ */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col h-full">
+                <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-800/80">
+                  <KeyRound className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
+                  <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Şifre Yönetimi</h2>
+                </div>
+
+                <form onSubmit={handleSifreGuncelle} className="flex flex-col gap-3 sm:gap-4 flex-1">
+                  <div>
+                    <label className="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 sm:mb-1.5 ml-1">Mevcut Şifreniz</label>
+                    <div className="relative">
+                      <input 
+                        type={gosterMevcut ? "text" : "password"} 
+                        placeholder="••••••••" 
+                        value={mevcutSifre}
+                        onChange={(e) => setMevcutSifre(e.target.value)}
+                        className="w-full bg-[#020617] border border-slate-800 focus:border-cyan-500/50 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 pr-10 text-white text-xs sm:text-sm outline-none transition-all focus:shadow-[0_0_15px_rgba(6,182,212,0.1)]" 
+                      />
+                      <button type="button" onClick={() => setGosterMevcut(!gosterMevcut)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-cyan-400 transition-colors">
+                        {gosterMevcut ? <EyeOff className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 sm:mb-1.5 ml-1">Yeni Şifre</label>
+                    <div className="relative">
+                      <input 
+                        type={gosterYeni ? "text" : "password"} 
+                        placeholder="••••••••" 
+                        value={sifre}
+                        onChange={(e) => setSifre(e.target.value)}
+                        className="w-full bg-[#020617] border border-slate-800 focus:border-cyan-500/50 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 pr-10 text-white text-xs sm:text-sm outline-none transition-all focus:shadow-[0_0_15px_rgba(6,182,212,0.1)]" 
+                      />
+                      <button type="button" onClick={() => setGosterYeni(!gosterYeni)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-cyan-400 transition-colors">
+                        {gosterYeni ? <EyeOff className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                      </button>
+                    </div>
+                    <div className="h-1 sm:h-1.5 w-full bg-[#020617] rounded-full mt-1.5 sm:mt-2 overflow-hidden border border-slate-800">
+                      <div className={`h-full transition-all duration-300 ${gucRengi}`} style={{ width: `${gucYuzdesi}%` }}></div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 sm:mb-1.5 ml-1">Yeni Şifre (Tekrar)</label>
+                    <div className="relative">
+                      <input 
+                        type={gosterTekrar ? "text" : "password"} 
+                        placeholder="••••••••" 
+                        value={sifreTekrar}
+                        onChange={(e) => setSifreTekrar(e.target.value)}
+                        className="w-full bg-[#020617] border border-slate-800 focus:border-cyan-500/50 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 pr-10 text-white text-xs sm:text-sm outline-none transition-all focus:shadow-[0_0_15px_rgba(6,182,212,0.1)]" 
+                      />
+                      <button type="button" onClick={() => setGosterTekrar(!gosterTekrar)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-cyan-400 transition-colors">
+                        {gosterTekrar ? <EyeOff className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="h-[44px] sm:h-[48px] mt-1 sm:mt-2 mb-1">
+                    <div 
+                      className={`h-full px-3 rounded-xl border flex items-center gap-2 text-[10px] sm:text-xs font-bold transition-colors duration-300 overflow-hidden ${
+                        islemDurumu.mesaj 
+                          ? (islemDurumu.tip === "hata" 
+                              ? "bg-rose-500/10 border-rose-500/20 text-rose-400" 
+                              : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400")
+                          : "bg-emerald-500/5 border-emerald-500/10 text-emerald-400/60" 
+                      }`}
+                    >
+                      {islemDurumu.mesaj ? (
+                        <>
+                          {islemDurumu.tip === "hata" ? <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> : <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />}
+                          <span className="truncate">{islemDurumu.mesaj}</span>
+                        </>
+                      ) : (
+                        <>
+                          <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 opacity-70" />
+                          <span className="truncate">Öneri: Büyük harf, rakam ve sembol kullanın.</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <button 
+                    type="submit" 
+                    disabled={yukleniyor}
+                    className="mt-1 sm:mt-2 w-full py-3 sm:py-3.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(6,182,212,0.2)] disabled:opacity-50 flex justify-center items-center gap-2"
+                  >
+                    {yukleniyor ? <><Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" /> İŞLENİYOR...</> : "ŞİFREYİ GÜNCELLE"}
+                  </button>
+                </form>
               </div>
 
-              <form onSubmit={handleSifreGuncelle} className="flex flex-col gap-3 sm:gap-4 flex-1">
-                <div>
-                  <label className="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 sm:mb-1.5 ml-1">Mevcut Şifreniz</label>
-                  <div className="relative">
-                    <input 
-                      type={gosterMevcut ? "text" : "password"} 
-                      placeholder="••••••••" 
-                      value={mevcutSifre}
-                      onChange={(e) => setMevcutSifre(e.target.value)}
-                      className="w-full bg-[#020617] border border-slate-800 focus:border-cyan-500/50 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 pr-10 text-white text-xs sm:text-sm outline-none transition-all focus:shadow-[0_0_15px_rgba(6,182,212,0.1)]" 
-                    />
-                    <button type="button" onClick={() => setGosterMevcut(!gosterMevcut)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-cyan-400 transition-colors">
-                      {gosterMevcut ? <EyeOff className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-                    </button>
-                  </div>
-                </div>
+              {/* 2FA BÖLÜMÜ */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col h-full relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-[60px] pointer-events-none rounded-full"></div>
                 
-                <div>
-                  <label className="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 sm:mb-1.5 ml-1">Yeni Şifre</label>
-                  <div className="relative">
-                    <input 
-                      type={gosterYeni ? "text" : "password"} 
-                      placeholder="••••••••" 
-                      value={sifre}
-                      onChange={(e) => setSifre(e.target.value)}
-                      className="w-full bg-[#020617] border border-slate-800 focus:border-cyan-500/50 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 pr-10 text-white text-xs sm:text-sm outline-none transition-all focus:shadow-[0_0_15px_rgba(6,182,212,0.1)]" 
-                    />
-                    <button type="button" onClick={() => setGosterYeni(!gosterYeni)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-cyan-400 transition-colors">
-                      {gosterYeni ? <EyeOff className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-                    </button>
-                  </div>
-                  <div className="h-1 sm:h-1.5 w-full bg-[#020617] rounded-full mt-1.5 sm:mt-2 overflow-hidden border border-slate-800">
-                    <div className={`h-full transition-all duration-300 ${gucRengi}`} style={{ width: `${gucYuzdesi}%` }}></div>
+                <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-800/80 relative min-h-[44px] sm:min-h-[52px]">
+                  <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
+                  <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider pr-20 sm:pr-0">İki Adımlı Doğrulama</h2>
+                  
+                  <div className={`absolute right-0 top-0 sm:top-1 flex items-center gap-1.5 text-[9px] sm:text-[10px] text-cyan-400 font-bold uppercase tracking-widest bg-cyan-500/10 px-2 py-1 rounded-md border border-cyan-500/20 transition-all duration-300 ${
+                    ikiAdimYukleniyor ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
+                  }`}>
+                    <Loader2 className="w-3 h-3 animate-spin" /> 
+                    <span className="hidden sm:inline">Kaydediliyor...</span>
+                    <span className="inline sm:hidden">Kayıt...</span>
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 sm:mb-1.5 ml-1">Yeni Şifre (Tekrar)</label>
-                  <div className="relative">
-                    <input 
-                      type={gosterTekrar ? "text" : "password"} 
-                      placeholder="••••••••" 
-                      value={sifreTekrar}
-                      onChange={(e) => setSifreTekrar(e.target.value)}
-                      className="w-full bg-[#020617] border border-slate-800 focus:border-cyan-500/50 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 pr-10 text-white text-xs sm:text-sm outline-none transition-all focus:shadow-[0_0_15px_rgba(6,182,212,0.1)]" 
-                    />
-                    <button type="button" onClick={() => setGosterTekrar(!gosterTekrar)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-cyan-400 transition-colors">
-                      {gosterTekrar ? <EyeOff className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                <p className="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6">
+                  Hesabınıza giriş yapıldığında şifrenize ek ekstra güvenlik katmanı sağlar. Tüm ayarlar anında otomatik kaydedilir.
+                </p>
+
+                <div className="flex flex-col gap-3 sm:gap-4 flex-1">
+                  
+                  {/* E-POSTA ONAYI */}
+                  <div className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all duration-300 ${ikiAdimEmail ? "bg-emerald-500/10 border-emerald-500/50" : "bg-[#020617] border-slate-800"}`}>
+                    <div className="flex items-center gap-2.5 sm:gap-3">
+                      <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors duration-300 ${ikiAdimEmail ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-800/50 text-slate-400"}`}>
+                        <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
+                      </div>
+                      <div>
+                        <p className="text-xs sm:text-sm font-bold text-white">E-Posta Onayı</p>
+                        <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium">Girişlerde e-postanıza kod gelir.</p>
+                      </div>
+                    </div>
+                    <button 
+                      disabled={ikiAdimYukleniyor}
+                      onClick={(e) => {
+                        if (status === "unauthenticated") return kilitliIslem(e);
+                        const yeniDurum = !ikiAdimEmail;
+                        setIkiAdimEmail(yeniDurum);
+                        handleOtomatikKaydet(yeniDurum, bildirimTercihi); 
+                      }} 
+                      className={`w-10 h-5 sm:w-12 sm:h-6 rounded-full relative transition-all duration-300 outline-none disabled:opacity-50 ${ikiAdimEmail ? "bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]" : "bg-slate-700"}`}
+                    >
+                      <div className={`absolute top-0.5 sm:top-1 left-0.5 sm:left-1 w-4 h-4 rounded-full bg-white transition-transform duration-300 ${ikiAdimEmail ? "translate-x-5 sm:translate-x-6" : "translate-x-0"}`}></div>
                     </button>
                   </div>
                 </div>
 
-        {/* 🚀 ŞEFİN BULUŞU: AKILLI ŞİFRE KUTUSU (Boş durmaz, ipucu verir, duruma göre şekil değiştirir!) */}
-                <div className="h-[44px] sm:h-[48px] mt-1 sm:mt-2 mb-1">
+                <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-slate-800">
+                  <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                    <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-slate-300" />
+                    <h3 className="text-xs sm:text-sm font-black text-white uppercase tracking-wider">Giriş Bildirim Ayarları</h3>
+                  </div>
+
+                  <div className="flex flex-col gap-2 sm:gap-3">
+                    
+                    {/* TAM KARANTİNA */}
+                    <button 
+                      type="button"
+                      disabled={ikiAdimYukleniyor}
+                      onClick={(e) => {
+                        if (status === "unauthenticated") return kilitliIslem(e);
+                        const yeniDurum = bildirimTercihi === 'all' ? 'none' : 'all';
+                        setBildirimTercihi(yeniDurum);
+                        handleOtomatikKaydet(ikiAdimEmail, yeniDurum); 
+                      }}
+                      className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all duration-300 disabled:opacity-50 ${bildirimTercihi === 'all' ? "bg-blue-500/10 border-blue-500/50" : "bg-[#020617] border-slate-800 hover:border-slate-700"}`}
+                    >
+                      <div className="flex items-center gap-2.5 sm:gap-3">
+                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300 ${bildirimTercihi === 'all' ? "bg-blue-500/20 text-blue-400" : "bg-slate-800 text-slate-500"}`}>
+                          <i className="fa-solid fa-bell text-xs sm:text-sm"></i>
+                        </div>
+                        <div className="text-left">
+                          <p className="text-xs sm:text-sm font-bold text-white">Tam Karantina</p>
+                          <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium">Kim girerse girsin anında mail at.</p>
+                        </div>
+                      </div>
+                      <div className={`relative inline-flex h-5 sm:h-6 w-9 sm:w-11 items-center rounded-full transition-all duration-300 ${bildirimTercihi === 'all' ? 'bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 'bg-slate-700'}`}>
+                        <span className={`inline-block h-3.5 sm:h-4 w-3.5 sm:w-4 transform rounded-full bg-white transition-transform duration-300 ${bildirimTercihi === 'all' ? 'translate-x-4 sm:translate-x-6' : 'translate-x-1'}`} />
+                      </div>
+                    </button>
+
+                    {/* AKILLI MUHAFIZ */}
+                    <button 
+                      type="button"
+                      disabled={ikiAdimYukleniyor}
+                      onClick={(e) => {
+                        if (status === "unauthenticated") return kilitliIslem(e);
+                        const yeniDurum = bildirimTercihi === 'new_device' ? 'none' : 'new_device';
+                        setBildirimTercihi(yeniDurum);
+                        handleOtomatikKaydet(ikiAdimEmail, yeniDurum); 
+                      }}
+                      className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all duration-300 disabled:opacity-50 ${bildirimTercihi === 'new_device' ? "bg-emerald-500/10 border-emerald-500/50" : "bg-[#020617] border-slate-800 hover:border-slate-700"}`}
+                    >
+                      <div className="flex items-center gap-2.5 sm:gap-3">
+                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300 ${bildirimTercihi === 'new_device' ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-800 text-slate-500"}`}>
+                          <i className="fa-solid fa-shield-halved text-xs sm:text-sm"></i>
+                        </div>
+                        <div className="text-left">
+                          <p className="text-xs sm:text-sm font-bold text-white">Akıllı Muhafız</p>
+                          <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium">Sadece tanınmayan cihazda mail at.</p>
+                        </div>
+                      </div>
+                      <div className={`relative inline-flex h-5 sm:h-6 w-9 sm:w-11 items-center rounded-full transition-all duration-300 ${bildirimTercihi === 'new_device' ? 'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'bg-slate-700'}`}>
+                        <span className={`inline-block h-3.5 sm:h-4 w-3.5 sm:w-4 transform rounded-full bg-white transition-transform duration-300 ${bildirimTercihi === 'new_device' ? 'translate-x-4 sm:translate-x-6' : 'translate-x-1'}`} />
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="h-[48px] sm:h-[52px] mt-3 sm:mt-4">
                   <div 
                     className={`h-full px-3 rounded-xl border flex items-center gap-2 text-[10px] sm:text-xs font-bold transition-colors duration-300 overflow-hidden ${
-                      islemDurumu.mesaj 
-                        ? (islemDurumu.tip === "hata" 
+                      ikiAdimDurum.mesaj 
+                        ? (ikiAdimDurum.tip === "hata" 
                             ? "bg-rose-500/10 border-rose-500/20 text-rose-400" 
                             : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400")
-                        : "bg-emerald-500/5 border-emerald-500/10 text-emerald-400/60" // 🚀 Varsayılan Soluk Yeşil İpucu
+                        : "bg-emerald-500/5 border-emerald-500/10 text-emerald-400/60" 
                     }`}
                   >
-                    {islemDurumu.mesaj ? (
+                    {ikiAdimDurum.mesaj ? (
                       <>
-                        {islemDurumu.tip === "hata" ? <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> : <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />}
-                        {/* truncate: Uzun yazıları tek satırda tutar, sığmazsa sonuna ... koyar, taşırmaz! */}
-                        <span className="truncate">{islemDurumu.mesaj}</span>
+                        {ikiAdimDurum.tip === "hata" ? <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> : <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />}
+                        <span className="truncate">{ikiAdimDurum.mesaj}</span>
                       </>
                     ) : (
                       <>
                         <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 opacity-70" />
-                        <span className="truncate">Öneri: Büyük harf, rakam ve sembol kullanın.</span>
+                        <span className="truncate">Ayarlar arasında geçiş yapın.</span>
                       </>
                     )}
                   </div>
                 </div>
-                <button 
-                  type="submit" 
-                  disabled={yukleniyor}
-                  className="mt-1 sm:mt-2 w-full py-3 sm:py-3.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(6,182,212,0.2)] disabled:opacity-50 flex justify-center items-center gap-2"
-                >
-                  {yukleniyor ? <><Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" /> İŞLENİYOR...</> : "ŞİFREYİ GÜNCELLE"}
-                </button>
-              </form>
+              </div>
             </div>
 
-            {/* 2FA BÖLÜMÜ */}
-            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col h-full relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-[60px] pointer-events-none rounded-full"></div>
-              
-            {/* 🚀 ÜSTTEKİ ZIPLAMA ÇÖZÜLDÜ: relative ve min-h eklendi, Kaydediliyor radarı havaya (absolute) asıldı! */}
-              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-800/80 relative min-h-[44px] sm:min-h-[52px]">
-                <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
-                {/* Telefondaysa sağdan biraz boşluk bırakır ki havada asılı yazıyla üst üste binmesin (pr-20) */}
-                <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider pr-20 sm:pr-0">İki Adımlı Doğrulama</h2>
-                
-                {/* 🎯 "Kaydediliyor" radarı artık havada asılı duruyor, asla aşağıyı ittiremez! */}
-                <div className={`absolute right-0 top-0 sm:top-1 flex items-center gap-1.5 text-[9px] sm:text-[10px] text-cyan-400 font-bold uppercase tracking-widest bg-cyan-500/10 px-2 py-1 rounded-md border border-cyan-500/20 transition-all duration-300 ${
-                  ikiAdimYukleniyor ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
-                }`}>
-                  <Loader2 className="w-3 h-3 animate-spin" /> 
-                  <span className="hidden sm:inline">Kaydediliyor...</span>
-                  <span className="inline sm:hidden">Kayıt...</span>
-                </div>
+            {/* AKTİF CİHAZLAR RADARI */}
+            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
+              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-800/80">
+                <Laptop className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
+                <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Aktif Cihazlar Radarı</h2>
+                <span className="ml-auto text-[8px] sm:text-[10px] bg-slate-800 text-slate-400 px-1.5 py-1 rounded font-bold uppercase tracking-widest">Son 30 Gün</span>
               </div>
 
-              <p className="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6">
-                Hesabınıza giriş yapıldığında şifrenize ek ekstra güvenlik katmanı sağlar. Tüm ayarlar anında otomatik kaydedilir.
-              </p>
-
-              <div className="flex flex-col gap-3 sm:gap-4 flex-1">
-                
-                {/* 🚀 E-POSTA ONAYI (YEŞİL) */}
-                <div className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all duration-300 ${ikiAdimEmail ? "bg-emerald-500/10 border-emerald-500/50" : "bg-[#020617] border-slate-800"}`}>
-                  <div className="flex items-center gap-2.5 sm:gap-3">
-                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors duration-300 ${ikiAdimEmail ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-800/50 text-slate-400"}`}>
-                      <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
-                    </div>
-                    <div>
-                      <p className="text-xs sm:text-sm font-bold text-white">E-Posta Onayı</p>
-                      <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium">Girişlerde e-postanıza kod gelir.</p>
-                    </div>
+              <div className="flex flex-col gap-2 sm:gap-3 max-h-[260px] overflow-y-auto pr-1 sm:pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-500">
+                {cihazlarYukleniyor ? (
+                  <div className="flex justify-center p-6 sm:p-8">
+                    <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-500 animate-spin" />
                   </div>
-                  <button 
-                    disabled={ikiAdimYukleniyor}
-                    onClick={() => {
-                      const yeniDurum = !ikiAdimEmail;
-                      setIkiAdimEmail(yeniDurum);
-                      handleOtomatikKaydet(yeniDurum, bildirimTercihi); 
-                    }} 
-                    className={`w-10 h-5 sm:w-12 sm:h-6 rounded-full relative transition-all duration-300 outline-none disabled:opacity-50 ${ikiAdimEmail ? "bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]" : "bg-slate-700"}`}
-                  >
-                    <div className={`absolute top-0.5 sm:top-1 left-0.5 sm:left-1 w-4 h-4 rounded-full bg-white transition-transform duration-300 ${ikiAdimEmail ? "translate-x-5 sm:translate-x-6" : "translate-x-0"}`}></div>
-                  </button>
-                </div>
-              </div>
+                ) : aktifCihazlar.length === 0 ? (
+                  <div className="text-center p-6 sm:p-8 text-xs sm:text-sm text-slate-500 font-medium">Kayıtlı cihaz bulunamadı.</div>
+                ) : (
+                  (() => {
+                    const gorulenTipler = new Set();
+                    const aktifSayilacakIdler = aktifCihazlar.map(c => {
+                      const tip = cihazAdiniCevir(c.deviceInfo);
+                      if (!gorulenTipler.has(tip)) {
+                        gorulenTipler.add(tip);
+                        return c.deviceId;
+                      }
+                      return null;
+                    }).filter(Boolean);
 
-              {/* ŞEFİN EFSANE AÇ-KAPA ŞARTELLERİ */}
-              <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-slate-800">
-                <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-                  <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-slate-300" />
-                  <h3 className="text-xs sm:text-sm font-black text-white uppercase tracking-wider">Giriş Bildirim Ayarları</h3>
-                </div>
-
-                <div className="flex flex-col gap-2 sm:gap-3">
-                  
-                  {/* 🚀 TAM KARANTİNA (MAVİ) */}
-                  <button 
-                    type="button"
-                    disabled={ikiAdimYukleniyor}
-                    onClick={() => {
-                      const yeniDurum = bildirimTercihi === 'all' ? 'none' : 'all';
-                      setBildirimTercihi(yeniDurum);
-                      handleOtomatikKaydet(ikiAdimEmail, yeniDurum); 
-                    }}
-                    className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all duration-300 disabled:opacity-50 ${bildirimTercihi === 'all' ? "bg-blue-500/10 border-blue-500/50" : "bg-[#020617] border-slate-800 hover:border-slate-700"}`}
-                  >
-                    <div className="flex items-center gap-2.5 sm:gap-3">
-                      <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300 ${bildirimTercihi === 'all' ? "bg-blue-500/20 text-blue-400" : "bg-slate-800 text-slate-500"}`}>
-                        <i className="fa-solid fa-bell text-xs sm:text-sm"></i>
-                      </div>
-                      <div className="text-left">
-                        <p className="text-xs sm:text-sm font-bold text-white">Tam Karantina</p>
-                        <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium">Kim girerse girsin anında mail at.</p>
-                      </div>
-                    </div>
-                    <div className={`relative inline-flex h-5 sm:h-6 w-9 sm:w-11 items-center rounded-full transition-all duration-300 ${bildirimTercihi === 'all' ? 'bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 'bg-slate-700'}`}>
-                      <span className={`inline-block h-3.5 sm:h-4 w-3.5 sm:w-4 transform rounded-full bg-white transition-transform duration-300 ${bildirimTercihi === 'all' ? 'translate-x-4 sm:translate-x-6' : 'translate-x-1'}`} />
-                    </div>
-                  </button>
-
-                  {/* 🚀 AKILLI MUHAFIZ (YEŞİL) */}
-                  <button 
-                    type="button"
-                    disabled={ikiAdimYukleniyor}
-                    onClick={() => {
-                      const yeniDurum = bildirimTercihi === 'new_device' ? 'none' : 'new_device';
-                      setBildirimTercihi(yeniDurum);
-                      handleOtomatikKaydet(ikiAdimEmail, yeniDurum); 
-                    }}
-                    className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all duration-300 disabled:opacity-50 ${bildirimTercihi === 'new_device' ? "bg-emerald-500/10 border-emerald-500/50" : "bg-[#020617] border-slate-800 hover:border-slate-700"}`}
-                  >
-                    <div className="flex items-center gap-2.5 sm:gap-3">
-                      <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300 ${bildirimTercihi === 'new_device' ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-800 text-slate-500"}`}>
-                        <i className="fa-solid fa-shield-halved text-xs sm:text-sm"></i>
-                      </div>
-                      <div className="text-left">
-                        <p className="text-xs sm:text-sm font-bold text-white">Akıllı Muhafız</p>
-                        <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium">Sadece tanınmayan cihazda mail at.</p>
-                      </div>
-                    </div>
-                    <div className={`relative inline-flex h-5 sm:h-6 w-9 sm:w-11 items-center rounded-full transition-all duration-300 ${bildirimTercihi === 'new_device' ? 'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'bg-slate-700'}`}>
-                      <span className={`inline-block h-3.5 sm:h-4 w-3.5 sm:w-4 transform rounded-full bg-white transition-transform duration-300 ${bildirimTercihi === 'new_device' ? 'translate-x-4 sm:translate-x-6' : 'translate-x-1'}`} />
-                    </div>
-                  </button>
-                </div>
-              </div>
-{/* 🚀 SAĞ TARAFIN AKILLI İPUCU KUTUSU (Sabit Yükseklik, Taşmaz, Zıplamaz) */}
-              <div className="h-[48px] sm:h-[52px] mt-3 sm:mt-4">
-                <div 
-                  className={`h-full px-3 rounded-xl border flex items-center gap-2 text-[10px] sm:text-xs font-bold transition-colors duration-300 overflow-hidden ${
-                    ikiAdimDurum.mesaj 
-                      ? (ikiAdimDurum.tip === "hata" 
-                          ? "bg-rose-500/10 border-rose-500/20 text-rose-400" 
-                          : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400")
-                      : "bg-emerald-500/5 border-emerald-500/10 text-emerald-400/60" // 🚀 Soluk Yeşil Sabit İpucu
-                  }`}
-                >
-                  {ikiAdimDurum.mesaj ? (
-                    <>
-                      {ikiAdimDurum.tip === "hata" ? <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> : <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />}
-                      <span className="truncate">{ikiAdimDurum.mesaj}</span>
-                    </>
-                  ) : (
-                    <>
-                      <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 opacity-70" />
-                      <span className="truncate">Ayarlar arasında geçiş yapın.</span>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* AKTİF CİHAZLAR RADARI */}
-          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
-            <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-800/80">
-              <Laptop className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
-              <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Aktif Cihazlar Radarı</h2>
-              <span className="ml-auto text-[8px] sm:text-[10px] bg-slate-800 text-slate-400 px-1.5 py-1 rounded font-bold uppercase tracking-widest">Son 30 Gün</span>
-            </div>
-
-            <div className="flex flex-col gap-2 sm:gap-3 max-h-[260px] overflow-y-auto pr-1 sm:pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-500">
-              {cihazlarYukleniyor ? (
-                <div className="flex justify-center p-6 sm:p-8">
-                  <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-500 animate-spin" />
-                </div>
-              ) : aktifCihazlar.length === 0 ? (
-                <div className="text-center p-6 sm:p-8 text-xs sm:text-sm text-slate-500 font-medium">Kayıtlı cihaz bulunamadı.</div>
-              ) : (
-                (() => {
-                  const gorulenTipler = new Set();
-                  const aktifSayilacakIdler = aktifCihazlar.map(c => {
-                    const tip = cihazAdiniCevir(c.deviceInfo);
-                    if (!gorulenTipler.has(tip)) {
-                      gorulenTipler.add(tip);
-                      return c.deviceId;
-                    }
-                    return null;
-                  }).filter(Boolean);
-
-                  return aktifCihazlar.map((cihaz, index) => {
-                    const buCihazMi = (session?.user as any)?.deviceId === cihaz.deviceId;
-                    const enYeniMi = aktifSayilacakIdler.includes(cihaz.deviceId);
-                    const aktifGozuksun = (buCihazMi || enYeniMi) && cihaz.isActive !== false;
-                    
-                    const isMobile = cihaz.deviceInfo.toLowerCase().includes('mobile') || cihaz.deviceInfo.toLowerCase().includes('android') || cihaz.deviceInfo.toLowerCase().includes('iphone');
-                    
-                    return (
-                      <div key={cihaz.deviceId || index} className={`flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-[#020617] border rounded-xl relative overflow-hidden group shrink-0 ${aktifGozuksun ? "border-emerald-500/30" : "border-slate-800"}`}>
-                        {aktifGozuksun && <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 shadow-[0_0_10px_#10b981]"></div>}
-                        
-                        <div className="flex items-start sm:items-center gap-3 sm:gap-4 pl-2 sm:pl-3">
-                          <div className="relative shrink-0 mt-0.5 sm:mt-0">
-                            {isMobile ? (
-                              <Smartphone className={`w-6 h-6 sm:w-8 sm:h-8 ${aktifGozuksun ? "text-emerald-400" : "text-slate-600"}`} />
-                            ) : (
-                              <Laptop className={`w-6 h-6 sm:w-8 sm:h-8 ${aktifGozuksun ? "text-emerald-400" : "text-slate-600"}`} />
-                            )}
-                            
-                            {aktifGozuksun && (
-                              <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5 sm:h-3 sm:w-3">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-emerald-500 border border-[#020617]"></span>
-                              </span>
-                            )}
-                          </div>
-                          <div>
-                            <p className={`text-xs sm:text-sm font-bold flex flex-wrap items-center gap-1.5 sm:gap-2 ${aktifGozuksun ? "text-white" : "text-slate-500"}`}>
-                              {cihazAdiniCevir(cihaz.deviceInfo)}
-                              {buCihazMi && <span className="text-[8px] sm:text-[9px] bg-emerald-500/10 text-emerald-400 px-1 sm:px-1.5 py-0.5 rounded font-black uppercase tracking-widest border border-emerald-500/20">Bu Cihaz</span>}
-                            </p>
-                            <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 flex items-center gap-1 sm:gap-3 flex-wrap">
-                              <span className="flex items-center gap-1 sm:gap-1.5">
-                                <MapPin className={`w-2.5 h-2.5 sm:w-3 sm:h-3 ${aktifGozuksun ? "text-emerald-400" : "text-slate-600"}`} /> 
-                                {cihaz.location || "Bilinmeyen Konum"} ({cihaz.ipAddress})
-                              </span>
-                              <span className="hidden sm:inline">|</span>
-                              <span>{new Date(cihaz.lastActive).toLocaleDateString("tr-TR", {day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit'})}</span>
-                            </p>
+                    return aktifCihazlar.map((cihaz, index) => {
+                      const buCihazMi = (session?.user as any)?.deviceId === cihaz.deviceId;
+                      const enYeniMi = aktifSayilacakIdler.includes(cihaz.deviceId);
+                      const aktifGozuksun = (buCihazMi || enYeniMi) && cihaz.isActive !== false;
+                      
+                      const isMobile = cihaz.deviceInfo.toLowerCase().includes('mobile') || cihaz.deviceInfo.toLowerCase().includes('android') || cihaz.deviceInfo.toLowerCase().includes('iphone');
+                      
+                      return (
+                        <div key={cihaz.deviceId || index} className={`flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-[#020617] border rounded-xl relative overflow-hidden group shrink-0 ${aktifGozuksun ? "border-emerald-500/30" : "border-slate-800"}`}>
+                          {aktifGozuksun && <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 shadow-[0_0_10px_#10b981]"></div>}
+                          
+                          <div className="flex items-start sm:items-center gap-3 sm:gap-4 pl-2 sm:pl-3">
+                            <div className="relative shrink-0 mt-0.5 sm:mt-0">
+                              {isMobile ? (
+                                <Smartphone className={`w-6 h-6 sm:w-8 sm:h-8 ${aktifGozuksun ? "text-emerald-400" : "text-slate-600"}`} />
+                              ) : (
+                                <Laptop className={`w-6 h-6 sm:w-8 sm:h-8 ${aktifGozuksun ? "text-emerald-400" : "text-slate-600"}`} />
+                              )}
+                              
+                              {aktifGozuksun && (
+                                <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5 sm:h-3 sm:w-3">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-emerald-500 border border-[#020617]"></span>
+                                </span>
+                              )}
+                            </div>
+                            <div>
+                              <p className={`text-xs sm:text-sm font-bold flex flex-wrap items-center gap-1.5 sm:gap-2 ${aktifGozuksun ? "text-white" : "text-slate-500"}`}>
+                                {cihazAdiniCevir(cihaz.deviceInfo)}
+                                {buCihazMi && <span className="text-[8px] sm:text-[9px] bg-emerald-500/10 text-emerald-400 px-1 sm:px-1.5 py-0.5 rounded font-black uppercase tracking-widest border border-emerald-500/20">Bu Cihaz</span>}
+                              </p>
+                              <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 flex items-center gap-1 sm:gap-3 flex-wrap">
+                                <span className="flex items-center gap-1 sm:gap-1.5">
+                                  <MapPin className={`w-2.5 h-2.5 sm:w-3 sm:h-3 ${aktifGozuksun ? "text-emerald-400" : "text-slate-600"}`} /> 
+                                  {cihaz.location || "Bilinmeyen Konum"} ({cihaz.ipAddress})
+                                </span>
+                                <span className="hidden sm:inline">|</span>
+                                <span>{new Date(cihaz.lastActive).toLocaleDateString("tr-TR", {day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit'})}</span>
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  });
-                })()
+                      );
+                    });
+                  })()
+                )}
+              </div>
+
+              {aktifCihazlar.length > 1 && (
+                <div className="mt-4 sm:mt-6 flex justify-end">
+                  <button 
+                    onClick={() => {
+                      if (status === "unauthenticated") return kilitliIslem();
+                      handleDigerCihazlardanCikis();
+                    }}
+                    disabled={cikisYukleniyor}
+                    className="flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-red-950/40 border border-red-900/50 hover:bg-red-900/60 text-red-400 transition-all font-black text-[9px] sm:text-xs uppercase tracking-widest shadow-[0_0_20px_rgba(220,38,38,0.1)] disabled:opacity-50"
+                  >
+                    {cikisYukleniyor ? <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" /> : <PowerOff className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                    Diğer Tüm Cihazlardan Çıkış Yap
+                  </button>
+                </div>
               )}
             </div>
 
-            {aktifCihazlar.length > 1 && (
-              <div className="mt-4 sm:mt-6 flex justify-end">
+            {/* HESAP İŞLEMLERİ */}
+            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
+              <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-slate-800/80">
+                <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
+                <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Hesap İşlemleri</h2>
+              </div>
+              <p className="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6 max-w-2xl">
+                Hesabınızı geçici olarak dondurabilir veya kişisel verilerinizle birlikte kalıcı olarak silebilirsiniz. Silme işlemi geri alınamaz.
+              </p>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <button 
-                  onClick={handleDigerCihazlardanCikis}
-                  disabled={cikisYukleniyor}
-                  className="flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-red-950/40 border border-red-900/50 hover:bg-red-900/60 text-red-400 transition-all font-black text-[9px] sm:text-xs uppercase tracking-widest shadow-[0_0_20px_rgba(220,38,38,0.1)] disabled:opacity-50"
+                  onClick={(e) => {
+                    if (status === "unauthenticated") return kilitliIslem(e);
+                    setIslemModali({acik: true, tur: 'dondur'})
+                  }}
+                  className="flex-1 flex justify-center items-center gap-1.5 sm:gap-2 py-3 sm:py-4 rounded-xl bg-[#020617] border border-slate-800 hover:bg-slate-800/50 text-white font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all group"
                 >
-                  {cikisYukleniyor ? <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" /> : <PowerOff className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-                  Diğer Tüm Cihazlardan Çıkış Yap
+                  <Snowflake className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-500 group-hover:text-blue-400 transition-colors" /> 
+                  Hesabımı Dondur
+                </button>
+
+                <button 
+                  onClick={(e) => {
+                    if (status === "unauthenticated") return kilitliIslem(e);
+                    setIslemModali({acik: true, tur: 'sil'})
+                  }}
+                  className="flex-1 flex justify-center items-center gap-1.5 sm:gap-2 py-3 sm:py-4 rounded-xl bg-red-950/20 border border-red-900/30 hover:bg-red-900/50 text-red-400 transition-all font-bold text-[9px] sm:text-xs uppercase tracking-widest group"
+                >
+                  <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:scale-110 transition-transform" /> 
+                  Hesabımı Kalıcı Olarak Sil
                 </button>
               </div>
-            )}
-          </div>
-
-          {/* HESAP İŞLEMLERİ */}
-          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
-            <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-slate-800/80">
-              <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
-              <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Hesap İşlemleri</h2>
             </div>
-            <p className="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6 max-w-2xl">
-              Hesabınızı geçici olarak dondurabilir veya kişisel verilerinizle birlikte kalıcı olarak silebilirsiniz. Silme işlemi geri alınamaz.
-            </p>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <button 
-                onClick={() => setIslemModali({acik: true, tur: 'dondur'})}
-                className="flex-1 flex justify-center items-center gap-1.5 sm:gap-2 py-3 sm:py-4 rounded-xl bg-[#020617] border border-slate-800 hover:bg-slate-800/50 text-white font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all group"
-              >
-                <Snowflake className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-500 group-hover:text-blue-400 transition-colors" /> 
-                Hesabımı Dondur
-              </button>
 
-              <button 
-                onClick={() => setIslemModali({acik: true, tur: 'sil'})}
-                className="flex-1 flex justify-center items-center gap-1.5 sm:gap-2 py-3 sm:py-4 rounded-xl bg-red-950/20 border border-red-900/30 hover:bg-red-900/50 text-red-400 transition-all font-bold text-[9px] sm:text-xs uppercase tracking-widest group"
-              >
-                <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:scale-110 transition-transform" /> 
-                Hesabımı Kalıcı Olarak Sil
-              </button>
-            </div>
           </div>
-
         </div>
       </div>
-    </div>
-    {/* 🚀 ŞİFRELİ GÜVENLİK ONAY PENCERESİ (Dondur & Sil Ortak Modalı) */}
+      
+      {/* 🚀 ŞİFRELİ GÜVENLİK ONAY PENCERESİ */}
       <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ${
         islemModali.acik ? 'opacity-100 pointer-events-auto backdrop-blur-md bg-black/70' : 'opacity-0 pointer-events-none'
       }`}>
@@ -614,10 +645,8 @@ export default function GuvenlikPage() {
           islemModali.acik ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'
         }`}>
           
-          {/* Arkaplan Işık Efekti */}
           <div className={`absolute -top-10 -right-10 w-32 h-32 blur-[40px] rounded-full pointer-events-none ${islemModali.tur === 'sil' ? 'bg-red-500/10' : 'bg-blue-500/10'}`}></div>
 
-          {/* İkon ve Başlık */}
           <div className="flex items-center gap-3 mb-4 relative z-10">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 border ${
               islemModali.tur === 'sil' ? 'bg-red-500/10 border-red-500/20' : 'bg-blue-500/10 border-blue-500/20'
@@ -638,13 +667,12 @@ export default function GuvenlikPage() {
             </div>
           </div>
 
-          {/* İçerik Yazısı */}
           <p className="text-xs text-slate-300 leading-relaxed bg-[#020617] p-3 rounded-xl border border-slate-900 mb-5 relative z-10">
             {islemModali.tur === 'sil' 
               ? 'Hesabınız ve tüm kişisel verileriniz sistemden kalıcı olarak silinecektir. Devam etmek için lütfen mevcut şifrenizi girerek kimliğinizi doğrulayın.' 
               : 'Hesabınız geçici olarak dondurulacaktır. Devam etmek için lütfen şifrenizi girerek bu işlemin size ait olduğunu doğrulayın.'}
           </p>
-{/* EĞER İŞLEM BAŞARILIYSA BU YEŞİL EKRAN ÇIKSIN */}
+
           {islemBasariliMesaj ? (
             <div className="flex flex-col items-center justify-center py-6 text-center relative z-10">
               <div className="w-16 h-16 bg-emerald-500/20 border border-emerald-500/30 rounded-full flex items-center justify-center mb-4">
@@ -656,9 +684,7 @@ export default function GuvenlikPage() {
               <p className="text-sm font-medium text-emerald-400">{islemBasariliMesaj}</p>
             </div>
           ) : (
-            /* İŞLEM HENÜZ YAPILMADIYSA ŞİFRE KUTUSU GÖRÜNSÜN */
             <>
-              {/* Şifre Giriş Alanı */}
               <div className="mb-6 relative z-10">
                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Mevcut Şifreniz</label>
                 <input 
@@ -666,13 +692,12 @@ export default function GuvenlikPage() {
                   value={islemSifresi}
                   onChange={(e) => {
                     setIslemSifresi(e.target.value);
-                    setIslemHata(""); // Adam yeniden şifre girmeye başlayınca kırmızı hatayı temizle
+                    setIslemHata(""); 
                   }}
                   placeholder="Şifrenizi girin..."
                   className={`w-full bg-[#020617] border ${islemHata ? 'border-red-500/50 focus:border-red-500' : islemModali.tur === 'sil' ? 'focus:border-red-500 border-slate-800' : 'focus:border-blue-500 border-slate-800'} rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors`}
                 />
                 
-                {/* 🚨 ÇİRKİN ALERT YERİNE BURADA ÇIKACAK ŞIK HATA MESAJI 🚨 */}
                 {islemHata && (
                   <div className="mt-3 p-2.5 rounded-lg bg-red-950/40 border border-red-900/50 text-red-400 text-[11px] font-medium flex items-center gap-2">
                     <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -683,13 +708,12 @@ export default function GuvenlikPage() {
                 )}
               </div>
 
-              {/* Butonlar */}
               <div className="flex items-center gap-2.5 relative z-10">
                 <button 
                   onClick={() => {
                     setIslemModali({acik: false, tur: 'dondur'});
                     setIslemSifresi("");
-                    setIslemHata(""); // Kutuyu kapatınca hatayı da sıfırla
+                    setIslemHata(""); 
                   }}
                   disabled={islemYukleniyor}
                   className="flex-1 px-4 py-3 rounded-xl border border-slate-800 bg-transparent hover:bg-slate-800/30 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-all disabled:opacity-50"
@@ -700,10 +724,9 @@ export default function GuvenlikPage() {
                   disabled={islemYukleniyor || islemSifresi.length < 6}
                   onClick={async () => {
                     setIslemYukleniyor(true);
-                    setIslemHata(""); // Yeni denemede eski hatayı sil
+                    setIslemHata(""); 
                     
                     try {
-                      // 🚀 Gerçek Telsiz Bağlantısı
                       const response = await fetch('/api/guvenlik/hesap-islem', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -716,21 +739,18 @@ export default function GuvenlikPage() {
                         throw new Error(data.hata || "Bir hata oluştu şefim!");
                       }
 
-                // 🎯 İŞLEM BAŞARILI (Kısa ve Net)
                       setIslemBasariliMesaj(
                         islemModali.tur === 'sil' 
                         ? "Hesabınız başarıyla silinmiştir. İyi günler dileriz." 
                         : "Hesabınız başarıyla dondurulmuştur. İyi günler dileriz."
                       );
                       
-                      // 2 saniye sonra adamı ZORLA giriş sayfasına atıyoruz
                       setTimeout(async () => {
                         await signOut({ redirect: false });
                         window.location.href = '/giris'; 
                       }, 2000);
                       
                     } catch (error: any) {
-                      // 🎯 ÇİRKİN ALERT SİLİNDİ, YERİNE ŞIK HATA YAZISI GELDİ
                       setIslemHata(error.message); 
                     } finally {
                       setIslemYukleniyor(false);
@@ -752,8 +772,30 @@ export default function GuvenlikPage() {
 
         </div>
       </div>
-      {/* Modal kutusunun son div'i buradaydı */}
       
+      {/* 🚀 MİSAFİRLERİ ENGELLEYEN ŞIK UYARI MODALI (KİLİT EKRANI) */}
+      {girisSartModal && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-8 max-w-sm w-full text-center shadow-[0_0_50px_rgba(6,182,212,0.15)] relative animate-in zoom-in-95 duration-200">
+            <div className="w-16 h-16 bg-[#020617] rounded-full flex items-center justify-center mx-auto mb-4 border border-cyan-500/30">
+              <ShieldCheck className="w-8 h-8 text-cyan-400" />
+            </div>
+            <h3 className="text-xl font-black text-white mb-2 tracking-tight">Erişim Kısıtlı</h3>
+            <p className="text-slate-400 text-sm mb-6">
+              Lütfen işlem yapabilmek ve hesap detaylarınızı görüntüleyebilmek için giriş yapınız.
+            </p>
+            <div className="flex flex-col gap-3">
+              <Link href="/giris" className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2">
+                <LogIn className="w-4 h-4" /> Giriş Yap
+              </Link>
+              <button onClick={() => setGirisSartModal(false)} className="w-full py-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-slate-700 text-slate-300 font-bold text-xs uppercase tracking-widest transition-all">
+                Kapat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </>
   );
 }
