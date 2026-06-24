@@ -21,7 +21,7 @@ export default function KayitPage() {
   // 🚀 YENİ EKLENDİ: Google Butonuna Tıklanınca Çalışacak Motor 🚀
   const handleGoogleSignIn = () => {
     setIsLoading(true); // Tüm butonları kilitle ki çift tıklamasın
-    toast.loading("Google ile güvenli bağlantı kuruluyor. Lütfen bekleyin...");
+   toast.loading("Google ile güvenli bağlantı kuruluyor. Lütfen bekleyin...", { position: "top-center", style: { marginTop: "40vh" } });
     signIn('google', { callbackUrl: '/' }); // Google'a yönlendir
   };
 
