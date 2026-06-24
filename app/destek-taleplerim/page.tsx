@@ -194,16 +194,24 @@ export default function DestekIadePage() {
 
             {/* TABLAR VE TALEPLER LİSTESİ */}
             <div className="bg-[#0f172a] border border-slate-800 rounded-2xl shadow-xl flex flex-col overflow-hidden">
-              <div className="flex items-center border-b border-slate-800/80 p-2 sm:p-3">
+              <div className="flex items-center gap-2 sm:gap-4 border-b border-slate-800/80 p-2 sm:p-3">
                 <button 
                   onClick={() => setAktifTab('acik')}
-                  className={`flex-1 sm:flex-none px-6 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-black uppercase tracking-widest transition-all ${aktifTab === 'acik' ? 'bg-[#020617] text-indigo-400 border border-slate-800' : 'text-slate-500 hover:text-slate-300'}`}
+                  className={`flex-1 sm:flex-none px-6 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-black uppercase tracking-widest transition-all duration-300 border ${
+                    aktifTab === 'acik' 
+                    ? 'bg-[#020617] text-indigo-400 border-slate-800 shadow-md' 
+                    : 'bg-transparent text-slate-500 border-transparent hover:text-slate-300 hover:bg-white/[0.02]'
+                  }`}
                 >
                   Açık Talepler
                 </button>
                 <button 
                   onClick={() => setAktifTab('gecmis')}
-                  className={`flex-1 sm:flex-none px-6 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-black uppercase tracking-widest transition-all ${aktifTab === 'gecmis' ? 'bg-[#020617] text-indigo-400 border border-slate-800' : 'text-slate-500 hover:text-slate-300'}`}
+                  className={`flex-1 sm:flex-none px-6 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-black uppercase tracking-widest transition-all duration-300 border ${
+                    aktifTab === 'gecmis' 
+                    ? 'bg-[#020617] text-indigo-400 border-slate-800 shadow-md' 
+                    : 'bg-transparent text-slate-500 border-transparent hover:text-slate-300 hover:bg-white/[0.02]'
+                  }`}
                 >
                   Geçmiş İşlemler
                 </button>
