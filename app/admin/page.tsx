@@ -120,18 +120,31 @@ export default function AdminPaneli() {
     } catch (e) {}
   };
 
-  const talepCevapGonder = async (id: string) => {
+const talepCevapGonder = async (id: string) => {
     const metin = talepCevaplari[id];
     if (!metin?.trim()) return toast.error("Cevap boş olamaz şefim!");
+    
     const toastId = toast.loading("Cevap iletiliyor...");
     try {
-      const res = await fetch("/api/admin/destek", { method: "PUT", headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI }, body: JSON.stringify({ id, action: "reply", mesaj: metin }) });
-      if ((await res.json()).success) {
-        toast.success("Cevap müşteriye iletildi!", { id: toastId });
+      const res = await fetch("/api/admin/destek", { 
+        method: "PUT", 
+        headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI }, 
+        body: JSON.stringify({ id, action: "reply", mesaj: metin }) 
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok && data.success) {
+        toast.success("Cevap müşteriye iletildi! 🚀", { id: toastId });
         setTalepCevaplari(prev => ({...prev, [id]: ""}));
         talepleriGetir();
-      } else { toast.error("Gönderilemedi.", { id: toastId }); }
-    } catch (e) { toast.error("Sistem hatası.", { id: toastId }); }
+      } else { 
+        // Eğer veritabanı reddederse tam olarak neden reddettiğini kırmızı ekranda yazacak!
+        toast.error("Hata: " + (data.message || "Bilinmeyen bir sorun oluştu."), { id: toastId }); 
+      }
+    } catch (e: any) { 
+      toast.error("Bağlantı Hatası: " + e.message, { id: toastId }); 
+    }
   };
 
   const talepDurumGuncelle = async (id: string, yeniDurum: string) => {
