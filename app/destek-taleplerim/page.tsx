@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 
 export default function DestekIadePage() {
   const { data: session, status } = useSession();
-  const sohbetSonuRef = useRef<HTMLDivElement>(null); // Otomatik kaydırma motoru
+  const sohbetSonuRef = useRef<HTMLDivElement>(null); 
   
   const [talepler, setTalepler] = useState<any[]>(() => {
     if (typeof window !== "undefined") {
@@ -33,7 +33,6 @@ export default function DestekIadePage() {
   const [aktifTab, setAktifTab] = useState<'acik' | 'gecmis'>('acik');
   const [talepGonderiliyor, setTalepGonderiliyor] = useState(false);
 
-  // SOHBET STATE'LERİ (Yazıların karışmaması için her talebe özel kutu) 🚀
   const [seciliTalepId, setSeciliTalepId] = useState<string | null>(null);
   const [cevapMesajlari, setCevapMesajlari] = useState<Record<string, string>>({});
   const [cevapGonderiliyor, setCevapGonderiliyor] = useState(false);
@@ -41,6 +40,9 @@ export default function DestekIadePage() {
   const [talepKonusu, setTalepKonusu] = useState("");
   const [talepBaslik, setTalepBaslik] = useState("");
   const [talepMesaji, setTalepMesaji] = useState("");
+
+  // 🚀 ÇİRKİN GOOGLE KUTUSU YERİNE ÖZEL SİLME MODALI İÇİN STATE
+  const [silinecekTalepId, setSilinecekTalepId] = useState<string | null>(null);
 
   const talepleriGetir = async () => {
     if (!session?.user?.email) return;
@@ -69,7 +71,6 @@ export default function DestekIadePage() {
     }
   }, [status]);
 
-  // Sohbet açıldığında veya yeni mesaj geldiğinde en alta kaydır
   useEffect(() => {
     if (seciliTalepId) {
       sohbetSonuRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -133,7 +134,7 @@ export default function DestekIadePage() {
 
       if (res.ok && data.success) {
         toast.success("Cevabınız iletildi!", { id: toastId });
-        setCevapMesajlari(prev => ({...prev, [talepId]: ""})); // Sadece gönderilen kutuyu temizle
+        setCevapMesajlari(prev => ({...prev, [talepId]: ""})); 
         setTalepler(prev => {
           const yeniListe = prev.map(t => t._id === talepId ? data.talep : t);
           localStorage.setItem("bilgin_destek_talepleri", JSON.stringify(yeniListe));
@@ -144,22 +145,27 @@ export default function DestekIadePage() {
     finally { setCevapGonderiliyor(false); }
   };
 
-  // 🚀 MÜŞTERİ SİLME MOTORU
-  const handleTalepSil = async (talepId: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // Kutu açılmasın diye tıklamayı durdurur
-    if (!window.confirm("Bu talebi kalıcı olarak silmek istediğinize emin misiniz?")) return;
+  // 🚀 YENİ SİLME MOTORU (Pencereyi Gösterir)
+  const handleTalepSilOnay = (talepId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); 
+    setSilinecekTalepId(talepId); // Çirkin uyarı yerine bizim jilet modalı açar
+  };
+
+  const gercektenSil = async () => {
+    if (!silinecekTalepId) return;
     
     const toastId = toast.loading("Talep siliniyor...");
     try {
-      const res = await fetch(`/api/destek?id=${talepId}`, { method: "DELETE" });
+      const res = await fetch(`/api/destek?id=${silinecekTalepId}`, { method: "DELETE" });
       if (res.ok) {
         toast.success("Talep başarıyla silindi.", { id: toastId });
         setTalepler(prev => {
-          const yeniListe = prev.filter(t => t._id !== talepId);
+          const yeniListe = prev.filter(t => t._id !== silinecekTalepId);
           localStorage.setItem("bilgin_destek_talepleri", JSON.stringify(yeniListe));
           return yeniListe;
         });
-        if (seciliTalepId === talepId) setSeciliTalepId(null);
+        if (seciliTalepId === silinecekTalepId) setSeciliTalepId(null);
+        setSilinecekTalepId(null); // Modalı kapat
       } else { toast.error("Silinemedi.", { id: toastId }); }
     } catch (error) { toast.error("Bağlantı hatası.", { id: toastId }); }
   };
@@ -261,8 +267,8 @@ export default function DestekIadePage() {
                             <span className="text-[9px] text-slate-500">{new Date(talep.createdAt).toLocaleDateString("tr-TR")}</span>
                           </div>
                           
-                          {/* SİLME BUTONU (ZARAFETLE YERLEŞTİRİLDİ) */}
-                          <button onClick={(e) => handleTalepSil(talep._id, e)} title="Talebi Sil" className="w-8 h-8 rounded-lg flex items-center justify-center bg-rose-500/10 text-rose-400 border border-transparent hover:border-rose-500/30 hover:bg-rose-500/20 transition-all z-10">
+                          {/* YENİ ÖZEL SİLME BUTONU (Google Uyarı Kutusu Kalktı) */}
+                          <button onClick={(e) => handleTalepSilOnay(talep._id, e)} title="Talebi Sil" className="w-8 h-8 rounded-lg flex items-center justify-center bg-rose-500/10 text-rose-400 border border-transparent hover:border-rose-500/30 hover:bg-rose-500/20 transition-all z-10">
                             <Trash2 className="w-4 h-4" />
                           </button>
                           
@@ -287,7 +293,6 @@ export default function DestekIadePage() {
                                 </div>
                               );
                             })}
-                            {/* Otomatik kaydırma hedefi */}
                             <div ref={sohbetSonuRef} />
                           </div>
 
@@ -340,6 +345,25 @@ export default function DestekIadePage() {
           </div>
         </div>
       )}
+
+      {/* 🚀 JİLET GİBİ YENİ SİLME ONAY MODALI */}
+      {silinecekTalepId && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-500 to-red-500"></div>
+            <div className="w-16 h-16 rounded-full border border-rose-500/20 flex items-center justify-center mb-5 bg-rose-500/10">
+              <Trash2 className="w-7 h-7 text-rose-400" />
+            </div>
+            <h3 className="text-lg font-black text-white uppercase tracking-wider mb-2">Talebi Sil</h3>
+            <p className="text-slate-400 text-sm mb-8 font-medium leading-relaxed">Bu talebi kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz.</p>
+            <div className="flex w-full gap-3">
+              <button onClick={() => setSilinecekTalepId(null)} className="flex-1 bg-[#020617] border border-slate-700 hover:border-slate-500 hover:text-white text-slate-400 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all">İptal</button>
+              <button onClick={gercektenSil} className="flex-1 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(244,63,94,0.15)]">Evet, Sil</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
