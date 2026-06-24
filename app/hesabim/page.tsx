@@ -366,24 +366,25 @@ export default function HesabimPage() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-hidden">
+return (
+    <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
-      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-6 relative z-10">
-
-        {/* ⬅️ SOL MENÜ */}
-        <div className="w-full lg:w-64 shrink-0 flex flex-col gap-2">
-          <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-xl">
+      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
+     {/* ⬅️ SOL MENÜ */}
+        <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
+          <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-3 sm:p-4 shadow-xl">
             <nav className="flex flex-col gap-1.5">
-              <Link href="/hesabim" onClick={kilitliIslem} className="flex items-center gap-3 px-4 py-3.5 bg-white/[0.05] border border-white/10 rounded-xl text-white font-bold shadow-inner transition-all">
-                <User className="w-5 h-5 text-cyan-400" /> Profil
+              <Link href="/hesabim" onClick={kilitliIslem} className="flex items-center gap-3 px-4 py-3 sm:py-3.5 bg-white/[0.05] border border-white/10 rounded-xl text-white font-bold shadow-inner transition-all text-sm sm:text-base">
+                <User className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" /> Profil
               </Link>
-            <Link href="/cuzdan" onClick={kilitliIslem} className="flex items-center gap-3 px-4 py-3.5 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
-  <CreditCard className="w-5 h-5" /> Dijital Cüzdanım
-</Link>
-            <Link href="/guvenlik" onClick={kilitliIslem} prefetch={true} className="flex items-center gap-3 px-4 py-3.5 text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
-                <ShieldCheck className="w-5 h-5" /> Güvenlik
+              
+              <Link href="/cuzdan" onClick={kilitliIslem} className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+                <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" /> Dijital Cüzdanım
+              </Link>
+              
+              <Link href="/guvenlik" onClick={kilitliIslem} prefetch={true} className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+                <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" /> Güvenlik
               </Link>
             </nav>
 
@@ -399,9 +400,8 @@ export default function HesabimPage() {
             )}
           </div>
         </div>
-
-        {/* ➡️ SAĞ TARAF */}
-        <div className="flex-1 flex flex-col min-w-0 gap-6">
+{/* ➡️ SAĞ TARAF */}
+        <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
 
           <div className="relative rounded-[2rem] p-[2px] bg-gradient-to-r from-cyan-500/30 via-[#0f172a] to-cyan-500/10 shadow-[0_0_50px_rgba(0,210,255,0.15)] group">
             <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-transparent opacity-20 blur-xl rounded-[2rem] transition-opacity duration-500"></div>
