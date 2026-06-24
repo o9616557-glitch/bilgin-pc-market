@@ -38,9 +38,17 @@ export default function HesabimPage() {
     } return 0;
   });
 
-// 🚀 DESTEK SİSTEMİ MOTORU
-  const [acikTalepSayisi, setAcikTalepSayisi] = useState<number>(0);
-  const [yeniMesajVar, setYeniMesajVar] = useState<boolean>(false);
+// 🚀 DESTEK SİSTEMİ MOTORU (Çırak Hafızası Eklendi - 0 Gecikme)
+  const [acikTalepSayisi, setAcikTalepSayisi] = useState<number>(() => {
+    if (typeof window !== "undefined") {
+      try { return JSON.parse(sessionStorage.getItem("bilgin_destek_ozet") || "{}").sayi || 0; } catch { return 0; }
+    } return 0;
+  });
+  const [yeniMesajVar, setYeniMesajVar] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      try { return JSON.parse(sessionStorage.getItem("bilgin_destek_ozet") || "{}").acil || false; } catch { return false; }
+    } return false;
+  });
   const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
   const [grafikVerisi, setGrafikVerisi] = useState<any[]>([]);
 
@@ -193,12 +201,14 @@ export default function HesabimPage() {
         if (destekRes.ok) {
           const destekData = await destekRes.json();
           if (destekData.talepler) {
-            // Sadece çözülmemiş olanları say
             const aciklar = destekData.talepler.filter((t: any) => t.durum !== "Çözüldü");
-            // Eğer aralarında "Yanıt Bekleniyor" varsa alarmı tetikle
             const acilMesaj = aciklar.some((t: any) => t.durum === "Yanıt Bekleniyor");
+            
             setAcikTalepSayisi(aciklar.length);
             setYeniMesajVar(acilMesaj);
+            
+            // 🚀 BİNGO: Usta yeni veriyi alır almaz Çırağın defterine yazar. Sayfa değişse bile saniyesinde oradan okunur!
+            sessionStorage.setItem("bilgin_destek_ozet", JSON.stringify({ sayi: aciklar.length, acil: acilMesaj }));
           }
         }
 
