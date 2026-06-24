@@ -11,36 +11,6 @@ export default function HesabimPage() {
   const suAnkiTarih = new Date();
   const yil = suAnkiTarih.getFullYear();
 
-  // 🚀 VİTRİN SİPARİŞLERİ RENKLENDİRİLDİ (Aralık, Haziran, Ocak aylarına farklı kategoriler eklendi ki pastalar tek renk durmasın)
-  const vitrinSiparisleri = [
-    { _id: "SP-101", tarih: new Date(yil, 0, 15).toISOString(), status: "Teslim Edildi", totalPrice: 45000, items: [
-      { isim: "ASUS ROG Strix G16 Laptop", kategoriSlug: "laptop", fiyat: 35000, adet: 1 },
-      { isim: "Logitech Mouse", kategoriSlug: "mouse", fiyat: 5000, adet: 1 },
-      { isim: "Taşıma Çantası", kategoriSlug: "aksesuar", fiyat: 5000, adet: 1 }
-    ] },
-    { _id: "SP-102", tarih: new Date(yil, 1, 10).toISOString(), status: "Tamamlandı", totalPrice: 18500, items: [{ isim: "MSI 27' Oyuncu Monitörü", kategoriSlug: "monitor", fiyat: 18500, adet: 1 }] },
-    { _id: "SP-103", tarih: new Date(yil, 2, 5).toISOString(), status: "Tamamlandı", totalPrice: 8500, items: [{ isim: "Intel Core i5 14400F İşlemci", kategoriSlug: "islemci", fiyat: 8500, adet: 1 }] },
-    { _id: "SP-104", tarih: new Date(yil, 3, 20).toISOString(), status: "Tamamlandı", totalPrice: 64000, items: [{ isim: "PC Toplama Sihirbazı", kategoriSlug: "kendin", fiyat: 64000, adet: 1 }] },
-    { _id: "SP-105", tarih: new Date(yil, 4, 12).toISOString(), status: "Teslim Edildi", totalPrice: 32000, items: [{ isim: "ASUS TUF RTX 4070 Ti", kategoriSlug: "ekran-kart", fiyat: 32000, adet: 1 }] },
-    { _id: "SP-106", tarih: new Date(yil, 5, 2).toISOString(), status: "Kargoya Verildi", kargoFirmasi: "Yurtiçi Kargo", takipNo: "YRTC-84759201", totalPrice: 110000, items: [
-      { isim: "Premium Özel Sistem", kategoriSlug: "topla", fiyat: 85000, adet: 1 },
-      { isim: "ASUS 27' Monitör", kategoriSlug: "monitor", fiyat: 15000, adet: 1 },
-      { isim: "Akım Korumalı Priz", kategoriSlug: "aksesuar", fiyat: 10000, adet: 1 }
-    ] },
-    { _id: "SP-107", tarih: new Date(yil, 6, 18).toISOString(), status: "Kargoya Verildi", kargoFirmasi: "Aras Kargo", takipNo: "ARAS-10293847", totalPrice: 85000, items: [{ isim: "Masaüstü Oyun Bilgisayarı", kategoriSlug: "masaustu", fiyat: 85000, adet: 1 }] },
-    { _id: "SP-108", tarih: new Date(yil, 7, 22).toISOString(), status: "Tamamlandı", totalPrice: 35000, items: [{ isim: "AMD Ryzen 9 İşlemci", kategoriSlug: "islemci", fiyat: 35000, adet: 1 }] },
-    { _id: "SP-109", tarih: new Date(yil, 8, 5).toISOString(), status: "Tamamlandı", totalPrice: 5000, items: [{ isim: "Premium Örgü Kablo & Priz Seti", kategoriSlug: "kablo", fiyat: 5000, adet: 1 }] },
-    { _id: "SP-110", tarih: new Date(yil, 9, 14).toISOString(), status: "Kargoya Verildi", kargoFirmasi: "MNG Kargo", takipNo: "MNG-55443322", totalPrice: 125000, items: [{ isim: "ASUS ROG Oyun Bilgisayarı", kategoriSlug: "oyun-bilgisayari", fiyat: 125000, adet: 1 }] },
-    { _id: "SP-111", tarih: new Date(yil, 10, 27).toISOString(), status: "Tamamlandı", totalPrice: 95000, items: [{ isim: "Kendin Topla PC", kategoriSlug: "sihirbaz", fiyat: 95000, adet: 1 }] },
-    { _id: "SP-112", tarih: new Date(yil, 11, 8).toISOString(), status: "Tamamlandı", totalPrice: 42000, items: [
-      { isim: "Razer Klavye & Mouse Seti", kategoriSlug: "mouse", fiyat: 8000, adet: 1 },
-      { isim: "ASUS ROG Anakart", kategoriSlug: "anakart", fiyat: 14000, adet: 1 },
-      { isim: "Corsair 32GB RAM", kategoriSlug: "ram", fiyat: 6000, adet: 1 },
-      { isim: "Tunçmatik Priz", kategoriSlug: "aksesuar", fiyat: 1000, adet: 1 },
-      { isim: "Kendin Topla PC Sihirbazı", kategoriSlug: "kendin", fiyat: 13000, adet: 1 }
-    ] },
-  ];
-
   const [hamSiparisler, setHamSiparisler] = useState<any[]>(() => {
     if (typeof window !== "undefined") {
       try { return JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}").tumSiparisler || []; } catch { return []; }
@@ -100,11 +70,9 @@ export default function HesabimPage() {
   const [loading, setLoading] = useState(hamSiparisler.length === 0);
 
  const handleCikisYap = async () => {
-    // 1. Senin eski süpürge (Tarayıcı hafızasını temizler)
     localStorage.removeItem("bilgin_kayitli_sistemler");
     sessionStorage.removeItem("bilgin_hesabim_data");
 
-    // 2. Bizim yeni mühür motoru (Radar'daki yeşil ışığı söndürür)
     const cihazId = (session?.user as any)?.deviceId;
     if (cihazId) {
       try {
@@ -118,7 +86,6 @@ export default function HesabimPage() {
       }
     }
 
-    // 3. Adamı dükkandan at ve anasayfaya ("/") yolla
     await signOut({ callbackUrl: "/" });
   };
 
@@ -137,12 +104,13 @@ export default function HesabimPage() {
     }
   };
 
+  // 🚀 MİSAFİR GİRİŞİ MOTORU (Her şey SIFIR, Uydurma Veri Yok)
   useEffect(() => {
     if (status === "unauthenticated") {
-      setHamSiparisler(vitrinSiparisleri);
-      setAdresSayisi(2);
-      setFavoriSayisi(4);
-      setSistemSayisi(5);
+      setHamSiparisler([]);
+      setAdresSayisi(0);
+      setFavoriSayisi(0);
+      setSistemSayisi(0);
       setLoading(false);
     }
   }, [status]);
@@ -230,7 +198,7 @@ export default function HesabimPage() {
   }, [session, status]);
 
   useEffect(() => {
-    if (!hamSiparisler || hamSiparisler.length === 0) return;
+    if (!hamSiparisler) return;
 
     const sirali = [...hamSiparisler].sort((a: any, b: any) => 
       new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime()
@@ -312,6 +280,12 @@ export default function HesabimPage() {
         sistem: { yuzde: Math.round(p4), tutar: cS_toplam, offset: p1 + p2 + p3 },
         aksesuar: { yuzde: Math.round(p5), tutar: cA_toplam, offset: p1 + p2 + p3 + p4 },
         maxYuzde: Math.round(Math.max(p1, p2, p3, p4, p5))
+      });
+    } else {
+      setPastaVerisi({
+        kendinTopla: { yuzde: 0, tutar: 0, offset: 0 }, bilesen: { yuzde: 0, tutar: 0, offset: 0 },
+        cevre: { yuzde: 0, tutar: 0, offset: 0 }, sistem: { yuzde: 0, tutar: 0, offset: 0 },
+        aksesuar: { yuzde: 0, tutar: 0, offset: 0 }, maxYuzde: 0
       });
     }
 
@@ -699,7 +673,8 @@ return (
                   {grafikVerisi.length > 0 ? grafikVerisi.map((item, i) => {
                     const isSecili = tiklananAy === i;
                     const isHovered = hoveredIndex === i;
-                    const isTooltipGozukecek = (isHovered || isSecili) && item.tutar > 0;
+                    // 🚀 0 ₺ olsa bile tıklandığında kutu çıkmasını sağlar!
+                    const isTooltipGozukecek = (isHovered || isSecili);
 
                     return (
                       <div 
