@@ -335,10 +335,9 @@ useEffect(() => {
           </div>
         </div>
       </div>
-
-      {yeniTalepModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full flex flex-col shadow-2xl relative overflow-hidden">
+{yeniTalepModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full flex flex-col shadow-2xl relative overflow-y-auto max-h-[85vh] custom-scrollbar animate-in zoom-in-95 duration-200">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-blue-500"></div>
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-black text-white uppercase tracking-wider flex items-center gap-2"><PlusCircle className="w-6 h-6 text-indigo-400" /> YENİ TALEP OLUŞTUR</h3>
