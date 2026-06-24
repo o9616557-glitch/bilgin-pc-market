@@ -42,15 +42,19 @@ const mesajKutusuRef = useRef<HTMLDivElement>(null);
   const [talepMesaji, setTalepMesaji] = useState("");
   const [silinecekTalepId, setSilinecekTalepId] = useState<string | null>(null);
 
-  // 🚀 BİNGO 1: MODAL AÇILINCA ARKA PLANI (SAYFAYI) DONDURAN MOTOR
+// 🚀 MODAL VE MOBİL SOHBET AÇILINCA ARKA PLANI DONDURAN MOTOR
   useEffect(() => {
-    if (yeniTalepModal || silinecekTalepId) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
+    if (typeof window !== "undefined") {
+      const isMobile = window.innerWidth < 640;
+      // Eğer modal açıksa veya (telefondaysak VE sohbet açıksa) arka planı kilitle
+      if (yeniTalepModal || silinecekTalepId || (seciliTalepId && isMobile)) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = 'unset';
+      }
     }
-    return () => { document.body.style.overflow = 'unset'; }; // Sayfadan çıkarsa kilidi aç
-  }, [yeniTalepModal, silinecekTalepId]);
+    return () => { document.body.style.overflow = 'unset'; }; 
+  }, [yeniTalepModal, silinecekTalepId, seciliTalepId]);
 
   const talepleriGetir = async () => {
     if (!session?.user?.email) return;
@@ -287,13 +291,31 @@ useEffect(() => {
                         </div>
                       </div>
 
-                      {seciliTalepId === talep._id && (
-                        <div className="border-t border-slate-800 bg-[#0f172a]/50 p-4 sm:p-6 animate-in slide-in-from-top-2 duration-300 rounded-b-xl flex flex-col gap-5">
-                       <div ref={mesajKutusuRef} className="flex flex-col gap-4 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
+             {seciliTalepId === talep._id && (
+                        <div className="fixed inset-0 z-[100] bg-[#020617] p-4 flex flex-col animate-in slide-in-from-bottom-4 duration-200 sm:static sm:z-auto sm:bg-[#0f172a]/50 sm:p-6 sm:border-t sm:border-slate-800 sm:rounded-b-xl sm:animate-in sm:slide-in-from-top-2">
+                          
+                          {/* 🚀 MOBİL İÇİN ÖZEL ÜST BAR (Sadece telefonda WhatsApp gibi görünür, PC'de gizlenir) */}
+                          <div className="flex sm:hidden items-center justify-between pb-3 mb-2 border-b border-slate-800 shrink-0 pt-2">
+                            <div className="flex items-center gap-3">
+                              <button onClick={(e) => { e.stopPropagation(); setSeciliTalepId(null); }} className="w-8 h-8 flex items-center justify-center bg-slate-800/80 hover:bg-slate-700 rounded-xl text-white border border-slate-700 transition-colors">
+                                <X className="w-5 h-5" />
+                              </button>
+                              <div className="flex flex-col">
+                                <span className="text-sm font-black text-white">{getGuzelKonuAdi(talep.konu)}</span>
+                                <span className="text-[10px] text-slate-400">{talep.talepNo}</span>
+                              </div>
+                            </div>
+                            <span className={`text-[9px] font-black uppercase tracking-widest ${talep.durum === 'Çözüldü' ? 'text-emerald-400' : 'text-indigo-400'}`}>
+                              {talep.durum}
+                            </span>
+                          </div>
+
+                          {/* MESAJLARIN LİSTESİ (Mobilde ortayı kaplar, esner) */}
+                          <div ref={mesajKutusuRef} className="flex-1 sm:flex-none sm:max-h-[400px] overflow-y-auto custom-scrollbar pr-2 flex flex-col gap-4 pb-2">
                             {talep.mesajlar?.map((msg: any, index: number) => {
                               const isMusteri = msg.gonderen === 'Musteri';
                               return (
-                                <div key={index} className={`flex flex-col max-w-[85%] sm:max-w-[75%] ${isMusteri ? 'self-end items-end' : 'self-start items-start'}`}>
+                                <div key={index} className={`flex flex-col max-w-[85%] sm:max-w-[75%] shrink-0 ${isMusteri ? 'self-end items-end' : 'self-start items-start'}`}>
                                   <div className={`text-[9px] font-bold uppercase tracking-widest mb-1 px-1 ${isMusteri ? 'text-indigo-400' : 'text-slate-500'}`}>{isMusteri ? 'Siz' : 'Mağaza Temsilcisi'}</div>
                                   <div className={`p-3.5 sm:p-4 rounded-2xl text-xs sm:text-sm leading-relaxed ${isMusteri ? 'bg-indigo-600 text-white rounded-tr-sm shadow-[0_4px_15px_rgba(79,70,229,0.2)]' : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-tl-sm'}`}>
                                     {msg.metin.split('\n').map((satir: string, i: number) => <span key={i}>{satir}<br/></span>)}
@@ -304,24 +326,23 @@ useEffect(() => {
                             })}
                           </div>
 
+                          {/* GÖNDERME KUTUSU (Mobilde en alta yapışır) */}
                           {talep.durum !== 'Çözüldü' ? (
-                            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-800/80">
+                            <div className="shrink-0 flex flex-col sm:flex-row gap-3 pt-3 border-t border-slate-800/80 mt-auto sm:mt-4">
                               <textarea 
                                 value={cevapMesajlari[talep._id] || ""}
                                 onChange={(e) => setCevapMesajlari(prev => ({...prev, [talep._id]: e.target.value}))}
                                 placeholder="Cevabınızı yazın..." 
-                                className="flex-1 bg-[#020617] border border-slate-700 focus:border-indigo-500 rounded-xl p-3 sm:p-4 text-xs sm:text-sm text-white focus:outline-none transition-colors min-h-[60px] sm:min-h-[80px] resize-none" 
+                                className="flex-1 bg-[#020617] border border-slate-700 focus:border-indigo-500 rounded-xl p-3 sm:p-4 text-xs sm:text-sm text-white focus:outline-none transition-colors min-h-[50px] sm:min-h-[80px] resize-none" 
                               />
-                              {/* 🚀 BİNGO 3: GÖNDER BUTONUNA KALINLIK EKLENDİ (min-h-[48px]) */}
-                              <button onClick={() => handleCevapGonder(talep._id)} disabled={cevapGonderiliyor || !(cevapMesajlari[talep._id] || "").trim()} className="sm:w-[140px] w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white rounded-xl font-black uppercase text-[11px] sm:text-xs tracking-widest transition-all shadow-lg disabled:opacity-50 min-h-[48px] sm:min-h-[80px]">
+                              <button onClick={() => handleCevapGonder(talep._id)} disabled={cevapGonderiliyor || !(cevapMesajlari[talep._id] || "").trim()} className="sm:w-[140px] w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white rounded-xl font-black uppercase text-[11px] sm:text-xs tracking-widest transition-all shadow-lg disabled:opacity-50 min-h-[48px] sm:min-h-[80px] shrink-0">
                                 {cevapGonderiliyor ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-4 h-4 sm:w-5 sm:h-5" /> GÖNDER</>}
                               </button>
                             </div>
                           ) : (
-                            <div className="pt-6 border-t border-slate-800/80 flex flex-col items-center justify-center gap-2 text-center bg-slate-800/20 rounded-xl p-4 mt-2">
-                              <CheckCircle2 className="w-8 h-8 text-emerald-500/60 mb-1" />
-                              <p className="text-sm font-black text-emerald-400 uppercase tracking-widest">Bu talep çözüldü olarak kapatılmıştır</p>
-                              <p className="text-xs text-slate-400 font-medium max-w-md">Farklı bir sorunuz veya talebiniz varsa, lütfen yukarıdan yeni bir talep oluşturun veya müşteri hizmetlerimizle iletişime geçin.</p>
+                            <div className="shrink-0 pt-4 sm:pt-6 border-t border-slate-800/80 flex flex-col items-center justify-center gap-2 text-center bg-slate-800/20 rounded-xl p-4 mt-auto sm:mt-2">
+                              <CheckCircle2 className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-500/60 mb-1" />
+                              <p className="text-xs sm:text-sm font-black text-emerald-400 uppercase tracking-widest">Bu talep çözüldü olarak kapatılmıştır</p>
                             </div>
                           )}
                         </div>
