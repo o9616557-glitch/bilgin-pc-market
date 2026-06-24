@@ -38,6 +38,9 @@ export default function HesabimPage() {
     } return 0;
   });
 
+// 🚀 DESTEK SİSTEMİ MOTORU
+  const [acikTalepSayisi, setAcikTalepSayisi] = useState<number>(0);
+  const [yeniMesajVar, setYeniMesajVar] = useState<boolean>(false);
   const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
   const [grafikVerisi, setGrafikVerisi] = useState<any[]>([]);
 
@@ -183,6 +186,20 @@ export default function HesabimPage() {
           setFavoriSayisi(sayi);
           const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
           sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, favoriSayisi: sayi }));
+        }
+
+// 🚀 DESTEK TALEBİ RADARI (Acil mesaj var mı diye bakar)
+        const destekRes = await fetch("/api/destek?t=" + new Date().getTime(), { cache: "no-store" });
+        if (destekRes.ok) {
+          const destekData = await destekRes.json();
+          if (destekData.talepler) {
+            // Sadece çözülmemiş olanları say
+            const aciklar = destekData.talepler.filter((t: any) => t.durum !== "Çözüldü");
+            // Eğer aralarında "Yanıt Bekleniyor" varsa alarmı tetikle
+            const acilMesaj = aciklar.some((t: any) => t.durum === "Yanıt Bekleniyor");
+            setAcikTalepSayisi(aciklar.length);
+            setYeniMesajVar(acilMesaj);
+          }
         }
 
       } catch (error) {
@@ -456,13 +473,29 @@ return (
                </div>
                <p className="text-[9px] sm:text-[10px] font-black text-slate-400 group-hover:text-emerald-400 transition-colors uppercase tracking-widest text-center">Sistemler</p>
              </Link>
-
-          <Link href="/destek-taleplerim" onClick={kilitliIslem} prefetch={true} className="flex flex-col gap-1.5 group">
-               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-indigo-500/40 rounded-2xl p-3 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1 sm:gap-1.5 transition-colors h-full w-full">
-                 <Headset className="w-5 h-5 sm:w-7 sm:h-7 text-indigo-400 transition-transform group-hover:scale-110" />
-                 <p className="text-lg sm:text-2xl font-black text-white">0</p>
+<Link href="/destek-taleplerim" onClick={kilitliIslem} prefetch={true} className="flex flex-col gap-1.5 group relative">
+               {/* Eğer yeni mesaj varsa köşeye kırmızı bir sinyal atıyoruz */}
+               {yeniMesajVar && (
+                 <span className="absolute -top-1 -right-1 flex h-3 w-3 sm:h-4 sm:w-4 z-20">
+                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                   <span className="relative inline-flex rounded-full h-3 w-3 sm:h-4 sm:w-4 bg-orange-500 border border-[#020617]"></span>
+                 </span>
+               )}
+               
+               <div className={`rounded-2xl p-3 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1 sm:gap-1.5 transition-all duration-300 h-full w-full ${
+                 yeniMesajVar 
+                 ? 'bg-orange-950/20 border border-orange-500/50 shadow-[0_0_20px_rgba(249,115,22,0.15)] group-hover:bg-orange-900/30' 
+                 : 'bg-[#0f172a] border border-slate-800 group-hover:border-indigo-500/40'
+               }`}>
+                 <Headset className={`w-5 h-5 sm:w-7 sm:h-7 transition-transform group-hover:scale-110 ${yeniMesajVar ? 'text-orange-400' : 'text-indigo-400'}`} />
+                 <p className="text-lg sm:text-2xl font-black text-white">{acikTalepSayisi}</p>
                </div>
-               <p className="text-[8px] sm:text-[10px] font-black text-slate-400 group-hover:text-indigo-400 transition-colors uppercase tracking-widest text-center">Destek / İade</p>
+               
+               <p className={`text-[8px] sm:text-[10px] font-black transition-colors uppercase tracking-widest text-center ${
+                 yeniMesajVar ? 'text-orange-400 drop-shadow-[0_0_5px_rgba(249,115,22,0.5)]' : 'text-slate-400 group-hover:text-indigo-400'
+               }`}>
+                 {yeniMesajVar ? 'MESAJINIZ VAR' : 'Destek / İade'}
+               </p>
              </Link>
           </div>
 
@@ -471,7 +504,7 @@ return (
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group hover:border-cyan-500/30 transition-all duration-300 flex flex-col h-[350px] sm:h-[450px] xl:h-[550px]">
                 <div className="absolute -top-10 -left-10 w-40 h-40 bg-cyan-500/10 blur-[50px] pointer-events-none rounded-full"></div>
                <div className="flex items-center justify-between mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-800/80 relative z-10 shrink-0">
-                  <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Son İşlemler</h3>
+                  <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Siparişler</h3>
                   <Link href="/siparislerim" onClick={kilitliIslem} prefetch={true} className="text-[10px] sm:text-xs font-bold text-cyan-400 hover:underline tracking-widest uppercase">
                     TÜMÜNÜ GÖR
                   </Link>
