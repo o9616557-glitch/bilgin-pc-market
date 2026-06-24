@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, Search, LogIn, UserPlus } from "lucide-react";
+import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, Search, LogIn, UserPlus, Headset } from "lucide-react";
 
 export default function HesabimPage() {
   const { data: session, status } = useSession();
@@ -411,51 +411,53 @@ return (
           <h2 className="text-[10px] sm:text-xs font-black text-slate-500 uppercase tracking-widest mt-1 sm:mt-2 ml-1 sm:ml-2">
             HESAP YÖNETİMİ
           </h2>
-<div className="grid grid-cols-3 lg:grid-cols-5 gap-x-2 gap-y-4 sm:gap-4 w-full">
+<div className="grid grid-cols-3 lg:grid-cols-6 gap-x-2 gap-y-4 sm:gap-4 w-full">
              <Link href="/adreslerim" onClick={kilitliIslem} prefetch={true} className="flex flex-col gap-1.5 group">
-               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-cyan-500/20 rounded-2xl p-3 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1 sm:gap-1.5 transition-colors h-full w-full">
-                 <MapPin className="w-5 h-5 sm:w-7 sm:h-7 text-cyan-400" />
+               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-cyan-500/30 rounded-2xl p-3 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1 sm:gap-1.5 transition-colors h-full w-full">
+                 <MapPin className="w-5 h-5 sm:w-7 sm:h-7 text-cyan-400 transition-transform group-hover:scale-110" />
                  <p className="text-lg sm:text-2xl font-black text-white">{adresSayisi}</p>
-                 <p className="hidden sm:block text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Adresler</p>
                </div>
-               <p className="sm:hidden text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Adresler</p>
+               <p className="text-[9px] sm:text-[10px] font-black text-slate-400 group-hover:text-cyan-400 transition-colors uppercase tracking-widest text-center">Adresler</p>
              </Link>
              
              <div onClick={handleKargoClick} className="flex flex-col gap-1.5 group cursor-pointer select-none">
-               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-rose-500/30 rounded-2xl p-3 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1 sm:gap-1.5 transition-colors h-full w-full">
-                 <Truck className="w-5 h-5 sm:w-7 sm:h-7 text-rose-400" />
+               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-rose-500/40 rounded-2xl p-3 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1 sm:gap-1.5 transition-colors h-full w-full">
+                 <Truck className="w-5 h-5 sm:w-7 sm:h-7 text-rose-400 transition-transform group-hover:scale-110" />
                  <p className="text-lg sm:text-2xl font-black text-white">{kargoSiparisleri.length}</p>
-                 <p className="hidden sm:block text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Kargolar</p>
                </div>
-               <p className="sm:hidden text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Kargolar</p>
+               <p className="text-[9px] sm:text-[10px] font-black text-slate-400 group-hover:text-rose-400 transition-colors uppercase tracking-widest text-center">Kargolar</p>
              </div>
 
              <Link href="/siparis-takip" onClick={kilitliIslem} prefetch={true} className="flex flex-col gap-1.5 group">
-               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-blue-500/30 rounded-2xl p-3 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1 sm:gap-1.5 transition-colors h-full w-full">
-                 <Search className="w-5 h-5 sm:w-7 sm:h-7 text-blue-400" />
+               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-blue-500/40 rounded-2xl p-3 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1 sm:gap-1.5 transition-colors h-full w-full">
+                 <Search className="w-5 h-5 sm:w-7 sm:h-7 text-blue-400 transition-transform group-hover:scale-110" />
                  <p className="text-xs sm:text-base font-black text-slate-400 mt-0.5 sm:mt-1">Sorgula</p>
-                 <p className="hidden sm:block text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Sipariş Takip</p>
                </div>
-               {/* "Sipariş Takip" yazısı uzun olduğu için telefonda yanlara taşmasın diye text-[8px] yapıldı */}
-               <p className="sm:hidden text-[8px] font-black text-slate-400 uppercase tracking-widest text-center">Sipariş Takip</p>
+               <p className="text-[8px] sm:text-[10px] font-black text-slate-400 group-hover:text-blue-400 transition-colors uppercase tracking-widest text-center">Sipariş Takip</p>
              </Link>
              
              <Link href="https://www.bilginpcmarket.com/favorilerim" onClick={kilitliIslem} prefetch={true} className="flex flex-col gap-1.5 group">
-               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-purple-500/20 rounded-2xl p-3 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1 sm:gap-1.5 transition-colors h-full w-full">
-                 <Star className="w-5 h-5 sm:w-7 sm:h-7 text-purple-400" />
+               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-purple-500/30 rounded-2xl p-3 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1 sm:gap-1.5 transition-colors h-full w-full">
+                 <Star className="w-5 h-5 sm:w-7 sm:h-7 text-purple-400 transition-transform group-hover:scale-110" />
                  <p className="text-lg sm:text-2xl font-black text-white">{favoriSayisi}</p>
-                 <p className="hidden sm:block text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Favoriler</p>
                </div>
-               <p className="sm:hidden text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Favoriler</p>
+               <p className="text-[9px] sm:text-[10px] font-black text-slate-400 group-hover:text-purple-400 transition-colors uppercase tracking-widest text-center">Favoriler</p>
              </Link>
 
              <Link href="/sistemlerim" onClick={kilitliIslem} prefetch={true} className="flex flex-col gap-1.5 group">
-               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-emerald-500/20 rounded-2xl p-3 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1 sm:gap-1.5 transition-colors h-full w-full">
-                 <Server className="w-5 h-5 sm:w-7 sm:h-7 text-emerald-400" />
+               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-emerald-500/30 rounded-2xl p-3 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1 sm:gap-1.5 transition-colors h-full w-full">
+                 <Server className="w-5 h-5 sm:w-7 sm:h-7 text-emerald-400 transition-transform group-hover:scale-110" />
                  <p className="text-lg sm:text-2xl font-black text-white">{sistemSayisi}</p>
-                 <p className="hidden sm:block text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Sistemler</p>
                </div>
-               <p className="sm:hidden text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Sistemler</p>
+               <p className="text-[9px] sm:text-[10px] font-black text-slate-400 group-hover:text-emerald-400 transition-colors uppercase tracking-widest text-center">Sistemler</p>
+             </Link>
+
+             <Link href="/destek-taleplerim" onClick={kilitliIslem} prefetch={true} className="flex flex-col gap-1.5 group">
+               <div className="bg-[#0f172a] border border-slate-800 group-hover:border-orange-500/30 rounded-2xl p-3 sm:p-5 shadow-xl flex flex-col items-center justify-center gap-1 sm:gap-1.5 transition-colors h-full w-full">
+                 <Headset className="w-5 h-5 sm:w-7 sm:h-7 text-orange-400 transition-transform group-hover:scale-110" />
+                 <p className="text-lg sm:text-2xl font-black text-white">0</p>
+               </div>
+               <p className="text-[8px] sm:text-[10px] font-black text-slate-400 group-hover:text-orange-400 transition-colors uppercase tracking-widest text-center">Destek / İade</p>
              </Link>
           </div>
 
