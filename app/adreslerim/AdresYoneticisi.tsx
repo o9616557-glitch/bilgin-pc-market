@@ -232,12 +232,11 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
                     Varsayılan Fatura Adresi
                   </label>
                 </div>
-
-                <div className="md:col-span-2">
+<div className="md:col-span-2 flex justify-end mt-2">
                   <button 
                     type="submit" 
                     disabled={isSubmitting} 
-                    className="w-full flex justify-center items-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-8 py-4 rounded-xl font-black uppercase tracking-widest shadow-[0_0_20px_rgba(6,182,212,0.2)] transition-all duration-300 disabled:opacity-50"
+                    className="w-full sm:w-auto flex justify-center items-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-10 py-3.5 rounded-xl font-black uppercase tracking-widest shadow-[0_0_20px_rgba(6,182,212,0.2)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] hover:from-cyan-500 hover:to-blue-400 transition-all duration-500 ease-out hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0"
                   >
                     {isSubmitting ? (
                       <><Loader2 className="w-5 h-5 animate-spin" /> İŞLENİYOR...</>
