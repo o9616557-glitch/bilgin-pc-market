@@ -276,8 +276,8 @@ export default function AdminPaneli() {
           <button onClick={() => setAktifSekme("urunler")} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-black uppercase tracking-widest transition-all ${aktifSekme === "urunler" ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-inner" : "text-slate-400 hover:bg-[#020617] hover:text-white border border-transparent"}`}>
             <Package className="w-5 h-5" /> Ürünler <span className="ml-auto bg-[#020617] px-2 py-0.5 rounded text-[10px] border border-slate-800">{urunler.length}</span>
           </button>
-
-          <button onClick={() => window.location.href = "/admin/reviews"} className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-black uppercase tracking-widest text-slate-400 hover:bg-[#020617] hover:text-white border border-transparent transition-all">
+{/* 🚀 YUMUŞAK GEÇİŞ MOTORU: Sayfayı yenilemeden fişek gibi diğer sayfaya geçer */}
+          <button onClick={() => router.push("/admin/reviews")} className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-black uppercase tracking-widest text-slate-400 hover:bg-[#020617] hover:text-white border border-transparent transition-all">
             <MessageSquare className="w-5 h-5" /> Yorumlar
           </button>
         </nav>
