@@ -6,14 +6,14 @@ import { useSession } from "next-auth/react";
 import { 
   User, ShieldCheck, CreditCard, Headset, 
   PlusCircle, MessageSquare, CheckCircle2, Clock, 
-  AlertCircle, ChevronRight, PackageX, Wrench, Send, X, Loader2
+  AlertCircle, ChevronRight, ChevronDown, PackageX, Wrench, Send, X, Loader2
 } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function DestekIadePage() {
   const { data: session, status } = useSession();
   
-  // 🚀 1. ÇIRAK MOTORU (SIFIR GECİKME): Veriyi hafızadan saniyesinde çeker!
+  // 🚀 1. ÇIRAK MOTORU (SIFIR GECİKME)
   const [talepler, setTalepler] = useState<any[]>(() => {
     if (typeof window !== "undefined") {
       const cirakHafizasi = localStorage.getItem("bilgin_destek_talepleri");
@@ -22,7 +22,6 @@ export default function DestekIadePage() {
     return [];
   });
 
-  // Eğer hafızada veri varsa, yükleniyor ekranını hiç gösterme!
   const [yukleniyor, setYukleniyor] = useState(() => {
     if (typeof window !== "undefined") {
       return !localStorage.getItem("bilgin_destek_talepleri");
@@ -35,12 +34,17 @@ export default function DestekIadePage() {
   const [aktifTab, setAktifTab] = useState<'acik' | 'gecmis'>('acik');
   const [talepGonderiliyor, setTalepGonderiliyor] = useState(false);
 
+  // SOHBET (CEVAPLAMA) STATE'LERİ 🚀
+  const [seciliTalepId, setSeciliTalepId] = useState<string | null>(null);
+  const [cevapMesaji, setCevapMesaji] = useState("");
+  const [cevapGonderiliyor, setCevapGonderiliyor] = useState(false);
+
   // FORM STATE'LERİ
   const [talepKonusu, setTalepKonusu] = useState("");
   const [talepBaslik, setTalepBaslik] = useState("");
   const [talepMesaji, setTalepMesaji] = useState("");
 
-  // ⬇️ 2. USTA MOTORU (SESSİZ GÜNCELLEME): Arkadan çaktırmadan yeni mesaj var mı diye bakar
+  // ⬇️ 2. USTA MOTORU (SESSİZ GÜNCELLEME)
   const talepleriGetir = async () => {
     if (!session?.user?.email) return;
     try {
@@ -50,7 +54,6 @@ export default function DestekIadePage() {
         const yeniDurum = JSON.stringify(data.talepler || []);
         const eskiDurum = localStorage.getItem("bilgin_destek_talepleri");
         
-        // Eğer veritabanında yeni bir şey varsa (veya admin cevap yazmışsa) çaktırmadan ekrana basar
         if (eskiDurum !== yeniDurum) {
           setTalepler(data.talepler || []);
           localStorage.setItem("bilgin_destek_talepleri", yeniDurum);
@@ -63,35 +66,33 @@ export default function DestekIadePage() {
     }
   };
 
-  // 🚀 3. RADAR SİSTEMİ (10 Saniyede bir sessizce kontrol eder)
+  // 🚀 3. RADAR SİSTEMİ
   useEffect(() => {
     if (status === "authenticated") {
-      talepleriGetir(); // Sayfaya girince hemen 1 kere kontrol et
-      
-      // 10 saniyede bir arkadan veritabanını yokla (Admin cevap yazdı mı diye)
+      talepleriGetir(); 
       const radar = setInterval(talepleriGetir, 10000); 
-      return () => clearInterval(radar); // Adam sayfadan çıkınca radarı kapat ki sistemi yormasın
-      
+      return () => clearInterval(radar); 
     } else if (status === "unauthenticated") {
       setYukleniyor(false);
     }
   }, [status]);
-// 🚀 GİZLİ RADAR: Sipariş sayfasından gelen yönlendirmeyi havada yakalar
+
+  // 🚀 GİZLİ RADAR: Yönlendirme yakalayıcı
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const urlSiparisNo = params.get("siparisNo");
       const urlKonu = params.get("konu");
 
-      // Eğer sipariş sayfasından bir numara gelmişse, form alanlarını otomatik doldur ve modalı aç!
       if (urlSiparisNo) {
         setTalepBaslik(urlSiparisNo);
         setTalepKonusu(urlKonu || "iade");
         setYeniTalepModal(true);
       }
     }
-  }, [status]); // Kullanıcı doğrulandığı an parametreleri kontrol et
-  // ⬇️ 4. YENİ TALEP GÖNDERME VE HAFIZAYA KAZIMA MOTORU
+  }, [status]);
+
+  // ⬇️ 4. YENİ TALEP GÖNDERME MOTORU
   const handleTalepGonder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!talepKonusu || !talepMesaji || !talepBaslik) return;
@@ -103,10 +104,7 @@ export default function DestekIadePage() {
       const res = await fetch("/api/destek", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          konu: talepKonusu,
-          mesaj: `[Başlık: ${talepBaslik}]\n\n${talepMesaji}`
-        })
+        body: JSON.stringify({ konu: talepKonusu, mesaj: `[Başlık: ${talepBaslik}]\n\n${talepMesaji}` })
       });
 
       const data = await res.json();
@@ -114,11 +112,8 @@ export default function DestekIadePage() {
       if (res.ok && data.success) {
         toast.success("Talebiniz başarıyla oluşturuldu! 🚀", { id: toastId });
         setYeniTalepModal(false);
-        setTalepKonusu("");
-        setTalepBaslik("");
-        setTalepMesaji("");
+        setTalepKonusu(""); setTalepBaslik(""); setTalepMesaji("");
         
-        // BİNGO: Sayfayı yenilemeden yeni açılan talebi en üste saniyesinde ekle ve hafızaya (localStorage) kazı!
         setTalepler(prev => {
           const yeniListe = [data.talep, ...prev];
           localStorage.setItem("bilgin_destek_talepleri", JSON.stringify(yeniListe));
@@ -127,11 +122,40 @@ export default function DestekIadePage() {
       } else {
         toast.error(data.message || "Talep iletilemedi.", { id: toastId });
       }
-    } catch (error) {
-      toast.error("Bağlantı hatası oluştu.", { id: toastId });
-    } finally {
-      setTalepGonderiliyor(false);
-    }
+    } catch (error) { toast.error("Bağlantı hatası oluştu.", { id: toastId }); } 
+    finally { setTalepGonderiliyor(false); }
+  };
+
+  // 🚀 5. MÜŞTERİ CEVAPLAMA MOTORU (YENİ EKLENDİ)
+  const handleCevapGonder = async (talepId: string) => {
+    if (!cevapMesaji.trim()) return;
+    setCevapGonderiliyor(true);
+    const toastId = toast.loading("Cevabınız iletiliyor...");
+
+    try {
+      const res = await fetch("/api/destek", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ talepId, mesaj: cevapMesaji })
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        toast.success("Cevabınız iletildi!", { id: toastId });
+        setCevapMesaji("");
+        
+        // Ekrana ve hafızaya anında yaz (F5 atmasına gerek kalmasın)
+        setTalepler(prev => {
+          const yeniListe = prev.map(t => t._id === talepId ? data.talep : t);
+          localStorage.setItem("bilgin_destek_talepleri", JSON.stringify(yeniListe));
+          return yeniListe;
+        });
+      } else {
+        toast.error(data.message || "Cevap iletilemedi.", { id: toastId });
+      }
+    } catch (error) { toast.error("Bağlantı hatası oluştu.", { id: toastId }); } 
+    finally { setCevapGonderiliyor(false); }
   };
 
   if (yukleniyor) {
@@ -143,13 +167,11 @@ export default function DestekIadePage() {
     );
   }
 
-  // MİSAFİR KORUMA KALKANI
   if (status === "unauthenticated") {
     if (typeof window !== "undefined") window.location.href = "/giris";
     return null;
   }
 
-  // Akıllı Sekme Filtreleri
   const acikTalepler = talepler.filter(t => t.durum !== "Çözüldü");
   const gecmisTalepler = talepler.filter(t => t.durum === "Çözüldü");
   const gosterilenTalepler = aktifTab === 'acik' ? acikTalepler : gecmisTalepler;
@@ -166,7 +188,6 @@ export default function DestekIadePage() {
   return (
     <>
       <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip">
-        {/* ARKA PLAN PARLAMASI */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-indigo-600 blur-[250px] opacity-[0.07] pointer-events-none rounded-full"></div>
 
         <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
@@ -213,7 +234,7 @@ export default function DestekIadePage() {
               </button>
             </div>
 
-            {/* AKILLI METRİKLER (Canlı Sayaçlar) */}
+            {/* AKILLI METRİKLER */}
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col gap-2">
                 <div className="flex items-center gap-2 text-amber-400">
@@ -241,14 +262,11 @@ export default function DestekIadePage() {
             {/* TABLAR VE TALEPLER LİSTESİ */}
             <div className="bg-[#0f172a] border border-slate-800 rounded-2xl shadow-xl flex flex-col overflow-hidden">
               
-              {/* 🚀 TABLAR (Boşluk eklendi, kasma ve zıplama sorunu çözüldü) */}
               <div className="flex items-center gap-2 sm:gap-4 border-b border-slate-800/80 p-2 sm:p-3">
                 <button 
                   onClick={() => setAktifTab('acik')}
                   className={`flex-1 sm:flex-none px-6 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-black uppercase tracking-widest transition-all duration-300 border ${
-                    aktifTab === 'acik' 
-                    ? 'bg-[#020617] text-indigo-400 border-slate-800 shadow-md' 
-                    : 'bg-transparent text-slate-500 border-transparent hover:text-slate-300 hover:bg-white/[0.02]'
+                    aktifTab === 'acik' ? 'bg-[#020617] text-indigo-400 border-slate-800 shadow-md' : 'bg-transparent text-slate-500 border-transparent hover:text-slate-300 hover:bg-white/[0.02]'
                   }`}
                 >
                   Açık Talepler
@@ -256,16 +274,13 @@ export default function DestekIadePage() {
                 <button 
                   onClick={() => setAktifTab('gecmis')}
                   className={`flex-1 sm:flex-none px-6 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-black uppercase tracking-widest transition-all duration-300 border ${
-                    aktifTab === 'gecmis' 
-                    ? 'bg-[#020617] text-indigo-400 border-slate-800 shadow-md' 
-                    : 'bg-transparent text-slate-500 border-transparent hover:text-slate-300 hover:bg-white/[0.02]'
+                    aktifTab === 'gecmis' ? 'bg-[#020617] text-indigo-400 border-slate-800 shadow-md' : 'bg-transparent text-slate-500 border-transparent hover:text-slate-300 hover:bg-white/[0.02]'
                   }`}
                 >
                   Geçmiş İşlemler
                 </button>
               </div>
 
-              {/* 🚀 key={aktifTab} ve animate-in ile küt diye geçişi engelledik, yağ gibi kayacak */}
               <div key={aktifTab} className="flex flex-col p-3 sm:p-5 gap-3 animate-in fade-in duration-300 ease-out">
                 {gosterilenTalepler.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 opacity-50">
@@ -274,48 +289,105 @@ export default function DestekIadePage() {
                   </div>
                 ) : (
                   gosterilenTalepler.map((talep) => (
-                    <div key={talep._id} className="bg-[#020617] border border-slate-800 hover:border-indigo-500/30 p-4 rounded-xl flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition-all group">
+                    <div key={talep._id} className={`bg-[#020617] border rounded-xl flex flex-col transition-all ${seciliTalepId === talep._id ? 'border-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.1)]' : 'border-slate-800 hover:border-slate-700'}`}>
                       
-                      <div className="flex items-start sm:items-center gap-4">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 border ${
-                          talep.konu === 'iade' ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' :
-                          talep.konu === 'teknik' ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' :
-                          'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                        }`}>
-                          {talep.konu === 'iade' ? <PackageX className="w-5 h-5" /> : 
-                           talep.konu === 'teknik' ? <Wrench className="w-5 h-5" /> : 
-                           <AlertCircle className="w-5 h-5" />}
-                        </div>
-                        
-                        <div className="flex flex-col">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xs sm:text-sm font-bold text-white">{getGuzelKonuAdi(talep.konu)}</span>
-                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-bold">{talep.talepNo}</span>
-                          </div>
-                          <p className="text-[10px] sm:text-xs text-slate-400 truncate max-w-[250px] sm:max-w-md">
-                            Son mesaj: {talep.mesajlar?.[talep.mesajlar.length - 1]?.metin || "Mesaj detayları..."}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 mt-2 sm:mt-0 border-t sm:border-0 border-slate-800 pt-3 sm:pt-0">
-                        <div className="flex flex-col sm:items-end">
-                          <span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${
-                            talep.durum === 'Çözüldü' ? 'text-emerald-400' : 
-                            talep.durum === 'Yanıt Bekleniyor' ? 'text-amber-400' : 
-                            'text-indigo-400'
+                      {/* TALEP KARTI (Tıklanabilir Başlık) */}
+                      <div 
+                        onClick={() => setSeciliTalepId(seciliTalepId === talep._id ? null : talep._id)}
+                        className="p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 cursor-pointer group"
+                      >
+                        <div className="flex items-start sm:items-center gap-4">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 border transition-colors ${
+                            talep.konu === 'iade' ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' :
+                            talep.konu === 'teknik' ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' :
+                            'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
                           }`}>
-                            {talep.durum}
-                          </span>
-                          <span className="text-[9px] text-slate-500">
-                            {new Date(talep.createdAt).toLocaleDateString("tr-TR")}
-                          </span>
+                            {talep.konu === 'iade' ? <PackageX className="w-5 h-5" /> : 
+                             talep.konu === 'teknik' ? <Wrench className="w-5 h-5" /> : 
+                             <AlertCircle className="w-5 h-5" />}
+                          </div>
+                          
+                          <div className="flex flex-col">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xs sm:text-sm font-bold text-white group-hover:text-indigo-300 transition-colors">{getGuzelKonuAdi(talep.konu)}</span>
+                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-bold">{talep.talepNo}</span>
+                            </div>
+                            <p className="text-[10px] sm:text-xs text-slate-400 truncate max-w-[250px] sm:max-w-md">
+                              Son mesaj: {talep.mesajlar?.[talep.mesajlar.length - 1]?.metin || "Mesaj detayları..."}
+                            </p>
+                          </div>
                         </div>
-                        <button className="w-8 h-8 rounded-lg bg-[#0f172a] border border-slate-700 flex items-center justify-center text-slate-400 group-hover:bg-indigo-500/10 group-hover:border-indigo-500/30 group-hover:text-indigo-400 transition-colors">
-                          <ChevronRight className="w-4 h-4" />
-                        </button>
+
+                        <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 mt-2 sm:mt-0 border-t sm:border-0 border-slate-800 pt-3 sm:pt-0">
+                          <div className="flex flex-col sm:items-end">
+                            <span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${
+                              talep.durum === 'Çözüldü' ? 'text-emerald-400' : 
+                              talep.durum === 'Yanıt Bekleniyor' ? 'text-amber-400' : 
+                              'text-indigo-400'
+                            }`}>
+                              {talep.durum}
+                            </span>
+                            <span className="text-[9px] text-slate-500">
+                              {new Date(talep.createdAt).toLocaleDateString("tr-TR")}
+                            </span>
+                          </div>
+                          <button className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${seciliTalepId === talep._id ? 'bg-indigo-600 text-white' : 'bg-[#0f172a] border border-slate-700 text-slate-400 group-hover:bg-indigo-500/10 group-hover:text-indigo-400'}`}>
+                            {seciliTalepId === talep._id ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                          </button>
+                        </div>
                       </div>
 
+                      {/* 🚀 AÇILIR SOHBET EKRANI */}
+                      {seciliTalepId === talep._id && (
+                        <div className="border-t border-slate-800 bg-[#0f172a]/50 p-4 sm:p-6 animate-in slide-in-from-top-2 duration-300 rounded-b-xl flex flex-col gap-5">
+                          
+                          {/* Mesaj Akışı */}
+                          <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
+                            {talep.mesajlar?.map((msg: any, index: number) => {
+                              const isMusteri = msg.gonderen === 'Musteri';
+                              return (
+                                <div key={index} className={`flex flex-col max-w-[85%] sm:max-w-[75%] ${isMusteri ? 'self-end items-end' : 'self-start items-start'}`}>
+                                  <div className={`text-[9px] font-bold uppercase tracking-widest mb-1 px-1 ${isMusteri ? 'text-indigo-400' : 'text-slate-500'}`}>
+                                    {isMusteri ? 'Siz' : 'Mağaza Temsilcisi'}
+                                  </div>
+                                  <div className={`p-3.5 sm:p-4 rounded-2xl text-xs sm:text-sm leading-relaxed ${
+                                    isMusteri 
+                                    ? 'bg-indigo-600 text-white rounded-tr-sm shadow-[0_4px_15px_rgba(79,70,229,0.2)]' 
+                                    : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-tl-sm'
+                                  }`}>
+                                    {msg.metin.split('\n').map((satir: string, i: number) => <span key={i}>{satir}<br/></span>)}
+                                  </div>
+                                  <div className="text-[9px] text-slate-500 mt-1 font-medium">{new Date(msg.tarih).toLocaleString("tr-TR")}</div>
+                                </div>
+                              );
+                            })}
+                          </div>
+
+                          {/* Cevap Yazma Kutusu (Sadece Talep Açıksa) */}
+                          {talep.durum !== 'Çözüldü' ? (
+                            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-800/80">
+                              <textarea 
+                                value={cevapMesaji}
+                                onChange={(e) => setCevapMesaji(e.target.value)}
+                                placeholder="Cevabınızı yazın..." 
+                                className="flex-1 bg-[#020617] border border-slate-700 focus:border-indigo-500 rounded-xl p-3 sm:p-4 text-xs sm:text-sm text-white focus:outline-none transition-colors min-h-[60px] sm:min-h-[80px] resize-none" 
+                              />
+                              <button 
+                                onClick={() => handleCevapGonder(talep._id)}
+                                disabled={cevapGonderiliyor || !cevapMesaji.trim()}
+                                className="sm:w-[140px] flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white rounded-xl font-black uppercase text-[10px] sm:text-xs tracking-widest transition-all shadow-lg disabled:opacity-50"
+                              >
+                                {cevapGonderiliyor ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4" /> GÖNDER</>}
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="pt-4 border-t border-slate-800/80 text-center">
+                              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Bu talep çözüldü olarak işaretlenmiş ve kapatılmıştır.</p>
+                            </div>
+                          )}
+
+                        </div>
+                      )}
                     </div>
                   ))
                 )}
@@ -342,16 +414,9 @@ export default function DestekIadePage() {
             </div>
 
             <form onSubmit={handleTalepGonder} className="flex flex-col gap-4">
-              
-              {/* 1. KUTU: İŞLEM KONUSU */}
               <div>
                 <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">İşlem Konusu</label>
-                <select 
-                  value={talepKonusu}
-                  onChange={(e) => setTalepKonusu(e.target.value)}
-                  className="w-full bg-[#020617] border border-slate-800 focus:border-indigo-500/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors appearance-none"
-                  required
-                >
+                <select value={talepKonusu} onChange={(e) => setTalepKonusu(e.target.value)} className="w-full bg-[#020617] border border-slate-800 focus:border-indigo-500/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors appearance-none" required>
                   <option value="" disabled>Lütfen bir konu seçin</option>
                   <option value="iade">Kolay İade İşlemi</option>
                   <option value="teknik">Teknik Destek / Arıza</option>
@@ -360,32 +425,16 @@ export default function DestekIadePage() {
                 </select>
               </div>
 
-              {/* 🚀 2. KUTU: YENİ EKLENEN BAŞLIK KUTUSU */}
               <div>
                 <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Talep Başlığı / Sipariş No</label>
-                <input 
-                  type="text"
-                  value={talepBaslik}
-                  onChange={(e) => setTalepBaslik(e.target.value)}
-                  placeholder="Kısa bir başlık veya Sipariş Numarası girin..."
-                  className="w-full bg-[#020617] border border-slate-800 focus:border-indigo-500/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors"
-                  required
-                />
+                <input type="text" value={talepBaslik} onChange={(e) => setTalepBaslik(e.target.value)} placeholder="Kısa bir başlık veya Sipariş Numarası girin..." className="w-full bg-[#020617] border border-slate-800 focus:border-indigo-500/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors" required />
               </div>
 
-              {/* 3. KUTU: MESAJINIZ */}
               <div>
                 <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Mesajınız</label>
-                <textarea 
-                  value={talepMesaji}
-                  onChange={(e) => setTalepMesaji(e.target.value)}
-                  placeholder="Sorununuzu veya talebinizi detaylıca açıklayın..."
-                  className="w-full bg-[#020617] border border-slate-800 focus:border-indigo-500/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors min-h-[120px] resize-none"
-                  required
-                ></textarea>
+                <textarea value={talepMesaji} onChange={(e) => setTalepMesaji(e.target.value)} placeholder="Sorununuzu veya talebinizi detaylıca açıklayın..." className="w-full bg-[#020617] border border-slate-800 focus:border-indigo-500/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors min-h-[120px] resize-none" required></textarea>
               </div>
 
-              {/* BİLGİLENDİRME METNİ */}
               <div className="bg-indigo-500/5 border border-indigo-500/10 p-3 rounded-xl flex gap-3 mt-2">
                 <AlertCircle className="w-5 h-5 text-indigo-400 shrink-0" />
                 <p className="text-[10px] sm:text-xs text-slate-400 font-medium leading-relaxed">
@@ -393,23 +442,20 @@ export default function DestekIadePage() {
                 </p>
               </div>
 
-              {/* 🚀 GÜNCEL BUTON (!talepBaslik eklendi) */}
-              <button 
-                type="submit" 
-                disabled={talepGonderiliyor || !talepKonusu || !talepMesaji || !talepBaslik}
-                className="mt-4 w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-black text-sm uppercase tracking-widest transition-all disabled:opacity-50"
-              >
-                {talepGonderiliyor ? (
-                  <><Loader2 className="w-5 h-5 animate-spin" /> İŞLENİYOR...</>
-                ) : (
-                  <><Send className="w-5 h-5" /> TALEBİ GÖNDER</>
-                )}
+              <button type="submit" disabled={talepGonderiliyor || !talepKonusu || !talepMesaji || !talepBaslik} className="mt-4 w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-black text-sm uppercase tracking-widest transition-all disabled:opacity-50">
+                {talepGonderiliyor ? <><Loader2 className="w-5 h-5 animate-spin" /> İŞLENİYOR...</> : <><Send className="w-5 h-5" /> TALEBİ GÖNDER</>}
               </button>
             </form>
-
           </div>
         </div>
       )}
+
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #4f46e5; }
+      `}</style>
     </>
   );
 }
