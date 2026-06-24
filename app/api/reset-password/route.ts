@@ -24,6 +24,39 @@ export async function POST(req: Request) {
       );
     }
 
+    // 🚀 AKILLI RADAR 1: Adam şu an kullandığı şifrenin aynısını mı yazdı?
+    const isSameAsCurrent = await bcrypt.compare(newPassword, user.password);
+    if (isSameAsCurrent) {
+      return NextResponse.json(
+        { message: "Güvenliğiniz için lütfen mevcut şifrenizden farklı bir şifre belirleyiniz." },
+        { status: 400 }
+      );
+    }
+
+    // 🚀 AKILLI RADAR 2: Adamın yazdığı şifre, geçmişteki (son 3) şifreleriyle eşleşiyor mu?
+    if (user.passwordHistory && user.passwordHistory.length > 0) {
+      for (const oldHashedPassword of user.passwordHistory) {
+        const isMatched = await bcrypt.compare(newPassword, oldHashedPassword);
+        if (isMatched) {
+          return NextResponse.json(
+            { message: "Güvenliğiniz için lütfen daha önce kullandığınız şifrelerden farklı bir şifre belirleyiniz." },
+            { status: 400 }
+          );
+        }
+      }
+    }
+
+    // 🚀 RADARLARDAN TEMİZ GEÇTİ: Şu anki eski şifreyi arşive kaldır (Geçmiş hafızasına ekle)
+    if (!user.passwordHistory) {
+      user.passwordHistory = [];
+    }
+    user.passwordHistory.push(user.password);
+    
+    // Hafızanın şişmemesi için sadece son 3 şifreyi tut, en eskisini sil
+    if (user.passwordHistory.length > 3) {
+      user.passwordHistory.shift(); 
+    }
+
     // 2. Yeni şifreyi kriptola (Güvenlik için Hash'le)
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 

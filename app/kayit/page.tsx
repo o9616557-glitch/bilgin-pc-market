@@ -18,6 +18,34 @@ export default function KayitPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 🚀 ŞİFRE GÜVENLİK RADARI (Yükleme başlamadan hemen önce kapıda çevirir) 🚀
+    if (password.length < 5) {
+      toast.error("Şifreniz en az 5 karakter uzunluğunda olmalıdır!");
+      return; 
+    }
+
+    if (!/[a-zA-Z]/.test(password)) {
+      toast.error("Şifrenizde en az bir tane harf bulunmalıdır!");
+      return; 
+    }
+
+    if (!/[0-9]/.test(password)) {
+      toast.error("Şifrenizde en az bir tane rakam bulunmalıdır!");
+      return; 
+    }
+
+    // 🚀 YENİ RADAR: Ardışık (Sıralı) Karakter Engelleyici
+    // Bu kod, 4 ve daha fazla yan yana sıralı rakam veya harfi (ileri veya geri) anında yakalar!
+    const siraliKontrol = /(0123|1234|2345|3456|4567|5678|6789|9876|8765|7654|6543|5432|4321|3210|abcd|bcde|cdef|defg|efgh|fghi|ghij|hijk|ijkl|jklm|klmn|lmno|mnop|nopq|opqr|pqrs|qrst|rstu|stuv|tuvw|uvwx|vwxy|wxyz|zyxw|yxwv|xwvu|wvut|vuts|utsr|tsrq|srqp|rqpo|qpon|ponm|onml|nmlk|mlkj|lkji|kjih|jihg|ihgf|hgfe|gfed|fedc|edcb|dcba)/i;
+    
+    if (siraliKontrol.test(password)) {
+      toast.error("Şifreniz '1234' veya 'abcd' gibi peş peşe sıralı karakterler içeremez!");
+      return;
+    }
+    // 🚀 RADAR BİTİŞİ 🚀
+
+    // Radardan sorunsuz geçtiyse yükleme animasyonunu başlat
     setIsLoading(true);
 
     // 🚀 Eski alert() yerine şık Toast bildirimi
@@ -51,7 +79,6 @@ export default function KayitPage() {
       setIsLoading(false);
     }
   };
-
   return (
     <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center p-0 sm:p-4 relative overflow-hidden">
       {/* Arka Plan Efekti */}
