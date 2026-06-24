@@ -19,8 +19,9 @@ export default function DestekIadePage() {
   const [aktifTab, setAktifTab] = useState<'acik' | 'gecmis'>('acik');
   const [talepGonderiliyor, setTalepGonderiliyor] = useState(false);
 
-  // FORM STATE'LERİ
+// FORM STATE'LERİ
   const [talepKonusu, setTalepKonusu] = useState("");
+  const [talepBaslik, setTalepBaslik] = useState(""); // 🚀 YENİ EKLENEN BAŞLIK
   const [talepMesaji, setTalepMesaji] = useState("");
 
   // 🚀 GERÇEK VERİ MOTORU (Sahte veriler çöpe atıldı, artık boş array ile başlıyor)
@@ -58,12 +59,12 @@ export default function DestekIadePage() {
     const toastId = toast.loading("Destek talebiniz iletiliyor...");
 
     try {
-      const res = await fetch("/api/destek", {
+   const res = await fetch("/api/destek", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           konu: talepKonusu,
-          mesaj: talepMesaji
+          mesaj: `[Başlık: ${talepBaslik}]\n\n${talepMesaji}`
         })
       });
 
@@ -208,7 +209,8 @@ export default function DestekIadePage() {
                 </button>
               </div>
 
-              <div className="flex flex-col p-3 sm:p-5 gap-3">
+         {/* 🚀 key={aktifTab} ve animate-in ile küt diye geçişi engelledik, yağ gibi kayacak */}
+              <div key={aktifTab} className="flex flex-col p-3 sm:p-5 gap-3 animate-in fade-in duration-300 ease-out">
                 {gosterilenTalepler.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 opacity-50">
                     <CheckCircle2 className="w-12 h-12 text-slate-500 mb-3" />
@@ -282,8 +284,8 @@ export default function DestekIadePage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-
-            <form onSubmit={handleTalepGonder} className="flex flex-col gap-4">
+<form onSubmit={handleTalepGonder} className="flex flex-col gap-4">
+              {/* 1. KUTU: İŞLEM KONUSU */}
               <div>
                 <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">İşlem Konusu</label>
                 <select 
@@ -300,6 +302,20 @@ export default function DestekIadePage() {
                 </select>
               </div>
 
+              {/* 🚀 2. KUTU: YENİ EKLENEN BAŞLIK KUTUSU (Tam buraya girdi) */}
+              <div>
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Talep Başlığı / Sipariş No</label>
+                <input 
+                  type="text"
+                  value={talepBaslik}
+                  onChange={(e) => setTalepBaslik(e.target.value)}
+                  placeholder="Kısa bir başlık veya Sipariş Numarası girin..."
+                  className="w-full bg-[#020617] border border-slate-800 focus:border-indigo-500/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors"
+                  required
+                />
+              </div>
+
+              {/* 3. KUTU: MESAJINIZ */}
               <div>
                 <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Mesajınız</label>
                 <textarea 
@@ -311,6 +327,7 @@ export default function DestekIadePage() {
                 ></textarea>
               </div>
 
+              {/* BİLGİLENDİRME METNİ */}
               <div className="bg-indigo-500/5 border border-indigo-500/10 p-3 rounded-xl flex gap-3 mt-2">
                 <AlertCircle className="w-5 h-5 text-indigo-400 shrink-0" />
                 <p className="text-[10px] sm:text-xs text-slate-400 font-medium leading-relaxed">
@@ -318,10 +335,11 @@ export default function DestekIadePage() {
                 </p>
               </div>
 
+              {/* 🚀 325. SATIRDAKİ GÜNCEL BUTON (!talepBaslik eklendi) */}
               <button 
                 type="submit" 
-                disabled={talepGonderiliyor || !talepKonusu || !talepMesaji}
-                className="mt-4 w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-black text-sm uppercase tracking-widest transition-all disabled:opacity-50"
+                disabled={talepGonderiliyor || !talepKonusu || !talepMesaji || !talepBaslik}
+                className="mt-4 w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-black text-sm uppercase tracking-widest transition-all disabled:opacity-50"
               >
                 {talepGonderiliyor ? (
                   <><Loader2 className="w-5 h-5 animate-spin" /> İŞLENİYOR...</>
