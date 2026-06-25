@@ -6,7 +6,7 @@ import {
   HeartCrack, Trash2, ShoppingCart, 
   User, ShieldCheck, CreditCard, Star, CheckCircle2,
   MapPin, Package, Search, Monitor, Headphones, Truck, PackageX,
-  Calendar, Copy // <--- BİNGO! BU İKİSİ EKSİKTİ
+  Calendar, Copy
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/app/CartContext";
@@ -116,13 +116,10 @@ export default function FavoriClient({ initialFavorites }: Props) {
         {/* ➡️ SAĞ İÇERİK */}
         <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full animate-in fade-in duration-300">
           
-          {/* 🚀 BİNGO: FASULYE MENÜ */}
+          {/* 🚀 BİNGO: FASULYE MENÜ (Favoriler Çıkarıldı) */}
           <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pt-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
             <Link href="/siparislerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
               <Package className="w-4 h-4 text-cyan-500" /> Siparişler
-            </Link>
-            <Link href="/favorilerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
-              <Star className="w-4 h-4 text-cyan-500" /> Favoriler
             </Link>
             <Link href="/sistemlerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
               <Monitor className="w-4 h-4 text-cyan-500" /> Sistemler
@@ -191,24 +188,26 @@ export default function FavoriClient({ initialFavorites }: Props) {
               </Link>
             </div>
           ) : (
-            /* 🚀 BİNGO: KUTU/KARE TASARIMI (Grid Yapısı) */
+            /* 🚀 BİNGO: KUTU/KARE TASARIMI (Grid Yapısı - Silme Butonu Ayrıldı) */
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">
               {favoriteProducts.map((urun: any, index: number) => {
                 const isAdded = sepeteEklenenler.includes(urun._id || urun.id);
                 return (
-                  <div key={index} className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col gap-4 transition-all duration-300 hover:border-cyan-500/40 hover:-translate-y-1 shadow-lg hover:shadow-[0_10px_30px_rgba(6,182,212,0.06)] relative group h-full">
+                  <div key={index} className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col transition-all duration-300 hover:border-cyan-500/40 hover:-translate-y-1 shadow-lg group h-full">
                     
-                    {/* ÇÖP KUTUSU (Kartın içine, sağ üst köşeye sabitlendi) */}
-                    <button 
-                      onClick={() => setProductToDelete(urun)}
-                      className="absolute top-3 right-3 sm:top-4 sm:right-4 w-8 h-8 flex items-center justify-center bg-[#020617]/80 backdrop-blur-sm border border-slate-800 rounded-lg text-slate-500 hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/10 transition-colors z-20 shadow-sm"
-                      title="Favorilerden Kaldır"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    {/* ÇÖP KUTUSU (Resimden bağımsız, normal akışta en üstte) */}
+                    <div className="flex justify-end mb-3">
+                      <button 
+                        onClick={() => setProductToDelete(urun)}
+                        className="w-8 h-8 flex items-center justify-center bg-[#020617] border border-slate-800 rounded-lg text-slate-500 hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/10 transition-colors shadow-sm"
+                        title="Favorilerden Kaldır"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
 
                     {/* ÜRÜN RESMİ (Geniş kutu alanı) */}
-                    <Link href={"/product/" + (urun.slug || urun.id || urun._id)} prefetch={true} className="w-full h-40 sm:h-48 shrink-0 bg-[#020617] rounded-xl border border-slate-800/50 flex items-center justify-center p-4 relative overflow-hidden group-hover:border-cyan-500/20 transition-colors mt-2">
+                    <Link href={"/product/" + (urun.slug || urun.id || urun._id)} prefetch={true} className="w-full h-40 sm:h-48 shrink-0 bg-[#020617] rounded-xl border border-slate-800/50 flex items-center justify-center p-4 relative overflow-hidden group-hover:border-cyan-500/20 transition-colors mb-4">
                       <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                       <img 
                         src={urun.resim || "/placeholder.jpg"} 
@@ -218,13 +217,13 @@ export default function FavoriClient({ initialFavorites }: Props) {
                     </Link>
 
                     {/* BİLGİLER (Başlık ve Fiyat) */}
-                    <div className="flex-1 flex flex-col justify-start">
+                    <div className="flex-1 flex flex-col justify-start mb-4">
                       <Link href={"/product/" + (urun.slug || urun.id || urun._id)} prefetch={true} className="block mb-2 pr-2">
                         <h3 className="text-sm font-bold text-slate-200 leading-snug line-clamp-2 hover:text-cyan-400 transition-colors">
                           {urun.isim || urun.name}
                         </h3>
                       </Link>
-                      <div className="text-xl sm:text-2xl font-black text-cyan-400 tracking-tight mt-auto pt-2">
+                      <div className="text-xl sm:text-2xl font-black text-cyan-400 tracking-tight mt-auto">
                         {Number(urun.fiyat || 0).toLocaleString("tr-TR")} <span className="text-xs font-bold text-slate-500 uppercase">TL</span>
                       </div>
                     </div>
@@ -233,7 +232,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
                     <button 
                       onClick={() => handleSepeteEkle(urun)} 
                       disabled={isAdded} 
-                      className={`w-full h-11 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest rounded-xl transition-all duration-300 border-none mt-1 ${
+                      className={`w-full h-11 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest rounded-xl transition-all duration-300 border-none ${
                         isAdded 
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.3)]" 
                         : "bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)]"
