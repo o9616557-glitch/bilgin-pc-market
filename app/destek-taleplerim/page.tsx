@@ -257,9 +257,14 @@ useEffect(() => {
                 <Package className="w-4 h-4 text-cyan-500" /> Siparişler
               </Link>
 
-              {/* 🚀 BİNGO: Kargolar BUTONA ÇEVRİLDİ. Artık Popup Açıyor, hata vermez! */}
+            {/* 🚀 BİNGO: Kargolar BUTONA ÇEVRİLDİ VE SAYAÇ (BADGE) EKLENDİ! */}
               <button onClick={() => setKargoPopupAcik(true)} className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none relative">
                 <Truck className="w-4 h-4 text-cyan-500" /> Kargolar
+                {localOrders.filter(o => (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo")).length > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-cyan-500 text-[9px] font-bold text-white shadow-lg">
+                    {localOrders.filter(o => (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo")).length}
+                  </span>
+                )}
               </button>
 
               <Link href="/siparis-takip" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
