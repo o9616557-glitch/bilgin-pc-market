@@ -226,10 +226,16 @@ export default function SiparisClient() {
                 <PackageOpen className="w-4 h-4 text-cyan-500" /> Ürünler ({selectedOrder.items?.length || 0})
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
                 {selectedOrder.items?.map((item: any, idx: number) => {
-                  const isTeslimEdildi = (selectedOrder.durum || selectedOrder.status || "").toLowerCase().includes("teslim") || (selectedOrder.durum || selectedOrder.status || "").toLowerCase().includes("tamam");
-                  const isIptal = (selectedOrder.durum || selectedOrder.status || "").toLowerCase().includes("iptal");
+                  
+                  // 🚀 BİNGO: DURUM KONTROLLERİ GENİŞLETİLDİ
+                  const durumMetni = (selectedOrder.durum || selectedOrder.status || "").toLowerCase();
+                  const isTeslimEdildi = durumMetni.includes("teslim") || durumMetni.includes("tamam");
+                  const isKargoda = durumMetni.includes("kargo");
+                  const isHazirlaniyor = durumMetni.includes("hazır") || durumMetni.includes("ödendi") || durumMetni.includes("alındı");
+                  const isIptal = durumMetni.includes("iptal");
+                  
                   const siparisTarihi = new Date(selectedOrder.createdAt || selectedOrder.tarih);
                   const iadeBitisTarihi = new Date(siparisTarihi.getTime() + (17 * 24 * 60 * 60 * 1000));
                   const bugun = new Date();
@@ -263,6 +269,7 @@ export default function SiparisClient() {
                         </div>
                       </div>
 
+                      {/* İade Süresi Uyarıları (Sadece Teslim Edilenlerde) */}
                       {isTeslimEdildi && !isIptal && (
                         <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mt-1 -mb-1">
                           {iadeSuresiGectiMi ? (
@@ -274,23 +281,30 @@ export default function SiparisClient() {
                       )}
 
                       <div className="flex flex-row items-center w-full gap-1.5 sm:gap-2 pt-3.5 border-t border-slate-800/50 mt-auto">
+                        
+                        {/* Yorumla Butonu (Sadece Teslim Edilenlerde) */}
                         {isTeslimEdildi && (
                           <Link href={`/product/${item.slug || item.productId || item._id || ''}#yorumlar`} className="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 h-8 px-1 sm:px-2 bg-[#020617] hover:bg-slate-800/50 text-slate-300 hover:text-white border border-slate-700 rounded-md transition-all font-black text-[8px] sm:text-[9px] uppercase tracking-widest whitespace-nowrap">
                             <Star className="w-3 h-3 shrink-0" /> Yorumla
                           </Link>
                         )}
 
+                        {/* Tekrar Al Butonu (Her zaman gözükebilir) */}
                         <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 h-8 px-1 sm:px-2 bg-cyan-600/10 hover:bg-cyan-600 text-cyan-400 hover:text-white border border-cyan-500/30 rounded-md transition-all font-black text-[8px] sm:text-[9px] uppercase tracking-widest whitespace-nowrap">
                           <ShoppingCart className="w-3 h-3 shrink-0" /> Tekrar Al
                         </Link>
 
-                        {isTeslimEdildi && !isIptal && !iadeSuresiGectiMi && (
-                          <Link href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade`} className="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 h-8 px-1 sm:px-2 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[8px] sm:text-[9px] uppercase tracking-widest whitespace-nowrap">
-                            <RefreshCw className="w-3 h-3 shrink-0" /> İade Et
+                        {/* 🚀 BİNGO: İPTAL VEYA İADE ET BUTONU (İptal edilmemişse ve süresi geçmemişse çıkar) */}
+                        {!isIptal && !iadeSuresiGectiMi && (
+                          <Link 
+                            href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=${isTeslimEdildi ? 'iade' : 'iptal'}`} 
+                            className="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 h-8 px-1 sm:px-2 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[8px] sm:text-[9px] uppercase tracking-widest whitespace-nowrap"
+                          >
+                            <RefreshCw className="w-3 h-3 shrink-0" /> {isTeslimEdildi ? "İade Et" : "İptal Et"}
                           </Link>
                         )}
-                      </div>
 
+                      </div>
                     </div>
                   );
                 })}
