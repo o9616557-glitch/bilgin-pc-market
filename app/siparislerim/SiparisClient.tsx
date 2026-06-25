@@ -441,13 +441,14 @@ const { sepeteEkle } = useCart();
                   )}
                 </button>
               </div>
-
-              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative flex flex-col gap-5 z-40">
+{/* 🚀 BİNGO: BURADAKİ z-40 YERİNE z-50 YAZDIK Kİ ÖRTÜNÜN ÜSTÜNE ÇIKSIN! */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative flex flex-col gap-5 z-50">
                 <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
                   <div className="absolute -top-20 -right-20 w-64 h-64 bg-cyan-500/10 blur-[60px] rounded-full"></div>
                 </div>
                 
-                <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5 relative z-10">
+                {/* 🚀 BİNGO: BURADAKİ z-10 YERİNE DE z-50 YAZDIK! */}
+                <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5 relative z-50">
                   <div className="flex items-center gap-3 sm:gap-4">
                     <div className="w-12 h-12 bg-[#020617] border border-cyan-500/30 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.2)] shrink-0">
                       <Package className="w-5 h-5 text-cyan-400" />
@@ -461,6 +462,8 @@ const { sepeteEkle } = useCart();
                   </div>
 
                   <div className="flex flex-row items-center gap-2 sm:gap-3 w-full xl:w-auto relative z-50">
+                    
+                    {/* ZAMAN FİLTRESİ */}
                     <div className="relative flex-1 xl:flex-none min-w-0">
                       <button onClick={() => {setZamanAcik(!zamanAcik); setDurumAcik(false)}} className="w-full flex items-center justify-between gap-1 sm:gap-2 bg-[#020617] hover:bg-[#020617]/80 border border-slate-800 rounded-lg px-2 sm:px-4 py-2 sm:py-3 xl:w-48 transition-colors text-[9px] sm:text-xs text-slate-300 font-bold whitespace-nowrap overflow-hidden">
                         <div className="flex items-center gap-1.5 sm:gap-2 truncate">
@@ -481,6 +484,7 @@ const { sepeteEkle } = useCart();
                       )}
                     </div>
 
+                    {/* DURUM FİLTRESİ */}
                     <div className="relative flex-1 xl:flex-none min-w-0">
                       <button onClick={() => {setDurumAcik(!durumAcik); setZamanAcik(false)}} className="w-full flex items-center justify-between gap-1 sm:gap-2 bg-[#020617] hover:bg-[#020617]/80 border border-slate-800 rounded-lg px-2 sm:px-4 py-2 sm:py-3 xl:w-52 transition-colors text-[9px] sm:text-xs text-slate-300 font-bold whitespace-nowrap overflow-hidden">
                         <div className="flex items-center gap-1.5 sm:gap-2 truncate">
@@ -503,7 +507,6 @@ const { sepeteEkle } = useCart();
                   </div>
                 </div>
               </div>
-
               {errorMsg && (
                 <div className="bg-red-500/10 border border-red-500/30 p-3 rounded-lg text-red-400 text-xs flex justify-between items-center shadow-lg">
                     <span className="font-medium">{errorMsg}</span>
