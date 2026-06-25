@@ -357,12 +357,7 @@ export default function SiparisClient() {
               
            {/* 🚀 BİNGO: İSTENİLEN SIRALAMADA TURKUAZ (CYAN) FASULYE MENÜ */}
             <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pt-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
-              
-              {/* 1. Siparişler */}
-              <Link href="/siparislerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
-                <Package className="w-4 h-4 text-cyan-500" /> Siparişler
-              </Link>
-
+          
               {/* 2. Favoriler */}
               <Link href="/favorilerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
                 <Star className="w-4 h-4 text-cyan-500" /> Favoriler
