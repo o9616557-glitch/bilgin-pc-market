@@ -40,8 +40,12 @@ const mesajKutusuRef = useRef<HTMLDivElement>(null);
 
   const [talepKonusu, setTalepKonusu] = useState("");
   const [talepBaslik, setTalepBaslik] = useState("");
-  const [talepMesaji, setTalepMesaji] = useState("");
+const [talepMesaji, setTalepMesaji] = useState("");
   const [silinecekTalepId, setSilinecekTalepId] = useState<string | null>(null);
+  
+  // 🚀 BİNGO: Kargolar Popup'ının çalışması için eklendi
+  const [kargoPopupAcik, setKargoPopupAcik] = useState(false);
+  const [localOrders, setLocalOrders] = useState<any[]>([]);
 
 // 🚀 MODAL VE MOBİL SOHBET AÇILINCA ARKA PLANI DONDURAN MOTOR
   useEffect(() => {
@@ -240,7 +244,7 @@ useEffect(() => {
 
           <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
             
-        {/* 🚀 BİNGO: TURKUAZ (CYAN) FASULYE MENÜ EKLENDİ */}
+      {/* 🚀 BİNGO: TURKUAZ (CYAN) FASULYE MENÜ EKLENDİ (HEM PC HEM MOBİL) */}
             <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pt-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
               
               <Link href="/adreslerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
@@ -251,10 +255,10 @@ useEffect(() => {
                 <Package className="w-4 h-4 text-cyan-500" /> Siparişler
               </Link>
 
-              {/* 🚀 BİNGO: 404 HATASI ÇÖZÜLDÜ! Destek sayfasında kargo verisi olmadığı için direkt Siparişlerim'e yönlendirir. */}
-              <Link href="/siparislerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+              {/* 🚀 BİNGO: Kargolar BUTONA ÇEVRİLDİ. Artık Popup Açıyor, hata vermez! */}
+              <button onClick={() => setKargoPopupAcik(true)} className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none relative">
                 <Truck className="w-4 h-4 text-cyan-500" /> Kargolar
-              </Link>
+              </button>
 
               <Link href="/siparis-takip" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
                 <Search className="w-4 h-4 text-cyan-500" /> Sorgula
@@ -270,7 +274,7 @@ useEffect(() => {
 
             </div>
 
-           {/* 🚀 BİNGO: DESTEK KUTUSU SİPARİŞLERİM İLE BİREBİR AYNI OLDU (Yapı, Boşluklar, Alt Yazı Klonlandı) */}
+            {/* 🚀 BİNGO: DESTEK KUTUSU SİPARİŞLERİM İLE BİREBİR AYNI OLDU (Yapı, Boşluklar, xl:flex-row Klonlandı) */}
             <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative flex flex-col gap-5 z-40">
               <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
                 <div className="absolute -top-20 -right-20 w-64 h-64 bg-indigo-500/10 blur-[60px] rounded-full"></div>
@@ -481,6 +485,45 @@ useEffect(() => {
             <div className="flex w-full gap-3">
               <button onClick={() => setSilinecekTalepId(null)} className="flex-1 bg-[#020617] border border-slate-700 hover:border-slate-500 hover:text-white text-slate-400 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all">İptal</button>
               <button onClick={gercektenSil} className="flex-1 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(244,63,94,0.15)]">Evet, Sil</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+    {/* 🚀 BİNGO: KARGOLAR POPUP'I DESTEK SAYFASINA DA EKLENDİ */}
+      {kargoPopupAcik && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+          <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.9)] relative overflow-hidden animate-in zoom-in-95 duration-200 max-h-[85vh]">
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-cyan-500/10 blur-[40px] pointer-events-none rounded-full"></div>
+            
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-4 relative z-10 shrink-0">
+              <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider flex items-center gap-2">
+                <Truck className="w-5 h-5 text-cyan-400" /> Aktif Kargolarınız
+              </h3>
+              <button 
+                onClick={() => setKargoPopupAcik(false)} 
+                className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-white bg-[#020617] border border-slate-800 hover:border-slate-700 rounded-xl transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto pr-1 space-y-4 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
+              {(() => {
+                const kargoSiparisleri = localOrders.filter(o => (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo"));
+                
+                if (kargoSiparisleri.length === 0) {
+                  return (
+                    <div className="text-center py-10 flex flex-col items-center justify-center relative z-10">
+                      <div className="w-16 h-16 rounded-full border border-slate-800 flex items-center justify-center mb-4 bg-[#020617]">
+                        <PackageX className="w-7 h-7 text-slate-600" />
+                      </div>
+                      <p className="text-slate-400 font-medium text-sm">Şu an yolda olan aktif kargonuz bulunmuyor.</p>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
             </div>
           </div>
         </div>
