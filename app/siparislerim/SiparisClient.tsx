@@ -342,8 +342,8 @@ export default function SiparisClient() {
             /* =================================================================================== */
             <div className="flex flex-col gap-5 animate-in fade-in duration-300">
               
-             {/* 🚀 BİNGO: APPLE TARZI FASULYE (PILL) MENÜ BURAYA EKLENDİ (PC'de ve Mobilde en üstte). Standart Cyan renk eklendi */}
-              <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
+      {/* 🚀 BİNGO: APPLE TARZI FASULYE (PILL) MENÜ BURAYA EKLENDİ (PC'de ve Mobilde en üstte). Standart Cyan renk eklendi */}
+              <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pt-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
                 
                 {/* 🚀 LİNK DÜZELTİLDİ: /adreslerim */}
                 <Link href="/adreslerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
@@ -574,9 +574,9 @@ export default function SiparisClient() {
               <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider flex items-center gap-2">
                 <Truck className="w-5 h-5 text-cyan-400" /> Aktif Kargolarınız
               </h3>
-              <button 
+           <button 
                 onClick={() => setKargoPopupAcik(false)} 
-                className="p-2 text-slate-500 hover:text-white bg-[#020617] border border-slate-800 hover:border-slate-700 rounded-xl transition-colors"
+                className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-white bg-[#020617] border border-slate-800 hover:border-slate-700 rounded-xl transition-colors"
               >
                 ✕
               </button>
