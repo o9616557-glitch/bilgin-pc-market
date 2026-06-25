@@ -138,6 +138,7 @@ export default function SiparisClient() {
 
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
         
+        {/* SOL MENÜ */}
         <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10 hidden sm:flex">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-xl p-3 sm:p-4 shadow-xl">
             <nav className="flex flex-col gap-1">
@@ -154,9 +155,13 @@ export default function SiparisClient() {
           </div>
         </div>
 
+        {/* SAĞ İÇERİK */}
         <div className="flex-1 flex flex-col min-w-0 w-full relative">
           
           {selectedOrder ? (
+            /* =================================================================================== */
+            /* 🚀 DETAY EKRANI */
+            /* =================================================================================== */
             <div className="flex flex-col gap-5 animate-in slide-in-from-right-8 fade-in duration-300">
               
               <div className="sticky top-[60px] lg:top-24 z-50 bg-[#050814]/95 backdrop-blur-xl py-3 border-b border-slate-800/80 -mx-4 px-4 sm:mx-0 sm:px-0 sm:border-none sm:bg-transparent sm:py-0 w-full mb-2">
@@ -310,11 +315,12 @@ export default function SiparisClient() {
             </div>
 
           ) : (
+            /* =================================================================================== */
+            /* 🚀 ANA LİSTE EKRANI */
+            /* =================================================================================== */
             <div className="flex flex-col gap-5 animate-in fade-in duration-300">
               
-              {/* 🚀 BİNGO: FİLTRE KUTUSU z-50 YAPILDI VE OVERFLOW-HIDDEN KALDIRILDI */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative flex flex-col gap-5 z-50">
-                {/* Glow Efekti Arkaplanda Ayrı Bir Wrapper İçinde */}
                 <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
                   <div className="absolute -top-20 -right-20 w-64 h-64 bg-cyan-500/10 blur-[60px] rounded-full"></div>
                 </div>
@@ -411,67 +417,65 @@ export default function SiparisClient() {
                   <button onClick={() => { setZamanFiltresi("tumu"); setDurumFiltresi("tumu"); }} className="text-cyan-400 hover:text-cyan-300 font-bold text-xs underline underline-offset-4">Filtreleri Temizle</button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 gap-4 relative z-0">
+                <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-6 relative z-0">
                   {filtrelenmisSiparisler.map((order: any) => {
                     const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase();
                     const durumMetni = order.durum || order.status || "";
                     const firstItem = order.items && order.items.length > 0 ? order.items[0] : null;
 
                     return (
-                      <div key={order._id} className="flex flex-col sm:flex-row sm:items-center gap-4 bg-[#0f172a] border border-slate-800 hover:border-cyan-500/40 p-4 rounded-xl transition-all duration-300">
-                        <div className="flex items-center gap-4">
-                          <div className="w-16 h-16 shrink-0 bg-[#020617] border border-slate-800 rounded-lg flex items-center justify-center p-2 relative overflow-hidden">
+                      <div key={order._id} className="flex flex-col gap-4 bg-[#0f172a] border border-slate-800 hover:border-cyan-500/50 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(6,182,212,0.1)] p-5 rounded-2xl transition-all duration-300">
+                        
+                        <div className="flex justify-between items-center border-b border-slate-800/60 pb-3">
+                          <span className="text-[11px] font-bold text-slate-400 flex items-center gap-1.5">
+                            <Calendar className="w-3.5 h-3.5" />
+                            {new Date(order.createdAt || order.tarih).toLocaleDateString("tr-TR")}
+                          </span>
+                          <DurumRozetiGoster durum={durumMetni} />
+                        </div>
+
+                        <div className="flex items-start gap-4 mt-1">
+                          <div className="w-20 h-20 shrink-0 bg-[#020617] border border-slate-800 rounded-xl flex items-center justify-center p-2 relative overflow-hidden">
                             {firstItem && (firstItem.image || firstItem.resim) ? (
                               <img src={firstItem.image || firstItem.resim} alt="Ürün" className="w-full h-full object-contain drop-shadow-md z-10" />
                             ) : (
-                              <PackageOpen className="w-6 h-6 text-slate-500" />
+                              <PackageOpen className="w-7 h-7 text-slate-500" />
                             )}
                             {order.items?.length > 1 && (
-                              <div className="absolute bottom-0 inset-x-0 bg-[#0f172a]/95 text-cyan-400 text-[9px] font-black py-0.5 text-center z-20 border-t border-slate-800">
+                              <div className="absolute bottom-0 inset-x-0 bg-[#0f172a]/95 text-cyan-400 text-[10px] font-black py-0.5 text-center z-20 border-t border-slate-800">
                                 {order.items.length} Ürün
                               </div>
                             )}
                           </div>
-                          <div className="flex flex-col sm:hidden">
-                            <div className="flex items-center gap-2 mb-0.5">
-                              <span className="text-xs font-black text-cyan-400">{currentSiparisKodu}</span>
-                            </div>
-                            <p className="text-[10px] text-slate-500 font-medium">{new Date(order.createdAt || order.tarih).toLocaleDateString("tr-TR")}</p>
-                          </div>
-                        </div>
-
-                        <div className="flex-grow flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full overflow-hidden">
-                          <div className="hidden sm:flex flex-col flex-1 min-w-0 pr-4">
-                            <div className="flex items-center gap-2 mb-0.5">
-                              <span className="text-xs font-black text-cyan-400 uppercase tracking-widest">{currentSiparisKodu}</span>
+                          
+                          <div className="flex flex-col flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1.5">
+                              <span className="text-xs font-black text-cyan-400 uppercase tracking-widest">#{currentSiparisKodu}</span>
                               <button onClick={(e) => handleCopy(currentSiparisKodu, e)} className="text-slate-500 hover:text-cyan-400 transition-colors">
                                  {copiedCode === currentSiparisKodu ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                               </button>
                             </div>
-                            <p className="text-[11px] text-slate-300 font-medium truncate w-full max-w-[200px] lg:max-w-[300px]">
+                            <p className="text-[12px] text-slate-300 font-medium line-clamp-2 leading-relaxed">
                               {firstItem?.title || firstItem?.isim || "Ürün"}
                             </p>
                           </div>
-
-                          <div className="flex flex-col sm:items-center gap-2 shrink-0">
-                            <DurumRozetiGoster durum={durumMetni} />
-                          </div>
-
-                          <div className="flex items-center justify-between sm:justify-end gap-4 border-t border-slate-800 sm:border-0 pt-3 sm:pt-0 shrink-0">
-                            <div className="flex flex-col items-start sm:items-end">
-                              <span className="text-[9px] text-slate-500 font-black uppercase tracking-widest">TOPLAM</span>
-                              <p className="text-sm font-black text-white whitespace-nowrap">
-                                {Number(order.totalPrice || order.toplamTutar).toLocaleString("tr-TR")} <span className="text-[10px] text-slate-500">TL</span>
-                              </p>
-                            </div>
-                            <button
-                              onClick={() => setSelectedOrder(order)} 
-                              className="flex items-center gap-1.5 px-4 py-2 bg-cyan-600/10 hover:bg-cyan-600 hover:text-white text-cyan-400 border border-cyan-500/20 rounded-lg transition-all font-black text-[10px] uppercase tracking-widest shrink-0"
-                            >
-                              Sipariş Detayı <ChevronRight className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
                         </div>
+
+                        <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-800/60">
+                          <div className="flex flex-col">
+                            <span className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-0.5">TOPLAM TUTAR</span>
+                            <p className="text-base font-black text-white whitespace-nowrap">
+                              {Number(order.totalPrice || order.toplamTutar).toLocaleString("tr-TR")} <span className="text-xs text-slate-500">TL</span>
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => setSelectedOrder(order)} 
+                            className="flex items-center gap-1.5 px-5 py-2.5 bg-cyan-600/10 hover:bg-cyan-600 hover:text-white text-cyan-400 border border-cyan-500/20 rounded-xl transition-all font-black text-[10px] uppercase tracking-widest shrink-0"
+                          >
+                            Detay <ChevronRight className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                        
                       </div>
                     );
                   })}
@@ -481,6 +485,25 @@ export default function SiparisClient() {
           )}
         </div>
       </div>
+
+      {orderToDelete && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-red-500/10 blur-[40px] pointer-events-none rounded-full"></div>
+            <div className="w-16 h-16 rounded-full border border-red-500/20 flex items-center justify-center mb-5 bg-red-500/10 relative z-10">
+              <Trash2 className="w-7 h-7 text-red-400 animate-pulse" />
+            </div>
+            <h3 className="text-lg font-black text-white uppercase tracking-wider mb-2 relative z-10">Siparişi Geçmişten Sil</h3>
+            <p className="text-slate-400 text-sm mb-6 font-medium leading-relaxed relative z-10">
+              Bu siparişi geçmişinizden kalıcı olarak silmek istediğinize emin misiniz?
+            </p>
+            <div className="flex w-full gap-3 relative z-10">
+              <button onClick={() => setOrderToDelete(null)} className="flex-1 bg-[#020617] border border-slate-800 hover:bg-slate-800/50 text-slate-400 hover:text-white font-bold py-3.5 rounded-xl transition-all text-xs uppercase tracking-wider">İptal</button>
+              <button onClick={confirmDelete} className="flex-1 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold py-3.5 rounded-xl transition-all text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(220,38,38,0.2)]">Evet, Sil</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
