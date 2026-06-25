@@ -6,7 +6,8 @@ import { useSession } from "next-auth/react";
 import { 
   User, ShieldCheck, CreditCard, Headset, 
   PlusCircle, MessageSquare, CheckCircle2, Clock, 
-  AlertCircle, ChevronRight, ChevronDown, PackageX, Wrench, Send, X, Loader2, Trash2
+  AlertCircle, ChevronRight, ChevronDown, PackageX, Wrench, Send, X, Loader2, Trash2,
+  MapPin, Truck, Search, Star, Monitor, Package, Headphones
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -218,10 +219,9 @@ useEffect(() => {
     <>
       <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-indigo-600 blur-[250px] opacity-[0.07] pointer-events-none rounded-full"></div>
-
-       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
+<div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
           
-          {/* 🚀 1. DEĞİŞİM: PANO MOBİLDE YATAY KAYACAK (Siparişlerim Gibi) */}
+          {/* 🚀 PANO MOBİLDE YATAY KAYACAK (Siparişlerim Gibi) */}
           <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
             <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-xl p-2 sm:p-4 shadow-xl overflow-x-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
               <nav className="flex flex-row lg:flex-col gap-1.5 min-w-max lg:min-w-0">
@@ -240,23 +240,36 @@ useEffect(() => {
 
           <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
             
-            {/* 🚀 2. DEĞİŞİM: SİPARİŞLERİM'DEKİ TURKUAZ (CYAN) FASULYE MENÜ BURAYA EKLENDİ (Sadece Mobilde Görünür) */}
-            <div className="flex lg:hidden flex-nowrap items-center gap-3 w-full overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
+            {/* 🚀 BİNGO: TURKUAZ (CYAN) FASULYE MENÜ EKLENDİ (HEM PC HEM MOBİL İÇİN BİREBİR AYNISI) */}
+            <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pt-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
+              
               <Link href="/adreslerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
-                Adresler
+                <MapPin className="w-4 h-4 text-cyan-500" /> Adresler
               </Link>
+
               <Link href="/siparislerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
-                Siparişler
+                <Package className="w-4 h-4 text-cyan-500" /> Siparişler
               </Link>
+
+              <Link href="/kargolarim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+                <Truck className="w-4 h-4 text-cyan-500" /> Kargolar
+              </Link>
+
               <Link href="/siparis-takip" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
-                Sorgula
+                <Search className="w-4 h-4 text-cyan-500" /> Sorgula
               </Link>
+
               <Link href="/favorilerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
-                Favoriler
+                <Star className="w-4 h-4 text-cyan-500" /> Favoriler
               </Link>
+
+              <Link href="/sistemlerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+                <Monitor className="w-4 h-4 text-cyan-500" /> Sistemler
+              </Link>
+
             </div>
 
-            {/* DESTEK ÇÖZÜM MERKEZİ KUTUSU (Aynı Kaldı) */}
+            {/* DESTEK ÇÖZÜM MERKEZİ KUTUSU */}
             <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 lg:p-8 shadow-xl relative overflow-hidden group flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
               <div className="absolute -top-20 -right-20 w-64 h-64 bg-indigo-500/10 blur-[60px] pointer-events-none rounded-full"></div>
               <div className="flex items-center gap-3 sm:gap-4 relative z-10">
