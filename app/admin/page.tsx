@@ -118,6 +118,18 @@ export default function AdminPaneli() {
       const data = await res.json();
       if (data.success) setTalepler(data.talepler);
     } catch (e) {}
+    // 🚀 BİNGO: ADMİN RADARI (Sayfayı yenilemeden 5 saniyede bir yeni mesajları çeker)
+  useEffect(() => {
+    talepleriGetir(); // Sayfa ilk açıldığında 1 kere hemen çeker
+    
+    // 5000 milisaniye (5 saniye) aralıklarla arkadan sessizce günceller
+    const radar = setInterval(() => {
+      talepleriGetir();
+    }, 5000); 
+
+    // Sen başka sayfaya geçersen motoru durdurur (sistemi yormaz)
+    return () => clearInterval(radar); 
+  }, []); // <-- Buradaki boş köşeli parantez çok önemli, sadece sayfa açılınca motoru 1 kez kurar.
   };
 
 const talepCevapGonder = async (id: string) => {
