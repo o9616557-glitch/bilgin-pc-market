@@ -270,23 +270,31 @@ useEffect(() => {
 
             </div>
 
-            {/* 🚀 BİNGO: DESTEK ÇÖZÜM MERKEZİ KUTUSU KÜÇÜLTÜLDÜ (Zarif Tasarım) */}
-            <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-4 sm:p-5 shadow-xl relative overflow-hidden group flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div className="absolute -top-20 -right-20 w-64 h-64 bg-indigo-500/10 blur-[60px] pointer-events-none rounded-full"></div>
+           {/* 🚀 BİNGO: DESTEK KUTUSU SİPARİŞLERİM İLE BİREBİR AYNI OLDU (Yapı, Boşluklar, Alt Yazı Klonlandı) */}
+            <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative flex flex-col gap-5 z-40">
+              <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
+                <div className="absolute -top-20 -right-20 w-64 h-64 bg-indigo-500/10 blur-[60px] rounded-full"></div>
+              </div>
               
-              <div className="flex items-center gap-3 relative z-10">
-                <div className="w-10 h-10 bg-[#020617] border border-indigo-500/30 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.2)] shrink-0">
-                  <Headset className="w-4 h-4 text-indigo-400" />
+              <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5 relative z-10">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="w-12 h-12 bg-[#020617] border border-indigo-500/30 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.2)] shrink-0">
+                    <Headset className="w-5 h-5 text-indigo-400" />
+                  </div>
+                  <div>
+                    <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-0.5">Destek Çözüm Merkezi</h1>
+                    <p className="text-indigo-400/80 text-xs font-medium tracking-wide">
+                      Aktif İşlem: <span className="font-black text-indigo-400">{acikTalepler.length}</span> Talep
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h1 className="text-lg sm:text-xl font-black text-white tracking-tight mb-0.5">Destek Çözüm Merkezi</h1>
-                  <p className="text-indigo-400/80 text-[10px] sm:text-xs font-medium tracking-wide">Sorunlarınızı en hızlı şekilde çözmek için buradayız.</p>
+
+                <div className="flex flex-row items-center gap-2 sm:gap-3 w-full xl:w-auto relative z-50">
+                  <button onClick={() => setYeniTalepModal(true)} className="w-full xl:w-auto flex items-center justify-center gap-1.5 sm:gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 border border-indigo-500/30 rounded-lg px-4 sm:px-6 py-3 transition-colors text-[10px] sm:text-xs text-white font-black uppercase tracking-widest shadow-lg">
+                    <PlusCircle className="w-4 h-4 shrink-0" /> YENİ TALEP
+                  </button>
                 </div>
               </div>
-
-              <button onClick={() => setYeniTalepModal(true)} className="relative z-10 w-full sm:w-auto flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all shrink-0">
-                <PlusCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> YENİ TALEP
-              </button>
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
