@@ -3,11 +3,13 @@
 import React, { useState, useEffect } from "react";
 import { 
   MapPin, Plus, Trash2, ArrowLeft, Mail, Phone, Edit2, X, 
-  User, ShieldCheck, CreditCard, Loader2
+  User, ShieldCheck, CreditCard, Loader2,
+  Truck, Search, Star, Monitor, Package, Calendar, PackageX, Copy
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useOrders } from "@/app/OrderContext";
 
 interface Address {
   _id: string;
@@ -29,6 +31,10 @@ interface Props {
 export default function AdresYoneticisi({ initialAddresses }: Props) {
   const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
   const router = useRouter();
+  
+  // 🚀 BİNGO: Kargo Popup State'leri ve Gerçek Sipariş Motoru
+  const [kargoPopupAcik, setKargoPopupAcik] = useState(false);
+  const { orders: localOrders } = useOrders();
   
   // 🚀 ADRESLERİ SIKI SIKIYA TUTAN HAFIZA (Motor Aynı)
   const [addresses, setAddresses] = useState<Address[]>(initialAddresses);
@@ -147,33 +153,77 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
           </div>
         </div>
 
-        {/* ➡️ SAĞ İÇERİK (Adres Yönetimi Merkezi) */}
-        <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
+      {/* ➡️ SAĞ İÇERİK (Adres Yönetimi Merkezi) */}
+        <div className="flex-1 flex flex-col min-w-0 w-full relative">
           
-          {/* 🚀 HERO ALANI */}
-          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 lg:p-8 shadow-xl relative overflow-hidden group flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-            <div className="absolute -top-20 -right-20 w-64 h-64 bg-cyan-500/10 blur-[60px] pointer-events-none rounded-full"></div>
+          <div className="flex flex-col gap-5 animate-in fade-in duration-300">
             
-            <div className="flex items-center gap-3 sm:gap-4 relative z-10">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#020617] border border-cyan-500/30 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.2)] shrink-0">
-                <MapPin className="w-6 h-6 sm:w-8 sm:h-8 text-cyan-400" />
-              </div>
-              <div>
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight mb-0.5 sm:mb-1">Adres Yönetimi</h1>
-                <p className="text-cyan-400/80 text-xs sm:text-sm font-medium tracking-wide">
-                  Kayıtlı: <span className="font-black text-cyan-400">{addresses.length}</span> Adres
-                </p>
-              </div>
+            {/* 🚀 BİNGO: TURKUAZ (CYAN) FASULYE MENÜ */}
+            <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pt-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
+              
+              <Link href="/adreslerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+                <MapPin className="w-4 h-4 text-cyan-500" /> Adresler
+              </Link>
+
+              <Link href="/siparislerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+                <Package className="w-4 h-4 text-cyan-500" /> Siparişler
+              </Link>
+
+              {/* 🚀 BİNGO: Kargolar BUTONU VE CANLI SAYAÇ */}
+              <button onClick={() => setKargoPopupAcik(true)} className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none relative">
+                <Truck className="w-4 h-4 text-cyan-500" /> Kargolar
+                {localOrders.filter(o => (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo")).length > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-cyan-500 text-[9px] font-bold text-white shadow-lg">
+                    {localOrders.filter(o => (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo")).length}
+                  </span>
+                )}
+              </button>
+
+              <Link href="/siparis-takip" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+                <Search className="w-4 h-4 text-cyan-500" /> Sorgula
+              </Link>
+
+              <Link href="/favorilerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+                <Star className="w-4 h-4 text-cyan-500" /> Favoriler
+              </Link>
+
+              <Link href="/sistemlerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+                <Monitor className="w-4 h-4 text-cyan-500" /> Sistemler
+              </Link>
+
             </div>
 
-            {!showForm && (
-              <button 
-                onClick={() => { setFormData(formBaslangic); setEditingId(null); setShowForm(true); }}
-                className="relative z-10 w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 sm:py-3.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black text-xs sm:text-sm uppercase tracking-widest transition-all shadow-[0_0_25px_rgba(6,182,212,0.3)] shrink-0"
-              >
-                <Plus className="w-4 h-4 sm:w-5 sm:h-5" /> YENİ ADRES EKLE
-              </button>
-            )}
+            {/* 🚀 BİNGO: ADRES KUTUSU SİPARİŞLERİM İLE BİREBİR AYNI OLDU (Yapı, Boşluklar, xl:flex-row Klonlandı) */}
+            <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative flex flex-col gap-5 z-40">
+              <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
+                <div className="absolute -top-20 -right-20 w-64 h-64 bg-cyan-500/10 blur-[60px] rounded-full"></div>
+              </div>
+              
+              <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5 relative z-10">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="w-12 h-12 bg-[#020617] border border-cyan-500/30 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.2)] shrink-0">
+                    <MapPin className="w-5 h-5 text-cyan-400" />
+                  </div>
+                  <div>
+                    <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-0.5">Adres Yönetimi</h1>
+                    <p className="text-cyan-400/80 text-xs font-medium tracking-wide">
+                      Kayıtlı: <span className="font-black text-cyan-400">{addresses.length}</span> Adres
+                    </p>
+                  </div>
+                </div>
+
+                {!showForm && (
+                  <div className="flex flex-row items-center gap-2 sm:gap-3 w-full xl:w-auto relative z-50">
+                    <button 
+                      onClick={() => { setFormData(formBaslangic); setEditingId(null); setShowForm(true); }}
+                      className="w-full xl:w-auto flex items-center justify-center gap-1.5 sm:gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 border border-cyan-500/30 rounded-lg px-4 sm:px-6 py-3 transition-colors text-[10px] sm:text-xs text-white font-black uppercase tracking-widest shadow-lg"
+                    >
+                      <Plus className="w-4 h-4 shrink-0" /> YENİ ADRES EKLE
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* 🚀 FORM ALANI (Modernize Edildi) */}
@@ -315,8 +365,7 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
               ))}
             </div>
           )}
-
-          {/* 🚀 SİLME MODALI */}
+{/* 🚀 SİLME MODALI */}
           {addressToDelete && (
             <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
               <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden animate-in zoom-in-95 duration-200">
@@ -341,6 +390,81 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
             </div>
           )}
 
+         {/* 🚀 BİNGO: KARGOLAR POPUP'I (MİLİMETRİK HİZALANDI) */}
+          {kargoPopupAcik && (
+            <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+              <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.9)] relative overflow-hidden animate-in zoom-in-95 duration-200 max-h-[85vh]">
+                <div className="absolute -top-10 -right-10 w-32 h-32 bg-cyan-500/10 blur-[40px] pointer-events-none rounded-full"></div>
+                
+                <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-4 relative z-10 shrink-0">
+                  <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider flex items-center gap-2">
+                    <Truck className="w-5 h-5 text-cyan-400" /> Aktif Kargolarınız
+                  </h3>
+                  <button 
+                    onClick={() => setKargoPopupAcik(false)} 
+                    className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-white bg-[#020617] border border-slate-800 hover:border-slate-700 rounded-xl transition-colors"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto pr-1 space-y-4 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
+                  {(() => {
+                    const kargoSiparisleri = localOrders.filter(o => (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo"));
+                    
+                    if (kargoSiparisleri.length === 0) {
+                      return (
+                        <div className="text-center py-10 flex flex-col items-center justify-center relative z-10">
+                          <div className="w-16 h-16 rounded-full border border-slate-800 flex items-center justify-center mb-4 bg-[#020617]">
+                            <PackageX className="w-7 h-7 text-slate-600" />
+                          </div>
+                          <p className="text-slate-400 font-medium text-sm">Şu an yolda olan aktif kargonuz bulunmuyor.</p>
+                        </div>
+                      );
+                    }
+
+                    return kargoSiparisleri.map((siparis: any, idx: number) => {
+                      const siparisKodu = siparis.siparisKodu || siparis.orderNumber || siparis._id?.slice(-8).toUpperCase() || "SİPARİŞ";
+                      const tarih = siparis.createdAt ? new Date(siparis.createdAt).toLocaleDateString("tr-TR") : siparis.tarih ? new Date(siparis.tarih).toLocaleDateString("tr-TR") : "";
+                      const firma = siparis.kargoFirmasi || siparis.shippingCompany || "Belirtilmemiş";
+                      const takipNo = siparis.takipNo || siparis.kargoTakipNo || siparis.trackingNumber || "Takip No Girilmemiş";
+
+                      return (
+                        <div key={siparis._id || idx} className="bg-[#020617] border border-slate-800/80 p-4 rounded-2xl flex flex-col gap-4 group hover:border-cyan-500/30 transition-colors relative z-10 mb-2">
+                          <div className="flex justify-between items-center border-b border-slate-800/50 pb-3">
+                            <span className="text-xs font-black text-cyan-400 uppercase tracking-widest">#{siparisKodu}</span>
+                            <span className="text-[10px] font-bold text-slate-500 flex items-center gap-1"><Calendar className="w-3 h-3"/> {tarih}</span>
+                          </div>
+
+                          <div className="flex flex-col gap-3">
+                            <div className="flex justify-between items-center text-xs">
+                              <span className="text-slate-500 font-medium">Kargo Firması</span>
+                              <span className="font-bold text-white px-2 py-1 bg-[#0f172a] rounded-md border border-slate-800">{firma}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-xs">
+                              <span className="text-slate-500 font-medium">Takip Numarası</span>
+                              <div className="flex items-center gap-2 px-2 py-1 bg-cyan-950/20 rounded-md border border-cyan-500/20">
+                                <span className="font-black text-cyan-400">{takipNo}</span>
+                                {takipNo !== "Takip No Girilmemiş" && (
+                                  <button onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigator.clipboard.writeText(takipNo);
+                                    toast.success("Takip numarası kopyalandı!");
+                                  }} className="text-cyan-600 hover:text-cyan-300 transition-colors">
+                                    <Copy className="w-3.5 h-3.5" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
