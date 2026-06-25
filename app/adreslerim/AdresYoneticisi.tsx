@@ -142,7 +142,7 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
 
   return (
     <>
-    <div className="min-h-[100dvh] bg-[#020617] text-white font-sans p-4 pb-28 sm:p-6 lg:p-8 relative overflow-clip">
+      <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip">
         {/* 🚀 ARKA PLAN PARLAMASI */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-cyan-600 blur-[250px] opacity-[0.05] pointer-events-none rounded-full z-0"></div>
 
