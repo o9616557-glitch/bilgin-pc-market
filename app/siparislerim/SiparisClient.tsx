@@ -564,19 +564,76 @@ export default function SiparisClient() {
         </div>
       )}
 
-      {/* 🚀 BİNGO: KARGOLAR POPUP'I BURAYA EKLENDİ */}
+   {/* 🚀 BİNGO: KARGOLAR POPUP'I DİNAMİK YAPILDI (Veritabanındaki Firma ve Takip No'yu Çeker) */}
       {kargoPopupAcik && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-          <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+          <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.9)] relative overflow-hidden animate-in zoom-in-95 duration-200 max-h-[85vh]">
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-cyan-500/10 blur-[40px] pointer-events-none rounded-full"></div>
-            <div className="w-16 h-16 rounded-full border border-cyan-500/20 flex items-center justify-center mb-5 bg-cyan-500/10 relative z-10">
-              <Truck className="w-7 h-7 text-cyan-400" />
+            
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-4 relative z-10 shrink-0">
+              <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider flex items-center gap-2">
+                <Truck className="w-5 h-5 text-cyan-400" /> Aktif Kargolarınız
+              </h3>
+              <button 
+                onClick={() => setKargoPopupAcik(false)} 
+                className="p-2 text-slate-500 hover:text-white bg-[#020617] border border-slate-800 hover:border-slate-700 rounded-xl transition-colors"
+              >
+                ✕
+              </button>
             </div>
-            <h3 className="text-lg font-black text-white uppercase tracking-wider mb-2 relative z-10">Kargo Durumu</h3>
-            <p className="text-slate-400 text-sm mb-6 font-medium leading-relaxed relative z-10">
-              Şu anda kargoda olan <span className="font-bold text-cyan-400">{localOrders.filter(o => (o.durum || o.status || "").toLowerCase().includes("kargo")).length}</span> siparişiniz bulunuyor. (Kargo şirketinden canlı veriler çekiliyor...)
-            </p>
-            <button onClick={() => setKargoPopupAcik(false)} className="w-full bg-[#020617] border border-slate-800 hover:bg-slate-800/50 text-slate-400 hover:text-white font-bold py-3.5 rounded-xl transition-all text-xs uppercase tracking-wider">Kapat</button>
+
+            <div className="flex-1 overflow-y-auto pr-1 space-y-4 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
+              {(() => {
+                const kargoSiparisleri = localOrders.filter(o => (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo"));
+                
+                if (kargoSiparisleri.length === 0) {
+                  return (
+                    <div className="text-center py-10 flex flex-col items-center justify-center relative z-10">
+                      <div className="w-16 h-16 rounded-full border border-slate-800 flex items-center justify-center mb-4 bg-[#020617]">
+                        <PackageX className="w-7 h-7 text-slate-600" />
+                      </div>
+                      <p className="text-slate-400 font-medium text-sm">Şu an yolda olan aktif kargonuz bulunmuyor.</p>
+                    </div>
+                  );
+                }
+
+                return kargoSiparisleri.map((siparis: any, idx: number) => {
+                  const siparisKodu = siparis.siparisKodu || siparis.orderNumber || siparis._id?.slice(-8).toUpperCase() || "SİPARİŞ";
+                  const tarih = siparis.createdAt ? new Date(siparis.createdAt).toLocaleDateString("tr-TR") : siparis.tarih ? new Date(siparis.tarih).toLocaleDateString("tr-TR") : "";
+                  const firma = siparis.kargoFirmasi || siparis.shippingCompany || "Belirtilmemiş";
+                  const takipNo = siparis.takipNo || siparis.kargoTakipNo || siparis.trackingNumber || "Takip No Girilmemiş";
+
+                  return (
+                    <div key={siparis._id || idx} className="bg-[#020617] border border-slate-800/80 p-4 rounded-2xl flex flex-col gap-4 group hover:border-cyan-500/30 transition-colors relative z-10">
+                      
+                      <div className="flex justify-between items-center border-b border-slate-800/50 pb-3">
+                        <span className="text-xs font-black text-cyan-400 uppercase tracking-widest">#{siparisKodu}</span>
+                        <span className="text-[10px] font-bold text-slate-500 flex items-center gap-1"><Calendar className="w-3 h-3"/> {tarih}</span>
+                      </div>
+
+                      <div className="flex flex-col gap-3">
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-slate-500 font-medium">Kargo Firması</span>
+                          <span className="font-bold text-white px-2 py-1 bg-[#0f172a] rounded-md border border-slate-800">{firma}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-slate-500 font-medium">Takip Numarası</span>
+                          <div className="flex items-center gap-2 px-2 py-1 bg-cyan-950/20 rounded-md border border-cyan-500/20">
+                            <span className="font-black text-cyan-400">{takipNo}</span>
+                            {takipNo !== "Takip No Girilmemiş" && (
+                              <button onClick={(e) => handleCopy(takipNo, e)} className="text-cyan-600 hover:text-cyan-300 transition-colors">
+                                <Copy className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  );
+                });
+              })()}
+            </div>
           </div>
         </div>
       )}
