@@ -23,7 +23,8 @@ export default function AdminPaneli() {
   }, [session, status, router]);
 
   const [sifre, setSifre] = useState("");
-const [girisYapildi, setGirisYapildi] = useState(true);
+  // 🚀 Şifre ekranı atlandı
+  const [girisYapildi, setGirisYapildi] = useState(true);
   const [aktifSekme, setAktifSekme] = useState<"siparisler" | "urunler" | "yorumlar" | "talepler">("siparisler");
   const [yukleniyor, setYukleniyor] = useState(true);
 
@@ -32,7 +33,7 @@ const [girisYapildi, setGirisYapildi] = useState(true);
   const [silinecekSiparisID, setSilinecekSiparisID] = useState<string | null>(null);
   const [guncellenenID, setGuncellenenID] = useState<string | null>(null); 
 
-  // DESTEK TALEPLERİ STATE'LERİ (YENİ EKLENDİ) 🚀
+  // DESTEK TALEPLERİ STATE'LERİ 🚀
   const [talepler, setTalepler] = useState<any[]>([]);
   const [talepCevaplari, setTalepCevaplari] = useState<{ [key: string]: string }>({});
   const [silinecekTalepID, setSilinecekTalepID] = useState<string | null>(null);
@@ -56,10 +57,10 @@ const [girisYapildi, setGirisYapildi] = useState(true);
   const [silinecekYorumID, setSilinecekYorumID] = useState<string | null>(null);
 
   const PATRON_SIFRESI = "Bilgin123";
-// 🚀 BİNGO: OTOMATİK AŞAĞI KAYDIRMA MOTORU
+
+  // 🚀 BİNGO: OTOMATİK AŞAĞI KAYDIRMA MOTORU
   useEffect(() => {
     const asagiKaydir = () => {
-      // document tanımlı mı diye kontrol eder (Next.js hata vermesin diye)
       if (typeof document !== 'undefined') {
         const kutular = document.querySelectorAll('.admin-sohbet-kutusu');
         kutular.forEach((kutu) => {
@@ -68,26 +69,22 @@ const [girisYapildi, setGirisYapildi] = useState(true);
       }
     };
     
-    // Mesajın ekrana gelme süresine karşı 2 kere garanti vuruş yapar
     setTimeout(asagiKaydir, 100);
     setTimeout(asagiKaydir, 500);
   }, [talepler]);
+
+  // 🚀 YENİ ANA MOTOR: Sayfa açıldığı an sorgusuz sualsiz tüm verileri çeker
   useEffect(() => {
-    const patronGirdiMi = sessionStorage.getItem("patronGiris");
-    if (patronGirdiMi === "basarili") {
-      setGirisYapildi(true);
-      verileriYukle();
-    } else {
-      setYukleniyor(false);
-    }
+    verileriYukle();
   }, []);
 
   const verileriYukle = async () => {
     setYukleniyor(true);
-    await siparisleriGetir();
-    await urunleriGetir();
-    await yorumlariGetir();
-    await talepleriGetir(); // Yeni Destek Sistemi
+    // Varsa fonksiyonları çalıştır (hata vermemesi için typeof ile kontrol edildi)
+    if (typeof siparisleriGetir === "function") await siparisleriGetir();
+    if (typeof urunleriGetir === "function") await urunleriGetir();
+    if (typeof yorumlariGetir === "function") await yorumlariGetir();
+    if (typeof talepleriGetir === "function") await talepleriGetir(); 
     setYukleniyor(false);
   };
 
@@ -104,7 +101,6 @@ const [girisYapildi, setGirisYapildi] = useState(true);
   };
 
   const cikisYap = () => { sessionStorage.removeItem("patronGiris"); setGirisYapildi(false); };
-
   // --- SİPARİŞ İŞLEMLERİ ---
   const siparisGuncelle = async (siparisId: string) => {
     try {
