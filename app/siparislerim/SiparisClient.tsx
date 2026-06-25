@@ -26,7 +26,6 @@ export default function SiparisClient() {
   const [zamanFiltresi, setZamanFiltresi] = useState<string>("tumu");
   const [durumFiltresi, setDurumFiltresi] = useState<string>("tumu");
 
-  // 🚀 BİNGO: Özel Tasarım Açılır Menüler (Dropdown) İçin Stateler
   const [zamanAcik, setZamanAcik] = useState(false);
   const [durumAcik, setDurumAcik] = useState(false);
 
@@ -131,7 +130,6 @@ export default function SiparisClient() {
   return (
     <div className="min-h-screen bg-[#050814] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip animate-in fade-in duration-300">
       
-      {/* 🚀 EKRANDA HERHANGİ BİR YERE TIKLAYINCA AÇIK MENÜLERİ KAPATAN GÖRÜNMEZ PERDE */}
       {(zamanAcik || durumAcik) && (
         <div className="fixed inset-0 z-40" onClick={() => {setZamanAcik(false); setDurumAcik(false)}}></div>
       )}
@@ -140,7 +138,6 @@ export default function SiparisClient() {
 
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
         
-        {/* SOL MENÜ */}
         <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10 hidden sm:flex">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-xl p-3 sm:p-4 shadow-xl">
             <nav className="flex flex-col gap-1">
@@ -157,16 +154,11 @@ export default function SiparisClient() {
           </div>
         </div>
 
-        {/* SAĞ İÇERİK */}
         <div className="flex-1 flex flex-col min-w-0 w-full relative">
           
           {selectedOrder ? (
-            /* =================================================================================== */
-            /* 🚀 DETAY EKRANI */
-            /* =================================================================================== */
             <div className="flex flex-col gap-5 animate-in slide-in-from-right-8 fade-in duration-300">
               
-              {/* 🚀 KUSURSUZ YAPIŞKAN GERİ DÖN BUTONU */}
               <div className="sticky top-[60px] lg:top-24 z-50 bg-[#050814]/95 backdrop-blur-xl py-3 border-b border-slate-800/80 -mx-4 px-4 sm:mx-0 sm:px-0 sm:border-none sm:bg-transparent sm:py-0 w-full mb-2">
                 <button 
                   onClick={() => setSelectedOrder(null)} 
@@ -228,7 +220,6 @@ export default function SiparisClient() {
                         </Link>
                         
                         <div className="flex-1 flex flex-col h-full justify-between">
-                          {/* 🚀 BİNGO: Detay sayfasında ürün ismi tam görünecek (line-clamp kaldırıldı) */}
                           <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="text-xs sm:text-sm font-bold text-white hover:text-cyan-400 transition-colors leading-relaxed mb-2 block whitespace-normal break-words">
                             {item.title || item.isim}
                           </Link>
@@ -241,7 +232,6 @@ export default function SiparisClient() {
                         </div>
                       </div>
 
-                      {/* 🚀 BİNGO: KİBAR VE HİZALI BUTONLAR (PC'de ufak, Telefonda ızgara) */}
                       <div className="grid grid-cols-2 sm:flex sm:flex-row sm:justify-end sm:flex-wrap items-center gap-2 pt-3 border-t border-slate-800/50 mt-1">
                         {isTeslimEdildi && !isIptal && !iadeSuresiGectiMi && (
                           <Link href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade`} className="col-span-1 flex items-center justify-center gap-1.5 h-10 px-4 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[10px] uppercase tracking-widest w-full sm:w-max">
@@ -320,12 +310,14 @@ export default function SiparisClient() {
             </div>
 
           ) : (
-            /* =================================================================================== */
-            /* 🚀 ANA LİSTE EKRANI */
-            /* =================================================================================== */
             <div className="flex flex-col gap-5 animate-in fade-in duration-300">
-              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative overflow-hidden flex flex-col gap-5">
-                <div className="absolute -top-20 -right-20 w-64 h-64 bg-cyan-500/10 blur-[60px] pointer-events-none rounded-full"></div>
+              
+              {/* 🚀 BİNGO: FİLTRE KUTUSU z-50 YAPILDI VE OVERFLOW-HIDDEN KALDIRILDI */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative flex flex-col gap-5 z-50">
+                {/* Glow Efekti Arkaplanda Ayrı Bir Wrapper İçinde */}
+                <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
+                  <div className="absolute -top-20 -right-20 w-64 h-64 bg-cyan-500/10 blur-[60px] rounded-full"></div>
+                </div>
                 
                 <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5 relative z-10">
                   <div className="flex items-center gap-3 sm:gap-4">
@@ -340,7 +332,6 @@ export default function SiparisClient() {
                     </div>
                   </div>
 
-                  {/* 🚀 BİNGO: ÖZEL TASARIM DROPDOWN FİLTRELERİ */}
                   <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto relative z-50">
                     
                     {/* Zaman Filtresi */}
@@ -357,7 +348,7 @@ export default function SiparisClient() {
                       </button>
                       
                       {zamanAcik && (
-                        <div className="absolute top-full mt-1.5 left-0 w-full bg-[#0f172a] border border-slate-700 rounded-lg shadow-2xl overflow-hidden py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                        <div className="absolute top-full mt-1.5 left-0 w-full bg-[#0f172a] border border-slate-700 rounded-lg shadow-2xl overflow-hidden py-1 z-[100] animate-in fade-in zoom-in-95 duration-100">
                           {zamanSecenekleri.map(secenek => (
                             <button
                               key={secenek.id}
@@ -385,7 +376,7 @@ export default function SiparisClient() {
                       </button>
 
                       {durumAcik && (
-                        <div className="absolute top-full mt-1.5 left-0 w-full bg-[#0f172a] border border-slate-700 rounded-lg shadow-2xl overflow-hidden py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                        <div className="absolute top-full mt-1.5 left-0 w-full bg-[#0f172a] border border-slate-700 rounded-lg shadow-2xl overflow-hidden py-1 z-[100] animate-in fade-in zoom-in-95 duration-100">
                           {durumSecenekleri.map(secenek => (
                             <button
                               key={secenek.id}
@@ -420,7 +411,7 @@ export default function SiparisClient() {
                   <button onClick={() => { setZamanFiltresi("tumu"); setDurumFiltresi("tumu"); }} className="text-cyan-400 hover:text-cyan-300 font-bold text-xs underline underline-offset-4">Filtreleri Temizle</button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 gap-4 relative z-0">
                   {filtrelenmisSiparisler.map((order: any) => {
                     const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase();
                     const durumMetni = order.durum || order.status || "";
@@ -457,7 +448,6 @@ export default function SiparisClient() {
                                  {copiedCode === currentSiparisKodu ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                               </button>
                             </div>
-                            {/* 🚀 BİNGO: LİSTEDE ÜRÜN İSMİ TEK SATIR OLACAK, TAŞAN NOKTA NOKTA OLACAK */}
                             <p className="text-[11px] text-slate-300 font-medium truncate w-full max-w-[200px] lg:max-w-[300px]">
                               {firstItem?.title || firstItem?.isim || "Ürün"}
                             </p>
