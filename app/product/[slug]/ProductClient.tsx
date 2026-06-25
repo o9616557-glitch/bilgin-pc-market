@@ -16,7 +16,23 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   
   // Varsayılan olarak Açıklama sekmesi açık gelecek
   const [activeTab, setActiveTab] = useState("aciklama");
-  
+  // 🚀 BİNGO: URL'DEN GELEN #yorumlar RADARI
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.hash === "#yorumlar") {
+      setActiveTab("yorumlar"); // Sekmeyi şak diye yorumlara atar
+      
+      // Animasyonun ve sekmenin yüklenmesi için 300ms bekleyip sayfayı aşağı kaydırır
+      setTimeout(() => {
+        if (tabsRef.current) {
+          const offset = 100;
+          const bodyRect = document.body.getBoundingClientRect().top;
+          const elementRect = tabsRef.current.getBoundingClientRect().top;
+          const elementPosition = elementRect - bodyRect;
+          window.scrollTo({ top: elementPosition - offset, behavior: "smooth" });
+        }
+      }, 300);
+    }
+  }, []);
   const [seciliCozunurluk, setSeciliCozunurluk] = useState("1080P");
   const [seciliIslemci, setSeciliIslemci] = useState("i5"); 
   const [videoOynatiliyor, setVideoOynatiliyor] = useState(false);
