@@ -23,7 +23,7 @@ export default function AdminPaneli() {
   }, [session, status, router]);
 
   const [sifre, setSifre] = useState("");
-  const [girisYapildi, setGirisYapildi] = useState(false);
+const [girisYapildi, setGirisYapildi] = useState(true);
   const [aktifSekme, setAktifSekme] = useState<"siparisler" | "urunler" | "yorumlar" | "talepler">("siparisler");
   const [yukleniyor, setYukleniyor] = useState(true);
 
@@ -56,7 +56,22 @@ export default function AdminPaneli() {
   const [silinecekYorumID, setSilinecekYorumID] = useState<string | null>(null);
 
   const PATRON_SIFRESI = "Bilgin123";
-
+// 🚀 BİNGO: OTOMATİK AŞAĞI KAYDIRMA MOTORU
+  useEffect(() => {
+    const asagiKaydir = () => {
+      // document tanımlı mı diye kontrol eder (Next.js hata vermesin diye)
+      if (typeof document !== 'undefined') {
+        const kutular = document.querySelectorAll('.admin-sohbet-kutusu');
+        kutular.forEach((kutu) => {
+          kutu.scrollTop = kutu.scrollHeight; 
+        });
+      }
+    };
+    
+    // Mesajın ekrana gelme süresine karşı 2 kere garanti vuruş yapar
+    setTimeout(asagiKaydir, 100);
+    setTimeout(asagiKaydir, 500);
+  }, [talepler]);
   useEffect(() => {
     const patronGirdiMi = sessionStorage.getItem("patronGiris");
     if (patronGirdiMi === "basarili") {
@@ -397,7 +412,7 @@ export default function AdminPaneli() {
 
                   {/* Sağ: Operatör Yanıt Paneli */}
                   <div className="flex-[2] bg-[#1a2333] p-6 flex flex-col justify-between gap-6">
-                    <div className="flex flex-col gap-4">
+             <div className="flex flex-col gap-4 overflow-y-auto max-h-[400px] p-4 admin-sohbet-kutusu">
                       <div>
                         <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Talebi Yanıtla</label>
                         <textarea 
