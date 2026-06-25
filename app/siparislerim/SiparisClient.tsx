@@ -7,7 +7,7 @@ import {
   User, ShieldCheck, CreditCard, PackageX, ChevronRight, Calendar,
   ArrowLeft, MessageSquare, ShoppingCart, Star, AlertCircle, Info, ChevronDown,
   MapPin, Search, Monitor, Headphones
-} from "lucide-react";
+} from "lucide-react"; 
 import Link from "next/link";
 import { useOrders } from "@/app/OrderContext"; 
 
@@ -28,6 +28,9 @@ export default function SiparisClient() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
+  
+  // 🚀 BİNGO: Kargo Popup'ı için state eklendi
+  const [kargoPopupAcik, setKargoPopupAcik] = useState<boolean>(false);
 
   const [zamanFiltresi, setZamanFiltresi] = useState<string>("tumu");
   const [durumFiltresi, setDurumFiltresi] = useState<string>("tumu");
@@ -144,7 +147,7 @@ export default function SiparisClient() {
 
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
         
-     {/* 🚀 BİNGO: SOL MENÜ (PANO) MOBİLDE ARTIK GÖRÜNÜYOR! Mobilde yatay kayar, PC'de dikey kalır. */}
+        {/* SOL MENÜ */}
         <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-xl p-2 sm:p-4 shadow-xl overflow-x-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
             <nav className="flex flex-row lg:flex-col gap-1.5 min-w-max lg:min-w-0">
@@ -169,7 +172,7 @@ export default function SiparisClient() {
             /* 🚀 DETAY EKRANI */
             /* =================================================================================== */
             <div className="flex flex-col gap-5 animate-in slide-in-from-right-8 fade-in duration-300">
-             {/* 🚀 BİNGO: Yapışkanlık (sticky) tamamen silindi, buton artık sadece yerinde duracak */}
+              
               <div className="w-full mb-4">
                 <button 
                   onClick={() => setSelectedOrder(null)} 
@@ -178,6 +181,7 @@ export default function SiparisClient() {
                   <ArrowLeft className="w-4 h-4" /> Siparişlerime Dön
                 </button>
               </div>
+
               <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="w-full md:w-auto">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1.5">
@@ -203,11 +207,11 @@ export default function SiparisClient() {
                   </div>
                 </div>
               </div>
-<h2 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2 mb-2">
+
+              <h2 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2 mb-2">
                 <PackageOpen className="w-4 h-4 text-cyan-500" /> Ürünler ({selectedOrder.items?.length || 0})
               </h2>
 
-         {/* 🚀 BİNGO: Kart içindeki boşluklar, resim-yazı dengesi ve buton ızgarası (Grid) kusursuzlaştırıldı! */}
               <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
                 {selectedOrder.items?.map((item: any, idx: number) => {
                   const isTeslimEdildi = (selectedOrder.durum || selectedOrder.status || "").toLowerCase().includes("teslim") || (selectedOrder.durum || selectedOrder.status || "").toLowerCase().includes("tamam");
@@ -217,7 +221,6 @@ export default function SiparisClient() {
                   const bugun = new Date();
                   const iadeSuresiGectiMi = bugun > iadeBitisTarihi;
                   
-                  // 🚀 EKSİK OLAN HESAPLAMA EKLENDİ
                   const iadeyeKalanGun = Math.ceil((iadeBitisTarihi.getTime() - bugun.getTime()) / (1000 * 60 * 60 * 24));
 
                   return (
@@ -246,7 +249,6 @@ export default function SiparisClient() {
                         </div>
                       </div>
 
-                      {/* 🚀 BİNGO: İADE SÜRESİ BİLGİ METNİ BURAYA EKLENDİ */}
                       {isTeslimEdildi && !isIptal && (
                         <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mt-1 -mb-1">
                           {iadeSuresiGectiMi ? (
@@ -257,9 +259,7 @@ export default function SiparisClient() {
                         </div>
                       )}
 
-                      {/* 🚀 BİNGO: Asla üst üste binmeyecek (zorunlu yan yana)! */}
                       <div className="flex flex-row items-center w-full gap-1.5 sm:gap-2 pt-3.5 border-t border-slate-800/50 mt-auto">
-                        
                         {isTeslimEdildi && (
                           <Link href={`/product/${item.slug || item.productId || item._id || ''}#yorumlar`} className="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 h-8 px-1 sm:px-2 bg-[#020617] hover:bg-slate-800/50 text-slate-300 hover:text-white border border-slate-700 rounded-md transition-all font-black text-[8px] sm:text-[9px] uppercase tracking-widest whitespace-nowrap">
                             <Star className="w-3 h-3 shrink-0" /> Yorumla
@@ -275,13 +275,13 @@ export default function SiparisClient() {
                             <RefreshCw className="w-3 h-3 shrink-0" /> İade Et
                           </Link>
                         )}
-                        
                       </div>
 
                     </div>
                   );
                 })}
               </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 shadow-lg flex flex-col justify-between">
                   <div>
@@ -337,12 +337,47 @@ export default function SiparisClient() {
             </div>
 
           ) : (
-      /* =================================================================================== */
+            /* =================================================================================== */
             /* 🚀 ANA LİSTE EKRANI */
             /* =================================================================================== */
             <div className="flex flex-col gap-5 animate-in fade-in duration-300">
               
-              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative flex flex-col gap-5 z-50">
+              {/* 🚀 BİNGO: APPLE TARZI FASULYE (PILL) MENÜ BURAYA EKLENDİ (PC'de ve Mobilde en üstte). Standart Cyan renk eklendi */}
+              <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
+                
+                <Link href="/adresler" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+                  <MapPin className="w-4 h-4 text-cyan-500" /> Adresler
+                </Link>
+
+                {/* 🚀 BİNGO: Kargolar butonu artık link değil, popup açıyor! */}
+                <button onClick={() => setKargoPopupAcik(true)} className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none relative">
+                  <Truck className="w-4 h-4 text-cyan-500" /> Kargolar
+                  {localOrders.filter(o => (o.durum || o.status || "").toLowerCase().includes("kargo")).length > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-cyan-500 text-[9px] font-bold text-white shadow-lg">
+                      {localOrders.filter(o => (o.durum || o.status || "").toLowerCase().includes("kargo")).length}
+                    </span>
+                  )}
+                </button>
+
+                <Link href="/siparis-takip" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+                  <Search className="w-4 h-4 text-cyan-500" /> Sorgula
+                </Link>
+
+                <Link href="/favoriler" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+                  <Star className="w-4 h-4 text-cyan-500" /> Favoriler
+                </Link>
+
+                <Link href="/sistemlerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+                  <Monitor className="w-4 h-4 text-cyan-500" /> Sistemler
+                </Link>
+
+                <Link href="/destek-taleplerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+                  <Headphones className="w-4 h-4 text-cyan-500" /> Destek / İade
+                </Link>
+                
+              </div>
+
+              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative flex flex-col gap-5 z-40">
                 <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
                   <div className="absolute -top-20 -right-20 w-64 h-64 bg-cyan-500/10 blur-[60px] rounded-full"></div>
                 </div>
@@ -360,7 +395,6 @@ export default function SiparisClient() {
                     </div>
                   </div>
 
-                  {/* 🚀 BİNGO: FİLTRELER MOBİLDE YAN YANA ZORUNLU KILINDI (flex-row). Yazılar sığsın diye küçültüldü. */}
                   <div className="flex flex-row items-center gap-2 sm:gap-3 w-full xl:w-auto relative z-50">
                     
                     {/* Zaman Filtresi */}
@@ -421,40 +455,6 @@ export default function SiparisClient() {
                     
                   </div>
                 </div>
-              </div>
-
-              {/* 🚀 BİNGO: APPLE TARZI FASULYE (PILL) MENÜ BURAYA EKLENDİ (Tam İstediğin Yere) */}
-              <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
-                
-                <Link href="/adresler" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
-                  <MapPin className="w-4 h-4 text-cyan-500" /> Adresler
-                </Link>
-
-                <Link href="/kargolarim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-blue-500/10 border border-slate-800 hover:border-blue-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-blue-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none relative">
-                  <Truck className="w-4 h-4 text-blue-500" /> Kargolar
-                  {localOrders.filter(o => (o.durum || o.status || "").toLowerCase().includes("kargo")).length > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[9px] font-bold text-white shadow-lg">
-                      {localOrders.filter(o => (o.durum || o.status || "").toLowerCase().includes("kargo")).length}
-                    </span>
-                  )}
-                </Link>
-
-                <Link href="/siparis-takip" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-purple-500/10 border border-slate-800 hover:border-purple-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-purple-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
-                  <Search className="w-4 h-4 text-purple-500" /> Sorgula
-                </Link>
-
-                <Link href="/favoriler" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-amber-500/10 border border-slate-800 hover:border-amber-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-amber-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
-                  <Star className="w-4 h-4 text-amber-500" /> Favoriler
-                </Link>
-
-                <Link href="/sistemlerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-emerald-500/10 border border-slate-800 hover:border-emerald-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-emerald-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
-                  <Monitor className="w-4 h-4 text-emerald-500" /> Sistemler
-                </Link>
-
-                <Link href="/destek-taleplerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-rose-500/10 border border-slate-800 hover:border-rose-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-rose-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
-                  <Headphones className="w-4 h-4 text-rose-500" /> Destek / İade
-                </Link>
-                
               </div>
 
               {errorMsg && (
@@ -561,6 +561,24 @@ export default function SiparisClient() {
           </div>
         </div>
       )}
+
+      {/* 🚀 BİNGO: KARGOLAR POPUP'I BURAYA EKLENDİ */}
+      {kargoPopupAcik && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-cyan-500/10 blur-[40px] pointer-events-none rounded-full"></div>
+            <div className="w-16 h-16 rounded-full border border-cyan-500/20 flex items-center justify-center mb-5 bg-cyan-500/10 relative z-10">
+              <Truck className="w-7 h-7 text-cyan-400" />
+            </div>
+            <h3 className="text-lg font-black text-white uppercase tracking-wider mb-2 relative z-10">Kargo Durumu</h3>
+            <p className="text-slate-400 text-sm mb-6 font-medium leading-relaxed relative z-10">
+              Şu anda kargoda olan <span className="font-bold text-cyan-400">{localOrders.filter(o => (o.durum || o.status || "").toLowerCase().includes("kargo")).length}</span> siparişiniz bulunuyor. (Kargo şirketinden canlı veriler çekiliyor...)
+            </p>
+            <button onClick={() => setKargoPopupAcik(false)} className="w-full bg-[#020617] border border-slate-800 hover:bg-slate-800/50 text-slate-400 hover:text-white font-bold py-3.5 rounded-xl transition-all text-xs uppercase tracking-wider">Kapat</button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
