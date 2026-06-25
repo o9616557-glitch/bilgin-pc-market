@@ -163,8 +163,8 @@ export default function SiparisClient() {
             /* 🚀 DETAY EKRANI */
             /* =================================================================================== */
             <div className="flex flex-col gap-5 animate-in slide-in-from-right-8 fade-in duration-300">
-              
-              <div className="sticky top-[60px] lg:top-24 z-50 bg-[#050814]/95 backdrop-blur-xl py-3 border-b border-slate-800/80 -mx-4 px-4 sm:mx-0 sm:px-0 sm:border-none sm:bg-transparent sm:py-0 w-full mb-2">
+             {/* 🚀 BİNGO: Yapışkanlık (sticky) tamamen silindi, buton artık sadece yerinde duracak */}
+              <div className="w-full mb-4">
                 <button 
                   onClick={() => setSelectedOrder(null)} 
                   className="flex items-center gap-2 px-4 py-2.5 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 text-slate-300 hover:text-cyan-400 transition-all rounded-lg font-black text-xs uppercase tracking-widest w-max shadow-md"
@@ -172,7 +172,6 @@ export default function SiparisClient() {
                   <ArrowLeft className="w-4 h-4" /> Siparişlerime Dön
                 </button>
               </div>
-
               <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="w-full md:w-auto">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1.5">
@@ -198,12 +197,12 @@ export default function SiparisClient() {
                   </div>
                 </div>
               </div>
-
-              <h2 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2">
+<h2 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2 mb-2">
                 <PackageOpen className="w-4 h-4 text-cyan-500" /> Ürünler ({selectedOrder.items?.length || 0})
               </h2>
 
-              <div className="space-y-4">
+              {/* 🚀 BİNGO: space-y-4 yerine grid eklendi. PC'de yan yana 2'li veya 3'lü dizilecek */}
+              <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
                 {selectedOrder.items?.map((item: any, idx: number) => {
                   const isTeslimEdildi = (selectedOrder.durum || selectedOrder.status || "").toLowerCase().includes("teslim") || (selectedOrder.durum || selectedOrder.status || "").toLowerCase().includes("tamam");
                   const isIptal = (selectedOrder.durum || selectedOrder.status || "").toLowerCase().includes("iptal");
@@ -213,9 +212,10 @@ export default function SiparisClient() {
                   const iadeSuresiGectiMi = bugun > iadeBitisTarihi;
 
                   return (
-                    <div key={idx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-4 sm:p-5 shadow-md flex flex-col gap-4">
+                    // h-full ile kutuların boyu eşitlenir
+                    <div key={idx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-4 sm:p-5 shadow-md flex flex-col h-full gap-4">
                       
-                      <div className="flex items-start gap-4">
+                      <div className="flex items-start gap-4 flex-1">
                         <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="w-20 h-20 sm:w-24 sm:h-24 bg-[#020617] rounded-lg border border-slate-800 hover:border-cyan-500/50 flex items-center justify-center p-2 shrink-0 transition-colors">
                           {item.image || item.resim ? (
                             <img src={item.image || item.resim} alt="ürün" className="w-full h-full object-contain drop-shadow-md" />
@@ -224,11 +224,13 @@ export default function SiparisClient() {
                           )}
                         </Link>
                         
-                        <div className="flex-1 flex flex-col h-full justify-between">
-                          <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="text-xs sm:text-sm font-bold text-white hover:text-cyan-400 transition-colors leading-relaxed mb-2 block whitespace-normal break-words">
+                        <div className="flex-1 flex flex-col h-full">
+                          {/* 🚀 BİNGO: Ürün ismi ne kadar uzunsa alt satıra geçerek tam yazar, kesilmez */}
+                          <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="text-xs sm:text-sm font-bold text-white hover:text-cyan-400 transition-colors leading-relaxed mb-3 block whitespace-normal break-words">
                             {item.title || item.isim}
                           </Link>
-                          <div>
+                          
+                          <div className="mt-auto">
                             <p className="text-slate-400 font-bold text-[10px] uppercase tracking-wider mb-1">Miktar: {item.quantity || item.adet} Adet</p>
                             <p className="text-sm sm:text-lg font-black text-cyan-400 whitespace-nowrap">
                               {Number((item.price || item.fiyat || 0) * (item.quantity || item.adet || 1)).toLocaleString("tr-TR")} TL
@@ -237,7 +239,8 @@ export default function SiparisClient() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 sm:flex sm:flex-row sm:justify-end sm:flex-wrap items-center gap-2 pt-3 border-t border-slate-800/50 mt-1">
+                      {/* mt-auto ile butonlar her zaman kartın en altına yapışır */}
+                      <div className="grid grid-cols-2 sm:flex sm:flex-row sm:justify-end sm:flex-wrap items-center gap-2 pt-3 border-t border-slate-800/50 mt-auto">
                         {isTeslimEdildi && !isIptal && !iadeSuresiGectiMi && (
                           <Link href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade`} className="col-span-1 flex items-center justify-center gap-1.5 h-10 px-4 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[10px] uppercase tracking-widest w-full sm:w-max">
                             <RefreshCw className="w-3.5 h-3.5" /> İade Et
@@ -259,7 +262,6 @@ export default function SiparisClient() {
                   );
                 })}
               </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 shadow-lg flex flex-col justify-between">
                   <div>
