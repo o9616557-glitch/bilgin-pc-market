@@ -16,7 +16,6 @@ interface Props {
 export default function SiparisClient({ initialOrders }: Props) {
   const router = useRouter();
   
-  // 🔥 İLK AÇILIŞ: Sıralamayı sabitledik
   const siraliBaslangic = [...initialOrders]
     .filter(o => o.gizlendi !== true)
     .sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
@@ -26,11 +25,8 @@ export default function SiparisClient({ initialOrders }: Props) {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
-  
-  // 🚀 BİNGO: DETAYLARI AÇMAK İÇİN STATE
   const [expandedOrder, setExpandedOrder] = useState<any | null>(null);
 
-  // 🔥 Sunucudan yeni veri akarsa yine gizlenenleri temizler
   useEffect(() => {
     if (initialOrders.length > 0) {
       const siraliGelen = [...initialOrders]
@@ -41,7 +37,6 @@ export default function SiparisClient({ initialOrders }: Props) {
     }
   }, [initialOrders]);
 
-  // 🚀 SESSİZ CANLI TAKİP MOTORU (HİÇ DOKUNULMADI)
   useEffect(() => {
     const gercegiKontrolEt = async () => {
       if (refreshing) return; 
@@ -66,18 +61,14 @@ export default function SiparisClient({ initialOrders }: Props) {
     return () => clearInterval(radar); 
   }, [refreshing]);
 
-  // 🔥 Modal açıkken arkaplanı kaydırmayı kilitler
   useEffect(() => {
-    if (expandedOrder) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
+    if (expandedOrder) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = 'unset';
     return () => { document.body.style.overflow = 'unset'; };
   }, [expandedOrder]);
 
   const handleDeleteClick = (orderId: string, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation(); // Tıklamanın karta geçmesini engeller
+    if (e) e.stopPropagation(); 
     setOrderToDelete(orderId);
   };
 
@@ -97,7 +88,7 @@ export default function SiparisClient({ initialOrders }: Props) {
   };
 
   const handleCopy = (code: string, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation(); // Tıklamanın karta geçmesini engeller
+    if (e) e.stopPropagation(); 
     navigator.clipboard.writeText(code);
     setCopiedCode(code);
     setTimeout(() => setCopiedCode(null), 2000);
@@ -158,12 +149,18 @@ export default function SiparisClient({ initialOrders }: Props) {
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip">
       
-      {/* 🚀 ARKA PLAN PARLAMASI */}
+      {/* 🚀 MODERN SCROLLBAR CSS (Buraya eklendi, bütün sayfayı etkiler) */}
+      <style jsx global>{`
+        .modern-scrollbar::-webkit-scrollbar { width: 6px; }
+        .modern-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .modern-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        .modern-scrollbar::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+      `}</style>
+
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-cyan-600 blur-[250px] opacity-[0.05] pointer-events-none rounded-full z-0"></div>
 
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
         
-        {/* ⬅️ SOL MENÜ */}
         <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-3 sm:p-4 shadow-xl">
             <nav className="flex flex-col gap-1.5">
@@ -180,10 +177,8 @@ export default function SiparisClient({ initialOrders }: Props) {
           </div>
         </div>
 
-        {/* ➡️ SAĞ İÇERİK (Sipariş Geçmişi) */}
         <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
           
-          {/* 🚀 HERO ALANI */}
           <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 lg:p-8 shadow-xl relative overflow-hidden group flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
             <div className="absolute -top-20 -right-20 w-64 h-64 bg-cyan-500/10 blur-[60px] pointer-events-none rounded-full"></div>
             
@@ -234,7 +229,6 @@ export default function SiparisClient({ initialOrders }: Props) {
             </div>
           ) : (
             
-            // 🚀 BİNGO: YENİ KOMPAKT KART LİSTESİ
             <div className="grid grid-cols-1 gap-4">
               {orders.map((order: any) => {
                 const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase();
@@ -245,31 +239,26 @@ export default function SiparisClient({ initialOrders }: Props) {
                 return (
                   <div 
                     key={order._id} 
-                    onClick={() => setExpandedOrder(order)} // Tıklanınca detayı açar
+                    onClick={() => setExpandedOrder(order)} 
                     className={`cursor-pointer group flex flex-col sm:flex-row sm:items-center gap-4 bg-[#0f172a] border ${refreshing ? 'border-slate-800/50 opacity-80 scale-[0.99]' : 'border-slate-800 hover:border-cyan-500/40 hover:shadow-[0_0_20px_rgba(6,182,212,0.05)]'} p-4 sm:p-5 rounded-2xl transition-all duration-300 animate-in fade-in`}
                   >
                     
-                    {/* Görsel Alanı (Tıklayınca ürüne gider) */}
+                    {/* Dışarıdaki Görsel (Artık Link Değil, Tıklanmaz) */}
                     <div className="flex items-center gap-4">
-                      <Link 
-                        href={`/urun/${firstItem?.slug || firstItem?.id || ''}`} 
-                        onClick={(e) => e.stopPropagation()} // Tıklanmayı karta yaymaz
-                        className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 bg-[#020617] border border-slate-800 group-hover:border-slate-600 rounded-xl flex items-center justify-center p-2 relative overflow-hidden transition-colors"
-                        title="Ürüne Git"
-                      >
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 bg-[#020617] border border-slate-800 rounded-xl flex items-center justify-center p-2 relative overflow-hidden">
                         {firstItem && (firstItem.image || firstItem.resim) ? (
                           <img src={firstItem.image || firstItem.resim} alt="Ürün" className="w-full h-full object-contain drop-shadow-md z-10" />
                         ) : (
                           <PackageOpen className="w-6 h-6 text-slate-500" />
                         )}
+                        {/* 🚀 Ürün Sayısı Düzeltildi */}
                         {order.items?.length > 1 && (
-                          <div className="absolute bottom-0 right-0 bg-[#0f172a]/90 text-cyan-400 text-[9px] font-black px-1.5 py-0.5 rounded-tl-lg z-20 border-t border-l border-slate-800">
-                            +{order.items.length - 1}
+                          <div className="absolute bottom-0 inset-x-0 bg-[#0f172a]/95 text-cyan-400 text-[10px] font-black py-0.5 text-center z-20 border-t border-slate-800">
+                            {order.items.length} Ürün
                           </div>
                         )}
-                      </Link>
+                      </div>
 
-                      {/* Mobil için sipariş kodu ve kopya butonu */}
                       <div className="flex flex-col sm:hidden">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-sm font-black text-cyan-400">{currentSiparisKodu}</span>
@@ -281,10 +270,7 @@ export default function SiparisClient({ initialOrders }: Props) {
                       </div>
                     </div>
 
-                    {/* Detaylar (PC'de yan yana, mobilde alt alta) */}
                     <div className="flex-grow flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      
-                      {/* PC için sipariş kodu */}
                       <div className="hidden sm:flex flex-col">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-sm font-black text-cyan-400 uppercase tracking-widest">{currentSiparisKodu}</span>
@@ -316,12 +302,11 @@ export default function SiparisClient({ initialOrders }: Props) {
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
-                          <div className="p-2.5 text-cyan-500 bg-cyan-500/10 rounded-xl">
+                          <div className="p-2.5 text-cyan-500 bg-cyan-500/10 rounded-xl group-hover:bg-cyan-500 group-hover:text-white transition-colors">
                             <ChevronRight className="w-4 h-4" />
                           </div>
                         </div>
                       </div>
-
                     </div>
                   </div>
                 );
@@ -331,22 +316,25 @@ export default function SiparisClient({ initialOrders }: Props) {
         </div>
       </div>
 
-      {/* 🚀 BİNGO: TIKLANINCA AÇILAN TAM EKRAN DETAY (MODAL) */}
+      {/* 🚀 BİNGO: DETAY KUTUSU (X Sabit, Scrollbar Modern, Linkler Aktif) */}
       {expandedOrder && (
         <div className="fixed inset-0 z-[9999] bg-[#020617]/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 lg:p-12 animate-in fade-in duration-200">
           
-          {/* Çarpı Butonu */}
-          <button 
-            onClick={() => setExpandedOrder(null)}
-            className="absolute top-4 right-4 sm:top-8 sm:right-8 p-3 bg-[#0f172a] hover:bg-red-500/10 border border-slate-800 hover:border-red-500/30 text-slate-400 hover:text-red-400 rounded-2xl transition-all z-50 group shadow-2xl"
-          >
-            <X className="w-6 h-6 group-hover:scale-110 transition-transform" />
-          </button>
-
-          {/* İçerik Kutusu (Senin eski devasa kartın birebir aynısı) */}
-          <div className="bg-[#0f172a] border border-slate-800 rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-y-auto custom-scrollbar shadow-[0_30px_100px_rgba(0,0,0,0.8)] relative animate-in zoom-in-95 duration-300">
+          <div className="bg-[#0f172a] border border-slate-800 rounded-3xl w-full max-w-5xl flex flex-col shadow-[0_30px_100px_rgba(0,0,0,0.8)] relative animate-in zoom-in-95 duration-300 max-h-full">
             
-            <div className="p-5 sm:p-8">
+            {/* 🚀 SABİT ÜST BİLGİ VE ÇARPI (Asla aşağı inmez) */}
+            <div className="flex items-center justify-between p-5 sm:px-8 sm:py-5 border-b border-slate-800 shrink-0 bg-[#0f172a] rounded-t-3xl z-10">
+              <h2 className="text-white font-black uppercase tracking-widest text-sm sm:text-base">Sipariş Detayı</h2>
+              <button 
+                onClick={() => setExpandedOrder(null)}
+                className="p-2.5 bg-[#020617] hover:bg-red-500/10 border border-slate-800 hover:border-red-500/30 text-slate-400 hover:text-red-400 rounded-xl transition-all shadow-sm"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* 🚀 KAYDIRILABİLİR İÇERİK */}
+            <div className="p-5 sm:p-8 overflow-y-auto modern-scrollbar flex-1">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800/80">
                 <div>
                   <p className="text-xs text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2 font-bold">
@@ -381,13 +369,13 @@ export default function SiparisClient({ initialOrders }: Props) {
                 </div>
               )}
 
-              {/* Ürünler Listesi */}
               <div className="border-t border-slate-800/80 pt-6 mt-6">
                 <div className="space-y-4">
                   {expandedOrder.items?.map((item: any, idx: number) => (
-                    <div key={idx} className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-[#020617] p-4 sm:p-5 rounded-2xl border border-slate-800 shrink-0">
+                    <div key={idx} className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-[#020617] p-4 sm:p-5 rounded-2xl border border-slate-800 shrink-0 group">
                       
-                      <div className="w-full sm:w-28 sm:h-28 flex-shrink-0 flex justify-center items-center bg-[#0f172a] py-6 sm:py-0 rounded-xl border border-slate-800 relative overflow-hidden">
+                      {/* 🚀 Kutu İçi Resim Tıklanabilir (Link) */}
+                      <Link href={`/urun/${item.slug || item.id || ''}`} className="w-full sm:w-28 sm:h-28 flex-shrink-0 flex justify-center items-center bg-[#0f172a] py-6 sm:py-0 rounded-xl border border-slate-800 hover:border-cyan-500/50 transition-colors relative overflow-hidden">
                         {item.image || item.resim ? (
                           <img src={item.image || item.resim} alt="ürün" className="w-24 h-24 sm:w-20 sm:h-20 object-contain drop-shadow-md z-10" />
                         ) : (
@@ -395,13 +383,14 @@ export default function SiparisClient({ initialOrders }: Props) {
                             <PackageOpen className="w-6 h-6 text-slate-500" />
                           </div>
                         )}
-                      </div>
+                      </Link>
 
                       <div className="flex flex-col sm:flex-row flex-grow w-full justify-between sm:items-center gap-4">
                         <div className="w-full sm:w-auto flex-grow text-center sm:text-left flex flex-col gap-2">
-                          <p className="font-bold text-slate-200 break-words whitespace-normal leading-relaxed text-sm">
+                          {/* 🚀 Kutu İçi İsim Tıklanabilir (Link) */}
+                          <Link href={`/urun/${item.slug || item.id || ''}`} className="font-bold text-slate-200 hover:text-cyan-400 transition-colors break-words whitespace-normal leading-relaxed text-sm">
                             {item.title || item.isim}
-                          </p>
+                          </Link>
                           <div>
                             <Link
                               href={`/destek-taleplerim?siparisNo=${expandedOrder.siparisKodu || expandedOrder.orderNumber || expandedOrder._id.slice(-8).toUpperCase()} - ${item.title || item.isim}&konu=iade`}
@@ -438,7 +427,6 @@ export default function SiparisClient({ initialOrders }: Props) {
         </div>
       )}
 
-      {/* SİLME MODALI (HİÇ DOKUNULMADI) */}
       {orderToDelete && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
           <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden animate-in zoom-in-95 duration-200">
