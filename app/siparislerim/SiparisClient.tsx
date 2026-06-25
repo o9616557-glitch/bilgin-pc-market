@@ -315,15 +315,14 @@ export default function SiparisClient({ initialOrders }: Props) {
           )}
         </div>
       </div>
-
-      {/* 🚀 BİNGO: DETAY KUTUSU (X Sabit, Scrollbar Modern, Linkler Aktif) */}
+{/* 🚀 BİNGO: DETAY KUTUSU (Mobilde Tam Ekran, PC'de Kutu) */}
       {expandedOrder && (
-        <div className="fixed inset-0 z-[9999] bg-[#020617]/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 lg:p-12 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[9999] bg-[#020617] sm:bg-[#020617]/95 sm:backdrop-blur-md flex items-center justify-center sm:p-6 lg:p-12 animate-in fade-in duration-200">
           
-          <div className="bg-[#0f172a] border border-slate-800 rounded-3xl w-full max-w-5xl flex flex-col shadow-[0_30px_100px_rgba(0,0,0,0.8)] relative animate-in zoom-in-95 duration-300 max-h-full">
+          <div className="bg-[#0f172a] sm:border border-slate-800 rounded-none sm:rounded-3xl w-full h-full sm:h-auto max-w-5xl flex flex-col shadow-none sm:shadow-[0_30px_100px_rgba(0,0,0,0.8)] relative animate-in sm:zoom-in-95 slide-in-from-bottom-4 sm:slide-in-from-bottom-0 duration-300 max-h-full">
             
             {/* 🚀 SABİT ÜST BİLGİ VE ÇARPI (Asla aşağı inmez) */}
-            <div className="flex items-center justify-between p-5 sm:px-8 sm:py-5 border-b border-slate-800 shrink-0 bg-[#0f172a] rounded-t-3xl z-10">
+            <div className="flex items-center justify-between p-4 sm:px-8 sm:py-5 border-b border-slate-800 shrink-0 bg-[#0f172a] rounded-none sm:rounded-t-3xl z-10">
               <h2 className="text-white font-black uppercase tracking-widest text-sm sm:text-base">Sipariş Detayı</h2>
               <button 
                 onClick={() => setExpandedOrder(null)}
@@ -333,8 +332,8 @@ export default function SiparisClient({ initialOrders }: Props) {
               </button>
             </div>
 
-            {/* 🚀 KAYDIRILABİLİR İÇERİK */}
-            <div className="p-5 sm:p-8 overflow-y-auto modern-scrollbar flex-1">
+        {/* 🚀 KAYDIRILABİLİR İÇERİK */}
+            <div className="p-4 sm:p-8 overflow-y-auto modern-scrollbar flex-1 pb-24 sm:pb-8">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800/80">
                 <div>
                   <p className="text-xs text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2 font-bold">
@@ -374,8 +373,8 @@ export default function SiparisClient({ initialOrders }: Props) {
                   {expandedOrder.items?.map((item: any, idx: number) => (
                     <div key={idx} className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-[#020617] p-4 sm:p-5 rounded-2xl border border-slate-800 shrink-0 group">
                       
-                      {/* 🚀 Kutu İçi Resim Tıklanabilir (Link) */}
-                      <Link href={`/urun/${item.slug || item.id || ''}`} className="w-full sm:w-28 sm:h-28 flex-shrink-0 flex justify-center items-center bg-[#0f172a] py-6 sm:py-0 rounded-xl border border-slate-800 hover:border-cyan-500/50 transition-colors relative overflow-hidden">
+                      {/* 🚀 Kutu İçi Resim Tıklanabilir (Link güncellendi -> /product/ ) */}
+                      <Link href={`/product/${item.slug || item.productId || item.urunId || item._id || ''}`} className="w-full sm:w-28 sm:h-28 flex-shrink-0 flex justify-center items-center bg-[#0f172a] py-6 sm:py-0 rounded-xl border border-slate-800 hover:border-cyan-500/50 transition-colors relative overflow-hidden">
                         {item.image || item.resim ? (
                           <img src={item.image || item.resim} alt="ürün" className="w-24 h-24 sm:w-20 sm:h-20 object-contain drop-shadow-md z-10" />
                         ) : (
@@ -387,8 +386,8 @@ export default function SiparisClient({ initialOrders }: Props) {
 
                       <div className="flex flex-col sm:flex-row flex-grow w-full justify-between sm:items-center gap-4">
                         <div className="w-full sm:w-auto flex-grow text-center sm:text-left flex flex-col gap-2">
-                          {/* 🚀 Kutu İçi İsim Tıklanabilir (Link) */}
-                          <Link href={`/urun/${item.slug || item.id || ''}`} className="font-bold text-slate-200 hover:text-cyan-400 transition-colors break-words whitespace-normal leading-relaxed text-sm">
+                          {/* 🚀 Kutu İçi İsim Tıklanabilir (Link güncellendi -> /product/ ) */}
+                          <Link href={`/product/${item.slug || item.productId || item.urunId || item._id || ''}`} className="font-bold text-slate-200 hover:text-cyan-400 transition-colors break-words whitespace-normal leading-relaxed text-sm">
                             {item.title || item.isim}
                           </Link>
                           <div>
@@ -416,7 +415,7 @@ export default function SiparisClient({ initialOrders }: Props) {
                 </div>
               </div>
 
-              <div className="mt-6 flex justify-between items-center bg-[#020617] border border-slate-800 p-5 rounded-xl">
+              <div className="mt-6 flex justify-between items-center bg-[#020617] border border-slate-800 p-5 rounded-xl sm:mb-0">
                 <span className="text-[10px] text-slate-500 uppercase tracking-widest font-black">Genel Toplam</span>
                 <span className="text-xl sm:text-2xl font-black text-white tracking-tight">
                   {Number(expandedOrder.totalPrice || expandedOrder.toplamTutar).toLocaleString("tr-TR")} <span className="text-sm text-slate-500">TL</span>
