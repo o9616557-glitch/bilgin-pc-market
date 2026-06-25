@@ -6,16 +6,20 @@ import { Phone, Mail, ShieldCheck, FileText, Info, RefreshCcw, Smartphone, Globe
 export default function Footer() {
   const pathname = usePathname(); 
 
-  if (
-    pathname?.includes("/sepet") || 
-    pathname?.includes("/odeme") || 
-    pathname?.includes("/giris") || 
-    pathname?.includes("/kayit") || 
-    pathname?.includes("/login") || 
-    pathname?.includes("/register")
-  ) {
+  // 🚀 BİNGO: FOOTER SADECE BU LİSTEDEKİ SAYFALARDA GÖRÜNECEK
+  const gosterilecekSayfalar = [
+    "/", 
+    "/hakkimizda", 
+    "/gizlilik-politikasi", 
+    "/mesafeli-satis", 
+    "/iade-ve-garanti"
+  ];
+
+  // Eğer mevcut sayfa yukarıdaki listede YOKSA, Footer'ı hiç yükleme (gizle)
+  if (!gosterilecekSayfalar.includes(pathname || "")) {
     return null;
   }
+
   return (
     <footer className={`bg-[#09090b] border-t border-slate-800/80 pt-16 relative overflow-hidden flex flex-col items-center ${pathname?.includes('/product') ? 'pb-40 md:pb-8' : 'pb-8'}`}>
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-[#3b82f6] to-transparent opacity-20"></div>
