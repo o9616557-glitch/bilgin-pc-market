@@ -19,6 +19,11 @@ export default function SiparisClient() {
     setLocalOrders(contextOrders);
   }, [contextOrders]);
 
+  // 🚀 BİNGO: Detay butonuna basıldığı an sayfayı otomatik olarak en yukarı fırlatır!
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [selectedOrder]);
+
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
@@ -201,7 +206,7 @@ export default function SiparisClient() {
                 <PackageOpen className="w-4 h-4 text-cyan-500" /> Ürünler ({selectedOrder.items?.length || 0})
               </h2>
 
-              {/* 🚀 BİNGO: Kart içindeki boşluklar, resim-yazı dengesi ve buton ızgarası (Grid) kusursuzlaştırıldı! */}
+         {/* 🚀 BİNGO: Kart içindeki boşluklar, resim-yazı dengesi ve buton ızgarası (Grid) kusursuzlaştırıldı! */}
               <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
                 {selectedOrder.items?.map((item: any, idx: number) => {
                   const isTeslimEdildi = (selectedOrder.durum || selectedOrder.status || "").toLowerCase().includes("teslim") || (selectedOrder.durum || selectedOrder.status || "").toLowerCase().includes("tamam");
@@ -210,6 +215,9 @@ export default function SiparisClient() {
                   const iadeBitisTarihi = new Date(siparisTarihi.getTime() + (17 * 24 * 60 * 60 * 1000));
                   const bugun = new Date();
                   const iadeSuresiGectiMi = bugun > iadeBitisTarihi;
+                  
+                  // 🚀 EKSİK OLAN HESAPLAMA EKLENDİ
+                  const iadeyeKalanGun = Math.ceil((iadeBitisTarihi.getTime() - bugun.getTime()) / (1000 * 60 * 60 * 24));
 
                   return (
                     <div key={idx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-4 shadow-md flex flex-col h-full gap-3 sm:gap-4">
@@ -223,9 +231,7 @@ export default function SiparisClient() {
                           )}
                         </Link>
                         
-                        {/* min-w-0: Yazıların dışarı taşmasını, kartı şişirmesini kesin olarak engeller */}
                         <div className="flex-1 flex flex-col h-full min-w-0">
-                          {/* leading-snug: Satır aralıkları daraltıldı, daha derli toplu duracak */}
                           <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="text-[11px] sm:text-xs font-bold text-white hover:text-cyan-400 transition-colors leading-snug mb-2 block break-words">
                             {item.title || item.isim}
                           </Link>
@@ -238,7 +244,19 @@ export default function SiparisClient() {
                           </div>
                         </div>
                       </div>
-                    {/* 🚀 BİNGO: Asla üst üste binmeyecek (zorunlu yan yana)! Kutuya sığması için yazılar küçültüldü, eşit paylaştırıldı. Sıra: Yorumla -> Tekrar Al -> İade Et */}
+
+                      {/* 🚀 BİNGO: İADE SÜRESİ BİLGİ METNİ BURAYA EKLENDİ */}
+                      {isTeslimEdildi && !isIptal && (
+                        <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mt-1 -mb-1">
+                          {iadeSuresiGectiMi ? (
+                            <span className="text-slate-500 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> 14 Günlük İade Süresi Doldu</span>
+                          ) : (
+                            <span className="text-emerald-500 flex items-center gap-1"><Info className="w-3 h-3" /> İade için son {iadeyeKalanGun} gün ({iadeBitisTarihi.toLocaleDateString("tr-TR")})</span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* 🚀 BİNGO: Asla üst üste binmeyecek (zorunlu yan yana)! */}
                       <div className="flex flex-row items-center w-full gap-1.5 sm:gap-2 pt-3.5 border-t border-slate-800/50 mt-auto">
                         
                         {isTeslimEdildi && (
@@ -258,6 +276,7 @@ export default function SiparisClient() {
                         )}
                         
                       </div>
+
                     </div>
                   );
                 })}
