@@ -342,14 +342,15 @@ export default function SiparisClient() {
             /* =================================================================================== */
             <div className="flex flex-col gap-5 animate-in fade-in duration-300">
               
-              {/* 🚀 BİNGO: APPLE TARZI FASULYE (PILL) MENÜ BURAYA EKLENDİ (PC'de ve Mobilde en üstte). Standart Cyan renk eklendi */}
+             {/* 🚀 BİNGO: APPLE TARZI FASULYE (PILL) MENÜ BURAYA EKLENDİ (PC'de ve Mobilde en üstte). Standart Cyan renk eklendi */}
               <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
                 
-                <Link href="/adresler" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+                {/* 🚀 LİNK DÜZELTİLDİ: /adreslerim */}
+                <Link href="/adreslerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
                   <MapPin className="w-4 h-4 text-cyan-500" /> Adresler
                 </Link>
 
-                {/* 🚀 BİNGO: Kargolar butonu artık link değil, popup açıyor! */}
+                {/* Kargolar Popup Butonu */}
                 <button onClick={() => setKargoPopupAcik(true)} className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none relative">
                   <Truck className="w-4 h-4 text-cyan-500" /> Kargolar
                   {localOrders.filter(o => (o.durum || o.status || "").toLowerCase().includes("kargo")).length > 0 && (
@@ -363,7 +364,8 @@ export default function SiparisClient() {
                   <Search className="w-4 h-4 text-cyan-500" /> Sorgula
                 </Link>
 
-                <Link href="/favoriler" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+                {/* 🚀 LİNK DÜZELTİLDİ: /favorilerim */}
+                <Link href="/favorilerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
                   <Star className="w-4 h-4 text-cyan-500" /> Favoriler
                 </Link>
 
