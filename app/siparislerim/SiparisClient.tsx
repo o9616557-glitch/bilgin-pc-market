@@ -305,12 +305,21 @@ export default function SiparisClient({ initialOrders }: Props) {
                             </div>
 
                             <div className="flex flex-col sm:flex-row flex-grow w-full justify-between sm:items-center gap-4">
-                              <div className="w-full sm:w-auto flex-grow text-center sm:text-left">
-                                <p className="font-bold text-slate-200 break-words whitespace-normal leading-relaxed text-sm">
-                                  {item.title || item.isim}
-                                </p>
-                              </div>
-
+                       <div className="w-full sm:w-auto flex-grow text-center sm:text-left flex flex-col gap-2">
+    <p className="font-bold text-slate-200 break-words whitespace-normal leading-relaxed text-sm">
+      {item.title || item.isim}
+    </p>
+    
+    {/* 🚀 BİNGO: TEKLİ ÜRÜN İADE/İPTAL BUTONU */}
+    <div>
+      <Link
+        href={`/destek-taleplerim?siparisNo=${currentSiparisKodu} - ${item.title || item.isim}&konu=${durumMetni.toLowerCase().includes('teslim') ? 'iade' : 'iade'}`}
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 text-[10px] font-black uppercase tracking-wider transition-all"
+      >
+        Bu Ürünü İptal / İade Et
+      </Link>
+    </div>
+  </div>
                               <div className="w-full sm:w-auto flex flex-row sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 sm:border-l border-slate-800/80 pt-4 sm:pt-0 sm:pl-6 mt-2 sm:mt-0 flex-shrink-0 gap-2">
                                 <p className="text-[10px] text-slate-400 font-bold uppercase bg-[#0f172a] px-3 py-1.5 rounded-lg border border-slate-800">
                                   {item.quantity || item.adet} ADET
