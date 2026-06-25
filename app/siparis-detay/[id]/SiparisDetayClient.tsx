@@ -9,23 +9,35 @@ import {
   AlertCircle, Copy, Check, Info, Calendar, PackageOpen,
   CreditCard
 } from "lucide-react";
+// 🚀 BİNGO: Merkezi hafızayı buraya da çağırdık!
+import { useOrders } from "@/app/OrderContext";
 
 interface Props {
-  initialOrder: any;
+  id: string;
 }
 
-export default function SiparisDetayClient({ initialOrder }: Props) {
+export default function SiparisDetayClient({ id }: Props) {
   const router = useRouter();
-  
-  // 🚀 Veri arkadan hazır geldiği için çark falan dönmeyecek!
-  const order = initialOrder;
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  
+  // 🚀 SUNUCUYA GİTMEK YOK! Direkt sitenin hafızasından siparişi saniyesinde bulup çekiyoruz.
+  const { orders, loading } = useOrders();
+  const order = orders.find((o: any) => o._id === id);
 
   const handleCopy = (code: string) => {
     navigator.clipboard.writeText(code);
     setCopiedCode(code);
     setTimeout(() => setCopiedCode(null), 2000);
   };
+
+  // Hafıza henüz yükleniyorsa ve sipariş bulunamadıysa (sayfaya ilk kez dışarıdan girildiyse)
+  if (loading && !order) {
+    return (
+      <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center">
+        <div className="w-16 h-16 border-4 border-slate-800 border-t-cyan-500 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   if (!order) {
     return (
