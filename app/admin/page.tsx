@@ -208,7 +208,13 @@ const [girisYapildi, setGirisYapildi] = useState(true);
   const urunDuzenleModunuAc = (urun: any) => { setDuzenlenenUrun(urun); setFormIsim(urun.isim || urun.name || ""); setFormFiyat((urun.regular_price || urun.fiyat || urun.price || 0).toString()); setFormIndirimliFiyat(urun.indirimliFiyat ? urun.indirimliFiyat.toString() : ""); setFormHavaleIndirimi(urun.havaleIndirimi !== undefined ? urun.havaleIndirimi.toString() : "5"); setFormStok(urun.stokDurumu || "Stokta Var"); setFormStokAdedi((urun.stokAdedi !== null && urun.stokAdedi !== undefined && urun.stokAdedi !== "" && Number(urun.stokAdedi) !== 10) ? urun.stokAdedi.toString() : ""); setFormResim(urun.resim || ""); setFormKategori(urun.kategori || "Bilgisayar"); setYeniUrunModu(true); };
   const yeniUrunModunuAc = () => { setDuzenlenenUrun(null); setFormIsim(""); setFormFiyat(""); setFormIndirimliFiyat(""); setFormHavaleIndirimi("5"); setFormStok("Stokta Var"); setFormStokAdedi(""); setFormResim(""); setFormKategori("Bilgisayar"); setYeniUrunModu(true); };
   const formuKapat = () => { setYeniUrunModu(false); setDuzenlenenUrun(null); };
-
+// 🚀 ŞİFRESİZ GİRİŞ İÇİN BÜTÜN VERİLERİ OTOMATİK ÇEKEN MOTOR
+  useEffect(() => {
+    if (typeof siparisleriGetir === "function") siparisleriGetir();
+    if (typeof urunleriGetir === "function") urunleriGetir();
+    if (typeof yorumlariGetir === "function") yorumlariGetir();
+    // (Destek talepleri motorunu yukarıda zaten yapmıştık, o kendi kendine çalışıyor)
+  }, []);
   if (status === "loading" || (yukleniyor && !girisYapildi)) {
     return <div className="min-h-screen bg-[#0b1120] flex items-center justify-center text-slate-500 text-sm font-bold tracking-widest uppercase">Sistem Başlatılıyor...</div>;
   }
