@@ -238,26 +238,25 @@ export default function SiparisClient() {
                           </div>
                         </div>
                       </div>
-
-                      {/* 🚀 TELEFONDA JİLET GİBİ GRID: İade ve Yorum yanyana (%50-%50), Tekrar Al altta boydan boya (%100) */}
-                      <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:justify-end items-center gap-2 pt-3 border-t border-slate-800/50 mt-auto">
-                        {isTeslimEdildi && !isIptal && !iadeSuresiGectiMi && (
-                          <Link href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade`} className="col-span-1 flex items-center justify-center gap-1.5 h-9 px-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest w-full sm:w-max">
-                            <RefreshCw className="w-3.5 h-3.5" /> İade Et
-                          </Link>
-                        )}
+{/* 🚀 BİNGO: Buton sırası (Yorumla, İade Et, Tekrar Al) - Çerçeveler eşitlendi, abartı parlamalar silindi */}
+                      <div className="grid grid-cols-2 sm:flex sm:flex-row sm:justify-end sm:flex-wrap items-center gap-2.5 pt-3.5 border-t border-slate-800/50 mt-auto">
                         
                         {isTeslimEdildi && (
-                          <Link href={`/product/${item.slug || item.productId || item._id || ''}#yorumlar`} className="col-span-1 flex items-center justify-center gap-1.5 h-9 px-2 bg-[#020617] hover:bg-amber-500/10 text-slate-300 hover:text-amber-400 border border-slate-800 hover:border-amber-500/30 rounded-md transition-all font-black text-[9px] uppercase tracking-widest w-full sm:w-max">
+                          <Link href={`/product/${item.slug || item.productId || item._id || ''}#yorumlar`} className="col-span-1 flex items-center justify-center gap-1.5 h-9 px-3 bg-[#020617] hover:bg-slate-800/50 text-slate-300 hover:text-white border border-slate-700 rounded-md transition-all font-black text-[9px] sm:text-[10px] uppercase tracking-widest w-full sm:w-max">
                             <Star className="w-3.5 h-3.5" /> Yorumla
                           </Link>
                         )}
 
-                        <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="col-span-2 sm:col-span-1 flex items-center justify-center gap-1.5 h-9 px-4 bg-cyan-600/10 hover:bg-cyan-600 text-cyan-400 hover:text-white border border-cyan-500/20 rounded-md transition-all font-black text-[9px] sm:text-[10px] uppercase tracking-widest w-full sm:w-max shadow-[0_0_15px_rgba(6,182,212,0.1)]">
+                        {isTeslimEdildi && !isIptal && !iadeSuresiGectiMi && (
+                          <Link href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade`} className="col-span-1 flex items-center justify-center gap-1.5 h-9 px-3 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] sm:text-[10px] uppercase tracking-widest w-full sm:w-max">
+                            <RefreshCw className="w-3.5 h-3.5" /> İade Et
+                          </Link>
+                        )}
+
+                        <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="col-span-2 sm:col-span-1 flex items-center justify-center gap-1.5 h-9 px-4 bg-cyan-600/10 hover:bg-cyan-600 text-cyan-400 hover:text-white border border-cyan-500/30 rounded-md transition-all font-black text-[9px] sm:text-[10px] uppercase tracking-widest w-full sm:w-max">
                           <ShoppingCart className="w-3.5 h-3.5" /> Tekrar Al
                         </Link>
                       </div>
-
                     </div>
                   );
                 })}
