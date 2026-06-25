@@ -85,11 +85,12 @@ export default function DestekIadePage() {
     } catch (error) {} finally { setYukleniyor(false); }
   };
 
-  useEffect(() => {
+useEffect(() => {
     if (status === "authenticated") {
       talepleriGetir(); 
-      const radar = setInterval(talepleriGetir, 10000); 
-      return () => clearInterval(radar); 
+      // 🚀 RADARI ŞİMDİLİK YORUMA ALDIK VEYA SÜRESİNİ UZATTIK (10000 yerine 60000)
+      // const radar = setInterval(talepleriGetir, 60000); 
+      // return () => clearInterval(radar); 
     } else if (status === "unauthenticated") {
       setYukleniyor(false);
     }
