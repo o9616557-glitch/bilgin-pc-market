@@ -240,7 +240,7 @@ useEffect(() => {
 
           <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
             
-            {/* 🚀 BİNGO: TURKUAZ (CYAN) FASULYE MENÜ EKLENDİ (HEM PC HEM MOBİL İÇİN BİREBİR AYNISI) */}
+        {/* 🚀 BİNGO: TURKUAZ (CYAN) FASULYE MENÜ EKLENDİ */}
             <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pt-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
               
               <Link href="/adreslerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
@@ -251,7 +251,8 @@ useEffect(() => {
                 <Package className="w-4 h-4 text-cyan-500" /> Siparişler
               </Link>
 
-              <Link href="/kargolarim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+              {/* 🚀 BİNGO: 404 HATASI ÇÖZÜLDÜ! Destek sayfasında kargo verisi olmadığı için direkt Siparişlerim'e yönlendirir. */}
+              <Link href="/siparislerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
                 <Truck className="w-4 h-4 text-cyan-500" /> Kargolar
               </Link>
 
@@ -269,17 +270,23 @@ useEffect(() => {
 
             </div>
 
-            {/* DESTEK ÇÖZÜM MERKEZİ KUTUSU */}
-            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 lg:p-8 shadow-xl relative overflow-hidden group flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+            {/* 🚀 BİNGO: DESTEK ÇÖZÜM MERKEZİ KUTUSU KÜÇÜLTÜLDÜ (Zarif Tasarım) */}
+            <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-4 sm:p-5 shadow-xl relative overflow-hidden group flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div className="absolute -top-20 -right-20 w-64 h-64 bg-indigo-500/10 blur-[60px] pointer-events-none rounded-full"></div>
-              <div className="flex items-center gap-3 sm:gap-4 relative z-10">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#020617] border border-indigo-500/30 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.2)] shrink-0"><Headset className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-400" /></div>
+              
+              <div className="flex items-center gap-3 relative z-10">
+                <div className="w-10 h-10 bg-[#020617] border border-indigo-500/30 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.2)] shrink-0">
+                  <Headset className="w-4 h-4 text-indigo-400" />
+                </div>
                 <div>
-                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight mb-0.5 sm:mb-1">Destek Çözüm Merkezi</h1>
-                  <p className="text-indigo-400/80 text-xs sm:text-sm font-medium tracking-wide">Sorunlarınızı en hızlı şekilde çözmek için buradayız.</p>
+                  <h1 className="text-lg sm:text-xl font-black text-white tracking-tight mb-0.5">Destek Çözüm Merkezi</h1>
+                  <p className="text-indigo-400/80 text-[10px] sm:text-xs font-medium tracking-wide">Sorunlarınızı en hızlı şekilde çözmek için buradayız.</p>
                 </div>
               </div>
-              <button onClick={() => setYeniTalepModal(true)} className="relative z-10 w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-black text-xs sm:text-sm uppercase tracking-widest transition-all shrink-0"><PlusCircle className="w-4 h-4 sm:w-5 sm:h-5" /> YENİ TALEP</button>
+
+              <button onClick={() => setYeniTalepModal(true)} className="relative z-10 w-full sm:w-auto flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all shrink-0">
+                <PlusCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> YENİ TALEP
+              </button>
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
