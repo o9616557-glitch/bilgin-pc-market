@@ -6,17 +6,8 @@ import { Phone, Mail, ShieldCheck, FileText, Info, RefreshCcw, Smartphone, Globe
 export default function Footer() {
   const pathname = usePathname(); 
 
-  // 🚀 BİNGO: FOOTER SADECE BU LİSTEDEKİ SAYFALARDA GÖRÜNECEK
-  const gosterilecekSayfalar = [
-    "/", 
-    "/hakkimizda", 
-    "/gizlilik-politikasi", 
-    "/mesafeli-satis", 
-    "/iade-ve-garanti"
-  ];
-
-  // Eğer mevcut sayfa yukarıdaki listede YOKSA, Footer'ı hiç yükleme (gizle)
-  if (!gosterilecekSayfalar.includes(pathname || "")) {
+  // 🚀 BİNGO: FOOTER SADECE SEPET VE ÖDEME SAYFALARINDA GİZLENİR, DİĞER HERYERDE AKTİFTİR
+  if (pathname?.includes("/sepet") || pathname?.includes("/odeme")) {
     return null;
   }
 
@@ -90,13 +81,13 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* 4. Sütun: Mobil Uygulama ve TAKİP EDİN (Tamamen Sabit, Tepkisiz İkonlar) */}
+          {/* 4. Sütun: Mobil Uygulama ve TAKİP EDİN */}
           <div className="flex flex-col gap-8">
             
-            {/* Ayrı İndirme Alanı (Üstte) */}
+            {/* Ayrı İndirme Alanı */}
             <div className="flex flex-col gap-3">
               <h3 className="text-white font-black text-lg uppercase tracking-wider mb-1">MOBİL UYGULAMA</h3>
-            <a href="https://play.google.com/store/apps/details?id=com.bilginpcmarket.bilginpcmarket" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-transparent border border-slate-700 hover:border-[#3b82f6] transition-all p-3 rounded-xl group w-max">
+              <a href="https://play.google.com/store/apps/details?id=com.bilginpcmarket.bilginpcmarket" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-transparent border border-slate-700 hover:border-[#3b82f6] transition-all p-3 rounded-xl group w-max">
                 <Smartphone className="w-8 h-8 text-[#3b82f6] group-hover:scale-110 transition-transform" />
                 <div className="flex flex-col">
                   <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-1">Hemen İndir</span>
@@ -105,25 +96,22 @@ export default function Footer() {
               </a>
             </div>
 
-            {/* Sosyal Medya İkonları (Altta - Tepkisiz) */}
+            {/* Sosyal Medya İkonları */}
             <div className="flex flex-col gap-3">
               <h3 className="text-white font-black text-lg uppercase tracking-wider mb-1">TAKİP EDİN</h3>
               <div className="flex items-center gap-3">
-                {/* Instagram: Sabit */}
                 <a href="https://www.instagram.com/bilginpcmarket" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-11 h-11 rounded-full border border-slate-600 bg-transparent">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400">
                     <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
                   </svg>
                 </a>
 
-                {/* YouTube: Sabit */}
                 <a href="https://www.youtube.com/@bilginpcmarket" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-11 h-11 rounded-full border border-slate-600 bg-transparent">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" className="text-slate-400">
                     <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                   </svg>
                 </a>
 
-                {/* WhatsApp: Sabit */}
                 <a href="https://wa.me/905327345023" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-11 h-11 rounded-full border border-slate-600 bg-transparent">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" className="text-slate-400">
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-2.622-1.313-4.521-3.66-5.074-4.606-.057-.101-.013-.2.062-.276.069-.069.149-.174.223-.261.075-.088.099-.15.15-.248.049-.1.024-.186-.013-.261-.037-.074-.67-1.615-.918-2.21-.242-.58-.487-.502-.67-.512-.173-.008-.371-.008-.57-.008-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487 2.413 1.042 3.16.891 3.738.835.637-.061 1.758-.717 2.005-1.41.248-.693.248-1.289.173-1.41-.074-.124-.272-.198-.57-.347zM12 21.841c-1.745 0-3.456-.47-4.948-1.356l-.355-.21-3.673.963.98-3.582-.23-.365A9.794 9.794 0 0 1 2.22 12c0-5.395 4.385-9.78 9.78-9.78 5.395 0 9.78 4.385 9.78 9.78 0 5.394-4.385 9.78-9.78 9.78zm0-21.619C5.586.222.368 5.438.368 11.832c0 2.052.535 4.056 1.553 5.82L0 24l6.495-1.703a11.604 11.604 0 0 0 5.505 1.383h.005c6.393 0 11.61-5.215 11.61-11.609 0-6.393-5.216-11.61-11.615-11.61z"/>
