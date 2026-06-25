@@ -5,8 +5,9 @@ import {
   Trash2, Copy, Check, RefreshCw, Filter, 
   PackageOpen, Package, Truck, CheckCircle2, Clock, 
   User, ShieldCheck, CreditCard, PackageX, ChevronRight, Calendar,
-  ArrowLeft, MessageSquare, ShoppingCart, Star, AlertCircle, Info, ChevronDown
-} from "lucide-react"; 
+  ArrowLeft, MessageSquare, ShoppingCart, Star, AlertCircle, Info, ChevronDown,
+  MapPin, Search, Monitor, Headphones
+} from "lucide-react";
 import Link from "next/link";
 import { useOrders } from "@/app/OrderContext"; 
 
@@ -336,7 +337,7 @@ export default function SiparisClient() {
             </div>
 
           ) : (
-            /* =================================================================================== */
+      /* =================================================================================== */
             /* 🚀 ANA LİSTE EKRANI */
             /* =================================================================================== */
             <div className="flex flex-col gap-5 animate-in fade-in duration-300">
@@ -358,7 +359,8 @@ export default function SiparisClient() {
                       </p>
                     </div>
                   </div>
-{/* 🚀 BİNGO: FİLTRELER MOBİLDE YAN YANA ZORUNLU KILINDI (flex-row). Yazılar sığsın diye küçültüldü. */}
+
+                  {/* 🚀 BİNGO: FİLTRELER MOBİLDE YAN YANA ZORUNLU KILINDI (flex-row). Yazılar sığsın diye küçültüldü. */}
                   <div className="flex flex-row items-center gap-2 sm:gap-3 w-full xl:w-auto relative z-50">
                     
                     {/* Zaman Filtresi */}
@@ -419,6 +421,40 @@ export default function SiparisClient() {
                     
                   </div>
                 </div>
+              </div>
+
+              {/* 🚀 BİNGO: APPLE TARZI FASULYE (PILL) MENÜ BURAYA EKLENDİ (Tam İstediğin Yere) */}
+              <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
+                
+                <Link href="/adresler" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+                  <MapPin className="w-4 h-4 text-cyan-500" /> Adresler
+                </Link>
+
+                <Link href="/kargolarim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-blue-500/10 border border-slate-800 hover:border-blue-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-blue-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none relative">
+                  <Truck className="w-4 h-4 text-blue-500" /> Kargolar
+                  {localOrders.filter(o => (o.durum || o.status || "").toLowerCase().includes("kargo")).length > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[9px] font-bold text-white shadow-lg">
+                      {localOrders.filter(o => (o.durum || o.status || "").toLowerCase().includes("kargo")).length}
+                    </span>
+                  )}
+                </Link>
+
+                <Link href="/siparis-takip" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-purple-500/10 border border-slate-800 hover:border-purple-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-purple-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+                  <Search className="w-4 h-4 text-purple-500" /> Sorgula
+                </Link>
+
+                <Link href="/favoriler" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-amber-500/10 border border-slate-800 hover:border-amber-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-amber-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+                  <Star className="w-4 h-4 text-amber-500" /> Favoriler
+                </Link>
+
+                <Link href="/sistemlerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-emerald-500/10 border border-slate-800 hover:border-emerald-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-emerald-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+                  <Monitor className="w-4 h-4 text-emerald-500" /> Sistemler
+                </Link>
+
+                <Link href="/destek-taleplerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-rose-500/10 border border-slate-800 hover:border-rose-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-rose-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+                  <Headphones className="w-4 h-4 text-rose-500" /> Destek / İade
+                </Link>
+                
               </div>
 
               {errorMsg && (
