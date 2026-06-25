@@ -169,11 +169,7 @@ const { sepeteEkle } = useCart();
 
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip">
-      
-      {(zamanAcik || durumAcik) && (
-        <div className="fixed inset-0 z-40" onClick={() => {setZamanAcik(false); setDurumAcik(false)}}></div>
-      )}
-
+    
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-cyan-600 blur-[250px] opacity-[0.05] pointer-events-none rounded-full z-0"></div>
 
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
@@ -210,37 +206,85 @@ const { sepeteEkle } = useCart();
                   <ArrowLeft className="w-4 h-4" /> Siparişlerime Dön
                 </button>
               </div>
-
-              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="w-full md:w-auto">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1.5">
-                    <h1 className="text-lg sm:text-xl font-black text-white tracking-tight uppercase">Sipariş Detayı</h1>
-                    <span className="bg-[#020617] border border-slate-700 px-2.5 py-1 rounded-md text-cyan-400 font-black text-[10px] sm:text-xs tracking-widest flex items-center justify-between sm:justify-start gap-2 w-max">
-                      #{selectedOrder.siparisKodu || selectedOrder.orderNumber || selectedOrder._id.slice(-8).toUpperCase()}
-                      <button onClick={(e) => handleCopy(selectedOrder.siparisKodu || selectedOrder.orderNumber || selectedOrder._id.slice(-8).toUpperCase(), e)} className="text-slate-500 hover:text-white transition-colors">
-                        {copiedCode === (selectedOrder.siparisKodu || selectedOrder.orderNumber || selectedOrder._id.slice(-8).toUpperCase()) ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                      </button>
-                    </span>
-                  </div>
-                  <p className="text-slate-400 font-medium flex items-center gap-1.5 text-xs">
-                    <Calendar className="w-3.5 h-3.5" /> {new Date(selectedOrder.createdAt || selectedOrder.tarih).toLocaleDateString("tr-TR", { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute:'2-digit' })}
-                  </p>
+<div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative flex flex-col gap-5 z-[60]">
+                <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
+                  <div className="absolute -top-20 -right-20 w-64 h-64 bg-cyan-500/10 blur-[60px] rounded-full"></div>
                 </div>
+                
+                <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5 relative z-[60]">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-12 h-12 bg-[#020617] border border-cyan-500/30 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.2)] shrink-0">
+                      <Package className="w-5 h-5 text-cyan-400" />
+                    </div>
+                    <div>
+                      <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-0.5">Siparişlerim</h1>
+                      <p className="text-cyan-400/80 text-xs font-medium tracking-wide">
+                        Listelenen: <span className="font-black text-cyan-400">{filtrelenmisSiparisler.length}</span> Sipariş
+                      </p>
+                    </div>
+                  </div>
 
-                <div className="flex items-center gap-3 bg-[#020617] p-3 rounded-lg border border-slate-800 w-full md:w-max">
-                  <div>
-                    <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-0.5">SİPARİŞ DURUMU</p>
-                    <p className="text-white font-bold capitalize text-sm">
-                      {selectedOrder.durum || selectedOrder.status || "Alındı"}
-                    </p>
+                  <div className="flex flex-row items-center gap-2 sm:gap-3 w-full xl:w-auto relative z-[60]">
+                    
+                    {/* ============================================== */}
+                    {/* 🚀 ZAMAN FİLTRESİ */}
+                    {/* ============================================== */}
+                    <div className="relative flex-1 xl:flex-none min-w-0">
+                      
+                      {/* 🚀 Görünmez Örtü LOKAL olarak buraya eklendi (Tuşların Arkasında Kalacak) */}
+                      {zamanAcik && <div className="fixed inset-0 z-40" onClick={() => setZamanAcik(false)}></div>}
+                      
+                      <button onClick={() => {setZamanAcik(!zamanAcik); setDurumAcik(false)}} className="relative z-50 w-full flex items-center justify-between gap-1 sm:gap-2 bg-[#020617] hover:bg-[#020617]/80 border border-slate-800 rounded-lg px-2 sm:px-4 py-2 sm:py-3 xl:w-48 transition-colors text-[9px] sm:text-xs text-slate-300 font-bold whitespace-nowrap overflow-hidden">
+                        <div className="flex items-center gap-1.5 sm:gap-2 truncate">
+                          <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-cyan-500 shrink-0" />
+                          <span className="truncate">{zamanSecenekleri.find(z => z.id === zamanFiltresi)?.ad}</span>
+                        </div>
+                        <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 shrink-0 text-slate-500 transition-transform ${zamanAcik ? 'rotate-180' : ''}`} />
+                      </button>
+                      
+                      {/* Menü z-[100] yapıldı ki her şeyin üstüne çıksın */}
+                      {zamanAcik && (
+                        <div className="absolute top-full mt-1.5 left-0 w-full bg-[#0f172a] border border-slate-700 rounded-lg shadow-2xl overflow-hidden py-1 z-[100] animate-in fade-in zoom-in-95 duration-100">
+                          {zamanSecenekleri.map(secenek => (
+                            <button key={secenek.id} onClick={() => {setZamanFiltresi(secenek.id); setZamanAcik(false)}} className={`w-full text-left px-3 sm:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold transition-colors ${zamanFiltresi === secenek.id ? 'bg-cyan-600/10 text-cyan-400' : 'text-slate-300 hover:bg-[#020617] hover:text-white'}`}>
+                              {secenek.ad}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* ============================================== */}
+                    {/* 🚀 DURUM FİLTRESİ */}
+                    {/* ============================================== */}
+                    <div className="relative flex-1 xl:flex-none min-w-0">
+                      
+                      {/* 🚀 Görünmez Örtü LOKAL olarak buraya eklendi */}
+                      {durumAcik && <div className="fixed inset-0 z-40" onClick={() => setDurumAcik(false)}></div>}
+                      
+                      <button onClick={() => {setDurumAcik(!durumAcik); setZamanAcik(false)}} className="relative z-50 w-full flex items-center justify-between gap-1 sm:gap-2 bg-[#020617] hover:bg-[#020617]/80 border border-slate-800 rounded-lg px-2 sm:px-4 py-2 sm:py-3 xl:w-52 transition-colors text-[9px] sm:text-xs text-slate-300 font-bold whitespace-nowrap overflow-hidden">
+                        <div className="flex items-center gap-1.5 sm:gap-2 truncate">
+                          <Filter className="w-3 h-3 sm:w-4 sm:h-4 text-cyan-500 shrink-0" />
+                          <span className="truncate">{durumSecenekleri.find(d => d.id === durumFiltresi)?.ad}</span>
+                        </div>
+                        <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 shrink-0 text-slate-500 transition-transform ${durumAcik ? 'rotate-180' : ''}`} />
+                      </button>
+
+                      {/* Menü z-[100] yapıldı */}
+                      {durumAcik && (
+                        <div className="absolute top-full mt-1.5 left-0 w-full bg-[#0f172a] border border-slate-700 rounded-lg shadow-2xl overflow-hidden py-1 z-[100] animate-in fade-in zoom-in-95 duration-100">
+                          {durumSecenekleri.map(secenek => (
+                            <button key={secenek.id} onClick={() => {setDurumFiltresi(secenek.id); setDurumAcik(false)}} className={`w-full text-left px-3 sm:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold transition-colors ${durumFiltresi === secenek.id ? 'bg-cyan-600/10 text-cyan-400' : 'text-slate-300 hover:bg-[#020617] hover:text-white'}`}>
+                              {secenek.ad}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
                   </div>
                 </div>
               </div>
-
-              <h2 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2">
-                <PackageOpen className="w-4 h-4 text-cyan-500" /> Ürünler ({selectedOrder.items?.length || 0})
-              </h2>
-
               <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
                 {selectedOrder.items?.map((item: any, idx: number) => {
                   const durumMetni = (selectedOrder.durum || selectedOrder.status || "").toLowerCase();
