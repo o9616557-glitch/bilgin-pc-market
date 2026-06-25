@@ -8,6 +8,7 @@ import {
   MapPin, Star, Monitor, Headphones, PackageX
 } from "lucide-react";
 import { useOrders } from "@/app/OrderContext";
+import toast from "react-hot-toast";
 
 export default function SiparisTakipPage() {
   const [kodu, setKodu] = useState("");
@@ -20,7 +21,7 @@ export default function SiparisTakipPage() {
   const [kargoPopupAcik, setKargoPopupAcik] = useState(false);
   const { orders: localOrders } = useOrders();
 
-  // 🚀 EKRAN DONDURMA (Modal / Kargo Popup Açılınca Arka Planı Kilitler)
+  // 🚀 EKRAN DONDURMA
   useEffect(() => {
     if (typeof window !== "undefined") {
       if (kargoPopupAcik) {
@@ -89,12 +90,11 @@ export default function SiparisTakipPage() {
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip">
       
-      {/* 🚀 ARKA PLAN PARLAMASI (Diğerleriyle Tam Uyumlu 0.05 Opacity - Turkuaz) */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-cyan-600 blur-[250px] opacity-[0.05] pointer-events-none rounded-full z-0"></div>
 
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
         
-        {/* ⬅️ SOL MENÜ (Tamamen İp Gibi Hizalı) */}
+        {/* ⬅️ SOL MENÜ */}
         <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-xl p-2 sm:p-4 shadow-xl overflow-x-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
             <nav className="flex flex-row lg:flex-col gap-1.5 min-w-max lg:min-w-0">
@@ -114,47 +114,45 @@ export default function SiparisTakipPage() {
         {/* ➡️ SAĞ İÇERİK */}
         <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full animate-in fade-in duration-300">
           
-        {/* 🚀 BİNGO: İSTENİLEN SIRALAMADA TURKUAZ (CYAN) FASULYE MENÜ */}
-            <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pt-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
-              
-              {/* 1. Siparişler */}
-              <Link href="/siparislerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
-                <Package className="w-4 h-4 text-cyan-500" /> Siparişler
-              </Link>
+          {/* 🚀 BİNGO: FASULYE MENÜ EKSİKSİZ VE TAM SIRALI */}
+          <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pt-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
+            
+            <Link href="/siparislerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+              <Package className="w-4 h-4 text-cyan-500" /> Siparişler
+            </Link>
 
-              {/* 2. Favoriler */}
-              <Link href="/favorilerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
-                <Star className="w-4 h-4 text-cyan-500" /> Favoriler
-              </Link>
+            <Link href="/favorilerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+              <Star className="w-4 h-4 text-cyan-500" /> Favoriler
+            </Link>
 
-              {/* 3. Sistemler */}
-              <Link href="/sistemlerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
-                <Monitor className="w-4 h-4 text-cyan-500" /> Sistemler
-              </Link>
+            <Link href="/sistemlerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+              <Monitor className="w-4 h-4 text-cyan-500" /> Sistemler
+            </Link>
 
-              {/* 4. Destek / İade */}
-              <Link href="/destek-taleplerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
-                <Headphones className="w-4 h-4 text-cyan-500" /> Destek / İade
-              </Link>
+            <Link href="/destek-taleplerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+              <Headphones className="w-4 h-4 text-cyan-500" /> Destek / İade
+            </Link>
 
-              {/* 5. Adresler */}
-              <Link href="/adreslerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
-                <MapPin className="w-4 h-4 text-cyan-500" /> Adresler
-              </Link>
+            <Link href="/siparis-takip" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+              <Search className="w-4 h-4 text-cyan-500" /> Sorgula
+            </Link>
 
-              {/* 6. Kargolar */}
-              <button onClick={() => setKargoPopupAcik(true)} className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none relative">
-                <Truck className="w-4 h-4 text-cyan-500" /> Kargolar
-                {localOrders?.filter(o => (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo")).length > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-cyan-500 text-[9px] font-bold text-white shadow-lg">
-                    {localOrders.filter(o => (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo")).length}
-                  </span>
-                )}
-              </button>
+            <Link href="/adreslerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+              <MapPin className="w-4 h-4 text-cyan-500" /> Adresler
+            </Link>
 
-            </div>
+            <button onClick={() => setKargoPopupAcik(true)} className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none relative">
+              <Truck className="w-4 h-4 text-cyan-500" /> Kargolar
+              {localOrders?.filter(o => (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo")).length > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-cyan-500 text-[9px] font-bold text-white shadow-lg">
+                  {localOrders.filter(o => (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo")).length}
+                </span>
+              )}
+            </button>
+            
+          </div>
 
-          {/* 🚀 BAŞLIK KUTUSU (Diğer sayfalar ile aynı yapı ve boşluk: rounded-xl, p-5 sm:p-6, flex-row) */}
+          {/* 🚀 BAŞLIK KUTUSU */}
           <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5 z-40 overflow-hidden group">
             <div className="absolute -top-20 -right-20 w-64 h-64 bg-cyan-500/10 blur-[60px] pointer-events-none rounded-full"></div>
             
@@ -215,7 +213,6 @@ export default function SiparisTakipPage() {
           {siparis && (
             <div className="flex flex-col gap-5 lg:gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
               
-              {/* Müşteri Bildirimi */}
               {magazaMesaji && (
                 <div className="p-5 bg-amber-500/10 border border-amber-500/20 text-amber-200 rounded-2xl shadow-lg relative overflow-hidden group">
                   <div className="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
@@ -226,7 +223,6 @@ export default function SiparisTakipPage() {
                 </div>
               )}
 
-              {/* İPTAL DURUMU */}
               {iptalEdildiMi(siparis.durum) ? (
                 <div className="p-8 sm:p-12 bg-[#0f172a] border border-slate-800 rounded-2xl text-center shadow-xl">
                   <div className="w-20 h-20 rounded-full bg-[#020617] border border-rose-500/20 flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(225,29,72,0.1)]">
@@ -238,14 +234,11 @@ export default function SiparisTakipPage() {
                   </p>
                 </div>
               ) : (
-                /* 🛤️ SİPARİŞ YOLU */
                 <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 sm:p-10 relative overflow-hidden shadow-xl">
                   <div className="relative flex justify-between items-start">
                     
-                    {/* Arka Plan Çizgisi */}
                     <div className="absolute left-0 top-[21px] sm:top-[29px] w-full h-[4px] sm:h-[6px] bg-[#020617] rounded-full border border-slate-800/50"></div>
                     
-                    {/* İlerleme Çizgisi */}
                     <div 
                       className="absolute left-0 top-[21px] sm:top-[29px] h-[4px] sm:h-[6px] bg-gradient-to-r from-blue-600 to-cyan-400 rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(6,182,212,0.6)]"
                       style={{ width: `${(aktifAdimBul(siparis.durum) / (adimlar.length - 1)) * 100}%` }}
@@ -278,7 +271,6 @@ export default function SiparisTakipPage() {
                 </div>
               )}
 
-              {/* 📄 SİPARİŞ DETAY VE WHATSAPP KARTI */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-6">
                 
                 {/* SOL: SİPARİŞ İÇERİĞİ */}
@@ -427,7 +419,11 @@ export default function SiparisTakipPage() {
                           <div className="flex items-center gap-2 px-2 py-1 bg-cyan-950/20 rounded-md border border-cyan-500/20">
                             <span className="font-black text-cyan-400">{takipNo}</span>
                             {takipNo !== "Takip No Girilmemiş" && (
-                              <button onClick={(e) => koduKopyala(takipNo)} className="text-cyan-600 hover:text-cyan-300 transition-colors">
+                              <button onClick={(e) => {
+                                e.stopPropagation();
+                                navigator.clipboard.writeText(takipNo);
+                                toast.success("Takip numarası kopyalandı!");
+                              }} className="text-cyan-600 hover:text-cyan-300 transition-colors">
                                 <Copy className="w-3.5 h-3.5" />
                               </button>
                             )}
