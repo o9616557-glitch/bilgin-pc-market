@@ -52,31 +52,32 @@ export default function SiparisClient() {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
+  // 🚀 BİNGO: ROZETLERE w-max EKLENDİ (SÜNME, UZAMA ENGELLENDİ)
   const DurumRozetiGoster = ({ durum }: { durum: string }) => {
     const d = (durum || "").toLocaleLowerCase("tr-TR");
     if (d.includes("iptal") || d.includes("i̇ptal")) return (
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-[9px] font-black uppercase tracking-widest shadow-inner">
+        <div className="w-max inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-black uppercase tracking-widest shadow-inner">
            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> İPTAL EDİLDİ
         </div>
     );
     if (d.includes("teslim") || d.includes("tamam") || d.includes("bit") || d.includes("son")) return (
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-black uppercase tracking-widest shadow-inner">
-           <CheckCircle2 className="w-3 h-3" /> TESLİM EDİLDİ
+        <div className="w-max inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-widest shadow-inner">
+           <CheckCircle2 className="w-3.5 h-3.5" /> TESLİM EDİLDİ
         </div>
     );
     if (d.includes("kargo")) return (
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[9px] font-black uppercase tracking-widest shadow-[0_0_10px_rgba(59,130,246,0.15)]">
-           <Truck className="w-3 h-3 animate-bounce" /> KARGODA
+        <div className="w-max inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-widest shadow-[0_0_10px_rgba(59,130,246,0.15)]">
+           <Truck className="w-3.5 h-3.5 animate-bounce" /> KARGODA
         </div>
     );
     if (d.includes("hazır") || d.includes("ödendi") || d.includes("odendi")) return (
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[9px] font-black uppercase tracking-widest shadow-inner">
-           <Package className="w-3 h-3" /> HAZIRLANIYOR
+        <div className="w-max inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-black uppercase tracking-widest shadow-inner">
+           <Package className="w-3.5 h-3.5" /> HAZIRLANIYOR
         </div>
     );
     return (
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-500/10 border border-slate-500/20 text-slate-300 text-[9px] font-black uppercase tracking-widest shadow-inner">
-           <Clock className="w-3 h-3" /> ALINDI
+        <div className="w-max inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-slate-500/10 border border-slate-500/20 text-slate-300 text-[10px] font-black uppercase tracking-widest shadow-inner">
+           <Clock className="w-3.5 h-3.5" /> ALINDI
         </div>
     );
   };
@@ -115,7 +116,7 @@ export default function SiparisClient() {
 
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
         
-        {/* 🚀 SOL MENÜ ARTIK HEP SABİT */}
+        {/* SOL MENÜ */}
         <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-xl p-3 sm:p-4 shadow-xl">
             <nav className="flex flex-col gap-1">
@@ -132,31 +133,29 @@ export default function SiparisClient() {
           </div>
         </div>
 
-        {/* SAĞ İÇERİK (Liste veya Detay) */}
+        {/* SAĞ İÇERİK */}
         <div className="flex-1 flex flex-col min-w-0 w-full relative">
           
           {selectedOrder ? (
             /* =================================================================================== */
-            /* 🚀 BÖLÜM 1: DETAY EKRANI (Daha kibar, yapışkan butonlu ve düzgün buton hizalı) */
+            /* 🚀 DETAY EKRANI */
             /* =================================================================================== */
             <div className="flex flex-col gap-5 animate-in slide-in-from-right-8 fade-in duration-300">
               
-              {/* 🚀 YAPIŞKAN GERİ BUTONU (Telefonda aşağı kayınca üstte asılı kalır) */}
-              <div className="sticky top-[80px] lg:top-28 z-40 bg-[#050814]/90 backdrop-blur-md py-3 border-b border-slate-800/50 mb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:border-none sm:bg-transparent sm:py-0">
+              <div className="sticky top-[80px] lg:top-28 z-40 bg-[#050814]/90 backdrop-blur-md py-3 mb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:border-none sm:bg-transparent sm:py-0 w-full">
                 <button 
                   onClick={() => setSelectedOrder(null)} 
-                  className="flex items-center gap-2 px-4 py-2 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 text-slate-400 hover:text-cyan-400 transition-all rounded-lg font-bold text-xs uppercase tracking-widest w-max shadow-md"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 text-slate-400 hover:text-cyan-400 transition-all rounded-lg font-bold text-xs uppercase tracking-widest w-max shadow-md"
                 >
                   <ArrowLeft className="w-4 h-4" /> Siparişlerime Dön
                 </button>
               </div>
 
-              {/* Sipariş Özet Kartı (Küçültüldü) */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="w-full md:w-auto">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1.5">
                     <h1 className="text-lg sm:text-xl font-black text-white tracking-tight uppercase">Sipariş Detayı</h1>
-                    <span className="bg-[#020617] border border-slate-700 px-2.5 py-1 rounded-md text-cyan-400 font-black text-[10px] sm:text-xs tracking-widest flex items-center justify-between sm:justify-start gap-2 w-full sm:w-auto">
+                    <span className="bg-[#020617] border border-slate-700 px-2.5 py-1 rounded-md text-cyan-400 font-black text-[10px] sm:text-xs tracking-widest flex items-center justify-between sm:justify-start gap-2 w-max">
                       #{selectedOrder.siparisKodu || selectedOrder.orderNumber || selectedOrder._id.slice(-8).toUpperCase()}
                       <button onClick={(e) => handleCopy(selectedOrder.siparisKodu || selectedOrder._id.slice(-8).toUpperCase(), e)} className="text-slate-500 hover:text-white transition-colors">
                         {copiedCode === (selectedOrder.siparisKodu || selectedOrder._id.slice(-8).toUpperCase()) ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
@@ -168,7 +167,7 @@ export default function SiparisClient() {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3 bg-[#020617] p-3 rounded-lg border border-slate-800 w-full md:w-auto">
+                <div className="flex items-center gap-3 bg-[#020617] p-3 rounded-lg border border-slate-800 w-full md:w-max">
                   <div>
                     <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-0.5">SİPARİŞ DURUMU</p>
                     <p className="text-white font-bold capitalize text-sm">
@@ -182,7 +181,7 @@ export default function SiparisClient() {
                 <PackageOpen className="w-4 h-4 text-cyan-500" /> Ürünler ({selectedOrder.items?.length || 0})
               </h2>
 
-              {/* Ürün Listesi (Küçültüldü ve Kartlar Sabitlendi) */}
+              {/* 🚀 BİNGO: KART DEFORME OLMAYACAK ŞEKİLDE DÜZENLENDİ */}
               <div className="space-y-4">
                 {selectedOrder.items?.map((item: any, idx: number) => {
                   const isTeslimEdildi = (selectedOrder.durum || selectedOrder.status || "").toLowerCase().includes("teslim") || (selectedOrder.durum || selectedOrder.status || "").toLowerCase().includes("tamam");
@@ -193,56 +192,54 @@ export default function SiparisClient() {
                   const iadeSuresiGectiMi = bugun > iadeBitisTarihi;
 
                   return (
-                    // Kart esnemesin diye items-start verildi
-                    <div key={idx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-4 shadow-md flex flex-col sm:flex-row items-start gap-4 sm:gap-5">
+                    <div key={idx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-4 shadow-md flex flex-col gap-4">
                       
-                      {/* Resim küçültüldü */}
-                      <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="w-full sm:w-24 h-24 bg-[#020617] rounded-lg border border-slate-800 hover:border-cyan-500/50 flex items-center justify-center p-2 transition-colors shrink-0">
-                        {item.image || item.resim ? (
-                          <img src={item.image || item.resim} alt="ürün" className="w-full h-full object-contain drop-shadow-md" />
-                        ) : (
-                          <PackageOpen className="w-8 h-8 text-slate-600" />
-                        )}
-                      </Link>
-
-                      <div className="flex-1 w-full flex flex-col justify-between h-full">
-                        <div>
-                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-1">
-                            <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="text-sm font-bold text-white hover:text-cyan-400 transition-colors leading-snug line-clamp-2">
-                              {item.title || item.isim}
-                            </Link>
-                            <p className="text-sm sm:text-base font-black text-cyan-400 whitespace-nowrap">
-                              {Number((item.price || item.fiyat || 0) * (item.quantity || item.adet || 1)).toLocaleString("tr-TR")} TL
-                            </p>
-                          </div>
-                          <p className="text-slate-400 font-bold text-[10px] sm:text-xs uppercase tracking-wider mb-3">Miktar: {item.quantity || item.adet} Adet</p>
-                        </div>
-
-                        {/* 🚀 BİNGO: Mobil İçin Eşit Buton Izgarası (Grid) */}
-                        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 pt-3 border-t border-slate-800/80 mt-auto">
-                          <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="flex items-center justify-center gap-1.5 h-9 bg-cyan-600/10 hover:bg-cyan-600 hover:text-white text-cyan-400 border border-cyan-500/20 rounded-md transition-all font-black text-[9px] sm:text-[10px] uppercase tracking-widest col-span-1">
-                            <ShoppingCart className="w-3 h-3" /> Tekrar Al
+                      {/* Üst Kısım: Resim Sola, Yazı Sağa (Yan Yana) */}
+                      <div className="flex items-start gap-4">
+                        <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="w-20 h-20 sm:w-24 sm:h-24 bg-[#020617] rounded-lg border border-slate-800 hover:border-cyan-500/50 flex items-center justify-center p-2 shrink-0 transition-colors">
+                          {item.image || item.resim ? (
+                            <img src={item.image || item.resim} alt="ürün" className="w-full h-full object-contain drop-shadow-md" />
+                          ) : (
+                            <PackageOpen className="w-8 h-8 text-slate-600" />
+                          )}
+                        </Link>
+                        
+                        <div className="flex-1 flex flex-col">
+                          <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="text-xs sm:text-sm font-bold text-white hover:text-cyan-400 transition-colors leading-snug line-clamp-2 mb-1.5">
+                            {item.title || item.isim}
                           </Link>
-
-                          {isTeslimEdildi && (
-                            <Link href={`/product/${item.slug || item.productId || item._id || ''}#yorumlar`} className="flex items-center justify-center gap-1.5 h-9 bg-[#020617] hover:bg-amber-500/10 text-slate-300 hover:text-amber-400 border border-slate-800 hover:border-amber-500/30 rounded-md transition-all font-black text-[9px] sm:text-[10px] uppercase tracking-widest col-span-1">
-                              <Star className="w-3 h-3" /> Yorumla
-                            </Link>
-                          )}
-
-                          {isTeslimEdildi && !isIptal && !iadeSuresiGectiMi && (
-                            <Link href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade`} className="flex items-center justify-center gap-1.5 h-9 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] sm:text-[10px] uppercase tracking-widest col-span-2 sm:col-span-1">
-                              <RefreshCw className="w-3 h-3" /> İade Et
-                            </Link>
-                          )}
+                          <p className="text-slate-400 font-bold text-[10px] uppercase tracking-wider mb-1">Miktar: {item.quantity || item.adet} Adet</p>
+                          <p className="text-sm sm:text-base font-black text-cyan-400 whitespace-nowrap mt-auto">
+                            {Number((item.price || item.fiyat || 0) * (item.quantity || item.adet || 1)).toLocaleString("tr-TR")} TL
+                          </p>
                         </div>
                       </div>
+
+                      {/* Alt Kısım: Butonlar */}
+                      {/* 🚀 BİNGO: İADE ET VE YORUMLA YAN YANA ÜSTTE, TEKRAR AL BÜYÜK OLARAK ALTTA (MOBİL İÇİN) */}
+                      <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 pt-3 border-t border-slate-800/50">
+                        {isTeslimEdildi && !isIptal && !iadeSuresiGectiMi && (
+                          <Link href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade`} className="col-span-1 flex items-center justify-center gap-1.5 h-10 px-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[10px] uppercase tracking-widest w-full">
+                            <RefreshCw className="w-3.5 h-3.5" /> İade Et
+                          </Link>
+                        )}
+                        
+                        {isTeslimEdildi && (
+                          <Link href={`/product/${item.slug || item.productId || item._id || ''}#yorumlar`} className="col-span-1 flex items-center justify-center gap-1.5 h-10 px-3 bg-[#020617] hover:bg-amber-500/10 text-slate-300 hover:text-amber-400 border border-slate-800 hover:border-amber-500/30 rounded-md transition-all font-black text-[10px] uppercase tracking-widest w-full">
+                            <Star className="w-3.5 h-3.5" /> Yorumla
+                          </Link>
+                        )}
+
+                        <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="col-span-2 sm:col-span-1 sm:ml-auto flex items-center justify-center gap-1.5 h-10 px-6 bg-cyan-600/10 hover:bg-cyan-600 text-cyan-400 hover:text-white border border-cyan-500/20 rounded-md transition-all font-black text-[10px] uppercase tracking-widest w-full sm:w-max mt-1 sm:mt-0 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
+                          <ShoppingCart className="w-4 h-4" /> Tekrar Al
+                        </Link>
+                      </div>
+
                     </div>
                   );
                 })}
               </div>
 
-              {/* Alt Notlar ve Fiyat Özeti */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 shadow-lg flex flex-col justify-between">
                   <div>
@@ -299,10 +296,9 @@ export default function SiparisClient() {
 
           ) : (
             /* =================================================================================== */
-            /* 🚀 BÖLÜM 2: ANA LİSTE EKRANI */
+            /* 🚀 ANA LİSTE EKRANI */
             /* =================================================================================== */
             <div className="flex flex-col gap-5 animate-in fade-in duration-300">
-              {/* HERO & FİLTRE ALANI */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative overflow-hidden flex flex-col gap-5">
                 <div className="absolute -top-20 -right-20 w-64 h-64 bg-cyan-500/10 blur-[60px] pointer-events-none rounded-full"></div>
                 
@@ -319,24 +315,25 @@ export default function SiparisClient() {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2.5 w-full xl:w-auto">
-                    <div className="flex items-center gap-2 bg-[#020617] border border-slate-800 rounded-lg px-3 py-2 flex-1 xl:flex-none">
+                  {/* 🚀 BİNGO: FİLTRE KUTULARI NEFES ALSIN DİYE py-2.5 VE px-4 YAPILDI */}
+                  <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+                    <div className="flex items-center gap-2 bg-[#020617] border border-slate-800 rounded-lg px-4 py-2.5 flex-1 xl:flex-none">
                       <Calendar className="w-4 h-4 text-slate-500" />
                       <select value={zamanFiltresi} onChange={(e) => setZamanFiltresi(e.target.value)} className="bg-transparent text-xs text-slate-300 font-bold outline-none cursor-pointer appearance-none w-full">
-                        <option value="tumu" className="bg-[#0f172a]">Tüm Zamanlar</option>
-                        <option value="son30" className="bg-[#0f172a]">Son 30 Gün</option>
-                        <option value="2026" className="bg-[#0f172a]">2026 Yılı</option>
-                        <option value="2025" className="bg-[#0f172a]">2025 Yılı</option>
+                        <option value="tumu" className="bg-[#0f172a] py-2">Tüm Zamanlar</option>
+                        <option value="son30" className="bg-[#0f172a] py-2">Son 30 Gün</option>
+                        <option value="2026" className="bg-[#0f172a] py-2">2026 Yılı</option>
+                        <option value="2025" className="bg-[#0f172a] py-2">2025 Yılı</option>
                       </select>
                     </div>
-                    <div className="flex items-center gap-2 bg-[#020617] border border-slate-800 rounded-lg px-3 py-2 flex-1 xl:flex-none">
+                    <div className="flex items-center gap-2 bg-[#020617] border border-slate-800 rounded-lg px-4 py-2.5 flex-1 xl:flex-none">
                       <Filter className="w-4 h-4 text-slate-500" />
                       <select value={durumFiltresi} onChange={(e) => setDurumFiltresi(e.target.value)} className="bg-transparent text-xs text-slate-300 font-bold outline-none cursor-pointer appearance-none w-full">
-                        <option value="tumu" className="bg-[#0f172a]">Tüm Siparişler</option>
-                        <option value="devam" className="bg-[#0f172a]">Devam Edenler</option>
-                        <option value="kargo" className="bg-[#0f172a]">Kargodakiler</option>
-                        <option value="teslim" className="bg-[#0f172a]">Teslim Edilenler</option>
-                        <option value="iptal" className="bg-[#0f172a]">İptal/İadeler</option>
+                        <option value="tumu" className="bg-[#0f172a] py-2">Tüm Siparişler</option>
+                        <option value="devam" className="bg-[#0f172a] py-2">Devam Edenler</option>
+                        <option value="kargo" className="bg-[#0f172a] py-2">Kargodakiler</option>
+                        <option value="teslim" className="bg-[#0f172a] py-2">Teslim Edilenler</option>
+                        <option value="iptal" className="bg-[#0f172a] py-2">İptal/İadeler</option>
                       </select>
                     </div>
                   </div>
