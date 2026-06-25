@@ -71,7 +71,7 @@ export default function AdminPaneli() {
     
     setTimeout(asagiKaydir, 100);
     setTimeout(asagiKaydir, 500);
-  }, [talepler]);
+}, [talepler, aktifSekme]);
 
   // 🚀 YENİ ANA MOTOR: Sayfa açıldığı an sorgusuz sualsiz tüm verileri çeker
   useEffect(() => {
