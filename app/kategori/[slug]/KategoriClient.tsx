@@ -555,7 +555,7 @@ if (urun.fetchedReviews && urun.fetchedReviews.length > 0) {
                         </div>
                       </div>
                       
-                      <Link href={"/product/" + (urun.slug || targetId)} prefetch={true} onMouseEnter={(e) => { const router = require('next/navigation').useRouter; router().prefetch("/product/" + (urun.slug || targetId)); }} className="absolute inset-0 z-10" />
+              <Link href={"/product/" + (urun.slug || targetId)} prefetch={false} className="absolute inset-0 z-10" />
 
                     </div>
                   );
