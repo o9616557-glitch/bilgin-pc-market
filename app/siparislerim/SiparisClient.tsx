@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { 
   Trash2, Copy, Check, RefreshCw, Filter, 
   PackageOpen, Package, Truck, CheckCircle2, Clock, 
@@ -8,62 +8,30 @@ import {
 } from "lucide-react"; 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+// 🚀 BİNGO: Merkezi Hafıza Odamızın Anahtarını İçeri Alıyoruz!
+import { useOrders } from "@/app/OrderContext"; 
 
-interface Props {
-  initialOrders: any[];
-}
-
-export default function SiparisClient({ initialOrders }: Props) {
+export default function SiparisClient() {
   const router = useRouter();
   
-  const siraliBaslangic = [...initialOrders]
-    .filter(o => o.gizlendi !== true)
-    .sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
+  // 🚀 ARTIK HAMALLIK YOK: Veriyi direkt merkezi odadan (RAM'den) sıfır saniyede çekiyoruz!
+  const { orders: contextOrders, loading: contextLoading, refreshOrders } = useOrders();
   
-  const [orders, setOrders] = useState<any[]>(siraliBaslangic);
-  const ordersRef = useRef<any[]>(siraliBaslangic);
-  const [refreshing, setRefreshing] = useState(false); 
+  // Anında silme (Optimistic UI) hissi için veriyi kendi rafımıza alıyoruz
+  const [localOrders, setLocalOrders] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Merkezi odadan gelen veriyi ekrana diz
+    setLocalOrders(contextOrders);
+  }, [contextOrders]);
+
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
 
-  // 🚀 BİNGO: YENİ PROFESYONEL FİLTRE MOTORLARI
+  // FİLTRE MOTORLARI
   const [zamanFiltresi, setZamanFiltresi] = useState<string>("tumu");
   const [durumFiltresi, setDurumFiltresi] = useState<string>("tumu");
-
-  useEffect(() => {
-    if (initialOrders.length > 0) {
-      const siraliGelen = [...initialOrders]
-        .filter(o => o.gizlendi !== true)
-        .sort((a, b) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
-      setOrders(siraliGelen);
-      ordersRef.current = siraliGelen;
-    }
-  }, [initialOrders]);
-
-  // Canlı Takip Motoru
-  useEffect(() => {
-    const gercegiKontrolEt = async () => {
-      if (refreshing) return; 
-      try {
-        const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
-          cache: "no-store",
-          headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
-        });
-        const data = await res.json();
-        
-        if (res.ok && data.orders) {
-           const siraliYeni = [...data.orders].sort((a: any, b: any) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
-           setOrders(siraliYeni);
-           ordersRef.current = siraliYeni;
-        }
-      } catch (error) {
-      }
-    };
-    gercegiKontrolEt();
-    const radar = setInterval(gercegiKontrolEt, 10000); 
-    return () => clearInterval(radar); 
-  }, [refreshing]);
 
   const handleDeleteClick = (orderId: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation(); 
@@ -73,11 +41,15 @@ export default function SiparisClient({ initialOrders }: Props) {
   const confirmDelete = async () => {
     if (!orderToDelete) return;
     try {
-      setOrders(orders.filter((order) => order._id !== orderToDelete));
+      // 🚀 ANINDA SİLME TAKTİĞİ: Önce ekrandan şak diye sil! Müşteri sildiğini anında görsün.
+      setLocalOrders(prev => prev.filter((order) => order._id !== orderToDelete));
+      
+      // Sonra arka planda veritabanından sil ve merkezi hafızayı yenile
       const res = await fetch("/api/orders?id=" + orderToDelete, { method: "DELETE" });
       if (!res.ok) setErrorMsg("Sipariş silinirken bir hata oluştu.");
+      
       setOrderToDelete(null);
-      router.refresh();
+      refreshOrders(); // Ana odayı da güncelle ki başka sayfada silinmiş sipariş görünmesin
     } catch (error) {
       setErrorMsg("Bağlantı hatası sebebiyle silinemedi.");
       setOrderToDelete(null);
@@ -91,14 +63,7 @@ export default function SiparisClient({ initialOrders }: Props) {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  const DurumRozetiGoster = ({ durum, isRefreshing }: { durum: string, isRefreshing: boolean }) => {
-    if (isRefreshing) {
-      return (
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[10px] font-black uppercase tracking-widest shadow-inner">
-           <RefreshCw className="w-3.5 h-3.5 animate-spin" /> GÜNCELLENİYOR
-        </div>
-      );
-    }
+  const DurumRozetiGoster = ({ durum }: { durum: string }) => {
     const d = (durum || "").toLocaleLowerCase("tr-TR");
     if (d.includes("iptal") || d.includes("i̇ptal")) {
       return (
@@ -135,20 +100,11 @@ export default function SiparisClient({ initialOrders }: Props) {
       );
   };
 
-  const getGuzelOdemeYontemi = (metin: string) => {
-    if (!metin) return "Havale / EFT";
-    const m = metin.toLowerCase();
-    if (m === "kart" || m.includes("kredi") || m.includes("iyzico")) return "Kredi Kartı";
-    if (m === "havale" || m.includes("eft")) return "Havale / EFT";
-    return metin; 
-  };
-
-  // 🚀 FİLTRELEME İŞLEMİ (Ekranda görünecek siparişleri eliyoruz)
-  const filtrelenmisSiparisler = orders.filter(order => {
+  // 🚀 FİLTRELEME İŞLEMİ (Yerel veriyi anında eler)
+  const filtrelenmisSiparisler = localOrders.filter(order => {
     let zamanUygun = true;
     let durumUygun = true;
     
-    // 1. Zaman Filtresi
     const orderDate = new Date(order.createdAt || order.tarih);
     const now = new Date();
     if (zamanFiltresi === "son30") {
@@ -161,7 +117,6 @@ export default function SiparisClient({ initialOrders }: Props) {
       zamanUygun = orderDate.getFullYear() === 2025;
     }
 
-    // 2. Durum Filtresi
     const d = (order.durum || order.status || "").toLocaleLowerCase("tr-TR");
     if (durumFiltresi === "teslim") durumUygun = d.includes("teslim") || d.includes("tamam");
     else if (durumFiltresi === "kargo") durumUygun = d.includes("kargo");
@@ -170,6 +125,15 @@ export default function SiparisClient({ initialOrders }: Props) {
 
     return zamanUygun && durumUygun;
   });
+
+  // Merkezi oda hala yükleniyorsa kısacık bir şık çark dönsün
+  if (contextLoading && localOrders.length === 0) {
+    return (
+      <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center">
+        <div className="w-16 h-16 border-4 border-slate-800 border-t-cyan-500 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip">
@@ -215,7 +179,7 @@ export default function SiparisClient({ initialOrders }: Props) {
                 </div>
               </div>
 
-              {/* 🚀 BİNGO: FİLTRE SEÇENEKLERİ */}
+              {/* FİLTRE SEÇENEKLERİ */}
               <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                 <div className="flex items-center gap-2 bg-[#020617] border border-slate-800 rounded-xl px-3 py-2 flex-1 sm:flex-none">
                   <Calendar className="w-4 h-4 text-slate-500" />
@@ -263,7 +227,7 @@ export default function SiparisClient({ initialOrders }: Props) {
               </div>
               <h2 className="text-xl font-black uppercase tracking-wide mb-2 text-white">Sipariş Bulunamadı</h2>
               <p className="text-slate-400 text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">
-                Seçtiğiniz filtrelere uygun sipariş geçmişi görünmüyor.
+                Seçtiğiniz filtrelere uygun sipariş geçmişi görünmüyor veya henüz sipariş vermediniz.
               </p>
               <button 
                 onClick={() => { setZamanFiltresi("tumu"); setDurumFiltresi("tumu"); }}
@@ -283,7 +247,7 @@ export default function SiparisClient({ initialOrders }: Props) {
                 return (
                   <div 
                     key={order._id} 
-                    className={`flex flex-col sm:flex-row sm:items-center gap-4 bg-[#0f172a] border ${refreshing ? 'border-slate-800/50 opacity-80 scale-[0.99]' : 'border-slate-800 hover:border-cyan-500/40 hover:shadow-[0_0_20px_rgba(6,182,212,0.05)]'} p-4 sm:p-5 rounded-2xl transition-all duration-300 animate-in fade-in`}
+                    className="flex flex-col sm:flex-row sm:items-center gap-4 bg-[#0f172a] border border-slate-800 hover:border-cyan-500/40 hover:shadow-[0_0_20px_rgba(6,182,212,0.05)] p-4 sm:p-5 rounded-2xl transition-all duration-300 animate-in fade-in"
                   >
                     
                     {/* Dışarıdaki Görsel */}
@@ -324,10 +288,9 @@ export default function SiparisClient({ initialOrders }: Props) {
                       </div>
 
                       <div className="flex flex-col sm:items-center gap-2">
-                        <DurumRozetiGoster durum={durumMetni} isRefreshing={refreshing} />
+                        <DurumRozetiGoster durum={durumMetni} />
                       </div>
 
-                      {/* 🚀 BİNGO: POP-UP YERİNE DETAY SAYFASINA GİDEN BUTON */}
                       <div className="flex items-center justify-between sm:justify-end gap-3 border-t border-slate-800 sm:border-0 pt-4 sm:pt-0">
                         <div className="flex flex-col items-start sm:items-end mr-2">
                           <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest">TOPLAM</span>
