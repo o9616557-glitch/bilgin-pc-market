@@ -17,7 +17,7 @@ export default function SiparisClient() {
   const { orders: contextOrders, loading: contextLoading, refreshOrders } = useOrders();
   
   // 🚀 Sepete ekleme fonksiyonunu çektik (Senin context'te ismi sepeteEkle ise addToCart yerine onu yazarsın)
-  const { addToCart } = useCart(); 
+const { sepeteEkle } = useCart();
 
   const [localOrders, setLocalOrders] = useState<any[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
@@ -282,12 +282,20 @@ export default function SiparisClient() {
                           </Link>
                         )}
 
-                        {/* 🚀 BİNGO: TEKRAR AL BUTONU ARTIK DOĞRUDAN SEPETE EKLİYOR! */}
+                     {/* 🚀 BİNGO: TEKRAR AL BUTONU (Senin sepeteEkle fonksiyonunla tam uyumlu!) */}
                         <button 
                           onClick={() => {
-                            if(addToCart) {
-                              addToCart({ ...item, quantity: 1 }); // Tekrar al derken 1 adet sepete atıyoruz
-                              toast.success(`${item.title || item.isim || "Ürün"} sepete eklendi!`, {
+                            if(sepeteEkle) {
+                              sepeteEkle({ 
+                                id: String(item?.slug || item?.productId || item?.id || item?._id || ""), 
+                                isim: item?.title || item?.isim || "Ürün", 
+                                fiyat: Number(item?.price || item?.fiyat || 0), 
+                                resim: item?.image || item?.resim || "https://via.placeholder.com/400", 
+                                varyasyon: "Standart Model", 
+                                havaleIndirimi: 5, 
+                                slug: item?.slug || ""
+                              });
+                              toast.success(`${item?.title || item?.isim || "Ürün"} sepete eklendi!`, {
                                 icon: '🛒',
                                 style: { borderRadius: '10px', background: '#0f172a', color: '#fff', border: '1px solid #0ea5e9' }
                               });
