@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { 
@@ -111,14 +111,16 @@ export default function AdminPaneli() {
   const siparisleriGetir = async () => { try { const res = await fetch(`/api/admin/siparisler?v=${Date.now()}`, { headers: { "x-patron-anahtar": PATRON_SIFRESI }}); const data = await res.json(); if (data.success) setSiparisler(data.siparisler); } catch (e) {} };
   const siparisSilmeIslemi = async () => { if (!silinecekSiparisID) return; try { const res = await fetch(`/api/admin/siparisler?id=${silinecekSiparisID}`, { method: "DELETE", headers: { "x-patron-anahtar": PATRON_SIFRESI }}); if ((await res.json()).success) { setSiparisler(siparisler.filter(s => s._id !== silinecekSiparisID)); setSilinecekSiparisID(null); toast.success("Sipariş silindi."); } } catch (e) { toast.error("Silinemedi."); } };
 
-  // 🚀 --- DESTEK TALEPLERİ İŞLEMLERİ (YENİ EKLENDİ) --- 🚀
+// 🚀 --- DESTEK TALEPLERİ İŞLEMLERİ (YENİ EKLENDİ) --- 🚀
   const talepleriGetir = async () => {
     try {
       const res = await fetch(`/api/admin/destek?v=${Date.now()}`, { headers: { "x-patron-anahtar": PATRON_SIFRESI }});
       const data = await res.json();
       if (data.success) setTalepler(data.talepler);
     } catch (e) {}
-    // 🚀 BİNGO: ADMİN RADARI (Sayfayı yenilemeden 5 saniyede bir yeni mesajları çeker)
+  }; // 🚀 DİKKAT: Fonksiyonu burada kapattık, hapishaneden çıktı!
+
+  // 🚀 BİNGO: ADMİN RADARI (Sayfayı yenilemeden 5 saniyede bir yeni mesajları çeker)
   useEffect(() => {
     talepleriGetir(); // Sayfa ilk açıldığında 1 kere hemen çeker
     
@@ -130,9 +132,8 @@ export default function AdminPaneli() {
     // Sen başka sayfaya geçersen motoru durdurur (sistemi yormaz)
     return () => clearInterval(radar); 
   }, []); // <-- Buradaki boş köşeli parantez çok önemli, sadece sayfa açılınca motoru 1 kez kurar.
-  };
 
-const talepCevapGonder = async (id: string) => {
+  const talepCevapGonder = async (id: string) => {
     const metin = talepCevaplari[id];
     if (!metin?.trim()) return toast.error("Cevap boş olamaz şefim!");
     
@@ -146,7 +147,7 @@ const talepCevapGonder = async (id: string) => {
       
       const data = await res.json();
       
-if (res.ok && data.success) {
+      if (res.ok && data.success) {
         toast.success("Cevap müşteriye iletildi! 🚀", { id: toastId });
         setTalepCevaplari(prev => ({...prev, [id]: ""}));
         talepleriGetir();
@@ -181,7 +182,6 @@ if (res.ok && data.success) {
       }
     } catch (e) { toast.error("Silinemedi."); }
   };
-
   // Ürün ve Yorum Fonksiyonları (Aynı)
   const urunleriGetir = async () => { try { const res = await fetch(`/api/admin/products?v=${Date.now()}`, { headers: { "x-patron-anahtar": PATRON_SIFRESI }}); const data = await res.json(); if (data.success) setUrunler(data.urunler); } catch (e) {} };
   const urunKaydet = async (e: React.FormEvent) => { e.preventDefault(); try { const gonderilecekVeri: any = { isim: formIsim, fiyat: formFiyat, indirimliFiyat: formIndirimliFiyat, havaleIndirimi: formHavaleIndirimi, stokDurumu: formStok, stokAdedi: formStokAdedi, resim: formResim, kategori: formKategori }; if (duzenlenenUrun) gonderilecekVeri.id = duzenlenenUrun._id; const res = await fetch("/api/admin/products", { method: "PUT", headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI }, body: JSON.stringify(gonderilecekVeri) }); if ((await res.json()).success) { toast.success(duzenlenenUrun ? "Ürün güncellendi." : "Yeni ürün eklendi."); formuKapat(); urunleriGetir(); } } catch (e) { toast.error("Hata oluştu."); } };
