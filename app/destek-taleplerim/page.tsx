@@ -83,9 +83,13 @@ const mesajKutusuRef = useRef<HTMLDivElement>(null);
     }
   }, [status]);
 useEffect(() => {
-    // Sayfayı zıplatmaz, SADECE sohbetin içini en aşağıya (son mesaja) indirir!
-    if (seciliTalepId && mesajKutusuRef.current) {
-      mesajKutusuRef.current.scrollTop = mesajKutusuRef.current.scrollHeight;
+    // Sohbet kutusu açıldığı an mili saniyelik gecikmeyle en dibe vurur!
+    if (seciliTalepId) {
+      setTimeout(() => {
+        if (mesajKutusuRef.current) {
+          mesajKutusuRef.current.scrollTop = mesajKutusuRef.current.scrollHeight;
+        }
+      }, 150); // Pencerenin açılmasını bekler
     }
   }, [seciliTalepId, talepler]);
 
