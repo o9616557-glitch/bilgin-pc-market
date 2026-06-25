@@ -83,13 +83,15 @@ const mesajKutusuRef = useRef<HTMLDivElement>(null);
     }
   }, [status]);
 useEffect(() => {
-    // Sohbet kutusu açıldığı an mili saniyelik gecikmeyle en dibe vurur!
+    // Kutunun HTML tarafındaki referansını boşverip, 
+    // direkt ekrandaki kaydırılabilir (overflow-y-auto) alanı zorla bulur ve dibe iter!
     if (seciliTalepId) {
       setTimeout(() => {
-        if (mesajKutusuRef.current) {
-          mesajKutusuRef.current.scrollTop = mesajKutusuRef.current.scrollHeight;
-        }
-      }, 150); // Pencerenin açılmasını bekler
+        const kutular = document.querySelectorAll('.overflow-y-auto');
+        kutular.forEach((kutu) => {
+          kutu.scrollTop = kutu.scrollHeight;
+        });
+      }, 250); // Kutunun açılma animasyonunu tam olarak bekler
     }
   }, [seciliTalepId, talepler]);
 
