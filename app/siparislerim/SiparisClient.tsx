@@ -119,24 +119,43 @@ const { sepeteEkle } = useCart();
         </div>
     );
   };
-
+// 🚀 BİNGO: KUSURSUZ FİLTRELEME MOTORU (Tüm Zamanlar ve Tüm Siparişler Dahil)
   const filtrelenmisSiparisler = localOrders.filter(order => {
     let zamanUygun = true;
     let durumUygun = true;
-    const orderDate = new Date(order.createdAt || order.tarih);
-    const now = new Date();
-    if (zamanFiltresi === "son30") {
-      const otuzGunOnce = new Date();
-      otuzGunOnce.setDate(now.getDate() - 30);
-      zamanUygun = orderDate >= otuzGunOnce;
-    } else if (zamanFiltresi === "2026") zamanUygun = orderDate.getFullYear() === 2026;
-    else if (zamanFiltresi === "2025") zamanUygun = orderDate.getFullYear() === 2025;
+    
+    // 1. ZAMAN FİLTRESİ KONTROLÜ
+    if (zamanFiltresi !== "tumu") {
+      const orderDateStr = order.createdAt || order.tarih;
+      const orderDate = orderDateStr ? new Date(orderDateStr) : new Date(); // Tarih yoksa bugünü baz al çökmesin
+      const now = new Date();
 
-    const d = (order.durum || order.status || "").toLocaleLowerCase("tr-TR");
-    if (durumFiltresi === "teslim") durumUygun = d.includes("teslim") || d.includes("tamam");
-    else if (durumFiltresi === "kargo") durumUygun = d.includes("kargo");
-    else if (durumFiltresi === "iptal") durumUygun = d.includes("iptal") || d.includes("i̇ptal");
-    else if (durumFiltresi === "devam") durumUygun = !d.includes("teslim") && !d.includes("iptal") && !d.includes("i̇ptal");
+      if (zamanFiltresi === "son30") {
+        const otuzGunOnce = new Date();
+        otuzGunOnce.setDate(now.getDate() - 30);
+        zamanUygun = orderDate >= otuzGunOnce;
+      } else if (zamanFiltresi === "2026") {
+        zamanUygun = orderDate.getFullYear() === 2026;
+      } else if (zamanFiltresi === "2025") {
+        zamanUygun = orderDate.getFullYear() === 2025;
+      }
+    }
+
+    // 2. DURUM FİLTRESİ KONTROLÜ
+    if (durumFiltresi !== "tumu") {
+      const d = (order.durum || order.status || "").toLocaleLowerCase("tr-TR");
+      if (durumFiltresi === "teslim") {
+        durumUygun = d.includes("teslim") || d.includes("tamam") || d.includes("bit");
+      } else if (durumFiltresi === "kargo") {
+        durumUygun = d.includes("kargo");
+      } else if (durumFiltresi === "iptal") {
+        durumUygun = d.includes("iptal") || d.includes("i̇ptal") || d.includes("iade");
+      } else if (durumFiltresi === "devam") {
+        durumUygun = !d.includes("teslim") && !d.includes("tamam") && !d.includes("iptal") && !d.includes("i̇ptal") && !d.includes("iade");
+      }
+    }
+
+    // Her iki şartı da sağlıyorsa ekranda göster
     return zamanUygun && durumUygun;
   });
 
