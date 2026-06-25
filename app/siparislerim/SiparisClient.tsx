@@ -238,24 +238,25 @@ export default function SiparisClient() {
                           </div>
                         </div>
                       </div>
-{/* 🚀 BİNGO: Buton sırası (Yorumla, İade Et, Tekrar Al) - Çerçeveler eşitlendi, abartı parlamalar silindi */}
-                      <div className="grid grid-cols-2 sm:flex sm:flex-row sm:justify-end sm:flex-wrap items-center gap-2.5 pt-3.5 border-t border-slate-800/50 mt-auto">
+                    {/* 🚀 BİNGO: Asla üst üste binmeyecek (zorunlu yan yana)! Kutuya sığması için yazılar küçültüldü, eşit paylaştırıldı. Sıra: Yorumla -> Tekrar Al -> İade Et */}
+                      <div className="flex flex-row items-center w-full gap-1.5 sm:gap-2 pt-3.5 border-t border-slate-800/50 mt-auto">
                         
                         {isTeslimEdildi && (
-                          <Link href={`/product/${item.slug || item.productId || item._id || ''}#yorumlar`} className="col-span-1 flex items-center justify-center gap-1.5 h-9 px-3 bg-[#020617] hover:bg-slate-800/50 text-slate-300 hover:text-white border border-slate-700 rounded-md transition-all font-black text-[9px] sm:text-[10px] uppercase tracking-widest w-full sm:w-max">
-                            <Star className="w-3.5 h-3.5" /> Yorumla
+                          <Link href={`/product/${item.slug || item.productId || item._id || ''}#yorumlar`} className="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 h-8 px-1 sm:px-2 bg-[#020617] hover:bg-slate-800/50 text-slate-300 hover:text-white border border-slate-700 rounded-md transition-all font-black text-[8px] sm:text-[9px] uppercase tracking-widest whitespace-nowrap">
+                            <Star className="w-3 h-3 shrink-0" /> Yorumla
                           </Link>
                         )}
+
+                        <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 h-8 px-1 sm:px-2 bg-cyan-600/10 hover:bg-cyan-600 text-cyan-400 hover:text-white border border-cyan-500/30 rounded-md transition-all font-black text-[8px] sm:text-[9px] uppercase tracking-widest whitespace-nowrap">
+                          <ShoppingCart className="w-3 h-3 shrink-0" /> Tekrar Al
+                        </Link>
 
                         {isTeslimEdildi && !isIptal && !iadeSuresiGectiMi && (
-                          <Link href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade`} className="col-span-1 flex items-center justify-center gap-1.5 h-9 px-3 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] sm:text-[10px] uppercase tracking-widest w-full sm:w-max">
-                            <RefreshCw className="w-3.5 h-3.5" /> İade Et
+                          <Link href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade`} className="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 h-8 px-1 sm:px-2 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[8px] sm:text-[9px] uppercase tracking-widest whitespace-nowrap">
+                            <RefreshCw className="w-3 h-3 shrink-0" /> İade Et
                           </Link>
                         )}
-
-                        <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="col-span-2 sm:col-span-1 flex items-center justify-center gap-1.5 h-9 px-4 bg-cyan-600/10 hover:bg-cyan-600 text-cyan-400 hover:text-white border border-cyan-500/30 rounded-md transition-all font-black text-[9px] sm:text-[10px] uppercase tracking-widest w-full sm:w-max">
-                          <ShoppingCart className="w-3.5 h-3.5" /> Tekrar Al
-                        </Link>
+                        
                       </div>
                     </div>
                   );
