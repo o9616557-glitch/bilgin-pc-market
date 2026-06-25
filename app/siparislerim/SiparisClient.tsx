@@ -523,10 +523,14 @@ export default function SiparisClient() {
                           <DurumRozetiGoster durum={durumMetni} />
                         </div>
 
-                        <div className="flex items-start gap-4 mt-1">
-                          <div className="w-20 h-20 shrink-0 bg-[#020617] border border-slate-800 rounded-xl flex items-center justify-center p-2 relative overflow-hidden">
+                       <div className="flex items-start gap-4 mt-1">
+                          {/* 🚀 BİNGO: DIV YERİNE LINK YAPTIK - RESME TIKLAYINCA ÜRÜNE GİDER */}
+                          <Link 
+                            href={`/product/${firstItem?.slug || firstItem?.seoUrl || firstItem?.url || firstItem?.productId || firstItem?._id || ''}`} 
+                            className="w-20 h-20 shrink-0 bg-[#020617] border border-slate-800 hover:border-cyan-500/50 rounded-xl flex items-center justify-center p-2 relative overflow-hidden transition-all duration-300 cursor-pointer group z-10 shadow-sm"
+                          >
                             {firstItem && (firstItem.image || firstItem.resim) ? (
-                              <img src={firstItem.image || firstItem.resim} alt="Ürün" className="w-full h-full object-contain drop-shadow-md z-10" />
+                              <img src={firstItem.image || firstItem.resim} alt="Ürün" className="w-full h-full object-contain drop-shadow-md z-10 group-hover:scale-110 transition-transform duration-300" />
                             ) : (
                               <PackageOpen className="w-7 h-7 text-slate-500" />
                             )}
@@ -535,7 +539,7 @@ export default function SiparisClient() {
                                 {order.items.length} Ürün
                               </div>
                             )}
-                          </div>
+                          </Link>
                           
                           <div className="flex flex-col flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1.5">
@@ -544,12 +548,16 @@ export default function SiparisClient() {
                                  {copiedCode === currentSiparisKodu ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                               </button>
                             </div>
-                            <p className="text-[12px] text-slate-300 font-medium line-clamp-2 leading-relaxed">
+                            
+                            {/* 🚀 BİNGO: İSMİ DE LİNK YAPTIK - İSME TIKLAYINCA DA ÜRÜNE GİDER */}
+                            <Link 
+                              href={`/product/${firstItem?.slug || firstItem?.seoUrl || firstItem?.url || firstItem?.productId || firstItem?._id || ''}`}
+                              className="text-[12px] text-slate-300 hover:text-cyan-400 transition-colors font-medium line-clamp-2 leading-relaxed cursor-pointer block"
+                            >
                               {firstItem?.title || firstItem?.isim || "Ürün"}
-                            </p>
+                            </Link>
                           </div>
                         </div>
-
                         <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-800/60">
                           <div className="flex flex-col">
                             <span className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-0.5">TOPLAM TUTAR</span>
