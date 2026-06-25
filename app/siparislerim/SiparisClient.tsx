@@ -282,9 +282,10 @@ const { sepeteEkle } = useCart();
                           </Link>
                         )}
 
-                     {/* 🚀 BİNGO: TEKRAR AL BUTONU (Senin sepeteEkle fonksiyonunla tam uyumlu!) */}
+                {/* 🚀 BİNGO: TEKRAR AL BUTONU (TOAST YOK, BUTON ANİMASYONLU) */}
                         <button 
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.preventDefault();
                             if(sepeteEkle) {
                               sepeteEkle({ 
                                 id: String(item?.slug || item?.productId || item?.id || item?._id || ""), 
@@ -295,12 +296,20 @@ const { sepeteEkle } = useCart();
                                 havaleIndirimi: 5, 
                                 slug: item?.slug || ""
                               });
-                              toast.success(`${item?.title || item?.isim || "Ürün"} sepete eklendi!`, {
-                                icon: '🛒',
-                                style: { borderRadius: '10px', background: '#0f172a', color: '#fff', border: '1px solid #0ea5e9' }
-                              });
-                            } else {
-                              toast.error("Sepet sistemi yüklenemedi.");
+                              
+                              // 🚀 Butonu yakalayıp yeşil EKLENDİ moduna sokuyoruz
+                              const btn = e.currentTarget;
+                              const originalHTML = btn.innerHTML;
+                              const originalClasses = btn.className;
+                              
+                              btn.className = "flex-1 flex items-center justify-center gap-1 sm:gap-1.5 h-8 px-1 sm:px-2 bg-emerald-500 text-white rounded-md transition-all font-black text-[8px] sm:text-[9px] uppercase tracking-widest whitespace-nowrap scale-95 shadow-[0_0_10px_rgba(16,185,129,0.5)]";
+                              btn.innerHTML = '<svg class="w-3 h-3 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> EKLENDİ';
+                              
+                              // 1.5 saniye sonra eski haline çeviriyoruz
+                              setTimeout(() => {
+                                btn.className = originalClasses;
+                                btn.innerHTML = originalHTML;
+                              }, 1500);
                             }
                           }} 
                           className="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 h-8 px-1 sm:px-2 bg-cyan-600/10 hover:bg-cyan-600 text-cyan-400 hover:text-white border border-cyan-500/30 rounded-md transition-all font-black text-[8px] sm:text-[9px] uppercase tracking-widest whitespace-nowrap"
