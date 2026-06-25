@@ -34,10 +34,6 @@ export default function FavoriClient({ initialFavorites }: Props) {
     setFavoriteProducts(initialFavorites);
   }, [initialFavorites]);
 
-  useEffect(() => {
-    router.refresh();
-  }, []);
-
   // 🚀 EKRAN DONDURMA (Modal / Kargo Popup Açılınca Arka Planı Kilitler)
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -55,6 +51,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
 
     const targetId = String(productToDelete._id || productToDelete.id);
     
+    // 🚀 Anında ekrandan sil (Kasmayı önler, hızlı hissettirir)
     setFavoriteProducts(prev => prev.filter(p => String(p._id || p.id) !== targetId));
     setProductToDelete(null);
 
@@ -157,7 +154,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
             </Link>
           </div>
 
-          {/* 🚀 BAŞLIK KUTUSU (Adres ve Siparişler ile Aynı Yapı ve Boşluk: rounded-xl p-5 sm:p-6 gap-5) */}
+          {/* 🚀 BAŞLIK KUTUSU (Diğer sayfalar ile aynı yapı ve boşluk: rounded-xl, p-5 sm:p-6, flex-row) */}
           <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5 z-40 overflow-hidden group">
             <div className="absolute -top-20 -right-20 w-64 h-64 bg-cyan-500/10 blur-[60px] pointer-events-none rounded-full"></div>
             
