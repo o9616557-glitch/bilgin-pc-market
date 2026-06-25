@@ -6,13 +6,28 @@ import { Phone, Mail, ShieldCheck, FileText, Info, RefreshCcw, Smartphone, Globe
 export default function Footer() {
   const pathname = usePathname(); 
 
-  // 🚀 BİNGO: FOOTER SADECE SEPET VE ÖDEME SAYFALARINDA GİZLENİR, DİĞER HERYERDE AKTİFTİR
+  // 🚀 1. Ödeme ve Sepet sayfalarında hem PC hem Mobilde komple engelle
   if (pathname?.includes("/sepet") || pathname?.includes("/odeme")) {
     return null;
   }
 
+  // 🚀 2. Telefonda (Mobilde) Footer'ın görünmesine izin verdiğin sayfalar
+  const mobilIzinliSayfalar = [
+    "/", 
+    "/hakkimizda", 
+    "/gizlilik-politikasi", 
+    "/mesafeli-satis", 
+    "/iade-ve-garanti"
+  ];
+
+  // Eğer izin verdiğin sayfalardaysak 'flex' veriyoruz (hem mobil hem PC görür)
+  // İzinli sayfalar dışındaysak 'hidden md:flex' veriyoruz (mobilde gizlenir, sadece PC'de görünür)
+  const mobilGörünümAyari = mobilIzinliSayfalar.includes(pathname || "") 
+    ? "flex" 
+    : "hidden md:flex";
+
   return (
-    <footer className={`bg-[#09090b] border-t border-slate-800/80 pt-16 relative overflow-hidden flex flex-col items-center ${pathname?.includes('/product') ? 'pb-40 md:pb-8' : 'pb-8'}`}>
+    <footer className={`${mobilGörünümAyari} bg-[#09090b] border-t border-slate-800/80 pt-16 relative overflow-hidden flex-col items-center ${pathname?.includes('/product') ? 'pb-40 md:pb-8' : 'pb-8'}`}>
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-[#3b82f6] to-transparent opacity-20"></div>
       
       <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10 w-full">
