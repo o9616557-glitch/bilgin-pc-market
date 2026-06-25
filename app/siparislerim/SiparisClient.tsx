@@ -141,6 +141,10 @@ export default function SiparisClient() {
     return zamanUygun && durumUygun;
   });
 
+  // 🚀 Kargo İptal Modalı State'leri
+  const [kargoIptalModalAcik, setKargoIptalModalAcik] = useState(false);
+  const [iptalEdilecekSiparisKodu, setIptalEdilecekSiparisKodu] = useState("");
+
   if (contextLoading && localOrders.length === 0) {
     return (
       <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center">
@@ -226,28 +230,25 @@ export default function SiparisClient() {
                 <PackageOpen className="w-4 h-4 text-cyan-500" /> Ürünler ({selectedOrder.items?.length || 0})
               </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
                 {selectedOrder.items?.map((item: any, idx: number) => {
-                  
-                  // 🚀 BİNGO: DURUM KONTROLLERİ GENİŞLETİLDİ
                   const durumMetni = (selectedOrder.durum || selectedOrder.status || "").toLowerCase();
                   const isTeslimEdildi = durumMetni.includes("teslim") || durumMetni.includes("tamam");
                   const isKargoda = durumMetni.includes("kargo");
-                  const isHazirlaniyor = durumMetni.includes("hazır") || durumMetni.includes("ödendi") || durumMetni.includes("alındı");
                   const isIptal = durumMetni.includes("iptal");
                   
                   const siparisTarihi = new Date(selectedOrder.createdAt || selectedOrder.tarih);
                   const iadeBitisTarihi = new Date(siparisTarihi.getTime() + (17 * 24 * 60 * 60 * 1000));
                   const bugun = new Date();
                   const iadeSuresiGectiMi = bugun > iadeBitisTarihi;
-                  
                   const iadeyeKalanGun = Math.ceil((iadeBitisTarihi.getTime() - bugun.getTime()) / (1000 * 60 * 60 * 24));
 
                   return (
                     <div key={idx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-4 shadow-md flex flex-col h-full gap-3 sm:gap-4">
                       
                       <div className="flex items-start gap-3 sm:gap-4 flex-1">
-                        <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="w-20 h-20 shrink-0 bg-[#020617] rounded-lg border border-slate-800 hover:border-cyan-500/50 flex items-center justify-center p-2 transition-colors">
+                        {/* 🚀 BİNGO: DETAY SAYFASI 404 KORUMALI RESİM LİNKİ */}
+                        <Link href={"/product/" + (item?.slug || item?.productId || item?.id || item?._id || "")} className="w-20 h-20 shrink-0 bg-[#020617] rounded-lg border border-slate-800 hover:border-cyan-500/50 flex items-center justify-center p-2 transition-colors">
                           {item.image || item.resim ? (
                             <img src={item.image || item.resim} alt="ürün" className="w-full h-full object-contain drop-shadow-md" />
                           ) : (
@@ -256,7 +257,8 @@ export default function SiparisClient() {
                         </Link>
                         
                         <div className="flex-1 flex flex-col h-full min-w-0">
-                          <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="text-[11px] sm:text-xs font-bold text-white hover:text-cyan-400 transition-colors leading-snug mb-2 block break-words">
+                          {/* 🚀 BİNGO: DETAY SAYFASI 404 KORUMALI İSİM LİNKİ */}
+                          <Link href={"/product/" + (item?.slug || item?.productId || item?.id || item?._id || "")} className="text-[11px] sm:text-xs font-bold text-white hover:text-cyan-400 transition-colors leading-snug mb-2 block break-words">
                             {item.title || item.isim}
                           </Link>
                           
@@ -269,7 +271,6 @@ export default function SiparisClient() {
                         </div>
                       </div>
 
-                      {/* İade Süresi Uyarıları (Sadece Teslim Edilenlerde) */}
                       {isTeslimEdildi && !isIptal && (
                         <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mt-1 -mb-1">
                           {iadeSuresiGectiMi ? (
@@ -282,29 +283,33 @@ export default function SiparisClient() {
 
                       <div className="flex flex-row items-center w-full gap-1.5 sm:gap-2 pt-3.5 border-t border-slate-800/50 mt-auto">
                         
-                        {/* Yorumla Butonu (Sadece Teslim Edilenlerde) */}
                         {isTeslimEdildi && (
-                          <Link href={`/product/${item.slug || item.productId || item._id || ''}#yorumlar`} className="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 h-8 px-1 sm:px-2 bg-[#020617] hover:bg-slate-800/50 text-slate-300 hover:text-white border border-slate-700 rounded-md transition-all font-black text-[8px] sm:text-[9px] uppercase tracking-widest whitespace-nowrap">
+                          <Link href={`/product/${item?.slug || item?.productId || item?.id || item?._id || ''}#yorumlar`} className="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 h-8 px-1 sm:px-2 bg-[#020617] hover:bg-slate-800/50 text-slate-300 hover:text-white border border-slate-700 rounded-md transition-all font-black text-[8px] sm:text-[9px] uppercase tracking-widest whitespace-nowrap">
                             <Star className="w-3 h-3 shrink-0" /> Yorumla
                           </Link>
                         )}
 
-                        {/* Tekrar Al Butonu (Her zaman gözükebilir) */}
-                        <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 h-8 px-1 sm:px-2 bg-cyan-600/10 hover:bg-cyan-600 text-cyan-400 hover:text-white border border-cyan-500/30 rounded-md transition-all font-black text-[8px] sm:text-[9px] uppercase tracking-widest whitespace-nowrap">
+                        <Link href={`/product/${item?.slug || item?.productId || item?.id || item?._id || ''}`} className="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 h-8 px-1 sm:px-2 bg-cyan-600/10 hover:bg-cyan-600 text-cyan-400 hover:text-white border border-cyan-500/30 rounded-md transition-all font-black text-[8px] sm:text-[9px] uppercase tracking-widest whitespace-nowrap">
                           <ShoppingCart className="w-3 h-3 shrink-0" /> Tekrar Al
                         </Link>
 
-                        {/* 🚀 BİNGO: İPTAL VEYA İADE ET BUTONU (İptal edilmemişse ve süresi geçmemişse çıkar) */}
                         {!isIptal && !iadeSuresiGectiMi && (
-                          <Link 
-                            href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=${isTeslimEdildi ? 'iade' : 'iptal'}`} 
-                            className="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 h-8 px-1 sm:px-2 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[8px] sm:text-[9px] uppercase tracking-widest whitespace-nowrap"
-                          >
-                            <RefreshCw className="w-3 h-3 shrink-0" /> {isTeslimEdildi ? "İade Et" : "İptal Et"}
-                          </Link>
+                          isTeslimEdildi ? (
+                            <Link href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade`} className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap">
+                              <RefreshCw className="w-3 h-3 shrink-0" /> İade Et
+                            </Link>
+                          ) : isKargoda ? (
+                            <button onClick={() => { setIptalEdilecekSiparisKodu(selectedOrder.siparisKodu || selectedOrder.orderNumber); setKargoIptalModalAcik(true); }} className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-amber-500/5 hover:bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap">
+                              <RefreshCw className="w-3 h-3 shrink-0" /> İptal Et
+                            </button>
+                          ) : (
+                            <Link href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iptal`} className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap">
+                              <RefreshCw className="w-3 h-3 shrink-0" /> İptal Et
+                            </Link>
+                          )
                         )}
-
                       </div>
+
                     </div>
                   );
                 })}
@@ -370,35 +375,22 @@ export default function SiparisClient() {
             /* =================================================================================== */
             <div className="flex flex-col gap-5 lg:gap-6 w-full">
               
-              {/* 🚀 BİNGO: İSTENİLEN SIRALAMADA TURKUAZ (CYAN) FASULYE MENÜ (SİPARİŞLER HARİÇ) */}
               <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pt-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
-                
-                {/* 1. Favoriler */}
                 <Link href="/favorilerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
                   <Star className="w-4 h-4 text-cyan-500" /> Favoriler
                 </Link>
-
-                {/* 2. Sistemler */}
                 <Link href="/sistemlerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
                   <Monitor className="w-4 h-4 text-cyan-500" /> Sistemler
                 </Link>
-
-                {/* 3. Destek / İade */}
                 <Link href="/destek-taleplerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
                   <Headphones className="w-4 h-4 text-cyan-500" /> Destek / İade
                 </Link>
-
-                {/* 4. Sorgula */}
                 <Link href="/siparis-takip" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
                   <Search className="w-4 h-4 text-cyan-500" /> Sorgula
                 </Link>
-
-                {/* 5. Adresler */}
                 <Link href="/adreslerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
                   <MapPin className="w-4 h-4 text-cyan-500" /> Adresler
                 </Link>
-
-                {/* 6. Kargolar ve Canlı Sayaç */}
                 <button onClick={() => setKargoPopupAcik(true)} className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none relative">
                   <Truck className="w-4 h-4 text-cyan-500" /> Kargolar
                   {localOrders.filter(o => (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo")).length > 0 && (
@@ -407,10 +399,8 @@ export default function SiparisClient() {
                     </span>
                   )}
                 </button>
-                
               </div>
 
-              {/* 🚀 ANA PANEL KUTUSU */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative flex flex-col gap-5 z-40">
                 <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
                   <div className="absolute -top-20 -right-20 w-64 h-64 bg-cyan-500/10 blur-[60px] rounded-full"></div>
@@ -430,12 +420,8 @@ export default function SiparisClient() {
                   </div>
 
                   <div className="flex flex-row items-center gap-2 sm:gap-3 w-full xl:w-auto relative z-50">
-                    {/* Zaman Filtresi */}
                     <div className="relative flex-1 xl:flex-none min-w-0">
-                      <button 
-                        onClick={() => {setZamanAcik(!zamanAcik); setDurumAcik(false)}}
-                        className="w-full flex items-center justify-between gap-1 sm:gap-2 bg-[#020617] hover:bg-[#020617]/80 border border-slate-800 rounded-lg px-2 sm:px-4 py-2 sm:py-3 xl:w-48 transition-colors text-[9px] sm:text-xs text-slate-300 font-bold whitespace-nowrap overflow-hidden"
-                      >
+                      <button onClick={() => {setZamanAcik(!zamanAcik); setDurumAcik(false)}} className="w-full flex items-center justify-between gap-1 sm:gap-2 bg-[#020617] hover:bg-[#020617]/80 border border-slate-800 rounded-lg px-2 sm:px-4 py-2 sm:py-3 xl:w-48 transition-colors text-[9px] sm:text-xs text-slate-300 font-bold whitespace-nowrap overflow-hidden">
                         <div className="flex items-center gap-1.5 sm:gap-2 truncate">
                           <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-cyan-500 shrink-0" />
                           <span className="truncate">{zamanSecenekleri.find(z => z.id === zamanFiltresi)?.ad}</span>
@@ -446,11 +432,7 @@ export default function SiparisClient() {
                       {zamanAcik && (
                         <div className="absolute top-full mt-1.5 left-0 w-full bg-[#0f172a] border border-slate-700 rounded-lg shadow-2xl overflow-hidden py-1 z-[100] animate-in fade-in zoom-in-95 duration-100">
                           {zamanSecenekleri.map(secenek => (
-                            <button
-                              key={secenek.id}
-                              onClick={() => {setZamanFiltresi(secenek.id); setZamanAcik(false)}}
-                              className={`w-full text-left px-3 sm:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold transition-colors ${zamanFiltresi === secenek.id ? 'bg-cyan-600/10 text-cyan-400' : 'text-slate-300 hover:bg-[#020617] hover:text-white'}`}
-                            >
+                            <button key={secenek.id} onClick={() => {setZamanFiltresi(secenek.id); setZamanAcik(false)}} className={`w-full text-left px-3 sm:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold transition-colors ${zamanFiltresi === secenek.id ? 'bg-cyan-600/10 text-cyan-400' : 'text-slate-300 hover:bg-[#020617] hover:text-white'}`}>
                               {secenek.ad}
                             </button>
                           ))}
@@ -458,12 +440,8 @@ export default function SiparisClient() {
                       )}
                     </div>
 
-                    {/* Durum Filtresi */}
                     <div className="relative flex-1 xl:flex-none min-w-0">
-                      <button 
-                        onClick={() => {setDurumAcik(!durumAcik); setZamanAcik(false)}}
-                        className="w-full flex items-center justify-between gap-1 sm:gap-2 bg-[#020617] hover:bg-[#020617]/80 border border-slate-800 rounded-lg px-2 sm:px-4 py-2 sm:py-3 xl:w-52 transition-colors text-[9px] sm:text-xs text-slate-300 font-bold whitespace-nowrap overflow-hidden"
-                      >
+                      <button onClick={() => {setDurumAcik(!durumAcik); setZamanAcik(false)}} className="w-full flex items-center justify-between gap-1 sm:gap-2 bg-[#020617] hover:bg-[#020617]/80 border border-slate-800 rounded-lg px-2 sm:px-4 py-2 sm:py-3 xl:w-52 transition-colors text-[9px] sm:text-xs text-slate-300 font-bold whitespace-nowrap overflow-hidden">
                         <div className="flex items-center gap-1.5 sm:gap-2 truncate">
                           <Filter className="w-3 h-3 sm:w-4 sm:h-4 text-cyan-500 shrink-0" />
                           <span className="truncate">{durumSecenekleri.find(d => d.id === durumFiltresi)?.ad}</span>
@@ -474,11 +452,7 @@ export default function SiparisClient() {
                       {durumAcik && (
                         <div className="absolute top-full mt-1.5 left-0 w-full bg-[#0f172a] border border-slate-700 rounded-lg shadow-2xl overflow-hidden py-1 z-[100] animate-in fade-in zoom-in-95 duration-100">
                           {durumSecenekleri.map(secenek => (
-                            <button
-                              key={secenek.id}
-                              onClick={() => {setDurumFiltresi(secenek.id); setDurumAcik(false)}}
-                              className={`w-full text-left px-3 sm:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold transition-colors ${durumFiltresi === secenek.id ? 'bg-cyan-600/10 text-cyan-400' : 'text-slate-300 hover:bg-[#020617] hover:text-white'}`}
-                            >
+                            <button key={secenek.id} onClick={() => {setDurumFiltresi(secenek.id); setDurumAcik(false)}} className={`w-full text-left px-3 sm:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold transition-colors ${durumFiltresi === secenek.id ? 'bg-cyan-600/10 text-cyan-400' : 'text-slate-300 hover:bg-[#020617] hover:text-white'}`}>
                               {secenek.ad}
                             </button>
                           ))}
@@ -523,10 +497,10 @@ export default function SiparisClient() {
                           <DurumRozetiGoster durum={durumMetni} />
                         </div>
 
-                       <div className="flex items-start gap-4 mt-1">
-                          {/* 🚀 BİNGO: DIV YERİNE LINK YAPTIK - RESME TIKLAYINCA ÜRÜNE GİDER */}
+                        <div className="flex items-start gap-4 mt-1">
+                          {/* 🚀 BİNGO: ANA EKRAN 404 KORUMALI RESİM LİNKİ */}
                           <Link 
-                            href={`/product/${firstItem?.slug || firstItem?.seoUrl || firstItem?.url || firstItem?.productId || firstItem?._id || ''}`} 
+                            href={"/product/" + (firstItem?.slug || firstItem?.seoUrl || firstItem?.url || firstItem?.productId || firstItem?.id || firstItem?._id || '')} 
                             className="w-20 h-20 shrink-0 bg-[#020617] border border-slate-800 hover:border-cyan-500/50 rounded-xl flex items-center justify-center p-2 relative overflow-hidden transition-all duration-300 cursor-pointer group z-10 shadow-sm"
                           >
                             {firstItem && (firstItem.image || firstItem.resim) ? (
@@ -549,15 +523,16 @@ export default function SiparisClient() {
                               </button>
                             </div>
                             
-                            {/* 🚀 BİNGO: İSMİ DE LİNK YAPTIK - İSME TIKLAYINCA DA ÜRÜNE GİDER */}
+                            {/* 🚀 BİNGO: ANA EKRAN 404 KORUMALI İSİM LİNKİ */}
                             <Link 
-                              href={`/product/${firstItem?.slug || firstItem?.seoUrl || firstItem?.url || firstItem?.productId || firstItem?._id || ''}`}
+                              href={"/product/" + (firstItem?.slug || firstItem?.seoUrl || firstItem?.url || firstItem?.productId || firstItem?.id || firstItem?._id || '')}
                               className="text-[12px] text-slate-300 hover:text-cyan-400 transition-colors font-medium line-clamp-2 leading-relaxed cursor-pointer block"
                             >
                               {firstItem?.title || firstItem?.isim || "Ürün"}
                             </Link>
                           </div>
                         </div>
+
                         <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-800/60">
                           <div className="flex flex-col">
                             <span className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-0.5">TOPLAM TUTAR</span>
@@ -603,7 +578,44 @@ export default function SiparisClient() {
         </div>
       )}
 
-      {/* 🚀 MİLİMETRİK KARGOLAR POPUP'I (Destek ve Adres ile Birebir) */}
+      {/* 🚀 KARGO İPTAL UYARI MODALI */}
+      {kargoIptalModalAcik && (
+        <div style={{ zIndex: 999999 }} className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+          <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full flex flex-col items-center text-center shadow-[0_20px_50px_rgba(0,0,0,0.9)] relative overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-amber-500/10 blur-[40px] pointer-events-none rounded-full"></div>
+            
+            <div className="w-16 h-16 rounded-full border border-amber-500/20 bg-amber-500/10 flex items-center justify-center mb-5">
+              <Truck className="w-7 h-7 text-amber-400 animate-pulse" />
+            </div>
+            
+            <h3 className="text-lg font-black text-white uppercase tracking-wider mb-2">Ürününüz Şu An Kargoda!</h3>
+            
+            <p className="text-slate-300 text-xs sm:text-sm mb-6 font-medium leading-relaxed">
+              Siparişiniz kargo firmasına teslim edildiği için sistem üzerinden otomatik olarak iptal edilemez. 
+              <br /><br />
+              <span className="text-amber-400 font-black">Önemli:</span> İptal işleminin tamamlanması için kargo kapınıza geldiğinde <span className="text-white font-bold underline">kargoyu teslim almayıp kapıda reddetmeniz</span> gerekmektedir. Paket bize geri döndüğünde paranız otomatik iade edilir.
+            </p>
+            
+            <div className="flex w-full gap-3">
+              <button 
+                onClick={() => setKargoIptalModalAcik(false)} 
+                className="flex-1 bg-[#020617] border border-slate-700 hover:border-slate-500 text-slate-400 hover:text-white py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all"
+              >
+                Vazgeç
+              </button>
+              <Link 
+                href={`/destek-taleplerim?siparisNo=${iptalEdilecekSiparisKodu}&konu=iptal`}
+                onClick={() => setKargoIptalModalAcik(false)}
+                className="flex-1 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-black py-3.5 rounded-xl transition-all text-xs uppercase tracking-widest text-center flex items-center justify-center shadow-[0_0_20px_rgba(245,158,11,0.2)]"
+              >
+                Yine de Talep Aç
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🚀 MİLİMETRİK KARGOLAR POPUP'I */}
       {kargoPopupAcik && (
         <div style={{ zIndex: 999999 }} className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
           <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.9)] relative overflow-hidden animate-in zoom-in-95 duration-200 max-h-[85vh]">
@@ -641,6 +653,8 @@ export default function SiparisClient() {
                   const tarih = siparis.createdAt ? new Date(siparis.createdAt).toLocaleDateString("tr-TR") : siparis.tarih ? new Date(siparis.tarih).toLocaleDateString("tr-TR") : "";
                   const firma = siparis.kargoFirmasi || siparis.shippingCompany || "Belirtilmemiş";
                   const takipNo = siparis.takipNo || siparis.kargoTakipNo || siparis.trackingNumber || "Takip No Girilmemiş";
+                  
+                  const firstItem = siparis.items && siparis.items.length > 0 ? siparis.items[0] : null;
 
                   return (
                     <div key={siparis._id || idx} className="bg-[#020617] border border-slate-800/80 p-4 rounded-2xl flex flex-col gap-4 group hover:border-cyan-500/30 transition-colors relative z-10 mb-2">
@@ -648,6 +662,32 @@ export default function SiparisClient() {
                         <span className="text-xs font-black text-cyan-400 uppercase tracking-widest">#{siparisKodu}</span>
                         <span className="text-[10px] font-bold text-slate-500 flex items-center gap-1"><Calendar className="w-3 h-3"/> {tarih}</span>
                       </div>
+
+                      {firstItem && (
+                        <div className="flex items-center gap-3 bg-[#0f172a] p-2.5 rounded-xl border border-slate-800">
+                          <Link 
+                            href={"/product/" + (firstItem?.slug || firstItem?.seoUrl || firstItem?.url || firstItem?.productId || firstItem?.id || firstItem?._id || "")}
+                            className="w-12 h-12 shrink-0 bg-[#020617] border border-slate-700 hover:border-cyan-500/50 rounded-lg flex items-center justify-center p-1.5 transition-colors"
+                          >
+                            {firstItem.image || firstItem.resim ? (
+                              <img src={firstItem.image || firstItem.resim} alt="Ürün" className="w-full h-full object-contain" />
+                            ) : (
+                              <Package className="w-5 h-5 text-slate-500" />
+                            )}
+                          </Link>
+                          <div className="flex-1 min-w-0">
+                            <Link 
+                              href={"/product/" + (firstItem?.slug || firstItem?.seoUrl || firstItem?.url || firstItem?.productId || firstItem?.id || firstItem?._id || "")}
+                              className="text-[11px] text-slate-300 hover:text-cyan-400 font-medium line-clamp-2 transition-colors leading-snug block"
+                            >
+                              {firstItem.title || firstItem.isim || "Ürün Detayı"}
+                            </Link>
+                            {siparis.items?.length > 1 && (
+                              <span className="text-[9px] text-cyan-500 font-bold mt-1 block">+{siparis.items.length - 1} Ürün Daha</span>
+                            )}
+                          </div>
+                        </div>
+                      )}
 
                       <div className="flex flex-col gap-3">
                         <div className="flex justify-between items-center text-xs">
@@ -670,6 +710,7 @@ export default function SiparisClient() {
                           </div>
                         </div>
                       </div>
+                      
                     </div>
                   );
                 });
