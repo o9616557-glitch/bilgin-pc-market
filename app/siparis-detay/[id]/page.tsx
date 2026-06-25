@@ -16,41 +16,44 @@ export default function SiparisDetayPage() {
   const router = useRouter();
   const id = params.id as string;
   
-  const [order, setOrder] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  // 🚀 FİŞEK MOTORU: Sayfa daha yüklenmeden, sen tıklarken yolda veriyi cebe koyar!
+  const [order, setOrder] = useState<any>(() => {
+    if (typeof window !== "undefined") {
+      const hazirVeri = sessionStorage.getItem("bilgin_siparisler_cache");
+      if (hazirVeri) {
+        const parsed = JSON.parse(hazirVeri);
+        return parsed.find((o: any) => o._id === id) || null;
+      }
+    }
+    return null;
+  });
+
+  // Eğer veri zaten cepteyse, o dönen çarkı SIFIR saniye göster (hiç gösterme)!
+  const [loading, setLoading] = useState(() => order === null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
-  // 🚀 BİNGO: ŞİMŞEK HIZINDA YÜKLEME MOTORU (Önce Hafızaya Bakar)
+  // Sen siparişi saniyesinde görürken, sistem çaktırmadan arka planda yenilik var mı diye bakar
   useEffect(() => {
-    const siparisGetir = async () => {
-      // 1. Önce tarayıcı hafızasına bak, varsa anında ekranı aç! (Gecikmeyi önler)
-      const yerelHafiza = sessionStorage.getItem("bilgin_siparisler_cache");
-      if (yerelHafiza) {
-        const parsed = JSON.parse(yerelHafiza);
-        const bulunan = parsed.find((o: any) => o._id === id);
-        if (bulunan) {
-          setOrder(bulunan);
-          setLoading(false); // Saniyelerce beklemeden anında gösterir
-        }
-      }
-
-      // 2. Arka planda her ihtimale karşı güncel veriyi yine de çeker
+    const arkaPlandaKontrolEt = async () => {
       try {
         const res = await fetch("/api/orders?t=" + new Date().getTime(), { cache: "no-store" });
         const data = await res.json();
         if (res.ok && data.orders) {
           sessionStorage.setItem("bilgin_siparisler_cache", JSON.stringify(data.orders));
-          const bulunan = data.orders.find((o: any) => o._id === id);
-          if (bulunan) setOrder(bulunan);
+          // Eğer sipariş ilk anda hafızada yoksa (linke direkt dışarıdan girildiyse) ekrana bas
+          if (!order) {
+            const bulunan = data.orders.find((o: any) => o._id === id);
+            if (bulunan) setOrder(bulunan);
+          }
         }
       } catch (error) {
-        if (!yerelHafiza) toast.error("Sipariş detayları alınamadı.");
+        if (!order) toast.error("Sipariş detayları alınamadı.");
       } finally {
         setLoading(false);
       }
     };
-    if (id) siparisGetir();
-  }, [id]);
+    if (id) arkaPlandaKontrolEt();
+  }, [id, order]);
 
   const handleCopy = (code: string) => {
     navigator.clipboard.writeText(code);
@@ -99,7 +102,6 @@ export default function SiparisDetayPage() {
     if (durumMetni.includes("hazır") || durumMetni.includes("ödendi")) return <Package className="w-6 h-6 sm:w-8 sm:h-8 text-amber-500" />;
     return <Clock className="w-6 h-6 sm:w-8 sm:h-8 text-slate-400" />;
   };
-
   return (
     // 🚀 BİNGO: overflow-x-hidden İLE TELEFONDA SAĞA SOLA KAYMA ENGELLENDİ
     <div className="min-h-screen bg-[#020617] text-white font-sans p-3 sm:p-6 lg:p-8 relative overflow-x-hidden">
