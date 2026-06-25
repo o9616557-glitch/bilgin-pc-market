@@ -7,8 +7,10 @@ import {
   CheckCircle, Info, CalendarDays, User, ShieldCheck, CreditCard,
   MapPin, Star, Monitor, Headphones, PackageX
 } from "lucide-react";
+import toast from "react-hot-toast"; // <--- BİNGO! BU SATIRI EKLE
 import { useOrders } from "@/app/OrderContext";
-import toast from "react-hot-toast";
+
+// ... kodun geri kalanı aynı
 
 export default function SiparisTakipPage() {
   const [kodu, setKodu] = useState("");
@@ -90,6 +92,7 @@ export default function SiparisTakipPage() {
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip">
       
+      {/* 🚀 ARKA PLAN PARLAMASI (Tüm Sayfalarla Uyumlu Opacity 0.05 Turkuaz) */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-cyan-600 blur-[250px] opacity-[0.05] pointer-events-none rounded-full z-0"></div>
 
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
@@ -114,7 +117,7 @@ export default function SiparisTakipPage() {
         {/* ➡️ SAĞ İÇERİK */}
         <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full animate-in fade-in duration-300">
           
-       {/* 🚀 BİNGO: İSTENİLEN SIRALAMADA TURKUAZ (CYAN) FASULYE MENÜ */}
+          {/* 🚀 BİNGO: FASULYE MENÜ EKSİKSİZ VE TAM SIRALI */}
           <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pt-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
             
             {/* 1. Siparişler */}
@@ -139,7 +142,7 @@ export default function SiparisTakipPage() {
 
             {/* 5. Adresler */}
             <Link href="/adreslerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
-              <MapPin className="w-4 h-4 text-cyan-400" /> Adresler
+              <MapPin className="w-4 h-4 text-cyan-500" /> Adresler
             </Link>
 
             {/* 6. Kargolar ve Canlı Sayaç */}
