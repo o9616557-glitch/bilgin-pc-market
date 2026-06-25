@@ -4,11 +4,13 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import mongoose from "mongoose";
 import Destek from "@/models/Destek";
 
+// 🚀 NETXJS TUZAĞINI KIRAN MOTOR: Önbelleğe almayı yasaklar, her saniye veritabanından canlı çeker!
+export const dynamic = "force-dynamic";
+
 function talepNoUret() {
   return `DST-${Math.floor(100000 + Math.random() * 900000)}`;
 }
 
-// ⬇️ 1. GET METODU (Müşterinin sadece gizlemediği talepleri getirir)
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -16,7 +18,6 @@ export async function GET() {
     
     if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
     
-    // BİNGO: musteriGizledi değeri true OLMAYANLARI getir. (Yani sildiklerini getirme)
     const talepler = await Destek.find({ 
       kullaniciEmail: session.user.email,
       musteriGizledi: { $ne: true } 
@@ -28,7 +29,6 @@ export async function GET() {
   }
 }
 
-// ⬇️ 2. POST METODU (Yeni Talep)
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -62,7 +62,6 @@ export async function POST(request: Request) {
   }
 }
 
-// ⬇️ 3. PUT METODU (Müşteri Cevap Yazar)
 export async function PUT(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -74,13 +73,14 @@ export async function PUT(request: Request) {
 
     if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
 
+    // 🚀 BİNGO: Müşteri tarafına da strict: false ekledik. Modelde olmasa bile anında zorla kaydeder!
     const guncelTalep = await Destek.findOneAndUpdate(
       { _id: talepId, kullaniciEmail: session.user.email },
       { 
         $push: { mesajlar: { gonderen: "Musteri", metin: mesaj, tarih: new Date() } },
         $set: { durum: "İnceleniyor" } 
       },
-      { new: true }
+      { new: true, strict: false }
     );
 
     if (!guncelTalep) return NextResponse.json({ success: false, message: "Talep bulunamadı." }, { status: 404 });
@@ -90,7 +90,6 @@ export async function PUT(request: Request) {
   }
 }
 
-// ⬇️ 4. DELETE METODU (Sanal Silme / Arşivleme) 🚀
 export async function DELETE(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -101,13 +100,11 @@ export async function DELETE(request: Request) {
 
     if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
 
-    // BİNGO: "findOneAndDelete" yerine "findOneAndUpdate" kullanıyoruz.
-    // Veriyi silmiyoruz, içine { musteriGizledi: true } damgası vuruyoruz.
     if (id) {
       await Destek.findOneAndUpdate(
         { _id: id, kullaniciEmail: session.user.email },
         { $set: { musteriGizledi: true } },
-        { new: true, strict: false } // Modelde bu alan olmasa bile zorla kaydeder
+        { new: true, strict: false }
       );
     }
     

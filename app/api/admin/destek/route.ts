@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import Destek from "@/models/Destek";
 
+// 🚀 ADMİN ÖNBELLEK KİLİDİ: Admin panelinin de anlık canlı veri çekmesini sağlar (Tembelliği önler)
+export const dynamic = "force-dynamic";
+
 const GIZLI_ANAHTAR = "Bilgin123";
 
 async function connectDB() {
