@@ -5,7 +5,8 @@ import Link from "next/link";
 import { 
   HeartCrack, Trash2, ShoppingCart, 
   User, ShieldCheck, CreditCard, Star, CheckCircle2,
-  MapPin, Package, Search, Monitor, Headphones, Truck, PackageX, Calendar, Copy
+  MapPin, Package, Search, Monitor, Headphones, Truck, PackageX,
+  Calendar, Copy // <--- BİNGO! BU İKİSİ EKSİKTİ
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/app/CartContext";
@@ -34,7 +35,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
     setFavoriteProducts(initialFavorites);
   }, [initialFavorites]);
 
-  // 🚀 EKRAN DONDURMA (Modal / Kargo Popup Açılınca Arka Planı Kilitler)
+  // 🚀 EKRAN DONDURMA
   useEffect(() => {
     if (typeof window !== "undefined") {
       if (productToDelete || kargoPopupAcik) {
@@ -51,7 +52,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
 
     const targetId = String(productToDelete._id || productToDelete.id);
     
-    // 🚀 Anında ekrandan sil (Kasmayı önler, hızlı hissettirir)
+    // Anında ekrandan sil
     setFavoriteProducts(prev => prev.filter(p => String(p._id || p.id) !== targetId));
     setProductToDelete(null);
 
@@ -114,10 +115,14 @@ export default function FavoriClient({ initialFavorites }: Props) {
 
         {/* ➡️ SAĞ İÇERİK */}
         <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full animate-in fade-in duration-300">
-      {/* 🚀 BİNGO: FASULYE MENÜ */}
+          
+          {/* 🚀 BİNGO: FASULYE MENÜ */}
           <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pt-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
             <Link href="/siparislerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
               <Package className="w-4 h-4 text-cyan-500" /> Siparişler
+            </Link>
+            <Link href="/favorilerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+              <Star className="w-4 h-4 text-cyan-500" /> Favoriler
             </Link>
             <Link href="/sistemlerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
               <Monitor className="w-4 h-4 text-cyan-500" /> Sistemler
@@ -186,64 +191,56 @@ export default function FavoriClient({ initialFavorites }: Props) {
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4 sm:gap-5">
+            /* 🚀 BİNGO: KUTU/KARE TASARIMI (Grid Yapısı) */
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">
               {favoriteProducts.map((urun: any, index: number) => {
                 const isAdded = sepeteEklenenler.includes(urun._id || urun.id);
                 return (
-                  /* 🚀 BİNGO: GÖRSELDEKİ YATAY SİPARİŞ KUTUSU TASARIMI */
-                  <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-5 gap-4 transition-all duration-300 hover:border-cyan-500/40 hover:shadow-[0_10px_30px_rgba(6,182,212,0.06)] group">
+                  <div key={index} className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col gap-4 transition-all duration-300 hover:border-cyan-500/40 hover:-translate-y-1 shadow-lg hover:shadow-[0_10px_30px_rgba(6,182,212,0.06)] relative group h-full">
                     
-                    {/* SOL KISIM: Resim ve Bilgiler */}
-                    <div className="flex items-center gap-4 w-full sm:w-auto flex-1">
-                      
-                      {/* Resim Kutusu (Karanlık ve kare) */}
-                      <Link href={"/product/" + (urun.slug || urun.id || urun._id)} prefetch={true} className="w-20 h-20 sm:w-24 sm:h-24 shrink-0 bg-[#020617] rounded-xl border border-slate-800 flex items-center justify-center p-2 relative overflow-hidden group-hover:border-cyan-500/30 transition-colors">
-                        <img 
-                          src={urun.resim || "/placeholder.jpg"} 
-                          alt={urun.isim} 
-                          className="w-full h-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-300" 
-                        />
-                      </Link>
+                    {/* ÇÖP KUTUSU (Kartın içine, sağ üst köşeye sabitlendi) */}
+                    <button 
+                      onClick={() => setProductToDelete(urun)}
+                      className="absolute top-3 right-3 sm:top-4 sm:right-4 w-8 h-8 flex items-center justify-center bg-[#020617]/80 backdrop-blur-sm border border-slate-800 rounded-lg text-slate-500 hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/10 transition-colors z-20 shadow-sm"
+                      title="Favorilerden Kaldır"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
 
-                      {/* Başlık ve Fiyat */}
-                      <div className="flex flex-col flex-1 min-w-0 justify-between h-full py-0.5 sm:py-1">
-                        <Link href={"/product/" + (urun.slug || urun.id || urun._id)} prefetch={true} className="block w-fit max-w-full">
-                          <h3 className="text-sm sm:text-base font-bold text-slate-200 leading-snug line-clamp-2 hover:text-cyan-400 transition-colors">
-                            {urun.isim || urun.name}
-                          </h3>
-                        </Link>
-                        <div className="text-xl sm:text-2xl font-black text-cyan-400 tracking-tight mt-2 sm:mt-3">
-                          {Number(urun.fiyat || 0).toLocaleString("tr-TR")} <span className="text-xs sm:text-sm font-bold text-slate-500 uppercase">TL</span>
-                        </div>
+                    {/* ÜRÜN RESMİ (Geniş kutu alanı) */}
+                    <Link href={"/product/" + (urun.slug || urun.id || urun._id)} prefetch={true} className="w-full h-40 sm:h-48 shrink-0 bg-[#020617] rounded-xl border border-slate-800/50 flex items-center justify-center p-4 relative overflow-hidden group-hover:border-cyan-500/20 transition-colors mt-2">
+                      <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      <img 
+                        src={urun.resim || "/placeholder.jpg"} 
+                        alt={urun.isim} 
+                        className="w-full h-full object-contain filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] transition-transform duration-500 ease-out group-hover:scale-110 z-10" 
+                      />
+                    </Link>
+
+                    {/* BİLGİLER (Başlık ve Fiyat) */}
+                    <div className="flex-1 flex flex-col justify-start">
+                      <Link href={"/product/" + (urun.slug || urun.id || urun._id)} prefetch={true} className="block mb-2 pr-2">
+                        <h3 className="text-sm font-bold text-slate-200 leading-snug line-clamp-2 hover:text-cyan-400 transition-colors">
+                          {urun.isim || urun.name}
+                        </h3>
+                      </Link>
+                      <div className="text-xl sm:text-2xl font-black text-cyan-400 tracking-tight mt-auto pt-2">
+                        {Number(urun.fiyat || 0).toLocaleString("tr-TR")} <span className="text-xs font-bold text-slate-500 uppercase">TL</span>
                       </div>
                     </div>
 
-                    {/* SAĞ KISIM: Butonlar */}
-                    <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto sm:h-24 gap-3 sm:gap-0 mt-3 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-none border-slate-800/60 shrink-0">
-                       
-                       {/* Çöp Kutusu (Masaüstünde sağ üst, mobilde sol alt) */}
-                       <button 
-                          onClick={() => setProductToDelete(urun)}
-                          className="p-2.5 sm:p-2 bg-[#020617] border border-slate-800 rounded-lg text-slate-500 hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/10 transition-all shadow-sm"
-                          title="Favorilerden Kaldır"
-                       >
-                          <Trash2 className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
-                       </button>
-
-                       {/* Sepete Ekle Butonu */}
-                       <button 
-                          onClick={() => handleSepeteEkle(urun)} 
-                          disabled={isAdded} 
-                          className={`flex-1 sm:flex-none h-11 sm:h-10 flex items-center justify-center gap-2 text-[10px] sm:text-xs font-black uppercase tracking-widest px-5 sm:px-6 rounded-xl transition-all duration-300 border-none ${
-                            isAdded 
-                            ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.3)]" 
-                            : "bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)]"
-                          }`}
-                       >
-                          {isAdded ? (<><CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Eklendi</>) : (<><ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Sepete Ekle</>)}
-                       </button>
-
-                    </div>
+                    {/* SEPETE EKLE BUTONU */}
+                    <button 
+                      onClick={() => handleSepeteEkle(urun)} 
+                      disabled={isAdded} 
+                      className={`w-full h-11 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest rounded-xl transition-all duration-300 border-none mt-1 ${
+                        isAdded 
+                        ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.3)]" 
+                        : "bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)]"
+                      }`}
+                    >
+                      {isAdded ? (<><CheckCircle2 className="w-4 h-4" /> Eklendi</>) : (<><ShoppingCart className="w-4 h-4" /> Sepete Ekle</>)}
+                    </button>
 
                   </div>
                 );
