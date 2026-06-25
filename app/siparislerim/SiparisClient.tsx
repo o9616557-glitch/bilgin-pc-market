@@ -5,7 +5,7 @@ import {
   Trash2, Copy, Check, RefreshCw, Filter, 
   PackageOpen, Package, Truck, CheckCircle2, Clock, 
   User, ShieldCheck, CreditCard, PackageX, ChevronRight, Calendar,
-  ArrowLeft, MessageSquare, ShoppingCart, Star, AlertCircle, Info
+  ArrowLeft, MessageSquare, ShoppingCart, Star, AlertCircle, Info, ChevronDown
 } from "lucide-react"; 
 import Link from "next/link";
 import { useOrders } from "@/app/OrderContext"; 
@@ -25,6 +25,25 @@ export default function SiparisClient() {
 
   const [zamanFiltresi, setZamanFiltresi] = useState<string>("tumu");
   const [durumFiltresi, setDurumFiltresi] = useState<string>("tumu");
+
+  // 🚀 BİNGO: Özel Tasarım Açılır Menüler (Dropdown) İçin Stateler
+  const [zamanAcik, setZamanAcik] = useState(false);
+  const [durumAcik, setDurumAcik] = useState(false);
+
+  const zamanSecenekleri = [
+    { id: "tumu", ad: "Tüm Zamanlar" },
+    { id: "son30", ad: "Son 30 Gün" },
+    { id: "2026", ad: "2026 Yılı" },
+    { id: "2025", ad: "2025 Yılı" }
+  ];
+
+  const durumSecenekleri = [
+    { id: "tumu", ad: "Tüm Siparişler" },
+    { id: "devam", ad: "Devam Edenler" },
+    { id: "kargo", ad: "Kargodakiler" },
+    { id: "teslim", ad: "Teslim Edilenler" },
+    { id: "iptal", ad: "İptal/İadeler" }
+  ];
 
   const handleDeleteClick = (orderId: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation(); 
@@ -52,7 +71,6 @@ export default function SiparisClient() {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  // 🚀 BİNGO: ROZETLERE w-max EKLENDİ (SÜNME, UZAMA ENGELLENDİ)
   const DurumRozetiGoster = ({ durum }: { durum: string }) => {
     const d = (durum || "").toLocaleLowerCase("tr-TR");
     if (d.includes("iptal") || d.includes("i̇ptal")) return (
@@ -112,12 +130,18 @@ export default function SiparisClient() {
 
   return (
     <div className="min-h-screen bg-[#050814] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip animate-in fade-in duration-300">
+      
+      {/* 🚀 EKRANDA HERHANGİ BİR YERE TIKLAYINCA AÇIK MENÜLERİ KAPATAN GÖRÜNMEZ PERDE */}
+      {(zamanAcik || durumAcik) && (
+        <div className="fixed inset-0 z-40" onClick={() => {setZamanAcik(false); setDurumAcik(false)}}></div>
+      )}
+
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-cyan-600 blur-[250px] opacity-[0.03] pointer-events-none rounded-full z-0"></div>
 
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
         
         {/* SOL MENÜ */}
-        <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
+        <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10 hidden sm:flex">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-xl p-3 sm:p-4 shadow-xl">
             <nav className="flex flex-col gap-1">
               <Link href="/hesabim" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-lg transition-all font-medium">
@@ -142,10 +166,11 @@ export default function SiparisClient() {
             /* =================================================================================== */
             <div className="flex flex-col gap-5 animate-in slide-in-from-right-8 fade-in duration-300">
               
-              <div className="sticky top-[80px] lg:top-28 z-40 bg-[#050814]/90 backdrop-blur-md py-3 mb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:border-none sm:bg-transparent sm:py-0 w-full">
+              {/* 🚀 KUSURSUZ YAPIŞKAN GERİ DÖN BUTONU */}
+              <div className="sticky top-[60px] lg:top-24 z-50 bg-[#050814]/95 backdrop-blur-xl py-3 border-b border-slate-800/80 -mx-4 px-4 sm:mx-0 sm:px-0 sm:border-none sm:bg-transparent sm:py-0 w-full mb-2">
                 <button 
                   onClick={() => setSelectedOrder(null)} 
-                  className="flex items-center gap-2 px-4 py-2.5 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 text-slate-400 hover:text-cyan-400 transition-all rounded-lg font-bold text-xs uppercase tracking-widest w-max shadow-md"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 text-slate-300 hover:text-cyan-400 transition-all rounded-lg font-black text-xs uppercase tracking-widest w-max shadow-md"
                 >
                   <ArrowLeft className="w-4 h-4" /> Siparişlerime Dön
                 </button>
@@ -181,7 +206,6 @@ export default function SiparisClient() {
                 <PackageOpen className="w-4 h-4 text-cyan-500" /> Ürünler ({selectedOrder.items?.length || 0})
               </h2>
 
-              {/* 🚀 BİNGO: KART DEFORME OLMAYACAK ŞEKİLDE DÜZENLENDİ */}
               <div className="space-y-4">
                 {selectedOrder.items?.map((item: any, idx: number) => {
                   const isTeslimEdildi = (selectedOrder.durum || selectedOrder.status || "").toLowerCase().includes("teslim") || (selectedOrder.durum || selectedOrder.status || "").toLowerCase().includes("tamam");
@@ -192,9 +216,8 @@ export default function SiparisClient() {
                   const iadeSuresiGectiMi = bugun > iadeBitisTarihi;
 
                   return (
-                    <div key={idx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-4 shadow-md flex flex-col gap-4">
+                    <div key={idx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-4 sm:p-5 shadow-md flex flex-col gap-4">
                       
-                      {/* Üst Kısım: Resim Sola, Yazı Sağa (Yan Yana) */}
                       <div className="flex items-start gap-4">
                         <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="w-20 h-20 sm:w-24 sm:h-24 bg-[#020617] rounded-lg border border-slate-800 hover:border-cyan-500/50 flex items-center justify-center p-2 shrink-0 transition-colors">
                           {item.image || item.resim ? (
@@ -204,33 +227,35 @@ export default function SiparisClient() {
                           )}
                         </Link>
                         
-                        <div className="flex-1 flex flex-col">
-                          <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="text-xs sm:text-sm font-bold text-white hover:text-cyan-400 transition-colors leading-snug line-clamp-2 mb-1.5">
+                        <div className="flex-1 flex flex-col h-full justify-between">
+                          {/* 🚀 BİNGO: Detay sayfasında ürün ismi tam görünecek (line-clamp kaldırıldı) */}
+                          <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="text-xs sm:text-sm font-bold text-white hover:text-cyan-400 transition-colors leading-relaxed mb-2 block whitespace-normal break-words">
                             {item.title || item.isim}
                           </Link>
-                          <p className="text-slate-400 font-bold text-[10px] uppercase tracking-wider mb-1">Miktar: {item.quantity || item.adet} Adet</p>
-                          <p className="text-sm sm:text-base font-black text-cyan-400 whitespace-nowrap mt-auto">
-                            {Number((item.price || item.fiyat || 0) * (item.quantity || item.adet || 1)).toLocaleString("tr-TR")} TL
-                          </p>
+                          <div>
+                            <p className="text-slate-400 font-bold text-[10px] uppercase tracking-wider mb-1">Miktar: {item.quantity || item.adet} Adet</p>
+                            <p className="text-sm sm:text-lg font-black text-cyan-400 whitespace-nowrap">
+                              {Number((item.price || item.fiyat || 0) * (item.quantity || item.adet || 1)).toLocaleString("tr-TR")} TL
+                            </p>
+                          </div>
                         </div>
                       </div>
 
-                      {/* Alt Kısım: Butonlar */}
-                      {/* 🚀 BİNGO: İADE ET VE YORUMLA YAN YANA ÜSTTE, TEKRAR AL BÜYÜK OLARAK ALTTA (MOBİL İÇİN) */}
-                      <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 pt-3 border-t border-slate-800/50">
+                      {/* 🚀 BİNGO: KİBAR VE HİZALI BUTONLAR (PC'de ufak, Telefonda ızgara) */}
+                      <div className="grid grid-cols-2 sm:flex sm:flex-row sm:justify-end sm:flex-wrap items-center gap-2 pt-3 border-t border-slate-800/50 mt-1">
                         {isTeslimEdildi && !isIptal && !iadeSuresiGectiMi && (
-                          <Link href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade`} className="col-span-1 flex items-center justify-center gap-1.5 h-10 px-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[10px] uppercase tracking-widest w-full">
+                          <Link href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade`} className="col-span-1 flex items-center justify-center gap-1.5 h-10 px-4 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[10px] uppercase tracking-widest w-full sm:w-max">
                             <RefreshCw className="w-3.5 h-3.5" /> İade Et
                           </Link>
                         )}
                         
                         {isTeslimEdildi && (
-                          <Link href={`/product/${item.slug || item.productId || item._id || ''}#yorumlar`} className="col-span-1 flex items-center justify-center gap-1.5 h-10 px-3 bg-[#020617] hover:bg-amber-500/10 text-slate-300 hover:text-amber-400 border border-slate-800 hover:border-amber-500/30 rounded-md transition-all font-black text-[10px] uppercase tracking-widest w-full">
+                          <Link href={`/product/${item.slug || item.productId || item._id || ''}#yorumlar`} className="col-span-1 flex items-center justify-center gap-1.5 h-10 px-4 bg-[#020617] hover:bg-amber-500/10 text-slate-300 hover:text-amber-400 border border-slate-800 hover:border-amber-500/30 rounded-md transition-all font-black text-[10px] uppercase tracking-widest w-full sm:w-max">
                             <Star className="w-3.5 h-3.5" /> Yorumla
                           </Link>
                         )}
 
-                        <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="col-span-2 sm:col-span-1 sm:ml-auto flex items-center justify-center gap-1.5 h-10 px-6 bg-cyan-600/10 hover:bg-cyan-600 text-cyan-400 hover:text-white border border-cyan-500/20 rounded-md transition-all font-black text-[10px] uppercase tracking-widest w-full sm:w-max mt-1 sm:mt-0 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
+                        <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="col-span-2 sm:col-span-1 flex items-center justify-center gap-1.5 h-10 px-6 bg-cyan-600/10 hover:bg-cyan-600 text-cyan-400 hover:text-white border border-cyan-500/20 rounded-md transition-all font-black text-[10px] uppercase tracking-widest w-full sm:w-max shadow-[0_0_15px_rgba(6,182,212,0.1)]">
                           <ShoppingCart className="w-4 h-4" /> Tekrar Al
                         </Link>
                       </div>
@@ -315,27 +340,65 @@ export default function SiparisClient() {
                     </div>
                   </div>
 
-                  {/* 🚀 BİNGO: FİLTRE KUTULARI NEFES ALSIN DİYE py-2.5 VE px-4 YAPILDI */}
-                  <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
-                    <div className="flex items-center gap-2 bg-[#020617] border border-slate-800 rounded-lg px-4 py-2.5 flex-1 xl:flex-none">
-                      <Calendar className="w-4 h-4 text-slate-500" />
-                      <select value={zamanFiltresi} onChange={(e) => setZamanFiltresi(e.target.value)} className="bg-transparent text-xs text-slate-300 font-bold outline-none cursor-pointer appearance-none w-full">
-                        <option value="tumu" className="bg-[#0f172a] py-2">Tüm Zamanlar</option>
-                        <option value="son30" className="bg-[#0f172a] py-2">Son 30 Gün</option>
-                        <option value="2026" className="bg-[#0f172a] py-2">2026 Yılı</option>
-                        <option value="2025" className="bg-[#0f172a] py-2">2025 Yılı</option>
-                      </select>
+                  {/* 🚀 BİNGO: ÖZEL TASARIM DROPDOWN FİLTRELERİ */}
+                  <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto relative z-50">
+                    
+                    {/* Zaman Filtresi */}
+                    <div className="relative flex-1 xl:flex-none">
+                      <button 
+                        onClick={() => {setZamanAcik(!zamanAcik); setDurumAcik(false)}}
+                        className="w-full flex items-center justify-between gap-2 bg-[#020617] hover:bg-[#020617]/80 border border-slate-800 rounded-lg px-4 py-3 xl:w-48 transition-colors text-xs text-slate-300 font-bold"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-cyan-500" />
+                          {zamanSecenekleri.find(z => z.id === zamanFiltresi)?.ad}
+                        </div>
+                        <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${zamanAcik ? 'rotate-180' : ''}`} />
+                      </button>
+                      
+                      {zamanAcik && (
+                        <div className="absolute top-full mt-1.5 left-0 w-full bg-[#0f172a] border border-slate-700 rounded-lg shadow-2xl overflow-hidden py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                          {zamanSecenekleri.map(secenek => (
+                            <button
+                              key={secenek.id}
+                              onClick={() => {setZamanFiltresi(secenek.id); setZamanAcik(false)}}
+                              className={`w-full text-left px-4 py-2.5 text-xs font-bold transition-colors ${zamanFiltresi === secenek.id ? 'bg-cyan-600/10 text-cyan-400' : 'text-slate-300 hover:bg-[#020617] hover:text-white'}`}
+                            >
+                              {secenek.ad}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <div className="flex items-center gap-2 bg-[#020617] border border-slate-800 rounded-lg px-4 py-2.5 flex-1 xl:flex-none">
-                      <Filter className="w-4 h-4 text-slate-500" />
-                      <select value={durumFiltresi} onChange={(e) => setDurumFiltresi(e.target.value)} className="bg-transparent text-xs text-slate-300 font-bold outline-none cursor-pointer appearance-none w-full">
-                        <option value="tumu" className="bg-[#0f172a] py-2">Tüm Siparişler</option>
-                        <option value="devam" className="bg-[#0f172a] py-2">Devam Edenler</option>
-                        <option value="kargo" className="bg-[#0f172a] py-2">Kargodakiler</option>
-                        <option value="teslim" className="bg-[#0f172a] py-2">Teslim Edilenler</option>
-                        <option value="iptal" className="bg-[#0f172a] py-2">İptal/İadeler</option>
-                      </select>
+
+                    {/* Durum Filtresi */}
+                    <div className="relative flex-1 xl:flex-none">
+                      <button 
+                        onClick={() => {setDurumAcik(!durumAcik); setZamanAcik(false)}}
+                        className="w-full flex items-center justify-between gap-2 bg-[#020617] hover:bg-[#020617]/80 border border-slate-800 rounded-lg px-4 py-3 xl:w-52 transition-colors text-xs text-slate-300 font-bold"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Filter className="w-4 h-4 text-cyan-500" />
+                          {durumSecenekleri.find(d => d.id === durumFiltresi)?.ad}
+                        </div>
+                        <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${durumAcik ? 'rotate-180' : ''}`} />
+                      </button>
+
+                      {durumAcik && (
+                        <div className="absolute top-full mt-1.5 left-0 w-full bg-[#0f172a] border border-slate-700 rounded-lg shadow-2xl overflow-hidden py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                          {durumSecenekleri.map(secenek => (
+                            <button
+                              key={secenek.id}
+                              onClick={() => {setDurumFiltresi(secenek.id); setDurumAcik(false)}}
+                              className={`w-full text-left px-4 py-2.5 text-xs font-bold transition-colors ${durumFiltresi === secenek.id ? 'bg-cyan-600/10 text-cyan-400' : 'text-slate-300 hover:bg-[#020617] hover:text-white'}`}
+                            >
+                              {secenek.ad}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
+                    
                   </div>
                 </div>
               </div>
@@ -386,22 +449,25 @@ export default function SiparisClient() {
                           </div>
                         </div>
 
-                        <div className="flex-grow flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                          <div className="hidden sm:flex flex-col">
+                        <div className="flex-grow flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full overflow-hidden">
+                          <div className="hidden sm:flex flex-col flex-1 min-w-0 pr-4">
                             <div className="flex items-center gap-2 mb-0.5">
                               <span className="text-xs font-black text-cyan-400 uppercase tracking-widest">{currentSiparisKodu}</span>
                               <button onClick={(e) => handleCopy(currentSiparisKodu, e)} className="text-slate-500 hover:text-cyan-400 transition-colors">
                                  {copiedCode === currentSiparisKodu ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                               </button>
                             </div>
-                            <p className="text-[10px] text-slate-500 font-medium">{new Date(order.createdAt || order.tarih).toLocaleDateString("tr-TR")}</p>
+                            {/* 🚀 BİNGO: LİSTEDE ÜRÜN İSMİ TEK SATIR OLACAK, TAŞAN NOKTA NOKTA OLACAK */}
+                            <p className="text-[11px] text-slate-300 font-medium truncate w-full max-w-[200px] lg:max-w-[300px]">
+                              {firstItem?.title || firstItem?.isim || "Ürün"}
+                            </p>
                           </div>
 
-                          <div className="flex flex-col sm:items-center gap-2">
+                          <div className="flex flex-col sm:items-center gap-2 shrink-0">
                             <DurumRozetiGoster durum={durumMetni} />
                           </div>
 
-                          <div className="flex items-center justify-between sm:justify-end gap-4 border-t border-slate-800 sm:border-0 pt-3 sm:pt-0">
+                          <div className="flex items-center justify-between sm:justify-end gap-4 border-t border-slate-800 sm:border-0 pt-3 sm:pt-0 shrink-0">
                             <div className="flex flex-col items-start sm:items-end">
                               <span className="text-[9px] text-slate-500 font-black uppercase tracking-widest">TOPLAM</span>
                               <p className="text-sm font-black text-white whitespace-nowrap">
