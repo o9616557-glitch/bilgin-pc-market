@@ -201,7 +201,7 @@ export default function SiparisClient() {
                 <PackageOpen className="w-4 h-4 text-cyan-500" /> Ürünler ({selectedOrder.items?.length || 0})
               </h2>
 
-              {/* 🚀 BİNGO: space-y-4 yerine grid eklendi. PC'de yan yana 2'li veya 3'lü dizilecek */}
+              {/* 🚀 BİNGO: Kart içindeki boşluklar, resim-yazı dengesi ve buton ızgarası (Grid) kusursuzlaştırıldı! */}
               <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
                 {selectedOrder.items?.map((item: any, idx: number) => {
                   const isTeslimEdildi = (selectedOrder.durum || selectedOrder.status || "").toLowerCase().includes("teslim") || (selectedOrder.durum || selectedOrder.status || "").toLowerCase().includes("tamam");
@@ -212,11 +212,10 @@ export default function SiparisClient() {
                   const iadeSuresiGectiMi = bugun > iadeBitisTarihi;
 
                   return (
-                    // h-full ile kutuların boyu eşitlenir
-                    <div key={idx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-4 sm:p-5 shadow-md flex flex-col h-full gap-4">
+                    <div key={idx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-4 shadow-md flex flex-col h-full gap-3 sm:gap-4">
                       
-                      <div className="flex items-start gap-4 flex-1">
-                        <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="w-20 h-20 sm:w-24 sm:h-24 bg-[#020617] rounded-lg border border-slate-800 hover:border-cyan-500/50 flex items-center justify-center p-2 shrink-0 transition-colors">
+                      <div className="flex items-start gap-3 sm:gap-4 flex-1">
+                        <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="w-20 h-20 shrink-0 bg-[#020617] rounded-lg border border-slate-800 hover:border-cyan-500/50 flex items-center justify-center p-2 transition-colors">
                           {item.image || item.resim ? (
                             <img src={item.image || item.resim} alt="ürün" className="w-full h-full object-contain drop-shadow-md" />
                           ) : (
@@ -224,37 +223,38 @@ export default function SiparisClient() {
                           )}
                         </Link>
                         
-                        <div className="flex-1 flex flex-col h-full">
-                          {/* 🚀 BİNGO: Ürün ismi ne kadar uzunsa alt satıra geçerek tam yazar, kesilmez */}
-                          <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="text-xs sm:text-sm font-bold text-white hover:text-cyan-400 transition-colors leading-relaxed mb-3 block whitespace-normal break-words">
+                        {/* min-w-0: Yazıların dışarı taşmasını, kartı şişirmesini kesin olarak engeller */}
+                        <div className="flex-1 flex flex-col h-full min-w-0">
+                          {/* leading-snug: Satır aralıkları daraltıldı, daha derli toplu duracak */}
+                          <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="text-[11px] sm:text-xs font-bold text-white hover:text-cyan-400 transition-colors leading-snug mb-2 block break-words">
                             {item.title || item.isim}
                           </Link>
                           
                           <div className="mt-auto">
-                            <p className="text-slate-400 font-bold text-[10px] uppercase tracking-wider mb-1">Miktar: {item.quantity || item.adet} Adet</p>
-                            <p className="text-sm sm:text-lg font-black text-cyan-400 whitespace-nowrap">
+                            <p className="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider mb-0.5">Miktar: {item.quantity || item.adet} Adet</p>
+                            <p className="text-sm sm:text-base font-black text-cyan-400 whitespace-nowrap">
                               {Number((item.price || item.fiyat || 0) * (item.quantity || item.adet || 1)).toLocaleString("tr-TR")} TL
                             </p>
                           </div>
                         </div>
                       </div>
 
-                      {/* mt-auto ile butonlar her zaman kartın en altına yapışır */}
-                      <div className="grid grid-cols-2 sm:flex sm:flex-row sm:justify-end sm:flex-wrap items-center gap-2 pt-3 border-t border-slate-800/50 mt-auto">
+                      {/* 🚀 TELEFONDA JİLET GİBİ GRID: İade ve Yorum yanyana (%50-%50), Tekrar Al altta boydan boya (%100) */}
+                      <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:justify-end items-center gap-2 pt-3 border-t border-slate-800/50 mt-auto">
                         {isTeslimEdildi && !isIptal && !iadeSuresiGectiMi && (
-                          <Link href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade`} className="col-span-1 flex items-center justify-center gap-1.5 h-10 px-4 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[10px] uppercase tracking-widest w-full sm:w-max">
+                          <Link href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade`} className="col-span-1 flex items-center justify-center gap-1.5 h-9 px-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest w-full sm:w-max">
                             <RefreshCw className="w-3.5 h-3.5" /> İade Et
                           </Link>
                         )}
                         
                         {isTeslimEdildi && (
-                          <Link href={`/product/${item.slug || item.productId || item._id || ''}#yorumlar`} className="col-span-1 flex items-center justify-center gap-1.5 h-10 px-4 bg-[#020617] hover:bg-amber-500/10 text-slate-300 hover:text-amber-400 border border-slate-800 hover:border-amber-500/30 rounded-md transition-all font-black text-[10px] uppercase tracking-widest w-full sm:w-max">
+                          <Link href={`/product/${item.slug || item.productId || item._id || ''}#yorumlar`} className="col-span-1 flex items-center justify-center gap-1.5 h-9 px-2 bg-[#020617] hover:bg-amber-500/10 text-slate-300 hover:text-amber-400 border border-slate-800 hover:border-amber-500/30 rounded-md transition-all font-black text-[9px] uppercase tracking-widest w-full sm:w-max">
                             <Star className="w-3.5 h-3.5" /> Yorumla
                           </Link>
                         )}
 
-                        <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="col-span-2 sm:col-span-1 flex items-center justify-center gap-1.5 h-10 px-6 bg-cyan-600/10 hover:bg-cyan-600 text-cyan-400 hover:text-white border border-cyan-500/20 rounded-md transition-all font-black text-[10px] uppercase tracking-widest w-full sm:w-max shadow-[0_0_15px_rgba(6,182,212,0.1)]">
-                          <ShoppingCart className="w-4 h-4" /> Tekrar Al
+                        <Link href={`/product/${item.slug || item.productId || item._id || ''}`} className="col-span-2 sm:col-span-1 flex items-center justify-center gap-1.5 h-9 px-4 bg-cyan-600/10 hover:bg-cyan-600 text-cyan-400 hover:text-white border border-cyan-500/20 rounded-md transition-all font-black text-[9px] sm:text-[10px] uppercase tracking-widest w-full sm:w-max shadow-[0_0_15px_rgba(6,182,212,0.1)]">
+                          <ShoppingCart className="w-3.5 h-3.5" /> Tekrar Al
                         </Link>
                       </div>
 
