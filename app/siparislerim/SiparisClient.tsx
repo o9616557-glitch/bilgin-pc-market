@@ -138,18 +138,18 @@ export default function SiparisClient() {
 
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
         
-        {/* SOL MENÜ */}
-        <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10 hidden sm:flex">
-          <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-xl p-3 sm:p-4 shadow-xl">
-            <nav className="flex flex-col gap-1">
-              <Link href="/hesabim" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-lg transition-all font-medium">
-                <User className="w-4 h-4" /> Profil
+     {/* 🚀 BİNGO: SOL MENÜ (PANO) MOBİLDE ARTIK GÖRÜNÜYOR! Mobilde yatay kayar, PC'de dikey kalır. */}
+        <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
+          <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-xl p-2 sm:p-4 shadow-xl overflow-x-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
+            <nav className="flex flex-row lg:flex-col gap-1.5 min-w-max lg:min-w-0">
+              <Link href="/hesabim" className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-white hover:bg-[#020617] rounded-lg transition-all font-medium">
+                <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Profil
               </Link>
-              <Link href="/cuzdan" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-lg transition-all font-medium">
-                <CreditCard className="w-4 h-4" /> Dijital Cüzdanım
+              <Link href="/cuzdan" className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-white hover:bg-[#020617] rounded-lg transition-all font-medium">
+                <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Dijital Cüzdanım
               </Link>
-              <Link href="/guvenlik" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-lg transition-all font-medium">
-                <ShieldCheck className="w-4 h-4" /> Güvenlik
+              <Link href="/guvenlik" className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-white hover:bg-[#020617] rounded-lg transition-all font-medium">
+                <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Güvenlik
               </Link>
             </nav>
           </div>
@@ -339,20 +339,20 @@ export default function SiparisClient() {
                       </p>
                     </div>
                   </div>
-
-                  <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto relative z-50">
+{/* 🚀 BİNGO: FİLTRELER MOBİLDE YAN YANA ZORUNLU KILINDI (flex-row). Yazılar sığsın diye küçültüldü. */}
+                  <div className="flex flex-row items-center gap-2 sm:gap-3 w-full xl:w-auto relative z-50">
                     
                     {/* Zaman Filtresi */}
-                    <div className="relative flex-1 xl:flex-none">
+                    <div className="relative flex-1 xl:flex-none min-w-0">
                       <button 
                         onClick={() => {setZamanAcik(!zamanAcik); setDurumAcik(false)}}
-                        className="w-full flex items-center justify-between gap-2 bg-[#020617] hover:bg-[#020617]/80 border border-slate-800 rounded-lg px-4 py-3 xl:w-48 transition-colors text-xs text-slate-300 font-bold"
+                        className="w-full flex items-center justify-between gap-1 sm:gap-2 bg-[#020617] hover:bg-[#020617]/80 border border-slate-800 rounded-lg px-2 sm:px-4 py-2 sm:py-3 xl:w-48 transition-colors text-[9px] sm:text-xs text-slate-300 font-bold whitespace-nowrap overflow-hidden"
                       >
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-cyan-500" />
-                          {zamanSecenekleri.find(z => z.id === zamanFiltresi)?.ad}
+                        <div className="flex items-center gap-1.5 sm:gap-2 truncate">
+                          <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-cyan-500 shrink-0" />
+                          <span className="truncate">{zamanSecenekleri.find(z => z.id === zamanFiltresi)?.ad}</span>
                         </div>
-                        <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${zamanAcik ? 'rotate-180' : ''}`} />
+                        <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 shrink-0 text-slate-500 transition-transform ${zamanAcik ? 'rotate-180' : ''}`} />
                       </button>
                       
                       {zamanAcik && (
@@ -361,7 +361,7 @@ export default function SiparisClient() {
                             <button
                               key={secenek.id}
                               onClick={() => {setZamanFiltresi(secenek.id); setZamanAcik(false)}}
-                              className={`w-full text-left px-4 py-2.5 text-xs font-bold transition-colors ${zamanFiltresi === secenek.id ? 'bg-cyan-600/10 text-cyan-400' : 'text-slate-300 hover:bg-[#020617] hover:text-white'}`}
+                              className={`w-full text-left px-3 sm:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold transition-colors ${zamanFiltresi === secenek.id ? 'bg-cyan-600/10 text-cyan-400' : 'text-slate-300 hover:bg-[#020617] hover:text-white'}`}
                             >
                               {secenek.ad}
                             </button>
@@ -371,16 +371,16 @@ export default function SiparisClient() {
                     </div>
 
                     {/* Durum Filtresi */}
-                    <div className="relative flex-1 xl:flex-none">
+                    <div className="relative flex-1 xl:flex-none min-w-0">
                       <button 
                         onClick={() => {setDurumAcik(!durumAcik); setZamanAcik(false)}}
-                        className="w-full flex items-center justify-between gap-2 bg-[#020617] hover:bg-[#020617]/80 border border-slate-800 rounded-lg px-4 py-3 xl:w-52 transition-colors text-xs text-slate-300 font-bold"
+                        className="w-full flex items-center justify-between gap-1 sm:gap-2 bg-[#020617] hover:bg-[#020617]/80 border border-slate-800 rounded-lg px-2 sm:px-4 py-2 sm:py-3 xl:w-52 transition-colors text-[9px] sm:text-xs text-slate-300 font-bold whitespace-nowrap overflow-hidden"
                       >
-                        <div className="flex items-center gap-2">
-                          <Filter className="w-4 h-4 text-cyan-500" />
-                          {durumSecenekleri.find(d => d.id === durumFiltresi)?.ad}
+                        <div className="flex items-center gap-1.5 sm:gap-2 truncate">
+                          <Filter className="w-3 h-3 sm:w-4 sm:h-4 text-cyan-500 shrink-0" />
+                          <span className="truncate">{durumSecenekleri.find(d => d.id === durumFiltresi)?.ad}</span>
                         </div>
-                        <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${durumAcik ? 'rotate-180' : ''}`} />
+                        <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 shrink-0 text-slate-500 transition-transform ${durumAcik ? 'rotate-180' : ''}`} />
                       </button>
 
                       {durumAcik && (
@@ -389,7 +389,7 @@ export default function SiparisClient() {
                             <button
                               key={secenek.id}
                               onClick={() => {setDurumFiltresi(secenek.id); setDurumAcik(false)}}
-                              className={`w-full text-left px-4 py-2.5 text-xs font-bold transition-colors ${durumFiltresi === secenek.id ? 'bg-cyan-600/10 text-cyan-400' : 'text-slate-300 hover:bg-[#020617] hover:text-white'}`}
+                              className={`w-full text-left px-3 sm:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold transition-colors ${durumFiltresi === secenek.id ? 'bg-cyan-600/10 text-cyan-400' : 'text-slate-300 hover:bg-[#020617] hover:text-white'}`}
                             >
                               {secenek.ad}
                             </button>
