@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
-  HeartCrack, Trash2, ShoppingCart, Heart, 
-  User, ShieldCheck, CreditCard, Star, X, CheckCircle2,
+  HeartCrack, Trash2, ShoppingCart, 
+  User, ShieldCheck, CreditCard, Star, CheckCircle2,
   MapPin, Package, Search, Monitor, Headphones, Truck, PackageX, Calendar, Copy
 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -90,12 +90,12 @@ export default function FavoriClient({ initialFavorites }: Props) {
 
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip">
-      {/* 🚀 ARKA PLAN PARLAMASI (Diğerleriyle Tam Uyumlu 0.05 Opacity) */}
+      {/* 🚀 ARKA PLAN PARLAMASI */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-cyan-600 blur-[250px] opacity-[0.05] pointer-events-none rounded-full z-0"></div>
 
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
         
-        {/* ⬅️ SOL MENÜ (Tamamen İp Gibi Hizalı) */}
+        {/* ⬅️ SOL MENÜ */}
         <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-xl p-2 sm:p-4 shadow-xl overflow-x-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
             <nav className="flex flex-row lg:flex-col gap-1.5 min-w-max lg:min-w-0">
@@ -114,31 +114,23 @@ export default function FavoriClient({ initialFavorites }: Props) {
 
         {/* ➡️ SAĞ İÇERİK */}
         <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full animate-in fade-in duration-300">
-          
-          {/* 🚀 BİNGO: İSTENİLEN SIRALAMADA TURKUAZ (CYAN) FASULYE MENÜ */}
+      {/* 🚀 BİNGO: FASULYE MENÜ */}
           <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pt-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
-            
-            {/* 1. Siparişler */}
             <Link href="/siparislerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
               <Package className="w-4 h-4 text-cyan-500" /> Siparişler
             </Link>
-
-            {/* 2. Sistemler */}
             <Link href="/sistemlerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
               <Monitor className="w-4 h-4 text-cyan-500" /> Sistemler
             </Link>
-
-            {/* 3. Destek / İade */}
             <Link href="/destek-taleplerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
               <Headphones className="w-4 h-4 text-cyan-500" /> Destek / İade
             </Link>
-
-            {/* 4. Sorgula */}
             <Link href="/siparis-takip" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
               <Search className="w-4 h-4 text-cyan-500" /> Sorgula
             </Link>
-
-            {/* 5. Kargolar */}
+            <Link href="/adreslerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+              <MapPin className="w-4 h-4 text-cyan-500" /> Adresler
+            </Link>
             <button onClick={() => setKargoPopupAcik(true)} className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none relative">
               <Truck className="w-4 h-4 text-cyan-500" /> Kargolar
               {localOrders?.filter(o => (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo")).length > 0 && (
@@ -147,14 +139,9 @@ export default function FavoriClient({ initialFavorites }: Props) {
                 </span>
               )}
             </button>
-
-            {/* 6. Adresler */}
-            <Link href="/adreslerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
-              <MapPin className="w-4 h-4 text-cyan-500" /> Adresler
-            </Link>
           </div>
 
-          {/* 🚀 BAŞLIK KUTUSU (Diğer sayfalar ile aynı yapı ve boşluk: rounded-xl, p-5 sm:p-6, flex-row) */}
+          {/* 🚀 BAŞLIK KUTUSU */}
           <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5 z-40 overflow-hidden group">
             <div className="absolute -top-20 -right-20 w-64 h-64 bg-cyan-500/10 blur-[60px] pointer-events-none rounded-full"></div>
             
@@ -203,47 +190,59 @@ export default function FavoriClient({ initialFavorites }: Props) {
               {favoriteProducts.map((urun: any, index: number) => {
                 const isAdded = sepeteEklenenler.includes(urun._id || urun.id);
                 return (
-                  <div key={index} className="group flex flex-col sm:flex-row items-center bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-5 gap-4 sm:gap-6 transition-all duration-300 hover:border-cyan-500/40 shadow-xl hover:shadow-[0_0_30px_rgba(6,182,212,0.05)] relative overflow-hidden">
+                  /* 🚀 BİNGO: GÖRSELDEKİ YATAY SİPARİŞ KUTUSU TASARIMI */
+                  <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-5 gap-4 transition-all duration-300 hover:border-cyan-500/40 hover:shadow-[0_10px_30px_rgba(6,182,212,0.06)] group">
                     
-                    {/* 🚀 ÇÖP KUTUSU İKONU (Silmek için) */}
-                    <button 
-                      onClick={() => setProductToDelete(urun)}
-                      className="absolute top-3 right-3 sm:top-4 sm:right-4 w-8 h-8 flex items-center justify-center bg-[#020617] border border-slate-800 rounded-lg text-slate-500 hover:text-red-400 hover:border-red-500/30 hover:bg-red-500/10 transition-colors z-20"
-                      title="Favorilerden Kaldır"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    {/* SOL KISIM: Resim ve Bilgiler */}
+                    <div className="flex items-center gap-4 w-full sm:w-auto flex-1">
+                      
+                      {/* Resim Kutusu (Karanlık ve kare) */}
+                      <Link href={"/product/" + (urun.slug || urun.id || urun._id)} prefetch={true} className="w-20 h-20 sm:w-24 sm:h-24 shrink-0 bg-[#020617] rounded-xl border border-slate-800 flex items-center justify-center p-2 relative overflow-hidden group-hover:border-cyan-500/30 transition-colors">
+                        <img 
+                          src={urun.resim || "/placeholder.jpg"} 
+                          alt={urun.isim} 
+                          className="w-full h-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-300" 
+                        />
+                      </Link>
 
-                    <div className="w-full sm:w-32 h-48 sm:h-32 shrink-0 bg-[#020617] rounded-xl border border-slate-800 flex items-center justify-center p-3 relative overflow-hidden group-hover:border-cyan-500/20 transition-colors mt-6 sm:mt-0">
-                      <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                      <img 
-                        src={urun.resim || "/placeholder.jpg"} 
-                        alt={urun.isim} 
-                        className="w-full h-full object-contain filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] transition-transform duration-500 ease-out group-hover:scale-110 z-10" 
-                      />
-                    </div>
-
-                    <div className="flex-1 flex flex-col justify-center text-center sm:text-left w-full h-full pr-0 sm:pr-10">
-                        <h3 className="text-sm sm:text-base font-bold text-slate-200 mb-2 leading-relaxed line-clamp-2 group-hover:text-white transition-colors">
-                          {urun.isim || urun.name}
-                        </h3>
-                        <div className="text-xl sm:text-2xl font-black text-cyan-400 tracking-tight mt-auto">
+                      {/* Başlık ve Fiyat */}
+                      <div className="flex flex-col flex-1 min-w-0 justify-between h-full py-0.5 sm:py-1">
+                        <Link href={"/product/" + (urun.slug || urun.id || urun._id)} prefetch={true} className="block w-fit max-w-full">
+                          <h3 className="text-sm sm:text-base font-bold text-slate-200 leading-snug line-clamp-2 hover:text-cyan-400 transition-colors">
+                            {urun.isim || urun.name}
+                          </h3>
+                        </Link>
+                        <div className="text-xl sm:text-2xl font-black text-cyan-400 tracking-tight mt-2 sm:mt-3">
                           {Number(urun.fiyat || 0).toLocaleString("tr-TR")} <span className="text-xs sm:text-sm font-bold text-slate-500 uppercase">TL</span>
                         </div>
+                      </div>
                     </div>
 
-                    <div className="flex flex-row items-center gap-2 sm:gap-3 shrink-0 w-full sm:w-auto mt-2 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-none border-slate-800/50">
-                    <button 
+                    {/* SAĞ KISIM: Butonlar */}
+                    <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto sm:h-24 gap-3 sm:gap-0 mt-3 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-none border-slate-800/60 shrink-0">
+                       
+                       {/* Çöp Kutusu (Masaüstünde sağ üst, mobilde sol alt) */}
+                       <button 
+                          onClick={() => setProductToDelete(urun)}
+                          className="p-2.5 sm:p-2 bg-[#020617] border border-slate-800 rounded-lg text-slate-500 hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/10 transition-all shadow-sm"
+                          title="Favorilerden Kaldır"
+                       >
+                          <Trash2 className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
+                       </button>
+
+                       {/* Sepete Ekle Butonu */}
+                       <button 
                           onClick={() => handleSepeteEkle(urun)} 
                           disabled={isAdded} 
-                          className={`flex-1 sm:flex-none h-12 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wider px-6 rounded-xl transition-all duration-300 border-none ${
+                          className={`flex-1 sm:flex-none h-11 sm:h-10 flex items-center justify-center gap-2 text-[10px] sm:text-xs font-black uppercase tracking-widest px-5 sm:px-6 rounded-xl transition-all duration-300 border-none ${
                             isAdded 
                             ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.3)]" 
                             : "bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)]"
                           }`}
-                        >
-                          {isAdded ? (<><CheckCircle2 className="w-4 h-4" /> Eklendi</>) : (<><ShoppingCart className="w-4 h-4" /> Sepete Ekle</>)}
-                        </button>
+                       >
+                          {isAdded ? (<><CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Eklendi</>) : (<><ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Sepete Ekle</>)}
+                       </button>
+
                     </div>
 
                   </div>
@@ -277,7 +276,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
             </div>
           )}
 
-          {/* 🚀 MİLİMETRİK KARGOLAR POPUP'I (Destek, Adres ve Siparişler ile Birebir) */}
+          {/* 🚀 MİLİMETRİK KARGOLAR POPUP'I */}
           {kargoPopupAcik && (
             <div style={{ zIndex: 999999 }} className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
               <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.9)] relative overflow-hidden animate-in zoom-in-95 duration-200 max-h-[85vh]">
