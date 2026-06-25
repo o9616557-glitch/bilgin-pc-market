@@ -7,10 +7,12 @@ import {
   User, ShieldCheck, CreditCard, Headset, 
   PlusCircle, MessageSquare, CheckCircle2, Clock, 
   AlertCircle, ChevronRight, ChevronDown, PackageX, Wrench, Send, X, Loader2, Trash2,
-  MapPin, Truck, Search, Star, Monitor, Package, Headphones
+  MapPin, Truck, Search, Star, Monitor, Package, Headphones,
+  Calendar,
+  Copy
 } from "lucide-react";
 import toast from "react-hot-toast";
-
+import { useOrders } from "@/app/OrderContext";
 export default function DestekIadePage() {
   const { data: session, status } = useSession();
 const mesajKutusuRef = useRef<HTMLDivElement>(null);
@@ -43,9 +45,9 @@ const mesajKutusuRef = useRef<HTMLDivElement>(null);
 const [talepMesaji, setTalepMesaji] = useState("");
   const [silinecekTalepId, setSilinecekTalepId] = useState<string | null>(null);
   
-  // 🚀 BİNGO: Kargolar Popup'ının çalışması için eklendi
-  const [kargoPopupAcik, setKargoPopupAcik] = useState(false);
-  const [localOrders, setLocalOrders] = useState<any[]>([]);
+const [kargoPopupAcik, setKargoPopupAcik] = useState(false);
+  // 🚀 BİNGO: Gerçek Sipariş Verileri Bağlandı!
+  const { orders: localOrders } = useOrders();
 
 // 🚀 MODAL VE MOBİL SOHBET AÇILINCA ARKA PLANI DONDURAN MOTOR
   useEffect(() => {
@@ -490,7 +492,7 @@ useEffect(() => {
         </div>
       )}
 
-    {/* 🚀 BİNGO: KARGOLAR POPUP'I DESTEK SAYFASINA DA EKLENDİ */}
+   {/* 🚀 BİNGO: KARGOLAR POPUP'I DESTEK SAYFASINA DA EKLENDİ (Gerçek Veriler Çekiliyor) */}
       {kargoPopupAcik && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
           <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.9)] relative overflow-hidden animate-in zoom-in-95 duration-200 max-h-[85vh]">
@@ -522,7 +524,48 @@ useEffect(() => {
                     </div>
                   );
                 }
-                return null;
+
+                {/* 🚀 SAHTE "return null;" SİLİNDİ, GERÇEĞİ EKLENDİ! */}
+                return kargoSiparisleri.map((siparis: any, idx: number) => {
+                  const siparisKodu = siparis.siparisKodu || siparis.orderNumber || siparis._id?.slice(-8).toUpperCase() || "SİPARİŞ";
+                  const tarih = siparis.createdAt ? new Date(siparis.createdAt).toLocaleDateString("tr-TR") : siparis.tarih ? new Date(siparis.tarih).toLocaleDateString("tr-TR") : "";
+                  const firma = siparis.kargoFirmasi || siparis.shippingCompany || "Belirtilmemiş";
+                  const takipNo = siparis.takipNo || siparis.kargoTakipNo || siparis.trackingNumber || "Takip No Girilmemiş";
+
+                  return (
+                    <div key={siparis._id || idx} className="bg-[#020617] border border-slate-800/80 p-4 rounded-2xl flex flex-col gap-4 group hover:border-cyan-500/30 transition-colors relative z-10 mb-2">
+                      
+                      <div className="flex justify-between items-center border-b border-slate-800/50 pb-3">
+                        <span className="text-xs font-black text-cyan-400 uppercase tracking-widest">#{siparisKodu}</span>
+                        <span className="text-[10px] font-bold text-slate-500 flex items-center gap-1"><Calendar className="w-3 h-3"/> {tarih}</span>
+                      </div>
+
+                      <div className="flex flex-col gap-3">
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-slate-500 font-medium">Kargo Firması</span>
+                          <span className="font-bold text-white px-2 py-1 bg-[#0f172a] rounded-md border border-slate-800">{firma}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-slate-500 font-medium">Takip Numarası</span>
+                          <div className="flex items-center gap-2 px-2 py-1 bg-cyan-950/20 rounded-md border border-cyan-500/20">
+                            <span className="font-black text-cyan-400">{takipNo}</span>
+                            {takipNo !== "Takip No Girilmemiş" && (
+                              <button onClick={(e) => {
+                                e.stopPropagation();
+                                navigator.clipboard.writeText(takipNo);
+                                toast.success("Takip numarası kopyalandı!");
+                              }} className="text-cyan-600 hover:text-cyan-300 transition-colors">
+                                <Copy className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  );
+                });
+
               })()}
             </div>
           </div>
