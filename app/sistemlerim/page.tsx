@@ -173,7 +173,7 @@ export default function SistemlerimPage() {
         {/* ➡️ SAĞ İÇERİK */}
         <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full animate-in fade-in duration-300">
           
-          {/* 🚀 BİNGO: İSTENİLEN SIRALAMADA TURKUAZ (CYAN) FASULYE MENÜ */}
+        {/* 🚀 BİNGO: İSTENİLEN SIRALAMADA TURKUAZ (CYAN) FASULYE MENÜ */}
           <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pt-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
             
             {/* 1. Siparişler */}
@@ -196,7 +196,12 @@ export default function SistemlerimPage() {
               <Search className="w-4 h-4 text-cyan-500" /> Sorgula
             </Link>
 
-            {/* 5. Kargolar */}
+            {/* 5. Adresler */}
+            <Link href="/adreslerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+              <MapPin className="w-4 h-4 text-cyan-500" /> Adresler
+            </Link>
+
+            {/* 6. Kargolar ve Canlı Sayaç */}
             <button onClick={() => setKargoPopupAcik(true)} className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none relative">
               <Truck className="w-4 h-4 text-cyan-500" /> Kargolar
               {localOrders?.filter(o => (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo")).length > 0 && (
@@ -205,11 +210,7 @@ export default function SistemlerimPage() {
                 </span>
               )}
             </button>
-
-            {/* 6. Adresler */}
-            <Link href="/adreslerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
-              <MapPin className="w-4 h-4 text-cyan-500" /> Adresler
-            </Link>
+            
           </div>
 
           {/* 🚀 BAŞLIK KUTUSU (Diğer sayfalar ile aynı: rounded-xl, p-5 sm:p-6, flex-row) */}
