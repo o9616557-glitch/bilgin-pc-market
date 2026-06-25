@@ -57,22 +57,17 @@ export default function AdminPaneli() {
   const [silinecekYorumID, setSilinecekYorumID] = useState<string | null>(null);
 
   const PATRON_SIFRESI = "Bilgin123";
-
-  // 🚀 BİNGO: OTOMATİK AŞAĞI KAYDIRMA MOTORU
+// 🚀 BİNGO: GECİKMELİ KESİN KAYDIRMA MOTORU (ADMİN İÇİN)
   useEffect(() => {
-    const asagiKaydir = () => {
-      if (typeof document !== 'undefined') {
-        const kutular = document.querySelectorAll('.admin-sohbet-kutusu');
-        kutular.forEach((kutu) => {
-          kutu.scrollTop = kutu.scrollHeight; 
-        });
-      }
-    };
-    
-    setTimeout(asagiKaydir, 100);
-    setTimeout(asagiKaydir, 500);
-}, [talepler, aktifSekme]);
-
+    // Sekme değiştiğinde veya yeni mesaj geldiğinde çalışır
+    setTimeout(() => {
+      // Hem admin-sohbet-kutusu hem de kaydırma çubuğu olan tüm kutuları zorla dibe iter
+      const kutular = document.querySelectorAll('.admin-sohbet-kutusu, .overflow-y-auto');
+      kutular.forEach((kutu) => {
+        kutu.scrollTop = kutu.scrollHeight;
+      });
+    }, 250); // UI'ın (arayüzün) tam açılmasını bekler
+  }, [talepler, aktifSekme]);
   // 🚀 YENİ ANA MOTOR: Sayfa açıldığı an sorgusuz sualsiz tüm verileri çeker
   useEffect(() => {
     verileriYukle();
