@@ -11,6 +11,9 @@ import ComparePopup from "./ComparePopup";
 // 🚀 BİNGO: Yeni Merkezi Sipariş Hafıza Odamızı İçe Aktarıyoruz
 import { OrderProvider } from "./OrderContext"; 
 
+// 🚀 İŞTE BİZİM KESKİN NİŞANCI: Akıllı Çip'i Ana Şasiye Çağırıyoruz
+import HesapHafizaCipi from "@/components/HesapHafizaCipi"; 
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -54,6 +57,10 @@ export default function RootLayout({
           }}
         />
         <AuthProvider>
+          
+          {/* 🚀 BİNGO! SİSTEMİN YENİ BEYNİ: F5 atılsa bile arkadan verileri toplayan gizli çipimiz! */}
+          <HesapHafizaCipi />
+
           <CartProvider>
             <CompareProvider>
               {/* 🚀 ŞALTERİ KALDIRDIK: Artık siteye giren herkesin siparişleri arka planda sessizce indirilecek */}
