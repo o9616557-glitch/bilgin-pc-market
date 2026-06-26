@@ -120,13 +120,17 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
     }
   };
 
-  const handleSepeteEkle = (urun: any) => {
+ const handleSepeteEkle = (urun: any) => {
     const targetId = urun._id || urun.id;
+    
     sepeteEkle({
       id: targetId,
       isim: urun.isim || urun.title,
       fiyat: urun.fiyat,
       resim: urun.resim || urun.image,
+      // 🚀 BİNGO: İşte burası! Ürünün slug bilgisini de sepete ekliyoruz ki 404 vermesin.
+      // Eğer urun.slug yoksa urun.slug_path gibi alternatifleri de kontrol etsin diye güvenli yazdım.
+      slug: urun.slug || urun.slugPath || urun.productSlug || "", 
       adet: 1,
       varyasyon: "Standart" 
     });
@@ -136,7 +140,6 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
       setSepeteEklenenler(prev => prev.filter(id => id !== targetId));
     }, 2000);
   };
-
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-cyan-600 blur-[250px] opacity-[0.05] pointer-events-none rounded-full z-0"></div>
