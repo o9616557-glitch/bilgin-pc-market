@@ -1,22 +1,26 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
-import { usePathname, useRouter } from "next/navigation"; // 🚀 Fırlatma motoru için eklendi
+import { usePathname, useRouter } from "next/navigation"; 
 
 export default function HesapHafizaCipi() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const router = useRouter();
 
-  // 🚀 1. MOTOR: F5 YAKALAYICI VE FIRLATICI (Senin Saksıdan Çıkan Harika Fikir!)
+  // 🚀 BİNGO: Fırlatıcı sadece 1 KERE çalışsın diye "Hafıza Kilidi" koyduk!
+  const firlatmaYapildi = useRef(false);
+
+  // 🚀 1. MOTOR: F5 YAKALAYICI VE FIRLATICI
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // Tarayıcının hafızasına bakıyoruz: "Bu adam buraya tıklayarak mı geldi, yoksa F5 mi attı?"
+      // Eğer adamı zaten 1 kere fırlattıysak, kilidi gördüğümüz an dururuz, bir daha karışmayız!
+      if (firlatmaYapildi.current) return;
+
       const navEntries = performance.getEntriesByType("navigation");
       
       if (navEntries.length > 0 && (navEntries[0] as PerformanceNavigationTiming).type === "reload") {
-        // Eğer F5 atıldıysa, Bermuda Şeytan Üçgeni'nde mi (belalı sayfalarda mı) diye kontrol et
         const belaliSayfalar = [
           "/favorilerim", 
           "/adreslerim", 
@@ -26,16 +30,16 @@ export default function HesapHafizaCipi() {
           "/siparis-takip"
         ];
 
-        // Eğer kullanıcı bu sayfalardan birindeyken F5 attıysa...
         if (pathname && belaliSayfalar.includes(pathname)) {
-          // 💥 Ensesinden tut ve saniyesinde Hesabım'a fırlat! (replace kullanıyoruz ki geri tuşu bozulmasın)
+          // 💥 Ensesinden tut, fırlat ve KİLİDİ KAPAT!
+          firlatmaYapildi.current = true; 
           router.replace("/hesabim");
         }
       }
     }
   }, [pathname, router]);
 
-  // 🚀 2. MOTOR: ARKA PLAN VERİ TOPLAYICI (Eski yazdığımız radar)
+  // 🚀 2. MOTOR: ARKA PLAN VERİ TOPLAYICI
   useEffect(() => {
     if (status !== "authenticated" || !session?.user?.email) return;
 
