@@ -213,8 +213,14 @@ export default async function HomePage() {
               </div>
             </div>
 
-            <div className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#d4af37] transition-colors duration-700 ease-out">
-              <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781456012/computer-assembling-service-serviceman-installing-260nw-1698824008_f1pdcz.webp" alt="Montaj Atölyesi" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-50 transition-all duration-1000 ease-out sepia-[.3] pointer-events-none" />
+           <div className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#121212] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#d4af37] transition-colors duration-700 ease-out">
+              {/* 🚀 BİNGO: loading="lazy" EKLENDİ! */}
+              <img 
+                src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781456012/computer-assembling-service-serviceman-installing-260nw-1698824008_f1pdcz.webp" 
+                alt="Montaj Atölyesi" 
+                loading="lazy"
+                className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-50 transition-all duration-1000 ease-out sepia-[.3] pointer-events-none" 
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent pointer-events-none"></div>
               <div className="relative z-10 transform group-hover:-translate-y-2 transition-transform duration-700 ease-out pointer-events-none">
                 <div className="text-[#d4af37] font-black text-4xl tracking-tighter mb-2 drop-shadow-[0_0_15px_rgba(212,175,55,0.2)]">ÜCRETSİZ<span className="text-white">MONTAJ</span></div>
