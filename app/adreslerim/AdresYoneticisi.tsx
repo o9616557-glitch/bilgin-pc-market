@@ -9,8 +9,8 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import Link from "next/link";
-import { useRouter } from "next/navigation"; // 🚀 router'ı geri ekledik
 import { useOrders } from "@/app/OrderContext";
+// 🚀 DİKKAT: router.refresh() belasını tekrar tamamen kaldırdık!
 
 interface Address {
   _id: string;
@@ -31,7 +31,6 @@ interface Props {
 
 export default function AdresYoneticisi({ initialAddresses }: Props) {
   const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
-  const router = useRouter(); // 🚀 router motorunu başlattık
   
   const [kargoPopupAcik, setKargoPopupAcik] = useState(false);
   const { orders: localOrders } = useOrders();
@@ -41,10 +40,43 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  // 🚀 SUNUCUDAN GELEN YENİ VERİ DEĞİŞTİĞİNDE EKRANI OTOMATİK GÜNCELLEYEN MOTOR
+  // 🚀 SESSİZ ÇIRAK FONKSİYONU: Veritabanındaki en güncel adresleri arkadan çeker
+  const adresleriGuncelle = async () => {
+    try {
+      const zamanDamgasi = new Date().getTime();
+      const res = await fetch("/api/addresses?t=" + zamanDamgasi, {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const guncelListe = data.addresses || data.data || (Array.isArray(data) ? data : []);
+        
+        // Ekranı güncelle ve anında Tarayıcı Hafızasına (sessionStorage) kaydet!
+        setAddresses(guncelListe);
+        sessionStorage.setItem("bilgin-adresler", JSON.stringify(guncelListe));
+      }
+    } catch (error) {
+      console.error("Adresler arka planda güncellenemedi", error);
+    }
+  };
+
+  // 🚀 BİNGO: HAFIZA MOTORU! (Sepet mantığının aynısı)
   useEffect(() => {
-    setAddresses(initialAddresses);
-  }, [initialAddresses]);
+    // 1. Sayfa açılır açılmaz Next.js'in eski verisi yerine TARAYICI HAFIZASINA bakıyoruz
+    const hafiza = sessionStorage.getItem("bilgin-adresler");
+    
+    if (hafiza) {
+      // Eğer hafızada güncel liste varsa, göz kırpma olmasın diye anında onu basıyoruz
+      setAddresses(JSON.parse(hafiza));
+    } else {
+      // İlk defa giriyorsa sunucudan geleni kullanıyoruz
+      setAddresses(initialAddresses);
+    }
+
+    // 2. Ardından her ihtimale karşı arka planda güncel listeyi çekip kontrol ediyoruz
+    adresleriGuncelle();
+  }, []); // Sadece sayfa yüklendiğinde çalışır
 
   // 🚀 MODAL VE FORM AÇILINCA ARKA PLANI DONDURAN MOTOR
   useEffect(() => {
@@ -91,10 +123,11 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
         setFormData(formBaslangic);
         setEditingId(null);
 
-        // 🚀 BİNGO 1: Linkler korumalı olduğu için artık güvenle router hafızasını yenileyebiliriz.
-        // Sayfa geçişlerinde eski verilerin görünmesini tamamen engeller.
-        router.refresh();
+        // İşlem biter bitmez Çırak arkadan veriyi günceller ve HAFIZAYA yazar.
+        // router.refresh() OLMADIĞI İÇİN ASLA KASMA YAPMAZ!
+        adresleriGuncelle();
       } else {
+        toast.dismiss(loadingToast);
         toast.error(data.message || "İşlem başarısız oldu.");
       }
     } catch (error) {
@@ -106,15 +139,20 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
   };
 
   const handleDeleteAddress = async (id: string) => {
-    // 🚀 IŞIK HIZINDA SİLME: Kullanıcıyı saniyelerce bekletmemek için önce ekrandan anında uçuruyoruz
-    setAddresses(prev => prev.filter(addr => addr._id !== id)); 
+    // 1. Önce kullanıcı beklememesi için ekrandan anında ışık hızında sileriz
+    const yeniListe = addresses.filter(addr => addr._id !== id);
+    setAddresses(yeniListe); 
     
+    // 2. Sildiğimiz yeni durumu anında Tarayıcı Hafızasına yazıyoruz ki başka sayfaya gidince hortlamasın!
+    sessionStorage.setItem("bilgin-adresler", JSON.stringify(yeniListe));
+    
+    // 3. Ardından arkadan veritabanına silme isteğini atarız
     try {
       const res = await fetch("/api/addresses?id=" + id, { method: "DELETE" });
       if(res.ok) {
          toast.success("Adres silindi.");
-         // 🚀 BİNGO 2: Veritabanından silinme onaylanınca Next.js'in rota hafızasını sıfırlıyoruz.
-         router.refresh(); 
+         // Arka planı tam senkronize etmek için çırağı çalıştır
+         adresleriGuncelle(); 
       } else {
          toast.error("Veritabanından silinemedi.");
       }
@@ -387,7 +425,7 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
         </div>
       </div>
 
-      {/* 🚀 KÜRESEL SİLME MODAL (Z-Index ve Tema Tam Uyumlu) */}
+      {/* 🚀 KÜRESEL SİLME MODALI (Z-Index ve Tema Tam Uyumlu) */}
       {addressToDelete && (
         <div style={{ zIndex: 999999 }} className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
           <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden animate-in zoom-in-95 duration-200">
