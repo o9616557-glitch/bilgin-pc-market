@@ -141,13 +141,13 @@ export default async function HomePage() {
                     <div className="absolute top-6 left-6 z-20 bg-[#00a3c7] text-black text-[10px] sm:text-xs font-black px-4 py-2 rounded-full uppercase tracking-widest pointer-events-none border border-zinc-700 shadow-md">
                       Premium Seçim
                     </div>
-
-                    {/* Dev Ürün Resmi */}
+{/* Dev Ürün Resmi */}
                     <div className="absolute inset-0 flex items-center justify-center p-12 z-0 pointer-events-none bg-white/5">
                       {vitrinResmi ? (
                         <img 
                           src={vitrinResmi} 
                           alt={urun.isim || "Ürün"} 
+                          loading="lazy" 
                           className="w-full h-full object-contain filter drop-shadow-[0_20px_20px_rgba(0,0,0,1)] group-hover:scale-110 transition-transform duration-1000 ease-out brightness-110" 
                         />
                       ) : (
@@ -302,13 +302,13 @@ export default async function HomePage() {
                            <div className="w-2.5 h-2.5 rounded-full bg-[#10b981] animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]" title="Stokta Var"></div>
                          </div>
                       )}
-
-                      {/* 🚀 HEDEF 3: SADECE RESME TIKLAYINCA ÜRÜNE GİTME */}
-                      <Link href={"/product/" + (urun.slug || urun._id)} prefetch={true} className="w-full h-full flex items-center justify-center relative z-10 pointer-events-auto cursor-pointer">
+{/* 🚀 HEDEF 3: SADECE RESME TIKLAYINCA ÜRÜNE GİTME (ÇİFTE KORUMA EKLENDİ) */}
+                      <Link href={"/product/" + (urun.slug || urun._id)} prefetch={false} className="w-full h-full flex items-center justify-center relative z-10 pointer-events-auto cursor-pointer">
                         {vitrinResmi ? (
                           <img 
                             src={vitrinResmi} 
                             alt={urun.isim || urun.name} 
+                            loading="lazy" 
                             className={`w-full h-full object-contain filter drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-transform duration-1000 ease-out group-hover:scale-110 ${tukendiMi ? "grayscale opacity-30" : ""}`}
                           />
                         ) : (

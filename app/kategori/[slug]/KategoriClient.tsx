@@ -504,7 +504,8 @@ if (urun.fetchedReviews && urun.fetchedReviews.length > 0) {
                         )}
 
                         <div className="w-full h-full flex items-center justify-center relative z-10 transition-transform duration-700 ease-out group-hover:scale-105">
-                           <img src={vitrinResmi} alt={urun.isim || urun.name} className={`w-full h-full object-contain filter drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] ${tukendiMi ? "grayscale opacity-30" : ""}`} />
+                          // 🚀 YENİ HALİ (Bunu yapıştırıyoruz)
+<img src={vitrinResmi} alt={urun.isim || urun.name} loading="lazy" className={`w-full h-full object-contain filter drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] ${tukendiMi ? "grayscale opacity-30" : ""}`} />
                         </div>
                       </div>
 
