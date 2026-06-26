@@ -10,7 +10,6 @@ import {
 import toast from "react-hot-toast";
 import Link from "next/link";
 import { useOrders } from "@/app/OrderContext";
-// 🚀 DİKKAT: useRouter'a artık ihtiyacımız kalmadığı için onu tamamen kaldırdık!
 
 interface Address {
   _id: string;
@@ -44,6 +43,25 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
     setAddresses(initialAddresses);
   }, [initialAddresses]);
 
+  // 🚀 SESSİZ ÇIRAK MOTORU: Sayfayı yenilemeden veritabanından en güncel adresleri çeker
+  const adresleriGuncelle = async () => {
+    try {
+      const zamanDamgasi = new Date().getTime();
+      const res = await fetch("/api/addresses?t=" + zamanDamgasi, {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        // Gelen verinin yapısına göre listeyi güvenlice günceller
+        const guncelListe = data.addresses || data.data || (Array.isArray(data) ? data : []);
+        setAddresses(guncelListe);
+      }
+    } catch (error) {
+      console.error("Adresler arka planda güncellenemedi", error);
+    }
+  };
+
   // 🚀 MODAL VE FORM AÇILINCA ARKA PLANI DONDURAN MOTOR
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -70,7 +88,6 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
     const loadingToast = toast.loading(editingId ? "Adres güncelleniyor..." : "Adres ekleniyor...");
 
     try {
-      // Eğer düzenleme yapıyorsak, eski veriyi arkaplanda sil (API tarafı)
       if (editingId) {
         await fetch("/api/addresses?id=" + editingId, { method: "DELETE" });
       }
@@ -87,21 +104,12 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
         toast.dismiss(loadingToast);
         toast.success(editingId ? "Adres başarıyla güncellendi." : "Adres başarıyla eklendi.");
         
-        // 🚀 BİNGO 1: KULLANICIYI BEKLETMEDEN EKRANI ANINDA GÜNCELLE
-        // Veritabanından gelen yeni adresi alıp doğrudan state'e ekliyoruz.
-        // router.refresh() KULLANILMADI!
-        const yeniAdres = data.address || { ...formData, _id: data.id || Date.now().toString() };
-        
-        if (editingId) {
-          // Düzenleme ise eski adresi yenisiyle değiştir
-          setAddresses(prev => prev.map(addr => addr._id === editingId ? yeniAdres : addr));
-        } else {
-          // Yeni ekleme ise listeye dahil et
-          setAddresses(prev => [...prev, yeniAdres]);
-        }
-
         setFormData(formBaslangic);
         setEditingId(null);
+
+        // 🚀 BİNGO: İşlem biter bitmez Sessiz Çırak'a "yeni verileri getir" diyoruz!
+        // router.refresh() YERİNE BURASI ÇALIŞIR VE SAYFAYI ASLA KASDIRMAZ.
+        adresleriGuncelle();
       } else {
         toast.dismiss(loadingToast);
         toast.error(data.message || "İşlem başarısız oldu.");
@@ -115,18 +123,19 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
   };
 
   const handleDeleteAddress = async (id: string) => {
-    // 🚀 BİNGO 2: ÖNCE EKRANDAN ANINDA SİL (IŞIK HIZINDA)
+    // 1. Önce kullanıcı beklememesi için ekrandan anında ışık hızında sileriz
     setAddresses(prev => prev.filter(addr => addr._id !== id)); 
     
+    // 2. Ardından arkadan veritabanına silme isteğini atarız
     try {
-      // Sonra arkadan veritabanından sil
       const res = await fetch("/api/addresses?id=" + id, { method: "DELETE" });
       if(res.ok) {
          toast.success("Adres silindi.");
+         // 🚀 BİNGO: Silinme onaylanınca Sessiz Çırak listeyi pürüzsüzce senkronize eder.
+         adresleriGuncelle(); 
       } else {
-         toast.error("Veritabanından silinemedi, lütfen sayfayı yenileyin.");
+         toast.error("Veritabanından silinemedi.");
       }
-      // router.refresh() KULLANILMADI!
     } catch (error) {
       toast.error("Silme işlemi başarısız.");
     }
