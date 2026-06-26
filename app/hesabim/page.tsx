@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, Search, LogIn, UserPlus, Headset, Crown } from "lucide-react";
+import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, Search, LogIn, UserPlus, Headset, Crown, ChevronDown } from "lucide-react";
 
 export default function HesabimPage() {
   const { data: session, status } = useSession();
@@ -79,7 +79,7 @@ export default function HesabimPage() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [tiklananAy, setTiklananAy] = useState<number | null>(suAnkiTarih.getMonth());
   const [loading, setLoading] = useState(hamSiparisler.length === 0);
-
+const [mobilMenuAcik, setMobilMenuAcik] = useState(false);
  const handleCikisYap = async () => {
     localStorage.removeItem("bilgin_kayitli_sistemler");
     sessionStorage.removeItem("bilgin_hesabim_data");
@@ -372,38 +372,59 @@ return (
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
-     {/* ⬅️ SOL MENÜ */}
-        <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
-          <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-3 sm:p-4 shadow-xl">
-       <nav className="flex flex-col gap-1.5">
-                <Link href="/hesabim" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
-                  <User className="w-4 h-4 sm:w-5 sm:h-5" /> Profil
-                </Link>
-                <Link href="/cuzdan" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
-                  <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" /> Dijital Cüzdanım
-                </Link>
-                <Link href="/guvenlik" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
-                  <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" /> Güvenlik
-                </Link>
-
-                {/* 👑 SADECE ÖZKAN ŞEFE GÖRÜNEN VIP ADMIN BUTONU */}
-                {session?.user?.email === "o9616557@gmail.com" && (
-                  <Link href="/admin" className="mt-4 flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 border border-rose-500/20 rounded-xl transition-all font-black shadow-[0_0_15px_rgba(225,29,72,0.1)] group">
-                    <Crown className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" /> Admin Paneli
-                  </Link>
-                )}
-              </nav>
-
-            {status === "unauthenticated" && (
-              <div className="mt-4 pt-4 border-t border-slate-800 flex flex-col gap-2">
-                <Link href="/giris" className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest text-center transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
-                  <LogIn className="w-4 h-4" /> Giriş Yap
-                </Link>
-                <Link href="/kayit" className="w-full py-2.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-slate-700 hover:border-slate-500 text-slate-300 font-bold text-xs uppercase tracking-widest text-center transition-all flex items-center justify-center gap-2">
-                  <UserPlus className="w-4 h-4" /> Kayıt Ol
-                </Link>
+   {/* ⬅️ SOL MENÜ */}
+        <div className="w-full lg:w-[280px] shrink-0 static lg:sticky lg:top-28 z-[60]">
+          <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-3 sm:p-4 shadow-xl relative">
+            
+            {/* 📱 MOBİL: OKLU AÇILIR BUTON (Sadece Telefonda Çıkar, PC'de Gizlidir) */}
+            <button 
+              onClick={() => setMobilMenuAcik(!mobilMenuAcik)}
+              className="w-full flex lg:hidden items-center justify-between text-slate-200 hover:text-white transition-colors outline-none"
+            >
+              <div className="flex items-center gap-3 px-1 py-1">
+                <User className="w-5 h-5 text-cyan-400" />
+                <span className="font-bold text-sm tracking-wide">Profil Menüsü</span>
               </div>
-            )}
+              <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform duration-300 ${mobilMenuAcik ? "rotate-180 text-cyan-400" : ""}`} />
+            </button>
+
+            {/* 💻 MENÜ İÇERİĞİ: PC'de hep görünür. Mobilde havadan süzülür, alttakileri İTMEZ! */}
+            <div className={`
+              lg:block
+              ${mobilMenuAcik 
+                ? "absolute top-[105%] left-0 right-0 p-4 bg-[#0f172a]/95 backdrop-blur-3xl border border-cyan-500/30 rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.9)] z-[100] animate-in slide-in-from-top-2 fade-in duration-200" 
+                : "hidden"}
+            `}>
+               <nav className="flex flex-col gap-1.5">
+                  <Link href="/hesabim" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+                    <User className="w-4 h-4 sm:w-5 sm:h-5" /> Profil
+                  </Link>
+                  <Link href="/cuzdan" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+                    <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" /> Dijital Cüzdanım
+                  </Link>
+                  <Link href="/guvenlik" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+                    <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" /> Güvenlik
+                  </Link>
+
+                  {/* 👑 VIP ADMIN BUTONU */}
+                  {session?.user?.email === "o9616557@gmail.com" && (
+                    <Link href="/admin" className="mt-4 flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 border border-rose-500/20 rounded-xl transition-all font-black shadow-[0_0_15px_rgba(225,29,72,0.1)] group">
+                      <Crown className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" /> Admin Paneli
+                    </Link>
+                  )}
+                </nav>
+
+              {status === "unauthenticated" && (
+                <div className="mt-4 pt-4 border-t border-slate-800 flex flex-col gap-2">
+                  <Link href="/giris" className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest text-center transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+                    <LogIn className="w-4 h-4" /> Giriş Yap
+                  </Link>
+                  <Link href="/kayit" className="w-full py-2.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-slate-700 hover:border-slate-500 text-slate-300 font-bold text-xs uppercase tracking-widest text-center transition-all flex items-center justify-center gap-2">
+                    <UserPlus className="w-4 h-4" /> Kayıt Ol
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 {/* ➡️ SAĞ TARAF */}
