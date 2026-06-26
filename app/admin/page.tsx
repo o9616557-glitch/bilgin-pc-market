@@ -62,7 +62,8 @@ export default function AdminPaneli() {
     // Sekme değiştiğinde veya yeni mesaj geldiğinde çalışır
     setTimeout(() => {
       // Hem admin-sohbet-kutusu hem de kaydırma çubuğu olan tüm kutuları zorla dibe iter
-      const kutular = document.querySelectorAll('.admin-sohbet-kutusu, .overflow-y-auto');
+    // Sadece mesaj geçmişinin olduğu özel kutuyu hedefler, tüm sayfayı bozmaz
+const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
       kutular.forEach((kutu) => {
         kutu.scrollTop = kutu.scrollHeight;
       });
@@ -392,7 +393,8 @@ export default function AdminPaneli() {
                     </div>
 
                     {/* Mesaj Akışı */}
-                    <div className="flex-1 bg-[#0b1120] border border-slate-800 rounded-lg p-5 flex flex-col gap-4 overflow-y-auto max-h-[400px] custom-scrollbar">
+             {/* Mesaj Akışı */}
+<div className="flex-1 bg-[#0b1120] border border-slate-800 rounded-lg p-5 flex flex-col gap-4 overflow-y-auto max-h-[400px] custom-scrollbar mesaj-gecmisi-kutusu">
                       {talep.mesajlar?.map((msg: any, index: number) => (
                         <div key={index} className={`flex flex-col max-w-[80%] ${msg.gonderen === 'admin' ? 'self-end items-end' : 'self-start items-start'}`}>
                           <div className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${msg.gonderen === 'admin' ? 'text-indigo-400' : 'text-slate-400'}`}>
