@@ -10,7 +10,9 @@ export default function HesabimPage() {
   
   const suAnkiTarih = new Date();
   const yil = suAnkiTarih.getFullYear();
-const [yanMenuAcik, setYanMenuAcik] = useState(false);
+// 📱 TELEFON ANA EKRAN MOTORU
+  const anaEkranRef = React.useRef<HTMLDivElement>(null);
+  const [aktifSayfa, setAktifSayfa] = useState(0);
   const [hamSiparisler, setHamSiparisler] = useState<any[]>(() => {
     if (typeof window !== "undefined") {
       try { return JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}").tumSiparisler || []; } catch { return []; }
@@ -375,79 +377,134 @@ return (
 {/* ⬅️ SOL MENÜ BAŞLANGICI */}
         <div className="w-full lg:w-[280px] shrink-0 static lg:sticky lg:top-28 z-50">
 
-          {/* 📱 1. BÖLÜM: MOBİL GÖRÜNÜM (Tetikleyici Buton) */}
-          <div className="lg:hidden w-full mb-5">
-            <button 
-              onClick={() => setYanMenuAcik(true)}
-              className="w-full bg-gradient-to-r from-[#0f172a] to-[#0b1121] border border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-xl active:scale-95 transition-transform"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.1)]">
-                  <User className="w-5 h-5 text-cyan-400" />
-                </div>
-                <div className="flex flex-col items-start">
-                  <span className="font-black text-white uppercase tracking-widest text-sm">Hesap Menüsü</span>
-                  <span className="font-medium text-slate-500 text-[10px]">Tüm ayarları görüntüle</span>
-                </div>
-              </div>
-              <div className="w-8 h-8 rounded-full bg-white/[0.03] flex items-center justify-center">
-                <ChevronRight className="w-4 h-4 text-slate-400" />
-              </div>
-            </button>
-          </div>
-
-          {/* 🚀 2. BÖLÜM: YANDAN AÇILAN ÇEKMECE (DRAWER) VE PC GÖRÜNÜMÜ */}
-          
-          {/* Karanlık Perde (Sadece mobilde menü açıkken görünür) */}
-          <div 
-            className={`fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] lg:hidden transition-opacity duration-300 ${yanMenuAcik ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
-            onClick={() => setYanMenuAcik(false)}
-          ></div>
-
-          {/* Asıl Menü Kutusu (Mobilde soldan kayarak gelir, PC'de hep sabittir) */}
-          <div className={`
-            fixed inset-y-0 left-0 w-[280px] sm:w-[320px] bg-[#0b1121] border-r border-slate-800 z-[101] p-5 shadow-[30px_0_60px_rgba(0,0,0,0.8)]
-            transform transition-transform duration-300 ease-out flex flex-col overflow-y-auto
-            lg:relative lg:inset-auto lg:w-full lg:bg-[#0f172a]/80 lg:backdrop-blur-xl lg:border lg:border-slate-800 lg:rounded-2xl lg:p-4 lg:shadow-xl lg:transform-none lg:z-10 lg:overflow-visible
-            ${yanMenuAcik ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-          `}>
+          {/* 📱 1. BÖLÜM: MOBİL GÖRÜNÜM (TELEFON ANA EKRANI GİBİ KAYDIRMALI) */}
+          <div className="flex flex-col lg:hidden w-full mb-6 relative">
             
-            {/* Mobilde Menü Üst Başlık ve Kapatma Çarpısı */}
-            <div className="flex lg:hidden items-center justify-between mb-6 pb-4 border-b border-slate-800">
-              <span className="font-black text-white uppercase tracking-widest text-base flex items-center gap-2">
-                <User className="w-5 h-5 text-cyan-400" /> Profilim
-              </span>
-              <button onClick={() => setYanMenuAcik(false)} className="p-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-slate-400 hover:text-white transition-colors">
-                <X className="w-5 h-5" />
-              </button>
+            {/* Kaydırma Alanı (Sayfalar) */}
+            <div 
+              ref={anaEkranRef}
+              onScroll={() => {
+                if (anaEkranRef.current) {
+                  const index = Math.round(anaEkranRef.current.scrollLeft / anaEkranRef.current.clientWidth);
+                  setAktifSayfa(index);
+                }
+              }}
+              className="flex w-full overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-2"
+            >
+              
+              {/* 🟢 1. SAYFA (Ana Menüler) */}
+              <div className="w-full shrink-0 snap-center grid grid-cols-4 gap-y-4 gap-x-2 px-1">
+                
+                <Link href="/hesabim" prefetch={false} className="flex flex-col items-center gap-1.5 group">
+                  <div className="w-14 h-14 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
+                    <User className="w-6 h-6 text-cyan-400" />
+                  </div>
+                  <span className="text-[10px] font-medium text-slate-300">Profil</span>
+                </Link>
+
+                <Link href="/cuzdan" prefetch={false} className="flex flex-col items-center gap-1.5 group">
+                  <div className="w-14 h-14 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
+                    <CreditCard className="w-6 h-6 text-amber-400" />
+                  </div>
+                  <span className="text-[10px] font-medium text-slate-300">Cüzdan</span>
+                </Link>
+
+                <Link href="/guvenlik" prefetch={false} className="flex flex-col items-center gap-1.5 group">
+                  <div className="w-14 h-14 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
+                    <ShieldCheck className="w-6 h-6 text-emerald-400" />
+                  </div>
+                  <span className="text-[10px] font-medium text-slate-300">Güvenlik</span>
+                </Link>
+
+                <Link href="/destek-taleplerim" prefetch={false} className="flex flex-col items-center gap-1.5 group relative">
+                  {yeniMesajVar && <span className="absolute top-0 right-2 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse border border-[#020617]"></span>}
+                  <div className="w-14 h-14 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
+                    <Headset className="w-6 h-6 text-orange-400" />
+                  </div>
+                  <span className="text-[10px] font-medium text-slate-300">Destek</span>
+                </Link>
+
+              </div>
+
+              {/* 🟢 2. SAYFA (Ekstra Menüler ve Giriş/Çıkış) */}
+              <div className="w-full shrink-0 snap-center grid grid-cols-4 gap-y-4 gap-x-2 px-1">
+                
+                <Link href="/siparis-takip" prefetch={false} className="flex flex-col items-center gap-1.5 group">
+                  <div className="w-14 h-14 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
+                    <Search className="w-6 h-6 text-blue-400" />
+                  </div>
+                  <span className="text-[10px] font-medium text-slate-300">Sorgula</span>
+                </Link>
+
+                {session?.user?.email === "o9616557@gmail.com" && (
+                  <Link href="/admin" prefetch={false} className="flex flex-col items-center gap-1.5 group">
+                    <div className="w-14 h-14 rounded-2xl bg-rose-950/30 border border-rose-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(225,29,72,0.2)]">
+                      <Crown className="w-6 h-6 text-rose-400" />
+                    </div>
+                    <span className="text-[10px] font-bold text-rose-400">Admin</span>
+                  </Link>
+                )}
+
+                {status === "unauthenticated" ? (
+                  <>
+                    <Link href="/giris" prefetch={false} className="flex flex-col items-center gap-1.5 group">
+                      <div className="w-14 h-14 rounded-2xl bg-cyan-600 flex items-center justify-center shadow-lg">
+                        <LogIn className="w-6 h-6 text-white" />
+                      </div>
+                      <span className="text-[10px] font-bold text-cyan-400">Giriş Yap</span>
+                    </Link>
+                    <Link href="/kayit" prefetch={false} className="flex flex-col items-center gap-1.5 group">
+                      <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center shadow-lg">
+                        <UserPlus className="w-6 h-6 text-white" />
+                      </div>
+                      <span className="text-[10px] font-medium text-slate-300">Kayıt Ol</span>
+                    </Link>
+                  </>
+                ) : (
+                  <button onClick={handleCikisYap} className="flex flex-col items-center gap-1.5 group">
+                    <div className="w-14 h-14 rounded-2xl bg-[#0f172a] border border-red-900/50 flex items-center justify-center shadow-lg">
+                      <LogOut className="w-6 h-6 text-red-400" />
+                    </div>
+                    <span className="text-[10px] font-medium text-red-400">Çıkış</span>
+                  </button>
+                )}
+              </div>
+
             </div>
 
-            {/* Menü Linkleri */}
-            <nav className="flex flex-col gap-2 lg:gap-1.5">
-              <Link href="/hesabim" onClick={() => setYanMenuAcik(false)} className="flex items-center gap-3 px-4 py-3.5 text-sm sm:text-base text-white bg-white/[0.05] border border-cyan-500/20 rounded-xl transition-all font-medium">
+            {/* 🔴 TELEFON NOKTALARI (Pagination Dots) */}
+            <div className="flex justify-center items-center gap-1.5 mt-2">
+              <div className={`h-1.5 rounded-full transition-all duration-300 ${aktifSayfa === 0 ? "w-4 bg-cyan-400 shadow-[0_0_8px_#22d3ee]" : "w-1.5 bg-slate-700"}`}></div>
+              <div className={`h-1.5 rounded-full transition-all duration-300 ${aktifSayfa === 1 ? "w-4 bg-cyan-400 shadow-[0_0_8px_#22d3ee]" : "w-1.5 bg-slate-700"}`}></div>
+            </div>
+          </div>
+
+          {/* 💻 2. BÖLÜM: MASAÜSTÜ (PC) GÖRÜNÜM (ESKİ SABİT PANO KORUNDU) */}
+          <div className="hidden lg:flex flex-col bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-xl">
+            <nav className="flex flex-col gap-1.5">
+              <Link href="/hesabim" prefetch={false} className="flex items-center gap-3 px-4 py-3.5 text-base text-white bg-white/[0.05] rounded-xl transition-all font-medium border border-cyan-500/20">
                 <User className="w-5 h-5 text-cyan-400" /> Profil
               </Link>
-              <Link href="/cuzdan" onClick={() => setYanMenuAcik(false)} className="flex items-center gap-3 px-4 py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+              <Link href="/cuzdan" prefetch={false} className="flex items-center gap-3 px-4 py-3.5 text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
                 <CreditCard className="w-5 h-5" /> Dijital Cüzdanım
               </Link>
-              <Link href="/guvenlik" onClick={() => setYanMenuAcik(false)} className="flex items-center gap-3 px-4 py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
+              <Link href="/guvenlik" prefetch={false} className="flex items-center gap-3 px-4 py-3.5 text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
                 <ShieldCheck className="w-5 h-5" /> Güvenlik
               </Link>
 
-              {/* VIP ADMIN BUTONU */}
               {session?.user?.email === "o9616557@gmail.com" && (
-                <Link href="/admin" onClick={() => setYanMenuAcik(false)} className="mt-4 flex items-center gap-3 px-4 py-3.5 text-sm sm:text-base text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 border border-rose-500/20 rounded-xl transition-all font-black shadow-[0_0_15px_rgba(225,29,72,0.1)] group">
+                <Link href="/admin" prefetch={false} className="mt-4 flex items-center gap-3 px-4 py-3.5 text-base text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 border border-rose-500/20 rounded-xl transition-all font-black shadow-[0_0_15px_rgba(225,29,72,0.1)] group">
                   <Crown className="w-5 h-5 group-hover:scale-110 transition-transform" /> Admin Paneli
                 </Link>
               )}
             </nav>
 
             {status === "unauthenticated" && (
-              <div className="mt-6 pt-6 border-t border-slate-800 flex flex-col gap-3">
-                <Link href="/giris" onClick={() => setYanMenuAcik(false)} className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest text-center transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+              <div className="mt-4 pt-4 border-t border-slate-800 flex flex-col gap-2">
+                <Link href="/giris" prefetch={false} className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest text-center transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
                   <LogIn className="w-4 h-4" /> Giriş Yap
                 </Link>
-                <Link href="/kayit" onClick={() => setYanMenuAcik(false)} className="w-full py-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-slate-700 hover:border-slate-500 text-slate-300 font-bold text-xs uppercase tracking-widest text-center transition-all flex items-center justify-center gap-2">
+                <Link href="/kayit" prefetch={false} className="w-full py-2.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-slate-700 hover:border-slate-500 text-slate-300 font-bold text-xs uppercase tracking-widest text-center transition-all flex items-center justify-center gap-2">
                   <UserPlus className="w-4 h-4" /> Kayıt Ol
                 </Link>
               </div>
