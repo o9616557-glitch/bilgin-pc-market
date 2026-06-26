@@ -434,8 +434,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <Link href="/favorilerim" className="bg-red-600 text-white p-4 font-bold text-xl relative z-[9999]">TEST BUTONU</Link>
-
       {/* ==================== 5. HIZLI ERİŞİM ==================== */}
       <section className="max-w-[1400px] mx-auto pt-8 pb-12 select-none touch-manipulation">
         <div className="flex items-center gap-4 mb-6 px-6 lg:px-8 pointer-events-none">
