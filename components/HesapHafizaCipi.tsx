@@ -1,45 +1,15 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { usePathname, useRouter } from "next/navigation"; 
 
 export default function HesapHafizaCipi() {
   const { data: session, status } = useSession();
-  const pathname = usePathname();
-  const router = useRouter();
 
-  // 🚀 BİNGO: Fırlatıcı sadece 1 KERE çalışsın diye "Hafıza Kilidi" koyduk!
-  const firlatmaYapildi = useRef(false);
+  // 🚀 1. MOTOR (F5 FIRLATICI) TAMAMEN SÖKÜLDÜ!
+  // Artık kullanıcı Favorilerde veya Adreslerde F5 bastığında zorla Hesabım'a atılmayacak, olduğu yerde asilce sayfanın yenilenmesini izleyecek.
 
-  // 🚀 1. MOTOR: F5 YAKALAYICI VE FIRLATICI
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      // Eğer adamı zaten 1 kere fırlattıysak, kilidi gördüğümüz an dururuz, bir daha karışmayız!
-      if (firlatmaYapildi.current) return;
-
-      const navEntries = performance.getEntriesByType("navigation");
-      
-      if (navEntries.length > 0 && (navEntries[0] as PerformanceNavigationTiming).type === "reload") {
-        const belaliSayfalar = [
-          "/favorilerim", 
-          "/adreslerim", 
-          "/siparislerim", 
-          "/sistemlerim", 
-          "/destek-taleplerim",
-          "/siparis-takip"
-        ];
-
-        if (pathname && belaliSayfalar.includes(pathname)) {
-          // 💥 Ensesinden tut, fırlat ve KİLİDİ KAPAT!
-          firlatmaYapildi.current = true; 
-          router.replace("/hesabim");
-        }
-      }
-    }
-  }, [pathname, router]);
-
-  // 🚀 2. MOTOR: ARKA PLAN VERİ TOPLAYICI
+  // 🚀 2. MOTOR: ARKA PLAN VERİ TOPLAYICI (Sessiz Çırak çalışmaya devam ediyor)
   useEffect(() => {
     if (status !== "authenticated" || !session?.user?.email) return;
 
