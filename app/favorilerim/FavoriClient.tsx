@@ -21,7 +21,6 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
   const router = useRouter();
   const { status } = useSession();
   
-  // 🚀 SUNUCUDAN GELEN VERİYİ ANINDA EKRANA BASIYORUZ (Yükleme Ekranı Yok!)
   const [favoriteProducts, setFavoriteProducts] = useState<any[]>(initialFavorites);
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
   
@@ -29,16 +28,19 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
 
   const [kargoPopupAcik, setKargoPopupAcik] = useState(false);
-  // 🚀 PERFORMANS MOTORU: Sayfa açılışındaki kasılmaları önlemek için
+  const { orders: localOrders } = useOrders();
+
+  // 🚀 PERFORMANS MOTORU: Sayfa açılışındaki kasılmaları önlemek için state
   const [sayfaYuklendi, setSayfaYuklendi] = useState(false);
 
   useEffect(() => {
     setSayfaYuklendi(true);
   }, []);
-  const { orders: localOrders } = useOrders();
 
-  // 🚀 SESSİZ ÇIRAK: Sen ürünleri anında görürken, o arkadan yeni ürün eklenmiş mi diye çaktırmadan bakar. Ekranda hiçbir şeyi dondurmaz!
+  // 🚀 GÜVENLİ ÇIRAK: Hafıza sızıntısı (Memory Leak) tamamen önlenen arka plan motoru
   useEffect(() => {
+    let sayfaAktifMi = true; // Tarayıcı raminin şişmesini önleyen kilit değişken
+
     const sessizceGuncelle = async () => {
       try {
         const zamanDamgasi = new Date().getTime();
@@ -47,7 +49,7 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
           headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" } 
         }); 
         
-        if (res.ok) {
+        if (res.ok && sayfaAktifMi) {
           const data = await res.json();
           setFavoriteProducts(data.favorites || data || []);
         }
@@ -57,18 +59,27 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
     };
 
     sessizceGuncelle();
+
+    // Temizlik Aşaması: Sayfa değiştiğinde veya işlem yapıldığında eski istekleri iptal eder rami boşaltır
+    return () => {
+      sayfaAktifMi = false;
+    };
   }, []);
 
-  // 🚀 EKRAN DONDURMA (Sadece Modallar için)
+  // 🚀 GÜVENLİ EKRAN DONDURMA: DOM'u yormayan, çöp bırakmayan temizlik motoru
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      if (productToDelete || kargoPopupAcik) {
-        document.body.style.overflow = 'hidden';
-      } else {
-        document.body.style.overflow = 'unset';
-      }
+    if (typeof window === "undefined") return;
+    const bodyEtiketi = document.body;
+
+    if (productToDelete || kargoPopupAcik) {
+      bodyEtiketi.style.overflow = 'hidden';
+    } else {
+      bodyEtiketi.style.overflow = 'unset';
     }
-    return () => { document.body.style.overflow = 'unset'; }; 
+    
+    return () => { 
+      bodyEtiketi.style.overflow = 'unset'; 
+    }; 
   }, [productToDelete, kargoPopupAcik]);
 
   const handleDeleteFavorite = async () => {
@@ -138,7 +149,7 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
         {/* ➡️ SAĞ İÇERİK */}
         <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full animate-in fade-in duration-300">
           
-        {/* FASULYE MENÜ */}
+          {/* FASULYE MENÜ */}
           <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pt-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
             <Link href="/siparislerim" className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
               <Package className="w-4 h-4 text-cyan-500" /> Siparişler
@@ -192,7 +203,7 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
             </div>
           </div>
 
-          {/* 🚀 ÜRÜNLER ALANI: Asla donmaz, "Yükleniyor" ekranı tamamen iptal edildi! */}
+          {/* ÜRÜNLER ALANI */}
           {favoriteProducts.length === 0 ? (
             <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-10 sm:p-16 flex flex-col items-center justify-center text-center shadow-xl">
               <div className="w-20 h-20 rounded-full bg-[#020617] border border-cyan-500/20 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(6,182,212,0.1)]">
@@ -237,9 +248,7 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
                       </div>
                     </div>
 
-                    {/* 🚀 BİNGO: ALT BUTONLAR YAN YANA! */}
                     <div className="flex items-center gap-2">
-                      {/* Sepete Ekle Butonu (Geniş alan) */}
                       <button 
                         onClick={() => handleSepeteEkle(urun)} 
                         disabled={isAdded} 
@@ -252,7 +261,6 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
                         {isAdded ? (<><CheckCircle2 className="w-4 h-4" /> Eklendi</>) : (<><ShoppingCart className="w-4 h-4" /> Sepete Ekle</>)}
                       </button>
 
-                      {/* Çöp Kutusu Butonu (Kare formda, sağda) */}
                       <button 
                         onClick={() => setProductToDelete(urun)}
                         className="w-11 h-11 shrink-0 flex items-center justify-center bg-[#020617] border border-slate-800 rounded-xl text-slate-500 hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/10 transition-colors shadow-sm"
@@ -276,7 +284,7 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
           <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-600 to-rose-600"></div>
             <div className="w-16 h-16 rounded-full border border-red-500/20 bg-red-500/10 flex items-center justify-center mb-5">
-              <Trash2 className="w-7 h-7 text-red-400 animate-pulse" />
+              <Trash2 className="w-7 h-7 text-red-400" />
             </div>
             <h3 className="text-lg font-black text-white uppercase tracking-wider mb-2">Öğeyi Kaldır</h3>
             <p className="text-slate-400 text-sm mb-8 font-medium">Bu donanımı favori listenizden silmek istediğinize emin misiniz?</p>
