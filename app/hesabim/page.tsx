@@ -372,52 +372,7 @@ return (
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
-{/* ⬅️ SOL MENÜ */}
-        <div className="w-full lg:w-[280px] shrink-0 static lg:sticky lg:top-28 z-10">
-          
-          {/* 📱 1. BÖLÜM: MOBİL GÖRÜNÜM (Sadece telefonda görünür. 3'lü şık kutular) */}
-          <div className="flex flex-col lg:hidden w-full gap-2 mb-2">
-            
-            {/* Üstteki 3'lü Ana Menü Kutuları */}
-            <div className="grid grid-cols-3 gap-2">
-              <Link href="/hesabim" prefetch={false} className="bg-[#0f172a] border border-slate-800 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center gap-1.5 hover:border-cyan-500/30 transition-all shadow-md group">
-                <User className="w-5 h-5 sm:w-6 sm:h-6 text-slate-400 group-hover:text-cyan-400 transition-colors" />
-                <span className="text-[10px] sm:text-xs font-bold text-slate-300 group-hover:text-cyan-400 uppercase tracking-widest text-center">Profil</span>
-              </Link>
-              
-              <Link href="/cuzdan" prefetch={false} className="bg-[#0f172a] border border-slate-800 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center gap-1.5 hover:border-cyan-500/30 transition-all shadow-md group">
-                <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-slate-400 group-hover:text-cyan-400 transition-colors" />
-                <span className="text-[10px] sm:text-xs font-bold text-slate-300 group-hover:text-cyan-400 uppercase tracking-widest text-center">Cüzdan</span>
-              </Link>
-
-              <Link href="/guvenlik" prefetch={false} className="bg-[#0f172a] border border-slate-800 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center gap-1.5 hover:border-cyan-500/30 transition-all shadow-md group">
-                <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-slate-400 group-hover:text-cyan-400 transition-colors" />
-                <span className="text-[10px] sm:text-xs font-bold text-slate-300 group-hover:text-cyan-400 uppercase tracking-widest text-center">Güvenlik</span>
-              </Link>
-            </div>
-
-            {/* VIP Admin Butonu (Sadece yetkiliyse görünür) */}
-            {session?.user?.email === "o9616557@gmail.com" && (
-              <Link href="/admin" prefetch={false} className="w-full bg-[#0f172a] border border-rose-500/20 rounded-2xl p-3 flex items-center justify-center gap-2 hover:bg-rose-500/10 transition-all shadow-[0_0_15px_rgba(225,29,72,0.1)] group mt-1">
-                <Crown className="w-4 h-4 sm:w-5 sm:h-5 text-rose-400" />
-                <span className="text-[10px] sm:text-xs font-black text-rose-400 uppercase tracking-widest text-center">Admin Paneli</span>
-              </Link>
-            )}
-
-            {/* Giriş / Kayıt Butonları (Sadece giriş yapılmamışsa görünür, yan yana 2'li) */}
-            {status === "unauthenticated" && (
-              <div className="grid grid-cols-2 gap-2 mt-1">
-                <Link href="/giris" prefetch={false} className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl py-3 flex items-center justify-center gap-1.5 font-bold text-[10px] sm:text-xs uppercase tracking-widest shadow-lg">
-                  <LogIn className="w-4 h-4" /> Giriş Yap
-                </Link>
-                <Link href="/kayit" prefetch={false} className="bg-[#0f172a] border border-slate-700 hover:border-slate-500 text-slate-300 rounded-xl py-3 flex items-center justify-center gap-1.5 font-bold text-[10px] sm:text-xs uppercase tracking-widest transition-colors">
-                  <UserPlus className="w-4 h-4" /> Kayıt Ol
-                </Link>
-              </div>
-            )}
-          </div>
-
-          {/* 📱 1. BÖLÜM: MOBİL GÖRÜNÜM (Sadece telefonda görünür. İkonlar kutuda, yazılar altta) */}
+{/* 📱 1. BÖLÜM: MOBİL GÖRÜNÜM (Sadece telefonda görünür. İkonlar kutuda, yazılar altta) */}
           <div className="flex flex-col lg:hidden w-full gap-3 mb-2">
             
             {/* Üstteki 3'lü Ana Menü Kutuları */}
@@ -464,8 +419,6 @@ return (
               </div>
             )}
           </div>
-
-        </div>
 {/* ➡️ SAĞ TARAF */}
         <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
 
