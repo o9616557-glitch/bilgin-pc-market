@@ -345,30 +345,46 @@ const { sepeteEkle } = useCart();
                           </Link>
                         )}
 
-           {/* 🚀 BİNGO: TEKRAR AL BUTONU (404 VE SLUG KORUMALI KESİN ÇÖZÜM) */}
+ {/* 🚀 BİNGO: TÜRKÇE KARAKTER KORUMALI VE TAKİP MOTORLU TEKRAR AL BUTONU */}
 <button 
   onClick={(e) => {
     e.preventDefault();
     if(sepeteEkle) {
-      // Eski siparişlerde slug boşsa, isimden otomatik tertemiz url üreten akıllı motor
-      const yedekSlug = (item?.title || item?.isim || "")
+      // 1. ADIM: Türkçe karakterleri milimetrik olarak İngilizceye çeviren harita
+      const turkceKarakterler: { [key: string]: string } = {
+        'ç':'c', 'ğ':'g', 'ı':'i', 'ö':'o', 'ş':'s', 'ü':'u',
+        'Ç':'c', 'Ğ':'g', 'İ':'i', 'Ö':'o', 'Ş':'s', 'Ü':'u', 'I': 'i'
+      };
+      
+      // Harfleri tek tek kontrol edip temizliyoruz
+      const temizMetin = (item?.title || item?.isim || "")
+        .split('')
+        .map((char: string | number) => turkceKarakterler[char] || char)
+        .join('');
+
+      // Link formatına (slug) çeviriyoruz
+      const yedekSlug = temizMetin
         .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-") // Özel karakterleri tire işaretine çevirir
-        .replace(/^-+|-+$/g, "");   // Başındaki ve sonundaki fazlalık tireleri siler
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
+      // 🔍 TAKİP RADARI: Tarayıcıda F12 basıp Konsol sekmesine bakarsan bunları görebilirsin şefim
+      console.log("--- BİLGİN PC TAKİP RADARI ---");
+      console.log("Veritabanından Gelen Orijinal Slug:", item?.slug);
+      console.log("Eğer Boşsa Bizim Ürettiğimiz Yedek Slug:", yedekSlug);
+      console.log("Sipariş İçindeki Ürün Verisi:", item);
 
       sepeteEkle({ 
-        // 🚀 DÜZELTME 1: ID her zaman gerçek veritabanı ID'si olmalı, kesinlikle slug olmamalı!
         id: String(item?.productId || item?._id || item?.id || ""), 
         isim: item?.title || item?.isim || "Ürün", 
         fiyat: Number(item?.price || item?.fiyat || 0), 
         resim: item?.image || item?.resim || "https://via.placeholder.com/400", 
         varyasyon: "Standart Model", 
         havaleIndirimi: 5, 
-        // 🚀 DÜZELTME 2: Eğer veritabanında slug varsa onu kullanır, yoksa yukarıda ürettiğimiz yedek url'i koyar! Asla 404 vermez.
-        slug: item?.slug || yedekSlug
+        slug: item?.slug || yedekSlug // Varsa orijinali, yoksa bizim ürettiğimizi koyar
       });
       
-      // 🚀 Butonu yakalayıp yeşil EKLENDİ moduna sokuyoruz
+      // 🚀 Buton yeşil EKLENDİ animasyonu
       const btn = e.currentTarget;
       const originalHTML = btn.innerHTML;
       const originalClasses = btn.className;
@@ -376,7 +392,6 @@ const { sepeteEkle } = useCart();
       btn.className = "flex-1 flex items-center justify-center gap-1 sm:gap-1.5 h-8 px-1 sm:px-2 bg-emerald-500 text-white rounded-md transition-all font-black text-[8px] sm:text-[9px] uppercase tracking-widest whitespace-nowrap scale-95 shadow-[0_0_10px_rgba(16,185,129,0.5)]";
       btn.innerHTML = '<svg class="w-3 h-3 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> EKLENDİ';
       
-      // 1.5 saniye sonra eski haline çeviriyoruz
       setTimeout(() => {
         btn.className = originalClasses;
         btn.innerHTML = originalHTML;
