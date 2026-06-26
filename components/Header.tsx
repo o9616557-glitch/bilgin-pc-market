@@ -7,6 +7,7 @@ import { useSession, signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { Search, X, Clock, Flame, ArrowRight, ChevronRight, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
+
 // ŞEFİN JİLET GİBİ 4 KOLONLU MEGA MENÜ ENVANTERİ
 const menuCategories = [
   {
@@ -236,7 +237,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                 <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "opacity-0" : "")}></span>
                 <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "-rotate-45 -translate-y-1.5" : "")}></span>
               </button>
-            <Link href="/" prefetch={true} className={`text-white font-black text-2xl tracking-tight flex items-center relative z-[100] transition-all duration-300 ${menuAcik ? "pointer-events-none opacity-20 md:pointer-events-auto md:opacity-100" : ""}`}>
+            <Link href="/" prefetch={false} className={`text-white font-black text-2xl tracking-tight flex items-center relative z-[100] transition-all duration-300 ${menuAcik ? "pointer-events-none opacity-20 md:pointer-events-auto md:opacity-100" : ""}`}>
   BİLGİN <span className="text-[#3b82f6] ml-1">PC</span>
 </Link>
             </div>
@@ -259,7 +260,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                             <ul className="space-y-4">
                               {category.items.map((item) => (
                                 <li key={item.slug}>
-                                  <Link href={"/kategori/" + item.slug} prefetch={true} className="text-gray-400 hover:text-white hover:translate-x-1 hover:text-[#3b82f6] transition-all duration-200 block text-base">{item.name}</Link>
+                                  <Link href={"/kategori/" + item.slug} prefetch={false} className="text-gray-400 hover:text-white hover:translate-x-1 hover:text-[#3b82f6] transition-all duration-200 block text-base">{item.name}</Link>
                                 </li>
                               ))}
                             </ul>
@@ -272,10 +273,10 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
               </div>
 <nav className="flex items-center space-x-6">
           {/* 🔥 ŞEFİM, YER DEĞİŞTİ! ÜST MENÜDE ARTIK KENDİN TOPLA EN BAŞTA PARLIYOR! */}
-          <Link href="/kendin-topla" prefetch={true} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">🔧 Kendin Topla</Link>
-          <Link href="/kategori/ekran-karti" prefetch={true} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">Ekran Kartları</Link>
-          <Link href="/kategori/islemci" prefetch={true} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">İşlemciler</Link>
-          <Link href="/kategori/anakart" prefetch={true} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">Anakartlar</Link>
+          <Link href="/kendin-topla" prefetch={false} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">🔧 Kendin Topla</Link>
+          <Link href="/kategori/ekran-karti" prefetch={false} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">Ekran Kartları</Link>
+          <Link href="/kategori/islemci" prefetch={false} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">İşlemciler</Link>
+          <Link href="/kategori/anakart" prefetch={false} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">Anakartlar</Link>
         </nav>
             </div>
 
@@ -291,7 +292,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
          {/* HESABIM (DİREKT LÜKS GARAJA GİDER) */}
               <div className="relative flex items-center h-full">
                 {/* 🚀 ARTIK HERKESİ HESABIM SAYFASINA ALIYORUZ, VİTRİNİ ORADA GÖRECEKLER */}
-                <Link href="/hesabim" prefetch={true} className="flex items-center gap-2 p-2 text-gray-300 hover:text-[#3b82f6] transition-colors group">
+                <Link href="/hesabim" prefetch={false} className="flex items-center gap-2 p-2 text-gray-300 hover:text-[#3b82f6] transition-colors group">
                   <span className="hidden sm:block text-sm font-bold">
                     {session?.user?.name ? session.user.name.split(" ")[0] : "Hesabım"}
                   </span>
@@ -302,7 +303,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
               </div>
 
               {/* SEPET ALANI */}
-              <Link href="/sepet" prefetch={true} className="relative flex items-center gap-2 p-2 text-gray-300 hover:text-[#3b82f6] transition-colors group">
+              <Link href="/sepet" prefetch={false} className="relative flex items-center gap-2 p-2 text-gray-300 hover:text-[#3b82f6] transition-colors group">
                 <span className="hidden md:block text-sm font-bold">Sepet</span>
                 <div className="relative">
                   <svg className="w-5 h-5 md:w-5 md:h-5 shrink-0 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
@@ -329,7 +330,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
             {/* 2. KENDİN TOPLA (ALTTA) */}
             <Link
               href="/kendin-topla"
-              prefetch={true}
+              prefetch={false}
               onClick={() => setMenuAcik(false)}
               className="flex items-center justify-between py-4 border-b border-emerald-500/20 group mb-2"
             >
@@ -348,7 +349,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                   <Link 
                     key={item.slug} 
                     href={"/kategori/" + item.slug} 
-                    prefetch={true} 
+                    prefetch={false} 
                     onClick={() => setMenuAcik(false)} 
                     className="text-white text-base font-bold py-3.5 border-b border-white/5 flex items-center justify-between group"
                   >
@@ -416,6 +417,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                         <Link 
                           key={kat.slug} 
                           href={"/kategori/" + kat.slug} 
+                          prefetch={false}
                           onClick={() => setAramaAcik(false)} 
                           className="relative overflow-hidden px-4 py-3.5 bg-black/40 border border-white/5 hover:border-[#3b82f6]/40 hover:bg-[#3b82f6]/[0.02] text-gray-400 hover:text-white rounded-xl transition-all duration-300 flex items-center gap-4 text-sm font-bold group"
                         >
@@ -450,7 +452,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                         <Link 
                           key={urun._id} 
                           href={"/product/" + urun.slug} 
-                          prefetch={true} 
+                          prefetch={false} 
                           onClick={() => setAramaAcik(false)} 
                           className="flex items-center gap-4 p-4 bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-[#3b82f6]/30 rounded-2xl transition-all group"
                         >
@@ -506,7 +508,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
                         <Link 
                           key={urun._id} 
                           href={"/product/" + urun.slug} 
-                          prefetch={true} 
+                          prefetch={false} 
                           onClick={() => setAramaAcik(false)} 
                           className="bg-[#121212] border border-white/5 hover:border-[#3b82f6]/30 p-3 rounded-2xl group transition-colors flex flex-col"
                         >
