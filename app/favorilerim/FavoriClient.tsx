@@ -6,7 +6,7 @@ import {
   HeartCrack, Trash2, ShoppingCart, 
   User, ShieldCheck, CreditCard, Star, CheckCircle2,
   MapPin, Package, Search, Monitor, Headphones, Truck, PackageX,
-  Calendar, Copy
+  Calendar, Copy, Loader2
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/app/CartContext";
@@ -15,15 +15,18 @@ import { useSession } from "next-auth/react";
 import { useOrders } from "@/app/OrderContext";
 
 interface Props {
-  initialFavorites: any[];
+  initialFavorites?: any[]; // Artık opsiyonel, Patron'dan gelmese de olur!
 }
 
-export default function FavoriClient({ initialFavorites }: Props) {
+export default function FavoriClient({ initialFavorites = [] }: Props) {
   const router = useRouter();
   const { status } = useSession();
+  
+  // 🚀 SESSİZ ÇIRAK MODU İÇİN YENİ STATELER
   const [favoriteProducts, setFavoriteProducts] = useState<any[]>(initialFavorites);
+  const [cirakCalisiyor, setCirakCalisiyor] = useState(true); // Çırak yola çıktı!
+  
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
-
   const { sepeteEkle } = useCart();
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
   
@@ -31,9 +34,28 @@ export default function FavoriClient({ initialFavorites }: Props) {
   const [kargoPopupAcik, setKargoPopupAcik] = useState(false);
   const { orders: localOrders } = useOrders();
 
+  // 🚀 İŞTE SESSİZ ÇIRAK BURADA DEVREYE GİRİYOR!
   useEffect(() => {
-    setFavoriteProducts(initialFavorites);
-  }, [initialFavorites]);
+    const ciragiMondoyaYolla = async () => {
+      try {
+        // Çırak arka kapıdan sessizce MongoDB'ye (API'ye) gidiyor
+        const res = await fetch("/api/favorites"); 
+        
+        if (res.ok) {
+          const data = await res.json();
+          // Veri başarıyla gelirse state'e yazıyoruz (API genelde data.favorites döner, yapına göre uyarladım)
+          setFavoriteProducts(data.favorites || data || []);
+        }
+      } catch (error) {
+        console.error("Çırak yolda takıldı:", error);
+      } finally {
+        setCirakCalisiyor(false); // Çırak işini bitirdi, yükleme ekranını kapat!
+      }
+    };
+
+    // Sayfa açılır açılmaz çırağı yola çıkar
+    ciragiMondoyaYolla();
+  }, []);
 
   // 🚀 EKRAN DONDURMA
   useEffect(() => {
@@ -116,7 +138,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
         {/* ➡️ SAĞ İÇERİK */}
         <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full animate-in fade-in duration-300">
           
-          {/* 🚀 BİNGO: FASULYE MENÜ (Favoriler Çıkarıldı) */}
+          {/* 🚀 BİNGO: FASULYE MENÜ */}
           <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pt-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
             <Link href="/siparislerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
               <Package className="w-4 h-4 text-cyan-500" /> Siparişler
@@ -170,8 +192,16 @@ export default function FavoriClient({ initialFavorites }: Props) {
             </div>
           </div>
 
-          {favoriteProducts.length === 0 ? (
-            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-10 sm:p-16 flex flex-col items-center justify-center text-center shadow-xl">
+          {/* 🚀 ÇIRAK ÇALIŞIRKEN EKRANDA GÖZÜKECEK YER */}
+          {cirakCalisiyor ? (
+            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-10 sm:p-16 flex flex-col items-center justify-center text-center shadow-xl animate-in fade-in duration-300">
+              <Loader2 className="w-12 h-12 text-cyan-500 animate-spin mb-4" />
+              <h2 className="text-sm font-black uppercase tracking-widest text-cyan-400 animate-pulse">
+                Sessiz Çırak Favorilerinizi Getiriyor...
+              </h2>
+            </div>
+          ) : favoriteProducts.length === 0 ? (
+            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-10 sm:p-16 flex flex-col items-center justify-center text-center shadow-xl animate-in fade-in duration-300">
               <div className="w-20 h-20 rounded-full bg-[#020617] border border-cyan-500/20 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(6,182,212,0.1)]">
                 <HeartCrack className="w-10 h-10 text-cyan-400" />
               </div>
@@ -188,14 +218,14 @@ export default function FavoriClient({ initialFavorites }: Props) {
               </Link>
             </div>
           ) : (
-            /* 🚀 BİNGO: KUTU/KARE TASARIMI (Grid Yapısı - Silme Butonu Ayrıldı) */
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">
+            /* 🚀 BİNGO: KUTU/KARE TASARIMI (Grid Yapısı) */
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6 animate-in fade-in duration-300">
               {favoriteProducts.map((urun: any, index: number) => {
                 const isAdded = sepeteEklenenler.includes(urun._id || urun.id);
                 return (
                   <div key={index} className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col transition-all duration-300 hover:border-cyan-500/40 hover:-translate-y-1 shadow-lg group h-full">
                     
-                    {/* ÇÖP KUTUSU (Resimden bağımsız, normal akışta en üstte) */}
+                    {/* ÇÖP KUTUSU */}
                     <div className="flex justify-end mb-3">
                       <button 
                         onClick={() => setProductToDelete(urun)}
@@ -206,7 +236,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
                       </button>
                     </div>
 
-                    {/* ÜRÜN RESMİ (Geniş kutu alanı) */}
+                    {/* ÜRÜN RESMİ */}
                     <Link href={"/product/" + (urun.slug || urun.id || urun._id)} prefetch={true} className="w-full h-40 sm:h-48 shrink-0 bg-[#020617] rounded-xl border border-slate-800/50 flex items-center justify-center p-4 relative overflow-hidden group-hover:border-cyan-500/20 transition-colors mb-4">
                       <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                       <img 
@@ -216,7 +246,7 @@ export default function FavoriClient({ initialFavorites }: Props) {
                       />
                     </Link>
 
-                    {/* BİLGİLER (Başlık ve Fiyat) */}
+                    {/* BİLGİLER */}
                     <div className="flex-1 flex flex-col justify-start mb-4">
                       <Link href={"/product/" + (urun.slug || urun.id || urun._id)} prefetch={true} className="block mb-2 pr-2">
                         <h3 className="text-sm font-bold text-slate-200 leading-snug line-clamp-2 hover:text-cyan-400 transition-colors">
