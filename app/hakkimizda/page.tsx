@@ -1,149 +1,861 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-export const metadata = {
-  title: "Hakkımızda | Bilgin PC Market",
-  description: "Bilgin PC Market - Yüksek performanslı donanımlar ve geleceğin teknoloji çözümleri.",
-};
+import { useSession, signOut } from "next-auth/react";
+import { User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, MapPin, Loader2, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, Search, LogIn, UserPlus, Headset, Crown } from "lucide-react";
 
-export default function HakkimizdaPage() {
-  return (
-    <div className="min-h-screen bg-[#0b0f19] text-slate-100 font-sans selection:bg-cyan-500 selection:text-slate-900 overflow-hidden relative">
-      
-      {/* Arka Plan Dekoratif Işıklar (Glow Effect) */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[20%] right-[-10%] w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[150px] pointer-events-none" />
+export default function HesabimPage() {
+  const { data: session, status } = useSession();
+  
+  const suAnkiTarih = new Date();
+  const yil = suAnkiTarih.getFullYear();
 
-      {/* 1. HERO BÖLÜMÜ (Ana Giriş) */}
-      <section className="relative max-w-6xl mx-auto px-4 pt-24 pb-16 text-center z-10">
-        <span className="text-xs font-bold tracking-widest text-cyan-400 uppercase bg-cyan-500/10 border border-cyan-500/20 px-3 py-1 rounded-full">
-          Geleceğin Performans Merkezi
-        </span>
-        <h1 className="mt-6 text-4xl md:text-6xl font-black tracking-tight text-white uppercase">
-          Bilgin PC <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400">Market</span>
-        </h1>
-        <p className="mt-6 text-lg md:text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed">
-          Biz sadece bir e-ticaret platformu değil; dijital dünyanın sınırlarını zorlayanların, rekabetçi arenada zirveyi hedefleyenlerin ve donanım tutkusunu profesyonellikle birleştirenlerin ortak noktasıyız.
-        </p>
-      </section>
+  const [hamSiparisler, setHamSiparisler] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      try { return JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}").tumSiparisler || []; } catch { return []; }
+    } return [];
+  });
+  
+  const [adresSayisi, setAdresSayisi] = useState<number>(() => {
+    if (typeof window !== "undefined") {
+      try { return JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}").adresSayisi || 0; } catch { return 0; }
+    } return 0;
+  });
 
-      {/* 2. VİZYON VE E-SPOR BÖLÜMÜ */}
-      <section className="max-w-6xl mx-auto px-4 py-16 z-10 relative">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-          <div className="md:col-span-7 space-y-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-lg text-slate-900">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                </svg>
-              </div>
-              <h2 className="text-2xl md:text-3xl font-extrabold text-white uppercase tracking-wide">
-                Performansın Ne Demek Olduğunu Biliyoruz
-              </h2>
-            </div>
-            <p className="text-slate-300 leading-relaxed text-base">
-              E-spor dünyasının tam kalbinden gelen, yüksek performansın ve <span className="text-cyan-400 font-semibold">1 milisaniyelik tepkime süresinin</span> bile ne kadar kritik olduğunu bilen bir ekibiz. Bu yüzden kataloğumuza eklediğimiz her bir ekran kartını, işlemciyi ve bileşeni özenle seçiyoruz.
-            </p>
-            <p className="text-slate-400 leading-relaxed text-base">
-              Amacımız; standart donanımlar satmak değil, amiral gemisi teknolojileri (en güncel mimariler, üst düzey soğutma çözümleri ve premium bileşenler) oyun ve iş istasyonlarına entegre edecek doğru çözümleri sunmaktır.
-            </p>
-          </div>
-          
-          {/* Sağ Taraftaki Şık İstatistik Kutusu */}
-          <div className="md:col-span-5 bg-slate-900/40 border border-slate-800 p-8 rounded-2xl backdrop-blur-md relative group hover:border-slate-700 transition-all">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-cyan-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-all pointer-events-none" />
-            <div className="space-y-6 relative z-10">
-              <div>
-                <div className="text-3xl font-black text-cyan-400">%100</div>
-                <div className="text-sm text-slate-400 font-medium mt-1">Orijinal & Resmi Türkiye Garantili Ürünler</div>
-              </div>
-              <div className="border-t border-slate-800/80" />
-              <div>
-                <div className="text-3xl font-black text-blue-500">0 ms</div>
-                <div className="text-sm text-slate-400 font-medium mt-1">Gri Market / Paralel İthalat Toleransı</div>
-              </div>
-              <div className="border-t border-slate-800/80" />
-              <div>
-                <div className="text-3xl font-black text-white">7/24</div>
-                <div className="text-sm text-slate-400 font-medium mt-1">Gelişmiş Yazılım ve Ödeme Altyapısı Güvenliği</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+  const [favoriSayisi, setFavoriSayisi] = useState<number>(() => {
+    if (typeof window !== "undefined") {
+      try { return JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}").favoriSayisi || 0; } catch { return 0; }
+    } return 0;
+  });
 
-      {/* 3. DİSTRİBÜTÖR VE GÜVEN BÖLÜMÜ (Kart Yapısı) */}
-      <section className="max-w-6xl mx-auto px-4 py-16 z-10 relative">
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-2xl md:text-3xl font-extrabold text-white uppercase tracking-wide">
-            Şeffaflık, Güven ve Kurumsal Taahhüdümüz
-          </h2>
-          <p className="text-slate-400 mt-3 text-sm md:text-base">
-            Türkiye'nin ve dünyanın önde gelen teknoloji distribütörleriyle kurduğumuz dürüst bağlar sayesinde, markaların değerini kendi değerimiz gibi koruyoruz.
-          </p>
-        </div>
+  const [sistemSayisi, setSistemSayisi] = useState<number>(() => {
+    if (typeof window !== "undefined") {
+      try { 
+        const sys = JSON.parse(localStorage.getItem("bilgin_kayitli_sistemler") || "[]");
+        return Array.isArray(sys) ? sys.length : 0;
+      } catch { return 0; }
+    } return 0;
+  });
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Kart 1: Orijinallik */}
-          <div className="bg-slate-950/60 border border-slate-800/80 p-6 rounded-xl hover:border-blue-500/40 transition-colors group">
-            <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 mb-4 group-hover:bg-blue-500 group-hover:text-slate-950 transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-              </svg>
-            </div>
-            <h3 className="text-lg font-bold text-white uppercase tracking-wide">Sıfır Gri Market Toleransı</h3>
-            <p className="text-slate-400 text-sm mt-3 leading-relaxed">
-              Yalnızca resmi distribütör çıkışlı ürünler satarak, markaların Türkiye'deki fiyat ve hizmet politikalarına tam uyum sağlarız. Tüm süreçlerimiz şeffaf ve yasaldır.
-            </p>
-          </div>
+// 🚀 DESTEK SİSTEMİ MOTORU (Çırak Hafızası Eklendi - 0 Gecikme)
+  const [acikTalepSayisi, setAcikTalepSayisi] = useState<number>(() => {
+    if (typeof window !== "undefined") {
+      try { return JSON.parse(sessionStorage.getItem("bilgin_destek_ozet") || "{}").sayi || 0; } catch { return 0; }
+    } return 0;
+  });
+  const [yeniMesajVar, setYeniMesajVar] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      try { return JSON.parse(sessionStorage.getItem("bilgin_destek_ozet") || "{}").acil || false; } catch { return false; }
+    } return false;
+  });
+  const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
+  const [grafikVerisi, setGrafikVerisi] = useState<any[]>([]);
 
-          {/* Kart 2: Altyapı */}
-          <div className="bg-slate-950/60 border border-slate-800/80 p-6 rounded-xl hover:border-cyan-500/40 transition-colors group">
-            <div className="w-10 h-10 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400 mb-4 group-hover:bg-cyan-500 group-hover:text-slate-950 transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
-              </svg>
-            </div>
-            <h3 className="text-lg font-bold text-white uppercase tracking-wide">Modern Dijital Altyapı</h3>
-            <p className="text-slate-400 text-sm mt-3 leading-relaxed">
-              Platformumuz en güncel web teknolojileri (Next.js, Tailwind, Vercel) ile sıfırdan, en yüksek veri güvenliği ve UI/UX standartlarına (256-bit SSL, 3D Secure) göre kodlanmıştır.
-            </p>
-          </div>
+  const [isKargoModalOpen, setIsKargoModalOpen] = useState(false);
+  const [kopyalananKod, setKopyalananKargo] = useState<string | null>(null);
+  const [girisSartModal, setGirisSartModal] = useState(false);
 
-          {/* Kart 3: Satış Sonrası */}
-          <div className="bg-slate-950/60 border border-slate-800/80 p-6 rounded-xl hover:border-purple-500/40 transition-colors group">
-            <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 mb-4 group-hover:bg-purple-500 group-hover:text-slate-950 transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
-              </svg>
-            </div>
-            <h3 className="text-lg font-bold text-white uppercase tracking-wide">Yetkin Teknik Destek</h3>
-            <p className="text-slate-400 text-sm mt-3 leading-relaxed">
-              Üst düzey donanımların uyumluluğu ve optimizasyonu konusunda müşterilerimize doğru teknik rehberlik sunarak distribütörlerin servis yükünü azaltır, memnuniyeti artırırız.
-            </p>
-          </div>
-        </div>
-      </section>
+  const [pastaVerisi, setPastaVerisi] = useState({
+    kendinTopla: { yuzde: 0, tutar: 0, offset: 0 },
+    bilesen: { yuzde: 0, tutar: 0, offset: 0 },
+    cevre: { yuzde: 0, tutar: 0, offset: 0 },
+    sistem: { yuzde: 0, tutar: 0, offset: 0 },
+    aksesuar: { yuzde: 0, tutar: 0, offset: 0 },
+    maxYuzde: 0
+  });
 
-    {/* 4. CALL TO ACTION (Kapanış Mesajı) */}
-      <section className="max-w-4xl mx-auto px-4 py-16 text-center z-10 relative">
+  const [aylikPastaVerisi, setAylikPastaVerisi] = useState({
+    kendinTopla: { yuzde: 0, offset: 0 },
+    bilesen: { yuzde: 0, offset: 0 },
+    cevre: { yuzde: 0, offset: 0 },
+    sistem: { yuzde: 0, offset: 0 },
+    aksesuar: { yuzde: 0, offset: 0 },
+    maxYuzde: 0,
+    ayAdi: ""
+  });
+  
+  const [seciliYil, setSeciliYil] = useState<number>(yil);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [tiklananAy, setTiklananAy] = useState<number | null>(suAnkiTarih.getMonth());
+  const [loading, setLoading] = useState(hamSiparisler.length === 0);
+
+ const handleCikisYap = async () => {
+    localStorage.removeItem("bilgin_kayitli_sistemler");
+    sessionStorage.removeItem("bilgin_hesabim_data");
+
+    const cihazId = (session?.user as any)?.deviceId;
+    if (cihazId) {
+      try {
+        await fetch("/api/user/logout-device", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ deviceId: cihazId })
+        });
+      } catch (error) {
+        console.error("Çıkış mühürü vurulamadı:", error);
+      }
+    }
+
+    await signOut({ callbackUrl: "/" });
+  };
+
+  const kilitliIslem = (e: React.MouseEvent) => {
+    if (status === "unauthenticated") {
+      e.preventDefault();
+      setGirisSartModal(true);
+    }
+  };
+
+  const handleKargoClick = (e: React.MouseEvent) => {
+    if (status === "unauthenticated") {
+      kilitliIslem(e);
+    } else {
+      setIsKargoModalOpen(true);
+    }
+  };
+
+  // 🚀 MİSAFİR GİRİŞİ MOTORU
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      setHamSiparisler([]);
+      setAdresSayisi(0);
+      setFavoriSayisi(0);
+      setSistemSayisi(0);
+      setLoading(false);
+    }
+  }, [status]);
+
+  useEffect(() => {
+    if (status !== "authenticated") return;
+
+    try {
+      const hafiza = sessionStorage.getItem("bilgin_hesabim_data");
+      if (hafiza) {
+        const parsed = JSON.parse(hafiza);
+        if (parsed.tumSiparisler && parsed.tumSiparisler.length > 0) {
+          setHamSiparisler(parsed.tumSiparisler);
+          setLoading(false); 
+        }
+        if (parsed.favoriSayisi !== undefined) setFavoriSayisi(parsed.favoriSayisi);
+        if (parsed.adresSayisi !== undefined) setAdresSayisi(parsed.adresSayisi);
+      }
+
+      const kayitliSistemler = localStorage.getItem("bilgin_kayitli_sistemler");
+      if (kayitliSistemler) {
+        const parsedSistemler = JSON.parse(kayitliSistemler);
+        if (Array.isArray(parsedSistemler)) setSistemSayisi(parsedSistemler.length);
+      }
+    } catch (error) {
+      console.error("Hafıza okuma hatası:", error);
+    }
+  }, [status]);
+
+  useEffect(() => {
+    if (status !== "authenticated" || !session?.user?.email) return;
+
+    const gercegiKontrolEt = async () => {
+      try {
+        const res = await fetch("/api/orders?t=" + new Date().getTime(), { 
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
+        });
         
-        {/* 🚀 LABORATUVAR TESTİ: FAVORİLERİM BUTONU 🚀 */}
-        <div className="flex justify-center mb-10 animate-in fade-in zoom-in duration-500">
-          <Link 
-            href="/favorilerim" 
-            className="flex items-center gap-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-10 py-4 rounded-xl font-black uppercase tracking-widest shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-all hover:scale-105"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
-            Favorilerime Git (TEST)
-          </Link>
+        const data = await res.json();
+        
+        if (res.ok && data.orders) {
+          const benimSiparislerim = data.orders.filter((o: any) => {
+            const mail = o.userEmail || o.email || o.musteri?.eposta || o.musteri?.email || "";
+            return mail.toLowerCase() === (session?.user?.email || "").toLowerCase() && o.gizlendi !== true;
+          });
+
+          setHamSiparisler(benimSiparislerim);
+          
+          const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
+          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, tumSiparisler: benimSiparislerim }));
+          setLoading(false);
+        } else {
+          setLoading(false);
+        }
+
+        const adresRes = await fetch("/api/addresses?t=" + new Date().getTime(), { cache: "no-store" });
+        if (adresRes.ok) {
+          const adresData = await adresRes.json();
+          const sayi = adresData.addresses?.length || 0;
+          setAdresSayisi(sayi);
+          const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
+          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, adresSayisi: sayi }));
+        }
+
+        const favoriRes = await fetch("/api/favorites?t=" + new Date().getTime(), { cache: "no-store" });
+        if (favoriRes.ok) {
+          const favoriData = await favoriRes.json();
+          const sayi = favoriData.favorites?.length || 0;
+          setFavoriSayisi(sayi);
+          const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
+          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, favoriSayisi: sayi }));
+        }
+
+        const destekRes = await fetch("/api/destek?t=" + new Date().getTime(), { cache: "no-store" });
+        if (destekRes.ok) {
+          const destekData = await destekRes.json();
+          if (destekData.talepler) {
+            const aciklar = destekData.talepler.filter((t: any) => t.durum !== "Çözüldü");
+            const acilMesaj = aciklar.some((t: any) => t.durum === "Yanıt Bekleniyor");
+            
+            setAcikTalepSayisi(aciklar.length);
+            setYeniMesajVar(acilMesaj);
+            
+            sessionStorage.setItem("bilgin_destek_ozet", JSON.stringify({ sayi: aciklar.length, acil: acilMesaj }));
+          }
+        }
+
+      } catch (error) {
+        console.error("Radar bağlantı hatası:", error);
+        setLoading(false);
+      }
+    };
+
+    gercegiKontrolEt();
+    const radar = setInterval(gercegiKontrolEt, 5000); 
+
+    return () => clearInterval(radar); 
+  }, [session, status]);
+
+  useEffect(() => {
+    if (!hamSiparisler) return;
+
+    const sirali = [...hamSiparisler].sort((a: any, b: any) => 
+      new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime()
+    );
+    setSonSiparislerListesi(sirali.slice(0, 7)); 
+
+    const aylar = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
+    const aylarUzun = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+    const aylikToplamlar = new Array(12).fill(0);
+
+    let cK_toplam = 0, cB_toplam = 0, cC_toplam = 0, cS_toplam = 0, cA_toplam = 0;
+    let m_cK = 0, m_cB = 0, m_cC = 0, m_cS = 0, m_cA = 0;
+    const aktifAy = tiklananAy !== null ? tiklananAy : suAnkiTarih.getMonth();
+
+    hamSiparisler.forEach((siparis: any) => {
+      const durum = (siparis.status || siparis.durum || "").toLowerCase();
+      const iptalMi = durum.includes("iptal") || durum.includes("iade") || durum.includes("red");
+      const tamamlandiMi = durum.includes("tamam") || durum.includes("teslim") || durum.includes("kargo") || durum.includes("aktif");
+      
+      if (iptalMi || !tamamlandiMi) return; 
+
+      const d = new Date(siparis.createdAt || siparis.tarih);
+      if (isNaN(d.getTime())) return;
+
+      const siparisTutar = Number(siparis.totalPrice || siparis.toplamTutar) || 0;
+      const siparisAyi = d.getMonth();
+      const siparisYili = d.getFullYear();
+
+      if (siparisYili === seciliYil) {
+        aylikToplamlar[siparisAyi] += siparisTutar;
+      }
+
+      const urunler = siparis.items || siparis.sepet || [];
+      urunler.forEach((item: any) => {
+        const kimlik = `${item.kategoriSlug || ''} ${item.kategori || ''} ${item.slug || ''} ${item.isim || ''} ${item.title || ''}`.toLocaleLowerCase('tr-TR');
+        const urunTutar = (Number(item.fiyat || item.price) * (item.adet || item.quantity)) || 0;
+
+        let kategoriTipi = "aksesuar";
+        if (kimlik.includes("kendin") || kimlik.includes("topla") || kimlik.includes("sihirbaz")) kategoriTipi = "kendin";
+        else if (["oyun-bilgisayari", "laptop", "notebook", "masaüstü", "masaustu", "oem-paket", "isletim", "yazılım", "yazilim"].some(k => kimlik.includes(k))) kategoriTipi = "sistem";
+        else if (["anakart", "ekran-kart", "ekran kart", "islemci", "işlemci", "ram", "ssd", "hdd", "kasa", "psu", "sogutma", "soğutma"].some(k => kimlik.includes(k))) kategoriTipi = "bilesen";
+        else if (["monitör", "monitor", "klavye", "mouse", "kulaklık", "kulaklik", "mikrofon", "oyun-kolu", "direksiyon", "hoparlör", "hoparlor"].some(k => kimlik.includes(k))) kategoriTipi = "cevre";
+
+        if (kategoriTipi === "kendin") cK_toplam += urunTutar;
+        else if (kategoriTipi === "sistem") cS_toplam += urunTutar;
+        else if (kategoriTipi === "bilesen") cB_toplam += urunTutar;
+        else if (kategoriTipi === "cevre") cC_toplam += urunTutar;
+        else cA_toplam += urunTutar;
+
+        if (siparisYili === seciliYil && siparisAyi === aktifAy) {
+          if (kategoriTipi === "kendin") m_cK += urunTutar;
+          else if (kategoriTipi === "sistem") m_cS += urunTutar;
+          else if (kategoriTipi === "bilesen") m_cB += urunTutar;
+          else if (kategoriTipi === "cevre") m_cC += urunTutar;
+          else m_cA += urunTutar;
+        }
+      });
+    });
+
+    const maxTutar = Math.max(...aylikToplamlar);
+    const dinamikGrafik = aylikToplamlar.map((tutar, index) => {
+      const yuzde = maxTutar > 0 && tutar > 0 ? Math.max((tutar / maxTutar) * 100, 5) : 2;
+      return { etiket: aylar[index], yuzde: yuzde, tutar: tutar };
+    });
+    setGrafikVerisi(dinamikGrafik);
+    
+    const genelToplam = cK_toplam + cB_toplam + cC_toplam + cS_toplam + cA_toplam;
+    if (genelToplam > 0) {
+      const p1 = (cK_toplam / genelToplam) * 100;
+      const p2 = (cB_toplam / genelToplam) * 100;
+      const p3 = (cC_toplam / genelToplam) * 100;
+      const p4 = (cS_toplam / genelToplam) * 100;
+      const p5 = (cA_toplam / genelToplam) * 100;
+
+      setPastaVerisi({
+        kendinTopla: { yuzde: Math.round(p1), tutar: cK_toplam, offset: 0 },
+        bilesen: { yuzde: Math.round(p2), tutar: cB_toplam, offset: p1 },
+        cevre: { yuzde: Math.round(p3), tutar: cC_toplam, offset: p1 + p2 },
+        sistem: { yuzde: Math.round(p4), tutar: cS_toplam, offset: p1 + p2 + p3 },
+        aksesuar: { yuzde: Math.round(p5), tutar: cA_toplam, offset: p1 + p2 + p3 + p4 },
+        maxYuzde: Math.round(Math.max(p1, p2, p3, p4, p5))
+      });
+    } else {
+      setPastaVerisi({
+        kendinTopla: { yuzde: 0, tutar: 0, offset: 0 }, bilesen: { yuzde: 0, tutar: 0, offset: 0 },
+        cevre: { yuzde: 0, tutar: 0, offset: 0 }, sistem: { yuzde: 0, tutar: 0, offset: 0 },
+        aksesuar: { yuzde: 0, tutar: 0, offset: 0 }, maxYuzde: 0
+      });
+    }
+
+    const aylikNetToplam = m_cK + m_cB + m_cC + m_cS + m_cA;
+    if (aylikNetToplam > 0) {
+      const ap1 = (m_cK / aylikNetToplam) * 100;
+      const ap2 = (m_cB / aylikNetToplam) * 100;
+      const ap3 = (m_cC / aylikNetToplam) * 100;
+      const ap4 = (m_cS / aylikNetToplam) * 100;
+      const ap5 = (m_cA / aylikNetToplam) * 100;
+
+      setAylikPastaVerisi({
+        kendinTopla: { yuzde: Math.round(ap1), offset: 0 },
+        bilesen: { yuzde: Math.round(ap2), offset: ap1 },
+        cevre: { yuzde: Math.round(ap3), offset: ap1 + ap2 },
+        sistem: { yuzde: Math.round(ap4), offset: ap1 + ap2 + ap3 },
+        aksesuar: { yuzde: Math.round(ap5), offset: ap1 + ap2 + ap3 + ap4 },
+        maxYuzde: Math.round(Math.max(ap1, ap2, ap3, ap4, ap5)),
+        ayAdi: aylarUzun[aktifAy]
+      });
+    } else {
+      setAylikPastaVerisi({
+        kendinTopla: { yuzde: 0, offset: 0 }, bilesen: { yuzde: 0, offset: 0 },
+        cevre: { yuzde: 0, offset: 0 }, sistem: { yuzde: 0, offset: 0 },
+        aksesuar: { yuzde: 0, offset: 0 }, maxYuzde: 0, ayAdi: aylarUzun[aktifAy]
+      });
+    }
+
+  }, [hamSiparisler, seciliYil, tiklananAy]);
+
+  const kargoSiparisleri = hamSiparisler.filter(s => {
+    const d = (s.status || s.durum || "").toLowerCase();
+    return d.includes("kargo") && !d.includes("teslim") && !d.includes("iptal");
+  });
+
+  const handleTakipEt = (takipNumarasi: string) => {
+    navigator.clipboard.writeText(takipNumarasi);
+    setKopyalananKargo(takipNumarasi);
+    setTimeout(() => setKopyalananKargo(null), 2000);
+  };
+
+  const userName = status === "unauthenticated" ? "Misafir" : (session?.user?.name || "Özkan");
+  const userEmail = status === "unauthenticated" ? "Lütfen giriş yapın" : (session?.user?.email || "");
+  const basHarf = userName.charAt(0).toUpperCase();
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center relative overflow-hidden">
+        <div className="w-16 h-16 border-4 border-slate-800 border-t-cyan-500 rounded-full animate-spin shadow-[0_0_30px_rgba(6,182,212,0.5)]"></div>
+        <p className="mt-6 text-cyan-400 font-bold uppercase tracking-widest text-sm animate-pulse">Sistem Yükleniyor...</p>
+      </div>
+    );
+  }
+
+return (
+    <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full z-0"></div>
+
+      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
+        
+        {/* ⬅️ SOL MENÜ (Hem Profil Hem Yönergeler Tek Çatı Altında - Tam Responsive) */}
+        <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
+          <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-2 sm:p-4 shadow-xl overflow-x-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
+            <nav className="flex flex-row lg:flex-col gap-1.5 min-w-max lg:min-w-0">
+              
+              {/* ÜST GRUP: HESAP AYARLARI */}
+              <Link href="/hesabim" className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3.5 text-[11px] sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium whitespace-nowrap">
+                <User className="w-3.5 h-3.5 sm:w-5 sm:h-5 shrink-0" /> <span className="flex-1">Profil</span>
+              </Link>
+              <Link href="/cuzdan" className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3.5 text-[11px] sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium whitespace-nowrap">
+                <CreditCard className="w-3.5 h-3.5 sm:w-5 sm:h-5 shrink-0" /> <span className="flex-1">Dijital Cüzdanım</span>
+              </Link>
+              <Link href="/guvenlik" className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3.5 text-[11px] sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium whitespace-nowrap">
+                <ShieldCheck className="w-3.5 h-3.5 sm:w-5 sm:h-5 shrink-0" /> <span className="flex-1">Güvenlik</span>
+              </Link>
+
+              {/* 👑 ADMIN BUTONU (Sadece PC'de veya Mobilde Scroll Edince) */}
+              {session?.user?.email === "o9616557@gmail.com" && (
+                <Link href="/admin" className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3.5 text-[11px] sm:text-base text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 rounded-xl transition-all font-black group whitespace-nowrap">
+                  <Crown className="w-3.5 h-3.5 sm:w-5 sm:h-5 shrink-0 group-hover:scale-110 transition-transform" /> <span className="flex-1">Admin Paneli</span>
+                </Link>
+              )}
+
+              {/* PC'DE MENÜLERİ AYIRAN ŞIK İNCE ÇİZGİ (Mobilde Gizli) */}
+              <div className="hidden lg:block w-full h-px bg-slate-800/60 my-2"></div>
+
+              {/* ALT GRUP: YÖNETİM MERKEZİ (ROZETLERLE BİRLİKTE) */}
+              <Link href="/siparislerim" onClick={kilitliIslem} className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-cyan-400 hover:bg-cyan-600/10 rounded-xl transition-all font-medium whitespace-nowrap">
+                <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-cyan-500" /> <span className="flex-1">Siparişlerim</span>
+              </Link>
+              
+              <Link href="/adreslerim" onClick={kilitliIslem} className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-cyan-400 hover:bg-cyan-600/10 rounded-xl transition-all font-medium whitespace-nowrap">
+                <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-cyan-500" /> <span className="flex-1">Adreslerim</span>
+                {adresSayisi > 0 && <span className="bg-[#020617] border border-slate-700 text-slate-400 text-[9px] px-1.5 py-0.5 rounded font-black">{adresSayisi}</span>}
+              </Link>
+
+              <button onClick={handleKargoClick} className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all font-medium whitespace-nowrap w-full text-left">
+                <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-rose-500" /> <span className="flex-1">Kargolar</span>
+                {kargoSiparisleri.length > 0 && <span className="bg-rose-500/20 border border-rose-500/30 text-rose-400 text-[9px] px-1.5 py-0.5 rounded font-black">{kargoSiparisleri.length}</span>}
+              </button>
+
+              <Link href="/sistemlerim" onClick={kilitliIslem} className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-xl transition-all font-medium whitespace-nowrap">
+                <Server className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-emerald-500" /> <span className="flex-1">Sistemlerim</span>
+                {sistemSayisi > 0 && <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] px-1.5 py-0.5 rounded font-black">{sistemSayisi}</span>}
+              </Link>
+              
+              <Link href="https://www.bilginpcmarket.com/favorilerim" onClick={kilitliIslem} className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-purple-400 hover:bg-purple-500/10 rounded-xl transition-all font-medium whitespace-nowrap">
+                <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-purple-500" /> <span className="flex-1">Favoriler</span>
+                {favoriSayisi > 0 && <span className="bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[9px] px-1.5 py-0.5 rounded font-black">{favoriSayisi}</span>}
+              </Link>
+
+              <Link href="/destek-taleplerim" onClick={kilitliIslem} className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-xl transition-all font-medium whitespace-nowrap relative">
+                <Headset className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${yeniMesajVar ? 'text-orange-500' : 'text-indigo-500'}`} /> 
+                <span className="flex-1">Destek / İade</span>
+                {yeniMesajVar ? (
+                  <span className="flex h-2 w-2 shrink-0 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+                  </span>
+                ) : (
+                  acikTalepSayisi > 0 && <span className="bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[9px] px-1.5 py-0.5 rounded font-black">{acikTalepSayisi}</span>
+                )}
+              </Link>
+
+              <Link href="/siparis-takip" onClick={kilitliIslem} className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-all font-medium whitespace-nowrap">
+                <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-blue-500" /> <span className="flex-1">Sorgula</span>
+              </Link>
+
+            </nav>
+
+            {/* GİRİŞ YAPILMADIYSA GÖZÜKEN BUTONLAR */}
+            {status === "unauthenticated" && (
+              <div className="mt-4 pt-4 border-t border-slate-800 flex flex-col gap-2">
+                <Link href="/giris" className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest text-center transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+                  <LogIn className="w-4 h-4" /> Giriş Yap
+                </Link>
+                <Link href="/kayit" className="w-full py-2.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-slate-700 hover:border-slate-500 text-slate-300 font-bold text-xs uppercase tracking-widest text-center transition-all flex items-center justify-center gap-2">
+                  <UserPlus className="w-4 h-4" /> Kayıt Ol
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="bg-gradient-to-r from-blue-900/30 to-cyan-900/30 border border-slate-800 p-8 md:p-12 rounded-3xl backdrop-blur-sm">
-          <blockquote className="text-lg md:text-xl italic text-slate-200 font-medium">
-            "Teknolojinin zirvesine giden yolda, doğru donanım ve güvenilir kurumsal hizmet için Bilgin PC Market daima yanınızda."
-          </blockquote>
+        {/* ➡️ SAĞ TARAF (Tertemiz, Kutulardan Arınmış Dev Alan) */}
+        <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
+
+          {/* KULLANICI BİLGİ KARTVİZİTİ */}
+          <div className="relative rounded-[2rem] p-[2px] bg-gradient-to-r from-cyan-500/30 via-[#0f172a] to-cyan-500/10 shadow-[0_0_50px_rgba(0,210,255,0.15)] group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-transparent opacity-20 blur-xl rounded-[2rem] transition-opacity duration-500"></div>
+            <div className="relative bg-[#0b1121] rounded-[2rem] p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 sm:gap-8 border border-cyan-500/20 overflow-hidden z-10">
+              <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-gradient-to-r from-cyan-500/10 to-transparent pointer-events-none"></div>
+
+              <div className="relative w-28 h-28 sm:w-32 sm:h-32 shrink-0 flex items-center justify-center">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-b from-slate-600 to-slate-900 border-[3px] border-slate-700 shadow-[inset_0_0_20px_rgba(0,0,0,0.8),_0_10px_20px_rgba(0,0,0,0.5)]"></div>
+                <div className="absolute inset-2.5 rounded-full border border-cyan-400/30 shadow-[0_0_20px_rgba(34,211,255,0.4),inset_0_0_20px_rgba(34,211,255,0.2)] border-t-cyan-300 animate-[spin_8s_linear_infinite]"></div>
+                <div className="absolute inset-4 bg-[#020617] rounded-full flex items-center justify-center shadow-[inset_0_0_30px_rgba(0,0,0,0.9)] border border-cyan-900/50">
+                  <span className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-cyan-100 to-cyan-500 drop-shadow-[0_0_15px_rgba(34,211,255,0.8)]">
+                    {basHarf}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="flex-1 text-center sm:text-left z-10">
+                <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight mb-0.5 sm:mb-2 drop-shadow-md">
+                  {userName}
+                </h1>
+                <p className="text-slate-400 text-xs sm:text-sm font-medium tracking-wide">
+                  {userEmail}
+                </p>
+              </div>
+              
+              {status === "authenticated" && (
+                <button onClick={handleCikisYap} className="relative z-10 flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl bg-red-950/40 border border-red-900/50 text-red-400 hover:bg-red-900/60 hover:text-red-300 hover:border-red-500/50 transition-all font-black uppercase tracking-widest text-[10px] sm:text-xs shadow-[0_0_20px_rgba(220,38,38,0.1)]">
+                  <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Çıkış
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start mt-2">
+            <div className="xl:col-span-1 flex flex-col h-full">
+              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group hover:border-cyan-500/30 transition-all duration-300 flex flex-col h-[350px] sm:h-[450px] xl:h-[550px]">
+                <div className="absolute -top-10 -left-10 w-40 h-40 bg-cyan-500/10 blur-[50px] pointer-events-none rounded-full"></div>
+                <div className="flex items-center justify-between mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-800/80 relative z-10 shrink-0">
+                  <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Siparişler</h3>
+                  <Link href="/siparislerim" onClick={kilitliIslem} prefetch={true} className="text-[10px] sm:text-xs font-bold text-cyan-400 hover:underline tracking-widest uppercase">
+                    TÜMÜNÜ GÖR
+                  </Link>
+                </div>
+
+                <div className="space-y-3 relative z-10 flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                  {sonSiparislerListesi.length > 0 ? (
+                    sonSiparislerListesi.map((item: any, idx: number) => {
+                      const tarih = item.createdAt ? new Date(item.createdAt).toLocaleDateString("tr-TR") : item.tarih ? new Date(item.tarih).toLocaleDateString("tr-TR") : "";
+                      const urunAdi = item.items?.[0]?.isim || item.items?.[0]?.name || item.sepet?.[0]?.isim || item.siparisKodu || "Sipariş";
+                      const toplamFiyat = item.totalPrice || item.toplamTutar || "0";
+                      const durum = item.status || item.durum || "Hazırlanıyor";
+
+                      return (
+                        <div key={item._id || idx} className="flex flex-col sm:flex-row xl:flex-col 2xl:flex-row sm:items-center justify-between gap-3 py-3 border-b border-white/5 last:border-0 hover:bg-white/[0.03] transition-colors rounded-xl px-2">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-white font-bold text-xs sm:text-sm truncate mb-0.5 sm:mb-1" title={urunAdi}>{urunAdi}</p>
+                            <p className="text-slate-500 text-[9px] sm:text-[10px] font-medium">{tarih}</p>
+                          </div>
+                          
+                          <div className="flex flex-row sm:flex-col xl:flex-row 2xl:flex-col items-center sm:items-end justify-between gap-1 sm:gap-2 shrink-0">
+                            <p className="text-white font-black text-xs sm:text-sm">
+                              {Number(toplamFiyat).toLocaleString("tr-TR")} ₺
+                            </p>
+                            <span className={`px-1.5 sm:px-2 py-0.5 rounded text-[8px] sm:text-[9px] font-black uppercase tracking-widest shrink-0 w-fit ${
+                              durum.toLowerCase().includes('kargo')
+                                ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                                : durum.toLowerCase().includes('teslim') || durum.toLowerCase().includes('tamam')
+                                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                                : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
+                            }`}>
+                              {durum}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="h-full flex flex-col items-center justify-center text-center opacity-40">
+                      <Package className="w-10 h-10 text-slate-500 mb-2" />
+                      <span className="text-xs text-slate-400 font-medium">Henüz siparişiniz yok.</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="xl:col-span-2 flex flex-col gap-6">
+
+              {/* 🚀 KUSURSUZ SİMETRİK İKİLİ IZGARA */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col xl:flex-row items-center gap-6 overflow-hidden">
+                 
+                 <div className="shrink-0 space-y-1.5 text-center xl:text-left xl:w-[140px] w-full">
+                 <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider leading-tight">Harcama Dağılımı</h3>
+                   <p className="text-[10px] text-slate-500 font-medium">Satın alınan kategoriler</p>
+                 </div>
+
+                 {/* ARAYI İKİYE BÖLEN GRID MOTORU */}
+                 <div className="flex-1 grid grid-cols-2 w-full border-t sm:border-t-0 sm:border-l border-slate-800/80 pt-6 sm:pt-0 sm:pl-6">
+                   
+                   {/* SOL TARAF: AYLIK PASTA */}
+                   <div className="flex flex-col items-center gap-4 w-full pr-2 sm:pr-6 border-r border-slate-800/80">
+                     <span className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[9px] sm:text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest shadow-[0_0_10px_rgba(6,182,212,0.4)] whitespace-nowrap text-center">
+                       {aylikPastaVerisi.ayAdi ? `${aylikPastaVerisi.ayAdi} ÖZETİ` : "AYLIK ÖZET"}
+                     </span>
+                     
+                     <div className="relative w-24 h-24 sm:w-32 sm:h-32 shrink-0">
+                       <svg className="w-full h-full transform -rotate-90 drop-shadow-md" viewBox="0 0 42 42">
+                         <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(255,255,255,0.02)" strokeWidth="4.5"></circle>
+                         {aylikPastaVerisi.maxYuzde === 0 ? (
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#334155" strokeWidth="4.5" strokeDasharray="100 0"></circle>
+                         ) : (
+                           <>
+                             <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#f59e0b" strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.kendinTopla.yuzde} ${100 - aylikPastaVerisi.kendinTopla.yuzde}`} strokeDashoffset={-aylikPastaVerisi.kendinTopla.offset}></circle>
+                             <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#06b6d4" strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.bilesen.yuzde} ${100 - aylikPastaVerisi.bilesen.yuzde}`} strokeDashoffset={-aylikPastaVerisi.bilesen.offset}></circle>
+                             <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#fb7185" strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.cevre.yuzde} ${100 - aylikPastaVerisi.cevre.yuzde}`} strokeDashoffset={-aylikPastaVerisi.cevre.offset}></circle>
+                             <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#c084fc" strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.sistem.yuzde} ${100 - aylikPastaVerisi.sistem.yuzde}`} strokeDashoffset={-aylikPastaVerisi.sistem.offset}></circle>
+                             <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#34d399" strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.aksesuar.yuzde} ${100 - aylikPastaVerisi.aksesuar.yuzde}`} strokeDashoffset={-aylikPastaVerisi.aksesuar.offset}></circle>
+                           </>
+                         )}
+                       </svg>
+                       <div className="absolute inset-0 flex flex-col items-center justify-center mt-0.5 sm:mt-1">
+                         <span className="text-sm sm:text-xl font-black text-white">{aylikPastaVerisi.maxYuzde}%</span>
+                       </div>
+                     </div>
+                     
+                     <div className="flex flex-col gap-2 shrink-0 w-full sm:w-[180px]">
+                       <div className="flex items-center justify-between w-full">
+                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] shrink-0"></span>
+                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-bold truncate">Kendin Topla</span>
+                         </div>
+                         <span className="text-[9px] sm:text-[11px] font-black text-amber-400 shrink-0 pl-1">{aylikPastaVerisi.kendinTopla.yuzde}%</span>
+                       </div>
+                       
+                       <div className="flex items-center justify-between w-full">
+                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_#06b6d4] shrink-0"></span>
+                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Bileşenler</span>
+                         </div>
+                         <span className="text-[9px] sm:text-[11px] font-black text-cyan-400 shrink-0 pl-1">{aylikPastaVerisi.bilesen.yuzde}%</span>
+                       </div>
+                       
+                       <div className="flex items-center justify-between w-full">
+                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#fb7185] shrink-0"></span>
+                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Çevre & Oyuncu</span>
+                         </div>
+                         <span className="text-[9px] sm:text-[11px] font-black text-rose-400 shrink-0 pl-1">{aylikPastaVerisi.cevre.yuzde}%</span>
+                       </div>
+                       
+                       <div className="flex items-center justify-between w-full">
+                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-purple-500 shadow-[0_0_8px_#c084fc] shrink-0"></span>
+                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Sistem & Laptop</span>
+                         </div>
+                         <span className="text-[9px] sm:text-[11px] font-black text-purple-400 shrink-0 pl-1">{aylikPastaVerisi.sistem.yuzde}%</span>
+                       </div>
+                       
+                       <div className="flex items-center justify-between w-full">
+                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#34d399] shrink-0"></span>
+                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Ağ & Aksesuar</span>
+                         </div>
+                         <span className="text-[9px] sm:text-[11px] font-black text-emerald-400 shrink-0 pl-1">{aylikPastaVerisi.aksesuar.yuzde}%</span>
+                       </div>
+                     </div>
+                   </div>
+
+                   {/* SAĞ TARAF: GENEL PASTA */}
+                   <div className="flex flex-col items-center gap-4 w-full pl-2 sm:pl-6">
+                     <span className="bg-slate-800 text-slate-400 text-[9px] sm:text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest whitespace-nowrap text-center">
+                       TÜM ZAMANLAR
+                     </span>
+                     
+                     <div className="relative w-24 h-24 sm:w-32 sm:h-32 shrink-0">
+                       <svg className="w-full h-full transform -rotate-90 drop-shadow-xl" viewBox="0 0 42 42">
+                         <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(255,255,255,0.03)" strokeWidth="4.5"></circle>
+                         {pastaVerisi.maxYuzde === 0 ? (
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#334155" strokeWidth="4.5" strokeDasharray="100 0"></circle>
+                         ) : (
+                           <>
+                             <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#f59e0b" strokeWidth="4.5" strokeDasharray={`${pastaVerisi.kendinTopla.yuzde} ${100 - pastaVerisi.kendinTopla.yuzde}`} strokeDashoffset={-pastaVerisi.kendinTopla.offset}></circle>
+                             <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#06b6d4" strokeWidth="4.5" strokeDasharray={`${pastaVerisi.bilesen.yuzde} ${100 - pastaVerisi.bilesen.yuzde}`} strokeDashoffset={-pastaVerisi.bilesen.offset}></circle>
+                             <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#fb7185" strokeWidth="4.5" strokeDasharray={`${pastaVerisi.cevre.yuzde} ${100 - pastaVerisi.cevre.yuzde}`} strokeDashoffset={-pastaVerisi.cevre.offset}></circle>
+                             <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#c084fc" strokeWidth="4.5" strokeDasharray={`${pastaVerisi.sistem.yuzde} ${100 - pastaVerisi.sistem.yuzde}`} strokeDashoffset={-pastaVerisi.sistem.offset}></circle>
+                             <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#34d399" strokeWidth="4.5" strokeDasharray={`${pastaVerisi.aksesuar.yuzde} ${100 - pastaVerisi.aksesuar.yuzde}`} strokeDashoffset={-pastaVerisi.aksesuar.offset}></circle>
+                           </>
+                         )}
+                       </svg>
+                       <div className="absolute inset-0 flex flex-col items-center justify-center mt-0.5 sm:mt-1">
+                         <span className="text-sm sm:text-xl font-black text-white tracking-tight">{pastaVerisi.maxYuzde}%</span>
+                       </div>
+                     </div>
+
+                     <div className="flex flex-col gap-2 shrink-0 w-full sm:w-[180px]">
+                       <div className="flex items-center justify-between w-full">
+                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] shrink-0"></span>
+                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-bold truncate">Kendin Topla</span>
+                         </div>
+                         <span className="text-[9px] sm:text-[11px] font-black text-amber-400 shrink-0 pl-1">{pastaVerisi.kendinTopla.yuzde}%</span>
+                       </div>
+                       
+                       <div className="flex items-center justify-between w-full">
+                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_#06b6d4] shrink-0"></span>
+                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Bileşenler</span>
+                         </div>
+                         <span className="text-[9px] sm:text-[11px] font-black text-cyan-400 shrink-0 pl-1">{pastaVerisi.bilesen.yuzde}%</span>
+                       </div>
+                       
+                       <div className="flex items-center justify-between w-full">
+                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#fb7185] shrink-0"></span>
+                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Çevre & Oyuncu</span>
+                         </div>
+                         <span className="text-[9px] sm:text-[11px] font-black text-rose-400 shrink-0 pl-1">{pastaVerisi.cevre.yuzde}%</span>
+                       </div>
+                       
+                       <div className="flex items-center justify-between w-full">
+                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-purple-500 shadow-[0_0_8px_#c084fc] shrink-0"></span>
+                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Sistem & Laptop</span>
+                         </div>
+                         <span className="text-[9px] sm:text-[11px] font-black text-purple-400 shrink-0 pl-1">{pastaVerisi.sistem.yuzde}%</span>
+                       </div>
+                       
+                       <div className="flex items-center justify-between w-full">
+                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#34d399] shrink-0"></span>
+                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Ağ & Aksesuar</span>
+                         </div>
+                         <span className="text-[9px] sm:text-[11px] font-black text-emerald-400 shrink-0 pl-1">{pastaVerisi.aksesuar.yuzde}%</span>
+                       </div>
+                     </div>
+                   </div>
+
+                 </div>
+              </div>
+              
+              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
+                <div className="flex flex-row items-center justify-between gap-2 mb-2">
+              <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Aylık Harcama Grafiği</h3>
+                   
+                   <div className="flex items-center gap-1.5 bg-slate-800/30 border border-slate-700/50 rounded-lg px-1.5 py-1">
+                     <button onClick={() => setSeciliYil(y => y - 1)} className="p-1 text-slate-400 hover:text-cyan-400 transition-colors">
+                       <ChevronLeft className="w-3.5 h-3.5" />
+                     </button>
+                     <span className="text-[11px] sm:text-xs font-black text-slate-200 w-8 text-center">{seciliYil}</span>
+                     <button onClick={() => setSeciliYil(y => y + 1)} className="p-1 text-slate-400 hover:text-cyan-400 transition-colors" disabled={seciliYil >= suAnkiTarih.getFullYear()}>
+                       <ChevronRight className="w-3.5 h-3.5" />
+                     </button>
+                   </div>
+                </div>
+                
+                <div className="bg-white/[0.02] border border-white/5 rounded-xl flex items-end justify-between pt-10 pb-4 px-1 sm:px-4 h-[220px] relative mt-2">
+                  {grafikVerisi.length > 0 ? grafikVerisi.map((item, i) => {
+                    const isSecili = tiklananAy === i;
+                    const isHovered = hoveredIndex === i;
+                    const isTooltipGozukecek = (isHovered || isSecili);
+
+                    return (
+                      <div 
+                        key={i} 
+                        className="flex-1 flex flex-col items-center justify-end h-full relative group px-0.5 sm:px-2 outline-none select-none [-webkit-tap-highlight-color:transparent]"
+                        onMouseEnter={() => setHoveredIndex(i)}
+                        onMouseLeave={() => setHoveredIndex(null)}
+                        onClick={() => setTiklananAy(i)} 
+                      >
+                        {isTooltipGozukecek && (
+                          <div className={`absolute bottom-[105%] bg-[#090f1e] border border-cyan-500 text-cyan-400 font-black text-[10px] sm:text-xs px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-md shadow-[0_0_15px_rgba(6,182,212,0.4)] whitespace-nowrap z-50 ${isSecili ? '' : 'animate-in fade-in zoom-in-95 duration-150'}`}>
+                            {item.tutar.toLocaleString("tr-TR")} ₺
+                          </div>
+                        )}
+
+                        <div className="w-full flex items-end justify-center h-[140px]">
+                          <div 
+                            className={`w-full max-w-[36px] rounded-t-sm transition-all duration-500 ease-out cursor-pointer ${isSecili ? 'bg-gradient-to-b from-cyan-300 to-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.4)] scale-[1.05]' : 'bg-gradient-to-b from-slate-600 to-slate-800 hover:from-cyan-400 hover:to-cyan-600 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)]'}`} 
+                            style={{ height: `${item.yuzde}%` }}
+                          ></div>
+                        </div>
+
+                        <span className={`text-[9px] sm:text-[10px] font-black mt-2 shrink-0 transition-colors uppercase tracking-wider ${isSecili ? 'text-cyan-400' : 'text-slate-500 group-hover:text-cyan-400'}`}>
+                          {item.etiket}
+                        </span>
+                      </div>
+                    )
+                  }) : null}
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
         </div>
-      </section>
+      </div>
+
+      {isKargoModalOpen && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+          <div className="bg-[#09090b] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.9)] relative overflow-hidden animate-in zoom-in-95 duration-200 max-h-[85vh]">
+            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-rose-500/50 to-transparent"></div>
+            
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+              <h3 className="text-lg font-black text-white uppercase tracking-wider flex items-center gap-2">
+                <Truck className="w-5 h-5 text-rose-400" /> AKTİF KARGOLARINIZ
+              </h3>
+              <button 
+                onClick={() => setIsKargoModalOpen(false)}
+                className="p-1.5 text-slate-500 hover:text-white bg-[#121215] border border-slate-800 hover:border-slate-700 rounded-xl transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto pr-1 space-y-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              {kargoSiparisleri.length === 0 ? (
+                <div className="text-center py-12 text-slate-500 font-medium text-sm">
+                  Şu an yolda olan aktif kargonuz bulunmuyor.
+                </div>
+              ) : (
+                kargoSiparisleri.map((siparis: any, idx: number) => {
+                  const siparisKodu = siparis.siparisKodu || siparis._id?.slice(-8).toUpperCase() || "SİPARİŞ";
+                  const tarih = siparis.createdAt ? new Date(siparis.createdAt).toLocaleDateString("tr-TR") : siparis.tarih ? new Date(siparis.tarih).toLocaleDateString("tr-TR") : "";
+                  
+                  const firma = siparis.kargoFirmasi || "Belirtilmemiş";
+                  const takipNo = siparis.takipNo || "Takip No Girilmemiş";
+
+                  return (
+                    <div key={siparis._id || idx} className="bg-[#121215] border border-slate-800/80 p-4 rounded-2xl flex flex-col gap-4 group/item hover:border-slate-700 transition-colors">
+                      
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <span className="text-white font-black text-sm tracking-wide">{siparisKodu}</span>
+                          <span className="text-[10px] px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-black uppercase tracking-widest">YOLDA</span>
+                        </div>
+                        <span className="text-[10px] text-slate-500 font-bold">{tarih}</span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="bg-[#0f172a] p-3 rounded-xl border border-slate-800">
+                           <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Firma</p>
+                           <p className="text-xs font-bold text-white mt-0.5 truncate" title={firma}>{firma}</p>
+                        </div>
+                        <div className="bg-[#0f172a] p-3 rounded-xl border border-slate-800">
+                           <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Takip No</p>
+                           <p className="text-xs font-bold text-cyan-400 mt-0.5 truncate" title={takipNo}>{takipNo}</p>
+                        </div>
+                      </div>
+
+                      <button 
+                        onClick={() => handleTakipEt(takipNo)}
+                        className="flex items-center justify-center gap-2 bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-500 hover:to-orange-500 text-white font-black px-4 py-3 rounded-xl transition-all text-[11px] uppercase tracking-wider shadow-[0_0_15px_rgba(239,68,68,0.2)] w-full"
+                      >
+                        {kopyalananKod === takipNo ? (
+                          <><CheckCircle2 className="w-3.5 h-3.5" /> KOPYALANDI!</>
+                        ) : (
+                          <><Copy className="w-3.5 h-3.5" /> {takipNo} KOPYALA</>
+                        )}
+                      </button>
+
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            <div className="mt-6 border-t border-slate-800 pt-4 text-center">
+              <p className="text-[11px] text-slate-500 font-medium">
+                Siparişiniz teslim edildiğinde bu listeden otomatik olarak kaldırılır.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {girisSartModal && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-8 max-w-sm w-full text-center shadow-[0_0_50px_rgba(6,182,212,0.15)] relative animate-in zoom-in-95 duration-200">
+            <div className="w-16 h-16 bg-[#020617] rounded-full flex items-center justify-center mx-auto mb-4 border border-cyan-500/30">
+              <ShieldCheck className="w-8 h-8 text-cyan-400" />
+            </div>
+            <h3 className="text-xl font-black text-white mb-2 tracking-tight">Erişim Kısıtlı</h3>
+            <p className="text-slate-400 text-sm mb-6">
+              Lütfen işlem yapabilmek ve hesap detaylarınızı görüntüleyebilmek için giriş yapınız.
+            </p>
+            <div className="flex flex-col gap-3">
+              <Link href="/giris" className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2">
+                <LogIn className="w-4 h-4" /> Giriş Yap
+              </Link>
+              <button onClick={() => setGirisSartModal(false)} className="w-full py-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-slate-700 text-slate-300 font-bold text-xs uppercase tracking-widest transition-all">
+                Kapat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
     </div>
   );
 }
