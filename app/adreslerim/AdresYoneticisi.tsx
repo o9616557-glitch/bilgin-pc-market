@@ -8,9 +8,9 @@ import {
   Headphones
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useOrders } from "@/app/OrderContext";
+// 🚀 DİKKAT: useRouter'a artık ihtiyacımız kalmadığı için onu tamamen kaldırdık!
 
 interface Address {
   _id: string;
@@ -31,7 +31,6 @@ interface Props {
 
 export default function AdresYoneticisi({ initialAddresses }: Props) {
   const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
-  const router = useRouter();
   
   const [kargoPopupAcik, setKargoPopupAcik] = useState(false);
   const { orders: localOrders } = useOrders();
@@ -71,6 +70,7 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
     const loadingToast = toast.loading(editingId ? "Adres güncelleniyor..." : "Adres ekleniyor...");
 
     try {
+      // Eğer düzenleme yapıyorsak, eski veriyi arkaplanda sil (API tarafı)
       if (editingId) {
         await fetch("/api/addresses?id=" + editingId, { method: "DELETE" });
       }
@@ -86,9 +86,22 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
       if (res.ok) {
         toast.dismiss(loadingToast);
         toast.success(editingId ? "Adres başarıyla güncellendi." : "Adres başarıyla eklendi.");
+        
+        // 🚀 BİNGO 1: KULLANICIYI BEKLETMEDEN EKRANI ANINDA GÜNCELLE
+        // Veritabanından gelen yeni adresi alıp doğrudan state'e ekliyoruz.
+        // router.refresh() KULLANILMADI!
+        const yeniAdres = data.address || { ...formData, _id: data.id || Date.now().toString() };
+        
+        if (editingId) {
+          // Düzenleme ise eski adresi yenisiyle değiştir
+          setAddresses(prev => prev.map(addr => addr._id === editingId ? yeniAdres : addr));
+        } else {
+          // Yeni ekleme ise listeye dahil et
+          setAddresses(prev => [...prev, yeniAdres]);
+        }
+
         setFormData(formBaslangic);
         setEditingId(null);
-        router.refresh(); 
       } else {
         toast.dismiss(loadingToast);
         toast.error(data.message || "İşlem başarısız oldu.");
@@ -102,14 +115,20 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
   };
 
   const handleDeleteAddress = async (id: string) => {
+    // 🚀 BİNGO 2: ÖNCE EKRANDAN ANINDA SİL (IŞIK HIZINDA)
     setAddresses(prev => prev.filter(addr => addr._id !== id)); 
+    
     try {
-      await fetch("/api/addresses?id=" + id, { method: "DELETE" });
-      toast.success("Adres silindi.");
-      router.refresh(); 
+      // Sonra arkadan veritabanından sil
+      const res = await fetch("/api/addresses?id=" + id, { method: "DELETE" });
+      if(res.ok) {
+         toast.success("Adres silindi.");
+      } else {
+         toast.error("Veritabanından silinemedi, lütfen sayfayı yenileyin.");
+      }
+      // router.refresh() KULLANILMADI!
     } catch (error) {
       toast.error("Silme işlemi başarısız.");
-      router.refresh(); 
     }
   };
 
@@ -152,7 +171,6 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
           <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
             <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-xl p-2 sm:p-4 shadow-xl overflow-x-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
              <nav className="flex flex-row lg:flex-col gap-1.5 min-w-max lg:min-w-0">
-                {/* 🚀 prefetch={false} EKLENDİ */}
                 <Link href="/hesabim" prefetch={false} className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-white hover:bg-[#020617] rounded-lg transition-all font-medium">
                   <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Profil
                 </Link>
@@ -169,10 +187,9 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
           {/* ➡️ SAĞ İÇERİK */}
           <div className="flex-1 flex flex-col min-w-0 w-full relative gap-5 lg:gap-6 animate-in fade-in duration-300">
             
-         {/* 🚀 BİNGO: İSTENİLEN SIRALAMADA TURKUAZ (CYAN) FASULYE MENÜ */}
+         {/* 🚀 FASULYE MENÜ */}
            <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pt-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
               
-              {/* 🚀 BÜTÜN LİNKLERE prefetch={false} EKLENDİ */}
               <Link href="/siparislerim" prefetch={false} className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
                 <Package className="w-4 h-4 text-cyan-500" /> Siparişler
               </Link>
@@ -193,7 +210,6 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
                 <Search className="w-4 h-4 text-cyan-500" /> Sorgula
               </Link>
 
-              {/* Kargolar butonu Link değil button olduğu için dokunmuyoruz, o zaten masum! */}
               <button onClick={() => setKargoPopupAcik(true)} className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none relative">
                 <Truck className="w-4 h-4 text-cyan-500" /> Kargolar
                 {localOrders.filter(o => (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo")).length > 0 && (
