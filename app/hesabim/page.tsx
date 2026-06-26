@@ -417,33 +417,48 @@ return (
             )}
           </div>
 
-          {/* 💻 2. BÖLÜM: MASAÜSTÜ (PC) GÖRÜNÜM (Sadece bilgisayarda görünür. Eski sabit pano) */}
-          <div className="hidden lg:flex flex-col bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-xl">
-            <nav className="flex flex-col gap-1.5">
-              <Link href="/hesabim" prefetch={false} className="flex items-center gap-3 px-4 py-3.5 text-base text-white bg-white/[0.05] rounded-xl transition-all font-medium border border-cyan-500/20">
-                <User className="w-5 h-5 text-cyan-400" /> Profil
+          {/* 📱 1. BÖLÜM: MOBİL GÖRÜNÜM (Sadece telefonda görünür. İkonlar kutuda, yazılar altta) */}
+          <div className="flex flex-col lg:hidden w-full gap-3 mb-2">
+            
+            {/* Üstteki 3'lü Ana Menü Kutuları */}
+            <div className="grid grid-cols-3 gap-3">
+              <Link href="/hesabim" prefetch={false} className="flex flex-col items-center gap-1.5 group cursor-pointer">
+                <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 flex items-center justify-center hover:border-cyan-500/30 transition-all shadow-md w-full">
+                  <User className="w-6 h-6 text-slate-400 group-hover:text-cyan-400 transition-colors transform group-hover:scale-110 duration-300" />
+                </div>
+                <span className="text-[9px] sm:text-[10px] font-black text-slate-400 group-hover:text-cyan-400 uppercase tracking-widest text-center transition-colors">Profil</span>
               </Link>
-              <Link href="/cuzdan" prefetch={false} className="flex items-center gap-3 px-4 py-3.5 text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
-                <CreditCard className="w-5 h-5" /> Dijital Cüzdanım
-              </Link>
-              <Link href="/guvenlik" prefetch={false} className="flex items-center gap-3 px-4 py-3.5 text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
-                <ShieldCheck className="w-5 h-5" /> Güvenlik
+              
+              <Link href="/cuzdan" prefetch={false} className="flex flex-col items-center gap-1.5 group cursor-pointer">
+                <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 flex items-center justify-center hover:border-cyan-500/30 transition-all shadow-md w-full">
+                  <CreditCard className="w-6 h-6 text-slate-400 group-hover:text-cyan-400 transition-colors transform group-hover:scale-110 duration-300" />
+                </div>
+                <span className="text-[9px] sm:text-[10px] font-black text-slate-400 group-hover:text-cyan-400 uppercase tracking-widest text-center transition-colors">Cüzdan</span>
               </Link>
 
-              {/* VIP ADMIN BUTONU (PC) */}
-              {session?.user?.email === "o9616557@gmail.com" && (
-                <Link href="/admin" prefetch={false} className="mt-4 flex items-center gap-3 px-4 py-3.5 text-base text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 border border-rose-500/20 rounded-xl transition-all font-black shadow-[0_0_15px_rgba(225,29,72,0.1)] group">
-                  <Crown className="w-5 h-5 group-hover:scale-110 transition-transform" /> Admin Paneli
-                </Link>
-              )}
-            </nav>
+              <Link href="/guvenlik" prefetch={false} className="flex flex-col items-center gap-1.5 group cursor-pointer">
+                <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 flex items-center justify-center hover:border-cyan-500/30 transition-all shadow-md w-full">
+                  <ShieldCheck className="w-6 h-6 text-slate-400 group-hover:text-cyan-400 transition-colors transform group-hover:scale-110 duration-300" />
+                </div>
+                <span className="text-[9px] sm:text-[10px] font-black text-slate-400 group-hover:text-cyan-400 uppercase tracking-widest text-center transition-colors">Güvenlik</span>
+              </Link>
+            </div>
 
+            {/* VIP Admin Butonu (Sadece yetkiliyse görünür) */}
+            {session?.user?.email === "o9616557@gmail.com" && (
+              <Link href="/admin" prefetch={false} className="w-full bg-[#0f172a] border border-rose-500/20 rounded-2xl p-3 flex items-center justify-center gap-2 hover:bg-rose-500/10 transition-all shadow-[0_0_15px_rgba(225,29,72,0.1)] group mt-1">
+                <Crown className="w-4 h-4 sm:w-5 sm:h-5 text-rose-400" />
+                <span className="text-[10px] sm:text-xs font-black text-rose-400 uppercase tracking-widest text-center">Admin Paneli</span>
+              </Link>
+            )}
+
+            {/* Giriş / Kayıt Butonları (Sadece giriş yapılmamışsa görünür, yan yana 2'li) */}
             {status === "unauthenticated" && (
-              <div className="mt-4 pt-4 border-t border-slate-800 flex flex-col gap-2">
-                <Link href="/giris" prefetch={false} className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest text-center transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+              <div className="grid grid-cols-2 gap-2 mt-1">
+                <Link href="/giris" prefetch={false} className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl py-3 flex items-center justify-center gap-1.5 font-bold text-[10px] sm:text-xs uppercase tracking-widest shadow-lg">
                   <LogIn className="w-4 h-4" /> Giriş Yap
                 </Link>
-                <Link href="/kayit" prefetch={false} className="w-full py-2.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-slate-700 hover:border-slate-500 text-slate-300 font-bold text-xs uppercase tracking-widest text-center transition-all flex items-center justify-center gap-2">
+                <Link href="/kayit" prefetch={false} className="bg-[#0f172a] border border-slate-700 hover:border-slate-500 text-slate-300 rounded-xl py-3 flex items-center justify-center gap-1.5 font-bold text-[10px] sm:text-xs uppercase tracking-widest transition-colors">
                   <UserPlus className="w-4 h-4" /> Kayıt Ol
                 </Link>
               </div>
