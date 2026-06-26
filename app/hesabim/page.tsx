@@ -392,40 +392,69 @@ return (
               className="flex w-full overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-2"
             >
               
-              {/* 🟢 1. SAYFA (Ana Menüler) */}
-              <div className="w-full shrink-0 snap-center grid grid-cols-4 gap-y-4 gap-x-2 px-1">
-                
-                <Link href="/hesabim" prefetch={false} className="flex flex-col items-center gap-1.5 group">
-                  <div className="w-14 h-14 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
-                    <User className="w-6 h-6 text-cyan-400" />
-                  </div>
-                  <span className="text-[10px] font-medium text-slate-300">Profil</span>
-                </Link>
-
-                <Link href="/cuzdan" prefetch={false} className="flex flex-col items-center gap-1.5 group">
-                  <div className="w-14 h-14 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
-                    <CreditCard className="w-6 h-6 text-amber-400" />
-                  </div>
-                  <span className="text-[10px] font-medium text-slate-300">Cüzdan</span>
-                </Link>
-
-                <Link href="/guvenlik" prefetch={false} className="flex flex-col items-center gap-1.5 group">
-                  <div className="w-14 h-14 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
-                    <ShieldCheck className="w-6 h-6 text-emerald-400" />
-                  </div>
-                  <span className="text-[10px] font-medium text-slate-300">Güvenlik</span>
-                </Link>
-
-                <Link href="/destek-taleplerim" prefetch={false} className="flex flex-col items-center gap-1.5 group relative">
-                  {yeniMesajVar && <span className="absolute top-0 right-2 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse border border-[#020617]"></span>}
-                  <div className="w-14 h-14 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
-                    <Headset className="w-6 h-6 text-orange-400" />
-                  </div>
-                  <span className="text-[10px] font-medium text-slate-300">Destek</span>
-                </Link>
-
+           {/* 📱 1. BÖLÜM: MOBİL GÖRÜNÜM (Sadeleştirilmiş Kaydırmalı Üst Menü) */}
+          <div className="flex lg:hidden w-full mb-6 overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-2 gap-3 px-1">
+            
+            {/* 1. Profil */}
+            <Link href="/hesabim" prefetch={false} className="snap-center shrink-0 flex flex-col items-center gap-1.5 group w-[68px]">
+              <div className="w-14 h-14 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
+                <User className="w-6 h-6 text-cyan-400" />
               </div>
+              <span className="text-[10px] font-medium text-slate-300">Profil</span>
+            </Link>
 
+            {/* 2. Cüzdan */}
+            <Link href="/cuzdan" prefetch={false} className="snap-center shrink-0 flex flex-col items-center gap-1.5 group w-[68px]">
+              <div className="w-14 h-14 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
+                <CreditCard className="w-6 h-6 text-amber-400" />
+              </div>
+              <span className="text-[10px] font-medium text-slate-300">Cüzdan</span>
+            </Link>
+
+            {/* 3. Güvenlik */}
+            <Link href="/guvenlik" prefetch={false} className="snap-center shrink-0 flex flex-col items-center gap-1.5 group w-[68px]">
+              <div className="w-14 h-14 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
+                <ShieldCheck className="w-6 h-6 text-emerald-400" />
+              </div>
+              <span className="text-[10px] font-medium text-slate-300">Güvenlik</span>
+            </Link>
+
+            {/* Admin (Sadece yetkili hesaba görünür) */}
+            {session?.user?.email === "o9616557@gmail.com" && (
+              <Link href="/admin" prefetch={false} className="snap-center shrink-0 flex flex-col items-center gap-1.5 group w-[68px]">
+                <div className="w-14 h-14 rounded-2xl bg-rose-950/30 border border-rose-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(225,29,72,0.2)]">
+                  <Crown className="w-6 h-6 text-rose-400" />
+                </div>
+                <span className="text-[10px] font-bold text-rose-400">Admin</span>
+              </Link>
+            )}
+
+            {/* Giriş / Kayıt veya Çıkış */}
+            {status === "unauthenticated" ? (
+              <>
+                <Link href="/giris" prefetch={false} className="snap-center shrink-0 flex flex-col items-center gap-1.5 group w-[68px]">
+                  <div className="w-14 h-14 rounded-2xl bg-cyan-600 flex items-center justify-center shadow-lg">
+                    <LogIn className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="text-[10px] font-bold text-cyan-400">Giriş Yap</span>
+                </Link>
+                <Link href="/kayit" prefetch={false} className="snap-center shrink-0 flex flex-col items-center gap-1.5 group w-[68px]">
+                  <div className="w-14 h-14 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center shadow-lg">
+                    <UserPlus className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="text-[10px] font-medium text-slate-300">Kayıt Ol</span>
+                </Link>
+              </>
+            ) : (
+              <button onClick={handleCikisYap} className="snap-center shrink-0 flex flex-col items-center gap-1.5 group w-[68px]">
+                <div className="w-14 h-14 rounded-2xl bg-[#0f172a] border border-red-900/50 flex items-center justify-center shadow-lg">
+                  <LogOut className="w-6 h-6 text-red-400" />
+                </div>
+                <span className="text-[10px] font-medium text-red-400">Çıkış</span>
+              </button>
+            )}
+
+          </div>
               {/* 🟢 2. SAYFA (Ekstra Menüler ve Giriş/Çıkış) */}
               <div className="w-full shrink-0 snap-center grid grid-cols-4 gap-y-4 gap-x-2 px-1">
                 
