@@ -5,7 +5,7 @@ import Link from "next/link";
 import { 
   HeartCrack, Trash2, ShoppingCart, 
   User, ShieldCheck, CreditCard, Star, CheckCircle2,
-  MapPin, Loader2, Package, Search, Monitor, Headphones, Truck, PackageX, Calendar, Copy
+  MapPin, Package, Search, Monitor, Headphones, Truck, PackageX, Calendar, Copy
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/app/CartContext";
@@ -21,8 +21,8 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
   const router = useRouter();
   const { status } = useSession();
   
+  // 🚀 SUNUCUDAN GELEN VERİYİ ANINDA EKRANA BASIYORUZ (Yükleme Ekranı Yok!)
   const [favoriteProducts, setFavoriteProducts] = useState<any[]>(initialFavorites);
-  const [cirakCalisiyor, setCirakCalisiyor] = useState(true);
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
   
   const { sepeteEkle } = useCart();
@@ -31,17 +31,14 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
   const [kargoPopupAcik, setKargoPopupAcik] = useState(false);
   const { orders: localOrders } = useOrders();
 
-  // 🚀 ZAMAN DAMGALI SESSİZ ÇIRAK
+  // 🚀 SESSİZ ÇIRAK: Sen ürünleri anında görürken, o arkadan yeni ürün eklenmiş mi diye çaktırmadan bakar. Ekranda hiçbir şeyi dondurmaz!
   useEffect(() => {
-    const ciragiMondoyaYolla = async () => {
+    const sessizceGuncelle = async () => {
       try {
         const zamanDamgasi = new Date().getTime();
         const res = await fetch("/api/favorites?t=" + zamanDamgasi, { 
           cache: "no-store",
-          headers: { 
-            "Cache-Control": "no-cache", 
-            "Pragma": "no-cache" 
-          } 
+          headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" } 
         }); 
         
         if (res.ok) {
@@ -49,16 +46,14 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
           setFavoriteProducts(data.favorites || data || []);
         }
       } catch (error) {
-        console.error("Çırak yolda takıldı:", error);
-      } finally {
-        setCirakCalisiyor(false);
+        console.error("Arka plan çırağı güncel favorileri çekemedi:", error);
       }
     };
 
-    ciragiMondoyaYolla();
+    sessizceGuncelle();
   }, []);
 
-  // 🚀 EKRAN DONDURMA
+  // 🚀 EKRAN DONDURMA (Sadece Modallar için)
   useEffect(() => {
     if (typeof window !== "undefined") {
       if (productToDelete || kargoPopupAcik) {
@@ -191,15 +186,8 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
             </div>
           </div>
 
-          {/* ÜRÜNLER ALANI */}
-          {cirakCalisiyor ? (
-            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-10 sm:p-16 flex flex-col items-center justify-center text-center shadow-xl">
-              <Loader2 className="w-12 h-12 text-cyan-500 animate-spin mb-4" />
-              <h2 className="text-sm font-black uppercase tracking-widest text-cyan-400 animate-pulse">
-                Favorileriniz Getiriliyor...
-              </h2>
-            </div>
-          ) : favoriteProducts.length === 0 ? (
+          {/* 🚀 ÜRÜNLER ALANI: Asla donmaz, "Yükleniyor" ekranı tamamen iptal edildi! */}
+          {favoriteProducts.length === 0 ? (
             <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-10 sm:p-16 flex flex-col items-center justify-center text-center shadow-xl">
               <div className="w-20 h-20 rounded-full bg-[#020617] border border-cyan-500/20 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(6,182,212,0.1)]">
                 <HeartCrack className="w-10 h-10 text-cyan-400" />
@@ -223,7 +211,6 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
                 return (
                   <div key={index} className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col transition-all duration-300 hover:border-cyan-500/40 hover:-translate-y-1 shadow-lg group h-full">
                     
-                    {/* Üstteki çöp kutusu silindi, resim direkt en üste oturdu */}
                     <Link href={"/product/" + (urun.slug || urun.id || urun._id)} prefetch={true} className="w-full h-40 sm:h-48 shrink-0 bg-[#020617] rounded-xl border border-slate-800/50 flex items-center justify-center p-4 relative overflow-hidden group-hover:border-cyan-500/20 transition-colors mb-4 mt-2">
                       <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                       <img 
