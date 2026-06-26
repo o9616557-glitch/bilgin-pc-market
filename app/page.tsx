@@ -418,8 +418,14 @@ export default async function HomePage() {
               Kablolama düzeninden yazılım testlerine ve termal analizlere kadar tüm aşamalarda titiz davranıyoruz. Amacımız, size sorunsuz çalışacak, güvenilir ve verdiğiniz paranın tam karşılığını sunan sistemler ulaştırmak.
             </p>
           </div>
-          <div className="relative w-full h-[250px] sm:h-[350px] overflow-hidden border border-white/10 shadow-2xl">
-            <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781456012/photo-1542751371-adc38448a05e_vdzftv.jpg" alt="Donanım Montaj Masası" className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-all duration-1000 ease-out grayscale hover:grayscale-0" />
+         <div className="relative w-full h-[250px] sm:h-[350px] overflow-hidden border border-white/10 shadow-2xl">
+            {/* 🚀 BİNGO: SON KAÇAK DA ETKİSİZ HALE GETİRİLDİ! */}
+            <img 
+              src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781456012/photo-1542751371-adc38448a05e_vdzftv.jpg" 
+              alt="Donanım Montaj Masası" 
+              loading="lazy" 
+              className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-all duration-1000 ease-out grayscale hover:grayscale-0" 
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent"></div>
           </div>
         </div>
