@@ -386,9 +386,10 @@ return (
         <div className="w-full lg:w-[280px] shrink-0 static lg:sticky lg:top-28 z-50">
 
           {/* ========================================== */}
-          {/* 📱 1. BÖLÜM: MOBİL ÜST MENÜ (3'lü Ortalı)  */}
+          {/* 📱 1. BÖLÜM: MOBİL ÜST MENÜ (4'lü Ortalı)  */}
+          {/* Açıklama: Adresler buraya taşındı ve 4'lü simetrik yapı kuruldu. */}
           {/* ========================================== */}
-          <div className="flex lg:hidden w-full mb-6 justify-center gap-4 sm:gap-6 px-1">
+          <div className="flex lg:hidden w-full mb-6 justify-center gap-2 sm:gap-4 px-1">
             
             <Link href="/hesabim" prefetch={false} className="flex flex-col items-center gap-1.5 group w-[72px]">
               <div className="w-16 h-16 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
@@ -411,7 +412,15 @@ return (
               <span className="text-[10px] font-bold text-slate-300">Güvenlik</span>
             </Link>
 
-            {/* Admin Sadece Yetkili İse 4. Olarak Yanlarında Çıkar */}
+            {/* YENİ EKLENEN: ADRESLER BURAYA GELDİ */}
+            <Link href="/adreslerim" onClick={kilitliIslem} prefetch={true} className="flex flex-col items-center gap-1.5 group w-[72px]">
+              <div className="w-16 h-16 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
+                <MapPin className="w-7 h-7 text-cyan-400 group-hover:scale-110 transition-transform duration-300" />
+              </div>
+              <span className="text-[10px] font-bold text-slate-300">Adresler</span>
+            </Link>
+
+            {/* Admin Sadece Yetkili İse Yanlarında Çıkar */}
             {session?.user?.email === "o9616557@gmail.com" && (
               <Link href="/admin" prefetch={false} className="flex flex-col items-center gap-1.5 group w-[72px]">
                 <div className="w-16 h-16 rounded-2xl bg-rose-950/30 border border-rose-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(225,29,72,0.2)]">
@@ -424,6 +433,7 @@ return (
 
           {/* ========================================== */}
           {/* 💻 2. BÖLÜM: MASAÜSTÜ (PC) SABİT YAN MENÜ  */}
+          {/* Açıklama: PC görünümü değişmedi, eski düzen korunuyor. */}
           {/* ========================================== */}
           <div className="hidden lg:flex flex-col bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-xl">
             <nav className="flex flex-col gap-1.5">
@@ -486,7 +496,7 @@ return (
                   {userEmail}
                 </p>
                 
-                {/* 🚀 MİSAFİR İSE GİRİŞ VE KAYIT BUTONLARI KARTIN İÇİNDE ÇIKAR */}
+                {/* Misafir ise Giriş/Kayıt butonları burada çıkar */}
                 {status === "unauthenticated" && (
                   <div className="flex items-center justify-center sm:justify-start gap-2 mt-4">
                     <Link href="/giris" className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-widest flex items-center gap-1.5 shadow-lg transition-all">
@@ -499,7 +509,6 @@ return (
                 )}
               </div>
               
-              {/* SADECE GİRİŞ YAPILMIŞSA ÇIKIŞ BUTONU ÇIKAR */}
               {status === "authenticated" && (
                 <button onClick={handleCikisYap} className="relative z-10 flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl bg-red-950/40 border border-red-900/50 text-red-400 hover:bg-red-900/60 hover:text-red-300 hover:border-red-500/50 transition-all font-black uppercase tracking-widest text-[10px] sm:text-xs shadow-[0_0_20px_rgba(220,38,38,0.1)]">
                   <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Çıkış
@@ -566,20 +575,13 @@ return (
                 </Link>
               </div>
 
-              {/* 🟢 SAYFA 2 (Sorgula, Adresler) */}
+              {/* 🟢 SAYFA 2 (Sadece Sorgula Kaldı, Adresler silindi) */}
               <div className="min-w-full shrink-0 snap-center grid grid-cols-4 gap-2 px-1">
                 <Link href="/siparis-takip" onClick={kilitliIslem} prefetch={true} className="flex flex-col items-center gap-1.5 group">
                   <div className="w-16 h-16 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
                     <Search className="w-7 h-7 text-blue-400 group-hover:scale-110 transition-transform duration-300" />
                   </div>
                   <span className="text-[10px] font-bold text-slate-300 group-hover:text-blue-400 tracking-wide text-center transition-colors">Sorgula</span>
-                </Link>
-
-                <Link href="/adreslerim" onClick={kilitliIslem} prefetch={true} className="flex flex-col items-center gap-1.5 group">
-                  <div className="w-16 h-16 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
-                    <MapPin className="w-7 h-7 text-cyan-400 group-hover:scale-110 transition-transform duration-300" />
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-300 group-hover:text-cyan-400 tracking-wide text-center transition-colors">Adresler</span>
                 </Link>
               </div>
 
