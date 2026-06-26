@@ -1,45 +1,13 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { usePathname, useRouter } from "next/navigation"; 
 
 export default function HesapHafizaCipi() {
   const { data: session, status } = useSession();
-  const pathname = usePathname();
-  const router = useRouter();
 
-  // 🚀 BİNGO: Fırlatıcı sadece 1 KERE çalışsın diye "Hafıza Kilidi" koyduk!
-  const firlatmaYapildi = useRef(false);
-
-  // 🚀 1. MOTOR: F5 YAKALAYICI VE FIRLATICI
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      // Eğer adamı zaten 1 kere fırlattıysak, kilidi gördüğümüz an dururuz, bir daha karışmayız!
-      if (firlatmaYapildi.current) return;
-
-      const navEntries = performance.getEntriesByType("navigation");
-      
-      if (navEntries.length > 0 && (navEntries[0] as PerformanceNavigationTiming).type === "reload") {
-        const belaliSayfalar = [
-          "/favorilerim", 
-          "/adreslerim", 
-          "/siparislerim", 
-          "/sistemlerim", 
-          "/destek-taleplerim",
-          "/siparis-takip"
-        ];
-
-        if (pathname && belaliSayfalar.includes(pathname)) {
-          // 💥 Ensesinden tut, fırlat ve KİLİDİ KAPAT!
-          firlatmaYapildi.current = true; 
-          router.replace("/hesabim");
-        }
-      }
-    }
-  }, [pathname, router]);
-
-  // 🚀 2. MOTOR: ARKA PLAN VERİ TOPLAYICI
+  // 🚀 TEK MOTOR: ARKA PLAN VERİ TOPLAYICI (Sessiz Çırak)
+  // Müşteri siteye girdiğinde veya F5 attığında arka planda sessizce verileri cebe atar.
   useEffect(() => {
     if (status !== "authenticated" || !session?.user?.email) return;
 
@@ -47,6 +15,7 @@ export default function HesapHafizaCipi() {
       try {
         const zamanDamgasi = new Date().getTime();
 
+        // Adresleri çek
         const adresRes = await fetch("/api/addresses?t=" + zamanDamgasi, { cache: "no-store" });
         let adresSayisi = 0;
         if (adresRes.ok) {
@@ -54,6 +23,7 @@ export default function HesapHafizaCipi() {
           adresSayisi = adresData.addresses?.length || 0;
         }
 
+        // Favorileri çek
         const favoriRes = await fetch("/api/favorites?t=" + zamanDamgasi, { cache: "no-store" });
         let favoriSayisi = 0;
         if (favoriRes.ok) {
@@ -61,6 +31,7 @@ export default function HesapHafizaCipi() {
           favoriSayisi = favoriData.favorites?.length || 0;
         }
 
+        // Destek mesajlarını çek
         const destekRes = await fetch("/api/destek?t=" + zamanDamgasi, { cache: "no-store" });
         let acikTalepSayisi = 0;
         let acilMesaj = false;
@@ -73,6 +44,7 @@ export default function HesapHafizaCipi() {
           }
         }
 
+        // Verileri SessionStorage'a mühürle
         const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
         sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({
           ...eskiHafiza,
