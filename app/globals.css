@@ -40,4 +40,7 @@ body {
   /* Arka planın her zaman koyu temada kalmasını garantiye alıyoruz */
   background-color: #050814;
   color: #ededed;
+
+  /* 🚀 BİNGO: Mobilde aşağı çekerek yenilemeyi (Pull-to-refresh) kökünden kapatan kod! */
+  overscroll-behavior-y: none; 
 }
