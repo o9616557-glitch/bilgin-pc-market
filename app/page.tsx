@@ -36,6 +36,9 @@ export default async function HomePage() {
   }
 
   return (
+
+    
+    
     <main className="min-h-screen bg-black text-white font-sans overflow-hidden select-none touch-manipulation">
       
       <style dangerouslySetInnerHTML={{ __html: `
@@ -431,6 +434,8 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <Link href="/favorilerim" className="bg-red-600 text-white p-4 font-bold text-xl relative z-[9999]">TEST BUTONU</Link>
+
       {/* ==================== 5. HIZLI ERİŞİM ==================== */}
       <section className="max-w-[1400px] mx-auto pt-8 pb-12 select-none touch-manipulation">
         <div className="flex items-center gap-4 mb-6 px-6 lg:px-8 pointer-events-none">
@@ -526,22 +531,6 @@ export default async function HomePage() {
     </main>
   );
 }
-
-{/* 🚀 ANA SAYFA LABORATUVAR TESTİ BUTONU 🚀 */}
-<div className="flex justify-center my-10">
-  <Link 
-    href="/favorilerim" 
-    className="flex items-center gap-3 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white px-10 py-4 rounded-xl font-black uppercase tracking-widest shadow-[0_0_30px_rgba(225,29,72,0.4)] transition-all hover:scale-105"
-  >
-    {/* Senin Banknote İkonun (veya Kalp de koyabilirsin) */}
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-      <rect width="20" height="12" x="2" y="6" rx="0"/>
-      <circle cx="12" cy="12" r="2"/>
-      <path d="M6 12h.01M18 12h.01"/>
-    </svg>
-    Favorilerime Git (ANA SAYFA TESTİ)
-  </Link>
-</div>
 
 function BanknoteIcon(props: any) {
   return (
