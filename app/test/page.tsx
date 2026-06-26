@@ -1,12 +1,12 @@
 "use client";
 import React, { useState, useRef } from "react";
-import { Star, Server, Truck, Headset, Search, MapPin, Palette } from "lucide-react";
+import { Star, Server, Truck, Headset, Search, MapPin, Palette, X } from "lucide-react";
 
 export default function SurukleVeRenkTesti() {
-  // 🎨 1. GELİŞMİŞ RENK PALETİ (Siyah, Beyaz ve 15 Özel Renk)
+  // 🎨 1. GELİŞMİŞ RENK PALETİ
   const renkSecenekleri = [
     { text: "text-white", bg: "bg-white border-slate-300" },
-    { text: "text-slate-900", bg: "bg-slate-900 border-slate-500" }, // Siyah (karanlıkta belli olsun diye gri border)
+    { text: "text-slate-900", bg: "bg-slate-900 border-slate-500" },
     { text: "text-slate-400", bg: "bg-slate-400 border-slate-400" },
     { text: "text-red-500", bg: "bg-red-500 border-red-500" },
     { text: "text-orange-500", bg: "bg-orange-500 border-orange-500" },
@@ -34,10 +34,11 @@ export default function SurukleVeRenkTesti() {
 
   const [menuListesi, setMenuListesi] = useState(varsayilanMenu);
   const [duzenlemeModu, setDuzenlemeModu] = useState(false);
+  const [aktifRenkKutusu, setAktifRenkKutusu] = useState<string | null>(null); // YENİ: Hangi kutuya tıklandığını tutar
   
   const suruklenenOgeRef = useRef<number | null>(null);
 
-  // 🚀 3. SIVI (FLUID) KAYMA MOTORU
+  // 🚀 3. SIVI (FLUID) KAYMA MOTORU (Yer değiştirme aynen korunuyor)
   const handleDragEnter = (hedefIndex: number) => {
     const suruklenenIndex = suruklenenOgeRef.current;
     if (suruklenenIndex === null || suruklenenIndex === hedefIndex) return;
@@ -57,22 +58,39 @@ export default function SurukleVeRenkTesti() {
     setMenuListesi(eskiListe => 
       eskiListe.map(kutu => kutu.id === id ? { ...kutu, renk: yeniRenk } : kutu)
     );
+    // İstersen renk seçtikten sonra paleti otomatik kapattırabilirsin: setAktifRenkKutusu(null);
+  };
+
+  // Düzenleme modunu kapatırken açık kalan renk penceresini de temizle
+  const handleDuzenlemeModuGecis = () => {
+    setDuzenlemeModu(!duzenlemeModu);
+    setAktifRenkKutusu(null); 
   };
 
   return (
-    <div className="min-h-screen bg-[#020617] text-white p-6 sm:p-10 flex flex-col items-center pt-10 sm:pt-20">
+    <div className="min-h-screen bg-[#020617] text-white p-6 sm:p-10 flex flex-col items-center pt-10 sm:pt-20 relative">
       
-      <div className="w-full max-w-3xl">
+      {/* 🌑 KARANLIK SİNEMA PERDESİ (OVERLAY) */}
+      {/* Sadece bir kutuya tıklandığında ekranı karartır */}
+      {aktifRenkKutusu && (
+        <div 
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] transition-all cursor-pointer"
+          onClick={() => setAktifRenkKutusu(null)} // Boşluğa tıklayınca paleti kapatır
+          title="Kapatmak için boşluğa tıklayın"
+        ></div>
+      )}
+
+      <div className="w-full max-w-3xl z-10">
         
         {/* Üst Kısım ve Düzenle Butonu */}
         <div className="flex flex-col sm:flex-row justify-between items-center mb-8 border-b border-slate-800 pb-4 gap-4">
             <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest text-center sm:text-left">
-              HESAP YÖNETİMİ (RENK VE SIRALAMA TESTİ)
+              HESAP YÖNETİMİ (SİNEMA MODU TESTİ)
             </h2>
             
             <button 
-              onClick={() => setDuzenlemeModu(!duzenlemeModu)}
-              className={`px-4 py-2.5 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all uppercase tracking-widest w-full sm:w-auto ${
+              onClick={handleDuzenlemeModuGecis}
+              className={`px-4 py-2.5 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all uppercase tracking-widest w-full sm:w-auto relative z-[105] ${
                 duzenlemeModu 
                 ? "bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.5)]" 
                 : "bg-slate-800 text-slate-300 hover:bg-slate-700"
@@ -84,56 +102,75 @@ export default function SurukleVeRenkTesti() {
         </div>
 
         {/* Kutuların Dizildiği Alan */}
-        <div className="flex flex-wrap justify-center sm:justify-start gap-4 sm:gap-6 w-full">
+        <div className="flex flex-wrap justify-center sm:justify-start gap-4 sm:gap-6 w-full relative">
           {menuListesi.map((item, index) => {
             const IkonBileseni = item.ikon;
+            const isAktif = aktifRenkKutusu === item.id;
             
             return (
               <div
                 key={item.id}
-                draggable={duzenlemeModu} 
+                draggable={duzenlemeModu && !isAktif} // Odak modundayken sürüklemeyi durdur ki yanlışlıkla kaymasın
                 onDragStart={() => (suruklenenOgeRef.current = index)}
                 onDragEnter={() => handleDragEnter(index)}
                 onDragOver={(e) => e.preventDefault()}
                 onDragEnd={() => (suruklenenOgeRef.current = null)}
-                className={`flex flex-col items-center gap-2 group transition-transform duration-200 ${
-                  duzenlemeModu ? "cursor-move hover:scale-105" : "cursor-pointer"
-                }`}
+                // Kutunun Tıklanma Olayı: Eğer düzenleme modundaysa, tıklandığında kendisini aktif renk kutusu yapar
+                onClick={() => {
+                  if (duzenlemeModu) {
+                    setAktifRenkKutusu(isAktif ? null : item.id);
+                  }
+                }}
+                // Eğer kutu aktifse z-index ile karanlık perdenin üstüne çıkartıyoruz (z-[101])
+                className={`flex flex-col items-center gap-2 group transition-all duration-300 ${
+                  duzenlemeModu && !isAktif ? "cursor-move hover:scale-105" : "cursor-pointer"
+                } ${isAktif ? "relative z-[101] scale-110" : "relative z-10"}`}
               >
                 
                 {/* Ana Kutu */}
-                <div className={`relative w-[72px] h-[72px] sm:w-[84px] sm:h-[84px] rounded-2xl bg-[#0f172a] flex items-center justify-center transition-all duration-300 ${
-                    duzenlemeModu 
-                    ? "border-2 border-dashed border-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.2)] animate-pulse" 
-                    : "border border-slate-800 shadow-lg group-hover:bg-white/[0.05]"
+                <div className={`relative w-[72px] h-[72px] sm:w-[84px] sm:h-[84px] rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                    duzenlemeModu && !isAktif
+                    ? "bg-[#0f172a] border-2 border-dashed border-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.2)] animate-pulse" 
+                    : isAktif 
+                    ? "bg-slate-800 border-2 border-white shadow-[0_0_30px_rgba(255,255,255,0.2)]"
+                    : "bg-[#0f172a] border border-slate-800 shadow-lg group-hover:bg-white/[0.05]"
                 }`}>
                   <IkonBileseni className={`w-8 h-8 sm:w-9 sm:h-9 transition-colors duration-300 ${item.renk}`} />
+                  
+                  {/* Odak Modunda Çarpı İşareti Çıkar */}
+                  {isAktif && (
+                    <div className="absolute -top-2 -right-2 bg-red-500 rounded-full p-1 shadow-lg border-2 border-slate-900">
+                      <X className="w-3 h-3 text-white" />
+                    </div>
+                  )}
                 </div>
                 
                 {/* İsim */}
-                <span className="text-[11px] sm:text-xs font-bold text-slate-300 transition-colors tracking-wide">
+                <span className={`text-[11px] sm:text-xs font-bold transition-colors tracking-wide ${isAktif ? "text-white" : "text-slate-300"}`}>
                   {item.isim}
                 </span>
 
-                {/* 🎨 GELİŞMİŞ YANA KAYDIRMALI RENK PALETİ */}
-                {duzenlemeModu && (
-                  <div className="w-[72px] sm:w-[84px] bg-slate-900/90 rounded-xl border border-slate-700 shadow-2xl p-1.5 mt-1 relative">
-                    
-                    {/* CSS Grid Mucizesi: 3 Satır, Sütun Sütun Yana Kayar */}
-                    <div className="grid grid-rows-3 grid-flow-col gap-1.5 overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden pb-1 px-0.5">
+                {/* 🎨 ODAK MODU (FOCUS) AÇILIR RENK PENCERESİ */}
+                {/* Sadece aktif olan kutunun altında görünür */}
+                {isAktif && (
+                  <div 
+                    className="absolute top-[105%] left-1/2 -translate-x-1/2 w-[90px] sm:w-[100px] bg-slate-900 rounded-xl border border-slate-700 shadow-[0_0_40px_rgba(0,0,0,0.8)] p-2 mt-2"
+                    onClick={(e) => e.stopPropagation()} // Palet içindeki tıklamaların kutuyu kapatmasını engeller
+                  >
+                    {/* Yana Kaydırmalı Grid Renk Sistemi */}
+                    <div className="grid grid-rows-3 grid-flow-col gap-2 overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden pb-1 px-0.5">
                       {renkSecenekleri.map(renkObj => (
                         <div 
                           key={renkObj.bg} 
                           onClick={() => renkDegistir(item.id, renkObj.text)}
-                          className={`w-5 h-5 sm:w-6 sm:h-6 shrink-0 snap-center rounded-full cursor-pointer border hover:scale-125 transition-transform flex items-center justify-center ${renkObj.bg} ${
+                          className={`w-5 h-5 sm:w-6 sm:h-6 shrink-0 snap-center rounded-full cursor-pointer border hover:scale-125 transition-transform flex items-center justify-center shadow-md ${renkObj.bg} ${
                             item.renk === renkObj.text ? "ring-2 ring-offset-1 ring-offset-slate-900 ring-white scale-110" : ""
                           }`}
                         ></div>
                       ))}
                     </div>
-
-                    {/* Kaydırılabilir olduğunu belli eden ufak gölge/uyarı efekti */}
-                    <div className="absolute top-0 right-0 bottom-0 w-3 bg-gradient-to-l from-slate-900/90 to-transparent pointer-events-none rounded-r-xl"></div>
+                    {/* Kaydırma Efekti Gölgesi */}
+                    <div className="absolute top-0 right-0 bottom-0 w-4 bg-gradient-to-l from-slate-900 to-transparent pointer-events-none rounded-r-xl"></div>
                   </div>
                 )}
 
