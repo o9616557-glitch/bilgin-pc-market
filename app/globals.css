@@ -29,18 +29,20 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
+/* 🚀 BİNGO: ŞARJÖRÜ BOŞALTTIĞIMIZ YER! Hem HTML hem BODY kilitleniyor. */
+html, body {
+  /* iPhone, Safari, Android hiçbiri affedilmez, aşağı çekme kökünden iptal! */
+  overscroll-behavior: none !important;
+  overscroll-behavior-y: none !important;
+  
   /* Ekranlar için optimize edilmiş, çok keskin bir yazı tipi */
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   
   /* Yazı tiplerini keskinleştiren ve bulanıklığı gideren sihirli kod */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   
   /* Arka planın her zaman koyu temada kalmasını garantiye alıyoruz */
-  background-color: #050814;
+  background-color: #050814 !important;
   color: #ededed;
-
-  /* 🚀 BİNGO: Mobilde aşağı çekerek yenilemeyi (Pull-to-refresh) kökünden kapatan kod! */
-  overscroll-behavior-y: none; 
 }
