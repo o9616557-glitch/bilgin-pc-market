@@ -86,16 +86,21 @@ export default async function HomePage() {
                   Ekran Kartları
                 </div>
                 
-                <div className="w-full h-[350px] bg-black/60 rounded-none border border-white/5 flex items-center justify-center overflow-hidden relative p-8">
-                   {/* RESMİN BURADA ŞEFİM, SAPASAĞLAM DURUYOR */}
-                   <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/v1781456011/kv_mxdcuq.jpg" alt="Amiral Gemisi Ekran Kartı" className="w-full h-full object-contain filter drop-shadow-[0_15px_20px_rgba(0,0,0,0.8)] transition-transform duration-1000 ease-out group-hover:scale-110 z-10 relative" />
+           <div className="w-full h-[350px] bg-black/60 rounded-none border border-white/5 flex items-center justify-center overflow-hidden relative p-8">
+                   {/* 🚀 BİNGO: loading="lazy" eklendi! Menü açılana kadar bu resim interneti meşgul etmeyecek! */}
+                   <img 
+                     src="https://res.cloudinary.com/dtnbkoa9s/image/upload/v1781456011/kv_mxdcuq.jpg" 
+                     alt="Amiral Gemisi Ekran Kartı" 
+                     loading="lazy"
+                     className="w-full h-full object-contain filter drop-shadow-[0_15px_20px_rgba(0,0,0,0.8)] transition-transform duration-1000 ease-out group-hover:scale-110 z-10 relative" 
+                   />
                    
                    {/* 🚀 Hover'da Çıkan Zıplayan Ok Butonu 🚀 */}
                    <div className="absolute bottom-6 right-6 z-20 w-12 h-12 bg-[#00d2ff] rounded-none flex items-center justify-center text-black opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 shadow-[0_0_20px_rgba(0,210,255,0.6)] border border-[#00d2ff]">
                      <ArrowRight className="w-6 h-6" />
                    </div>
                 </div>
-              </Link>
+              </Link> {/* ⚠️ ŞEFİM NOT: Bu Link etiketinin açılışında prefetch={false} yazdığından emin ol! */}
             </div>
           </div>
         </div>
@@ -464,7 +469,7 @@ export default async function HomePage() {
       {/* ==================== 6. BİLGİN PC BİLGİLENDİRME ==================== */}
       <section className="relative w-full py-20 sm:py-28 bg-[#0a0a0a] border-t border-white/10 overflow-hidden flex items-center justify-center select-none pointer-events-none">
         <div className="absolute inset-0 z-0 opacity-40">
-          <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/v1781456011/kv_mxdcuq.jpg" alt="Bilgin PC Arka Plan" className="w-full h-full object-cover grayscale" />
+        <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/v1781456011/kv_mxdcuq.jpg" alt="Bilgin PC Arka Plan" loading="lazy" className="w-full h-full object-cover grayscale" />
           <div className="absolute inset-0 bg-[#0a0a0a]/70"></div>
         </div>
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#00d2ff]/10 rounded-full blur-[150px] pointer-events-none z-0" />
