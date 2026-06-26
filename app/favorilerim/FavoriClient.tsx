@@ -29,6 +29,12 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
   const [sepeteEklenenler, setSepeteEklenenler] = useState<string[]>([]);
 
   const [kargoPopupAcik, setKargoPopupAcik] = useState(false);
+  // 🚀 PERFORMANS MOTORU: Sayfa açılışındaki kasılmaları önlemek için
+  const [sayfaYuklendi, setSayfaYuklendi] = useState(false);
+
+  useEffect(() => {
+    setSayfaYuklendi(true);
+  }, []);
   const { orders: localOrders } = useOrders();
 
   // 🚀 SESSİZ ÇIRAK: Sen ürünleri anında görürken, o arkadan yeni ürün eklenmiş mi diye çaktırmadan bakar. Ekranda hiçbir şeyi dondurmaz!
@@ -132,24 +138,24 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
         {/* ➡️ SAĞ İÇERİK */}
         <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full animate-in fade-in duration-300">
           
-          {/* FASULYE MENÜ */}
+        {/* FASULYE MENÜ */}
           <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pt-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
-            <Link href="/siparislerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+            <Link href="/siparislerim" className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
               <Package className="w-4 h-4 text-cyan-500" /> Siparişler
             </Link>
-            <Link href="/sistemlerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+            <Link href="/sistemlerim" className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
               <Monitor className="w-4 h-4 text-cyan-500" /> Sistemler
             </Link>
-            <Link href="/destek-taleplerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+            <Link href="/destek-taleplerim" className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
               <Headphones className="w-4 h-4 text-cyan-500" /> Destek / İade
             </Link>
-            <Link href="/siparis-takip" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+            <Link href="/siparis-takip" className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
               <Search className="w-4 h-4 text-cyan-500" /> Sorgula
             </Link>
-            <Link href="/adreslerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+            <Link href="/adreslerim" className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
               <MapPin className="w-4 h-4 text-cyan-500" /> Adresler
             </Link>
-            <button onClick={() => setKargoPopupAcik(true)} className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none relative">
+            <button onClick={() => setKargoPopupAcik(true)} className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none relative ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
               <Truck className="w-4 h-4 text-cyan-500" /> Kargolar
               {localOrders?.filter(o => (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo")).length > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-cyan-500 text-[9px] font-bold text-white shadow-lg">
