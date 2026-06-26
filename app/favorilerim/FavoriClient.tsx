@@ -5,7 +5,7 @@ import Link from "next/link";
 import { 
   HeartCrack, Trash2, ShoppingCart, 
   User, ShieldCheck, CreditCard, Star, CheckCircle2,
-  MapPin, Loader2, Package, Search, Monitor, Headphones, Truck, PackageX, Calendar, Copy
+  MapPin, Package, Search, Monitor, Headphones, Truck, PackageX, Calendar, Copy
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/app/CartContext";
@@ -14,15 +14,15 @@ import { useSession } from "next-auth/react";
 import { useOrders } from "@/app/OrderContext";
 
 interface Props {
-  initialFavorites?: any[];
+  initialFavorites: any[];
 }
 
-export default function FavoriClient({ initialFavorites = [] }: Props) {
+export default function FavoriClient({ initialFavorites }: Props) {
   const router = useRouter();
   const { status } = useSession();
   
+  // Sayfa ilk açıldığında sunucudan gelen hazır veriyi anında basıyoruz (Gecikme Sıfır)
   const [favoriteProducts, setFavoriteProducts] = useState<any[]>(initialFavorites);
-  const [cirakCalisiyor, setCirakCalisiyor] = useState(true);
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
   
   const { sepeteEkle } = useCart();
@@ -31,34 +31,32 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
   const [kargoPopupAcik, setKargoPopupAcik] = useState(false);
   const { orders: localOrders } = useOrders();
 
-  // 🚀 BİNGO: ZAMAN DAMGALI SESSİZ ÇIRAK (Önbellek Tuzağını Kıran Motor)
+  // Sunucudan gelen veri değiştikçe ekranı tazele
   useEffect(() => {
-    const ciragiMondoyaYolla = async () => {
+    setFavoriteProducts(initialFavorites);
+  }, [initialFavorites]);
+
+  // 🚀 SESSİZ ÇIRAK MOTORU: Ekranda hiçbir şeyi dondurmadan, mağazadan yeni eklenen ürünleri anında çeker!
+  useEffect(() => {
+    const sessizceGuncelle = async () => {
       try {
-        // Her seferinde benzersiz bir saniye kodu üretiyoruz
         const zamanDamgasi = new Date().getTime();
-        
-        // Tarayıcıya kesin emir: "Hafızadaki bayat veriyi değil, sıfır kilometre veriyi getir!"
         const res = await fetch("/api/favorites?t=" + zamanDamgasi, { 
           cache: "no-store",
-          headers: { 
-            "Cache-Control": "no-cache", 
-            "Pragma": "no-cache" 
-          } 
+          headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" } 
         }); 
         
         if (res.ok) {
           const data = await res.json();
-          setFavoriteProducts(data.favorites || data || []);
+          const guncelListe = data.favorites || data || [];
+          setFavoriteProducts(guncelListe);
         }
       } catch (error) {
-        console.error("Çırak yolda takıldı:", error);
-      } finally {
-        setCirakCalisiyor(false);
+        console.error("Arka plan çırağı güncel favorileri çekemedi:", error);
       }
     };
 
-    ciragiMondoyaYolla();
+    sessizceGuncelle();
   }, []);
 
   // 🚀 EKRAN DONDURMA
@@ -77,7 +75,6 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
     if (!productToDelete) return;
 
     const targetId = String(productToDelete._id || productToDelete.id);
-    
     setFavoriteProducts(prev => prev.filter(p => String(p._id || p.id) !== targetId));
     setProductToDelete(null);
 
@@ -90,7 +87,6 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
 
       if (!res.ok) throw new Error("Veritabanı reddetti");
       toast.success("Ürün favorilerden kaldırıldı. 🤍");
-      
       router.refresh(); 
     } catch (error: any) {
       toast.error("Sistem hatası: Veritabanından silinemedi!");
@@ -137,9 +133,36 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
           </div>
         </div>
 
-        {/* ➡️ SAĞ İÇERİK (Fasulye Menü Tamamen Söküldü 🧹) */}
+        {/* ➡️ SAĞ İÇERİK */}
         <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full animate-in fade-in duration-300">
           
+          {/* 🚀 FASULYE MENÜ GERİ GELDİ! */}
+          <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pt-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
+            <Link href="/siparislerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+              <Package className="w-4 h-4 text-cyan-500" /> Siparişler
+            </Link>
+            <Link href="/sistemlerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+              <Monitor className="w-4 h-4 text-cyan-500" /> Sistemler
+            </Link>
+            <Link href="/destek-taleplerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+              <Headphones className="w-4 h-4 text-cyan-500" /> Destek / İade
+            </Link>
+            <Link href="/siparis-takip" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+              <Search className="w-4 h-4 text-cyan-500" /> Sorgula
+            </Link>
+            <Link href="/adreslerim" className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none">
+              <MapPin className="w-4 h-4 text-cyan-500" /> Adresler
+            </Link>
+            <button onClick={() => setKargoPopupAcik(true)} className="flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full transition-all text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none relative">
+              <Truck className="w-4 h-4 text-cyan-500" /> Kargolar
+              {localOrders?.filter(o => (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo")).length > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-cyan-500 text-[9px] font-bold text-white shadow-lg">
+                  {localOrders.filter(o => (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo")).length}
+                </span>
+              )}
+            </button>
+          </div>
+
           {/* 🚀 BAŞLIK KUTUSU */}
           <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5 z-40 overflow-hidden group">
             <div className="absolute -top-20 -right-20 w-64 h-64 bg-cyan-500/10 blur-[60px] pointer-events-none rounded-full"></div>
@@ -167,15 +190,8 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
             </div>
           </div>
 
-          {/* 🚀 İÇERİK ALANI */}
-          {cirakCalisiyor ? (
-            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-10 sm:p-16 flex flex-col items-center justify-center text-center shadow-xl">
-              <Loader2 className="w-12 h-12 text-cyan-500 animate-spin mb-4" />
-              <h2 className="text-sm font-black uppercase tracking-widest text-cyan-400 animate-pulse">
-                Favorileriniz Getiriliyor...
-              </h2>
-            </div>
-          ) : favoriteProducts.length === 0 ? (
+          {/* 🚀 ÜRÜNLER ALANI (Asla donmaz, direkt yüklenir) */}
+          {favoriteProducts.length === 0 ? (
             <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-10 sm:p-16 flex flex-col items-center justify-center text-center shadow-xl">
               <div className="w-20 h-20 rounded-full bg-[#020617] border border-cyan-500/20 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(6,182,212,0.1)]">
                 <HeartCrack className="w-10 h-10 text-cyan-400" />
