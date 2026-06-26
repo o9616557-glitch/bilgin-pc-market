@@ -9,16 +9,15 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/app/CartContext";
-import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useOrders } from "@/app/OrderContext";
+// 🚀 DİKKAT: useRouter'a ve router.refresh()'e ihtiyacımız kalmadı, kasma bombasını imha ettik!
 
 interface Props {
   initialFavorites?: any[];
 }
 
 export default function FavoriClient({ initialFavorites = [] }: Props) {
-  const router = useRouter();
   const { status } = useSession();
   
   const [favoriteProducts, setFavoriteProducts] = useState<any[]>(initialFavorites);
@@ -33,40 +32,48 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
   // 🚀 PERFORMANS MOTORU: Sayfa açılışındaki kasılmaları önlemek için state
   const [sayfaYuklendi, setSayfaYuklendi] = useState(false);
 
+  // 🚀 SESSİZ ÇIRAK FONKSİYONU: Veritabanındaki en güncel favorileri arkadan çeker
+  const favorileriGuncelle = async () => {
+    try {
+      const zamanDamgasi = new Date().getTime();
+      const res = await fetch("/api/favorites?t=" + zamanDamgasi, { 
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" } 
+      }); 
+      
+      if (res.ok) {
+        const data = await res.json();
+        const guncelListe = data.favorites || data || [];
+        
+        // Ekranı güncelle ve anında Tarayıcı Hafızasına (sessionStorage) kaydet!
+        setFavoriteProducts(guncelListe);
+        sessionStorage.setItem("bilgin-favoriler", JSON.stringify(guncelListe));
+      }
+    } catch (error) {
+      console.error("Arka plan çırağı güncel favorileri çekemedi:", error);
+    }
+  };
+
+  // 🚀 BİNGO: HAFIZA MOTORU! (Adreslerdeki sistemin aynısı)
   useEffect(() => {
     setSayfaYuklendi(true);
+
+    // 1. Sayfa açılır açılmaz Next.js'in eski verisi yerine TARAYICI HAFIZASINA bakıyoruz
+    const hafiza = sessionStorage.getItem("bilgin-favoriler");
+    
+    if (hafiza) {
+      // Eğer hafızada güncel liste varsa anında onu basıyoruz (Göz kırpmayı engeller)
+      setFavoriteProducts(JSON.parse(hafiza));
+    } else {
+      // İlk defa giriyorsa sunucudan geleni kullanıyoruz
+      setFavoriteProducts(initialFavorites);
+    }
+
+    // 2. Ardından her ihtimale karşı arka planda güncel listeyi çekip kontrol ediyoruz
+    favorileriGuncelle();
   }, []);
 
-  // 🚀 GÜVENLİ ÇIRAK: Hafıza sızıntısı (Memory Leak) tamamen önlenen arka plan motoru
-  useEffect(() => {
-    let sayfaAktifMi = true; // Tarayıcı raminin şişmesini önleyen kilit değişken
-
-    const sessizceGuncelle = async () => {
-      try {
-        const zamanDamgasi = new Date().getTime();
-        const res = await fetch("/api/favorites?t=" + zamanDamgasi, { 
-          cache: "no-store",
-          headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" } 
-        }); 
-        
-        if (res.ok && sayfaAktifMi) {
-          const data = await res.json();
-          setFavoriteProducts(data.favorites || data || []);
-        }
-      } catch (error) {
-        console.error("Arka plan çırağı güncel favorileri çekemedi:", error);
-      }
-    };
-
-    sessizceGuncelle();
-
-    // Temizlik Aşaması: Sayfa değiştiğinde veya işlem yapıldığında eski istekleri iptal eder rami boşaltır
-    return () => {
-      sayfaAktifMi = false;
-    };
-  }, []);
-
-  // 🚀 GÜVENLİ EKRAN DONDURMA: DOM'u yormayan, çöp bırakmayan temizlik motoru
+  // 🚀 GÜVENLİ EKRAN DONDURMA: DOM'u yormayan temizlik motoru
   useEffect(() => {
     if (typeof window === "undefined") return;
     const bodyEtiketi = document.body;
@@ -87,9 +94,15 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
 
     const targetId = String(productToDelete._id || productToDelete.id);
     
-    setFavoriteProducts(prev => prev.filter(p => String(p._id || p.id) !== targetId));
+    // 1. IŞIK HIZINDA SİLME: Önce ekrandan anında uçur
+    const yeniListe = favoriteProducts.filter(p => String(p._id || p.id) !== targetId);
+    setFavoriteProducts(yeniListe);
     setProductToDelete(null);
 
+    // 2. HAFIZAYI GÜNCELLE: Sayfa geçişinde hortlamaması için sessionStorage'a yaz
+    sessionStorage.setItem("bilgin-favoriler", JSON.stringify(yeniListe));
+
+    // 3. ARKADAN SİL
     try {
       const res = await fetch("/api/favorites", {
         method: "POST", 
@@ -100,7 +113,8 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
       if (!res.ok) throw new Error("Veritabanı reddetti");
       toast.success("Ürün favorilerden kaldırıldı. 🤍");
       
-      router.refresh(); 
+      // İşlem bitince çırağı çalıştır, router.refresh() YOK!
+      favorileriGuncelle();
     } catch (error: any) {
       toast.error("Sistem hatası: Veritabanından silinemedi!");
     }
@@ -133,13 +147,13 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
         <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-xl p-2 sm:p-4 shadow-xl overflow-x-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
             <nav className="flex flex-row lg:flex-col gap-1.5 min-w-max lg:min-w-0">
-              <Link href="/hesabim" className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-white hover:bg-[#020617] rounded-lg transition-all font-medium">
+              <Link href="/hesabim" prefetch={false} className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-white hover:bg-[#020617] rounded-lg transition-all font-medium">
                 <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Profil
               </Link>
-              <Link href="/cuzdan" className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-white hover:bg-[#020617] rounded-lg transition-all font-medium">
+              <Link href="/cuzdan" prefetch={false} className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-white hover:bg-[#020617] rounded-lg transition-all font-medium">
                 <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Dijital Cüzdanım
               </Link>
-              <Link href="/guvenlik" className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-white hover:bg-[#020617] rounded-lg transition-all font-medium">
+              <Link href="/guvenlik" prefetch={false} className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-white hover:bg-[#020617] rounded-lg transition-all font-medium">
                 <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Güvenlik
               </Link>
             </nav>
@@ -151,19 +165,25 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
           
           {/* FASULYE MENÜ */}
           <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pt-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
-            <Link href="/siparislerim" className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
+            <Link href="/siparislerim" prefetch={false} className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
               <Package className="w-4 h-4 text-cyan-500" /> Siparişler
             </Link>
-            <Link href="/sistemlerim" className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
+            
+            {/* Kendisi Favoriler olduğu için aktif sekme tarzı bir renklendirme eklenebilir, şimdilik standart */}
+            <Link href="/favorilerim" prefetch={false} className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
+              <Star className="w-4 h-4 text-cyan-500" /> Favoriler
+            </Link>
+
+            <Link href="/sistemlerim" prefetch={false} className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
               <Monitor className="w-4 h-4 text-cyan-500" /> Sistemler
             </Link>
-            <Link href="/destek-taleplerim" className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
+            <Link href="/destek-taleplerim" prefetch={false} className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
               <Headphones className="w-4 h-4 text-cyan-500" /> Destek / İade
             </Link>
-            <Link href="/siparis-takip" className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
+            <Link href="/siparis-takip" prefetch={false} className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
               <Search className="w-4 h-4 text-cyan-500" /> Sorgula
             </Link>
-            <Link href="/adreslerim" className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
+            <Link href="/adreslerim" prefetch={false} className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
               <MapPin className="w-4 h-4 text-cyan-500" /> Adresler
             </Link>
             <button onClick={() => setKargoPopupAcik(true)} className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none relative ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
@@ -195,7 +215,7 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
             <div className="flex flex-row items-center gap-2 sm:gap-3 w-full xl:w-auto relative z-50">
               <Link 
                 href="/" 
-                prefetch={true}
+                prefetch={false}
                 className="w-full xl:w-auto flex items-center justify-center gap-2 bg-[#020617] hover:bg-slate-800 border border-slate-700 rounded-lg px-4 sm:px-6 py-3 transition-colors text-[10px] sm:text-xs text-white font-black uppercase tracking-widest shadow-lg shrink-0"
               >
                 MAĞAZAYA DÖN
@@ -215,7 +235,7 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
               </p>
               <Link 
                 href="/" 
-                prefetch={true} 
+                prefetch={false} 
                 className="flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-8 py-3.5 rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)]"
               >
                 <Star className="w-4 h-4" /> Donanımları İncele
@@ -228,7 +248,7 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
                 return (
                   <div key={index} className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col transition-all duration-300 hover:border-cyan-500/40 hover:-translate-y-1 shadow-lg group h-full">
                     
-                    <Link href={"/product/" + (urun.slug || urun.id || urun._id)} prefetch={true} className="w-full h-40 sm:h-48 shrink-0 bg-[#020617] rounded-xl border border-slate-800/50 flex items-center justify-center p-4 relative overflow-hidden group-hover:border-cyan-500/20 transition-colors mb-4 mt-2">
+                    <Link href={"/product/" + (urun.slug || urun.id || urun._id)} prefetch={false} className="w-full h-40 sm:h-48 shrink-0 bg-[#020617] rounded-xl border border-slate-800/50 flex items-center justify-center p-4 relative overflow-hidden group-hover:border-cyan-500/20 transition-colors mb-4 mt-2">
                       <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                       <img 
                         src={urun.resim || "/placeholder.jpg"} 
@@ -238,7 +258,7 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
                     </Link>
 
                     <div className="flex-1 flex flex-col justify-start mb-4">
-                      <Link href={"/product/" + (urun.slug || urun.id || urun._id)} prefetch={true} className="block mb-2 pr-2">
+                      <Link href={"/product/" + (urun.slug || urun.id || urun._id)} prefetch={false} className="block mb-2 pr-2">
                         <h3 className="text-sm font-bold text-slate-200 leading-snug line-clamp-2 hover:text-cyan-400 transition-colors">
                           {urun.isim || urun.name}
                         </h3>
