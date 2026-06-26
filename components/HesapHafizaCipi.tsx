@@ -2,27 +2,54 @@
 
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { usePathname, useRouter } from "next/navigation"; // 🚀 Fırlatma motoru için eklendi
 
 export default function HesapHafizaCipi() {
   const { data: session, status } = useSession();
+  const pathname = usePathname();
+  const router = useRouter();
 
+  // 🚀 1. MOTOR: F5 YAKALAYICI VE FIRLATICI (Senin Saksıdan Çıkan Harika Fikir!)
   useEffect(() => {
-    // 🧠 KURAL 1: Giriş yapmamış misafirlerde çip ASLA çalışmaz, sunucuya yük bindirmez!
+    if (typeof window !== "undefined") {
+      // Tarayıcının hafızasına bakıyoruz: "Bu adam buraya tıklayarak mı geldi, yoksa F5 mi attı?"
+      const navEntries = performance.getEntriesByType("navigation");
+      
+      if (navEntries.length > 0 && (navEntries[0] as PerformanceNavigationTiming).type === "reload") {
+        // Eğer F5 atıldıysa, Bermuda Şeytan Üçgeni'nde mi (belalı sayfalarda mı) diye kontrol et
+        const belaliSayfalar = [
+          "/favorilerim", 
+          "/adreslerim", 
+          "/siparislerim", 
+          "/sistemlerim", 
+          "/destek-taleplerim",
+          "/siparis-takip"
+        ];
+
+        // Eğer kullanıcı bu sayfalardan birindeyken F5 attıysa...
+        if (pathname && belaliSayfalar.includes(pathname)) {
+          // 💥 Ensesinden tut ve saniyesinde Hesabım'a fırlat! (replace kullanıyoruz ki geri tuşu bozulmasın)
+          router.replace("/hesabim");
+        }
+      }
+    }
+  }, [pathname, router]);
+
+  // 🚀 2. MOTOR: ARKA PLAN VERİ TOPLAYICI (Eski yazdığımız radar)
+  useEffect(() => {
     if (status !== "authenticated" || !session?.user?.email) return;
 
     const ustaHafizayiDoldur = async () => {
       try {
         const zamanDamgasi = new Date().getTime();
 
-        // 🚀 ADRESLERİ ÇEK (Sadece F5 atıldığında 1 kere çalışır)
         const adresRes = await fetch("/api/addresses?t=" + zamanDamgasi, { cache: "no-store" });
         let adresSayisi = 0;
         if (adresRes.ok) {
-          const adresData = await adresRes.ok ? await adresRes.json() : {};
+          const adresData = await adresRes.json();
           adresSayisi = adresData.addresses?.length || 0;
         }
 
-        // 🚀 FAVORİLERİ ÇEK
         const favoriRes = await fetch("/api/favorites?t=" + zamanDamgasi, { cache: "no-store" });
         let favoriSayisi = 0;
         if (favoriRes.ok) {
@@ -30,7 +57,6 @@ export default function HesapHafizaCipi() {
           favoriSayisi = favoriData.favorites?.length || 0;
         }
 
-        // 🚀 DESTEK MESAJLARINI ÇEK
         const destekRes = await fetch("/api/destek?t=" + zamanDamgasi, { cache: "no-store" });
         let acikTalepSayisi = 0;
         let acilMesaj = false;
@@ -43,7 +69,6 @@ export default function HesapHafizaCipi() {
           }
         }
 
-        // 💥 TOKATLAMA ANI: Verileri senin "Hesabım" sayfasının anladığı formatta sessionStorage'a mühürlüyoruz!
         const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
         sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({
           ...eskiHafiza,
@@ -57,12 +82,12 @@ export default function HesapHafizaCipi() {
         }));
 
       } catch (error) {
-        console.error("Akıllı Çip arka planda verileri cebe atarken bocaladı:", error);
+        console.error("Akıllı Çip verileri toplarken hata aldı:", error);
       }
     };
 
     ustaHafizayiDoldur();
   }, [session, status]);
 
-  return null; // Bu çip ekranda görünmez, bir hayalet gibi arkada işini yapar!
+  return null;
 }
