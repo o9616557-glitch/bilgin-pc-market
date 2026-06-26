@@ -43,7 +43,7 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
     setAddresses(initialAddresses);
   }, [initialAddresses]);
 
-  // 🚀 SESSİZ ÇIRAK MOTORU: Sayfayı yenilemeden veritabanından en güncel adresleri çeker
+  // 🚀 SESSİZ ÇIRAK FONKSİYONU: Veritabanındaki en güncel adresleri arkadan çeker
   const adresleriGuncelle = async () => {
     try {
       const zamanDamgasi = new Date().getTime();
@@ -53,7 +53,6 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
       });
       if (res.ok) {
         const data = await res.json();
-        // Gelen verinin yapısına göre listeyi güvenlice günceller
         const guncelListe = data.addresses || data.data || (Array.isArray(data) ? data : []);
         setAddresses(guncelListe);
       }
@@ -61,6 +60,12 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
       console.error("Adresler arka planda güncellenemedi", error);
     }
   };
+
+  // 🚀 BİNGO: AÇILIŞ RADARI! 
+  // Sen başka sayfadan bu sayfaya her döndüğünde çırağı otomatik uyandırır ve ekranı tazeler!
+  useEffect(() => {
+    adresleriGuncelle();
+  }, []);
 
   // 🚀 MODAL VE FORM AÇILINCA ARKA PLANI DONDURAN MOTOR
   useEffect(() => {
@@ -107,8 +112,7 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
         setFormData(formBaslangic);
         setEditingId(null);
 
-        // 🚀 BİNGO: İşlem biter bitmez Sessiz Çırak'a "yeni verileri getir" diyoruz!
-        // router.refresh() YERİNE BURASI ÇALIŞIR VE SAYFAYI ASLA KASDIRMAZ.
+        // Değişiklik anında çırağı çalıştırıyoruz
         adresleriGuncelle();
       } else {
         toast.dismiss(loadingToast);
@@ -123,15 +127,14 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
   };
 
   const handleDeleteAddress = async (id: string) => {
-    // 1. Önce kullanıcı beklememesi için ekrandan anında ışık hızında sileriz
+    // Önce kullanıcı beklememesi için ekrandan anında ışık hızında sileriz
     setAddresses(prev => prev.filter(addr => addr._id !== id)); 
     
-    // 2. Ardından arkadan veritabanına silme isteğini atarız
     try {
       const res = await fetch("/api/addresses?id=" + id, { method: "DELETE" });
       if(res.ok) {
          toast.success("Adres silindi.");
-         // 🚀 BİNGO: Silinme onaylanınca Sessiz Çırak listeyi pürüzsüzce senkronize eder.
+         // Silinme onaylanınca çırağı senkronize etmesi için tetikliyoruz
          adresleriGuncelle(); 
       } else {
          toast.error("Veritabanından silinemedi.");
@@ -304,7 +307,7 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
                     </div>
                   </div>
                   <div className="flex flex-col gap-1.5 md:col-span-2">
-                    <label className="text-[10px] sm:text-xs text-slate-500 font-black uppercase tracking-widest ml-1">Açık Adres</label>
+                    <label className="text-[10px] sm:text-xs text-slate-500 font-black uppercase tracking-wider ml-1">Açık Adres</label>
                     <textarea name="fullAddress" value={formData.fullAddress} onChange={handleInputChange} required rows={3} placeholder="Mahalle, sokak, bina ve daire numarası..." className="bg-[#020617] border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors resize-none"></textarea>
                   </div>
 
