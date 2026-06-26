@@ -386,90 +386,40 @@ return (
         <div className="w-full lg:w-[280px] shrink-0 static lg:sticky lg:top-28 z-50">
 
           {/* ========================================== */}
-          {/* 📱 1. BÖLÜM: MOBİL ÜST MENÜ (4'lü Sayfa ve Noktalar)  */}
+          {/* 📱 1. BÖLÜM: MOBİL ÜST MENÜ (3'lü Ortalı)  */}
           {/* ========================================== */}
-          <div className="flex flex-col lg:hidden w-full mb-6 relative">
-            <div 
-              ref={ustMenuRef}
-              onScroll={(e) => setUstSayfa(Math.round(e.currentTarget.scrollLeft / e.currentTarget.clientWidth))}
-              className="flex w-full overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pt-3 pb-2"
-            >
-              
-              {/* 🟢 SAYFA 1 (İlk 4 Kutu) */}
-              <div className="min-w-full shrink-0 snap-center grid grid-cols-4 gap-2 px-1">
-                <Link href="/hesabim" prefetch={false} className="flex flex-col items-center gap-1.5 group">
-                  <div className="w-16 h-16 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
-                    <User className="w-7 h-7 text-cyan-400" />
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-300">Profil</span>
-                </Link>
-
-                <Link href="/cuzdan" prefetch={false} className="flex flex-col items-center gap-1.5 group">
-                  <div className="w-16 h-16 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
-                    <CreditCard className="w-7 h-7 text-amber-400" />
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-300">Cüzdan</span>
-                </Link>
-
-                <Link href="/guvenlik" prefetch={false} className="flex flex-col items-center gap-1.5 group">
-                  <div className="w-16 h-16 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
-                    <ShieldCheck className="w-7 h-7 text-emerald-400" />
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-300">Güvenlik</span>
-                </Link>
-
-                {/* Eğer giriş yapılmamışsa Giriş, yetkiliyse Admin çıkar */}
-                {status === "unauthenticated" ? (
-                  <Link href="/giris" prefetch={false} className="flex flex-col items-center gap-1.5 group">
-                    <div className="w-16 h-16 rounded-2xl bg-cyan-600 flex items-center justify-center shadow-lg">
-                      <LogIn className="w-7 h-7 text-white" />
-                    </div>
-                    <span className="text-[10px] font-bold text-cyan-400">Giriş Yap</span>
-                  </Link>
-                ) : session?.user?.email === "o9616557@gmail.com" ? (
-                  <Link href="/admin" prefetch={false} className="flex flex-col items-center gap-1.5 group">
-                    <div className="w-16 h-16 rounded-2xl bg-rose-950/30 border border-rose-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(225,29,72,0.2)]">
-                      <Crown className="w-7 h-7 text-rose-400" />
-                    </div>
-                    <span className="text-[10px] font-bold text-rose-400">Admin</span>
-                  </Link>
-                ) : (
-                  <button onClick={handleCikisYap} className="flex flex-col items-center gap-1.5 group">
-                    <div className="w-16 h-16 rounded-2xl bg-[#0f172a] border border-red-900/50 flex items-center justify-center shadow-lg">
-                      <LogOut className="w-7 h-7 text-red-400" />
-                    </div>
-                    <span className="text-[10px] font-bold text-red-400">Çıkış</span>
-                  </button>
-                )}
+          <div className="flex lg:hidden w-full mb-6 justify-center gap-4 sm:gap-6 px-1">
+            
+            <Link href="/hesabim" prefetch={false} className="flex flex-col items-center gap-1.5 group w-[72px]">
+              <div className="w-16 h-16 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
+                <User className="w-7 h-7 text-cyan-400" />
               </div>
+              <span className="text-[10px] font-bold text-slate-300">Profil</span>
+            </Link>
 
-              {/* 🟢 SAYFA 2 (Kalan Butonlar) */}
-              {(status === "unauthenticated" || session?.user?.email === "o9616557@gmail.com") && (
-                <div className="min-w-full shrink-0 snap-center grid grid-cols-4 gap-2 px-1">
-                  {status === "unauthenticated" ? (
-                    <Link href="/kayit" prefetch={false} className="flex flex-col items-center gap-1.5 group">
-                      <div className="w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center shadow-lg">
-                        <UserPlus className="w-7 h-7 text-white" />
-                      </div>
-                      <span className="text-[10px] font-bold text-slate-300">Kayıt Ol</span>
-                    </Link>
-                  ) : (
-                    <button onClick={handleCikisYap} className="flex flex-col items-center gap-1.5 group">
-                      <div className="w-16 h-16 rounded-2xl bg-[#0f172a] border border-red-900/50 flex items-center justify-center shadow-lg">
-                        <LogOut className="w-7 h-7 text-red-400" />
-                      </div>
-                      <span className="text-[10px] font-bold text-red-400">Çıkış</span>
-                    </button>
-                  )}
+            <Link href="/cuzdan" prefetch={false} className="flex flex-col items-center gap-1.5 group w-[72px]">
+              <div className="w-16 h-16 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
+                <CreditCard className="w-7 h-7 text-amber-400" />
+              </div>
+              <span className="text-[10px] font-bold text-slate-300">Cüzdan</span>
+            </Link>
+
+            <Link href="/guvenlik" prefetch={false} className="flex flex-col items-center gap-1.5 group w-[72px]">
+              <div className="w-16 h-16 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
+                <ShieldCheck className="w-7 h-7 text-emerald-400" />
+              </div>
+              <span className="text-[10px] font-bold text-slate-300">Güvenlik</span>
+            </Link>
+
+            {/* Admin Sadece Yetkili İse 4. Olarak Yanlarında Çıkar */}
+            {session?.user?.email === "o9616557@gmail.com" && (
+              <Link href="/admin" prefetch={false} className="flex flex-col items-center gap-1.5 group w-[72px]">
+                <div className="w-16 h-16 rounded-2xl bg-rose-950/30 border border-rose-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(225,29,72,0.2)]">
+                  <Crown className="w-7 h-7 text-rose-400" />
                 </div>
-              )}
-            </div>
-
-            {/* Üst Menü Noktaları */}
-            <div className="flex justify-center items-center gap-1.5 mt-2">
-              <div className={`h-1.5 rounded-full transition-all duration-300 ${ustSayfa === 0 ? "w-4 bg-cyan-400 shadow-[0_0_8px_#22d3ee]" : "w-1.5 bg-slate-700"}`}></div>
-              <div className={`h-1.5 rounded-full transition-all duration-300 ${ustSayfa === 1 ? "w-4 bg-cyan-400 shadow-[0_0_8px_#22d3ee]" : "w-1.5 bg-slate-700"}`}></div>
-            </div>
+                <span className="text-[10px] font-bold text-rose-400">Admin</span>
+              </Link>
+            )}
           </div>
 
           {/* ========================================== */}
@@ -527,15 +477,29 @@ return (
                   </span>
                 </div>
               </div>
-              <div className="flex-1 text-center sm:text-left z-10">
+              
+              <div className="flex-1 text-center sm:text-left z-10 flex flex-col justify-center">
                 <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight mb-0.5 sm:mb-2 drop-shadow-md">
                   {userName}
                 </h1>
                 <p className="text-slate-400 text-xs sm:text-sm font-medium tracking-wide">
                   {userEmail}
                 </p>
+                
+                {/* 🚀 MİSAFİR İSE GİRİŞ VE KAYIT BUTONLARI KARTIN İÇİNDE ÇIKAR */}
+                {status === "unauthenticated" && (
+                  <div className="flex items-center justify-center sm:justify-start gap-2 mt-4">
+                    <Link href="/giris" className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-widest flex items-center gap-1.5 shadow-lg transition-all">
+                      <LogIn className="w-4 h-4" /> Giriş
+                    </Link>
+                    <Link href="/kayit" className="bg-[#0f172a] border border-slate-700 hover:border-slate-500 text-slate-300 px-5 py-2.5 rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-widest flex items-center gap-1.5 transition-all">
+                      <UserPlus className="w-4 h-4" /> Kayıt Ol
+                    </Link>
+                  </div>
+                )}
               </div>
               
+              {/* SADECE GİRİŞ YAPILMIŞSA ÇIKIŞ BUTONU ÇIKAR */}
               {status === "authenticated" && (
                 <button onClick={handleCikisYap} className="relative z-10 flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl bg-red-950/40 border border-red-900/50 text-red-400 hover:bg-red-900/60 hover:text-red-300 hover:border-red-500/50 transition-all font-black uppercase tracking-widest text-[10px] sm:text-xs shadow-[0_0_20px_rgba(220,38,38,0.1)]">
                   <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Çıkış
@@ -558,13 +522,21 @@ return (
               className="flex w-full overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pt-3 pb-2"
             >
               
-              {/* 🟢 SAYFA 1 (İlk 4 Kutu) */}
+              {/* 🟢 SAYFA 1 (Favoriler, Sistemler, Kargolar, Destek) */}
               <div className="min-w-full shrink-0 snap-center grid grid-cols-4 gap-2 px-1">
-                <Link href="/adreslerim" onClick={kilitliIslem} prefetch={true} className="flex flex-col items-center gap-1.5 group">
+                
+                <Link href="https://www.bilginpcmarket.com/favorilerim" onClick={kilitliIslem} prefetch={true} className="flex flex-col items-center gap-1.5 group">
                   <div className="w-16 h-16 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
-                    <MapPin className="w-7 h-7 text-cyan-400 group-hover:scale-110 transition-transform duration-300" />
+                    <Star className="w-7 h-7 text-purple-400 group-hover:scale-110 transition-transform duration-300" />
                   </div>
-                  <span className="text-[10px] font-bold text-slate-300 group-hover:text-cyan-400 tracking-wide text-center transition-colors">Adresler</span>
+                  <span className="text-[10px] font-bold text-slate-300 group-hover:text-purple-400 tracking-wide text-center transition-colors">Favoriler</span>
+                </Link>
+
+                <Link href="/sistemlerim" onClick={kilitliIslem} prefetch={true} className="flex flex-col items-center gap-1.5 group">
+                  <div className="w-16 h-16 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
+                    <Server className="w-7 h-7 text-emerald-400 group-hover:scale-110 transition-transform duration-300" />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-300 group-hover:text-emerald-400 tracking-wide text-center transition-colors">Sistemler</span>
                 </Link>
 
                 <div onClick={handleKargoClick} className="flex flex-col items-center gap-1.5 group cursor-pointer">
@@ -580,30 +552,6 @@ return (
                   <span className="text-[10px] font-bold text-slate-300 group-hover:text-rose-400 tracking-wide text-center transition-colors">Kargolar</span>
                 </div>
 
-                <Link href="/siparis-takip" onClick={kilitliIslem} prefetch={true} className="flex flex-col items-center gap-1.5 group">
-                  <div className="w-16 h-16 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
-                    <Search className="w-7 h-7 text-blue-400 group-hover:scale-110 transition-transform duration-300" />
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-300 group-hover:text-blue-400 tracking-wide text-center transition-colors">Sorgula</span>
-                </Link>
-
-                <Link href="https://www.bilginpcmarket.com/favorilerim" onClick={kilitliIslem} prefetch={true} className="flex flex-col items-center gap-1.5 group">
-                  <div className="w-16 h-16 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
-                    <Star className="w-7 h-7 text-purple-400 group-hover:scale-110 transition-transform duration-300" />
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-300 group-hover:text-purple-400 tracking-wide text-center transition-colors">Favoriler</span>
-                </Link>
-              </div>
-
-              {/* 🟢 SAYFA 2 (Kalan 2 Kutu) */}
-              <div className="min-w-full shrink-0 snap-center grid grid-cols-4 gap-2 px-1">
-                <Link href="/sistemlerim" onClick={kilitliIslem} prefetch={true} className="flex flex-col items-center gap-1.5 group">
-                  <div className="w-16 h-16 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
-                    <Server className="w-7 h-7 text-emerald-400 group-hover:scale-110 transition-transform duration-300" />
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-300 group-hover:text-emerald-400 tracking-wide text-center transition-colors">Sistemler</span>
-                </Link>
-
                 <Link href="/destek-taleplerim" onClick={kilitliIslem} prefetch={true} className="flex flex-col items-center gap-1.5 group">
                   <div className="relative w-16 h-16 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
                     {yeniMesajVar && (
@@ -618,6 +566,23 @@ return (
                 </Link>
               </div>
 
+              {/* 🟢 SAYFA 2 (Sorgula, Adresler) */}
+              <div className="min-w-full shrink-0 snap-center grid grid-cols-4 gap-2 px-1">
+                <Link href="/siparis-takip" onClick={kilitliIslem} prefetch={true} className="flex flex-col items-center gap-1.5 group">
+                  <div className="w-16 h-16 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
+                    <Search className="w-7 h-7 text-blue-400 group-hover:scale-110 transition-transform duration-300" />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-300 group-hover:text-blue-400 tracking-wide text-center transition-colors">Sorgula</span>
+                </Link>
+
+                <Link href="/adreslerim" onClick={kilitliIslem} prefetch={true} className="flex flex-col items-center gap-1.5 group">
+                  <div className="w-16 h-16 rounded-2xl bg-[#0f172a] border border-slate-800 flex items-center justify-center shadow-lg group-hover:bg-white/[0.05] transition-all">
+                    <MapPin className="w-7 h-7 text-cyan-400 group-hover:scale-110 transition-transform duration-300" />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-300 group-hover:text-cyan-400 tracking-wide text-center transition-colors">Adresler</span>
+                </Link>
+              </div>
+
             </div>
 
             {/* Alt Menü Noktaları */}
@@ -627,9 +592,8 @@ return (
             </div>
           </div>
 
-          {/* Sadece PC için Yedek (PC'de eski usul Grid kalır) */}
           <div className="hidden lg:grid lg:grid-cols-6 gap-y-6 gap-x-2 w-full mb-6 mt-2">
-            {/* Burada PC görünümü için mevcut alt menü kodları durabilir, ben temiz kalsın diye boş bıraktım, dilersen önceki 6'lı grid'i buraya koyabilirsin. */}
+            {/* Masaüstü (PC) Yedek Boşluk */}
           </div>
           {/* ========================================== */}
           {/* HESAP YÖNETİMİ BİTİŞİ                      */}
