@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import { useRouter } from "next/navigation"; // 🚀 router'ı geri ekledik
 import { useOrders } from "@/app/OrderContext";
 
 interface Address {
@@ -30,6 +31,7 @@ interface Props {
 
 export default function AdresYoneticisi({ initialAddresses }: Props) {
   const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
+  const router = useRouter(); // 🚀 router motorunu başlattık
   
   const [kargoPopupAcik, setKargoPopupAcik] = useState(false);
   const { orders: localOrders } = useOrders();
@@ -39,33 +41,10 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
+  // 🚀 SUNUCUDAN GELEN YENİ VERİ DEĞİŞTİĞİNDE EKRANI OTOMATİK GÜNCELLEYEN MOTOR
   useEffect(() => {
     setAddresses(initialAddresses);
   }, [initialAddresses]);
-
-  // 🚀 SESSİZ ÇIRAK FONKSİYONU: Veritabanındaki en güncel adresleri arkadan çeker
-  const adresleriGuncelle = async () => {
-    try {
-      const zamanDamgasi = new Date().getTime();
-      const res = await fetch("/api/addresses?t=" + zamanDamgasi, {
-        cache: "no-store",
-        headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        const guncelListe = data.addresses || data.data || (Array.isArray(data) ? data : []);
-        setAddresses(guncelListe);
-      }
-    } catch (error) {
-      console.error("Adresler arka planda güncellenemedi", error);
-    }
-  };
-
-  // 🚀 BİNGO: AÇILIŞ RADARI! 
-  // Sen başka sayfadan bu sayfaya her döndüğünde çırağı otomatik uyandırır ve ekranı tazeler!
-  useEffect(() => {
-    adresleriGuncelle();
-  }, []);
 
   // 🚀 MODAL VE FORM AÇILINCA ARKA PLANI DONDURAN MOTOR
   useEffect(() => {
@@ -112,10 +91,10 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
         setFormData(formBaslangic);
         setEditingId(null);
 
-        // Değişiklik anında çırağı çalıştırıyoruz
-        adresleriGuncelle();
+        // 🚀 BİNGO 1: Linkler korumalı olduğu için artık güvenle router hafızasını yenileyebiliriz.
+        // Sayfa geçişlerinde eski verilerin görünmesini tamamen engeller.
+        router.refresh();
       } else {
-        toast.dismiss(loadingToast);
         toast.error(data.message || "İşlem başarısız oldu.");
       }
     } catch (error) {
@@ -127,15 +106,15 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
   };
 
   const handleDeleteAddress = async (id: string) => {
-    // Önce kullanıcı beklememesi için ekrandan anında ışık hızında sileriz
+    // 🚀 IŞIK HIZINDA SİLME: Kullanıcıyı saniyelerce bekletmemek için önce ekrandan anında uçuruyoruz
     setAddresses(prev => prev.filter(addr => addr._id !== id)); 
     
     try {
       const res = await fetch("/api/addresses?id=" + id, { method: "DELETE" });
       if(res.ok) {
          toast.success("Adres silindi.");
-         // Silinme onaylanınca çırağı senkronize etmesi için tetikliyoruz
-         adresleriGuncelle(); 
+         // 🚀 BİNGO 2: Veritabanından silinme onaylanınca Next.js'in rota hafızasını sıfırlıyoruz.
+         router.refresh(); 
       } else {
          toast.error("Veritabanından silinemedi.");
       }
@@ -408,7 +387,7 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
         </div>
       </div>
 
-      {/* 🚀 KÜRESEL SİLME MODALI (Z-Index ve Tema Tam Uyumlu) */}
+      {/* 🚀 KÜRESEL SİLME MODAL (Z-Index ve Tema Tam Uyumlu) */}
       {addressToDelete && (
         <div style={{ zIndex: 999999 }} className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
           <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-sm w-full flex flex-col items-center text-center shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden animate-in zoom-in-95 duration-200">
