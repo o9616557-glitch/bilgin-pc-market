@@ -3,10 +3,10 @@ import React, { useState, useRef } from "react";
 import { Star, Server, Truck, Headset, Search, MapPin, Palette, CheckCircle2 } from "lucide-react";
 
 export default function SurukleVeRenkTesti() {
-  // 🎨 1. RENK PALETİ (Siyah renk görünür hale getirildi, toplam 21 renk)
+  // 🎨 1. RENK PALETİ (21 Renk)
   const renkSecenekleri = [
     { text: "text-white", bg: "bg-white border-slate-300" }, 
-    { text: "text-slate-500", bg: "bg-slate-700 border-slate-500" }, // Görünür Füme/Koyu Gri (Eski Siyah)
+    { text: "text-slate-500", bg: "bg-slate-700 border-slate-500" }, 
     { text: "text-slate-400", bg: "bg-slate-400 border-slate-300" }, 
     { text: "text-red-500", bg: "bg-red-500 border-red-400" }, 
     { text: "text-rose-500", bg: "bg-rose-500 border-rose-400" }, 
@@ -81,15 +81,16 @@ export default function SurukleVeRenkTesti() {
   };
 
   return (
-    <div className="min-h-screen bg-[#020617] text-white p-4 sm:p-10 flex flex-col items-center pt-8 sm:pt-16">
+    // 💡 YENİ ÖZELLİK: En dış katmana `relative z-[999]` eklendi. Sitenin Header'ını ezip geçer.
+    <div className="min-h-screen bg-[#020617] text-white p-4 sm:p-10 flex flex-col items-center pt-8 sm:pt-16 relative z-[999]">
       
       <div className="w-full max-w-3xl flex flex-col h-[85vh]">
         
         {/* Üst Başlık Alanı */}
-        <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-4 shrink-0">
+        <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-4 shrink-0 relative z-[1000]">
             <div>
               <h2 className="text-xs sm:text-sm font-black text-slate-500 uppercase tracking-widest">
-                HESAP YÖNETİMİ (GÜNCELLENMİŞ MOTOR)
+                HESAP YÖNETİMİ (Z-INDEX KORUMALI)
               </h2>
             </div>
             
@@ -110,7 +111,7 @@ export default function SurukleVeRenkTesti() {
         </div>
 
         {/* 📦 50 KUTUNUN YAŞADIĞI İÇTEN KAYDIRMALI PENCERE */}
-        <div className="flex-1 overflow-y-auto bg-slate-950/40 border border-slate-900 rounded-2xl p-4 mb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="flex-1 overflow-y-auto bg-slate-950/40 border border-slate-900 rounded-2xl p-4 mb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] relative z-[999]">
           <div className="grid grid-cols-5 gap-y-6 gap-x-2 w-full">
             {menuListesi.map((item, index) => {
               const IkonBileseni = item.ikon;
@@ -124,22 +125,20 @@ export default function SurukleVeRenkTesti() {
                   onDragEnter={() => handleDragEnter(index)}
                   onDragOver={(e) => e.preventDefault()}
                   onDragEnd={() => (suruklenenOgeRef.current = null)}
-                  
-                  // 💡 YENİ ÖZELLİK: Tıklanan kutu zaten seçiliyse seçimi iptal et (null yap)
                   onClick={() => {
                     if (duzenlemeModu) {
                       setSeciliKutuId(isSecili ? null : item.id);
                     }
                   }}
-                  
-                  className="flex flex-col items-center gap-1.5 group"
+                  // 💡 YENİ ÖZELLİK: Seçili kutu veya sürüklenen kutu en üste çıkar (z-[9999])
+                  className={`flex flex-col items-center gap-1.5 group ${isSecili ? "relative z-[9999]" : "relative z-10"}`}
                 >
                   {/* Kutu Tasarımı */}
                   <div className={`relative w-full aspect-square max-w-[64px] rounded-2xl flex items-center justify-center transition-all duration-300 ${
                       duzenlemeModu && isSecili
-                      ? "bg-slate-800 border-2 border-cyan-400 shadow-[0_0_25px_rgba(34,211,255,0.4)] scale-110 z-20"
+                      ? "bg-slate-800 border-2 border-cyan-400 shadow-[0_0_25px_rgba(34,211,255,0.4)] scale-110"
                       : duzenlemeModu && !isSecili
-                      ? "bg-[#0f172a]/60 border-2 border-dashed border-slate-800 opacity-60 hover:opacity-100 cursor-pointer" // cursor-pointer eklendi
+                      ? "bg-[#0f172a]/60 border-2 border-dashed border-slate-800 opacity-60 hover:opacity-100 cursor-pointer"
                       : "bg-[#0f172a] border border-slate-800 shadow-lg group-hover:bg-white/[0.05]"
                   }`}>
                     <IkonBileseni className={`w-6 h-6 sm:w-7 sm:h-7 transition-colors duration-300 ${item.renk}`} />
@@ -162,15 +161,15 @@ export default function SurukleVeRenkTesti() {
         </div>
 
         {/* 🎨 5. EN ALTA ALINAN BÜYÜTÜLMÜŞ RENK PALETİ */}
+        {/* 💡 YENİ ÖZELLİK: Renk paletine z-[9999] eklendi, asla başka bir şeyin altında kalmaz */}
         {duzenlemeModu && (
-          <div className="w-full bg-[#0f172a] border border-slate-800 rounded-2xl p-4 shadow-2xl shrink-0 animate-in fade-in slide-in-from-bottom-4">
+          <div className="w-full bg-[#0f172a] border border-slate-800 rounded-2xl p-4 shadow-2xl shrink-0 animate-in fade-in slide-in-from-bottom-4 relative z-[9999]">
             <div className="text-center mb-3">
               <span className="text-[10px] sm:text-xs font-bold text-slate-400 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800">
                 🎨 İstediğiniz kutuya basın, rengini seçin. İptal etmek için kutuya tekrar tıklayın.
               </span>
             </div>
             
-            {/* 💡 YENİ ÖZELLİK: Renk butonları büyütüldü (w-9 h-9 ve sm:w-11 sm:h-11) */}
             <div className="flex flex-wrap justify-center gap-2.5 sm:gap-3.5 max-h-[140px] overflow-y-auto py-2">
               {renkSecenekleri.map((renkObj, i) => (
                 <button 
