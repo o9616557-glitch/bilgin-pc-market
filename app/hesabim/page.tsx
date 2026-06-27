@@ -9,6 +9,7 @@ import {
   Search, LogIn, UserPlus, Headset, Crown, Palette 
 } from "lucide-react";
 
+// Canlı Lucide ikonlarını veritabanından gelen kimliklere göre eşleştiren motor
 const ikonEslestir = (liste: any[]) => {
   return liste.map((item: any) => {
     let ikonBileseni = Star;
@@ -29,6 +30,9 @@ export default function HesabimPage() {
   const suAnkiTarih = new Date();
   const yil = suAnkiTarih.getFullYear();
 
+  // =========================================================================
+  // 1. ÖN BELLEK (LOCAL STORAGE) VE GELİŞMİŞ RENK MOTORU
+  // =========================================================================
   const renkSecenekleri = [
     { text: "text-white", bg: "bg-white border-slate-300", badge: "bg-white/10 text-white border-white/20", hex: "#ffffff" }, 
     { text: "text-slate-400", bg: "bg-slate-400 border-slate-300", badge: "bg-slate-400/10 text-slate-400 border-slate-400/20", hex: "#94a3b8" }, 
@@ -449,8 +453,8 @@ export default function HesabimPage() {
   const MiniPalet = ({ isActive, onClick }: { isActive: boolean, onClick: () => void }) => (
     <div onClick={onClick} className="relative w-6 h-6 sm:w-7 sm:h-7 shrink-0 flex items-center justify-center cursor-pointer group hover:scale-110 transition-transform">
       <div className="absolute inset-0 rounded-full bg-gradient-to-b from-slate-600 to-slate-900 border border-slate-700 shadow-sm"></div>
-      <div className={`absolute inset-1 rounded-full flex items-center justify-center z-20 transition-colors ${isActive ? 'bg-emerald-950 border border-emerald-500/50' : 'bg-[#020617] border border-cyan-900/50'}`}>
-        <Palette className={`w-3 h-3 transition-colors ${isActive ? 'text-emerald-400' : 'text-cyan-400 group-hover:text-white'}`} />
+      <div className={`absolute inset-0 rounded-full flex items-center justify-center z-20 transition-colors ${isActive ? 'bg-emerald-950 border border-emerald-500/50' : 'bg-[#020617] border border-cyan-900/50'}`}>
+        <Palette className={`w-3.5 h-3.5 transition-colors ${isActive ? 'text-emerald-400' : 'text-cyan-400 group-hover:text-white'}`} />
       </div>
     </div>
   );
@@ -493,7 +497,7 @@ export default function HesabimPage() {
 
         {/* 1️⃣ ÜST 4'LÜ MENÜ KUTULARI (Tamamen Simetrik ve Çıkışsız) */}
         <div className="w-full block">
-          <div className={`flex flex-row justify-center gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${aktifPalet === 'menu' ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
+          <div className={`grid grid-cols-4 gap-2 sm:gap-4 w-full transition-all duration-300 ${aktifPalet === 'menu' ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
             
             {ustMenuListesi.map((item: any, index: number) => {
               const IkonBileseni = item.ikon;
@@ -510,7 +514,7 @@ export default function HesabimPage() {
                      if(aktifPalet === 'menu') veritabaninaKaydet(ustMenuListesi, altMenuListesi);
                   }}
                   onClick={() => { if (aktifPalet === 'menu') setSeciliKutuId(isSecili ? null : item.id); }}
-                  className={`flex flex-col items-center gap-1.5 lg:gap-2.5 group w-[19%] sm:w-[19%] select-none ${isSecili ? "relative z-[9999]" : "relative z-10"}`}
+                  className={`flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none ${isSecili ? "relative z-[9999]" : "relative z-10"}`}
                 >
                   <div className={`relative w-full aspect-square lg:h-24 rounded-2xl flex items-center justify-center transition-all duration-300 ${
                       aktifPalet === 'menu' && isSecili
@@ -527,14 +531,14 @@ export default function HesabimPage() {
                       </div>
                     )}
                   </div>
-                  <span className={`text-[9px] sm:text-[10px] lg:text-xs font-bold tracking-wide text-center truncate w-full px-0.5 transition-colors ${aktifPalet === 'menu' && isSecili ? "text-emerald-400" : "text-slate-300 group-hover:text-cyan-400"}`}>
+                  <span className={`text-[9px] sm:text-[10px] lg:text-xs font-bold tracking-wide text-center w-full px-0.5 transition-colors ${aktifPalet === 'menu' && isSecili ? "text-emerald-400" : "text-slate-300 group-hover:text-cyan-400"}`}>
                     {item.isim}
                   </span>
                 </div>
               );
 
               if (item.isLink && aktifPalet !== 'menu') {
-                return <Link key={item.id} href={item.href || "#"} onClick={kilitliIslem} prefetch={true} className="w-[19%] sm:w-[19%]">{KutuIcerigi}</Link>;
+                return <Link key={item.id} href={item.href || "#"} onClick={kilitliIslem} prefetch={true} className="w-full">{KutuIcerigi}</Link>;
               }
               return <React.Fragment key={item.id}>{KutuIcerigi}</React.Fragment>;
             })}
@@ -639,6 +643,7 @@ export default function HesabimPage() {
                     
                     <IkonBileseni className={`w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 transition-all duration-300 ${item.renk} ${aktifPalet !== 'menu' ? 'group-hover:scale-110' : ''}`} />
                     
+                    {/* Akıllı Ping Motoru: Rengini otomatik alır! */}
                     {(kargoVarmi || mesajVarmi) && aktifPalet !== 'menu' && (
                       <span className={`absolute -top-1 -right-1 lg:-top-1.5 lg:-right-1.5 flex h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 z-10 ${item.renk}`}>
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-current"></span>
@@ -718,7 +723,7 @@ export default function HesabimPage() {
                           </p>
                           <span 
                             onClick={() => isEditing ? setSeciliSiparisDurumu(durum) : null}
-                            className={`inline-flex items-center justify-center px-2 h-5 sm:h-6 rounded text-[8px] sm:text-[9px] font-black uppercase tracking-widest shrink-0 transition-all ${renkAyar.badge} ${isEditing ? 'cursor-pointer hover:scale-105' : ''} ${isThisSelected ? 'ring-2 ring-white scale-110 shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'border border-transparent'}`}
+                            className={`inline-flex items-center justify-center px-2 py-1 leading-none rounded text-[8px] sm:text-[9px] font-black uppercase tracking-widest shrink-0 transition-all ${renkAyar.badge} ${isEditing ? 'cursor-pointer hover:scale-105' : ''} ${isThisSelected ? 'ring-2 ring-white scale-110 shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'border border-transparent'}`}
                           >
                             {durum}
                           </span>
@@ -754,60 +759,16 @@ export default function HesabimPage() {
                  <RenkPaleti disabledCondition={!seciliPastaDilimi} text="🎨 Aşağıdan bir grafiğe tıklayıp renk seçin" />
                )}
 
-               <div className="flex flex-col xl:flex-row items-center gap-6 mt-2 w-full">
+               {/* Mobil cihazlarda yan yana gelmesi için flex-row yapıldı ve width ayarlamaları yapıldı */}
+               <div className="flex flex-row items-start justify-between gap-1 sm:gap-6 mt-2 w-full">
                  
-                 {/* AYLIK PASTA */}
-                 <div className="flex flex-col items-center gap-4 w-full xl:w-1/2 pr-0 xl:pr-6 border-b xl:border-b-0 xl:border-r border-slate-800/80 pb-6 xl:pb-0">
-                   <span className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[9px] sm:text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest shadow-[0_0_10px_rgba(6,182,212,0.4)] whitespace-nowrap text-center">
-                     {aylikPastaVerisi.ayAdi ? `${aylikPastaVerisi.ayAdi} ÖZETİ` : "AYLIK ÖZET"}
-                   </span>
-                   
-                   <div className="relative w-24 h-24 sm:w-32 sm:h-32 shrink-0">
-                     <svg className="w-full h-full transform -rotate-90 drop-shadow-md" viewBox="0 0 42 42">
-                       <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(255,255,255,0.02)" strokeWidth="4.5"></circle>
-                       {aylikPastaVerisi.maxYuzde === 0 ? (
-                         <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#334155" strokeWidth="4.5" strokeDasharray="100 0"></circle>
-                       ) : (
-                         <>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.kendinTopla.hex} strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.kendinTopla.yuzde} ${100 - aylikPastaVerisi.kendinTopla.yuzde}`} strokeDashoffset={-aylikPastaVerisi.kendinTopla.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.bilesen.hex} strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.bilesen.yuzde} ${100 - aylikPastaVerisi.bilesen.yuzde}`} strokeDashoffset={-aylikPastaVerisi.bilesen.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.cevre.hex} strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.cevre.yuzde} ${100 - aylikPastaVerisi.cevre.yuzde}`} strokeDashoffset={-aylikPastaVerisi.cevre.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.sistem.hex} strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.sistem.yuzde} ${100 - aylikPastaVerisi.sistem.yuzde}`} strokeDashoffset={-aylikPastaVerisi.sistem.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.aksesuar.hex} strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.aksesuar.yuzde} ${100 - aylikPastaVerisi.aksesuar.yuzde}`} strokeDashoffset={-aylikPastaVerisi.aksesuar.offset}></circle>
-                         </>
-                       )}
-                     </svg>
-                     <div className="absolute inset-0 flex flex-col items-center justify-center mt-0.5 sm:mt-1">
-                       <span className="text-sm sm:text-xl font-black text-white">{aylikPastaVerisi.maxYuzde}%</span>
-                     </div>
-                   </div>
-                   
-                   <div className="flex flex-col gap-1.5 shrink-0 w-full sm:w-[200px]">
-                     {[
-                       { id: 'kendinTopla', isim: 'Kendin Topla', veri: aylikPastaVerisi.kendinTopla.yuzde },
-                       { id: 'bilesen', isim: 'Bileşenler', veri: aylikPastaVerisi.bilesen.yuzde },
-                       { id: 'cevre', isim: 'Çevre & Oyuncu', veri: aylikPastaVerisi.cevre.yuzde },
-                       { id: 'sistem', isim: 'Sistem & Laptop', veri: aylikPastaVerisi.sistem.yuzde },
-                       { id: 'aksesuar', isim: 'Ağ & Aksesuar', veri: aylikPastaVerisi.aksesuar.yuzde }
-                     ].map(dilim => (
-                       <div key={dilim.id} onClick={() => aktifPalet === 'pasta' ? setSeciliPastaDilimi(dilim.id) : null} className={`flex items-center justify-between w-full p-1 rounded-lg transition-all ${aktifPalet === 'pasta' ? 'cursor-pointer hover:bg-white/5' : ''} ${seciliPastaDilimi === dilim.id ? 'ring-1 ring-white/50 bg-white/5 scale-105' : ''}`}>
-                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0" style={{ backgroundColor: pastaRenkleri[dilim.id].hex, boxShadow: `0 0 8px ${pastaRenkleri[dilim.id].hex}` }}></span>
-                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-bold truncate">{dilim.isim}</span>
-                         </div>
-                         <span className="text-[9px] sm:text-[11px] font-black shrink-0 pl-1" style={{ color: pastaRenkleri[dilim.id].hex }}>{dilim.veri}%</span>
-                       </div>
-                     ))}
-                   </div>
-                 </div>
-
-                 {/* TÜM ZAMANLAR PASTA */}
-                 <div className="flex flex-col items-center gap-4 w-full xl:w-1/2 pl-0 xl:pl-6">
-                   <span className="bg-slate-800 text-slate-400 text-[9px] sm:text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest whitespace-nowrap text-center">
+                 {/* TÜM ZAMANLAR PASTA (Sol Tarafta) */}
+                 <div className="flex flex-col items-center gap-3 sm:gap-4 w-1/2 pr-1 sm:pr-6 border-r border-slate-800/80">
+                   <span className="bg-slate-800 text-slate-400 text-[8px] sm:text-[10px] font-black px-1.5 py-1 rounded uppercase tracking-widest whitespace-nowrap text-center">
                      TÜM ZAMANLAR
                    </span>
                    
-                   <div className="relative w-24 h-24 sm:w-32 sm:h-32 shrink-0">
+                   <div className="relative w-16 h-16 sm:w-32 sm:h-32 shrink-0">
                      <svg className="w-full h-full transform -rotate-90 drop-shadow-xl" viewBox="0 0 42 42">
                        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(255,255,255,0.03)" strokeWidth="4.5"></circle>
                        {pastaVerisi.maxYuzde === 0 ? (
@@ -823,11 +784,11 @@ export default function HesabimPage() {
                        )}
                      </svg>
                      <div className="absolute inset-0 flex flex-col items-center justify-center mt-0.5 sm:mt-1">
-                       <span className="text-sm sm:text-xl font-black text-white tracking-tight">{pastaVerisi.maxYuzde}%</span>
+                       <span className="text-[10px] sm:text-xl font-black text-white tracking-tight">{pastaVerisi.maxYuzde}%</span>
                      </div>
                    </div>
 
-                   <div className="flex flex-col gap-1.5 shrink-0 w-full sm:w-[200px]">
+                   <div className="flex flex-col gap-1.5 shrink-0 w-full">
                      {[
                        { id: 'kendinTopla', isim: 'Kendin Topla', veri: pastaVerisi.kendinTopla.yuzde },
                        { id: 'bilesen', isim: 'Bileşenler', veri: pastaVerisi.bilesen.yuzde },
@@ -835,12 +796,57 @@ export default function HesabimPage() {
                        { id: 'sistem', isim: 'Sistem & Laptop', veri: pastaVerisi.sistem.yuzde },
                        { id: 'aksesuar', isim: 'Ağ & Aksesuar', veri: pastaVerisi.aksesuar.yuzde }
                      ].map(dilim => (
-                       <div key={dilim.id} onClick={() => aktifPalet === 'pasta' ? setSeciliPastaDilimi(dilim.id) : null} className={`flex items-center justify-between w-full p-1 rounded-lg transition-all ${aktifPalet === 'pasta' ? 'cursor-pointer hover:bg-white/5' : ''} ${seciliPastaDilimi === dilim.id ? 'ring-1 ring-white/50 bg-white/5 scale-105' : ''}`}>
-                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                       <div key={dilim.id} onClick={() => aktifPalet === 'pasta' ? setSeciliPastaDilimi(dilim.id) : null} className={`flex items-center justify-between w-full p-0.5 sm:p-1 rounded-lg transition-all ${aktifPalet === 'pasta' ? 'cursor-pointer hover:bg-white/5' : ''} ${seciliPastaDilimi === dilim.id ? 'ring-1 ring-white/50 bg-white/5 scale-105' : ''}`}>
+                         <div className="flex items-center gap-1 sm:gap-2 min-w-0">
                            <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0" style={{ backgroundColor: pastaRenkleri[dilim.id].hex, boxShadow: `0 0 8px ${pastaRenkleri[dilim.id].hex}` }}></span>
-                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-bold truncate">{dilim.isim}</span>
+                           <span className="text-[7px] sm:text-[11px] text-slate-300 font-bold truncate pr-1">{dilim.isim}</span>
                          </div>
-                         <span className="text-[9px] sm:text-[11px] font-black shrink-0 pl-1" style={{ color: pastaRenkleri[dilim.id].hex }}>{dilim.veri}%</span>
+                         <span className="text-[7px] sm:text-[11px] font-black shrink-0 pl-0.5" style={{ color: pastaRenkleri[dilim.id].hex }}>{dilim.veri}%</span>
+                       </div>
+                     ))}
+                   </div>
+                 </div>
+
+                 {/* AYLIK PASTA (Sağ Tarafta) */}
+                 <div className="flex flex-col items-center gap-3 sm:gap-4 w-1/2 pl-1 sm:pl-0">
+                   <span className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[8px] sm:text-[10px] font-black px-1.5 py-1 rounded uppercase tracking-widest shadow-[0_0_10px_rgba(6,182,212,0.4)] whitespace-nowrap text-center">
+                     {aylikPastaVerisi.ayAdi ? `${aylikPastaVerisi.ayAdi} ÖZETİ` : "AYLIK ÖZET"}
+                   </span>
+                   
+                   <div className="relative w-16 h-16 sm:w-32 sm:h-32 shrink-0">
+                     <svg className="w-full h-full transform -rotate-90 drop-shadow-md" viewBox="0 0 42 42">
+                       <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(255,255,255,0.02)" strokeWidth="4.5"></circle>
+                       {aylikPastaVerisi.maxYuzde === 0 ? (
+                         <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#334155" strokeWidth="4.5" strokeDasharray="100 0"></circle>
+                       ) : (
+                         <>
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.kendinTopla.hex} strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.kendinTopla.yuzde} ${100 - aylikPastaVerisi.kendinTopla.yuzde}`} strokeDashoffset={-aylikPastaVerisi.kendinTopla.offset}></circle>
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.bilesen.hex} strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.bilesen.yuzde} ${100 - aylikPastaVerisi.bilesen.yuzde}`} strokeDashoffset={-aylikPastaVerisi.bilesen.offset}></circle>
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.cevre.hex} strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.cevre.yuzde} ${100 - aylikPastaVerisi.cevre.yuzde}`} strokeDashoffset={-aylikPastaVerisi.cevre.offset}></circle>
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.sistem.hex} strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.sistem.yuzde} ${100 - aylikPastaVerisi.sistem.yuzde}`} strokeDashoffset={-aylikPastaVerisi.sistem.offset}></circle>
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.aksesuar.hex} strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.aksesuar.yuzde} ${100 - aylikPastaVerisi.aksesuar.yuzde}`} strokeDashoffset={-aylikPastaVerisi.aksesuar.offset}></circle>
+                         </>
+                       )}
+                     </svg>
+                     <div className="absolute inset-0 flex flex-col items-center justify-center mt-0.5 sm:mt-1">
+                       <span className="text-[10px] sm:text-xl font-black text-white">{aylikPastaVerisi.maxYuzde}%</span>
+                     </div>
+                   </div>
+                   
+                   <div className="flex flex-col gap-1.5 shrink-0 w-full">
+                     {[
+                       { id: 'kendinTopla', isim: 'Kendin Topla', veri: aylikPastaVerisi.kendinTopla.yuzde },
+                       { id: 'bilesen', isim: 'Bileşenler', veri: aylikPastaVerisi.bilesen.yuzde },
+                       { id: 'cevre', isim: 'Çevre & Oyuncu', veri: aylikPastaVerisi.cevre.yuzde },
+                       { id: 'sistem', isim: 'Sistem & Laptop', veri: aylikPastaVerisi.sistem.yuzde },
+                       { id: 'aksesuar', isim: 'Ağ & Aksesuar', veri: aylikPastaVerisi.aksesuar.yuzde }
+                     ].map(dilim => (
+                       <div key={dilim.id} onClick={() => aktifPalet === 'pasta' ? setSeciliPastaDilimi(dilim.id) : null} className={`flex items-center justify-between w-full p-0.5 sm:p-1 rounded-lg transition-all ${aktifPalet === 'pasta' ? 'cursor-pointer hover:bg-white/5' : ''} ${seciliPastaDilimi === dilim.id ? 'ring-1 ring-white/50 bg-white/5 scale-105' : ''}`}>
+                         <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0" style={{ backgroundColor: pastaRenkleri[dilim.id].hex, boxShadow: `0 0 8px ${pastaRenkleri[dilim.id].hex}` }}></span>
+                           <span className="text-[7px] sm:text-[11px] text-slate-300 font-bold truncate pr-1">{dilim.isim}</span>
+                         </div>
+                         <span className="text-[7px] sm:text-[11px] font-black shrink-0 pl-0.5" style={{ color: pastaRenkleri[dilim.id].hex }}>{dilim.veri}%</span>
                        </div>
                      ))}
                    </div>
@@ -888,7 +894,7 @@ export default function HesabimPage() {
                     >
                       {isTooltipGozukecek && (
                         <div className={`absolute bottom-[105%] bg-[#090f1e] border font-black text-[10px] sm:text-xs px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-md whitespace-nowrap z-50 ${isSecili ? '' : 'animate-in fade-in zoom-in-95 duration-150'}`}
-                             style={{ borderColor: cubukRenk.hex, color: cubukRenk.hex, boxShadow: `0 0 15px ${cubukRenk.hex}40` }}>
+                             style={{ borderColor: cubukRenk.hex, color: cubukRenk.hex, boxShadow: `0 0 10px ${cubukRenk.hex}30` }}>
                           {item.tutar.toLocaleString("tr-TR")} ₺
                         </div>
                       )}
@@ -896,7 +902,7 @@ export default function HesabimPage() {
                       <div className="w-full flex items-end justify-center h-[140px]">
                         <div 
                           className={`w-full max-w-[36px] rounded-t-sm transition-all duration-500 ease-out cursor-pointer ${isSecili ? 'scale-[1.05]' : 'hover:opacity-80'}`} 
-                          style={{ height: `${item.yuzde}%`, backgroundColor: isSecili ? cubukRenk.hex : '#334155', boxShadow: isSecili ? `0 0 8px ${cubukRenk.hex}40` : 'none' }}
+                          style={{ height: `${item.yuzde}%`, backgroundColor: isSecili ? cubukRenk.hex : '#334155', boxShadow: isSecili ? `0 0 6px ${cubukRenk.hex}30` : 'none' }}
                         ></div>
                       </div>
 
