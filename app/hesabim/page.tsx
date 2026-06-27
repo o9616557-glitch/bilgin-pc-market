@@ -965,10 +965,10 @@ export default function HesabimPage() {
 
       </div>
 
- {/* 🚀 ONBOARDING (KARŞILAMA) MODALI - BÜYÜK YAZILI VE KİLİTLİ ARKA PLAN */}
+{/* 🚀 ONBOARDING (KARŞILAMA) MODALI - BÜYÜK YAZILI VE KİLİTLİ ARKA PLAN */}
       {showOnboarding && (
-        <div className="fixed top-[70px] bottom-[80px] sm:bottom-0 left-0 right-0 z-[9999999] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-700">
-          <div className="bg-[#0b1121] border border-cyan-500/30 rounded-3xl max-w-2xl w-full flex flex-col shadow-[0_0_50px_rgba(6,182,212,0.15)] relative overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-10 duration-700 max-h-[100%]">
+        <div className="fixed top-[70px] bottom-0 left-0 right-0 z-[9999999] flex items-center justify-center bg-black/95 backdrop-blur-xl p-4 sm:p-6 animate-in fade-in duration-700">
+          <div className="bg-[#0b1121] border border-cyan-500/30 rounded-3xl max-w-2xl w-full flex flex-col shadow-[0_0_50px_rgba(6,182,212,0.15)] relative overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-10 duration-700 max-h-[90vh] sm:max-h-[85vh]">
             
             {/* Arka Plan Siber Spot Işıkları */}
             <div className="absolute -top-32 -right-32 w-64 h-64 bg-cyan-500/20 blur-[80px] rounded-full pointer-events-none z-0"></div>
