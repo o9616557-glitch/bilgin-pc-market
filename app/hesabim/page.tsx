@@ -9,7 +9,7 @@ import {
   Search, LogIn, UserPlus, Headset, Crown, Palette 
 } from "lucide-react";
 
-// Canlı Lucide ikonlarını isimlerine göre eşleştiren akıllı motor
+// Canlı Lucide ikonlarını veritabanından gelen kimliklere göre eşleştiren motor
 const ikonEslestir = (liste: any[]) => {
   return liste.map((item: any) => {
     let ikonBileseni = Star;
@@ -72,7 +72,7 @@ export default function HesabimPage() {
     { id: "sorgula", isim: "Sorgula", ikon: Search, renk: "text-blue-400", isLink: true, href: "/siparis-takip" }
   ];
 
-  // Sıfır Gecikme: Sayfa açılır açılmaz ön bellekten (Local Storage) menüyü çeker
+  // 🚀 SIFIR GECİKME: Sayfa açılır açılmaz ön bellekten (Local Storage) veriyi çeker
   const [ustMenuListesi, setUstMenuListesi] = useState(() => {
     if (typeof window !== "undefined") {
       try {
@@ -137,10 +137,10 @@ export default function HesabimPage() {
   const [tiklananAy, setTiklananAy] = useState<number | null>(suAnkiTarih.getMonth());
 
   // =========================================================================
-  // 3. ÇEKİRDEK FONKSİYONLAR (Menü Senkronizasyonu, Kayıt vb.)
+  // 3. ÇEKİRDEK FONKSİYONLAR (Sessiz Güncelleme ve Senkronizasyon)
   // =========================================================================
   
-  // SESSİZ ARKA PLAN GÜNCELLEMESİ (Source of Truth)
+  // 📡 MONGODB: ARKA PLAN SENKRONİZASYONU
   useEffect(() => {
     if (status === "authenticated" && session?.user?.email) {
       fetch(`/api/menu-ayarlari?email=${session.user.email}`)
@@ -153,31 +153,33 @@ export default function HesabimPage() {
             const yuklenenUst = mapliListe.filter((i: any) => ustIds.includes(i.id));
             const yuklenenAlt = mapliListe.filter((i: any) => !ustIds.includes(i.id));
 
-            // MongoDB'den gelen güncel (ve eksikleri kapatılmış) listeyi ön yüze uygula
-            setUstMenuListesi(yuklenenUst);
-            setAltMenuListesi(yuklenenAlt);
+            const eksikUst = varsayilanUstMenu.filter(d => !yuklenenUst.some((y: any) => y.id === d.id));
+            const nihaiUst = [...yuklenenUst, ...eksikUst];
 
-            // Yerel hafızayı da anında güncelle
-            localStorage.setItem("bilgin_ust_menu_v2", JSON.stringify(yuklenenUst.map(({ikon, ...k})=>k)));
-            localStorage.setItem("bilgin_alt_menu_v2", JSON.stringify(yuklenenAlt.map(({ikon, ...k})=>k)));
+            const eksikAlt = varsayilanAltMenu.filter(d => !yuklenenAlt.some((y: any) => y.id === d.id));
+            const nihaiAlt = [...yuklenenAlt, ...eksikAlt];
+
+            setUstMenuListesi(nihaiUst);
+            setAltMenuListesi(nihaiAlt);
+
+            localStorage.setItem("bilgin_ust_menu_v2", JSON.stringify(nihaiUst.map(({ikon, ...k})=>k)));
+            localStorage.setItem("bilgin_alt_menu_v2", JSON.stringify(nihaiAlt.map(({ikon, ...k})=>k)));
           }
-        }).catch(err => console.error("Menü yükleme hatası:", err));
+        }).catch(err => console.error("Sessiz güncelleme hatası:", err));
     }
   }, [session, status]);
 
-  // KALICI KAYDETME MOTORU
+  // 💾 KALICI KAYDETME MOTORU
   const veritabaninaKaydet = async (guncelUst: any[], guncelAlt: any[]) => {
     if (!session?.user?.email) return;
     
     const temizUst = guncelUst.map(({ ikon, ...kalanlar }) => kalanlar);
     const temizAlt = guncelAlt.map(({ ikon, ...kalanlar }) => kalanlar);
 
-    // Ön belleğe anında yaz (0ms açılış için)
     localStorage.setItem("bilgin_ust_menu_v2", JSON.stringify(temizUst));
     localStorage.setItem("bilgin_alt_menu_v2", JSON.stringify(temizAlt));
 
     try {
-      // Arka planda sessizce MongoDB'yi (Tek Doğru Kaynak) güncelle
       const birlestirilmisListe = [...temizUst, ...temizAlt];
       await fetch('/api/menu-ayarlari', {
         method: 'POST',
@@ -257,12 +259,10 @@ export default function HesabimPage() {
   };
 
   // =========================================================================
-  // 4. VERİ ÇEKME VE GRAFİK HESAPLAMA MOTORLARI
+  // 4. ORİJİNAL GRAFİK VE VERİ RADARLARI
   // =========================================================================
   useEffect(() => {
-    if (status === "unauthenticated") {
-      setHamSiparisler([]); setAdresSayisi(0); setFavoriSayisi(0); setSistemSayisi(0);
-    }
+    if (status === "unauthenticated") { setHamSiparisler([]); }
   }, [status]);
 
   useEffect(() => {
@@ -302,19 +302,13 @@ export default function HesabimPage() {
         const adresRes = await fetch("/api/addresses?t=" + new Date().getTime(), { cache: "no-store" });
         if (adresRes.ok) {
           const adresData = await adresRes.json();
-          const sayi = adresData.addresses?.length || 0;
-          setAdresSayisi(sayi);
-          const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
-          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, adresSayisi: sayi }));
+          setAdresSayisi(adresData.addresses?.length || 0);
         }
 
         const favoriRes = await fetch("/api/favorites?t=" + new Date().getTime(), { cache: "no-store" });
         if (favoriRes.ok) {
           const favoriData = await favoriRes.json();
-          const sayi = favoriData.favorites?.length || 0;
-          setFavoriSayisi(sayi);
-          const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
-          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, favoriSayisi: sayi }));
+          setFavoriSayisi(favoriData.favorites?.length || 0);
         }
 
         const destekRes = await fetch("/api/destek?t=" + new Date().getTime(), { cache: "no-store" });
@@ -324,7 +318,6 @@ export default function HesabimPage() {
             const aciklar = destekData.talepler.filter((t: any) => t.durum !== "Çözüldü");
             const acilMesaj = aciklar.some((t: any) => t.durum === "Yanıt Bekleniyor");
             setAcikTalepSayisi(aciklar.length); setYeniMesajVar(acilMesaj);
-            sessionStorage.setItem("bilgin_destek_ozet", JSON.stringify({ sayi: aciklar.length, acil: acilMesaj }));
           }
         }
       } catch (error) { console.error("Radar bağlantı hatası:", error); }
@@ -435,39 +428,25 @@ export default function HesabimPage() {
     }
   }, [hamSiparisler, seciliYil, tiklananAy]);
 
-  const kargoSiparisleri = hamSiparisler.filter(s => {
-    const d = (s.status || s.durum || "").toLowerCase();
-    return d.includes("kargo") && !d.includes("teslim") && !d.includes("iptal");
-  });
-
+  const kargoSiparisleri = hamSiparisler.filter(s => (s.status || s.durum || "").toLowerCase().includes("kargo"));
   const userName = status === "unauthenticated" ? "Misafir" : (session?.user?.name || "Özkan");
   const userEmail = status === "unauthenticated" ? "Lütfen giriş yapın" : (session?.user?.email || "");
   const basHarf = userName.charAt(0).toUpperCase();
 
-  // Tam ekran ana yükleme
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center relative overflow-hidden">
-        <div className="w-16 h-16 border-4 border-slate-800 border-t-cyan-500 rounded-full animate-spin shadow-[0_0_30px_rgba(6,182,212,0.5)]"></div>
-        <p className="mt-6 text-cyan-400 font-bold uppercase tracking-widest text-sm animate-pulse">Sistem Yükleniyor...</p>
-      </div>
-    );
-  }
-
   return (
-    // suppressHydrationWarning: Tarayıcı ve Sunucu senkronizasyonunda "titremeyi" önler
     <div suppressHydrationWarning={true} className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip z-[999]">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
+      {/* 🚀 SANDVİÇ DÜZENİ MERKEZİ HİZALAMA */}
       <div className="max-w-[1000px] mx-auto flex flex-col gap-6 relative z-10 items-center">
 
-       {/* ==================================================================== */}
-        {/* 1️⃣ ÜST 4'LÜ MENÜ KUTULARI                                              */}
+        {/* ==================================================================== */}
+        {/* 1️⃣ ÜST 4'LÜ MENÜ KUTULARI (Tamamen Simetrik ve Çıkışsız)               */}
         {/* ==================================================================== */}
         <div className="w-full block">
-      <div className={`flex flex-row justify-center gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${duzenlemeModu ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
+          <div className={`grid grid-cols-4 gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${duzenlemeModu ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
             
-            {ustMenuListesi.map((item, index) => {
+            {ustMenuListesi.map((item: any, index: number) => {
               const IkonBileseni = item.ikon;
               const isSecili = seciliKutuId === item.id;
               
@@ -479,7 +458,7 @@ export default function HesabimPage() {
                   onDragOver={(e) => e.preventDefault()}
                   onDragEnd={() => (suruklenenUstRef.current = null)}
                   onClick={() => { if (duzenlemeModu) setSeciliKutuId(isSecili ? null : item.id); }}
-             className={`flex flex-col items-center gap-1.5 lg:gap-2.5 group w-[18%] sm:w-[19%] select-none ${isSecili ? "relative z-[9999]" : "relative z-10"}`}
+                  className={`flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none ${isSecili ? "relative z-[9999]" : "relative z-10"}`}
                 >
                   <div className={`relative w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl flex items-center justify-center transition-all duration-300 ${
                       duzenlemeModu && isSecili
@@ -519,12 +498,11 @@ export default function HesabimPage() {
             <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-gradient-to-r from-cyan-500/10 to-transparent pointer-events-none"></div>
 
             <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 relative z-10">
-              {/* 🐍 Orijinal Işıklı Yılan Dönüşlü Profil Yuvarlağı */}
+              {/* 🐍 Yılan Animasyonlu Profil */}
               <div className="relative w-28 h-28 sm:w-32 sm:h-32 shrink-0 flex items-center justify-center">
                 <div className="absolute inset-0 rounded-full bg-gradient-to-b from-slate-600 to-slate-900 border-[3px] border-slate-700 shadow-[inset_0_0_20px_rgba(0,0,0,0.8),_0_10px_20px_rgba(0,0,0,0.5)]"></div>
                 <div className={`absolute inset-2.5 rounded-full border border-cyan-400/30 shadow-[0_0_20px_rgba(34,211,255,0.4),inset_0_0_20px_rgba(34,211,255,0.2)] border-t-cyan-300 animate-[spin_8s_linear_infinite] ${duzenlemeModu ? 'border-t-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.5)]' : ''}`}></div>
                 
-                {/* Tıklanabilir İç Alan */}
                 <div 
                   onClick={handleDuzenlemeModuGecis}
                   title={duzenlemeModu ? "Düzenlemeyi Kaydet ve Kapat" : "Menüyü Düzenle"}
@@ -537,24 +515,26 @@ export default function HesabimPage() {
               </div>
               
               <div className="flex-1 text-center sm:text-left z-10 flex flex-col justify-center">
-                <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight mb-0.5 sm:mb-2 drop-shadow-md">
-                  {duzenlemeModu ? "Düzenleme Modu Açık" : userName}
-                </h1>
-                <p className={`text-xs sm:text-sm font-medium tracking-wide mb-4 ${duzenlemeModu ? 'text-emerald-400' : 'text-slate-400'}`}>
-                  {duzenlemeModu ? "Bir kutuya tıklayın, ardından buradaki paletten rengini belirleyin." : userEmail}
-                </p>
-                
-                {/* 🛡️ ADMIN İÇİN GÜVENLİ ÇIKIŞ YAP BUTONU */}
-                {status === "authenticated" && !duzenlemeModu && (
-                  <div className="flex items-center justify-center sm:justify-start gap-2">
-                    <button onClick={handleCikisYap} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-950/40 border border-red-900/50 text-red-400 hover:bg-red-900/60 hover:text-red-300 transition-all font-black uppercase tracking-widest text-[10px] sm:text-xs shadow-md">
-                      <LogOut className="w-4 h-4" /> Güvenli Çıkış
-                    </button>
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 w-full">
+                  <div>
+                    <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight mb-0.5 sm:mb-1 drop-shadow-md">
+                      {duzenlemeModu ? "Düzenleme Modu Açık" : userName}
+                    </h1>
+                    <p className={`text-xs sm:text-sm font-medium tracking-wide ${duzenlemeModu ? 'text-emerald-400' : 'text-slate-400'}`}>
+                      {duzenlemeModu ? "Bir kutuya tıklayın, ardından paletten rengini belirleyin." : userEmail}
+                    </p>
                   </div>
-                )}
+                  
+                  {/* 🛡️ GERÇEK GÜVENLİ TEK ÇİKIŞ YAP BUTONU */}
+                  {status === "authenticated" && !duzenlemeModu && (
+                    <button onClick={handleCikisYap} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-red-950/40 border border-red-900/50 text-red-400 hover:bg-red-900/60 hover:text-red-300 transition-all font-black uppercase tracking-widest text-[10px] sm:text-xs shadow-md">
+                      <LogOut className="w-4 h-4" /> GÜVENLİ ÇIKIŞ
+                    </button>
+                  )}
+                </div>
 
                 {status === "unauthenticated" && (
-                  <div className="flex items-center justify-center sm:justify-start gap-2">
+                  <div className="flex items-center justify-center sm:justify-start gap-2 mt-4">
                     <Link href="/giris" className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-widest flex items-center gap-1.5 shadow-lg transition-all">
                       <LogIn className="w-4 h-4" /> Giriş
                     </Link>
@@ -575,7 +555,7 @@ export default function HesabimPage() {
                   </span>
                 </div>
                 
-                <div className="flex flex-wrap justify-center gap-2.5 sm:gap-3.5 max-h-[160px] overflow-y-auto py-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                <div className="flex flex-wrap justify-center gap-2.5 sm:gap-3.5 max-h-[140px] overflow-y-auto py-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                   {renkSecenekleri.map((renkObj, i) => (
                     <button 
                       key={i} 
@@ -591,11 +571,11 @@ export default function HesabimPage() {
         </div>
 
         {/* ==================================================================== */}
-        {/* 3️⃣ ALT 5'Lİ MENÜ KUTULARI                                              */}
+        {/* 3️⃣ ALT 5'Lİ MENÜ KUTULARI (OTOMATIK RENKLENEN PING MOTORLU)           */}
         {/* ==================================================================== */}
         <div className="w-full block">
           <div className={`grid grid-cols-5 gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${duzenlemeModu ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
-            {altMenuListesi.map((item, index) => {
+            {altMenuListesi.map((item: any, index: number) => {
               const IkonBileseni = item.ikon;
               const isSecili = seciliKutuId === item.id;
               
@@ -628,12 +608,13 @@ export default function HesabimPage() {
                     
                     <IkonBileseni className={`w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 transition-all duration-300 ${item.renk} ${!duzenlemeModu ? 'group-hover:scale-110' : ''}`} />
                     
- {(kargoVarmi || mesajVarmi) && !duzenlemeModu && (
-  <span className={`absolute -top-1 -right-1 lg:-top-1.5 lg:-right-1.5 flex h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 z-10 ${item.renk}`}>
-    <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-current"></span>
-    <span className="relative inline-flex rounded-full h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 border-2 border-[#0f172a] bg-current"></span>
-  </span>
-)}
+                    {/* 🎨 Gelişmiş Dinamik Ping Motoru: Kutunun rengini otomatik miras alır! */}
+                    {(kargoVarmi || mesajVarmi) && !duzenlemeModu && (
+                      <span className={`absolute -top-1 -right-1 lg:-top-1.5 lg:-right-1.5 flex h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 z-10 ${item.renk}`}>
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-current"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 border-2 border-[#0f172a] bg-current"></span>
+                      </span>
+                    )}
 
                     {duzenlemeModu && isSecili && (
                       <div className="absolute -top-1.5 -right-1.5 bg-[#020617] rounded-full shadow-md">
@@ -657,7 +638,7 @@ export default function HesabimPage() {
         </div>
 
         {/* ==================================================================== */}
-        {/* 📊 SİPARİŞLER VE GRAFİKLER BÖLÜMÜ (TÜM GRAFİKLER KORUNDU)            */}
+        {/* 📊 SİPARİŞLER VE GRAFİKLER BÖLÜMÜ                                    */}
         {/* ==================================================================== */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start w-full">
           <div className="xl:col-span-1 flex flex-col h-full">
@@ -736,7 +717,7 @@ export default function HesabimPage() {
                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#f59e0b" strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.kendinTopla.yuzde} ${100 - aylikPastaVerisi.kendinTopla.yuzde}`} strokeDashoffset={-aylikPastaVerisi.kendinTopla.offset}></circle>
                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#06b6d4" strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.bilesen.yuzde} ${100 - aylikPastaVerisi.bilesen.yuzde}`} strokeDashoffset={-aylikPastaVerisi.bilesen.offset}></circle>
                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#fb7185" strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.cevre.yuzde} ${100 - aylikPastaVerisi.cevre.yuzde}`} strokeDashoffset={-aylikPastaVerisi.cevre.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#c084fc" strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.sistem.yuzde} ${100 - aylikPastaVerisi.sistem.yuzde}`} strokeDashoffset={-aylikPastaVerisi.sistem.offset}></circle>
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#c084fc" strokeWidth="4.5" strokeDasharray={`${pastaVerisi.sistem.yuzde} ${100 - pastaVerisi.sistem.yuzde}`} strokeDashoffset={-pastaVerisi.sistem.offset}></circle>
                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#34d399" strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.aksesuar.yuzde} ${100 - aylikPastaVerisi.aksesuar.yuzde}`} strokeDashoffset={-aylikPastaVerisi.aksesuar.offset}></circle>
                          </>
                        )}
@@ -854,7 +835,7 @@ export default function HesabimPage() {
             
             <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col w-full">
               <div className="flex flex-row items-center justify-between gap-2 mb-2">
-            <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Aylık Harcama Grafiği</h3>
+                <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Aylık Harcama Grafiği</h3>
                  
                  <div className="flex items-center gap-1.5 bg-slate-800/30 border border-slate-700/50 rounded-lg px-1.5 py-1">
                    <button onClick={() => setSeciliYil((y: number) => y - 1)} className="p-1 text-slate-400 hover:text-cyan-400 transition-colors">
@@ -868,7 +849,7 @@ export default function HesabimPage() {
               </div>
               
               <div className="bg-white/[0.02] border border-white/5 rounded-xl flex items-end justify-between pt-10 pb-4 px-1 sm:px-4 h-[220px] relative mt-2">
-                {grafikVerisi.length > 0 ? grafikVerisi.map((item, i) => {
+                {grafikVerisi.length > 0 ? grafikVerisi.map((item: any, i: number) => {
                   const isSecili = tiklananAy === i;
                   const isHovered = hoveredIndex === i;
                   const isTooltipGozukecek = (isHovered || isSecili);
@@ -993,7 +974,7 @@ export default function HesabimPage() {
             </div>
             <h3 className="text-xl font-black text-white mb-2 tracking-tight">Erişim Kısıtlı</h3>
             <p className="text-slate-400 text-sm mb-6">
-              Lütfen işlem yapabilmek ve hesap detaylarınızı görüntüleyebilmek için giriş yapınız.
+              Lütfen işlem yapabilmek and hesap detaylarınızı görüntüleyebilmek için giriş yapınız.
             </p>
             <div className="flex flex-col gap-3">
               <Link href="/giris" className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2">
