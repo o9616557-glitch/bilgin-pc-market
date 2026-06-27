@@ -80,7 +80,7 @@ export default function HesabimPage() {
   const [loading, setLoading] = useState(hamSiparisler.length === 0);
 
   // =========================================================================
-  // 🎨 2. ÇİFT SÜRÜKLE BIRAK VE RENK MOTORU
+  // 🎨 2. SÜRÜKLE BIRAK VE RENK MOTORU
   // =========================================================================
   const renkSecenekleri = [
     { text: "text-white", bg: "bg-white border-slate-300" }, 
@@ -106,7 +106,6 @@ export default function HesabimPage() {
     { text: "text-stone-400", bg: "bg-stone-400 border-stone-300" }, 
   ];
 
-  // Üst Menü (Sadece 4 kutu dinamiktir, 5. kutu her zaman sabittir)
   const varsayilanUstMenu = [
     { id: "profil", isim: "Profil", ikon: User, renk: "text-cyan-400", isLink: true, href: "/hesabim" },
     { id: "cuzdan", isim: "Cüzdan", ikon: CreditCard, renk: "text-amber-400", isLink: true, href: "/cuzdan" },
@@ -114,7 +113,6 @@ export default function HesabimPage() {
     { id: "adresler", isim: "Adresler", ikon: MapPin, renk: "text-cyan-400", isLink: true, href: "/adreslerim" }
   ];
 
-  // Alt Menü
   const varsayilanAltMenu = [
     { id: "favoriler", isim: "Favoriler", ikon: Star, renk: "text-purple-400", isLink: true, href: "https://www.bilginpcmarket.com/favorilerim" },
     { id: "sistemler", isim: "Sistemler", ikon: Server, renk: "text-emerald-400", isLink: true, href: "/sistemlerim" },
@@ -170,7 +168,6 @@ export default function HesabimPage() {
         .then(res => res.json())
         .then(resData => {
           if (resData.success && resData.data?.menuListesi?.length > 0) {
-            // İkonları geri eşleştiriyoruz
             const mapliListe = resData.data.menuListesi.map((item: any) => {
               let ikonBileseni = Star;
               if (item.id === "profil") ikonBileseni = User;
@@ -184,7 +181,6 @@ export default function HesabimPage() {
               return { ...item, ikon: ikonBileseni };
             });
 
-            // Gelen listeyi Üst ve Alt olarak ayırıyoruz
             const ustIds = ["profil", "cuzdan", "guvenlik", "adresler"];
             const yuklenenUst = mapliListe.filter((i: any) => ustIds.includes(i.id));
             const yuklenenAlt = mapliListe.filter((i: any) => !ustIds.includes(i.id));
@@ -210,7 +206,7 @@ export default function HesabimPage() {
     } catch (error) { console.error("Veritabanına kaydetme hatası:", error); }
   };
 
-  // GİZLİ YÖNETİCİ MODU (Profil Yuvarlağına Tıklanınca)
+  // GİZLİ YÖNETİCİ MODU
   const handleDuzenlemeModuGecis = async () => {
     if (status === "unauthenticated") return; 
     if (duzenlemeModu) {
@@ -222,7 +218,6 @@ export default function HesabimPage() {
     }
   };
 
-  // SÜRÜKLE BIRAK MOTORLARI (Üst ve Alt Ayrı Çalışır)
   const handleDragEnterUst = (hedefIndex: number) => {
     const suruklenenIndex = suruklenenUstRef.current;
     if (suruklenenIndex === null || suruklenenIndex === hedefIndex) return;
@@ -247,11 +242,8 @@ export default function HesabimPage() {
     suruklenenAltRef.current = hedefIndex;
   };
 
-  // BOYAMA MOTORU (Hangi menüde olduğunu otomatik bulur)
   const renkUygula = (yeniRenk: string) => {
     if (!seciliKutuId) return;
-    
-    // Üstte mi var altta mı kontrol et ve boya
     setUstMenuListesi(eski => eski.map(kutu => kutu.id === seciliKutuId ? { ...kutu, renk: yeniRenk } : kutu));
     setAltMenuListesi(eski => eski.map(kutu => kutu.id === seciliKutuId ? { ...kutu, renk: yeniRenk } : kutu));
   };
@@ -458,215 +450,221 @@ export default function HesabimPage() {
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip z-[999]">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
-      {/* 🚀 SANDVİÇ DÜZENİ MERKEZİ HİZALAMA (sol menü tamamen kaldırıldı) */}
+      {/* 🚀 SANDVİÇ DÜZENİ MERKEZİ HİZALAMA */}
       <div className="max-w-[1000px] mx-auto flex flex-col gap-6 relative z-10 items-center">
 
         {/* ==================================================================== */}
-        {/* 1️⃣ ÜST 5'Lİ MENÜ (Hem Mobil Hem PC - Sürüklenebilir)                  */}
+        {/* 1️⃣ ÜST 5'Lİ MENÜ (Hem Mobil Hem PC - Tamamen Görünür)                 */}
         {/* ==================================================================== */}
-        <div className={`grid grid-cols-5 gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${duzenlemeModu ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
-          
-          {ustMenuListesi.map((item, index) => {
-            const IkonBileseni = item.ikon;
-            const isSecili = seciliKutuId === item.id;
+        <div className="w-full">
+          <div className={`grid grid-cols-5 gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${duzenlemeModu ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
             
-            const KutuIcerigi = (
-              <div
-                draggable={duzenlemeModu}
-                onDragStart={() => (suruklenenUstRef.current = index)}
-                onDragEnter={() => handleDragEnterUst(index)}
-                onDragOver={(e) => e.preventDefault()}
-                onDragEnd={() => (suruklenenUstRef.current = null)}
-                onClick={() => { if (duzenlemeModu) setSeciliKutuId(isSecili ? null : item.id); }}
-                className={`flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none ${isSecili ? "relative z-[9999]" : "relative z-10"}`}
-              >
-                <div className={`relative w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl flex items-center justify-center transition-all duration-300 ${
-                    duzenlemeModu && isSecili
-                    ? "bg-slate-800 border-2 border-emerald-400 shadow-[0_0_25px_rgba(16,185,129,0.4)] scale-110 z-20"
-                    : duzenlemeModu && !isSecili
-                    ? "bg-[#0f172a]/60 border-2 border-dashed border-slate-700 opacity-50 hover:opacity-100 cursor-pointer"
-                    : "bg-[#0f172a] border border-slate-800 shadow-lg group-hover:bg-white/[0.05] group-hover:border-cyan-500/30 cursor-pointer"
-                }`}>
-                  <IkonBileseni className={`w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 transition-all duration-300 ${item.renk} ${!duzenlemeModu ? 'group-hover:scale-110' : ''}`} />
-                  
-                  {duzenlemeModu && isSecili && (
-                    <div className="absolute -top-1.5 -right-1.5 bg-[#020617] rounded-full shadow-md">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    </div>
-                  )}
+            {ustMenuListesi.map((item, index) => {
+              const IkonBileseni = item.ikon;
+              const isSecili = seciliKutuId === item.id;
+              
+              const KutuIcerigi = (
+                <div
+                  draggable={duzenlemeModu}
+                  onDragStart={() => (suruklenenUstRef.current = index)}
+                  onDragEnter={() => handleDragEnterUst(index)}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDragEnd={() => (suruklenenUstRef.current = null)}
+                  onClick={() => { if (duzenlemeModu) setSeciliKutuId(isSecili ? null : item.id); }}
+                  className={`flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none ${isSecili ? "relative z-[9999]" : "relative z-10"}`}
+                >
+                  <div className={`relative w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                      duzenlemeModu && isSecili
+                      ? "bg-slate-800 border-2 border-emerald-400 shadow-[0_0_25px_rgba(16,185,129,0.4)] scale-110 z-20"
+                      : duzenlemeModu && !isSecili
+                      ? "bg-[#0f172a]/60 border-2 border-dashed border-slate-700 opacity-50 hover:opacity-100 cursor-pointer"
+                      : "bg-[#0f172a] border border-slate-800 shadow-lg group-hover:bg-white/[0.05] group-hover:border-cyan-500/30 cursor-pointer"
+                  }`}>
+                    <IkonBileseni className={`w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 transition-all duration-300 ${item.renk} ${!duzenlemeModu ? 'group-hover:scale-110' : ''}`} />
+                    
+                    {duzenlemeModu && isSecili && (
+                      <div className="absolute -top-1.5 -right-1.5 bg-[#020617] rounded-full shadow-md">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      </div>
+                    )}
+                  </div>
+                  <span className={`text-[9px] sm:text-[10px] lg:text-xs font-bold tracking-wide text-center truncate w-full px-0.5 transition-colors ${duzenlemeModu && isSecili ? "text-emerald-400" : "text-slate-300 group-hover:text-cyan-400"}`}>
+                    {item.isim}
+                  </span>
                 </div>
-                <span className={`text-[9px] sm:text-[10px] lg:text-xs font-bold tracking-wide text-center truncate w-full px-0.5 transition-colors ${duzenlemeModu && isSecili ? "text-emerald-400" : "text-slate-300 group-hover:text-cyan-400"}`}>
-                  {item.isim}
-                </span>
-              </div>
-            );
+              );
 
-            if (item.isLink && !duzenlemeModu) {
-              return <Link key={item.id} href={item.href || "#"} onClick={kilitliIslem} prefetch={true} className="w-full">{KutuIcerigi}</Link>;
-            }
-            return <div key={item.id} className="w-full">{KutuIcerigi}</div>;
-          })}
+              if (item.isLink && !duzenlemeModu) {
+                return <Link key={item.id} href={item.href || "#"} onClick={kilitliIslem} prefetch={true} className="w-full">{KutuIcerigi}</Link>;
+              }
+              return <div key={item.id} className="w-full">{KutuIcerigi}</div>;
+            })}
 
-          {/* 🛡️ 5. SABİT KUTU (Admin veya Giriş/Çıkış) - Düzenlemeye Kapalı */}
-          {session?.user?.email === "o9616557@gmail.com" ? (
-            <Link href="/admin" onClick={kilitliIslem} prefetch={false} className="flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none opacity-90 hover:opacity-100">
-              <div className="relative w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl bg-slate-800/80 border border-slate-600 flex items-center justify-center shadow-lg transition-all duration-300">
-                <Crown className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-slate-300 transition-colors" />
-              </div>
-              <span className="text-[9px] sm:text-[10px] lg:text-xs font-bold text-slate-400 tracking-wide">Admin</span>
-            </Link>
-          ) : status === "unauthenticated" ? (
-            <Link href="/giris" onClick={kilitliIslem} prefetch={false} className="flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none opacity-90 hover:opacity-100">
-              <div className="w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl bg-slate-800/80 border border-slate-600 flex items-center justify-center shadow-lg">
-                <LogIn className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-slate-300" />
-              </div>
-              <span className="text-[9px] sm:text-[10px] lg:text-xs font-bold text-slate-400 tracking-wide">Giriş</span>
-            </Link>
-          ) : (
-            <button onClick={handleCikisYap} className="flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none opacity-90 hover:opacity-100">
-              <div className="w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl bg-slate-800/80 border border-slate-600 flex items-center justify-center shadow-lg">
-                <LogOut className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-slate-300" />
-              </div>
-              <span className="text-[9px] sm:text-[10px] lg:text-xs font-bold text-slate-400 tracking-wide">Çıkış</span>
-            </button>
-          )}
+            {/* 🛡️ 5. SABİT KUTU (Admin veya Giriş/Çıkış) - Düzenlemeye Kapalı */}
+            {session?.user?.email === "o9616557@gmail.com" ? (
+              <Link href="/admin" onClick={kilitliIslem} prefetch={false} className="flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none opacity-90 hover:opacity-100">
+                <div className="relative w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl bg-slate-800/80 border border-slate-600 flex items-center justify-center shadow-lg transition-all duration-300">
+                  <Crown className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-slate-300 transition-colors" />
+                </div>
+                <span className="text-[9px] sm:text-[10px] lg:text-xs font-bold text-slate-400 tracking-wide">Admin</span>
+              </Link>
+            ) : status === "unauthenticated" ? (
+              <Link href="/giris" onClick={kilitliIslem} prefetch={false} className="flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none opacity-90 hover:opacity-100">
+                <div className="w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl bg-slate-800/80 border border-slate-600 flex items-center justify-center shadow-lg">
+                  <LogIn className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-slate-300" />
+                </div>
+                <span className="text-[9px] sm:text-[10px] lg:text-xs font-bold text-slate-400 tracking-wide">Giriş</span>
+              </Link>
+            ) : (
+              <button onClick={handleCikisYap} className="flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none opacity-90 hover:opacity-100">
+                <div className="w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl bg-slate-800/80 border border-slate-600 flex items-center justify-center shadow-lg">
+                  <LogOut className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-slate-300" />
+                </div>
+                <span className="text-[9px] sm:text-[10px] lg:text-xs font-bold text-slate-400 tracking-wide">Çıkış</span>
+              </button>
+            )}
+          </div>
         </div>
 
-
         {/* ==================================================================== */}
-        {/* 2️⃣ KULLANICI KARTI (ORTA KATMAN - Gizli Tetikleyicili)               */}
+        {/* 2️⃣ KULLANICI KARTI VE MERKEZİ RENK PALETİ                             */}
         {/* ==================================================================== */}
         <div className={`w-full relative rounded-[2rem] p-[2px] transition-all duration-300 shadow-[0_0_50px_rgba(0,210,255,0.15)] group ${duzenlemeModu ? 'bg-gradient-to-r from-emerald-500/50 via-emerald-900 to-emerald-500/20 shadow-[0_0_50px_rgba(16,185,129,0.3)]' : 'bg-gradient-to-r from-cyan-500/30 via-[#0f172a] to-cyan-500/10'}`}>
           <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-transparent opacity-20 blur-xl rounded-[2rem] transition-opacity duration-500"></div>
-          <div className="relative bg-[#0b1121] rounded-[2rem] p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 sm:gap-8 border border-cyan-500/20 overflow-hidden z-10">
+          <div className="relative bg-[#0b1121] rounded-[2rem] p-6 sm:p-8 flex flex-col border border-cyan-500/20 overflow-hidden z-10">
             <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-gradient-to-r from-cyan-500/10 to-transparent pointer-events-none"></div>
 
-            <div className="relative w-28 h-28 sm:w-32 sm:h-32 shrink-0 flex items-center justify-center">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-b from-slate-600 to-slate-900 border-[3px] border-slate-700 shadow-[inset_0_0_20px_rgba(0,0,0,0.8),_0_10px_20px_rgba(0,0,0,0.5)]"></div>
+            {/* Kullanıcı Bilgileri */}
+            <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
+              {/* GİZLİ YÖNETİCİ TETİKLEYİCİSİ */}
+              <div className="relative w-28 h-28 sm:w-32 sm:h-32 shrink-0 flex items-center justify-center">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-b from-slate-600 to-slate-900 border-[3px] border-slate-700 shadow-[inset_0_0_20px_rgba(0,0,0,0.8),_0_10px_20px_rgba(0,0,0,0.5)]"></div>
+                
+                {/* 🐍 Yılan Animasyonu */}
+                <div className={`absolute inset-2.5 rounded-full border border-cyan-400/30 shadow-[0_0_20px_rgba(34,211,255,0.4),inset_0_0_20px_rgba(34,211,255,0.2)] border-t-cyan-300 animate-[spin_8s_linear_infinite] ${duzenlemeModu ? 'border-t-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.5)]' : ''}`}></div>
+                
+                <div 
+                  onClick={handleDuzenlemeModuGecis}
+                  title={duzenlemeModu ? "Düzenlemeyi Kaydet ve Kapat" : "Menüyü Düzenle"}
+                  className={`absolute inset-4 rounded-full flex items-center justify-center shadow-[inset_0_0_30px_rgba(0,0,0,0.9)] cursor-pointer transition-all duration-300 hover:scale-105 z-20 ${duzenlemeModu ? 'bg-emerald-950 border-2 border-emerald-500' : 'bg-[#020617] border border-cyan-900/50'}`}
+                >
+                  <span className={`text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b drop-shadow-[0_0_15px_rgba(34,211,255,0.8)] ${duzenlemeModu ? 'from-emerald-100 to-emerald-500' : 'from-cyan-100 to-cyan-500'}`}>
+                    {duzenlemeModu ? <Palette className="w-10 h-10 text-emerald-400" /> : basHarf}
+                  </span>
+                </div>
+              </div>
               
-              {/* 🐍 Yılan Animasyonu */}
-              <div className={`absolute inset-2.5 rounded-full border border-cyan-400/30 shadow-[0_0_20px_rgba(34,211,255,0.4),inset_0_0_20px_rgba(34,211,255,0.2)] border-t-cyan-300 animate-[spin_8s_linear_infinite] ${duzenlemeModu ? 'border-t-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.5)]' : ''}`}></div>
-              
-              <div 
-                onClick={handleDuzenlemeModuGecis}
-                title={duzenlemeModu ? "Düzenlemeyi Kaydet ve Kapat" : "Menüyü Düzenle"}
-                className={`absolute inset-4 rounded-full flex items-center justify-center shadow-[inset_0_0_30px_rgba(0,0,0,0.9)] cursor-pointer transition-all duration-300 hover:scale-105 z-20 ${duzenlemeModu ? 'bg-emerald-950 border-2 border-emerald-500' : 'bg-[#020617] border border-cyan-900/50'}`}
-              >
-                <span className={`text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b drop-shadow-[0_0_15px_rgba(34,211,255,0.8)] ${duzenlemeModu ? 'from-emerald-100 to-emerald-500' : 'from-cyan-100 to-cyan-500'}`}>
-                  {duzenlemeModu ? <Palette className="w-10 h-10 text-emerald-400" /> : basHarf}
-                </span>
+              <div className="flex-1 text-center sm:text-left z-10 flex flex-col justify-center">
+                <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight mb-0.5 sm:mb-2 drop-shadow-md">
+                  {duzenlemeModu ? "Düzenleme Modu Açık" : userName}
+                </h1>
+                <p className={`text-xs sm:text-sm font-medium tracking-wide ${duzenlemeModu ? 'text-emerald-400' : 'text-slate-400'}`}>
+                  {duzenlemeModu ? "Kutuları sürükleyip yerleştirin. Bir kutuya tıklayıp altından rengini seçin." : userEmail}
+                </p>
+                
+                {status === "unauthenticated" && (
+                  <div className="flex items-center justify-center sm:justify-start gap-2 mt-4">
+                    <Link href="/giris" className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-widest flex items-center gap-1.5 shadow-lg transition-all">
+                      <LogIn className="w-4 h-4" /> Giriş
+                    </Link>
+                    <Link href="/kayit" className="bg-[#0f172a] border border-slate-700 hover:border-slate-500 text-slate-300 px-5 py-2.5 rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-widest flex items-center gap-1.5 transition-all">
+                      <UserPlus className="w-4 h-4" /> Kayıt Ol
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
-            
-            <div className="flex-1 text-center sm:text-left z-10 flex flex-col justify-center">
-              <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight mb-0.5 sm:mb-2 drop-shadow-md">
-                {duzenlemeModu ? "Düzenleme Modu Açık" : userName}
-              </h1>
-              <p className={`text-xs sm:text-sm font-medium tracking-wide ${duzenlemeModu ? 'text-emerald-400' : 'text-slate-400'}`}>
-                {duzenlemeModu ? "Menüleri sürükleyin ve renk paletini kullanarak özelleştirin." : userEmail}
-              </p>
-              
-              {status === "unauthenticated" && (
-                <div className="flex items-center justify-center sm:justify-start gap-2 mt-4">
-                  <Link href="/giris" className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-widest flex items-center gap-1.5 shadow-lg transition-all">
-                    <LogIn className="w-4 h-4" /> Giriş
-                  </Link>
-                  <Link href="/kayit" className="bg-[#0f172a] border border-slate-700 hover:border-slate-500 text-slate-300 px-5 py-2.5 rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-widest flex items-center gap-1.5 transition-all">
-                    <UserPlus className="w-4 h-4" /> Kayıt Ol
-                  </Link>
+
+            {/* 🎨 MERKEZİ RENK PALETİ (Sadece Düzenleme Modunda Açılır) */}
+            {duzenlemeModu && (
+              <div className="w-full mt-6 pt-6 border-t border-cyan-500/20 animate-in fade-in slide-in-from-top-4 z-20">
+                <div className="text-center mb-4">
+                  <span className="text-[10px] sm:text-xs font-bold text-slate-400 bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-800">
+                    🎨 Önce bir kutu seçin, ardından renk verin
+                  </span>
                 </div>
-              )}
-            </div>
+                
+                <div className="flex flex-wrap justify-center gap-2.5 sm:gap-3.5 max-h-[160px] overflow-y-auto py-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                  {renkSecenekleri.map((renkObj, i) => (
+                    <button 
+                      key={i} 
+                      onClick={() => renkUygula(renkObj.text)}
+                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full cursor-pointer hover:scale-110 transition-transform flex items-center justify-center shadow-lg border-2 ${renkObj.bg} ${!seciliKutuId ? "opacity-20 grayscale cursor-not-allowed" : "opacity-100"}`}
+                      disabled={!seciliKutuId}
+                    ></button>
+                  ))}
+                </div>
+              </div>
+            )}
+
           </div>
         </div>
 
         {/* ==================================================================== */}
         {/* 3️⃣ ALT 5'Lİ MENÜ KUTULARI (Dinamik ve Sürüklenebilir)                */}
         {/* ==================================================================== */}
-        <div className={`grid grid-cols-5 gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${duzenlemeModu ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
-          {altMenuListesi.map((item, index) => {
-            const IkonBileseni = item.ikon;
-            const isSecili = seciliKutuId === item.id;
-            
-            const kargoVarmi = item.id === "kargolar" && kargoSiparisleri.length > 0;
-            const mesajVarmi = item.id === "destek" && yeniMesajVar;
+        <div className="w-full">
+          <div className={`grid grid-cols-5 gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${duzenlemeModu ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
+            {altMenuListesi.map((item, index) => {
+              const IkonBileseni = item.ikon;
+              const isSecili = seciliKutuId === item.id;
+              
+              const kargoVarmi = item.id === "kargolar" && kargoSiparisleri.length > 0;
+              const mesajVarmi = item.id === "destek" && yeniMesajVar;
 
-            const KutuIcerigi = (
-              <div
-                draggable={duzenlemeModu}
-                onDragStart={() => (suruklenenAltRef.current = index)}
-                onDragEnter={() => handleDragEnterAlt(index)}
-                onDragOver={(e) => e.preventDefault()}
-                onDragEnd={() => (suruklenenAltRef.current = null)}
-                onClick={() => {
-                  if (duzenlemeModu) {
-                    setSeciliKutuId(isSecili ? null : item.id);
-                  } else if (item.isKargo) {
-                    handleKargoClick();
-                  }
-                }}
-                className={`flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none ${isSecili ? "relative z-[9999]" : "relative z-10"}`}
-              >
-                <div className={`relative w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl flex items-center justify-center transition-all duration-300 ${
-                    duzenlemeModu && isSecili
-                    ? "bg-slate-800 border-2 border-emerald-400 shadow-[0_0_25px_rgba(16,185,129,0.4)] scale-110 z-20"
-                    : duzenlemeModu && !isSecili
-                    ? "bg-[#0f172a]/60 border-2 border-dashed border-slate-700 opacity-50 hover:opacity-100 cursor-pointer"
-                    : "bg-[#0f172a] border border-slate-800 shadow-lg group-hover:bg-white/[0.05] group-hover:border-cyan-500/30 cursor-pointer"
-                }`}>
-                  
-                  <IkonBileseni className={`w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 transition-all duration-300 ${item.renk} ${!duzenlemeModu ? 'group-hover:scale-110' : ''}`} />
-                  
-                  {(kargoVarmi || mesajVarmi) && !duzenlemeModu && (
-                    <span className="absolute -top-1 -right-1 lg:-top-1.5 lg:-right-1.5 flex h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 z-10">
-                      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${kargoVarmi ? 'bg-rose-400' : 'bg-orange-400'}`}></span>
-                      <span className={`relative inline-flex rounded-full h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 border-2 border-[#0f172a] ${kargoVarmi ? 'bg-rose-500' : 'bg-orange-500'}`}></span>
-                    </span>
-                  )}
+              const KutuIcerigi = (
+                <div
+                  draggable={duzenlemeModu}
+                  onDragStart={() => (suruklenenAltRef.current = index)}
+                  onDragEnter={() => handleDragEnterAlt(index)}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDragEnd={() => (suruklenenAltRef.current = null)}
+                  onClick={() => {
+                    if (duzenlemeModu) {
+                      setSeciliKutuId(isSecili ? null : item.id);
+                    } else if (item.isKargo) {
+                      handleKargoClick();
+                    }
+                  }}
+                  className={`flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none ${isSecili ? "relative z-[9999]" : "relative z-10"}`}
+                >
+                  <div className={`relative w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                      duzenlemeModu && isSecili
+                      ? "bg-slate-800 border-2 border-emerald-400 shadow-[0_0_25px_rgba(16,185,129,0.4)] scale-110 z-20"
+                      : duzenlemeModu && !isSecili
+                      ? "bg-[#0f172a]/60 border-2 border-dashed border-slate-700 opacity-50 hover:opacity-100 cursor-pointer"
+                      : "bg-[#0f172a] border border-slate-800 shadow-lg group-hover:bg-white/[0.05] group-hover:border-cyan-500/30 cursor-pointer"
+                  }`}>
+                    
+                    <IkonBileseni className={`w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 transition-all duration-300 ${item.renk} ${!duzenlemeModu ? 'group-hover:scale-110' : ''}`} />
+                    
+                    {(kargoVarmi || mesajVarmi) && !duzenlemeModu && (
+                      <span className="absolute -top-1 -right-1 lg:-top-1.5 lg:-right-1.5 flex h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 z-10">
+                        <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${kargoVarmi ? 'bg-rose-400' : 'bg-orange-400'}`}></span>
+                        <span className={`relative inline-flex rounded-full h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 border-2 border-[#0f172a] ${kargoVarmi ? 'bg-rose-500' : 'bg-orange-500'}`}></span>
+                      </span>
+                    )}
 
-                  {duzenlemeModu && isSecili && (
-                    <div className="absolute -top-1.5 -right-1.5 bg-[#020617] rounded-full shadow-md">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    </div>
-                  )}
+                    {duzenlemeModu && isSecili && (
+                      <div className="absolute -top-1.5 -right-1.5 bg-[#020617] rounded-full shadow-md">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      </div>
+                    )}
+                  </div>
+                  
+                  <span className={`text-[9px] sm:text-[10px] lg:text-xs font-bold tracking-wide text-center truncate w-full px-0.5 transition-colors ${duzenlemeModu && isSecili ? "text-emerald-400" : "text-slate-300 group-hover:text-cyan-400"}`}>
+                    {item.isim}
+                  </span>
                 </div>
-                
-                <span className={`text-[9px] sm:text-[10px] lg:text-xs font-bold tracking-wide text-center truncate w-full px-0.5 transition-colors ${duzenlemeModu && isSecili ? "text-emerald-400" : "text-slate-300 group-hover:text-cyan-400"}`}>
-                  {item.isim}
-                </span>
-              </div>
-            );
+              );
 
-            if (item.isLink && !duzenlemeModu) {
-              return <Link key={item.id} href={item.href || "#"} onClick={kilitliIslem} prefetch={true} className="w-full">{KutuIcerigi}</Link>;
-            }
-            return <div key={item.id} className="w-full">{KutuIcerigi}</div>;
-          })}
-        </div>
-
-        {/* ==================================================================== */}
-        {/* 🎨 GİZLİ RENK PALETİ (Sadece Düzenleme Modunda Açılır)               */}
-        {/* ==================================================================== */}
-        {duzenlemeModu && (
-          <div className="w-full bg-[#0f172a] border border-emerald-500/30 rounded-2xl p-4 shadow-2xl shrink-0 animate-in fade-in slide-in-from-top-4 relative z-[9999] mb-4">
-            <div className="text-center mb-3">
-              <span className="text-[10px] sm:text-xs font-bold text-slate-400 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800">
-                🎨 Üst veya alt menüden bir kutuya basın, ardından aşağıdaki renk tonlarından birini verin.
-              </span>
-            </div>
-            
-            <div className="flex flex-wrap justify-center gap-2.5 sm:gap-3.5 max-h-[140px] overflow-y-auto py-2">
-              {renkSecenekleri.map((renkObj, i) => (
-                <button 
-                  key={i} 
-                  onClick={() => renkUygula(renkObj.text)}
-                  className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full cursor-pointer hover:scale-110 transition-transform flex items-center justify-center shadow-lg border-2 ${renkObj.bg} ${!seciliKutuId ? "opacity-20 grayscale cursor-not-allowed" : "opacity-100"}`}
-                  disabled={!seciliKutuId}
-                ></button>
-              ))}
-            </div>
+              if (item.isLink && !duzenlemeModu) {
+                return <Link key={item.id} href={item.href || "#"} onClick={kilitliIslem} prefetch={true} className="w-full">{KutuIcerigi}</Link>;
+              }
+              return <div key={item.id} className="w-full">{KutuIcerigi}</div>;
+            })}
           </div>
-        )}
+        </div>
 
         {/* ==================================================================== */}
         {/* 📊 SİPARİŞLER VE GRAFİKLER BÖLÜMÜ (Aynen Korundu)                    */}
