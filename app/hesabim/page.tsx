@@ -6,9 +6,10 @@ import { useSession, signOut } from "next-auth/react";
 import { 
   User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, 
   MapPin, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, 
-  Search, LogIn, UserPlus, Headset, Crown, Palette 
+  Search, LogIn, UserPlus, Headset, Palette 
 } from "lucide-react";
 
+// Canlı Lucide ikonlarını veritabanından gelen kimliklere göre eşleştiren motor
 const ikonEslestir = (liste: any[]) => {
   return liste.map((item: any) => {
     let ikonBileseni = Star;
@@ -29,6 +30,31 @@ export default function HesabimPage() {
   const suAnkiTarih = new Date();
   const yil = suAnkiTarih.getFullYear();
 
+  // =========================================================================
+  // 🚀 REHBER (ONBOARDING) SİSTEMİ HAFIZASI
+  // =========================================================================
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [dontShowAgain, setDontShowAgain] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isRead = localStorage.getItem('bilgin_rehber_okundu');
+      if (!isRead) {
+        setShowOnboarding(true);
+      }
+    }
+  }, []);
+
+  const closeOnboarding = () => {
+    if (dontShowAgain) {
+      localStorage.setItem('bilgin_rehber_okundu', 'true');
+    }
+    setShowOnboarding(false);
+  };
+
+  // =========================================================================
+  // 1. ÖN BELLEK (LOCAL STORAGE) VE GELİŞMİŞ RENK MOTORU
+  // =========================================================================
   const renkSecenekleri = [
     { text: "text-white", bg: "bg-white border-slate-300", badge: "bg-white/10 text-white border-white/20", hex: "#ffffff" }, 
     { text: "text-slate-400", bg: "bg-slate-400 border-slate-300", badge: "bg-slate-400/10 text-slate-400 border-slate-400/20", hex: "#94a3b8" }, 
@@ -103,32 +129,7 @@ export default function HesabimPage() {
     }
     return { hex: "#06b6d4", text: "text-cyan-400" };
   });
-// =========================================================================
-  // 🚀 REHBER (ONBOARDING) SİSTEMİ HAFIZASI
-  // =========================================================================
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const [dontShowAgain, setDontShowAgain] = useState(false);
 
-  // Sayfa yüklendiğinde Çırağa (Local Storage) sor: "Rehber okundu mu?"
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const isRead = localStorage.getItem('bilgin_rehber_okundu');
-      // Eğer okunmadıysa (kayıt yoksa) pop-up'ı göster
-      if (!isRead) {
-        setShowOnboarding(true);
-      }
-    }
-  }, []);
-
-  // "Hadi Başlayalım" butonuna basıldığında çalışacak motor
-  const closeOnboarding = () => {
-    if (dontShowAgain) {
-      // Kullanıcı tiki işaretlediyse kalıcı olarak kaydet
-      localStorage.setItem('bilgin_rehber_okundu', 'true');
-    }
-    // Ekranı kapat
-    setShowOnboarding(false);
-  };
   const [aktifPalet, setAktifPalet] = useState<'menu'|'siparis'|'pasta'|'cubuk'|null>(null);
   const [seciliKutuId, setSeciliKutuId] = useState<string | null>(null);
   const [seciliSiparisDurumu, setSeciliSiparisDurumu] = useState<string | null>(null);
@@ -171,12 +172,9 @@ export default function HesabimPage() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [tiklananAy, setTiklananAy] = useState<number | null>(suAnkiTarih.getMonth());
 
-  // 🚀 BİNGO: Herhangi bir palet kapatıldığında, tüm renkleri kalıcı olarak veritabanına kaydeder
   const togglePalet = (hedef: 'menu'|'siparis'|'pasta'|'cubuk') => {
     if(aktifPalet === hedef) {
-        // Palet kapanırken MongoDB'ye gönder
         veritabaninaKaydet(ustMenuListesi, altMenuListesi, siparisRenkleri, pastaRenkleri, cubukRenk);
-        
         setAktifPalet(null);
         setSeciliKutuId(null);
         setSeciliSiparisDurumu(null);
@@ -213,7 +211,6 @@ export default function HesabimPage() {
     return { badge: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" };
   };
 
-  // 📡 MONGODB VERİ ÇEKME MOTORU (Sayfa açıldığında veritabanından renkleri okur)
   useEffect(() => {
     if (status === "authenticated" && session?.user?.email) {
       fetch(`/api/menu-ayarlari?email=${session.user.email}`)
@@ -221,7 +218,6 @@ export default function HesabimPage() {
         .then(resData => {
           if (resData.success && resData.data) {
             
-            // 1. Menüleri Yükle
             if (resData.data.menuListesi?.length > 0) {
                 const mapliListe = ikonEslestir(resData.data.menuListesi);
                 const ustIds = ["profil", "cuzdan", "guvenlik", "adresler"];
@@ -239,7 +235,6 @@ export default function HesabimPage() {
                 localStorage.setItem("bilgin_alt_menu_v2", JSON.stringify(nihaiAlt.map(({ikon, ...k})=>k)));
             }
 
-            // 2. Renkleri Yükle (Gizli Sekmede de hatırlamasını sağlar)
             if (resData.data.siparisRenkleri && Object.keys(resData.data.siparisRenkleri).length > 0) {
                 setSiparisRenkleri(resData.data.siparisRenkleri);
                 localStorage.setItem('bilgin_siparis_renkleri', JSON.stringify(resData.data.siparisRenkleri));
@@ -252,13 +247,11 @@ export default function HesabimPage() {
                 setCubukRenk(resData.data.cubukRenk);
                 localStorage.setItem('bilgin_cubuk_renk', JSON.stringify(resData.data.cubukRenk));
             }
-
           }
         }).catch(err => console.error("Sessiz güncelleme hatası:", err));
     }
   }, [session, status]);
 
-  // 💾 MONGODB KAYDETME MOTORU (Yeni renk paketlerini de gönderir)
   const veritabaninaKaydet = async (guncelUst: any[], guncelAlt: any[], gSiparis: any, gPasta: any, gCubuk: any) => {
     if (!session?.user?.email) return;
     const temizUst = guncelUst.map(({ ikon, ...kalanlar }) => kalanlar);
@@ -808,7 +801,6 @@ export default function HesabimPage() {
 
                <div className="flex flex-row items-start justify-between gap-1 sm:gap-6 mt-2 w-full">
                  
-                 {/* TÜM ZAMANLAR PASTA (Sol Tarafta) */}
                  <div className="flex flex-col items-center gap-3 sm:gap-4 w-1/2 pr-1 sm:pr-6 border-r border-slate-800/80">
                    <span className="bg-slate-800 text-slate-400 text-[8px] sm:text-[10px] font-black px-1.5 py-1 rounded uppercase tracking-widest whitespace-nowrap text-center">
                      TÜM ZAMANLAR
@@ -852,7 +844,6 @@ export default function HesabimPage() {
                    </div>
                  </div>
 
-                 {/* AYLIK PASTA (Sağ Tarafta) */}
                  <div className="flex flex-col items-center gap-3 sm:gap-4 w-1/2 pl-1 sm:pl-0">
                    <span className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[8px] sm:text-[10px] font-black px-1.5 py-1 rounded uppercase tracking-widest shadow-[0_0_10px_rgba(6,182,212,0.4)] whitespace-nowrap text-center">
                      {aylikPastaVerisi.ayAdi ? `${aylikPastaVerisi.ayAdi} ÖZETİ` : "AYLIK ÖZET"}
@@ -963,7 +954,6 @@ export default function HesabimPage() {
 
       </div>
 
-      {/* 🟢 MODALLAR (Kargo ve Giriş Şartı) */}
       {/* 🚀 ONBOARDING (KARŞILAMA) MODALI - GLASSMORPHISM TASARIM */}
       {showOnboarding && (
         <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-[#020617]/85 backdrop-blur-xl p-4 animate-in fade-in duration-700">
@@ -1030,8 +1020,7 @@ export default function HesabimPage() {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 border-t border-slate-800/80 relative z-10">
-              {/* Şık Checkbox Sistemi */}
-              <label className="flex items-center gap-3 cursor-pointer group select-none">
+              <label className="flex items-center gap-3 cursor-pointer group select-none" onClick={() => setDontShowAgain(!dontShowAgain)}>
                 <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-300 ${dontShowAgain ? 'bg-emerald-500 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'bg-[#020617] border-slate-600 group-hover:border-cyan-500/50'}`}>
                   {dontShowAgain && <CheckCircle2 className="w-4 h-4 text-white" />}
                 </div>
@@ -1051,6 +1040,8 @@ export default function HesabimPage() {
           </div>
         </div>
       )}
+
+      {/* 🟢 MODALLAR (Kargo ve Giriş Şartı) */}
       {isKargoModalOpen && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
           <div className="bg-[#09090b] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.9)] relative overflow-hidden animate-in zoom-in-95 duration-200 max-h-[85vh]">
