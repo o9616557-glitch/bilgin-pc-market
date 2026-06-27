@@ -758,64 +758,18 @@ export default function HesabimPage() {
                {aktifPalet === 'pasta' && (
                  <RenkPaleti disabledCondition={!seciliPastaDilimi} text="🎨 Aşağıdan bir grafiğe tıklayıp renk seçin" />
                )}
-
-               {/* Mobil cihazlarda yan yana gelmesi için flex-row yapıldı ve width ayarlamaları yapıldı */}
+{/* Mobil cihazlarda yan yana gelmesi için flex-row yapıldı ve width ayarlamaları yapıldı */}
                <div className="flex flex-row items-start justify-between gap-1 sm:gap-6 mt-2 w-full">
                  
-                 {/* TÜM ZAMANLAR PASTA (Sol Tarafta) */}
+                 {/* AYLIK PASTA (Artık Sol Tarafta) */}
                  <div className="flex flex-col items-center gap-3 sm:gap-4 w-1/2 pr-1 sm:pr-6 border-r border-slate-800/80">
-                   <span className="bg-slate-800 text-slate-400 text-[8px] sm:text-[10px] font-black px-1.5 py-1 rounded uppercase tracking-widest whitespace-nowrap text-center">
-                     TÜM ZAMANLAR
-                   </span>
-                   
-                   <div className="relative w-16 h-16 sm:w-32 sm:h-32 shrink-0">
-                     <svg className="w-full h-full transform -rotate-90 drop-shadow-xl" viewBox="0 0 42 42">
-                       <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(255,255,255,0.03)" strokeWidth="4.5"></circle>
-                       {pastaVerisi.maxYuzde === 0 ? (
-                         <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#334155" strokeWidth="4.5" strokeDasharray="100 0"></circle>
-                       ) : (
-                         <>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.kendinTopla.hex} strokeWidth="4.5" strokeDasharray={`${pastaVerisi.kendinTopla.yuzde} ${100 - pastaVerisi.kendinTopla.yuzde}`} strokeDashoffset={-pastaVerisi.kendinTopla.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.bilesen.hex} strokeWidth="4.5" strokeDasharray={`${pastaVerisi.bilesen.yuzde} ${100 - pastaVerisi.bilesen.yuzde}`} strokeDashoffset={-pastaVerisi.bilesen.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.cevre.hex} strokeWidth="4.5" strokeDasharray={`${pastaVerisi.cevre.yuzde} ${100 - pastaVerisi.cevre.yuzde}`} strokeDashoffset={-pastaVerisi.cevre.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.sistem.hex} strokeWidth="4.5" strokeDasharray={`${pastaVerisi.sistem.yuzde} ${100 - pastaVerisi.sistem.yuzde}`} strokeDashoffset={-pastaVerisi.sistem.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.aksesuar.hex} strokeWidth="4.5" strokeDasharray={`${pastaVerisi.aksesuar.yuzde} ${100 - pastaVerisi.aksesuar.yuzde}`} strokeDashoffset={-pastaVerisi.aksesuar.offset}></circle>
-                         </>
-                       )}
-                     </svg>
-                     <div className="absolute inset-0 flex flex-col items-center justify-center mt-0.5 sm:mt-1">
-                       <span className="text-[10px] sm:text-xl font-black text-white tracking-tight">{pastaVerisi.maxYuzde}%</span>
-                     </div>
-                   </div>
-
-                   <div className="flex flex-col gap-1.5 shrink-0 w-full">
-                     {[
-                       { id: 'kendinTopla', isim: 'Kendin Topla', veri: pastaVerisi.kendinTopla.yuzde },
-                       { id: 'bilesen', isim: 'Bileşenler', veri: pastaVerisi.bilesen.yuzde },
-                       { id: 'cevre', isim: 'Çevre & Oyuncu', veri: pastaVerisi.cevre.yuzde },
-                       { id: 'sistem', isim: 'Sistem & Laptop', veri: pastaVerisi.sistem.yuzde },
-                       { id: 'aksesuar', isim: 'Ağ & Aksesuar', veri: pastaVerisi.aksesuar.yuzde }
-                     ].map(dilim => (
-                       <div key={dilim.id} onClick={() => aktifPalet === 'pasta' ? setSeciliPastaDilimi(dilim.id) : null} className={`flex items-center justify-between w-full p-0.5 sm:p-1 rounded-lg transition-all ${aktifPalet === 'pasta' ? 'cursor-pointer hover:bg-white/5' : ''} ${seciliPastaDilimi === dilim.id ? 'ring-1 ring-white/50 bg-white/5 scale-105' : ''}`}>
-                         <div className="flex items-center gap-1 sm:gap-2 min-w-0">
-                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0" style={{ backgroundColor: pastaRenkleri[dilim.id].hex, boxShadow: `0 0 8px ${pastaRenkleri[dilim.id].hex}` }}></span>
-                           <span className="text-[7px] sm:text-[11px] text-slate-300 font-bold truncate pr-1">{dilim.isim}</span>
-                         </div>
-                         <span className="text-[7px] sm:text-[11px] font-black shrink-0 pl-0.5" style={{ color: pastaRenkleri[dilim.id].hex }}>{dilim.veri}%</span>
-                       </div>
-                     ))}
-                   </div>
-                 </div>
-
-                 {/* AYLIK PASTA (Sağ Tarafta) */}
-                 <div className="flex flex-col items-center gap-3 sm:gap-4 w-1/2 pl-1 sm:pl-0">
                    <span className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[8px] sm:text-[10px] font-black px-1.5 py-1 rounded uppercase tracking-widest shadow-[0_0_10px_rgba(6,182,212,0.4)] whitespace-nowrap text-center">
                      {aylikPastaVerisi.ayAdi ? `${aylikPastaVerisi.ayAdi} ÖZETİ` : "AYLIK ÖZET"}
                    </span>
                    
                    <div className="relative w-16 h-16 sm:w-32 sm:h-32 shrink-0">
                      <svg className="w-full h-full transform -rotate-90 drop-shadow-md" viewBox="0 0 42 42">
-                       <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(255,255,255,0.02)" strokeWidth="4.5"></circle>
+                       {/* Emanet duran arka plan yüzüğü silindi */}
                        {aylikPastaVerisi.maxYuzde === 0 ? (
                          <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#334155" strokeWidth="4.5" strokeDasharray="100 0"></circle>
                        ) : (
@@ -840,6 +794,51 @@ export default function HesabimPage() {
                        { id: 'cevre', isim: 'Çevre & Oyuncu', veri: aylikPastaVerisi.cevre.yuzde },
                        { id: 'sistem', isim: 'Sistem & Laptop', veri: aylikPastaVerisi.sistem.yuzde },
                        { id: 'aksesuar', isim: 'Ağ & Aksesuar', veri: aylikPastaVerisi.aksesuar.yuzde }
+                     ].map(dilim => (
+                       <div key={dilim.id} onClick={() => aktifPalet === 'pasta' ? setSeciliPastaDilimi(dilim.id) : null} className={`flex items-center justify-between w-full p-0.5 sm:p-1 rounded-lg transition-all ${aktifPalet === 'pasta' ? 'cursor-pointer hover:bg-white/5' : ''} ${seciliPastaDilimi === dilim.id ? 'ring-1 ring-white/50 bg-white/5 scale-105' : ''}`}>
+                         <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0" style={{ backgroundColor: pastaRenkleri[dilim.id].hex, boxShadow: `0 0 8px ${pastaRenkleri[dilim.id].hex}` }}></span>
+                           <span className="text-[7px] sm:text-[11px] text-slate-300 font-bold truncate pr-1">{dilim.isim}</span>
+                         </div>
+                         <span className="text-[7px] sm:text-[11px] font-black shrink-0 pl-0.5" style={{ color: pastaRenkleri[dilim.id].hex }}>{dilim.veri}%</span>
+                       </div>
+                     ))}
+                   </div>
+                 </div>
+
+                 {/* TÜM ZAMANLAR PASTA (Artık Sağ Tarafta) */}
+                 <div className="flex flex-col items-center gap-3 sm:gap-4 w-1/2 pl-1 sm:pl-6">
+                   <span className="bg-slate-800 text-slate-400 text-[8px] sm:text-[10px] font-black px-1.5 py-1 rounded uppercase tracking-widest whitespace-nowrap text-center">
+                     TÜM ZAMANLAR
+                   </span>
+                   
+                   <div className="relative w-16 h-16 sm:w-32 sm:h-32 shrink-0">
+                     <svg className="w-full h-full transform -rotate-90 drop-shadow-xl" viewBox="0 0 42 42">
+                       {/* Emanet duran arka plan yüzüğü silindi */}
+                       {pastaVerisi.maxYuzde === 0 ? (
+                         <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#334155" strokeWidth="4.5" strokeDasharray="100 0"></circle>
+                       ) : (
+                         <>
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.kendinTopla.hex} strokeWidth="4.5" strokeDasharray={`${pastaVerisi.kendinTopla.yuzde} ${100 - pastaVerisi.kendinTopla.yuzde}`} strokeDashoffset={-pastaVerisi.kendinTopla.offset}></circle>
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.bilesen.hex} strokeWidth="4.5" strokeDasharray={`${pastaVerisi.bilesen.yuzde} ${100 - pastaVerisi.bilesen.yuzde}`} strokeDashoffset={-pastaVerisi.bilesen.offset}></circle>
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.cevre.hex} strokeWidth="4.5" strokeDasharray={`${pastaVerisi.cevre.yuzde} ${100 - pastaVerisi.cevre.yuzde}`} strokeDashoffset={-pastaVerisi.cevre.offset}></circle>
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.sistem.hex} strokeWidth="4.5" strokeDasharray={`${pastaVerisi.sistem.yuzde} ${100 - pastaVerisi.sistem.yuzde}`} strokeDashoffset={-pastaVerisi.sistem.offset}></circle>
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.aksesuar.hex} strokeWidth="4.5" strokeDasharray={`${pastaVerisi.aksesuar.yuzde} ${100 - pastaVerisi.aksesuar.yuzde}`} strokeDashoffset={-pastaVerisi.aksesuar.offset}></circle>
+                         </>
+                       )}
+                     </svg>
+                     <div className="absolute inset-0 flex flex-col items-center justify-center mt-0.5 sm:mt-1">
+                       <span className="text-[10px] sm:text-xl font-black text-white tracking-tight">{pastaVerisi.maxYuzde}%</span>
+                     </div>
+                   </div>
+
+                   <div className="flex flex-col gap-1.5 shrink-0 w-full">
+                     {[
+                       { id: 'kendinTopla', isim: 'Kendin Topla', veri: pastaVerisi.kendinTopla.yuzde },
+                       { id: 'bilesen', isim: 'Bileşenler', veri: pastaVerisi.bilesen.yuzde },
+                       { id: 'cevre', isim: 'Çevre & Oyuncu', veri: pastaVerisi.cevre.yuzde },
+                       { id: 'sistem', isim: 'Sistem & Laptop', veri: pastaVerisi.sistem.yuzde },
+                       { id: 'aksesuar', isim: 'Ağ & Aksesuar', veri: pastaVerisi.aksesuar.yuzde }
                      ].map(dilim => (
                        <div key={dilim.id} onClick={() => aktifPalet === 'pasta' ? setSeciliPastaDilimi(dilim.id) : null} className={`flex items-center justify-between w-full p-0.5 sm:p-1 rounded-lg transition-all ${aktifPalet === 'pasta' ? 'cursor-pointer hover:bg-white/5' : ''} ${seciliPastaDilimi === dilim.id ? 'ring-1 ring-white/50 bg-white/5 scale-105' : ''}`}>
                          <div className="flex items-center gap-1 sm:gap-2 min-w-0">
