@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useCart } from "@/app/CartContext";
-import { useSession, signOut } from "next/react"; // Not: "next-auth/react" projenize göre düzeltilebilir
+import { useSession, signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { 
   Search, X, Clock, ArrowRight, ChevronRight, ChevronDown, Loader2, 
