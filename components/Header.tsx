@@ -3,16 +3,15 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useCart } from "@/app/CartContext";
-import { useSession, signOut } from "next-auth/react";
+import { useSession, signOut } from "next/react"; // Not: "next-auth/react" projenize göre düzeltilebilir
 import { usePathname, useRouter } from "next/navigation";
 import { 
-  Search, X, Clock, Flame, ArrowRight, ChevronRight, Loader2, 
+  Search, X, Clock, ArrowRight, ChevronRight, ChevronDown, Loader2, 
   Menu, Cpu, Mouse, Keyboard, Monitor, Headphones, Speaker, 
   Server, Laptop, Wifi, Palette, CheckCircle2 
 } from "lucide-react";
-import toast from "react-hot-toast";
 
-// ŞEFİN JİLET GİBİ 4 KOLONLU MEGA MENÜ ENVANTERİ (PC İÇİN)
+// ŞEFİN JİLET GİBİ 4 KOLONLU MEGA MENÜ ENVANTERİ
 const menuCategories = [
   {
     title: "Bilgisayar Bileşenleri",
@@ -67,22 +66,6 @@ const menuCategories = [
   }
 ];
 
-function akilliKategoriBul(metin: string) {
-  if (!metin) return null;
-  const k = metin.toLowerCase();
-
-  if (k.includes("topla") || k.includes("kendin") || k.includes("sihirbaz")) return { isim: "Kendin Topla", slug: "kendin-topla" };
-  if (k.includes("ekran") || k.includes("rtx") || k.includes("gtx") || k.includes("rx ") || k.includes("4070") || k.includes("4080") || k.includes("4090") || k.includes("5070") || k.includes("5080") || k.includes("5090") || k.includes("vga")) return { isim: "Ekran Kartları", slug: "ekran-karti" };
-  if (k.includes("işlemci") || k.includes("islemci") || k.includes("intel") || k.includes("ryzen") || k.includes("cpu")) return { isim: "İşlemciler", slug: "islemci" };
-  if (k.includes("anakart") || k.includes("motherboard") || k.includes("z790") || k.includes("b650") || k.includes("x670")) return { isim: "Anakartlar", slug: "anakart" };
-  if (k.includes("laptop") || k.includes("notebook")) return { isim: "Laptoplar", slug: "laptop" };
-  if (k.includes("kasa") || k.includes("kabin")) return { isim: "Kasalar", slug: "kasa" };
-  if (k.includes("ram") || k.includes("bellek") || k.includes("ddr")) return { isim: "RAM Bellekler", slug: "ram" };
-  if (k.includes("monitör") || k.includes("monitor") || k.includes("ekran")) return { isim: "Monitörler", slug: "monitor" };
-
-  return null;
-}
-
 // 🎨 MOBİL KATEGORİ RENK VE İKON HARİTASI
 const Ikonlar: any = { Cpu, Mouse, Keyboard, Monitor, Headphones, Speaker, Server, Laptop, Wifi };
 const renkSecenekleri = [
@@ -118,38 +101,36 @@ export default function Header() {
   
   const sepetAdedi = sepet.reduce((toplam: number, urun: any) => toplam + (urun.adet || 1), 0);
   const { data: session } = useSession();
-  const isAdmin = session?.user?.email?.toLowerCase() === "o9616557@gmail.com";
   const [cikisOnayAcik, setCikisOnayAcik] = useState(false);
 
-  // 🚀 MOBİL KATEGORİ SÜRÜKLE BIRAK & RENK STATE'LERİ
+  // 🚀 MOBİL TAM EKRAN KATEGORİ MOTORU
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [seciliKategoriId, setSeciliKategoriId] = useState<string | null>(null);
+  const [acikAkordiyon, setAcikAkordiyon] = useState<string | null>(null); // Açık olan alt kategori
+  
   const suruklenenRef = useRef<number | null>(null);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
+  // Alt kategorileri menü ile birleştiriyoruz (v2)
   const [mobilKategoriler, setMobilKategoriler] = useState(() => {
     if(typeof window !== "undefined") {
-       const saved = localStorage.getItem("bilgin_mobil_kategoriler_v1");
+       const saved = localStorage.getItem("bilgin_mobil_kategoriler_v2");
        if(saved) return JSON.parse(saved);
     }
     return [
-       { id: "bilesen", isim: "Bilgisayar Bileşenleri", ikonId: "Cpu", renkIndex: 0, link: "/kategori/islemci" },
-       { id: "laptop", isim: "Laptop & Notebook", ikonId: "Laptop", renkIndex: 1, link: "/kategori/laptop" },
-       { id: "monitor", isim: "Oyuncu Monitörleri", ikonId: "Monitor", renkIndex: 2, link: "/kategori/monitor" },
-       { id: "cevre", isim: "Çevre Birimleri", ikonId: "Headphones", renkIndex: 3, link: "/kategori/kulaklik" },
-       { id: "sistem", isim: "Hazır Sistemler", ikonId: "Server", renkIndex: 4, link: "/kategori/oyun-bilgisayari" },
-       { id: "aksesuar", isim: "Aksesuar & Ağ", ikonId: "Wifi", renkIndex: 5, link: "/kategori/modem" },
+       { id: "bilesen", isim: "Bilgisayar Bileşenleri", ikonId: "Cpu", renkIndex: 0, subItems: menuCategories[0].items },
+       { id: "cevre", isim: "Çevre Birimleri & Oyuncu", ikonId: "Headphones", renkIndex: 1, subItems: menuCategories[1].items },
+       { id: "sistem", isim: "Sistem & Laptop", ikonId: "Laptop", renkIndex: 2, subItems: menuCategories[2].items },
+       { id: "aksesuar", isim: "Ağ, Aksesuar & Kablo", ikonId: "Wifi", renkIndex: 3, subItems: menuCategories[3].items },
     ];
   });
 
-  // Hafızaya Kaydetme
   useEffect(() => {
     if(typeof window !== "undefined") {
-      localStorage.setItem("bilgin_mobil_kategoriler_v1", JSON.stringify(mobilKategoriler));
+      localStorage.setItem("bilgin_mobil_kategoriler_v2", JSON.stringify(mobilKategoriler));
     }
   }, [mobilKategoriler]);
 
-  // Sürükle-Bırak Motoru
   const handleDragEnter = (hedefIndex: number) => {
     const suruklenenIndex = suruklenenRef.current;
     if (suruklenenIndex === null || suruklenenIndex === hedefIndex) return;
@@ -165,7 +146,6 @@ export default function Header() {
     setDraggedIndex(hedefIndex);
   };
 
-  // Renk Uygulama Motoru
   const renkUygula = (renkIndex: number) => {
     if (seciliKategoriId !== null) {
       setMobilKategoriler((eski: any[]) => 
@@ -174,26 +154,11 @@ export default function Header() {
     }
   };
 
-  const guvenliCikisYap = async () => {
-    localStorage.removeItem("bilgin_kayitli_sistemler");
-    await signOut(); 
+  // Akordiyonu açıp kapatan fonksiyon
+  const toggleAkordiyon = (id: string) => {
+    if (isPaletteOpen) return; // Renk düzenleme modundaysa alt menüyü açma
+    setAcikAkordiyon(prev => prev === id ? null : id);
   };
-
-  useEffect(() => {
-    if (!session?.user?.email) return;
-    const cirakDepoyaKossun = async () => {
-      try {
-        const res = await fetch("/api/sistemlerim?t=" + new Date().getTime());
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success) {
-            localStorage.setItem("bilgin_kayitli_sistemler", JSON.stringify(data.systems));
-          }
-        }
-      } catch (error) {}
-    };
-    cirakDepoyaKossun();
-  }, [session]);
 
   const kelimeTemizle = (metin: string) => {
     return metin.toLowerCase()
@@ -288,32 +253,24 @@ export default function Header() {
     localStorage.setItem("sonAramalar", JSON.stringify(yeni));
   };
 
-  function setIsMenuOpen(arg0: boolean): void {
-    throw new Error("Function not implemented.");
-  }
-
   return (
     <>
-      {/* 🚀 Z-INDEX DÜZELTİLDİ: z-[999999] ile artık hiçbir sayfanın (Hesabım dahil) altında kalmaz! */}
       <header className="sticky top-0 left-0 w-full z-[999999] bg-[#050814]/90 backdrop-blur-md border-b border-white/5 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20 gap-2 sm:gap-4">
 
-            {/* SOL TARAF: HAMBURGER & LOGO */}
             <div className="flex-shrink-0 flex items-center gap-3">
-              {/* MOBİL HAMBURGER BUTONU */}
-              <button className="md:hidden flex flex-col justify-center items-center w-10 h-10 focus:outline-none z-[100]" onClick={() => setMenuAcik(!menuAcik)}>
-                <span className={"block w-6 h-0.5 bg-white transition-all duration-300 " + (menuAcik ? "rotate-45 translate-y-1.5" : "")}></span>
-                <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "opacity-0" : "")}></span>
-                <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "-rotate-45 -translate-y-1.5" : "")}></span>
+              <button className="md:hidden flex flex-col justify-center items-center w-10 h-10 focus:outline-none z-[100]" onClick={() => setMenuAcik(true)}>
+                <span className="block w-6 h-0.5 bg-white mb-1.5 transition-all duration-300"></span>
+                <span className="block w-6 h-0.5 bg-white mb-1.5 transition-all duration-300"></span>
+                <span className="block w-6 h-0.5 bg-white transition-all duration-300"></span>
               </button>
               
-              <Link href="/" prefetch={true} className={`text-white font-black text-2xl tracking-tight flex items-center relative z-[100] transition-all duration-300 ${menuAcik ? "pointer-events-none opacity-20 md:pointer-events-auto md:opacity-100" : ""}`}>
+              <Link href="/" prefetch={true} className="text-white font-black text-2xl tracking-tight flex items-center relative z-[100] transition-all duration-300">
                 BİLGİN <span className="text-[#3b82f6] ml-1">PC</span>
               </Link>
             </div>
 
-            {/* ORTA: MASAÜSTÜ MEGA MENÜ (HİÇ DOKUNULMADI, ORİJİNAL HALİ) */}
             <div className="hidden md:flex items-center space-x-6 flex-1 justify-center h-full">
               <div className="relative flex items-center h-full" onMouseEnter={() => setDropdownOpen(true)} onMouseLeave={() => setDropdownOpen(false)}>
                 <button className="flex items-center space-x-2 text-white hover:text-[#3b82f6] py-2 font-semibold transition-colors text-sm">
@@ -351,16 +308,12 @@ export default function Header() {
               </nav>
             </div>
 
-            {/* SAĞ TARAF */}
-            <div className={`flex items-center gap-2 md:gap-4 shrink-0 h-full transition-all duration-300 ${menuAcik ? "pointer-events-none opacity-20 md:pointer-events-auto md:opacity-100" : ""}`}>
-              
-              {/* ARAMA */}
+            <div className="flex items-center gap-2 md:gap-4 shrink-0 h-full transition-all duration-300">
               <button onClick={() => setAramaAcik(true)} className="flex items-center gap-2 text-gray-300 hover:text-[#3b82f6] transition-colors p-2 group">
                 <span className="hidden md:block text-sm font-bold">Ara</span>
                 <Search className="w-5 h-5 md:w-5 md:h-5 shrink-0 group-hover:scale-110 transition-transform" />
               </button>
 
-              {/* HESABIM */}
               <div className="relative flex items-center h-full">
                 <Link href="/hesabim" prefetch={true} className="flex items-center gap-2 p-2 text-gray-300 hover:text-[#3b82f6] transition-colors group">
                   <span className="hidden sm:block text-sm font-bold">
@@ -372,7 +325,6 @@ export default function Header() {
                 </Link>
               </div>
 
-              {/* SEPET ALANI */}
               <Link href="/sepet" prefetch={true} className="relative flex items-center gap-2 p-2 text-gray-300 hover:text-[#3b82f6] transition-colors group">
                 <span className="hidden md:block text-sm font-bold">Sepet</span>
                 <div className="relative">
@@ -389,125 +341,144 @@ export default function Header() {
         </div>
       </header>
 
-      {/* 📱 YENİ NESİL SİBER MOBİL MENÜ (DRAWER) 📱 */}
-      {/* Siyah Arka Plan Örtüsü */}
+      {/* 📱 YENİ NESİL TAM EKRAN (FULL-SCREEN) SİBER MOBİL MENÜ 📱 */}
       <div 
-        className={`md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[999990] transition-opacity duration-300 ${menuAcik ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"}`}
-        onClick={() => setIsMenuOpen(false)}
-      ></div>
-
-      {/* Yandan Kayan Panel */}
-      <div 
-        className={`md:hidden fixed top-0 left-0 h-full w-[85vw] max-w-sm bg-[#0b1121] border-r border-slate-800 shadow-[0_0_50px_rgba(0,0,0,0.8)] z-[999995] transform transition-transform duration-500 ease-out flex flex-col ${menuAcik ? "translate-x-0" : "-translate-x-full"}`}
+        className={`md:hidden fixed inset-0 w-full h-full bg-[#0b1121]/95 backdrop-blur-xl z-[9999999] flex flex-col transition-all duration-500 ease-out transform ${menuAcik ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8 pointer-events-none"}`}
       >
-        <div className="flex items-center justify-between p-5 border-b border-slate-800/80 shrink-0 mt-4">
-          <h2 className="text-base font-black text-white uppercase tracking-widest">Kategoriler</h2>
+        {/* Üst Bar (Başlık ve Kapat Butonları) */}
+        <div className="flex items-center justify-between p-5 border-b border-slate-800/80 shrink-0 bg-[#050814]">
+          <h2 className="text-lg font-black text-white uppercase tracking-widest flex items-center gap-2">
+            <Menu className="w-6 h-6 text-[#3b82f6]" /> Menü
+          </h2>
           
           <div className="flex items-center gap-2">
             <button 
               onClick={() => {
                 setIsPaletteOpen(!isPaletteOpen);
                 if(isPaletteOpen) setSeciliKategoriId(null);
+                setAcikAkordiyon(null); // Palet açılınca akordiyonları kapat
               }}
-              className={`p-2 rounded-xl transition-all ${isPaletteOpen ? 'bg-emerald-900 border border-emerald-500/50' : 'hover:bg-slate-800/50 border border-transparent'}`}
+              className={`p-2.5 rounded-xl transition-all ${isPaletteOpen ? 'bg-emerald-900 border border-emerald-500/50' : 'bg-[#0f172a] hover:bg-slate-800/50 border border-transparent'}`}
             >
               <Palette className={`w-5 h-5 ${isPaletteOpen ? 'text-emerald-400' : 'text-slate-400'}`} />
             </button>
 
-            <button onClick={() => setMenuAcik(false)} className="p-2 rounded-xl text-slate-400 hover:text-rose-400 bg-slate-800/50">
-              <X className="w-5 h-5" />
+            <button onClick={() => setMenuAcik(false)} className="p-2.5 rounded-xl text-slate-400 hover:text-white bg-rose-500/10 hover:bg-rose-500/20 transition-colors border border-rose-500/20">
+              <X className="w-6 h-6 text-rose-400" />
             </button>
           </div>
         </div>
 
         {/* RENK PALETİ */}
         {isPaletteOpen && (
-          <div className="p-4 border-b border-slate-800/50 bg-slate-900/30 flex flex-col items-center gap-3 shrink-0 animate-in slide-in-from-top-2">
+          <div className="p-4 border-b border-slate-800/50 bg-slate-900/50 flex flex-col items-center gap-3 shrink-0 animate-in slide-in-from-top-2">
             {!seciliKategoriId ? (
-              <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/50 px-3 py-1.5 rounded-lg border border-emerald-900 text-center w-full">
-                Boyamak istediğiniz bir kategori seçin
+              <span className="text-xs font-bold text-emerald-400 bg-emerald-950/50 px-3 py-1.5 rounded-lg border border-emerald-900 text-center w-full">
+                Boyamak istediğiniz bir ana kategori seçin
               </span>
             ) : (
-               <span className="text-[10px] font-bold text-slate-400 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 text-center w-full">
+               <span className="text-xs font-bold text-slate-400 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 text-center w-full">
                 Şimdi paletten bir renk seçin
               </span>
             )}
             
-            <div className="flex justify-center gap-3 w-full">
+            <div className="flex justify-center gap-4 w-full pt-1">
               {renkSecenekleri.map((renk, idx) => (
                 <button 
                   key={idx}
                   onClick={() => renkUygula(idx)}
                   disabled={!seciliKategoriId}
-                  className={`w-7 h-7 rounded-full shadow-lg transition-transform flex items-center justify-center ${renk.hex} ${!seciliKategoriId ? 'opacity-30 cursor-not-allowed grayscale' : 'hover:scale-110 opacity-100 cursor-pointer'}`}
+                  className={`w-8 h-8 rounded-full shadow-lg transition-transform flex items-center justify-center ${renk.hex} ${!seciliKategoriId ? 'opacity-30 cursor-not-allowed grayscale' : 'hover:scale-110 opacity-100 cursor-pointer'}`}
                 ></button>
               ))}
             </div>
           </div>
         )}
 
-        {/* LİSTE ALANI */}
+        {/* AKORDİYON & SÜRÜKLENEBİLİR KATEGORİ LİSTESİ */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           
-          {/* Kendin Topla (Sabit En Üstte) */}
-          <Link href="/kendin-topla" onClick={() => setMenuAcik(false)} className="flex items-center justify-between p-4 rounded-xl border bg-emerald-950/20 border-emerald-500/20 hover:bg-emerald-500/5 transition-all group mb-2">
-             <span className="font-black tracking-widest text-emerald-400 uppercase text-xs flex items-center gap-3">
+          {/* Kendin Topla (Sabit En Üstte, Tıklayınca Sayfaya Gider) */}
+          <Link href="/kendin-topla" onClick={() => setMenuAcik(false)} className="flex items-center justify-between p-4 rounded-xl border bg-emerald-950/20 border-emerald-500/20 hover:bg-emerald-500/5 transition-all group mb-4">
+             <span className="font-black tracking-widest text-emerald-400 uppercase text-sm flex items-center gap-3">
                🔧 Kendin Topla
              </span>
              <ArrowRight className="w-5 h-5 text-emerald-400 opacity-70 group-hover:opacity-100 transform group-hover:translate-x-1 transition-all" />
           </Link>
 
-          {/* Sürüklenebilir Siber Kategoriler */}
+          {/* Sürüklenebilir Akordiyon Kategoriler */}
           {mobilKategoriler.map((kategori: any, index: number) => {
             const Ikon = Ikonlar[kategori.ikonId] || ChevronRight;
-            const isSecili = seciliKategoriId === kategori.id;
+            const isDuzenlemeSecili = seciliKategoriId === kategori.id;
             const duzenlemeModu = isPaletteOpen;
             const isDragged = draggedIndex === index;
             const renk = renkSecenekleri[kategori.renkIndex];
+            const isAkordiyonAcik = acikAkordiyon === kategori.id;
 
             return (
-              <div 
-                key={kategori.id}
-                draggable={duzenlemeModu}
-                onDragStart={() => {
-                  suruklenenRef.current = index;
-                  setDraggedIndex(index); // Taşıma hissini başlat
-                }}
-                onDragEnter={() => duzenlemeModu && handleDragEnter(index)}
-                onDragOver={(e) => e.preventDefault()}
-                onDragEnd={() => {
-                  suruklenenRef.current = null;
-                  setDraggedIndex(null); // Taşıma hissini bitir
-                }}
-                onClick={() => {
-                  if (duzenlemeModu) {
-                    setSeciliKategoriId(isSecili ? null : kategori.id);
-                  } else {
-                    setMenuAcik(false);
-                    router.push(kategori.link);
-                  }
-                }}
-                className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all duration-300 select-none
-                  ${duzenlemeModu ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer hover:bg-white/[0.03]'} 
-                  ${isDragged ? 'opacity-40 border-dashed scale-95 shadow-none' : 'opacity-100 scale-100'} 
-                  ${renk.border} 
-                  ${!duzenlemeModu ? renk.hoverBorder : ''} 
-                  ${isSecili ? 'bg-slate-800 ring-2 ring-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.2)] z-10 relative scale-[1.02]' : 'bg-[#0f172a]'}
-                `}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg bg-[#020617] border border-slate-800 shadow-inner transition-transform duration-300 ${!duzenlemeModu ? 'group-hover:scale-110' : ''}`}>
-                    <Ikon className={`w-4 h-4 ${renk.ikon}`} />
+              <div key={kategori.id} className="flex flex-col">
+                <div 
+                  draggable={duzenlemeModu}
+                  onDragStart={() => {
+                    suruklenenRef.current = index;
+                    setDraggedIndex(index);
+                    setAcikAkordiyon(null); // Sürüklerken akordiyonu kapat
+                  }}
+                  onDragEnter={() => duzenlemeModu && handleDragEnter(index)}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDragEnd={() => {
+                    suruklenenRef.current = null;
+                    setDraggedIndex(null);
+                  }}
+                  onClick={() => {
+                    if (duzenlemeModu) {
+                      setSeciliKategoriId(isDuzenlemeSecili ? null : kategori.id);
+                    } else {
+                      toggleAkordiyon(kategori.id);
+                    }
+                  }}
+                  className={`w-full flex items-center justify-between p-4 transition-all duration-300 select-none border relative z-20
+                    ${isAkordiyonAcik && !duzenlemeModu ? 'rounded-t-xl border-b-0 bg-white/[0.04]' : 'rounded-xl bg-[#0f172a] hover:bg-white/[0.03]'}
+                    ${duzenlemeModu ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} 
+                    ${isDragged ? 'opacity-40 border-dashed scale-95 shadow-none' : 'opacity-100 scale-100'} 
+                    ${renk.border} 
+                    ${!duzenlemeModu && !isAkordiyonAcik ? renk.hoverBorder : ''} 
+                    ${isDuzenlemeSecili ? 'bg-slate-800 ring-2 ring-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.2)]' : ''}
+                  `}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`p-2.5 rounded-xl bg-[#020617] border border-slate-800 shadow-inner transition-transform duration-300`}>
+                      <Ikon className={`w-5 h-5 ${renk.ikon}`} />
+                    </div>
+                    <span className={`font-bold text-base tracking-wide transition-colors ${isDuzenlemeSecili ? 'text-emerald-400' : 'text-slate-200'}`}>
+                      {kategori.isim}
+                    </span>
                   </div>
-                  <span className={`font-bold text-sm tracking-wide transition-colors ${isSecili ? 'text-emerald-400' : 'text-slate-300'}`}>
-                    {kategori.isim}
-                  </span>
+                  
+                  {duzenlemeModu && isDuzenlemeSecili ? (
+                     <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+                  ) : (
+                     <ChevronDown className={`w-6 h-6 text-slate-500 transition-transform duration-300 ${isAkordiyonAcik ? 'rotate-180 text-white' : ''}`} />
+                  )}
                 </div>
-                
-                {duzenlemeModu && isSecili ? (
-                   <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                ) : (
-                   <ChevronRight className="w-5 h-5 text-slate-600 transition-colors" />
+
+                {/* Alt Kategoriler (Akordiyon İçeriği) */}
+                {isAkordiyonAcik && !duzenlemeModu && (
+                  <div className={`border border-t-0 rounded-b-xl p-3 pt-0 bg-white/[0.02] ${renk.border} animate-in slide-in-from-top-2 fade-in duration-200 relative z-10`}>
+                    <div className="flex flex-col gap-1 mt-2">
+                      {kategori.subItems.map((sub: any) => (
+                        <Link 
+                          key={sub.slug}
+                          href={"/kategori/" + sub.slug}
+                          onClick={() => setMenuAcik(false)}
+                          className="flex items-center justify-between p-3.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors group"
+                        >
+                          <span className="text-sm font-medium tracking-wide pl-2">{sub.name}</span>
+                          <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#3b82f6]" />
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
             );
@@ -520,12 +491,10 @@ export default function Header() {
         <div className="fixed inset-0 z-[9999999] bg-[#09090b]/98 backdrop-blur-3xl flex flex-col overflow-hidden animate-in fade-in duration-100">
           <div className="border-b border-white/10">
             <div className="w-full max-w-4xl mx-auto p-4 md:p-6 flex items-center gap-4">
-              
               <form onSubmit={handleAramaSubmit} className="relative flex-1 w-full">
                 <button type="submit" className="absolute inset-y-0 left-0 pl-4 flex items-center z-10">
                   <Search className="w-5 h-5 text-[#3b82f6]" />
                 </button>
-                
                 <input
                   ref={searchInputRef}
                   type="text"
@@ -534,14 +503,12 @@ export default function Header() {
                   onChange={(e) => setAramaMetni(e.target.value)}
                   className="w-full h-14 bg-white/5 border border-white/10 focus:border-[#3b82f6] focus:bg-[#121212] rounded-2xl pl-12 pr-12 text-lg text-white placeholder-gray-500 outline-none transition-all"
                 />
-                
                 {aramaMetni && (
                   <button type="button" onClick={() => setAramaMetni("")} className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-white z-10">
                     <X className="w-5 h-5" />
                   </button>
                 )}
               </form>
-
               <button onClick={() => setAramaAcik(false)} className="text-gray-400 hover:text-white p-2 font-bold text-sm shrink-0 uppercase tracking-widest transition-colors">
                 KAPAT
               </button>
@@ -551,21 +518,14 @@ export default function Header() {
           <div className="flex-1 overflow-y-auto p-4 md:p-8 max-w-4xl mx-auto w-full pb-32">
             {aramaMetni.length > 0 ? (
               <div className="flex flex-col md:flex-row gap-6 md:gap-8 w-full items-start animate-in fade-in duration-300">
-                
                 <div className="w-full md:w-[280px] shrink-0">
                   <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-3 mb-4">
                     <Search className="w-3.5 h-3.5 text-[#3b82f6]" /> İLGİLİ KATEGORİLER
                   </h3>
-                  
                   {bulunanKategoriler.length > 0 ? (
                     <div className="flex flex-col gap-2">
                       {bulunanKategoriler.map((kat) => (
-                        <Link 
-                          key={kat.slug} 
-                          href={"/kategori/" + kat.slug} 
-                          onClick={() => setAramaAcik(false)} 
-                          className="relative overflow-hidden px-4 py-3.5 bg-black/40 border border-white/5 hover:border-[#3b82f6]/40 hover:bg-[#3b82f6]/[0.02] text-gray-400 hover:text-white rounded-xl transition-all duration-300 flex items-center gap-4 text-sm font-bold group"
-                        >
+                        <Link key={kat.slug} href={"/kategori/" + kat.slug} onClick={() => setAramaAcik(false)} className="relative overflow-hidden px-4 py-3.5 bg-black/40 border border-white/5 hover:border-[#3b82f6]/40 hover:bg-[#3b82f6]/[0.02] text-gray-400 hover:text-white rounded-xl transition-all duration-300 flex items-center gap-4 text-sm font-bold group">
                           <div className="absolute left-0 top-2 bottom-2 w-1 rounded-r-md bg-gradient-to-b from-[#3b82f6] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                           <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 group-hover:border-[#3b82f6]/30 group-hover:bg-[#3b82f6]/10 flex items-center justify-center shrink-0 transition-all duration-300">
                             <div className="w-1.5 h-1.5 rounded-full bg-gray-500 group-hover:bg-[#3b82f6] group-hover:shadow-[0_0_10px_#3b82f6] transition-all duration-300"></div>
@@ -580,20 +540,12 @@ export default function Header() {
                 
                 <div className="w-full flex-1 min-w-0">
                   <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-3 mb-4">
-                    {aramaYukleniyor ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#3b82f6]" /> : <Search className="w-3.5 h-3.5" />}
-                    ÜRÜN SONUÇLARI
+                    {aramaYukleniyor ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#3b82f6]" /> : <Search className="w-3.5 h-3.5" />} ÜRÜN SONUÇLARI
                   </h3>
-                  
                   {canliSonuclar.length > 0 ? (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                       {canliSonuclar.map((urun) => (
-                        <Link 
-                          key={urun._id} 
-                          href={"/product/" + urun.slug} 
-                          prefetch={true} 
-                          onClick={() => setAramaAcik(false)} 
-                          className="flex items-center gap-4 p-4 bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-[#3b82f6]/30 rounded-2xl transition-all group"
-                        >
+                        <Link key={urun._id} href={"/product/" + urun.slug} prefetch={true} onClick={() => setAramaAcik(false)} className="flex items-center gap-4 p-4 bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-[#3b82f6]/30 rounded-2xl transition-all group">
                           <div className="w-16 h-16 bg-black/50 rounded-xl p-2 flex shrink-0 items-center justify-center">
                             <img src={urun.resim} alt={urun.isim} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform" />
                           </div>
@@ -604,16 +556,13 @@ export default function Header() {
                         </Link>
                       ))}
                     </div>
-                  ) : (
-                    !aramaYukleniyor && (
+                  ) : (!aramaYukleniyor && (
                       <div className="text-center py-16 flex flex-col items-center justify-center bg-white/[0.01] rounded-2xl border border-dashed border-white/5">
                         <span className="text-4xl mb-3 opacity-20">🔍</span>
                         <span className="text-gray-500 font-medium text-sm">Aradığınız kriterde ürün bulunamadı.</span>
                       </div>
-                    )
-                  )}
+                  ))}
                 </div>
-
               </div>
             ) : (
               <div className="space-y-8 animate-in slide-in-from-bottom-2 duration-100">
@@ -634,19 +583,12 @@ export default function Header() {
                     </div>
                   </div>
                 )}
-
                 {populerUrunler.length > 0 && (
                   <div>
                     <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">EN ÇOK SATANLAR</h3>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       {populerUrunler.map((urun) => (
-                        <Link 
-                          key={urun._id} 
-                          href={"/product/" + urun.slug} 
-                          prefetch={true} 
-                          onClick={() => setAramaAcik(false)} 
-                          className="bg-[#121212] border border-white/5 hover:border-[#3b82f6]/30 p-3 rounded-2xl group transition-colors flex flex-col"
-                        >
+                        <Link key={urun._id} href={"/product/" + urun.slug} prefetch={true} onClick={() => setAramaAcik(false)} className="bg-[#121212] border border-white/5 hover:border-[#3b82f6]/30 p-3 rounded-2xl group transition-colors flex flex-col">
                           <div className="aspect-square bg-black/40 rounded-xl mb-3 flex items-center justify-center p-2">
                              <img src={urun.resim} alt={urun.isim} className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform" />
                           </div>
@@ -667,29 +609,15 @@ export default function Header() {
       {cikisOnayAcik && (
         <div className="fixed inset-0 z-[9999999] flex items-center justify-center bg-[#050814]/80 backdrop-blur-md p-4 animate-in fade-in duration-150">
           <div className="bg-[#09090b] border border-white/10 shadow-[0_0_50px_rgba(239,68,68,0.2)] rounded-2xl w-full max-w-[320px] overflow-hidden animate-in zoom-in-95 duration-150">
-            
             <div className="p-6 flex flex-col items-center text-center">
-              <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 text-xl mb-4 shadow-[0_0_15px_rgba(239,68,68,0.15)]">
-                🚪
-              </div>
+              <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 text-xl mb-4 shadow-[0_0_15px_rgba(239,68,68,0.15)]">🚪</div>
               <h3 className="text-white font-bold text-base mb-1 tracking-wide">Çıkış Yapılıyor</h3>
               <p className="text-gray-400 text-xs leading-relaxed px-2">Hesabınızdan güvenli bir şekilde ayrılmak istediğinize emin misiniz?</p>
             </div>
-
             <div className="flex border-t border-white/5 bg-[#121215]">
-              <button onClick={() => setCikisOnayAcik(false)} className="w-full border-r border-white/5 px-4 py-3 text-xs font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-colors tracking-wide">
-                İptal Et
-              </button>
-              <button onClick={async () => { 
-                setCikisOnayAcik(false); 
-                setHesabimAcik(false); 
-                localStorage.removeItem("bilgin_kayitli_sistemler"); 
-                await signOut({ redirect: false }); 
-              }} className="w-full px-4 py-3 text-xs font-bold text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors tracking-wide uppercase">
-                Çıkış Yap
-              </button>
+              <button onClick={() => setCikisOnayAcik(false)} className="w-full border-r border-white/5 px-4 py-3 text-xs font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-colors tracking-wide">İptal Et</button>
+              <button onClick={async () => { setCikisOnayAcik(false); setHesabimAcik(false); localStorage.removeItem("bilgin_kayitli_sistemler"); await signOut({ redirect: false }); }} className="w-full px-4 py-3 text-xs font-bold text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors tracking-wide uppercase">Çıkış Yap</button>
             </div>
-
           </div>
         </div>
       )}
