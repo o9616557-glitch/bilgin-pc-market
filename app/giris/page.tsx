@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, Lock, ArrowLeft, ArrowRight, UserCircle2, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { signIn } from "next-auth/react";
 import toast from "react-hot-toast"; 
-
+export const dynamic = "force-dynamic";
 export default function GirisPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
