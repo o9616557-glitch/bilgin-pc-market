@@ -226,23 +226,27 @@ export const authOptions: NextAuthOptions = {
       return true; 
     },
 
-    // 🚀 BİNGO: İŞTE KATİLİ YOK ETTİĞİMİZ YER BURASI! (ID yerine Email ile arama yapıyoruz)
+    // 🚀 JWT MOTORU (BİNGO: ŞEFİN ŞALTERİ SİSTEME EKLENDİ!)
     async jwt({ token, user }) {
+      // 1. İlk girişte ID ve cihaz kimliği alınıyor
       if (user) { 
         token.id = user.id; 
         token.deviceId = (user as any).deviceId; 
+        token.aktifEposta = user.email; // İlk gelişte orjinal e-postayı atıyoruz ki boş kalmasın
       }
 
-      // 🚨 Eski kod burada 'token.id' kullanıyordu ve Google ID'sinde patlıyordu. 
-      // Artık 'token.email' kullanıyoruz ki MongoDB asla şaşırmasın!
+      // 2. Sayfada gezerken bilet kontrolü (Veritabanındaki anahtarımız token.email olarak aynı kaldı)
       if (!user && token?.email && token?.deviceId) {
         try {
           if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
           
-          // 🚀 JİLET GİBİ ÇÖZÜM: findById yerine findOne({ email }) kullanıyoruz!
-          const dbUser = await User.findOne({ email: token.email }).select("activeDevices");
+          // Sadece activeDevices'i değil, aktifEposta'yı da çektik
+          const dbUser = await User.findOne({ email: token.email }).select("activeDevices aktifEposta email");
           
           if (dbUser) {
+            // Şalterdeki maili bilete sessizce zımbalıyoruz
+            token.aktifEposta = dbUser.aktifEposta || dbUser.email;
+
             const buCihaz = dbUser.activeDevices.find((c: any) => c.deviceId === token.deviceId);
             if (!buCihaz || buCihaz.isActive === false) {
               return { ...token, isLoggedOut: true }; 
@@ -253,13 +257,19 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
 
-   // 🚀 ÖLÜM DAMGALI ADAMI SİSTEMDEN ATAN MOTOR
+   // 🚀 SESSION MOTORU: VİTRİNDEKİ MAİLİ ZORLA EZİYORUZ!
     async session({ session, token }) {
       if (token.isLoggedOut) {
          (session as any).error = "KickedOut";
       } else if (session.user) {
         (session.user as any).id = token.id;
         (session.user as any).deviceId = token.deviceId;
+        
+        // 🚀 İŞTE KURŞUN GEÇİRMEZ HAMLE:
+        // Eğer token'da şalter maili (aktifEposta) varsa, sitenin her yerinde görünen o maili anında bununla ez!
+        if (token.aktifEposta) {
+          session.user.email = token.aktifEposta as string;
+        }
       }
       return session;
     }
