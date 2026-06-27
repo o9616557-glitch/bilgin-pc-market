@@ -55,21 +55,24 @@ export async function POST(req: Request) {
     await connectMongoDB;
     const body = await req.json();
     
-    // Artık API'miz tüm renk ayarlarını teslim alıyor ve Mongoose Şablonuna aktarıyor
-    const { kullaniciEmail, menuListesi, siparisRenkleri, pastaRenkleri, cubukRenk } = body;
+    // 🚀 BİNGO: mobilKategoriler paketi de artık yakalanıyor
+    const { kullaniciEmail, menuListesi, siparisRenkleri, pastaRenkleri, cubukRenk, mobilKategoriler } = body;
 
     if (!kullaniciEmail) {
       return NextResponse.json({ success: false, message: "Email eksik!" }, { status: 400 });
     }
 
+    // Hangisi gönderildiyse sadece onu güncelleyen dinamik obje
+    let guncellenecekVeriler: any = {};
+    if (menuListesi) guncellenecekVeriler.menuListesi = menuListesi;
+    if (siparisRenkleri) guncellenecekVeriler.siparisRenkleri = siparisRenkleri;
+    if (pastaRenkleri) guncellenecekVeriler.pastaRenkleri = pastaRenkleri;
+    if (cubukRenk) guncellenecekVeriler.cubukRenk = cubukRenk;
+    if (mobilKategoriler) guncellenecekVeriler.mobilKategoriler = mobilKategoriler;
+
     const guncelAyar = await MenuAyar.findOneAndUpdate(
       { kullaniciEmail: kullaniciEmail },
-      { 
-        menuListesi: menuListesi,
-        siparisRenkleri: siparisRenkleri,
-        pastaRenkleri: pastaRenkleri,
-        cubukRenk: cubukRenk
-      },
+      { $set: guncellenecekVeriler },
       { new: true, upsert: true }
     );
 

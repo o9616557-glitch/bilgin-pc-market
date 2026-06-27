@@ -122,7 +122,6 @@ export default function Header() {
   const { data: session } = useSession();
   const [cikisOnayAcik, setCikisOnayAcik] = useState(false);
 
-  // 🚀 MOBİL SÜRÜKLE BIRAK & AKORDİYON HAFIZASI
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [seciliKategoriId, setSeciliKategoriId] = useState<string | null>(null);
   const [acikAkordiyon, setAcikAkordiyon] = useState<string | null>(null); 
@@ -130,7 +129,6 @@ export default function Header() {
   const suruklenenRef = useRef<number | null>(null);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
-  // V4: Standart Cyan renkle (0) başlayan temiz kurulum hafızası
   const [mobilKategoriler, setMobilKategoriler] = useState(() => {
     if(typeof window !== "undefined") {
        const saved = localStorage.getItem("bilgin_mobil_kategoriler_v4");
@@ -147,16 +145,46 @@ export default function Header() {
     ];
   });
 
+  // 🚀 MONGODB'DEN VERİ ÇEKME (SADECE GİRİŞ YAPILDIYSA)
+  useEffect(() => {
+    if (session?.user?.email) {
+      fetch(`/api/menu-ayarlari?email=${session.user.email}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.data?.mobilKategoriler?.length > 0) {
+            setMobilKategoriler(data.data.mobilKategoriler);
+            localStorage.setItem("bilgin_mobil_kategoriler_v4", JSON.stringify(data.data.mobilKategoriler));
+          }
+        })
+        .catch(e => console.error("Mobil kategori çekme hatası:", e));
+    }
+  }, [session]);
+
+  // 🚀 MONGODB'YE KAYDETME MOTORU
+  const veritabaninaKaydet = async (guncelListe: any[]) => {
+    if (!session?.user?.email) return;
+    try {
+      await fetch('/api/menu-ayarlari', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          kullaniciEmail: session.user.email,
+          mobilKategoriler: guncelListe
+        })
+      });
+    } catch (error) {
+      console.error("Mobil kategori kaydetme hatası:", error);
+    }
+  };
+
   useEffect(() => {
     if(typeof window !== "undefined") {
       localStorage.setItem("bilgin_mobil_kategoriler_v4", JSON.stringify(mobilKategoriler));
     }
   }, [mobilKategoriler]);
 
-  // 🚀 AKILLI KAPANMA MOTORU: Menü kapanırken tuhaf görüntü oluşmaması için
   useEffect(() => {
     if (!menuAcik) {
-      // Menü kapandığında animasyon süresi (300ms) kadar bekle, sonra akordiyonu sessizce kapat.
       const timer = setTimeout(() => {
         setAcikAkordiyon(null);
       }, 300);
@@ -292,7 +320,6 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20 gap-2 sm:gap-4">
 
-            {/* SOL TARAF: HAMBURGER & LOGO */}
             <div className="flex-shrink-0 flex items-center gap-3">
               <button className="md:hidden flex flex-col justify-center items-center w-10 h-10 focus:outline-none z-[100]" onClick={() => setMenuAcik(true)}>
                 <span className="block w-6 h-0.5 bg-white mb-1.5 transition-all duration-300"></span>
@@ -300,13 +327,11 @@ export default function Header() {
                 <span className="block w-6 h-0.5 bg-white transition-all duration-300"></span>
               </button>
               
-              {/* 🚀 BİLGİN PC BİRLEŞİMİ (MASAÜSTÜ) */}
               <Link href="/" prefetch={true} className="text-white font-black text-2xl tracking-tight flex items-center relative z-[100] transition-all duration-300">
                 BİLGİN<span className="text-[#3b82f6]">PC</span>
               </Link>
             </div>
 
-            {/* MASAÜSTÜ MEGA MENÜ */}
             <div className="hidden md:flex items-center space-x-6 flex-1 justify-center h-full">
               <div className="relative flex items-center h-full" onMouseEnter={() => setDropdownOpen(true)} onMouseLeave={() => setDropdownOpen(false)}>
                 <button className="flex items-center space-x-2 text-white hover:text-[#3b82f6] py-2 font-semibold transition-colors text-sm">
@@ -389,7 +414,6 @@ export default function Header() {
               <span className="block w-6 h-0.5 bg-white mt-1 -rotate-45 -translate-y-1.5 transition-all duration-300"></span>
             </button>
             
-            {/* 🚀 BİLGİN PC BİRLEŞİMİ (MOBİL İÇ MODAL) */}
             <span className="text-white font-black text-2xl tracking-tight select-none">
               BİLGİN<span className="text-[#3b82f6]">PC</span>
             </span>
@@ -397,9 +421,15 @@ export default function Header() {
           
           <button 
             onClick={() => {
-              setIsPaletteOpen(!isPaletteOpen);
-              if(isPaletteOpen) setSeciliKategoriId(null);
-              setAcikAkordiyon(null); 
+              const yeniDurum = !isPaletteOpen;
+              setIsPaletteOpen(yeniDurum);
+              if(!yeniDurum) {
+                // 🚀 BİNGO: Palet kapandığı an kalıcı olarak veritabanına kaydet
+                veritabaninaKaydet(mobilKategoriler);
+                setSeciliKategoriId(null);
+              } else {
+                setAcikAkordiyon(null);
+              }
             }}
             className={`p-2 rounded-xl transition-all mr-1 ${isPaletteOpen ? 'bg-emerald-900 border border-emerald-500/50' : 'bg-[#0f172a] hover:bg-slate-800/50 border border-transparent'}`}
           >
@@ -415,7 +445,7 @@ export default function Header() {
               </span>
             ) : (
                <span className="text-[10px] font-bold text-slate-400 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 text-center w-full">
-                Şimdi paletten bir renk seçin
+                Şimdi paletten bir renk seçin (Kapatınca kalıcı kaydedilir)
               </span>
             )}
             
@@ -461,7 +491,7 @@ export default function Header() {
                       setSeciliKategoriId(isDuzenlemeSecili ? null : kategori.id);
                     } else {
                       if (kategori.isLink) {
-                          setMenuAcik(false); // Link ise sadece menüyü kapat
+                          setMenuAcik(false);
                           router.push(kategori.link);
                       } else {
                           toggleAkordiyon(kategori.id);
@@ -505,7 +535,6 @@ export default function Header() {
                             <Link 
                               key={sub.slug}
                               href={"/kategori/" + sub.slug}
-                              // 🚀 SADECE MENÜYÜ KAPAT (Akordiyon sıfırlanması için useEffect bekleyecek)
                               onClick={() => setMenuAcik(false)}
                               className={`flex items-center justify-between p-3 text-slate-400 hover:text-white hover:bg-white/5 transition-colors group ${subIdx !== kategori.subItems.length - 1 ? 'border-b border-white/5' : ''}`}
                             >
