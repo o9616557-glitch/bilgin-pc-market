@@ -1,5 +1,5 @@
 "use client";
-
+import toast from "react-hot-toast";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
@@ -14,7 +14,11 @@ export default function GuvenlikPage() {
   // 🚀 STATUS MOTORU EKLENDİ (Misafir mi değil mi anlamak için)
   const { data: session, status } = useSession(); 
   const mevcutCihazId = (session?.user as any)?.deviceId; 
-
+// 🚀 ŞEFİN DİNAMİK E-POSTA ŞALTERİ İÇİN STATELER
+  const [kayitliMailler, setKayitliMailler] = useState<string[]>([]);
+  const [aktifMail, setAktifMail] = useState<string>("");
+  const [yeniMailEkle, setYeniMailEkle] = useState("");
+  const [mailYukleniyor, setMailYukleniyor] = useState(false);
   // 🚀 MİSAFİRLERİ ENGELLEYEN ŞIK UYARI MODALI
   const [girisSartModal, setGirisSartModal] = useState(false);
 
@@ -81,6 +85,11 @@ export default function GuvenlikPage() {
               new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime()
             );
             setAktifCihazlar(siraliCihazlar);
+          }
+          // 🚀 ŞALTER VERİLERİNİ ÇEKİYORUZ
+          if (data.kayitliEpostalar) {
+            setKayitliMailler(data.kayitliEpostalar);
+            setAktifMail(data.aktifEposta || session?.user?.email || "");
           }
         }
       } catch (error) {
@@ -607,6 +616,100 @@ export default function GuvenlikPage() {
                   </button>
                 </div>
               )}
+            </div>
+
+{/* 🚀 BİNGO: ŞEFİN DİNAMİK E-POSTA ŞALTERİ */}
+            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col relative overflow-hidden group">
+              <div className="absolute -top-10 -right-10 w-32 h-32 bg-amber-500/5 blur-[40px] pointer-events-none rounded-full"></div>
+              
+              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-800/80">
+                <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
+                <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Dinamik E-Posta Yönetimi</h2>
+                <span className="ml-auto text-[8px] sm:text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-1.5 py-1 rounded font-black uppercase tracking-widest">VIP ÖZELLİK</span>
+              </div>
+              
+              <p className="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6">
+                İstediğiniz kadar e-posta ekleyin ve aralarında tek tıkla geçiş yapın. Fatura ve sipariş bildirimleriniz her zaman "Aktif Şalter" olan maile gider, eski verileriniz asla kaybolmaz.
+              </p>
+
+              <div className="flex flex-col gap-3 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar mb-4">
+                {kayitliMailler.length === 0 ? (
+                  <div className="text-center py-4 text-xs font-bold text-slate-500 bg-[#020617] rounded-xl border border-slate-800/50">
+                    Henüz eklenmiş başka bir e-posta yok.
+                  </div>
+                ) : (
+                  kayitliMailler.map((mail, idx) => {
+                    const isAktif = mail === aktifMail;
+                    return (
+                      <div key={idx} className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all duration-300 ${isAktif ? 'bg-amber-500/10 border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.1)]' : 'bg-[#020617] border-slate-800 hover:border-slate-700'}`}>
+                        <div className="flex items-center gap-3 truncate pr-4">
+                          <div className={`w-2 h-2 rounded-full shrink-0 ${isAktif ? 'bg-amber-400 animate-pulse shadow-[0_0_8px_#fbbf24]' : 'bg-slate-600'}`}></div>
+                          <span className={`text-xs sm:text-sm font-bold truncate ${isAktif ? 'text-white' : 'text-slate-400'}`}>{mail}</span>
+                        </div>
+                        
+                        <button 
+                          disabled={isAktif || mailYukleniyor}
+                          onClick={async () => {
+                            if (status === "unauthenticated") return kilitliIslem();
+                            setMailYukleniyor(true);
+                            try {
+                              const res = await fetch("/api/user/set-active-email", {
+                                method: "POST", headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ yeniAktifMail: mail }),
+                              });
+                              if (res.ok) {
+                                setAktifMail(mail);
+                                toast.success(`${mail} aktif edildi!`);
+                              }
+                            } catch (e) { toast.error("Hata oluştu."); }
+                            setMailYukleniyor(false);
+                          }}
+                          className={`shrink-0 w-10 h-5 sm:w-12 sm:h-6 rounded-full relative transition-all duration-300 outline-none disabled:opacity-50 ${isAktif ? "bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.4)]" : "bg-slate-700"}`}
+                        >
+                          <div className={`absolute top-0.5 sm:top-1 left-0.5 sm:left-1 w-4 h-4 rounded-full bg-white transition-transform duration-300 ${isAktif ? "translate-x-5 sm:translate-x-6" : "translate-x-0"}`}></div>
+                        </button>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* YENİ MAİL EKLEME KUTUSU */}
+              <div className="mt-auto pt-4 border-t border-slate-800/80">
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="email" 
+                    value={yeniMailEkle}
+                    onChange={(e) => setYeniMailEkle(e.target.value)}
+                    placeholder="Yeni e-posta adresi ekle..." 
+                    className="flex-1 bg-[#020617] border border-slate-800 focus:border-amber-500/50 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-white text-xs sm:text-sm outline-none transition-all"
+                  />
+                  <button 
+                    disabled={!yeniMailEkle || !yeniMailEkle.includes('@') || mailYukleniyor}
+                    onClick={async () => {
+                       if (status === "unauthenticated") return kilitliIslem();
+                       setMailYukleniyor(true);
+                       try {
+                         const res = await fetch("/api/user/add-email", {
+                           method: "POST", headers: { "Content-Type": "application/json" },
+                           body: JSON.stringify({ yeniMail: yeniMailEkle }),
+                         });
+                         if (res.ok) {
+                           setKayitliMailler([...kayitliMailler, yeniMailEkle]);
+                           setYeniMailEkle("");
+                           toast.success("E-posta çantaya eklendi!");
+                         } else {
+                           toast.error("Bu mail eklenemedi.");
+                         }
+                       } catch (e) { toast.error("Bağlantı hatası."); }
+                       setMailYukleniyor(false);
+                    }}
+                    className="bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/30 rounded-xl px-4 py-2.5 sm:py-3 text-xs font-black uppercase tracking-widest transition-all disabled:opacity-50"
+                  >
+                    {mailYukleniyor ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "EKLE"}
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* HESAP İŞLEMLERİ */}

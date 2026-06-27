@@ -23,6 +23,15 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Lütfen bir e-posta giriniz'],
       unique: true, 
     },
+    
+    // 🚀 BİNGO: ŞEFİN DİNAMİK E-POSTA ÇANTASI VE ŞALTERİ
+    aktifEposta: { 
+      type: String // O an faturanın/bildirimin gideceği güncel mail şalteri
+    },
+    kayitliEpostalar: [{ 
+      type: String // Eski ve yeni tüm maillerin toplandığı dev havuz (Siparişleri buradan çekeceğiz)
+    }],
+
     password: {
       type: String,
       required: [true, 'Lütfen bir şifre giriniz'],

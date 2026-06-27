@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 // =================================================================
-// 1. SİPARİŞLERİ EKRANA GETİRME MOTORU (ZIMBALI KURYE SİSTEMİ 🎯)
+// 1. SİPARİŞLERİ EKRANA GETİRME MOTORU (ŞEFİN DEV AĞI 🎯)
 // =================================================================
 export async function GET() {
   try {
@@ -21,18 +21,30 @@ export async function GET() {
       return NextResponse.json({ message: "Yetkisiz erişim. Lütfen giriş yapın." }, { status: 401 });
     }
 
+    if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
     const client = await clientPromise;
     const db = client.db("bilginpcmarket"); 
-    const userEmail = session.user.email;
+    const currentEmail = session.user.email;
 
+    // 🚀 BİNGO: ŞEFİN ÇANTASINDAKİ TÜM E-POSTALARI ÇEKİYORUZ!
+    const dbUser = await User.findOne({ email: currentEmail }).select("kayitliEpostalar");
+    
+    // Eğer çantada başka mailler varsa hepsini al, yoksa sadece mevcut olanı bir dizi yap.
+    let aranacakMailler = [currentEmail]; 
+    if (dbUser && dbUser.kayitliEpostalar && dbUser.kayitliEpostalar.length > 0) {
+      // Mevcut mail de çantada değilse diye garantiye alıp hepsini birleştiriyoruz
+      aranacakMailler = [...new Set([...dbUser.kayitliEpostalar, currentEmail])];
+    }
+
+    // 🚀 İŞTE HİLE BURADA: Sadece currentEmail'i değil, aranacakMailler dizisindeki ($in) HERHANGİ BİR maili arıyor!
     const rawOrders = await db.collection("orders").find({
       $and: [
         {
           $or: [
-            { userEmail: userEmail },
-            { email: userEmail },
-            { "customerDetails.email": userEmail },
-            { "musteri.eposta": userEmail }
+            { userEmail: { $in: aranacakMailler } },
+            { email: { $in: aranacakMailler } },
+            { "customerDetails.email": { $in: aranacakMailler } },
+            { "musteri.eposta": { $in: aranacakMailler } }
           ]
         },
         { gizlendi: { $ne: true } } 
@@ -104,7 +116,7 @@ export async function GET() {
 }
 
 // =================================================================
-// 2. YENİ SİPARİŞ OLUŞTURMA MOTORU (ORİJİNAL)
+// 2. YENİ SİPARİŞ OLUŞTURMA MOTORU (ŞALTERLİ MAİLE KESİYOR 🎯)
 // =================================================================
 export async function POST(req: Request) {
   try {
@@ -121,10 +133,19 @@ export async function POST(req: Request) {
     const user = await User.findOne({ email: session.user.email });
     if (!user) return NextResponse.json({ message: "Kullanıcı yok." }, { status: 404 });
 
+    // 🚀 BİNGO: ŞEFİN ŞALTERİ AÇIK OLAN MAİLİNİ KULLAN (Yoksa anamaile at)
+    const faturaEpostasi = user.aktifEposta || user.email;
+
     const defaultStatus = "Hazırlanıyor";
     const newOrder = new Order({
-      userId: user._id, userEmail: session.user.email, items, totalPrice, shippingAddress: addressData,
-      paymentMethod: paymentMethod, status: defaultStatus, durum: defaultStatus
+      userId: user._id, 
+      userEmail: faturaEpostasi, // 🎯 Şalterdeki maile kesti faturayı!
+      items, 
+      totalPrice, 
+      shippingAddress: addressData,
+      paymentMethod: paymentMethod, 
+      status: defaultStatus, 
+      durum: defaultStatus
     });
 
     await newOrder.save();
@@ -135,7 +156,7 @@ export async function POST(req: Request) {
 }
 
 // =================================================================
-// 3. SİPARİŞ SİLME MOTORU (GÜNCELLENDİ 🎯)
+// 3. SİPARİŞ SİLME MOTORU (ORİJİNAL)
 // =================================================================
 export async function DELETE(req: Request) {
   try {
