@@ -166,39 +166,6 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
         {/* ➡️ SAĞ İÇERİK */}
         <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full animate-in fade-in duration-300">
           
-          {/* FASULYE MENÜ */}
-          <div className="flex flex-nowrap items-center gap-3 w-full overflow-x-auto pt-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
-            <Link href="/siparislerim" prefetch={false} className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
-              <Package className="w-4 h-4 text-cyan-500" /> Siparişler
-            </Link>
-            
-            {/* Kendisi Favoriler olduğu için aktif sekme tarzı bir renklendirme eklenebilir, şimdilik standart */}
-            <Link href="/favorilerim" prefetch={false} className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
-              <Star className="w-4 h-4 text-cyan-500" /> Favoriler
-            </Link>
-
-            <Link href="/sistemlerim" prefetch={false} className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
-              <Monitor className="w-4 h-4 text-cyan-500" /> Sistemler
-            </Link>
-            <Link href="/destek-taleplerim" prefetch={false} className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
-              <Headphones className="w-4 h-4 text-cyan-500" /> Destek / İade
-            </Link>
-            <Link href="/siparis-takip" prefetch={false} className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
-              <Search className="w-4 h-4 text-cyan-500" /> Sorgula
-            </Link>
-            <Link href="/adreslerim" prefetch={false} className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
-              <MapPin className="w-4 h-4 text-cyan-500" /> Adresler
-            </Link>
-            <button onClick={() => setKargoPopupAcik(true)} className={`flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-cyan-600/10 border border-slate-800 hover:border-cyan-500/30 rounded-full text-xs font-black text-slate-300 hover:text-cyan-400 whitespace-nowrap shadow-sm flex-1 sm:flex-none relative ${sayfaYuklendi ? "transition-all duration-300" : ""}`}>
-              <Truck className="w-4 h-4 text-cyan-500" /> Kargolar
-              {localOrders?.filter(o => (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo")).length > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-cyan-500 text-[9px] font-bold text-white shadow-lg">
-                  {localOrders.filter(o => (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo")).length}
-                </span>
-              )}
-            </button>
-          </div>
-
           {/* BAŞLIK KUTUSU */}
           <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5 z-40 overflow-hidden group">
             <div className="absolute -top-20 -right-20 w-64 h-64 bg-cyan-500/10 blur-[60px] pointer-events-none rounded-full"></div>
