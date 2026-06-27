@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, Lock, ArrowLeft, ArrowRight, UserCircle2, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { signIn } from "next-auth/react";
 import toast from "react-hot-toast"; 
-export const dynamic = "force-dynamic";
-export default function GirisPage() {
+
+// 🚀 BÜTÜN KODLARINI GÜVENLİ BİR KUTUYA ALDIK
+function GirisIcerik() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false); 
@@ -303,5 +304,14 @@ export default function GirisPage() {
      </div>
     </div>
     </div>
+  );
+}
+
+// 🚀 VERCEL'İ ÇÖKMEKTEN KURTARAN ANA KALKAN (SUSPENSE)
+export default function GirisPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#050814] flex items-center justify-center text-[#3b82f6] font-black uppercase tracking-widest text-sm animate-pulse">Güvenli Bağlantı Kuruluyor...</div>}>
+      <GirisIcerik />
+    </Suspense>
   );
 }
