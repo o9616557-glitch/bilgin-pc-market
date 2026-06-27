@@ -1,22 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
-import { useSession, signOut } from "next-auth/react"; // 🚀 BİNGO: signOut fonksiyonunu şasiye ekledik
+import { useSession } from "next-auth/react";
 
 export default function HesapHafizaCipi() {
   const { data: session, status } = useSession();
 
-  // 🚀 YENİ MOTOR: DİĞER CİHAZDAN ATILMA RADARI (ANINDA KAPI DIŞARI EDER)
-  useEffect(() => {
-    if ((session as any)?.error === "KickedOut") {
-      signOut({ callbackUrl: '/giris?alert=security_breach' });
-    }
-  }, [session]);
-
-  // 🚀 1. MOTOR (F5 FIRLATICI) TAMAMEN SÖKÜLDÜ!
-  // Artık kullanıcı Favorilerde veya Adreslerde F5 bastığında zorla Hesabım'a atılmayacak, olduğu yerde asilce sayfanın yenilenmesini izleyecek.
-
-  // 🚀 2. MOTOR: ARKA PLAN VERİ TOPLAYICI (Sessiz Çırak çalışmaya devam ediyor)
+  // 🚀 TEK MOTOR: ARKA PLAN VERİ TOPLAYICI (Sessiz Çırak)
+  // Müşteri siteye girdiğinde veya F5 attığında arka planda sessizce verileri cebe atar.
   useEffect(() => {
     if (status !== "authenticated" || !session?.user?.email) return;
 
@@ -24,6 +15,7 @@ export default function HesapHafizaCipi() {
       try {
         const zamanDamgasi = new Date().getTime();
 
+        // Adresleri çek
         const adresRes = await fetch("/api/addresses?t=" + zamanDamgasi, { cache: "no-store" });
         let adresSayisi = 0;
         if (adresRes.ok) {
@@ -31,6 +23,7 @@ export default function HesapHafizaCipi() {
           adresSayisi = adresData.addresses?.length || 0;
         }
 
+        // Favorileri çek
         const favoriRes = await fetch("/api/favorites?t=" + zamanDamgasi, { cache: "no-store" });
         let favoriSayisi = 0;
         if (favoriRes.ok) {
@@ -38,6 +31,7 @@ export default function HesapHafizaCipi() {
           favoriSayisi = favoriData.favorites?.length || 0;
         }
 
+        // Destek mesajlarını çek
         const destekRes = await fetch("/api/destek?t=" + zamanDamgasi, { cache: "no-store" });
         let acikTalepSayisi = 0;
         let acilMesaj = false;
@@ -50,6 +44,7 @@ export default function HesapHafizaCipi() {
           }
         }
 
+        // Verileri SessionStorage'a mühürle
         const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
         sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({
           ...eskiHafiza,
