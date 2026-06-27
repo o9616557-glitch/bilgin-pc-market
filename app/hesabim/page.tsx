@@ -628,12 +628,12 @@ export default function HesabimPage() {
                     
                     <IkonBileseni className={`w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 transition-all duration-300 ${item.renk} ${!duzenlemeModu ? 'group-hover:scale-110' : ''}`} />
                     
-                    {(kargoVarmi || mesajVarmi) && !duzenlemeModu && (
-                      <span className="absolute -top-1 -right-1 lg:-top-1.5 lg:-right-1.5 flex h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 z-10">
-                        <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${kargoVarmi ? 'bg-rose-400' : 'bg-orange-400'}`}></span>
-                        <span className={`relative inline-flex rounded-full h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 border-2 border-[#0f172a] ${kargoVarmi ? 'bg-rose-500' : 'bg-orange-500'}`}></span>
-                      </span>
-                    )}
+                 {(kargoVarmi || mesajVarmi) && !duzenlemeModu && (
+  <span className="absolute -top-1 -right-1 lg:-top-1.5 lg:-right-1.5 flex h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 z-10">
+    <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${kargoVarmi ? 'bg-cyan-400' : 'bg-emerald-400'}`}></span>
+    <span className={`relative inline-flex rounded-full h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 border-2 border-[#0f172a] ${kargoVarmi ? 'bg-cyan-500' : 'bg-emerald-500'}`}></span>
+  </span>
+)}
 
                     {duzenlemeModu && isSecili && (
                       <div className="absolute -top-1.5 -right-1.5 bg-[#020617] rounded-full shadow-md">
