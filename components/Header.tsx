@@ -10,6 +10,7 @@ import {
   Menu, Cpu, Mouse, Keyboard, Monitor, Headphones, Speaker, 
   Server, Laptop, Wifi, Palette, CheckCircle2, Wrench, Gamepad2, Cable 
 } from "lucide-react";
+
 // ŞEFİN YENİ BÖLÜNMÜŞ, 6 PARÇALI MEGA MENÜ ENVANTERİ
 const menuCategories = [
   {
@@ -152,6 +153,17 @@ export default function Header() {
     }
   }, [mobilKategoriler]);
 
+  // 🚀 AKILLI KAPANMA MOTORU: Menü kapanırken tuhaf görüntü oluşmaması için
+  useEffect(() => {
+    if (!menuAcik) {
+      // Menü kapandığında animasyon süresi (300ms) kadar bekle, sonra akordiyonu sessizce kapat.
+      const timer = setTimeout(() => {
+        setAcikAkordiyon(null);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [menuAcik]);
+
   const handleDragEnter = (hedefIndex: number) => {
     const suruklenenIndex = suruklenenRef.current;
     if (suruklenenIndex === null || suruklenenIndex === hedefIndex) return;
@@ -288,12 +300,13 @@ export default function Header() {
                 <span className="block w-6 h-0.5 bg-white transition-all duration-300"></span>
               </button>
               
+              {/* 🚀 BİLGİN PC BİRLEŞİMİ (MASAÜSTÜ) */}
               <Link href="/" prefetch={true} className="text-white font-black text-2xl tracking-tight flex items-center relative z-[100] transition-all duration-300">
-                BİLGİN <span className="text-[#3b82f6] ml-1">PC</span>
+                BİLGİN<span className="text-[#3b82f6]">PC</span>
               </Link>
             </div>
 
-            {/* MASAÜSTÜ MEGA MENÜ (DEĞİŞMEDİ) */}
+            {/* MASAÜSTÜ MEGA MENÜ */}
             <div className="hidden md:flex items-center space-x-6 flex-1 justify-center h-full">
               <div className="relative flex items-center h-full" onMouseEnter={() => setDropdownOpen(true)} onMouseLeave={() => setDropdownOpen(false)}>
                 <button className="flex items-center space-x-2 text-white hover:text-[#3b82f6] py-2 font-semibold transition-colors text-sm">
@@ -365,26 +378,23 @@ export default function Header() {
       </header>
 
       {/* 📱 ULTRA LÜKS TAM EKRAN (FULL-SCREEN) MOBİL MENÜ 📱 */}
-      {/* 🚀 BİNGO: duration-300 ile kibar ve pürüzsüz akış seviyesine çekildi */}
       <div 
         className={`md:hidden fixed inset-0 w-full h-full bg-[#0b1121]/95 backdrop-blur-xl z-[9999999] flex flex-col transition-all duration-300 ease-out transform ${menuAcik ? "opacity-100 translate-y-0" : "opacity-0 pointer-events-none"}`}
       >
-        {/* 🚀 BİREBİR HEADER İKİZİ TAVAN TASARIMI (Yükseklik: h-20, Rengi, Yazısı, Hamburgeri Birebir Aynı) */}
         <div className="flex items-center justify-between h-20 px-4 border-b border-white/5 shrink-0 bg-[#050814]/90 backdrop-blur-md">
           <div className="flex items-center gap-3">
-            {/* Hamburger Çizgileri (Kapatma Tetikleyicisi) */}
             <button className="flex flex-col justify-center items-center w-10 h-10 focus:outline-none" onClick={() => setMenuAcik(false)}>
               <span className="block w-6 h-0.5 bg-white rotate-45 translate-y-1.5 transition-all duration-300"></span>
               <span className="block w-6 h-0.5 bg-white mt-1 opacity-0 transition-all duration-300"></span>
               <span className="block w-6 h-0.5 bg-white mt-1 -rotate-45 -translate-y-1.5 transition-all duration-300"></span>
             </button>
             
+            {/* 🚀 BİLGİN PC BİRLEŞİMİ (MOBİL İÇ MODAL) */}
             <span className="text-white font-black text-2xl tracking-tight select-none">
-              BİLGİN <span className="text-[#3b82f6] ml-1">PC</span>
+              BİLGİN<span className="text-[#3b82f6]">PC</span>
             </span>
           </div>
           
-          {/* Palet Butonu (Header Hizasına Kusursuz Eklendi) */}
           <button 
             onClick={() => {
               setIsPaletteOpen(!isPaletteOpen);
@@ -397,7 +407,6 @@ export default function Header() {
           </button>
         </div>
 
-        {/* 15 RENKLİ PALET ALANI */}
         {isPaletteOpen && (
           <div className="p-3 border-b border-slate-800/50 bg-slate-900/50 flex flex-col items-center gap-2 shrink-0 animate-in slide-in-from-top-2 duration-200">
             {!seciliKategoriId ? (
@@ -423,7 +432,6 @@ export default function Header() {
           </div>
         )}
 
-        {/* AKORDİYON LİSTESİ */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2.5 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {mobilKategoriler.map((kategori: any, index: number) => {
             const Ikon = Ikonlar[kategori.ikonId] || ChevronRight;
@@ -453,8 +461,7 @@ export default function Header() {
                       setSeciliKategoriId(isDuzenlemeSecili ? null : kategori.id);
                     } else {
                       if (kategori.isLink) {
-                          setMenuAcik(false);
-                          setAcikAkordiyon(null);
+                          setMenuAcik(false); // Link ise sadece menüyü kapat
                           router.push(kategori.link);
                       } else {
                           toggleAkordiyon(kategori.id);
@@ -490,7 +497,6 @@ export default function Header() {
                   )}
                 </div>
 
-                {/* YUMUŞAK AKORDİYON GEÇİŞİ VE ZARİF İNCE AYRAÇ ÇİZGİLERİ */}
                 {!kategori.isLink && !duzenlemeModu && (
                   <div className={`grid transition-all duration-300 ease-in-out ${isAkordiyonAcik ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
                       <div className={`overflow-hidden border border-t-0 rounded-b-xl bg-white/[0.02] ${renk.border}`}>
@@ -499,10 +505,8 @@ export default function Header() {
                             <Link 
                               key={sub.slug}
                               href={"/kategori/" + sub.slug}
-                              onClick={() => {
-                                  setMenuAcik(false); // Anında, sıfır gecikmeyle kapatır
-                                  setAcikAkordiyon(null);
-                              }}
+                              // 🚀 SADECE MENÜYÜ KAPAT (Akordiyon sıfırlanması için useEffect bekleyecek)
+                              onClick={() => setMenuAcik(false)}
                               className={`flex items-center justify-between p-3 text-slate-400 hover:text-white hover:bg-white/5 transition-colors group ${subIdx !== kategori.subItems.length - 1 ? 'border-b border-white/5' : ''}`}
                             >
                               <span className="text-xs font-medium tracking-wide pl-2">{sub.name}</span>
