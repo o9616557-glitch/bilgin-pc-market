@@ -461,11 +461,11 @@ export default function HesabimPage() {
 
       <div className="max-w-[1000px] mx-auto flex flex-col gap-6 relative z-10 items-center">
 
-        {/* ==================================================================== */}
-        {/* 1️⃣ ÜST 5'Lİ MENÜ KUTULARI                                              */}
+       {/* ==================================================================== */}
+        {/* 1️⃣ ÜST 4'LÜ MENÜ KUTULARI                                              */}
         {/* ==================================================================== */}
         <div className="w-full block">
-          <div className={`grid grid-cols-5 gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${duzenlemeModu ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
+          <div className={`grid grid-cols-4 gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${duzenlemeModu ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
             
             {ustMenuListesi.map((item, index) => {
               const IkonBileseni = item.ikon;
@@ -507,30 +507,6 @@ export default function HesabimPage() {
               }
               return <div key={item.id} className="w-full">{KutuIcerigi}</div>;
             })}
-
-            {/* 🛡️ 5. SABİT KUTU (Admin, Giriş veya Çıkış) */}
-            {session?.user?.email === "o9616557@gmail.com" ? (
-              <Link href="/admin" onClick={kilitliIslem} prefetch={false} className="flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none opacity-90 hover:opacity-100">
-                <div className="relative w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl bg-slate-800/80 border border-slate-600 flex items-center justify-center shadow-lg transition-all duration-300 hover:border-slate-500">
-                  <Crown className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-slate-200 transition-colors" />
-                </div>
-                <span className="text-[9px] sm:text-[10px] lg:text-xs font-bold text-slate-400 tracking-wide">Admin</span>
-              </Link>
-            ) : status === "unauthenticated" ? (
-              <Link href="/giris" onClick={kilitliIslem} prefetch={false} className="flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none opacity-90 hover:opacity-100">
-                <div className="w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl bg-slate-800/80 border border-slate-600 flex items-center justify-center shadow-lg hover:border-slate-500">
-                  <LogIn className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-slate-200" />
-                </div>
-                <span className="text-[9px] sm:text-[10px] lg:text-xs font-bold text-slate-400 tracking-wide">Giriş</span>
-              </Link>
-            ) : (
-              <button onClick={handleCikisYap} className="flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none opacity-90 hover:opacity-100">
-                <div className="w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl bg-slate-800/80 border border-slate-600 flex items-center justify-center shadow-lg hover:border-slate-500">
-                  <LogOut className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-slate-200" />
-                </div>
-                <span className="text-[9px] sm:text-[10px] lg:text-xs font-bold text-slate-400 tracking-wide">Çıkış</span>
-              </button>
-            )}
           </div>
         </div>
 
