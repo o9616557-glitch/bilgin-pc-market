@@ -209,14 +209,14 @@ export default function Header() {
     setDraggedIndex(hedefIndex);
   };
 
-  const renkUygula = (renkIndex: number) => {
+ const renkUygula = (renkIndex: number) => {
     if (seciliKategoriId !== null) {
-      setMobilKategoriler((eski: any[]) => 
-        eski.map(k => k.id === seciliKategoriId ? { ...k, renkIndex } : k)
-      );
+      // 🚀 ÇÖZÜM: k harfinin yanına : any ekledik, TypeScript artık kızmayacak
+      const yeniListe = mobilKategoriler.map((k: any) => k.id === seciliKategoriId ? { ...k, renkIndex } : k);
+      setMobilKategoriler(yeniListe);
+      veritabaninaKaydet(yeniListe);
     }
   };
-
   const toggleAkordiyon = (id: string) => {
     if (isPaletteOpen) return; 
     setAcikAkordiyon(prev => prev === id ? null : id);
@@ -484,9 +484,10 @@ export default function Header() {
                   }}
                   onDragEnter={() => duzenlemeModu && handleDragEnter(index)}
                   onDragOver={(e) => e.preventDefault()}
-                  onDragEnd={() => {
+                 onDragEnd={() => {
                     suruklenenRef.current = null;
                     setDraggedIndex(null);
+                    veritabaninaKaydet(mobilKategoriler); // 🚀 BİNGO: Fareyi bıraktığın an anında MongoDB'ye yazar!
                   }}
                   onClick={() => {
                     if (duzenlemeModu) {
