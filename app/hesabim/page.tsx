@@ -954,87 +954,94 @@ export default function HesabimPage() {
 
       </div>
 
-      {/* 🚀 ONBOARDING (KARŞILAMA) MODALI - GLASSMORPHISM TASARIM */}
+    {/* 🚀 ONBOARDING (KARŞILAMA) MODALI - MOBİL ZIRHLI TASARIM */}
       {showOnboarding && (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-[#020617]/85 backdrop-blur-xl p-4 animate-in fade-in duration-700">
-          <div className="bg-[#0b1121] border border-cyan-500/30 rounded-[2rem] p-8 sm:p-10 max-w-2xl w-full flex flex-col shadow-[0_0_80px_rgba(6,182,212,0.15)] relative overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-10 duration-700">
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-[#020617]/85 backdrop-blur-xl p-3 sm:p-4 animate-in fade-in duration-700">
+          {/* max-h-[80vh] ile telefonlarda yukarıdan ve aşağıdan taşmasını kesin olarak engelledik */}
+          <div className="bg-[#0b1121] border border-cyan-500/30 rounded-[1.5rem] sm:rounded-[2rem] max-w-2xl w-full flex flex-col shadow-[0_0_80px_rgba(6,182,212,0.15)] relative overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-10 duration-700 max-h-[80vh] sm:max-h-[90vh]">
             
             {/* Arka Plan Siber Spot Işıkları */}
-            <div className="absolute -top-32 -right-32 w-64 h-64 bg-cyan-500/20 blur-[80px] rounded-full pointer-events-none"></div>
-            <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-emerald-500/10 blur-[80px] rounded-full pointer-events-none"></div>
+            <div className="absolute -top-32 -right-32 w-64 h-64 bg-cyan-500/20 blur-[80px] rounded-full pointer-events-none z-0"></div>
+            <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-emerald-500/10 blur-[80px] rounded-full pointer-events-none z-0"></div>
             
             {/* Üst Çizgi Vurgusu */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent"></div>
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent z-0"></div>
 
-            <div className="text-center relative z-10 mb-8 mt-2">
-              <div className="w-20 h-20 mx-auto mb-6 relative flex items-center justify-center">
-                <div className="absolute inset-0 rounded-full border border-cyan-400/30 animate-[spin_4s_linear_infinite] border-t-cyan-400"></div>
-                <div className="absolute inset-2 rounded-full bg-gradient-to-b from-slate-700 to-slate-900 border border-slate-600 shadow-lg flex items-center justify-center z-20">
-                  <Palette className="w-8 h-8 text-cyan-400" />
+            {/* 📜 KAYDIRILABİLİR İÇERİK ALANI (MOBİL İÇİN BOŞLUKLAR KISILDI: p-4) */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-10 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] relative z-10 flex flex-col">
+              
+              <div className="text-center mb-4 sm:mb-8 mt-1 shrink-0">
+                <div className="w-12 h-12 sm:w-20 sm:h-20 mx-auto mb-3 sm:mb-6 relative flex items-center justify-center">
+                  <div className="absolute inset-0 rounded-full border border-cyan-400/30 animate-[spin_4s_linear_infinite] border-t-cyan-400"></div>
+                  <div className="absolute inset-1.5 sm:inset-2 rounded-full bg-gradient-to-b from-slate-700 to-slate-900 border border-slate-600 shadow-lg flex items-center justify-center z-20">
+                    <Palette className="w-5 h-5 sm:w-8 sm:h-8 text-cyan-400" />
+                  </div>
                 </div>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-3">
-                Kişisel Panelinize <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Hoş Geldiniz</span>
-              </h2>
-              <p className="text-slate-400 text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
-                Hesabım sayfası tamamen sizin zevkinize göre özelleştirilebilir. Sistemi kullanmaya başlamadan önce 3 ufak detayı bilmenizde fayda var:
-              </p>
-            </div>
-
-            <div className="space-y-4 relative z-10 mb-10">
-              <div className="flex items-start gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors">
-                <div className="w-10 h-10 rounded-full bg-[#020617] border border-cyan-900 flex items-center justify-center shrink-0 shadow-inner mt-0.5">
-                  <User className="w-4 h-4 text-cyan-400" />
-                </div>
-                <div>
-                  <h4 className="text-white font-bold text-sm tracking-wide mb-1">Menüleri Boyayın ve Taşıyın</h4>
-                  <p className="text-slate-500 text-xs leading-relaxed">
-                    Profil yuvarlağınıza (Ortadaki büyük ikon) tıklayarak menü kutularının yerlerini sürükleyip değiştirebilir ve dilediğiniz renge boyayabilirsiniz.
-                  </p>
-                </div>
+                <h2 className="text-lg sm:text-3xl font-black text-white tracking-tight mb-1.5 sm:mb-3 leading-tight">
+                  Kişisel Panelinize <br className="block sm:hidden" /><span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Hoş Geldiniz</span>
+                </h2>
+                <p className="text-slate-400 text-[9px] sm:text-sm max-w-md mx-auto leading-relaxed px-2">
+                  Hesabım sayfası tamamen sizin zevkinize göre özelleştirilebilir. Başlamadan önce 3 ufak detayı bilmenizde fayda var:
+                </p>
               </div>
 
-              <div className="flex items-start gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors">
-                <div className="w-10 h-10 rounded-full bg-[#020617] border border-emerald-900 flex items-center justify-center shrink-0 shadow-inner mt-0.5">
-                  <Palette className="w-4 h-4 text-emerald-400" />
+              {/* MOBİLDE KUTU BOŞLUKLARI VE YAZILAR KÜÇÜLTÜLDÜ */}
+              <div className="space-y-2 sm:space-y-4 mb-4 sm:mb-8 shrink-0">
+                <div className="flex items-start gap-2.5 sm:gap-4 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/[0.02] border border-white/5">
+                  <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-[#020617] border border-cyan-900 flex items-center justify-center shrink-0 shadow-inner">
+                    <User className="w-3 h-3 sm:w-4 sm:h-4 text-cyan-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-white font-bold text-[10px] sm:text-sm tracking-wide mb-0.5">Menüleri Boyayın ve Taşıyın</h4>
+                    <p className="text-slate-500 text-[8px] sm:text-xs leading-relaxed">
+                      Profil yuvarlağınıza tıklayarak kutuların yerini değiştirebilir ve dilediğiniz renge boyayabilirsiniz.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-white font-bold text-sm tracking-wide mb-1">Grafikleri Özelleştirin</h4>
-                  <p className="text-slate-500 text-xs leading-relaxed">
-                    Başlıkların yanındaki "Minik Palet" ikonlarına tıklayarak sipariş etiketlerini ve grafikleri istediğiniz renge büründürebilirsiniz.
-                  </p>
+
+                <div className="flex items-start gap-2.5 sm:gap-4 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/[0.02] border border-white/5">
+                  <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-[#020617] border border-emerald-900 flex items-center justify-center shrink-0 shadow-inner">
+                    <Palette className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-white font-bold text-[10px] sm:text-sm tracking-wide mb-0.5">Grafikleri Özelleştirin</h4>
+                    <p className="text-slate-500 text-[8px] sm:text-xs leading-relaxed">
+                      Başlıkların yanındaki ikonlara tıklayarak sipariş ve grafikleri istediğiniz renge büründürebilirsiniz.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2.5 sm:gap-4 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/[0.02] border border-white/5">
+                  <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-[#020617] border border-purple-900 flex items-center justify-center shrink-0 shadow-inner">
+                    <Server className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-white font-bold text-[10px] sm:text-sm tracking-wide mb-0.5">Kalıcı Hafıza Sistemi</h4>
+                    <p className="text-slate-500 text-[8px] sm:text-xs leading-relaxed">
+                      Yaptığınız tüm değişiklikler siber veritabanına işlenir. Sayfayı yenileseniz de her şey bıraktığınız gibi kalır.
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex items-start gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors">
-                <div className="w-10 h-10 rounded-full bg-[#020617] border border-purple-900 flex items-center justify-center shrink-0 shadow-inner mt-0.5">
-                  <Server className="w-4 h-4 text-purple-400" />
-                </div>
-                <div>
-                  <h4 className="text-white font-bold text-sm tracking-wide mb-1">Kalıcı Hafıza Sistemi</h4>
-                  <p className="text-slate-500 text-xs leading-relaxed">
-                    Palet penceresini kapattığınız an yaptığınız tüm renk değişiklikleri siber veritabanına işlenir. Sayfayı yenileseniz de her şey bıraktığınız gibi kalır.
-                  </p>
-                </div>
+              {/* Alt Kısım (Buton ve Tik) */}
+              <div className="mt-auto flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-6 pt-3 sm:pt-6 border-t border-slate-800/80 shrink-0">
+                <label className="flex items-center gap-2 sm:gap-3 cursor-pointer group select-none w-full sm:w-auto justify-center sm:justify-start" onClick={() => setDontShowAgain(!dontShowAgain)}>
+                  <div className={`w-4 h-4 sm:w-6 sm:h-6 rounded sm:rounded-lg border sm:border-2 flex items-center justify-center transition-all duration-300 ${dontShowAgain ? 'bg-emerald-500 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'bg-[#020617] border-slate-600 group-hover:border-cyan-500/50'}`}>
+                    {dontShowAgain && <CheckCircle2 className="w-2.5 h-2.5 sm:w-4 sm:h-4 text-white" />}
+                  </div>
+                  <span className="text-[9px] sm:text-xs font-bold text-slate-400 group-hover:text-white transition-colors tracking-wide">
+                    Bu rehberi bir daha gösterme
+                  </span>
+                </label>
+
+                <button 
+                  onClick={closeOnboarding}
+                  className="w-full sm:w-auto px-5 sm:px-8 py-2.5 sm:py-3.5 rounded-lg sm:rounded-xl bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-500 hover:to-emerald-500 text-white font-black text-[9px] sm:text-xs uppercase tracking-widest shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-1.5 sm:gap-2"
+                >
+                  Hadi Başlayalım <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+                </button>
               </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 border-t border-slate-800/80 relative z-10">
-              <label className="flex items-center gap-3 cursor-pointer group select-none" onClick={() => setDontShowAgain(!dontShowAgain)}>
-                <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-300 ${dontShowAgain ? 'bg-emerald-500 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'bg-[#020617] border-slate-600 group-hover:border-cyan-500/50'}`}>
-                  {dontShowAgain && <CheckCircle2 className="w-4 h-4 text-white" />}
-                </div>
-                <span className="text-xs font-bold text-slate-400 group-hover:text-white transition-colors tracking-wide">
-                  Bu rehberi bir daha gösterme
-                </span>
-              </label>
-
-              <button 
-                onClick={closeOnboarding}
-                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-500 hover:to-emerald-500 text-white font-black text-xs uppercase tracking-widest shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.4)] transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
-              >
-                Hadi Başlayalım <ChevronRight className="w-4 h-4" />
-              </button>
             </div>
 
           </div>
