@@ -122,6 +122,7 @@ export default function Header() {
   const { data: session } = useSession();
   const [cikisOnayAcik, setCikisOnayAcik] = useState(false);
 
+  // 🚀 KİBAR VE SÜRÜKLENEBİLİR TAM EKRAN MOTORU
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [seciliKategoriId, setSeciliKategoriId] = useState<string | null>(null);
   const [acikAkordiyon, setAcikAkordiyon] = useState<string | null>(null); 
@@ -129,6 +130,7 @@ export default function Header() {
   const suruklenenRef = useRef<number | null>(null);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
+  // V4: Standart Cyan renkle (0) başlayan temiz kurulum hafızası
   const [mobilKategoriler, setMobilKategoriler] = useState(() => {
     if(typeof window !== "undefined") {
        const saved = localStorage.getItem("bilgin_mobil_kategoriler_v4");
@@ -145,13 +147,13 @@ export default function Header() {
     ];
   });
 
-  // 🚀 MONGODB'DEN VERİ ÇEKME (SADECE GİRİŞ YAPILDIYSA)
+  // 🚀 BİNGO 1: GİRİŞ YAPILDIĞINDA MONGODB'DEN KAYITLARI ÇEK
   useEffect(() => {
     if (session?.user?.email) {
       fetch(`/api/menu-ayarlari?email=${session.user.email}`)
         .then(res => res.json())
         .then(data => {
-          if (data.success && data.data?.mobilKategoriler?.length > 0) {
+          if (data.success && data.data?.mobilKategoriler && data.data.mobilKategoriler.length > 0) {
             setMobilKategoriler(data.data.mobilKategoriler);
             localStorage.setItem("bilgin_mobil_kategoriler_v4", JSON.stringify(data.data.mobilKategoriler));
           }
@@ -160,7 +162,7 @@ export default function Header() {
     }
   }, [session]);
 
-  // 🚀 MONGODB'YE KAYDETME MOTORU
+  // 🚀 BİNGO 2: YENİ DİZİLİMİ VE RENKLERİ MONGODB'YE KAYDET
   const veritabaninaKaydet = async (guncelListe: any[]) => {
     if (!session?.user?.email) return;
     try {
@@ -424,7 +426,7 @@ export default function Header() {
               const yeniDurum = !isPaletteOpen;
               setIsPaletteOpen(yeniDurum);
               if(!yeniDurum) {
-                // 🚀 BİNGO: Palet kapandığı an kalıcı olarak veritabanına kaydet
+                // 🚀 BİNGO: Palet kapandığı an kalıcı olarak veritabanına kaydet!
                 veritabaninaKaydet(mobilKategoriler);
                 setSeciliKategoriId(null);
               } else {
