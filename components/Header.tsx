@@ -130,7 +130,6 @@ export default function Header() {
   const suruklenenRef = useRef<number | null>(null);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
-  // V4: Standart Cyan renkle (0) başlayan temiz kurulum hafızası
   const [mobilKategoriler, setMobilKategoriler] = useState(() => {
     if(typeof window !== "undefined") {
        const saved = localStorage.getItem("bilgin_mobil_kategoriler_v4");
@@ -147,7 +146,7 @@ export default function Header() {
     ];
   });
 
-  // 🚀 BİNGO 1: GİRİŞ YAPILDIĞINDA MONGODB'DEN KAYITLARI ÇEK
+  // 🚀 1. VERİTABANINDAN ÇEKME (Giriş yapıldığı an verileri MongoDB'den getirir)
   useEffect(() => {
     if (session?.user?.email) {
       fetch(`/api/menu-ayarlari?email=${session.user.email}`)
@@ -162,7 +161,7 @@ export default function Header() {
     }
   }, [session]);
 
-  // 🚀 BİNGO 2: YENİ DİZİLİMİ VE RENKLERİ MONGODB'YE KAYDET
+  // 🚀 2. VERİTABANINA KAYDETME (Anında ateşleme motoru)
   const veritabaninaKaydet = async (guncelListe: any[]) => {
     if (!session?.user?.email) return;
     try {
@@ -171,19 +170,13 @@ export default function Header() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           kullaniciEmail: session.user.email,
-          mobilKategoriler: guncelListe
+          mobilKategoriler: guncelListe // Tıpkı Hesabım sayfasındaki gibi JSON olarak yolluyoruz
         })
       });
     } catch (error) {
       console.error("Mobil kategori kaydetme hatası:", error);
     }
   };
-
-  useEffect(() => {
-    if(typeof window !== "undefined") {
-      localStorage.setItem("bilgin_mobil_kategoriler_v4", JSON.stringify(mobilKategoriler));
-    }
-  }, [mobilKategoriler]);
 
   useEffect(() => {
     if (!menuAcik) {
@@ -209,14 +202,16 @@ export default function Header() {
     setDraggedIndex(hedefIndex);
   };
 
- const renkUygula = (renkIndex: number) => {
+  // 🚀 3. RENK UYGULANDIĞI ANDA MONGODB'YE KAYDET (TS Hatası giderildi)
+  const renkUygula = (renkIndex: number) => {
     if (seciliKategoriId !== null) {
-      // 🚀 ÇÖZÜM: k harfinin yanına : any ekledik, TypeScript artık kızmayacak
       const yeniListe = mobilKategoriler.map((k: any) => k.id === seciliKategoriId ? { ...k, renkIndex } : k);
       setMobilKategoriler(yeniListe);
-      veritabaninaKaydet(yeniListe);
+      localStorage.setItem("bilgin_mobil_kategoriler_v4", JSON.stringify(yeniListe));
+      veritabaninaKaydet(yeniListe); // Anında MongoDB'ye yazar
     }
   };
+
   const toggleAkordiyon = (id: string) => {
     if (isPaletteOpen) return; 
     setAcikAkordiyon(prev => prev === id ? null : id);
@@ -317,8 +312,8 @@ export default function Header() {
 
   return (
     <>
-      {/* ANA MASAÜSTÜ HEADER */}
-      <header className="sticky top-0 left-0 w-full z-[999999] bg-[#050814]/90 backdrop-blur-md border-b border-white/5 transition-all duration-300">
+      {/* 🚀 Z-INDEX DÜZELTMESİ: Hesabım pop-up'ları 9999999 olduğu için Header 99999 yapıldı, böylece pop-up altında kalmaz */}
+      <header className="sticky top-0 left-0 w-full z-[99999] bg-[#050814]/90 backdrop-blur-md border-b border-white/5 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20 gap-2 sm:gap-4">
 
@@ -406,7 +401,7 @@ export default function Header() {
 
       {/* 📱 ULTRA LÜKS TAM EKRAN (FULL-SCREEN) MOBİL MENÜ 📱 */}
       <div 
-        className={`md:hidden fixed inset-0 w-full h-full bg-[#0b1121]/95 backdrop-blur-xl z-[9999999] flex flex-col transition-all duration-300 ease-out transform ${menuAcik ? "opacity-100 translate-y-0" : "opacity-0 pointer-events-none"}`}
+        className={`md:hidden fixed inset-0 w-full h-full bg-[#0b1121]/95 backdrop-blur-xl z-[999999] flex flex-col transition-all duration-300 ease-out transform ${menuAcik ? "opacity-100 translate-y-0" : "opacity-0 pointer-events-none"}`}
       >
         <div className="flex items-center justify-between h-20 px-4 border-b border-white/5 shrink-0 bg-[#050814]/90 backdrop-blur-md">
           <div className="flex items-center gap-3">
@@ -426,7 +421,7 @@ export default function Header() {
               const yeniDurum = !isPaletteOpen;
               setIsPaletteOpen(yeniDurum);
               if(!yeniDurum) {
-                // 🚀 BİNGO: Palet kapandığı an kalıcı olarak veritabanına kaydet!
+                // Sadece paleti kapatınca değil, paleti kapatırken de garanti olsun diye veritabanına yolluyoruz
                 veritabaninaKaydet(mobilKategoriler);
                 setSeciliKategoriId(null);
               } else {
@@ -447,7 +442,7 @@ export default function Header() {
               </span>
             ) : (
                <span className="text-[10px] font-bold text-slate-400 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 text-center w-full">
-                Şimdi paletten bir renk seçin (Kapatınca kalıcı kaydedilir)
+                Şimdi paletten bir renk seçin (Otomatik kaydedilir)
               </span>
             )}
             
@@ -484,10 +479,12 @@ export default function Header() {
                   }}
                   onDragEnter={() => duzenlemeModu && handleDragEnter(index)}
                   onDragOver={(e) => e.preventDefault()}
-                 onDragEnd={() => {
+                  onDragEnd={() => {
                     suruklenenRef.current = null;
                     setDraggedIndex(null);
-                    veritabaninaKaydet(mobilKategoriler); // 🚀 BİNGO: Fareyi bıraktığın an anında MongoDB'ye yazar!
+                    localStorage.setItem("bilgin_mobil_kategoriler_v4", JSON.stringify(mobilKategoriler));
+                    // 🚀 4. FAREYİ BIRAKILDIĞI AN MONGODB'YE KAYDET
+                    veritabaninaKaydet(mobilKategoriler);
                   }}
                   onClick={() => {
                     if (duzenlemeModu) {
