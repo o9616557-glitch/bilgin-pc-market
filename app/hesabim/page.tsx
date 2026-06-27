@@ -465,7 +465,7 @@ export default function HesabimPage() {
         {/* 1️⃣ ÜST 4'LÜ MENÜ KUTULARI                                              */}
         {/* ==================================================================== */}
         <div className="w-full block">
-          <div className={`grid grid-cols-4 gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${duzenlemeModu ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
+      <div className={`flex flex-row justify-center gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${duzenlemeModu ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
             
             {ustMenuListesi.map((item, index) => {
               const IkonBileseni = item.ikon;
@@ -479,7 +479,7 @@ export default function HesabimPage() {
                   onDragOver={(e) => e.preventDefault()}
                   onDragEnd={() => (suruklenenUstRef.current = null)}
                   onClick={() => { if (duzenlemeModu) setSeciliKutuId(isSecili ? null : item.id); }}
-                  className={`flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none ${isSecili ? "relative z-[9999]" : "relative z-10"}`}
+             className={`flex flex-col items-center gap-1.5 lg:gap-2.5 group w-[18%] sm:w-[19%] select-none ${isSecili ? "relative z-[9999]" : "relative z-10"}`}
                 >
                   <div className={`relative w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl flex items-center justify-center transition-all duration-300 ${
                       duzenlemeModu && isSecili
@@ -628,10 +628,10 @@ export default function HesabimPage() {
                     
                     <IkonBileseni className={`w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 transition-all duration-300 ${item.renk} ${!duzenlemeModu ? 'group-hover:scale-110' : ''}`} />
                     
-                 {(kargoVarmi || mesajVarmi) && !duzenlemeModu && (
-  <span className="absolute -top-1 -right-1 lg:-top-1.5 lg:-right-1.5 flex h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 z-10">
-    <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${kargoVarmi ? 'bg-cyan-400' : 'bg-emerald-400'}`}></span>
-    <span className={`relative inline-flex rounded-full h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 border-2 border-[#0f172a] ${kargoVarmi ? 'bg-cyan-500' : 'bg-emerald-500'}`}></span>
+ {(kargoVarmi || mesajVarmi) && !duzenlemeModu && (
+  <span className={`absolute -top-1 -right-1 lg:-top-1.5 lg:-right-1.5 flex h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 z-10 ${item.renk}`}>
+    <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-current"></span>
+    <span className="relative inline-flex rounded-full h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 border-2 border-[#0f172a] bg-current"></span>
   </span>
 )}
 
