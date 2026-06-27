@@ -10,7 +10,6 @@ import {
   Menu, Cpu, Mouse, Keyboard, Monitor, Headphones, Speaker, 
   Server, Laptop, Wifi, Palette, CheckCircle2, Wrench, Gamepad2, Cable 
 } from "lucide-react";
-
 // ŞEFİN YENİ BÖLÜNMÜŞ, 6 PARÇALI MEGA MENÜ ENVANTERİ
 const menuCategories = [
   {
@@ -79,21 +78,21 @@ const menuCategories = [
 // 🎨 15'Lİ GENİŞLETİLMİŞ RENK PALETİ VE SİYAH/DARK SEÇENEĞİ
 const Ikonlar: any = { Cpu, Mouse, Keyboard, Monitor, Headphones, Speaker, Server, Laptop, Wifi, Wrench, Gamepad2, Cable };
 const renkSecenekleri = [
-  { border: "border-cyan-500/50", hoverBorder: "hover:border-cyan-400", ikon: "text-cyan-400", hex: "bg-cyan-400" }, // 0
-  { border: "border-blue-500/50", hoverBorder: "hover:border-blue-400", ikon: "text-blue-400", hex: "bg-blue-500" }, // 1
-  { border: "border-indigo-500/50", hoverBorder: "hover:border-indigo-400", ikon: "text-indigo-400", hex: "bg-indigo-500" }, // 2
-  { border: "border-purple-500/50", hoverBorder: "hover:border-purple-400", ikon: "text-purple-400", hex: "bg-purple-500" }, // 3
-  { border: "border-fuchsia-500/50", hoverBorder: "hover:border-fuchsia-400", ikon: "text-fuchsia-400", hex: "bg-fuchsia-500" }, // 4
-  { border: "border-pink-500/50", hoverBorder: "hover:border-pink-400", ikon: "text-pink-400", hex: "bg-pink-500" }, // 5
-  { border: "border-rose-500/50", hoverBorder: "hover:border-rose-400", ikon: "text-rose-400", hex: "bg-rose-500" }, // 6
-  { border: "border-red-500/50", hoverBorder: "hover:border-red-400", ikon: "text-red-400", hex: "bg-red-500" }, // 7
-  { border: "border-orange-500/50", hoverBorder: "hover:border-orange-400", ikon: "text-orange-400", hex: "bg-orange-500" }, // 8
-  { border: "border-amber-500/50", hoverBorder: "hover:border-amber-400", ikon: "text-amber-400", hex: "bg-amber-500" }, // 9
-  { border: "border-yellow-400/50", hoverBorder: "hover:border-yellow-300", ikon: "text-yellow-400", hex: "bg-yellow-400" }, // 10
-  { border: "border-lime-500/50", hoverBorder: "hover:border-lime-400", ikon: "text-lime-400", hex: "bg-lime-400" }, // 11
-  { border: "border-emerald-500/50", hoverBorder: "hover:border-emerald-400", ikon: "text-emerald-400", hex: "bg-emerald-500" }, // 12
-  { border: "border-slate-400/50", hoverBorder: "hover:border-slate-300", ikon: "text-slate-300", hex: "bg-slate-400" }, // 13
-  { border: "border-white/10", hoverBorder: "hover:border-white/30", ikon: "text-slate-500", hex: "bg-[#020617] border border-slate-600" }, // 14 (Gece Modu/Siyah)
+  { border: "border-cyan-500/50", hoverBorder: "hover:border-cyan-400", ikon: "text-cyan-400", hex: "bg-cyan-400" },
+  { border: "border-blue-500/50", hoverBorder: "hover:border-blue-400", ikon: "text-blue-400", hex: "bg-blue-500" },
+  { border: "border-indigo-500/50", hoverBorder: "hover:border-indigo-400", ikon: "text-indigo-400", hex: "bg-indigo-500" },
+  { border: "border-purple-500/50", hoverBorder: "hover:border-purple-400", ikon: "text-purple-400", hex: "bg-purple-500" },
+  { border: "border-fuchsia-500/50", hoverBorder: "hover:border-fuchsia-400", ikon: "text-fuchsia-400", hex: "bg-fuchsia-500" },
+  { border: "border-pink-500/50", hoverBorder: "hover:border-pink-400", ikon: "text-pink-400", hex: "bg-pink-500" },
+  { border: "border-rose-500/50", hoverBorder: "hover:border-rose-400", ikon: "text-rose-400", hex: "bg-rose-500" },
+  { border: "border-red-500/50", hoverBorder: "hover:border-red-400", ikon: "text-red-400", hex: "bg-red-500" },
+  { border: "border-orange-500/50", hoverBorder: "hover:border-orange-400", ikon: "text-orange-400", hex: "bg-orange-500" },
+  { border: "border-amber-500/50", hoverBorder: "hover:border-amber-400", ikon: "text-amber-400", hex: "bg-amber-500" },
+  { border: "border-yellow-400/50", hoverBorder: "hover:border-yellow-300", ikon: "text-yellow-400", hex: "bg-yellow-400" },
+  { border: "border-lime-500/50", hoverBorder: "hover:border-lime-400", ikon: "text-lime-400", hex: "bg-lime-400" },
+  { border: "border-emerald-500/50", hoverBorder: "hover:border-emerald-400", ikon: "text-emerald-400", hex: "bg-emerald-500" },
+  { border: "border-slate-400/50", hoverBorder: "hover:border-slate-300", ikon: "text-slate-300", hex: "bg-slate-400" },
+  { border: "border-white/10", hoverBorder: "hover:border-white/30", ikon: "text-slate-500", hex: "bg-[#020617] border border-slate-600" },
 ];
 
 export default function Header() {
@@ -122,7 +121,7 @@ export default function Header() {
   const { data: session } = useSession();
   const [cikisOnayAcik, setCikisOnayAcik] = useState(false);
 
-  // 🚀 KİBAR VE SÜRÜKLENEBİLİR TAM EKRAN MOTORU
+  // 🚀 MOBİL SÜRÜKLE BIRAK & AKORDİYON HAFIZASI
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [seciliKategoriId, setSeciliKategoriId] = useState<string | null>(null);
   const [acikAkordiyon, setAcikAkordiyon] = useState<string | null>(null); 
@@ -130,7 +129,7 @@ export default function Header() {
   const suruklenenRef = useRef<number | null>(null);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
-  // V4: Standart renk atamaları yapıldı (hepsi renkIndex: 0 yani Cyan)
+  // V4: Standart Cyan renkle (0) başlayan temiz kurulum hafızası
   const [mobilKategoriler, setMobilKategoriler] = useState(() => {
     if(typeof window !== "undefined") {
        const saved = localStorage.getItem("bilgin_mobil_kategoriler_v4");
@@ -276,10 +275,12 @@ export default function Header() {
 
   return (
     <>
+      {/* ANA MASAÜSTÜ HEADER */}
       <header className="sticky top-0 left-0 w-full z-[999999] bg-[#050814]/90 backdrop-blur-md border-b border-white/5 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20 gap-2 sm:gap-4">
 
+            {/* SOL TARAF: HAMBURGER & LOGO */}
             <div className="flex-shrink-0 flex items-center gap-3">
               <button className="md:hidden flex flex-col justify-center items-center w-10 h-10 focus:outline-none z-[100]" onClick={() => setMenuAcik(true)}>
                 <span className="block w-6 h-0.5 bg-white mb-1.5 transition-all duration-300"></span>
@@ -292,6 +293,7 @@ export default function Header() {
               </Link>
             </div>
 
+            {/* MASAÜSTÜ MEGA MENÜ (DEĞİŞMEDİ) */}
             <div className="hidden md:flex items-center space-x-6 flex-1 justify-center h-full">
               <div className="relative flex items-center h-full" onMouseEnter={() => setDropdownOpen(true)} onMouseLeave={() => setDropdownOpen(false)}>
                 <button className="flex items-center space-x-2 text-white hover:text-[#3b82f6] py-2 font-semibold transition-colors text-sm">
@@ -362,37 +364,42 @@ export default function Header() {
         </div>
       </header>
 
-      {/* 📱 YENİ NESİL TAM EKRAN (FULL-SCREEN), KİBAR VE SÜRÜKLENEBİLİR SİBER MOBİL MENÜ 📱 */}
-      {/* 🚀 DİKKAT: Animasyon süresi 500ms'den 150ms'ye çekildi (Şimşek hızı) */}
+      {/* 📱 ULTRA LÜKS TAM EKRAN (FULL-SCREEN) MOBİL MENÜ 📱 */}
+      {/* 🚀 BİNGO: duration-300 ile kibar ve pürüzsüz akış seviyesine çekildi */}
       <div 
-        className={`md:hidden fixed inset-0 w-full h-full bg-[#0b1121]/95 backdrop-blur-xl z-[9999999] flex flex-col transition-all duration-150 ease-out transform ${menuAcik ? "opacity-100 translate-y-0" : "opacity-0 pointer-events-none"}`}
+        className={`md:hidden fixed inset-0 w-full h-full bg-[#0b1121]/95 backdrop-blur-xl z-[9999999] flex flex-col transition-all duration-300 ease-out transform ${menuAcik ? "opacity-100 translate-y-0" : "opacity-0 pointer-events-none"}`}
       >
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-800/80 shrink-0 bg-[#050814]">
-          <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-widest flex items-center gap-2">
-            <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-[#3b82f6]" /> Menü
-          </h2>
-          
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={() => {
-                setIsPaletteOpen(!isPaletteOpen);
-                if(isPaletteOpen) setSeciliKategoriId(null);
-                setAcikAkordiyon(null); 
-              }}
-              className={`p-2 sm:p-2.5 rounded-xl transition-all ${isPaletteOpen ? 'bg-emerald-900 border border-emerald-500/50' : 'bg-[#0f172a] hover:bg-slate-800/50 border border-transparent'}`}
-            >
-              <Palette className={`w-4 h-4 sm:w-5 sm:h-5 ${isPaletteOpen ? 'text-emerald-400' : 'text-slate-400'}`} />
+        {/* 🚀 BİREBİR HEADER İKİZİ TAVAN TASARIMI (Yükseklik: h-20, Rengi, Yazısı, Hamburgeri Birebir Aynı) */}
+        <div className="flex items-center justify-between h-20 px-4 border-b border-white/5 shrink-0 bg-[#050814]/90 backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            {/* Hamburger Çizgileri (Kapatma Tetikleyicisi) */}
+            <button className="flex flex-col justify-center items-center w-10 h-10 focus:outline-none" onClick={() => setMenuAcik(false)}>
+              <span className="block w-6 h-0.5 bg-white rotate-45 translate-y-1.5 transition-all duration-300"></span>
+              <span className="block w-6 h-0.5 bg-white mt-1 opacity-0 transition-all duration-300"></span>
+              <span className="block w-6 h-0.5 bg-white mt-1 -rotate-45 -translate-y-1.5 transition-all duration-300"></span>
             </button>
-
-            <button onClick={() => setMenuAcik(false)} className="p-2 sm:p-2.5 rounded-xl text-slate-400 hover:text-white bg-rose-500/10 hover:bg-rose-500/20 transition-colors border border-rose-500/20">
-              <X className="w-5 h-5 sm:w-6 sm:h-6 text-rose-400" />
-            </button>
+            
+            <span className="text-white font-black text-2xl tracking-tight select-none">
+              BİLGİN <span className="text-[#3b82f6] ml-1">PC</span>
+            </span>
           </div>
+          
+          {/* Palet Butonu (Header Hizasına Kusursuz Eklendi) */}
+          <button 
+            onClick={() => {
+              setIsPaletteOpen(!isPaletteOpen);
+              if(isPaletteOpen) setSeciliKategoriId(null);
+              setAcikAkordiyon(null); 
+            }}
+            className={`p-2 rounded-xl transition-all mr-1 ${isPaletteOpen ? 'bg-emerald-900 border border-emerald-500/50' : 'bg-[#0f172a] hover:bg-slate-800/50 border border-transparent'}`}
+          >
+            <Palette className={`w-5 h-5 ${isPaletteOpen ? 'text-emerald-400' : 'text-slate-400'}`} />
+          </button>
         </div>
 
-        {/* 15 RENKLİ YENİ PALET (Flex-Wrap ile alt satıra geçebilen düzen) */}
+        {/* 15 RENKLİ PALET ALANI */}
         {isPaletteOpen && (
-          <div className="p-3 border-b border-slate-800/50 bg-slate-900/50 flex flex-col items-center gap-2 shrink-0 animate-in slide-in-from-top-2">
+          <div className="p-3 border-b border-slate-800/50 bg-slate-900/50 flex flex-col items-center gap-2 shrink-0 animate-in slide-in-from-top-2 duration-200">
             {!seciliKategoriId ? (
               <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/50 px-3 py-1.5 rounded-lg border border-emerald-900 text-center w-full">
                 Boyamak istediğiniz bir kutuyu seçin
@@ -416,6 +423,7 @@ export default function Header() {
           </div>
         )}
 
+        {/* AKORDİYON LİSTESİ */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2.5 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {mobilKategoriler.map((kategori: any, index: number) => {
             const Ikon = Ikonlar[kategori.ikonId] || ChevronRight;
@@ -482,7 +490,7 @@ export default function Header() {
                   )}
                 </div>
 
-                {/* YUMUŞAK AKORDİYON GEÇİŞİ VE ZARİF ÇİZGİLER (border-b) */}
+                {/* YUMUŞAK AKORDİYON GEÇİŞİ VE ZARİF İNCE AYRAÇ ÇİZGİLERİ */}
                 {!kategori.isLink && !duzenlemeModu && (
                   <div className={`grid transition-all duration-300 ease-in-out ${isAkordiyonAcik ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
                       <div className={`overflow-hidden border border-t-0 rounded-b-xl bg-white/[0.02] ${renk.border}`}>
@@ -492,7 +500,7 @@ export default function Header() {
                               key={sub.slug}
                               href={"/kategori/" + sub.slug}
                               onClick={() => {
-                                  setMenuAcik(false); // Anında kapatır
+                                  setMenuAcik(false); // Anında, sıfır gecikmeyle kapatır
                                   setAcikAkordiyon(null);
                               }}
                               className={`flex items-center justify-between p-3 text-slate-400 hover:text-white hover:bg-white/5 transition-colors group ${subIdx !== kategori.subItems.length - 1 ? 'border-b border-white/5' : ''}`}
