@@ -573,7 +573,7 @@ export default function HesabimPage() {
                      if(aktifPalet === 'menu') veritabaninaKaydet(ustMenuListesi, altMenuListesi, siparisRenkleri, pastaRenkleri, cubukRenk);
                   }}
                   onClick={() => { if (aktifPalet === 'menu') setSeciliKutuId(isSecili ? null : item.id); }}
-                  className={`flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none ${isSecili ? "relative z-[9999]" : "relative z-10"}`}
+                  className={`flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none ${isSecili ? "relative z-[9999999]" : "relative z-10"}`}
                 >
                   <div className={`relative w-full aspect-square lg:h-24 rounded-2xl flex items-center justify-center transition-all duration-300 ${
                       aktifPalet === 'menu' && isSecili
