@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { 
   User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, 
-  MapPin, Loader2, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, 
+  MapPin, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, 
   Search, LogIn, UserPlus, Headset, Crown, Palette 
 } from "lucide-react";
 
@@ -31,30 +31,22 @@ export default function HesabimPage() {
   const yil = suAnkiTarih.getFullYear();
 
   // =========================================================================
-  // 1. ÖN BELLEK (LOCAL STORAGE) VE SÜRÜKLE-BIRAK MOTORU
+  // 1. ÖN BELLEK (LOCAL STORAGE) VE GELİŞMİŞ RENK MOTORU
   // =========================================================================
   const renkSecenekleri = [
-    { text: "text-white", bg: "bg-white border-slate-300" }, 
-    { text: "text-slate-500", bg: "bg-slate-700 border-slate-500" }, 
-    { text: "text-slate-400", bg: "bg-slate-400 border-slate-300" }, 
-    { text: "text-red-500", bg: "bg-red-500 border-red-400" }, 
-    { text: "text-rose-500", bg: "bg-rose-500 border-rose-400" }, 
-    { text: "text-orange-500", bg: "bg-orange-500 border-orange-400" }, 
-    { text: "text-amber-500", bg: "bg-amber-500 border-amber-400" }, 
-    { text: "text-yellow-400", bg: "bg-yellow-400 border-yellow-300" }, 
-    { text: "text-lime-400", bg: "bg-lime-400 border-lime-300" }, 
-    { text: "text-green-500", bg: "bg-green-500 border-green-400" }, 
-    { text: "text-emerald-400", bg: "bg-emerald-400 border-emerald-300" }, 
-    { text: "text-teal-400", bg: "bg-teal-400 border-teal-300" }, 
-    { text: "text-cyan-400", bg: "bg-cyan-400 border-cyan-300" }, 
-    { text: "text-sky-400", bg: "bg-sky-400 border-sky-300" }, 
-    { text: "text-blue-500", bg: "bg-blue-500 border-blue-400" }, 
-    { text: "text-indigo-400", bg: "bg-indigo-400 border-indigo-300" }, 
-    { text: "text-violet-500", bg: "bg-violet-500 border-violet-400" }, 
-    { text: "text-purple-500", bg: "bg-purple-500 border-purple-400" }, 
-    { text: "text-fuchsia-400", bg: "bg-fuchsia-400 border-fuchsia-300" }, 
-    { text: "text-pink-500", bg: "bg-pink-500 border-pink-400" }, 
-    { text: "text-stone-400", bg: "bg-stone-400 border-stone-300" }, 
+    { text: "text-white", bg: "bg-white border-slate-300", badge: "bg-white/10 text-white border-white/20", hex: "#ffffff" }, 
+    { text: "text-slate-400", bg: "bg-slate-400 border-slate-300", badge: "bg-slate-400/10 text-slate-400 border-slate-400/20", hex: "#94a3b8" }, 
+    { text: "text-red-500", bg: "bg-red-500 border-red-400", badge: "bg-red-500/10 text-red-500 border-red-500/20", hex: "#ef4444" }, 
+    { text: "text-orange-500", bg: "bg-orange-500 border-orange-400", badge: "bg-orange-500/10 text-orange-500 border-orange-500/20", hex: "#f97316" }, 
+    { text: "text-amber-500", bg: "bg-amber-500 border-amber-400", badge: "bg-amber-500/10 text-amber-500 border-amber-500/20", hex: "#f59e0b" }, 
+    { text: "text-yellow-400", bg: "bg-yellow-400 border-yellow-300", badge: "bg-yellow-400/10 text-yellow-400 border-yellow-400/20", hex: "#facc15" }, 
+    { text: "text-green-500", bg: "bg-green-500 border-green-400", badge: "bg-green-500/10 text-green-500 border-green-500/20", hex: "#22c55e" }, 
+    { text: "text-emerald-400", bg: "bg-emerald-400 border-emerald-300", badge: "bg-emerald-400/10 text-emerald-400 border-emerald-400/20", hex: "#34d399" }, 
+    { text: "text-cyan-400", bg: "bg-cyan-400 border-cyan-300", badge: "bg-cyan-400/10 text-cyan-400 border-cyan-400/20", hex: "#22d3ee" }, 
+    { text: "text-blue-500", bg: "bg-blue-500 border-blue-400", badge: "bg-blue-500/10 text-blue-500 border-blue-500/20", hex: "#3b82f6" }, 
+    { text: "text-indigo-400", bg: "bg-indigo-400 border-indigo-300", badge: "bg-indigo-400/10 text-indigo-400 border-indigo-400/20", hex: "#818cf8" }, 
+    { text: "text-purple-500", bg: "bg-purple-500 border-purple-400", badge: "bg-purple-500/10 text-purple-500 border-purple-500/20", hex: "#a855f7" }, 
+    { text: "text-rose-500", bg: "bg-rose-500 border-rose-400", badge: "bg-rose-500/10 text-rose-500 border-rose-500/20", hex: "#f43f5e" }, 
   ];
 
   const varsayilanUstMenu = [
@@ -72,29 +64,57 @@ export default function HesabimPage() {
     { id: "sorgula", isim: "Sorgula", ikon: Search, renk: "text-blue-400", isLink: true, href: "/siparis-takip" }
   ];
 
-  // 🚀 SIFIR GECİKME: Sayfa açılır açılmaz ön bellekten (Local Storage) veriyi çeker
+  // 🚀 SIFIR GECİKME: Menü Hafızaları
   const [ustMenuListesi, setUstMenuListesi] = useState(() => {
     if (typeof window !== "undefined") {
-      try {
-        const cached = localStorage.getItem("bilgin_ust_menu_v2");
-        if (cached) return ikonEslestir(JSON.parse(cached));
-      } catch (e) {}
+      try { const cached = localStorage.getItem("bilgin_ust_menu_v2"); if (cached) return ikonEslestir(JSON.parse(cached)); } catch (e) {}
     }
     return varsayilanUstMenu;
   });
 
   const [altMenuListesi, setAltMenuListesi] = useState(() => {
     if (typeof window !== "undefined") {
-      try {
-        const cached = localStorage.getItem("bilgin_alt_menu_v2");
-        if (cached) return ikonEslestir(JSON.parse(cached));
-      } catch (e) {}
+      try { const cached = localStorage.getItem("bilgin_alt_menu_v2"); if (cached) return ikonEslestir(JSON.parse(cached)); } catch (e) {}
     }
     return varsayilanAltMenu;
   });
-  
-  const [duzenlemeModu, setDuzenlemeModu] = useState(false);
+
+  // 🚀 YENİ: SİPARİŞ VE GRAFİK RENK HAFIZALARI
+  const [siparisRenkleri, setSiparisRenkleri] = useState<Record<string, any>>(() => {
+    if(typeof window !== 'undefined') {
+        const cached = localStorage.getItem('bilgin_siparis_renkleri');
+        if(cached) return JSON.parse(cached);
+    }
+    return {};
+  });
+
+  const [pastaRenkleri, setPastaRenkleri] = useState<Record<string, any>>(() => {
+    if(typeof window !== 'undefined') {
+        const cached = localStorage.getItem('bilgin_pasta_renkleri');
+        if(cached) return JSON.parse(cached);
+    }
+    return {
+        kendinTopla: { hex: "#f59e0b", text: "text-amber-400" },
+        bilesen: { hex: "#06b6d4", text: "text-cyan-400" },
+        cevre: { hex: "#fb7185", text: "text-rose-400" },
+        sistem: { hex: "#c084fc", text: "text-purple-400" },
+        aksesuar: { hex: "#34d399", text: "text-emerald-400" }
+    };
+  });
+
+  const [cubukRenk, setCubukRenk] = useState<any>(() => {
+    if(typeof window !== 'undefined') {
+        const cached = localStorage.getItem('bilgin_cubuk_renk');
+        if(cached) return JSON.parse(cached);
+    }
+    return { hex: "#06b6d4", text: "text-cyan-400" };
+  });
+
+  // 🎯 AKILLI HEDEF MODU YÖNETİMİ
+  const [aktifPalet, setAktifPalet] = useState<'menu'|'siparis'|'pasta'|'cubuk'|null>(null);
   const [seciliKutuId, setSeciliKutuId] = useState<string | null>(null);
+  const [seciliSiparisDurumu, setSeciliSiparisDurumu] = useState<string | null>(null);
+  const [seciliPastaDilimi, setSeciliPastaDilimi] = useState<string | null>(null);
   
   const suruklenenUstRef = useRef<number | null>(null);
   const suruklenenAltRef = useRef<number | null>(null);
@@ -121,9 +141,9 @@ export default function HesabimPage() {
   const [girisSartModal, setGirisSartModal] = useState(false);
 
   const [pastaVerisi, setPastaVerisi] = useState({
-    kendinTopla: { yuzde: 0, tutar: 0, offset: 0 }, bilesen: { yuzde: 0, tutar: 0, offset: 0 },
-    cevre: { yuzde: 0, tutar: 0, offset: 0 }, sistem: { yuzde: 0, tutar: 0, offset: 0 },
-    aksesuar: { yuzde: 0, tutar: 0, offset: 0 }, maxYuzde: 0
+    kendinTopla: { yuzde: 0, offset: 0 }, bilesen: { yuzde: 0, offset: 0 },
+    cevre: { yuzde: 0, offset: 0 }, sistem: { yuzde: 0, offset: 0 },
+    aksesuar: { yuzde: 0, offset: 0 }, maxYuzde: 0
   });
 
   const [aylikPastaVerisi, setAylikPastaVerisi] = useState({
@@ -137,10 +157,49 @@ export default function HesabimPage() {
   const [tiklananAy, setTiklananAy] = useState<number | null>(suAnkiTarih.getMonth());
 
   // =========================================================================
-  // 3. ÇEKİRDEK FONKSİYONLAR (Sessiz Güncelleme ve Senkronizasyon)
+  // 3. ÇEKİRDEK FONKSİYONLAR VE RENK MOTORU
   // =========================================================================
   
-  // 📡 MONGODB: ARKA PLAN SENKRONİZASYONU
+  const togglePalet = (hedef: 'menu'|'siparis'|'pasta'|'cubuk') => {
+    if(aktifPalet === hedef) {
+        setAktifPalet(null);
+        setSeciliKutuId(null);
+        setSeciliSiparisDurumu(null);
+        setSeciliPastaDilimi(null);
+    } else {
+        setAktifPalet(hedef);
+    }
+  };
+
+  const renkUygula = (renkObj: any) => {
+    if (aktifPalet === 'menu' && seciliKutuId) {
+        setUstMenuListesi(eski => eski.map(k => k.id === seciliKutuId ? { ...k, renk: renkObj.text } : k));
+        setAltMenuListesi(eski => eski.map(k => k.id === seciliKutuId ? { ...k, renk: renkObj.text } : k));
+    } else if (aktifPalet === 'siparis' && seciliSiparisDurumu) {
+        const yeni = { ...siparisRenkleri, [seciliSiparisDurumu]: renkObj };
+        setSiparisRenkleri(yeni);
+        localStorage.setItem('bilgin_siparis_renkleri', JSON.stringify(yeni));
+    } else if (aktifPalet === 'pasta' && seciliPastaDilimi) {
+        const yeni = { ...pastaRenkleri, [seciliPastaDilimi]: { hex: renkObj.hex, text: renkObj.text } };
+        setPastaRenkleri(yeni);
+        localStorage.setItem('bilgin_pasta_renkleri', JSON.stringify(yeni));
+    } else if (aktifPalet === 'cubuk') {
+        const yeni = { hex: renkObj.hex, text: renkObj.text };
+        setCubukRenk(yeni);
+        localStorage.setItem('bilgin_cubuk_renk', JSON.stringify(yeni));
+    }
+  };
+
+  const getSiparisRenk = (durum: string) => {
+    if(siparisRenkleri[durum]) return siparisRenkleri[durum];
+    // Kayıtlı renk yoksa varsayılanı belirle
+    const d = durum.toLowerCase();
+    if(d.includes('kargo')) return { badge: "bg-rose-500/10 text-rose-500 border-rose-500/20" };
+    if(d.includes('teslim') || d.includes('tamam') || d.includes('öden')) return { badge: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" };
+    return { badge: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" };
+  };
+
+  // MONGODB: ARKA PLAN SENKRONİZASYONU (Sadece Menü İçin)
   useEffect(() => {
     if (status === "authenticated" && session?.user?.email) {
       fetch(`/api/menu-ayarlari?email=${session.user.email}`)
@@ -148,20 +207,17 @@ export default function HesabimPage() {
         .then(resData => {
           if (resData.success && resData.data?.menuListesi?.length > 0) {
             const mapliListe = ikonEslestir(resData.data.menuListesi);
-
             const ustIds = ["profil", "cuzdan", "guvenlik", "adresler"];
             const yuklenenUst = mapliListe.filter((i: any) => ustIds.includes(i.id));
             const yuklenenAlt = mapliListe.filter((i: any) => !ustIds.includes(i.id));
 
             const eksikUst = varsayilanUstMenu.filter(d => !yuklenenUst.some((y: any) => y.id === d.id));
             const nihaiUst = [...yuklenenUst, ...eksikUst];
-
             const eksikAlt = varsayilanAltMenu.filter(d => !yuklenenAlt.some((y: any) => y.id === d.id));
             const nihaiAlt = [...yuklenenAlt, ...eksikAlt];
 
             setUstMenuListesi(nihaiUst);
             setAltMenuListesi(nihaiAlt);
-
             localStorage.setItem("bilgin_ust_menu_v2", JSON.stringify(nihaiUst.map(({ikon, ...k})=>k)));
             localStorage.setItem("bilgin_alt_menu_v2", JSON.stringify(nihaiAlt.map(({ikon, ...k})=>k)));
           }
@@ -169,35 +225,16 @@ export default function HesabimPage() {
     }
   }, [session, status]);
 
-  // 💾 KALICI KAYDETME MOTORU
   const veritabaninaKaydet = async (guncelUst: any[], guncelAlt: any[]) => {
     if (!session?.user?.email) return;
-    
     const temizUst = guncelUst.map(({ ikon, ...kalanlar }) => kalanlar);
     const temizAlt = guncelAlt.map(({ ikon, ...kalanlar }) => kalanlar);
-
     localStorage.setItem("bilgin_ust_menu_v2", JSON.stringify(temizUst));
     localStorage.setItem("bilgin_alt_menu_v2", JSON.stringify(temizAlt));
-
     try {
       const birlestirilmisListe = [...temizUst, ...temizAlt];
-      await fetch('/api/menu-ayarlari', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kullaniciEmail: session.user.email, menuListesi: birlestirilmisListe })
-      });
+      await fetch('/api/menu-ayarlari', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kullaniciEmail: session.user.email, menuListesi: birlestirilmisListe }) });
     } catch (error) { console.error("Veritabanına kaydetme hatası:", error); }
-  };
-
-  const handleDuzenlemeModuGecis = async () => {
-    if (status === "unauthenticated") return; 
-    if (duzenlemeModu) {
-      await veritabaninaKaydet(ustMenuListesi, altMenuListesi); 
-      setDuzenlemeModu(false);
-      setSeciliKutuId(null);
-    } else {
-      setDuzenlemeModu(true); 
-    }
   };
 
   const handleDragEnterUst = (hedefIndex: number) => {
@@ -224,12 +261,6 @@ export default function HesabimPage() {
     suruklenenAltRef.current = hedefIndex;
   };
 
-  const renkUygula = (yeniRenk: string) => {
-    if (!seciliKutuId) return;
-    setUstMenuListesi(eski => eski.map(kutu => kutu.id === seciliKutuId ? { ...kutu, renk: yeniRenk } : kutu));
-    setAltMenuListesi(eski => eski.map(kutu => kutu.id === seciliKutuId ? { ...kutu, renk: yeniRenk } : kutu));
-  };
-
   const handleCikisYap = async () => {
     localStorage.removeItem("bilgin_kayitli_sistemler");
     localStorage.removeItem("bilgin_ust_menu_v2");
@@ -244,12 +275,12 @@ export default function HesabimPage() {
 
   const kilitliIslem = (e: React.MouseEvent) => {
     if (status === "unauthenticated") { e.preventDefault(); setGirisSartModal(true); }
-    else if (duzenlemeModu) { e.preventDefault(); } 
+    else if (aktifPalet === 'menu') { e.preventDefault(); } 
   };
 
   const handleKargoClick = (e?: React.MouseEvent) => {
     if (status === "unauthenticated") { if(e) kilitliIslem(e); } 
-    else if (!duzenlemeModu) { setIsKargoModalOpen(true); }
+    else if (aktifPalet !== 'menu') { setIsKargoModalOpen(true); }
   };
 
   const handleTakipEt = (takipNumarasi: string) => {
@@ -397,15 +428,15 @@ export default function HesabimPage() {
       const p5 = (cA_toplam / genelToplam) * 100;
 
       setPastaVerisi({
-        kendinTopla: { yuzde: Math.round(p1), tutar: cK_toplam, offset: 0 },
-        bilesen: { yuzde: Math.round(p2), tutar: cB_toplam, offset: p1 },
-        cevre: { yuzde: Math.round(p3), tutar: cC_toplam, offset: p1 + p2 },
-        sistem: { yuzde: Math.round(p4), tutar: cS_toplam, offset: p1 + p2 + p3 },
-        aksesuar: { yuzde: Math.round(p5), tutar: cA_toplam, offset: p1 + p2 + p3 + p4 },
+        kendinTopla: { yuzde: Math.round(p1), offset: 0 },
+        bilesen: { yuzde: Math.round(p2), offset: p1 },
+        cevre: { yuzde: Math.round(p3), offset: p1 + p2 },
+        sistem: { yuzde: Math.round(p4), offset: p1 + p2 + p3 },
+        aksesuar: { yuzde: Math.round(p5), offset: p1 + p2 + p3 + p4 },
         maxYuzde: Math.round(Math.max(p1, p2, p3, p4, p5))
       });
     } else {
-      setPastaVerisi({ kendinTopla: { yuzde: 0, tutar: 0, offset: 0 }, bilesen: { yuzde: 0, tutar: 0, offset: 0 }, cevre: { yuzde: 0, tutar: 0, offset: 0 }, sistem: { yuzde: 0, tutar: 0, offset: 0 }, aksesuar: { yuzde: 0, tutar: 0, offset: 0 }, maxYuzde: 0 });
+      setPastaVerisi({ kendinTopla: { yuzde: 0, offset: 0 }, bilesen: { yuzde: 0, offset: 0 }, cevre: { yuzde: 0, offset: 0 }, sistem: { yuzde: 0, offset: 0 }, aksesuar: { yuzde: 0, offset: 0 }, maxYuzde: 0 });
     }
 
     const aylikNetToplam = m_cK + m_cB + m_cC + m_cS + m_cA;
@@ -433,18 +464,56 @@ export default function HesabimPage() {
   const userEmail = status === "unauthenticated" ? "Lütfen giriş yapın" : (session?.user?.email || "");
   const basHarf = userName.charAt(0).toUpperCase();
 
+  // 🐍 YARDIMCI BİLEŞEN: MİNYATÜR YILAN BUTONU
+  const MiniYilan = ({ isActive, onClick }: { isActive: boolean, onClick: () => void }) => (
+    <div onClick={onClick} className="relative w-6 h-6 sm:w-7 sm:h-7 shrink-0 flex items-center justify-center cursor-pointer group hover:scale-110 transition-transform ml-2">
+      <div className="absolute inset-0 rounded-full bg-gradient-to-b from-slate-600 to-slate-900 border border-slate-700 shadow-sm"></div>
+      <div className={`absolute inset-0.5 rounded-full border border-cyan-400/30 animate-[spin_3s_linear_infinite] ${isActive ? 'border-t-emerald-400' : 'border-t-cyan-300'}`}></div>
+      <div className={`absolute inset-1 rounded-full flex items-center justify-center z-20 ${isActive ? 'bg-emerald-950' : 'bg-[#020617]'}`}>
+        <Palette className={`w-3 h-3 transition-colors ${isActive ? 'text-emerald-400' : 'text-cyan-400 group-hover:text-white'}`} />
+      </div>
+    </div>
+  );
+
+  // 🎨 YARDIMCI BİLEŞEN: DİNAMİK RENK PALETİ
+  const RenkPaleti = ({ disabledCondition, text }: { disabledCondition: boolean, text: string }) => (
+    <div className="w-full mt-4 pt-4 border-t border-cyan-500/20 animate-in fade-in slide-in-from-top-4 z-20">
+      <div className="text-center mb-4">
+        <span className="text-[10px] sm:text-xs font-bold text-slate-400 bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-800">
+          {text}
+        </span>
+      </div>
+      <div className="flex flex-wrap justify-center gap-2.5 sm:gap-3.5 max-h-[140px] overflow-y-auto py-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        {renkSecenekleri.map((renkObj, i) => (
+          <button 
+            key={i} 
+            onClick={() => renkUygula(renkObj)}
+            className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full cursor-pointer hover:scale-110 transition-transform flex items-center justify-center shadow-lg border-2 ${renkObj.bg} ${disabledCondition ? "opacity-20 grayscale cursor-not-allowed" : "opacity-100"}`}
+            disabled={disabledCondition}
+          ></button>
+        ))}
+      </div>
+    </div>
+  );
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center relative overflow-hidden">
+        <div className="w-16 h-16 border-4 border-slate-800 border-t-cyan-500 rounded-full animate-spin shadow-[0_0_30px_rgba(6,182,212,0.5)]"></div>
+        <p className="mt-6 text-cyan-400 font-bold uppercase tracking-widest text-sm animate-pulse">Sistem Yükleniyor...</p>
+      </div>
+    );
+  }
+
   return (
     <div suppressHydrationWarning={true} className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip z-[999]">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
-      {/* 🚀 SANDVİÇ DÜZENİ MERKEZİ HİZALAMA */}
       <div className="max-w-[1000px] mx-auto flex flex-col gap-6 relative z-10 items-center">
 
-        {/* ==================================================================== */}
-        {/* 1️⃣ ÜST 4'LÜ MENÜ KUTULARI (Tamamen Simetrik ve Çıkışsız)               */}
-        {/* ==================================================================== */}
+        {/* 1️⃣ ÜST 4'LÜ MENÜ KUTULARI (Tamamen Simetrik ve Çıkışsız) */}
         <div className="w-full block">
-          <div className={`grid grid-cols-4 gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${duzenlemeModu ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
+          <div className={`flex flex-row justify-center gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${aktifPalet === 'menu' ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
             
             {ustMenuListesi.map((item: any, index: number) => {
               const IkonBileseni = item.ikon;
@@ -452,64 +521,64 @@ export default function HesabimPage() {
               
               const KutuIcerigi = (
                 <div
-                  draggable={duzenlemeModu}
+                  draggable={aktifPalet === 'menu'}
                   onDragStart={() => (suruklenenUstRef.current = index)}
                   onDragEnter={() => handleDragEnterUst(index)}
                   onDragOver={(e) => e.preventDefault()}
-                  onDragEnd={() => (suruklenenUstRef.current = null)}
-                  onClick={() => { if (duzenlemeModu) setSeciliKutuId(isSecili ? null : item.id); }}
-                  className={`flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none ${isSecili ? "relative z-[9999]" : "relative z-10"}`}
+                  onDragEnd={() => {
+                     suruklenenUstRef.current = null;
+                     if(aktifPalet === 'menu') veritabaninaKaydet(ustMenuListesi, altMenuListesi);
+                  }}
+                  onClick={() => { if (aktifPalet === 'menu') setSeciliKutuId(isSecili ? null : item.id); }}
+                  className={`flex flex-col items-center gap-1.5 lg:gap-2.5 group w-[18%] sm:w-[19%] select-none ${isSecili ? "relative z-[9999]" : "relative z-10"}`}
                 >
                   <div className={`relative w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl flex items-center justify-center transition-all duration-300 ${
-                      duzenlemeModu && isSecili
+                      aktifPalet === 'menu' && isSecili
                       ? "bg-slate-800 border-2 border-emerald-400 shadow-[0_0_25px_rgba(16,185,129,0.4)] scale-110 z-20"
-                      : duzenlemeModu && !isSecili
+                      : aktifPalet === 'menu' && !isSecili
                       ? "bg-[#0f172a]/60 border-2 border-dashed border-slate-700 opacity-50 hover:opacity-100 cursor-pointer"
                       : "bg-[#0f172a] border border-slate-800 shadow-lg group-hover:bg-white/[0.05] group-hover:border-cyan-500/30 cursor-pointer"
                   }`}>
-                    <IkonBileseni className={`w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 transition-all duration-300 ${item.renk} ${!duzenlemeModu ? 'group-hover:scale-110' : ''}`} />
+                    <IkonBileseni className={`w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 transition-all duration-300 ${item.renk} ${aktifPalet !== 'menu' ? 'group-hover:scale-110' : ''}`} />
                     
-                    {duzenlemeModu && isSecili && (
+                    {aktifPalet === 'menu' && isSecili && (
                       <div className="absolute -top-1.5 -right-1.5 bg-[#020617] rounded-full shadow-md">
                         <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                       </div>
                     )}
                   </div>
-                  <span className={`text-[9px] sm:text-[10px] lg:text-xs font-bold tracking-wide text-center truncate w-full px-0.5 transition-colors ${duzenlemeModu && isSecili ? "text-emerald-400" : "text-slate-300 group-hover:text-cyan-400"}`}>
+                  <span className={`text-[9px] sm:text-[10px] lg:text-xs font-bold tracking-wide text-center truncate w-full px-0.5 transition-colors ${aktifPalet === 'menu' && isSecili ? "text-emerald-400" : "text-slate-300 group-hover:text-cyan-400"}`}>
                     {item.isim}
                   </span>
                 </div>
               );
 
-              if (item.isLink && !duzenlemeModu) {
-                return <Link key={item.id} href={item.href || "#"} onClick={kilitliIslem} prefetch={true} className="w-full">{KutuIcerigi}</Link>;
+              if (item.isLink && aktifPalet !== 'menu') {
+                return <Link key={item.id} href={item.href || "#"} onClick={kilitliIslem} prefetch={true} className="w-[18%] sm:w-[19%]">{KutuIcerigi}</Link>;
               }
-              return <div key={item.id} className="w-full">{KutuIcerigi}</div>;
+              return <React.Fragment key={item.id}>{KutuIcerigi}</React.Fragment>;
             })}
           </div>
         </div>
 
-        {/* ==================================================================== */}
-        {/* 2️⃣ KULLANICI KARTI VE MERKEZİ RENK CEKMECESİ                           */}
-        {/* ==================================================================== */}
-        <div className={`w-full relative rounded-[2rem] p-[2px] transition-all duration-300 shadow-[0_0_50px_rgba(0,210,255,0.15)] group ${duzenlemeModu ? 'bg-gradient-to-r from-emerald-500/50 via-emerald-900 to-emerald-500/20 shadow-[0_0_50px_rgba(16,185,129,0.3)]' : 'bg-gradient-to-r from-cyan-500/30 via-[#0f172a] to-cyan-500/10'}`}>
+        {/* 2️⃣ KULLANICI KARTI VE MERKEZİ RENK CEKMECESİ */}
+        <div className={`w-full relative rounded-[2rem] p-[2px] transition-all duration-300 shadow-[0_0_50px_rgba(0,210,255,0.15)] group ${aktifPalet === 'menu' ? 'bg-gradient-to-r from-emerald-500/50 via-emerald-900 to-emerald-500/20 shadow-[0_0_50px_rgba(16,185,129,0.3)]' : 'bg-gradient-to-r from-cyan-500/30 via-[#0f172a] to-cyan-500/10'}`}>
           <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-transparent opacity-20 blur-xl rounded-[2rem] transition-opacity duration-500"></div>
           <div className="relative bg-[#0b1121] rounded-[2rem] p-6 sm:p-8 flex flex-col border border-cyan-500/20 overflow-hidden z-10">
             <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-gradient-to-r from-cyan-500/10 to-transparent pointer-events-none"></div>
 
             <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 relative z-10">
-              {/* 🐍 Yılan Animasyonlu Profil */}
               <div className="relative w-28 h-28 sm:w-32 sm:h-32 shrink-0 flex items-center justify-center">
                 <div className="absolute inset-0 rounded-full bg-gradient-to-b from-slate-600 to-slate-900 border-[3px] border-slate-700 shadow-[inset_0_0_20px_rgba(0,0,0,0.8),_0_10px_20px_rgba(0,0,0,0.5)]"></div>
-                <div className={`absolute inset-2.5 rounded-full border border-cyan-400/30 shadow-[0_0_20px_rgba(34,211,255,0.4),inset_0_0_20px_rgba(34,211,255,0.2)] border-t-cyan-300 animate-[spin_8s_linear_infinite] ${duzenlemeModu ? 'border-t-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.5)]' : ''}`}></div>
+                <div className={`absolute inset-2.5 rounded-full border border-cyan-400/30 shadow-[0_0_20px_rgba(34,211,255,0.4),inset_0_0_20px_rgba(34,211,255,0.2)] border-t-cyan-300 animate-[spin_8s_linear_infinite] ${aktifPalet === 'menu' ? 'border-t-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.5)]' : ''}`}></div>
                 
                 <div 
-                  onClick={handleDuzenlemeModuGecis}
-                  title={duzenlemeModu ? "Düzenlemeyi Kaydet ve Kapat" : "Menüyü Düzenle"}
-                  className={`absolute inset-4 rounded-full flex items-center justify-center shadow-[inset_0_0_30px_rgba(0,0,0,0.9)] cursor-pointer transition-all duration-300 hover:scale-105 z-20 ${duzenlemeModu ? 'bg-emerald-950 border-2 border-emerald-500' : 'bg-[#020617] border border-cyan-900/50'}`}
+                  onClick={() => togglePalet('menu')}
+                  title={aktifPalet === 'menu' ? "Düzenlemeyi Kapat" : "Menüyü Düzenle"}
+                  className={`absolute inset-4 rounded-full flex items-center justify-center shadow-[inset_0_0_30px_rgba(0,0,0,0.9)] cursor-pointer transition-all duration-300 hover:scale-105 z-20 ${aktifPalet === 'menu' ? 'bg-emerald-950 border-2 border-emerald-500' : 'bg-[#020617] border border-cyan-900/50'}`}
                 >
-                  <span className={`text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b drop-shadow-[0_0_15px_rgba(34,211,255,0.8)] ${duzenlemeModu ? 'from-emerald-100 to-emerald-500' : 'from-cyan-100 to-cyan-500'}`}>
-                    {duzenlemeModu ? <Palette className="w-10 h-10 text-emerald-400" /> : basHarf}
+                  <span className={`text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b drop-shadow-[0_0_15px_rgba(34,211,255,0.8)] ${aktifPalet === 'menu' ? 'from-emerald-100 to-emerald-500' : 'from-cyan-100 to-cyan-500'}`}>
+                    {aktifPalet === 'menu' ? <Palette className="w-10 h-10 text-emerald-400" /> : basHarf}
                   </span>
                 </div>
               </div>
@@ -518,16 +587,15 @@ export default function HesabimPage() {
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3 w-full">
                   <div>
                     <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight mb-0.5 sm:mb-1 drop-shadow-md">
-                      {duzenlemeModu ? "Düzenleme Modu Açık" : userName}
+                      {aktifPalet === 'menu' ? "Menü Düzenleme" : userName}
                     </h1>
-                    <p className={`text-xs sm:text-sm font-medium tracking-wide ${duzenlemeModu ? 'text-emerald-400' : 'text-slate-400'}`}>
-                      {duzenlemeModu ? "Bir kutuya tıklayın, ardından paletten rengini belirleyin." : userEmail}
+                    <p className={`text-xs sm:text-sm font-medium tracking-wide ${aktifPalet === 'menu' ? 'text-emerald-400' : 'text-slate-400'}`}>
+                      {aktifPalet === 'menu' ? "Bir menü kutusuna tıklayın ve rengini belirleyin." : userEmail}
                     </p>
                   </div>
                   
-                  {/* 🛡️ GERÇEK GÜVENLİ TEK ÇİKIŞ YAP BUTONU */}
-                  {status === "authenticated" && !duzenlemeModu && (
-                    <button onClick={handleCikisYap} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-red-950/40 border border-red-900/50 text-red-400 hover:bg-red-900/60 hover:text-red-300 transition-all font-black uppercase tracking-widest text-[10px] sm:text-xs shadow-md">
+                  {status === "authenticated" && aktifPalet !== 'menu' && (
+                    <button onClick={handleCikisYap} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-red-950/40 border border-red-900/50 text-red-400 hover:bg-red-900/60 hover:text-red-300 transition-all font-black uppercase tracking-widest text-[10px] sm:text-xs shadow-md shrink-0">
                       <LogOut className="w-4 h-4" /> GÜVENLİ ÇIKIŞ
                     </button>
                   )}
@@ -546,35 +614,15 @@ export default function HesabimPage() {
               </div>
             </div>
 
-            {/* 🎨 MERKEZİ RENK PALETİ */}
-            {duzenlemeModu && (
-              <div className="w-full mt-6 pt-6 border-t border-cyan-500/20 animate-in fade-in slide-in-from-top-4 z-20">
-                <div className="text-center mb-4">
-                  <span className="text-[10px] sm:text-xs font-bold text-slate-400 bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-800">
-                    🎨 Önce yukarıdan veya aşağıdan bir kutu seçin, sonra renk verin
-                  </span>
-                </div>
-                
-                <div className="flex flex-wrap justify-center gap-2.5 sm:gap-3.5 max-h-[140px] overflow-y-auto py-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                  {renkSecenekleri.map((renkObj, i) => (
-                    <button 
-                      key={i} 
-                      onClick={() => renkUygula(renkObj.text)}
-                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full cursor-pointer hover:scale-110 transition-transform flex items-center justify-center shadow-lg border-2 ${renkObj.bg} ${!seciliKutuId ? "opacity-20 grayscale cursor-not-allowed" : "opacity-100"}`}
-                      disabled={!seciliKutuId}
-                    ></button>
-                  ))}
-                </div>
-              </div>
+            {aktifPalet === 'menu' && (
+              <RenkPaleti disabledCondition={!seciliKutuId} text="🎨 Önce yukarıdan veya aşağıdan bir menü kutusu seçin" />
             )}
           </div>
         </div>
 
-        {/* ==================================================================== */}
-        {/* 3️⃣ ALT 5'Lİ MENÜ KUTULARI (OTOMATIK RENKLENEN PING MOTORLU)           */}
-        {/* ==================================================================== */}
+        {/* 3️⃣ ALT 5'Lİ MENÜ KUTULARI */}
         <div className="w-full block">
-          <div className={`grid grid-cols-5 gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${duzenlemeModu ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
+          <div className={`grid grid-cols-5 gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${aktifPalet === 'menu' ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
             {altMenuListesi.map((item: any, index: number) => {
               const IkonBileseni = item.ikon;
               const isSecili = seciliKutuId === item.id;
@@ -584,13 +632,16 @@ export default function HesabimPage() {
 
               const KutuIcerigi = (
                 <div
-                  draggable={duzenlemeModu}
+                  draggable={aktifPalet === 'menu'}
                   onDragStart={() => (suruklenenAltRef.current = index)}
                   onDragEnter={() => handleDragEnterAlt(index)}
                   onDragOver={(e) => e.preventDefault()}
-                  onDragEnd={() => (suruklenenAltRef.current = null)}
+                  onDragEnd={() => {
+                     suruklenenAltRef.current = null;
+                     if(aktifPalet === 'menu') veritabaninaKaydet(ustMenuListesi, altMenuListesi);
+                  }}
                   onClick={() => {
-                    if (duzenlemeModu) {
+                    if (aktifPalet === 'menu') {
                       setSeciliKutuId(isSecili ? null : item.id);
                     } else if (item.isKargo) {
                       handleKargoClick();
@@ -599,56 +650,69 @@ export default function HesabimPage() {
                   className={`flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none ${isSecili ? "relative z-[9999]" : "relative z-10"}`}
                 >
                   <div className={`relative w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl flex items-center justify-center transition-all duration-300 ${
-                      duzenlemeModu && isSecili
+                      aktifPalet === 'menu' && isSecili
                       ? "bg-slate-800 border-2 border-emerald-400 shadow-[0_0_25px_rgba(16,185,129,0.4)] scale-110 z-20"
-                      : duzenlemeModu && !isSecili
+                      : aktifPalet === 'menu' && !isSecili
                       ? "bg-[#0f172a]/60 border-2 border-dashed border-slate-700 opacity-50 hover:opacity-100 cursor-pointer"
                       : "bg-[#0f172a] border border-slate-800 shadow-lg group-hover:bg-white/[0.05] group-hover:border-cyan-500/30 cursor-pointer"
                   }`}>
                     
-                    <IkonBileseni className={`w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 transition-all duration-300 ${item.renk} ${!duzenlemeModu ? 'group-hover:scale-110' : ''}`} />
+                    <IkonBileseni className={`w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 transition-all duration-300 ${item.renk} ${aktifPalet !== 'menu' ? 'group-hover:scale-110' : ''}`} />
                     
-                    {/* 🎨 Gelişmiş Dinamik Ping Motoru: Kutunun rengini otomatik miras alır! */}
-                    {(kargoVarmi || mesajVarmi) && !duzenlemeModu && (
+                    {/* Akıllı Ping Motoru: Rengini otomatik alır! */}
+                    {(kargoVarmi || mesajVarmi) && aktifPalet !== 'menu' && (
                       <span className={`absolute -top-1 -right-1 lg:-top-1.5 lg:-right-1.5 flex h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 z-10 ${item.renk}`}>
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-current"></span>
                         <span className="relative inline-flex rounded-full h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 border-2 border-[#0f172a] bg-current"></span>
                       </span>
                     )}
 
-                    {duzenlemeModu && isSecili && (
+                    {aktifPalet === 'menu' && isSecili && (
                       <div className="absolute -top-1.5 -right-1.5 bg-[#020617] rounded-full shadow-md">
                         <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                       </div>
                     )}
                   </div>
                   
-                  <span className={`text-[9px] sm:text-[10px] lg:text-xs font-bold tracking-wide text-center truncate w-full px-0.5 transition-colors ${duzenlemeModu && isSecili ? "text-emerald-400" : "text-slate-300 group-hover:text-cyan-400"}`}>
+                  <span className={`text-[9px] sm:text-[10px] lg:text-xs font-bold tracking-wide text-center truncate w-full px-0.5 transition-colors ${aktifPalet === 'menu' && isSecili ? "text-emerald-400" : "text-slate-300 group-hover:text-cyan-400"}`}>
                     {item.isim}
                   </span>
                 </div>
               );
 
-              if (item.isLink && !duzenlemeModu) {
+              if (item.isLink && aktifPalet !== 'menu') {
                 return <Link key={item.id} href={item.href || "#"} onClick={kilitliIslem} prefetch={true} className="w-full">{KutuIcerigi}</Link>;
               }
-              return <div key={item.id} className="w-full">{KutuIcerigi}</div>;
+              return <React.Fragment key={item.id}>{KutuIcerigi}</React.Fragment>;
             })}
           </div>
         </div>
 
         {/* ==================================================================== */}
-        {/* 📊 SİPARİŞLER VE GRAFİKLER BÖLÜMÜ                                    */}
+        {/* 📊 SİPARİŞLER VE GRAFİKLER BÖLÜMÜ (MİNYATÜR YILANLAR EKLENDİ)        */}
         {/* ==================================================================== */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start w-full">
+          
+          {/* SİPARİŞLER */}
           <div className="xl:col-span-1 flex flex-col h-full">
-            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group hover:border-cyan-500/30 transition-all duration-300 flex flex-col h-[350px] sm:h-[450px] xl:h-[550px]">
+            <div className={`bg-[#0f172a] border rounded-2xl p-6 shadow-xl relative overflow-hidden group transition-all duration-300 flex flex-col h-[350px] sm:h-[450px] xl:h-[550px] ${aktifPalet === 'siparis' ? 'border-emerald-500/50 shadow-[0_0_30px_rgba(16,185,129,0.2)]' : 'border-slate-800 hover:border-cyan-500/30'}`}>
               <div className="absolute -top-10 -left-10 w-40 h-40 bg-cyan-500/10 blur-[50px] pointer-events-none rounded-full"></div>
-              <div className="flex items-center justify-between mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-800/80 relative z-10 shrink-0">
-                <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Siparişler</h3>
-                <Link href="/siparislerim" onClick={kilitliIslem} prefetch={true} className="text-[10px] sm:text-xs font-bold text-cyan-400 hover:underline tracking-widest uppercase">
-                  TÜMÜNÜ GÖR
-                </Link>
+              
+              <div className="flex flex-col mb-4 sm:mb-6 border-b border-slate-800/80 pb-3 relative z-10 shrink-0">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <h3 className="text-sm sm:text-base font-bold text-white uppercase tracking-wide">Siparişler</h3>
+                    <MiniYilan isActive={aktifPalet === 'siparis'} onClick={() => togglePalet('siparis')} />
+                  </div>
+                  {aktifPalet !== 'siparis' && (
+                    <Link href="/siparislerim" onClick={kilitliIslem} prefetch={true} className="text-[10px] sm:text-xs font-bold text-cyan-400 hover:underline tracking-widest uppercase">
+                      TÜMÜNÜ GÖR
+                    </Link>
+                  )}
+                </div>
+                {aktifPalet === 'siparis' && (
+                  <RenkPaleti disabledCondition={!seciliSiparisDurumu} text="🎨 Sipariş durumuna tıklayıp renk seçin" />
+                )}
               </div>
 
               <div className="space-y-3 relative z-10 flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
@@ -658,6 +722,10 @@ export default function HesabimPage() {
                     const urunAdi = item.items?.[0]?.isim || item.items?.[0]?.name || item.sepet?.[0]?.isim || item.siparisKodu || "Sipariş";
                     const toplamFiyat = item.totalPrice || item.toplamTutar || "0";
                     const durum = item.status || item.durum || "Hazırlanıyor";
+                    
+                    const renkAyar = getSiparisRenk(durum);
+                    const isEditing = aktifPalet === 'siparis';
+                    const isThisSelected = seciliSiparisDurumu === durum;
 
                     return (
                       <div key={item._id || idx} className="flex flex-col sm:flex-row xl:flex-col 2xl:flex-row sm:items-center justify-between gap-3 py-3 border-b border-white/5 last:border-0 hover:bg-white/[0.03] transition-colors rounded-xl px-2">
@@ -670,13 +738,10 @@ export default function HesabimPage() {
                           <p className="text-white font-black text-xs sm:text-sm">
                             {Number(toplamFiyat).toLocaleString("tr-TR")} ₺
                           </p>
-                          <span className={`px-1.5 sm:px-2 py-0.5 rounded text-[8px] sm:text-[9px] font-black uppercase tracking-widest shrink-0 w-fit ${
-                            durum.toLowerCase().includes('kargo')
-                              ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
-                              : durum.toLowerCase().includes('teslim') || durum.toLowerCase().includes('tamam')
-                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
-                              : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
-                          }`}>
+                          <span 
+                            onClick={() => isEditing ? setSeciliSiparisDurumu(durum) : null}
+                            className={`px-1.5 sm:px-2 py-0.5 rounded text-[8px] sm:text-[9px] font-black uppercase tracking-widest shrink-0 w-fit transition-all ${renkAyar.badge} ${isEditing ? 'cursor-pointer hover:scale-105' : ''} ${isThisSelected ? 'ring-2 ring-white scale-110 shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'border'}`}
+                          >
                             {durum}
                           </span>
                         </div>
@@ -694,15 +759,27 @@ export default function HesabimPage() {
           </div>
 
           <div className="xl:col-span-2 flex flex-col gap-6 w-full">
-            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col xl:flex-row items-center gap-6 overflow-hidden">
-               <div className="shrink-0 space-y-1.5 text-center xl:text-left xl:w-[140px] w-full">
-               <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider leading-tight">Harcama Dağılımı</h3>
-                 <p className="text-[10px] text-slate-500 font-medium">Satın alınan kategoriler</p>
+            
+            {/* PASTA GRAFİK (Harcama Dağılımı) */}
+            <div className={`bg-[#0f172a] border rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col transition-all duration-300 ${aktifPalet === 'pasta' ? 'border-emerald-500/50 shadow-[0_0_30px_rgba(16,185,129,0.2)]' : 'border-slate-800'}`}>
+               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 border-b border-slate-800/80 pb-3">
+                 <div className="flex items-center">
+                   <div className="space-y-0.5 text-left">
+                     <h3 className="text-sm sm:text-base font-bold text-white uppercase tracking-wide leading-tight">Harcama Dağılımı</h3>
+                     <p className="text-[10px] text-slate-500 font-medium hidden sm:block">Satın alınan kategoriler</p>
+                   </div>
+                   <MiniYilan isActive={aktifPalet === 'pasta'} onClick={() => togglePalet('pasta')} />
+                 </div>
                </div>
 
-               <div className="flex-1 grid grid-cols-2 w-full border-t sm:border-t-0 sm:border-l border-slate-800/80 pt-6 sm:pt-0 sm:pl-6">
+               {aktifPalet === 'pasta' && (
+                 <RenkPaleti disabledCondition={!seciliPastaDilimi} text="🎨 Aşağıdan bir grafiğe tıklayıp renk seçin" />
+               )}
+
+               <div className="flex flex-col xl:flex-row items-center gap-6 mt-2 w-full">
                  
-                 <div className="flex flex-col items-center gap-4 w-full pr-2 sm:pr-6 border-r border-slate-800/80">
+                 {/* AYLIK PASTA */}
+                 <div className="flex flex-col items-center gap-4 w-full xl:w-1/2 pr-0 xl:pr-6 border-b xl:border-b-0 xl:border-r border-slate-800/80 pb-6 xl:pb-0">
                    <span className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[9px] sm:text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest shadow-[0_0_10px_rgba(6,182,212,0.4)] whitespace-nowrap text-center">
                      {aylikPastaVerisi.ayAdi ? `${aylikPastaVerisi.ayAdi} ÖZETİ` : "AYLIK ÖZET"}
                    </span>
@@ -714,11 +791,11 @@ export default function HesabimPage() {
                          <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#334155" strokeWidth="4.5" strokeDasharray="100 0"></circle>
                        ) : (
                          <>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#f59e0b" strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.kendinTopla.yuzde} ${100 - aylikPastaVerisi.kendinTopla.yuzde}`} strokeDashoffset={-aylikPastaVerisi.kendinTopla.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#06b6d4" strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.bilesen.yuzde} ${100 - aylikPastaVerisi.bilesen.yuzde}`} strokeDashoffset={-aylikPastaVerisi.bilesen.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#fb7185" strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.cevre.yuzde} ${100 - aylikPastaVerisi.cevre.yuzde}`} strokeDashoffset={-aylikPastaVerisi.cevre.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#c084fc" strokeWidth="4.5" strokeDasharray={`${pastaVerisi.sistem.yuzde} ${100 - pastaVerisi.sistem.yuzde}`} strokeDashoffset={-pastaVerisi.sistem.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#34d399" strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.aksesuar.yuzde} ${100 - aylikPastaVerisi.aksesuar.yuzde}`} strokeDashoffset={-aylikPastaVerisi.aksesuar.offset}></circle>
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.kendinTopla.hex} strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.kendinTopla.yuzde} ${100 - aylikPastaVerisi.kendinTopla.yuzde}`} strokeDashoffset={-aylikPastaVerisi.kendinTopla.offset}></circle>
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.bilesen.hex} strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.bilesen.yuzde} ${100 - aylikPastaVerisi.bilesen.yuzde}`} strokeDashoffset={-aylikPastaVerisi.bilesen.offset}></circle>
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.cevre.hex} strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.cevre.yuzde} ${100 - aylikPastaVerisi.cevre.yuzde}`} strokeDashoffset={-aylikPastaVerisi.cevre.offset}></circle>
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.sistem.hex} strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.sistem.yuzde} ${100 - aylikPastaVerisi.sistem.yuzde}`} strokeDashoffset={-aylikPastaVerisi.sistem.offset}></circle>
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.aksesuar.hex} strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.aksesuar.yuzde} ${100 - aylikPastaVerisi.aksesuar.yuzde}`} strokeDashoffset={-aylikPastaVerisi.aksesuar.offset}></circle>
                          </>
                        )}
                      </svg>
@@ -727,46 +804,27 @@ export default function HesabimPage() {
                      </div>
                    </div>
                    
-                   <div className="flex flex-col gap-2 shrink-0 w-full sm:w-[180px]">
-                     <div className="flex items-center justify-between w-full">
-                       <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                         <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] shrink-0"></span>
-                         <span className="text-[9px] sm:text-[11px] text-slate-300 font-bold truncate">Kendin Topla</span>
+                   <div className="flex flex-col gap-1.5 shrink-0 w-full sm:w-[200px]">
+                     {[
+                       { id: 'kendinTopla', isim: 'Kendin Topla', veri: aylikPastaVerisi.kendinTopla.yuzde },
+                       { id: 'bilesen', isim: 'Bileşenler', veri: aylikPastaVerisi.bilesen.yuzde },
+                       { id: 'cevre', isim: 'Çevre & Oyuncu', veri: aylikPastaVerisi.cevre.yuzde },
+                       { id: 'sistem', isim: 'Sistem & Laptop', veri: aylikPastaVerisi.sistem.yuzde },
+                       { id: 'aksesuar', isim: 'Ağ & Aksesuar', veri: aylikPastaVerisi.aksesuar.yuzde }
+                     ].map(dilim => (
+                       <div key={dilim.id} onClick={() => aktifPalet === 'pasta' ? setSeciliPastaDilimi(dilim.id) : null} className={`flex items-center justify-between w-full p-1 rounded-lg transition-all ${aktifPalet === 'pasta' ? 'cursor-pointer hover:bg-white/5' : ''} ${seciliPastaDilimi === dilim.id ? 'ring-1 ring-white/50 bg-white/5 scale-105' : ''}`}>
+                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0" style={{ backgroundColor: pastaRenkleri[dilim.id].hex, boxShadow: `0 0 8px ${pastaRenkleri[dilim.id].hex}` }}></span>
+                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-bold truncate">{dilim.isim}</span>
+                         </div>
+                         <span className="text-[9px] sm:text-[11px] font-black shrink-0 pl-1" style={{ color: pastaRenkleri[dilim.id].hex }}>{dilim.veri}%</span>
                        </div>
-                       <span className="text-[9px] sm:text-[11px] font-black text-amber-400 shrink-0 pl-1">{aylikPastaVerisi.kendinTopla.yuzde}%</span>
-                     </div>
-                     <div className="flex items-center justify-between w-full">
-                       <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                         <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_#06b6d4] shrink-0"></span>
-                         <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Bileşenler</span>
-                       </div>
-                       <span className="text-[9px] sm:text-[11px] font-black text-cyan-400 shrink-0 pl-1">{aylikPastaVerisi.bilesen.yuzde}%</span>
-                     </div>
-                     <div className="flex items-center justify-between w-full">
-                       <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                         <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#fb7185] shrink-0"></span>
-                         <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Çevre & Oyuncu</span>
-                       </div>
-                       <span className="text-[9px] sm:text-[11px] font-black text-rose-400 shrink-0 pl-1">{aylikPastaVerisi.cevre.yuzde}%</span>
-                     </div>
-                     <div className="flex items-center justify-between w-full">
-                       <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                         <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-purple-500 shadow-[0_0_8px_#c084fc] shrink-0"></span>
-                         <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Sistem & Laptop</span>
-                       </div>
-                       <span className="text-[9px] sm:text-[11px] font-black text-purple-400 shrink-0 pl-1">{aylikPastaVerisi.sistem.yuzde}%</span>
-                     </div>
-                     <div className="flex items-center justify-between w-full">
-                       <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                         <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#34d399] shrink-0"></span>
-                         <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Ağ & Aksesuar</span>
-                       </div>
-                       <span className="text-[9px] sm:text-[11px] font-black text-emerald-400 shrink-0 pl-1">{aylikPastaVerisi.aksesuar.yuzde}%</span>
-                     </div>
+                     ))}
                    </div>
                  </div>
 
-                 <div className="flex flex-col items-center gap-4 w-full pl-2 sm:pl-6">
+                 {/* TÜM ZAMANLAR PASTA */}
+                 <div className="flex flex-col items-center gap-4 w-full xl:w-1/2 pl-0 xl:pl-6">
                    <span className="bg-slate-800 text-slate-400 text-[9px] sm:text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest whitespace-nowrap text-center">
                      TÜM ZAMANLAR
                    </span>
@@ -778,11 +836,11 @@ export default function HesabimPage() {
                          <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#334155" strokeWidth="4.5" strokeDasharray="100 0"></circle>
                        ) : (
                          <>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#f59e0b" strokeWidth="4.5" strokeDasharray={`${pastaVerisi.kendinTopla.yuzde} ${100 - pastaVerisi.kendinTopla.yuzde}`} strokeDashoffset={-pastaVerisi.kendinTopla.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#06b6d4" strokeWidth="4.5" strokeDasharray={`${pastaVerisi.bilesen.yuzde} ${100 - pastaVerisi.bilesen.yuzde}`} strokeDashoffset={-pastaVerisi.bilesen.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#fb7185" strokeWidth="4.5" strokeDasharray={`${pastaVerisi.cevre.yuzde} ${100 - pastaVerisi.cevre.yuzde}`} strokeDashoffset={-pastaVerisi.cevre.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#c084fc" strokeWidth="4.5" strokeDasharray={`${pastaVerisi.sistem.yuzde} ${100 - pastaVerisi.sistem.yuzde}`} strokeDashoffset={-pastaVerisi.sistem.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#34d399" strokeWidth="4.5" strokeDasharray={`${pastaVerisi.aksesuar.yuzde} ${100 - pastaVerisi.aksesuar.yuzde}`} strokeDashoffset={-pastaVerisi.aksesuar.offset}></circle>
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.kendinTopla.hex} strokeWidth="4.5" strokeDasharray={`${pastaVerisi.kendinTopla.yuzde} ${100 - pastaVerisi.kendinTopla.yuzde}`} strokeDashoffset={-pastaVerisi.kendinTopla.offset}></circle>
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.bilesen.hex} strokeWidth="4.5" strokeDasharray={`${pastaVerisi.bilesen.yuzde} ${100 - pastaVerisi.bilesen.yuzde}`} strokeDashoffset={-pastaVerisi.bilesen.offset}></circle>
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.cevre.hex} strokeWidth="4.5" strokeDasharray={`${pastaVerisi.cevre.yuzde} ${100 - pastaVerisi.cevre.yuzde}`} strokeDashoffset={-pastaVerisi.cevre.offset}></circle>
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.sistem.hex} strokeWidth="4.5" strokeDasharray={`${pastaVerisi.sistem.yuzde} ${100 - pastaVerisi.sistem.yuzde}`} strokeDashoffset={-pastaVerisi.sistem.offset}></circle>
+                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.aksesuar.hex} strokeWidth="4.5" strokeDasharray={`${pastaVerisi.aksesuar.yuzde} ${100 - pastaVerisi.aksesuar.yuzde}`} strokeDashoffset={-pastaVerisi.aksesuar.offset}></circle>
                          </>
                        )}
                      </svg>
@@ -791,62 +849,50 @@ export default function HesabimPage() {
                      </div>
                    </div>
 
-                   <div className="flex flex-col gap-2 shrink-0 w-full sm:w-[180px]">
-                     <div className="flex items-center justify-between w-full">
-                       <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                         <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] shrink-0"></span>
-                         <span className="text-[9px] sm:text-[11px] text-slate-300 font-bold truncate">Kendin Topla</span>
+                   <div className="flex flex-col gap-1.5 shrink-0 w-full sm:w-[200px]">
+                     {[
+                       { id: 'kendinTopla', isim: 'Kendin Topla', veri: pastaVerisi.kendinTopla.yuzde },
+                       { id: 'bilesen', isim: 'Bileşenler', veri: pastaVerisi.bilesen.yuzde },
+                       { id: 'cevre', isim: 'Çevre & Oyuncu', veri: pastaVerisi.cevre.yuzde },
+                       { id: 'sistem', isim: 'Sistem & Laptop', veri: pastaVerisi.sistem.yuzde },
+                       { id: 'aksesuar', isim: 'Ağ & Aksesuar', veri: pastaVerisi.aksesuar.yuzde }
+                     ].map(dilim => (
+                       <div key={dilim.id} onClick={() => aktifPalet === 'pasta' ? setSeciliPastaDilimi(dilim.id) : null} className={`flex items-center justify-between w-full p-1 rounded-lg transition-all ${aktifPalet === 'pasta' ? 'cursor-pointer hover:bg-white/5' : ''} ${seciliPastaDilimi === dilim.id ? 'ring-1 ring-white/50 bg-white/5 scale-105' : ''}`}>
+                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0" style={{ backgroundColor: pastaRenkleri[dilim.id].hex, boxShadow: `0 0 8px ${pastaRenkleri[dilim.id].hex}` }}></span>
+                           <span className="text-[9px] sm:text-[11px] text-slate-300 font-bold truncate">{dilim.isim}</span>
+                         </div>
+                         <span className="text-[9px] sm:text-[11px] font-black shrink-0 pl-1" style={{ color: pastaRenkleri[dilim.id].hex }}>{dilim.veri}%</span>
                        </div>
-                       <span className="text-[9px] sm:text-[11px] font-black text-amber-400 shrink-0 pl-1">{pastaVerisi.kendinTopla.yuzde}%</span>
-                     </div>
-                     <div className="flex items-center justify-between w-full">
-                       <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                         <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_#06b6d4] shrink-0"></span>
-                         <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Bileşenler</span>
-                       </div>
-                       <span className="text-[9px] sm:text-[11px] font-black text-cyan-400 shrink-0 pl-1">{pastaVerisi.bilesen.yuzde}%</span>
-                     </div>
-                     <div className="flex items-center justify-between w-full">
-                       <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                         <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#fb7185] shrink-0"></span>
-                         <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Çevre & Oyuncu</span>
-                       </div>
-                       <span className="text-[9px] sm:text-[11px] font-black text-rose-400 shrink-0 pl-1">{pastaVerisi.cevre.yuzde}%</span>
-                     </div>
-                     <div className="flex items-center justify-between w-full">
-                       <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                         <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-purple-500 shadow-[0_0_8px_#c084fc] shrink-0"></span>
-                         <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Sistem & Laptop</span>
-                       </div>
-                       <span className="text-[9px] sm:text-[11px] font-black text-purple-400 shrink-0 pl-1">{pastaVerisi.sistem.yuzde}%</span>
-                     </div>
-                     <div className="flex items-center justify-between w-full">
-                       <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                         <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#34d399] shrink-0"></span>
-                         <span className="text-[9px] sm:text-[11px] text-slate-300 font-medium truncate">Ağ & Aksesuar</span>
-                       </div>
-                         <span className="text-[9px] sm:text-[11px] font-black text-emerald-400 shrink-0 pl-1">{pastaVerisi.aksesuar.yuzde}%</span>
-                     </div>
+                     ))}
                    </div>
                  </div>
 
                </div>
             </div>
             
-            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col w-full">
-              <div className="flex flex-row items-center justify-between gap-2 mb-2">
-                <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Aylık Harcama Grafiği</h3>
+            {/* ÇUBUK GRAFİK */}
+            <div className={`bg-[#0f172a] border rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col w-full transition-all duration-300 ${aktifPalet === 'cubuk' ? 'border-emerald-500/50 shadow-[0_0_30px_rgba(16,185,129,0.2)]' : 'border-slate-800'}`}>
+              <div className="flex flex-row items-center justify-between gap-2 mb-2 border-b border-slate-800/80 pb-3">
+                 <div className="flex items-center">
+                   <h3 className="text-sm sm:text-base font-bold text-white uppercase tracking-wide">Aylık Harcama Grafiği</h3>
+                   <MiniYilan isActive={aktifPalet === 'cubuk'} onClick={() => togglePalet('cubuk')} />
+                 </div>
                  
                  <div className="flex items-center gap-1.5 bg-slate-800/30 border border-slate-700/50 rounded-lg px-1.5 py-1">
-                   <button onClick={() => setSeciliYil((y: number) => y - 1)} className="p-1 text-slate-400 hover:text-cyan-400 transition-colors">
+                   <button onClick={() => setSeciliYil((y: number) => y - 1)} className="p-1 text-slate-400 hover:text-white transition-colors">
                      <ChevronLeft className="w-3.5 h-3.5" />
                    </button>
                    <span className="text-[11px] sm:text-xs font-black text-slate-200 w-8 text-center">{seciliYil}</span>
-                   <button onClick={() => setSeciliYil((y: number) => y + 1)} className="p-1 text-slate-400 hover:text-cyan-400 transition-colors" disabled={seciliYil >= suAnkiTarih.getFullYear()}>
+                   <button onClick={() => setSeciliYil((y: number) => y + 1)} className="p-1 text-slate-400 hover:text-white transition-colors" disabled={seciliYil >= suAnkiTarih.getFullYear()}>
                      <ChevronRight className="w-3.5 h-3.5" />
                    </button>
                  </div>
               </div>
+              
+              {aktifPalet === 'cubuk' && (
+                 <RenkPaleti disabledCondition={false} text="🎨 Grafiğin rengini değiştirmek için paletten seçin" />
+              )}
               
               <div className="bg-white/[0.02] border border-white/5 rounded-xl flex items-end justify-between pt-10 pb-4 px-1 sm:px-4 h-[220px] relative mt-2">
                 {grafikVerisi.length > 0 ? grafikVerisi.map((item: any, i: number) => {
@@ -863,19 +909,21 @@ export default function HesabimPage() {
                       onClick={() => setTiklananAy(i)} 
                     >
                       {isTooltipGozukecek && (
-                        <div className={`absolute bottom-[105%] bg-[#090f1e] border border-cyan-500 text-cyan-400 font-black text-[10px] sm:text-xs px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-md shadow-[0_0_15px_rgba(6,182,212,0.4)] whitespace-nowrap z-50 ${isSecili ? '' : 'animate-in fade-in zoom-in-95 duration-150'}`}>
+                        <div className={`absolute bottom-[105%] bg-[#090f1e] border font-black text-[10px] sm:text-xs px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-md whitespace-nowrap z-50 ${isSecili ? '' : 'animate-in fade-in zoom-in-95 duration-150'}`}
+                             style={{ borderColor: cubukRenk.hex, color: cubukRenk.hex, boxShadow: `0 0 15px ${cubukRenk.hex}60` }}>
                           {item.tutar.toLocaleString("tr-TR")} ₺
                         </div>
                       )}
 
                       <div className="w-full flex items-end justify-center h-[140px]">
                         <div 
-                          className={`w-full max-w-[36px] rounded-t-sm transition-all duration-500 ease-out cursor-pointer ${isSecili ? 'bg-gradient-to-b from-cyan-300 to-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.4)] scale-[1.05]' : 'bg-gradient-to-b from-slate-600 to-slate-800 hover:from-cyan-400 hover:to-cyan-600 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)]'}`} 
-                          style={{ height: `${item.yuzde}%` }}
+                          className={`w-full max-w-[36px] rounded-t-sm transition-all duration-500 ease-out cursor-pointer ${isSecili ? 'scale-[1.05]' : 'hover:opacity-80'}`} 
+                          style={{ height: `${item.yuzde}%`, backgroundColor: isSecili ? cubukRenk.hex : '#334155', boxShadow: isSecili ? `0 0 15px ${cubukRenk.hex}80` : 'none' }}
                         ></div>
                       </div>
 
-                      <span className={`text-[9px] sm:text-[10px] font-black mt-2 shrink-0 transition-colors uppercase tracking-wider ${isSecili ? 'text-cyan-400' : 'text-slate-500 group-hover:text-cyan-400'}`}>
+                      <span className={`text-[9px] sm:text-[10px] font-black mt-2 shrink-0 transition-colors uppercase tracking-wider`}
+                            style={{ color: isSecili ? cubukRenk.hex : '#64748b' }}>
                         {item.etiket}
                       </span>
                     </div>
@@ -925,7 +973,7 @@ export default function HesabimPage() {
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2">
                           <span className="text-white font-black text-sm tracking-wide">{siparisKodu}</span>
-                          <span className="text-[10px] px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-black uppercase tracking-widest">YOLDA</span>
+                          <span className="text-[10px] px-2 py-0.5 rounded bg-rose-500/10 text-rose-500 border border-rose-500/20 font-black uppercase tracking-widest">YOLDA</span>
                         </div>
                         <span className="text-[10px] text-slate-500 font-bold">{tarih}</span>
                       </div>
@@ -956,12 +1004,6 @@ export default function HesabimPage() {
                 })
               )}
             </div>
-
-            <div className="mt-6 border-t border-slate-800 pt-4 text-center">
-              <p className="text-[11px] text-slate-500 font-medium">
-                Siparişiniz teslim edildiğinde bu listeden otomatik olarak kaldırılır.
-              </p>
-            </div>
           </div>
         </div>
       )}
@@ -974,7 +1016,7 @@ export default function HesabimPage() {
             </div>
             <h3 className="text-xl font-black text-white mb-2 tracking-tight">Erişim Kısıtlı</h3>
             <p className="text-slate-400 text-sm mb-6">
-              Lütfen işlem yapabilmek and hesap detaylarınızı görüntüleyebilmek için giriş yapınız.
+              Lütfen işlem yapabilmek ve hesap detaylarınızı görüntüleyebilmek için giriş yapınız.
             </p>
             <div className="flex flex-col gap-3">
               <Link href="/giris" className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2">
