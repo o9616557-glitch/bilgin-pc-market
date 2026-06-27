@@ -550,7 +550,7 @@ export default function HesabimPage() {
   }
 
   return (
-    <div suppressHydrationWarning={true} className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip z-[999]">
+  <div suppressHydrationWarning={true} className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip z-10">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
       <div className="max-w-[1000px] mx-auto flex flex-col gap-6 relative z-10 items-center">
