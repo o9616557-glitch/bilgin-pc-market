@@ -5,11 +5,11 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { 
   User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, 
-  MapPin, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, 
+  MapPin, Loader2, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, 
   Search, LogIn, UserPlus, Headset, Crown, Palette 
 } from "lucide-react";
 
-// 🛠️ EĞİTİM BİLGİSİ: Bu fonksiyon, metin olarak kaydettiğimiz veriyi tekrar canlı React ikonlarına dönüştürür.
+// Canlı Lucide ikonlarını isimlerine göre eşleştiren akıllı motor
 const ikonEslestir = (liste: any[]) => {
   return liste.map((item: any) => {
     let ikonBileseni = Star;
@@ -31,71 +31,7 @@ export default function HesabimPage() {
   const yil = suAnkiTarih.getFullYear();
 
   // =========================================================================
-  // 1. MEVCUT SİSTEM DEĞİŞKENLERİ VE RADARLAR
-  // =========================================================================
-  const [hamSiparisler, setHamSiparisler] = useState<any[]>(() => {
-    if (typeof window !== "undefined") {
-      try { return JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}").tumSiparisler || []; } catch { return []; }
-    } return [];
-  });
-  
-  const [adresSayisi, setAdresSayisi] = useState<number>(() => {
-    if (typeof window !== "undefined") {
-      try { return JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}").adresSayisi || 0; } catch { return 0; }
-    } return 0;
-  });
-
-  const [favoriSayisi, setFavoriSayisi] = useState<number>(() => {
-    if (typeof window !== "undefined") {
-      try { return JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}").favoriSayisi || 0; } catch { return 0; }
-    } return 0;
-  });
-
-  const [sistemSayisi, setSistemSayisi] = useState<number>(() => {
-    if (typeof window !== "undefined") {
-      try { 
-        const sys = JSON.parse(localStorage.getItem("bilgin_kayitli_sistemler") || "[]");
-        return Array.isArray(sys) ? sys.length : 0;
-      } catch { return 0; }
-    } return 0;
-  });
-
-  const [acikTalepSayisi, setAcikTalepSayisi] = useState<number>(() => {
-    if (typeof window !== "undefined") {
-      try { return JSON.parse(sessionStorage.getItem("bilgin_destek_ozet") || "{}").sayi || 0; } catch { return 0; }
-    } return 0;
-  });
-
-  const [yeniMesajVar, setYeniMesajVar] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      try { return JSON.parse(sessionStorage.getItem("bilgin_destek_ozet") || "{}").acil || false; } catch { return false; }
-    } return false;
-  });
-
-  const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
-  const [grafikVerisi, setGrafikVerisi] = useState<any[]>([]);
-  const [isKargoModalOpen, setIsKargoModalOpen] = useState(false);
-  const [kopyalananKod, setKopyalananKargo] = useState<string | null>(null);
-  const [girisSartModal, setGirisSartModal] = useState(false);
-
-  const [pastaVerisi, setPastaVerisi] = useState({
-    kendinTopla: { yuzde: 0, tutar: 0, offset: 0 }, bilesen: { yuzde: 0, tutar: 0, offset: 0 },
-    cevre: { yuzde: 0, tutar: 0, offset: 0 }, sistem: { yuzde: 0, tutar: 0, offset: 0 },
-    aksesuar: { yuzde: 0, tutar: 0, offset: 0 }, maxYuzde: 0
-  });
-
-  const [aylikPastaVerisi, setAylikPastaVerisi] = useState({
-    kendinTopla: { yuzde: 0, offset: 0 }, bilesen: { yuzde: 0, offset: 0 },
-    cevre: { yuzde: 0, offset: 0 }, sistem: { yuzde: 0, offset: 0 },
-    aksesuar: { yuzde: 0, offset: 0 }, maxYuzde: 0, ayAdi: ""
-  });
-  
-  const [seciliYil, setSeciliYil] = useState<number>(yil);
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [tiklananAy, setTiklananAy] = useState<number | null>(suAnkiTarih.getMonth());
-
-  // =========================================================================
-  // 🎨 2. ÖN BELLEKLİ (LOCAL STORAGE) SÜRÜKLE BIRAK MOTORU
+  // 1. ÖN BELLEK (LOCAL STORAGE) VE SÜRÜKLE-BIRAK MOTORU
   // =========================================================================
   const renkSecenekleri = [
     { text: "text-white", bg: "bg-white border-slate-300" }, 
@@ -136,11 +72,11 @@ export default function HesabimPage() {
     { id: "sorgula", isim: "Sorgula", ikon: Search, renk: "text-blue-400", isLink: true, href: "/siparis-takip" }
   ];
 
-  // 🚀 SIFIR GECİKME (0ms) YÜKLEMESİ: Sayfa açılır açılmaz Local Storage'dan veriyi çeker.
+  // Sıfır Gecikme: Sayfa açılır açılmaz ön bellekten (Local Storage) menüyü çeker
   const [ustMenuListesi, setUstMenuListesi] = useState(() => {
     if (typeof window !== "undefined") {
       try {
-        const cached = localStorage.getItem("bilgin_ust_menu");
+        const cached = localStorage.getItem("bilgin_ust_menu_v2");
         if (cached) return ikonEslestir(JSON.parse(cached));
       } catch (e) {}
     }
@@ -150,7 +86,7 @@ export default function HesabimPage() {
   const [altMenuListesi, setAltMenuListesi] = useState(() => {
     if (typeof window !== "undefined") {
       try {
-        const cached = localStorage.getItem("bilgin_alt_menu");
+        const cached = localStorage.getItem("bilgin_alt_menu_v2");
         if (cached) return ikonEslestir(JSON.parse(cached));
       } catch (e) {}
     }
@@ -164,44 +100,49 @@ export default function HesabimPage() {
   const suruklenenAltRef = useRef<number | null>(null);
 
   // =========================================================================
-  // ⚙️ 3. ÇEKİRDEK SİSTEM FONKSİYONLARI VE KAYIT İŞLEMLERİ
+  // 2. SİSTEM DURUMLARI (Siparişler, Adresler, Grafikler vb.)
   // =========================================================================
-  const handleCikisYap = async () => {
-    // Çıkış yapıldığında önceki kullanıcının renkleri ve ayarları sıfırlanır
-    localStorage.removeItem("bilgin_kayitli_sistemler");
-    localStorage.removeItem("bilgin_ust_menu");
-    localStorage.removeItem("bilgin_alt_menu");
-    sessionStorage.removeItem("bilgin_hesabim_data");
-    
-    const cihazId = (session?.user as any)?.deviceId;
-    if (cihazId) {
-      try {
-        await fetch("/api/user/logout-device", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ deviceId: cihazId }) });
-      } catch (error) { console.error("Çıkış mühürü vurulamadı:", error); }
-    }
-    await signOut({ callbackUrl: "/" });
-  };
+  const [hamSiparisler, setHamSiparisler] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      try { return JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}").tumSiparisler || []; } catch { return []; }
+    } return [];
+  });
+  
+  const [adresSayisi, setAdresSayisi] = useState<number>(0);
+  const [favoriSayisi, setFavoriSayisi] = useState<number>(0);
+  const [sistemSayisi, setSistemSayisi] = useState<number>(0);
+  const [acikTalepSayisi, setAcikTalepSayisi] = useState<number>(0);
+  const [yeniMesajVar, setYeniMesajVar] = useState<boolean>(false);
 
-  const kilitliIslem = (e: React.MouseEvent) => {
-    if (status === "unauthenticated") { e.preventDefault(); setGirisSartModal(true); }
-    else if (duzenlemeModu) { e.preventDefault(); } 
-  };
+  const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
+  const [grafikVerisi, setGrafikVerisi] = useState<any[]>([]);
+  const [isKargoModalOpen, setIsKargoModalOpen] = useState(false);
+  const [kopyalananKod, setKopyalananKargo] = useState<string | null>(null);
+  const [girisSartModal, setGirisSartModal] = useState(false);
 
-  const handleKargoClick = (e?: React.MouseEvent) => {
-    if (status === "unauthenticated") { if(e) kilitliIslem(e); } 
-    else if (!duzenlemeModu) { setIsKargoModalOpen(true); }
-  };
+  const [pastaVerisi, setPastaVerisi] = useState({
+    kendinTopla: { yuzde: 0, tutar: 0, offset: 0 }, bilesen: { yuzde: 0, tutar: 0, offset: 0 },
+    cevre: { yuzde: 0, tutar: 0, offset: 0 }, sistem: { yuzde: 0, tutar: 0, offset: 0 },
+    aksesuar: { yuzde: 0, tutar: 0, offset: 0 }, maxYuzde: 0
+  });
 
-  const handleTakipEt = (takipNumarasi: string) => {
-    navigator.clipboard.writeText(takipNumarasi);
-    setKopyalananKargo(takipNumarasi);
-    setTimeout(() => setKopyalananKargo(null), 2000);
-  };
+  const [aylikPastaVerisi, setAylikPastaVerisi] = useState({
+    kendinTopla: { yuzde: 0, offset: 0 }, bilesen: { yuzde: 0, offset: 0 },
+    cevre: { yuzde: 0, offset: 0 }, sistem: { yuzde: 0, offset: 0 },
+    aksesuar: { yuzde: 0, offset: 0 }, maxYuzde: 0, ayAdi: ""
+  });
+  
+  const [seciliYil, setSeciliYil] = useState<number>(yil);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [tiklananAy, setTiklananAy] = useState<number | null>(suAnkiTarih.getMonth());
 
-  // 📡 ARKA PLAN GÜNCELLEMESİ (Sessiz Veritabanı Kontrolü)
-  // Bu işlem sayfa açıldıktan sonra sessizce çalışır, ekranda zıplama yapmaz.
+  // =========================================================================
+  // 3. ÇEKİRDEK FONKSİYONLAR (Menü Senkronizasyonu, Kayıt vb.)
+  // =========================================================================
+  
+  // SESSİZ ARKA PLAN GÜNCELLEMESİ (Source of Truth)
   useEffect(() => {
-    if (session?.user?.email) {
+    if (status === "authenticated" && session?.user?.email) {
       fetch(`/api/menu-ayarlari?email=${session.user.email}`)
         .then(res => res.json())
         .then(resData => {
@@ -209,44 +150,34 @@ export default function HesabimPage() {
             const mapliListe = ikonEslestir(resData.data.menuListesi);
 
             const ustIds = ["profil", "cuzdan", "guvenlik", "adresler"];
-            const altIds = ["favoriler", "sistemler", "kargolar", "destek", "sorgula"];
-
             const yuklenenUst = mapliListe.filter((i: any) => ustIds.includes(i.id));
-            const yuklenenAlt = mapliListe.filter((i: any) => altIds.includes(i.id));
-            
-            const eksikUst = varsayilanUstMenu.filter(d => !yuklenenUst.some((y: any) => y.id === d.id));
-            const nihaiUst = [...yuklenenUst, ...eksikUst];
+            const yuklenenAlt = mapliListe.filter((i: any) => !ustIds.includes(i.id));
 
-            const eksikAlt = varsayilanAltMenu.filter(d => !yuklenenAlt.some((y: any) => y.id === d.id));
-            const nihaiAlt = [...yuklenenAlt, ...eksikAlt];
+            // MongoDB'den gelen güncel (ve eksikleri kapatılmış) listeyi ön yüze uygula
+            setUstMenuListesi(yuklenenUst);
+            setAltMenuListesi(yuklenenAlt);
 
-            // Sadece eğer ön bellekte (Local Storage) bir kayıt yoksa veritabanından geleni basar
-            // Böylece sen kendi bilgisayarında yaptığın değişikliği anında görürsün
-            if (!localStorage.getItem("bilgin_ust_menu")) {
-              setUstMenuListesi(nihaiUst);
-            }
-            if (!localStorage.getItem("bilgin_alt_menu")) {
-              setAltMenuListesi(nihaiAlt);
-            }
+            // Yerel hafızayı da anında güncelle
+            localStorage.setItem("bilgin_ust_menu_v2", JSON.stringify(yuklenenUst.map(({ikon, ...k})=>k)));
+            localStorage.setItem("bilgin_alt_menu_v2", JSON.stringify(yuklenenAlt.map(({ikon, ...k})=>k)));
           }
         }).catch(err => console.error("Menü yükleme hatası:", err));
     }
-  }, [session]);
+  }, [session, status]);
 
-  // 💾 KAYDETME İŞLEMİ (Aynı Anda Hem Ön Belleğe Hem Veritabanına)
+  // KALICI KAYDETME MOTORU
   const veritabaninaKaydet = async (guncelUst: any[], guncelAlt: any[]) => {
     if (!session?.user?.email) return;
     
-    // 1. İkon bileşenlerini temizle
     const temizUst = guncelUst.map(({ ikon, ...kalanlar }) => kalanlar);
     const temizAlt = guncelAlt.map(({ ikon, ...kalanlar }) => kalanlar);
 
-    // 2. Anında Local Storage (Ön Bellek) içine yaz. Bir sonraki girişinde 0ms'de yüklenmesi için.
-    localStorage.setItem("bilgin_ust_menu", JSON.stringify(temizUst));
-    localStorage.setItem("bilgin_alt_menu", JSON.stringify(temizAlt));
+    // Ön belleğe anında yaz (0ms açılış için)
+    localStorage.setItem("bilgin_ust_menu_v2", JSON.stringify(temizUst));
+    localStorage.setItem("bilgin_alt_menu_v2", JSON.stringify(temizAlt));
 
     try {
-      // 3. Arka planda sessizce MongoDB'ye gönder
+      // Arka planda sessizce MongoDB'yi (Tek Doğru Kaynak) güncelle
       const birlestirilmisListe = [...temizUst, ...temizAlt];
       await fetch('/api/menu-ayarlari', {
         method: 'POST',
@@ -256,7 +187,6 @@ export default function HesabimPage() {
     } catch (error) { console.error("Veritabanına kaydetme hatası:", error); }
   };
 
-  // GİZLİ DÜZENLEME MODU
   const handleDuzenlemeModuGecis = async () => {
     if (status === "unauthenticated") return; 
     if (duzenlemeModu) {
@@ -268,7 +198,6 @@ export default function HesabimPage() {
     }
   };
 
-  // SÜRÜKLE BIRAK TAŞIMA MANTIKLARI
   const handleDragEnterUst = (hedefIndex: number) => {
     const suruklenenIndex = suruklenenUstRef.current;
     if (suruklenenIndex === null || suruklenenIndex === hedefIndex) return;
@@ -293,15 +222,42 @@ export default function HesabimPage() {
     suruklenenAltRef.current = hedefIndex;
   };
 
-  // BOYAMA MUKADDESATI
   const renkUygula = (yeniRenk: string) => {
     if (!seciliKutuId) return;
     setUstMenuListesi(eski => eski.map(kutu => kutu.id === seciliKutuId ? { ...kutu, renk: yeniRenk } : kutu));
     setAltMenuListesi(eski => eski.map(kutu => kutu.id === seciliKutuId ? { ...kutu, renk: yeniRenk } : kutu));
   };
 
+  const handleCikisYap = async () => {
+    localStorage.removeItem("bilgin_kayitli_sistemler");
+    localStorage.removeItem("bilgin_ust_menu_v2");
+    localStorage.removeItem("bilgin_alt_menu_v2");
+    sessionStorage.removeItem("bilgin_hesabim_data");
+    const cihazId = (session?.user as any)?.deviceId;
+    if (cihazId) {
+      try { await fetch("/api/user/logout-device", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ deviceId: cihazId }) }); } catch (e) {}
+    }
+    await signOut({ callbackUrl: "/" });
+  };
+
+  const kilitliIslem = (e: React.MouseEvent) => {
+    if (status === "unauthenticated") { e.preventDefault(); setGirisSartModal(true); }
+    else if (duzenlemeModu) { e.preventDefault(); } 
+  };
+
+  const handleKargoClick = (e?: React.MouseEvent) => {
+    if (status === "unauthenticated") { if(e) kilitliIslem(e); } 
+    else if (!duzenlemeModu) { setIsKargoModalOpen(true); }
+  };
+
+  const handleTakipEt = (takipNumarasi: string) => {
+    navigator.clipboard.writeText(takipNumarasi);
+    setKopyalananKargo(takipNumarasi);
+    setTimeout(() => setKopyalananKargo(null), 2000);
+  };
+
   // =========================================================================
-  // 📊 4. ORİJİNAL SİPARİŞ & GRAFİK MOTORU 
+  // 4. VERİ ÇEKME VE GRAFİK HESAPLAMA MOTORLARI
   // =========================================================================
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -315,7 +271,7 @@ export default function HesabimPage() {
       const hafiza = sessionStorage.getItem("bilgin_hesabim_data");
       if (hafiza) {
         const parsed = JSON.parse(hafiza);
-        if (parsed.tumSiparisler && parsed.tumSiparisler.length > 0) { setHamSiparisler(parsed.tumSiparisler); }
+        if (parsed.tumSiparisler && parsed.tumSiparisler.length > 0) setHamSiparisler(parsed.tumSiparisler);
         if (parsed.favoriSayisi !== undefined) setFavoriSayisi(parsed.favoriSayisi);
         if (parsed.adresSayisi !== undefined) setAdresSayisi(parsed.adresSayisi);
       }
@@ -488,10 +444,18 @@ export default function HesabimPage() {
   const userEmail = status === "unauthenticated" ? "Lütfen giriş yapın" : (session?.user?.email || "");
   const basHarf = userName.charAt(0).toUpperCase();
 
-  // Yükleniyor (Loading) ekranı kodu tamamen silindi! Artık sayfa anında açılacak.
+  // Tam ekran ana yükleme
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center relative overflow-hidden">
+        <div className="w-16 h-16 border-4 border-slate-800 border-t-cyan-500 rounded-full animate-spin shadow-[0_0_30px_rgba(6,182,212,0.5)]"></div>
+        <p className="mt-6 text-cyan-400 font-bold uppercase tracking-widest text-sm animate-pulse">Sistem Yükleniyor...</p>
+      </div>
+    );
+  }
 
   return (
-    // suppressHydrationWarning özelliği ile React'ın Local Storage yüzünden kafasının karışmasını önlüyoruz.
+    // suppressHydrationWarning: Tarayıcı ve Sunucu senkronizasyonunda "titremeyi" önler
     <div suppressHydrationWarning={true} className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip z-[999]">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
@@ -544,7 +508,7 @@ export default function HesabimPage() {
               return <div key={item.id} className="w-full">{KutuIcerigi}</div>;
             })}
 
-            {/* 🛡️ 5. SABİT KUTU (Admin veya Giriş/Çıkış) */}
+            {/* 🛡️ 5. SABİT KUTU (Admin, Giriş veya Çıkış) */}
             {session?.user?.email === "o9616557@gmail.com" ? (
               <Link href="/admin" onClick={kilitliIslem} prefetch={false} className="flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none opacity-90 hover:opacity-100">
                 <div className="relative w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl bg-slate-800/80 border border-slate-600 flex items-center justify-center shadow-lg transition-all duration-300 hover:border-slate-500">
@@ -579,10 +543,12 @@ export default function HesabimPage() {
             <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-gradient-to-r from-cyan-500/10 to-transparent pointer-events-none"></div>
 
             <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 relative z-10">
+              {/* 🐍 Orijinal Işıklı Yılan Dönüşlü Profil Yuvarlağı */}
               <div className="relative w-28 h-28 sm:w-32 sm:h-32 shrink-0 flex items-center justify-center">
                 <div className="absolute inset-0 rounded-full bg-gradient-to-b from-slate-600 to-slate-900 border-[3px] border-slate-700 shadow-[inset_0_0_20px_rgba(0,0,0,0.8),_0_10px_20px_rgba(0,0,0,0.5)]"></div>
                 <div className={`absolute inset-2.5 rounded-full border border-cyan-400/30 shadow-[0_0_20px_rgba(34,211,255,0.4),inset_0_0_20px_rgba(34,211,255,0.2)] border-t-cyan-300 animate-[spin_8s_linear_infinite] ${duzenlemeModu ? 'border-t-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.5)]' : ''}`}></div>
                 
+                {/* Tıklanabilir İç Alan */}
                 <div 
                   onClick={handleDuzenlemeModuGecis}
                   title={duzenlemeModu ? "Düzenlemeyi Kaydet ve Kapat" : "Menüyü Düzenle"}
@@ -601,6 +567,15 @@ export default function HesabimPage() {
                 <p className={`text-xs sm:text-sm font-medium tracking-wide mb-4 ${duzenlemeModu ? 'text-emerald-400' : 'text-slate-400'}`}>
                   {duzenlemeModu ? "Bir kutuya tıklayın, ardından buradaki paletten rengini belirleyin." : userEmail}
                 </p>
+                
+                {/* 🛡️ ADMIN İÇİN GÜVENLİ ÇIKIŞ YAP BUTONU */}
+                {status === "authenticated" && !duzenlemeModu && (
+                  <div className="flex items-center justify-center sm:justify-start gap-2">
+                    <button onClick={handleCikisYap} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-950/40 border border-red-900/50 text-red-400 hover:bg-red-900/60 hover:text-red-300 transition-all font-black uppercase tracking-widest text-[10px] sm:text-xs shadow-md">
+                      <LogOut className="w-4 h-4" /> Güvenli Çıkış
+                    </button>
+                  </div>
+                )}
 
                 {status === "unauthenticated" && (
                   <div className="flex items-center justify-center sm:justify-start gap-2">
@@ -706,7 +681,7 @@ export default function HesabimPage() {
         </div>
 
         {/* ==================================================================== */}
-        {/* 📊 SİPARİŞLER VE GRAFİKLER BÖLÜMÜ                                    */}
+        {/* 📊 SİPARİŞLER VE GRAFİKLER BÖLÜMÜ (TÜM GRAFİKLER KORUNDU)            */}
         {/* ==================================================================== */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start w-full">
           <div className="xl:col-span-1 flex flex-col h-full">
@@ -761,7 +736,7 @@ export default function HesabimPage() {
             </div>
           </div>
 
-          <div className="xl:col-span-2 flex flex-col gap-6">
+          <div className="xl:col-span-2 flex flex-col gap-6 w-full">
             <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col xl:flex-row items-center gap-6 overflow-hidden">
                <div className="shrink-0 space-y-1.5 text-center xl:text-left xl:w-[140px] w-full">
                <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider leading-tight">Harcama Dağılımı</h3>
@@ -769,6 +744,7 @@ export default function HesabimPage() {
                </div>
 
                <div className="flex-1 grid grid-cols-2 w-full border-t sm:border-t-0 sm:border-l border-slate-800/80 pt-6 sm:pt-0 sm:pl-6">
+                 
                  <div className="flex flex-col items-center gap-4 w-full pr-2 sm:pr-6 border-r border-slate-800/80">
                    <span className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[9px] sm:text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest shadow-[0_0_10px_rgba(6,182,212,0.4)] whitespace-nowrap text-center">
                      {aylikPastaVerisi.ayAdi ? `${aylikPastaVerisi.ayAdi} ÖZETİ` : "AYLIK ÖZET"}
@@ -900,7 +876,7 @@ export default function HesabimPage() {
                </div>
             </div>
             
-            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
+            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col w-full">
               <div className="flex flex-row items-center justify-between gap-2 mb-2">
             <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Aylık Harcama Grafiği</h3>
                  
@@ -950,9 +926,7 @@ export default function HesabimPage() {
                 }) : null}
               </div>
             </div>
-
           </div>
-
         </div>
 
       </div>
