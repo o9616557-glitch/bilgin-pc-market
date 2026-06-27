@@ -96,7 +96,6 @@ export const authOptions: NextAuthOptions = {
         const isPasswordMatch = await bcrypt.compare(credentials.password, user.password);
         if (!isPasswordMatch) throw new Error("Şifre hatalı, lütfen tekrar deneyin.");
 
-        // 🚀 BİRİNCİ AŞAMA: ÖNCE CİHAZ VE KARANTİNA KONTROL MOTORU
         const userAgent = req?.headers?.["user-agent"] || "Bilinmeyen Cihaz";
         const ipAddress = req?.headers?.["x-forwarded-for"] || "Bilinmeyen IP";
         const anlasilirCihaz = cihazBilgisiCevir(userAgent);
@@ -130,7 +129,6 @@ export const authOptions: NextAuthOptions = {
           }
         }
 
-        // 🚀 İKİNCİ AŞAMA: 2FA MOTORU
         if (user.twoFactorEmail) {
           const musteriKodu = (credentials.code === "undefined" || !credentials.code) ? "" : credentials.code;
           if (musteriKodu === "") {
@@ -145,7 +143,6 @@ export const authOptions: NextAuthOptions = {
           user.twoFactorCode = undefined; user.twoFactorExpires = undefined; 
         }
 
-        // 🎯 HER İKİ GÜVENLİK DE GEÇİLDİ: BİLETİ ŞİMDİ YIRTIYORUZ!
         user.karantinaPass = undefined; 
 
         const newDeviceId = crypto.randomUUID();
@@ -160,7 +157,6 @@ export const authOptions: NextAuthOptions = {
       try {
         if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
 
-        // 🧊 İŞTE DÜZELTTİĞİMİZ BUZ ÇÖZME MOTORU
         if (user && user.email) {
           const hamKullanici = await mongoose.connection.db!.collection("users").findOne({ email: user.email });
 
@@ -174,12 +170,9 @@ export const authOptions: NextAuthOptions = {
               { email: user.email },
               { $set: { isVisible: true } }
             );
-            
-            console.log("Zincirler kırıldı! Adam ve yorumları dükkana geri döndü!");
           }
         }
 
-        // 🚀 KARANTİNA KONTROLÜ
         if (account?.provider === "google" || account?.provider === "facebook") {
           const dbUser = await User.findOne({ email: user.email });
           if (dbUser) {
@@ -226,25 +219,19 @@ export const authOptions: NextAuthOptions = {
       return true; 
     },
 
-    // 🚀 JWT MOTORU (BİNGO: ŞEFİN ŞALTERİ SİSTEME EKLENDİ!)
     async jwt({ token, user }) {
-      // 1. İlk girişte ID ve cihaz kimliği alınıyor
       if (user) { 
         token.id = user.id; 
         token.deviceId = (user as any).deviceId; 
-        token.aktifEposta = user.email; // İlk gelişte orjinal e-postayı atıyoruz ki boş kalmasın
       }
 
-      // 2. Sayfada gezerken bilet kontrolü (Veritabanındaki anahtarımız token.email olarak aynı kaldı)
       if (!user && token?.email && token?.deviceId) {
         try {
           if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
           
-          // Sadece activeDevices'i değil, aktifEposta'yı da çektik
           const dbUser = await User.findOne({ email: token.email }).select("activeDevices aktifEposta email");
           
           if (dbUser) {
-            // Şalterdeki maili bilete sessizce zımbalıyoruz
             token.aktifEposta = dbUser.aktifEposta || dbUser.email;
 
             const buCihaz = dbUser.activeDevices.find((c: any) => c.deviceId === token.deviceId);
@@ -257,7 +244,6 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
 
-   // 🚀 SESSION MOTORU: VİTRİNDEKİ MAİLİ ZORLA EZİYORUZ!
     async session({ session, token }) {
       if (token.isLoggedOut) {
          (session as any).error = "KickedOut";
@@ -265,11 +251,8 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).id = token.id;
         (session.user as any).deviceId = token.deviceId;
         
-        // 🚀 İŞTE KURŞUN GEÇİRMEZ HAMLE:
-        // Eğer token'da şalter maili (aktifEposta) varsa, sitenin her yerinde görünen o maili anında bununla ez!
-        if (token.aktifEposta) {
-          session.user.email = token.aktifEposta as string;
-        }
+        // 🚀 İŞTE DÜZELTTİĞİMİZ YER: Orijinal kimliği (emaili) EZMİYORUZ, yeni maili yanına ekliyoruz!
+        (session.user as any).aktifEposta = token.aktifEposta;
       }
       return session;
     }
