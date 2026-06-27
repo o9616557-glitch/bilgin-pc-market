@@ -1,10 +1,17 @@
 "use client";
 
 import { useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react"; // 🚀 BİNGO: signOut fonksiyonunu şasiye ekledik
 
 export default function HesapHafizaCipi() {
   const { data: session, status } = useSession();
+
+  // 🚀 YENİ MOTOR: DİĞER CİHAZDAN ATILMA RADARI (ANINDA KAPI DIŞARI EDER)
+  useEffect(() => {
+    if ((session as any)?.error === "KickedOut") {
+      signOut({ callbackUrl: '/giris?alert=security_breach' });
+    }
+  }, [session]);
 
   // 🚀 1. MOTOR (F5 FIRLATICI) TAMAMEN SÖKÜLDÜ!
   // Artık kullanıcı Favorilerde veya Adreslerde F5 bastığında zorla Hesabım'a atılmayacak, olduğu yerde asilce sayfanın yenilenmesini izleyecek.
