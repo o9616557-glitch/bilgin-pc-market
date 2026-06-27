@@ -1,17 +1,14 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
-// MongoDB'ye kaydedeceğimiz verinin haritası (Sadece Email ve Menü Listesi)
-const MenuAyarSchema = new mongoose.Schema({
-  kullaniciEmail: { 
-    type: String, 
-    required: true, 
-    unique: true 
-  },
-  menuListesi: { 
-    type: Array, 
-    default: [] 
-  }
+const menuAyarSchema = new Schema({
+  kullaniciEmail: { type: String, required: true, unique: true },
+  menuListesi: { type: Array, default: [] },
+  // 🚀 BİNGO: Veritabanına yeni eklediğimiz renk paketlerini tanıtıyoruz
+  siparisRenkleri: { type: Object, default: {} },
+  pastaRenkleri: { type: Object, default: {} },
+  cubukRenk: { type: Object, default: {} }
 }, { timestamps: true });
 
-// Çakışmaları önlemek için Next.js'e özel export mantığı
-export default mongoose.models.MenuAyar || mongoose.model('MenuAyar', MenuAyarSchema);
+const MenuAyar = mongoose.models.MenuAyar || mongoose.model('MenuAyar', menuAyarSchema);
+
+export default MenuAyar;

@@ -55,7 +55,7 @@ export async function POST(req: Request) {
     await connectMongoDB;
     const body = await req.json();
     
-    // 🚀 BİNGO: Artık arka plan sadece menüleri değil, tüm renk ayarlarını da teslim alıyor
+    // Artık API'miz tüm renk ayarlarını teslim alıyor ve Mongoose Şablonuna aktarıyor
     const { kullaniciEmail, menuListesi, siparisRenkleri, pastaRenkleri, cubukRenk } = body;
 
     if (!kullaniciEmail) {
