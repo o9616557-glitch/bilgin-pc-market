@@ -26,8 +26,7 @@ export async function GET(req: Request) {
 
     let kullaniciAyari = await MenuAyar.findOne({ kullaniciEmail: email });
 
-    // 🚀 ÇÖZÜM: Sadece kullanıcı hiç yoksa fabrika ayarı oluştur!
-    if (!kullaniciAyari) {
+    if (!kullaniciAyari || !kullaniciAyari.menuListesi || kullaniciAyari.menuListesi.length === 0) {
       kullaniciAyari = await MenuAyar.create({
         kullaniciEmail: email,
         menuListesi: FABRIKA_AYARI_MENU
@@ -35,8 +34,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ success: true, data: kullaniciAyari });
     }
 
-    // Kullanıcı varsa ama menü listesi boşsa sadece onu tamamla (Yok etme!)
-    const kayitliListe = kullaniciAyari.menuListesi || [];
+    const kayitliListe = kullaniciAyari.menuListesi;
     const eksikKutular = FABRIKA_AYARI_MENU.filter(f => !kayitliListe.some((k: any) => k.id === f.id));
 
     if (eksikKutular.length > 0) {
@@ -45,7 +43,6 @@ export async function GET(req: Request) {
       await kullaniciAyari.save(); 
     }
 
-    // Her şey tamam, kullanıcının mevcut tüm verisini (mobilKategoriler dahil) güvenle gönder
     return NextResponse.json({ success: true, data: kullaniciAyari });
   } catch (error) {
     console.error("Ayar çekme hatası:", error);
@@ -58,22 +55,21 @@ export async function POST(req: Request) {
     await connectMongoDB;
     const body = await req.json();
     
-    const { kullaniciEmail, menuListesi, siparisRenkleri, pastaRenkleri, cubukRenk, mobilKategoriler } = body;
+    // Artık API'miz tüm renk ayarlarını teslim alıyor ve Mongoose Şablonuna aktarıyor
+    const { kullaniciEmail, menuListesi, siparisRenkleri, pastaRenkleri, cubukRenk } = body;
 
     if (!kullaniciEmail) {
       return NextResponse.json({ success: false, message: "Email eksik!" }, { status: 400 });
     }
 
-    let guncellenecekVeriler: any = {};
-    if (menuListesi) guncellenecekVeriler.menuListesi = menuListesi;
-    if (siparisRenkleri) guncellenecekVeriler.siparisRenkleri = siparisRenkleri;
-    if (pastaRenkleri) guncellenecekVeriler.pastaRenkleri = pastaRenkleri;
-    if (cubukRenk) guncellenecekVeriler.cubukRenk = cubukRenk;
-    if (mobilKategoriler) guncellenecekVeriler.mobilKategoriler = mobilKategoriler;
-
     const guncelAyar = await MenuAyar.findOneAndUpdate(
       { kullaniciEmail: kullaniciEmail },
-      { $set: guncellenecekVeriler },
+      { 
+        menuListesi: menuListesi,
+        siparisRenkleri: siparisRenkleri,
+        pastaRenkleri: pastaRenkleri,
+        cubukRenk: cubukRenk
+      },
       { new: true, upsert: true }
     );
 
