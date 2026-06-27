@@ -122,6 +122,7 @@ export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user?.email) return NextResponse.json({ message: "Yetkisiz." }, { status: 401 });
+    
     const body = await req.json();
     const items = body.items || body.cartItems || [];
     const totalPrice = body.totalPrice || body.genelToplam || 0;
@@ -136,13 +137,19 @@ export async function POST(req: Request) {
     // 🚀 BİNGO: ŞEFİN ŞALTERİ AÇIK OLAN MAİLİNİ KULLAN (Yoksa anamaile at)
     const faturaEpostasi = user.aktifEposta || user.email;
 
+    // 🚀🚀 İŞTE YENİ HİLEMİZ: Adresin içindeki eski maili, şalterdeki mail ile zorla eziyoruz!
+    if (addressData) {
+      addressData.email = faturaEpostasi;
+      if (addressData.eposta) addressData.eposta = faturaEpostasi;
+    }
+
     const defaultStatus = "Hazırlanıyor";
     const newOrder = new Order({
       userId: user._id, 
       userEmail: faturaEpostasi, // 🎯 Şalterdeki maile kesti faturayı!
       items, 
       totalPrice, 
-      shippingAddress: addressData,
+      shippingAddress: addressData, // 🎯 Adresin içine de zorla şalter mailini çaktık!
       paymentMethod: paymentMethod, 
       status: defaultStatus, 
       durum: defaultStatus
