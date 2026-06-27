@@ -76,15 +76,24 @@ const menuCategories = [
   }
 ];
 
-// 🎨 MOBİL KATEGORİ RENK VE İKON HARİTASI
+// 🎨 15'Lİ GENİŞLETİLMİŞ RENK PALETİ VE SİYAH/DARK SEÇENEĞİ
 const Ikonlar: any = { Cpu, Mouse, Keyboard, Monitor, Headphones, Speaker, Server, Laptop, Wifi, Wrench, Gamepad2, Cable };
 const renkSecenekleri = [
-  { border: "border-cyan-500/50", hoverBorder: "hover:border-cyan-400", ikon: "text-cyan-400", hex: "bg-cyan-400" },
-  { border: "border-emerald-500/50", hoverBorder: "hover:border-emerald-400", ikon: "text-emerald-400", hex: "bg-emerald-400" },
-  { border: "border-purple-500/50", hoverBorder: "hover:border-purple-400", ikon: "text-purple-400", hex: "bg-purple-400" },
-  { border: "border-rose-500/50", hoverBorder: "hover:border-rose-400", ikon: "text-rose-400", hex: "bg-rose-400" },
-  { border: "border-amber-500/50", hoverBorder: "hover:border-amber-400", ikon: "text-amber-400", hex: "bg-amber-400" },
-  { border: "border-slate-500/50", hoverBorder: "hover:border-slate-400", ikon: "text-slate-400", hex: "bg-slate-400" },
+  { border: "border-cyan-500/50", hoverBorder: "hover:border-cyan-400", ikon: "text-cyan-400", hex: "bg-cyan-400" }, // 0
+  { border: "border-blue-500/50", hoverBorder: "hover:border-blue-400", ikon: "text-blue-400", hex: "bg-blue-500" }, // 1
+  { border: "border-indigo-500/50", hoverBorder: "hover:border-indigo-400", ikon: "text-indigo-400", hex: "bg-indigo-500" }, // 2
+  { border: "border-purple-500/50", hoverBorder: "hover:border-purple-400", ikon: "text-purple-400", hex: "bg-purple-500" }, // 3
+  { border: "border-fuchsia-500/50", hoverBorder: "hover:border-fuchsia-400", ikon: "text-fuchsia-400", hex: "bg-fuchsia-500" }, // 4
+  { border: "border-pink-500/50", hoverBorder: "hover:border-pink-400", ikon: "text-pink-400", hex: "bg-pink-500" }, // 5
+  { border: "border-rose-500/50", hoverBorder: "hover:border-rose-400", ikon: "text-rose-400", hex: "bg-rose-500" }, // 6
+  { border: "border-red-500/50", hoverBorder: "hover:border-red-400", ikon: "text-red-400", hex: "bg-red-500" }, // 7
+  { border: "border-orange-500/50", hoverBorder: "hover:border-orange-400", ikon: "text-orange-400", hex: "bg-orange-500" }, // 8
+  { border: "border-amber-500/50", hoverBorder: "hover:border-amber-400", ikon: "text-amber-400", hex: "bg-amber-500" }, // 9
+  { border: "border-yellow-400/50", hoverBorder: "hover:border-yellow-300", ikon: "text-yellow-400", hex: "bg-yellow-400" }, // 10
+  { border: "border-lime-500/50", hoverBorder: "hover:border-lime-400", ikon: "text-lime-400", hex: "bg-lime-400" }, // 11
+  { border: "border-emerald-500/50", hoverBorder: "hover:border-emerald-400", ikon: "text-emerald-400", hex: "bg-emerald-500" }, // 12
+  { border: "border-slate-400/50", hoverBorder: "hover:border-slate-300", ikon: "text-slate-300", hex: "bg-slate-400" }, // 13
+  { border: "border-white/10", hoverBorder: "hover:border-white/30", ikon: "text-slate-500", hex: "bg-[#020617] border border-slate-600" }, // 14 (Gece Modu/Siyah)
 ];
 
 export default function Header() {
@@ -121,26 +130,26 @@ export default function Header() {
   const suruklenenRef = useRef<number | null>(null);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
-  // V3: 6 Parçaya bölünmüş ve Kendin Topla'yı barındıran yeni hafıza
+  // V4: Standart renk atamaları yapıldı (hepsi renkIndex: 0 yani Cyan)
   const [mobilKategoriler, setMobilKategoriler] = useState(() => {
     if(typeof window !== "undefined") {
-       const saved = localStorage.getItem("bilgin_mobil_kategoriler_v3");
+       const saved = localStorage.getItem("bilgin_mobil_kategoriler_v4");
        if(saved) return JSON.parse(saved);
     }
     return [
-       { id: "kendin", isim: "Kendin Topla", ikonId: "Wrench", renkIndex: 1, isLink: true, link: "/kendin-topla" },
+       { id: "kendin", isim: "Kendin Topla", ikonId: "Wrench", renkIndex: 0, isLink: true, link: "/kendin-topla" },
        { id: "bilesen", isim: "Bilgisayar Bileşenleri", ikonId: "Cpu", renkIndex: 0, subItems: menuCategories[0].items },
-       { id: "cevre", isim: "Çevre Birimleri", ikonId: "Monitor", renkIndex: 2, subItems: menuCategories[1].items },
-       { id: "oyuncu", isim: "Oyuncu Ekipmanları", ikonId: "Gamepad2", renkIndex: 3, subItems: menuCategories[2].items },
-       { id: "sistem", isim: "Sistem, Laptop & Yazılım", ikonId: "Laptop", renkIndex: 4, subItems: menuCategories[3].items },
-       { id: "ag", isim: "Ağ Ürünleri & Kablolar", ikonId: "Wifi", renkIndex: 5, subItems: menuCategories[4].items },
+       { id: "cevre", isim: "Çevre Birimleri", ikonId: "Monitor", renkIndex: 0, subItems: menuCategories[1].items },
+       { id: "oyuncu", isim: "Oyuncu Ekipmanları", ikonId: "Gamepad2", renkIndex: 0, subItems: menuCategories[2].items },
+       { id: "sistem", isim: "Sistem, Laptop & Yazılım", ikonId: "Laptop", renkIndex: 0, subItems: menuCategories[3].items },
+       { id: "ag", isim: "Ağ Ürünleri & Kablolar", ikonId: "Wifi", renkIndex: 0, subItems: menuCategories[4].items },
        { id: "aksesuar", isim: "Aksesuar & Güç", ikonId: "Cable", renkIndex: 0, subItems: menuCategories[5].items },
     ];
   });
 
   useEffect(() => {
     if(typeof window !== "undefined") {
-      localStorage.setItem("bilgin_mobil_kategoriler_v3", JSON.stringify(mobilKategoriler));
+      localStorage.setItem("bilgin_mobil_kategoriler_v4", JSON.stringify(mobilKategoriler));
     }
   }, [mobilKategoriler]);
 
@@ -283,7 +292,6 @@ export default function Header() {
               </Link>
             </div>
 
-            {/* PC MEGA MENÜ SÜTUNLARI 3'LÜ DİZİLİME GÜNCELLENDİ ÇÜNKÜ ARTIK 6 KATEGORİ VAR */}
             <div className="hidden md:flex items-center space-x-6 flex-1 justify-center h-full">
               <div className="relative flex items-center h-full" onMouseEnter={() => setDropdownOpen(true)} onMouseLeave={() => setDropdownOpen(false)}>
                 <button className="flex items-center space-x-2 text-white hover:text-[#3b82f6] py-2 font-semibold transition-colors text-sm">
@@ -355,8 +363,9 @@ export default function Header() {
       </header>
 
       {/* 📱 YENİ NESİL TAM EKRAN (FULL-SCREEN), KİBAR VE SÜRÜKLENEBİLİR SİBER MOBİL MENÜ 📱 */}
+      {/* 🚀 DİKKAT: Animasyon süresi 500ms'den 150ms'ye çekildi (Şimşek hızı) */}
       <div 
-        className={`md:hidden fixed inset-0 w-full h-full bg-[#0b1121]/95 backdrop-blur-xl z-[9999999] flex flex-col transition-all duration-500 ease-out transform ${menuAcik ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8 pointer-events-none"}`}
+        className={`md:hidden fixed inset-0 w-full h-full bg-[#0b1121]/95 backdrop-blur-xl z-[9999999] flex flex-col transition-all duration-150 ease-out transform ${menuAcik ? "opacity-100 translate-y-0" : "opacity-0 pointer-events-none"}`}
       >
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-800/80 shrink-0 bg-[#050814]">
           <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-widest flex items-center gap-2">
@@ -381,6 +390,7 @@ export default function Header() {
           </div>
         </div>
 
+        {/* 15 RENKLİ YENİ PALET (Flex-Wrap ile alt satıra geçebilen düzen) */}
         {isPaletteOpen && (
           <div className="p-3 border-b border-slate-800/50 bg-slate-900/50 flex flex-col items-center gap-2 shrink-0 animate-in slide-in-from-top-2">
             {!seciliKategoriId ? (
@@ -393,13 +403,13 @@ export default function Header() {
               </span>
             )}
             
-            <div className="flex justify-center gap-3 w-full pt-1">
+            <div className="flex flex-wrap justify-center gap-2.5 w-full pt-1 max-w-[280px] mx-auto">
               {renkSecenekleri.map((renk, idx) => (
                 <button 
                   key={idx}
                   onClick={() => renkUygula(idx)}
                   disabled={!seciliKategoriId}
-                  className={`w-7 h-7 rounded-full shadow-lg transition-transform flex items-center justify-center ${renk.hex} ${!seciliKategoriId ? 'opacity-30 cursor-not-allowed grayscale' : 'hover:scale-110 opacity-100 cursor-pointer'}`}
+                  className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full shadow-lg transition-transform flex items-center justify-center ${renk.hex} ${!seciliKategoriId ? 'opacity-30 cursor-not-allowed grayscale' : 'hover:scale-110 opacity-100 cursor-pointer'}`}
                 ></button>
               ))}
             </div>
@@ -472,12 +482,12 @@ export default function Header() {
                   )}
                 </div>
 
-                {/* YUMUŞAK AKORDİYON GEÇİŞİ (CSS GRID İLE) */}
+                {/* YUMUŞAK AKORDİYON GEÇİŞİ VE ZARİF ÇİZGİLER (border-b) */}
                 {!kategori.isLink && !duzenlemeModu && (
                   <div className={`grid transition-all duration-300 ease-in-out ${isAkordiyonAcik ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
                       <div className={`overflow-hidden border border-t-0 rounded-b-xl bg-white/[0.02] ${renk.border}`}>
-                        <div className="flex flex-col gap-0.5 p-2">
-                          {kategori.subItems?.map((sub: any) => (
+                        <div className="flex flex-col p-1.5">
+                          {kategori.subItems?.map((sub: any, subIdx: number) => (
                             <Link 
                               key={sub.slug}
                               href={"/kategori/" + sub.slug}
@@ -485,7 +495,7 @@ export default function Header() {
                                   setMenuAcik(false); // Anında kapatır
                                   setAcikAkordiyon(null);
                               }}
-                              className="flex items-center justify-between p-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors group"
+                              className={`flex items-center justify-between p-3 text-slate-400 hover:text-white hover:bg-white/5 transition-colors group ${subIdx !== kategori.subItems.length - 1 ? 'border-b border-white/5' : ''}`}
                             >
                               <span className="text-xs font-medium tracking-wide pl-2">{sub.name}</span>
                               <ArrowRight className="w-3.5 h-3.5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#3b82f6]" />
