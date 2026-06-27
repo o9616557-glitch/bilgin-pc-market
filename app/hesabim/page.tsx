@@ -688,7 +688,7 @@ export default function HesabimPage() {
                       handleKargoClick();
                     }
                   }}
-                  className={`flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none ${isSecili ? "relative z-[9999999]" : "relative z-10"}`}
+                  className={`flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none ${isSecili ? "relative z-[9999]" : "relative z-10"}`}
                 >
                   <div className={`relative w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl flex items-center justify-center transition-all duration-300 ${
                       aktifPalet === 'menu' && isSecili
@@ -967,7 +967,7 @@ export default function HesabimPage() {
 
    {/* 🚀 ONBOARDING (KARŞILAMA) MODALI - BÜYÜK YAZILI VE KİLİTLİ ARKA PLAN */}
       {showOnboarding && (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-700">
+        <div className="fixed inset-0 z-[9999999] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-700">
           <div className="bg-[#0b1121] border border-cyan-500/30 rounded-3xl max-w-2xl w-full flex flex-col shadow-[0_0_50px_rgba(6,182,212,0.15)] relative overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-10 duration-700 max-h-[85vh]">
             
             {/* Arka Plan Siber Spot Işıkları */}
