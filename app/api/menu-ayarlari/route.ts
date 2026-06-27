@@ -26,7 +26,8 @@ export async function GET(req: Request) {
 
     let kullaniciAyari = await MenuAyar.findOne({ kullaniciEmail: email });
 
-    if (!kullaniciAyari || !kullaniciAyari.menuListesi || kullaniciAyari.menuListesi.length === 0) {
+    // 🚀 ÇÖZÜM: Sadece kullanıcı hiç yoksa fabrika ayarı oluştur!
+    if (!kullaniciAyari) {
       kullaniciAyari = await MenuAyar.create({
         kullaniciEmail: email,
         menuListesi: FABRIKA_AYARI_MENU
@@ -34,7 +35,8 @@ export async function GET(req: Request) {
       return NextResponse.json({ success: true, data: kullaniciAyari });
     }
 
-    const kayitliListe = kullaniciAyari.menuListesi;
+    // Kullanıcı varsa ama menü listesi boşsa sadece onu tamamla (Yok etme!)
+    const kayitliListe = kullaniciAyari.menuListesi || [];
     const eksikKutular = FABRIKA_AYARI_MENU.filter(f => !kayitliListe.some((k: any) => k.id === f.id));
 
     if (eksikKutular.length > 0) {
@@ -43,6 +45,7 @@ export async function GET(req: Request) {
       await kullaniciAyari.save(); 
     }
 
+    // Her şey tamam, kullanıcının mevcut tüm verisini (mobilKategoriler dahil) güvenle gönder
     return NextResponse.json({ success: true, data: kullaniciAyari });
   } catch (error) {
     console.error("Ayar çekme hatası:", error);
@@ -55,14 +58,12 @@ export async function POST(req: Request) {
     await connectMongoDB;
     const body = await req.json();
     
-    // 🚀 BİNGO: mobilKategoriler paketi de artık yakalanıyor
     const { kullaniciEmail, menuListesi, siparisRenkleri, pastaRenkleri, cubukRenk, mobilKategoriler } = body;
 
     if (!kullaniciEmail) {
       return NextResponse.json({ success: false, message: "Email eksik!" }, { status: 400 });
     }
 
-    // Hangisi gönderildiyse sadece onu güncelleyen dinamik obje
     let guncellenecekVeriler: any = {};
     if (menuListesi) guncellenecekVeriler.menuListesi = menuListesi;
     if (siparisRenkleri) guncellenecekVeriler.siparisRenkleri = siparisRenkleri;
