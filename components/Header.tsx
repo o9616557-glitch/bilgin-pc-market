@@ -204,7 +204,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
       document.body.style.overflow = "unset";
     };
   }, [menuAcik, hesabimAcik]);
-  const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
+const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
     if (e) e.preventDefault();
     const aranacak = ozelKelime || aramaMetni;
     
@@ -214,7 +214,12 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
       localStorage.setItem("sonAramalar", JSON.stringify(yeniAramalar));
       
       setAramaAcik(false);
-      window.location.href = "/arama?q=" + encodeURIComponent(aranacak);
+      
+      // ❌ ESKİ KOD: Sayfayı tamamen yenileyip loading ekranına düşürüyordu
+      // window.location.href = "/arama?q=" + encodeURIComponent(aranacak);
+      
+      // ✅ YENİ KOD: Sayfa yenilenmeden, fişek gibi arama sonuçlarına geçer
+      router.push("/arama?q=" + encodeURIComponent(aranacak));
     }
   };
 
