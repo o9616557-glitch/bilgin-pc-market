@@ -23,12 +23,16 @@ export async function GET() {
       return NextResponse.json({ message: "Kullanıcı bulunamadı" }, { status: 404 });
     }
 
-    // 🚀 VİTRİNE GİDEN EKSİKSİZ PAKET
+// 🚀 VİTRİNE GİDEN EKSİKSİZ PAKET (ŞEFİN YENİ ÇANTASIYLA BİRLİKTE)
     return NextResponse.json({
       twoFactorEmail: user.twoFactorEmail || false,
       twoFactorSms: user.twoFactorSms || false,
       activeDevices: user.activeDevices || [],
-      notificationPreference: user.notificationPreference || 'new_device'
+      notificationPreference: user.notificationPreference || 'new_device',
+      
+      // 👇 İŞTE SİSTEMİ ŞAHLANDIRAN O EKSİK PARÇA 👇
+      kayitliEpostalar: user.kayitliEpostalar || [],
+      aktifEposta: user.aktifEposta || user.email || ""
     }, { status: 200 });
 
   } catch (error) {
