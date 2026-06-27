@@ -965,10 +965,10 @@ export default function HesabimPage() {
 
       </div>
 
-   {/* 🚀 ONBOARDING (KARŞILAMA) MODALI - BÜYÜK YAZILI VE KİLİTLİ ARKA PLAN */}
+ {/* 🚀 ONBOARDING (KARŞILAMA) MODALI - BÜYÜK YAZILI VE KİLİTLİ ARKA PLAN */}
       {showOnboarding && (
-       <div className="fixed top-[70px] left-0 right-0 bottom-0 z-[9999999] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-700">
-          <div className="bg-[#0b1121] border border-cyan-500/30 rounded-3xl max-w-2xl w-full flex flex-col shadow-[0_0_50px_rgba(6,182,212,0.15)] relative overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-10 duration-700 max-h-[85vh]">
+        <div className="fixed top-[70px] bottom-[80px] sm:bottom-0 left-0 right-0 z-[9999999] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-700">
+          <div className="bg-[#0b1121] border border-cyan-500/30 rounded-3xl max-w-2xl w-full flex flex-col shadow-[0_0_50px_rgba(6,182,212,0.15)] relative overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-10 duration-700 max-h-[100%]">
             
             {/* Arka Plan Siber Spot Işıkları */}
             <div className="absolute -top-32 -right-32 w-64 h-64 bg-cyan-500/20 blur-[80px] rounded-full pointer-events-none z-0"></div>
@@ -990,7 +990,7 @@ export default function HesabimPage() {
                   Kişisel Panelinize Hoş Geldiniz
                 </h2>
                 <p className="text-slate-300 text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
-                  Hesabım sayfası tamamen sizin zevkinize göre özelleştirilebilir. Başlamadan önce 3 ufak detayı bilmenizde fayda var:
+                  Hesabım sayfası tamamen sizin zevkinize göre özelleştirilebilir. Başlamadan önce 2 ufak detayı bilmenizde fayda var:
                 </p>
               </div>
 
@@ -1015,18 +1015,6 @@ export default function HesabimPage() {
                     <h4 className="text-white font-bold text-sm tracking-wide mb-1">Grafikleri Özelleştirin</h4>
                     <p className="text-slate-400 text-xs leading-relaxed">
                       Başlıkların yanındaki ikonlara tıklayarak sipariş ve grafikleri istediğiniz renge büründürebilirsiniz.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3 p-3 sm:p-4 rounded-xl bg-white/[0.02] border border-white/5">
-                  <div className="w-10 h-10 rounded-full bg-[#020617] border border-purple-900 flex items-center justify-center shrink-0 shadow-inner">
-                    <Server className="w-4 h-4 text-purple-400" />
-                  </div>
-                  <div>
-                    <h4 className="text-white font-bold text-sm tracking-wide mb-1">Kalıcı Hafıza Sistemi</h4>
-                    <p className="text-slate-400 text-xs leading-relaxed">
-                      Yaptığınız tüm değişiklikler veritabanına işlenir. Sayfayı yenileseniz de her şey bıraktığınız gibi kalır.
                     </p>
                   </div>
                 </div>
@@ -1055,7 +1043,6 @@ export default function HesabimPage() {
           </div>
         </div>
       )}
-
      {/* 🟢 MODALLAR (Kargo ve Giriş Şartı) */}
       {isKargoModalOpen && (
         <div 
