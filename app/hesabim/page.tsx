@@ -150,8 +150,13 @@ export default function HesabimPage() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [tiklananAy, setTiklananAy] = useState<number | null>(suAnkiTarih.getMonth());
 
-  const togglePalet = (hedef: 'menu'|'siparis'|'pasta'|'cubuk') => {
+const togglePalet = (hedef: 'menu'|'siparis'|'pasta'|'cubuk') => {
     if(aktifPalet === hedef) {
+        // 🚀 BİNGO: Eğer kapanan palet "menü" paleti ise, kapatmadan önce kalıcı olarak kaydet!
+        if (hedef === 'menu') {
+            veritabaninaKaydet(ustMenuListesi, altMenuListesi);
+        }
+        
         setAktifPalet(null);
         setSeciliKutuId(null);
         setSeciliSiparisDurumu(null);
@@ -723,7 +728,7 @@ export default function HesabimPage() {
                           </p>
                           <span 
                             onClick={() => isEditing ? setSeciliSiparisDurumu(durum) : null}
-                            className={`inline-flex items-center justify-center px-2 py-1 leading-none rounded text-[8px] sm:text-[9px] font-black uppercase tracking-widest shrink-0 transition-all ${renkAyar.badge} ${isEditing ? 'cursor-pointer hover:scale-105' : ''} ${isThisSelected ? 'ring-2 ring-white scale-110 shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'border border-transparent'}`}
+                          className={`inline-flex items-center justify-center px-2 h-5 sm:h-6 rounded text-[8px] sm:text-[9px] font-black uppercase tracking-widest shrink-0 transition-all ${renkAyar.badge} ${isEditing ? 'cursor-pointer hover:scale-105' : ''} ${isThisSelected ? 'ring-2 ring-white scale-110 shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'border border-transparent'}`}
                           >
                             {durum}
                           </span>
