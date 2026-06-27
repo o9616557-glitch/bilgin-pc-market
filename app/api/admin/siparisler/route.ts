@@ -75,7 +75,23 @@ export async function PUT(request: Request) {
         tls: { rejectUnauthorized: false }
       });
 
-      const musteriMaili = siparis.userEmail || siparis.email || siparis.musteri?.eposta || siparis.musteri?.email;
+      // 🚀 BİNGO: AKILLI DEDEKTİF DEVREDE! (Kurşun Geçirmez E-Posta Bulucu)
+      let musteriMaili = siparis.userEmail || siparis.email || siparis.musteri?.eposta || siparis.musteri?.email;
+
+      // Eğer maili bulduysa, bir de şefin şalterinde daha güncel bir mail var mı diye bakıyor!
+      if (musteriMaili) {
+        const dbUser = await db.collection("users").findOne({
+          $or: [
+            { email: musteriMaili },
+            { kayitliEpostalar: musteriMaili }
+          ]
+        });
+        
+        // Eğer kullanıcı veritabanındaysa ve şalteri başka bir maildeyse, zorla o maile at!
+        if (dbUser && dbUser.aktifEposta) {
+          musteriMaili = dbUser.aktifEposta;
+        }
+      }
 
       if (musteriMaili) {
         let baslik = "SİPARİŞ DURUMUNUZ GÜNCELLENDİ";
