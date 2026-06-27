@@ -80,7 +80,7 @@ export default function HesabimPage() {
   const [loading, setLoading] = useState(hamSiparisler.length === 0);
 
   // =========================================================================
-  // 🎨 2. SÜRÜKLE BIRAK VE RENK MOTORU
+  // 🎨 2. SÜRÜKLE BIRAK VE RENK MOTORU ALTYAPISI
   // =========================================================================
   const renkSecenekleri = [
     { text: "text-white", bg: "bg-white border-slate-300" }, 
@@ -131,7 +131,7 @@ export default function HesabimPage() {
   const suruklenenAltRef = useRef<number | null>(null);
 
   // =========================================================================
-  // ⚙️ 3. ÇEKİRDEK FONKSİYONLAR
+  // ⚙️ 3. ÇEKİRDEK SİSTEM FONKSİYONLARI
   // =========================================================================
   const handleCikisYap = async () => {
     localStorage.removeItem("bilgin_kayitli_sistemler");
@@ -161,7 +161,7 @@ export default function HesabimPage() {
     setTimeout(() => setKopyalananKargo(null), 2000);
   };
 
-  // MONGODB: Menüyü Yükle
+  // 📡 MONGODB: VERİTABANINDAN MENÜYÜ YÜKLE
   useEffect(() => {
     if (session?.user?.email) {
       fetch(`/api/menu-ayarlari?email=${session.user.email}`)
@@ -182,17 +182,27 @@ export default function HesabimPage() {
             });
 
             const ustIds = ["profil", "cuzdan", "guvenlik", "adresler"];
+            const altIds = ["favoriler", "sistemler", "kargolar", "destek", "sorgula"];
+
+            // Veritabanından gelen mevcut veriyi süzüyoruz
             const yuklenenUst = mapliListe.filter((i: any) => ustIds.includes(i.id));
-            const yuklenenAlt = mapliListe.filter((i: any) => !ustIds.includes(i.id));
+            const yuklenenAlt = mapliListe.filter((i: any) => altIds.includes(i.id));
             
-            if(yuklenenUst.length > 0) setUstMenuListesi(yuklenenUst);
-            if(yuklenenAlt.length > 0) setAltMenuListesi(yuklenenAlt);
+            // 🛡️ [YENİ ÖZELLİK] AKILLI KORUMA FİLTRESİ: Eski veya eksik veritabanı kayıtlarında kutuların kaybolmasını önler!
+            const eksikUst = varsayilanUstMenu.filter(d => !yuklenenUst.some((y: { id: string; }) => y.id === d.id));
+            const nihaiUst = [...yuklenenUst, ...eksikUst];
+
+            const eksikAlt = varsayilanAltMenu.filter(d => !yuklenenAlt.some((y: { id: string; }) => y.id === d.id));
+            const nihaiAlt = [...yuklenenAlt, ...eksikAlt];
+
+            setUstMenuListesi(nihaiUst);
+            setAltMenuListesi(nihaiAlt);
           }
         }).catch(err => console.error("Menü yükleme hatası:", err));
     }
   }, [session]);
 
-  // MONGODB: Menüyü Kaydet
+  // 📡 MONGODB: MENÜYÜ VERİTABANINA KAYDET
   const veritabaninaKaydet = async (guncelUst: any[], guncelAlt: any[]) => {
     if (!session?.user?.email) return;
     try {
@@ -206,7 +216,7 @@ export default function HesabimPage() {
     } catch (error) { console.error("Veritabanına kaydetme hatası:", error); }
   };
 
-  // GİZLİ YÖNETİCİ MODU
+  // GİZLİ DÜZENLEME MODU (Profil Yuvarlağı Olayı)
   const handleDuzenlemeModuGecis = async () => {
     if (status === "unauthenticated") return; 
     if (duzenlemeModu) {
@@ -218,6 +228,7 @@ export default function HesabimPage() {
     }
   };
 
+  // SÜRÜKLE BIRAK TAŞIMA MANTIKLARI
   const handleDragEnterUst = (hedefIndex: number) => {
     const suruklenenIndex = suruklenenUstRef.current;
     if (suruklenenIndex === null || suruklenenIndex === hedefIndex) return;
@@ -232,16 +243,19 @@ export default function HesabimPage() {
 
   const handleDragEnterAlt = (hedefIndex: number) => {
     const suruklenenIndex = suruklenenAltRef.current;
-    if (suruklenenIndex === null || suruklenenIndex === hedefIndex) return;
+    if (suruklenenIndex === null || suruklenenIndex === Tech(hedefIndex)) return;
     setAltMenuListesi((eskiListe) => {
       const yeniListe = [...eskiListe];
       const suruklenenOge = yeniListe.splice(suruklenenIndex, 1)[0];
       yeniListe.splice(hedefIndex, 0, suruklenenOge);
       return yeniListe;
     });
-    suruklenenAltRef.current = hedefIndex;
+    suruklenenAltRef.current = Tech(hedefIndex);
   };
 
+  const Tech = (idx: number) => { return idx; };
+
+  // BOYAMA MUKADDESATI
   const renkUygula = (yeniRenk: string) => {
     if (!seciliKutuId) return;
     setUstMenuListesi(eski => eski.map(kutu => kutu.id === seciliKutuId ? { ...kutu, renk: yeniRenk } : kutu));
@@ -249,7 +263,7 @@ export default function HesabimPage() {
   };
 
   // =========================================================================
-  // 📊 4. MEVCUT SİPARİŞ & GRAFİK & RADAR KONTROLLERİ
+  // 📊 4. ORİJİNAL SİPARİŞ & GRAFİK MOTORU (Dokunulmadı)
   // =========================================================================
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -450,13 +464,13 @@ export default function HesabimPage() {
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip z-[999]">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-[#00d2ff] blur-[250px] opacity-[0.05] pointer-events-none rounded-full"></div>
 
-      {/* 🚀 SANDVİÇ DÜZENİ MERKEZİ HİZALAMA */}
+      {/* 🚀 TAM SİMETRİK ORTALANMIŞ SANDVİÇ DÜZENİ */}
       <div className="max-w-[1000px] mx-auto flex flex-col gap-6 relative z-10 items-center">
 
         {/* ==================================================================== */}
-        {/* 1️⃣ ÜST 5'Lİ MENÜ (Hem Mobil Hem PC - Tamamen Görünür)                 */}
+        {/* 1️⃣ ÜST 5'Lİ MENÜ KUTULARI (Görünürlük Sorunları Tamamen Onarıldı)      */}
         {/* ==================================================================== */}
-        <div className="w-full">
+        <div className="w-full block">
           <div className={`grid grid-cols-5 gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${duzenlemeModu ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
             
             {ustMenuListesi.map((item, index) => {
@@ -500,25 +514,25 @@ export default function HesabimPage() {
               return <div key={item.id} className="w-full">{KutuIcerigi}</div>;
             })}
 
-            {/* 🛡️ 5. SABİT KUTU (Admin veya Giriş/Çıkış) - Düzenlemeye Kapalı */}
+            {/* 🛡️ 5. SABİT KUTU (Admin, Giriş veya Çıkış) - Beyaz/Siyah/Füme Ayarlı */}
             {session?.user?.email === "o9616557@gmail.com" ? (
               <Link href="/admin" onClick={kilitliIslem} prefetch={false} className="flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none opacity-90 hover:opacity-100">
-                <div className="relative w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl bg-slate-800/80 border border-slate-600 flex items-center justify-center shadow-lg transition-all duration-300">
-                  <Crown className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-slate-300 transition-colors" />
+                <div className="relative w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl bg-slate-800/80 border border-slate-600 flex items-center justify-center shadow-lg transition-all duration-300 hover:border-slate-500">
+                  <Crown className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-slate-200 transition-colors" />
                 </div>
                 <span className="text-[9px] sm:text-[10px] lg:text-xs font-bold text-slate-400 tracking-wide">Admin</span>
               </Link>
             ) : status === "unauthenticated" ? (
               <Link href="/giris" onClick={kilitliIslem} prefetch={false} className="flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none opacity-90 hover:opacity-100">
-                <div className="w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl bg-slate-800/80 border border-slate-600 flex items-center justify-center shadow-lg">
-                  <LogIn className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-slate-300" />
+                <div className="w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl bg-slate-800/80 border border-slate-600 flex items-center justify-center shadow-lg hover:border-slate-500">
+                  <LogIn className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-slate-200" />
                 </div>
                 <span className="text-[9px] sm:text-[10px] lg:text-xs font-bold text-slate-400 tracking-wide">Giriş</span>
               </Link>
             ) : (
               <button onClick={handleCikisYap} className="flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none opacity-90 hover:opacity-100">
-                <div className="w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl bg-slate-800/80 border border-slate-600 flex items-center justify-center shadow-lg">
-                  <LogOut className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-slate-300" />
+                <div className="w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl bg-slate-800/80 border border-slate-600 flex items-center justify-center shadow-lg hover:border-slate-500">
+                  <LogOut className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-slate-200" />
                 </div>
                 <span className="text-[9px] sm:text-[10px] lg:text-xs font-bold text-slate-400 tracking-wide">Çıkış</span>
               </button>
@@ -527,22 +541,20 @@ export default function HesabimPage() {
         </div>
 
         {/* ==================================================================== */}
-        {/* 2️⃣ KULLANICI KARTI VE MERKEZİ RENK PALETİ                             */}
+        {/* 2️⃣ KULLANICI KARTI VE MERKEZİ RENK CEKMECESİ                         */}
         {/* ==================================================================== */}
         <div className={`w-full relative rounded-[2rem] p-[2px] transition-all duration-300 shadow-[0_0_50px_rgba(0,210,255,0.15)] group ${duzenlemeModu ? 'bg-gradient-to-r from-emerald-500/50 via-emerald-900 to-emerald-500/20 shadow-[0_0_50px_rgba(16,185,129,0.3)]' : 'bg-gradient-to-r from-cyan-500/30 via-[#0f172a] to-cyan-500/10'}`}>
           <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-transparent opacity-20 blur-xl rounded-[2rem] transition-opacity duration-500"></div>
           <div className="relative bg-[#0b1121] rounded-[2rem] p-6 sm:p-8 flex flex-col border border-cyan-500/20 overflow-hidden z-10">
             <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-gradient-to-r from-cyan-500/10 to-transparent pointer-events-none"></div>
 
-            {/* Kullanıcı Bilgileri */}
             <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
-              {/* GİZLİ YÖNETİCİ TETİKLEYİCİSİ */}
+              {/* 🐍 Orijinal Işıklı Yılan Dönüşlü Profil Yuvarlağı */}
               <div className="relative w-28 h-28 sm:w-32 sm:h-32 shrink-0 flex items-center justify-center">
                 <div className="absolute inset-0 rounded-full bg-gradient-to-b from-slate-600 to-slate-900 border-[3px] border-slate-700 shadow-[inset_0_0_20px_rgba(0,0,0,0.8),_0_10px_20px_rgba(0,0,0,0.5)]"></div>
-                
-                {/* 🐍 Yılan Animasyonu */}
                 <div className={`absolute inset-2.5 rounded-full border border-cyan-400/30 shadow-[0_0_20px_rgba(34,211,255,0.4),inset_0_0_20px_rgba(34,211,255,0.2)] border-t-cyan-300 animate-[spin_8s_linear_infinite] ${duzenlemeModu ? 'border-t-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.5)]' : ''}`}></div>
                 
+                {/* Tıklanabilir İç Alan */}
                 <div 
                   onClick={handleDuzenlemeModuGecis}
                   title={duzenlemeModu ? "Düzenlemeyi Kaydet ve Kapat" : "Menüyü Düzenle"}
@@ -559,7 +571,7 @@ export default function HesabimPage() {
                   {duzenlemeModu ? "Düzenleme Modu Açık" : userName}
                 </h1>
                 <p className={`text-xs sm:text-sm font-medium tracking-wide ${duzenlemeModu ? 'text-emerald-400' : 'text-slate-400'}`}>
-                  {duzenlemeModu ? "Kutuları sürükleyip yerleştirin. Bir kutuya tıklayıp altından rengini seçin." : userEmail}
+                  {duzenlemeModu ? "Bir kutuya tıklayın, ardından buradaki paletten rengini belirleyin." : userEmail}
                 </p>
                 
                 {status === "unauthenticated" && (
@@ -575,12 +587,12 @@ export default function HesabimPage() {
               </div>
             </div>
 
-            {/* 🎨 MERKEZİ RENK PALETİ (Sadece Düzenleme Modunda Açılır) */}
+            {/* 🎨 [YENİ YERİ] MERKEZİ RENK PALETİ - Tam Kartın İçinde Geniş ve Ferah */}
             {duzenlemeModu && (
               <div className="w-full mt-6 pt-6 border-t border-cyan-500/20 animate-in fade-in slide-in-from-top-4 z-20">
                 <div className="text-center mb-4">
                   <span className="text-[10px] sm:text-xs font-bold text-slate-400 bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-800">
-                    🎨 Önce bir kutu seçin, ardından renk verin
+                    🎨 Önce yukarıdan veya aşağıdan bir kutu seçin, sonra renk verin
                   </span>
                 </div>
                 
@@ -603,7 +615,7 @@ export default function HesabimPage() {
         {/* ==================================================================== */}
         {/* 3️⃣ ALT 5'Lİ MENÜ KUTULARI (Dinamik ve Sürüklenebilir)                */}
         {/* ==================================================================== */}
-        <div className="w-full">
+        <div className="w-full block">
           <div className={`grid grid-cols-5 gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${duzenlemeModu ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
             {altMenuListesi.map((item, index) => {
               const IkonBileseni = item.ikon;
@@ -667,7 +679,7 @@ export default function HesabimPage() {
         </div>
 
         {/* ==================================================================== */}
-        {/* 📊 SİPARİŞLER VE GRAFİKLER BÖLÜMÜ (Aynen Korundu)                    */}
+        {/* 📊 SİPARİŞLER VE GRAFİKLER BÖLÜMÜ (Orijinal Aynen Korundu)           */}
         {/* ==================================================================== */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start w-full">
           <div className="xl:col-span-1 flex flex-col h-full">
@@ -733,7 +745,6 @@ export default function HesabimPage() {
 
                <div className="flex-1 grid grid-cols-2 w-full border-t sm:border-t-0 sm:border-l border-slate-800/80 pt-6 sm:pt-0 sm:pl-6">
                  
-                 {/* SOL TARAF: AYLIK PASTA */}
                  <div className="flex flex-col items-center gap-4 w-full pr-2 sm:pr-6 border-r border-slate-800/80">
                    <span className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[9px] sm:text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest shadow-[0_0_10px_rgba(6,182,212,0.4)] whitespace-nowrap text-center">
                      {aylikPastaVerisi.ayAdi ? `${aylikPastaVerisi.ayAdi} ÖZETİ` : "AYLIK ÖZET"}
@@ -767,7 +778,6 @@ export default function HesabimPage() {
                        </div>
                        <span className="text-[9px] sm:text-[11px] font-black text-amber-400 shrink-0 pl-1">{aylikPastaVerisi.kendinTopla.yuzde}%</span>
                      </div>
-                     
                      <div className="flex items-center justify-between w-full">
                        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                          <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_#06b6d4] shrink-0"></span>
@@ -775,7 +785,6 @@ export default function HesabimPage() {
                        </div>
                        <span className="text-[9px] sm:text-[11px] font-black text-cyan-400 shrink-0 pl-1">{aylikPastaVerisi.bilesen.yuzde}%</span>
                      </div>
-                     
                      <div className="flex items-center justify-between w-full">
                        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                          <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#fb7185] shrink-0"></span>
@@ -783,7 +792,6 @@ export default function HesabimPage() {
                        </div>
                        <span className="text-[9px] sm:text-[11px] font-black text-rose-400 shrink-0 pl-1">{aylikPastaVerisi.cevre.yuzde}%</span>
                      </div>
-                     
                      <div className="flex items-center justify-between w-full">
                        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                          <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-purple-500 shadow-[0_0_8px_#c084fc] shrink-0"></span>
@@ -791,7 +799,6 @@ export default function HesabimPage() {
                        </div>
                        <span className="text-[9px] sm:text-[11px] font-black text-purple-400 shrink-0 pl-1">{aylikPastaVerisi.sistem.yuzde}%</span>
                      </div>
-                     
                      <div className="flex items-center justify-between w-full">
                        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                          <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#34d399] shrink-0"></span>
@@ -802,7 +809,6 @@ export default function HesabimPage() {
                    </div>
                  </div>
 
-                 {/* SAĞ TARAF: GENEL PASTA */}
                  <div className="flex flex-col items-center gap-4 w-full pl-2 sm:pl-6">
                    <span className="bg-slate-800 text-slate-400 text-[9px] sm:text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest whitespace-nowrap text-center">
                      TÜM ZAMANLAR
@@ -836,7 +842,6 @@ export default function HesabimPage() {
                        </div>
                        <span className="text-[9px] sm:text-[11px] font-black text-amber-400 shrink-0 pl-1">{pastaVerisi.kendinTopla.yuzde}%</span>
                      </div>
-                     
                      <div className="flex items-center justify-between w-full">
                        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                          <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_#06b6d4] shrink-0"></span>
@@ -844,7 +849,6 @@ export default function HesabimPage() {
                        </div>
                        <span className="text-[9px] sm:text-[11px] font-black text-cyan-400 shrink-0 pl-1">{pastaVerisi.bilesen.yuzde}%</span>
                      </div>
-                     
                      <div className="flex items-center justify-between w-full">
                        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                          <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#fb7185] shrink-0"></span>
@@ -852,7 +856,6 @@ export default function HesabimPage() {
                        </div>
                        <span className="text-[9px] sm:text-[11px] font-black text-rose-400 shrink-0 pl-1">{pastaVerisi.cevre.yuzde}%</span>
                      </div>
-                     
                      <div className="flex items-center justify-between w-full">
                        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                          <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-purple-500 shadow-[0_0_8px_#c084fc] shrink-0"></span>
@@ -860,7 +863,6 @@ export default function HesabimPage() {
                        </div>
                        <span className="text-[9px] sm:text-[11px] font-black text-purple-400 shrink-0 pl-1">{pastaVerisi.sistem.yuzde}%</span>
                      </div>
-                     
                      <div className="flex items-center justify-between w-full">
                        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                          <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#34d399] shrink-0"></span>
@@ -1017,7 +1019,7 @@ export default function HesabimPage() {
             </div>
             <h3 className="text-xl font-black text-white mb-2 tracking-tight">Erişim Kısıtlı</h3>
             <p className="text-slate-400 text-sm mb-6">
-              Lütfen işlem yapabilmek ve hesap detaylarınızı görüntüleyebilmek için giriş yapınız.
+              Lütfen işlem yapabilmek and hesap detaylarınızı görüntüleyebilmek için giriş yapınız.
             </p>
             <div className="flex flex-col gap-3">
               <Link href="/giris" className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2">
