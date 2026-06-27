@@ -23,15 +23,6 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Lütfen bir e-posta giriniz'],
       unique: true, 
     },
-    
-    // 🚀 BİNGO: ŞEFİN DİNAMİK E-POSTA ÇANTASI VE ŞALTERİ
-    aktifEposta: { 
-      type: String // O an faturanın/bildirimin gideceği güncel mail şalteri
-    },
-    kayitliEpostalar: [{ 
-      type: String // Eski ve yeni tüm maillerin toplandığı dev havuz (Siparişleri buradan çekeceğiz)
-    }],
-
     password: {
       type: String,
       required: [true, 'Lütfen bir şifre giriniz'],
@@ -71,7 +62,6 @@ const userSchema = new mongoose.Schema(
       location: { type: String },
       isActive: { type: Boolean, default: true }, // 🚀 İŞTE YENİ DAMGAMIZ: İlk girişte otomatik "true" (Aktif) olur
       lastActive: { type: Date, default: Date.now }
-    
   }], // 🚀 ŞEFİM DİKKAT: Buraya virgülü attık!
 
   // 🚀 ŞEFİN EFSANE GÜVENLİK ŞARTELLERİ VE GÜVENLİ CİHAZ HAFIZASI
@@ -85,10 +75,7 @@ const userSchema = new mongoose.Schema(
   // 🛡️ GUARD (BEKLEYEN CİHAZ ONAY) SİSTEMİ İÇİN YENİ RAFLAR
   pendingDeviceToken: { type: String },
   pendingDeviceExpires: { type: Date },
-  pendingDeviceInfo: { type: Object }, // <-- BURAYA VİRGÜL ATILDI
-
-  // 🎟️ KISIR DÖNGÜYÜ KIRAN BİLET GİŞESİ (Tam Karantina ve Onay Geçişleri İçin)
-  karantinaPass: { type: Date }
+  pendingDeviceInfo: { type: Object }
   
 },
 { timestamps: true }

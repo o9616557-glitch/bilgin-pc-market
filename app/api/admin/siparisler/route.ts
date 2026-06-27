@@ -75,23 +75,7 @@ export async function PUT(request: Request) {
         tls: { rejectUnauthorized: false }
       });
 
-      // 🚀 BİNGO: AKILLI DEDEKTİF DEVREDE! (Kurşun Geçirmez E-Posta Bulucu)
-      let musteriMaili = siparis.userEmail || siparis.email || siparis.musteri?.eposta || siparis.musteri?.email;
-
-      // Eğer maili bulduysa, bir de şefin şalterinde daha güncel bir mail var mı diye bakıyor!
-      if (musteriMaili) {
-        const dbUser = await db.collection("users").findOne({
-          $or: [
-            { email: musteriMaili },
-            { kayitliEpostalar: musteriMaili }
-          ]
-        });
-        
-        // Eğer kullanıcı veritabanındaysa ve şalteri başka bir maildeyse, zorla o maile at!
-        if (dbUser && dbUser.aktifEposta) {
-          musteriMaili = dbUser.aktifEposta;
-        }
-      }
+      const musteriMaili = siparis.userEmail || siparis.email || siparis.musteri?.eposta || siparis.musteri?.email;
 
       if (musteriMaili) {
         let baslik = "SİPARİŞ DURUMUNUZ GÜNCELLENDİ";
@@ -111,7 +95,7 @@ export async function PUT(request: Request) {
           ikon = "🚀";
         } else if (yeniDurum === "Tamamlandı") {
           baslik = "SİPARİŞ TESLİM EDİLDİ";
-          altMesaj = "Siparişiniz başarıyla teslim edilmiştir. Bizi tercih ettiğiniz için teşekkür ederiz.";
+          altMesaj = "Siparişiniz başarıyla teslim edilmiştir. Bizi tercih ettiğiniz için teşekkür ederiz. Yeni sisteminizle bol FPS'li oyunlar dileriz!";
           anaRenk = "#00d2ff"; 
           ikon = "🎉";
         } else if (yeniDurum === "İptal Edildi") {

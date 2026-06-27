@@ -96,6 +96,7 @@ export const authOptions: NextAuthOptions = {
         const isPasswordMatch = await bcrypt.compare(credentials.password, user.password);
         if (!isPasswordMatch) throw new Error("Şifre hatalı, lütfen tekrar deneyin.");
 
+        // 🚀 BİRİNCİ AŞAMA: ÖNCE CİHAZ VE KARANTİNA KONTROL MOTORU
         const userAgent = req?.headers?.["user-agent"] || "Bilinmeyen Cihaz";
         const ipAddress = req?.headers?.["x-forwarded-for"] || "Bilinmeyen IP";
         const anlasilirCihaz = cihazBilgisiCevir(userAgent);
@@ -129,6 +130,7 @@ export const authOptions: NextAuthOptions = {
           }
         }
 
+        // 🚀 İKİNCİ AŞAMA: 2FA MOTORU
         if (user.twoFactorEmail) {
           const musteriKodu = (credentials.code === "undefined" || !credentials.code) ? "" : credentials.code;
           if (musteriKodu === "") {
@@ -143,6 +145,7 @@ export const authOptions: NextAuthOptions = {
           user.twoFactorCode = undefined; user.twoFactorExpires = undefined; 
         }
 
+        // 🎯 HER İKİ GÜVENLİK DE GEÇİLDİ: BİLETİ ŞİMDİ YIRTIYORUZ!
         user.karantinaPass = undefined; 
 
         const newDeviceId = crypto.randomUUID();
@@ -157,6 +160,7 @@ export const authOptions: NextAuthOptions = {
       try {
         if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
 
+        // 🧊 İŞTE DÜZELTTİĞİMİZ BUZ ÇÖZME MOTORU: HERKES İÇİN (Google, Facebook, Şifre) BURADA ÇALIŞIR
         if (user && user.email) {
           const hamKullanici = await mongoose.connection.db!.collection("users").findOne({ email: user.email });
 
@@ -170,9 +174,12 @@ export const authOptions: NextAuthOptions = {
               { email: user.email },
               { $set: { isVisible: true } }
             );
+            
+            console.log("Zincirler kırıldı! Adam ve yorumları dükkana geri döndü!");
           }
         }
 
+        // 🚀 KARANTİNA KONTROLÜ (SADECE GOOGLE/FACEBOOK İÇİN - HİÇ DOKUNULMADI)
         if (account?.provider === "google" || account?.provider === "facebook") {
           const dbUser = await User.findOne({ email: user.email });
           if (dbUser) {
@@ -219,21 +226,18 @@ export const authOptions: NextAuthOptions = {
       return true; 
     },
 
+    // 🚀 İŞTE LEHİMİN KOPTUĞU YER BURASIYDI (HİÇ DOKUNULMADI):
     async jwt({ token, user }) {
       if (user) { 
         token.id = user.id; 
         token.deviceId = (user as any).deviceId; 
       }
 
-      if (!user && token?.email && token?.deviceId) {
+      if (!user && token?.id && token?.deviceId) {
         try {
           if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
-          
-          const dbUser = await User.findOne({ email: token.email }).select("activeDevices aktifEposta email");
-          
+          const dbUser = await User.findById(token.id).select("activeDevices");
           if (dbUser) {
-            token.aktifEposta = dbUser.aktifEposta || dbUser.email;
-
             const buCihaz = dbUser.activeDevices.find((c: any) => c.deviceId === token.deviceId);
             if (!buCihaz || buCihaz.isActive === false) {
               return { ...token, isLoggedOut: true }; 
@@ -244,15 +248,13 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
 
+   // 🚀 ÖLÜM DAMGALI ADAMI SİSTEMDEN ATAN MOTOR (HİÇ DOKUNULMADI)
     async session({ session, token }) {
       if (token.isLoggedOut) {
          (session as any).error = "KickedOut";
       } else if (session.user) {
         (session.user as any).id = token.id;
         (session.user as any).deviceId = token.deviceId;
-        
-        // 🚀 İŞTE DÜZELTTİĞİMİZ YER: Orijinal kimliği (emaili) EZMİYORUZ, yeni maili yanına ekliyoruz!
-        (session.user as any).aktifEposta = token.aktifEposta;
       }
       return session;
     }

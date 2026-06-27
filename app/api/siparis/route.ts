@@ -22,25 +22,6 @@ export async function POST(request: Request) {
 
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
-    
-    // 🚀 BİNGO: ŞEFİN ŞALTER MAİLİNİ VERİTABANINDAN ZORLA ÇEKEN KESKİN NİŞANCI MOTORU
-    let gelenMail = musteri?.eposta || musteri?.email || "";
-    let aktifSalterMaili = gelenMail;
-
-    if (gelenMail) {
-      const dbUser = await db.collection("users").findOne({
-        $or: [
-          { email: gelenMail },
-          { kayitliEpostalar: gelenMail }
-        ]
-      });
-      
-      // Şalter açıksa aktif maili çek ve namluya sür!
-      if (dbUser && dbUser.aktifEposta) {
-        aktifSalterMaili = dbUser.aktifEposta;
-      }
-    }
-
     const siparisKodu = `BPC-${Math.floor(100000 + Math.random() * 900000)}`;
 
     // 🚀 BİNGO: Diğer sayfaların tanıması için orijinal "havale" ve "kart" kodları
@@ -49,19 +30,15 @@ export async function POST(request: Request) {
 
     const yeniSiparis = {
       siparisKodu,
-      musteri: {
-        ...musteri,
-        eposta: aktifSalterMaili, // 🚀 Müşteri objesinin içindeki maili de şalterle ezdik!
-        email: aktifSalterMaili
-      },
+      musteri,
       sepet,
       odemeYontemi: gercekOdemeYontemi, 
       siparisNotu: siparisNotu || "Not eklenmemiş",
       toplamTutar,
       durum: ilkDurum, 
-      tarih: new Date(), 
-      userEmail: aktifSalterMaili, // 🚀 ZORLA EZİLDİ
-      email: aktifSalterMaili,     // 🚀 ZORLA EZİLDİ
+      tاريخ: new Date(),
+      userEmail: musteri?.eposta || musteri?.email || "",
+      email: musteri?.eposta || musteri?.email || "",
       items: sepet, 
       totalPrice: toplamTutar,
       status: ilkDurum
@@ -92,8 +69,7 @@ export async function POST(request: Request) {
             adminNotuHtml = `<p style="color: #a1a1aa; font-size: 15px;"><strong>Müşterinin Notu:</strong> <span style="color: #ffb300; font-weight: bold; font-style: italic;">"${siparisNotu}"</span></p>`;
         }
 
-        // 🚀 İŞTE FÜZENİN GİDECEĞİ YER TAM OLARAK ŞALTER MAİLİ OLDU
-        const musteriMaili = aktifSalterMaili || "o9616557@gmail.com";
+        const musteriMaili = musteri?.eposta || musteri?.email || "o9616557@gmail.com";
         
         // --- 1. MÜŞTERİYE GİDEN HAVALE BİLGİLENDİRME MAİLİ ---
         const mailSecenekleri = {
@@ -206,19 +182,7 @@ export async function POST(request: Request) {
       callbackUrl: `https://www.bilginpcmarket.com/api/iyzico-sonuc?siparisKodu=${siparisKodu}`,
       enabledInstallments: [1, 2, 3, 6, 9],
       buyer: {
-        id: "MUSTERI-123", 
-        name: musteri.ad || "Müşteri", 
-        surname: musteri.soyad || "Soyadı", 
-        gsmNumber: "+905555555555", 
-        email: aktifSalterMaili || "test@test.com", // 🚀 İYZİCO'YA DA ŞALTER MAİLİNİ VERDİK!
-        identityNumber: "11111111111", 
-        lastLoginDate: "2026-05-21 12:00:00", 
-        registrationDate: "2026-05-21 12:00:00", 
-        registrationAddress: musteri.adres || "Test Adresi", 
-        ip: "85.34.78.112", 
-        city: musteri.sehir || "Istanbul", 
-        country: "Turkey", 
-        zipCode: "34000"
+        id: "MUSTERI-123", name: musteri.ad || "Müşteri", surname: musteri.soyad || "Soyadı", gsmNumber: "+905555555555", email: musteri.eposta || "test@test.com", identityNumber: "11111111111", lastLoginDate: "2026-05-21 12:00:00", registrationDate: "2026-05-21 12:00:00", registrationAddress: musteri.adres || "Test Adresi", ip: "85.34.78.112", city: musteri.sehir || "Istanbul", country: "Turkey", zipCode: "34000"
       },
       shippingAddress: { contactName: `${musteri.ad} ${musteri.soyad}`, city: musteri.sehir || "Istanbul", country: "Turkey", address: musteri.adres || "Test Adresi", zipCode: "34000" },
       billingAddress: { contactName: `${musteri.ad} ${musteri.soyad}`, city: musteri.sehir || "Istanbul", country: "Turkey", address: musteri.adres || "Test Adresi", zipCode: "34000" },
