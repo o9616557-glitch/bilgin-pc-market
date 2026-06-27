@@ -8,10 +8,10 @@ import { usePathname, useRouter } from "next/navigation";
 import { 
   Search, X, Clock, ArrowRight, ChevronRight, ChevronDown, Loader2, 
   Menu, Cpu, Mouse, Keyboard, Monitor, Headphones, Speaker, 
-  Server, Laptop, Wifi, Palette, CheckCircle2 
+  Server, Laptop, Wifi, Palette, CheckCircle2, Wrench, Gamepad2, Cable 
 } from "lucide-react";
 
-// ŞEFİN JİLET GİBİ 4 KOLONLU MEGA MENÜ ENVANTERİ
+// ŞEFİN YENİ BÖLÜNMÜŞ, 6 PARÇALI MEGA MENÜ ENVANTERİ
 const menuCategories = [
   {
     title: "Bilgisayar Bileşenleri",
@@ -28,16 +28,21 @@ const menuCategories = [
     ]
   },
   {
-    title: "Çevre Birimleri & Oyuncu",
+    title: "Çevre Birimleri",
     items: [
       { name: "Oyuncu Monitörleri", slug: "monitor" },
       { name: "Klavye", slug: "klavye" },
       { name: "Mouse & Mouse Pad", slug: "mouse" },
+      { name: "Hoparlör (Speaker)", slug: "hoparlor" },
+    ]
+  },
+  {
+    title: "Oyuncu Ekipmanları",
+    items: [
       { name: "Oyuncu Kulaklıkları", slug: "kulaklik" },
       { name: "Yayıncı Mikrofonları", slug: "mikrofon" },
       { name: "Oyun Kolu", slug: "oyun-kolu" },
       { name: "Oyun Direksiyonu", slug: "oyun-direksiyonu" },
-      { name: "Hoparlör (Speaker)", slug: "hoparlor" },
     ]
   },
   {
@@ -52,11 +57,16 @@ const menuCategories = [
     ]
   },
   {
-    title: "Ağ, Aksesuar & Kablo",
+    title: "Ağ Ürünleri & Kablolar",
     items: [
-      { name: "Modem", slug: "modem" },
-      { name: "USB Bellek & Hafıza Kartı", slug: "usb" },
+      { name: "Modem & Router", slug: "modem" },
       { name: "Kablolar & Çeviriciler", slug: "kablolar" },
+    ]
+  },
+  {
+    title: "Aksesuar & Güç",
+    items: [
+      { name: "USB Bellek & Hafıza Kartı", slug: "usb" },
       { name: "Akım Koruyucu Priz", slug: "akim-koruyucu" },
       { name: "Notebook Soğutucu", slug: "notebook-aksesuar" },
       { name: "Şarj Aletleri & Powerbank", slug: "sarj-powerbank" },
@@ -67,14 +77,14 @@ const menuCategories = [
 ];
 
 // 🎨 MOBİL KATEGORİ RENK VE İKON HARİTASI
-const Ikonlar: any = { Cpu, Mouse, Keyboard, Monitor, Headphones, Speaker, Server, Laptop, Wifi };
+const Ikonlar: any = { Cpu, Mouse, Keyboard, Monitor, Headphones, Speaker, Server, Laptop, Wifi, Wrench, Gamepad2, Cable };
 const renkSecenekleri = [
-  { border: "border-cyan-500/50", hoverBorder: "hover:border-cyan-400", ikon: "text-cyan-400", bgHover: "hover:bg-cyan-500/5", hex: "bg-cyan-400" },
-  { border: "border-emerald-500/50", hoverBorder: "hover:border-emerald-400", ikon: "text-emerald-400", bgHover: "hover:bg-emerald-500/5", hex: "bg-emerald-400" },
-  { border: "border-purple-500/50", hoverBorder: "hover:border-purple-400", ikon: "text-purple-400", bgHover: "hover:bg-purple-500/5", hex: "bg-purple-400" },
-  { border: "border-rose-500/50", hoverBorder: "hover:border-rose-400", ikon: "text-rose-400", bgHover: "hover:bg-rose-500/5", hex: "bg-rose-400" },
-  { border: "border-amber-500/50", hoverBorder: "hover:border-amber-400", ikon: "text-amber-400", bgHover: "hover:bg-amber-500/5", hex: "bg-amber-400" },
-  { border: "border-slate-500/50", hoverBorder: "hover:border-slate-400", ikon: "text-slate-400", bgHover: "hover:bg-slate-500/5", hex: "bg-slate-400" },
+  { border: "border-cyan-500/50", hoverBorder: "hover:border-cyan-400", ikon: "text-cyan-400", hex: "bg-cyan-400" },
+  { border: "border-emerald-500/50", hoverBorder: "hover:border-emerald-400", ikon: "text-emerald-400", hex: "bg-emerald-400" },
+  { border: "border-purple-500/50", hoverBorder: "hover:border-purple-400", ikon: "text-purple-400", hex: "bg-purple-400" },
+  { border: "border-rose-500/50", hoverBorder: "hover:border-rose-400", ikon: "text-rose-400", hex: "bg-rose-400" },
+  { border: "border-amber-500/50", hoverBorder: "hover:border-amber-400", ikon: "text-amber-400", hex: "bg-amber-400" },
+  { border: "border-slate-500/50", hoverBorder: "hover:border-slate-400", ikon: "text-slate-400", hex: "bg-slate-400" },
 ];
 
 export default function Header() {
@@ -103,31 +113,34 @@ export default function Header() {
   const { data: session } = useSession();
   const [cikisOnayAcik, setCikisOnayAcik] = useState(false);
 
-  // 🚀 MOBİL TAM EKRAN KATEGORİ MOTORU
+  // 🚀 KİBAR VE SÜRÜKLENEBİLİR TAM EKRAN MOTORU
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [seciliKategoriId, setSeciliKategoriId] = useState<string | null>(null);
-  const [acikAkordiyon, setAcikAkordiyon] = useState<string | null>(null); // Açık olan alt kategori
+  const [acikAkordiyon, setAcikAkordiyon] = useState<string | null>(null); 
   
   const suruklenenRef = useRef<number | null>(null);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
-  // Alt kategorileri menü ile birleştiriyoruz (v2)
+  // V3: 6 Parçaya bölünmüş ve Kendin Topla'yı barındıran yeni hafıza
   const [mobilKategoriler, setMobilKategoriler] = useState(() => {
     if(typeof window !== "undefined") {
-       const saved = localStorage.getItem("bilgin_mobil_kategoriler_v2");
+       const saved = localStorage.getItem("bilgin_mobil_kategoriler_v3");
        if(saved) return JSON.parse(saved);
     }
     return [
+       { id: "kendin", isim: "Kendin Topla", ikonId: "Wrench", renkIndex: 1, isLink: true, link: "/kendin-topla" },
        { id: "bilesen", isim: "Bilgisayar Bileşenleri", ikonId: "Cpu", renkIndex: 0, subItems: menuCategories[0].items },
-       { id: "cevre", isim: "Çevre Birimleri & Oyuncu", ikonId: "Headphones", renkIndex: 1, subItems: menuCategories[1].items },
-       { id: "sistem", isim: "Sistem & Laptop", ikonId: "Laptop", renkIndex: 2, subItems: menuCategories[2].items },
-       { id: "aksesuar", isim: "Ağ, Aksesuar & Kablo", ikonId: "Wifi", renkIndex: 3, subItems: menuCategories[3].items },
+       { id: "cevre", isim: "Çevre Birimleri", ikonId: "Monitor", renkIndex: 2, subItems: menuCategories[1].items },
+       { id: "oyuncu", isim: "Oyuncu Ekipmanları", ikonId: "Gamepad2", renkIndex: 3, subItems: menuCategories[2].items },
+       { id: "sistem", isim: "Sistem, Laptop & Yazılım", ikonId: "Laptop", renkIndex: 4, subItems: menuCategories[3].items },
+       { id: "ag", isim: "Ağ Ürünleri & Kablolar", ikonId: "Wifi", renkIndex: 5, subItems: menuCategories[4].items },
+       { id: "aksesuar", isim: "Aksesuar & Güç", ikonId: "Cable", renkIndex: 0, subItems: menuCategories[5].items },
     ];
   });
 
   useEffect(() => {
     if(typeof window !== "undefined") {
-      localStorage.setItem("bilgin_mobil_kategoriler_v2", JSON.stringify(mobilKategoriler));
+      localStorage.setItem("bilgin_mobil_kategoriler_v3", JSON.stringify(mobilKategoriler));
     }
   }, [mobilKategoriler]);
 
@@ -154,9 +167,8 @@ export default function Header() {
     }
   };
 
-  // Akordiyonu açıp kapatan fonksiyon
   const toggleAkordiyon = (id: string) => {
-    if (isPaletteOpen) return; // Renk düzenleme modundaysa alt menüyü açma
+    if (isPaletteOpen) return; 
     setAcikAkordiyon(prev => prev === id ? null : id);
   };
 
@@ -271,6 +283,7 @@ export default function Header() {
               </Link>
             </div>
 
+            {/* PC MEGA MENÜ SÜTUNLARI 3'LÜ DİZİLİME GÜNCELLENDİ ÇÜNKÜ ARTIK 6 KATEGORİ VAR */}
             <div className="hidden md:flex items-center space-x-6 flex-1 justify-center h-full">
               <div className="relative flex items-center h-full" onMouseEnter={() => setDropdownOpen(true)} onMouseLeave={() => setDropdownOpen(false)}>
                 <button className="flex items-center space-x-2 text-white hover:text-[#3b82f6] py-2 font-semibold transition-colors text-sm">
@@ -281,7 +294,7 @@ export default function Header() {
                 {dropdownOpen && (
                   <div className="absolute top-[60px] left-0 pt-[20px] w-[1100px] z-50">
                     <div className="bg-[#09090b]/98 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_30px_50px_rgba(0,0,0,0.8)] p-10">
-                      <div className="grid grid-cols-4 gap-12">
+                      <div className="grid grid-cols-3 gap-x-12 gap-y-10">
                         {menuCategories.map((category, index) => (
                           <div key={index}>
                             <h3 className="text-[#3b82f6] font-bold text-sm tracking-wider uppercase mb-6 border-b border-white/10 pb-3">{category.title}</h3>
@@ -341,14 +354,13 @@ export default function Header() {
         </div>
       </header>
 
-      {/* 📱 YENİ NESİL TAM EKRAN (FULL-SCREEN) SİBER MOBİL MENÜ 📱 */}
+      {/* 📱 YENİ NESİL TAM EKRAN (FULL-SCREEN), KİBAR VE SÜRÜKLENEBİLİR SİBER MOBİL MENÜ 📱 */}
       <div 
         className={`md:hidden fixed inset-0 w-full h-full bg-[#0b1121]/95 backdrop-blur-xl z-[9999999] flex flex-col transition-all duration-500 ease-out transform ${menuAcik ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8 pointer-events-none"}`}
       >
-        {/* Üst Bar (Başlık ve Kapat Butonları) */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-800/80 shrink-0 bg-[#050814]">
-          <h2 className="text-lg font-black text-white uppercase tracking-widest flex items-center gap-2">
-            <Menu className="w-6 h-6 text-[#3b82f6]" /> Menü
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-800/80 shrink-0 bg-[#050814]">
+          <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-widest flex items-center gap-2">
+            <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-[#3b82f6]" /> Menü
           </h2>
           
           <div className="flex items-center gap-2">
@@ -356,63 +368,51 @@ export default function Header() {
               onClick={() => {
                 setIsPaletteOpen(!isPaletteOpen);
                 if(isPaletteOpen) setSeciliKategoriId(null);
-                setAcikAkordiyon(null); // Palet açılınca akordiyonları kapat
+                setAcikAkordiyon(null); 
               }}
-              className={`p-2.5 rounded-xl transition-all ${isPaletteOpen ? 'bg-emerald-900 border border-emerald-500/50' : 'bg-[#0f172a] hover:bg-slate-800/50 border border-transparent'}`}
+              className={`p-2 sm:p-2.5 rounded-xl transition-all ${isPaletteOpen ? 'bg-emerald-900 border border-emerald-500/50' : 'bg-[#0f172a] hover:bg-slate-800/50 border border-transparent'}`}
             >
-              <Palette className={`w-5 h-5 ${isPaletteOpen ? 'text-emerald-400' : 'text-slate-400'}`} />
+              <Palette className={`w-4 h-4 sm:w-5 sm:h-5 ${isPaletteOpen ? 'text-emerald-400' : 'text-slate-400'}`} />
             </button>
 
-            <button onClick={() => setMenuAcik(false)} className="p-2.5 rounded-xl text-slate-400 hover:text-white bg-rose-500/10 hover:bg-rose-500/20 transition-colors border border-rose-500/20">
-              <X className="w-6 h-6 text-rose-400" />
+            <button onClick={() => setMenuAcik(false)} className="p-2 sm:p-2.5 rounded-xl text-slate-400 hover:text-white bg-rose-500/10 hover:bg-rose-500/20 transition-colors border border-rose-500/20">
+              <X className="w-5 h-5 sm:w-6 sm:h-6 text-rose-400" />
             </button>
           </div>
         </div>
 
-        {/* RENK PALETİ */}
         {isPaletteOpen && (
-          <div className="p-4 border-b border-slate-800/50 bg-slate-900/50 flex flex-col items-center gap-3 shrink-0 animate-in slide-in-from-top-2">
+          <div className="p-3 border-b border-slate-800/50 bg-slate-900/50 flex flex-col items-center gap-2 shrink-0 animate-in slide-in-from-top-2">
             {!seciliKategoriId ? (
-              <span className="text-xs font-bold text-emerald-400 bg-emerald-950/50 px-3 py-1.5 rounded-lg border border-emerald-900 text-center w-full">
-                Boyamak istediğiniz bir ana kategori seçin
+              <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/50 px-3 py-1.5 rounded-lg border border-emerald-900 text-center w-full">
+                Boyamak istediğiniz bir kutuyu seçin
               </span>
             ) : (
-               <span className="text-xs font-bold text-slate-400 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 text-center w-full">
+               <span className="text-[10px] font-bold text-slate-400 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 text-center w-full">
                 Şimdi paletten bir renk seçin
               </span>
             )}
             
-            <div className="flex justify-center gap-4 w-full pt-1">
+            <div className="flex justify-center gap-3 w-full pt-1">
               {renkSecenekleri.map((renk, idx) => (
                 <button 
                   key={idx}
                   onClick={() => renkUygula(idx)}
                   disabled={!seciliKategoriId}
-                  className={`w-8 h-8 rounded-full shadow-lg transition-transform flex items-center justify-center ${renk.hex} ${!seciliKategoriId ? 'opacity-30 cursor-not-allowed grayscale' : 'hover:scale-110 opacity-100 cursor-pointer'}`}
+                  className={`w-7 h-7 rounded-full shadow-lg transition-transform flex items-center justify-center ${renk.hex} ${!seciliKategoriId ? 'opacity-30 cursor-not-allowed grayscale' : 'hover:scale-110 opacity-100 cursor-pointer'}`}
                 ></button>
               ))}
             </div>
           </div>
         )}
 
-        {/* AKORDİYON & SÜRÜKLENEBİLİR KATEGORİ LİSTESİ */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          
-          {/* Kendin Topla (Sabit En Üstte, Tıklayınca Sayfaya Gider) */}
-          <Link href="/kendin-topla" onClick={() => setMenuAcik(false)} className="flex items-center justify-between p-4 rounded-xl border bg-emerald-950/20 border-emerald-500/20 hover:bg-emerald-500/5 transition-all group mb-4">
-             <span className="font-black tracking-widest text-emerald-400 uppercase text-sm flex items-center gap-3">
-               🔧 Kendin Topla
-             </span>
-             <ArrowRight className="w-5 h-5 text-emerald-400 opacity-70 group-hover:opacity-100 transform group-hover:translate-x-1 transition-all" />
-          </Link>
-
-          {/* Sürüklenebilir Akordiyon Kategoriler */}
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2.5 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {mobilKategoriler.map((kategori: any, index: number) => {
             const Ikon = Ikonlar[kategori.ikonId] || ChevronRight;
             const isDuzenlemeSecili = seciliKategoriId === kategori.id;
             const duzenlemeModu = isPaletteOpen;
             const isDragged = draggedIndex === index;
-            const renk = renkSecenekleri[kategori.renkIndex];
+            const renk = renkSecenekleri[kategori.renkIndex] || renkSecenekleri[0];
             const isAkordiyonAcik = acikAkordiyon === kategori.id;
 
             return (
@@ -422,7 +422,7 @@ export default function Header() {
                   onDragStart={() => {
                     suruklenenRef.current = index;
                     setDraggedIndex(index);
-                    setAcikAkordiyon(null); // Sürüklerken akordiyonu kapat
+                    setAcikAkordiyon(null);
                   }}
                   onDragEnter={() => duzenlemeModu && handleDragEnter(index)}
                   onDragOver={(e) => e.preventDefault()}
@@ -434,10 +434,16 @@ export default function Header() {
                     if (duzenlemeModu) {
                       setSeciliKategoriId(isDuzenlemeSecili ? null : kategori.id);
                     } else {
-                      toggleAkordiyon(kategori.id);
+                      if (kategori.isLink) {
+                          setMenuAcik(false);
+                          setAcikAkordiyon(null);
+                          router.push(kategori.link);
+                      } else {
+                          toggleAkordiyon(kategori.id);
+                      }
                     }
                   }}
-                  className={`w-full flex items-center justify-between p-4 transition-all duration-300 select-none border relative z-20
+                  className={`w-full flex items-center justify-between p-3 transition-all duration-300 select-none border relative z-20
                     ${isAkordiyonAcik && !duzenlemeModu ? 'rounded-t-xl border-b-0 bg-white/[0.04]' : 'rounded-xl bg-[#0f172a] hover:bg-white/[0.03]'}
                     ${duzenlemeModu ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} 
                     ${isDragged ? 'opacity-40 border-dashed scale-95 shadow-none' : 'opacity-100 scale-100'} 
@@ -446,38 +452,47 @@ export default function Header() {
                     ${isDuzenlemeSecili ? 'bg-slate-800 ring-2 ring-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.2)]' : ''}
                   `}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className={`p-2.5 rounded-xl bg-[#020617] border border-slate-800 shadow-inner transition-transform duration-300`}>
-                      <Ikon className={`w-5 h-5 ${renk.ikon}`} />
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg bg-[#020617] border border-slate-800 shadow-inner transition-transform duration-300`}>
+                      <Ikon className={`w-4 h-4 ${renk.ikon}`} />
                     </div>
-                    <span className={`font-bold text-base tracking-wide transition-colors ${isDuzenlemeSecili ? 'text-emerald-400' : 'text-slate-200'}`}>
+                    <span className={`font-bold text-sm tracking-wide transition-colors ${isDuzenlemeSecili ? 'text-emerald-400' : 'text-slate-200'}`}>
                       {kategori.isim}
                     </span>
                   </div>
                   
                   {duzenlemeModu && isDuzenlemeSecili ? (
-                     <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+                     <CheckCircle2 className="w-5 h-5 text-emerald-400" />
                   ) : (
-                     <ChevronDown className={`w-6 h-6 text-slate-500 transition-transform duration-300 ${isAkordiyonAcik ? 'rotate-180 text-white' : ''}`} />
+                     kategori.isLink ? (
+                         <ArrowRight className="w-4 h-4 text-slate-500 transition-transform duration-300 group-hover:translate-x-1" />
+                     ) : (
+                         <ChevronDown className={`w-5 h-5 text-slate-500 transition-transform duration-300 ${isAkordiyonAcik ? 'rotate-180 text-white' : ''}`} />
+                     )
                   )}
                 </div>
 
-                {/* Alt Kategoriler (Akordiyon İçeriği) */}
-                {isAkordiyonAcik && !duzenlemeModu && (
-                  <div className={`border border-t-0 rounded-b-xl p-3 pt-0 bg-white/[0.02] ${renk.border} animate-in slide-in-from-top-2 fade-in duration-200 relative z-10`}>
-                    <div className="flex flex-col gap-1 mt-2">
-                      {kategori.subItems.map((sub: any) => (
-                        <Link 
-                          key={sub.slug}
-                          href={"/kategori/" + sub.slug}
-                          onClick={() => setMenuAcik(false)}
-                          className="flex items-center justify-between p-3.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors group"
-                        >
-                          <span className="text-sm font-medium tracking-wide pl-2">{sub.name}</span>
-                          <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#3b82f6]" />
-                        </Link>
-                      ))}
-                    </div>
+                {/* YUMUŞAK AKORDİYON GEÇİŞİ (CSS GRID İLE) */}
+                {!kategori.isLink && !duzenlemeModu && (
+                  <div className={`grid transition-all duration-300 ease-in-out ${isAkordiyonAcik ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+                      <div className={`overflow-hidden border border-t-0 rounded-b-xl bg-white/[0.02] ${renk.border}`}>
+                        <div className="flex flex-col gap-0.5 p-2">
+                          {kategori.subItems?.map((sub: any) => (
+                            <Link 
+                              key={sub.slug}
+                              href={"/kategori/" + sub.slug}
+                              onClick={() => {
+                                  setMenuAcik(false); // Anında kapatır
+                                  setAcikAkordiyon(null);
+                              }}
+                              className="flex items-center justify-between p-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors group"
+                            >
+                              <span className="text-xs font-medium tracking-wide pl-2">{sub.name}</span>
+                              <ArrowRight className="w-3.5 h-3.5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#3b82f6]" />
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
                   </div>
                 )}
               </div>
