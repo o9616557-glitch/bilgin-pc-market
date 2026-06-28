@@ -38,7 +38,7 @@ export default function GuvenlikPage() {
   const [ikiAdimYukleniyor, setIkiAdimYukleniyor] = useState(false);
 
   const [aktifCihazlar, setAktifCihazlar] = useState<any[]>([]);
-  const [cihazlarYukleniyor, setCihazlarYukleniyor] = useState(true);
+  const [cihazlarYukleniyor, setCihazlarYukleniyor] = useState(false);
   const [cikisYukleniyor, setCikisYukleniyor] = useState(false);
 
   const [islemModali, setIslemModali] = useState<{acik: boolean, tur: 'dondur' | 'sil'}>({acik: false, tur: 'dondur'});
@@ -57,8 +57,9 @@ export default function GuvenlikPage() {
     if (status !== "authenticated") return;
 
     const ayarlariGetir = async (ilkYukleme = false) => {
+      if (ilkYukleme) setCihazlarYukleniyor(true);
       try {
-        const res = await fetch("/api/user/get-2fa", { cache: 'no-store' }); 
+        const res = await fetch("/api/user/get-2fa", { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           

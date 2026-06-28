@@ -147,13 +147,36 @@ function IslemSatiri({ islem }: { islem: CuzdanIslem }) {
   );
 }
 
+const CUZDAN_CACHE_KEY = "bilgin_cuzdan";
+
+function cuzdanCacheOku() {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(CUZDAN_CACHE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function cuzdanCacheYaz(data: {
+  storeCredit: number;
+  loyaltyPoints: number;
+  savedCards: KayitliKart[];
+  transactions: CuzdanIslem[];
+}) {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(CUZDAN_CACHE_KEY, JSON.stringify(data));
+  } catch {}
+}
+
 export default function CuzdanPage() {
   const { status } = useSession();
-  const [yukleniyor, setYukleniyor] = useState(true);
-  const [storeCredit, setStoreCredit] = useState(0);
-  const [loyaltyPoints, setLoyaltyPoints] = useState(0);
-  const [savedCards, setSavedCards] = useState<KayitliKart[]>([]);
-  const [transactions, setTransactions] = useState<CuzdanIslem[]>([]);
+  const [storeCredit, setStoreCredit] = useState(() => cuzdanCacheOku()?.storeCredit ?? 0);
+  const [loyaltyPoints, setLoyaltyPoints] = useState(() => cuzdanCacheOku()?.loyaltyPoints ?? 0);
+  const [savedCards, setSavedCards] = useState<KayitliKart[]>(() => cuzdanCacheOku()?.savedCards ?? []);
+  const [transactions, setTransactions] = useState<CuzdanIslem[]>(() => cuzdanCacheOku()?.transactions ?? []);
 
   const [kartModal, setKartModal] = useState(false);
   const [kartYukleniyor, setKartYukleniyor] = useState(false);
@@ -163,30 +186,29 @@ export default function CuzdanPage() {
   });
 
   const veriCek = useCallback(async () => {
-    if (status !== "authenticated") {
-      setYukleniyor(false);
-      return;
-    }
+    if (status !== "authenticated") return;
     try {
       const res = await fetch("/api/cuzdan?t=" + Date.now(), { cache: "no-store" });
       if (!res.ok) throw new Error("Veri alınamadı");
       const data = await res.json();
-      setStoreCredit(data.storeCredit ?? 0);
-      setLoyaltyPoints(data.loyaltyPoints ?? 0);
-      setSavedCards(data.savedCards ?? []);
-      setTransactions(data.transactions ?? []);
+      const yeniVeri = {
+        storeCredit: data.storeCredit ?? 0,
+        loyaltyPoints: data.loyaltyPoints ?? 0,
+        savedCards: data.savedCards ?? [],
+        transactions: data.transactions ?? [],
+      };
+      setStoreCredit(yeniVeri.storeCredit);
+      setLoyaltyPoints(yeniVeri.loyaltyPoints);
+      setSavedCards(yeniVeri.savedCards);
+      setTransactions(yeniVeri.transactions);
+      cuzdanCacheYaz(yeniVeri);
     } catch {
       toast.error("Cüzdan bilgileri yüklenemedi.");
-    } finally {
-      setYukleniyor(false);
     }
   }, [status]);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      setYukleniyor(false);
-      return;
-    }
+    if (status === "loading") return;
     if (status === "authenticated") veriCek();
   }, [status, veriCek]);
 
@@ -203,6 +225,12 @@ export default function CuzdanPage() {
       setSavedCards(data.savedCards ?? []);
       setForm({ cardNumber: "", holderName: "", expiryMonth: "", expiryYear: "", cvv: "" });
       setKartModal(false);
+      cuzdanCacheYaz({
+        storeCredit: data.storeCredit ?? storeCredit,
+        loyaltyPoints: data.loyaltyPoints ?? loyaltyPoints,
+        savedCards: data.savedCards ?? [],
+        transactions: data.transactions ?? transactions,
+      });
       toast.success(data.mesaj || "Kart kaydedildi.");
     } catch (e: any) {
       toast.error(e.message);
@@ -222,6 +250,12 @@ export default function CuzdanPage() {
       if (!res.ok) throw new Error(data.hata || "Silinemedi");
       setSavedCards(data.savedCards ?? []);
       setSilinecekKart(null);
+      cuzdanCacheYaz({
+        storeCredit,
+        loyaltyPoints,
+        savedCards: data.savedCards ?? [],
+        transactions,
+      });
       toast.success("Kart silindi.");
     } catch (e: any) {
       toast.error(e.message);
@@ -294,10 +328,6 @@ export default function CuzdanPage() {
                   <UserPlus className="w-4 h-4" /> Kayıt Ol
                 </Link>
               </div>
-            </div>
-          ) : yukleniyor ? (
-            <div className="flex items-center justify-center py-24">
-              <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
             </div>
           ) : (
             <>

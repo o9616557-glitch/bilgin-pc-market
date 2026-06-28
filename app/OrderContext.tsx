@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 
 interface OrderContextType {
@@ -9,56 +9,82 @@ interface OrderContextType {
   refreshOrders: () => void;
 }
 
-// 1. Odayı tasarlıyoruz (İçi şimdilik boş)
+const CACHE_KEY = "bilgin_siparisler";
+
+function cacheOku(): any[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = sessionStorage.getItem(CACHE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function cacheYaz(siparisler: any[]) {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify(siparisler));
+  } catch {}
+}
+
 const OrderContext = createContext<OrderContextType>({
   orders: [],
-  loading: true,
+  loading: false,
   refreshOrders: () => {},
 });
 
 export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
   const { status } = useSession();
   const [orders, setOrders] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [hafizaHazir, setHafizaHazir] = useState(false);
 
-  // 2. Kurye Motoru: Veritabanına gidip siparişleri TEK SEFERDE çeker ve rafa dizer
-  const fetchOrders = async () => {
-    setLoading(true);
+  useEffect(() => {
+    const cached = cacheOku();
+    if (cached.length > 0) setOrders(cached);
+    setHafizaHazir(true);
+  }, []);
+
+  const fetchOrders = useCallback(async (ilkYukleme = false) => {
+    const cached = cacheOku();
+    if (ilkYukleme && cached.length === 0) setLoading(true);
+
     try {
-      const res = await fetch("/api/orders?t=" + new Date().getTime(), { cache: "no-store" });
+      const res = await fetch("/api/orders?t=" + Date.now(), { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
-        
-        // Veriyi gelir gelmez en yeni tarihe göre sıralayıp gizlenenleri ayıklıyoruz (Sayfalar bir daha yorulmasın)
         const sirali = (data.orders || [])
           .filter((o: any) => o.gizlendi !== true)
           .sort((a: any, b: any) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime());
-        
+
         setOrders(sirali);
+        cacheYaz(sirali);
       }
     } catch (error) {
       console.error("Siparişler hafızaya alınırken hata oluştu:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  // 3. Şalter: Kullanıcı siteye giriş yaptığı an (sayfa neresi olursa olsun) motor çalışır!
   useEffect(() => {
+    if (!hafizaHazir || status === "loading") return;
+
     if (status === "authenticated") {
-      fetchOrders();
+      fetchOrders(true);
     } else if (status === "unauthenticated") {
-      setLoading(false);
       setOrders([]);
+      setLoading(false);
+      if (typeof window !== "undefined") sessionStorage.removeItem(CACHE_KEY);
     }
-  }, [status]);
+  }, [status, hafizaHazir, fetchOrders]);
 
   return (
-    <OrderContext.Provider value={{ orders, loading, refreshOrders: fetchOrders }}>
+    <OrderContext.Provider value={{ orders, loading, refreshOrders: () => fetchOrders(false) }}>
       {children}
     </OrderContext.Provider>
   );
 };
 
-// Sayfaların bu odaya kolayca ulaşması için kestirme anahtarımız
 export const useOrders = () => useContext(OrderContext);

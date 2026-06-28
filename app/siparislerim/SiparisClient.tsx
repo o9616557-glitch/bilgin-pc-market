@@ -14,7 +14,7 @@ import { useOrders } from "@/app/OrderContext";
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
 
 export default function SiparisClient() {
-  const { orders: contextOrders, loading: contextLoading, refreshOrders } = useOrders();
+  const { orders: contextOrders, refreshOrders } = useOrders();
   
   // 🚀 Sepete ekleme fonksiyonunu çektik (Senin context'te ismi sepeteEkle ise addToCart yerine onu yazarsın)
 const { sepeteEkle } = useCart();
@@ -123,11 +123,10 @@ const { sepeteEkle } = useCart();
   const filtrelenmisSiparisler = localOrders.filter(order => {
     let zamanUygun = true;
     let durumUygun = true;
-    
-    // 1. ZAMAN FİLTRESİ KONTROLÜ
+
     if (zamanFiltresi !== "tumu") {
       const orderDateStr = order.createdAt || order.tarih;
-      const orderDate = orderDateStr ? new Date(orderDateStr) : new Date(); // Tarih yoksa bugünü baz al çökmesin
+      const orderDate = orderDateStr ? new Date(orderDateStr) : new Date();
       const now = new Date();
 
       if (zamanFiltresi === "son30") {
@@ -141,7 +140,6 @@ const { sepeteEkle } = useCart();
       }
     }
 
-    // 2. DURUM FİLTRESİ KONTROLÜ
     if (durumFiltresi !== "tumu") {
       const d = (order.durum || order.status || "").toLocaleLowerCase("tr-TR");
       if (durumFiltresi === "teslim") {
@@ -155,17 +153,8 @@ const { sepeteEkle } = useCart();
       }
     }
 
-    // Her iki şartı da sağlıyorsa ekranda göster
     return zamanUygun && durumUygun;
   });
-
-  if (contextLoading && localOrders.length === 0) {
-    return (
-      <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center">
-        <div className="w-12 h-12 border-4 border-slate-800 border-t-cyan-500 rounded-full animate-spin shadow-[0_0_30px_rgba(6,182,212,0.3)]"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip">
