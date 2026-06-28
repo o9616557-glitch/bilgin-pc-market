@@ -18,6 +18,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Lütfen bir isim giriniz'],
     },
+    image: {
+      type: String,
+      default: null,
+    },
     email: {
       type: String,
       required: [true, 'Lütfen bir e-posta giriniz'],

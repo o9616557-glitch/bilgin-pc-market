@@ -256,13 +256,15 @@ export const authOptions: NextAuthOptions = {
         try {
           if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
           
-          const dbUser = await User.findOne({ email: token.email }).select("activeDevices");
+          const dbUser = await User.findOne({ email: token.email }).select("activeDevices image");
           
           if (dbUser) {
             const buCihaz = dbUser.activeDevices.find((c: any) => c.deviceId === token.deviceId);
             if (!buCihaz || buCihaz.isActive === false) {
               return { ...token, isLoggedOut: true }; 
             }
+            // Kullanıcının DB'deki güncel profil fotoğrafını token'a ekle
+            if (dbUser.image) token.dbImage = dbUser.image;
           }
         } catch (err) { console.error("Cihaz kontrol hatası:", err); }
       }
@@ -275,6 +277,8 @@ export const authOptions: NextAuthOptions = {
       } else if (session.user) {
         (session.user as any).id = token.id;
         (session.user as any).deviceId = token.deviceId;
+        // DB'deki güncel profil fotoğrafını oturuma yansıt
+        if (token.dbImage) session.user.image = token.dbImage as string;
       }
       return session;
     }

@@ -7,10 +7,11 @@ import { useSession, signOut } from "next-auth/react";
 import { oturumHafizasiniTemizle } from "@/lib/oturum-hafiza";
 import { useOrders } from "@/app/OrderContext";
 import AccountShell from "@/components/layout/AccountShell";
+import Image from "next/image";
 import { 
   User, ShieldCheck, CreditCard, Package, Server, Truck, Star, 
   MapPin, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, 
-  Search, LogIn, Headset, Palette 
+  Search, LogIn, Headset, Palette, Camera, Loader2
 } from "lucide-react";
 
 // Canlı Lucide ikonlarını veritabanından gelen kimliklere göre eşleştiren motor
@@ -30,10 +31,51 @@ const ikonEslestir = (liste: any[]) => {
 };
 
 export default function HesabimPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update: updateSession } = useSession();
   const { orders: siparisler } = useOrders();
   const suAnkiTarih = new Date();
   const yil = suAnkiTarih.getFullYear();
+
+  // ── Avatar yükleme
+  const dosyaInputRef = useRef<HTMLInputElement>(null);
+  const [avatarOnizleme, setAvatarOnizleme] = useState<string | null>(null);
+  const [avatarYukleniyor, setAvatarYukleniyor] = useState(false);
+
+  const handleAvatarSec = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const dosya = e.target.files?.[0];
+    if (!dosya) return;
+    const okur = new FileReader();
+    okur.onload = async (ev) => {
+      const ham = ev.target?.result as string;
+      // Canvas ile 256x256'ya sıkıştır
+      const img = document.createElement("img");
+      img.onload = async () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = 256; canvas.height = 256;
+        const ctx = canvas.getContext("2d")!;
+        const oran = Math.min(256 / img.width, 256 / img.height);
+        const w = img.width * oran; const h = img.height * oran;
+        ctx.drawImage(img, (256 - w) / 2, (256 - h) / 2, w, h);
+        const base64 = canvas.toDataURL("image/jpeg", 0.75);
+        setAvatarOnizleme(base64);
+        setAvatarYukleniyor(true);
+        try {
+          const res = await fetch("/api/user/update-avatar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ image: base64 }),
+          });
+          if (res.ok) await updateSession();
+        } catch {}
+        setAvatarYukleniyor(false);
+      };
+      img.src = ham;
+    };
+    okur.readAsDataURL(dosya);
+    e.target.value = "";
+  };
+
+  const aktifAvatar = avatarOnizleme || session?.user?.image;
 
   // =========================================================================
   // 🚀 REHBER (ONBOARDING) SİSTEMİ HAFIZASI
@@ -541,16 +583,54 @@ export default function HesabimPage() {
               <div className="relative w-28 h-28 sm:w-32 sm:h-32 shrink-0 flex items-center justify-center">
                 <div className="absolute inset-0 rounded-full bg-gradient-to-b from-slate-600 to-slate-900 border-[3px] border-slate-700 shadow-[inset_0_0_20px_rgba(0,0,0,0.8),_0_10px_20px_rgba(0,0,0,0.5)]"></div>
                 <div className={`absolute inset-2.5 rounded-full border border-cyan-400/30 shadow-[0_0_20px_rgba(34,211,255,0.4),inset_0_0_20px_rgba(34,211,255,0.2)] border-t-cyan-300 animate-[spin_8s_linear_infinite] ${aktifPalet === 'menu' ? 'border-t-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.5)]' : ''}`}></div>
-                
-                <div 
-                  onClick={() => togglePalet('menu')}
-                  title={aktifPalet === 'menu' ? "Düzenlemeyi Kapat" : "Menüyü Düzenle"}
-                  className={`absolute inset-4 rounded-full flex items-center justify-center shadow-[inset_0_0_30px_rgba(0,0,0,0.9)] cursor-pointer transition-all duration-300 hover:scale-105 z-20 ${aktifPalet === 'menu' ? 'bg-emerald-950 border-2 border-emerald-500' : 'bg-[#020617] border border-cyan-900/50'}`}
+
+                {/* Avatar içi — fotoğraf veya harf */}
+                <div
+                  onClick={() => aktifPalet !== 'menu' && dosyaInputRef.current?.click()}
+                  title={aktifPalet === 'menu' ? "" : "Profil fotoğrafı değiştir"}
+                  className={`absolute inset-4 rounded-full flex items-center justify-center shadow-[inset_0_0_30px_rgba(0,0,0,0.9)] overflow-hidden transition-all duration-300 z-20 ${aktifPalet !== 'menu' ? 'cursor-pointer hover:scale-105 group' : ''}`}
+                  style={{ background: aktifPalet === 'menu' ? undefined : '#020617' }}
                 >
-                  <span className={`text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b drop-shadow-[0_0_15px_rgba(34,211,255,0.8)] ${aktifPalet === 'menu' ? 'from-emerald-100 to-emerald-500' : 'from-cyan-100 to-cyan-500'}`}>
-                    {aktifPalet === 'menu' ? <Palette className="w-10 h-10 text-emerald-400" /> : basHarf}
-                  </span>
+                  {aktifPalet === 'menu' ? (
+                    <div onClick={() => togglePalet('menu')} className="w-full h-full flex items-center justify-center bg-emerald-950 border-2 border-emerald-500 rounded-full cursor-pointer">
+                      <Palette className="w-10 h-10 text-emerald-400" />
+                    </div>
+                  ) : aktifAvatar ? (
+                    <>
+                      <Image src={aktifAvatar} alt="Profil" fill className="object-cover rounded-full" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-full">
+                        {avatarYukleniyor
+                          ? <Loader2 className="w-6 h-6 text-white animate-spin" />
+                          : <Camera className="w-6 h-6 text-white" />}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-cyan-100 to-cyan-500 drop-shadow-[0_0_15px_rgba(34,211,255,0.8)]">
+                        {basHarf}
+                      </span>
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-full">
+                        {avatarYukleniyor
+                          ? <Loader2 className="w-6 h-6 text-white animate-spin" />
+                          : <Camera className="w-6 h-6 text-white" />}
+                      </div>
+                    </>
+                  )}
                 </div>
+
+                {/* Menü düzenleme tıklama alanı (palet açıkken) */}
+                {aktifPalet === 'menu' && (
+                  <div onClick={() => togglePalet('menu')} className="absolute inset-0 z-30 cursor-pointer rounded-full" title="Düzenlemeyi Kapat" />
+                )}
+
+                {/* Gizli dosya input */}
+                <input
+                  ref={dosyaInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarSec}
+                />
               </div>
               
               <div className="flex-1 text-center sm:text-left z-10 flex flex-col justify-center">
