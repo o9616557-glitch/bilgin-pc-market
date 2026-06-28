@@ -23,7 +23,8 @@ function OnayIcerik() {
 
     const verifyEmail = async () => {
       try {
-        const res = await fetch(`/api/verify-email?token=${token}`);
+        // 🚀 İŞTE DÜZELTİLEN TEK SATIR BURASI (user klasörünün yolunu ekledik)
+        const res = await fetch(`/api/user/verify-email?token=${token}`);
         const data = await res.json();
 
         if (res.ok) {
