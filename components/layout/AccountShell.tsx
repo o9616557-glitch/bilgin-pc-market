@@ -295,7 +295,7 @@ export default function AccountShell({ children, active }: AccountShellProps) {
     <div className="site-page p-4 sm:p-6 lg:p-8">
       <div className="site-glow-top top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[320px]" />
 
-      {/* Mobil: yatay scroll nav */}
+      {/* Mobil: yatay scroll nav — sabit, animasyon yok */}
       <div className="lg:hidden mb-4">
         <div className="account-card p-2">
           <div className="flex gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none" }}>
@@ -319,15 +319,15 @@ export default function AccountShell({ children, active }: AccountShellProps) {
       </div>
 
       {/* Desktop: panel sol, içerik sağ */}
-      <div className="site-content-in max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-6 relative z-10 items-start">
+      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-6 relative z-10 items-start">
 
-        {/* Sol panel */}
+        {/* Sol panel — sabit, animasyon yok */}
         <aside className="hidden lg:block w-[260px] xl:w-[280px] shrink-0 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full">
           <AccountPanel active={active} />
         </aside>
 
-        {/* İçerik alanı (sağ) */}
-        <div className="flex-1 min-w-0">{children}</div>
+        {/* İçerik alanı — sadece içerik animasyonlu */}
+        <div className="site-content-in flex-1 min-w-0">{children}</div>
 
       </div>
     </div>

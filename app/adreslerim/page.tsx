@@ -224,17 +224,17 @@ export default function AdreslerimPage() {
               <div className="w-12 h-12 sm:w-14 sm:h-14 bg-site-shell border border-white/[0.08] rounded-full flex items-center justify-center shrink-0">
                 <MapPin className="w-6 h-6 text-cyan-400/80" />
               </div>
-              <div>
-                <h1 className="text-lg sm:text-xl font-bold text-white mb-0.5">Adreslerim</h1>
-                <p className="text-slate-400 text-xs sm:text-sm">Teslimat ve fatura adreslerinizi yönetin</p>
+              <div className="min-w-0">
+                <h1 className="text-base sm:text-xl font-bold text-white mb-0.5 truncate">Adreslerim</h1>
+                <p className="text-slate-400 text-xs hidden sm:block">Teslimat ve fatura adreslerinizi yönetin</p>
               </div>
             </div>
             <button
               onClick={() => setModalMode("add")}
-              className="flex items-center gap-1.5 text-xs font-semibold text-site-accent border border-site-accent/30 rounded-xl px-3 py-2 hover:bg-site-accent/10 transition-colors"
+              className="flex items-center gap-1.5 text-xs font-semibold text-site-accent border border-site-accent/30 rounded-xl px-2.5 py-2 sm:px-3 hover:bg-site-accent/10 transition-colors shrink-0"
             >
-              <Plus className="w-3.5 h-3.5" />
-              Adres Ekle
+              <Plus className="w-3.5 h-3.5 shrink-0" />
+              <span className="hidden sm:inline">Adres Ekle</span>
             </button>
           </div>
         </div>
