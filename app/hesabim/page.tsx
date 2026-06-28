@@ -88,7 +88,7 @@ export default function HesabimPage() {
         const canvas = document.createElement("canvas");
         canvas.width = 256; canvas.height = 256;
         const ctx = canvas.getContext("2d")!;
-        const oran = Math.min(256 / img.width, 256 / img.height);
+        const oran = Math.max(256 / img.width, 256 / img.height);
         const w = img.width * oran; const h = img.height * oran;
         ctx.drawImage(img, (256 - w) / 2, (256 - h) / 2, w, h);
         const base64 = canvas.toDataURL("image/jpeg", 0.75);
@@ -253,7 +253,11 @@ export default function HesabimPage() {
   const [isKargoModalOpen, setIsKargoModalOpen] = useState(false);
   const [kopyalananKod, setKopyalananKargo] = useState<string | null>(null);
   const [girisSartModal, setGirisSartModal] = useState(false);
-  const [guvenlikOzeti, setGuvenlikOzeti] = useState({ ikiAdim: false, cihazSayisi: 0 });
+  const [guvenlikOzeti, setGuvenlikOzeti] = useState<{ ikiAdim: boolean; cihazSayisi: number } | null>(() => {
+    if (typeof window === "undefined") return null;
+    try { const c = sessionStorage.getItem("bilgin_guvenlik_ozet"); return c ? JSON.parse(c) : null; } catch { return null; }
+  });
+  const guvenlikYuklendi = useRef(false);
 
   const [pastaVerisi, setPastaVerisi] = useState({
     kendinTopla: { yuzde: 0, offset: 0 }, bilesen: { yuzde: 0, offset: 0 },
@@ -441,15 +445,20 @@ export default function HesabimPage() {
     hafizadanOku();
     window.addEventListener("bilgin-hesap-guncellendi", hafizadanOku);
 
-    fetch("/api/user/get-2fa", { cache: "no-store" })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (!data) return;
-        // Sadece açıkça aktif işaretlenmiş cihazları say
-        const aktifCihazlar = (data.activeDevices || []).filter((c: any) => c.isActive === true);
-        setGuvenlikOzeti({ ikiAdim: !!data.twoFactorEmail, cihazSayisi: aktifCihazlar.length });
-      })
-      .catch(() => {});
+    // Yalnızca bir kez fetch yap (sessionStorage cache'i yoksa)
+    if (!guvenlikYuklendi.current) {
+      guvenlikYuklendi.current = true;
+      fetch("/api/user/get-2fa", { cache: "no-store" })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (!data) return;
+          const aktifCihazlar = (data.activeDevices || []).filter((c: any) => c.isActive === true);
+          const ozet = { ikiAdim: !!data.twoFactorEmail, cihazSayisi: aktifCihazlar.length };
+          setGuvenlikOzeti(ozet);
+          try { sessionStorage.setItem("bilgin_guvenlik_ozet", JSON.stringify(ozet)); } catch {}
+        })
+        .catch(() => {});
+    }
 
     return () => window.removeEventListener("bilgin-hesap-guncellendi", hafizadanOku);
   }, [status, session?.user?.email]);
@@ -714,7 +723,7 @@ export default function HesabimPage() {
           </div>
         </div>
 
-        {status === "authenticated" && aktifPalet !== "menu" && (
+        {status !== "unauthenticated" && aktifPalet !== "menu" && (
           <Link
             href="/guvenlik"
             className="w-full flex items-center justify-between gap-3 px-4 sm:px-5 py-3 sm:py-4 rounded-2xl bg-[#0f172a] border border-slate-800 hover:border-slate-700 transition-all group"
@@ -726,7 +735,9 @@ export default function HesabimPage() {
               <div className="min-w-0">
                 <p className="text-xs sm:text-sm font-bold text-white">Güvenlik Merkezi</p>
                 <p className="text-[10px] sm:text-xs text-slate-500 truncate">
-                  {guvenlikOzeti.ikiAdim ? "2FA aktif" : "2FA kapalı"} • {guvenlikOzeti.cihazSayisi} aktif cihaz
+                  {guvenlikOzeti
+                    ? `${guvenlikOzeti.ikiAdim ? "2FA aktif" : "2FA kapalı"} • ${guvenlikOzeti.cihazSayisi} aktif cihaz`
+                    : "Yükleniyor..."}
                 </p>
               </div>
             </div>

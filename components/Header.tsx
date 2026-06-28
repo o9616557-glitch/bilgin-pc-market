@@ -121,13 +121,16 @@ function MobilLogoAlani({ menuAcik }: { menuAcik: boolean }) {
     );
   }
 
+  /* Misafir — boş profil dairesi, tıklayınca giriş sayfasına */
   return (
     <Link
-      href="/"
+      href="/giris"
       prefetch={false}
-      className={`md:hidden text-white font-black text-2xl tracking-tight flex items-center relative z-[100] transition-all duration-300 ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
+      className={`md:hidden relative z-[100] w-9 h-9 rounded-full bg-white/[0.06] border border-white/[0.12] flex items-center justify-center transition-all hover:bg-white/[0.1] ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
     >
-      BİLGİN <span className="text-[#3b82f6] ml-1">PC</span>
+      <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      </svg>
     </Link>
   );
 }
