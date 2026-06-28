@@ -2,18 +2,32 @@
 
 import { useSession, signOut } from "next-auth/react";
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 export default function GlobalKalkan() {
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
+  const pathname = usePathname(); // 🚀 Dürbün: Adamın sitede hangi sayfaya gittiğini takip eder
 
+  // 1. GÖREV: Adam sitede herhangi bir yere tıkladığında (sayfa değiştiğinde) anında kontrol et!
   useEffect(() => {
-    // 🚀 TypeScript müfettişini susturmak için '(session as any)' kullanıyoruz.
-    // Eğer arka plandaki motor adama "KickedOut" (Kovuldu) damgası vurduysa...
+    update(); // Sunucuya "Bilet hala geçerli mi?" diye sessizce sorar
+  }, [pathname, update]); 
+
+  // 2. GÖREV: Adam hiçbir yere tıklamayıp ekrana baksa bile her 15 saniyede bir gizlice kontrol et!
+  useEffect(() => {
+    const radar = setInterval(() => {
+      update();
+    }, 15000); // 15 saniye (15000 milisaniye)
+    
+    return () => clearInterval(radar);
+  }, [update]);
+
+  // 3. GÖREV: Merkezden "Kovuldu" (KickedOut) damgası gelirse acımadan şutla!
+  useEffect(() => {
     if ((session as any)?.error === "KickedOut") {
-      // Acımadan, anında sistemden şutla ve giriş sayfasına fırlat!
       signOut({ callbackUrl: "/giris?error=BaskaCihazdanKapatildi" });
     }
-  }, [session]); // Adam sitede her tık yaptığında veya sekmeye her döndüğünde kontrol eder
+  }, [session]);
 
-  return null; // Görünmezdir, ekranda zerre yer kaplamaz.
+  return null; 
 }
