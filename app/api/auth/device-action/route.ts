@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import User from "@/models/User";
 
+// 🚀 BİNGO 1: Sayfayı Önbelleğe Almayı Kesinlikle Yasaklıyoruz!
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -11,9 +15,12 @@ export async function GET(req: Request) {
     if (!token || !action) return NextResponse.json({ message: "Geçersiz bağlantı." }, { status: 400 });
     if (mongoose.connection.readyState === 0) await mongoose.connect(process.env.MONGODB_URI as string);
 
+    // 🚀 BİNGO 2: Date.now() yerine gerçek bir tarih objesi yolluyoruz ki Mongoose anlasın!
+    const suAnkiTarih = new Date();
+
     const user = await User.findOne({
       pendingDeviceToken: token,
-      pendingDeviceExpires: { $gt: Date.now() }
+      pendingDeviceExpires: { $gt: suAnkiTarih } // Mongoose artık bu tarihi sorunsuz okuyacak
     });
 
     // 🚀 ORTAK KURUMSAL HTML ŞABLONU 
@@ -68,7 +75,7 @@ export async function GET(req: Request) {
       user.pendingDeviceExpires = undefined;
       user.pendingDeviceInfo = undefined;
       await user.save();
-const kurumsalMesaj = `
+      const kurumsalMesaj = `
         <span style="color: #f8fafc; font-weight: bold;">Güvenlik protokolleri başarıyla tamamlandı.</span><br><br>
         Bu cihaz sistemlerimizde güvenilir olarak yetkilendirilmiştir. Lütfen giriş işlemini başlattığınız <b>asıl ekrana (ana cihazınıza)</b> geri dönünüz.<br><br>
         <strong style="color:#10b981;">Sistem işleminizi algılayarak sizi otomatik olarak bir sonraki güvenlik adımına veya panele yönlendirecektir.</strong>
