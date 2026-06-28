@@ -109,6 +109,64 @@ function AccountSwitchModal({ email, onClose }: { email: string; onClose: () => 
   );
 }
 
+/* ─────────────────── MOBİL PROFİL KARTI ─────────────────── */
+function MobilProfilKarti() {
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return (
+      <div className="account-card rounded-2xl p-3 flex items-center gap-3">
+        <div className="w-9 h-9 rounded-full bg-white/[0.05] animate-pulse shrink-0" />
+        <div className="flex-1 flex flex-col gap-1.5">
+          <div className="h-3 w-20 bg-white/[0.05] rounded animate-pulse" />
+          <div className="h-2.5 w-28 bg-white/[0.04] rounded animate-pulse" />
+        </div>
+      </div>
+    );
+  }
+
+  if (status === "unauthenticated") {
+    return (
+      <div className="account-card rounded-2xl p-3 flex items-center gap-3">
+        <div className="w-9 h-9 rounded-full bg-site-shell border border-white/[0.08] flex items-center justify-center shrink-0">
+          <User className="w-4 h-4 text-slate-500" />
+        </div>
+        <p className="flex-1 text-slate-400 text-xs">Giriş yapılmadı</p>
+        <Link href="/giris" className="text-xs font-semibold text-site-accent border border-site-accent/30 rounded-xl px-3 py-1.5 hover:bg-site-accent/10 transition-colors shrink-0">
+          Giriş Yap
+        </Link>
+      </div>
+    );
+  }
+
+  const userImage = session?.user?.image;
+  const userName  = session?.user?.name  || "Kullanıcı";
+  const userEmail = session?.user?.email || "";
+
+  return (
+    <div className="account-card rounded-2xl p-3 flex items-center gap-3">
+      {userImage ? (
+        <Image src={userImage} alt={userName} width={36} height={36} className="rounded-full object-cover shrink-0 ring-2 ring-site-accent/20" />
+      ) : (
+        <div className="w-9 h-9 rounded-full bg-site-shell border border-white/[0.1] flex items-center justify-center shrink-0">
+          <User className="w-4 h-4 text-slate-400" />
+        </div>
+      )}
+      <div className="flex-1 min-w-0">
+        <p className="text-white text-xs font-semibold truncate">{userName}</p>
+        <p className="text-slate-500 text-[10px] truncate">{userEmail}</p>
+      </div>
+      <button
+        onClick={() => signOut({ callbackUrl: "/" })}
+        title="Çıkış Yap"
+        className="text-slate-600 hover:text-red-400 transition-colors shrink-0 p-1.5 rounded-lg hover:bg-red-500/10"
+      >
+        <LogOut className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  );
+}
+
 /* ─────────────────── PANEL BİLEŞENİ ─────────────────── */
 function AccountPanel({ active }: { active?: string }) {
   const { data: session, status } = useSession();
@@ -295,8 +353,9 @@ export default function AccountShell({ children, active }: AccountShellProps) {
     <div className="site-page p-4 sm:p-6 lg:p-8">
       <div className="site-glow-top top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[320px]" />
 
-      {/* Mobil: yatay scroll nav — sabit, animasyon yok */}
-      <div className="lg:hidden mb-4">
+      {/* Mobil: profil kartı + yatay scroll nav */}
+      <div className="lg:hidden mb-4 flex flex-col gap-2">
+        <MobilProfilKarti />
         <div className="account-card p-2">
           <div className="flex gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none" }}>
             {NAV_ITEMS.map((item) => (
