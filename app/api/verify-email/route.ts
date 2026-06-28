@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import User from "@/models/User";
-import { getServerSession } from "next-auth"; // 🚀 AKILLI RADAR: Oturum kontrolcüsü
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // 🚀 AKILLI RADAR: Güvenlik ayarları
+import { getServerSession } from "next-auth"; // 🚀 AKILLI RADAR
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // 🚀 AKILLI RADAR AYARLARI
 
 export async function GET(req: Request) {
   try {
@@ -10,20 +10,22 @@ export async function GET(req: Request) {
       await mongoose.connect(process.env.MONGODB_URI as string);
     }
 
-    // 🚀 AKILLI RADAR DEVREDE: Adam zaten içeride mi diye kapıya bakıyoruz
-    const session = await getServerSession(authOptions);
-
-    if (session && session.user?.email) {
-      const loggedInUser = await User.findOne({ email: session.user.email });
-      // ŞEFİM BİNGO: Adam zaten içerideyse ve hesabı çoktan onaylanmışsa, ona "süresi dolmuş" deme!
-      if (loggedInUser && loggedInUser.isVerified) {
-        return NextResponse.json({ message: "Hesabınız zaten onaylı. Alışverişe devam edebilirsiniz." }, { status: 200 });
+    // 🛡️ AKILLI RADAR ZIRHLANDI: Çökme riskine karşı özel koruma çemberine alındı
+    try {
+      const session = await getServerSession(authOptions);
+      if (session && session.user?.email) {
+        const loggedInUser = await User.findOne({ email: session.user.email });
+        if (loggedInUser && loggedInUser.isVerified) {
+          return NextResponse.json({ message: "Hesabınız zaten onaylı. Alışverişe devam edebilirsiniz." }, { status: 200 });
+        }
       }
+    } catch (radarError) {
+      // Eğer radar hata verirse (sunucu çakışması vs), SİSTEMİ ÇÖKERTMEZ!
+      // Sessizce çalışmayı durdurur ve aşağıdaki normal onaylama işlemine geçer.
+      console.log("Radar geçici olarak atlandı, normal onaya geçiliyor.");
     }
 
-    // --- SENİN KUSURSUZ ÇALIŞAN ESKİ KODUN (Buradan aşağısına hiç dokunulmadı) ---
-    
-    // Linkteki ?token=... kısmını yakalıyoruz
+    // --- SENİN KUSURSUZ ÇALIŞAN ESKİ KODUN ---
     const { searchParams } = new URL(req.url);
     const token = searchParams.get("token");
 
@@ -44,6 +46,7 @@ export async function GET(req: Request) {
     await user.save();
 
     return NextResponse.json({ message: "Hesabınız başarıyla onaylandı!" }, { status: 200 });
+
   } catch (error) {
     console.error("E-posta Onay Hatası:", error);
     return NextResponse.json({ message: "Onaylama esnasında sunucu hatası oluştu." }, { status: 500 });
