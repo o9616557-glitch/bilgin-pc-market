@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { oturumHafizasiniTemizle } from "@/lib/oturum-hafiza";
@@ -38,6 +39,11 @@ export default function HesabimPage() {
   // =========================================================================
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [dontShowAgain, setDontShowAgain] = useState(false);
+  const [portalHazir, setPortalHazir] = useState(false);
+
+  useEffect(() => {
+    setPortalHazir(true);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -973,57 +979,55 @@ export default function HesabimPage() {
 
       </div>
 
-{/* Karşılama rehberi — tam ekran ortalı, site renkleri */}
-      {showOnboarding && (
-        <div className="fixed inset-0 z-[9999999] flex items-center justify-center bg-site-shell/92 backdrop-blur-xl p-4 sm:p-6 overflow-y-auto">
-          <div className="glass-card border border-site-accent/20 rounded-2xl sm:rounded-3xl max-w-md sm:max-w-lg w-full shadow-[0_0_40px_rgba(56,189,248,0.08)] relative my-auto animate-in fade-in zoom-in-95 duration-500">
-            <div className="site-glow-top top-0 left-1/2 -translate-x-1/2 w-full h-32 opacity-60 pointer-events-none rounded-t-3xl" />
-
-            <div className="relative z-10 p-5 sm:p-7 flex flex-col">
+{/* Karşılama rehberi — portal ile body'ye, mobilde tam ortalı */}
+      {showOnboarding && portalHazir && createPortal(
+        <div className="fixed inset-0 z-[9999999] flex items-center justify-center bg-[#050814]/95 backdrop-blur-xl p-4 sm:p-6">
+          <div className="w-full max-w-md sm:max-w-lg max-h-[min(88dvh,640px)] overflow-y-auto bg-[#0f172a]/95 border border-cyan-500/20 rounded-2xl sm:rounded-3xl shadow-[0_0_40px_rgba(6,182,212,0.12)] relative -translate-y-0 md:-translate-y-6">
+            <div className="p-5 sm:p-7 flex flex-col">
               <div className="text-center mb-5 sm:mb-6">
                 <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-3 relative flex items-center justify-center">
-                  <div className="absolute inset-0 rounded-full border border-site-accent/30 animate-[spin_6s_linear_infinite] border-t-site-accent" />
-                  <div className="absolute inset-1.5 rounded-full bg-site-card border border-white/10 flex items-center justify-center">
-                    <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-site-accent" />
+                  <div className="absolute inset-0 rounded-full border border-cyan-400/30 animate-[spin_6s_linear_infinite] border-t-cyan-400" />
+                  <div className="absolute inset-1.5 rounded-full bg-[#050814] border border-slate-700 flex items-center justify-center">
+                    <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400" />
                   </div>
                 </div>
-                <h2 className="site-h2 mb-2">
+                <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight mb-2">
                   Kişisel panelinize hoş geldiniz
                 </h2>
-                <p className="site-body text-xs sm:text-sm max-w-sm mx-auto">
+                <p className="text-slate-400 text-xs sm:text-sm max-w-sm mx-auto leading-relaxed">
                   Hesabım sayfasını kendi zevkinize göre özelleştirebilirsiniz. Başlamadan önce iki kısa not:
                 </p>
               </div>
 
               <div className="space-y-3 mb-5 sm:mb-6">
                 <div className="flex items-start gap-3 p-3 sm:p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-                  <div className="w-9 h-9 rounded-full bg-site-shell border border-site-accent/20 flex items-center justify-center shrink-0">
-                    <User className="w-4 h-4 text-site-accent" />
+                  <div className="w-9 h-9 rounded-full bg-[#050814] border border-cyan-500/20 flex items-center justify-center shrink-0">
+                    <User className="w-4 h-4 text-cyan-400" />
                   </div>
                   <div>
                     <h4 className="text-white font-medium text-sm mb-1">Menüleri boyayın ve taşıyın</h4>
-                    <p className="site-body text-xs">
+                    <p className="text-slate-400 text-xs leading-relaxed">
                       Profil yuvarlağınıza tıklayarak kutuların yerini değiştirebilir ve renklendirebilirsiniz.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3 p-3 sm:p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-                  <div className="w-9 h-9 rounded-full bg-site-shell border border-emerald-500/20 flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-[#050814] border border-emerald-500/20 flex items-center justify-center shrink-0">
                     <Palette className="w-4 h-4 text-emerald-400" />
                   </div>
                   <div>
                     <h4 className="text-white font-medium text-sm mb-1">Grafikleri özelleştirin</h4>
-                    <p className="site-body text-xs">
+                    <p className="text-slate-400 text-xs leading-relaxed">
                       Başlıkların yanındaki ikonlara tıklayarak sipariş ve grafik renklerini değiştirebilirsiniz.
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t border-white/[0.08]">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t border-slate-800/80">
                 <label className="flex items-center gap-2.5 cursor-pointer group select-none justify-center sm:justify-start" onClick={() => setDontShowAgain(!dontShowAgain)}>
-                  <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${dontShowAgain ? "bg-emerald-500 border-emerald-400" : "bg-site-shell border-white/20"}`}>
+                  <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${dontShowAgain ? "bg-emerald-500 border-emerald-400" : "bg-[#050814] border-slate-600"}`}>
                     {dontShowAgain && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
                   </div>
                   <span className="text-xs font-medium text-slate-300 group-hover:text-white transition-colors">
@@ -1033,14 +1037,15 @@ export default function HesabimPage() {
 
                 <button
                   onClick={closeOnboarding}
-                  className="btn-primary w-full sm:w-auto text-xs uppercase tracking-wide py-3"
+                  className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2"
                 >
                   Hadi başlayalım <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
      {/* 🟢 MODALLAR (Kargo ve Giriş Şartı) */}
       {isKargoModalOpen && (
