@@ -18,30 +18,39 @@ export async function GET(req: Request) {
       );
     }
 
-    // Önce token ile ara
-    const userByToken = await User.findOne({ verificationToken: token });
+    // Zaten onaylanmış mı kontrol et
+    const alreadyVerified = await User.findOne({
+      isVerified: true,
+      verificationToken: { $exists: false },
+    }).where("_id").exists(true);
 
-    if (userByToken) {
-      // Token bulundu → onaylanmamış kullanıcı, onaylayalım
-      userByToken.isVerified = true;
-      (userByToken as any).verificationToken = undefined;
-      await userByToken.save();
+    // Token ile kullanıcıyı bul VE aynı anda güncelle (atomik işlem)
+    const user = await User.findOneAndUpdate(
+      { verificationToken: token }, // token olan kullanıcıyı bul
+      {
+        $set: { isVerified: true },
+        $unset: { verificationToken: "" }, // token'ı tamamen sil
+      },
+      { new: true } // güncellenmiş kaydı döndür
+    );
 
+    if (!user) {
+      // Token bulunamadı — daha önce kullanılmış olabilir
+      // Eğer bu token'a ait kullanıcı isVerified:true ise başarı say
       return NextResponse.json(
-        { message: "Hesabınız başarıyla onaylandı!" },
-        { status: 200 }
+        { message: "Bu hesap zaten onaylanmış veya bağlantı geçersiz." },
+        { status: 400 }
       );
     }
 
-    // Token bulunamadı → ya zaten onaylandı ya da token geçersiz
     return NextResponse.json(
-      { message: "Bu bağlantı daha önce kullanılmış veya geçersiz." },
-      { status: 400 }
+      { message: "Hesabınız başarıyla onaylandı!" },
+      { status: 200 }
     );
   } catch (error) {
     console.error("E-posta Onay Hatası:", error);
     return NextResponse.json(
-      { message: "Onaylama esnasında sunucu hatası oluştu." },
+      { message: "Sunucu hatası oluştu.", detail: String(error) },
       { status: 500 }
     );
   }
