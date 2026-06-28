@@ -261,6 +261,12 @@ export default function HesabimPage() {
     return { hex: "#06b6d4", text: "text-cyan-400" };
   });
 
+  // ── Ping noktası rengi (Destek + Kargo bildirim noktaları)
+  const [pingRenk, setPingRenk] = useState<string>(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('bilgin_ping_renk') || '#fb7185';
+    return '#fb7185';
+  });
+
   const [aktifPalet, setAktifPalet] = useState<'menu'|'siparis'|'pasta'|'cubuk'|null>(null);
   const [seciliKutuId, setSeciliKutuId] = useState<string | null>(null);
   const [seciliSiparisDurumu, setSeciliSiparisDurumu] = useState<string | null>(null);
@@ -321,9 +327,10 @@ export default function HesabimPage() {
   };
 
   const renkUygula = (renkObj: any) => {
-    if (aktifPalet === 'menu' && seciliKutuId) {
-        setUstMenuListesi(eski => eski.map(k => k.id === seciliKutuId ? { ...k, renk: renkObj.text } : k));
-        setAltMenuListesi(eski => eski.map(k => k.id === seciliKutuId ? { ...k, renk: renkObj.text } : k));
+    if (aktifPalet === 'menu') {
+        // Sadece ping noktası rengini güncelle
+        setPingRenk(renkObj.hex);
+        localStorage.setItem('bilgin_ping_renk', renkObj.hex);
     } else if (aktifPalet === 'siparis' && seciliSiparisDurumu) {
         const yeni = { ...siparisRenkleri, [seciliSiparisDurumu]: renkObj };
         setSiparisRenkleri(yeni);
@@ -751,7 +758,7 @@ export default function HesabimPage() {
             </div>
 
             {aktifPalet === 'menu' && (
-              <RenkPaleti disabledCondition={!seciliKutuId} text="🎨 Önce yukarıdan veya aşağıdan bir menü kutusu seçin" />
+              <RenkPaleti disabledCondition={false} text="🎨 Bildirim noktalarının rengini seçin" />
             )}
           </div>
         </div>
@@ -837,8 +844,8 @@ export default function HesabimPage() {
                     {/* Bildirim noktası */}
                     {(kargoVarmi || mesajVarmi) && aktifPalet !== 'menu' && (
                       <span className="absolute top-1 right-1 flex h-2.5 w-2.5 z-10">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-cyan-400"></span>
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400 border border-[#0f172a]"></span>
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: pingRenk }}></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 border border-[#0f172a]" style={{ backgroundColor: pingRenk }}></span>
                       </span>
                     )}
                   </div>
