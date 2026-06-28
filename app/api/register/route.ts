@@ -46,7 +46,7 @@ export async function POST(req: Request) {
         auth: {
           // Şefim buraya process.env.EMAIL_USER ve process.env.EMAIL_PASS yazman daha sağlıklıdır ama şimdilik orijinalini bozmadım
           user: "o9616557@gmail.com", 
-          pass: "vfph bxkd gzsv enpg", 
+          pass: "pkeq xyrh gikt mfhb", 
         },
       });
 
