@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useCart } from "@/app/CartContext";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
@@ -78,6 +79,57 @@ function akilliKategoriBul(metin: string) {
   if (k.includes("monitör") || k.includes("monitor") || k.includes("ekran")) return { isim: "Monitörler", slug: "monitor" };
 
   return null;
+}
+
+function MobilLogoAlani({ menuAcik }: { menuAcik: boolean }) {
+  const { data: session, status } = useSession();
+  const userImage = session?.user?.image;
+  const userName  = session?.user?.name || "";
+
+  if (status === "loading") {
+    return <div className="md:hidden w-8 h-8 rounded-full bg-white/[0.06] animate-pulse" />;
+  }
+
+  if (userImage) {
+    return (
+      <Link
+        href="/hesabim"
+        prefetch={false}
+        className={`md:hidden relative z-[100] transition-all ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
+      >
+        <Image
+          src={userImage}
+          alt={userName}
+          width={36}
+          height={36}
+          className="rounded-full object-cover ring-2 ring-[#3b82f6]/40"
+        />
+      </Link>
+    );
+  }
+
+  if (status === "authenticated") {
+    const basHarf = (userName[0] || "U").toUpperCase();
+    return (
+      <Link
+        href="/hesabim"
+        prefetch={false}
+        className={`md:hidden relative z-[100] w-9 h-9 rounded-full bg-gradient-to-b from-cyan-800 to-[#020617] border border-cyan-500/30 flex items-center justify-center text-cyan-300 font-black text-sm transition-all ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
+      >
+        {basHarf}
+      </Link>
+    );
+  }
+
+  return (
+    <Link
+      href="/"
+      prefetch={false}
+      className={`md:hidden text-white font-black text-2xl tracking-tight flex items-center relative z-[100] transition-all duration-300 ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
+    >
+      BİLGİN <span className="text-[#3b82f6] ml-1">PC</span>
+    </Link>
+  );
 }
 
 export default function Header() {
@@ -245,9 +297,14 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                 <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "opacity-0" : "")}></span>
                 <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "-rotate-45 -translate-y-1.5" : "")}></span>
               </button>
-            <Link href="/" prefetch={false} className={`text-white font-black text-2xl tracking-tight flex items-center relative z-[100] transition-all duration-300 ${menuAcik ? "pointer-events-none opacity-20 md:pointer-events-auto md:opacity-100" : ""}`}>
-  BİLGİN <span className="text-[#3b82f6] ml-1">PC</span>
-</Link>
+
+              {/* Masaüstü: BİLGİN PC logosu */}
+              <Link href="/" prefetch={false} className={`hidden md:flex text-white font-black text-2xl tracking-tight items-center relative z-[100] transition-all duration-300`}>
+                BİLGİN <span className="text-[#3b82f6] ml-1">PC</span>
+              </Link>
+
+              {/* Mobil: profil fotoğrafı (varsa) veya BİLGİN PC */}
+              <MobilLogoAlani menuAcik={menuAcik} />
             </div>
 
             {/* ORTA: MASAÜSTÜ MEGA MENÜ */}

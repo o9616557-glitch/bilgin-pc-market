@@ -584,43 +584,37 @@ export default function HesabimPage() {
                 <div className="absolute inset-0 rounded-full bg-gradient-to-b from-slate-600 to-slate-900 border-[3px] border-slate-700 shadow-[inset_0_0_20px_rgba(0,0,0,0.8),_0_10px_20px_rgba(0,0,0,0.5)]"></div>
                 <div className={`absolute inset-2.5 rounded-full border border-cyan-400/30 shadow-[0_0_20px_rgba(34,211,255,0.4),inset_0_0_20px_rgba(34,211,255,0.2)] border-t-cyan-300 animate-[spin_8s_linear_infinite] ${aktifPalet === 'menu' ? 'border-t-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.5)]' : ''}`}></div>
 
-                {/* Avatar içi — fotoğraf veya harf */}
+                {/* Avatar içi — fotoğraf veya harf, tıklama = palette */}
                 <div
-                  onClick={() => aktifPalet !== 'menu' && dosyaInputRef.current?.click()}
-                  title={aktifPalet === 'menu' ? "" : "Profil fotoğrafı değiştir"}
-                  className={`absolute inset-4 rounded-full flex items-center justify-center shadow-[inset_0_0_30px_rgba(0,0,0,0.9)] overflow-hidden transition-all duration-300 z-20 ${aktifPalet !== 'menu' ? 'cursor-pointer hover:scale-105 group' : ''}`}
-                  style={{ background: aktifPalet === 'menu' ? undefined : '#020617' }}
+                  onClick={() => togglePalet('menu')}
+                  title={aktifPalet === 'menu' ? "Düzenlemeyi Kapat" : "Menüyü Düzenle"}
+                  className={`absolute inset-4 rounded-full flex items-center justify-center shadow-[inset_0_0_30px_rgba(0,0,0,0.9)] overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 z-20 ${aktifPalet === 'menu' ? 'ring-2 ring-emerald-500' : ''}`}
                 >
                   {aktifPalet === 'menu' ? (
-                    <div onClick={() => togglePalet('menu')} className="w-full h-full flex items-center justify-center bg-emerald-950 border-2 border-emerald-500 rounded-full cursor-pointer">
+                    <div className="w-full h-full flex items-center justify-center bg-emerald-950 rounded-full">
                       <Palette className="w-10 h-10 text-emerald-400" />
                     </div>
                   ) : aktifAvatar ? (
-                    <>
-                      <Image src={aktifAvatar} alt="Profil" fill className="object-cover rounded-full" />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-full">
-                        {avatarYukleniyor
-                          ? <Loader2 className="w-6 h-6 text-white animate-spin" />
-                          : <Camera className="w-6 h-6 text-white" />}
-                      </div>
-                    </>
+                    <Image src={aktifAvatar} alt="Profil" fill className="object-cover rounded-full" />
                   ) : (
-                    <>
-                      <span className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-cyan-100 to-cyan-500 drop-shadow-[0_0_15px_rgba(34,211,255,0.8)]">
-                        {basHarf}
-                      </span>
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-full">
-                        {avatarYukleniyor
-                          ? <Loader2 className="w-6 h-6 text-white animate-spin" />
-                          : <Camera className="w-6 h-6 text-white" />}
-                      </div>
-                    </>
+                    <span className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-cyan-100 to-cyan-500 drop-shadow-[0_0_15px_rgba(34,211,255,0.8)]">
+                      {basHarf}
+                    </span>
                   )}
                 </div>
 
-                {/* Menü düzenleme tıklama alanı (palet açıkken) */}
-                {aktifPalet === 'menu' && (
-                  <div onClick={() => togglePalet('menu')} className="absolute inset-0 z-30 cursor-pointer rounded-full" title="Düzenlemeyi Kapat" />
+                {/* Kamera butonu — sağ alt köşe, ayrı */}
+                {aktifPalet !== 'menu' && (
+                  <button
+                    type="button"
+                    onClick={() => dosyaInputRef.current?.click()}
+                    title="Profil fotoğrafı değiştir"
+                    className="absolute bottom-0 right-0 z-30 w-8 h-8 rounded-full bg-[#0b1121] border-2 border-cyan-500/50 flex items-center justify-center hover:bg-cyan-950 hover:border-cyan-400 transition-all shadow-lg"
+                  >
+                    {avatarYukleniyor
+                      ? <Loader2 className="w-3.5 h-3.5 text-cyan-400 animate-spin" />
+                      : <Camera className="w-3.5 h-3.5 text-cyan-400" />}
+                  </button>
                 )}
 
                 {/* Gizli dosya input */}
