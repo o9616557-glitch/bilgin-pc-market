@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, Suspense } from "react";
+import React, { useEffect, useState, Suspense, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
@@ -14,6 +14,9 @@ function OnayIcerik() {
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [message, setMessage] = useState("Hesabınız doğrulanıyor, lütfen bekleyin...");
 
+  // 🚀 BİNGO: HAYALET TIKLAMAYI ENGELLEYEN KİLİT
+  const hasFetched = useRef(false);
+
   useEffect(() => {
     if (!token) {
       setStatus("error");
@@ -21,9 +24,12 @@ function OnayIcerik() {
       return;
     }
 
+    // Eğer kod saniyenin binde biri hızında ikinci kez çalışmaya kalkarsa, buradan geri dön!
+    if (hasFetched.current) return;
+    hasFetched.current = true; // Kapıyı kilitledik
+
     const verifyEmail = async () => {
       try {
-        // 🚀 İŞTE DÜZELTİLEN TEK SATIR BURASI (user klasörünün yolunu ekledik)
         const res = await fetch(`/api/user/verify-email?token=${token}`);
         const data = await res.json();
 
