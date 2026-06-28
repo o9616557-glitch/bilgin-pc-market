@@ -183,7 +183,7 @@ export default function CuzdanPage() {
   const [kartYukleniyor, setKartYukleniyor] = useState(false);
   const [silinecekKart, setSilinecekKart] = useState<string | null>(null);
   const [form, setForm] = useState({
-    cardNumber: "", holderName: "", expiryMonth: "", expiryYear: "", cvv: "",
+    cardNumber: "", holderName: "", expiryMonth: "", expiryYear: "",
   });
 
   const veriCek = useCallback(async () => {
@@ -224,7 +224,7 @@ export default function CuzdanPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.hata || "Kart eklenemedi");
       setSavedCards(data.savedCards ?? []);
-      setForm({ cardNumber: "", holderName: "", expiryMonth: "", expiryYear: "", cvv: "" });
+      setForm({ cardNumber: "", holderName: "", expiryMonth: "", expiryYear: "" });
       setKartModal(false);
       cuzdanCacheYaz({
         storeCredit: data.storeCredit ?? storeCredit,
@@ -457,34 +457,23 @@ export default function CuzdanPage() {
                   className="w-full bg-[#020617] border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-slate-600 uppercase"
                 />
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 block">Ay</label>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 block">Son Kullanma Ayı</label>
                   <input
                     value={form.expiryMonth}
                     onChange={(e) => setForm({ ...form, expiryMonth: e.target.value.replace(/\D/g, "").slice(0, 2) })}
-                    placeholder="MM"
+                    placeholder="AA"
                     maxLength={2}
                     className="w-full bg-[#020617] border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-slate-600 text-center font-mono"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 block">Yıl</label>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 block">Son Kullanma Yılı</label>
                   <input
                     value={form.expiryYear}
                     onChange={(e) => setForm({ ...form, expiryYear: e.target.value.replace(/\D/g, "").slice(0, 4) })}
-                    placeholder="YY"
-                    maxLength={4}
-                    className="w-full bg-[#020617] border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-slate-600 text-center font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 block">CVV</label>
-                  <input
-                    type="password"
-                    value={form.cvv}
-                    onChange={(e) => setForm({ ...form, cvv: e.target.value.replace(/\D/g, "").slice(0, 4) })}
-                    placeholder="•••"
+                    placeholder="YYYY"
                     maxLength={4}
                     className="w-full bg-[#020617] border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-slate-600 text-center font-mono"
                   />

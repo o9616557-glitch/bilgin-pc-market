@@ -1124,32 +1124,33 @@ export default function HesabimPage() {
         </div>
       )}
 
-      {girisSartModal && (
-        <div 
-          className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200"
-          onClick={() => setGirisSartModal(false)} // Karanlık alana tıklayınca kapatır
+      {girisSartModal && portalHazir && createPortal(
+        <div
+          className="fixed inset-0 z-[9999999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+          onClick={() => setGirisSartModal(false)}
         >
-          <div 
-            className="bg-[#0f172a] border border-slate-800 rounded-3xl p-8 max-w-sm w-full text-center shadow-[0_0_50px_rgba(6,182,212,0.15)] relative animate-in zoom-in-95 duration-200"
-            onClick={(e) => e.stopPropagation()} // İçeriğe tıklayınca kapanmasını engeller
+          <div
+            className="bg-[#0f172a] border border-slate-800 rounded-2xl p-7 max-w-sm w-full text-center shadow-[0_0_50px_rgba(6,182,212,0.15)] relative -translate-y-4 sm:-translate-y-8"
+            onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-16 h-16 bg-[#020617] rounded-full flex items-center justify-center mx-auto mb-4 border border-cyan-500/30">
-              <ShieldCheck className="w-8 h-8 text-cyan-400" />
+            <div className="w-14 h-14 bg-[#020617] rounded-full flex items-center justify-center mx-auto mb-4 border border-cyan-500/30">
+              <ShieldCheck className="w-7 h-7 text-cyan-400" />
             </div>
-            <h3 className="text-xl font-black text-white mb-2 tracking-tight">Erişim Kısıtlı</h3>
-            <p className="text-slate-400 text-sm mb-6">
-              {"Lütfen işlem yapabilmek ve hesap detaylarınızı görüntüleyebilmek için giriş yapınız."}
+            <h3 className="text-lg font-black text-white mb-2 tracking-tight">Erişim Kısıtlı</h3>
+            <p className="text-slate-400 text-sm mb-5 leading-relaxed">
+              İşlem yapabilmek için lütfen giriş yapınız.
             </p>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <Link href="/giris" className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2">
                 <LogIn className="w-4 h-4" /> Giriş Yap
               </Link>
-              <button onClick={() => setGirisSartModal(false)} className="w-full py-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-slate-700 text-slate-300 font-bold text-xs uppercase tracking-widest transition-all">
+              <button onClick={() => setGirisSartModal(false)} className="w-full py-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-slate-700 text-slate-400 font-bold text-xs uppercase tracking-widest transition-all">
                 Kapat
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
       
     </div>

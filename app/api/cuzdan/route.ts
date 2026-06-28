@@ -111,11 +111,11 @@ export async function POST(req: Request) {
     const kartlar: any[] = wallet.savedCards || [];
 
     if (action === "addCard") {
-      const { cardNumber, holderName, expiryMonth, expiryYear, cvv } = body;
+      const { cardNumber, holderName, expiryMonth, expiryYear } = body;
       const temizNumara = String(cardNumber || "").replace(/\D/g, "");
 
-      if (!temizNumara || !holderName?.trim() || !expiryMonth || !expiryYear || !cvv) {
-        return NextResponse.json({ hata: "Tüm kart alanlarını doldurun." }, { status: 400 });
+      if (!temizNumara || !holderName?.trim() || !expiryMonth || !expiryYear) {
+        return NextResponse.json({ hata: "Kart numarası, kart sahibi ve son kullanma tarihini doldurun." }, { status: 400 });
       }
       if (kartlar.length >= MAX_KART) {
         return NextResponse.json({ hata: `En fazla ${MAX_KART} kart kaydedebilirsiniz.` }, { status: 400 });
@@ -123,10 +123,6 @@ export async function POST(req: Request) {
       if (!luhnGecerliMi(temizNumara)) {
         return NextResponse.json({ hata: "Geçersiz kart numarası." }, { status: 400 });
       }
-      if (String(cvv).replace(/\D/g, "").length < 3) {
-        return NextResponse.json({ hata: "Geçersiz güvenlik kodu." }, { status: 400 });
-      }
-
       const ay = String(expiryMonth).padStart(2, "0");
       const yil = String(expiryYear).length === 4
         ? String(expiryYear).slice(-2)
