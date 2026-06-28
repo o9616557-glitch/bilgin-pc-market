@@ -61,8 +61,8 @@ function AdresModal({
   ];
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex flex-col sm:flex-none sm:items-center sm:justify-center bg-black/70 backdrop-blur-sm">
-      <div className="flex-1 sm:flex-none w-full sm:max-w-lg bg-[#0b1121] border-0 sm:border border-white/[0.08] sm:rounded-2xl flex flex-col overflow-hidden sm:max-h-[90vh]">
+    <div className="fixed inset-0 z-[9999] flex flex-col sm:items-center sm:justify-center bg-black/70 backdrop-blur-sm">
+      <div className="h-full sm:h-auto w-full sm:max-w-lg bg-[#0b1121] border-0 sm:border border-white/[0.08] sm:rounded-2xl flex flex-col sm:max-h-[90vh]">
 
         {/* Modal başlık */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06] shrink-0">
@@ -78,7 +78,7 @@ function AdresModal({
         </div>
 
         {/* Form scroll alanı */}
-        <div className="overflow-y-auto flex-1 px-5 py-4 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-white/10">
+        <div className="overflow-y-auto flex-1 min-h-0 px-5 py-4 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-white/10">
           <form id="adres-form" onSubmit={handleSubmit} className="grid grid-cols-2 gap-3">
             {ALANLAR.map(({ name, label, placeholder }) => (
               <div key={name} className="flex flex-col gap-1.5 col-span-1">
