@@ -47,6 +47,39 @@ export default function HesabimPage() {
   const [bannerUrl, setBannerUrl] = useState<string | null>(null);
   const [bannerYukleniyor, setBannerYukleniyor] = useState(false);
 
+  // ── Kutu resimleri (5 adet navigasyon kutusu)
+  const KUTU_RESIM_KEY = "bilgin_kutu_resimleri_v1";
+  const kutuInputRef = useRef<HTMLInputElement>(null);
+  const [kutuResimleri, setKutuResimleri] = useState<Record<string, string>>(() => {
+    if (typeof window === "undefined") return {};
+    try { return JSON.parse(localStorage.getItem(KUTU_RESIM_KEY) || "{}"); } catch { return {}; }
+  });
+  const [resimYuklenecekKutu, setResimYuklenecekKutu] = useState<string | null>(null);
+
+  const handleKutuResimSec = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const dosya = e.target.files?.[0];
+    if (!dosya || !resimYuklenecekKutu) return;
+    const imgEl = document.createElement("img");
+    const blobUrl = URL.createObjectURL(dosya);
+    imgEl.onload = () => {
+      const S = 200;
+      const canvas = document.createElement("canvas");
+      canvas.width = S; canvas.height = S;
+      const ctx = canvas.getContext("2d")!;
+      const ratio = Math.max(S / imgEl.width, S / imgEl.height);
+      const w = imgEl.width * ratio, h = imgEl.height * ratio;
+      ctx.drawImage(imgEl, (S - w) / 2, (S - h) / 2, w, h);
+      const b64 = canvas.toDataURL("image/jpeg", 0.80);
+      const guncel = { ...kutuResimleri, [resimYuklenecekKutu]: b64 };
+      setKutuResimleri(guncel);
+      localStorage.setItem(KUTU_RESIM_KEY, JSON.stringify(guncel));
+      URL.revokeObjectURL(blobUrl);
+    };
+    imgEl.src = blobUrl;
+    setResimYuklenecekKutu(null);
+    e.target.value = "";
+  };
+
   useEffect(() => {
     const saved = localStorage.getItem(BANNER_KEY);
     if (saved) setBannerUrl(saved);
@@ -768,38 +801,49 @@ export default function HesabimPage() {
                   }}
                   onClick={() => {
                     if (aktifPalet === 'menu') {
-                      setSeciliKutuId(isSecili ? null : item.id);
+                      setResimYuklenecekKutu(item.id);
+                      kutuInputRef.current?.click();
                     } else if (item.isKargo) {
                       handleKargoClick();
                     }
                   }}
                   className={`flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none ${isSecili ? "relative z-[9999]" : "relative z-10"}`}
                 >
-                  <div className={`relative w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl flex items-center justify-center transition-all duration-300 ${
-                      aktifPalet === 'menu' && isSecili
-                      ? "bg-slate-800 border-2 border-emerald-400 shadow-[0_0_25px_rgba(16,185,129,0.4)] scale-110 z-20"
-                      : aktifPalet === 'menu' && !isSecili
-                      ? "bg-[#0f172a]/60 border-2 border-dashed border-slate-700 opacity-50 hover:opacity-100 cursor-pointer"
-                      : "bg-[#0f172a] border border-slate-800 shadow-lg group-hover:bg-white/[0.05] group-hover:border-cyan-500/30 cursor-pointer"
+                  {/* Resim alanı */}
+                  <div className={`relative w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl overflow-hidden transition-all duration-300 ${
+                      aktifPalet === 'menu'
+                      ? "ring-2 ring-dashed ring-emerald-500/60 cursor-pointer hover:ring-emerald-400"
+                      : "cursor-pointer group-hover:scale-[1.04]"
                   }`}>
-                    
-                    <IkonBileseni className={`w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 transition-all duration-300 ${item.renk} ${aktifPalet !== 'menu' ? 'group-hover:scale-110' : ''}`} />
-                    
-                    {(kargoVarmi || mesajVarmi) && aktifPalet !== 'menu' && (
-                      <span className={`absolute -top-1 -right-1 lg:-top-1.5 lg:-right-1.5 flex h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 z-10 ${item.renk}`}>
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-current"></span>
-                        <span className="relative inline-flex rounded-full h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 border-2 border-[#0f172a] bg-current"></span>
-                      </span>
+                    {kutuResimleri[item.id] ? (
+                      <Image src={kutuResimleri[item.id]} alt={item.isim} fill className="object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-[#0f172a] border border-slate-800 group-hover:border-cyan-500/30 transition-colors">
+                        <IkonBileseni className={`w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 ${item.renk} opacity-60`} />
+                        {aktifPalet === 'menu' && (
+                          <Camera className="w-3 h-3 text-emerald-400 mt-1 opacity-80" />
+                        )}
+                      </div>
                     )}
 
-                    {aktifPalet === 'menu' && isSecili && (
-                      <div className="absolute -top-1.5 -right-1.5 bg-[#020617] rounded-full shadow-md">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    {/* Düzenleme modunda: resim seç overlay */}
+                    {aktifPalet === 'menu' && (
+                      <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Camera className="w-4 h-4 text-white" />
+                        <span className="text-[8px] text-white font-medium">Resim Ekle</span>
                       </div>
+                    )}
+
+                    {/* Bildirim noktası */}
+                    {(kargoVarmi || mesajVarmi) && aktifPalet !== 'menu' && (
+                      <span className="absolute top-1 right-1 flex h-2.5 w-2.5 z-10">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-cyan-400"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400 border border-[#0f172a]"></span>
+                      </span>
                     )}
                   </div>
                   
-                  <span className={`text-[9px] sm:text-[10px] lg:text-xs font-bold tracking-wide text-center truncate w-full px-0.5 transition-colors ${aktifPalet === 'menu' && isSecili ? "text-emerald-400" : "text-slate-300 group-hover:text-cyan-400"}`}>
+                  <span className={`text-[9px] sm:text-[10px] lg:text-xs font-bold tracking-wide text-center truncate w-full px-0.5 transition-colors ${aktifPalet === 'menu' ? "text-emerald-400" : "text-slate-300 group-hover:text-cyan-400"}`}>
                     {item.isim}
                   </span>
                 </div>
@@ -811,6 +855,8 @@ export default function HesabimPage() {
               return <React.Fragment key={item.id}>{KutuIcerigi}</React.Fragment>;
             })}
           </div>
+          {/* Gizli kutu resim input */}
+          <input ref={kutuInputRef} type="file" accept="image/*" className="hidden" onChange={handleKutuResimSec} />
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start w-full">
