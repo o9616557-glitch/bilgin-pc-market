@@ -616,7 +616,7 @@ export default function GuvenlikPage() {
                 <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Hesap İşlemleri</h2>
               </div>
               <p className="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6 max-w-2xl">
-                Hesabınızı geçici olarak dondurabilir veya kişisel verilerinizle birlikte kalıcı olarak silebilirsiniz. Silme işlemi geri alınamaz.
+                Hesabınızı geçici olarak dondurabilir veya kişisel verilerinizle birlikte kalıcı olarak silebilirsiniz. Silme işlemi geri alınamaz; sipariş kayıtlarınız yasal zorunluluk gereği saklanır.
               </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <button 
@@ -679,7 +679,7 @@ export default function GuvenlikPage() {
 
           <p className="text-xs text-slate-300 leading-relaxed bg-[#020617] p-3 rounded-xl border border-slate-900 mb-5 relative z-10">
             {islemModali.tur === 'sil' 
-              ? 'Hesabınız ve tüm kişisel verileriniz sistemden kalıcı olarak silinecektir. Devam etmek için lütfen mevcut şifrenizi girerek kimliğinizi doğrulayın.' 
+              ? 'Profiliniz, adresleriniz, favorileriniz, yorumlarınız, sepetiniz, destek talepleriniz ve kayıtlı sistemleriniz kalıcı olarak silinecektir. Sipariş kayıtlarınız yasal zorunluluk gereği korunur. Devam etmek için mevcut şifrenizi girin.' 
               : 'Hesabınız geçici olarak dondurulacaktır. Devam etmek için lütfen şifrenizi girerek bu işlemin size ait olduğunu doğrulayın.'}
           </p>
 
@@ -751,7 +751,7 @@ export default function GuvenlikPage() {
 
                       setIslemBasariliMesaj(
                         islemModali.tur === 'sil' 
-                        ? "Hesabınız başarıyla silinmiştir. İyi günler dileriz." 
+                        ? (data.mesaj || "Hesabınız silindi. Sipariş kayıtlarınız yasal zorunluluk gereği korunmaktadır.")
                         : "Hesabınız başarıyla dondurulmuştur. İyi günler dileriz."
                       );
                       

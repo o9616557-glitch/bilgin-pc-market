@@ -1,76 +1,77 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"; 
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import clientPromise from "@/lib/mongodb";
+import type { Db } from "mongodb";
+
+const DB_NAME = "bilginpcmarket";
+
+async function kaliciHesapSil(db: Db, email: string, userId: unknown) {
+  await Promise.all([
+    db.collection("reviews").deleteMany({ email }),
+    db.collection("saved_systems").deleteMany({ userId: email }),
+    db.collection("carts").deleteMany({ userId: email }),
+    db.collection("desteks").deleteMany({ kullaniciEmail: email }),
+  ]);
+
+  await db.collection("users").deleteOne({ _id: userId });
+}
 
 export async function POST(req: Request) {
   try {
-    // 1. Gelen Paketi Teslim Al
     const { islem, sifre } = await req.json();
 
-    // 2. Güvenlik Duvarı: Oturum Açmış Kullanıcıyı Bul
     const session = await getServerSession(authOptions);
-    if (!session || !session.user || !session.user.email) {
+    if (!session?.user?.email) {
       return NextResponse.json({ hata: "Önce giriş yapmalısınız." }, { status: 401 });
     }
 
-    // 3. SAF MONGODB'YE BAĞLAN
+    const email = session.user.email;
     const client = await clientPromise;
-    const db = client.db("bilginpcmarket"); 
-    
-    // Koleksiyonları Tanımla
-    const usersCollection = db.collection("users"); 
-    const reviewsCollection = db.collection("reviews"); 
-    const savedSystemsCollection = db.collection("saved_systems"); // Sistemlerim tablosu temizlik için eklendi
+    const db = client.db(DB_NAME);
+    const usersCollection = db.collection("users");
 
-    // 4. Veritabanından Kullanıcıyı Bul
-    const dbKullanici = await usersCollection.findOne({ email: session.user.email });
+    const dbKullanici = await usersCollection.findOne({ email });
     if (!dbKullanici) {
       return NextResponse.json({ hata: "Kullanıcı bulunamadı." }, { status: 404 });
     }
 
-    // 5. Şifre Doğrulama (Google veya Facebook ile girenlerde veritabanında şifre olmadığı için bu adımı es geçiyoruz)
     if (dbKullanici.password) {
+      if (!sifre) {
+        return NextResponse.json({ hata: "Devam etmek için şifrenizi girmelisiniz." }, { status: 400 });
+      }
       const sifreDogruMu = await bcrypt.compare(sifre, dbKullanici.password);
       if (!sifreDogruMu) {
         return NextResponse.json({ hata: "Girdiğiniz şifre hatalı." }, { status: 400 });
       }
     }
 
-    // 🚀 6. İŞLEMLERİ ATEŞLE
     if (islem === 'sil') {
-      // 1. Kullanıcıyı hesaptan tamamen sil (Adresler ve Favoriler bu işlemle birlikte yok olur)
-      await usersCollection.deleteOne({ _id: dbKullanici._id });
-      
-      // 2. Bu kullanıcının yaptığı TÜM yorumları kalıcı olarak sil
-      await reviewsCollection.deleteMany({ email: session.user.email });
+      await kaliciHesapSil(db, email, dbKullanici._id);
 
-      // 3. Kaydettiği tüm PC sistemlerini veritabanından temizle (Çöp kalmaz)
-      await savedSystemsCollection.deleteMany({ userId: session.user.email });
+      return NextResponse.json({
+        mesaj: "Hesabınız silindi. Sipariş kayıtlarınız yasal zorunluluk gereği korunmaktadır."
+      }, { status: 200 });
+    }
 
-      return NextResponse.json({ mesaj: "Hesabınız başarıyla silinmiştir. İyi günler dileriz." }, { status: 200 });
-      
-    } else if (islem === 'dondur') {
-      // 1. Kullanıcının profilini pasif yap
+    if (islem === 'dondur') {
       await usersCollection.updateOne(
         { _id: dbKullanici._id },
-        { $set: { isActive: false } } 
+        { $set: { isActive: false } }
       );
-      
-      // 2. Kullanıcının yorumlarını GEÇİCİ OLARAK GİZLE
-      await reviewsCollection.updateMany(
-        { email: session.user.email },
-        { $set: { isVisible: false } } 
+
+      await db.collection("reviews").updateMany(
+        { email },
+        { $set: { isVisible: false } }
       );
 
       return NextResponse.json({ mesaj: "Hesabınız başarıyla dondurulmuştur. İyi günler dileriz." }, { status: 200 });
-      
-    } else {
-      return NextResponse.json({ hata: "Geçersiz işlem türü!" }, { status: 400 });
     }
 
-  } catch (error: any) {
+    return NextResponse.json({ hata: "Geçersiz işlem türü!" }, { status: 400 });
+
+  } catch (error) {
     console.error("Hesap İşlem Hatası:", error);
     return NextResponse.json({ hata: "Sunucu tarafında bir arıza çıktı." }, { status: 500 });
   }
