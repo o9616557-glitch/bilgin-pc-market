@@ -100,21 +100,23 @@ export default function HesabimPage() {
   ];
 
   const varsayilanAltMenu = [
-    { id: "kargolar", isim: "Kargolar", ikon: Truck,   renk: "text-rose-400",   isKargo: true },
-    { id: "destek",   isim: "Destek",   ikon: Headset, renk: "text-orange-400", isLink: true, href: "/destek-taleplerim" },
-    { id: "sorgula",  isim: "Sorgula",  ikon: Search,  renk: "text-blue-400",   isLink: true, href: "/siparis-takip" }
+    { id: "favoriler",  isim: "Favoriler",  ikon: Star,    renk: "text-purple-400",  isLink: true, href: "/favorilerim" },
+    { id: "sistemler",  isim: "Sistemler",  ikon: Server,  renk: "text-emerald-400", isLink: true, href: "/sistemlerim" },
+    { id: "destek",     isim: "Destek",     ikon: Headset, renk: "text-orange-400",  isLink: true, href: "/destek-taleplerim" },
+    { id: "sorgula",    isim: "Sorgula",    ikon: Search,  renk: "text-blue-400",    isLink: true, href: "/siparis-takip" },
+    { id: "kargolar",   isim: "Kargolar",   ikon: Truck,   renk: "text-rose-400",    isKargo: true },
   ];
 
   const [ustMenuListesi, setUstMenuListesi] = useState(() => {
     if (typeof window !== "undefined") {
-      try { const cached = localStorage.getItem("bilgin_ust_menu_v3"); if (cached) return ikonEslestir(JSON.parse(cached)); } catch (e) {}
+      try { const cached = localStorage.getItem("bilgin_ust_menu_v4"); if (cached) return ikonEslestir(JSON.parse(cached)); } catch (e) {}
     }
     return varsayilanUstMenu;
   });
 
   const [altMenuListesi, setAltMenuListesi] = useState(() => {
     if (typeof window !== "undefined") {
-      try { const cached = localStorage.getItem("bilgin_alt_menu_v3"); if (cached) return ikonEslestir(JSON.parse(cached)); } catch (e) {}
+      try { const cached = localStorage.getItem("bilgin_alt_menu_v4"); if (cached) return ikonEslestir(JSON.parse(cached)); } catch (e) {}
     }
     return varsayilanAltMenu;
   });
@@ -251,8 +253,8 @@ export default function HesabimPage() {
     
                 setUstMenuListesi(nihaiUst);
                 setAltMenuListesi(nihaiAlt);
-                localStorage.setItem("bilgin_ust_menu_v3", JSON.stringify(nihaiUst.map(({ikon, ...k})=>k)));
-                localStorage.setItem("bilgin_alt_menu_v3", JSON.stringify(nihaiAlt.map(({ikon, ...k})=>k)));
+                localStorage.setItem("bilgin_ust_menu_v4", JSON.stringify(nihaiUst.map(({ikon, ...k})=>k)));
+                localStorage.setItem("bilgin_alt_menu_v4", JSON.stringify(nihaiAlt.map(({ikon, ...k})=>k)));
             }
 
             if (resData.data.siparisRenkleri && Object.keys(resData.data.siparisRenkleri).length > 0) {
@@ -277,8 +279,8 @@ export default function HesabimPage() {
     const temizUst = guncelUst.map(({ ikon, ...kalanlar }) => kalanlar);
     const temizAlt = guncelAlt.map(({ ikon, ...kalanlar }) => kalanlar);
     
-    localStorage.setItem("bilgin_ust_menu_v3", JSON.stringify(temizUst));
-    localStorage.setItem("bilgin_alt_menu_v3", JSON.stringify(temizAlt));
+    localStorage.setItem("bilgin_ust_menu_v4", JSON.stringify(temizUst));
+    localStorage.setItem("bilgin_alt_menu_v4", JSON.stringify(temizAlt));
     
     try {
       const birlestirilmisListe = [...temizUst, ...temizAlt];
@@ -322,8 +324,8 @@ export default function HesabimPage() {
 
   const handleCikisYap = async () => {
     oturumHafizasiniTemizle();
-    localStorage.removeItem("bilgin_ust_menu_v3");
-    localStorage.removeItem("bilgin_alt_menu_v3");
+    localStorage.removeItem("bilgin_ust_menu_v4");
+    localStorage.removeItem("bilgin_alt_menu_v4");
     const cihazId = (session?.user as any)?.deviceId;
     if (cihazId) {
       try { await fetch("/api/user/logout-device", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ deviceId: cihazId }) }); } catch (e) {}
@@ -546,55 +548,6 @@ export default function HesabimPage() {
   <AccountShell active="hesabim">
     <div suppressHydrationWarning={true} className="flex flex-col gap-6 w-full">
 
-        <div className="w-full block">
-          <div className={`grid grid-cols-4 gap-2 sm:gap-4 w-full transition-all duration-300 ${aktifPalet === 'menu' ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
-            
-            {ustMenuListesi.map((item: any, index: number) => {
-              const IkonBileseni = item.ikon;
-              const isSecili = seciliKutuId === item.id;
-              
-              const KutuIcerigi = (
-                <div
-                  draggable={aktifPalet === 'menu'}
-                  onDragStart={() => (suruklenenUstRef.current = index)}
-                  onDragEnter={() => handleDragEnterUst(index)}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDragEnd={() => {
-                     suruklenenUstRef.current = null;
-                     if(aktifPalet === 'menu') veritabaninaKaydet(ustMenuListesi, altMenuListesi, siparisRenkleri, pastaRenkleri, cubukRenk);
-                  }}
-                  onClick={() => { if (aktifPalet === 'menu') setSeciliKutuId(isSecili ? null : item.id); }}
-                  className={`flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none ${isSecili ? "relative z-[9999]" : "relative z-10"}`}
-                >
-                  <div className={`relative w-full aspect-square lg:h-24 rounded-2xl flex items-center justify-center transition-all duration-300 ${
-                      aktifPalet === 'menu' && isSecili
-                      ? "bg-slate-800 border-2 border-emerald-400 shadow-[0_0_25px_rgba(16,185,129,0.4)] scale-110 z-20"
-                      : aktifPalet === 'menu' && !isSecili
-                      ? "bg-[#0f172a]/60 border-2 border-dashed border-slate-700 opacity-50 hover:opacity-100 cursor-pointer"
-                      : "bg-[#0f172a] border border-slate-800 shadow-lg group-hover:bg-white/[0.05] group-hover:border-cyan-500/30 cursor-pointer"
-                  }`}>
-                    <IkonBileseni className={`w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 transition-all duration-300 ${item.renk} ${aktifPalet !== 'menu' ? 'group-hover:scale-110' : ''}`} />
-                    
-                    {aktifPalet === 'menu' && isSecili && (
-                      <div className="absolute -top-1.5 -right-1.5 bg-[#020617] rounded-full shadow-md">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      </div>
-                    )}
-                  </div>
-                  <span className={`text-[9px] sm:text-[10px] lg:text-xs font-bold tracking-wide text-center w-full px-0.5 transition-colors ${aktifPalet === 'menu' && isSecili ? "text-emerald-400" : "text-slate-300 group-hover:text-cyan-400"}`}>
-                    {item.isim}
-                  </span>
-                </div>
-              );
-
-              if (item.isLink && aktifPalet !== 'menu') {
-                return <Link key={item.id} href={item.href || "#"} onClick={kilitliIslem} prefetch={true} className="w-full">{KutuIcerigi}</Link>;
-              }
-              return <React.Fragment key={item.id}>{KutuIcerigi}</React.Fragment>;
-            })}
-          </div>
-        </div>
-
         <div className={`w-full relative rounded-[2rem] p-[2px] transition-all duration-300 shadow-[0_0_50px_rgba(0,210,255,0.15)] group ${aktifPalet === 'menu' ? 'bg-gradient-to-r from-emerald-500/50 via-emerald-900 to-emerald-500/20 shadow-[0_0_50px_rgba(16,185,129,0.3)]' : 'bg-gradient-to-r from-cyan-500/30 via-[#0f172a] to-cyan-500/10'}`}>
           <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-transparent opacity-20 blur-xl rounded-[2rem] transition-opacity duration-500"></div>
           <div className="relative bg-[#0b1121] rounded-[2rem] p-6 sm:p-8 flex flex-col border border-cyan-500/20 overflow-hidden z-10">
@@ -676,7 +629,7 @@ export default function HesabimPage() {
         )}
 
         <div className="w-full block">
-          <div className={`grid grid-cols-3 gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${aktifPalet === 'menu' ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
+          <div className={`grid grid-cols-5 gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${aktifPalet === 'menu' ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
             {altMenuListesi.map((item: any, index: number) => {
               const IkonBileseni = item.ikon;
               const isSecili = seciliKutuId === item.id;

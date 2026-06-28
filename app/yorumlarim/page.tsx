@@ -6,16 +6,28 @@ import { Star } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 
+const CACHE_KEY = "bilgin_yorumlarim_cache";
+
 export default function YorumlarimPage() {
-  const { data: session, status } = useSession();
-  const [yorumlar, setYorumlar] = useState<any[]>([]);
-  const [yukleniyor, setYukleniyor] = useState(true);
+  const { status } = useSession();
+  const [yorumlar, setYorumlar] = useState<any[]>(() => {
+    try { const c = sessionStorage.getItem(CACHE_KEY); return c ? JSON.parse(c) : []; } catch { return []; }
+  });
+  const [yukleniyor, setYukleniyor] = useState(() => {
+    try { return !sessionStorage.getItem(CACHE_KEY); } catch { return true; }
+  });
 
   useEffect(() => {
+    if (status === "loading") return;
     if (status !== "authenticated") { setYukleniyor(false); return; }
+    try { if (sessionStorage.getItem(CACHE_KEY)) return; } catch {}
     fetch("/api/reviews?mine=1")
       .then((r) => r.json())
-      .then((d) => { setYorumlar(d.reviews || []); })
+      .then((d) => {
+        const liste = d.reviews || [];
+        setYorumlar(liste);
+        try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(liste)); } catch {}
+      })
       .catch(() => {})
       .finally(() => setYukleniyor(false));
   }, [status]);
