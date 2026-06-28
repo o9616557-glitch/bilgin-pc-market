@@ -8,9 +8,9 @@ import { oturumHafizasiniTemizle } from "@/lib/oturum-hafiza";
 import { useOrders } from "@/app/OrderContext";
 import AccountShell from "@/components/layout/AccountShell";
 import { 
-  User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, 
+  User, ShieldCheck, CreditCard, Package, Server, Truck, Star, 
   MapPin, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, 
-  Search, LogIn, UserPlus, Headset, Palette 
+  Search, LogIn, Headset, Palette 
 } from "lucide-react";
 
 // Canlı Lucide ikonlarını veritabanından gelen kimliklere göre eşleştiren motor
@@ -239,23 +239,7 @@ export default function HesabimPage() {
         .then(res => res.json())
         .then(resData => {
           if (resData.success && resData.data) {
-            
-            if (resData.data.menuListesi?.length > 0) {
-                const mapliListe = ikonEslestir(resData.data.menuListesi);
-                const ustIds = ["profil", "cuzdan", "guvenlik", "adresler"];
-                const yuklenenUst = mapliListe.filter((i: any) => ustIds.includes(i.id));
-                const yuklenenAlt = mapliListe.filter((i: any) => !ustIds.includes(i.id));
-    
-                const eksikUst = varsayilanUstMenu.filter(d => !yuklenenUst.some((y: any) => y.id === d.id));
-                const nihaiUst = [...yuklenenUst, ...eksikUst];
-                const eksikAlt = varsayilanAltMenu.filter(d => !yuklenenAlt.some((y: any) => y.id === d.id));
-                const nihaiAlt = [...yuklenenAlt, ...eksikAlt];
-    
-                setUstMenuListesi(nihaiUst);
-                setAltMenuListesi(nihaiAlt);
-                localStorage.setItem("bilgin_ust_menu_v4", JSON.stringify(nihaiUst.map(({ikon, ...k})=>k)));
-                localStorage.setItem("bilgin_alt_menu_v4", JSON.stringify(nihaiAlt.map(({ikon, ...k})=>k)));
-            }
+            /* Menu listesi artık DB'den yüklenmez — 5 sabit kutu her zaman geçerli */
 
             if (resData.data.siparisRenkleri && Object.keys(resData.data.siparisRenkleri).length > 0) {
                 setSiparisRenkleri(resData.data.siparisRenkleri);
@@ -570,33 +554,12 @@ export default function HesabimPage() {
               </div>
               
               <div className="flex-1 text-center sm:text-left z-10 flex flex-col justify-center">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 w-full">
-                  <div>
-                    <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight mb-0.5 sm:mb-1 drop-shadow-md">
-                      {aktifPalet === 'menu' ? "Menü Düzenleme" : userName}
-                    </h1>
-                    <p className={`text-xs sm:text-sm font-medium tracking-wide ${aktifPalet === 'menu' ? 'text-emerald-400' : 'text-slate-400'}`}>
-                      {aktifPalet === 'menu' ? "Bir menü kutusuna tıklayın ve rengini belirleyin." : userEmail}
-                    </p>
-                  </div>
-                  
-                  {status === "authenticated" && aktifPalet !== 'menu' && (
-                    <button onClick={handleCikisYap} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-red-950/40 border border-red-900/50 text-red-400 hover:bg-red-900/60 hover:text-red-300 transition-all font-black uppercase tracking-widest text-[10px] sm:text-xs shadow-md shrink-0">
-                      <LogOut className="w-4 h-4" /> GÜVENLİ ÇIKIŞ
-                    </button>
-                  )}
-                </div>
-
-                {status === "unauthenticated" && (
-                  <div className="flex items-center justify-center sm:justify-start gap-2 mt-4">
-                    <Link href="/giris" className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-widest flex items-center gap-1.5 shadow-lg transition-all">
-                      <LogIn className="w-4 h-4" /> Giriş
-                    </Link>
-                    <Link href="/kayit" className="bg-[#0f172a] border border-slate-700 hover:border-slate-500 text-slate-300 px-5 py-2.5 rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-widest flex items-center gap-1.5 transition-all">
-                      <UserPlus className="w-4 h-4" /> Kayıt Ol
-                    </Link>
-                  </div>
-                )}
+                <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight mb-0.5 sm:mb-1 drop-shadow-md">
+                  {aktifPalet === 'menu' ? "Menü Düzenleme" : (userName || "Hoş geldiniz")}
+                </h1>
+                <p className={`text-xs sm:text-sm font-medium tracking-wide ${aktifPalet === 'menu' ? 'text-emerald-400' : 'text-slate-400'}`}>
+                  {aktifPalet === 'menu' ? "Bir menü kutusuna tıklayın ve rengini belirleyin." : userEmail}
+                </p>
               </div>
             </div>
 
