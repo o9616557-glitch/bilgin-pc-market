@@ -45,7 +45,7 @@ function GirisIcerik() {
       toast.error("Doğrulama bağlantısının süresi dolmuştur. Lütfen tekrar giriş yapmayı deneyiniz.", { ...toastAyari, duration: 5000 });
     }
     if (urlError && (urlError.includes("Cihaz") || urlError.includes("Karantina"))) {
-      toast.error("Güvenliğiniz için cihaz onayı gerekiyor. Lütfen e-postanıza gönderilen bağlantıya tıklayınız. (Bağlantı 15 dakika geçerlidir)", { ...toastAyari, duration: 8000 });
+      toast.error("Güvenliğiniz için cihaz onayı gerekiyor. Lütfen e-postanıza gönderilen bağlantıya tıklayınız.", { ...toastAyari, duration: 8000 });
     }
   }, [urlMessage, urlAlert, urlError]);
 
