@@ -141,25 +141,25 @@ function GirisIcerik() {
 
   // 👇 BURADAN AŞAĞISINA (return kısmına ve HTML/Tasarım kodlarına) KESİNLİKLE DOKUNMUYORSUN!
   return (
-    <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center p-0 md:p-4 relative overflow-hidden">
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#3b82f6] rounded-full mix-blend-screen filter blur-[150px] opacity-10"></div>
+    <div className="min-h-screen site-page flex items-center justify-center p-0 md:p-4 relative overflow-hidden">
+      <div className="site-glow-top top-[-20%] left-[-10%] w-[50%] h-[50%]" />
       
-     <div className="w-full max-w-md bg-[#09090b] border-none md:border border-white/10 rounded-none md:rounded-2xl p-6 md:p-8 min-h-screen md:min-h-[auto] flex flex-col justify-center shadow-2xl relative z-10">
+     <div className="w-full max-w-md glass-card border-none md:border rounded-none md:rounded-2xl p-6 md:p-8 min-h-screen md:min-h-[auto] flex flex-col justify-center shadow-2xl relative z-10 site-content-in">
         
         {/* BİLGİN PC LOGO */}
           <div className="flex flex-col items-center justify-center w-full mb-8 shrink-0 mt-8 md:mt-0">
-            <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tight drop-shadow-[0_0_10px_rgba(0,0,0,0.5)]">
+            <div className="flex items-center gap-2 text-2xl sm:text-3xl font-semibold tracking-tight">
               <span className="text-white">BİLGİN</span>
-              <span className="text-[#3b82f6]">PC</span>
+              <span className="site-accent-text">PC</span>
             </div>
-            <div className="h-[2px] w-12 bg-[#3b82f6]/50 mt-2"></div>
+            <div className="h-[2px] w-12 bg-site-accent-strong/50 mt-2"></div>
           </div>
 
           {/* GİRİŞ YAP BAŞLIĞI */}
-         <h1 className="text-lg sm:text-xl font-bold uppercase tracking-wide text-white drop-shadow-md mb-2 border-l-4 border-[#3b82f6] pl-4">
-           GİRİŞ <span className="text-[#3b82f6] font-black">YAP</span>
+         <h1 className="site-h2 mb-2 border-l-4 border-site-accent-strong pl-4">
+           Giriş <span className="site-accent-text">yap</span>
           </h1>
-          <p className="text-slate-400 text-sm mb-8 font-medium">
+          <p className="site-body mb-8">
             {step === 1 
               ? "Güvenli alışveriş ve sipariş takibi için hesabınıza giriş yapın. Eğer hesabınız yoksa hızlıca kayıt olabilirsiniz."
               : "Hesabınızın güvenliği için ekstra doğrulama gerekiyor."}

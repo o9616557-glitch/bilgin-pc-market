@@ -215,7 +215,8 @@ useEffect(() => {
 
   return (
     <>
-      <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip">
+      <div className="site-page p-4 sm:p-6 lg:p-8 relative overflow-clip">
+        <div className="site-glow-top top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[280px]" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-indigo-600 blur-[250px] opacity-[0.07] pointer-events-none rounded-full"></div>
         
         <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">

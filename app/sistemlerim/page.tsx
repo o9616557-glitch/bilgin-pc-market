@@ -147,11 +147,10 @@ export default function SistemlerimPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip">
-      {/* 🚀 ARKA PLAN PARLAMASI (Diğerleriyle Tam Uyumlu 0.05 Opacity) */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-cyan-600 blur-[250px] opacity-[0.05] pointer-events-none rounded-full z-0"></div>
+    <div className="site-page p-4 sm:p-6 lg:p-8 relative overflow-clip">
+      <div className="site-glow-top top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[280px]" />
 
-      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
+      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start site-content-in">
         
         {/* ⬅️ SOL MENÜ (Tamamen İp Gibi Hizalı) */}
         <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">

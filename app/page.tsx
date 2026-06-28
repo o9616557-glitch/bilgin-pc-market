@@ -39,7 +39,8 @@ export default async function HomePage() {
 
     
     
-    <main className="min-h-screen bg-black text-white font-sans overflow-hidden select-none touch-manipulation">
+    <div className="site-page overflow-hidden select-none touch-manipulation">
+      <div className="site-glow-top top-[-8%] left-1/2 -translate-x-1/2 w-[min(800px,100vw)] h-[360px]" />
       
       <style dangerouslySetInnerHTML={{ __html: `
         body { -webkit-tap-highlight-color: transparent; }
@@ -66,15 +67,15 @@ export default async function HomePage() {
                   Profesyonel Donanım
                 </span>
               </div>
-              <h1 className="text-5xl sm:text-7xl md:text-8xl font-black uppercase tracking-tighter leading-[0.95] text-white select-none">
+              <h1 className="site-h-hero uppercase leading-[0.95] text-white select-none">
                 Doğru Parça <br/>
-                <span className="text-[#00d2ff] drop-shadow-[0_0_15px_rgba(0,210,255,0.3)]">Doğru Fiyat</span>
+                <span className="site-accent-text drop-shadow-[0_0_12px_rgba(56,189,248,0.2)]">Doğru Fiyat</span>
               </h1>
-              <p className="text-gray-400 text-base sm:text-lg md:text-xl max-w-xl font-medium tracking-wide select-none">
+              <p className="site-body max-w-xl select-none">
                 Bütçenize uygun hazır sistemler, güncel ekran kartları ve kaliteli bilgisayar bileşenleri Bilgin PC Market güvencesiyle stoklarımızda.
               </p>
               <div className="pt-4">
-                <a href="#vitrin" className="group relative inline-flex w-full sm:w-auto px-8 py-4 sm:px-10 sm:py-5 bg-white/5 backdrop-blur-md text-white font-black uppercase tracking-[0.1em] overflow-hidden rounded-none border border-white/20 hover:border-[#00d2ff] hover:text-[#00d2ff] transition-all duration-700 text-center items-center justify-center">
+                <a href="#vitrin" className="group relative inline-flex w-full sm:w-auto px-8 py-4 sm:px-10 sm:py-5 bg-white/5 backdrop-blur-md text-white font-medium sm:font-semibold uppercase tracking-[0.08em] overflow-hidden rounded-xl border border-white/10 hover:border-site-accent/50 hover:text-site-accent transition-all duration-700 text-center items-center justify-center">
                   <span className="relative flex items-center justify-center gap-3">
                     Ürünleri İncele <Crosshair className="w-5 h-5 transition-transform duration-700" />
                   </span>
@@ -82,10 +83,10 @@ export default async function HomePage() {
               </div>
             </div>
            <div className="relative hidden lg:block select-none">
-              <Link href="/kategori/ekran-karti" prefetch={true} className="block relative bg-zinc-900/60 backdrop-blur-xl border border-white/10 rounded-none p-6 shadow-2xl hover:border-[#00d2ff]/50 transition-colors duration-500 group cursor-pointer">
+              <Link href="/kategori/ekran-karti" prefetch={true} className="block relative bg-zinc-900/60 backdrop-blur-xl border border-white/10 rounded-none p-6 shadow-2xl hover:border-site-accent/50 transition-colors duration-500 group cursor-pointer">
                 
                 {/* 🎯 Etiket (Hoverda Maviye Döner) */}
-                <div className="absolute -top-[1px] -right-[1px] bg-white text-black text-[10px] font-black px-4 py-2 rounded-none uppercase tracking-widest z-20 group-hover:bg-[#00d2ff] transition-colors duration-500 shadow-lg">
+                <div className="absolute -top-[1px] -right-[1px] bg-white text-black text-[10px] font-black px-4 py-2 rounded-none uppercase tracking-widest z-20 group-hover:bg-site-accent transition-colors duration-500 shadow-lg">
                   Ekran Kartları
                 </div>
                 
@@ -99,7 +100,7 @@ export default async function HomePage() {
                    />
                    
                    {/* 🚀 Hover'da Çıkan Zıplayan Ok Butonu 🚀 */}
-                   <div className="absolute bottom-6 right-6 z-20 w-12 h-12 bg-[#00d2ff] rounded-none flex items-center justify-center text-black opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 shadow-[0_0_20px_rgba(0,210,255,0.6)] border border-[#00d2ff]">
+                   <div className="absolute bottom-6 right-6 z-20 w-12 h-12 bg-site-accent rounded-none flex items-center justify-center text-black opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 shadow-[0_0_20px_rgba(0,210,255,0.6)] border border-site-accent">
                      <ArrowRight className="w-6 h-6" />
                    </div>
                 </div>
@@ -113,9 +114,9 @@ export default async function HomePage() {
       <section className="max-w-[1400px] mx-auto pt-12 pb-4 select-none touch-manipulation">
         <div className="flex items-center justify-between px-6 lg:px-8 mb-6 lg:mb-8 pointer-events-none">
           <div className="flex items-center gap-4">
-            <div className="w-1.5 h-8 bg-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.5)]"></div>
+            <div className="w-1.5 h-8 bg-site-accent shadow-[0_0_15px_rgba(0,210,255,0.5)]"></div>
             <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-white drop-shadow-lg">
-              Günün <span className="text-[#00d2ff]">Yıldızları</span>
+              Günün <span className="text-site-accent">Yıldızları</span>
             </h2>
           </div>
         </div>
@@ -140,7 +141,7 @@ export default async function HomePage() {
                     href={"/product/" + (urun.slug || urun._id)} 
                     key={urun._id.toString()} 
                     prefetch={true} 
-                    className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-auto snap-center snap-always h-[400px] sm:h-[450px] bg-[#121212] rounded-3xl overflow-hidden border border-white/20 hover:border-[#00d2ff] transition-all duration-700 flex flex-col justify-end p-6 sm:p-8 shadow-[0_10px_30px_rgba(0,0,0,0.6)] hover:shadow-[0_0_20px_rgba(0,210,255,0.3)]"
+                    className="group relative flex-none w-[85vw] sm:w-[320px] lg:w-auto snap-center snap-always h-[400px] sm:h-[450px] bg-[#121212] rounded-3xl overflow-hidden border border-white/20 hover:border-site-accent transition-all duration-700 flex flex-col justify-end p-6 sm:p-8 shadow-[0_10px_30px_rgba(0,0,0,0.6)] hover:shadow-[0_0_20px_rgba(0,210,255,0.3)]"
                   >
                     {/* Arka plan gradyanı - Şefin talimatıyla yarıya indirildi */}
                     <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-[#09090b] via-[#09090b]/90 to-transparent z-10 pointer-events-none"></div>
@@ -166,12 +167,12 @@ export default async function HomePage() {
                     {/* Alt Bilgiler ve Neon Fiyat */}
                     <div className="relative z-20 transform group-hover:-translate-y-2 transition-transform duration-700 pointer-events-none">
                       <div className="text-gray-300 text-[10px] sm:text-xs font-black tracking-[0.2em] uppercase mb-2 drop-shadow-md">{urun.marka || "BİLGİN PC"}</div>
-                      <h3 className="text-white text-lg sm:text-xl font-bold leading-snug line-clamp-2 mb-4 group-hover:text-[#00d2ff] transition-colors duration-700 drop-shadow-lg">{urun.isim || urun.name}</h3>
+                      <h3 className="text-white text-lg sm:text-xl font-bold leading-snug line-clamp-2 mb-4 group-hover:text-site-accent transition-colors duration-700 drop-shadow-lg">{urun.isim || urun.name}</h3>
                       
                       <div className="flex items-center justify-between mt-auto border-t border-white/20 pt-4">
-                        <span className="text-2xl sm:text-3xl font-black text-white drop-shadow-md">{gecerliFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">₺</span></span>
+                        <span className="text-2xl sm:text-3xl font-black text-white drop-shadow-md">{gecerliFiyat.toLocaleString("tr-TR")} <span className="text-sm text-site-accent">₺</span></span>
                         
-                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center group-hover:bg-[#00d2ff] text-black transition-colors duration-700 shadow-[0_0_15px_rgba(255,255,255,0.5)] pointer-events-auto">
+                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center group-hover:bg-site-accent text-black transition-colors duration-700 shadow-[0_0_15px_rgba(255,255,255,0.5)] pointer-events-auto">
                           <ArrowRight className="w-5 h-5" />
                         </div>
                       </div>
@@ -268,7 +269,7 @@ export default async function HomePage() {
       <div id="vitrin" className="max-w-[1400px] mx-auto pt-10 pb-8 select-none touch-manipulation">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-6 px-6 lg:px-8 pointer-events-none">
           <div className="relative">
-            <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-1 h-10 bg-[#00d2ff]"></div>
+            <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-1 h-10 bg-site-accent"></div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-white pl-4">
               Güncel <span className="text-gray-400">Ürünler</span>
             </h2>
@@ -298,7 +299,7 @@ export default async function HomePage() {
                 }
 
                 return (
-                  <div key={urun._id.toString()} className="group relative flex-none snap-center snap-always lg:snap-start flex flex-col w-[85vw] sm:w-[320px] lg:w-[calc(25%-0.75rem)] flex-shrink-0 bg-[#09090b] rounded-2xl overflow-hidden border border-white/5 transition-all duration-700 ease-out hover:border-[#00d2ff]/40 hover:shadow-[0_0_30px_rgba(0,210,255,0.15)]">
+                  <div key={urun._id.toString()} className="group relative flex-none snap-center snap-always lg:snap-start flex flex-col w-[85vw] sm:w-[320px] lg:w-[calc(25%-0.75rem)] flex-shrink-0 bg-[#09090b] rounded-2xl overflow-hidden border border-white/5 transition-all duration-700 ease-out hover:border-site-accent/40 hover:shadow-[0_0_30px_rgba(0,210,255,0.15)]">
                     
                     {/* ÜST KISIM: RESİM VE ROZETLER */}
                     <div className="relative aspect-[4/3] w-full bg-gradient-to-b from-white/5 to-transparent flex items-center justify-center p-6 overflow-hidden">
@@ -352,7 +353,7 @@ export default async function HomePage() {
                       {/* 🚀 HEDEF 3 (Devamı): İSME TIKLAYINCA ÜRÜNE GİTME */}
                       <div className="block mt-1 pointer-events-auto">
                         <Link href={"/product/" + (urun.slug || urun._id)} prefetch={true}>
-                          <h3 className="text-white text-sm font-bold leading-relaxed line-clamp-2 mb-4 hover:text-[#00d2ff] transition-colors duration-700 cursor-pointer">
+                          <h3 className="text-white text-sm font-bold leading-relaxed line-clamp-2 mb-4 hover:text-site-accent transition-colors duration-700 cursor-pointer">
                             {urun.isim || urun.name}
                           </h3>
                         </Link>
@@ -367,7 +368,7 @@ export default async function HomePage() {
                             <span className="text-gray-600 text-[11px] line-through font-medium mb-0.5">{normalFiyat.toLocaleString("tr-TR")} ₺</span>
                           )}
                           <span className="text-xl sm:text-2xl font-black text-white leading-none">
-                            {gecerliFiyat.toLocaleString("tr-TR")} <span className="text-sm text-[#00d2ff]">₺</span>
+                            {gecerliFiyat.toLocaleString("tr-TR")} <span className="text-sm text-site-accent">₺</span>
                           </span>
                           {havaleOrani > 0 && !tukendiMi && (
                             <span className="text-[#10b981] text-[10px] font-bold mt-1.5 flex items-center gap-1">
@@ -404,16 +405,16 @@ export default async function HomePage() {
       {/* ==================== 4. KALİTE & GÜVEN ==================== */}
       <section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4 select-none pointer-events-none">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center bg-[#121212] border border-white/10 p-8 lg:p-12 relative overflow-hidden shadow-[5px_5px_0px_rgba(0,0,0,0.8)]">
-          <div className="absolute -right-32 -top-32 w-96 h-96 bg-[#00d2ff]/10 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute -right-32 -top-32 w-96 h-96 bg-site-accent/10 rounded-full blur-[120px] pointer-events-none" />
           <div className="space-y-6 max-w-xl">
-            <div className="text-[#00d2ff] text-[10px] font-black tracking-[0.3em] uppercase">
+            <div className="text-site-accent text-[10px] font-black tracking-[0.3em] uppercase">
               Kalite & Güven
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-white leading-none">
               Özenli Montaj, <br/>
               <span className="text-gray-500">Doğru Parça Seçimi.</span>
             </h2>
-            <div className="h-1 w-20 bg-[#00d2ff]"></div>
+            <div className="h-1 w-20 bg-site-accent"></div>
             <p className="text-gray-300 text-sm sm:text-base font-medium leading-relaxed pt-2">
               Bilgin PC Market olarak, bütçenize ve ihtiyaçlarınıza en uygun sistemleri büyük bir özenle hazırlıyoruz. Her bir parçanın birbiriyle olan uyumunu gözeterek uzun ömürlü bilgisayarlar topluyoruz.
             </p>
@@ -444,44 +445,44 @@ export default async function HomePage() {
         </div>
         <div className="w-full">
         <OkluSlider>
-            <Link href="/kategori/ekran-karti" prefetch={false} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
+            <Link href="/kategori/ekran-karti" prefetch={false} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-site-accent transition-colors duration-700 ease-out">
               <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781456502/5789-amdnin-cine-ozel-ekran-karti-dunyaya-aciliyor_hdqtwp.webp" alt="Yüksek Performanslı Ekran Kartı" loading="lazy" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-1000 ease-out grayscale group-hover:grayscale-0 pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent pointer-events-none"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-700 ease-out pointer-events-none">
-                <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors duration-700 drop-shadow-md">Ekran Kartları</h3>
-                <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-700 ease-out"></div>
+                <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-site-accent transition-colors duration-700 drop-shadow-md">Ekran Kartları</h3>
+                <div className="w-12 h-1 bg-site-accent mt-3 group-hover:w-full transition-all duration-700 ease-out"></div>
               </div>
             </Link>
-            <Link href="/kategori/islemci" prefetch={false} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
+            <Link href="/kategori/islemci" prefetch={false} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-site-accent transition-colors duration-700 ease-out">
               <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781456013/photo-1591799264318-7e6ef8ddb7ea_uxzawq.jpg" alt="Güncel Donanım İşlemcisi" loading="lazy" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-1000 ease-out grayscale group-hover:grayscale-0 pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent pointer-events-none"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-700 ease-out pointer-events-none">
-                <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors duration-700 drop-shadow-md">İşlemciler</h3>
-                <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-700 ease-out"></div>
+                <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-site-accent transition-colors duration-700 drop-shadow-md">İşlemciler</h3>
+                <div className="w-12 h-1 bg-site-accent mt-3 group-hover:w-full transition-all duration-700 ease-out"></div>
               </div>
             </Link>
-            <Link href="/kategori/anakart" prefetch={false} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
+            <Link href="/kategori/anakart" prefetch={false} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-site-accent transition-colors duration-700 ease-out">
               <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781454483/photo-1518770660439-4636190af475_cicwu0.jpg" alt="Donanım Temeli Anakart" loading="lazy" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-1000 ease-out grayscale group-hover:grayscale-0 pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent pointer-events-none"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-700 ease-out pointer-events-none">
-                <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors duration-700 drop-shadow-md">Anakartlar</h3>
-                <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-700 ease-out"></div>
+                <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-site-accent transition-colors duration-700 drop-shadow-md">Anakartlar</h3>
+                <div className="w-12 h-1 bg-site-accent mt-3 group-hover:w-full transition-all duration-700 ease-out"></div>
               </div>
             </Link>
-            <Link href="/kategori/sogutma" prefetch={false} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
+            <Link href="/kategori/sogutma" prefetch={false} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-site-accent transition-colors duration-700 ease-out">
               <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781454481/photo-1587202372634-32705e3bf49c_mrqkiv.jpg" alt="RGB Fanlı Sıvı Soğutma" loading="lazy" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-1000 ease-out grayscale group-hover:grayscale-0 pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent pointer-events-none"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-700 ease-out pointer-events-none">
-                <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors duration-700 drop-shadow-md">Sıvı Soğutma</h3>
-                <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-700 ease-out"></div>
+                <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-site-accent transition-colors duration-700 drop-shadow-md">Sıvı Soğutma</h3>
+                <div className="w-12 h-1 bg-site-accent mt-3 group-hover:w-full transition-all duration-700 ease-out"></div>
               </div>
             </Link>
-            <Link href="/kategori/monitor" prefetch={false} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-[#00d2ff] transition-colors duration-700 ease-out">
+            <Link href="/kategori/monitor" prefetch={false} className="group relative flex-none snap-center snap-always lg:snap-start w-[85vw] sm:w-[320px] lg:w-[calc(33.333%-1rem)] h-[380px] bg-[#161616] border border-white/10 overflow-hidden flex flex-col justify-end p-6 hover:border-site-accent transition-colors duration-700 ease-out">
               <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/q_auto/f_auto/v1781457384/2025941420-00UIEZ-1_ujpjre.webp" alt="Kavisli Oyuncu Monitörü" loading="lazy" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-1000 ease-out grayscale group-hover:grayscale-0 pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent pointer-events-none"></div>
               <div className="relative z-10 w-full transform group-hover:-translate-y-2 transition-transform duration-700 ease-out pointer-events-none">
-                <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-[#00d2ff] transition-colors duration-700 drop-shadow-md">Prof. Monitörler</h3>
-                <div className="w-12 h-1 bg-[#00d2ff] mt-3 group-hover:w-full transition-all duration-700 ease-out"></div>
+                <h3 className="text-white font-black text-2xl uppercase tracking-widest group-hover:text-site-accent transition-colors duration-700 drop-shadow-md">Prof. Monitörler</h3>
+                <div className="w-12 h-1 bg-site-accent mt-3 group-hover:w-full transition-all duration-700 ease-out"></div>
               </div>
             </Link>
           </OkluSlider>
@@ -494,13 +495,13 @@ export default async function HomePage() {
         <img src="https://res.cloudinary.com/dtnbkoa9s/image/upload/v1781456011/kv_mxdcuq.jpg" alt="Bilgin PC Arka Plan" loading="lazy" className="w-full h-full object-cover grayscale" />
           <div className="absolute inset-0 bg-[#0a0a0a]/70"></div>
         </div>
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#00d2ff]/10 rounded-full blur-[150px] pointer-events-none z-0" />
-        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-[#00d2ff]/5 rounded-full blur-[150px] pointer-events-none z-0" />
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-site-accent/10 rounded-full blur-[150px] pointer-events-none z-0" />
+        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-site-accent/5 rounded-full blur-[150px] pointer-events-none z-0" />
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <div className="inline-flex items-center justify-center gap-3 mb-6">
             <div className="w-12 h-[1px] bg-gradient-to-r from-transparent to-[#00d2ff]"></div>
-            <Zap className="w-6 h-6 text-[#00d2ff]" />
+            <Zap className="w-6 h-6 text-site-accent" />
             <div className="w-12 h-[1px] bg-gradient-to-l from-transparent to-[#00d2ff]"></div>
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tighter text-white mb-6 leading-[0.9]">
@@ -519,14 +520,14 @@ export default async function HomePage() {
             </p>
           </div>
           <div className="mt-10 flex flex-wrap justify-center items-center gap-4 sm:gap-6 text-gray-400 text-xs sm:text-sm font-black tracking-[0.2em] sm:tracking-[0.3em] uppercase">
-            <span className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-[#00d2ff]" /> Resmi Garanti</span>
-            <span className="flex items-center gap-2"><Cpu className="w-4 h-4 text-[#00d2ff]" /> Güncel Donanım</span>
-            <span className="hidden sm:flex items-center gap-2"><Star className="w-4 h-4 text-[#00d2ff]" /> Müşteri Memnuniyeti</span>
+            <span className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-site-accent" /> Resmi Garanti</span>
+            <span className="flex items-center gap-2"><Cpu className="w-4 h-4 text-site-accent" /> Güncel Donanım</span>
+            <span className="hidden sm:flex items-center gap-2"><Star className="w-4 h-4 text-site-accent" /> Müşteri Memnuniyeti</span>
           </div>
         </div>
       </section>
 
-    </main>
+    </div>
   );
 }
 

@@ -54,7 +54,7 @@ export default function VitrinButon({ urun }: { urun: any }) {
         className={`h-10 w-10 flex items-center justify-center rounded-xl transition-all border ${
           eklendi 
           ? "bg-[#10b981] border-[#10b981] text-black scale-95" 
-          : "bg-white/10 border-transparent text-white hover:bg-[#00d2ff] hover:text-black shadow-md"
+          : "bg-white/10 border-transparent text-white hover:bg-site-accent hover:text-site-shell shadow-md"
         }`}
         title="Sepete Ekle"
       >

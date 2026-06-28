@@ -90,7 +90,8 @@ export default function SiparisTakipPage() {
     : "";
 
   return (
-    <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip">
+    <div className="site-page p-4 sm:p-6 lg:p-8 relative overflow-clip">
+      <div className="site-glow-top top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[280px]" />
       
       {/* 🚀 ARKA PLAN PARLAMASI (Tüm Sayfalarla Uyumlu Opacity 0.05 Turkuaz) */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-cyan-600 blur-[250px] opacity-[0.05] pointer-events-none rounded-full z-0"></div>

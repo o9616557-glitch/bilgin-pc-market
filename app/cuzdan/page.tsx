@@ -4,10 +4,11 @@ import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import {
-  User, ShieldCheck, CreditCard, Plus, Receipt, Trash2,
+  ShieldCheck, CreditCard, Plus, Receipt, Trash2,
   CheckCircle2, XCircle, Clock, Loader2, LogIn, UserPlus,
   Wallet, Gift, Star, MoreVertical, ChevronRight
 } from "lucide-react";
+import AccountShell from "@/components/layout/AccountShell";
 import toast from "react-hot-toast";
 import { paraFormatla, type KayitliKart, type CuzdanIslem } from "@/lib/cuzdan";
 
@@ -279,38 +280,19 @@ export default function CuzdanPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#020617] text-white font-sans p-4 sm:p-6 lg:p-8 relative overflow-clip font-medium">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-cyan-600 blur-[250px] opacity-[0.04] pointer-events-none rounded-full" />
+    <>
+    <AccountShell active="cuzdan">
+        <div className="flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
 
-      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
-
-        <div className="w-full lg:w-[280px] shrink-0 static lg:sticky lg:top-28 z-10">
-          <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-3 sm:p-4 shadow-xl">
-            <nav className="flex flex-col gap-1.5">
-              <Link href="/hesabim" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all">
-                <User className="w-4 h-4 sm:w-5 sm:h-5 text-slate-500" /> Profil
-              </Link>
-              <Link href="/cuzdan" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 bg-white/[0.05] border border-white/10 rounded-xl text-white font-bold shadow-inner text-sm sm:text-base">
-                <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" /> Dijital Cüzdanım
-              </Link>
-              <Link href="/guvenlik" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all">
-                <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-slate-500" /> Güvenlik
-              </Link>
-            </nav>
-          </div>
-        </div>
-
-        <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
-
-          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 lg:p-8 shadow-xl relative overflow-hidden">
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-cyan-500/[0.04] blur-[50px] pointer-events-none rounded-full" />
+          <div className="account-card rounded-2xl p-5 sm:p-6 lg:p-8 relative overflow-hidden">
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-site-accent/[0.04] blur-[50px] pointer-events-none rounded-full" />
             <div className="flex items-center gap-3 sm:gap-4 relative z-10">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#020617] border border-slate-800 rounded-full flex items-center justify-center shrink-0">
-                <CreditCard className="w-6 h-6 sm:w-8 sm:h-8 text-cyan-400/80" />
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-site-shell border border-white/[0.08] rounded-full flex items-center justify-center shrink-0">
+                <CreditCard className="w-6 h-6 sm:w-8 sm:h-8 text-site-accent/80" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight mb-0.5 sm:mb-1">Dijital Cüzdanım</h1>
-                <p className="text-slate-400 text-xs sm:text-sm">Bakiyeniz, kayıtlı kartlarınız ve ödeme geçmişiniz tek ekranda.</p>
+                <h1 className="site-h1 mb-0.5 sm:mb-1">Dijital Cüzdanım</h1>
+                <p className="site-body text-xs sm:text-sm">Bakiyeniz, kayıtlı kartlarınız ve ödeme geçmişiniz tek ekranda.</p>
               </div>
             </div>
           </div>
@@ -446,7 +428,7 @@ export default function CuzdanPage() {
             </>
           )}
         </div>
-      </div>
+    </AccountShell>
 
       {/* Kart ekle modal */}
       {kartModal && (
@@ -546,6 +528,6 @@ export default function CuzdanPage() {
         </div>
       )}
 
-    </div>
+    </>
   );
 }

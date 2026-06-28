@@ -24,23 +24,19 @@ export default function SepetSayfasi() {
 
   if (sepet.length === 0) {
     return (
-      <div className="min-h-screen bg-[#050814] flex flex-col items-center justify-center px-4 relative z-10 font-sans">
-        <div className="text-center p-8 sm:p-16 bg-transparent relative flex flex-col items-center">
-          <div className="w-20 h-20 rounded-full bg-[#121215]/80 border border-slate-800/50 flex items-center justify-center mb-6 shadow-inner">
+      <div className="min-h-screen site-page flex flex-col items-center justify-center px-4 relative z-10">
+        <div className="text-center p-8 sm:p-16 bg-transparent relative flex flex-col items-center site-content-in">
+          <div className="w-20 h-20 rounded-full glass-panel flex items-center justify-center mb-6">
              <ShoppingCart className="w-10 h-10 text-slate-500" />
           </div>
-          <h2 className="text-xl md:text-2xl font-black uppercase tracking-wide mb-3 text-white">
-            SEPETİNİZ HENÜZ <span className="text-[#3b82f6]">BOŞ</span>
+          <h2 className="site-h2 mb-3">
+            Sepetiniz henüz <span className="site-accent-text">boş</span>
           </h2>
-          <p className="text-slate-400 text-xs sm:text-sm max-w-sm mx-auto mb-8 font-medium leading-relaxed">
+          <p className="site-body max-w-sm mx-auto mb-8">
             Sepetinizde henüz hiçbir donanım bulunmuyor. Sisteminizi güçlendirecek en iyi teknolojileri keşfetmek için mağazamıza göz atabilirsiniz.
           </p>
-          <Link
-            href="/"
-            prefetch={true}
-            className="bg-[#3b82f6] text-white px-8 py-3.5 sm:py-4 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest hover:bg-[#2563eb] transition-all hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:shadow-[0_0_25px_rgba(59,130,246,0.5)]"
-          >
-            ALIŞVERİŞE BAŞLA
+          <Link href="/" prefetch={true} className="btn-primary uppercase tracking-wide text-xs sm:text-sm">
+            Alışverişe Başla
           </Link>
         </div>
       </div>
@@ -48,30 +44,30 @@ export default function SepetSayfasi() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050814] text-white pb-12 relative font-sans">
-      <div className="border-b border-white/5 bg-[#09090b]/90 backdrop-blur-md sticky top-0 z-50 shadow-lg mb-6 sm:mb-8">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-4 flex items-center justify-between">
+    <div className="min-h-screen site-page pb-12 relative">
+      <div className="glass-panel border-b border-white/[0.06] sticky top-0 z-50 shadow-lg mb-6 sm:mb-8 rounded-none">
+        <div className="site-container-narrow py-4 flex items-center justify-between">
           <Link href="/" className="group flex items-center transition-all" title="Ana Sayfaya Dön">
-            <div className="md:hidden flex items-center justify-center p-2 rounded-lg text-slate-400 hover:text-[#3b82f6] hover:bg-white/5 transition-all duration-200">
+            <div className="md:hidden flex items-center justify-center p-2 rounded-lg text-slate-400 hover:text-site-accent hover:bg-white/5 transition-all duration-200">
               <Home className="w-5 h-5" />
             </div>
-            <div className="hidden md:flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 group-hover:text-[#3b82f6] transition-all">
-              <ArrowLeft className="w-4 h-4" /> MAĞAZAYA GERİ DÖN
+            <div className="hidden md:flex items-center gap-2 site-label text-slate-400 group-hover:text-site-accent transition-all normal-case">
+              <ArrowLeft className="w-4 h-4" /> Mağazaya geri dön
             </div>
           </Link>
-          <Link href="/" prefetch={true} className="font-black text-xl sm:text-2xl tracking-tight text-white hover:opacity-80 transition-opacity">
-            BİLGİN <span className="text-[#3b82f6]">PC</span>
+          <Link href="/" prefetch={true} className="text-xl sm:text-2xl font-semibold tracking-tight text-white hover:opacity-80 transition-opacity">
+            BİLGİN <span className="site-accent-text">PC</span>
           </Link>
-          <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] sm:text-xs font-black uppercase tracking-widest bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20">
-            <span>🔒</span> <span className="hidden sm:inline">Güvenli Alışveriş</span>
+          <div className="flex items-center gap-1.5 text-emerald-400 site-label normal-case bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20">
+            <span>🔒</span> <span className="hidden sm:inline">Güvenli alışveriş</span>
           </div>
         </div>
       </div>
 
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 gap-4 mt-2 border-b border-white/5">
-          <h1 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-white mb-0 border-l-4 border-[#3b82f6] pl-4">
-            ALIŞVERİŞ <span className="text-[#3b82f6]">SEPETİM</span>
+      <div className="site-container-narrow site-content-in">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 gap-4 mt-2 border-b border-white/[0.06]">
+          <h1 className="site-h2 mb-0 border-l-4 border-site-accent-strong pl-4">
+            Alışveriş <span className="site-accent-text">sepetim</span>
           </h1>
           {sepetiTemizle && (
             <button onClick={sepetiTemizle} className="text-[10px] sm:text-xs font-bold text-slate-400 hover:text-rose-400 bg-[#121215] border border-white/10 hover:border-rose-500/30 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg transition-all uppercase tracking-wider shrink-0 w-max self-end sm:self-auto">
