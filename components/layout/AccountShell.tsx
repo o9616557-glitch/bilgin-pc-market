@@ -3,7 +3,7 @@
 import Link from "next/link";
 import {
   User, ShieldCheck, CreditCard, MessageSquare, Database,
-  Mail, Star, Package, Heart, ChevronRight
+  Mail, Star, Package, MapPin, Headset, ChevronRight
 } from "lucide-react";
 
 const NAV_PRIMARY = [
@@ -15,11 +15,11 @@ const NAV_PRIMARY = [
 ];
 
 const NAV_SECONDARY = [
-  { href: "/eposta-degistir",     label: "E-posta Değiştir",   icon: Mail,    id: "eposta-degistir" },
-  { href: "/yorumlarim",          label: "Ürün Yorumları",      icon: Star,    id: "yorumlarim" },
-  { href: "/siparis-yorumlarim",  label: "Sipariş Yorumları",   icon: Star,    id: "siparis-yorumlarim" },
-  { href: "/siparislerim",        label: "Siparişlerim",        icon: Package, id: "siparislerim" },
-  { href: "/favorilerim",         label: "Favorilerim",         icon: Heart,   id: "favorilerim" },
+  { href: "/eposta-degistir",    label: "E-posta Değiştir",   icon: Mail,    id: "eposta-degistir" },
+  { href: "/yorumlarim",         label: "Ürün Yorumları",      icon: Star,    id: "yorumlarim" },
+  { href: "/siparis-yorumlarim", label: "Sipariş Yorumları",   icon: Star,    id: "siparis-yorumlarim" },
+  { href: "/adreslerim",         label: "Adreslerim",          icon: MapPin,  id: "adreslerim" },
+  { href: "/destek-taleplerim",  label: "Destek Taleplerim",   icon: Headset, id: "destek-taleplerim" },
 ];
 
 type AccountShellProps = {

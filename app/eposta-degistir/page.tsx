@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AccountShell from "@/components/layout/AccountShell";
-import { Mail, Eye, EyeOff, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Mail, Eye, EyeOff, CheckCircle2, XCircle, Loader2, Link2, ChevronRight } from "lucide-react";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 
@@ -10,6 +10,19 @@ export default function EpostaDegistirPage() {
   const { data: session } = useSession();
   const [yeniEposta, setYeniEposta] = useState("");
   const [sifre, setSifre] = useState("");
+  const [bagliHesaplar, setBagliHesaplar] = useState<{ eposta: string; saglayici: string; aktif: boolean }[]>([]);
+
+  useEffect(() => {
+    if (!session?.user?.email) return;
+    const hesaplar: { eposta: string; saglayici: string; aktif: boolean }[] = [];
+    const mevcutEposta = session.user.email;
+    const isGoogleImage = session.user.image?.includes("googleusercontent") || session.user.image?.includes("google");
+    hesaplar.push({ eposta: mevcutEposta, saglayici: "Mevcut", aktif: true });
+    if (isGoogleImage && (session.user as any).googleEmail && (session.user as any).googleEmail !== mevcutEposta) {
+      hesaplar.push({ eposta: (session.user as any).googleEmail, saglayici: "Google", aktif: false });
+    }
+    setBagliHesaplar(hesaplar);
+  }, [session]);
   const [gosterSifre, setGosterSifre] = useState(false);
   const [yukleniyor, setYukleniyor] = useState(false);
   const [sonuc, setSonuc] = useState<{ tip: "basari" | "hata"; mesaj: string } | null>(null);
@@ -64,6 +77,45 @@ export default function EpostaDegistirPage() {
             </div>
           </div>
         </div>
+
+        {bagliHesaplar.length > 1 && (
+          <div className="account-card rounded-2xl p-5 sm:p-6 max-w-md">
+            <div className="flex items-center gap-2 mb-4">
+              <Link2 className="w-4 h-4 text-site-accent/70" />
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Bağlı E-posta Hesapları</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              {bagliHesaplar.map((h) => (
+                <button
+                  key={h.eposta}
+                  type="button"
+                  onClick={() => !h.aktif && setYeniEposta(h.eposta)}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border text-sm transition-all ${
+                    h.aktif
+                      ? "bg-site-accent/10 border-site-accent/30 text-white cursor-default"
+                      : "bg-site-shell border-white/[0.08] text-slate-300 hover:border-site-accent/40 hover:bg-site-accent/5 cursor-pointer"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Mail className="w-4 h-4 text-slate-500 shrink-0" />
+                    <span className="truncate">{h.eposta}</span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                      h.aktif
+                        ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                        : "bg-white/[0.04] border-white/10 text-slate-500"
+                    }`}>
+                      {h.aktif ? "Aktif" : h.saglayici}
+                    </span>
+                    {!h.aktif && <ChevronRight className="w-3.5 h-3.5 text-slate-600" />}
+                  </div>
+                </button>
+              ))}
+            </div>
+            <p className="text-[11px] text-slate-600 mt-3">Geçiş yapmak istediğiniz hesaba tıklayın, aşağıdaki forma otomatik aktarılacaktır.</p>
+          </div>
+        )}
 
         <div className="account-card rounded-2xl p-5 sm:p-6 max-w-md">
           <form onSubmit={handleGonder} className="flex flex-col gap-4">

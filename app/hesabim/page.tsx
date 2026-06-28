@@ -93,30 +93,28 @@ export default function HesabimPage() {
   ];
 
   const varsayilanUstMenu = [
-    { id: "profil", isim: "Profil", ikon: User, renk: "text-cyan-400", isLink: true, href: "/hesabim" },
-    { id: "cuzdan", isim: "Cüzdan", ikon: CreditCard, renk: "text-amber-400", isLink: true, href: "/cuzdan" },
-    { id: "guvenlik", isim: "Güvenlik", ikon: ShieldCheck, renk: "text-emerald-400", isLink: true, href: "/guvenlik" },
-    { id: "adresler", isim: "Adresler", ikon: MapPin, renk: "text-cyan-400", isLink: true, href: "/adreslerim" }
+    { id: "siparisler", isim: "Siparişler", ikon: Package,   renk: "text-blue-400",   isLink: true, href: "/siparislerim" },
+    { id: "favoriler",  isim: "Favoriler",  ikon: Star,      renk: "text-purple-400", isLink: true, href: "/favorilerim" },
+    { id: "adresler",   isim: "Adresler",   ikon: MapPin,    renk: "text-cyan-400",   isLink: true, href: "/adreslerim" },
+    { id: "sistemler",  isim: "Sistemler",  ikon: Server,    renk: "text-emerald-400", isLink: true, href: "/sistemlerim" },
   ];
 
   const varsayilanAltMenu = [
-    { id: "favoriler", isim: "Favoriler", ikon: Star, renk: "text-purple-400", isLink: true, href: "/favorilerim" },
-    { id: "sistemler", isim: "Sistemler", ikon: Server, renk: "text-emerald-400", isLink: true, href: "/sistemlerim" },
-    { id: "kargolar", isim: "Kargolar", ikon: Truck, renk: "text-rose-400", isKargo: true },
-    { id: "destek", isim: "Destek", ikon: Headset, renk: "text-orange-400", isLink: true, href: "/destek-taleplerim" },
-    { id: "sorgula", isim: "Sorgula", ikon: Search, renk: "text-blue-400", isLink: true, href: "/siparis-takip" }
+    { id: "kargolar", isim: "Kargolar", ikon: Truck,   renk: "text-rose-400",   isKargo: true },
+    { id: "destek",   isim: "Destek",   ikon: Headset, renk: "text-orange-400", isLink: true, href: "/destek-taleplerim" },
+    { id: "sorgula",  isim: "Sorgula",  ikon: Search,  renk: "text-blue-400",   isLink: true, href: "/siparis-takip" }
   ];
 
   const [ustMenuListesi, setUstMenuListesi] = useState(() => {
     if (typeof window !== "undefined") {
-      try { const cached = localStorage.getItem("bilgin_ust_menu_v2"); if (cached) return ikonEslestir(JSON.parse(cached)); } catch (e) {}
+      try { const cached = localStorage.getItem("bilgin_ust_menu_v3"); if (cached) return ikonEslestir(JSON.parse(cached)); } catch (e) {}
     }
     return varsayilanUstMenu;
   });
 
   const [altMenuListesi, setAltMenuListesi] = useState(() => {
     if (typeof window !== "undefined") {
-      try { const cached = localStorage.getItem("bilgin_alt_menu_v2"); if (cached) return ikonEslestir(JSON.parse(cached)); } catch (e) {}
+      try { const cached = localStorage.getItem("bilgin_alt_menu_v3"); if (cached) return ikonEslestir(JSON.parse(cached)); } catch (e) {}
     }
     return varsayilanAltMenu;
   });
@@ -253,8 +251,8 @@ export default function HesabimPage() {
     
                 setUstMenuListesi(nihaiUst);
                 setAltMenuListesi(nihaiAlt);
-                localStorage.setItem("bilgin_ust_menu_v2", JSON.stringify(nihaiUst.map(({ikon, ...k})=>k)));
-                localStorage.setItem("bilgin_alt_menu_v2", JSON.stringify(nihaiAlt.map(({ikon, ...k})=>k)));
+                localStorage.setItem("bilgin_ust_menu_v3", JSON.stringify(nihaiUst.map(({ikon, ...k})=>k)));
+                localStorage.setItem("bilgin_alt_menu_v3", JSON.stringify(nihaiAlt.map(({ikon, ...k})=>k)));
             }
 
             if (resData.data.siparisRenkleri && Object.keys(resData.data.siparisRenkleri).length > 0) {
@@ -279,8 +277,8 @@ export default function HesabimPage() {
     const temizUst = guncelUst.map(({ ikon, ...kalanlar }) => kalanlar);
     const temizAlt = guncelAlt.map(({ ikon, ...kalanlar }) => kalanlar);
     
-    localStorage.setItem("bilgin_ust_menu_v2", JSON.stringify(temizUst));
-    localStorage.setItem("bilgin_alt_menu_v2", JSON.stringify(temizAlt));
+    localStorage.setItem("bilgin_ust_menu_v3", JSON.stringify(temizUst));
+    localStorage.setItem("bilgin_alt_menu_v3", JSON.stringify(temizAlt));
     
     try {
       const birlestirilmisListe = [...temizUst, ...temizAlt];
@@ -324,8 +322,8 @@ export default function HesabimPage() {
 
   const handleCikisYap = async () => {
     oturumHafizasiniTemizle();
-    localStorage.removeItem("bilgin_ust_menu_v2");
-    localStorage.removeItem("bilgin_alt_menu_v2");
+    localStorage.removeItem("bilgin_ust_menu_v3");
+    localStorage.removeItem("bilgin_alt_menu_v3");
     const cihazId = (session?.user as any)?.deviceId;
     if (cihazId) {
       try { await fetch("/api/user/logout-device", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ deviceId: cihazId }) }); } catch (e) {}
@@ -678,7 +676,7 @@ export default function HesabimPage() {
         )}
 
         <div className="w-full block">
-          <div className={`grid grid-cols-5 gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${aktifPalet === 'menu' ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
+          <div className={`grid grid-cols-3 gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${aktifPalet === 'menu' ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
             {altMenuListesi.map((item: any, index: number) => {
               const IkonBileseni = item.ikon;
               const isSecili = seciliKutuId === item.id;
