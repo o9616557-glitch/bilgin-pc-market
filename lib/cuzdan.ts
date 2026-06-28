@@ -1,5 +1,3 @@
-import { ObjectId } from "mongodb";
-
 export type KartMarkasi = "visa" | "mastercard" | "troy" | "amex" | "diger";
 
 export interface KayitliKart {
@@ -117,5 +115,5 @@ export function siparisleriIslemlereCevir(orders: any[]): CuzdanIslem[] {
 }
 
 export function yeniKartId() {
-  return new ObjectId().toString();
+  return crypto.randomUUID();
 }
