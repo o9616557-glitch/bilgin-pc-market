@@ -226,20 +226,16 @@ export const authOptions: NextAuthOptions = {
       return true; 
     },
 
-    // 🚀 BİNGO: İŞTE KATİLİ YOK ETTİĞİMİZ YER BURASI! (ID yerine Email ile arama yapıyoruz)
     async jwt({ token, user }) {
       if (user) { 
         token.id = user.id; 
         token.deviceId = (user as any).deviceId; 
       }
 
-      // 🚨 Eski kod burada 'token.id' kullanıyordu ve Google ID'sinde patlıyordu. 
-      // Artık 'token.email' kullanıyoruz ki MongoDB asla şaşırmasın!
       if (!user && token?.email && token?.deviceId) {
         try {
           if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
           
-          // 🚀 JİLET GİBİ ÇÖZÜM: findById yerine findOne({ email }) kullanıyoruz!
           const dbUser = await User.findOne({ email: token.email }).select("activeDevices");
           
           if (dbUser) {
@@ -253,7 +249,6 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
 
-   // 🚀 ÖLÜM DAMGALI ADAMI SİSTEMDEN ATAN MOTOR
     async session({ session, token }) {
       if (token.isLoggedOut) {
          (session as any).error = "KickedOut";
@@ -264,12 +259,14 @@ export const authOptions: NextAuthOptions = {
       return session;
     }
   },
+
+  // 🚀 İŞTE İSTEDİGİN RADAR ÇIKIŞ MOTORUNUN EN GÜNCEL VE HATASIZ HALİ BURASI ŞEFİM
   events: {
     async signOut({ token }) {
       try {
         if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
         
-        // 🚀 BİNGO: Çıkış yaparken de ID yerine EMAIL kullanıyoruz ki cihazı tam bulup şalterini kapatsın!
+        // Hem normal hem kurumsal (Google vs.) oturumlarda cihazı tam algılaması için e-posta ile güncelliyoruz
         if (token?.email && token?.deviceId) {
           await User.updateOne(
             { email: token.email, "activeDevices.deviceId": token.deviceId },
