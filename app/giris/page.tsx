@@ -83,7 +83,6 @@ function GirisIcerik() {
         toast.dismiss(loadingToast);
         toast.success("Giriş işlemi başarılı. Hesabınıza yönlendiriliyorsunuz...", { ...toastAyari, duration: 3000 });
         router.push("/");
-        router.refresh();
       }
     } catch (err) {
       toast.dismiss(loadingToast);

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { oturumHafizasiniTemizle } from "@/lib/oturum-hafiza";
+import { useOrders } from "@/app/OrderContext";
 import { 
   User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, 
   MapPin, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, 
@@ -28,6 +29,7 @@ const ikonEslestir = (liste: any[]) => {
 
 export default function HesabimPage() {
   const { data: session, status } = useSession();
+  const { orders: siparisler } = useOrders();
   const suAnkiTarih = new Date();
   const yil = suAnkiTarih.getFullYear();
 
@@ -341,7 +343,36 @@ export default function HesabimPage() {
   };
 
   useEffect(() => {
-    if (status !== "authenticated") return;
+    if (status !== "authenticated" || !session?.user?.email) return;
+
+    const hafizadanOku = () => {
+      try {
+        const hafiza = sessionStorage.getItem("bilgin_hesabim_data");
+        if (hafiza) {
+          const parsed = JSON.parse(hafiza);
+          if (parsed.tumSiparisler?.length) setHamSiparisler(parsed.tumSiparisler);
+          if (parsed.favoriSayisi !== undefined) setFavoriSayisi(parsed.favoriSayisi);
+          if (parsed.adresSayisi !== undefined) setAdresSayisi(parsed.adresSayisi);
+        }
+        const destekOzet = sessionStorage.getItem("bilgin_destek_ozet");
+        if (destekOzet) {
+          const parsed = JSON.parse(destekOzet);
+          setAcikTalepSayisi(parsed.sayi || 0);
+          setYeniMesajVar(!!parsed.acil);
+        }
+        const kayitliSistemler = localStorage.getItem("bilgin_kayitli_sistemler");
+        if (kayitliSistemler) {
+          const parsedSistemler = JSON.parse(kayitliSistemler);
+          if (Array.isArray(parsedSistemler)) setSistemSayisi(parsedSistemler.length);
+        }
+      } catch (error) {
+        console.error("Hafıza okuma hatası:", error);
+      }
+    };
+
+    hafizadanOku();
+    window.addEventListener("bilgin-hesap-guncellendi", hafizadanOku);
+
     fetch("/api/user/get-2fa", { cache: "no-store" })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
@@ -350,73 +381,24 @@ export default function HesabimPage() {
         setGuvenlikOzeti({ ikiAdim: !!data.twoFactorEmail, cihazSayisi: aktifCihazlar.length });
       })
       .catch(() => {});
-  }, [status]);
+
+    return () => window.removeEventListener("bilgin-hesap-guncellendi", hafizadanOku);
+  }, [status, session?.user?.email]);
 
   useEffect(() => {
-    if (status === "unauthenticated") { setHamSiparisler([]); }
-  }, [status]);
-
-  useEffect(() => {
-    if (status !== "authenticated") return;
+    if (status !== "authenticated" || siparisler.length === 0) return;
+    setHamSiparisler(siparisler);
     try {
-      const hafiza = sessionStorage.getItem("bilgin_hesabim_data");
-      if (hafiza) {
-        const parsed = JSON.parse(hafiza);
-        if (parsed.tumSiparisler && parsed.tumSiparisler.length > 0) setHamSiparisler(parsed.tumSiparisler);
-        if (parsed.favoriSayisi !== undefined) setFavoriSayisi(parsed.favoriSayisi);
-        if (parsed.adresSayisi !== undefined) setAdresSayisi(parsed.adresSayisi);
-      }
-      const kayitliSistemler = localStorage.getItem("bilgin_kayitli_sistemler");
-      if (kayitliSistemler) {
-        const parsedSistemler = JSON.parse(kayitliSistemler);
-        if (Array.isArray(parsedSistemler)) setSistemSayisi(parsedSistemler.length);
-      }
-    } catch (error) { console.error("Hafıza okuma hatası:", error); }
-  }, [status]);
+      const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
+      sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, tumSiparisler: siparisler }));
+    } catch {}
+  }, [siparisler, status]);
 
   useEffect(() => {
-    if (status !== "authenticated" || !session?.user?.email) return;
-    const gercegiKontrolEt = async () => {
-      try {
-        const res = await fetch("/api/orders?t=" + new Date().getTime(), { cache: "no-store", headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" } });
-        const data = await res.json();
-        if (res.ok && data.orders) {
-          const benimSiparislerim = data.orders.filter((o: any) => {
-            const mail = o.userEmail || o.email || o.musteri?.eposta || o.musteri?.email || "";
-            return mail.toLowerCase() === (session?.user?.email || "").toLowerCase() && o.gizlendi !== true;
-          });
-          setHamSiparisler(benimSiparislerim);
-          const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
-          sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({ ...eskiHafiza, tumSiparisler: benimSiparislerim }));
-        }
-
-        const adresRes = await fetch("/api/addresses?t=" + new Date().getTime(), { cache: "no-store" });
-        if (adresRes.ok) {
-          const adresData = await adresRes.json();
-          setAdresSayisi(adresData.addresses?.length || 0);
-        }
-
-        const favoriRes = await fetch("/api/favorites?t=" + new Date().getTime(), { cache: "no-store" });
-        if (favoriRes.ok) {
-          const favoriData = await favoriRes.json();
-          setFavoriSayisi(favoriData.favorites?.length || 0);
-        }
-
-        const destekRes = await fetch("/api/destek?t=" + new Date().getTime(), { cache: "no-store" });
-        if (destekRes.ok) {
-          const destekData = await destekRes.json();
-          if (destekData.talepler) {
-            const aciklar = destekData.talepler.filter((t: any) => t.durum !== "Çözüldü");
-            const acilMesaj = aciklar.some((t: any) => t.durum === "Yanıt Bekleniyor");
-            setAcikTalepSayisi(aciklar.length); setYeniMesajVar(acilMesaj);
-          }
-        }
-      } catch (error) { console.error("Radar bağlantı hatası:", error); }
-    };
-    gercegiKontrolEt();
-    const radar = setInterval(gercegiKontrolEt, 5000); 
-    return () => clearInterval(radar); 
-  }, [session, status]);
+    if (status === "unauthenticated") {
+      setHamSiparisler([]);
+    }
+  }, [status]);
 
   useEffect(() => {
     if (!hamSiparisler) return;

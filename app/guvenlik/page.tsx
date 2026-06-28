@@ -95,14 +95,8 @@ export default function GuvenlikPage() {
       }
     };
     
-    ayarlariGetir(true); 
-
-    const cirak = setInterval(() => {
-      ayarlariGetir(false);
-    }, 5000); 
-
-    return () => clearInterval(cirak); 
-  }, [mevcutCihazId, status]); 
+    ayarlariGetir(true);
+  }, [mevcutCihazId, status]);
 
   const sifreGucuHesapla = (s: string) => {
     let guc = 0;

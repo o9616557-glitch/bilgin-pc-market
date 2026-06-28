@@ -16,7 +16,7 @@ export default function GlobalKalkan() {
 
     const radar = setInterval(() => {
       update();
-    }, 15000);
+    }, 60000);
 
     return () => clearInterval(radar);
     // eslint-disable-next-line react-hooks/exhaustive-deps

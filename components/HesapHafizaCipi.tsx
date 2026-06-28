@@ -1,40 +1,41 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 
 export default function HesapHafizaCipi() {
   const { data: session, status } = useSession();
+  const yuklendiRef = useRef(false);
 
-  // 🚀 TEK MOTOR: ARKA PLAN VERİ TOPLAYICI (Sessiz Çırak)
-  // Müşteri siteye girdiğinde veya F5 attığında arka planda sessizce verileri cebe atar.
   useEffect(() => {
-    if (status !== "authenticated" || !session?.user?.email) return;
+    if (status !== "authenticated" || !session?.user?.email) {
+      if (status === "unauthenticated") yuklendiRef.current = false;
+      return;
+    }
+    if (yuklendiRef.current) return;
+    yuklendiRef.current = true;
 
     const ustaHafizayiDoldur = async () => {
       try {
-        const zamanDamgasi = new Date().getTime();
+        const [adresRes, favoriRes, destekRes] = await Promise.all([
+          fetch("/api/addresses", { cache: "no-store" }),
+          fetch("/api/favorites", { cache: "no-store" }),
+          fetch("/api/destek", { cache: "no-store" }),
+        ]);
 
-        // Adresleri çek
-        const adresRes = await fetch("/api/addresses?t=" + zamanDamgasi, { cache: "no-store" });
         let adresSayisi = 0;
+        let favoriSayisi = 0;
+        let acikTalepSayisi = 0;
+        let acilMesaj = false;
+
         if (adresRes.ok) {
           const adresData = await adresRes.json();
           adresSayisi = adresData.addresses?.length || 0;
         }
-
-        // Favorileri çek
-        const favoriRes = await fetch("/api/favorites?t=" + zamanDamgasi, { cache: "no-store" });
-        let favoriSayisi = 0;
         if (favoriRes.ok) {
           const favoriData = await favoriRes.json();
           favoriSayisi = favoriData.favorites?.length || 0;
         }
-
-        // Destek mesajlarını çek
-        const destekRes = await fetch("/api/destek?t=" + zamanDamgasi, { cache: "no-store" });
-        let acikTalepSayisi = 0;
-        let acilMesaj = false;
         if (destekRes.ok) {
           const destekData = await destekRes.json();
           if (destekData.talepler) {
@@ -44,26 +45,27 @@ export default function HesapHafizaCipi() {
           }
         }
 
-        // Verileri SessionStorage'a mühürle
         const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
         sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({
           ...eskiHafiza,
           adresSayisi,
-          favoriSayisi
+          favoriSayisi,
         }));
 
         sessionStorage.setItem("bilgin_destek_ozet", JSON.stringify({
           sayi: acikTalepSayisi,
-          acil: acilMesaj
+          acil: acilMesaj,
         }));
 
+        window.dispatchEvent(new CustomEvent("bilgin-hesap-guncellendi"));
       } catch (error) {
-        console.error("Akıllı Çip verileri toplarken hata aldı:", error);
+        console.error("Hesap hafızası güncellenemedi:", error);
+        yuklendiRef.current = false;
       }
     };
 
     ustaHafizayiDoldur();
-  }, [session, status]);
+  }, [session?.user?.email, status]);
 
   return null;
 }
