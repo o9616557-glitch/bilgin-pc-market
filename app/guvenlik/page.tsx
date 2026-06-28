@@ -81,7 +81,7 @@ export default function GuvenlikPage() {
               }
             }
 
-            const yasayanCihazlar = data.activeDevices.filter((c: any) => c.isActive !== false);
+            const yasayanCihazlar = data.activeDevices.filter((c: any) => c.isActive === true);
             const siraliCihazlar = yasayanCihazlar.sort((a: any, b: any) => 
               new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime()
             );
