@@ -544,6 +544,7 @@ export default function HesabimPage() {
   );
 
   return (
+  <>
   <AccountShell active="hesabim">
     <div suppressHydrationWarning={true} className="flex flex-col gap-6 w-full">
 
@@ -1152,5 +1153,6 @@ export default function HesabimPage() {
         </div>,
         document.body
       )}
+  </>
   );
 }
