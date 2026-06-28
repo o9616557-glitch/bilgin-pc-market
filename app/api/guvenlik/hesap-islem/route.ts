@@ -7,6 +7,29 @@ import type { Db } from "mongodb";
 import { ObjectId } from "mongodb";
 
 const DB_NAME = "bilginpcmarket";
+const OAUTH_ONAY_METNI = "ONAYLA";
+
+async function kimlikDogrula(
+  dbKullanici: { password?: string },
+  sifre: string | undefined,
+  onayMetni: string | undefined
+) {
+  if (dbKullanici.password) {
+    if (!sifre) {
+      return { ok: false as const, hata: "Devam etmek için şifrenizi girmelisiniz." };
+    }
+    const sifreDogruMu = await bcrypt.compare(sifre, dbKullanici.password);
+    if (!sifreDogruMu) {
+      return { ok: false as const, hata: "Girdiğiniz şifre hatalı." };
+    }
+    return { ok: true as const };
+  }
+
+  if (onayMetni?.trim().toUpperCase() !== OAUTH_ONAY_METNI) {
+    return { ok: false as const, hata: `Devam etmek için kutuya "${OAUTH_ONAY_METNI}" yazmalısınız.` };
+  }
+  return { ok: true as const };
+}
 
 async function kaliciHesapSil(db: Db, email: string, userId: ObjectId) {
   await Promise.all([
@@ -22,7 +45,7 @@ async function kaliciHesapSil(db: Db, email: string, userId: ObjectId) {
 
 export async function POST(req: Request) {
   try {
-    const { islem, sifre } = await req.json();
+    const { islem, sifre, onayMetni } = await req.json();
 
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
@@ -39,14 +62,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ hata: "Kullanıcı bulunamadı." }, { status: 404 });
     }
 
-    if (dbKullanici.password) {
-      if (!sifre) {
-        return NextResponse.json({ hata: "Devam etmek için şifrenizi girmelisiniz." }, { status: 400 });
-      }
-      const sifreDogruMu = await bcrypt.compare(sifre, dbKullanici.password);
-      if (!sifreDogruMu) {
-        return NextResponse.json({ hata: "Girdiğiniz şifre hatalı." }, { status: 400 });
-      }
+    const dogrulama = await kimlikDogrula(dbKullanici, sifre, onayMetni);
+    if (!dogrulama.ok) {
+      return NextResponse.json({ hata: dogrulama.hata }, { status: 400 });
     }
 
     if (islem === 'sil') {
@@ -58,9 +76,14 @@ export async function POST(req: Request) {
     }
 
     if (islem === 'dondur') {
+      const pasifCihazlar = (dbKullanici.activeDevices || []).map((c: any) => ({
+        ...c,
+        isActive: false,
+      }));
+
       await usersCollection.updateOne(
         { _id: dbKullanici._id },
-        { $set: { isActive: false } }
+        { $set: { isActive: false, activeDevices: pasifCihazlar } }
       );
 
       await db.collection("reviews").updateMany(
@@ -68,7 +91,7 @@ export async function POST(req: Request) {
         { $set: { isVisible: false } }
       );
 
-      return NextResponse.json({ mesaj: "Hesabınız başarıyla dondurulmuştur. İyi günler dileriz." }, { status: 200 });
+      return NextResponse.json({ mesaj: "Hesabınız donduruldu. Tekrar giriş yapamazsınız." }, { status: 200 });
     }
 
     return NextResponse.json({ hata: "Geçersiz işlem türü!" }, { status: 400 });

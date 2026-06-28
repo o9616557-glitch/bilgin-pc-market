@@ -9,6 +9,7 @@ import {
   UserPlus
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react"; 
+import { oturumHafizasiniTemizle } from "@/lib/oturum-hafiza";
 
 export default function GuvenlikPage() {
   // 🚀 STATUS MOTORU EKLENDİ (Misafir mi değil mi anlamak için)
@@ -34,6 +35,7 @@ export default function GuvenlikPage() {
 
   const [ikiAdimEmail, setIkiAdimEmail] = useState(false);
   const [bildirimTercihi, setBildirimTercihi] = useState('new_device'); 
+  const [sifreVarMi, setSifreVarMi] = useState(true);
   const [ikiAdimDurum, setIkiAdimDurum] = useState({ tip: "", mesaj: "" });
   const [ikiAdimYukleniyor, setIkiAdimYukleniyor] = useState(false);
 
@@ -43,6 +45,7 @@ export default function GuvenlikPage() {
 
   const [islemModali, setIslemModali] = useState<{acik: boolean, tur: 'dondur' | 'sil'}>({acik: false, tur: 'dondur'});
   const [islemSifresi, setIslemSifresi] = useState("");
+  const [islemOnayMetni, setIslemOnayMetni] = useState("");
   const [islemYukleniyor, setIslemYukleniyor] = useState(false);
   const [islemBasariliMesaj, setIslemBasariliMesaj] = useState("");
   const [islemHata, setIslemHata] = useState("");
@@ -65,7 +68,8 @@ export default function GuvenlikPage() {
           
           if (ilkYukleme) {
             setIkiAdimEmail(data.twoFactorEmail);
-            setBildirimTercihi(data.notificationPreference || 'none'); 
+            setBildirimTercihi(data.notificationPreference || 'none');
+            setSifreVarMi(data.hasPassword !== false);
           }
           
           if (data.activeDevices) {
@@ -295,6 +299,15 @@ export default function GuvenlikPage() {
                 </div>
 
                 <form onSubmit={handleSifreGuncelle} className="flex flex-col gap-3 sm:gap-4 flex-1">
+                  {!sifreVarMi ? (
+                    <div className="flex-1 flex flex-col justify-center rounded-xl border border-slate-800 bg-[#020617] p-4 text-center">
+                      <p className="text-sm text-slate-300 font-medium mb-2">Sosyal medya hesabı</p>
+                      <p className="text-xs text-slate-500 leading-relaxed">
+                        Google veya Facebook ile giriş yaptığınız için şifre buradan değiştirilemez. Şifrenizi ilgili platformdan yönetebilirsiniz.
+                      </p>
+                    </div>
+                  ) : (
+                  <>
                   <div>
                     <label className="block text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 sm:mb-1.5 ml-1">Mevcut Şifreniz</label>
                     <div className="relative">
@@ -376,6 +389,8 @@ export default function GuvenlikPage() {
                   >
                     {yukleniyor ? <><Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" /> İŞLENİYOR...</> : "ŞİFREYİ GÜNCELLE"}
                   </button>
+                  </>
+                  )}
                 </form>
               </div>
 
@@ -680,8 +695,12 @@ export default function GuvenlikPage() {
 
           <p className="text-xs text-slate-300 leading-relaxed bg-[#020617] p-3 rounded-xl border border-slate-900 mb-5 relative z-10">
             {islemModali.tur === 'sil' 
-              ? 'Profiliniz, adresleriniz, favorileriniz, yorumlarınız, sepetiniz, destek talepleriniz ve kayıtlı sistemleriniz kalıcı olarak silinecektir. Sipariş kayıtlarınız yasal zorunluluk gereği korunur. Devam etmek için mevcut şifrenizi girin.' 
-              : 'Hesabınız geçici olarak dondurulacaktır. Devam etmek için lütfen şifrenizi girerek bu işlemin size ait olduğunu doğrulayın.'}
+              ? (sifreVarMi
+                ? 'Profiliniz, adresleriniz, favorileriniz, yorumlarınız, sepetiniz, destek talepleriniz ve kayıtlı sistemleriniz kalıcı olarak silinecektir. Sipariş kayıtlarınız yasal zorunluluk gereği korunur. Devam etmek için mevcut şifrenizi girin.'
+                : 'Profiliniz ve kişisel verileriniz kalıcı olarak silinecektir. Sipariş kayıtlarınız korunur. Onaylamak için kutuya ONAYLA yazın.')
+              : (sifreVarMi
+                ? 'Hesabınız geçici olarak dondurulacaktır. Devam etmek için şifrenizi girin.'
+                : 'Hesabınız dondurulacak ve giriş yapamayacaksınız. Onaylamak için kutuya ONAYLA yazın.')}
           </p>
 
           {islemBasariliMesaj ? (
@@ -697,16 +716,19 @@ export default function GuvenlikPage() {
           ) : (
             <>
               <div className="mb-6 relative z-10">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Mevcut Şifreniz</label>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">
+                  {sifreVarMi ? "Mevcut Şifreniz" : 'Onay için "ONAYLA" yazın'}
+                </label>
                 <input 
-                  type="password" 
-                  value={islemSifresi}
+                  type={sifreVarMi ? "password" : "text"}
+                  value={sifreVarMi ? islemSifresi : islemOnayMetni}
                   onChange={(e) => {
-                    setIslemSifresi(e.target.value);
+                    if (sifreVarMi) setIslemSifresi(e.target.value);
+                    else setIslemOnayMetni(e.target.value);
                     setIslemHata(""); 
                   }}
-                  placeholder="Şifrenizi girin..."
-                  className={`w-full bg-[#020617] border ${islemHata ? 'border-red-500/50 focus:border-red-500' : islemModali.tur === 'sil' ? 'focus:border-red-500 border-slate-800' : 'focus:border-blue-500 border-slate-800'} rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors`}
+                  placeholder={sifreVarMi ? "Şifrenizi girin..." : "ONAYLA"}
+                  className={`w-full bg-[#020617] border ${islemHata ? 'border-red-500/50 focus:border-red-500' : islemModali.tur === 'sil' ? 'focus:border-red-500 border-slate-800' : 'focus:border-blue-500 border-slate-800'} rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors uppercase`}
                 />
                 
                 {islemHata && (
@@ -724,6 +746,7 @@ export default function GuvenlikPage() {
                   onClick={() => {
                     setIslemModali({acik: false, tur: 'dondur'});
                     setIslemSifresi("");
+                    setIslemOnayMetni("");
                     setIslemHata(""); 
                   }}
                   disabled={islemYukleniyor}
@@ -732,7 +755,10 @@ export default function GuvenlikPage() {
                   İptal
                 </button>
                 <button 
-                  disabled={islemYukleniyor || islemSifresi.length < 6}
+                  disabled={
+                    islemYukleniyor ||
+                    (sifreVarMi ? islemSifresi.length < 6 : islemOnayMetni.trim().toUpperCase() !== "ONAYLA")
+                  }
                   onClick={async () => {
                     setIslemYukleniyor(true);
                     setIslemHata(""); 
@@ -741,7 +767,11 @@ export default function GuvenlikPage() {
                       const response = await fetch('/api/guvenlik/hesap-islem', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ islem: islemModali.tur, sifre: islemSifresi })
+                        body: JSON.stringify({
+                          islem: islemModali.tur,
+                          sifre: sifreVarMi ? islemSifresi : undefined,
+                          onayMetni: sifreVarMi ? undefined : islemOnayMetni,
+                        })
                       });
 
                       const data = await response.json();
@@ -757,6 +787,7 @@ export default function GuvenlikPage() {
                       );
                       
                       setTimeout(async () => {
+                        oturumHafizasiniTemizle();
                         await signOut({ redirect: false });
                         window.location.href = '/giris'; 
                       }, 2000);

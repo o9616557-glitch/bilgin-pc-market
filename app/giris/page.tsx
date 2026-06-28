@@ -47,6 +47,9 @@ function GirisIcerik() {
     if (urlError && (urlError.includes("Cihaz") || urlError.includes("Karantina"))) {
       toast.error("Güvenliğiniz için cihaz onayı gerekiyor. Lütfen e-postanıza gönderilen bağlantıya tıklayınız.", { ...toastAyari, duration: 8000 });
     }
+    if (urlError?.includes("dondurulmus")) {
+      toast.error("Hesabınız dondurulmuş. Yeniden erişim için destek ekibiyle iletişime geçin.", { ...toastAyari, duration: 6000 });
+    }
   }, [urlMessage, urlAlert, urlError]);
 
   const handleLogin = async (e?: React.FormEvent) => {

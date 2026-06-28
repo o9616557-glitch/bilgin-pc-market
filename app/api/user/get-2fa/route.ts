@@ -28,7 +28,8 @@ export async function GET() {
       twoFactorEmail: user.twoFactorEmail || false,
       twoFactorSms: user.twoFactorSms || false,
       activeDevices: user.activeDevices || [],
-      notificationPreference: user.notificationPreference || 'new_device'
+      notificationPreference: user.notificationPreference || 'new_device',
+      hasPassword: !!user.password,
     }, { status: 200 });
 
   } catch (error) {

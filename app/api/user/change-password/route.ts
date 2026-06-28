@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import User from "@/models/User";
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session || !session.user?.email) {
       return NextResponse.json({ message: "İzinsiz işlem. Lütfen önce giriş yapınız." }, { status: 401 });
     }
@@ -25,6 +26,13 @@ export async function POST(req: Request) {
     const user = await User.findOne({ email: session.user.email });
     if (!user) {
       return NextResponse.json({ message: "Kullanıcı kaydı bulunamadı." }, { status: 404 });
+    }
+
+    if (!user.password) {
+      return NextResponse.json(
+        { message: "Sosyal medya ile giriş yapan hesaplarda şifre buradan değiştirilemez." },
+        { status: 400 }
+      );
     }
 
     // 1. MEVCUT ŞİFRE DOĞRU MU?

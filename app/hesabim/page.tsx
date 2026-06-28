@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import { oturumHafizasiniTemizle } from "@/lib/oturum-hafiza";
 import { 
   User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, 
   MapPin, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, 
@@ -90,7 +91,7 @@ export default function HesabimPage() {
   ];
 
   const varsayilanAltMenu = [
-    { id: "favoriler", isim: "Favoriler", ikon: Star, renk: "text-purple-400", isLink: true, href: "https://www.bilginpcmarket.com/favorilerim" },
+    { id: "favoriler", isim: "Favoriler", ikon: Star, renk: "text-purple-400", isLink: true, href: "/favorilerim" },
     { id: "sistemler", isim: "Sistemler", ikon: Server, renk: "text-emerald-400", isLink: true, href: "/sistemlerim" },
     { id: "kargolar", isim: "Kargolar", ikon: Truck, renk: "text-rose-400", isKargo: true },
     { id: "destek", isim: "Destek", ikon: Headset, renk: "text-orange-400", isLink: true, href: "/destek-taleplerim" },
@@ -166,6 +167,7 @@ export default function HesabimPage() {
   const [isKargoModalOpen, setIsKargoModalOpen] = useState(false);
   const [kopyalananKod, setKopyalananKargo] = useState<string | null>(null);
   const [girisSartModal, setGirisSartModal] = useState(false);
+  const [guvenlikOzeti, setGuvenlikOzeti] = useState({ ikiAdim: false, cihazSayisi: 0 });
 
   const [pastaVerisi, setPastaVerisi] = useState({
     kendinTopla: { yuzde: 0, offset: 0 }, bilesen: { yuzde: 0, offset: 0 },
@@ -312,10 +314,9 @@ export default function HesabimPage() {
   };
 
   const handleCikisYap = async () => {
-    localStorage.removeItem("bilgin_kayitli_sistemler");
+    oturumHafizasiniTemizle();
     localStorage.removeItem("bilgin_ust_menu_v2");
     localStorage.removeItem("bilgin_alt_menu_v2");
-    sessionStorage.removeItem("bilgin_hesabim_data");
     const cihazId = (session?.user as any)?.deviceId;
     if (cihazId) {
       try { await fetch("/api/user/logout-device", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ deviceId: cihazId }) }); } catch (e) {}
@@ -338,6 +339,18 @@ export default function HesabimPage() {
     setKopyalananKargo(takipNumarasi);
     setTimeout(() => setKopyalananKargo(null), 2000);
   };
+
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    fetch("/api/user/get-2fa", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!data) return;
+        const aktifCihazlar = (data.activeDevices || []).filter((c: any) => c.isActive !== false);
+        setGuvenlikOzeti({ ikiAdim: !!data.twoFactorEmail, cihazSayisi: aktifCihazlar.length });
+      })
+      .catch(() => {});
+  }, [status]);
 
   useEffect(() => {
     if (status === "unauthenticated") { setHamSiparisler([]); }
@@ -652,6 +665,28 @@ export default function HesabimPage() {
             )}
           </div>
         </div>
+
+        {status === "authenticated" && aktifPalet !== "menu" && (
+          <Link
+            href="/guvenlik"
+            className="w-full flex items-center justify-between gap-3 px-4 sm:px-5 py-3 sm:py-4 rounded-2xl bg-[#0f172a] border border-slate-800 hover:border-slate-700 transition-all group"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm font-bold text-white">Güvenlik Merkezi</p>
+                <p className="text-[10px] sm:text-xs text-slate-500 truncate">
+                  {guvenlikOzeti.ikiAdim ? "2FA aktif" : "2FA kapalı"} • {guvenlikOzeti.cihazSayisi} aktif cihaz
+                </p>
+              </div>
+            </div>
+            <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest shrink-0 group-hover:text-cyan-300">
+              Yönet →
+            </span>
+          </Link>
+        )}
 
         <div className="w-full block">
           <div className={`grid grid-cols-5 gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${aktifPalet === 'menu' ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>

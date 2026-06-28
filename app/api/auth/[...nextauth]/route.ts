@@ -93,6 +93,14 @@ export const authOptions: NextAuthOptions = {
         const user = await User.findOne({ email: credentials.email });
         if (!user) throw new Error("Bu e-posta adresiyle kayıtlı kullanıcı bulunamadı.");
 
+        if (user.isActive === false) {
+          throw new Error("Hesabınız dondurulmuş. Yeniden erişim için destek ekibiyle iletişime geçin.");
+        }
+
+        if (!user.password) {
+          throw new Error("Bu hesap sosyal medya ile giriş yapıyor. Lütfen Google veya Facebook ile giriş yapın.");
+        }
+
         const isPasswordMatch = await bcrypt.compare(credentials.password, user.password);
         if (!isPasswordMatch) throw new Error("Şifre hatalı, lütfen tekrar deneyin.");
 
@@ -165,17 +173,7 @@ export const authOptions: NextAuthOptions = {
           const hamKullanici = await mongoose.connection.db!.collection("users").findOne({ email: user.email });
 
           if (hamKullanici && hamKullanici.isActive === false) {
-            await mongoose.connection.db!.collection("users").updateOne(
-              { email: user.email },
-              { $set: { isActive: true } }
-            );
-            
-            await mongoose.connection.db!.collection("reviews").updateMany(
-              { email: user.email },
-              { $set: { isVisible: true } }
-            );
-            
-            console.log("Zincirler kırıldı! Adam ve yorumları dükkana geri döndü!");
+            return "/giris?error=Hesabiniz+dondurulmus";
           }
         }
 
