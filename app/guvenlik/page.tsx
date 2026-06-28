@@ -3,13 +3,14 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
-  User, ShieldCheck, CreditCard, Lock, KeyRound, 
+  ShieldCheck, Lock, KeyRound, 
   Smartphone, Laptop, Mail, PowerOff, AlertTriangle, 
   Snowflake, Trash2, MapPin, Loader2, CheckCircle2, XCircle, Eye, EyeOff, LogIn, 
   UserPlus
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react"; 
 import { oturumHafizasiniTemizle } from "@/lib/oturum-hafiza";
+import AccountShell from "@/components/layout/AccountShell";
 
 export default function GuvenlikPage() {
   // 🚀 STATUS MOTORU EKLENDİ (Misafir mi değil mi anlamak için)
@@ -222,45 +223,9 @@ export default function GuvenlikPage() {
   };
 
  return (
-    <> 
-      <div className="site-page p-4 sm:p-6 lg:p-8 relative overflow-clip">
-        <div className="site-glow-top top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[280px]" />
-
-        <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start site-content-in">
-          
-          {/* SOL MENÜ */}
-          <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
-            <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-3 sm:p-4 shadow-xl">
-              <nav className="flex flex-col gap-1.5">
-                <Link href="/hesabim" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
-                  <User className="w-4 h-4 sm:w-5 sm:h-5" /> Profil
-                </Link>
-                
-                <Link href="/cuzdan" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-400 hover:text-white hover:bg-white/[0.02] rounded-xl transition-all font-medium">
-                  <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" /> Dijital Cüzdanım
-                </Link>
-                
-                <Link href="/guvenlik" className="flex items-center gap-3 px-4 py-3 sm:py-3.5 bg-white/[0.05] border border-white/10 rounded-xl text-white font-bold shadow-inner transition-all text-sm sm:text-base">
-                  <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" /> Güvenlik
-                </Link>
-              </nav>
-
-              {/* MİSAFİR İSE GİRİŞ/KAYIT BUTONLARI ÇIKAR */}
-              {status === "unauthenticated" && (
-                <div className="mt-4 pt-4 border-t border-slate-800 flex flex-col gap-2">
-                  <Link href="/giris" className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest text-center transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
-                    <LogIn className="w-4 h-4" /> Giriş Yap
-                  </Link>
-                  <Link href="/kayit" className="w-full py-2.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-slate-700 hover:border-slate-500 text-slate-300 font-bold text-xs uppercase tracking-widest text-center transition-all flex items-center justify-center gap-2">
-                    <UserPlus className="w-4 h-4" /> Kayıt Ol
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* SAĞ İÇERİK */}
-          <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
+    <>
+      <AccountShell active="guvenlik">
+        <div className="flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
             
             <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 lg:p-8 shadow-xl relative overflow-hidden group">
               <div className="absolute -top-10 -right-10 w-40 h-40 bg-cyan-500/10 blur-[50px] pointer-events-none rounded-full"></div>
@@ -653,10 +618,9 @@ export default function GuvenlikPage() {
               </div>
             </div>
 
-          </div>
         </div>
-      </div>
-      
+      </AccountShell>
+
       {/* 🚀 ŞİFRELİ GÜVENLİK ONAY PENCERESİ */}
       <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ${
         islemModali.acik ? 'opacity-100 pointer-events-auto backdrop-blur-md bg-black/70' : 'opacity-0 pointer-events-none'

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { oturumHafizasiniTemizle } from "@/lib/oturum-hafiza";
 import { useOrders } from "@/app/OrderContext";
+import AccountShell from "@/components/layout/AccountShell";
 import { 
   User, ShieldCheck, CreditCard, Package, LogOut, Server, Truck, Star, 
   MapPin, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, 
@@ -543,10 +544,8 @@ export default function HesabimPage() {
   );
 
   return (
-  <div suppressHydrationWarning={true} className="site-page p-4 sm:p-6 lg:p-8 relative overflow-clip z-10">
-      <div className="site-glow-top top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[280px]" />
-
-      <div className="max-w-[1000px] mx-auto flex flex-col gap-6 relative z-10 items-center site-content-in">
+  <AccountShell active="hesabim">
+    <div suppressHydrationWarning={true} className="flex flex-col gap-6 w-full">
 
         <div className="w-full block">
           <div className={`grid grid-cols-4 gap-2 sm:gap-4 w-full transition-all duration-300 ${aktifPalet === 'menu' ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
@@ -978,7 +977,8 @@ export default function HesabimPage() {
           </div>
         </div>
 
-      </div>
+    </div>
+  </AccountShell>
 
 {/* Karşılama rehberi — portal ile body'ye, mobilde tam ortalı */}
       {showOnboarding && portalHazir && createPortal(
@@ -1152,7 +1152,5 @@ export default function HesabimPage() {
         </div>,
         document.body
       )}
-      
-    </div>
   );
 }
