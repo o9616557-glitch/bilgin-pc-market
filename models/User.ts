@@ -75,7 +75,13 @@ const userSchema = new mongoose.Schema(
   // 🛡️ GUARD (BEKLEYEN CİHAZ ONAY) SİSTEMİ İÇİN YENİ RAFLAR
   pendingDeviceToken: { type: String },
   pendingDeviceExpires: { type: Date },
-  pendingDeviceInfo: { type: Object }
+  pendingDeviceInfo: { type: Object },
+  
+  // 🚀 İŞTE BİZİ SONSUZ DÖNGÜYE SOKAN EKSİK BİLET BURASI!
+  karantinaPass: { type: Date },
+
+  // 🚀 HESAP DONDURMA / SİLME İŞLEMLERİ İÇİN GEREKLİ KONTROL
+  isActive: { type: Boolean, default: true }
   
 },
 { timestamps: true }
