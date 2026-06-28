@@ -268,8 +268,15 @@ export const authOptions: NextAuthOptions = {
     async signOut({ token }) {
       try {
         if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
-        if (token?.id && token?.deviceId) await User.updateOne({ _id: token.id, "activeDevices.deviceId": token.deviceId }, { $set: { "activeDevices.$.isActive": false } });
-      } catch (error) { console.error("Çıkış hatası:", error); }
+        
+        // 🚀 BİNGO: Çıkış yaparken de ID yerine EMAIL kullanıyoruz ki cihazı tam bulup şalterini kapatsın!
+        if (token?.email && token?.deviceId) {
+          await User.updateOne(
+            { email: token.email, "activeDevices.deviceId": token.deviceId },
+            { $set: { "activeDevices.$.isActive": false } }
+          );
+        }
+      } catch (error) { console.error("Çıkış yaparken radar kapatma hatası:", error); }
     }
   },
   session: { strategy: "jwt" },
