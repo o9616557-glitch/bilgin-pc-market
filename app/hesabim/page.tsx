@@ -11,7 +11,7 @@ import Image from "next/image";
 import { 
   User, ShieldCheck, CreditCard, Package, Server, Truck, Star, 
   MapPin, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, 
-  Search, LogIn, Headset, Palette, Camera, Loader2
+  Search, LogIn, Headset, Palette, Camera, Loader2, ImagePlus
 } from "lucide-react";
 
 // Canlı Lucide ikonlarını veritabanından gelen kimliklere göre eşleştiren motor
@@ -40,6 +40,41 @@ export default function HesabimPage() {
   const dosyaInputRef = useRef<HTMLInputElement>(null);
   const [avatarOnizleme, setAvatarOnizleme] = useState<string | null>(null);
   const [avatarYukleniyor, setAvatarYukleniyor] = useState(false);
+
+  // ── Banner (profil kartı geniş alan)
+  const BANNER_KEY = "bilgin_profil_banner_v1";
+  const bannerInputRef = useRef<HTMLInputElement>(null);
+  const [bannerUrl, setBannerUrl] = useState<string | null>(null);
+  const [bannerYukleniyor, setBannerYukleniyor] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(BANNER_KEY);
+    if (saved) setBannerUrl(saved);
+  }, []);
+
+  const handleBannerSec = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const dosya = e.target.files?.[0];
+    if (!dosya) return;
+    setBannerYukleniyor(true);
+    const imgEl = document.createElement("img");
+    const blobUrl = URL.createObjectURL(dosya);
+    imgEl.onload = () => {
+      const W = 800, H = 240;
+      const canvas = document.createElement("canvas");
+      canvas.width = W; canvas.height = H;
+      const ctx = canvas.getContext("2d")!;
+      const ratio = Math.max(W / imgEl.width, H / imgEl.height);
+      const w = imgEl.width * ratio, h = imgEl.height * ratio;
+      ctx.drawImage(imgEl, (W - w) / 2, (H - h) / 2, w, h);
+      const b64 = canvas.toDataURL("image/jpeg", 0.80);
+      localStorage.setItem(BANNER_KEY, b64);
+      setBannerUrl(b64);
+      URL.revokeObjectURL(blobUrl);
+      setBannerYukleniyor(false);
+    };
+    imgEl.src = blobUrl;
+    e.target.value = "";
+  };
 
   const handleAvatarSec = (e: React.ChangeEvent<HTMLInputElement>) => {
     const dosya = e.target.files?.[0];
@@ -627,14 +662,49 @@ export default function HesabimPage() {
                 />
               </div>
               
-              <div className="flex-1 text-center sm:text-left z-10 flex flex-col justify-center">
-                <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight mb-0.5 sm:mb-1 drop-shadow-md">
+              <div className="flex-1 text-center sm:text-left z-10 flex flex-col justify-center min-w-0">
+                <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight mb-0.5 sm:mb-1 drop-shadow-md truncate">
                   {aktifPalet === 'menu' ? "Menü Düzenleme" : (userName || "Hoş geldiniz")}
                 </h1>
-                <p className={`text-xs sm:text-sm font-medium tracking-wide ${aktifPalet === 'menu' ? 'text-emerald-400' : 'text-slate-400'}`}>
+                <p className={`text-xs sm:text-sm font-medium tracking-wide truncate ${aktifPalet === 'menu' ? 'text-emerald-400' : 'text-slate-400'}`}>
                   {aktifPalet === 'menu' ? "Bir menü kutusuna tıklayın ve rengini belirleyin." : userEmail}
                 </p>
               </div>
+
+              {/* Banner alanı — isim/email'in sağında geniş dikdörtgen */}
+              {aktifPalet !== 'menu' && (
+                <div
+                  className="hidden sm:block relative shrink-0 rounded-2xl overflow-hidden cursor-pointer group"
+                  style={{ width: "220px", height: "110px" }}
+                  onClick={() => bannerInputRef.current?.click()}
+                  title="Banner resmi ekle veya değiştir"
+                >
+                  {bannerUrl ? (
+                    <Image src={bannerUrl} alt="Banner" fill className="object-cover" />
+                  ) : (
+                    <div className="w-full h-full relative bg-gradient-to-br from-[#0b1535] via-[#0d1b4a] to-[#06091c]">
+                      <div className="absolute inset-0" style={{
+                        backgroundImage: "radial-gradient(ellipse at 20% 80%, rgba(59,130,246,0.4) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(99,102,241,0.35) 0%, transparent 60%)"
+                      }} />
+                      <div className="absolute inset-0 opacity-[0.05]" style={{
+                        backgroundImage: "linear-gradient(rgba(255,255,255,.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.6) 1px, transparent 1px)",
+                        backgroundSize: "24px 24px"
+                      }} />
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-white/25">
+                        <ImagePlus className="w-6 h-6" />
+                        <span className="text-[10px] font-medium tracking-wide">Resim ekle</span>
+                      </div>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1.5">
+                    {bannerYukleniyor
+                      ? <Loader2 className="w-5 h-5 text-white animate-spin" />
+                      : <><Camera className="w-5 h-5 text-white" /><span className="text-white text-[11px] font-medium">Değiştir</span></>
+                    }
+                  </div>
+                  <input ref={bannerInputRef} type="file" accept="image/*" className="hidden" onChange={handleBannerSec} />
+                </div>
+              )}
             </div>
 
             {aktifPalet === 'menu' && (

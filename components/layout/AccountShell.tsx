@@ -3,12 +3,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useSession, signOut, signIn } from "next-auth/react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   User, ShieldCheck, CreditCard, MessageSquare, Database,
   Mail, Star, MapPin, ChevronRight,
   LogIn, UserPlus, LogOut,
-  Eye, EyeOff, Loader2, X, SwitchCamera, Camera, ImagePlus
+  Eye, EyeOff, Loader2, X, SwitchCamera
 } from "lucide-react";
 
 /* ─────────────────── NAV TANIMLARI ─────────────────── */
@@ -167,96 +167,6 @@ function MobilProfilKarti() {
   );
 }
 
-/* ─────────────────── BANNER ALANI ─────────────────── */
-const BANNER_KEY = "bilgin_panel_banner_v1";
-
-function BannerAlani({ userImage, userName }: { userImage?: string | null; userName?: string }) {
-  const [bannerUrl, setBannerUrl]     = useState<string | null>(null);
-  const [yukleniyor, setYukleniyor]   = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const basHarf  = (userName?.[0] || "U").toUpperCase();
-
-  useEffect(() => {
-    const saved = localStorage.getItem(BANNER_KEY);
-    if (saved) setBannerUrl(saved);
-  }, []);
-
-  const handleBannerSec = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const dosya = e.target.files?.[0];
-    if (!dosya) return;
-    setYukleniyor(true);
-    const imgEl = document.createElement("img");
-    const blobUrl = URL.createObjectURL(dosya);
-    imgEl.onload = () => {
-      const W = 560, H = 210;
-      const canvas = document.createElement("canvas");
-      canvas.width = W; canvas.height = H;
-      const ctx = canvas.getContext("2d")!;
-      const ratio = Math.max(W / imgEl.width, H / imgEl.height);
-      const w = imgEl.width * ratio, h = imgEl.height * ratio;
-      ctx.drawImage(imgEl, (W - w) / 2, (H - h) / 2, w, h);
-      const b64 = canvas.toDataURL("image/jpeg", 0.78);
-      localStorage.setItem(BANNER_KEY, b64);
-      setBannerUrl(b64);
-      URL.revokeObjectURL(blobUrl);
-      setYukleniyor(false);
-    };
-    imgEl.src = blobUrl;
-    e.target.value = "";
-  };
-
-  return (
-    <div className="relative rounded-2xl overflow-visible">
-      {/* Banner dikdörtgeni */}
-      <div
-        className="relative w-full rounded-2xl overflow-hidden cursor-pointer group"
-        style={{ height: "110px" }}
-        onClick={() => inputRef.current?.click()}
-      >
-        {bannerUrl ? (
-          <Image src={bannerUrl} alt="Banner" fill className="object-cover" />
-        ) : (
-          <div className="w-full h-full relative overflow-hidden bg-gradient-to-br from-[#0b1535] via-[#0d1b4a] to-[#06091c]">
-            <div className="absolute inset-0" style={{
-              backgroundImage: "radial-gradient(ellipse at 15% 85%, rgba(59,130,246,0.35) 0%, transparent 55%), radial-gradient(ellipse at 85% 15%, rgba(99,102,241,0.3) 0%, transparent 55%), radial-gradient(ellipse at 50% 50%, rgba(14,165,233,0.08) 0%, transparent 70%)"
-            }} />
-            {/* ince grid çizgisi */}
-            <div className="absolute inset-0 opacity-[0.05]" style={{
-              backgroundImage: "linear-gradient(rgba(255,255,255,.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.5) 1px, transparent 1px)",
-              backgroundSize: "28px 28px"
-            }} />
-            <div className="absolute bottom-3 right-3 flex items-center gap-1.5 text-white/20">
-              <ImagePlus className="w-3.5 h-3.5" />
-              <span className="text-[10px] font-medium tracking-wide">Banner ekle</span>
-            </div>
-          </div>
-        )}
-
-        {/* Hover overlay */}
-        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-          {yukleniyor
-            ? <Loader2 className="w-5 h-5 text-white animate-spin" />
-            : <><Camera className="w-5 h-5 text-white" /><span className="text-white text-xs font-medium">Değiştir</span></>
-          }
-        </div>
-
-        <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleBannerSec} />
-      </div>
-
-      {/* Profil avatarı — bannerin alt ortasında yüzen daire */}
-      <div className="absolute left-4 -bottom-6 z-10">
-        <div className="w-14 h-14 rounded-full ring-[3px] ring-[#070d1e] overflow-hidden bg-gradient-to-b from-[#0b1535] to-[#020617] shadow-xl flex items-center justify-center shrink-0">
-          {userImage ? (
-            <Image src={userImage} alt={userName || ""} width={56} height={56} className="object-cover w-full h-full" />
-          ) : (
-            <span className="text-lg font-black text-cyan-300">{basHarf}</span>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /* ─────────────────── PANEL BİLEŞENİ ─────────────────── */
 function AccountPanel({ active }: { active?: string }) {
   const { data: session, status } = useSession();
@@ -361,38 +271,39 @@ function AccountPanel({ active }: { active?: string }) {
 
       <div className="flex flex-col gap-2">
 
-        {/* ── BANNER + profil bloğu ── */}
-        {status === "loading" ? (
-          <div className="account-card rounded-2xl overflow-hidden">
-            <div className="w-full h-[110px] bg-white/[0.04] animate-pulse" />
-            <div className="px-4 pt-8 pb-4 flex flex-col gap-1.5">
-              <div className="h-3 w-24 bg-white/[0.05] rounded animate-pulse" />
-              <div className="h-2.5 w-36 bg-white/[0.04] rounded animate-pulse" />
-            </div>
-          </div>
-        ) : (
-          <div className="account-card rounded-2xl overflow-visible">
-            {/* Banner */}
-            <div className="rounded-t-2xl overflow-hidden">
-              <BannerAlani userImage={userImage} userName={userName} />
-            </div>
-
-            {/* İsim / email — avatarın altına padding bırak */}
-            <div className="px-4 pt-9 pb-4 flex items-start justify-between gap-2">
+        {/* Profil mini-kartı — loading sırasında skeleton göster */}
+        <div className="account-card rounded-2xl p-4 flex items-center gap-3">
+          {status === "loading" ? (
+            <>
+              <div className="w-10 h-10 rounded-full bg-white/[0.05] animate-pulse shrink-0" />
+              <div className="flex-1 flex flex-col gap-1.5">
+                <div className="h-3 w-24 bg-white/[0.05] rounded animate-pulse" />
+                <div className="h-2.5 w-32 bg-white/[0.04] rounded animate-pulse" />
+              </div>
+            </>
+          ) : (
+            <>
+              {userImage ? (
+                <Image src={userImage} alt={userName} width={40} height={40} className="rounded-full object-cover shrink-0 ring-2 ring-site-accent/20" />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-site-shell border border-white/[0.1] flex items-center justify-center shrink-0">
+                  <User className="w-5 h-5 text-slate-400" />
+                </div>
+              )}
               <div className="flex-1 min-w-0">
-                <p className="text-white text-sm font-bold truncate leading-tight">{userName || "Kullanıcı"}</p>
-                <p className="text-slate-500 text-[11px] truncate mt-0.5">{userEmail}</p>
+                <p className="text-white text-sm font-semibold truncate">{userName || "Kullanıcı"}</p>
+                <p className="text-slate-500 text-[11px] truncate">{userEmail}</p>
               </div>
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}
                 title="Çıkış Yap"
-                className="text-slate-600 hover:text-red-400 transition-colors shrink-0 p-1.5 rounded-lg hover:bg-red-500/10 mt-0.5"
+                className="text-slate-600 hover:text-red-400 transition-colors shrink-0 p-1.5 rounded-lg hover:bg-red-500/10"
               >
                 <LogOut className="w-4 h-4" />
               </button>
-            </div>
-          </div>
-        )}
+            </>
+          )}
+        </div>
 
         {/* Diğer hesaplar (tek tıkla geçiş) */}
         {digerHesaplar.length > 0 && (
