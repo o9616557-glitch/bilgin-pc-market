@@ -85,8 +85,13 @@ const userSchema = new mongoose.Schema(
   karantinaPass: { type: Date },
 
   // 🚀 HESAP DONDURMA / SİLME İŞLEMLERİ İÇİN GEREKLİ KONTROL
-  isActive: { type: Boolean, default: true }
-  
+  isActive: { type: Boolean, default: true },
+
+  // Profil sayfası görsel varlıkları
+  profileBanner: { type: String, default: null },
+  tileImages: { type: Map, of: String, default: {} },
+  pingRenk: { type: String, default: null },
+
 },
 { timestamps: true }
 );

@@ -44,7 +44,10 @@ export default function HesabimPage() {
   // ── Banner (profil kartı geniş alan)
   const BANNER_KEY = "bilgin_profil_banner_v1";
   const bannerInputRef = useRef<HTMLInputElement>(null);
-  const [bannerUrl, setBannerUrl] = useState<string | null>(null);
+  const [bannerUrl, setBannerUrl] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem(BANNER_KEY) || null;
+  });
   const [bannerYukleniyor, setBannerYukleniyor] = useState(false);
 
   // ── Kutu resimleri (5 adet navigasyon kutusu)
@@ -55,6 +58,31 @@ export default function HesabimPage() {
     try { return JSON.parse(localStorage.getItem(KUTU_RESIM_KEY) || "{}"); } catch { return {}; }
   });
   const [resimYuklenecekKutu, setResimYuklenecekKutu] = useState<string | null>(null);
+
+  // ── DB'den profil varlıklarını yükle (giriş yapınca bir kez)
+  const profilVarlikYuklendi = useRef(false);
+  useEffect(() => {
+    if (status !== "authenticated" || profilVarlikYuklendi.current) return;
+    profilVarlikYuklendi.current = true;
+    fetch("/api/user/profile-assets")
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data) return;
+        if (data.profileBanner) {
+          setBannerUrl(data.profileBanner);
+          localStorage.setItem(BANNER_KEY, data.profileBanner);
+        }
+        if (data.tileImages && Object.keys(data.tileImages).length > 0) {
+          setKutuResimleri(data.tileImages);
+          localStorage.setItem(KUTU_RESIM_KEY, JSON.stringify(data.tileImages));
+        }
+        if (data.pingRenk) {
+          setPingRenk(data.pingRenk);
+          localStorage.setItem("bilgin_ping_renk", data.pingRenk);
+        }
+      })
+      .catch(() => {});
+  }, [status]);
 
   const handleKutuResimSec = (e: React.ChangeEvent<HTMLInputElement>) => {
     const dosya = e.target.files?.[0];
@@ -74,16 +102,17 @@ export default function HesabimPage() {
       setKutuResimleri(guncel);
       localStorage.setItem(KUTU_RESIM_KEY, JSON.stringify(guncel));
       URL.revokeObjectURL(blobUrl);
+      // DB'ye kaydet
+      fetch("/api/user/profile-assets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tileImages: guncel }),
+      }).catch(() => {});
     };
     imgEl.src = blobUrl;
     setResimYuklenecekKutu(null);
     e.target.value = "";
   };
-
-  useEffect(() => {
-    const saved = localStorage.getItem(BANNER_KEY);
-    if (saved) setBannerUrl(saved);
-  }, []);
 
   const handleBannerSec = (e: React.ChangeEvent<HTMLInputElement>) => {
     const dosya = e.target.files?.[0];
@@ -104,6 +133,12 @@ export default function HesabimPage() {
       setBannerUrl(b64);
       URL.revokeObjectURL(blobUrl);
       setBannerYukleniyor(false);
+      // DB'ye kaydet
+      fetch("/api/user/profile-assets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ profileBanner: b64 }),
+      }).catch(() => {});
     };
     imgEl.src = blobUrl;
     e.target.value = "";
@@ -328,9 +363,13 @@ export default function HesabimPage() {
 
   const renkUygula = (renkObj: any) => {
     if (aktifPalet === 'menu') {
-        // Sadece ping noktası rengini güncelle
         setPingRenk(renkObj.hex);
         localStorage.setItem('bilgin_ping_renk', renkObj.hex);
+        fetch("/api/user/profile-assets", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pingRenk: renkObj.hex }),
+        }).catch(() => {});
     } else if (aktifPalet === 'siparis' && seciliSiparisDurumu) {
         const yeni = { ...siparisRenkleri, [seciliSiparisDurumu]: renkObj };
         setSiparisRenkleri(yeni);
