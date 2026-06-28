@@ -154,7 +154,17 @@ export const authOptions: NextAuthOptions = {
         }
 
         // 🎯 HER İKİ GÜVENLİK DE GEÇİLDİ: BİLETİ ŞİMDİ YIRTIYORUZ!
-        user.karantinaPass = undefined; 
+        user.karantinaPass = undefined;
+
+        // Aynı userAgent'tan zaten aktif kayıt varsa güncelle, yeni kayıt açma
+        const mevcutCihaz = user.activeDevices.find((d: any) => d.deviceInfo === userAgent && d.isActive === true);
+        if (mevcutCihaz) {
+          mevcutCihaz.lastActive = new Date();
+          mevcutCihaz.ipAddress = ipAddress;
+          mevcutCihaz.location = konumBilgisi;
+          await user.save();
+          return { id: user._id.toString(), name: user.name, email: user.email, image: user.image, deviceId: mevcutCihaz.deviceId };
+        }
 
         const newDeviceId = crypto.randomUUID();
         user.activeDevices.push({ deviceId: newDeviceId, deviceInfo: userAgent, ipAddress: ipAddress, location: konumBilgisi, lastActive: new Date(), isActive: true });
@@ -213,9 +223,21 @@ export const authOptions: NextAuthOptions = {
             }
             
             dbUser.karantinaPass = undefined;
-            const newDeviceId = crypto.randomUUID();
-            dbUser.activeDevices.push({ deviceId: newDeviceId, deviceInfo: userAgent, ipAddress: ipAddress, location: konumBilgisi, lastActive: new Date(), isActive: true });
-            await dbUser.save(); (user as any).deviceId = newDeviceId;
+
+            // Aynı userAgent'tan zaten aktif kayıt varsa güncelle, yeni kayıt açma
+            const mevcutCihaz = dbUser.activeDevices.find((d: any) => d.deviceInfo === userAgent && d.isActive === true);
+            if (mevcutCihaz) {
+              mevcutCihaz.lastActive = new Date();
+              mevcutCihaz.ipAddress = ipAddress;
+              mevcutCihaz.location = konumBilgisi;
+              await dbUser.save();
+              (user as any).deviceId = mevcutCihaz.deviceId;
+            } else {
+              const newDeviceId = crypto.randomUUID();
+              dbUser.activeDevices.push({ deviceId: newDeviceId, deviceInfo: userAgent, ipAddress: ipAddress, location: konumBilgisi, lastActive: new Date(), isActive: true });
+              await dbUser.save();
+              (user as any).deviceId = newDeviceId;
+            }
           }
         }
       } catch (error) { 

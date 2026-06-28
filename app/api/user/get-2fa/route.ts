@@ -23,7 +23,31 @@ export async function GET() {
       return NextResponse.json({ message: "Kullanıcı bulunamadı" }, { status: 404 });
     }
 
-    // 🚀 VİTRİNE GİDEN EKSİKSİZ PAKET
+    // Eski duplikat kayıtları temizle: aynı userAgent'tan birden fazla aktif kayıt varsa
+    // sadece en son kullanılanı aktif bırak, diğerlerini kapat
+    const aktifKayitlar: any[] = user.activeDevices.filter((d: any) => d.isActive === true);
+    if (aktifKayitlar.length > 0) {
+      const gorulmisUA = new Map<string, any>(); // userAgent → en son kayıt
+      for (const kayit of aktifKayitlar) {
+        const ua = kayit.deviceInfo || "";
+        const mevcut = gorulmisUA.get(ua);
+        if (!mevcut || new Date(kayit.lastActive) > new Date(mevcut.lastActive)) {
+          gorulmisUA.set(ua, kayit);
+        }
+      }
+      // Aynı UA'dan birden fazla aktif varsa eskilerini kapat
+      let degisiklikVar = false;
+      for (const kayit of aktifKayitlar) {
+        const ua = kayit.deviceInfo || "";
+        const enYeni = gorulmisUA.get(ua);
+        if (enYeni && kayit.deviceId !== enYeni.deviceId) {
+          kayit.isActive = false;
+          degisiklikVar = true;
+        }
+      }
+      if (degisiklikVar) await user.save();
+    }
+
     return NextResponse.json({
       twoFactorEmail: user.twoFactorEmail || false,
       twoFactorSms: user.twoFactorSms || false,

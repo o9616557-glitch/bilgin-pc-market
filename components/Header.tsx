@@ -328,46 +328,46 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
         </div>
       </header>
 
-      {/* 📱 KUSURSUZ MOBİL MENÜ 📱 */}
+      {/* 📱 MOBİL MENÜ */}
       <div className={`md:hidden fixed top-[80px] left-0 w-full h-[calc(100vh-80px)] bg-[#050814] z-[98] overflow-y-auto transition-transform duration-300 ${menuAcik ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="px-6 py-8 pb-32">
-          
-      {/* 🚀 ÖZEL MENÜ BÖLÜMÜ (KUTUSUZ, SADE VE YEŞİL TASARIM) */}
-          <div className="flex flex-col mb-8">
-            
-            {/* 2. KENDİN TOPLA (ALTTA) */}
-            <Link
-              href="/kendin-topla"
-              prefetch={false}
-              onClick={() => setMenuAcik(false)}
-              className="flex items-center justify-between py-4 border-b border-emerald-500/20 group mb-2"
-            >
-              <span className="font-black tracking-widest text-emerald-400 uppercase text-sm flex items-center gap-3">
-                🔧 Kendin Topla
-              </span>
-              <ArrowRight className="w-5 h-5 text-emerald-400 opacity-70 group-hover:opacity-100 transform group-hover:translate-x-1 transition-all" />
-            </Link>
-            
-          </div>
-          {menuCategories.map((category, index) => (
-            <div key={index} className="mb-8">
-              <h3 className="text-[#3b82f6] font-black text-sm tracking-widest uppercase mb-4 border-b border-white/10 pb-3">{category.title}</h3>
-              <div className="flex flex-col">
-                {category.items.map((item) => (
-                  <Link 
-                    key={item.slug} 
-                    href={"/kategori/" + item.slug} 
-                    prefetch={false} 
-                    onClick={() => setMenuAcik(false)} 
-                    className="text-white text-base font-bold py-3.5 border-b border-white/5 flex items-center justify-between group"
-                  >
-                    {item.name}
-                    <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-[#3b82f6] transition-colors" />
-                  </Link>
-                ))}
+        <div className="px-5 py-6 pb-32">
+
+          {/* Kendin Topla */}
+          <Link
+            href="/kendin-topla"
+            prefetch={false}
+            onClick={() => setMenuAcik(false)}
+            className="flex items-center justify-between px-4 py-3.5 mb-5 rounded-xl bg-emerald-500/[0.08] border border-emerald-500/20 group"
+          >
+            <span className="font-semibold text-emerald-400 text-sm flex items-center gap-2.5">
+              🔧 Kendin Topla
+            </span>
+            <ArrowRight className="w-4 h-4 text-emerald-500/60 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all" />
+          </Link>
+
+          {/* Kategoriler */}
+          <div className="space-y-6">
+            {menuCategories.map((category, index) => (
+              <div key={index}>
+                <p className="text-[10px] font-semibold text-[#3b82f6]/80 uppercase tracking-[0.15em] mb-2 px-1">{category.title}</p>
+                <div className="rounded-xl overflow-hidden border border-white/[0.06] bg-white/[0.02]">
+                  {category.items.map((item, i) => (
+                    <Link
+                      key={item.slug}
+                      href={"/kategori/" + item.slug}
+                      prefetch={false}
+                      onClick={() => setMenuAcik(false)}
+                      className={`flex items-center justify-between px-4 py-3.5 group transition-colors hover:bg-white/[0.04] ${i !== 0 ? "border-t border-white/[0.05]" : ""}`}
+                    >
+                      <span className="text-sm font-medium text-slate-300 group-hover:text-white transition-colors">{item.name}</span>
+                      <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-[#3b82f6] group-hover:translate-x-0.5 transition-all" />
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+
         </div>
       </div>
 
