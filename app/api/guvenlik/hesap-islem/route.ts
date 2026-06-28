@@ -4,15 +4,17 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import clientPromise from "@/lib/mongodb";
 import type { Db } from "mongodb";
+import { ObjectId } from "mongodb";
 
 const DB_NAME = "bilginpcmarket";
 
-async function kaliciHesapSil(db: Db, email: string, userId: unknown) {
+async function kaliciHesapSil(db: Db, email: string, userId: ObjectId) {
   await Promise.all([
     db.collection("reviews").deleteMany({ email }),
     db.collection("saved_systems").deleteMany({ userId: email }),
     db.collection("carts").deleteMany({ userId: email }),
     db.collection("desteks").deleteMany({ kullaniciEmail: email }),
+    db.collection("wallets").deleteMany({ email }),
   ]);
 
   await db.collection("users").deleteOne({ _id: userId });
@@ -48,7 +50,7 @@ export async function POST(req: Request) {
     }
 
     if (islem === 'sil') {
-      await kaliciHesapSil(db, email, dbKullanici._id);
+      await kaliciHesapSil(db, email, dbKullanici._id as ObjectId);
 
       return NextResponse.json({
         mesaj: "Hesabınız silindi. Sipariş kayıtlarınız yasal zorunluluk gereği korunmaktadır."
