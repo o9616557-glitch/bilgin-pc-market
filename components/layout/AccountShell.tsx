@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useSession, signOut, signIn } from "next-auth/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   User, ShieldCheck, CreditCard, MessageSquare, Database,
   Mail, Star, MapPin, ChevronRight,
@@ -112,8 +112,12 @@ function AccountSwitchModal({ email, onClose }: { email: string; onClose: () => 
 /* ─────────────────── MOBİL PROFİL KARTI ─────────────────── */
 function MobilProfilKarti() {
   const { data: session, status } = useSession();
+  const lastRef = useRef<typeof session>(null);
+  if (session) lastRef.current = session;
+  const stable = session ?? lastRef.current;
+  const isFirst = status === "loading" && !lastRef.current;
 
-  if (status === "loading") {
+  if (isFirst) {
     return (
       <div className="account-card rounded-2xl p-3 flex items-center gap-3">
         <div className="w-9 h-9 rounded-full bg-white/[0.05] animate-pulse shrink-0" />
@@ -125,7 +129,7 @@ function MobilProfilKarti() {
     );
   }
 
-  if (status === "unauthenticated") {
+  if (status === "unauthenticated" && !stable) {
     return (
       <div className="account-card rounded-2xl p-3 flex items-center gap-3">
         <div className="w-9 h-9 rounded-full bg-site-shell border border-white/[0.08] flex items-center justify-center shrink-0">
@@ -139,9 +143,9 @@ function MobilProfilKarti() {
     );
   }
 
-  const userImage = session?.user?.image;
-  const userName  = session?.user?.name  || "Kullanıcı";
-  const userEmail = session?.user?.email || "";
+  const userImage = stable?.user?.image;
+  const userName  = stable?.user?.name  || "Kullanıcı";
+  const userEmail = stable?.user?.email || "";
 
   return (
     <div className="account-card rounded-2xl p-3 flex items-center gap-3">
@@ -170,6 +174,12 @@ function MobilProfilKarti() {
 /* ─────────────────── PANEL BİLEŞENİ ─────────────────── */
 function AccountPanel({ active }: { active?: string }) {
   const { data: session, status } = useSession();
+  // Son bilinen session'ı tut — status "loading" olduğunda eski veriyle render et, göz kırpmayı önle
+  const lastSessionRef = useRef<typeof session>(null);
+  if (session) lastSessionRef.current = session;
+  const stableSession = session ?? lastSessionRef.current;
+  const isInitialLoad = status === "loading" && !lastSessionRef.current;
+
   const [kayitliHesaplar, setKayitliHesaplar] = useState<SavedAccount[]>([]);
   const [gecisHedef, setGecisHedef] = useState<string | null>(null);
 
@@ -259,9 +269,10 @@ function AccountPanel({ active }: { active?: string }) {
   }
 
   /* ── GİRİŞ YAPMIŞ veya YÜKLENİYOR ── */
-  const userImage = session?.user?.image;
-  const userName  = session?.user?.name  || "";
-  const userEmail = session?.user?.email || "";
+  // stableSession: geçiş sırasında son bilinen veriyi kullan, göz kırpmayı önle
+  const userImage = stableSession?.user?.image;
+  const userName  = stableSession?.user?.name  || "";
+  const userEmail = stableSession?.user?.email || "";
 
   return (
     <>
@@ -271,9 +282,9 @@ function AccountPanel({ active }: { active?: string }) {
 
       <div className="flex flex-col gap-2">
 
-        {/* Profil mini-kartı — loading sırasında skeleton göster */}
+        {/* Profil mini-kartı — sadece gerçek ilk yüklemede skeleton göster */}
         <div className="account-card rounded-2xl p-4 flex items-center gap-3">
-          {status === "loading" ? (
+          {isInitialLoad ? (
             <>
               <div className="w-10 h-10 rounded-full bg-white/[0.05] animate-pulse shrink-0" />
               <div className="flex-1 flex flex-col gap-1.5">

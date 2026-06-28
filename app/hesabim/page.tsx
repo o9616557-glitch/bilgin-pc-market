@@ -662,8 +662,9 @@ export default function HesabimPage() {
                 />
               </div>
               
-              <div className="flex-1 text-center sm:text-left z-10 flex flex-col justify-center min-w-0">
-                <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight mb-0.5 sm:mb-1 drop-shadow-md truncate">
+              {/* İsim / email — sabit küçük alan (1/3 oranında) */}
+              <div className="text-center sm:text-left z-10 flex flex-col justify-center sm:w-[180px] lg:w-[220px] shrink-0">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight mb-0.5 sm:mb-1 drop-shadow-md truncate">
                   {aktifPalet === 'menu' ? "Menü Düzenleme" : (userName || "Hoş geldiniz")}
                 </h1>
                 <p className={`text-xs sm:text-sm font-medium tracking-wide truncate ${aktifPalet === 'menu' ? 'text-emerald-400' : 'text-slate-400'}`}>
@@ -671,11 +672,11 @@ export default function HesabimPage() {
                 </p>
               </div>
 
-              {/* Banner alanı — isim/email'in sağında geniş dikdörtgen */}
+              {/* Banner alanı — 2/3 genişlik, flex-1 */}
               {aktifPalet !== 'menu' && (
                 <div
-                  className="hidden sm:block relative shrink-0 rounded-2xl overflow-hidden cursor-pointer group"
-                  style={{ width: "220px", height: "110px" }}
+                  className="hidden sm:block relative flex-1 rounded-2xl overflow-hidden cursor-pointer group"
+                  style={{ height: "110px" }}
                   onClick={() => bannerInputRef.current?.click()}
                   title="Banner resmi ekle veya değiştir"
                 >
