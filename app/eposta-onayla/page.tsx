@@ -28,7 +28,7 @@ function OnayIcerik() {
 
     const verifyEmail = async () => {
       try {
-        const res = await fetch(`/api/user/verify-email?token=${token}`);
+      const res = await fetch(`/api/verify-email?token=${token}`);
         
         let data: any = {};
         try {
