@@ -61,8 +61,8 @@ function AdresModal({
   ];
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="w-full sm:max-w-lg bg-[#0b1121] border border-white/[0.08] rounded-t-3xl sm:rounded-2xl flex flex-col max-h-[95dvh] sm:max-h-[90vh]">
+    <div className="fixed inset-0 z-[9999] flex flex-col sm:flex-none sm:items-center sm:justify-center bg-black/70 backdrop-blur-sm">
+      <div className="flex-1 sm:flex-none w-full sm:max-w-lg bg-[#0b1121] border-0 sm:border border-white/[0.08] sm:rounded-2xl flex flex-col overflow-hidden sm:max-h-[90vh]">
 
         {/* Modal başlık */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06] shrink-0">
@@ -132,7 +132,8 @@ export default function AdreslerimPage() {
   const [isLoading, setIsLoading]   = useState(true);
   const [modalMode, setModalMode]   = useState<"add" | "edit" | null>(null);
   const [editTarget, setEditTarget] = useState<Address | null>(null);
-  const [portalReady, setPortalReady] = useState(false);
+  const [portalReady, setPortalReady]   = useState(false);
+  const [silinecekId, setSilinecekId]   = useState<string | null>(null);
 
   useEffect(() => { setPortalReady(true); }, []);
 
@@ -200,8 +201,8 @@ export default function AdreslerimPage() {
 
   /* Adres Sil */
   const handleDelete = async (id: string) => {
-    if (!confirm("Bu adresi silmek istediğinize emin misiniz?")) return;
     const t = toast.loading("Siliniyor...");
+    setSilinecekId(null);
     try {
       const res  = await fetch(`/api/addresses?id=${id}`, { method: "DELETE" });
       const data = await res.json();
@@ -277,7 +278,7 @@ export default function AdreslerimPage() {
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
                     <button
-                      onClick={() => handleDelete(address._id)}
+                      onClick={() => setSilinecekId(silinecekId === address._id ? null : address._id)}
                       className="text-slate-600 hover:text-rose-400 transition-colors p-1.5 rounded-lg hover:bg-rose-500/10"
                       title="Sil"
                     >
@@ -285,6 +286,28 @@ export default function AdreslerimPage() {
                     </button>
                   </div>
                 </div>
+
+                {/* Inline silme onayı */}
+                {silinecekId === address._id && (
+                  <div className="flex items-center justify-between bg-rose-500/10 border border-rose-500/20 rounded-xl px-3 py-2.5">
+                    <p className="text-rose-300 text-xs font-medium">Bu adresi silmek istediğine emin misin?</p>
+                    <div className="flex items-center gap-2 shrink-0 ml-2">
+                      <button
+                        onClick={() => setSilinecekId(null)}
+                        className="text-slate-400 hover:text-white text-xs px-2 py-1 rounded-lg transition-colors"
+                      >
+                        İptal
+                      </button>
+                      <button
+                        onClick={() => handleDelete(address._id)}
+                        className="bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold px-3 py-1 rounded-lg transition-colors"
+                      >
+                        Sil
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex flex-col gap-1 text-sm">
                   <p className="text-white font-medium">{address.fullName}</p>
                   <p className="text-slate-500 text-xs">{address.phone}</p>

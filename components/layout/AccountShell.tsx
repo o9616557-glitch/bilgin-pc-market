@@ -200,19 +200,10 @@ function AccountPanel({ active }: { active?: string }) {
     );
   }
 
-  /* ── YÜKLENİYOR ── */
-  if (status === "loading") {
-    return (
-      <div className="account-card rounded-2xl p-6 flex items-center justify-center">
-        <Loader2 className="w-5 h-5 animate-spin text-slate-600" />
-      </div>
-    );
-  }
-
-  /* ── GİRİŞ YAPMIŞ PANELİ ── */
-  const userImage = session!.user?.image;
-  const userName = session!.user?.name || "Kullanıcı";
-  const userEmail = session!.user?.email || "";
+  /* ── GİRİŞ YAPMIŞ veya YÜKLENİYOR ── */
+  const userImage = session?.user?.image;
+  const userName  = session?.user?.name  || "";
+  const userEmail = session?.user?.email || "";
 
   return (
     <>
@@ -222,26 +213,38 @@ function AccountPanel({ active }: { active?: string }) {
 
       <div className="flex flex-col gap-2">
 
-        {/* Profil mini-kartı */}
+        {/* Profil mini-kartı — loading sırasında skeleton göster */}
         <div className="account-card rounded-2xl p-4 flex items-center gap-3">
-          {userImage ? (
-            <Image src={userImage} alt={userName} width={40} height={40} className="rounded-full object-cover shrink-0 ring-2 ring-site-accent/20" />
+          {status === "loading" ? (
+            <>
+              <div className="w-10 h-10 rounded-full bg-white/[0.05] animate-pulse shrink-0" />
+              <div className="flex-1 flex flex-col gap-1.5">
+                <div className="h-3 w-24 bg-white/[0.05] rounded animate-pulse" />
+                <div className="h-2.5 w-32 bg-white/[0.04] rounded animate-pulse" />
+              </div>
+            </>
           ) : (
-            <div className="w-10 h-10 rounded-full bg-site-shell border border-white/[0.1] flex items-center justify-center shrink-0">
-              <User className="w-5 h-5 text-slate-400" />
-            </div>
+            <>
+              {userImage ? (
+                <Image src={userImage} alt={userName} width={40} height={40} className="rounded-full object-cover shrink-0 ring-2 ring-site-accent/20" />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-site-shell border border-white/[0.1] flex items-center justify-center shrink-0">
+                  <User className="w-5 h-5 text-slate-400" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-white text-sm font-semibold truncate">{userName || "Kullanıcı"}</p>
+                <p className="text-slate-500 text-[11px] truncate">{userEmail}</p>
+              </div>
+              <button
+                onClick={() => signOut({ callbackUrl: "/" })}
+                title="Çıkış Yap"
+                className="text-slate-600 hover:text-red-400 transition-colors shrink-0 p-1.5 rounded-lg hover:bg-red-500/10"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </>
           )}
-          <div className="flex-1 min-w-0">
-            <p className="text-white text-sm font-semibold truncate">{userName}</p>
-            <p className="text-slate-500 text-[11px] truncate">{userEmail}</p>
-          </div>
-          <button
-            onClick={() => signOut({ callbackUrl: "/" })}
-            title="Çıkış Yap"
-            className="text-slate-600 hover:text-red-400 transition-colors shrink-0 p-1.5 rounded-lg hover:bg-red-500/10"
-          >
-            <LogOut className="w-4 h-4" />
-          </button>
         </div>
 
         {/* Diğer hesaplar (tek tıkla geçiş) */}
@@ -260,8 +263,8 @@ function AccountPanel({ active }: { active?: string }) {
                 {h.image ? (
                   <Image src={h.image} alt={h.name} width={26} height={26} className="rounded-full object-cover shrink-0" />
                 ) : (
-                  <div className="w-6.5 h-6.5 rounded-full bg-site-shell border border-white/[0.08] flex items-center justify-center shrink-0">
-                    <User className="w-3 h-3 text-slate-500" />
+                  <div className="w-7 h-7 rounded-full bg-site-shell border border-white/[0.08] flex items-center justify-center shrink-0">
+                    <User className="w-3.5 h-3.5 text-slate-500" />
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
@@ -274,13 +277,12 @@ function AccountPanel({ active }: { active?: string }) {
           </div>
         )}
 
-        {/* Ana navigasyon */}
+        {/* Ana navigasyon — her zaman görünür */}
         <div className="account-card rounded-2xl p-2 flex flex-col gap-0.5">
           {NAV_ITEMS.map((item) => (
             <NavLink key={item.id} {...item} active={active} />
           ))}
         </div>
-
 
       </div>
     </>
