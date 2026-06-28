@@ -79,7 +79,7 @@ export default function EpostaDegistirPage() {
         </div>
 
         {bagliHesaplar.length > 1 && (
-          <div className="account-card rounded-2xl p-5 sm:p-6 max-w-md">
+          <div className="account-card rounded-2xl p-5 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
               <Link2 className="w-4 h-4 text-site-accent/70" />
               <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Bağlı E-posta Hesapları</span>
@@ -117,7 +117,7 @@ export default function EpostaDegistirPage() {
           </div>
         )}
 
-        <div className="account-card rounded-2xl p-5 sm:p-6 max-w-md">
+        <div className="account-card rounded-2xl p-5 sm:p-6">
           <form onSubmit={handleGonder} className="flex flex-col gap-4">
             <div>
               <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5 block">Yeni E-posta Adresi</label>

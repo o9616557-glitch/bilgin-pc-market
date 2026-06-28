@@ -319,15 +319,15 @@ export default function AccountShell({ children, active }: AccountShellProps) {
       </div>
 
       {/* Desktop: panel sol, içerik sağ */}
-      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-6 relative z-10 items-start">
+      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-6 relative z-10 lg:items-start">
 
         {/* Sol panel — sabit, animasyon yok */}
         <aside className="hidden lg:block w-[260px] xl:w-[280px] shrink-0 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full">
           <AccountPanel active={active} />
         </aside>
 
-        {/* İçerik alanı — sadece içerik animasyonlu */}
-        <div className="site-content-in flex-1 min-w-0">{children}</div>
+        {/* İçerik alanı — mobilde tam genişlik, masaüstünde esnek */}
+        <div className="site-content-in w-full lg:flex-1 lg:min-w-0">{children}</div>
 
       </div>
     </div>
