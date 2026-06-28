@@ -269,9 +269,17 @@ export default function GuvenlikPage() {
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#020617] border border-cyan-500/30 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.2)] shrink-0">
                   <Lock className="w-6 h-6 sm:w-8 sm:h-8 text-cyan-400" />
                 </div>
-                <div>
+              <div>
                   <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight mb-0.5 sm:mb-1">Güvenlik Merkezi</h1>
-                  <p className="text-slate-400 text-xs sm:text-sm font-medium">Hesabınızı 256-bit şifreleme ile koruyun.</p>
+                  {status === "unauthenticated" ? (
+                    <p className="text-cyan-400/90 text-xs sm:text-sm font-medium">
+                      Ayarlarınızı görüntülemek ve işlem yapabilmek için lütfen giriş yapınız.
+                    </p>
+                  ) : (
+                    <p className="text-slate-400 text-xs sm:text-sm font-medium">
+                      Hesabınızı 256-bit şifreleme ile koruyun.
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -520,8 +528,10 @@ export default function GuvenlikPage() {
                   <div className="flex justify-center p-6 sm:p-8">
                     <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-500 animate-spin" />
                   </div>
-                ) : aktifCihazlar.length === 0 ? (
-                  <div className="text-center p-6 sm:p-8 text-xs sm:text-sm text-slate-500 font-medium">Kayıtlı cihaz bulunamadı.</div>
+       ) : aktifCihazlar.length === 0 ? (
+                  <div className="text-center p-6 sm:p-8 text-xs sm:text-sm text-slate-500 font-medium">
+                    {status === "unauthenticated" ? "Cihazlarınızı görüntülemek için lütfen giriş yapınız." : "Kayıtlı cihaz bulunamadı."}
+                  </div>
                 ) : (
                   (() => {
                     const gorulenTipler = new Set();

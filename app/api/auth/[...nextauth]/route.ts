@@ -160,7 +160,7 @@ export const authOptions: NextAuthOptions = {
       try {
         if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
 
-        // 🧊 İŞTE DÜZELTTİĞİMİZ BUZ ÇÖZME MOTORU: HERKES İÇİN (Google, Facebook, Şifre) BURADA ÇALIŞIR
+        // 🧊 İŞTE DÜZELTTİĞİMİZ BUZ ÇÖZME MOTORU
         if (user && user.email) {
           const hamKullanici = await mongoose.connection.db!.collection("users").findOne({ email: user.email });
 
@@ -179,7 +179,7 @@ export const authOptions: NextAuthOptions = {
           }
         }
 
-        // 🚀 KARANTİNA KONTROLÜ (SADECE GOOGLE/FACEBOOK İÇİN - HİÇ DOKUNULMADI)
+        // 🚀 KARANTİNA KONTROLÜ
         if (account?.provider === "google" || account?.provider === "facebook") {
           const dbUser = await User.findOne({ email: user.email });
           if (dbUser) {
@@ -226,17 +226,22 @@ export const authOptions: NextAuthOptions = {
       return true; 
     },
 
-    // 🚀 İŞTE LEHİMİN KOPTUĞU YER BURASIYDI (HİÇ DOKUNULMADI):
+    // 🚀 BİNGO: İŞTE KATİLİ YOK ETTİĞİMİZ YER BURASI! (ID yerine Email ile arama yapıyoruz)
     async jwt({ token, user }) {
       if (user) { 
         token.id = user.id; 
         token.deviceId = (user as any).deviceId; 
       }
 
-      if (!user && token?.id && token?.deviceId) {
+      // 🚨 Eski kod burada 'token.id' kullanıyordu ve Google ID'sinde patlıyordu. 
+      // Artık 'token.email' kullanıyoruz ki MongoDB asla şaşırmasın!
+      if (!user && token?.email && token?.deviceId) {
         try {
           if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
-          const dbUser = await User.findById(token.id).select("activeDevices");
+          
+          // 🚀 JİLET GİBİ ÇÖZÜM: findById yerine findOne({ email }) kullanıyoruz!
+          const dbUser = await User.findOne({ email: token.email }).select("activeDevices");
+          
           if (dbUser) {
             const buCihaz = dbUser.activeDevices.find((c: any) => c.deviceId === token.deviceId);
             if (!buCihaz || buCihaz.isActive === false) {
@@ -248,7 +253,7 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
 
-   // 🚀 ÖLÜM DAMGALI ADAMI SİSTEMDEN ATAN MOTOR (HİÇ DOKUNULMADI)
+   // 🚀 ÖLÜM DAMGALI ADAMI SİSTEMDEN ATAN MOTOR
     async session({ session, token }) {
       if (token.isLoggedOut) {
          (session as any).error = "KickedOut";

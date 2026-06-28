@@ -7,12 +7,12 @@ import { ObjectId } from "mongodb";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 
-// 🚀 VERCEL ÖNBELLEK KİLİDİNİ PARÇALAMA EMİRLERİ (Her saniye güncel veri çeker)
+// 🚀 VERCEL ÖNBELLEK KİLİDİNİ PARÇALAMA EMİRLERİ
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 // =================================================================
-// 1. SİPARİŞLERİ EKRANA GETİRME MOTORU (GÜNCELLENDİ 🎯)
+// 1. SİPARİŞLERİ EKRANA GETİRME MOTORU (ŞEFİN DEV AĞI 🎯)
 // =================================================================
 export async function GET() {
   try {
@@ -21,42 +21,76 @@ export async function GET() {
       return NextResponse.json({ message: "Yetkisiz erişim. Lütfen giriş yapın." }, { status: 401 });
     }
 
+    if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
     const client = await clientPromise;
     const db = client.db("bilginpcmarket"); 
-    const userEmail = session.user.email;
+    const currentEmail = session.user.email;
 
-    // 🔥 SADECE BURASI DEĞİŞTİ: Siteden silinenleri (gizlenenleri) listeye dahil etme dedik
+    // 🚀 BİNGO: ŞEFİN ÇANTASINDAKİ TÜM E-POSTALARI ÇEKİYORUZ!
+    const dbUser = await User.findOne({ email: currentEmail }).select("kayitliEpostalar");
+    
+    // Eğer çantada başka mailler varsa hepsini al, yoksa sadece mevcut olanı bir dizi yap.
+    let aranacakMailler = [currentEmail]; 
+    if (dbUser && dbUser.kayitliEpostalar && dbUser.kayitliEpostalar.length > 0) {
+      // Mevcut mail de çantada değilse diye garantiye alıp hepsini birleştiriyoruz
+      aranacakMailler = [...new Set([...dbUser.kayitliEpostalar, currentEmail])];
+    }
+
+    // 🚀 İŞTE HİLE BURADA: Sadece currentEmail'i değil, aranacakMailler dizisindeki ($in) HERHANGİ BİR maili arıyor!
     const rawOrders = await db.collection("orders").find({
       $and: [
         {
           $or: [
-            { userEmail: userEmail },
-            { email: userEmail },
-            { "customerDetails.email": userEmail },
-            { "musteri.eposta": userEmail }
+            { userEmail: { $in: aranacakMailler } },
+            { email: { $in: aranacakMailler } },
+            { "customerDetails.email": { $in: aranacakMailler } },
+            { "musteri.eposta": { $in: aranacakMailler } }
           ]
         },
         { gizlendi: { $ne: true } } 
       ]
     }).sort({ _id: -1 }).toArray();
 
-    const safeOrders = rawOrders.map((order) => {
+    // 🚀 KURYE ARKA ODAYA (PRODUCTS) HIZLI GEÇİŞ YAPIYOR!
+    const safeOrders = await Promise.all(rawOrders.map(async (order) => {
       const rawItems = order.items || order.sepet || order.cartItems || [];
-      const safeItems = rawItems.map((item: any) => ({
-        ...item,
-        title: item.title || item.isim || item.name || "Ürün",
-        quantity: item.quantity || item.adet || item.miktar || 1,
-        price: Number(item.price || item.fiyat || 0),
-        image: item.image || item.resim || "https://app.bilginpcmarket.com/placeholder.png"
+      
+      const safeItems = await Promise.all(rawItems.map(async (item: any) => {
+        let zimbaliKategori = ""; 
+        
+        try {
+          // Kurye barkodu alıyor
+          const queryId = item._id || item.id || item.productId;
+          if (queryId) {
+            const isObjId = typeof queryId === "string" && queryId.length === 24;
+            const filter = isObjId ? { _id: new ObjectId(queryId) } : { id: queryId };
+            
+            // Depoya koşup asıl ürünü buluyor
+            const gercekUrun = await db.collection("products").findOne(filter);
+            if (gercekUrun) {
+              // Bulduğu asıl kategori etiketini (slug) cebe atıyor
+              zimbaliKategori = gercekUrun.kategoriSlug || gercekUrun.kategori || gercekUrun.slug || "";
+            }
+          }
+        } catch (e) {
+           // Depoda hata olursa çaktırmadan devam et
+        }
+
+        return {
+          ...item,
+          // 🧠 MÜKEMMEL DOKUNUŞ: Depodan bulduğu etiketi fişe basıyor!
+          kategoriSlug: zimbaliKategori || item.kategoriSlug || item.kategori || "",
+          title: item.title || item.isim || item.name || "Ürün",
+          quantity: item.quantity || item.adet || item.miktar || 1,
+          price: Number(item.price || item.fiyat || 0),
+          image: item.image || item.resim || "https://app.bilginpcmarket.com/placeholder.png"
+        };
       }));
 
-      // 🚀 AKILLI MÜHÜR MOTORU: Admin nereye ne yazdıysa hepsini birleştirip tarıyoruz
+      // 🚀 AKILLI MÜHÜR MOTORU
       const hamDurumMetni = `${order.durum || ""} ${order.status || ""} ${order.paymentMethod || ""}`.toLowerCase();
       
-      // Varsayılan durum ataması
       let sonDurum = order.durum || order.status || "Hazırlanıyor";
-      
-      // Eğer herhangi bir hücrede iptal kelimesi geçiyorsa durumu zorla "İptal Edildi" yap!
       if (hamDurumMetni.includes("iptal") || hamDurumMetni.includes("red") || hamDurumMetni.includes("iade")) {
         sonDurum = "İptal Edildi";
       }
@@ -69,10 +103,10 @@ export async function GET() {
         createdAt: order.createdAt || order.tarih || new Date().toISOString(),
         shippingAddress: order.shippingAddress || order.musteri || order.customerDetails || {},
         searchableStatus: hamDurumMetni,
-        status: sonDurum, // Artık kilitlenen eski durumların önceliği kırıldı!
+        status: sonDurum, 
         durum: sonDurum
       };
-    });
+    }));
 
     return NextResponse.json({ orders: safeOrders }, { status: 200 });
   } catch (error) {
@@ -82,7 +116,7 @@ export async function GET() {
 }
 
 // =================================================================
-// 2. YENİ SİPARİŞ OLUŞTURMA MOTORU (ORİJİNAL - DOKUNULMADI)
+// 2. YENİ SİPARİŞ OLUŞTURMA MOTORU (ŞALTERLİ MAİLE KESİYOR 🎯)
 // =================================================================
 export async function POST(req: Request) {
   try {
@@ -99,10 +133,19 @@ export async function POST(req: Request) {
     const user = await User.findOne({ email: session.user.email });
     if (!user) return NextResponse.json({ message: "Kullanıcı yok." }, { status: 404 });
 
+    // 🚀 BİNGO: ŞEFİN ŞALTERİ AÇIK OLAN MAİLİNİ KULLAN (Yoksa anamaile at)
+    const faturaEpostasi = user.aktifEposta || user.email;
+
     const defaultStatus = "Hazırlanıyor";
     const newOrder = new Order({
-      userId: user._id, userEmail: session.user.email, items, totalPrice, shippingAddress: addressData,
-      paymentMethod: paymentMethod, status: defaultStatus, durum: defaultStatus
+      userId: user._id, 
+      userEmail: faturaEpostasi, // 🎯 Şalterdeki maile kesti faturayı!
+      items, 
+      totalPrice, 
+      shippingAddress: addressData,
+      paymentMethod: paymentMethod, 
+      status: defaultStatus, 
+      durum: defaultStatus
     });
 
     await newOrder.save();
@@ -113,7 +156,7 @@ export async function POST(req: Request) {
 }
 
 // =================================================================
-// 3. SİPARİŞ SİLME MOTORU (GÜNCELLENDİ 🎯)
+// 3. SİPARİŞ SİLME MOTORU (ORİJİNAL)
 // =================================================================
 export async function DELETE(req: Request) {
   try {
@@ -125,8 +168,6 @@ export async function DELETE(req: Request) {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
     
-    // 🔥 SADECE BURASI DEĞİŞTİ: deleteOne yerine updateOne yaptık.
-    // Siparişi MongoDB'den silmez, üzerine sadece "gizlendi: true" etiketi koyar.
     await db.collection("orders").updateOne(
       { _id: new ObjectId(orderId) },
       { $set: { gizlendi: true } }

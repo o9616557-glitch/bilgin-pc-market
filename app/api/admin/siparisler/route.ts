@@ -95,7 +95,7 @@ export async function PUT(request: Request) {
           ikon = "🚀";
         } else if (yeniDurum === "Tamamlandı") {
           baslik = "SİPARİŞ TESLİM EDİLDİ";
-          altMesaj = "Siparişiniz başarıyla teslim edilmiştir. Bizi tercih ettiğiniz için teşekkür ederiz. Yeni sisteminizle bol FPS'li oyunlar dileriz!";
+          altMesaj = "Siparişiniz başarıyla teslim edilmiştir. Bizi tercih ettiğiniz için teşekkür ederiz.";
           anaRenk = "#00d2ff"; 
           ikon = "🎉";
         } else if (yeniDurum === "İptal Edildi") {
