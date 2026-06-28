@@ -6,9 +6,9 @@ import { useSession, signOut, signIn } from "next-auth/react";
 import { useState, useEffect } from "react";
 import {
   User, ShieldCheck, CreditCard, MessageSquare, Database,
-  Mail, Star, MapPin, Headset, ChevronRight,
-  LogIn, UserPlus, LogOut, Heart, Server, Search, Truck,
-  Eye, EyeOff, Loader2, X, Check, SwitchCamera
+  Mail, Star, MapPin, ChevronRight,
+  LogIn, UserPlus, LogOut,
+  Eye, EyeOff, Loader2, X, SwitchCamera
 } from "lucide-react";
 
 /* ─────────────────── NAV TANIMLARI ─────────────────── */
@@ -24,13 +24,6 @@ const NAV_ITEMS = [
   { href: "/adreslerim",         label: "Adreslerim",          icon: MapPin,        id: "adreslerim" },
 ];
 
-const BOTTOM_ITEMS = [
-  { href: "/favorilerim",        label: "Favoriler", icon: Heart,   id: "favorilerim" },
-  { href: "/sistemlerim",        label: "Sistemler", icon: Server,  id: "sistemler" },
-  { href: "/destek-taleplerim",  label: "Destek",    icon: Headset, id: "destek" },
-  { href: "/siparis-takip",      label: "Sorgula",   icon: Search,  id: "sorgula" },
-  { href: "/kargo-takip",        label: "Kargo",     icon: Truck,   id: "kargo" },
-];
 
 /* ─────────────────── TİPLER ─────────────────── */
 type SavedAccount = { email: string; name: string; image?: string };
@@ -288,13 +281,6 @@ function AccountPanel({ active }: { active?: string }) {
           ))}
         </div>
 
-        {/* Alt kısım */}
-        <div className="account-card rounded-2xl p-2 flex flex-col gap-0.5">
-          <p className="text-[10px] font-semibold text-slate-700 uppercase tracking-wider px-3 py-1.5">Hızlı Erişim</p>
-          {BOTTOM_ITEMS.map((item) => (
-            <NavLink key={item.id} {...item} active={active} />
-          ))}
-        </div>
 
       </div>
     </>
@@ -330,16 +316,16 @@ export default function AccountShell({ children, active }: AccountShellProps) {
         </div>
       </div>
 
-      {/* Desktop: içerik sol, panel sağ */}
+      {/* Desktop: panel sol, içerik sağ */}
       <div className="site-content-in max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-6 relative z-10 items-start">
 
-        {/* İçerik alanı (sol) */}
-        <div className="flex-1 min-w-0">{children}</div>
-
-        {/* Sağ panel */}
+        {/* Sol panel */}
         <aside className="hidden lg:block w-[260px] xl:w-[280px] shrink-0 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full">
           <AccountPanel active={active} />
         </aside>
+
+        {/* İçerik alanı (sağ) */}
+        <div className="flex-1 min-w-0">{children}</div>
 
       </div>
     </div>
