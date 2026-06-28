@@ -14,6 +14,9 @@ import { OrderProvider } from "./OrderContext";
 // 🚀 İŞTE BİZİM KESKİN NİŞANCI: Akıllı Çip'i Ana Şasiye Çağırıyoruz
 import HesapHafizaCipi from "@/components/HesapHafizaCipi"; 
 
+// 🚀 1. ADIM: KÜRESEL KALKANI ÇATIYA ÇAĞIRIYORUZ (Sitenin Koruyucusu)
+import GlobalKalkan from "@/components/GlobalKalkan";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -60,6 +63,9 @@ export default function RootLayout({
           
           {/* 🚀 BİNGO! SİSTEMİN YENİ BEYNİ: F5 atılsa bile arkadan verileri toplayan gizli çipimiz! */}
           <HesapHafizaCipi />
+
+          {/* 🚀 2. ADIM: KESKİN NİŞANCIYI NÖBETE DİKİYORUZ! (Şalteri inen adamı anında siteden şutlar) */}
+          <GlobalKalkan />
 
           <CartProvider>
             <CompareProvider>
