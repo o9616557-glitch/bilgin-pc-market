@@ -309,27 +309,25 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
 
   return (
       <>
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-white/20 pb-6 mb-8 px-4 sm:px-0 select-none">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-white/[0.08] pb-5 mb-7 px-4 sm:px-0 select-none">
           <div>
-            <Link href="/" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 hover:text-white transition-all mb-3">
-              <ArrowLeft className="w-4 h-4" /> Mağazaya Geri Dön
+            <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-white transition-all mb-3">
+              <ArrowLeft className="w-3.5 h-3.5" /> Mağazaya dön
             </Link>
-            <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tight text-white leading-none">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
-                {sayfaBasligi}
-              </span> MODELLERİ
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-white leading-tight">
+              {sayfaBasligi} <span className="text-slate-400 font-normal">modelleri</span>
             </h1>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 shrink-0">
             <button 
               onClick={() => setMobilFiltreAcik(true)}
-              className="lg:hidden flex items-center justify-center gap-2 bg-white/10 text-white px-4 py-2.5 rounded-none font-bold text-xs uppercase tracking-wider border border-white/20"
+              className="lg:hidden flex items-center justify-center gap-2 glass-panel text-white px-4 py-2.5 rounded-xl font-medium text-xs border border-white/10"
             >
               <Filter className="w-4 h-4" /> Filtrele
             </button>
-            <div className="flex items-center justify-start gap-2 bg-[#121215] border border-white/20 px-4 py-2.5 rounded-none text-xs font-black tracking-widest text-gray-300 uppercase">
-              <div className="w-2 h-2 rounded-none bg-[#10b981] animate-ping"></div>
-              Sonuç: {filtrelenmisUrunler.length}
+            <div className="flex items-center gap-2 glass-panel px-4 py-2.5 rounded-xl text-xs font-medium text-slate-300">
+              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+              {filtrelenmisUrunler.length} sonuç
             </div>
           </div>
         </div>
@@ -339,47 +337,46 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
           <aside className={`fixed top-[81px] bottom-0 left-0 right-0 z-[40] lg:sticky lg:top-24 lg:w-[260px] xl:w-[280px] lg:max-h-[calc(100vh-100px)] lg:shrink-0 transition-transform duration-300 flex flex-col ${mobilFiltreAcik ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
             <div className="absolute inset-0 bg-black/60 lg:hidden" onClick={() => setMobilFiltreAcik(false)}></div>
             
-            <div className="relative w-4/5 max-w-sm h-full bg-[#050505]/95 border-r border-white/20 lg:w-full lg:bg-transparent lg:border-none lg:shadow-none flex flex-col overflow-hidden">
+            <div className="relative w-4/5 max-w-sm h-full bg-[#050814]/98 border-r border-white/[0.08] lg:w-full lg:bg-site-card/60 lg:border lg:border-white/[0.08] lg:rounded-2xl lg:shadow-none flex flex-col overflow-hidden">
               
-              <div className="p-4 border-b border-white/20 flex justify-between items-center shrink-0 bg-[#050505] lg:bg-transparent lg:px-0 z-10">
-                <h3 className="font-bold text-white uppercase tracking-wider flex items-center gap-2 text-sm"><Filter className="w-4 h-4 text-gray-300" /> Filtreler</h3>
+              <div className="p-4 border-b border-white/[0.08] flex justify-between items-center shrink-0 lg:px-4 z-10">
+                <h3 className="font-medium text-white flex items-center gap-2 text-sm"><Filter className="w-4 h-4 text-slate-400" /> Filtreler</h3>
                 <div className="flex items-center gap-3">
-                  <button onClick={filtreleriTemizle} className="text-gray-300 text-xs font-bold hover:text-white transition-all">Temizle</button>
-                  <button onClick={() => setMobilFiltreAcik(false)} className="lg:hidden text-gray-300 hover:text-white"><X className="w-5 h-5" /></button>
+                  <button onClick={filtreleriTemizle} className="text-slate-400 text-xs font-medium hover:text-white transition-all">Temizle</button>
+                  <button onClick={() => setMobilFiltreAcik(false)} className="lg:hidden text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
                 </div>
               </div>
 
-              <div className="p-4 lg:p-0 overflow-y-auto [&::-webkit-scrollbar]:hidden flex-1 select-none">
+              <div className="p-4 overflow-y-auto [&::-webkit-scrollbar]:hidden flex-1 select-none">
                 
-                <div className="mb-6 pb-6 border-b border-white/20">
-                 {/* 🚀 mt-6 eklenerek tavana yapışması engellendi, rahatça nefes alıyor */}
-<label className="flex items-center gap-3 cursor-pointer group mb-5 mt-6">
+                <div className="mb-5 pb-5 border-b border-white/[0.08]">
+                  <label className="flex items-center gap-3 cursor-pointer group mb-4 mt-2">
                     <div className="relative">
                       <input type="checkbox" className="sr-only" checked={sadeceStokta} onChange={(e) => setSadeceStokta(e.target.checked)} />
-                      <div className={`block w-9 h-5 rounded-full transition-colors border border-white/20 ${sadeceStokta ? 'bg-[#10b981]' : 'bg-white/20'}`}></div>
+                      <div className={`block w-9 h-5 rounded-full transition-colors ${sadeceStokta ? 'bg-emerald-500' : 'bg-white/10 border border-white/15'}`}></div>
                       <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition-transform shadow-sm ${sadeceStokta ? 'translate-x-4' : 'translate-x-0'}`}></div>
                     </div>
-                    <span className="text-xs font-bold text-gray-300 group-hover:text-white transition-colors">Sadece Stoktakiler</span>
+                    <span className="text-xs font-medium text-slate-300 group-hover:text-white transition-colors">Sadece stoktakiler</span>
                   </label>
 
-                  <h4 className="text-[10px] font-black text-gray-200 uppercase tracking-widest mb-3">Fiyat Aralığı (TL)</h4>
+                  <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider mb-2">Fiyat aralığı (₺)</p>
                   <div className="flex items-center gap-2">
-                    <input type="number" placeholder="Min" value={minFiyat} onChange={(e) => setMinFiyat(e.target.value)} className="w-full bg-[#121215] border border-white/20 rounded-lg p-2.5 text-xs text-white focus:border-[#00d2ff] focus:ring-1 focus:ring-[#00d2ff]/50 outline-none transition-all placeholder:text-gray-600" />
-                    <span className="text-gray-400 font-bold">-</span>
-                    <input type="number" placeholder="Max" value={maxFiyat} onChange={(e) => setMaxFiyat(e.target.value)} className="w-full bg-[#121215] border border-white/20 rounded-lg p-2.5 text-xs text-white focus:border-[#00d2ff] focus:ring-1 focus:ring-[#00d2ff]/50 outline-none transition-all placeholder:text-gray-600" />
+                    <input type="number" placeholder="Min" value={minFiyat} onChange={(e) => setMinFiyat(e.target.value)} className="w-full bg-site-shell/80 border border-white/[0.08] rounded-lg p-2.5 text-xs text-white focus:border-site-accent/50 outline-none transition-all placeholder:text-slate-600" />
+                    <span className="text-slate-600">–</span>
+                    <input type="number" placeholder="Max" value={maxFiyat} onChange={(e) => setMaxFiyat(e.target.value)} className="w-full bg-site-shell/80 border border-white/[0.08] rounded-lg p-2.5 text-xs text-white focus:border-site-accent/50 outline-none transition-all placeholder:text-slate-600" />
                   </div>
                 </div>
 
               {gecerliMarkalar.length > 0 && (
-                <div className="mb-6 pb-6 border-b border-white/20">
-                  <h4 className="text-[10px] font-black text-gray-200 uppercase tracking-widest mb-3">Markalar</h4>
-                  <div className="space-y-2.5">
+                <div className="mb-5 pb-5 border-b border-white/[0.08]">
+                  <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider mb-3">Markalar</p>
+                  <div className="space-y-2">
                     {gecerliMarkalar.map((marka: any) => (
                       <label key={marka} className="flex items-center gap-3 cursor-pointer group" onClick={() => setSeciliMarkalar(prev => prev.includes(marka) ? prev.filter(m => m !== marka) : [...prev, marka])}>
-                        <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${seciliMarkalar.includes(marka) ? 'bg-[#00d2ff] border-[#00d2ff]' : 'bg-[#121215] border-white/30 group-hover:border-white/50'}`}>
+                        <div className={`w-4 h-4 rounded-md border flex items-center justify-center transition-colors flex-shrink-0 ${seciliMarkalar.includes(marka) ? 'bg-site-accent-strong border-site-accent-strong' : 'bg-site-shell border-white/20 group-hover:border-white/40'}`}>
                           {seciliMarkalar.includes(marka) && <CheckIcon />}
                         </div>
-                        <span className={`text-xs font-bold transition-colors ${seciliMarkalar.includes(marka) ? 'text-white' : 'text-gray-300 group-hover:text-white'}`}>{marka}</span>
+                        <span className={`text-xs font-medium transition-colors ${seciliMarkalar.includes(marka) ? 'text-white' : 'text-slate-400 group-hover:text-white'}`}>{marka}</span>
                       </label>
                     ))}
                   </div>
@@ -391,30 +388,30 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
                 if (gecerliDegerler.length === 0) return null;
 
                 return (
-                  <div key={baslik} className="mb-6 pb-6 border-b border-white/20 last:border-0 last:pb-0">
-                    <h4 className="text-[10px] font-black text-gray-200 uppercase tracking-widest mb-3">{baslik}</h4>
+                  <div key={baslik} className="mb-5 pb-5 border-b border-white/[0.08] last:border-0 last:pb-0">
+                    <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider mb-3">{baslik}</p>
                     
                     {gecerliDegerler.every(d => d.length <= 12) ? (
                       <div className="flex flex-wrap gap-1.5">
                         {gecerliDegerler.map(deger => {
                           const seciliMi = (seciliDinamik[baslik] || []).includes(deger);
                           return (
-                            <button key={deger} onClick={() => toggleDinamik(baslik, deger)} className={`px-2.5 py-1.5 rounded-lg border text-[10px] font-bold transition-all ${seciliMi ? 'bg-white/10 border-white/30 text-white' : 'bg-[#121215] border-white/20 text-gray-300 hover:border-white/40 hover:text-white'}`} >
+                            <button key={deger} onClick={() => toggleDinamik(baslik, deger)} className={`px-2.5 py-1.5 rounded-lg border text-[10px] font-medium transition-all ${seciliMi ? 'bg-site-accent-strong/20 border-site-accent-strong/50 text-white' : 'bg-site-shell/60 border-white/[0.08] text-slate-400 hover:border-white/25 hover:text-white'}`}>
                               {deger}
                             </button>
                           );
                         })}
                       </div>
                     ) : (
-                      <div className="space-y-2.5">
+                      <div className="space-y-2">
                         {gecerliDegerler.map(deger => {
                           const seciliMi = (seciliDinamik[baslik] || []).includes(deger);
                           return (
                             <label key={deger} className="flex items-center gap-3 cursor-pointer group" onClick={() => toggleDinamik(baslik, deger)}>
-                              <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${seciliMi ? 'bg-[#00d2ff] border-[#00d2ff]' : 'bg-[#121215] border-white/30 group-hover:border-white/50'}`}>
+                              <div className={`w-4 h-4 rounded-md border flex items-center justify-center transition-colors flex-shrink-0 ${seciliMi ? 'bg-site-accent-strong border-site-accent-strong' : 'bg-site-shell border-white/20 group-hover:border-white/40'}`}>
                                 {seciliMi && <CheckIcon />}
                               </div>
-                              <span className={`text-xs font-bold transition-colors ${seciliMi ? 'text-white' : 'text-gray-300 group-hover:text-white'} break-words`}>{deger}</span>
+                              <span className={`text-xs font-medium transition-colors ${seciliMi ? 'text-white' : 'text-slate-400 group-hover:text-white'} break-words`}>{deger}</span>
                             </label>
                           );
                         })}
@@ -424,14 +421,8 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
                 );
               })}
 
-              <div className="mt-8 mb-12 flex justify-center items-center gap-3 opacity-30 select-none">
-                <div className="w-12 h-[1px] bg-gradient-to-r from-transparent to-white/50"></div>
-                <div className="w-2 h-2 rotate-45 border border-white/50 bg-transparent"></div>
-                <div className="w-12 h-[1px] bg-gradient-to-l from-transparent to-white/50"></div>
-              </div>
-
-              <div className="mb-6 lg:hidden">
-                <button onClick={filtreleriTemizle} className="w-full text-center bg-[#121215] border border-white/20 text-gray-300 text-xs font-black uppercase tracking-widest py-3 rounded-none hover:text-white transition-colors">Filtreleri Temizle</button>
+              <div className="mb-6 lg:hidden mt-4">
+                <button onClick={filtreleriTemizle} className="w-full text-center glass-panel text-slate-300 text-xs font-medium py-3 rounded-xl hover:text-white transition-colors">Filtreleri temizle</button>
               </div>
 
             </div>
@@ -441,17 +432,15 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
     {/* 🛠 Sağ ÜRÜN IZGARASI */}
 <main className="flex-1 w-full min-w-0 pb-12">
   {filtrelenmisUrunler.length === 0 ? (
-    <div className="w-full flex flex-col items-center justify-center text-center gap-4 py-24 select-none border border-white/5 bg-black/20 rounded-2xl px-4">
-      <span className="text-[#00d2ff] font-black text-xs uppercase tracking-widest animate-pulse">
-        Sistem Güncelleniyor
-      </span>
-      <h3 className="text-xl sm:text-2xl font-black text-white leading-tight uppercase max-w-md">
-        Seçilen Kombinasyon Şu An Hazırlık Aşamasında
+    <div className="w-full flex flex-col items-center justify-center text-center gap-4 py-20 select-none glass-card px-6">
+      <PackageX className="w-10 h-10 text-slate-600" />
+      <h3 className="text-lg sm:text-xl font-semibold text-white max-w-md">
+        Bu kombinasyona uygun ürün bulunamadı
       </h3>
-      <div className="h-px w-16 bg-gradient-to-r from-transparent via-[#00d2ff] to-transparent my-1"></div>
-      <p className="text-xs sm:text-sm font-medium leading-relaxed text-gray-400 max-w-lg">
-        Aradığınız kriterlere uygun donanım yapılandırmaları ve güncel stok listeleri optimize ediliyor olabilir. Sol paneldeki aktif filtreleri kaldırarak veya diğer ana kategorilere geçiş yaparak dükkandaki canavar bileşenleri hemen inceleyebilirsiniz.
+      <p className="text-sm leading-relaxed text-slate-400 max-w-md">
+        Sol paneldeki filtreleri değiştirerek veya temizleyerek diğer ürünleri inceleyebilirsiniz.
       </p>
+      <button onClick={filtreleriTemizle} className="btn-ghost text-xs mt-2">Filtreleri temizle</button>
     </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -479,11 +468,11 @@ if (urun.fetchedReviews && urun.fetchedReviews.length > 0) {
     yildizSayisi = totalRating / yorumSayisi;
 }
                   return (
-                  <div key={String(targetId)} className="group relative isolate z-0 flex flex-col w-full flex-shrink-0 bg-[#18181b]/90 backdrop-blur-3xl rounded-3xl overflow-hidden border border-white/20 shadow-[0_0_15px_rgba(0,0,0,0.8)] transition-all duration-700 ease-out hover:border-white/40 hover:shadow-[0_15px_60px_rgba(255,255,255,0.05)]">
-                      <div className="relative aspect-[4/3] w-full bg-gradient-to-b from-white/[0.01] to-transparent flex items-center justify-center p-6 overflow-hidden pointer-events-none">
+                  <div key={String(targetId)} className="group relative isolate z-0 flex flex-col w-full flex-shrink-0 bg-site-card/80 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/[0.08] shadow-lg transition-all duration-500 hover:border-white/[0.16] hover:shadow-xl">
+                      <div className="relative aspect-[4/3] w-full bg-gradient-to-b from-site-shell/40 to-transparent flex items-center justify-center p-5 sm:p-6 overflow-hidden pointer-events-none">
                         
                         {indirimVarMi && !tukendiMi && (
-                         <div className="absolute top-4 right-7 discount-badge-container pointer-events-none !z-20">
+                         <div className="absolute top-3 right-3 discount-badge-container pointer-events-none !z-20">
                               <div className="badge-ribbon-home-left"></div>
                               <div className="badge-ribbon-home-right"></div>
                               <div className="badge-rosette-home">
@@ -493,63 +482,56 @@ if (urun.fetchedReviews && urun.fetchedReviews.length > 0) {
                           </div>
                         )}
 
-                        {tukendiMi ? (
-                           <div className="absolute top-4 left-4 z-20 pointer-events-none">
-                             <div className="w-2.5 h-2.5 rounded-full bg-zinc-600 shadow-[0_0_15px_rgba(82,82,91,0.5)]"></div>
-                           </div>
-                        ) : (
-                           <div className="absolute top-4 left-4 z-20 pointer-events-none">
-                             <div className="w-2.5 h-2.5 rounded-full bg-[#10b981] animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.5)]"></div>
-                           </div>
-                        )}
+                        <div className="absolute top-3 left-3 z-20 pointer-events-none">
+                          <div className={`w-2 h-2 rounded-full ${tukendiMi ? "bg-slate-600" : "bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.6)]"}`}></div>
+                        </div>
 
-                        <div className="w-full h-full flex items-center justify-center relative z-10 transition-transform duration-700 ease-out group-hover:scale-105">
-                     
-                       <img src={vitrinResmi} alt={urun.isim || urun.name} loading="lazy" className={`w-full h-full object-contain filter drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] ${tukendiMi ? "grayscale opacity-30" : ""}`} />
+                        <div className="w-full h-full flex items-center justify-center relative z-10 transition-transform duration-500 ease-out group-hover:scale-[1.04]">
+                          <img src={vitrinResmi} alt={urun.isim || urun.name} loading="lazy" className={`w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)] ${tukendiMi ? "grayscale opacity-40" : ""}`} />
                         </div>
                       </div>
 
-                      <div className="p-5 flex flex-col flex-grow relative z-20 bg-black/30 backdrop-blur-xl border-t border-white/5">
-                        <div className="flex justify-between items-center mb-2 select-none">
-                          <span className="text-gray-400 text-[10px] font-black tracking-[0.2em] uppercase">{getMarka(urun)}</span>
-                          <div className="flex items-center gap-1 text-[10px] text-gray-500 font-black">
-                            <Star className={`w-3.5 h-3.5 ${yorumSayisi > 0 ? 'text-[#d4af37] fill-[#d4af37]' : 'text-gray-800'}`} />
-                            <span>{yorumSayisi > 0 ? `${yildizSayisi.toFixed(1)} (${yorumSayisi})` : 'Henüz Değerlendirilmedi'}</span>
-                          </div>
+                      <div className="p-4 sm:p-5 flex flex-col flex-grow border-t border-white/[0.06]">
+                        <div className="flex justify-between items-center mb-1.5 select-none">
+                          <span className="text-slate-500 text-[10px] font-medium tracking-wider uppercase">{getMarka(urun)}</span>
+                          {yorumSayisi > 0 && (
+                            <div className="flex items-center gap-1 text-[10px] text-slate-500">
+                              <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+                              <span>{yildizSayisi.toFixed(1)} ({yorumSayisi})</span>
+                            </div>
+                          )}
                         </div>
 
-                        <div className="block mt-1">
-                          <h3 className="text-white text-sm font-bold leading-relaxed line-clamp-2 mb-4 group-hover:text-gray-300 transition-colors duration-700">
-                            {urun.isim || urun.name}
-                          </h3>
-                        </div>
+                        <h3 className="text-white text-sm font-medium leading-snug line-clamp-2 mb-4 group-hover:text-slate-200 transition-colors">
+                          {urun.isim || urun.name}
+                        </h3>
 
-                        <div className="flex items-end justify-between mt-auto pt-4 border-t border-white/5 pointer-events-auto">
+                        <div className="flex items-end justify-between mt-auto pt-3 border-t border-white/[0.06] pointer-events-auto">
                           <div className="flex flex-col select-none">
                             {indirimVarMi && !tukendiMi && (
-                              <span className="text-gray-600 text-[11px] line-through font-medium mb-0.5">{normalFiyat.toLocaleString("tr-TR")} ₺</span>
+                              <span className="text-slate-600 text-[11px] line-through mb-0.5">{normalFiyat.toLocaleString("tr-TR")} ₺</span>
                             )}
-                            <span className="text-2xl font-black text-white leading-none">
-                              {gecerliFiyat.toLocaleString("tr-TR")} <span className="text-sm text-gray-500">₺</span>
+                            <span className="text-xl sm:text-2xl font-semibold text-white leading-none">
+                              {gecerliFiyat.toLocaleString("tr-TR")} <span className="text-sm text-slate-500 font-normal">₺</span>
                             </span>
                             {havaleOrani > 0 && !tukendiMi && (
-                              <span className="text-[#10b981] text-[10px] font-black mt-1.5 flex items-center gap-1">
-                                <BanknoteIcon className="w-3.5 h-3.5" /> Havale: {havaleFiyati.toLocaleString("tr-TR", {maximumFractionDigits: 0})} ₺
+                              <span className="text-emerald-400 text-[10px] font-medium mt-1 flex items-center gap-1">
+                                <BanknoteIcon className="w-3 h-3" /> Havale: {havaleFiyati.toLocaleString("tr-TR", {maximumFractionDigits: 0})} ₺
                               </span>
                             )}
                           </div>
 
-                          <div className="flex gap-2.5">
-                             <button onClick={() => handleKarsilastir(urun)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-black border border-white/5 text-gray-500 hover:border-white/30 hover:text-white transition-all">
-                               <GitCompare className="w-4 h-4" />
+                          <div className="flex gap-2">
+                             <button onClick={() => handleKarsilastir(urun)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-site-shell/60 border border-white/[0.08] text-slate-500 hover:border-white/20 hover:text-slate-300 transition-all">
+                               <GitCompare className="w-3.5 h-3.5" />
                              </button>
                              {!tukendiMi && (
                                <button 
                                  onClick={() => handleSepeteEkle(urun)} 
                                  disabled={isAdded}
-                                 className={`h-10 w-10 flex items-center justify-center rounded-xl transition-all border ${isAdded ? "bg-[#10b981] border-transparent text-black" : "bg-white/10 border-transparent text-white hover:bg-white hover:text-black"}`}
+                                 className={`h-9 w-9 flex items-center justify-center rounded-xl transition-all ${isAdded ? "bg-emerald-500 text-black border-0" : "bg-site-accent-strong/90 hover:bg-site-accent-strong text-white border-0"}`}
                                >
-                                 {isAdded ? "✓" : <ShoppingCart className="w-4 h-4" />}
+                                 {isAdded ? "✓" : <ShoppingCart className="w-3.5 h-3.5" />}
                                </button>
                              )}
                           </div>

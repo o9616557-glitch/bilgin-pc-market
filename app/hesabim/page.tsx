@@ -383,7 +383,8 @@ export default function HesabimPage() {
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (!data) return;
-        const aktifCihazlar = (data.activeDevices || []).filter((c: any) => c.isActive !== false);
+        // Sadece açıkça aktif işaretlenmiş cihazları say
+        const aktifCihazlar = (data.activeDevices || []).filter((c: any) => c.isActive === true);
         setGuvenlikOzeti({ ikiAdim: !!data.twoFactorEmail, cihazSayisi: aktifCihazlar.length });
       })
       .catch(() => {});

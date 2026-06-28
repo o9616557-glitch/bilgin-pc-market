@@ -39,7 +39,7 @@ export default async function KategoriSayfasi({ params }: any) {
   }
 
   return (
-    <main className="min-h-screen bg-black text-white pt-12 pb-24 px-4 font-sans select-none touch-manipulation">
+    <main className="site-page text-white pt-12 pb-24 px-4 font-sans select-none touch-manipulation">
       <style dangerouslySetInnerHTML={{ __html: `
         .discount-badge-home { position: absolute; top: 10px; right: 10px; width: 65px; height: 90px; z-index: 50; filter: drop-shadow(0px 6px 8px rgba(0,0,0,0.6)); pointer-events: none; }
         .badge-rosette-home { position: relative; width: 65px; height: 65px; background: #e60000; clip-path: polygon(50% 0%, 60% 10%, 75% 5%, 80% 20%, 95% 25%, 90% 40%, 100% 50%, 90% 60%, 95% 75%, 80% 80%, 75% 95%, 60% 90%, 50% 100%, 40% 90%, 25% 95%, 20% 80%, 5% 75%, 10% 60%, 0% 50%, 10% 40%, 5% 25%, 20% 20%, 25% 5%, 40% 10%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 2; }
