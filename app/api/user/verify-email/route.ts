@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import User from "@/models/User";
+import { getServerSession } from "next-auth"; // 🚀 AKILLI RADAR SİLİNMEDİ
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"; 
 
 export async function GET(req: Request) {
   try {
@@ -8,50 +10,43 @@ export async function GET(req: Request) {
       await mongoose.connect(process.env.MONGODB_URI as string);
     }
 
+    // 🛡️ AKILLI RADAR: Hata vermemesi için korumaya alındı
+    try {
+      const session = await getServerSession(authOptions);
+      if (session && session.user?.email) {
+        const loggedInUser = await User.findOne({ email: session.user.email });
+        if (loggedInUser && loggedInUser.isVerified) {
+          return NextResponse.json({ message: "Hesabınız zaten onaylı. Alışverişe devam edebilirsiniz." }, { status: 200 });
+        }
+      }
+    } catch (radarError) {
+      // Radar tökezlerse sistemi çökertmez, sessizce alttaki koda geçer
+      console.log("Radar atlandı, normal onaya geçiliyor.");
+    }
+
     const { searchParams } = new URL(req.url);
     const token = searchParams.get("token");
 
     if (!token) {
-      return NextResponse.json(
-        { message: "Geçersiz veya eksik onay kodu." },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "Geçersiz veya eksik onay kodu." }, { status: 400 });
     }
 
-    // Zaten onaylanmış mı kontrol et
-    const alreadyVerified = await User.findOne({
-      isVerified: true,
-      verificationToken: { $exists: false },
-    }).where("_id").exists(true);
+    // Önce token ile ara (Çift tıklama hatasını çözen kısım)
+    const userByToken = await User.findOne({ verificationToken: token });
 
-    // Token ile kullanıcıyı bul VE aynı anda güncelle (atomik işlem)
-    const user = await User.findOneAndUpdate(
-      { verificationToken: token }, // token olan kullanıcıyı bul
-      {
-        $set: { isVerified: true },
-        $unset: { verificationToken: "" }, // token'ı tamamen sil
-      },
-      { new: true } // güncellenmiş kaydı döndür
-    );
+    if (userByToken) {
+      userByToken.isVerified = true;
+      (userByToken as any).verificationToken = undefined;
+      await userByToken.save();
 
-    if (!user) {
-      // Token bulunamadı — daha önce kullanılmış olabilir
-      // Eğer bu token'a ait kullanıcı isVerified:true ise başarı say
-      return NextResponse.json(
-        { message: "Bu hesap zaten onaylanmış veya bağlantı geçersiz." },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "Hesabınız başarıyla onaylandı!" }, { status: 200 });
     }
 
-    return NextResponse.json(
-      { message: "Hesabınız başarıyla onaylandı!" },
-      { status: 200 }
-    );
+    // Token bulunamadıysa zaten onaylanmıştır
+    return NextResponse.json({ message: "Bu bağlantı daha önce kullanılmış veya geçersiz." }, { status: 400 });
+
   } catch (error) {
     console.error("E-posta Onay Hatası:", error);
-    return NextResponse.json(
-      { message: "Sunucu hatası oluştu.", detail: String(error) },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Onaylama esnasında sunucu hatası oluştu." }, { status: 500 });
   }
 }
