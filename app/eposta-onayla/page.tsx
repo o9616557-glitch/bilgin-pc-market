@@ -14,8 +14,7 @@ function OnayIcerik() {
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [message, setMessage] = useState("Hesabınız doğrulanıyor, lütfen bekleyin...");
 
-  // 🚀 BİNGO: HAYALET TIKLAMAYI ENGELLEYEN KİLİT
-  const hasFetched = useRef(false);
+  const hasRun = useRef(false); // ← Claude'un eklediği kilit
 
   useEffect(() => {
     if (!token) {
@@ -24,9 +23,9 @@ function OnayIcerik() {
       return;
     }
 
-    // Eğer kod saniyenin binde biri hızında ikinci kez çalışmaya kalkarsa, buradan geri dön!
-    if (hasFetched.current) return;
-    hasFetched.current = true; // Kapıyı kilitledik
+    // İkinci çalışmayı tamamen engelle
+    if (hasRun.current) return;
+    hasRun.current = true;
 
     const verifyEmail = async () => {
       try {
