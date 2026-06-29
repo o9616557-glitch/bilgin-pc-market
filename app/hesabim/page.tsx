@@ -1,34 +1,37 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { oturumHafizasiniTemizle } from "@/lib/oturum-hafiza";
 import { useOrders } from "@/app/OrderContext";
 import AccountShell from "@/components/layout/AccountShell";
 import Image from "next/image";
-import { 
-  User, ShieldCheck, CreditCard, Package, Server, Truck, Star, 
-  MapPin, ChevronLeft, ChevronRight, X, Copy, CheckCircle2, 
-  Search, LogIn, Headset, Palette, Camera, Loader2, ImagePlus
+import RenkPaleti from "@/components/hesabim/RenkPaleti";
+import {
+  VARSAYILAN_UST_MENU,
+  VARSAYILAN_ALT_MENU,
+  ikonEslestir,
+} from "@/lib/hesabim/constants";
+import {
+  User,
+  ShieldCheck,
+  Palette,
+  Camera,
+  Loader2,
+  ImagePlus,
 } from "lucide-react";
 
-// Canlı Lucide ikonlarını veritabanından gelen kimliklere göre eşleştiren motor
-const ikonEslestir = (liste: any[]) => {
-  return liste.map((item: any) => {
-    let ikonBileseni = Star;
-    if (item.id === "profil") ikonBileseni = User;
-    if (item.id === "cuzdan") ikonBileseni = CreditCard;
-    if (item.id === "guvenlik") ikonBileseni = ShieldCheck;
-    if (item.id === "adresler") ikonBileseni = MapPin;
-    if (item.id === "sistemler") ikonBileseni = Server;
-    if (item.id === "kargolar") ikonBileseni = Truck;
-    if (item.id === "destek") ikonBileseni = Headset;
-    if (item.id === "sorgula") ikonBileseni = Search;
-    return { ...item, ikon: ikonBileseni };
-  });
-};
+const HesabimAnalytics = dynamic(() => import("@/components/hesabim/HesabimAnalytics"), {
+  ssr: false,
+  loading: () => null,
+});
+
+const HesabimModals = dynamic(() => import("@/components/hesabim/HesabimModals"), {
+  ssr: false,
+  loading: () => null,
+});
 
 export default function HesabimPage() {
   const { data: session, status, update: updateSession } = useSession();
@@ -218,52 +221,18 @@ export default function HesabimPage() {
     // Sayfadan çıkıldığında temizlik yap
     return () => { document.body.style.overflow = 'unset'; };
   }, [showOnboarding]);
-  // =========================================================================
-  // 1. ÖN BELLEK (LOCAL STORAGE) VE GELİŞMİŞ RENK MOTORU
-  // =========================================================================
-  const renkSecenekleri = [
-    { text: "text-white", bg: "bg-white border-slate-300", badge: "bg-white/10 text-white border-white/20", hex: "#ffffff" }, 
-    { text: "text-slate-400", bg: "bg-slate-400 border-slate-300", badge: "bg-slate-400/10 text-slate-400 border-slate-400/20", hex: "#94a3b8" }, 
-    { text: "text-red-500", bg: "bg-red-500 border-red-400", badge: "bg-red-500/10 text-red-500 border-red-500/20", hex: "#ef4444" }, 
-    { text: "text-orange-500", bg: "bg-orange-500 border-orange-400", badge: "bg-orange-500/10 text-orange-500 border-orange-500/20", hex: "#f97316" }, 
-    { text: "text-amber-500", bg: "bg-amber-500 border-amber-400", badge: "bg-amber-500/10 text-amber-500 border-amber-500/20", hex: "#f59e0b" }, 
-    { text: "text-yellow-400", bg: "bg-yellow-400 border-yellow-300", badge: "bg-yellow-400/10 text-yellow-400 border-yellow-400/20", hex: "#facc15" }, 
-    { text: "text-green-500", bg: "bg-green-500 border-green-400", badge: "bg-green-500/10 text-green-500 border-green-500/20", hex: "#22c55e" }, 
-    { text: "text-emerald-400", bg: "bg-emerald-400 border-emerald-300", badge: "bg-emerald-400/10 text-emerald-400 border-emerald-400/20", hex: "#34d399" }, 
-    { text: "text-cyan-400", bg: "bg-cyan-400 border-cyan-300", badge: "bg-cyan-400/10 text-cyan-400 border-cyan-400/20", hex: "#22d3ee" }, 
-    { text: "text-blue-500", bg: "bg-blue-500 border-blue-400", badge: "bg-blue-500/10 text-blue-500 border-blue-500/20", hex: "#3b82f6" }, 
-    { text: "text-indigo-400", bg: "bg-indigo-400 border-indigo-300", badge: "bg-indigo-400/10 text-indigo-400 border-indigo-400/20", hex: "#818cf8" }, 
-    { text: "text-purple-500", bg: "bg-purple-500 border-purple-400", badge: "bg-purple-500/10 text-purple-500 border-purple-500/20", hex: "#a855f7" }, 
-    { text: "text-rose-500", bg: "bg-rose-500 border-rose-400", badge: "bg-rose-500/10 text-rose-500 border-rose-500/20", hex: "#f43f5e" }, 
-  ];
-
-  const varsayilanUstMenu = [
-    { id: "siparisler", isim: "Siparişler", ikon: Package,   renk: "text-blue-400",   isLink: true, href: "/siparislerim" },
-    { id: "favoriler",  isim: "Favoriler",  ikon: Star,      renk: "text-purple-400", isLink: true, href: "/favorilerim" },
-    { id: "adresler",   isim: "Adresler",   ikon: MapPin,    renk: "text-cyan-400",   isLink: true, href: "/adreslerim" },
-    { id: "sistemler",  isim: "Sistemler",  ikon: Server,    renk: "text-emerald-400", isLink: true, href: "/sistemlerim" },
-  ];
-
-  const varsayilanAltMenu = [
-    { id: "favoriler",  isim: "Favoriler",  ikon: Star,    renk: "text-purple-400",  isLink: true, href: "/favorilerim" },
-    { id: "sistemler",  isim: "Sistemler",  ikon: Server,  renk: "text-emerald-400", isLink: true, href: "/sistemlerim" },
-    { id: "destek",     isim: "Destek",     ikon: Headset, renk: "text-orange-400",  isLink: true, href: "/destek-taleplerim" },
-    { id: "sorgula",    isim: "Sorgula",    ikon: Search,  renk: "text-blue-400",    isLink: true, href: "/siparis-takip" },
-    { id: "kargolar",   isim: "Kargolar",   ikon: Truck,   renk: "text-rose-400",    isKargo: true },
-  ];
-
   const [ustMenuListesi, setUstMenuListesi] = useState(() => {
     if (typeof window !== "undefined") {
       try { const cached = localStorage.getItem("bilgin_ust_menu_v4"); if (cached) return ikonEslestir(JSON.parse(cached)); } catch (e) {}
     }
-    return varsayilanUstMenu;
+    return VARSAYILAN_UST_MENU;
   });
 
   const [altMenuListesi, setAltMenuListesi] = useState(() => {
     if (typeof window !== "undefined") {
       try { const cached = localStorage.getItem("bilgin_alt_menu_v4"); if (cached) return ikonEslestir(JSON.parse(cached)); } catch (e) {}
     }
-    return varsayilanAltMenu;
+    return VARSAYILAN_ALT_MENU;
   });
 
   const [siparisRenkleri, setSiparisRenkleri] = useState<Record<string, any>>(() => {
@@ -663,35 +632,6 @@ export default function HesabimPage() {
   const userEmail = status === "unauthenticated" ? "Lütfen giriş yapın" : (session?.user?.email || "");
   const basHarf = userName.charAt(0).toUpperCase();
 
-  const MiniPalet = ({ isActive, onClick }: { isActive: boolean, onClick: () => void }) => (
-    <div onClick={onClick} className="relative w-6 h-6 sm:w-7 sm:h-7 shrink-0 flex items-center justify-center cursor-pointer group hover:scale-110 transition-transform">
-      <div className="absolute inset-0 rounded-full bg-gradient-to-b from-slate-600 to-slate-900 border border-slate-700 shadow-sm"></div>
-      <div className={`absolute inset-0 rounded-full flex items-center justify-center z-20 transition-colors ${isActive ? 'bg-emerald-950 border border-emerald-500/50' : 'bg-[#020617] border border-cyan-900/50'}`}>
-        <Palette className={`w-3.5 h-3.5 transition-colors ${isActive ? 'text-emerald-400' : 'text-cyan-400 group-hover:text-white'}`} />
-      </div>
-    </div>
-  );
-
-  const RenkPaleti = ({ disabledCondition, text }: { disabledCondition: boolean, text: string }) => (
-    <div className="w-full mt-4 pt-4 border-t border-cyan-500/20 animate-in fade-in slide-in-from-top-4 z-20">
-      <div className="text-center mb-4">
-        <span className="text-[10px] sm:text-xs font-bold text-slate-400 bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-800">
-          {text}
-        </span>
-      </div>
-      <div className="flex flex-wrap justify-center gap-2.5 sm:gap-3.5 max-h-[140px] overflow-y-auto py-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-        {renkSecenekleri.map((renkObj, i) => (
-          <button 
-            key={i} 
-            onClick={() => renkUygula(renkObj)}
-            className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full cursor-pointer hover:scale-110 transition-transform flex items-center justify-center shadow-lg border-2 ${renkObj.bg} ${disabledCondition ? "opacity-20 grayscale cursor-not-allowed" : "opacity-100"}`}
-            disabled={disabledCondition}
-          ></button>
-        ))}
-      </div>
-    </div>
-  );
-
   return (
   <>
   <AccountShell active="hesabim">
@@ -797,7 +737,7 @@ export default function HesabimPage() {
             </div>
 
             {aktifPalet === 'menu' && (
-              <RenkPaleti disabledCondition={false} text="🎨 Bildirim noktalarının rengini seçin" />
+              <RenkPaleti disabledCondition={false} text="🎨 Bildirim noktalarının rengini seçin" onSelect={renkUygula} />
             )}
           </div>
         </div>
@@ -905,416 +845,49 @@ export default function HesabimPage() {
           <input ref={kutuInputRef} type="file" accept="image/*" className="hidden" onChange={handleKutuResimSec} />
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start w-full">
-          
-          <div className="xl:col-span-1 flex flex-col h-full">
-            <div className={`bg-[#0f172a] border rounded-2xl p-6 shadow-xl relative overflow-hidden group transition-all duration-300 flex flex-col h-[350px] sm:h-[450px] xl:h-[550px] ${aktifPalet === 'siparis' ? 'border-emerald-500/50 shadow-[0_0_30px_rgba(16,185,129,0.2)]' : 'border-slate-800 hover:border-cyan-500/30'}`}>
-              <div className="absolute -top-10 -left-10 w-40 h-40 bg-cyan-500/10 blur-[50px] pointer-events-none rounded-full"></div>
-              
-              <div className="flex items-center justify-between mb-4 sm:mb-6 border-b border-slate-800/80 pb-3 relative z-10 shrink-0">
-                <div className="flex items-center gap-3">
-                  <h3 className="text-sm sm:text-base font-bold text-white uppercase tracking-wide leading-tight">Siparişler</h3>
-                  <MiniPalet isActive={aktifPalet === 'siparis'} onClick={() => togglePalet('siparis')} />
-                </div>
-                {aktifPalet !== 'siparis' && (
-                  <Link href="/siparislerim" onClick={kilitliIslem} prefetch={true} className="text-[10px] sm:text-xs font-bold text-cyan-400 hover:underline tracking-widest uppercase">
-                    TÜMÜNÜ GÖR
-                  </Link>
-                )}
-              </div>
-              
-              {aktifPalet === 'siparis' && (
-                <RenkPaleti disabledCondition={!seciliSiparisDurumu} text="🎨 Sipariş durumuna tıklayıp renk seçin" />
-              )}
 
-              <div className="space-y-3 relative z-10 flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                {sonSiparislerListesi.length > 0 ? (
-                  sonSiparislerListesi.map((item: any, idx: number) => {
-                    const tarih = item.createdAt ? new Date(item.createdAt).toLocaleDateString("tr-TR") : item.tarih ? new Date(item.tarih).toLocaleDateString("tr-TR") : "";
-                    const urunAdi = item.items?.[0]?.isim || item.items?.[0]?.name || item.sepet?.[0]?.isim || item.siparisKodu || "Sipariş";
-                    const toplamFiyat = item.totalPrice || item.toplamTutar || "0";
-                    const durum = item.status || item.durum || "Hazırlanıyor";
-                    
-                    const renkAyar = getSiparisRenk(durum);
-                    const isEditing = aktifPalet === 'siparis';
-                    const isThisSelected = seciliSiparisDurumu === durum;
-
-                    return (
-                      <div key={item._id || idx} className="flex flex-col sm:flex-row xl:flex-col 2xl:flex-row sm:items-center justify-between gap-3 py-3 border-b border-white/5 last:border-0 hover:bg-white/[0.03] transition-colors rounded-xl px-2">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-white font-bold text-xs sm:text-sm truncate mb-0.5 sm:mb-1" title={urunAdi}>{urunAdi}</p>
-                          <p className="text-slate-500 text-[9px] sm:text-[10px] font-medium">{tarih}</p>
-                        </div>
-                        
-                        <div className="flex flex-row sm:flex-col xl:flex-row 2xl:flex-col items-center sm:items-end justify-between gap-1 sm:gap-2 shrink-0">
-                          <p className="text-white font-black text-xs sm:text-sm">
-                            {Number(toplamFiyat).toLocaleString("tr-TR")} ₺
-                          </p>
-                          <span 
-                            onClick={() => isEditing ? setSeciliSiparisDurumu(durum) : null}
-                            className={`inline-flex items-center justify-center px-2 h-5 sm:h-6 rounded text-[8px] sm:text-[9px] font-black uppercase tracking-widest shrink-0 transition-all ${renkAyar.badge} ${isEditing ? 'cursor-pointer hover:scale-105' : ''} ${isThisSelected ? 'ring-2 ring-white scale-110 shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'border border-transparent'}`}
-                          >
-                            {durum}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className="h-full flex flex-col items-center justify-center text-center opacity-40">
-                    <Package className="w-10 h-10 text-slate-500 mb-2" />
-                    <span className="text-xs text-slate-400 font-medium">Henüz siparişiniz yok.</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="xl:col-span-2 flex flex-col gap-6 w-full">
-            
-            <div className={`bg-[#0f172a] border rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col transition-all duration-300 ${aktifPalet === 'pasta' ? 'border-emerald-500/50 shadow-[0_0_30px_rgba(16,185,129,0.2)]' : 'border-slate-800'}`}>
-               <div className="flex flex-row items-center justify-between mb-4 border-b border-slate-800/80 pb-3">
-                 <div className="flex flex-col w-full">
-                   <div className="flex items-center gap-3">
-                     <h3 className="text-sm sm:text-base font-bold text-white uppercase tracking-wide leading-tight">Harcama Dağılımı</h3>
-                     <MiniPalet isActive={aktifPalet === 'pasta'} onClick={() => togglePalet('pasta')} />
-                   </div>
-                   <p className="text-[10px] text-slate-500 font-medium mt-0.5 hidden sm:block">Satın alınan kategoriler</p>
-                 </div>
-               </div>
-
-               {aktifPalet === 'pasta' && (
-                 <RenkPaleti disabledCondition={!seciliPastaDilimi} text="🎨 Aşağıdan bir grafiğe tıklayıp renk seçin" />
-               )}
-
-               <div className="flex flex-row items-start justify-between gap-1 sm:gap-6 mt-2 w-full">
-                 
-                 <div className="flex flex-col items-center gap-3 sm:gap-4 w-1/2 pr-1 sm:pr-6 border-r border-slate-800/80">
-                   <span className="bg-slate-800 text-slate-400 text-[8px] sm:text-[10px] font-black px-1.5 py-1 rounded uppercase tracking-widest whitespace-nowrap text-center">
-                     TÜM ZAMANLAR
-                   </span>
-                   
-                   <div className="relative w-16 h-16 sm:w-32 sm:h-32 shrink-0">
-                     <svg className="w-full h-full transform -rotate-90 drop-shadow-xl" viewBox="0 0 42 42">
-                       {pastaVerisi.maxYuzde === 0 ? (
-                         <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#334155" strokeWidth="4.5" strokeDasharray="100 0"></circle>
-                       ) : (
-                         <>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.kendinTopla.hex} strokeWidth="4.5" strokeDasharray={`${pastaVerisi.kendinTopla.yuzde} ${100 - pastaVerisi.kendinTopla.yuzde}`} strokeDashoffset={-pastaVerisi.kendinTopla.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.bilesen.hex} strokeWidth="4.5" strokeDasharray={`${pastaVerisi.bilesen.yuzde} ${100 - pastaVerisi.bilesen.yuzde}`} strokeDashoffset={-pastaVerisi.bilesen.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.cevre.hex} strokeWidth="4.5" strokeDasharray={`${pastaVerisi.cevre.yuzde} ${100 - pastaVerisi.cevre.yuzde}`} strokeDashoffset={-pastaVerisi.cevre.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.sistem.hex} strokeWidth="4.5" strokeDasharray={`${pastaVerisi.sistem.yuzde} ${100 - pastaVerisi.sistem.yuzde}`} strokeDashoffset={-pastaVerisi.sistem.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.aksesuar.hex} strokeWidth="4.5" strokeDasharray={`${pastaVerisi.aksesuar.yuzde} ${100 - pastaVerisi.aksesuar.yuzde}`} strokeDashoffset={-pastaVerisi.aksesuar.offset}></circle>
-                         </>
-                       )}
-                     </svg>
-                     <div className="absolute inset-0 flex flex-col items-center justify-center mt-0.5 sm:mt-1">
-                       <span className="text-[10px] sm:text-xl font-black text-white tracking-tight">{pastaVerisi.maxYuzde}%</span>
-                     </div>
-                   </div>
-
-                   <div className="flex flex-col gap-1.5 shrink-0 w-full">
-                     {[
-                       { id: 'kendinTopla', isim: 'Kendin Topla', veri: pastaVerisi.kendinTopla.yuzde },
-                       { id: 'bilesen', isim: 'Bileşenler', veri: pastaVerisi.bilesen.yuzde },
-                       { id: 'cevre', isim: 'Çevre & Oyuncu', veri: pastaVerisi.cevre.yuzde },
-                       { id: 'sistem', isim: 'Sistem & Laptop', veri: pastaVerisi.sistem.yuzde },
-                       { id: 'aksesuar', isim: 'Ağ & Aksesuar', veri: pastaVerisi.aksesuar.yuzde }
-                     ].map(dilim => (
-                       <div key={dilim.id} onClick={() => aktifPalet === 'pasta' ? setSeciliPastaDilimi(dilim.id) : null} className={`flex items-center justify-between w-full p-0.5 sm:p-1 rounded-lg transition-all ${aktifPalet === 'pasta' ? 'cursor-pointer hover:bg-white/5' : ''} ${seciliPastaDilimi === dilim.id ? 'ring-1 ring-white/50 bg-white/5 scale-105' : ''}`}>
-                         <div className="flex items-center gap-1 sm:gap-2 min-w-0">
-                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0" style={{ backgroundColor: pastaRenkleri[dilim.id].hex, boxShadow: `0 0 8px ${pastaRenkleri[dilim.id].hex}` }}></span>
-                           <span className="text-[7px] sm:text-[11px] text-slate-300 font-bold truncate pr-1">{dilim.isim}</span>
-                         </div>
-                         <span className="text-[7px] sm:text-[11px] font-black shrink-0 pl-0.5" style={{ color: pastaRenkleri[dilim.id].hex }}>{dilim.veri}%</span>
-                       </div>
-                     ))}
-                   </div>
-                 </div>
-
-                 <div className="flex flex-col items-center gap-3 sm:gap-4 w-1/2 pl-1 sm:pl-0">
-                   <span className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[8px] sm:text-[10px] font-black px-1.5 py-1 rounded uppercase tracking-widest shadow-[0_0_10px_rgba(6,182,212,0.4)] whitespace-nowrap text-center">
-                     {aylikPastaVerisi.ayAdi ? `${aylikPastaVerisi.ayAdi} ÖZETİ` : "AYLIK ÖZET"}
-                   </span>
-                   
-                   <div className="relative w-16 h-16 sm:w-32 sm:h-32 shrink-0">
-                     <svg className="w-full h-full transform -rotate-90 drop-shadow-md" viewBox="0 0 42 42">
-                       {aylikPastaVerisi.maxYuzde === 0 ? (
-                         <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#334155" strokeWidth="4.5" strokeDasharray="100 0"></circle>
-                       ) : (
-                         <>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.kendinTopla.hex} strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.kendinTopla.yuzde} ${100 - aylikPastaVerisi.kendinTopla.yuzde}`} strokeDashoffset={-aylikPastaVerisi.kendinTopla.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.bilesen.hex} strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.bilesen.yuzde} ${100 - aylikPastaVerisi.bilesen.yuzde}`} strokeDashoffset={-aylikPastaVerisi.bilesen.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.cevre.hex} strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.cevre.yuzde} ${100 - aylikPastaVerisi.cevre.yuzde}`} strokeDashoffset={-aylikPastaVerisi.cevre.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.sistem.hex} strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.sistem.yuzde} ${100 - aylikPastaVerisi.sistem.yuzde}`} strokeDashoffset={-aylikPastaVerisi.sistem.offset}></circle>
-                           <circle cx="21" cy="21" r="15.915" fill="transparent" stroke={pastaRenkleri.aksesuar.hex} strokeWidth="4.5" strokeDasharray={`${aylikPastaVerisi.aksesuar.yuzde} ${100 - aylikPastaVerisi.aksesuar.yuzde}`} strokeDashoffset={-aylikPastaVerisi.aksesuar.offset}></circle>
-                         </>
-                       )}
-                     </svg>
-                     <div className="absolute inset-0 flex flex-col items-center justify-center mt-0.5 sm:mt-1">
-                       <span className="text-[10px] sm:text-xl font-black text-white">{aylikPastaVerisi.maxYuzde}%</span>
-                     </div>
-                   </div>
-                   
-                   <div className="flex flex-col gap-1.5 shrink-0 w-full">
-                     {[
-                       { id: 'kendinTopla', isim: 'Kendin Topla', veri: aylikPastaVerisi.kendinTopla.yuzde },
-                       { id: 'bilesen', isim: 'Bileşenler', veri: aylikPastaVerisi.bilesen.yuzde },
-                       { id: 'cevre', isim: 'Çevre & Oyuncu', veri: aylikPastaVerisi.cevre.yuzde },
-                       { id: 'sistem', isim: 'Sistem & Laptop', veri: aylikPastaVerisi.sistem.yuzde },
-                       { id: 'aksesuar', isim: 'Ağ & Aksesuar', veri: aylikPastaVerisi.aksesuar.yuzde }
-                     ].map(dilim => (
-                       <div key={dilim.id} onClick={() => aktifPalet === 'pasta' ? setSeciliPastaDilimi(dilim.id) : null} className={`flex items-center justify-between w-full p-0.5 sm:p-1 rounded-lg transition-all ${aktifPalet === 'pasta' ? 'cursor-pointer hover:bg-white/5' : ''} ${seciliPastaDilimi === dilim.id ? 'ring-1 ring-white/50 bg-white/5 scale-105' : ''}`}>
-                         <div className="flex items-center gap-1 sm:gap-2 min-w-0">
-                           <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0" style={{ backgroundColor: pastaRenkleri[dilim.id].hex, boxShadow: `0 0 8px ${pastaRenkleri[dilim.id].hex}` }}></span>
-                           <span className="text-[7px] sm:text-[11px] text-slate-300 font-bold truncate pr-1">{dilim.isim}</span>
-                         </div>
-                         <span className="text-[7px] sm:text-[11px] font-black shrink-0 pl-0.5" style={{ color: pastaRenkleri[dilim.id].hex }}>{dilim.veri}%</span>
-                       </div>
-                     ))}
-                   </div>
-                 </div>
-
-               </div>
-            </div>
-            
-            <div className={`bg-[#0f172a] border rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col w-full transition-all duration-300 ${aktifPalet === 'cubuk' ? 'border-emerald-500/50 shadow-[0_0_30px_rgba(16,185,129,0.2)]' : 'border-slate-800'}`}>
-              <div className="flex flex-row items-center justify-between gap-2 mb-2 border-b border-slate-800/80 pb-3">
-                 <div className="flex items-center gap-3">
-                   <h3 className="text-sm sm:text-base font-bold text-white uppercase tracking-wide leading-tight">Aylık Harcama Grafiği</h3>
-                   <MiniPalet isActive={aktifPalet === 'cubuk'} onClick={() => togglePalet('cubuk')} />
-                 </div>
-                 
-                 <div className="flex items-center gap-1.5 bg-slate-800/30 border border-slate-700/50 rounded-lg px-1.5 py-1">
-                   <button onClick={() => setSeciliYil((y: number) => y - 1)} className="p-1 text-slate-400 hover:text-white transition-colors">
-                     <ChevronLeft className="w-3.5 h-3.5" />
-                   </button>
-                   <span className="text-[11px] sm:text-xs font-black text-slate-200 w-8 text-center">{seciliYil}</span>
-                   <button onClick={() => setSeciliYil((y: number) => y + 1)} className="p-1 text-slate-400 hover:text-white transition-colors" disabled={seciliYil >= suAnkiTarih.getFullYear()}>
-                     <ChevronRight className="w-3.5 h-3.5" />
-                   </button>
-                 </div>
-              </div>
-              
-              {aktifPalet === 'cubuk' && (
-                 <RenkPaleti disabledCondition={false} text="🎨 Grafiğin rengini değiştirmek için paletten seçin" />
-              )}
-              
-              <div className="bg-white/[0.02] border border-white/5 rounded-xl flex items-end justify-between pt-10 pb-4 px-1 sm:px-4 h-[220px] relative mt-2">
-                {grafikVerisi.length > 0 ? grafikVerisi.map((item: any, i: number) => {
-                  const isSecili = tiklananAy === i;
-                  const isHovered = hoveredIndex === i;
-                  const isTooltipGozukecek = (isHovered || isSecili);
-
-                  return (
-                    <div 
-                      key={i} 
-                      className="flex-1 flex flex-col items-center justify-end h-full relative group px-0.5 sm:px-2 outline-none select-none [-webkit-tap-highlight-color:transparent]"
-                      onMouseEnter={() => setHoveredIndex(i)}
-                      onMouseLeave={() => setHoveredIndex(null)}
-                      onClick={() => setTiklananAy(i)} 
-                    >
-                      {isTooltipGozukecek && (
-                        <div className={`absolute bottom-[105%] bg-[#090f1e] border font-black text-[10px] sm:text-xs px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-md whitespace-nowrap z-50 ${isSecili ? '' : 'animate-in fade-in zoom-in-95 duration-150'}`}
-                             style={{ borderColor: cubukRenk.hex, color: cubukRenk.hex, boxShadow: `0 0 10px ${cubukRenk.hex}30` }}>
-                          {item.tutar.toLocaleString("tr-TR")} ₺
-                        </div>
-                      )}
-
-                      <div className="w-full flex items-end justify-center h-[140px]">
-                        <div 
-                          className={`w-full max-w-[36px] rounded-t-sm transition-all duration-500 ease-out cursor-pointer ${isSecili ? 'scale-[1.05]' : 'hover:opacity-80'}`} 
-                          style={{ height: `${item.yuzde}%`, backgroundColor: isSecili ? cubukRenk.hex : '#334155', boxShadow: isSecili ? `0 0 6px ${cubukRenk.hex}30` : 'none' }}
-                        ></div>
-                      </div>
-
-                      <span className={`text-[9px] sm:text-[10px] font-black mt-2 shrink-0 transition-colors uppercase tracking-wider`}
-                            style={{ color: isSecili ? cubukRenk.hex : '#64748b' }}>
-                        {item.etiket}
-                      </span>
-                    </div>
-                  )
-                }) : null}
-              </div>
-            </div>
-          </div>
-        </div>
+        <HesabimAnalytics
+          aktifPalet={aktifPalet}
+          togglePalet={togglePalet}
+          sonSiparislerListesi={sonSiparislerListesi}
+          seciliSiparisDurumu={seciliSiparisDurumu}
+          setSeciliSiparisDurumu={setSeciliSiparisDurumu}
+          getSiparisRenk={getSiparisRenk}
+          kilitliIslem={kilitliIslem}
+          pastaVerisi={pastaVerisi}
+          pastaRenkleri={pastaRenkleri}
+          seciliPastaDilimi={seciliPastaDilimi}
+          setSeciliPastaDilimi={setSeciliPastaDilimi}
+          aylikPastaVerisi={aylikPastaVerisi}
+          seciliYil={seciliYil}
+          setSeciliYil={setSeciliYil}
+          suAnkiTarih={suAnkiTarih}
+          grafikVerisi={grafikVerisi}
+          tiklananAy={tiklananAy}
+          setTiklananAy={setTiklananAy}
+          hoveredIndex={hoveredIndex}
+          setHoveredIndex={setHoveredIndex}
+          cubukRenk={cubukRenk}
+          renkUygula={renkUygula}
+        />
 
     </div>
   </AccountShell>
 
-{/* Karşılama rehberi — portal ile body'ye, mobilde tam ortalı */}
-      {showOnboarding && portalHazir && createPortal(
-        <div className="fixed inset-0 z-[9999999] flex items-center justify-center bg-[#050814]/95 backdrop-blur-xl p-4 sm:p-6">
-          <div className="w-full max-w-md sm:max-w-lg max-h-[min(88dvh,640px)] overflow-y-auto bg-[#0f172a]/95 border border-cyan-500/20 rounded-2xl sm:rounded-3xl shadow-[0_0_40px_rgba(6,182,212,0.12)] relative -translate-y-0 md:-translate-y-6">
-            <div className="p-5 sm:p-7 flex flex-col">
-              <div className="text-center mb-5 sm:mb-6">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-3 relative flex items-center justify-center">
-                  <div className="absolute inset-0 rounded-full border border-cyan-400/30 animate-[spin_6s_linear_infinite] border-t-cyan-400" />
-                  <div className="absolute inset-1.5 rounded-full bg-[#050814] border border-slate-700 flex items-center justify-center">
-                    <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400" />
-                  </div>
-                </div>
-                <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight mb-2">
-                  Kişisel panelinize hoş geldiniz
-                </h2>
-                <p className="text-slate-400 text-xs sm:text-sm max-w-sm mx-auto leading-relaxed">
-                  Hesabım sayfasını kendi zevkinize göre özelleştirebilirsiniz. Başlamadan önce iki kısa not:
-                </p>
-              </div>
-
-              <div className="space-y-3 mb-5 sm:mb-6">
-                <div className="flex items-start gap-3 p-3 sm:p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-                  <div className="w-9 h-9 rounded-full bg-[#050814] border border-cyan-500/20 flex items-center justify-center shrink-0">
-                    <User className="w-4 h-4 text-cyan-400" />
-                  </div>
-                  <div>
-                    <h4 className="text-white font-medium text-sm mb-1">Menüleri boyayın ve taşıyın</h4>
-                    <p className="text-slate-400 text-xs leading-relaxed">
-                      Profil yuvarlağınıza tıklayarak kutuların yerini değiştirebilir ve renklendirebilirsiniz.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3 p-3 sm:p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-                  <div className="w-9 h-9 rounded-full bg-[#050814] border border-emerald-500/20 flex items-center justify-center shrink-0">
-                    <Palette className="w-4 h-4 text-emerald-400" />
-                  </div>
-                  <div>
-                    <h4 className="text-white font-medium text-sm mb-1">Grafikleri özelleştirin</h4>
-                    <p className="text-slate-400 text-xs leading-relaxed">
-                      Başlıkların yanındaki ikonlara tıklayarak sipariş ve grafik renklerini değiştirebilirsiniz.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t border-slate-800/80">
-                <label className="flex items-center gap-2.5 cursor-pointer group select-none justify-center sm:justify-start" onClick={() => setDontShowAgain(!dontShowAgain)}>
-                  <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${dontShowAgain ? "bg-emerald-500 border-emerald-400" : "bg-[#050814] border-slate-600"}`}>
-                    {dontShowAgain && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
-                  </div>
-                  <span className="text-xs font-medium text-slate-300 group-hover:text-white transition-colors">
-                    Bir daha gösterme
-                  </span>
-                </label>
-
-                <button
-                  onClick={closeOnboarding}
-                  className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2"
-                >
-                  Hadi başlayalım <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
-     {/* 🟢 MODALLAR (Kargo ve Giriş Şartı) */}
-      {isKargoModalOpen && (
-        <div 
-          className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200"
-          onClick={() => setIsKargoModalOpen(false)} // Karanlık alana tıklayınca kapatır
-        >
-          <div 
-            className="bg-[#09090b] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.9)] relative overflow-hidden animate-in zoom-in-95 duration-200 max-h-[85vh]"
-            onClick={(e) => e.stopPropagation()} // İçeriğe tıklayınca kapanmasını engeller
-          >
-            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-rose-500/50 to-transparent"></div>
-            
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
-              <h3 className="text-lg font-black text-white uppercase tracking-wider flex items-center gap-2">
-                <Truck className="w-5 h-5 text-rose-400" /> AKTİF KARGOLARINIZ
-              </h3>
-              <button 
-                onClick={() => setIsKargoModalOpen(false)}
-                className="p-1.5 text-slate-500 hover:text-white bg-[#121215] border border-slate-800 hover:border-slate-700 rounded-xl transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto pr-1 space-y-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-              {kargoSiparisleri.length === 0 ? (
-                <div className="text-center py-12 text-slate-500 font-medium text-sm">
-                  Şu an yolda olan aktif kargonuz bulunmuyor.
-                </div>
-              ) : (
-                kargoSiparisleri.map((siparis: any, idx: number) => {
-                  const siparisKodu = siparis.siparisKodu || siparis._id?.slice(-8).toUpperCase() || "SİPARİŞ";
-                  const tarih = siparis.createdAt ? new Date(siparis.createdAt).toLocaleDateString("tr-TR") : siparis.tarih ? new Date(siparis.tarih).toLocaleDateString("tr-TR") : "";
-                  const firma = siparis.kargoFirmasi || "Belirtilmemiş";
-                  const takipNo = siparis.takipNo || "Takip No Girilmemiş";
-
-                  return (
-                    <div key={siparis._id || idx} className="bg-[#121215] border border-slate-800/80 p-4 rounded-2xl flex flex-col gap-4 group/item hover:border-slate-700 transition-colors">
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                          <span className="text-white font-black text-sm tracking-wide">{siparisKodu}</span>
-                          <span className="text-[10px] px-2 py-0.5 rounded bg-rose-500/10 text-rose-500 border border-rose-500/20 font-black uppercase tracking-widest">YOLDA</span>
-                        </div>
-                        <span className="text-[10px] text-slate-500 font-bold">{tarih}</span>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="bg-[#0f172a] p-3 rounded-xl border border-slate-800">
-                           <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Firma</p>
-                           <p className="text-xs font-bold text-white mt-0.5 truncate" title={firma}>{firma}</p>
-                        </div>
-                        <div className="bg-[#0f172a] p-3 rounded-xl border border-slate-800">
-                           <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Takip No</p>
-                           <p className="text-xs font-bold text-cyan-400 mt-0.5 truncate" title={takipNo}>{takipNo}</p>
-                        </div>
-                      </div>
-
-                      <button 
-                        onClick={() => handleTakipEt(takipNo)}
-                        className="flex items-center justify-center gap-2 bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-500 hover:to-orange-500 text-white font-black px-4 py-3 rounded-xl transition-all text-[11px] uppercase tracking-wider shadow-[0_0_15px_rgba(239,68,68,0.2)] w-full"
-                      >
-                        {kopyalananKod === takipNo ? (
-                          <><CheckCircle2 className="w-3.5 h-3.5" /> KOPYALANDI!</>
-                        ) : (
-                          <><Copy className="w-3.5 h-3.5" /> {takipNo} KOPYALA</>
-                        )}
-                      </button>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {girisSartModal && portalHazir && createPortal(
-        <div
-          className="fixed inset-0 z-[9999999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
-          onClick={() => setGirisSartModal(false)}
-        >
-          <div
-            className="bg-[#0f172a] border border-slate-800 rounded-2xl p-7 max-w-sm w-full text-center shadow-[0_0_50px_rgba(6,182,212,0.15)] relative -translate-y-4 sm:-translate-y-8"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="w-14 h-14 bg-[#020617] rounded-full flex items-center justify-center mx-auto mb-4 border border-cyan-500/30">
-              <ShieldCheck className="w-7 h-7 text-cyan-400" />
-            </div>
-            <h3 className="text-lg font-black text-white mb-2 tracking-tight">Erişim Kısıtlı</h3>
-            <p className="text-slate-400 text-sm mb-5 leading-relaxed">
-              İşlem yapabilmek için lütfen giriş yapınız.
-            </p>
-            <div className="flex flex-col gap-2.5">
-              <Link href="/giris" className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2">
-                <LogIn className="w-4 h-4" /> Giriş Yap
-              </Link>
-              <button onClick={() => setGirisSartModal(false)} className="w-full py-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-slate-700 text-slate-400 font-bold text-xs uppercase tracking-widest transition-all">
-                Kapat
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
+      <HesabimModals
+        showOnboarding={showOnboarding}
+        portalHazir={portalHazir}
+        closeOnboarding={closeOnboarding}
+        dontShowAgain={dontShowAgain}
+        setDontShowAgain={setDontShowAgain}
+        isKargoModalOpen={isKargoModalOpen}
+        setIsKargoModalOpen={setIsKargoModalOpen}
+        kargoSiparisleri={kargoSiparisleri}
+        kopyalananKod={kopyalananKod}
+        handleTakipEt={handleTakipEt}
+        girisSartModal={girisSartModal}
+        setGirisSartModal={setGirisSartModal}
+      />
   </>
   );
 }
