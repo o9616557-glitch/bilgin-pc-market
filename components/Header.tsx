@@ -74,6 +74,21 @@ const PERFORMANS_KATALOG_IMG =
 const EKRAN_KARTI_KATALOG_IMG =
   "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782748641/Ads%C4%B1z_512_x_512_piksel_7_gdqvft.png";
 
+const KASA_GUC_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782754372/Ads%C4%B1z_512_x_512_piksel_23_od4r19.png";
+
+const KASA_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782754373/Ads%C4%B1z_512_x_512_piksel_25_brw6fj.png";
+
+const PSU_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782754373/omzoxfhysdfqkoor2kcu.png";
+
+const SOGUTMA_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782754371/Ads%C4%B1z_512_x_512_piksel_24_heqxch.png";
+
+const TERMAL_MACUN_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782754370/Ads%C4%B1z_512_x_512_piksel_22_x7jmm7.png";
+
 type AltKategori = { slug: string; isim: string; renk: string; resim: string };
 
 // Header — 6 ana kategori
@@ -109,12 +124,12 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; renk: string;
     isim: "Kasa, Güç & Soğutma",
     kisaIsim: "Kasa & Soğutma",
     renk: "from-slate-700 to-slate-950",
-    resim: "",
+    resim: KASA_GUC_KATALOG_IMG,
     altlar: [
-      { slug: "kasa", isim: "Bilgisayar Kasası", renk: "from-slate-600 to-slate-900", resim: "" },
-      { slug: "psu", isim: "Güç Kaynakları (PSU)", renk: "from-yellow-600 to-yellow-900", resim: "" },
-      { slug: "sogutma", isim: "Soğutma Sistemleri", renk: "from-sky-600 to-sky-900", resim: "" },
-      { slug: "termal-macun", isim: "Termal Macun", renk: "from-zinc-600 to-zinc-900", resim: "" },
+      { slug: "kasa", isim: "Bilgisayar Kasası", renk: "from-slate-600 to-slate-900", resim: KASA_KATALOG_IMG },
+      { slug: "psu", isim: "Güç Kaynakları (PSU)", renk: "from-yellow-600 to-yellow-900", resim: PSU_KATALOG_IMG },
+      { slug: "sogutma", isim: "Soğutma Sistemleri", renk: "from-sky-600 to-sky-900", resim: SOGUTMA_KATALOG_IMG },
+      { slug: "termal-macun", isim: "Termal Macun", renk: "from-zinc-600 to-zinc-900", resim: TERMAL_MACUN_KATALOG_IMG },
     ],
   },
   {
