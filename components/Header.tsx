@@ -15,10 +15,11 @@ const MOUSE_KATALOG_IMG =
 type AltKategori = { slug: string; isim: string; renk: string; resim: string };
 
 // Header alt şerit — 7 ana kategori
-const KATALOG_SERIT: { id: string; isim: string; altlar: AltKategori[] }[] = [
+const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; altlar: AltKategori[] }[] = [
   {
     id: "hazir-sistem",
     isim: "Hazır Sistem & Laptop",
+    kisaIsim: "Hazır Sistem",
     altlar: [
       { slug: "oyun-bilgisayari", isim: "Oyun Bilgisayarı", renk: "from-violet-600 to-violet-900", resim: "" },
       { slug: "laptop", isim: "Premium Laptop & Notebook", renk: "from-purple-600 to-purple-900", resim: "" },
@@ -29,6 +30,7 @@ const KATALOG_SERIT: { id: string; isim: string; altlar: AltKategori[] }[] = [
   {
     id: "performans",
     isim: "Temel Performans Bileşenleri",
+    kisaIsim: "Performans",
     altlar: [
       { slug: "ekran-karti", isim: "Ekran Kartı", renk: "from-green-600 to-emerald-900", resim: "" },
       { slug: "islemci", isim: "İşlemci (CPU)", renk: "from-blue-600 to-blue-900", resim: "" },
@@ -39,6 +41,7 @@ const KATALOG_SERIT: { id: string; isim: string; altlar: AltKategori[] }[] = [
   {
     id: "kasa-guc",
     isim: "Kasa, Güç & Soğutma",
+    kisaIsim: "Kasa & Soğutma",
     altlar: [
       { slug: "kasa", isim: "Bilgisayar Kasası", renk: "from-slate-600 to-slate-900", resim: "" },
       { slug: "psu", isim: "Güç Kaynakları (PSU)", renk: "from-yellow-600 to-yellow-900", resim: "" },
@@ -49,6 +52,7 @@ const KATALOG_SERIT: { id: string; isim: string; altlar: AltKategori[] }[] = [
   {
     id: "monitor",
     isim: "Oyuncu Monitörleri & Görüntü",
+    kisaIsim: "Monitör",
     altlar: [
       { slug: "monitor", isim: "Oyuncu Monitörleri", renk: "from-indigo-600 to-indigo-900", resim: "" },
       { slug: "monitor", isim: "Standart Monitörler", renk: "from-blue-600 to-blue-900", resim: "" },
@@ -58,6 +62,7 @@ const KATALOG_SERIT: { id: string; isim: string; altlar: AltKategori[] }[] = [
   {
     id: "espor",
     isim: "E-Spor & Çevre Birimleri",
+    kisaIsim: "Çevre Birimleri",
     altlar: [
       { slug: "mouse", isim: "Mouse & Mouse Pad", renk: "from-teal-600 to-teal-900", resim: MOUSE_KATALOG_IMG },
       { slug: "klavye", isim: "Klavye", renk: "from-rose-600 to-rose-900", resim: "" },
@@ -69,6 +74,7 @@ const KATALOG_SERIT: { id: string; isim: string; altlar: AltKategori[] }[] = [
   {
     id: "depolama",
     isim: "Depolama & Ağ",
+    kisaIsim: "Depolama",
     altlar: [
       { slug: "ssd", isim: "SSD & M.2 Disk", renk: "from-orange-600 to-orange-900", resim: "" },
       { slug: "hdd", isim: "Sabit Disk (HDD)", renk: "from-amber-600 to-amber-900", resim: "" },
@@ -79,6 +85,7 @@ const KATALOG_SERIT: { id: string; isim: string; altlar: AltKategori[] }[] = [
   {
     id: "yazilim",
     isim: "Yazılım & Kablo Çözümleri",
+    kisaIsim: "Yazılım & Kablo",
     altlar: [
       { slug: "isletim-sistemi", isim: "İşletim Sistemi", renk: "from-blue-600 to-blue-900", resim: "" },
       { slug: "yazilim", isim: "Microsoft Office & Yazılım", renk: "from-cyan-600 to-cyan-900", resim: "" },
@@ -484,32 +491,33 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
 
         {/* MASAÜSTÜ: 7 kategori şeridi */}
         <div ref={seritRef} className="hidden md:block border-t border-white/[0.06]">
-          <div className="flex items-stretch justify-between gap-0.5 px-1">
-            {KATALOG_SERIT.map((kat) => {
-              const aktif = acikSeritKatalog === kat.id;
-              return (
-                <button
-                  key={kat.id}
-                  type="button"
-                  onClick={() => setAcikSeritKatalog(aktif ? null : kat.id)}
-                  className={`flex-1 min-w-0 px-2 py-2.5 text-center transition-colors border-b-2 ${
-                    aktif
-                      ? "text-white border-[#3b82f6] bg-white/[0.04]"
-                      : "text-slate-400 border-transparent hover:text-slate-200 hover:bg-white/[0.02]"
-                  }`}
-                >
-                  <span className="block text-[10px] lg:text-[11px] font-medium leading-snug tracking-wide">
-                    {kat.isim}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-wrap items-center justify-center gap-x-1 -mb-px">
+              {KATALOG_SERIT.map((kat) => {
+                const aktif = acikSeritKatalog === kat.id;
+                return (
+                  <button
+                    key={kat.id}
+                    type="button"
+                    title={kat.isim}
+                    onClick={() => setAcikSeritKatalog(aktif ? null : kat.id)}
+                    className={`shrink-0 px-2.5 lg:px-3 py-2 text-center transition-colors border-b-2 whitespace-nowrap ${
+                      aktif
+                        ? "text-white border-[#3b82f6] bg-white/[0.04]"
+                        : "text-slate-400 border-transparent hover:text-slate-200 hover:bg-white/[0.02]"
+                    }`}
+                  >
+                    <span className="text-[10px] lg:text-[11px] font-medium tracking-wide">
+                      {kat.kisaIsim}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
 
-          {seciliKatalog && (
-            <div className="border-t border-white/[0.06] bg-[#070d1a]/98">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                <div className="flex flex-wrap justify-center gap-1 sm:gap-2">
+            {seciliKatalog && (
+              <div className="border-t border-white/[0.06] py-3">
+                <div className="flex flex-wrap gap-1">
                   {seciliKatalog.altlar.map((k) => (
                     <ResimliKategoriKarti
                       key={`${k.slug}-${k.isim}`}
@@ -518,7 +526,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                     />
                   ))}
                 </div>
-                <div className="mt-3 pt-3 border-t border-white/[0.06] flex justify-end">
+                <div className="mt-2 pt-2 border-t border-white/[0.06] flex justify-end">
                   <Link
                     href="/kategoriler"
                     prefetch={false}
@@ -529,8 +537,8 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                   </Link>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </header>
 
