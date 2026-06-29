@@ -15,7 +15,33 @@ const KATALOG_ICON_MOBILE = 56;
 const KATALOG_ICON_MOBILE_ANA = 48;
 
 const MOUSE_KATALOG_IMG =
-  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782720094/Ads%C4%B1z_tasar%C4%B1m_-_2026-06-29T105744.333_xnstan.png";
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782751550/Ads%C4%B1z_512_x_512_piksel_18_pjwq8q.png";
+
+const MONITOR_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782751324/Ads%C4%B1z_512_x_512_piksel_10_vja8o5.png";
+
+const KLAVYE_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782751322/Ads%C4%B1z_512_x_512_piksel_12_cwxp29.png";
+
+const KULAKLIK_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782751323/Ads%C4%B1z_512_x_512_piksel_13_djx3aw.png";
+
+const MIKROFON_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782751325/Ads%C4%B1z_512_x_512_piksel_14_dyprt5.png";
+
+const OYUN_KOLU_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782751326/Ads%C4%B1z_512_x_512_piksel_15_fm8hup.png";
+
+const HOPARLOR_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782751324/Ads%C4%B1z_512_x_512_piksel_16_nk9ymv.png";
+
+const BLUETOOTH_HOPARLOR_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782751323/Ads%C4%B1z_512_x_512_piksel_17_cxwexo.png";
+
+const OYUN_DIREKSIYONU_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782751328/Ads%C4%B1z_512_x_512_piksel_11_qjhttw.png";
+
+const MONITOR_CEVRE_KATALOG_IMG = MONITOR_KATALOG_IMG;
 
 const HAZIR_SISTEM_KATALOG_IMG =
   "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782735204/Ads%C4%B1z_tasar%C4%B1m_-_2026-06-29T151248.316_ssq63p.png";
@@ -95,17 +121,17 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; renk: string;
     isim: "Monitör & Çevre Birimleri",
     kisaIsim: "Monitör & Çevre",
     renk: "from-indigo-700 to-indigo-950",
-    resim: "",
+    resim: MONITOR_CEVRE_KATALOG_IMG,
     altlar: [
-      { slug: "monitor", isim: "Oyuncu Monitörleri", renk: "from-indigo-600 to-indigo-900", resim: "" },
+      { slug: "monitor", isim: "Oyuncu Monitörleri", renk: "from-indigo-600 to-indigo-900", resim: MONITOR_KATALOG_IMG },
       { slug: "mouse", isim: "Mouse & Mouse Pad", renk: "from-teal-600 to-teal-900", resim: MOUSE_KATALOG_IMG },
-      { slug: "klavye", isim: "Klavye", renk: "from-rose-600 to-rose-900", resim: "" },
-      { slug: "kulaklik", isim: "Oyuncu Kulaklıkları", renk: "from-pink-600 to-pink-900", resim: "" },
-      { slug: "mikrofon", isim: "Yayıncı Mikrofonları", renk: "from-red-600 to-red-900", resim: "" },
-      { slug: "oyun-kolu", isim: "Oyun Kolu", renk: "from-orange-600 to-orange-900", resim: "" },
-      { slug: "oyun-direksiyonu", isim: "Oyun Direksiyonu", renk: "from-amber-600 to-amber-900", resim: "" },
-      { slug: "hoparlor", isim: "Hoparlör (Speaker)", renk: "from-violet-600 to-violet-900", resim: "" },
-      { slug: "bluetooth-ses", isim: "Bluetooth Hoparlör", renk: "from-cyan-600 to-cyan-900", resim: "" },
+      { slug: "klavye", isim: "Klavye", renk: "from-rose-600 to-rose-900", resim: KLAVYE_KATALOG_IMG },
+      { slug: "kulaklik", isim: "Oyuncu Kulaklıkları", renk: "from-pink-600 to-pink-900", resim: KULAKLIK_KATALOG_IMG },
+      { slug: "mikrofon", isim: "Yayıncı Mikrofonları", renk: "from-red-600 to-red-900", resim: MIKROFON_KATALOG_IMG },
+      { slug: "oyun-kolu", isim: "Oyun Kolu", renk: "from-orange-600 to-orange-900", resim: OYUN_KOLU_KATALOG_IMG },
+      { slug: "oyun-direksiyonu", isim: "Oyun Direksiyonu", renk: "from-amber-600 to-amber-900", resim: OYUN_DIREKSIYONU_KATALOG_IMG },
+      { slug: "hoparlor", isim: "Hoparlör (Speaker)", renk: "from-violet-600 to-violet-900", resim: HOPARLOR_KATALOG_IMG },
+      { slug: "bluetooth-ses", isim: "Bluetooth Hoparlör", renk: "from-cyan-600 to-cyan-900", resim: BLUETOOTH_HOPARLOR_KATALOG_IMG },
     ],
   },
   {
