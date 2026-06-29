@@ -197,56 +197,71 @@ function ResimliKategoriKarti({
   );
 }
 
-function MobilLogoAlani({ menuAcik }: { menuAcik: boolean }) {
+function ProfilAvatar({ size = 36, className = "" }: { size?: number; className?: string }) {
   const { data: session, status } = useSession();
   const userImage = session?.user?.image;
-  const userName  = session?.user?.name || "";
+  const userName = session?.user?.name || "";
 
   if (status === "loading") {
-    return <div className="md:hidden w-8 h-8 rounded-full bg-white/[0.06] animate-pulse" />;
+    return (
+      <div
+        className={`rounded-full bg-white/[0.08] animate-pulse ${className}`}
+        style={{ width: size, height: size }}
+      />
+    );
   }
 
   if (userImage) {
     return (
-      <Link
-        href="/hesabim"
-        prefetch={false}
-        className={`md:hidden relative z-[100] transition-all ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
-      >
-        <Image
-          src={userImage}
-          alt={userName}
-          width={36}
-          height={36}
-          className="rounded-full object-cover ring-2 ring-[#3b82f6]/40"
-        />
-      </Link>
+      <Image
+        src={userImage}
+        alt={userName}
+        width={size}
+        height={size}
+        className={`rounded-full object-cover ring-2 ring-[#3b82f6]/40 ${className}`}
+      />
     );
   }
 
   if (status === "authenticated") {
     const basHarf = (userName[0] || "U").toUpperCase();
     return (
-      <Link
-        href="/hesabim"
-        prefetch={false}
-        className={`md:hidden relative z-[100] w-9 h-9 rounded-full bg-gradient-to-b from-cyan-800 to-[#020617] border border-cyan-500/30 flex items-center justify-center text-cyan-300 font-black text-sm transition-all ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
+      <div
+        className={`rounded-full bg-gradient-to-b from-cyan-800 to-[#020617] border border-cyan-500/30 flex items-center justify-center text-cyan-300 font-black ${className}`}
+        style={{ width: size, height: size, fontSize: size * 0.38 }}
       >
         {basHarf}
-      </Link>
+      </div>
     );
   }
 
-  /* Misafir — boş profil dairesi, tıklayınca giriş sayfasına */
   return (
-    <Link
-      href="/giris"
-      prefetch={false}
-      className={`md:hidden relative z-[100] w-9 h-9 rounded-full bg-white/[0.06] border border-white/[0.12] flex items-center justify-center transition-all hover:bg-white/[0.1] ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
+    <div
+      className={`rounded-full bg-white/[0.06] border border-white/[0.12] flex items-center justify-center ${className}`}
+      style={{ width: size, height: size }}
     >
       <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
       </svg>
+    </div>
+  );
+}
+
+function MobilLogoAlani({ menuAcik }: { menuAcik: boolean }) {
+  const { data: session, status } = useSession();
+  const href = session ? "/hesabim" : "/giris";
+
+  if (status === "loading") {
+    return <div className="md:hidden w-9 h-9 rounded-full bg-white/[0.06] animate-pulse" />;
+  }
+
+  return (
+    <Link
+      href={href}
+      prefetch={false}
+      className={`md:hidden relative z-[100] transition-all ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
+    >
+      <ProfilAvatar size={36} />
     </Link>
   );
 }
@@ -440,44 +455,90 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
               <MobilLogoAlani menuAcik={menuAcik} />
             </div>
 
-            {/* ORTA: MASAÜSTÜ HIZLI LİNKLER */}
-            <div className="hidden md:flex items-center space-x-6 flex-1 justify-center h-full">
-              <nav className="flex items-center space-x-6">
-                <Link href="/kendin-topla" prefetch={false} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">🔧 Kendin Topla</Link>
-                <Link href="/kategori/ekran-karti" prefetch={false} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">Ekran Kartları</Link>
-                <Link href="/kategori/islemci" prefetch={false} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">İşlemciler</Link>
-                <Link href="/kategori/anakart" prefetch={false} className="text-gray-300 hover:text-[#3b82f6] text-sm font-medium transition-colors">Anakartlar</Link>
-              </nav>
+            {/* ORTA: KATEGORİ ŞERİDİ */}
+            <div ref={seritRef} className="hidden md:flex flex-1 min-w-0 justify-center px-1 lg:px-2">
+              <div className="flex flex-col min-w-0 w-full max-w-2xl">
+                <div className="flex flex-wrap items-center justify-center gap-x-0.5 -mb-px">
+                  {KATALOG_SERIT.map((kat) => {
+                    const aktif = acikSeritKatalog === kat.id;
+                    return (
+                      <button
+                        key={kat.id}
+                        type="button"
+                        title={kat.isim}
+                        onClick={() => setAcikSeritKatalog(aktif ? null : kat.id)}
+                        className={`shrink-0 px-2 lg:px-2.5 py-1.5 text-center transition-colors border-b-2 whitespace-nowrap ${
+                          aktif
+                            ? "text-white border-[#3b82f6]"
+                            : "text-slate-400 border-transparent hover:text-white"
+                        }`}
+                      >
+                        <span className="text-[10px] lg:text-[11px] font-medium tracking-wide">
+                          {kat.kisaIsim}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {seciliKatalog && (
+                  <div className="border-t border-white/[0.06] py-2.5 mt-0.5">
+                    <div className="flex flex-wrap gap-1 justify-center">
+                      {seciliKatalog.altlar.map((k) => (
+                        <ResimliKategoriKarti
+                          key={`${k.slug}-${k.isim}`}
+                          k={k}
+                          onNavigate={() => setAcikSeritKatalog(null)}
+                        />
+                      ))}
+                    </div>
+                    <div className="mt-2 flex justify-end">
+                      <Link
+                        href="/kategoriler"
+                        prefetch={false}
+                        onClick={() => setAcikSeritKatalog(null)}
+                        className="text-[10px] text-slate-500 hover:text-cyan-400 transition-colors flex items-center gap-1"
+                      >
+                        Tüm kategorileri gör <ChevronRight className="w-3 h-3" />
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* SAĞ TARAF: SİMGE SOLDA, YAZI SAĞDA */}
-           <div className={`flex items-center gap-2 md:gap-4 shrink-0 h-full transition-all duration-300 ${menuAcik ? "pointer-events-none opacity-20 md:pointer-events-auto md:opacity-100" : ""}`}>
-              
-              {/* ARAMA */}
-              <button onClick={() => setAramaAcik(true)} className="flex items-center gap-2 text-gray-300 hover:text-[#3b82f6] transition-colors p-2 group">
-                <span className="hidden md:block text-sm font-bold">Ara</span>
-                <Search className="w-5 h-5 md:w-5 md:h-5 shrink-0 group-hover:scale-110 transition-transform" />
+            {/* SAĞ TARAF */}
+           <div className={`flex items-center gap-1 lg:gap-2 shrink-0 h-full transition-all duration-300 ${menuAcik ? "pointer-events-none opacity-20 md:pointer-events-auto md:opacity-100" : ""}`}>
+
+              <Link
+                href="/kendin-topla"
+                prefetch={false}
+                className="hidden md:flex items-center px-2 lg:px-3 py-1.5 text-white hover:text-[#3b82f6] text-xs lg:text-sm font-semibold transition-colors whitespace-nowrap"
+              >
+                🔧 Kendin Topla
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => setAramaAcik(true)}
+                className="p-2 text-white hover:text-[#3b82f6] transition-colors"
+                aria-label="Ara"
+              >
+                <Search className="w-5 h-5 shrink-0" />
               </button>
 
-         {/* HESABIM (DİREKT LÜKS GARAJA GİDER) */}
-              <div className="relative flex items-center h-full">
-                {/* 🚀 ARTIK HERKESİ HESABIM SAYFASINA ALIYORUZ, VİTRİNİ ORADA GÖRECEKLER */}
-                <Link href="/hesabim" prefetch={false} className="flex items-center gap-2 p-2 text-gray-300 hover:text-[#3b82f6] transition-colors group">
-                  <span className="hidden sm:block text-sm font-bold">
-                    {session?.user?.name ? session.user.name.split(" ")[0] : "Hesabım"}
-                  </span>
-                  <svg className="w-5 h-5 md:w-5 md:h-5 shrink-0 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                  </svg>
-                </Link>
-              </div>
+              <Link
+                href={session ? "/hesabim" : "/giris"}
+                prefetch={false}
+                className="hidden md:flex p-1 rounded-full hover:ring-2 hover:ring-[#3b82f6]/30 transition-all"
+                aria-label="Hesabım"
+              >
+                <ProfilAvatar size={34} />
+              </Link>
 
-              {/* SEPET ALANI */}
-              <Link href="/sepet" prefetch={false} className="relative flex items-center gap-2 p-2 text-gray-300 hover:text-[#3b82f6] transition-colors group">
-                <span className="hidden md:block text-sm font-bold">Sepet</span>
+              <Link href="/sepet" prefetch={false} className="relative p-2 text-white hover:text-[#3b82f6] transition-colors" aria-label="Sepet">
                 <div className="relative">
-                  <svg className="w-5 h-5 md:w-5 md:h-5 shrink-0 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                  {/* Sayacın parlaması bir tık daha düşürüldü şefim */}
+                  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                   {sepetAdedi > 0 && (
                     <span className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-[#050814] shadow-[0_0_4px_rgba(239,68,68,0.4)] select-none leading-none pt-[0.5px]">
                       {sepetAdedi}
@@ -486,58 +547,6 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                 </div>
               </Link>
             </div>
-          </div>
-        </div>
-
-        {/* MASAÜSTÜ: 7 kategori şeridi */}
-        <div ref={seritRef} className="hidden md:block border-t border-white/[0.06]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-wrap items-center justify-center gap-x-1 -mb-px">
-              {KATALOG_SERIT.map((kat) => {
-                const aktif = acikSeritKatalog === kat.id;
-                return (
-                  <button
-                    key={kat.id}
-                    type="button"
-                    title={kat.isim}
-                    onClick={() => setAcikSeritKatalog(aktif ? null : kat.id)}
-                    className={`shrink-0 px-2.5 lg:px-3 py-2 text-center transition-colors border-b-2 whitespace-nowrap ${
-                      aktif
-                        ? "text-white border-[#3b82f6] bg-white/[0.04]"
-                        : "text-slate-400 border-transparent hover:text-slate-200 hover:bg-white/[0.02]"
-                    }`}
-                  >
-                    <span className="text-[10px] lg:text-[11px] font-medium tracking-wide">
-                      {kat.kisaIsim}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {seciliKatalog && (
-              <div className="border-t border-white/[0.06] py-3">
-                <div className="flex flex-wrap gap-1">
-                  {seciliKatalog.altlar.map((k) => (
-                    <ResimliKategoriKarti
-                      key={`${k.slug}-${k.isim}`}
-                      k={k}
-                      onNavigate={() => setAcikSeritKatalog(null)}
-                    />
-                  ))}
-                </div>
-                <div className="mt-2 pt-2 border-t border-white/[0.06] flex justify-end">
-                  <Link
-                    href="/kategoriler"
-                    prefetch={false}
-                    onClick={() => setAcikSeritKatalog(null)}
-                    className="text-xs text-slate-500 hover:text-cyan-400 transition-colors flex items-center gap-1"
-                  >
-                    Tüm kategorileri gör <ChevronRight className="w-3 h-3" />
-                  </Link>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </header>
