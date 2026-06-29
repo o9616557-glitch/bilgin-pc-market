@@ -157,10 +157,10 @@ function MobilAltKategoriKarti({
       href={`/kategori/${k.slug}`}
       prefetch={false}
       onClick={onClose}
-      className="flex flex-col items-center gap-1.5 p-2 rounded-lg hover:bg-white/[0.04] transition-colors"
+      className="flex flex-col items-center gap-1 p-1.5 rounded-lg hover:bg-white/[0.05] transition-colors"
     >
       <div
-        className={`relative w-10 h-10 rounded-lg overflow-hidden shrink-0 ${!k.resim ? `bg-gradient-to-br ${k.renk}` : ""}`}
+        className={`relative w-11 h-11 rounded-lg overflow-hidden shrink-0 ${!k.resim ? `bg-gradient-to-br ${k.renk}` : ""}`}
       >
         {k.resim && (
           <Image src={k.resim} alt={k.isim} fill className="object-contain" unoptimized />
@@ -181,11 +181,14 @@ function MobilKatalogMenusu({ onClose }: { onClose: () => void }) {
       {KATALOG_SERIT.map((ana) => {
         const acik = acikAna === ana.id;
         return (
-          <div key={ana.id} className="rounded-xl overflow-hidden border border-white/[0.07]">
+          <div
+            key={ana.id}
+            className={`rounded-xl overflow-hidden border border-white/[0.07] transition-colors ${acik ? "bg-white/[0.03]" : "bg-white/[0.02]"}`}
+          >
             <button
               type="button"
               onClick={() => setAcikAna(acik ? null : ana.id)}
-              className="w-full flex items-center gap-2.5 px-3 py-2 bg-white/[0.03] hover:bg-white/[0.06] transition-colors"
+              className="w-full flex items-center gap-2.5 px-2.5 py-2 hover:bg-white/[0.04] transition-colors"
             >
               <div className={`relative w-8 h-8 rounded-lg shrink-0 overflow-hidden bg-gradient-to-br ${ana.renk}`} />
               <span className="flex-1 text-left text-[13px] font-bold text-white leading-tight">{ana.isim}</span>
@@ -199,8 +202,8 @@ function MobilKatalogMenusu({ onClose }: { onClose: () => void }) {
               style={{ gridTemplateRows: acik ? "1fr" : "0fr" }}
             >
               <div className="overflow-hidden min-h-0">
-                <div className="border-t border-white/[0.06] bg-white/[0.02] p-2">
-                  <div className="grid grid-cols-3 gap-1.5">
+                <div className="px-1.5 pb-2 pt-0.5">
+                  <div className="grid grid-cols-3 gap-2">
                     {ana.altlar.map((k) => (
                       <MobilAltKategoriKarti
                         key={`${k.slug}-${k.isim}`}
@@ -580,14 +583,14 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
 
       {/* 📱 MOBİL MENÜ */}
       <div className={`md:hidden fixed top-[80px] left-0 w-full h-[calc(100vh-80px)] bg-[#050814] z-[98] overflow-y-auto transition-transform duration-300 ${menuAcik ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="px-5 py-6 pb-32">
+        <div className="px-3 py-4 pb-32">
 
           {/* Kendin Topla */}
           <Link
             href="/kendin-topla"
             prefetch={false}
             onClick={() => setMenuAcik(false)}
-            className="flex items-center gap-2.5 px-3 py-2 mb-2 rounded-xl overflow-hidden border border-emerald-500/25 bg-white/[0.03] hover:bg-white/[0.06] transition-colors group"
+            className="flex items-center gap-2.5 px-2.5 py-2 mb-2 rounded-xl overflow-hidden border border-emerald-500/25 bg-white/[0.03] hover:bg-white/[0.06] transition-colors group"
           >
             <div className="relative w-8 h-8 rounded-lg shrink-0 overflow-hidden bg-gradient-to-br from-emerald-600 to-emerald-900 flex items-center justify-center text-sm">
               🔧
