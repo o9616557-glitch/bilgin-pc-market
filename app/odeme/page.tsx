@@ -9,6 +9,12 @@ const labelClass = "text-xs text-slate-400 font-medium block mb-1.5";
 const fieldClass =
   "w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-site-accent/50 focus:bg-white/[0.05] transition-colors";
 
+function temizleIyzicoKalintilari() {
+  document.getElementById("iyzico-script")?.remove();
+  const formKutusu = document.getElementById("iyzipay-checkout-form");
+  if (formKutusu) formKutusu.innerHTML = "";
+}
+
 export default function OdemeSayfasi() {
   const { data: session, status } = useSession();
   const { sepet } = useCart();
@@ -20,7 +26,10 @@ export default function OdemeSayfasi() {
   const [faturaAyni, setFaturaAyni] = useState(true);
   const [acikSozlesme, setAcikSozlesme] = useState<"mesafeli" | "gizlilik" | null>(null);
 
-  const [adresAraniyor, setAdresAraniyor] = useState(true);
+  const [adresAraniyor, setAdresAraniyor] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return !localStorage.getItem("bilgin_hizli_adresler");
+  });
   const [adresKilitli, setAdresKilitli] = useState(false);
 
  const [form, setForm] = useState({ ad: "", soyad: "", telefon: "", eposta: "", adres: "", sehir: "", ilce: "", siparisNotu: "" });
@@ -35,21 +44,11 @@ export default function OdemeSayfasi() {
     }
   }, [session, status]);
 
-  // 🚀 İYZİCO'NUN KORKULU RÜYASI: HAFIZA BOMBASI (KESİN ÇÖZÜM)
   useEffect(() => {
-    // 1. Sayfa açıldığında tarayıcının cebine bak: "Bu müşteri buraya daha önce girip çıkmış mı?"
-    const eskiKalinintiVarMi = sessionStorage.getItem("iyzico_temizle");
-
-    if (eskiKalinintiVarMi) {
-      // Eğer önceden girip çıktıysa, notu sil ve sayfayı acımadan ZORLA YENİLE!
-      sessionStorage.removeItem("iyzico_temizle");
-      window.location.reload();
-    }
-
-    // 2. Müşteri sayfadan ÇIKTIĞI AN (Geri tuşu, sepet, anasayfa hiç fark etmez) bu kısım çalışır
+    temizleIyzicoKalintilari();
+    sessionStorage.removeItem("iyzico_temizle");
     return () => {
-      // Çıkarken tarayıcının cebine gizli notu bırakıyoruz ki, bir dahaki gelişinde tetiklensin.
-      sessionStorage.setItem("iyzico_temizle", "evet");
+      temizleIyzicoKalintilari();
     };
   }, []);
 // 🚀 ERKENCİ ÇIRAK MOTORU V2 (0 MİLİSANİYE - SIFIR GECİKME!)
@@ -197,10 +196,7 @@ export default function OdemeSayfasi() {
 
     // 2. KULLANICI SEPETE DÖNERSE VEYA ÇIKARSA İYZİCO'YU SIFIRLA (ÇÖZÜM BURADA)
     return () => {
-      const formKutusu = document.getElementById("iyzipay-checkout-form");
-      if (formKutusu) {
-        formKutusu.innerHTML = "";
-      }
+      temizleIyzicoKalintilari();
     };
   }, [iyzicoFormHtml]);
 
@@ -283,7 +279,7 @@ export default function OdemeSayfasi() {
         </div>
       </div>
 
-      <div className="site-container-narrow site-content-in">
+      <div className="site-container-narrow">
         <h1 className="site-h2 mb-6">Güvenli ödeme</h1>
 
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
@@ -458,7 +454,13 @@ export default function OdemeSayfasi() {
                   <h3 className="font-semibold text-white text-sm sm:text-base flex items-center gap-2">
                     <ShieldCheck className="w-5 h-5 text-emerald-400" /> Güvenli ödeme
                   </h3>
-                  <button onClick={() => window.location.reload()} className="text-slate-400 hover:text-white text-xs font-medium px-3 py-1.5 rounded-lg border border-white/[0.08] hover:bg-white/[0.04] transition-colors">
+                  <button
+                    onClick={() => {
+                      temizleIyzicoKalintilari();
+                      setIyzicoFormHtml("");
+                    }}
+                    className="text-slate-400 hover:text-white text-xs font-medium px-3 py-1.5 rounded-lg border border-white/[0.08] hover:bg-white/[0.04] transition-colors"
+                  >
                     Vazgeç
                   </button>
                 </div>
