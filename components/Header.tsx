@@ -36,12 +36,13 @@ const RAM_KATALOG_IMG =
   "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782747323/Ads%C4%B1z_512_x_512_piksel_4_xt9jwu.png";
 
 const ISLEMCI_KATALOG_IMG =
-  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782748234/Ads%C4%B1z_512_x_512_piksel_5_jsgfes.png";
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782749478/Ads%C4%B1z_512_x_512_piksel_9_tcnxa2.png";
 
 const ANAKART_KATALOG_IMG =
-  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782748641/Ads%C4%B1z_512_x_512_piksel_6_kqk1md.png";
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782748642/Ads%C4%B1z_512_x_512_piksel_8_dd768b.png";
 
-const PERFORMANS_KATALOG_IMG = ANAKART_KATALOG_IMG;
+const PERFORMANS_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782748641/Ads%C4%B1z_512_x_512_piksel_6_kqk1md.png";
 
 const EKRAN_KARTI_KATALOG_IMG =
   "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782748641/Ads%C4%B1z_512_x_512_piksel_7_gdqvft.png";
