@@ -434,9 +434,13 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
 
   return (
     <>
-      <header className="sticky top-0 left-0 w-full z-[99] bg-[#050814]/90 backdrop-blur-md border-b border-white/5 transition-all duration-300">
-        <div ref={seritRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20 gap-2 sm:gap-4">
+      <header className="sticky top-0 left-0 w-full z-[99] bg-[#050814]/90 backdrop-blur-md border-b border-white/5 transition-all duration-300 relative">
+        <div
+          ref={seritRef}
+          onMouseLeave={() => setAcikSeritKatalog(null)}
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-20 gap-2 sm:gap-4">
 
             {/* SOL TARAF: HAMBURGER & LOGO */}
             <div className="flex-shrink-0 flex items-center gap-3">
@@ -465,7 +469,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                       key={kat.id}
                       type="button"
                       title={kat.isim}
-                      onClick={() => setAcikSeritKatalog(aktif ? null : kat.id)}
+                      onMouseEnter={() => setAcikSeritKatalog(kat.id)}
                       className={`shrink-0 px-2 lg:px-2.5 py-1.5 text-center transition-colors border-b-2 whitespace-nowrap text-white ${
                         aktif ? "border-[#3b82f6]" : "border-transparent hover:border-white/30"
                       }`}
@@ -521,17 +525,19 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
             </div>
           </div>
 
-          {/* Alt panel — header satırının altında açılır */}
+          {/* Overlay panel — sayfayı itmez, üstte açılır */}
           {seciliKatalog && (
-            <div className="hidden md:block border-t border-white/[0.06] py-3">
-              <div className="flex flex-wrap gap-1 justify-center">
-                {seciliKatalog.altlar.map((k) => (
-                  <ResimliKategoriKarti
-                    key={`${k.slug}-${k.isim}`}
-                    k={k}
-                    onNavigate={() => setAcikSeritKatalog(null)}
-                  />
-                ))}
+            <div className="hidden md:block absolute top-full left-0 w-full border-t border-white/[0.06] bg-[#050814]/98 backdrop-blur-md shadow-[0_12px_40px_rgba(0,0,0,0.55)] z-50">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+                <div className="flex flex-wrap gap-1 justify-start">
+                  {seciliKatalog.altlar.map((k) => (
+                    <ResimliKategoriKarti
+                      key={`${k.slug}-${k.isim}`}
+                      k={k}
+                      onNavigate={() => setAcikSeritKatalog(null)}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           )}
