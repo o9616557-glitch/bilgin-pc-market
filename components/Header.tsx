@@ -184,25 +184,25 @@ function MobilKatalogMenusu({ onClose }: { onClose: () => void }) {
         </h2>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         {KATALOG_SERIT.map((ana) => {
           const acik = acikAna === ana.id;
           return (
             <div key={ana.id}>
               <div
-                className={
+                className={`rounded-xl border transition-colors ${
                   acik
-                    ? "rounded-xl border border-white/[0.12] bg-white/[0.04]"
-                    : "rounded-lg"
-                }
+                    ? "border-white/[0.14] bg-white/[0.05]"
+                    : "border-white/[0.08] bg-white/[0.03]"
+                }`}
               >
                 <button
                   type="button"
                   onClick={() => setAcikAna(acik ? null : ana.id)}
-                  className="w-full flex items-center gap-2.5 px-2.5 py-2 hover:bg-white/[0.04] transition-colors rounded-xl"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/[0.04] transition-colors rounded-xl"
                 >
-                  <div className={`relative w-8 h-8 rounded-lg shrink-0 overflow-hidden bg-gradient-to-br ${ana.renk}`} />
-                  <span className="flex-1 text-left text-[13px] font-bold text-white leading-tight">{ana.isim}</span>
+                  <div className={`relative w-9 h-9 rounded-lg shrink-0 overflow-hidden bg-gradient-to-br ${ana.renk}`} />
+                  <span className="flex-1 text-left text-sm font-bold text-white leading-tight">{ana.isim}</span>
                   <ChevronDown
                     className={`w-4 h-4 text-slate-500 transition-transform duration-300 ease-out shrink-0 ${acik ? "rotate-180" : ""}`}
                   />
