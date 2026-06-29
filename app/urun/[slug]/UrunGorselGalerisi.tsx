@@ -1,15 +1,62 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 export default function UrunGorselGalerisi({ resimler }: { resimler: string[] }) {
   const gecerliResimler = resimler && resimler.length > 0 ? resimler : [];
+  const cokluResim = gecerliResimler.length > 1;
+  const loopResimler = cokluResim
+    ? [gecerliResimler[gecerliResimler.length - 1], ...gecerliResimler, gecerliResimler[0]]
+    : gecerliResimler;
+
   const [aktifResim, setAktifResim] = useState(0);
+  const [trackIndex, setTrackIndex] = useState(1);
+  const [galleryTransition, setGalleryTransition] = useState(true);
   const [dragX, setDragX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [lightboxAcik, setLightboxAcik] = useState(false);
   const galleryRef = useRef<HTMLDivElement>(null);
+  const lightboxRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef({ x: 0, y: 0 });
   const dragXRef = useRef(0);
+
+  useEffect(() => {
+    setTrackIndex(1);
+    setAktifResim(0);
+    setDragX(0);
+    dragXRef.current = 0;
+  }, [gecerliResimler.length]);
+
+  useEffect(() => {
+    if (!cokluResim) return;
+    if (trackIndex === 0) {
+      setGalleryTransition(false);
+      setTrackIndex(gecerliResimler.length);
+    } else if (trackIndex === gecerliResimler.length + 1) {
+      setGalleryTransition(false);
+      setTrackIndex(1);
+    } else {
+      setAktifResim(trackIndex - 1);
+    }
+  }, [trackIndex, cokluResim, gecerliResimler.length]);
+
+  useEffect(() => {
+    if (!galleryTransition) {
+      const id = requestAnimationFrame(() => {
+        requestAnimationFrame(() => setGalleryTransition(true));
+      });
+      return () => cancelAnimationFrame(id);
+    }
+  }, [galleryTransition]);
+
+  useEffect(() => {
+    if (lightboxAcik) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [lightboxAcik]);
 
   if (gecerliResimler.length === 0) {
     return (
@@ -18,6 +65,10 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
       </div>
     );
   }
+
+  const trackStyle = {
+    transform: `translateX(calc(-${trackIndex * 100}% + ${dragX}px))`,
+  };
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setIsDragging(true);
@@ -35,29 +86,40 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
     setDragX(dx);
   };
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = (
+    containerRef: React.RefObject<HTMLDivElement | null>,
+    lightboxTap = false
+  ) => {
     if (!isDragging) return;
     setIsDragging(false);
-    const width = galleryRef.current?.offsetWidth || 1;
+    const width = containerRef.current?.offsetWidth || 1;
     const threshold = width * 0.18;
     const currentDrag = dragXRef.current;
-    if (currentDrag < -threshold) setAktifResim((i) => (i + 1) % gecerliResimler.length);
-    else if (currentDrag > threshold) setAktifResim((i) => (i - 1 + gecerliResimler.length) % gecerliResimler.length);
+
+    if (Math.abs(currentDrag) < 12) {
+      if (lightboxTap) setLightboxAcik(true);
+    } else if (currentDrag < -threshold) {
+      if (cokluResim) setTrackIndex((i) => i + 1);
+    } else if (currentDrag > threshold) {
+      if (cokluResim) setTrackIndex((i) => i - 1);
+    }
+
     dragXRef.current = 0;
     setDragX(0);
-  };
-
-  const trackStyle = {
-    transform: `translateX(calc(-${aktifResim * 100}% + ${dragX}px))`,
   };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}>
       <div
         ref={galleryRef}
-        onTouchStart={gecerliResimler.length > 1 ? handleTouchStart : undefined}
-        onTouchMove={gecerliResimler.length > 1 ? handleTouchMove : undefined}
-        onTouchEnd={gecerliResimler.length > 1 ? handleTouchEnd : undefined}
+        onTouchStart={handleTouchStart}
+        onTouchMove={cokluResim ? handleTouchMove : undefined}
+        onTouchEnd={
+          cokluResim
+            ? () => handleTouchEnd(galleryRef, true)
+            : () => setLightboxAcik(true)
+        }
+        onClick={() => setLightboxAcik(true)}
         style={{
           width: "100%",
           height: "420px",
@@ -66,7 +128,8 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
           border: "1px solid #27272a",
           position: "relative",
           overflow: "hidden",
-          touchAction: "pan-y",
+          touchAction: "manipulation",
+          cursor: "zoom-in",
         }}
       >
         <div
@@ -97,13 +160,13 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
               display: "flex",
               height: "100%",
               width: "100%",
-              transition: isDragging ? "none" : "transform 0.3s ease-out",
+              transition: isDragging || !galleryTransition ? "none" : "transform 0.3s ease-out",
               transform: trackStyle.transform,
             }}
           >
-            {gecerliResimler.map((resim, index) => (
+            {loopResimler.map((resim, index) => (
               <div
-                key={index}
+                key={`${resim}-${index}`}
                 style={{
                   minWidth: "100%",
                   width: "100%",
@@ -122,12 +185,12 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
         )}
       </div>
 
-      {gecerliResimler.length > 1 && (
+      {cokluResim && (
         <div style={{ display: "flex", gap: "12px", overflowX: "auto", paddingBottom: "8px" }}>
           {gecerliResimler.map((resim, index) => (
             <div
               key={index}
-              onClick={() => setAktifResim(index)}
+              onClick={() => setTrackIndex(index + 1)}
               style={{
                 width: "80px",
                 height: "80px",
@@ -148,6 +211,116 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
               <img src={resim} alt={`Görsel ${index + 1}`} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
             </div>
           ))}
+        </div>
+      )}
+
+      {lightboxAcik && (
+        <div
+          onTouchStart={handleTouchStart}
+          onTouchMove={cokluResim ? handleTouchMove : undefined}
+          onTouchEnd={cokluResim ? () => handleTouchEnd(lightboxRef, false) : undefined}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            background: "rgba(0,0,0,0.95)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "16px",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setLightboxAcik(false)}
+            style={{
+              position: "absolute",
+              top: "16px",
+              right: "16px",
+              width: "48px",
+              height: "48px",
+              borderRadius: "9999px",
+              background: "rgba(255,255,255,0.1)",
+              border: "none",
+              color: "white",
+              cursor: "pointer",
+              zIndex: 10,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <X size={24} />
+          </button>
+
+          {cokluResim && (
+            <>
+              <button
+                type="button"
+                onClick={() => setTrackIndex((i) => i - 1)}
+                style={{
+                  position: "absolute",
+                  left: "16px",
+                  width: "48px",
+                  height: "48px",
+                  borderRadius: "9999px",
+                  background: "rgba(255,255,255,0.1)",
+                  border: "none",
+                  color: "white",
+                  cursor: "pointer",
+                  zIndex: 10,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <ChevronLeft size={28} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setTrackIndex((i) => i + 1)}
+                style={{
+                  position: "absolute",
+                  right: "16px",
+                  width: "48px",
+                  height: "48px",
+                  borderRadius: "9999px",
+                  background: "rgba(255,255,255,0.1)",
+                  border: "none",
+                  color: "white",
+                  cursor: "pointer",
+                  zIndex: 10,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <ChevronRight size={28} />
+              </button>
+            </>
+          )}
+
+          <div ref={lightboxRef} style={{ width: "100%", maxWidth: "90vw", maxHeight: "85vh", overflow: "hidden" }}>
+            {gecerliResimler.length === 1 ? (
+              <img src={gecerliResimler[0]} alt="" style={{ width: "100%", maxHeight: "85vh", objectFit: "contain" }} />
+            ) : (
+              <div
+                style={{
+                  display: "flex",
+                  height: "100%",
+                  width: "100%",
+                  transition: isDragging || !galleryTransition ? "none" : "transform 0.3s ease-out",
+                  transform: trackStyle.transform,
+                }}
+              >
+                {loopResimler.map((resim, index) => (
+                  <div key={`lb-${resim}-${index}`} style={{ minWidth: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                    <img src={resim} alt="" draggable={false} style={{ maxWidth: "100%", maxHeight: "85vh", objectFit: "contain" }} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

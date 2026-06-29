@@ -50,6 +50,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const [copied, setCopied] = useState(false);
 
   const [seciliResimIndex, setSeciliResimIndex] = useState(0);
+  const [trackIndex, setTrackIndex] = useState(1);
+  const [galleryTransition, setGalleryTransition] = useState(true);
   const [dragX, setDragX] = useState(0);
   const [isGalleryDragging, setIsGalleryDragging] = useState(false);
   const galleryRef = useRef<HTMLDivElement>(null);
@@ -108,6 +110,42 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     if (lightboxAcik) document.body.style.overflow = "hidden"; else document.body.style.overflow = "unset";
     return () => { document.body.style.overflow = "unset"; };
   }, [lightboxAcik]);
+
+  const galleryResimSayisi =
+    product?.images?.length > 0
+      ? product.images.length
+      : product?.resim
+        ? 1
+        : 0;
+
+  useEffect(() => {
+    setTrackIndex(1);
+    setSeciliResimIndex(0);
+    setDragX(0);
+    dragXRef.current = 0;
+  }, [galleryResimSayisi]);
+
+  useEffect(() => {
+    if (galleryResimSayisi <= 1) return;
+    if (trackIndex === 0) {
+      setGalleryTransition(false);
+      setTrackIndex(galleryResimSayisi);
+    } else if (trackIndex === galleryResimSayisi + 1) {
+      setGalleryTransition(false);
+      setTrackIndex(1);
+    } else {
+      setSeciliResimIndex(trackIndex - 1);
+    }
+  }, [trackIndex, galleryResimSayisi]);
+
+  useEffect(() => {
+    if (!galleryTransition) {
+      const id = requestAnimationFrame(() => {
+        requestAnimationFrame(() => setGalleryTransition(true));
+      });
+      return () => cancelAnimationFrame(id);
+    }
+  }, [galleryTransition]);
 
   const urunAdi = product.isim || product.name || "İsimsiz Ürün";
   const normalFiyat = Number(product.regular_price || product.fiyat || product.price || 0);
@@ -193,12 +231,15 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   let resimler = [product.resim || "https://via.placeholder.com/600"];
   if (product.images && Array.isArray(product.images) && product.images.length > 0) { resimler = product.images.map((img: any) => typeof img === "string" ? img : (img?.src || resimler[0])); }
 
+  const cokluResim = resimler.length > 1;
+  const loopResimler = cokluResim ? [resimler[resimler.length - 1], ...resimler, resimler[0]] : resimler;
+
   const degistirResim = (yeniIndex: number) => {
-    if (yeniIndex === seciliResimIndex) return;
-    setSeciliResimIndex(yeniIndex);
+    if (!cokluResim) return;
+    setTrackIndex(yeniIndex + 1);
   };
-  const sonrakiResim = () => degistirResim((seciliResimIndex + 1) % resimler.length);
-  const oncekiResim = () => degistirResim((seciliResimIndex - 1 + resimler.length) % resimler.length);
+  const sonrakiResim = () => { if (cokluResim) setTrackIndex((i) => i + 1); };
+  const oncekiResim = () => { if (cokluResim) setTrackIndex((i) => i - 1); };
 
   const handleGalleryTouchStart = (e: React.TouchEvent) => {
     setIsGalleryDragging(true);
@@ -218,20 +259,31 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     setDragX(dx);
   };
 
-  const handleGalleryTouchEnd = (containerRef: React.RefObject<HTMLDivElement | null>) => {
+  const handleGalleryTouchEnd = (
+    containerRef: React.RefObject<HTMLDivElement | null>,
+    lightboxTap = false
+  ) => {
     if (!isGalleryDragging) return;
     setIsGalleryDragging(false);
     const width = containerRef.current?.offsetWidth || 1;
     const threshold = width * 0.18;
     const currentDrag = dragXRef.current;
-    if (currentDrag < -threshold) sonrakiResim();
-    else if (currentDrag > threshold) oncekiResim();
+
+    if (Math.abs(currentDrag) < 12) {
+      dragMovedRef.current = false;
+      if (lightboxTap) setLightboxAcik(true);
+    } else if (currentDrag < -threshold) {
+      sonrakiResim();
+    } else if (currentDrag > threshold) {
+      oncekiResim();
+    }
+
     dragXRef.current = 0;
     setDragX(0);
   };
 
   const galleryTrackStyle = {
-    transform: `translateX(calc(-${seciliResimIndex * 100}% + ${dragX}px))`,
+    transform: `translateX(calc(-${trackIndex * 100}% + ${dragX}px))`,
   };
 
   // MouseEvent hatası düzeltildi
@@ -320,9 +372,13 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
             <div 
               ref={galleryRef}
-              onTouchStart={resimler.length > 1 ? handleGalleryTouchStart : undefined}
+              onTouchStart={handleGalleryTouchStart}
               onTouchMove={resimler.length > 1 ? handleGalleryTouchMove : undefined}
-              onTouchEnd={resimler.length > 1 ? () => handleGalleryTouchEnd(galleryRef) : undefined}
+              onTouchEnd={
+                resimler.length > 1
+                  ? () => handleGalleryTouchEnd(galleryRef, true)
+                  : () => setLightboxAcik(true)
+              }
               onMouseMove={handleMouseMove}
               onMouseEnter={() => setIsHoveringImg(true)}
               onMouseLeave={() => { setIsHoveringImg(false); setZoomOrigin("center center"); }}
@@ -333,7 +389,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 }
                 setLightboxAcik(true);
               }}
-              className="relative isolate z-0 w-full aspect-square sm:aspect-[4/3] bg-transparent sm:bg-white/[0.02] sm:backdrop-blur-xl sm:border sm:border-white/5 sm:rounded-2xl flex items-center justify-center p-0 sm:p-6 overflow-hidden mb-2 group select-none cursor-zoom-in touch-pan-y"
+              className="relative isolate z-0 w-full aspect-square sm:aspect-[4/3] bg-transparent sm:bg-white/[0.02] sm:backdrop-blur-xl sm:border sm:border-white/5 sm:rounded-2xl flex items-center justify-center p-0 sm:p-6 overflow-hidden mb-2 group select-none cursor-zoom-in touch-manipulation"
             >
               {indirimVarMi && !tukendiMi && (
                 <div className="badge-rosette-page !z-10"><span>%{indirimOrani}</span><span>İNDİRİM</span></div>
@@ -370,18 +426,18 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 />
               ) : (
                 <div
-                  className={`flex h-full w-full ${isGalleryDragging ? "" : "transition-transform duration-300 ease-out"}`}
+                  className={`flex h-full w-full ${isGalleryDragging || !galleryTransition ? "" : "transition-transform duration-300 ease-out"}`}
                   style={galleryTrackStyle}
                 >
-                  {resimler.map((img: string, idx: number) => (
-                    <div key={idx} className="min-w-full w-full h-full flex items-center justify-center flex-shrink-0">
+                  {loopResimler.map((img: string, idx: number) => (
+                    <div key={`${img}-${idx}`} className="min-w-full w-full h-full flex items-center justify-center flex-shrink-0">
                       <img
                         src={img}
                         alt={`${urunAdi} - ${idx + 1}`}
                         draggable={false}
                         style={{
-                          transformOrigin: idx === seciliResimIndex ? zoomOrigin : "center center",
-                          transform: idx === seciliResimIndex && isHoveringImg && !isGalleryDragging ? "scale(2.4)" : "scale(1)",
+                          transformOrigin: idx === trackIndex ? zoomOrigin : "center center",
+                          transform: idx === trackIndex && isHoveringImg && !isGalleryDragging ? "scale(2.4)" : "scale(1)",
                         }}
                         className={`w-full h-full object-contain pointer-events-none sm:filter sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] transition-transform duration-150 ease-out ${tukendiMi ? "grayscale opacity-50" : ""}`}
                       />
@@ -712,8 +768,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         <div 
           onTouchStart={resimler.length > 1 ? handleGalleryTouchStart : undefined}
           onTouchMove={resimler.length > 1 ? handleGalleryTouchMove : undefined}
-          onTouchEnd={resimler.length > 1 ? () => handleGalleryTouchEnd(lightboxRef) : undefined}
-          className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex items-center justify-center p-0 sm:p-4 select-none touch-pan-y"
+          onTouchEnd={resimler.length > 1 ? () => handleGalleryTouchEnd(lightboxRef, false) : undefined}
+          className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex items-center justify-center p-0 sm:p-4 select-none touch-manipulation"
         >
            <button onClick={() => setLightboxAcik(false)} className="absolute top-4 right-4 sm:top-6 sm:right-6 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-red-500 transition-colors z-50 touch-manipulation"><X className="w-6 h-6" /></button>
            
@@ -724,11 +780,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                <img src={resimler[0]} className="w-full sm:max-w-full sm:max-h-[85vh] object-contain sm:rounded-xl shadow-2xl" alt="" />
              ) : (
                <div
-                 className={`flex h-full w-full ${isGalleryDragging ? "" : "transition-transform duration-300 ease-out"}`}
+                 className={`flex h-full w-full ${isGalleryDragging || !galleryTransition ? "" : "transition-transform duration-300 ease-out"}`}
                  style={galleryTrackStyle}
                >
-                 {resimler.map((img: string, idx: number) => (
-                   <div key={idx} className="min-w-full w-full flex items-center justify-center flex-shrink-0">
+                 {loopResimler.map((img: string, idx: number) => (
+                   <div key={`lb-${img}-${idx}`} className="min-w-full w-full flex items-center justify-center flex-shrink-0">
                      <img src={img} className="w-full max-h-[85vh] object-contain sm:rounded-xl shadow-2xl" alt="" draggable={false} />
                    </div>
                  ))}
