@@ -8,6 +8,7 @@ import {
   temizleIyzicoKalintilari,
   enjekteIyzicoCheckoutForm,
   iyzicoFormuYuklendiMi,
+  sifirlaSayfaKilidi,
 } from "@/lib/iyzico-checkout";
 
 const labelClass = "text-xs text-slate-400 font-medium block mb-1.5";
@@ -48,6 +49,7 @@ export default function OdemeSayfasi() {
   useEffect(() => {
     return () => {
       temizleIyzicoKalintilari();
+      sifirlaSayfaKilidi();
     };
   }, []);
 // 🚀 ERKENCİ ÇIRAK MOTORU V2 (0 MİLİSANİYE - SIFIR GECİKME!)
@@ -193,7 +195,7 @@ export default function OdemeSayfasi() {
 
       timers = [100, 300, 600, 1200, 2000, 4000].map((ms) => setTimeout(kontrolHazir, ms));
       observer = new MutationObserver(kontrolHazir);
-      observer.observe(document.body, { childList: true, subtree: true });
+      observer.observe(el, { childList: true, subtree: true });
 
       setTimeout(() => {
         const panel = document.getElementById("iyzico-panel");

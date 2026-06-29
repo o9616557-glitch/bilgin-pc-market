@@ -1,14 +1,40 @@
 /** İyzico checkoutFormContent DOM'a yerleştirir ve script'leri çalıştırır. */
-export function temizleIyzicoKalintilari() {
-  const form = document.getElementById("iyzipay-checkout-form");
-  if (form) form.innerHTML = "";
+export function sifirlaSayfaKilidi() {
+  document.body.style.overflow = "";
+  document.body.style.removeProperty("overflow");
+  document.body.style.position = "";
+  document.documentElement.style.overflow = "";
+}
 
-  document.querySelectorAll("script[src*='iyzipay'], script[src*='iyzico']").forEach((el) => el.remove());
+export function temizleIyzicoKalintilari() {
+  document.querySelectorAll("iframe").forEach((iframe) => {
+    const src = iframe.getAttribute("src") || "";
+    if (/iyzipay|iyzico/i.test(src)) iframe.remove();
+  });
+
+  document.querySelectorAll("script").forEach((script) => {
+    const src = script.getAttribute("src") || "";
+    const text = script.textContent || "";
+    if (/iyzipay|iyzico|iyziInit/i.test(src + text)) script.remove();
+  });
+
+  document.querySelectorAll("#iyzipay-checkout-form, #iyzico-inject-target").forEach((el) => {
+    el.innerHTML = "";
+  });
+
+  document.body.querySelectorAll(":scope > div").forEach((el) => {
+    const hasIyzicoIframe = el.querySelector("iframe[src*='iyzipay'], iframe[src*='iyzico']");
+    if (!hasIyzicoIframe) return;
+    if (el.querySelector("main, header, nav")) return;
+    el.remove();
+  });
 
   const w = window as Window & { iyziInit?: unknown; IyziInit?: unknown; iyzipay?: unknown };
   delete w.iyziInit;
   delete w.IyziInit;
   delete w.iyzipay;
+
+  sifirlaSayfaKilidi();
 }
 
 export function enjekteIyzicoCheckoutForm(container: HTMLElement, html: string) {
