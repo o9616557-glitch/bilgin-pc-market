@@ -37,7 +37,6 @@ function NavLink({ href, label, icon: Icon, id, active }: {
   return (
     <Link
       href={href}
-      prefetch={false}
       className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all font-medium shrink-0 ${
         isActive
           ? "text-white bg-white/[0.07] border border-white/[0.12]"
@@ -373,7 +372,6 @@ export default function AccountShell({ children, active }: AccountShellProps) {
               <Link
                 key={item.id}
                 href={item.href}
-                prefetch={false}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium shrink-0 transition-all ${
                   active === item.id
                     ? "text-white bg-white/[0.07] border border-white/[0.12]"

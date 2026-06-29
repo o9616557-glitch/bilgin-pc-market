@@ -104,7 +104,7 @@ export default async function HomePage() {
                      <ArrowRight className="w-6 h-6" />
                    </div>
                 </div>
-              </Link> {/* ⚠️ ŞEFİM NOT: Bu Link etiketinin açılışında prefetch={false} yazdığından emin ol! */}
+              </Link>
             </div>
           </div>
         </div>

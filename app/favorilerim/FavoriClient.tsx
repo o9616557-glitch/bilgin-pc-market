@@ -151,13 +151,13 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
         <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-2 static lg:sticky lg:top-28 z-10">
           <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-xl p-2 sm:p-4 shadow-xl overflow-x-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
             <nav className="flex flex-row lg:flex-col gap-1.5 min-w-max lg:min-w-0">
-              <Link href="/hesabim" prefetch={false} className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-white hover:bg-[#020617] rounded-lg transition-all font-medium">
+              <Link href="/hesabim" className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-white hover:bg-[#020617] rounded-lg transition-all font-medium">
                 <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Profil
               </Link>
-              <Link href="/cuzdan" prefetch={false} className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-white hover:bg-[#020617] rounded-lg transition-all font-medium">
+              <Link href="/cuzdan" className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-white hover:bg-[#020617] rounded-lg transition-all font-medium">
                 <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Dijital Cüzdanım
               </Link>
-              <Link href="/guvenlik" prefetch={false} className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-white hover:bg-[#020617] rounded-lg transition-all font-medium">
+              <Link href="/guvenlik" className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-white hover:bg-[#020617] rounded-lg transition-all font-medium">
                 <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Güvenlik
               </Link>
             </nav>
@@ -186,7 +186,6 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
             <div className="flex flex-row items-center gap-2 sm:gap-3 w-full xl:w-auto relative z-50">
               <Link 
                 href="/" 
-                prefetch={false}
                 className="w-full xl:w-auto flex items-center justify-center gap-2 bg-[#020617] hover:bg-slate-800 border border-slate-700 rounded-lg px-4 sm:px-6 py-3 transition-colors text-[10px] sm:text-xs text-white font-black uppercase tracking-widest shadow-lg shrink-0"
               >
                 MAĞAZAYA DÖN
@@ -206,7 +205,6 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
               </p>
               <Link 
                 href="/" 
-                prefetch={false} 
                 className="flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-8 py-3.5 rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)]"
               >
                 <Star className="w-4 h-4" /> Donanımları İncele
@@ -219,7 +217,7 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
                 return (
                   <div key={index} className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col transition-all duration-300 hover:border-cyan-500/40 hover:-translate-y-1 shadow-lg group h-full">
                     
-                    <Link href={"/product/" + (urun.slug || urun.id || urun._id)} prefetch={false} className="w-full h-40 sm:h-48 shrink-0 bg-[#020617] rounded-xl border border-slate-800/50 flex items-center justify-center p-4 relative overflow-hidden group-hover:border-cyan-500/20 transition-colors mb-4 mt-2">
+                    <Link href={"/product/" + (urun.slug || urun.id || urun._id)} className="w-full h-40 sm:h-48 shrink-0 bg-[#020617] rounded-xl border border-slate-800/50 flex items-center justify-center p-4 relative overflow-hidden group-hover:border-cyan-500/20 transition-colors mb-4 mt-2">
                       <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                       <img 
                         src={urun.resim || "/placeholder.jpg"} 
@@ -229,7 +227,7 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
                     </Link>
 
                     <div className="flex-1 flex flex-col justify-start mb-4">
-                      <Link href={"/product/" + (urun.slug || urun.id || urun._id)} prefetch={false} className="block mb-2 pr-2">
+                      <Link href={"/product/" + (urun.slug || urun.id || urun._id)} className="block mb-2 pr-2">
                         <h3 className="text-sm font-bold text-slate-200 leading-snug line-clamp-2 hover:text-cyan-400 transition-colors">
                           {urun.isim || urun.name}
                         </h3>
