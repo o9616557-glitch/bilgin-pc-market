@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useCart } from "@/app/CartContext";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
-import { Search, X, Clock, Flame, ArrowRight, ChevronRight, Loader2 } from "lucide-react";
+import { Search, X, Clock, Flame, ArrowRight, ChevronRight, ChevronDown, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 const MOUSE_KATALOG_IMG =
@@ -177,7 +177,7 @@ function MobilKatalogMenusu({ onClose }: { onClose: () => void }) {
   const [acikAna, setAcikAna] = useState<string | null>(null);
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       {KATALOG_SERIT.map((ana) => {
         const acik = acikAna === ana.id;
         return (
@@ -185,12 +185,12 @@ function MobilKatalogMenusu({ onClose }: { onClose: () => void }) {
             <button
               type="button"
               onClick={() => setAcikAna(acik ? null : ana.id)}
-              className="w-full flex items-center gap-3 px-4 py-3.5 bg-white/[0.03] hover:bg-white/[0.06] transition-colors"
+              className="w-full flex items-center gap-2.5 px-3 py-2 bg-white/[0.03] hover:bg-white/[0.06] transition-colors"
             >
-              <div className={`relative w-9 h-9 rounded-lg shrink-0 overflow-hidden bg-gradient-to-br ${ana.renk}`} />
-              <span className="flex-1 text-left text-sm font-bold text-white">{ana.isim}</span>
-              <ChevronRight
-                className={`w-4 h-4 text-slate-500 transition-transform duration-300 ease-out shrink-0 ${acik ? "rotate-90" : ""}`}
+              <div className={`relative w-8 h-8 rounded-lg shrink-0 overflow-hidden bg-gradient-to-br ${ana.renk}`} />
+              <span className="flex-1 text-left text-[13px] font-bold text-white leading-tight">{ana.isim}</span>
+              <ChevronDown
+                className={`w-4 h-4 text-slate-500 transition-transform duration-300 ease-out shrink-0 ${acik ? "rotate-180" : ""}`}
               />
             </button>
 
@@ -199,8 +199,8 @@ function MobilKatalogMenusu({ onClose }: { onClose: () => void }) {
               style={{ gridTemplateRows: acik ? "1fr" : "0fr" }}
             >
               <div className="overflow-hidden min-h-0">
-                <div className="border-t border-white/[0.06] bg-white/[0.02] p-3">
-                  <div className="grid grid-cols-3 gap-2">
+                <div className="border-t border-white/[0.06] bg-white/[0.02] p-2">
+                  <div className="grid grid-cols-3 gap-1.5">
                     {ana.altlar.map((k) => (
                       <MobilAltKategoriKarti
                         key={`${k.slug}-${k.isim}`}
@@ -587,12 +587,13 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
             href="/kendin-topla"
             prefetch={false}
             onClick={() => setMenuAcik(false)}
-            className="flex items-center justify-between px-4 py-3.5 mb-5 rounded-xl bg-emerald-500/[0.08] border border-emerald-500/20 group"
+            className="flex items-center gap-2.5 px-3 py-2 mb-2 rounded-xl overflow-hidden border border-emerald-500/25 bg-white/[0.03] hover:bg-white/[0.06] transition-colors group"
           >
-            <span className="font-semibold text-emerald-400 text-sm flex items-center gap-2.5">
-              🔧 Kendin Topla
-            </span>
-            <ArrowRight className="w-4 h-4 text-emerald-500/60 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all" />
+            <div className="relative w-8 h-8 rounded-lg shrink-0 overflow-hidden bg-gradient-to-br from-emerald-600 to-emerald-900 flex items-center justify-center text-sm">
+              🔧
+            </div>
+            <span className="flex-1 text-left text-[13px] font-bold text-white">Kendin Topla</span>
+            <ChevronDown className="w-4 h-4 text-emerald-500/70 shrink-0" />
           </Link>
 
           {/* Kategoriler — 6 ana, resimli accordion */}
