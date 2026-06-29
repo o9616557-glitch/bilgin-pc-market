@@ -167,23 +167,41 @@ body {
   }
 }
 
-/* İyzico ödeme kutusu — iframe tam ekranı kaplamasın */
+/* İyzico ödeme kutusu — iframe panel dışına taşmasın */
+.iyzico-kutu {
+  overflow: hidden !important;
+  isolation: isolate;
+  contain: layout paint;
+}
+
 .iyzico-kutu #iyzipay-checkout-form,
-.iyzico-kutu #iyzipay-checkout-form > div {
+.iyzico-kutu #iyzipay-checkout-form > div,
+.iyzico-kutu #iyzipay-checkout-form > div > div {
   position: relative !important;
   inset: auto !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
   width: 100% !important;
   max-width: 100% !important;
-  min-height: 360px !important;
-  max-height: 70vh !important;
+  min-height: 280px !important;
+  max-height: 60vh !important;
+  margin: 0 !important;
 }
 
 .iyzico-kutu iframe {
   position: relative !important;
   inset: auto !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
   width: 100% !important;
   max-width: 100% !important;
-  min-height: 360px !important;
-  max-height: 70vh !important;
+  min-height: 280px !important;
+  max-height: 60vh !important;
   border: 0 !important;
 }

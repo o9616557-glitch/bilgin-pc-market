@@ -39,6 +39,17 @@ export function temizleIyzicoKalintilari() {
   silOdemeIframeKalintilari();
   silIyzicoScriptleri();
 
+  document.querySelectorAll("div").forEach((el) => {
+    if (!(el instanceof HTMLElement)) return;
+    if (el.id === "iyzico-panel" || el.closest("#iyzico-panel")) return;
+    const iframe = el.querySelector("iframe");
+    if (!iframe) return;
+    const src = iframe.getAttribute("src") || "";
+    if (!/iyzipay|iyzico/i.test(src) && src && src !== "about:blank") return;
+    const pos = getComputedStyle(el).position;
+    if (pos === "fixed" || pos === "absolute") el.remove();
+  });
+
   document.querySelectorAll("#iyzipay-checkout-form, #iyzico-inject-target").forEach((el) => {
     el.innerHTML = "";
   });

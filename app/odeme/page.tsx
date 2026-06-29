@@ -213,14 +213,6 @@ export default function OdemeSayfasi() {
       observer = new MutationObserver(kontrolHazir);
       observer.observe(el, { childList: true, subtree: true });
 
-      setTimeout(() => {
-        const panel = document.getElementById("iyzico-panel");
-        if (panel) {
-          const y = panel.getBoundingClientRect().top + window.scrollY - 120;
-          window.scrollTo({ top: y, behavior: "smooth" });
-        }
-      }, 300);
-
       return true;
     };
 
@@ -571,35 +563,53 @@ export default function OdemeSayfasi() {
       </div>
 
       {iyzicoFormHtml && (
-        <div
-          id="iyzico-panel"
-          className="fixed z-[160] left-3 right-3 sm:left-auto sm:right-auto sm:w-full sm:max-w-xl top-[max(5.5rem,12vh)] bottom-[max(1rem,5vh)] sm:mx-auto glass-card border-site-accent/40 p-4 sm:p-6 overflow-hidden flex flex-col shadow-[0_0_60px_rgba(0,210,255,0.15)] animate-in zoom-in-95 duration-300"
-        >
-          <div className="flex justify-between items-center mb-4 pb-4 border-b border-white/[0.06] shrink-0">
-            <h3 className="font-semibold text-white text-sm sm:text-base flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-emerald-400" /> Güvenli ödeme
-            </h3>
-            <button
-              type="button"
-              onClick={iyzicoKapat}
-              className="text-white text-xs font-semibold px-4 py-2 rounded-lg bg-rose-500/20 border border-rose-400/40 hover:bg-rose-500/30 transition-colors"
-            >
-              Vazgeç
-            </button>
-          </div>
+        <div className="fixed inset-0 z-[160] flex items-center justify-center p-3 sm:p-6 pointer-events-none">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              iyzicoKapat();
+            }}
+            className="pointer-events-auto fixed top-[max(0.75rem,env(safe-area-inset-top))] right-[max(0.75rem,env(safe-area-inset-right))] z-[200] text-white text-sm font-semibold px-5 py-2.5 rounded-xl bg-rose-600 border border-rose-400 shadow-lg shadow-rose-900/40 hover:bg-rose-500 active:scale-95 transition-all"
+          >
+            Vazgeç
+          </button>
 
-          <div className="bg-white p-2 sm:p-4 rounded-2xl w-full flex-1 min-h-0 overflow-hidden flex items-center justify-center iyzico-kutu relative">
-            {!iyzicoHazir && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center z-0 bg-slate-50 rounded-2xl m-2 sm:m-4">
-                <div className="w-10 h-10 border-4 border-[#3b82f6]/20 border-t-[#3b82f6] rounded-full animate-spin mb-3" />
-                <span className="text-slate-500 font-bold text-sm animate-pulse uppercase tracking-widest">İyzico Yükleniyor...</span>
-              </div>
-            )}
-            <div
-              ref={iyzicoFormRef}
-              id="iyzipay-checkout-form"
-              className="responsive w-full relative z-10 min-h-[200px] h-full"
-            />
+          <div
+            id="iyzico-panel"
+            className="pointer-events-auto w-full max-w-2xl max-h-[min(90vh,820px)] glass-card border-site-accent/40 p-4 sm:p-6 overflow-hidden flex flex-col shadow-[0_0_60px_rgba(0,210,255,0.15)] animate-in zoom-in-95 duration-300"
+          >
+            <div className="flex justify-between items-center mb-4 pb-4 border-b border-white/[0.06] shrink-0 relative z-[20]">
+              <h3 className="font-semibold text-white text-sm sm:text-base flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-emerald-400" /> Güvenli ödeme
+              </h3>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  iyzicoKapat();
+                }}
+                className="text-white text-xs font-semibold px-4 py-2 rounded-lg bg-rose-500/20 border border-rose-400/40 hover:bg-rose-500/30 transition-colors relative z-[20]"
+              >
+                Vazgeç
+              </button>
+            </div>
+
+            <div className="bg-white p-2 sm:p-4 rounded-2xl w-full flex-1 min-h-0 overflow-hidden iyzico-kutu relative z-0">
+              {!iyzicoHazir && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-[5] bg-slate-50 rounded-2xl">
+                  <div className="w-10 h-10 border-4 border-[#3b82f6]/20 border-t-[#3b82f6] rounded-full animate-spin mb-3" />
+                  <span className="text-slate-500 font-bold text-sm animate-pulse uppercase tracking-widest">İyzico Yükleniyor...</span>
+                </div>
+              )}
+              <div
+                ref={iyzicoFormRef}
+                id="iyzipay-checkout-form"
+                className="responsive w-full relative z-[1] min-h-[280px] h-full overflow-hidden"
+              />
+            </div>
           </div>
         </div>
       )}
