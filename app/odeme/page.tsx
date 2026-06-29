@@ -9,7 +9,6 @@ import {
   temizleOdemeSayfasiKalintilari,
   enjekteIyzicoCheckoutForm,
   iyzicoFormuYuklendiMi,
-  odemeSayfasindanCik,
 } from "@/lib/iyzico-checkout";
 
 const labelClass = "text-xs text-slate-400 font-medium block mb-1.5";
@@ -53,28 +52,21 @@ export default function OdemeSayfasi() {
     };
   }, []);
 
-  const odemeLinkTikla = (hedef: string, e: React.MouseEvent) => {
-    if (!iyzicoFormHtml) return;
-    e.preventDefault();
-    odemeSayfasindanCik(hedef);
+  const iyzicoKapat = () => {
+    temizleIyzicoKalintilari();
+    setIyzicoHazir(false);
+    setIyzicoFormHtml("");
   };
 
   useEffect(() => {
-    if (!iyzicoFormHtml) return;
-
-    const yakalaNavigasyon = (e: MouseEvent) => {
-      const anchor = (e.target as Element).closest("a[href]");
-      if (!anchor) return;
-      const href = anchor.getAttribute("href");
-      if (!href || href.startsWith("#") || href.includes("/odeme")) return;
-
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      odemeSayfasindanCik(href);
+    if (iyzicoFormHtml) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
     };
-
-    document.addEventListener("click", yakalaNavigasyon, true);
-    return () => document.removeEventListener("click", yakalaNavigasyon, true);
   }, [iyzicoFormHtml]);
 // 🚀 ERKENCİ ÇIRAK MOTORU V2 (0 MİLİSANİYE - SIFIR GECİKME!)
   useEffect(() => {
@@ -307,13 +299,25 @@ export default function OdemeSayfasi() {
 
   return (
     <div className="min-h-screen site-page pb-12 relative">
-      <div className="glass-panel border-b border-white/[0.06] sticky top-0 z-50 mb-6 sm:mb-8 rounded-none">
+      {iyzicoFormHtml && (
+        <div
+          className="fixed inset-0 z-[150] bg-[#050814]/80 backdrop-blur-md"
+          aria-hidden="true"
+        />
+      )}
+
+      <div
+        className={[
+          "glass-panel border-b border-white/[0.06] sticky top-0 mb-6 sm:mb-8 rounded-none transition-opacity",
+          iyzicoFormHtml ? "z-40 opacity-40 pointer-events-none" : "z-50",
+        ].join(" ")}
+      >
         <div className="site-container-narrow py-3.5 sm:py-4 flex items-center justify-between">
-          <Link href="/sepet" onClick={(e) => odemeLinkTikla("/sepet", e)} className="flex items-center gap-2 text-sm text-slate-400 hover:text-site-accent transition-colors">
+          <Link href="/sepet" className="flex items-center gap-2 text-sm text-slate-400 hover:text-site-accent transition-colors">
             <ArrowLeft className="w-4 h-4 shrink-0" />
             <span className="hidden sm:inline">Sepete dön</span>
           </Link>
-          <Link href="/" onClick={(e) => odemeLinkTikla("/", e)} className="font-semibold text-lg sm:text-xl tracking-tight text-white hover:opacity-80 transition-opacity">
+          <Link href="/" className="font-semibold text-lg sm:text-xl tracking-tight text-white hover:opacity-80 transition-opacity">
             BİLGİN <span className="site-accent-text">PC</span>
           </Link>
           <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-medium bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20">
@@ -323,7 +327,12 @@ export default function OdemeSayfasi() {
         </div>
       </div>
 
-      <div className="site-container-narrow">
+      <div
+        className={[
+          "site-container-narrow transition-opacity",
+          iyzicoFormHtml ? "opacity-40 pointer-events-none" : "",
+        ].join(" ")}
+      >
         <h1 className="site-h2 mb-6">Güvenli ödeme</h1>
 
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
@@ -491,40 +500,6 @@ export default function OdemeSayfasi() {
                 {adresAraniyor ? "Bilgiler kontrol ediliyor…" : yukleniyor ? "İşleniyor…" : "Siparişi onayla"}
               </button>
             </form>
-
-            {iyzicoFormHtml && (
-              <div id="iyzico-panel" className="glass-card border-site-accent/30 p-4 sm:p-6 relative overflow-hidden animate-in slide-in-from-top-4 duration-500">
-                <div className="flex justify-between items-center mb-4 pb-4 border-b border-white/[0.06]">
-                  <h3 className="font-semibold text-white text-sm sm:text-base flex items-center gap-2">
-                    <ShieldCheck className="w-5 h-5 text-emerald-400" /> Güvenli ödeme
-                  </h3>
-                  <button
-                    onClick={() => {
-                      temizleIyzicoKalintilari();
-                      setIyzicoHazir(false);
-                      setIyzicoFormHtml("");
-                    }}
-                    className="text-slate-400 hover:text-white text-xs font-medium px-3 py-1.5 rounded-lg border border-white/[0.08] hover:bg-white/[0.04] transition-colors"
-                  >
-                    Vazgeç
-                  </button>
-                </div>
-                
-                <div className="bg-white p-2 sm:p-4 rounded-2xl w-full relative min-h-[350px] max-h-[75vh] overflow-hidden flex items-center justify-center iyzico-kutu">
-                  {!iyzicoHazir && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center z-0 bg-slate-50 rounded-2xl">
-                      <div className="w-10 h-10 border-4 border-[#3b82f6]/20 border-t-[#3b82f6] rounded-full animate-spin mb-3" />
-                      <span className="text-slate-500 font-bold text-sm animate-pulse uppercase tracking-widest">İyzico Yükleniyor...</span>
-                    </div>
-                  )}
-                  <div
-                    ref={iyzicoFormRef}
-                    id="iyzipay-checkout-form"
-                    className="responsive w-full relative z-10 min-h-[200px]"
-                  />
-                </div>
-              </div>
-            )}
           </div>
 
          <div className="w-full lg:w-[340px] shrink-0 lg:sticky lg:top-28 h-fit space-y-4">
@@ -594,6 +569,40 @@ export default function OdemeSayfasi() {
           </div>
         </div>
       </div>
+
+      {iyzicoFormHtml && (
+        <div
+          id="iyzico-panel"
+          className="fixed z-[160] left-3 right-3 sm:left-auto sm:right-auto sm:w-full sm:max-w-xl top-[max(5.5rem,12vh)] bottom-[max(1rem,5vh)] sm:mx-auto glass-card border-site-accent/40 p-4 sm:p-6 overflow-hidden flex flex-col shadow-[0_0_60px_rgba(0,210,255,0.15)] animate-in zoom-in-95 duration-300"
+        >
+          <div className="flex justify-between items-center mb-4 pb-4 border-b border-white/[0.06] shrink-0">
+            <h3 className="font-semibold text-white text-sm sm:text-base flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-emerald-400" /> Güvenli ödeme
+            </h3>
+            <button
+              type="button"
+              onClick={iyzicoKapat}
+              className="text-white text-xs font-semibold px-4 py-2 rounded-lg bg-rose-500/20 border border-rose-400/40 hover:bg-rose-500/30 transition-colors"
+            >
+              Vazgeç
+            </button>
+          </div>
+
+          <div className="bg-white p-2 sm:p-4 rounded-2xl w-full flex-1 min-h-0 overflow-hidden flex items-center justify-center iyzico-kutu relative">
+            {!iyzicoHazir && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center z-0 bg-slate-50 rounded-2xl m-2 sm:m-4">
+                <div className="w-10 h-10 border-4 border-[#3b82f6]/20 border-t-[#3b82f6] rounded-full animate-spin mb-3" />
+                <span className="text-slate-500 font-bold text-sm animate-pulse uppercase tracking-widest">İyzico Yükleniyor...</span>
+              </div>
+            )}
+            <div
+              ref={iyzicoFormRef}
+              id="iyzipay-checkout-form"
+              className="responsive w-full relative z-10 min-h-[200px] h-full"
+            />
+          </div>
+        </div>
+      )}
 
    {acikSozlesme && (
         // 🚀 İŞTE O EFSANE TAŞ ZEMİN (ARKA PLANI DONDURAN VE BULANIKLAŞTIRAN KISIM)
