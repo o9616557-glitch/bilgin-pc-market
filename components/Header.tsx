@@ -571,8 +571,28 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
             <ArrowRight className="w-4 h-4 text-emerald-500/60 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all" />
           </Link>
 
-          {/* Kategoriler — accordion */}
-          <MobilKategoriAccordion onClose={() => setMenuAcik(false)} />
+          {/* Kategoriler */}
+          <div className="space-y-6">
+            {menuCategories.map((category, index) => (
+              <div key={index}>
+                <p className="text-[10px] font-semibold text-[#3b82f6]/80 uppercase tracking-[0.15em] mb-2 px-1">{category.title}</p>
+                <div className="rounded-xl overflow-hidden border border-white/[0.06] bg-white/[0.02]">
+                  {category.items.map((item, i) => (
+                    <Link
+                      key={item.slug}
+                      href={"/kategori/" + item.slug}
+                      prefetch={false}
+                      onClick={() => setMenuAcik(false)}
+                      className={`flex items-center justify-between px-4 py-3.5 group transition-colors hover:bg-white/[0.04] ${i !== 0 ? "border-t border-white/[0.05]" : ""}`}
+                    >
+                      <span className="text-sm font-medium text-slate-300 group-hover:text-white transition-colors">{item.name}</span>
+                      <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-[#3b82f6] group-hover:translate-x-0.5 transition-all" />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
 
         </div>
       </div>
