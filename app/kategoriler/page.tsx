@@ -96,39 +96,66 @@ export default function KategorilerSayfasi() {
     <div className="min-h-screen bg-[#020617] py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
 
-        <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-black text-white">Tüm Kategoriler</h1>
-          <p className="text-slate-400 text-sm mt-1">İstediğin kategoriye gir, ürünleri incele</p>
+        {/* SECENEK A — Max genişlik daraltılmış (max-w-xl, ortada) */}
+        <div className="mb-2">
+          <span className="bg-cyan-500 text-black text-xs font-black px-3 py-1 rounded-full">A — Ortada dar</span>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {KATEGORILER.map((k) => (
-            <Link
-              key={k.slug}
-              href={`/kategori/${k.slug}`}
-              className="group flex items-center gap-3 bg-[#0f172a] border border-slate-800 hover:border-slate-700 rounded-xl px-3 py-2 transition-colors"
-            >
-              {/* Resim kutusu — tam dolu, boşluksuz */}
+        <div className="max-w-xl mx-auto w-full grid grid-cols-1 sm:grid-cols-2 gap-3 mb-12">
+          {KATEGORILER.filter(k => k.slug === "mouse" || k.slug === "klavye" || k.slug === "monitor").map((k) => (
+            <Link key={k.slug} href={`/kategori/${k.slug}`}
+              className="group flex items-center gap-3 bg-[#0f172a] border border-slate-800 hover:border-slate-700 rounded-xl px-3 py-2 transition-colors">
               <div className={`relative w-12 h-12 shrink-0 overflow-hidden rounded-lg ${!k.resim ? `bg-gradient-to-br ${k.renk}` : ""}`}>
-                {k.resim && (
-                  <Image
-                    src={k.resim}
-                    alt={k.isim}
-                    fill
-                    className="object-contain p-0.5"
-                    unoptimized
-                  />
-                )}
+                {k.resim && <Image src={k.resim} alt={k.isim} fill className="object-contain p-0.5" unoptimized />}
               </div>
-
               <div className="flex-1 min-w-0">
-                <p className="text-white font-bold text-sm sm:text-base truncate">
-                  {k.isim}
-                </p>
+                <p className="text-white font-bold text-sm truncate">{k.isim}</p>
                 <p className="text-slate-500 text-xs mt-0.5 truncate">{k.aciklama}</p>
               </div>
+              <ChevronRight className="w-4 h-4 text-slate-600 shrink-0" />
+            </Link>
+          ))}
+        </div>
 
-              <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-cyan-400 shrink-0 transition-colors" />
+        <div className="border-t border-slate-800 mb-12" />
+
+        {/* SECENEK B — Tek kolon, tam genişlik */}
+        <div className="mb-2">
+          <span className="bg-purple-500 text-white text-xs font-black px-3 py-1 rounded-full">B — Tek kolon</span>
+        </div>
+        <div className="grid grid-cols-1 gap-2 mb-12">
+          {KATEGORILER.filter(k => k.slug === "mouse" || k.slug === "klavye" || k.slug === "monitor").map((k) => (
+            <Link key={k.slug} href={`/kategori/${k.slug}`}
+              className="group flex items-center gap-3 bg-[#0f172a] border border-slate-800 hover:border-slate-700 rounded-xl px-3 py-2 transition-colors">
+              <div className={`relative w-12 h-12 shrink-0 overflow-hidden rounded-lg ${!k.resim ? `bg-gradient-to-br ${k.renk}` : ""}`}>
+                {k.resim && <Image src={k.resim} alt={k.isim} fill className="object-contain p-0.5" unoptimized />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-white font-bold text-sm truncate">{k.isim}</p>
+                <p className="text-slate-500 text-xs mt-0.5 truncate">{k.aciklama}</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-600 shrink-0" />
+            </Link>
+          ))}
+        </div>
+
+        <div className="border-t border-slate-800 mb-12" />
+
+        {/* SECENEK C — Padding artırılmış, daha çerçeveli */}
+        <div className="mb-2">
+          <span className="bg-emerald-500 text-white text-xs font-black px-3 py-1 rounded-full">C — Geniş padding</span>
+        </div>
+        <div className="px-4 sm:px-10 grid grid-cols-1 sm:grid-cols-2 gap-3 mb-12">
+          {KATEGORILER.filter(k => k.slug === "mouse" || k.slug === "klavye" || k.slug === "monitor").map((k) => (
+            <Link key={k.slug} href={`/kategori/${k.slug}`}
+              className="group flex items-center gap-3 bg-[#0f172a] border border-slate-800 hover:border-slate-700 rounded-xl px-3 py-2 transition-colors">
+              <div className={`relative w-12 h-12 shrink-0 overflow-hidden rounded-lg ${!k.resim ? `bg-gradient-to-br ${k.renk}` : ""}`}>
+                {k.resim && <Image src={k.resim} alt={k.isim} fill className="object-contain p-0.5" unoptimized />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-white font-bold text-sm truncate">{k.isim}</p>
+                <p className="text-slate-500 text-xs mt-0.5 truncate">{k.aciklama}</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-600 shrink-0" />
             </Link>
           ))}
         </div>
