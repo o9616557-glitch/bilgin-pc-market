@@ -80,7 +80,7 @@ const KATEGORILER = [
     isim: "Mouse & Mousepad",
     aciklama: "Gaming ve profesyonel fareler",
     renk: "from-teal-600 to-teal-900",
-    resim: "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1781099191/h732_1_z0pv1n.png",
+    resim: "https://res.cloudinary.com/dtnbkoa9s/image/upload/b_transparent/v1781099191/h732_1_z0pv1n.png",
   },
   {
     slug: "laptop",
@@ -106,25 +106,23 @@ export default function KategorilerSayfasi() {
             <Link
               key={k.slug}
               href={`/kategori/${k.slug}`}
-              className="group flex items-center gap-4 bg-[#0f172a] border border-slate-800 hover:border-slate-600 rounded-2xl p-3 transition-all hover:bg-[#1e293b]"
+              className="group flex items-center gap-4 bg-[#0f172a] border border-slate-800 hover:border-slate-700 rounded-2xl p-3 transition-colors"
             >
-              {/* Resim kutusu */}
-              <div className={`relative w-16 h-16 shrink-0 overflow-hidden rounded-xl ${k.resim ? "bg-[#0f172a]" : `bg-gradient-to-br ${k.renk}`}`}>
-                {k.resim ? (
+              {/* Resim kutusu — tam dolu, boşluksuz */}
+              <div className={`relative w-16 h-16 shrink-0 overflow-hidden rounded-xl ${!k.resim ? `bg-gradient-to-br ${k.renk}` : "bg-[#020617]"}`}>
+                {k.resim && (
                   <Image
                     src={k.resim}
                     alt={k.isim}
                     fill
-                    className="object-contain scale-110"
-                    style={{ mixBlendMode: "multiply" }}
+                    className="object-contain p-0.5"
+                    unoptimized
                   />
-                ) : (
-                  <div className="w-full h-full" />
                 )}
               </div>
 
               <div className="flex-1 min-w-0">
-                <p className="text-white font-bold text-sm sm:text-base truncate group-hover:text-cyan-300 transition-colors">
+                <p className="text-white font-bold text-sm sm:text-base truncate">
                   {k.isim}
                 </p>
                 <p className="text-slate-500 text-xs mt-0.5 truncate">{k.aciklama}</p>
