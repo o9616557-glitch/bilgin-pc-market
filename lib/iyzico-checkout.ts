@@ -1,4 +1,5 @@
 /** İyzico checkoutFormContent DOM'a yerleştirir ve script'leri çalıştırır. */
+
 export function sifirlaSayfaKilidi() {
   document.body.style.overflow = "";
   document.body.style.removeProperty("overflow");
@@ -6,33 +7,59 @@ export function sifirlaSayfaKilidi() {
   document.documentElement.style.overflow = "";
 }
 
-export function temizleIyzicoKalintilari() {
-  document.querySelectorAll("iframe").forEach((iframe) => {
-    const src = iframe.getAttribute("src") || "";
-    if (/iyzipay|iyzico/i.test(src)) iframe.remove();
-  });
-
+function silIyzicoScriptleri() {
   document.querySelectorAll("script").forEach((script) => {
     const src = script.getAttribute("src") || "";
     const text = script.textContent || "";
     if (/iyzipay|iyzico|iyziInit/i.test(src + text)) script.remove();
   });
 
+  const w = window as Window & { iyziInit?: unknown; IyziInit?: unknown; iyzipay?: unknown };
+  delete w.iyziInit;
+  delete w.IyziInit;
+  delete w.iyzipay;
+}
+
+function silOdemeIframeKalintilari() {
+  document.querySelectorAll("iframe").forEach((iframe) => {
+    const src = iframe.getAttribute("src") || "";
+    const odemeIframe =
+      /iyzipay|iyzico/i.test(src) ||
+      !src ||
+      src === "about:blank" ||
+      src.startsWith("chrome-error:") ||
+      iframe.closest("#iyzico-panel, #iyzipay-checkout-form, #iyzico-inject-target");
+
+    if (odemeIframe) iframe.remove();
+  });
+}
+
+/** Aynı sayfada yeni form yüklemeden önce — hafif temizlik */
+export function temizleIyzicoKalintilari() {
+  silOdemeIframeKalintilari();
+  silIyzicoScriptleri();
+
+  document.querySelectorAll("#iyzipay-checkout-form, #iyzico-inject-target").forEach((el) => {
+    el.innerHTML = "";
+  });
+}
+
+/** Ödeme sayfasından çıkınca — tüm iframe ve overlay kalıntılarını kaldır */
+export function temizleOdemeSayfasiKalintilari() {
+  silIyzicoScriptleri();
+
+  document.querySelectorAll("iframe").forEach((iframe) => iframe.remove());
+
   document.querySelectorAll("#iyzipay-checkout-form, #iyzico-inject-target").forEach((el) => {
     el.innerHTML = "";
   });
 
   document.body.querySelectorAll(":scope > div").forEach((el) => {
-    const hasIyzicoIframe = el.querySelector("iframe[src*='iyzipay'], iframe[src*='iyzico']");
-    if (!hasIyzicoIframe) return;
     if (el.querySelector("main, header, nav")) return;
-    el.remove();
+    const onlyOverlay = el.querySelector("iframe") && !el.textContent?.trim();
+    const iyzicoId = el.id?.toLowerCase().includes("iyzi");
+    if (onlyOverlay || iyzicoId) el.remove();
   });
-
-  const w = window as Window & { iyziInit?: unknown; IyziInit?: unknown; iyzipay?: unknown };
-  delete w.iyziInit;
-  delete w.IyziInit;
-  delete w.iyzipay;
 
   sifirlaSayfaKilidi();
 }

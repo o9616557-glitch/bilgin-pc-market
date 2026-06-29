@@ -6,9 +6,9 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import {
   temizleIyzicoKalintilari,
+  temizleOdemeSayfasiKalintilari,
   enjekteIyzicoCheckoutForm,
   iyzicoFormuYuklendiMi,
-  sifirlaSayfaKilidi,
 } from "@/lib/iyzico-checkout";
 
 const labelClass = "text-xs text-slate-400 font-medium block mb-1.5";
@@ -48,8 +48,7 @@ export default function OdemeSayfasi() {
 
   useEffect(() => {
     return () => {
-      temizleIyzicoKalintilari();
-      sifirlaSayfaKilidi();
+      temizleOdemeSayfasiKalintilari();
     };
   }, []);
 // 🚀 ERKENCİ ÇIRAK MOTORU V2 (0 MİLİSANİYE - SIFIR GECİKME!)
