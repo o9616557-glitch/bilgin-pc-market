@@ -24,6 +24,9 @@ const OEM_PAKET_IMG =
 const PREMIUM_LAPTOP_IMG =
   "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782739109/Ads%C4%B1z_tasar%C4%B1m_-_2026-06-29T153328.342_etyv3p.png";
 
+const MASAUSTU_BILGISAYAR_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782739758/Ads%C4%B1z_tasar%C4%B1m_-_2026-06-29T162859.453_hprwgg.png";
+
 type AltKategori = { slug: string; isim: string; renk: string; resim: string };
 
 // Header — 6 ana kategori
@@ -38,7 +41,7 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; renk: string;
       { slug: "oyun-bilgisayari", isim: "Oyun Bilgisayarı", renk: "from-violet-600 to-violet-900", resim: OYUN_BILGISAYARI_IMG },
       { slug: "laptop", isim: "Premium Laptop & Notebook", renk: "from-purple-600 to-purple-900", resim: PREMIUM_LAPTOP_IMG },
       { slug: "oem-paket", isim: "OEM Paketler", renk: "from-indigo-600 to-indigo-900", resim: OEM_PAKET_IMG },
-      { slug: "masaustu", isim: "Masaüstü Bilgisayar", renk: "from-fuchsia-600 to-fuchsia-900", resim: "" },
+      { slug: "masaustu", isim: "Masaüstü Bilgisayar", renk: "from-fuchsia-600 to-fuchsia-900", resim: MASAUSTU_BILGISAYAR_IMG },
     ],
   },
   {
