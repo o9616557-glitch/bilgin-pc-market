@@ -208,14 +208,12 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     dragMovedRef.current = false;
   };
 
-  const handleGalleryTouchMove = (e: React.TouchEvent, maxIndex: number) => {
+  const handleGalleryTouchMove = (e: React.TouchEvent) => {
     if (!isGalleryDragging) return;
-    let dx = e.touches[0].clientX - touchStartRef.current.x;
+    const dx = e.touches[0].clientX - touchStartRef.current.x;
     const dy = e.touches[0].clientY - touchStartRef.current.y;
     if (Math.abs(dx) < Math.abs(dy) && Math.abs(dx) < 10) return;
     if (Math.abs(dx) > 8) dragMovedRef.current = true;
-    if (seciliResimIndex === 0 && dx > 0) dx *= 0.35;
-    if (seciliResimIndex === maxIndex && dx < 0) dx *= 0.35;
     dragXRef.current = dx;
     setDragX(dx);
   };
@@ -323,7 +321,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
             <div 
               ref={galleryRef}
               onTouchStart={resimler.length > 1 ? handleGalleryTouchStart : undefined}
-              onTouchMove={resimler.length > 1 ? (e) => handleGalleryTouchMove(e, resimler.length - 1) : undefined}
+              onTouchMove={resimler.length > 1 ? handleGalleryTouchMove : undefined}
               onTouchEnd={resimler.length > 1 ? () => handleGalleryTouchEnd(galleryRef) : undefined}
               onMouseMove={handleMouseMove}
               onMouseEnter={() => setIsHoveringImg(true)}
@@ -713,7 +711,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       {lightboxAcik && (
         <div 
           onTouchStart={resimler.length > 1 ? handleGalleryTouchStart : undefined}
-          onTouchMove={resimler.length > 1 ? (e) => handleGalleryTouchMove(e, resimler.length - 1) : undefined}
+          onTouchMove={resimler.length > 1 ? handleGalleryTouchMove : undefined}
           onTouchEnd={resimler.length > 1 ? () => handleGalleryTouchEnd(lightboxRef) : undefined}
           className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex items-center justify-center p-0 sm:p-4 select-none touch-pan-y"
         >

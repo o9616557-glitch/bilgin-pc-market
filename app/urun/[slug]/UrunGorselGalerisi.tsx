@@ -28,11 +28,9 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging) return;
-    let dx = e.touches[0].clientX - touchStartRef.current.x;
+    const dx = e.touches[0].clientX - touchStartRef.current.x;
     const dy = e.touches[0].clientY - touchStartRef.current.y;
     if (Math.abs(dx) < Math.abs(dy) && Math.abs(dx) < 10) return;
-    if (aktifResim === 0 && dx > 0) dx *= 0.35;
-    if (aktifResim === gecerliResimler.length - 1 && dx < 0) dx *= 0.35;
     dragXRef.current = dx;
     setDragX(dx);
   };
@@ -43,8 +41,8 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
     const width = galleryRef.current?.offsetWidth || 1;
     const threshold = width * 0.18;
     const currentDrag = dragXRef.current;
-    if (currentDrag < -threshold && aktifResim < gecerliResimler.length - 1) setAktifResim((i) => i + 1);
-    else if (currentDrag > threshold && aktifResim > 0) setAktifResim((i) => i - 1);
+    if (currentDrag < -threshold) setAktifResim((i) => (i + 1) % gecerliResimler.length);
+    else if (currentDrag > threshold) setAktifResim((i) => (i - 1 + gecerliResimler.length) % gecerliResimler.length);
     dragXRef.current = 0;
     setDragX(0);
   };
