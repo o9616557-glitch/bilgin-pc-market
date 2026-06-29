@@ -1,19 +1,19 @@
 "use client";
 import { ArrowLeft, CreditCard, Banknote, ShieldCheck, MapPin, Edit3, User, Phone, Mail, X } from "lucide-react";
 import { useCart } from "../CartContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import {
+  temizleIyzicoKalintilari,
+  temizleOdemeSayfasiKalintilari,
+  enjekteIyzicoCheckoutForm,
+  iyzicoIframeVarMi,
+} from "@/lib/iyzico-checkout";
 
 const labelClass = "text-xs text-slate-400 font-medium block mb-1.5";
 const fieldClass =
   "w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-site-accent/50 focus:bg-white/[0.05] transition-colors";
-
-function temizleIyzicoKalintilari() {
-  document.getElementById("iyzico-script")?.remove();
-  const formKutusu = document.getElementById("iyzipay-checkout-form");
-  if (formKutusu) formKutusu.innerHTML = "";
-}
 
 export default function OdemeSayfasi() {
   const { data: session, status } = useSession();
@@ -22,6 +22,7 @@ export default function OdemeSayfasi() {
   const [odemeYontemi, setOdemeYontemi] = useState("kart");
   const [yukleniyor, setYukleniyor] = useState(false);
   const [iyzicoFormHtml, setIyzicoFormHtml] = useState<string>("");
+  const iyzicoFormRef = useRef<HTMLDivElement>(null);
   const [ibanKopyalandi, setIbanKopyalandi] = useState(false);
   const [faturaAyni, setFaturaAyni] = useState(true);
   const [acikSozlesme, setAcikSozlesme] = useState<"mesafeli" | "gizlilik" | null>(null);
@@ -45,10 +46,9 @@ export default function OdemeSayfasi() {
   }, [session, status]);
 
   useEffect(() => {
-    temizleIyzicoKalintilari();
     sessionStorage.removeItem("iyzico_temizle");
     return () => {
-      temizleIyzicoKalintilari();
+      temizleOdemeSayfasiKalintilari();
     };
   }, []);
 // 🚀 ERKENCİ ÇIRAK MOTORU V2 (0 MİLİSANİYE - SIFIR GECİKME!)
@@ -173,30 +173,46 @@ export default function OdemeSayfasi() {
   const faturaInputDegis = (e: any) => { setFaturaForm({ ...faturaForm, [e.target.name]: e.target.value }); };
 
   useEffect(() => {
-    if (iyzicoFormHtml) {
-      const gonderilenScript = document.getElementById("iyzico-script");
-      if (gonderilenScript) gonderilenScript.remove();
+    if (!iyzicoFormHtml) return;
 
-      const formKutusu = document.getElementById("iyzipay-checkout-form");
-      if (formKutusu) {
-        // 1. YENİ FORM YÜKLENMEDEN ÖNCE ESKİ KALINTILARI TEMİZLE
-        formKutusu.innerHTML = ""; 
-        const icerik = document.createRange().createContextualFragment(iyzicoFormHtml);
-        formKutusu.appendChild(icerik);
-      }
+    const baslat = () => {
+      const el = iyzicoFormRef.current;
+      if (!el) return false;
+      enjekteIyzicoCheckoutForm(el, iyzicoFormHtml);
+      return true;
+    };
 
-      setTimeout(() => {
-        const panel = document.getElementById("iyzico-panel");
-        if (panel) {
-          const y = panel.getBoundingClientRect().top + window.scrollY - 120;
-          window.scrollTo({ top: y, behavior: "smooth" });
-        }
-      }, 300);
-    }
+    if (!baslat()) requestAnimationFrame(() => baslat());
 
-    // 2. KULLANICI SEPETE DÖNERSE VEYA ÇIKARSA İYZİCO'YU SIFIRLA (ÇÖZÜM BURADA)
     return () => {
       temizleIyzicoKalintilari();
+    };
+  }, [iyzicoFormHtml]);
+
+  /** İyzico'nun kendi X ile kapandığını algıla → forma geri dön */
+  useEffect(() => {
+    if (!iyzicoFormHtml) return;
+
+    let iframeGoruldu = false;
+
+    const kontrol = () => {
+      if (iyzicoIframeVarMi()) {
+        iframeGoruldu = true;
+        return;
+      }
+      if (iframeGoruldu) {
+        temizleIyzicoKalintilari();
+        setIyzicoFormHtml("");
+      }
+    };
+
+    const observer = new MutationObserver(kontrol);
+    observer.observe(document.body, { childList: true, subtree: true });
+    const timers = [500, 1500, 3000, 5000].map((ms) => setTimeout(kontrol, ms));
+
+    return () => {
+      observer.disconnect();
+      timers.forEach(clearTimeout);
     };
   }, [iyzicoFormHtml]);
 
@@ -447,33 +463,6 @@ export default function OdemeSayfasi() {
                 {adresAraniyor ? "Bilgiler kontrol ediliyor…" : yukleniyor ? "İşleniyor…" : "Siparişi onayla"}
               </button>
             </form>
-
-            {iyzicoFormHtml && (
-              <div id="iyzico-panel" className="glass-card border-site-accent/30 p-4 sm:p-6 relative overflow-hidden animate-in slide-in-from-top-4 duration-500">
-                <div className="flex justify-between items-center mb-4 pb-4 border-b border-white/[0.06]">
-                  <h3 className="font-semibold text-white text-sm sm:text-base flex items-center gap-2">
-                    <ShieldCheck className="w-5 h-5 text-emerald-400" /> Güvenli ödeme
-                  </h3>
-                  <button
-                    onClick={() => {
-                      temizleIyzicoKalintilari();
-                      setIyzicoFormHtml("");
-                    }}
-                    className="text-slate-400 hover:text-white text-xs font-medium px-3 py-1.5 rounded-lg border border-white/[0.08] hover:bg-white/[0.04] transition-colors"
-                  >
-                    Vazgeç
-                  </button>
-                </div>
-                
-                <div className="bg-white p-2 sm:p-4 rounded-2xl w-full relative min-h-[350px] flex items-center justify-center">
-                  <div className="absolute inset-0 flex flex-col items-center justify-center z-0 bg-slate-50 rounded-2xl">
-                     <div className="w-10 h-10 border-4 border-[#3b82f6]/20 border-t-[#3b82f6] rounded-full animate-spin mb-3"></div>
-                     <span className="text-slate-500 font-bold text-sm animate-pulse uppercase tracking-widest">İyzico Yükleniyor...</span>
-                  </div>
-                  <div id="iyzipay-checkout-form" className="responsive w-full relative z-10"></div>
-                </div>
-              </div>
-            )}
           </div>
 
          <div className="w-full lg:w-[340px] shrink-0 lg:sticky lg:top-28 h-fit space-y-4">
@@ -671,8 +660,9 @@ export default function OdemeSayfasi() {
         </div>
       )}
 
-      {/* İŞTE EKSİK OLAN KAPAK BURASI ŞEFİM! */}
-      
+      {/* İyzico kendi tam ekran arayüzü + X butonu */}
+      <div ref={iyzicoFormRef} id="iyzipay-checkout-form" className="responsive" />
+
       </div>
 
   );

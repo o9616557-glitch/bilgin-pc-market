@@ -166,3 +166,8 @@ body {
     letter-spacing: -0.01em;
   }
 }
+
+/* İyzico native overlay — kutuya sıkıştırma, tam ekran kendi CSS'i */
+#iyzipay-checkout-form.responsive:empty {
+  display: none;
+}
