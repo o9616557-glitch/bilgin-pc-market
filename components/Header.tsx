@@ -89,6 +89,21 @@ const SOGUTMA_KATALOG_IMG =
 const TERMAL_MACUN_KATALOG_IMG =
   "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782754370/Ads%C4%B1z_512_x_512_piksel_22_x7jmm7.png";
 
+const DEPOLAMA_AG_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782756664/Ads%C4%B1z_512_x_512_piksel_28_ytjqlv.png";
+
+const SSD_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782756744/Ads%C4%B1z_512_x_512_piksel_512_x_512_piksel_p9pwkp.png";
+
+const HDD_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782756603/Ads%C4%B1z_512_x_512_piksel_26_myvjzr.png";
+
+const MODEM_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782756601/Ads%C4%B1z_512_x_512_piksel_25_ztvfob.png";
+
+const USB_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782756603/Ads%C4%B1z_512_x_512_piksel_27_rzjzlp.png";
+
 type AltKategori = { slug: string; isim: string; renk: string; resim: string };
 
 // Header — 6 ana kategori
@@ -155,12 +170,12 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; renk: string;
     isim: "Depolama & Ağ",
     kisaIsim: "Depolama",
     renk: "from-emerald-700 to-emerald-950",
-    resim: "",
+    resim: DEPOLAMA_AG_KATALOG_IMG,
     altlar: [
-      { slug: "ssd", isim: "SSD & M.2 Disk", renk: "from-orange-600 to-orange-900", resim: "" },
-      { slug: "hdd", isim: "Sabit Disk (HDD)", renk: "from-amber-600 to-amber-900", resim: "" },
-      { slug: "modem", isim: "Modem", renk: "from-emerald-600 to-emerald-900", resim: "" },
-      { slug: "usb", isim: "USB Bellek & Hafıza Kartı", renk: "from-teal-600 to-teal-900", resim: "" },
+      { slug: "ssd", isim: "SSD & M.2 Disk", renk: "from-orange-600 to-orange-900", resim: SSD_KATALOG_IMG },
+      { slug: "hdd", isim: "Sabit Disk (HDD)", renk: "from-amber-600 to-amber-900", resim: HDD_KATALOG_IMG },
+      { slug: "modem", isim: "Modem", renk: "from-emerald-600 to-emerald-900", resim: MODEM_KATALOG_IMG },
+      { slug: "usb", isim: "USB Bellek & Hafıza Kartı", renk: "from-teal-600 to-teal-900", resim: USB_KATALOG_IMG },
     ],
   },
   {
