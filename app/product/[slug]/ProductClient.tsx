@@ -61,6 +61,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const dragMovedRef = useRef(false);
   const dragXRef = useRef(0);
   const tapHandledRef = useRef(false);
+  const trackIndexRef = useRef(1);
+  const isResettingRef = useRef(false);
+  const touchStartTimeRef = useRef(0);
   const [lightboxAcik, setLightboxAcik] = useState(false);
   
   const [zoomOrigin, setZoomOrigin] = useState("center center");
@@ -122,10 +125,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
   useEffect(() => {
     setTrackIndex(1);
+    trackIndexRef.current = 1;
     setSeciliResimIndex(0);
     setDragX(0);
     dragXRef.current = 0;
+    isResettingRef.current = false;
   }, [galleryResimSayisi]);
+
+  useEffect(() => {
+    trackIndexRef.current = trackIndex;
+  }, [trackIndex]);
 
   useEffect(() => {
     if (galleryResimSayisi <= 1) return;
@@ -221,12 +230,62 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const cokluResim = resimler.length > 1;
   const loopResimler = cokluResim ? [resimler[resimler.length - 1], ...resimler, resimler[0]] : resimler;
 
+  const resimLen = resimler.length;
+
+  const snapTrackIndex = (target: number) => {
+    isResettingRef.current = true;
+    setGalleryTransition(false);
+    setTrackIndex(target);
+    trackIndexRef.current = target;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setGalleryTransition(true);
+        isResettingRef.current = false;
+      });
+    });
+  };
+
   const degistirResim = (yeniIndex: number) => {
     if (!cokluResim) return;
-    setTrackIndex(yeniIndex + 1);
+    const target = yeniIndex + 1;
+    setTrackIndex(target);
+    trackIndexRef.current = target;
   };
-  const sonrakiResim = () => { if (cokluResim) setTrackIndex((i) => i + 1); };
-  const oncekiResim = () => { if (cokluResim) setTrackIndex((i) => i - 1); };
+
+  const sonrakiResim = () => {
+    if (!cokluResim) return;
+    const cur = trackIndexRef.current;
+    if (cur === resimLen + 1) {
+      snapTrackIndex(2);
+      return;
+    }
+    if (cur >= resimLen) {
+      const next = resimLen + 1;
+      setTrackIndex(next);
+      trackIndexRef.current = next;
+      return;
+    }
+    const next = cur + 1;
+    setTrackIndex(next);
+    trackIndexRef.current = next;
+  };
+
+  const oncekiResim = () => {
+    if (!cokluResim) return;
+    const cur = trackIndexRef.current;
+    if (cur === 0) {
+      snapTrackIndex(resimLen - 1);
+      return;
+    }
+    if (cur <= 1) {
+      setTrackIndex(0);
+      trackIndexRef.current = 0;
+      return;
+    }
+    const prev = cur - 1;
+    setTrackIndex(prev);
+    trackIndexRef.current = prev;
+  };
 
   const acLightbox = () => {
     setIsHoveringImg(false);
@@ -234,24 +293,25 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   };
 
   const handleGalleryTransitionEnd = () => {
-    if (!cokluResim || isGalleryDragging) return;
-    if (trackIndex === 0) {
-      setGalleryTransition(false);
-      setTrackIndex(resimler.length);
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => setGalleryTransition(true));
-      });
-    } else if (trackIndex === resimler.length + 1) {
-      setGalleryTransition(false);
-      setTrackIndex(1);
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => setGalleryTransition(true));
-      });
-    }
+    if (!cokluResim || isGalleryDragging || isResettingRef.current) return;
+    const cur = trackIndexRef.current;
+    if (cur === 0) snapTrackIndex(resimLen);
+    else if (cur === resimLen + 1) snapTrackIndex(1);
   };
 
   const handleGalleryTouchStart = (e: React.TouchEvent) => {
+    if (cokluResim) {
+      const cur = trackIndexRef.current;
+      if (cur === 0 || cur === resimLen + 1) {
+        const target = cur === 0 ? resimLen : 1;
+        setGalleryTransition(false);
+        setTrackIndex(target);
+        trackIndexRef.current = target;
+        requestAnimationFrame(() => setGalleryTransition(true));
+      }
+    }
     setIsGalleryDragging(true);
+    touchStartTimeRef.current = Date.now();
     touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     setDragX(0);
     dragXRef.current = 0;
@@ -275,8 +335,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     if (!isGalleryDragging) return;
     setIsGalleryDragging(false);
     const width = containerRef.current?.offsetWidth || 1;
-    const threshold = width * 0.18;
     const currentDrag = dragXRef.current;
+    const elapsed = Date.now() - touchStartTimeRef.current;
+    const flick = Math.abs(currentDrag) / Math.max(elapsed, 1) > 0.45;
+    const threshold = flick ? width * 0.1 : width * 0.14;
 
     if (Math.abs(currentDrag) < 12) {
       dragMovedRef.current = false;
@@ -442,7 +504,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 />
               ) : (
                 <div
-                  className={`flex h-full w-full ${isGalleryDragging || !galleryTransition ? "" : "transition-transform duration-500 ease-in-out"}`}
+                  className={`flex h-full w-full ${isGalleryDragging || !galleryTransition ? "" : "transition-transform duration-[280ms] ease-out"}`}
                   style={galleryTrackStyle}
                   onTransitionEnd={(e) => {
                     if (e.propertyName !== "transform") return;
@@ -799,7 +861,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                <img src={resimler[0]} className="w-full max-h-[92vh] object-contain" alt={urunAdi} />
              ) : (
                <div
-                 className={`flex h-full w-full max-h-[92vh] ${isGalleryDragging || !galleryTransition ? "" : "transition-transform duration-500 ease-in-out"}`}
+                 className={`flex h-full w-full max-h-[92vh] ${isGalleryDragging || !galleryTransition ? "" : "transition-transform duration-[280ms] ease-out"}`}
                  style={galleryTrackStyle}
                  onTransitionEnd={(e) => {
                    if (e.propertyName !== "transform") return;

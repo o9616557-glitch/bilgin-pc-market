@@ -22,20 +22,31 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
   const touchStartRef = useRef({ x: 0, y: 0 });
   const dragXRef = useRef(0);
   const tapHandledRef = useRef(false);
+  const trackIndexRef = useRef(1);
+  const isResettingRef = useRef(false);
+  const touchStartTimeRef = useRef(0);
+
+  const resimLen = gecerliResimler.length;
 
   useEffect(() => {
     setTrackIndex(1);
+    trackIndexRef.current = 1;
     setAktifResim(0);
     setDragX(0);
     dragXRef.current = 0;
+    isResettingRef.current = false;
   }, [gecerliResimler.length]);
 
   useEffect(() => {
+    trackIndexRef.current = trackIndex;
+  }, [trackIndex]);
+
+  useEffect(() => {
     if (!cokluResim) return;
-    if (trackIndex >= 1 && trackIndex <= gecerliResimler.length) {
+    if (trackIndex >= 1 && trackIndex <= resimLen) {
       setAktifResim(trackIndex - 1);
     }
-  }, [trackIndex, cokluResim, gecerliResimler.length]);
+  }, [trackIndex, cokluResim, resimLen]);
 
   useEffect(() => {
     if (lightboxAcik) document.body.style.overflow = "hidden";
@@ -45,39 +56,80 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
     };
   }, [lightboxAcik]);
 
-  if (gecerliResimler.length === 0) {
-    return (
-      <div style={{ width: "100%", height: "450px", backgroundColor: "#121214", borderRadius: "20px", border: "1px solid #27272a", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ color: "#52525b" }}>[ GÖRSEL_BEKLENİYOR ]</div>
-      </div>
-    );
-  }
-
-  const trackStyle = {
-    transform: `translateX(calc(-${trackIndex * 100}% + ${dragX}px))`,
+  const snapTrackIndex = (target: number) => {
+    isResettingRef.current = true;
+    setGalleryTransition(false);
+    setTrackIndex(target);
+    trackIndexRef.current = target;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setGalleryTransition(true);
+        isResettingRef.current = false;
+      });
+    });
   };
 
-  const acLightbox = () => setLightboxAcik(true);
+  const sonrakiResim = () => {
+    if (!cokluResim) return;
+    const cur = trackIndexRef.current;
+    if (cur === resimLen + 1) {
+      snapTrackIndex(2);
+      return;
+    }
+    if (cur >= resimLen) {
+      const next = resimLen + 1;
+      setTrackIndex(next);
+      trackIndexRef.current = next;
+      return;
+    }
+    const next = cur + 1;
+    setTrackIndex(next);
+    trackIndexRef.current = next;
+  };
+
+  const oncekiResim = () => {
+    if (!cokluResim) return;
+    const cur = trackIndexRef.current;
+    if (cur === 0) {
+      snapTrackIndex(resimLen - 1);
+      return;
+    }
+    if (cur <= 1) {
+      setTrackIndex(0);
+      trackIndexRef.current = 0;
+      return;
+    }
+    const prev = cur - 1;
+    setTrackIndex(prev);
+    trackIndexRef.current = prev;
+  };
+
+  const degistirResim = (index: number) => {
+    const target = index + 1;
+    setTrackIndex(target);
+    trackIndexRef.current = target;
+  };
 
   const handleTransitionEnd = () => {
-    if (!cokluResim || isDragging) return;
-    if (trackIndex === 0) {
-      setGalleryTransition(false);
-      setTrackIndex(gecerliResimler.length);
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => setGalleryTransition(true));
-      });
-    } else if (trackIndex === gecerliResimler.length + 1) {
-      setGalleryTransition(false);
-      setTrackIndex(1);
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => setGalleryTransition(true));
-      });
-    }
+    if (!cokluResim || isDragging || isResettingRef.current) return;
+    const cur = trackIndexRef.current;
+    if (cur === 0) snapTrackIndex(resimLen);
+    else if (cur === resimLen + 1) snapTrackIndex(1);
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
+    if (cokluResim) {
+      const cur = trackIndexRef.current;
+      if (cur === 0 || cur === resimLen + 1) {
+        const target = cur === 0 ? resimLen : 1;
+        setGalleryTransition(false);
+        setTrackIndex(target);
+        trackIndexRef.current = target;
+        requestAnimationFrame(() => setGalleryTransition(true));
+      }
+    }
     setIsDragging(true);
+    touchStartTimeRef.current = Date.now();
     touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     dragXRef.current = 0;
     setDragX(0);
@@ -99,23 +151,39 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
     if (!isDragging) return;
     setIsDragging(false);
     const width = containerRef.current?.offsetWidth || 1;
-    const threshold = width * 0.18;
     const currentDrag = dragXRef.current;
+    const elapsed = Date.now() - touchStartTimeRef.current;
+    const flick = Math.abs(currentDrag) / Math.max(elapsed, 1) > 0.45;
+    const threshold = flick ? width * 0.1 : width * 0.14;
 
     if (Math.abs(currentDrag) < 12) {
       if (lightboxTap) {
         tapHandledRef.current = true;
-        acLightbox();
+        setLightboxAcik(true);
       }
     } else if (currentDrag < -threshold) {
-      if (cokluResim) setTrackIndex((i) => i + 1);
+      sonrakiResim();
     } else if (currentDrag > threshold) {
-      if (cokluResim) setTrackIndex((i) => i - 1);
+      oncekiResim();
     }
 
     dragXRef.current = 0;
     setDragX(0);
   };
+
+  const trackStyle = {
+    transform: `translateX(calc(-${trackIndex * 100}% + ${dragX}px))`,
+  };
+
+  const transitionStyle = isDragging || !galleryTransition ? "none" : "transform 0.28s ease-out";
+
+  if (gecerliResimler.length === 0) {
+    return (
+      <div style={{ width: "100%", height: "450px", backgroundColor: "#121214", borderRadius: "20px", border: "1px solid #27272a", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ color: "#52525b" }}>[ GÖRSEL_BEKLENİYOR ]</div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}>
@@ -126,14 +194,14 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
         onTouchEnd={
           cokluResim
             ? () => handleTouchEnd(galleryRef, true)
-            : () => acLightbox()
+            : () => setLightboxAcik(true)
         }
         onClick={() => {
           if (tapHandledRef.current) {
             tapHandledRef.current = false;
             return;
           }
-          acLightbox();
+          setLightboxAcik(true);
         }}
         style={{
           width: "100%",
@@ -175,7 +243,7 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
               display: "flex",
               height: "100%",
               width: "100%",
-              transition: isDragging || !galleryTransition ? "none" : "transform 0.5s ease-in-out",
+              transition: transitionStyle,
               transform: trackStyle.transform,
             }}
             onTransitionEnd={(e) => {
@@ -209,7 +277,7 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
           {gecerliResimler.map((resim, index) => (
             <div
               key={index}
-              onClick={() => setTrackIndex(index + 1)}
+              onClick={() => degistirResim(index)}
               style={{
                 width: "80px",
                 height: "80px",
@@ -276,7 +344,7 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
             <>
               <button
                 type="button"
-                onClick={() => setTrackIndex((i) => i - 1)}
+                onClick={() => oncekiResim()}
                 style={{
                   position: "absolute",
                   left: "16px",
@@ -297,7 +365,7 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
               </button>
               <button
                 type="button"
-                onClick={() => setTrackIndex((i) => i + 1)}
+                onClick={() => sonrakiResim()}
                 style={{
                   position: "absolute",
                   right: "16px",
@@ -328,7 +396,7 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
                   display: "flex",
                   height: "100%",
                   width: "100%",
-                  transition: isDragging || !galleryTransition ? "none" : "transform 0.5s ease-in-out",
+                  transition: transitionStyle,
                   transform: trackStyle.transform,
                 }}
                 onTransitionEnd={(e) => {
