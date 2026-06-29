@@ -175,7 +175,7 @@ function ResimliKategoriKarti({
       href={`/kategori/${k.slug}`}
       prefetch={false}
       onClick={onNavigate}
-      className="group flex flex-col items-center justify-start gap-1.5 w-[76px] shrink-0"
+      className="group flex flex-col items-center justify-center gap-1.5 w-[76px] shrink-0"
     >
       <div
         className={`relative w-11 h-11 rounded-xl overflow-hidden shrink-0 ${!k.resim ? `bg-gradient-to-br ${k.renk}` : ""}`}
@@ -534,8 +534,8 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
           {/* Overlay panel — sabit boy, eşit aralık */}
           {seciliKatalog && (
             <div className="hidden md:block absolute top-full left-0 w-full border-t border-white/[0.06] bg-[#050814]/98 backdrop-blur-md shadow-[0_12px_40px_rgba(0,0,0,0.55)] z-50">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[148px] py-3">
-                <div className="flex flex-wrap justify-start gap-x-5 gap-y-3 h-full content-start overflow-hidden">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[148px] flex items-center">
+                <div className="flex flex-wrap justify-start items-center gap-x-5 gap-y-3 w-full overflow-hidden">
                   {seciliKatalog.altlar.map((k) => (
                     <ResimliKategoriKarti
                       key={`${k.slug}-${k.isim}`}
