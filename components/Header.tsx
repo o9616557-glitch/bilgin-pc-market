@@ -35,6 +35,9 @@ const MASAUSTU_BILGISAYAR_IMG =
 const RAM_KATALOG_IMG =
   "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782747323/Ads%C4%B1z_512_x_512_piksel_4_xt9jwu.png";
 
+const ISLEMCI_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782748234/Ads%C4%B1z_512_x_512_piksel_5_jsgfes.png";
+
 type AltKategori = { slug: string; isim: string; renk: string; resim: string };
 
 // Header — 6 ana kategori
@@ -60,7 +63,7 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; renk: string;
     resim: "",
     altlar: [
       { slug: "ekran-karti", isim: "Ekran Kartı", renk: "from-green-600 to-emerald-900", resim: "" },
-      { slug: "islemci", isim: "İşlemci (CPU)", renk: "from-blue-600 to-blue-900", resim: "" },
+      { slug: "islemci", isim: "İşlemci (CPU)", renk: "from-blue-600 to-blue-900", resim: ISLEMCI_KATALOG_IMG },
       { slug: "anakart", isim: "Anakart", renk: "from-purple-600 to-purple-900", resim: "" },
       { slug: "ram", isim: "RAM Bellek", renk: "from-cyan-600 to-cyan-900", resim: RAM_KATALOG_IMG },
     ],
