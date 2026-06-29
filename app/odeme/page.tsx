@@ -216,6 +216,20 @@ export default function OdemeSayfasi() {
     };
   }, [iyzicoFormHtml]);
 
+  useEffect(() => {
+    if (iyzicoFormHtml) {
+      document.body.classList.add("iyzico-tam-ekran");
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.classList.remove("iyzico-tam-ekran");
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.classList.remove("iyzico-tam-ekran");
+      document.body.style.overflow = "";
+    };
+  }, [iyzicoFormHtml]);
+
   const siparisTamamla = async (e: React.FormEvent) => {
     e.preventDefault();
     setYukleniyor(true);
@@ -277,6 +291,18 @@ export default function OdemeSayfasi() {
     );
   }
 
+  if (iyzicoFormHtml) {
+    return (
+      <div className="iyzico-tam-ekran-kaplama fixed inset-0 z-[99990] bg-white w-full h-[100dvh] min-h-[100dvh]">
+        <div
+          ref={iyzicoFormRef}
+          id="iyzipay-checkout-form"
+          className="responsive w-full h-full min-h-[100dvh]"
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen site-page pb-12 relative">
       <div className="glass-panel border-b border-white/[0.06] sticky top-0 z-50 mb-6 sm:mb-8 rounded-none">
@@ -302,7 +328,7 @@ export default function OdemeSayfasi() {
           <div className="flex-1 min-w-0">
             <form
               onSubmit={siparisTamamla}
-              className={["glass-card p-4 sm:p-6 lg:p-8 relative overflow-hidden transition-all duration-300", iyzicoFormHtml ? "hidden" : "block"].join(" ")}
+              className="glass-card p-4 sm:p-6 lg:p-8 relative overflow-hidden transition-all duration-300"
             >
               <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-site-accent" /> Teslimat bilgileri
@@ -659,9 +685,6 @@ export default function OdemeSayfasi() {
           </div>
         </div>
       )}
-
-      {/* İyzico kendi tam ekran arayüzü + X butonu */}
-      <div ref={iyzicoFormRef} id="iyzipay-checkout-form" className="responsive" />
 
       </div>
 
