@@ -104,6 +104,27 @@ const MODEM_KATALOG_IMG =
 const USB_KATALOG_IMG =
   "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782756603/Ads%C4%B1z_512_x_512_piksel_27_rzjzlp.png";
 
+const YAZILIM_KABLO_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782759665/Ads%C4%B1z_512_x_512_piksel_35_kpw4r5.png";
+
+const ISLETIM_SISTEMI_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782759677/Ads%C4%B1z_512_x_512_piksel_33_sb7qxe.png";
+
+const OFFICE_YAZILIM_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782759676/Ads%C4%B1z_512_x_512_piksel_34_bvkh5j.png";
+
+const KABLOLAR_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782759675/Ads%C4%B1z_512_x_512_piksel_29_rqnciv.png";
+
+const AKIM_KORUYUCU_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782759671/Ads%C4%B1z_512_x_512_piksel_32_oypfvv.png";
+
+const NOTEBOOK_SOGUTUCU_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782759674/Ads%C4%B1z_512_x_512_piksel_30_hvevbw.png";
+
+const SARJ_POWERBANK_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782759673/Ads%C4%B1z_512_x_512_piksel_31_qwxhsn.png";
+
 type AltKategori = { slug: string; isim: string; renk: string; resim: string };
 
 // Header — 6 ana kategori
@@ -145,6 +166,7 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; renk: string;
       { slug: "psu", isim: "Güç Kaynakları (PSU)", renk: "from-yellow-600 to-yellow-900", resim: PSU_KATALOG_IMG },
       { slug: "sogutma", isim: "Soğutma Sistemleri", renk: "from-sky-600 to-sky-900", resim: SOGUTMA_KATALOG_IMG },
       { slug: "termal-macun", isim: "Termal Macun", renk: "from-zinc-600 to-zinc-900", resim: TERMAL_MACUN_KATALOG_IMG },
+      { slug: "notebook-aksesuar", isim: "Notebook Soğutucu", renk: "from-slate-600 to-slate-800", resim: NOTEBOOK_SOGUTUCU_KATALOG_IMG },
     ],
   },
   {
@@ -183,14 +205,13 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; renk: string;
     isim: "Yazılım & Kablo Çözümleri",
     kisaIsim: "Yazılım & Kablo",
     renk: "from-cyan-700 to-cyan-950",
-    resim: "",
+    resim: YAZILIM_KABLO_KATALOG_IMG,
     altlar: [
-      { slug: "isletim-sistemi", isim: "İşletim Sistemi", renk: "from-blue-600 to-blue-900", resim: "" },
-      { slug: "yazilim", isim: "Microsoft Office & Yazılım", renk: "from-cyan-600 to-cyan-900", resim: "" },
-      { slug: "kablolar", isim: "Kablolar & Çeviriciler", renk: "from-green-600 to-green-900", resim: "" },
-      { slug: "akim-koruyucu", isim: "Akım Koruyucu Priz", renk: "from-yellow-600 to-yellow-900", resim: "" },
-      { slug: "notebook-aksesuar", isim: "Notebook Soğutucu", renk: "from-slate-600 to-slate-800", resim: "" },
-      { slug: "sarj-powerbank", isim: "Şarj Aletleri & Powerbank", renk: "from-lime-600 to-lime-900", resim: "" },
+      { slug: "isletim-sistemi", isim: "İşletim Sistemi", renk: "from-blue-600 to-blue-900", resim: ISLETIM_SISTEMI_KATALOG_IMG },
+      { slug: "yazilim", isim: "Microsoft Office & Yazılım", renk: "from-cyan-600 to-cyan-900", resim: OFFICE_YAZILIM_KATALOG_IMG },
+      { slug: "kablolar", isim: "Kablolar & Çeviriciler", renk: "from-green-600 to-green-900", resim: KABLOLAR_KATALOG_IMG },
+      { slug: "akim-koruyucu", isim: "Akım Koruyucu Priz", renk: "from-yellow-600 to-yellow-900", resim: AKIM_KORUYUCU_KATALOG_IMG },
+      { slug: "sarj-powerbank", isim: "Şarj Aletleri & Powerbank", renk: "from-lime-600 to-lime-900", resim: SARJ_POWERBANK_KATALOG_IMG },
     ],
   },
 ];
