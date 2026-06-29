@@ -269,13 +269,13 @@ export default function OdemeSayfasi() {
     <div className="min-h-screen site-page pb-12 relative">
       <div className="glass-panel border-b border-white/[0.06] sticky top-0 z-50 mb-6 sm:mb-8 rounded-none">
         <div className="site-container-narrow py-3.5 sm:py-4 flex items-center justify-between">
-          <a href="/sepet" className="flex items-center gap-2 text-sm text-slate-400 hover:text-site-accent transition-colors">
+          <Link href="/sepet" className="flex items-center gap-2 text-sm text-slate-400 hover:text-site-accent transition-colors">
             <ArrowLeft className="w-4 h-4 shrink-0" />
             <span className="hidden sm:inline">Sepete dön</span>
-          </a>
-          <a href="/" className="font-semibold text-lg sm:text-xl tracking-tight text-white hover:opacity-80 transition-opacity">
+          </Link>
+          <Link href="/" className="font-semibold text-lg sm:text-xl tracking-tight text-white hover:opacity-80 transition-opacity">
             BİLGİN <span className="site-accent-text">PC</span>
-          </a>
+          </Link>
           <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-medium bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Güvenli ödeme</span>

@@ -185,7 +185,7 @@ export default function SepetSayfasi() {
                 </div>
               )}
 
-              <Link href="/odeme" className="block w-full">
+              <Link href="/odeme" prefetch className="block w-full">
                 <button className="btn-primary w-full py-3.5 text-sm">Güvenli ödemeye geç</button>
               </Link>
             </div>

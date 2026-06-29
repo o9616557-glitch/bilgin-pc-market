@@ -274,7 +274,6 @@ function ResimliKategoriKarti({
   return (
     <Link
       href={`/kategori/${k.slug}`}
-      prefetch={false}
       onClick={onNavigate}
       className="group flex flex-col items-center w-[100px] shrink-0 h-[104px]"
     >
@@ -302,7 +301,6 @@ function MobilAltKategoriKarti({
   return (
     <Link
       href={`/kategori/${k.slug}`}
-      prefetch={false}
       onClick={onClose}
       className="flex flex-col items-center gap-1 p-1.5 rounded-lg hover:bg-white/[0.05] transition-colors"
     >
@@ -447,7 +445,6 @@ function MobilLogoAlani({ menuAcik }: { menuAcik: boolean }) {
   return (
     <Link
       href={href}
-      prefetch={false}
       className={`md:hidden relative z-[100] transition-all ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
     >
       <ProfilAvatar size={36} />
@@ -643,7 +640,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                 <button type="button" onClick={() => setAramaAcik(true)} className="p-2 text-white hover:text-[#3b82f6] transition-colors" aria-label="Ara">
                   <Search className="w-5 h-5 shrink-0" />
                 </button>
-                <Link href="/sepet" prefetch={false} className="relative p-2 text-white hover:text-[#3b82f6] transition-colors" aria-label="Sepet">
+                <Link href="/sepet" className="relative p-2 text-white hover:text-[#3b82f6] transition-colors" aria-label="Sepet">
                   <div className="relative">
                     <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                     {sepetAdedi > 0 && (
@@ -658,7 +655,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
 
             {/* Masaüstü: logo + arama + sağ ikonlar aynı hizada */}
             <div className="hidden md:flex items-center justify-between gap-4 py-3 min-h-[72px]">
-              <Link href="/" prefetch={false} className="text-white font-black text-2xl tracking-tight items-center shrink-0">
+              <Link href="/" className="text-white font-black text-2xl tracking-tight items-center shrink-0">
                 BİLGİN <span className="text-[#3b82f6] ml-1">PC</span>
               </Link>
 
@@ -677,7 +674,6 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
               <div className="flex items-center gap-1 lg:gap-2 shrink-0">
                 <Link
                   href="/kendin-topla"
-                  prefetch={false}
                   className="flex items-center gap-2 px-2 lg:px-3 py-1.5 text-white hover:text-[#3b82f6] text-xs lg:text-sm font-semibold transition-colors whitespace-nowrap"
                 >
                   <span className="relative w-7 h-7 lg:w-8 lg:h-8 rounded-lg shrink-0 overflow-hidden hidden sm:block">
@@ -687,13 +683,12 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                 </Link>
                 <Link
                   href={session ? "/hesabim" : "/giris"}
-                  prefetch={false}
                   className="p-1 rounded-full hover:ring-2 hover:ring-[#3b82f6]/30 transition-all"
                   aria-label="Hesabım"
                 >
                   <ProfilAvatar size={34} />
                 </Link>
-                <Link href="/sepet" prefetch={false} className="relative p-2 text-white hover:text-[#3b82f6] transition-colors" aria-label="Sepet">
+                <Link href="/sepet" className="relative p-2 text-white hover:text-[#3b82f6] transition-colors" aria-label="Sepet">
                   <div className="relative">
                     <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                     {sepetAdedi > 0 && (
@@ -755,7 +750,6 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
           {/* Kendin Topla */}
           <Link
             href="/kendin-topla"
-            prefetch={false}
             onClick={() => setMenuAcik(false)}
             className="flex items-center gap-2.5 px-2.5 py-2 mb-2 rounded-xl overflow-hidden border border-emerald-500/25 bg-white/[0.03] hover:bg-white/[0.06] transition-colors group"
           >
@@ -820,7 +814,6 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                         <Link
                           key={kat.slug}
                           href={"/kategori/" + kat.slug}
-                          prefetch={false}
                           onClick={() => setAramaAcik(false)}
                           className="glass-panel px-4 py-3 hover:border-site-accent/30 text-slate-300 hover:text-white rounded-xl transition-all flex items-center gap-3 text-sm font-medium group"
                         >
@@ -846,7 +839,6 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                         <Link
                           key={urun._id}
                           href={"/product/" + urun.slug}
-                          prefetch={false}
                           onClick={() => setAramaAcik(false)}
                           className="glass-card p-4 hover:border-site-accent/25 rounded-xl transition-all flex items-center gap-4 group"
                         >
@@ -899,7 +891,6 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                         <Link
                           key={urun._id}
                           href={"/product/" + urun.slug}
-                          prefetch={false}
                           onClick={() => setAramaAcik(false)}
                           className="glass-card p-3 hover:border-site-accent/25 group transition-all flex flex-col"
                         >
