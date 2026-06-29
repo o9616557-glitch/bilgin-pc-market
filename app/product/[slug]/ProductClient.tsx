@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useCart } from "../../CartContext"; 
 import toast from "react-hot-toast";
 import { useCompare } from "@/app/CompareContext";
@@ -59,6 +60,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const touchStartRef = useRef({ x: 0, y: 0 });
   const dragMovedRef = useRef(false);
   const dragXRef = useRef(0);
+  const tapHandledRef = useRef(false);
   const [lightboxAcik, setLightboxAcik] = useState(false);
   
   const [zoomOrigin, setZoomOrigin] = useState("center center");
@@ -127,25 +129,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
   useEffect(() => {
     if (galleryResimSayisi <= 1) return;
-    if (trackIndex === 0) {
-      setGalleryTransition(false);
-      setTrackIndex(galleryResimSayisi);
-    } else if (trackIndex === galleryResimSayisi + 1) {
-      setGalleryTransition(false);
-      setTrackIndex(1);
-    } else {
+    if (trackIndex >= 1 && trackIndex <= galleryResimSayisi) {
       setSeciliResimIndex(trackIndex - 1);
     }
   }, [trackIndex, galleryResimSayisi]);
-
-  useEffect(() => {
-    if (!galleryTransition) {
-      const id = requestAnimationFrame(() => {
-        requestAnimationFrame(() => setGalleryTransition(true));
-      });
-      return () => cancelAnimationFrame(id);
-    }
-  }, [galleryTransition]);
 
   const urunAdi = product.isim || product.name || "İsimsiz Ürün";
   const normalFiyat = Number(product.regular_price || product.fiyat || product.price || 0);
@@ -241,6 +228,28 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const sonrakiResim = () => { if (cokluResim) setTrackIndex((i) => i + 1); };
   const oncekiResim = () => { if (cokluResim) setTrackIndex((i) => i - 1); };
 
+  const acLightbox = () => {
+    setIsHoveringImg(false);
+    setLightboxAcik(true);
+  };
+
+  const handleGalleryTransitionEnd = () => {
+    if (!cokluResim || isGalleryDragging) return;
+    if (trackIndex === 0) {
+      setGalleryTransition(false);
+      setTrackIndex(resimler.length);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setGalleryTransition(true));
+      });
+    } else if (trackIndex === resimler.length + 1) {
+      setGalleryTransition(false);
+      setTrackIndex(1);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setGalleryTransition(true));
+      });
+    }
+  };
+
   const handleGalleryTouchStart = (e: React.TouchEvent) => {
     setIsGalleryDragging(true);
     touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
@@ -271,7 +280,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
     if (Math.abs(currentDrag) < 12) {
       dragMovedRef.current = false;
-      if (lightboxTap) setLightboxAcik(true);
+      if (lightboxTap) {
+        tapHandledRef.current = true;
+        acLightbox();
+      }
     } else if (currentDrag < -threshold) {
       sonrakiResim();
     } else if (currentDrag > threshold) {
@@ -377,17 +389,21 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               onTouchEnd={
                 resimler.length > 1
                   ? () => handleGalleryTouchEnd(galleryRef, true)
-                  : () => setLightboxAcik(true)
+                  : () => acLightbox()
               }
               onMouseMove={handleMouseMove}
               onMouseEnter={() => setIsHoveringImg(true)}
               onMouseLeave={() => { setIsHoveringImg(false); setZoomOrigin("center center"); }}
               onClick={() => {
+                if (tapHandledRef.current) {
+                  tapHandledRef.current = false;
+                  return;
+                }
                 if (dragMovedRef.current) {
                   dragMovedRef.current = false;
                   return;
                 }
-                setLightboxAcik(true);
+                acLightbox();
               }}
               className="relative isolate z-0 w-full aspect-square sm:aspect-[4/3] bg-transparent sm:bg-white/[0.02] sm:backdrop-blur-xl sm:border sm:border-white/5 sm:rounded-2xl flex items-center justify-center p-0 sm:p-6 overflow-hidden mb-2 group select-none cursor-zoom-in touch-manipulation"
             >
@@ -420,14 +436,18 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   alt={urunAdi} 
                   style={{
                     transformOrigin: zoomOrigin,
-                    transform: isHoveringImg ? "scale(2.4)" : "scale(1)",
+                    transform: isHoveringImg && !lightboxAcik ? "scale(2.4)" : "scale(1)",
                   }}
                   className={`w-full h-full object-contain pointer-events-none sm:filter sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] transition-transform duration-150 ease-out ${tukendiMi ? "grayscale opacity-50" : ""}`} 
                 />
               ) : (
                 <div
-                  className={`flex h-full w-full ${isGalleryDragging || !galleryTransition ? "" : "transition-transform duration-300 ease-out"}`}
+                  className={`flex h-full w-full ${isGalleryDragging || !galleryTransition ? "" : "transition-transform duration-500 ease-in-out"}`}
                   style={galleryTrackStyle}
+                  onTransitionEnd={(e) => {
+                    if (e.propertyName !== "transform") return;
+                    handleGalleryTransitionEnd();
+                  }}
                 >
                   {loopResimler.map((img: string, idx: number) => (
                     <div key={`${img}-${idx}`} className="min-w-full w-full h-full flex items-center justify-center flex-shrink-0">
@@ -437,7 +457,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                         draggable={false}
                         style={{
                           transformOrigin: idx === trackIndex ? zoomOrigin : "center center",
-                          transform: idx === trackIndex && isHoveringImg && !isGalleryDragging ? "scale(2.4)" : "scale(1)",
+                          transform: idx === trackIndex && isHoveringImg && !isGalleryDragging && !lightboxAcik ? "scale(2.4)" : "scale(1)",
                         }}
                         className={`w-full h-full object-contain pointer-events-none sm:filter sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] transition-transform duration-150 ease-out ${tukendiMi ? "grayscale opacity-50" : ""}`}
                       />
@@ -763,37 +783,41 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
          </button>
       </div>
 
-      {/* LIGHTBOX ALANI */}
-      {lightboxAcik && (
+      {lightboxAcik && typeof document !== "undefined" && createPortal(
         <div 
           onTouchStart={resimler.length > 1 ? handleGalleryTouchStart : undefined}
           onTouchMove={resimler.length > 1 ? handleGalleryTouchMove : undefined}
           onTouchEnd={resimler.length > 1 ? () => handleGalleryTouchEnd(lightboxRef, false) : undefined}
-          className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex items-center justify-center p-0 sm:p-4 select-none touch-manipulation"
+          className="fixed inset-0 z-[99999] bg-black/95 backdrop-blur-md flex items-center justify-center p-0 sm:p-4 select-none touch-manipulation"
         >
-           <button onClick={() => setLightboxAcik(false)} className="absolute top-4 right-4 sm:top-6 sm:right-6 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-red-500 transition-colors z-50 touch-manipulation"><X className="w-6 h-6" /></button>
+           <button type="button" onClick={() => setLightboxAcik(false)} className="absolute top-4 right-4 sm:top-6 sm:right-6 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-red-500 transition-colors z-50 touch-manipulation"><X className="w-6 h-6" /></button>
            
-           <button onClick={(e) => { e.stopPropagation(); oncekiResim(); }} className="hidden sm:flex absolute left-6 w-14 h-14 bg-white/10 rounded-full items-center justify-center hover:bg-[#00d2ff] hover:text-black transition-colors z-50 touch-manipulation"><ChevronLeft className="w-8 h-8" /></button>
+           <button type="button" onClick={(e) => { e.stopPropagation(); oncekiResim(); }} className="absolute left-2 sm:left-6 w-12 h-12 sm:w-14 sm:h-14 bg-white/10 rounded-full flex items-center justify-center hover:bg-[#00d2ff] hover:text-black transition-colors z-50 touch-manipulation"><ChevronLeft className="w-7 h-7 sm:w-8 sm:h-8" /></button>
            
-           <div ref={lightboxRef} className="w-full sm:max-w-[90vw] max-h-[85vh] overflow-hidden">
+           <div ref={lightboxRef} className="w-full h-full sm:max-w-[92vw] max-h-[92vh] overflow-hidden flex items-center justify-center">
              {resimler.length === 1 ? (
-               <img src={resimler[0]} className="w-full sm:max-w-full sm:max-h-[85vh] object-contain sm:rounded-xl shadow-2xl" alt="" />
+               <img src={resimler[0]} className="w-full max-h-[92vh] object-contain" alt={urunAdi} />
              ) : (
                <div
-                 className={`flex h-full w-full ${isGalleryDragging || !galleryTransition ? "" : "transition-transform duration-300 ease-out"}`}
+                 className={`flex h-full w-full max-h-[92vh] ${isGalleryDragging || !galleryTransition ? "" : "transition-transform duration-500 ease-in-out"}`}
                  style={galleryTrackStyle}
+                 onTransitionEnd={(e) => {
+                   if (e.propertyName !== "transform") return;
+                   handleGalleryTransitionEnd();
+                 }}
                >
                  {loopResimler.map((img: string, idx: number) => (
                    <div key={`lb-${img}-${idx}`} className="min-w-full w-full flex items-center justify-center flex-shrink-0">
-                     <img src={img} className="w-full max-h-[85vh] object-contain sm:rounded-xl shadow-2xl" alt="" draggable={false} />
+                     <img src={img} className="w-full max-h-[92vh] object-contain" alt="" draggable={false} />
                    </div>
                  ))}
                </div>
              )}
            </div>
            
-           <button onClick={(e) => { e.stopPropagation(); sonrakiResim(); }} className="hidden sm:flex absolute right-6 w-14 h-14 bg-white/10 rounded-full items-center justify-center hover:bg-[#00d2ff] hover:text-black transition-colors z-50 touch-manipulation"><ChevronRight className="w-8 h-8" /></button>
-        </div>
+           <button type="button" onClick={(e) => { e.stopPropagation(); sonrakiResim(); }} className="absolute right-2 sm:right-6 w-12 h-12 sm:w-14 sm:h-14 bg-white/10 rounded-full flex items-center justify-center hover:bg-[#00d2ff] hover:text-black transition-colors z-50 touch-manipulation"><ChevronRight className="w-7 h-7 sm:w-8 sm:h-8" /></button>
+        </div>,
+        document.body
       )}
 
     </div>

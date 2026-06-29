@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 export default function UrunGorselGalerisi({ resimler }: { resimler: string[] }) {
@@ -20,6 +21,7 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
   const lightboxRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef({ x: 0, y: 0 });
   const dragXRef = useRef(0);
+  const tapHandledRef = useRef(false);
 
   useEffect(() => {
     setTrackIndex(1);
@@ -30,25 +32,10 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
 
   useEffect(() => {
     if (!cokluResim) return;
-    if (trackIndex === 0) {
-      setGalleryTransition(false);
-      setTrackIndex(gecerliResimler.length);
-    } else if (trackIndex === gecerliResimler.length + 1) {
-      setGalleryTransition(false);
-      setTrackIndex(1);
-    } else {
+    if (trackIndex >= 1 && trackIndex <= gecerliResimler.length) {
       setAktifResim(trackIndex - 1);
     }
   }, [trackIndex, cokluResim, gecerliResimler.length]);
-
-  useEffect(() => {
-    if (!galleryTransition) {
-      const id = requestAnimationFrame(() => {
-        requestAnimationFrame(() => setGalleryTransition(true));
-      });
-      return () => cancelAnimationFrame(id);
-    }
-  }, [galleryTransition]);
 
   useEffect(() => {
     if (lightboxAcik) document.body.style.overflow = "hidden";
@@ -68,6 +55,25 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
 
   const trackStyle = {
     transform: `translateX(calc(-${trackIndex * 100}% + ${dragX}px))`,
+  };
+
+  const acLightbox = () => setLightboxAcik(true);
+
+  const handleTransitionEnd = () => {
+    if (!cokluResim || isDragging) return;
+    if (trackIndex === 0) {
+      setGalleryTransition(false);
+      setTrackIndex(gecerliResimler.length);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setGalleryTransition(true));
+      });
+    } else if (trackIndex === gecerliResimler.length + 1) {
+      setGalleryTransition(false);
+      setTrackIndex(1);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setGalleryTransition(true));
+      });
+    }
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -97,7 +103,10 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
     const currentDrag = dragXRef.current;
 
     if (Math.abs(currentDrag) < 12) {
-      if (lightboxTap) setLightboxAcik(true);
+      if (lightboxTap) {
+        tapHandledRef.current = true;
+        acLightbox();
+      }
     } else if (currentDrag < -threshold) {
       if (cokluResim) setTrackIndex((i) => i + 1);
     } else if (currentDrag > threshold) {
@@ -117,9 +126,15 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
         onTouchEnd={
           cokluResim
             ? () => handleTouchEnd(galleryRef, true)
-            : () => setLightboxAcik(true)
+            : () => acLightbox()
         }
-        onClick={() => setLightboxAcik(true)}
+        onClick={() => {
+          if (tapHandledRef.current) {
+            tapHandledRef.current = false;
+            return;
+          }
+          acLightbox();
+        }}
         style={{
           width: "100%",
           height: "420px",
@@ -160,8 +175,12 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
               display: "flex",
               height: "100%",
               width: "100%",
-              transition: isDragging || !galleryTransition ? "none" : "transform 0.3s ease-out",
+              transition: isDragging || !galleryTransition ? "none" : "transform 0.5s ease-in-out",
               transform: trackStyle.transform,
+            }}
+            onTransitionEnd={(e) => {
+              if (e.propertyName !== "transform") return;
+              handleTransitionEnd();
             }}
           >
             {loopResimler.map((resim, index) => (
@@ -214,7 +233,7 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
         </div>
       )}
 
-      {lightboxAcik && (
+      {lightboxAcik && typeof document !== "undefined" && createPortal(
         <div
           onTouchStart={handleTouchStart}
           onTouchMove={cokluResim ? handleTouchMove : undefined}
@@ -222,7 +241,7 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
           style={{
             position: "fixed",
             inset: 0,
-            zIndex: 9999,
+            zIndex: 99999,
             background: "rgba(0,0,0,0.95)",
             display: "flex",
             alignItems: "center",
@@ -300,17 +319,21 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
             </>
           )}
 
-          <div ref={lightboxRef} style={{ width: "100%", maxWidth: "90vw", maxHeight: "85vh", overflow: "hidden" }}>
+          <div ref={lightboxRef} style={{ width: "100%", maxWidth: "92vw", maxHeight: "92vh", overflow: "hidden" }}>
             {gecerliResimler.length === 1 ? (
-              <img src={gecerliResimler[0]} alt="" style={{ width: "100%", maxHeight: "85vh", objectFit: "contain" }} />
+              <img src={gecerliResimler[0]} alt="" style={{ width: "100%", maxHeight: "92vh", objectFit: "contain" }} />
             ) : (
               <div
                 style={{
                   display: "flex",
                   height: "100%",
                   width: "100%",
-                  transition: isDragging || !galleryTransition ? "none" : "transform 0.3s ease-out",
+                  transition: isDragging || !galleryTransition ? "none" : "transform 0.5s ease-in-out",
                   transform: trackStyle.transform,
+                }}
+                onTransitionEnd={(e) => {
+                  if (e.propertyName !== "transform") return;
+                  handleTransitionEnd();
                 }}
               >
                 {loopResimler.map((resim, index) => (
@@ -321,7 +344,8 @@ export default function UrunGorselGalerisi({ resimler }: { resimler: string[] })
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
