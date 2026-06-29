@@ -8,7 +8,6 @@ import { useSession, signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { Search, X, Clock, Flame, ArrowRight, ChevronRight, ChevronDown, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
-import BilginPCRam from "@/components/BilginPCRam";
 
 const MOUSE_KATALOG_IMG =
   "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782720094/Ads%C4%B1z_tasar%C4%B1m_-_2026-06-29T105744.333_xnstan.png";
@@ -27,6 +26,9 @@ const PREMIUM_LAPTOP_IMG =
 
 const MASAUSTU_BILGISAYAR_IMG =
   "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782740729/Ads%C4%B1z_tasar%C4%B1m_-_2026-06-29T164506.176_wmdnyw.png";
+
+const RAM_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782746624/Ads%C4%B1z_512_x_512_piksel_2_hlsbs4.png";
 
 type AltKategori = { slug: string; isim: string; renk: string; resim: string };
 
@@ -55,7 +57,7 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; renk: string;
       { slug: "ekran-karti", isim: "Ekran Kartı", renk: "from-green-600 to-emerald-900", resim: "" },
       { slug: "islemci", isim: "İşlemci (CPU)", renk: "from-blue-600 to-blue-900", resim: "" },
       { slug: "anakart", isim: "Anakart", renk: "from-purple-600 to-purple-900", resim: "" },
-      { slug: "ram", isim: "RAM Bellek", renk: "from-cyan-600 to-cyan-900", resim: "" },
+      { slug: "ram", isim: "RAM Bellek", renk: "from-cyan-600 to-cyan-900", resim: RAM_KATALOG_IMG },
     ],
   },
   {
@@ -139,28 +141,6 @@ function akilliKategoriBul(metin: string) {
   return null;
 }
 
-function KategoriGorsel({ k }: { k: AltKategori }) {
-  if (k.slug === "ram") {
-    return <BilginPCRam compact />;
-  }
-  if (k.resim) {
-    return <Image src={k.resim} alt={k.isim} fill className="object-contain" unoptimized />;
-  }
-  return null;
-}
-
-function kategoriKutuSinifi(k: AltKategori) {
-  const gradient = !k.resim && k.slug !== "ram" ? `bg-gradient-to-br ${k.renk}` : "";
-  return gradient;
-}
-
-function kategoriKutuBoyutu(k: AltKategori, yer: "desktop" | "mobile") {
-  if (k.slug === "ram") {
-    return yer === "desktop" ? "w-[104px] h-[72px]" : "w-[88px] h-[64px]";
-  }
-  return yer === "desktop" ? "w-14 h-14" : "w-11 h-11";
-}
-
 function ResimliKategoriKarti({
   k,
   onNavigate,
@@ -173,12 +153,14 @@ function ResimliKategoriKarti({
       href={`/kategori/${k.slug}`}
       prefetch={false}
       onClick={onNavigate}
-      className={`group flex flex-col items-center shrink-0 ${k.slug === "ram" ? "w-[104px] h-[94px]" : "w-[88px] h-[86px]"}`}
+      className="group flex flex-col items-center w-[88px] shrink-0 h-[86px]"
     >
       <div
-        className={`relative rounded-xl overflow-hidden shrink-0 mb-1.5 ${kategoriKutuBoyutu(k, "desktop")} ${kategoriKutuSinifi(k)}`}
+        className={`relative w-14 h-14 rounded-xl overflow-hidden shrink-0 mb-1.5 ${!k.resim ? `bg-gradient-to-br ${k.renk}` : ""}`}
       >
-        <KategoriGorsel k={k} />
+        {k.resim && (
+          <Image src={k.resim} alt={k.isim} fill className="object-contain" unoptimized />
+        )}
       </div>
       <span className="text-[10px] font-semibold text-white text-center leading-tight line-clamp-2 w-full h-[26px] flex items-start justify-center">
         {k.isim}
@@ -202,9 +184,11 @@ function MobilAltKategoriKarti({
       className="flex flex-col items-center gap-1 p-1.5 rounded-lg hover:bg-white/[0.05] transition-colors"
     >
       <div
-        className={`relative rounded-lg overflow-hidden shrink-0 ${kategoriKutuBoyutu(k, "mobile")} ${kategoriKutuSinifi(k)}`}
+        className={`relative w-11 h-11 rounded-lg overflow-hidden shrink-0 ${!k.resim ? `bg-gradient-to-br ${k.renk}` : ""}`}
       >
-        <KategoriGorsel k={k} />
+        {k.resim && (
+          <Image src={k.resim} alt={k.isim} fill className="object-contain" unoptimized />
+        )}
       </div>
       <span className="text-[10px] font-medium text-slate-300 text-center leading-tight line-clamp-2 w-full">
         {k.isim}
