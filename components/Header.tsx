@@ -435,71 +435,37 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                     {/* Dışına tıklayınca kapat */}
                     <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)} />
 
-                    {/* 2 katmanlı resimli popup */}
+                    {/* Resimli popup — tek sıra, yatay */}
                     <div
                       className="fixed left-0 right-0 top-[80px] z-50 px-4 sm:px-8"
                       onMouseLeave={() => setDropdownOpen(false)}
                     >
-                      <div className="max-w-7xl mx-auto bg-[#07101f]/98 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.9)] overflow-hidden">
-
-                        {/* Üst sıra — 4 ana kategori */}
-                        <div className="grid grid-cols-4 border-b border-white/[0.07]">
-                          {ANA_KATEGORILER.map((ana) => (
-                            <button
-                              key={ana.id}
-                              onMouseEnter={() => setSeciliAna(ana.id)}
-                              onClick={() => setSeciliAna(ana.id)}
-                              className={`flex items-center gap-3 px-5 py-4 transition-colors text-left border-r border-white/[0.07] last:border-r-0 ${
-                                seciliAna === ana.id
-                                  ? "bg-white/[0.07]"
-                                  : "hover:bg-white/[0.04]"
-                              }`}
+                      <div className="max-w-7xl mx-auto bg-[#07101f]/98 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.9)] p-5">
+                        <div className="grid grid-cols-6 lg:grid-cols-12 gap-2">
+                          {POPUP_KATEGORILER.map((k) => (
+                            <Link
+                              key={k.slug}
+                              href={`/kategori/${k.slug}`}
+                              prefetch={false}
+                              onClick={() => setDropdownOpen(false)}
+                              className="group flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/[0.06] transition-colors"
                             >
-                              <div className={`relative w-10 h-10 rounded-lg shrink-0 overflow-hidden bg-gradient-to-br ${ana.renk}`}>
-                                {ana.resim && <Image src={ana.resim} alt={ana.isim} fill className="object-contain" unoptimized />}
+                              <div className={`relative w-12 h-12 rounded-xl overflow-hidden shrink-0 ${!k.resim ? `bg-gradient-to-br ${k.renk}` : ""}`}>
+                                {k.resim && <Image src={k.resim} alt={k.isim} fill className="object-contain" unoptimized />}
                               </div>
-                              <div className="min-w-0">
-                                <p className={`text-sm font-bold truncate leading-tight ${seciliAna === ana.id ? "text-white" : "text-slate-400"}`}>
-                                  {ana.isim}
-                                </p>
-                                <p className="text-[10px] text-slate-600 mt-0.5">{ana.altlar.length} kategori</p>
-                              </div>
-                              {seciliAna === ana.id && (
-                                <div className="ml-auto w-1 h-8 rounded-full shrink-0" style={{ backgroundColor: ana.renk2 }} />
-                              )}
-                            </button>
+                              <span className="text-[11px] font-semibold text-slate-300 group-hover:text-white text-center leading-tight transition-colors line-clamp-2">
+                                {k.isim}
+                              </span>
+                            </Link>
                           ))}
                         </div>
 
-                        {/* Alt sıra — seçili ana kategorinin alt kategorileri */}
-                        <div className="p-4">
-                          <div className="flex flex-wrap gap-2">
-                            {ANA_KATEGORILER.find(a => a.id === seciliAna)?.altlar.map((k) => (
-                              <Link
-                                key={k.slug}
-                                href={`/kategori/${k.slug}`}
-                                prefetch={false}
-                                onClick={() => setDropdownOpen(false)}
-                                className="group flex items-center gap-2.5 bg-white/[0.04] hover:bg-white/[0.09] border border-white/[0.06] hover:border-white/[0.14] rounded-xl px-3 py-2 transition-all"
-                              >
-                                <div className={`relative w-8 h-8 rounded-lg shrink-0 overflow-hidden ${!k.resim ? `bg-gradient-to-br ${k.renk}` : ""}`}>
-                                  {k.resim && <Image src={k.resim} alt={k.isim} fill className="object-contain" unoptimized />}
-                                </div>
-                                <span className="text-sm font-semibold text-slate-300 group-hover:text-white transition-colors whitespace-nowrap">
-                                  {k.isim}
-                                </span>
-                              </Link>
-                            ))}
-                          </div>
-
-                          <div className="mt-3 flex justify-end">
-                            <Link href="/kategoriler" prefetch={false} onClick={() => setDropdownOpen(false)}
-                              className="text-xs text-slate-600 hover:text-cyan-400 transition-colors flex items-center gap-1">
-                              Tüm kategoriler <ChevronRight className="w-3 h-3" />
-                            </Link>
-                          </div>
+                        <div className="mt-3 pt-3 border-t border-white/[0.06] flex justify-end">
+                          <Link href="/kategoriler" prefetch={false} onClick={() => setDropdownOpen(false)}
+                            className="text-xs text-slate-500 hover:text-cyan-400 transition-colors flex items-center gap-1">
+                            Tüm kategorileri gör <ChevronRight className="w-3 h-3" />
+                          </Link>
                         </div>
-
                       </div>
                     </div>
                   </>
