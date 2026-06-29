@@ -125,6 +125,9 @@ const NOTEBOOK_SOGUTUCU_KATALOG_IMG =
 const SARJ_POWERBANK_KATALOG_IMG =
   "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782759673/Ads%C4%B1z_512_x_512_piksel_31_qwxhsn.png";
 
+const KENDIN_TOPLA_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782760508/Ads%C4%B1z_512_x_512_piksel_36_b43ahm.png";
+
 type AltKategori = { slug: string; isim: string; renk: string; resim: string };
 
 // Header — 6 ana kategori
@@ -675,9 +678,12 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                 <Link
                   href="/kendin-topla"
                   prefetch={false}
-                  className="flex items-center px-2 lg:px-3 py-1.5 text-white hover:text-[#3b82f6] text-xs lg:text-sm font-semibold transition-colors whitespace-nowrap"
+                  className="flex items-center gap-2 px-2 lg:px-3 py-1.5 text-white hover:text-[#3b82f6] text-xs lg:text-sm font-semibold transition-colors whitespace-nowrap"
                 >
-                  🔧 Kendin Topla
+                  <span className="relative w-7 h-7 lg:w-8 lg:h-8 rounded-lg shrink-0 overflow-hidden hidden sm:block">
+                    <KatalogGorsel src={KENDIN_TOPLA_KATALOG_IMG} alt="" displayPx={32} />
+                  </span>
+                  Kendin Topla
                 </Link>
                 <Link
                   href={session ? "/hesabim" : "/giris"}
@@ -753,8 +759,8 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
             onClick={() => setMenuAcik(false)}
             className="flex items-center gap-2.5 px-2.5 py-2 mb-2 rounded-xl overflow-hidden border border-emerald-500/25 bg-white/[0.03] hover:bg-white/[0.06] transition-colors group"
           >
-            <div className="relative w-8 h-8 rounded-lg shrink-0 overflow-hidden bg-gradient-to-br from-emerald-600 to-emerald-900 flex items-center justify-center text-sm">
-              🔧
+            <div className="relative w-12 h-12 rounded-lg shrink-0 overflow-hidden">
+              <KatalogGorsel src={KENDIN_TOPLA_KATALOG_IMG} alt="Kendin Topla" displayPx={KATALOG_ICON_MOBILE_ANA} />
             </div>
             <span className="flex-1 text-left text-[13px] font-bold text-white">Kendin Topla</span>
             <ChevronDown className="w-4 h-4 text-emerald-500/70 shrink-0" />
