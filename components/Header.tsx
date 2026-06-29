@@ -434,28 +434,40 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
           onMouseLeave={() => setAcikSeritKatalog(null)}
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between gap-3 sm:gap-4 md:py-2 md:min-h-[80px] h-20 md:h-auto">
+            {/* Mobil üst satır */}
+            <div className="flex md:hidden items-center justify-between h-20 gap-2 sm:gap-4">
+              <div className="flex-shrink-0 flex items-center gap-3">
+                <button className="flex flex-col justify-center items-center w-10 h-10 focus:outline-none z-[100]" onClick={() => setMenuAcik(!menuAcik)}>
+                  <span className={"block w-6 h-0.5 bg-white transition-all duration-300 " + (menuAcik ? "rotate-45 translate-y-1.5" : "")}></span>
+                  <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "opacity-0" : "")}></span>
+                  <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "-rotate-45 -translate-y-1.5" : "")}></span>
+                </button>
+                <MobilLogoAlani menuAcik={menuAcik} />
+              </div>
+              <div className={`flex items-center gap-1 shrink-0 ${menuAcik ? "pointer-events-none opacity-20" : ""}`}>
+                <button type="button" onClick={() => setAramaAcik(true)} className="p-2 text-white hover:text-[#3b82f6] transition-colors" aria-label="Ara">
+                  <Search className="w-5 h-5 shrink-0" />
+                </button>
+                <Link href="/sepet" prefetch={false} className="relative p-2 text-white hover:text-[#3b82f6] transition-colors" aria-label="Sepet">
+                  <div className="relative">
+                    <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    {sepetAdedi > 0 && (
+                      <span className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-[#050814] shadow-[0_0_4px_rgba(239,68,68,0.4)] select-none leading-none pt-[0.5px]">
+                        {sepetAdedi}
+                      </span>
+                    )}
+                  </div>
+                </Link>
+              </div>
+            </div>
 
-            {/* SOL: LOGO */}
-            <div className="flex-shrink-0 flex items-center gap-3 self-center">
-              <button className="md:hidden flex flex-col justify-center items-center w-10 h-10 focus:outline-none z-[100]" onClick={() => setMenuAcik(!menuAcik)}>
-                <span className={"block w-6 h-0.5 bg-white transition-all duration-300 " + (menuAcik ? "rotate-45 translate-y-1.5" : "")}></span>
-                <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "opacity-0" : "")}></span>
-                <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "-rotate-45 -translate-y-1.5" : "")}></span>
-              </button>
-
-              {/* Masaüstü: BİLGİN PC logosu */}
-              <Link href="/" prefetch={false} className={`hidden md:flex text-white font-black text-2xl tracking-tight items-center relative z-[100] transition-all duration-300`}>
+            {/* Masaüstü: logo + arama + sağ ikonlar aynı hizada */}
+            <div className="hidden md:flex items-center justify-between gap-4 py-3 min-h-[72px]">
+              <Link href="/" prefetch={false} className="text-white font-black text-2xl tracking-tight items-center shrink-0">
                 BİLGİN <span className="text-[#3b82f6] ml-1">PC</span>
               </Link>
 
-              {/* Mobil: profil fotoğrafı (varsa) veya BİLGİN PC */}
-              <MobilLogoAlani menuAcik={menuAcik} />
-            </div>
-
-            {/* ORTA: ARAMA + 6 KATEGORİ */}
-            <div className="hidden md:flex flex-1 min-w-0 flex-col gap-1.5 px-2 self-center">
-              <form onSubmit={handleAramaSubmit} className="relative w-full">
+              <form onSubmit={handleAramaSubmit} className="relative flex-1 min-w-0 mx-1 lg:mx-3">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                 <input
                   type="text"
@@ -463,72 +475,60 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                   value={aramaMetni}
                   onChange={(e) => setAramaMetni(e.target.value)}
                   onFocus={() => setAramaAcik(true)}
-                  className="w-full h-9 bg-white/[0.06] border border-white/[0.1] rounded-lg pl-9 pr-3 text-sm text-white placeholder-slate-500 outline-none focus:border-[#3b82f6]/50 focus:bg-white/[0.08] transition-colors"
+                  className="w-full h-10 bg-white/[0.06] border border-white/[0.1] rounded-lg pl-9 pr-3 text-sm text-white placeholder-slate-500 outline-none focus:border-[#3b82f6]/50 focus:bg-white/[0.08] transition-colors"
                 />
               </form>
-              <div className="flex items-center justify-between gap-0.5">
-                {KATALOG_SERIT.map((kat) => {
-                  const aktif = acikSeritKatalog === kat.id;
-                  return (
-                    <button
-                      key={kat.id}
-                      type="button"
-                      title={kat.isim}
-                      onMouseEnter={() => setAcikSeritKatalog(kat.id)}
-                      className={`flex-1 min-w-0 px-1 py-1 text-center transition-colors border-b-2 whitespace-nowrap text-white ${
-                        aktif ? "border-[#3b82f6]" : "border-transparent hover:border-white/30"
-                      }`}
-                    >
-                      <span className="text-[10px] font-medium tracking-wide truncate block">
-                        {kat.kisaIsim}
+
+              <div className="flex items-center gap-1 lg:gap-2 shrink-0">
+                <Link
+                  href="/kendin-topla"
+                  prefetch={false}
+                  className="flex items-center px-2 lg:px-3 py-1.5 text-white hover:text-[#3b82f6] text-xs lg:text-sm font-semibold transition-colors whitespace-nowrap"
+                >
+                  🔧 Kendin Topla
+                </Link>
+                <Link
+                  href={session ? "/hesabim" : "/giris"}
+                  prefetch={false}
+                  className="p-1 rounded-full hover:ring-2 hover:ring-[#3b82f6]/30 transition-all"
+                  aria-label="Hesabım"
+                >
+                  <ProfilAvatar size={34} />
+                </Link>
+                <Link href="/sepet" prefetch={false} className="relative p-2 text-white hover:text-[#3b82f6] transition-colors" aria-label="Sepet">
+                  <div className="relative">
+                    <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    {sepetAdedi > 0 && (
+                      <span className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-[#050814] shadow-[0_0_4px_rgba(239,68,68,0.4)] select-none leading-none pt-[0.5px]">
+                        {sepetAdedi}
                       </span>
-                    </button>
-                  );
-                })}
+                    )}
+                  </div>
+                </Link>
               </div>
             </div>
 
-            {/* SAĞ */}
-           <div className={`flex items-center gap-1 lg:gap-2 shrink-0 self-center transition-all duration-300 ${menuAcik ? "pointer-events-none opacity-20 md:pointer-events-auto md:opacity-100" : ""}`}>
-
-              <Link
-                href="/kendin-topla"
-                prefetch={false}
-                className="hidden md:flex items-center px-2 lg:px-3 py-1.5 text-white hover:text-[#3b82f6] text-xs lg:text-sm font-semibold transition-colors whitespace-nowrap"
-              >
-                🔧 Kendin Topla
-              </Link>
-
-              <button
-                type="button"
-                onClick={() => setAramaAcik(true)}
-                className="md:hidden p-2 text-white hover:text-[#3b82f6] transition-colors"
-                aria-label="Ara"
-              >
-                <Search className="w-5 h-5 shrink-0" />
-              </button>
-
-              <Link
-                href={session ? "/hesabim" : "/giris"}
-                prefetch={false}
-                className="hidden md:flex p-1 rounded-full hover:ring-2 hover:ring-[#3b82f6]/30 transition-all"
-                aria-label="Hesabım"
-              >
-                <ProfilAvatar size={34} />
-              </Link>
-
-              <Link href="/sepet" prefetch={false} className="relative p-2 text-white hover:text-[#3b82f6] transition-colors" aria-label="Sepet">
-                <div className="relative">
-                  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                  {sepetAdedi > 0 && (
-                    <span className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-[#050814] shadow-[0_0_4px_rgba(239,68,68,0.4)] select-none leading-none pt-[0.5px]">
-                      {sepetAdedi}
+            {/* Masaüstü: 6 kategori — arama altında */}
+            <div className="hidden md:flex items-stretch gap-0.5 pb-2.5 pt-1 border-t border-white/[0.04]">
+              {KATALOG_SERIT.map((kat) => {
+                const aktif = acikSeritKatalog === kat.id;
+                return (
+                  <button
+                    key={kat.id}
+                    type="button"
+                    title={kat.isim}
+                    onMouseEnter={() => setAcikSeritKatalog(kat.id)}
+                    className={`flex-1 min-w-0 px-1 py-1.5 text-center transition-colors border-b-2 text-white ${
+                      aktif ? "border-[#3b82f6]" : "border-transparent hover:border-white/30"
+                    }`}
+                  >
+                    <span className="text-[11px] lg:text-xs font-medium tracking-wide truncate block px-0.5">
+                      {kat.kisaIsim}
                     </span>
-                  )}
-                </div>
-              </Link>
+                  </button>
+                );
+              })}
             </div>
-          </div>
           </div>
 
           {/* Overlay panel — sabit boy, eşit aralık */}
