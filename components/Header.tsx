@@ -12,15 +12,19 @@ import toast from "react-hot-toast";
 const MOUSE_KATALOG_IMG =
   "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782720094/Ads%C4%B1z_tasar%C4%B1m_-_2026-06-29T105744.333_xnstan.png";
 
+const HAZIR_SISTEM_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782735204/Ads%C4%B1z_tasar%C4%B1m_-_2026-06-29T151248.316_ssq63p.png";
+
 type AltKategori = { slug: string; isim: string; renk: string; resim: string };
 
 // Header — 6 ana kategori
-const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; renk: string; altlar: AltKategori[] }[] = [
+const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; renk: string; resim: string; altlar: AltKategori[] }[] = [
   {
     id: "hazir-sistem",
     isim: "Hazır Sistem & Laptop",
     kisaIsim: "Hazır Sistem",
     renk: "from-violet-700 to-violet-950",
+    resim: HAZIR_SISTEM_KATALOG_IMG,
     altlar: [
       { slug: "oyun-bilgisayari", isim: "Oyun Bilgisayarı", renk: "from-violet-600 to-violet-900", resim: "" },
       { slug: "laptop", isim: "Premium Laptop & Notebook", renk: "from-purple-600 to-purple-900", resim: "" },
@@ -33,6 +37,7 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; renk: string;
     isim: "Temel Performans Bileşenleri",
     kisaIsim: "Performans",
     renk: "from-blue-700 to-blue-950",
+    resim: "",
     altlar: [
       { slug: "ekran-karti", isim: "Ekran Kartı", renk: "from-green-600 to-emerald-900", resim: "" },
       { slug: "islemci", isim: "İşlemci (CPU)", renk: "from-blue-600 to-blue-900", resim: "" },
@@ -45,6 +50,7 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; renk: string;
     isim: "Kasa, Güç & Soğutma",
     kisaIsim: "Kasa & Soğutma",
     renk: "from-slate-700 to-slate-950",
+    resim: "",
     altlar: [
       { slug: "kasa", isim: "Bilgisayar Kasası", renk: "from-slate-600 to-slate-900", resim: "" },
       { slug: "psu", isim: "Güç Kaynakları (PSU)", renk: "from-yellow-600 to-yellow-900", resim: "" },
@@ -57,6 +63,7 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; renk: string;
     isim: "Monitör & Çevre Birimleri",
     kisaIsim: "Monitör & Çevre",
     renk: "from-indigo-700 to-indigo-950",
+    resim: "",
     altlar: [
       { slug: "monitor", isim: "Oyuncu Monitörleri", renk: "from-indigo-600 to-indigo-900", resim: "" },
       { slug: "mouse", isim: "Mouse & Mouse Pad", renk: "from-teal-600 to-teal-900", resim: MOUSE_KATALOG_IMG },
@@ -74,6 +81,7 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; renk: string;
     isim: "Depolama & Ağ",
     kisaIsim: "Depolama",
     renk: "from-emerald-700 to-emerald-950",
+    resim: "",
     altlar: [
       { slug: "ssd", isim: "SSD & M.2 Disk", renk: "from-orange-600 to-orange-900", resim: "" },
       { slug: "hdd", isim: "Sabit Disk (HDD)", renk: "from-amber-600 to-amber-900", resim: "" },
@@ -86,6 +94,7 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; renk: string;
     isim: "Yazılım & Kablo Çözümleri",
     kisaIsim: "Yazılım & Kablo",
     renk: "from-cyan-700 to-cyan-950",
+    resim: "",
     altlar: [
       { slug: "isletim-sistemi", isim: "İşletim Sistemi", renk: "from-blue-600 to-blue-900", resim: "" },
       { slug: "yazilim", isim: "Microsoft Office & Yazılım", renk: "from-cyan-600 to-cyan-900", resim: "" },
@@ -201,7 +210,13 @@ function MobilKatalogMenusu({ onClose }: { onClose: () => void }) {
                   onClick={() => setAcikAna(acik ? null : ana.id)}
                   className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/[0.04] transition-colors rounded-xl"
                 >
-                  <div className={`relative w-9 h-9 rounded-lg shrink-0 overflow-hidden bg-gradient-to-br ${ana.renk}`} />
+                  <div
+                    className={`relative w-9 h-9 rounded-lg shrink-0 overflow-hidden ${!ana.resim ? `bg-gradient-to-br ${ana.renk}` : ""}`}
+                  >
+                    {ana.resim && (
+                      <Image src={ana.resim} alt={ana.isim} fill className="object-contain" unoptimized />
+                    )}
+                  </div>
                   <span className="flex-1 text-left text-sm font-bold text-white leading-tight">{ana.isim}</span>
                   <ChevronDown
                     className={`w-4 h-4 text-slate-500 transition-transform duration-300 ease-out shrink-0 ${acik ? "rotate-180" : ""}`}
