@@ -15,11 +15,12 @@ const MOUSE_KATALOG_IMG =
 type AltKategori = { slug: string; isim: string; renk: string; resim: string };
 
 // Header — 6 ana kategori
-const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; altlar: AltKategori[] }[] = [
+const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; renk: string; altlar: AltKategori[] }[] = [
   {
     id: "hazir-sistem",
     isim: "Hazır Sistem & Laptop",
     kisaIsim: "Hazır Sistem",
+    renk: "from-violet-700 to-violet-950",
     altlar: [
       { slug: "oyun-bilgisayari", isim: "Oyun Bilgisayarı", renk: "from-violet-600 to-violet-900", resim: "" },
       { slug: "laptop", isim: "Premium Laptop & Notebook", renk: "from-purple-600 to-purple-900", resim: "" },
@@ -31,6 +32,7 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; altlar: AltKa
     id: "performans",
     isim: "Temel Performans Bileşenleri",
     kisaIsim: "Performans",
+    renk: "from-blue-700 to-blue-950",
     altlar: [
       { slug: "ekran-karti", isim: "Ekran Kartı", renk: "from-green-600 to-emerald-900", resim: "" },
       { slug: "islemci", isim: "İşlemci (CPU)", renk: "from-blue-600 to-blue-900", resim: "" },
@@ -42,6 +44,7 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; altlar: AltKa
     id: "kasa-guc",
     isim: "Kasa, Güç & Soğutma",
     kisaIsim: "Kasa & Soğutma",
+    renk: "from-slate-700 to-slate-950",
     altlar: [
       { slug: "kasa", isim: "Bilgisayar Kasası", renk: "from-slate-600 to-slate-900", resim: "" },
       { slug: "psu", isim: "Güç Kaynakları (PSU)", renk: "from-yellow-600 to-yellow-900", resim: "" },
@@ -53,6 +56,7 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; altlar: AltKa
     id: "monitor-cevre",
     isim: "Monitör & Çevre Birimleri",
     kisaIsim: "Monitör & Çevre",
+    renk: "from-indigo-700 to-indigo-950",
     altlar: [
       { slug: "monitor", isim: "Oyuncu Monitörleri", renk: "from-indigo-600 to-indigo-900", resim: "" },
       { slug: "mouse", isim: "Mouse & Mouse Pad", renk: "from-teal-600 to-teal-900", resim: MOUSE_KATALOG_IMG },
@@ -69,6 +73,7 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; altlar: AltKa
     id: "depolama",
     isim: "Depolama & Ağ",
     kisaIsim: "Depolama",
+    renk: "from-emerald-700 to-emerald-950",
     altlar: [
       { slug: "ssd", isim: "SSD & M.2 Disk", renk: "from-orange-600 to-orange-900", resim: "" },
       { slug: "hdd", isim: "Sabit Disk (HDD)", renk: "from-amber-600 to-amber-900", resim: "" },
@@ -80,6 +85,7 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; altlar: AltKa
     id: "yazilim",
     isim: "Yazılım & Kablo Çözümleri",
     kisaIsim: "Yazılım & Kablo",
+    renk: "from-cyan-700 to-cyan-950",
     altlar: [
       { slug: "isletim-sistemi", isim: "İşletim Sistemi", renk: "from-blue-600 to-blue-900", resim: "" },
       { slug: "yazilim", isim: "Microsoft Office & Yazılım", renk: "from-cyan-600 to-cyan-900", resim: "" },
@@ -91,61 +97,9 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; altlar: AltKa
   },
 ];
 
-// ŞEFİN JİLET GİBİ 4 KOLONLU MEGA MENÜ ENVANTERİ
-const menuCategories = [
-  {
-    title: "Bilgisayar Bileşenleri",
-    items: [
-      { name: "Anakart", slug: "anakart" },
-      { name: "Ekran Kartı", slug: "ekran-karti" },
-      { name: "İşlemci (CPU)", slug: "islemci" },
-      { name: "RAM Bellek", slug: "ram" },
-      { name: "SSD & M.2 Disk", slug: "ssd" },
-      { name: "Sabit Disk (HDD)", slug: "hdd" },
-      { name: "Bilgisayar Kasası", slug: "kasa" },
-      { name: "Güç Kaynakları (PSU)", slug: "psu" },
-      { name: "Soğutma Sistemleri", slug: "sogutma" },
-    ]
-  },
-  {
-    title: "Çevre Birimleri & Oyuncu",
-    items: [
-      { name: "Oyuncu Monitörleri", slug: "monitor" },
-      { name: "Klavye", slug: "klavye" },
-      { name: "Mouse & Mouse Pad", slug: "mouse" },
-      { name: "Oyuncu Kulaklıkları", slug: "kulaklik" },
-      { name: "Yayıncı Mikrofonları", slug: "mikrofon" },
-      { name: "Oyun Kolu", slug: "oyun-kolu" },
-      { name: "Oyun Direksiyonu", slug: "oyun-direksiyonu" },
-      { name: "Hoparlör (Speaker)", slug: "hoparlor" },
-    ]
-  },
-  {
-    title: "Sistem, Laptop & Yazılım",
-    items: [
-     { name: "Oyun Bilgisayarı", slug: "oyun-bilgisayari" },
-      { name: "Premium Laptop & Notebook", slug: "laptop" },
-      { name: "Masaüstü Bilgisayar", slug: "masaustu" },
-      { name: "OEM Paketler (Toplama PC)", slug: "oem-paket" },
-      { name: "İşletim Sistemi", slug: "isletim-sistemi" },
-      { name: "Microsoft Office & Yazılım", slug: "yazilim" },
-    ]
-  },
-  {
-    title: "Ağ, Aksesuar & Kablo",
-    items: [
-      { name: "Modem", slug: "modem" },
-      { name: "USB Bellek & Hafıza Kartı", slug: "usb" },
-      { name: "Kablolar & Çeviriciler", slug: "kablolar" },
-      { name: "Akım Koruyucu Priz", slug: "akim-koruyucu" },
-      { name: "Notebook Soğutucu", slug: "notebook-aksesuar" },
-      { name: "Şarj Aletleri & Powerbank", slug: "sarj-powerbank" },
-      { name: "Bluetooth Hoparlör", slug: "bluetooth-ses" },
-      { name: "Termal Macun", slug: "termal-macun" },
-    ]
-  }
-];
-
+const KATALOG_TUM_URUNLER = KATALOG_SERIT.flatMap((kat) =>
+  kat.altlar.map((a) => ({ name: a.isim, slug: a.slug }))
+);
 
 function akilliKategoriBul(metin: string) {
   if (!metin) return null;
@@ -188,6 +142,80 @@ function ResimliKategoriKarti({
         {k.isim}
       </span>
     </Link>
+  );
+}
+
+function MobilAltKategoriKarti({
+  k,
+  onClose,
+}: {
+  k: AltKategori;
+  onClose: () => void;
+}) {
+  return (
+    <Link
+      href={`/kategori/${k.slug}`}
+      prefetch={false}
+      onClick={onClose}
+      className="flex flex-col items-center gap-1.5 p-2 rounded-lg hover:bg-white/[0.04] transition-colors"
+    >
+      <div
+        className={`relative w-10 h-10 rounded-lg overflow-hidden shrink-0 ${!k.resim ? `bg-gradient-to-br ${k.renk}` : ""}`}
+      >
+        {k.resim && (
+          <Image src={k.resim} alt={k.isim} fill className="object-contain" unoptimized />
+        )}
+      </div>
+      <span className="text-[10px] font-medium text-slate-300 text-center leading-tight line-clamp-2 w-full">
+        {k.isim}
+      </span>
+    </Link>
+  );
+}
+
+function MobilKatalogMenusu({ onClose }: { onClose: () => void }) {
+  const [acikAna, setAcikAna] = useState<string | null>(null);
+
+  return (
+    <div className="space-y-2">
+      {KATALOG_SERIT.map((ana) => {
+        const acik = acikAna === ana.id;
+        return (
+          <div key={ana.id} className="rounded-xl overflow-hidden border border-white/[0.07]">
+            <button
+              type="button"
+              onClick={() => setAcikAna(acik ? null : ana.id)}
+              className="w-full flex items-center gap-3 px-4 py-3.5 bg-white/[0.03] hover:bg-white/[0.06] transition-colors"
+            >
+              <div className={`relative w-9 h-9 rounded-lg shrink-0 overflow-hidden bg-gradient-to-br ${ana.renk}`} />
+              <span className="flex-1 text-left text-sm font-bold text-white">{ana.isim}</span>
+              <ChevronRight
+                className={`w-4 h-4 text-slate-500 transition-transform duration-300 ease-out shrink-0 ${acik ? "rotate-90" : ""}`}
+              />
+            </button>
+
+            <div
+              className="grid transition-[grid-template-rows] duration-300 ease-in-out"
+              style={{ gridTemplateRows: acik ? "1fr" : "0fr" }}
+            >
+              <div className="overflow-hidden min-h-0">
+                <div className="border-t border-white/[0.06] bg-white/[0.02] p-3">
+                  <div className="grid grid-cols-3 gap-2">
+                    {ana.altlar.map((k) => (
+                      <MobilAltKategoriKarti
+                        key={`${k.slug}-${k.isim}`}
+                        k={k}
+                        onClose={onClose}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
@@ -323,7 +351,7 @@ const kelimeTemizle = (metin: string) => {
 const aramaMetniTemiz = kelimeTemizle(aramaMetni);
 
 const bulunanKategoriler = aramaMetniTemiz.length > 1 
-  ? menuCategories.flatMap(kat => kat.items).filter(item => 
+  ? KATALOG_TUM_URUNLER.filter(item => 
       kelimeTemizle(item.name).includes(aramaMetniTemiz) || 
       kelimeTemizle(item.slug).includes(aramaMetniTemiz)
     )
@@ -567,28 +595,8 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
             <ArrowRight className="w-4 h-4 text-emerald-500/60 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all" />
           </Link>
 
-          {/* Kategoriler */}
-          <div className="space-y-6">
-            {menuCategories.map((category, index) => (
-              <div key={index}>
-                <p className="text-[10px] font-semibold text-[#3b82f6]/80 uppercase tracking-[0.15em] mb-2 px-1">{category.title}</p>
-                <div className="rounded-xl overflow-hidden border border-white/[0.06] bg-white/[0.02]">
-                  {category.items.map((item, i) => (
-                    <Link
-                      key={item.slug}
-                      href={"/kategori/" + item.slug}
-                      prefetch={false}
-                      onClick={() => setMenuAcik(false)}
-                      className={`flex items-center justify-between px-4 py-3.5 group transition-colors hover:bg-white/[0.04] ${i !== 0 ? "border-t border-white/[0.05]" : ""}`}
-                    >
-                      <span className="text-sm font-medium text-slate-300 group-hover:text-white transition-colors">{item.name}</span>
-                      <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-[#3b82f6] group-hover:translate-x-0.5 transition-all" />
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+          {/* Kategoriler — 6 ana, resimli accordion */}
+          <MobilKatalogMenusu onClose={() => setMenuAcik(false)} />
 
         </div>
       </div>
