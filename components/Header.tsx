@@ -8,6 +8,11 @@ import { useSession, signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { Search, X, Clock, Flame, ArrowRight, ChevronRight, ChevronDown, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
+import { cloudinaryKatalogResim } from "@/lib/cloudinary";
+
+const KATALOG_ICON_DESKTOP = 72;
+const KATALOG_ICON_MOBILE = 56;
+const KATALOG_ICON_MOBILE_ANA = 48;
 
 const MOUSE_KATALOG_IMG =
   "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782720094/Ads%C4%B1z_tasar%C4%B1m_-_2026-06-29T105744.333_xnstan.png";
@@ -141,6 +146,31 @@ function akilliKategoriBul(metin: string) {
   return null;
 }
 
+function kategoriResimKutusuSinifi(k: AltKategori) {
+  if (!k.resim) return `bg-gradient-to-br ${k.renk}`;
+  return "bg-[#0a1018] ring-1 ring-white/[0.08]";
+}
+
+function KatalogGorsel({
+  src,
+  alt,
+  displayPx,
+}: {
+  src: string;
+  alt: string;
+  displayPx: number;
+}) {
+  return (
+    <Image
+      src={cloudinaryKatalogResim(src, displayPx)}
+      alt={alt}
+      fill
+      sizes={`${displayPx}px`}
+      className="object-contain p-1"
+    />
+  );
+}
+
 function ResimliKategoriKarti({
   k,
   onNavigate,
@@ -153,13 +183,13 @@ function ResimliKategoriKarti({
       href={`/kategori/${k.slug}`}
       prefetch={false}
       onClick={onNavigate}
-      className="group flex flex-col items-center w-[88px] shrink-0 h-[86px]"
+      className="group flex flex-col items-center w-[100px] shrink-0 h-[104px]"
     >
       <div
-        className={`relative w-14 h-14 rounded-xl overflow-hidden shrink-0 mb-1.5 ${!k.resim ? `bg-gradient-to-br ${k.renk}` : ""}`}
+        className={`relative w-[72px] h-[72px] rounded-xl overflow-hidden shrink-0 mb-1.5 ${kategoriResimKutusuSinifi(k)}`}
       >
         {k.resim && (
-          <Image src={k.resim} alt={k.isim} fill className="object-contain" unoptimized />
+          <KatalogGorsel src={k.resim} alt={k.isim} displayPx={KATALOG_ICON_DESKTOP} />
         )}
       </div>
       <span className="text-[10px] font-semibold text-white text-center leading-tight line-clamp-2 w-full h-[26px] flex items-start justify-center">
@@ -184,10 +214,10 @@ function MobilAltKategoriKarti({
       className="flex flex-col items-center gap-1 p-1.5 rounded-lg hover:bg-white/[0.05] transition-colors"
     >
       <div
-        className={`relative w-11 h-11 rounded-lg overflow-hidden shrink-0 ${!k.resim ? `bg-gradient-to-br ${k.renk}` : ""}`}
+        className={`relative w-14 h-14 rounded-lg overflow-hidden shrink-0 ${kategoriResimKutusuSinifi(k)}`}
       >
         {k.resim && (
-          <Image src={k.resim} alt={k.isim} fill className="object-contain" unoptimized />
+          <KatalogGorsel src={k.resim} alt={k.isim} displayPx={KATALOG_ICON_MOBILE} />
         )}
       </div>
       <span className="text-[10px] font-medium text-slate-300 text-center leading-tight line-clamp-2 w-full">
@@ -226,10 +256,10 @@ function MobilKatalogMenusu({ onClose }: { onClose: () => void }) {
                   className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/[0.04] transition-colors rounded-xl"
                 >
                   <div
-                    className={`relative w-9 h-9 rounded-lg shrink-0 overflow-hidden ${!ana.resim ? `bg-gradient-to-br ${ana.renk}` : ""}`}
+                    className={`relative w-12 h-12 rounded-lg shrink-0 overflow-hidden ${ana.resim ? "bg-[#0a1018] ring-1 ring-white/[0.08]" : `bg-gradient-to-br ${ana.renk}`}`}
                   >
                     {ana.resim && (
-                      <Image src={ana.resim} alt={ana.isim} fill className="object-contain" unoptimized />
+                      <KatalogGorsel src={ana.resim} alt={ana.isim} displayPx={KATALOG_ICON_MOBILE_ANA} />
                     )}
                   </div>
                   <span className="flex-1 text-left text-sm font-bold text-white leading-tight">{ana.isim}</span>
@@ -606,7 +636,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
           {/* Overlay panel — sabit boy, eşit aralık */}
           {seciliKatalog && (
             <div className="hidden md:block absolute top-full left-0 w-full border-t border-white/[0.06] bg-[#050814]/98 backdrop-blur-md shadow-[0_12px_40px_rgba(0,0,0,0.55)] z-50">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[168px] flex items-center">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[180px] flex items-center">
                 <div className="flex flex-wrap justify-start items-start gap-x-5 gap-y-4 w-full overflow-hidden">
                   {seciliKatalog.altlar.map((k) => (
                     <ResimliKategoriKarti
