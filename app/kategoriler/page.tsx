@@ -109,13 +109,14 @@ export default function KategorilerSayfasi() {
               className="group flex items-center gap-4 bg-[#0f172a] border border-slate-800 hover:border-slate-600 rounded-2xl p-3 transition-all hover:bg-[#1e293b]"
             >
               {/* Resim kutusu */}
-              <div className={`relative w-20 h-20 rounded-xl shrink-0 overflow-hidden bg-gradient-to-br ${k.renk}`}>
+              <div className={`relative w-16 h-16 shrink-0 overflow-hidden rounded-xl ${k.resim ? "bg-[#0f172a]" : `bg-gradient-to-br ${k.renk}`}`}>
                 {k.resim ? (
                   <Image
                     src={k.resim}
                     alt={k.isim}
                     fill
-                    className="object-contain p-1"
+                    className="object-contain scale-110"
+                    style={{ mixBlendMode: "multiply" }}
                   />
                 ) : (
                   <div className="w-full h-full" />
