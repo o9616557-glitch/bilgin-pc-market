@@ -313,10 +313,10 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
             {/* ORTA: MASAÜSTÜ MEGA MENÜ */}
             <div className="hidden md:flex items-center space-x-6 flex-1 justify-center h-full">
               <div className="relative flex items-center h-full" onMouseEnter={() => setDropdownOpen(true)} onMouseLeave={() => setDropdownOpen(false)}>
-                <button className="flex items-center space-x-2 text-white hover:text-[#3b82f6] py-2 font-semibold transition-colors text-sm">
+                <Link href="/kategoriler" prefetch={false} className="flex items-center space-x-2 text-white hover:text-[#3b82f6] py-2 font-semibold transition-colors text-sm">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                   <span>Tüm Kategoriler</span>
-                </button>
+                </Link>
 
                 {dropdownOpen && (
                   <div className="absolute top-[60px] left-0 pt-[20px] w-[1100px] z-50">
