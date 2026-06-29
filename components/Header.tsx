@@ -38,6 +38,14 @@ const RAM_KATALOG_IMG =
 const ISLEMCI_KATALOG_IMG =
   "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782748234/Ads%C4%B1z_512_x_512_piksel_5_jsgfes.png";
 
+const ANAKART_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782748641/Ads%C4%B1z_512_x_512_piksel_6_kqk1md.png";
+
+const PERFORMANS_KATALOG_IMG = ANAKART_KATALOG_IMG;
+
+const EKRAN_KARTI_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782748641/Ads%C4%B1z_512_x_512_piksel_7_gdqvft.png";
+
 type AltKategori = { slug: string; isim: string; renk: string; resim: string };
 
 // Header — 6 ana kategori
@@ -60,11 +68,11 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; renk: string;
     isim: "Temel Performans Bileşenleri",
     kisaIsim: "Performans",
     renk: "from-blue-700 to-blue-950",
-    resim: "",
+    resim: PERFORMANS_KATALOG_IMG,
     altlar: [
-      { slug: "ekran-karti", isim: "Ekran Kartı", renk: "from-green-600 to-emerald-900", resim: "" },
+      { slug: "ekran-karti", isim: "Ekran Kartı", renk: "from-green-600 to-emerald-900", resim: EKRAN_KARTI_KATALOG_IMG },
       { slug: "islemci", isim: "İşlemci (CPU)", renk: "from-blue-600 to-blue-900", resim: ISLEMCI_KATALOG_IMG },
-      { slug: "anakart", isim: "Anakart", renk: "from-purple-600 to-purple-900", resim: "" },
+      { slug: "anakart", isim: "Anakart", renk: "from-purple-600 to-purple-900", resim: ANAKART_KATALOG_IMG },
       { slug: "ram", isim: "RAM Bellek", renk: "from-cyan-600 to-cyan-900", resim: RAM_KATALOG_IMG },
     ],
   },
