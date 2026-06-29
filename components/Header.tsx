@@ -18,7 +18,7 @@ const MOUSE_KATALOG_IMG =
   "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782751550/Ads%C4%B1z_512_x_512_piksel_18_pjwq8q.png";
 
 const MONITOR_KATALOG_IMG =
-  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782751324/Ads%C4%B1z_512_x_512_piksel_10_vja8o5.png";
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782753137/Ads%C4%B1z_512_x_512_piksel_21_cynuut.png";
 
 const KLAVYE_KATALOG_IMG =
   "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782751322/Ads%C4%B1z_512_x_512_piksel_12_cwxp29.png";
@@ -41,7 +41,8 @@ const BLUETOOTH_HOPARLOR_KATALOG_IMG =
 const OYUN_DIREKSIYONU_KATALOG_IMG =
   "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782751328/Ads%C4%B1z_512_x_512_piksel_11_qjhttw.png";
 
-const MONITOR_CEVRE_KATALOG_IMG = MONITOR_KATALOG_IMG;
+const MONITOR_CEVRE_KATALOG_IMG =
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782753137/Ads%C4%B1z_512_x_512_piksel_20_ngyp7e.png";
 
 const HAZIR_SISTEM_KATALOG_IMG =
   "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782735204/Ads%C4%B1z_tasar%C4%B1m_-_2026-06-29T151248.316_ssq63p.png";
