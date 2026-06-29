@@ -8,6 +8,7 @@ import { useSession, signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { Search, X, Clock, Flame, ArrowRight, ChevronRight, ChevronDown, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
+import BilginPCRam from "@/components/BilginPCRam";
 
 const MOUSE_KATALOG_IMG =
   "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782720094/Ads%C4%B1z_tasar%C4%B1m_-_2026-06-29T105744.333_xnstan.png";
@@ -138,6 +139,21 @@ function akilliKategoriBul(metin: string) {
   return null;
 }
 
+function KategoriGorsel({ k }: { k: AltKategori }) {
+  if (k.slug === "ram") {
+    return <BilginPCRam compact />;
+  }
+  if (k.resim) {
+    return <Image src={k.resim} alt={k.isim} fill className="object-contain" unoptimized />;
+  }
+  return null;
+}
+
+function kategoriKutuSinifi(k: AltKategori) {
+  const gradient = !k.resim && k.slug !== "ram" ? `bg-gradient-to-br ${k.renk}` : "";
+  return gradient;
+}
+
 function ResimliKategoriKarti({
   k,
   onNavigate,
@@ -153,11 +169,9 @@ function ResimliKategoriKarti({
       className="group flex flex-col items-center w-[88px] shrink-0 h-[86px]"
     >
       <div
-        className={`relative w-14 h-14 rounded-xl overflow-hidden shrink-0 mb-1.5 ${!k.resim ? `bg-gradient-to-br ${k.renk}` : ""}`}
+        className={`relative w-14 h-14 rounded-xl overflow-hidden shrink-0 mb-1.5 ${kategoriKutuSinifi(k)}`}
       >
-        {k.resim && (
-          <Image src={k.resim} alt={k.isim} fill className="object-contain" unoptimized />
-        )}
+        <KategoriGorsel k={k} />
       </div>
       <span className="text-[10px] font-semibold text-white text-center leading-tight line-clamp-2 w-full h-[26px] flex items-start justify-center">
         {k.isim}
@@ -181,11 +195,9 @@ function MobilAltKategoriKarti({
       className="flex flex-col items-center gap-1 p-1.5 rounded-lg hover:bg-white/[0.05] transition-colors"
     >
       <div
-        className={`relative w-11 h-11 rounded-lg overflow-hidden shrink-0 ${!k.resim ? `bg-gradient-to-br ${k.renk}` : ""}`}
+        className={`relative w-11 h-11 rounded-lg overflow-hidden shrink-0 ${kategoriKutuSinifi(k)}`}
       >
-        {k.resim && (
-          <Image src={k.resim} alt={k.isim} fill className="object-contain" unoptimized />
-        )}
+        <KategoriGorsel k={k} />
       </div>
       <span className="text-[10px] font-medium text-slate-300 text-center leading-tight line-clamp-2 w-full">
         {k.isim}
