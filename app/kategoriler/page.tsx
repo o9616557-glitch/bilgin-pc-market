@@ -80,7 +80,7 @@ const KATEGORILER = [
     isim: "Mouse & Mousepad",
     aciklama: "Gaming ve profesyonel fareler",
     renk: "from-teal-600 to-teal-900",
-    resim: "https://res.cloudinary.com/dtnbkoa9s/image/upload/b_transparent/v1781099191/h732_1_z0pv1n.png",
+    resim: "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782720094/Ads%C4%B1z_tasar%C4%B1m_-_2026-06-29T105744.333_xnstan.png",
   },
   {
     slug: "laptop",
@@ -106,10 +106,10 @@ export default function KategorilerSayfasi() {
             <Link
               key={k.slug}
               href={`/kategori/${k.slug}`}
-              className="group flex items-center gap-4 bg-[#0f172a] border border-slate-800 hover:border-slate-700 rounded-2xl p-3 transition-colors"
+              className="group flex items-center gap-3 bg-[#0f172a] border border-slate-800 hover:border-slate-700 rounded-xl px-3 py-2 transition-colors"
             >
               {/* Resim kutusu — tam dolu, boşluksuz */}
-              <div className={`relative w-16 h-16 shrink-0 overflow-hidden rounded-xl ${!k.resim ? `bg-gradient-to-br ${k.renk}` : "bg-[#020617]"}`}>
+              <div className={`relative w-12 h-12 shrink-0 overflow-hidden rounded-lg ${!k.resim ? `bg-gradient-to-br ${k.renk}` : ""}`}>
                 {k.resim && (
                   <Image
                     src={k.resim}
