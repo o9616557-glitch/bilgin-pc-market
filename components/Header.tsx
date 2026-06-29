@@ -14,7 +14,7 @@ const MOUSE_KATALOG_IMG =
 
 type AltKategori = { slug: string; isim: string; renk: string; resim: string };
 
-// Header alt şerit — 7 ana kategori
+// Header — 6 ana kategori
 const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; altlar: AltKategori[] }[] = [
   {
     id: "hazir-sistem",
@@ -50,25 +50,19 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; altlar: AltKa
     ],
   },
   {
-    id: "monitor",
-    isim: "Oyuncu Monitörleri & Görüntü",
-    kisaIsim: "Monitör",
+    id: "monitor-cevre",
+    isim: "Monitör & Çevre Birimleri",
+    kisaIsim: "Monitör & Çevre",
     altlar: [
       { slug: "monitor", isim: "Oyuncu Monitörleri", renk: "from-indigo-600 to-indigo-900", resim: "" },
-      { slug: "monitor", isim: "Standart Monitörler", renk: "from-blue-600 to-blue-900", resim: "" },
-      { slug: "notebook-aksesuar", isim: "Monitör Standı & Aksesuar", renk: "from-slate-600 to-slate-800", resim: "" },
-    ],
-  },
-  {
-    id: "espor",
-    isim: "E-Spor & Çevre Birimleri",
-    kisaIsim: "Çevre Birimleri",
-    altlar: [
       { slug: "mouse", isim: "Mouse & Mouse Pad", renk: "from-teal-600 to-teal-900", resim: MOUSE_KATALOG_IMG },
       { slug: "klavye", isim: "Klavye", renk: "from-rose-600 to-rose-900", resim: "" },
       { slug: "kulaklik", isim: "Oyuncu Kulaklıkları", renk: "from-pink-600 to-pink-900", resim: "" },
       { slug: "mikrofon", isim: "Yayıncı Mikrofonları", renk: "from-red-600 to-red-900", resim: "" },
-      { slug: "oyun-kolu", isim: "Oyun Kolu & Direksiyon", renk: "from-orange-600 to-orange-900", resim: "" },
+      { slug: "oyun-kolu", isim: "Oyun Kolu", renk: "from-orange-600 to-orange-900", resim: "" },
+      { slug: "oyun-direksiyonu", isim: "Oyun Direksiyonu", renk: "from-amber-600 to-amber-900", resim: "" },
+      { slug: "hoparlor", isim: "Hoparlör (Speaker)", renk: "from-violet-600 to-violet-900", resim: "" },
+      { slug: "bluetooth-ses", isim: "Bluetooth Hoparlör", renk: "from-cyan-600 to-cyan-900", resim: "" },
     ],
   },
   {
@@ -92,7 +86,7 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; altlar: AltKa
       { slug: "kablolar", isim: "Kablolar & Çeviriciler", renk: "from-green-600 to-green-900", resim: "" },
       { slug: "akim-koruyucu", isim: "Akım Koruyucu Priz", renk: "from-yellow-600 to-yellow-900", resim: "" },
       { slug: "notebook-aksesuar", isim: "Notebook Soğutucu", renk: "from-slate-600 to-slate-800", resim: "" },
-      { slug: "sarj-powerbank", isim: "Şarj Aletleri", renk: "from-lime-600 to-lime-900", resim: "" },
+      { slug: "sarj-powerbank", isim: "Şarj Aletleri & Powerbank", renk: "from-lime-600 to-lime-900", resim: "" },
     ],
   },
 ];
@@ -181,16 +175,16 @@ function ResimliKategoriKarti({
       href={`/kategori/${k.slug}`}
       prefetch={false}
       onClick={onNavigate}
-      className="group flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/[0.06] transition-colors min-w-[72px]"
+      className="group flex flex-col items-center justify-start gap-1.5 w-[76px] shrink-0"
     >
       <div
-        className={`relative w-12 h-12 rounded-xl overflow-hidden shrink-0 ${!k.resim ? `bg-gradient-to-br ${k.renk}` : ""}`}
+        className={`relative w-11 h-11 rounded-xl overflow-hidden shrink-0 ${!k.resim ? `bg-gradient-to-br ${k.renk}` : ""}`}
       >
         {k.resim && (
           <Image src={k.resim} alt={k.isim} fill className="object-contain" unoptimized />
         )}
       </div>
-      <span className="text-[11px] font-semibold text-white text-center leading-tight line-clamp-2 max-w-[88px]">
+      <span className="text-[10px] font-semibold text-white text-center leading-tight line-clamp-2 w-full">
         {k.isim}
       </span>
     </Link>
@@ -440,10 +434,10 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
           onMouseLeave={() => setAcikSeritKatalog(null)}
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-20 gap-2 sm:gap-4">
+            <div className="flex items-center justify-between gap-3 sm:gap-4 md:py-2 md:min-h-[80px] h-20 md:h-auto">
 
-            {/* SOL TARAF: HAMBURGER & LOGO */}
-            <div className="flex-shrink-0 flex items-center gap-3">
+            {/* SOL: LOGO */}
+            <div className="flex-shrink-0 flex items-center gap-3 self-center">
               <button className="md:hidden flex flex-col justify-center items-center w-10 h-10 focus:outline-none z-[100]" onClick={() => setMenuAcik(!menuAcik)}>
                 <span className={"block w-6 h-0.5 bg-white transition-all duration-300 " + (menuAcik ? "rotate-45 translate-y-1.5" : "")}></span>
                 <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "opacity-0" : "")}></span>
@@ -459,9 +453,20 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
               <MobilLogoAlani menuAcik={menuAcik} />
             </div>
 
-            {/* ORTA: KATEGORİ YAZILARI */}
-            <div className="hidden md:flex flex-1 min-w-0 justify-center px-1 lg:px-2">
-              <div className="flex flex-wrap items-center justify-center gap-x-0.5">
+            {/* ORTA: ARAMA + 6 KATEGORİ */}
+            <div className="hidden md:flex flex-1 min-w-0 flex-col gap-1.5 px-2 self-center">
+              <form onSubmit={handleAramaSubmit} className="relative w-full">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                <input
+                  type="text"
+                  placeholder="Ürün, marka veya kategori ara..."
+                  value={aramaMetni}
+                  onChange={(e) => setAramaMetni(e.target.value)}
+                  onFocus={() => setAramaAcik(true)}
+                  className="w-full h-9 bg-white/[0.06] border border-white/[0.1] rounded-lg pl-9 pr-3 text-sm text-white placeholder-slate-500 outline-none focus:border-[#3b82f6]/50 focus:bg-white/[0.08] transition-colors"
+                />
+              </form>
+              <div className="flex items-center justify-between gap-0.5">
                 {KATALOG_SERIT.map((kat) => {
                   const aktif = acikSeritKatalog === kat.id;
                   return (
@@ -470,11 +475,11 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                       type="button"
                       title={kat.isim}
                       onMouseEnter={() => setAcikSeritKatalog(kat.id)}
-                      className={`shrink-0 px-2 lg:px-2.5 py-1.5 text-center transition-colors border-b-2 whitespace-nowrap text-white ${
+                      className={`flex-1 min-w-0 px-1 py-1 text-center transition-colors border-b-2 whitespace-nowrap text-white ${
                         aktif ? "border-[#3b82f6]" : "border-transparent hover:border-white/30"
                       }`}
                     >
-                      <span className="text-[10px] lg:text-[11px] font-medium tracking-wide">
+                      <span className="text-[10px] font-medium tracking-wide truncate block">
                         {kat.kisaIsim}
                       </span>
                     </button>
@@ -483,8 +488,8 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
               </div>
             </div>
 
-            {/* SAĞ TARAF */}
-           <div className={`flex items-center gap-1 lg:gap-2 shrink-0 h-full transition-all duration-300 ${menuAcik ? "pointer-events-none opacity-20 md:pointer-events-auto md:opacity-100" : ""}`}>
+            {/* SAĞ */}
+           <div className={`flex items-center gap-1 lg:gap-2 shrink-0 self-center transition-all duration-300 ${menuAcik ? "pointer-events-none opacity-20 md:pointer-events-auto md:opacity-100" : ""}`}>
 
               <Link
                 href="/kendin-topla"
@@ -497,7 +502,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
               <button
                 type="button"
                 onClick={() => setAramaAcik(true)}
-                className="p-2 text-white hover:text-[#3b82f6] transition-colors"
+                className="md:hidden p-2 text-white hover:text-[#3b82f6] transition-colors"
                 aria-label="Ara"
               >
                 <Search className="w-5 h-5 shrink-0" />
@@ -526,11 +531,11 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
           </div>
           </div>
 
-          {/* Overlay panel — sayfayı itmez, üstte açılır */}
+          {/* Overlay panel — sabit boy, eşit aralık */}
           {seciliKatalog && (
             <div className="hidden md:block absolute top-full left-0 w-full border-t border-white/[0.06] bg-[#050814]/98 backdrop-blur-md shadow-[0_12px_40px_rgba(0,0,0,0.55)] z-50">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-                <div className="flex flex-wrap gap-1 justify-start">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[148px] py-3">
+                <div className="flex flex-wrap justify-start gap-x-5 gap-y-3 h-full content-start overflow-hidden">
                   {seciliKatalog.altlar.map((k) => (
                     <ResimliKategoriKarti
                       key={`${k.slug}-${k.isim}`}
