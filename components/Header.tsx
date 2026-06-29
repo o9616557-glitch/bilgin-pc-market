@@ -19,7 +19,7 @@ const OYUN_BILGISAYARI_IMG =
   "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782735887/Ads%C4%B1z_tasar%C4%B1m_-_2026-06-29T152421.391_oipvj2.png";
 
 const OEM_PAKET_IMG =
-  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782737064/Ads%C4%B1z_tasar%C4%B1m_-_2026-06-29T154409.367_xahilb.png";
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782737605/Ads%C4%B1z_800_x_800_piksel_1_cl9nap.png";
 
 type AltKategori = { slug: string; isim: string; renk: string; resim: string };
 
