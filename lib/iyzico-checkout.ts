@@ -77,6 +77,24 @@ export function enjekteIyzicoCheckoutForm(container: HTMLElement, html: string) 
     newScript.textContent = oldScript.textContent;
     oldScript.parentNode?.replaceChild(newScript, oldScript);
   });
+
+  iyzicoIframeKaydirmaAyarla();
+}
+
+/** Taksit listesi vb. için iframe içi / dışı kaydırma */
+export function iyzicoIframeKaydirmaAyarla() {
+  document.querySelectorAll("iframe").forEach((iframe) => {
+    const src = iframe.getAttribute("src") || "";
+    if (!/iyzipay|iyzico|cpp\.iyzipay/i.test(src) && src && src !== "about:blank") return;
+
+    iframe.setAttribute("scrolling", "yes");
+    iframe.style.width = "100%";
+    iframe.style.minHeight = "100dvh";
+    iframe.style.maxHeight = "none";
+    iframe.style.border = "0";
+    iframe.style.display = "block";
+    iframe.style.position = "relative";
+  });
 }
 
 export function iyzicoIframeVarMi(): boolean {

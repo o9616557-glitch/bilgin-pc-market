@@ -9,6 +9,7 @@ import {
   temizleOdemeSayfasiKalintilari,
   enjekteIyzicoCheckoutForm,
   iyzicoIframeVarMi,
+  iyzicoIframeKaydirmaAyarla,
 } from "@/lib/iyzico-checkout";
 
 const labelClass = "text-xs text-slate-400 font-medium block mb-1.5";
@@ -184,7 +185,13 @@ export default function OdemeSayfasi() {
 
     if (!baslat()) requestAnimationFrame(() => baslat());
 
+    const scrollObserver = new MutationObserver(() => iyzicoIframeKaydirmaAyarla());
+    scrollObserver.observe(document.body, { childList: true, subtree: true });
+    const scrollTimers = [300, 800, 1500, 3000].map((ms) => setTimeout(iyzicoIframeKaydirmaAyarla, ms));
+
     return () => {
+      scrollObserver.disconnect();
+      scrollTimers.forEach(clearTimeout);
       temizleIyzicoKalintilari();
     };
   }, [iyzicoFormHtml]);
@@ -218,15 +225,15 @@ export default function OdemeSayfasi() {
 
   useEffect(() => {
     if (iyzicoFormHtml) {
+      document.documentElement.classList.add("iyzico-tam-ekran");
       document.body.classList.add("iyzico-tam-ekran");
-      document.body.style.overflow = "hidden";
     } else {
+      document.documentElement.classList.remove("iyzico-tam-ekran");
       document.body.classList.remove("iyzico-tam-ekran");
-      document.body.style.overflow = "";
     }
     return () => {
+      document.documentElement.classList.remove("iyzico-tam-ekran");
       document.body.classList.remove("iyzico-tam-ekran");
-      document.body.style.overflow = "";
     };
   }, [iyzicoFormHtml]);
 
@@ -293,11 +300,11 @@ export default function OdemeSayfasi() {
 
   if (iyzicoFormHtml) {
     return (
-      <div className="iyzico-tam-ekran-kaplama fixed inset-0 z-[99990] bg-white w-full h-[100dvh] min-h-[100dvh]">
+      <div className="iyzico-tam-ekran-kaplama fixed inset-0 z-[99990] bg-white w-full overflow-y-auto overscroll-y-contain">
         <div
           ref={iyzicoFormRef}
           id="iyzipay-checkout-form"
-          className="responsive w-full h-full min-h-[100dvh]"
+          className="responsive w-full min-h-[100dvh]"
         />
       </div>
     );

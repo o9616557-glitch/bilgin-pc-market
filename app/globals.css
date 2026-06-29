@@ -167,7 +167,16 @@ body {
   }
 }
 
-/* İyzico tam ekran — site header/footer ve ödeme sayfası gizli */
+/* İyzico tam ekran — site header/footer gizli, taksit listesi kaydırılabilir */
+html.iyzico-tam-ekran,
+body.iyzico-tam-ekran {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  height: auto !important;
+  min-height: 100dvh;
+}
+
 body.iyzico-tam-ekran header,
 body.iyzico-tam-ekran footer {
   display: none !important;
@@ -183,31 +192,36 @@ body.iyzico-tam-ekran main {
   z-index: 99990;
   background: #fff;
   width: 100%;
-  height: 100%;
   min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
 }
 
 .iyzico-tam-ekran-kaplama #iyzipay-checkout-form,
 .iyzico-tam-ekran-kaplama #iyzipay-checkout-form > div {
   width: 100% !important;
-  height: 100% !important;
   min-height: 100dvh !important;
   max-width: none !important;
   max-height: none !important;
+  height: auto !important;
 }
 
 body.iyzico-tam-ekran iframe[src*="iyzipay"],
 body.iyzico-tam-ekran iframe[src*="iyzico"],
 body.iyzico-tam-ekran iframe[src*="cpp.iyzipay"] {
-  position: fixed !important;
-  inset: 0 !important;
+  position: relative !important;
+  inset: auto !important;
+  top: auto !important;
+  left: auto !important;
   width: 100% !important;
-  height: 100% !important;
   min-height: 100dvh !important;
+  height: auto !important;
   max-width: none !important;
   max-height: none !important;
   border: 0 !important;
-  z-index: 99991 !important;
+  display: block !important;
 }
 
 #iyzipay-checkout-form.responsive:empty {
