@@ -177,33 +177,44 @@ function MobilKatalogMenusu({ onClose }: { onClose: () => void }) {
   const [acikAna, setAcikAna] = useState<string | null>(null);
 
   return (
-    <div className="space-y-1.5">
-      {KATALOG_SERIT.map((ana) => {
-        const acik = acikAna === ana.id;
-        return (
-          <div
-            key={ana.id}
-            className={`rounded-xl overflow-hidden border border-white/[0.07] transition-colors ${acik ? "bg-white/[0.03]" : "bg-white/[0.02]"}`}
-          >
-            <button
-              type="button"
-              onClick={() => setAcikAna(acik ? null : ana.id)}
-              className="w-full flex items-center gap-2.5 px-2.5 py-2 hover:bg-white/[0.04] transition-colors"
-            >
-              <div className={`relative w-8 h-8 rounded-lg shrink-0 overflow-hidden bg-gradient-to-br ${ana.renk}`} />
-              <span className="flex-1 text-left text-[13px] font-bold text-white leading-tight">{ana.isim}</span>
-              <ChevronDown
-                className={`w-4 h-4 text-slate-500 transition-transform duration-300 ease-out shrink-0 ${acik ? "rotate-180" : ""}`}
-              />
-            </button>
+    <div>
+      <div className="mb-3 px-0.5">
+        <h2 className="text-[10px] font-semibold text-[#3b82f6]/90 uppercase tracking-[0.18em]">
+          Kategoriler
+        </h2>
+      </div>
 
-            <div
-              className="grid transition-[grid-template-rows] duration-300 ease-in-out"
-              style={{ gridTemplateRows: acik ? "1fr" : "0fr" }}
-            >
-              <div className="overflow-hidden min-h-0">
-                <div className="px-1.5 pb-2 pt-0.5">
-                  <div className="grid grid-cols-3 gap-2">
+      <div className="space-y-2">
+        {KATALOG_SERIT.map((ana) => {
+          const acik = acikAna === ana.id;
+          return (
+            <div key={ana.id}>
+              <div
+                className={
+                  acik
+                    ? "rounded-xl border border-white/[0.12] bg-white/[0.04]"
+                    : "rounded-lg"
+                }
+              >
+                <button
+                  type="button"
+                  onClick={() => setAcikAna(acik ? null : ana.id)}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 hover:bg-white/[0.04] transition-colors rounded-xl"
+                >
+                  <div className={`relative w-8 h-8 rounded-lg shrink-0 overflow-hidden bg-gradient-to-br ${ana.renk}`} />
+                  <span className="flex-1 text-left text-[13px] font-bold text-white leading-tight">{ana.isim}</span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-slate-500 transition-transform duration-300 ease-out shrink-0 ${acik ? "rotate-180" : ""}`}
+                  />
+                </button>
+              </div>
+
+              <div
+                className="grid transition-[grid-template-rows] duration-300 ease-in-out"
+                style={{ gridTemplateRows: acik ? "1fr" : "0fr" }}
+              >
+                <div className="overflow-hidden min-h-0">
+                  <div className="grid grid-cols-3 gap-2 py-2.5 px-0.5">
                     {ana.altlar.map((k) => (
                       <MobilAltKategoriKarti
                         key={`${k.slug}-${k.isim}`}
@@ -215,9 +226,9 @@ function MobilKatalogMenusu({ onClose }: { onClose: () => void }) {
                 </div>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
