@@ -48,20 +48,41 @@ export function temizleIyzicoKalintilari() {
 export function temizleOdemeSayfasiKalintilari() {
   silIyzicoScriptleri();
 
-  document.querySelectorAll("iframe").forEach((iframe) => iframe.remove());
+  document.querySelectorAll("iframe").forEach((iframe) => {
+    iframe.style.display = "none";
+    iframe.style.visibility = "hidden";
+    iframe.remove();
+  });
 
   document.querySelectorAll("#iyzipay-checkout-form, #iyzico-inject-target").forEach((el) => {
     el.innerHTML = "";
   });
 
+  document.querySelectorAll("div").forEach((el) => {
+    if (!(el instanceof HTMLElement)) return;
+    if (el.closest("header, nav, main")) return;
+    const style = getComputedStyle(el);
+    if (style.position !== "fixed" && style.position !== "absolute") return;
+    const z = parseInt(style.zIndex || "0", 10);
+    const iyzicoIcerik =
+      el.id?.toLowerCase().includes("iyzi") ||
+      el.querySelector("iframe") ||
+      el.innerHTML.toLowerCase().includes("iyziinit");
+    if (iyzicoIcerik && z >= 50) el.remove();
+  });
+
   document.body.querySelectorAll(":scope > div").forEach((el) => {
     if (el.querySelector("main, header, nav")) return;
-    const onlyOverlay = el.querySelector("iframe") && !el.textContent?.trim();
-    const iyzicoId = el.id?.toLowerCase().includes("iyzi");
-    if (onlyOverlay || iyzicoId) el.remove();
+    if (el.querySelector("iframe") || el.id?.toLowerCase().includes("iyzi")) el.remove();
   });
 
   sifirlaSayfaKilidi();
+}
+
+/** İyzico açıkken güvenli çıkış — tam sayfa yönlendirme */
+export function odemeSayfasindanCik(hedef: string) {
+  temizleOdemeSayfasiKalintilari();
+  window.location.assign(hedef);
 }
 
 export function enjekteIyzicoCheckoutForm(container: HTMLElement, html: string) {

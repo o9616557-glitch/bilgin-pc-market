@@ -166,3 +166,24 @@ body {
     letter-spacing: -0.01em;
   }
 }
+
+/* İyzico ödeme kutusu — iframe tam ekranı kaplamasın */
+.iyzico-kutu #iyzipay-checkout-form,
+.iyzico-kutu #iyzipay-checkout-form > div {
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 360px !important;
+  max-height: 70vh !important;
+}
+
+.iyzico-kutu iframe {
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 360px !important;
+  max-height: 70vh !important;
+  border: 0 !important;
+}

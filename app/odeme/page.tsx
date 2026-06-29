@@ -9,6 +9,7 @@ import {
   temizleOdemeSayfasiKalintilari,
   enjekteIyzicoCheckoutForm,
   iyzicoFormuYuklendiMi,
+  odemeSayfasindanCik,
 } from "@/lib/iyzico-checkout";
 
 const labelClass = "text-xs text-slate-400 font-medium block mb-1.5";
@@ -51,6 +52,30 @@ export default function OdemeSayfasi() {
       temizleOdemeSayfasiKalintilari();
     };
   }, []);
+
+  const odemeLinkTikla = (hedef: string, e: React.MouseEvent) => {
+    if (!iyzicoFormHtml) return;
+    e.preventDefault();
+    odemeSayfasindanCik(hedef);
+  };
+
+  useEffect(() => {
+    if (!iyzicoFormHtml) return;
+
+    const yakalaNavigasyon = (e: MouseEvent) => {
+      const anchor = (e.target as Element).closest("a[href]");
+      if (!anchor) return;
+      const href = anchor.getAttribute("href");
+      if (!href || href.startsWith("#") || href.includes("/odeme")) return;
+
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      odemeSayfasindanCik(href);
+    };
+
+    document.addEventListener("click", yakalaNavigasyon, true);
+    return () => document.removeEventListener("click", yakalaNavigasyon, true);
+  }, [iyzicoFormHtml]);
 // 🚀 ERKENCİ ÇIRAK MOTORU V2 (0 MİLİSANİYE - SIFIR GECİKME!)
   useEffect(() => {
     // 🛠️ YARDIMCI MAKİNE: Adresi forma yapıştıran sistem
@@ -284,11 +309,11 @@ export default function OdemeSayfasi() {
     <div className="min-h-screen site-page pb-12 relative">
       <div className="glass-panel border-b border-white/[0.06] sticky top-0 z-50 mb-6 sm:mb-8 rounded-none">
         <div className="site-container-narrow py-3.5 sm:py-4 flex items-center justify-between">
-          <Link href="/sepet" className="flex items-center gap-2 text-sm text-slate-400 hover:text-site-accent transition-colors">
+          <Link href="/sepet" onClick={(e) => odemeLinkTikla("/sepet", e)} className="flex items-center gap-2 text-sm text-slate-400 hover:text-site-accent transition-colors">
             <ArrowLeft className="w-4 h-4 shrink-0" />
             <span className="hidden sm:inline">Sepete dön</span>
           </Link>
-          <Link href="/" className="font-semibold text-lg sm:text-xl tracking-tight text-white hover:opacity-80 transition-opacity">
+          <Link href="/" onClick={(e) => odemeLinkTikla("/", e)} className="font-semibold text-lg sm:text-xl tracking-tight text-white hover:opacity-80 transition-opacity">
             BİLGİN <span className="site-accent-text">PC</span>
           </Link>
           <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-medium bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20">
@@ -485,7 +510,7 @@ export default function OdemeSayfasi() {
                   </button>
                 </div>
                 
-                <div className="bg-white p-2 sm:p-4 rounded-2xl w-full relative min-h-[350px] flex items-center justify-center">
+                <div className="bg-white p-2 sm:p-4 rounded-2xl w-full relative min-h-[350px] max-h-[75vh] overflow-hidden flex items-center justify-center iyzico-kutu">
                   {!iyzicoHazir && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center z-0 bg-slate-50 rounded-2xl">
                       <div className="w-10 h-10 border-4 border-[#3b82f6]/20 border-t-[#3b82f6] rounded-full animate-spin mb-3" />
