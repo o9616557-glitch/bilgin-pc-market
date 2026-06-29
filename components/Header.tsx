@@ -9,20 +9,68 @@ import { usePathname, useRouter } from "next/navigation";
 import { Search, X, Clock, Flame, ArrowRight, ChevronRight, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 
-// Resimli kategori kartları (popup için)
-const POPUP_KATEGORILER = [
-  { slug: "islemci",    isim: "İşlemciler",       renk: "from-blue-600 to-blue-900",    resim: "" },
-  { slug: "ekran-karti",isim: "Ekran Kartları",   renk: "from-green-600 to-emerald-900",resim: "" },
-  { slug: "anakart",   isim: "Anakartlar",        renk: "from-purple-600 to-purple-900",resim: "" },
-  { slug: "ram",       isim: "RAM Bellek",         renk: "from-cyan-600 to-cyan-900",   resim: "" },
-  { slug: "ssd",       isim: "SSD & M.2",          renk: "from-orange-600 to-orange-900",resim: "" },
-  { slug: "kasa",      isim: "Kasalar",            renk: "from-slate-600 to-slate-900", resim: "" },
-  { slug: "psu",       isim: "Güç Kaynağı",        renk: "from-yellow-600 to-yellow-900",resim: "" },
-  { slug: "sogutma",   isim: "Soğutma",            renk: "from-sky-600 to-sky-900",     resim: "" },
-  { slug: "monitor",   isim: "Monitörler",         renk: "from-indigo-600 to-indigo-900",resim: "" },
-  { slug: "klavye",    isim: "Klavye",             renk: "from-rose-600 to-rose-900",   resim: "" },
-  { slug: "mouse",     isim: "Mouse",              renk: "from-teal-600 to-teal-900",   resim: "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782720094/Ads%C4%B1z_tasar%C4%B1m_-_2026-06-29T105744.333_xnstan.png" },
-  { slug: "laptop",    isim: "Laptop",             renk: "from-violet-600 to-violet-900",resim: "" },
+// 4 Ana kategori + altlarındaki ürün kategorileri (resimli popup için)
+const ANA_KATEGORILER = [
+  {
+    id: "bilesen",
+    isim: "Bilgisayar Bileşenleri",
+    renk: "from-blue-700 to-blue-950",
+    renk2: "#1d4ed8",
+    resim: "",
+    altlar: [
+      { slug: "islemci",    isim: "İşlemciler",     renk: "from-blue-600 to-blue-900",     resim: "" },
+      { slug: "ekran-karti",isim: "Ekran Kartları", renk: "from-green-600 to-emerald-900", resim: "" },
+      { slug: "anakart",   isim: "Anakartlar",      renk: "from-purple-600 to-purple-900", resim: "" },
+      { slug: "ram",       isim: "RAM Bellek",       renk: "from-cyan-600 to-cyan-900",    resim: "" },
+      { slug: "ssd",       isim: "SSD & M.2 Disk",  renk: "from-orange-600 to-orange-900",resim: "" },
+      { slug: "kasa",      isim: "Kasalar",          renk: "from-slate-600 to-slate-900",  resim: "" },
+      { slug: "psu",       isim: "Güç Kaynakları",  renk: "from-yellow-600 to-yellow-900",resim: "" },
+      { slug: "sogutma",   isim: "Soğutma",          renk: "from-sky-600 to-sky-900",      resim: "" },
+    ],
+  },
+  {
+    id: "cevre",
+    isim: "Çevre Birimleri",
+    renk: "from-rose-700 to-rose-950",
+    renk2: "#be123c",
+    resim: "",
+    altlar: [
+      { slug: "monitor",   isim: "Monitörler",       renk: "from-indigo-600 to-indigo-900",resim: "" },
+      { slug: "klavye",    isim: "Klavye",            renk: "from-rose-600 to-rose-900",   resim: "" },
+      { slug: "mouse",     isim: "Mouse & Mousepad", renk: "from-teal-600 to-teal-900",   resim: "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782720094/Ads%C4%B1z_tasar%C4%B1m_-_2026-06-29T105744.333_xnstan.png" },
+      { slug: "kulaklik",  isim: "Kulaklık",          renk: "from-pink-600 to-pink-900",   resim: "" },
+      { slug: "mikrofon",  isim: "Mikrofon",          renk: "from-red-600 to-red-900",     resim: "" },
+      { slug: "hoparlor",  isim: "Hoparlör",          renk: "from-amber-600 to-amber-900", resim: "" },
+    ],
+  },
+  {
+    id: "sistem",
+    isim: "Sistem & Yazılım",
+    renk: "from-violet-700 to-violet-950",
+    renk2: "#6d28d9",
+    resim: "",
+    altlar: [
+      { slug: "oyun-bilgisayari",isim: "Oyun PC",    renk: "from-violet-600 to-violet-900",resim: "" },
+      { slug: "laptop",          isim: "Laptop",      renk: "from-purple-600 to-purple-900",resim: "" },
+      { slug: "masaustu",        isim: "Masaüstü PC", renk: "from-fuchsia-600 to-fuchsia-900",resim: "" },
+      { slug: "isletim-sistemi", isim: "İşletim Sis.",renk: "from-blue-600 to-blue-900",   resim: "" },
+      { slug: "yazilim",         isim: "Office & Yazılım",renk: "from-cyan-600 to-cyan-900",resim: "" },
+    ],
+  },
+  {
+    id: "ag",
+    isim: "Ağ, Aksesuar & Kablo",
+    renk: "from-emerald-700 to-emerald-950",
+    renk2: "#047857",
+    resim: "",
+    altlar: [
+      { slug: "modem",           isim: "Modem",       renk: "from-emerald-600 to-emerald-900",resim: "" },
+      { slug: "usb",             isim: "USB Bellek",  renk: "from-teal-600 to-teal-900",   resim: "" },
+      { slug: "kablolar",        isim: "Kablolar",    renk: "from-green-600 to-green-900",  resim: "" },
+      { slug: "sarj-powerbank",  isim: "Şarj & Powerbank",renk: "from-lime-600 to-lime-900",resim: "" },
+      { slug: "termal-macun",    isim: "Termal Macun",renk: "from-slate-600 to-slate-900",  resim: "" },
+    ],
+  },
 ];
 
 // ŞEFİN JİLET GİBİ 4 KOLONLU MEGA MENÜ ENVANTERİ
@@ -97,6 +145,50 @@ function akilliKategoriBul(metin: string) {
   return null;
 }
 
+function MobilKategoriAccordion({ onClose }: { onClose: () => void }) {
+  const [acikAna, setAcikAna] = useState<string | null>(null);
+  return (
+    <div className="space-y-2">
+      {ANA_KATEGORILER.map((ana) => (
+        <div key={ana.id} className="rounded-xl overflow-hidden border border-white/[0.07]">
+          {/* Ana kategori başlığı */}
+          <button
+            onClick={() => setAcikAna(acikAna === ana.id ? null : ana.id)}
+            className="w-full flex items-center gap-3 px-4 py-3.5 bg-white/[0.03] hover:bg-white/[0.06] transition-colors"
+          >
+            <div className={`relative w-9 h-9 rounded-lg shrink-0 overflow-hidden bg-gradient-to-br ${ana.renk}`}>
+              {ana.resim && <Image src={ana.resim} alt={ana.isim} fill className="object-contain" unoptimized />}
+            </div>
+            <span className="flex-1 text-left text-sm font-bold text-white">{ana.isim}</span>
+            <ChevronRight className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${acikAna === ana.id ? "rotate-90" : ""}`} />
+          </button>
+
+          {/* Alt kategoriler */}
+          {acikAna === ana.id && (
+            <div className="border-t border-white/[0.06] bg-white/[0.02]">
+              {ana.altlar.map((k, i) => (
+                <Link
+                  key={k.slug}
+                  href={`/kategori/${k.slug}`}
+                  prefetch={false}
+                  onClick={onClose}
+                  className={`flex items-center gap-3 px-4 py-3 group transition-colors hover:bg-white/[0.04] ${i !== 0 ? "border-t border-white/[0.04]" : ""}`}
+                >
+                  <div className={`relative w-8 h-8 rounded-lg shrink-0 overflow-hidden ${!k.resim ? `bg-gradient-to-br ${k.renk}` : ""}`}>
+                    {k.resim && <Image src={k.resim} alt={k.isim} fill className="object-contain" unoptimized />}
+                  </div>
+                  <span className="flex-1 text-sm text-slate-300 group-hover:text-white transition-colors">{k.isim}</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-700 group-hover:text-[#3b82f6] transition-colors" />
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function MobilLogoAlani({ menuAcik }: { menuAcik: boolean }) {
   const { data: session, status } = useSession();
   const userImage = session?.user?.image;
@@ -162,6 +254,7 @@ export default function Header() {
   const [menuAcik, setMenuAcik] = useState(false);
   const [hesabimAcik, setHesabimAcik] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [seciliAna, setSeciliAna] = useState(ANA_KATEGORILER[0].id);
   
   const [aramaAcik, setAramaAcik] = useState(false);
   const [aramaMetni, setAramaMetni] = useState("");
@@ -342,40 +435,71 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                     {/* Dışına tıklayınca kapat */}
                     <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)} />
 
-                    {/* Resimli popup — yatay grid, fazla aşağı inmez */}
-                    <div className="fixed left-0 right-0 top-[80px] z-50 px-4 sm:px-8">
-                      <div className="max-w-7xl mx-auto bg-[#07101f]/98 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.9)] p-5">
-                        <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-12 gap-2">
-                          {POPUP_KATEGORILER.map((k) => (
-                            <Link
-                              key={k.slug}
-                              href={`/kategori/${k.slug}`}
-                              prefetch={false}
-                              onClick={() => setDropdownOpen(false)}
-                              className="group flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/[0.06] transition-colors"
+                    {/* 2 katmanlı resimli popup */}
+                    <div
+                      className="fixed left-0 right-0 top-[80px] z-50 px-4 sm:px-8"
+                      onMouseLeave={() => setDropdownOpen(false)}
+                    >
+                      <div className="max-w-7xl mx-auto bg-[#07101f]/98 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.9)] overflow-hidden">
+
+                        {/* Üst sıra — 4 ana kategori */}
+                        <div className="grid grid-cols-4 border-b border-white/[0.07]">
+                          {ANA_KATEGORILER.map((ana) => (
+                            <button
+                              key={ana.id}
+                              onMouseEnter={() => setSeciliAna(ana.id)}
+                              onClick={() => setSeciliAna(ana.id)}
+                              className={`flex items-center gap-3 px-5 py-4 transition-colors text-left border-r border-white/[0.07] last:border-r-0 ${
+                                seciliAna === ana.id
+                                  ? "bg-white/[0.07]"
+                                  : "hover:bg-white/[0.04]"
+                              }`}
                             >
-                              <div className={`relative w-12 h-12 rounded-xl overflow-hidden shrink-0 ${!k.resim ? `bg-gradient-to-br ${k.renk}` : ""}`}>
-                                {k.resim && (
-                                  <Image src={k.resim} alt={k.isim} fill className="object-contain" unoptimized />
-                                )}
+                              <div className={`relative w-10 h-10 rounded-lg shrink-0 overflow-hidden bg-gradient-to-br ${ana.renk}`}>
+                                {ana.resim && <Image src={ana.resim} alt={ana.isim} fill className="object-contain" unoptimized />}
                               </div>
-                              <span className="text-[11px] font-semibold text-slate-300 group-hover:text-white text-center leading-tight transition-colors line-clamp-2">
-                                {k.isim}
-                              </span>
-                            </Link>
+                              <div className="min-w-0">
+                                <p className={`text-sm font-bold truncate leading-tight ${seciliAna === ana.id ? "text-white" : "text-slate-400"}`}>
+                                  {ana.isim}
+                                </p>
+                                <p className="text-[10px] text-slate-600 mt-0.5">{ana.altlar.length} kategori</p>
+                              </div>
+                              {seciliAna === ana.id && (
+                                <div className="ml-auto w-1 h-8 rounded-full shrink-0" style={{ backgroundColor: ana.renk2 }} />
+                              )}
+                            </button>
                           ))}
                         </div>
 
-                        <div className="mt-3 pt-3 border-t border-white/[0.06] flex justify-end">
-                          <Link
-                            href="/kategoriler"
-                            prefetch={false}
-                            onClick={() => setDropdownOpen(false)}
-                            className="text-xs text-slate-500 hover:text-cyan-400 transition-colors flex items-center gap-1"
-                          >
-                            Tüm kategorileri gör <ChevronRight className="w-3 h-3" />
-                          </Link>
+                        {/* Alt sıra — seçili ana kategorinin alt kategorileri */}
+                        <div className="p-4">
+                          <div className="flex flex-wrap gap-2">
+                            {ANA_KATEGORILER.find(a => a.id === seciliAna)?.altlar.map((k) => (
+                              <Link
+                                key={k.slug}
+                                href={`/kategori/${k.slug}`}
+                                prefetch={false}
+                                onClick={() => setDropdownOpen(false)}
+                                className="group flex items-center gap-2.5 bg-white/[0.04] hover:bg-white/[0.09] border border-white/[0.06] hover:border-white/[0.14] rounded-xl px-3 py-2 transition-all"
+                              >
+                                <div className={`relative w-8 h-8 rounded-lg shrink-0 overflow-hidden ${!k.resim ? `bg-gradient-to-br ${k.renk}` : ""}`}>
+                                  {k.resim && <Image src={k.resim} alt={k.isim} fill className="object-contain" unoptimized />}
+                                </div>
+                                <span className="text-sm font-semibold text-slate-300 group-hover:text-white transition-colors whitespace-nowrap">
+                                  {k.isim}
+                                </span>
+                              </Link>
+                            ))}
+                          </div>
+
+                          <div className="mt-3 flex justify-end">
+                            <Link href="/kategoriler" prefetch={false} onClick={() => setDropdownOpen(false)}
+                              className="text-xs text-slate-600 hover:text-cyan-400 transition-colors flex items-center gap-1">
+                              Tüm kategoriler <ChevronRight className="w-3 h-3" />
+                            </Link>
+                          </div>
                         </div>
+
                       </div>
                     </div>
                   </>
@@ -447,28 +571,8 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
             <ArrowRight className="w-4 h-4 text-emerald-500/60 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all" />
           </Link>
 
-          {/* Kategoriler */}
-          <div className="space-y-6">
-            {menuCategories.map((category, index) => (
-              <div key={index}>
-                <p className="text-[10px] font-semibold text-[#3b82f6]/80 uppercase tracking-[0.15em] mb-2 px-1">{category.title}</p>
-                <div className="rounded-xl overflow-hidden border border-white/[0.06] bg-white/[0.02]">
-                  {category.items.map((item, i) => (
-                    <Link
-                      key={item.slug}
-                      href={"/kategori/" + item.slug}
-                      prefetch={false}
-                      onClick={() => setMenuAcik(false)}
-                      className={`flex items-center justify-between px-4 py-3.5 group transition-colors hover:bg-white/[0.04] ${i !== 0 ? "border-t border-white/[0.05]" : ""}`}
-                    >
-                      <span className="text-sm font-medium text-slate-300 group-hover:text-white transition-colors">{item.name}</span>
-                      <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-[#3b82f6] group-hover:translate-x-0.5 transition-all" />
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+          {/* Kategoriler — accordion */}
+          <MobilKategoriAccordion onClose={() => setMenuAcik(false)} />
 
         </div>
       </div>
