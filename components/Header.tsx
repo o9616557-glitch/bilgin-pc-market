@@ -9,6 +9,22 @@ import { usePathname, useRouter } from "next/navigation";
 import { Search, X, Clock, Flame, ArrowRight, ChevronRight, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 
+// Tek sıra resimli popup için
+const POPUP_KATEGORILER = [
+  { slug: "islemci",    isim: "İşlemciler",       renk: "from-blue-600 to-blue-900",     resim: "" },
+  { slug: "ekran-karti",isim: "Ekran Kartları",   renk: "from-green-600 to-emerald-900", resim: "" },
+  { slug: "anakart",   isim: "Anakartlar",        renk: "from-purple-600 to-purple-900", resim: "" },
+  { slug: "ram",       isim: "RAM Bellek",         renk: "from-cyan-600 to-cyan-900",    resim: "" },
+  { slug: "ssd",       isim: "SSD & M.2",          renk: "from-orange-600 to-orange-900",resim: "" },
+  { slug: "kasa",      isim: "Kasalar",            renk: "from-slate-600 to-slate-900",  resim: "" },
+  { slug: "psu",       isim: "Güç Kaynağı",        renk: "from-yellow-600 to-yellow-900",resim: "" },
+  { slug: "sogutma",   isim: "Soğutma",            renk: "from-sky-600 to-sky-900",      resim: "" },
+  { slug: "monitor",   isim: "Monitörler",         renk: "from-indigo-600 to-indigo-900",resim: "" },
+  { slug: "klavye",    isim: "Klavye",             renk: "from-rose-600 to-rose-900",    resim: "" },
+  { slug: "mouse",     isim: "Mouse",              renk: "from-teal-600 to-teal-900",    resim: "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782720094/Ads%C4%B1z_tasar%C4%B1m_-_2026-06-29T105744.333_xnstan.png" },
+  { slug: "laptop",    isim: "Laptop",             renk: "from-violet-600 to-violet-900",resim: "" },
+];
+
 // 4 Ana kategori + altlarındaki ürün kategorileri (resimli popup için)
 const ANA_KATEGORILER = [
   {
