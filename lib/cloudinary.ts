@@ -14,7 +14,7 @@ export function cloudinaryKatalogResim(url: string, displayPx: number): string {
   if (!afterUpload.startsWith("v")) return url;
 
   const pixelSize = Math.round(displayPx * 2);
-  const transforms = `q_auto:good,f_auto,w_${pixelSize},h_${pixelSize},c_pad,b_rgb:050814`;
+  const transforms = `q_auto:good,f_auto,w_${pixelSize},h_${pixelSize},c_pad,b_transparent`;
 
   return url.replace(uploadMarker, `${uploadMarker}${transforms}/`);
 }

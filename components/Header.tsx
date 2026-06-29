@@ -148,7 +148,7 @@ function akilliKategoriBul(metin: string) {
 
 function kategoriResimKutusuSinifi(k: AltKategori) {
   if (!k.resim) return `bg-gradient-to-br ${k.renk}`;
-  return "bg-[#0a1018] ring-1 ring-white/[0.08]";
+  return "";
 }
 
 function KatalogGorsel({
@@ -256,7 +256,7 @@ function MobilKatalogMenusu({ onClose }: { onClose: () => void }) {
                   className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/[0.04] transition-colors rounded-xl"
                 >
                   <div
-                    className={`relative w-12 h-12 rounded-lg shrink-0 overflow-hidden ${ana.resim ? "bg-[#0a1018] ring-1 ring-white/[0.08]" : `bg-gradient-to-br ${ana.renk}`}`}
+                    className={`relative w-12 h-12 rounded-lg shrink-0 overflow-hidden ${ana.resim ? "" : `bg-gradient-to-br ${ana.renk}`}`}
                   >
                     {ana.resim && (
                       <KatalogGorsel src={ana.resim} alt={ana.isim} displayPx={KATALOG_ICON_MOBILE_ANA} />
