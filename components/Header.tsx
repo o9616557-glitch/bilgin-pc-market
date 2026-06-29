@@ -25,7 +25,7 @@ const PREMIUM_LAPTOP_IMG =
   "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782739109/Ads%C4%B1z_tasar%C4%B1m_-_2026-06-29T153328.342_etyv3p.png";
 
 const MASAUSTU_BILGISAYAR_IMG =
-  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782739758/Ads%C4%B1z_tasar%C4%B1m_-_2026-06-29T162859.453_hprwgg.png";
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782740729/Ads%C4%B1z_tasar%C4%B1m_-_2026-06-29T164506.176_wmdnyw.png";
 
 type AltKategori = { slug: string; isim: string; renk: string; resim: string };
 
