@@ -9,6 +9,22 @@ import { usePathname, useRouter } from "next/navigation";
 import { Search, X, Clock, Flame, ArrowRight, ChevronRight, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 
+// Resimli kategori kartları (popup için)
+const POPUP_KATEGORILER = [
+  { slug: "islemci",    isim: "İşlemciler",       renk: "from-blue-600 to-blue-900",    resim: "" },
+  { slug: "ekran-karti",isim: "Ekran Kartları",   renk: "from-green-600 to-emerald-900",resim: "" },
+  { slug: "anakart",   isim: "Anakartlar",        renk: "from-purple-600 to-purple-900",resim: "" },
+  { slug: "ram",       isim: "RAM Bellek",         renk: "from-cyan-600 to-cyan-900",   resim: "" },
+  { slug: "ssd",       isim: "SSD & M.2",          renk: "from-orange-600 to-orange-900",resim: "" },
+  { slug: "kasa",      isim: "Kasalar",            renk: "from-slate-600 to-slate-900", resim: "" },
+  { slug: "psu",       isim: "Güç Kaynağı",        renk: "from-yellow-600 to-yellow-900",resim: "" },
+  { slug: "sogutma",   isim: "Soğutma",            renk: "from-sky-600 to-sky-900",     resim: "" },
+  { slug: "monitor",   isim: "Monitörler",         renk: "from-indigo-600 to-indigo-900",resim: "" },
+  { slug: "klavye",    isim: "Klavye",             renk: "from-rose-600 to-rose-900",   resim: "" },
+  { slug: "mouse",     isim: "Mouse",              renk: "from-teal-600 to-teal-900",   resim: "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782720094/Ads%C4%B1z_tasar%C4%B1m_-_2026-06-29T105744.333_xnstan.png" },
+  { slug: "laptop",    isim: "Laptop",             renk: "from-violet-600 to-violet-900",resim: "" },
+];
+
 // ŞEFİN JİLET GİBİ 4 KOLONLU MEGA MENÜ ENVANTERİ
 const menuCategories = [
   {
@@ -325,21 +341,40 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                   <>
                     {/* Dışına tıklayınca kapat */}
                     <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)} />
-                    <div className="absolute top-[60px] left-0 pt-[20px] w-[1100px] z-50">
-                      <div className="bg-[#09090b]/98 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_30px_50px_rgba(0,0,0,0.8)] p-10">
-                        <div className="grid grid-cols-4 gap-12">
-                          {menuCategories.map((category, index) => (
-                            <div key={index}>
-                              <h3 className="text-[#3b82f6] font-bold text-sm tracking-wider uppercase mb-6 border-b border-white/10 pb-3">{category.title}</h3>
-                              <ul className="space-y-4">
-                                {category.items.map((item) => (
-                                  <li key={item.slug}>
-                                    <Link href={"/kategori/" + item.slug} prefetch={false} onClick={() => setDropdownOpen(false)} className="text-gray-400 hover:text-white hover:translate-x-1 hover:text-[#3b82f6] transition-all duration-200 block text-base">{item.name}</Link>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
+
+                    {/* Resimli popup — yatay grid, fazla aşağı inmez */}
+                    <div className="fixed left-0 right-0 top-[80px] z-50 px-4 sm:px-8">
+                      <div className="max-w-7xl mx-auto bg-[#07101f]/98 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.9)] p-5">
+                        <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-12 gap-2">
+                          {POPUP_KATEGORILER.map((k) => (
+                            <Link
+                              key={k.slug}
+                              href={`/kategori/${k.slug}`}
+                              prefetch={false}
+                              onClick={() => setDropdownOpen(false)}
+                              className="group flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/[0.06] transition-colors"
+                            >
+                              <div className={`relative w-12 h-12 rounded-xl overflow-hidden shrink-0 ${!k.resim ? `bg-gradient-to-br ${k.renk}` : ""}`}>
+                                {k.resim && (
+                                  <Image src={k.resim} alt={k.isim} fill className="object-contain" unoptimized />
+                                )}
+                              </div>
+                              <span className="text-[11px] font-semibold text-slate-300 group-hover:text-white text-center leading-tight transition-colors line-clamp-2">
+                                {k.isim}
+                              </span>
+                            </Link>
                           ))}
+                        </div>
+
+                        <div className="mt-3 pt-3 border-t border-white/[0.06] flex justify-end">
+                          <Link
+                            href="/kategoriler"
+                            prefetch={false}
+                            onClick={() => setDropdownOpen(false)}
+                            className="text-xs text-slate-500 hover:text-cyan-400 transition-colors flex items-center gap-1"
+                          >
+                            Tüm kategorileri gör <ChevronRight className="w-3 h-3" />
+                          </Link>
                         </div>
                       </div>
                     </div>
