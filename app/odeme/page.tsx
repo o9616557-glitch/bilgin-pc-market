@@ -1,35 +1,18 @@
 "use client";
 import { ArrowLeft, CreditCard, Banknote, ShieldCheck, MapPin, Edit3, User, Phone, Mail, X } from "lucide-react";
 import { useCart } from "../CartContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import {
+  temizleIyzicoKalintilari,
+  enjekteIyzicoCheckoutForm,
+  iyzicoFormuYuklendiMi,
+} from "@/lib/iyzico-checkout";
 
 const labelClass = "text-xs text-slate-400 font-medium block mb-1.5";
 const fieldClass =
   "w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-site-accent/50 focus:bg-white/[0.05] transition-colors";
-
-function temizleIyzicoKalintilari() {
-  const inject = document.getElementById("iyzico-inject-target");
-  if (inject) inject.innerHTML = "";
-
-  document.querySelectorAll("script[src*='iyzipay'], script[src*='iyzico']").forEach((el) => el.remove());
-
-  const w = window as Window & { iyziInit?: unknown; IyziInit?: unknown; iyzipay?: unknown };
-  delete w.iyziInit;
-  delete w.IyziInit;
-  delete w.iyzipay;
-}
-
-function enjekteIyzicoForm(html: string) {
-  temizleIyzicoKalintilari();
-  const container = document.getElementById("iyzico-inject-target");
-  if (!container) return;
-
-  container.innerHTML = "";
-  const fragment = document.createRange().createContextualFragment(html);
-  container.appendChild(fragment);
-}
 
 export default function OdemeSayfasi() {
   const { data: session, status } = useSession();
@@ -39,6 +22,7 @@ export default function OdemeSayfasi() {
   const [yukleniyor, setYukleniyor] = useState(false);
   const [iyzicoFormHtml, setIyzicoFormHtml] = useState<string>("");
   const [iyzicoHazir, setIyzicoHazir] = useState(false);
+  const iyzicoFormRef = useRef<HTMLDivElement>(null);
   const [ibanKopyalandi, setIbanKopyalandi] = useState(false);
   const [faturaAyni, setFaturaAyni] = useState(true);
   const [acikSozlesme, setAcikSozlesme] = useState<"mesafeli" | "gizlilik" | null>(null);
@@ -193,35 +177,42 @@ export default function OdemeSayfasi() {
       return;
     }
 
-    setIyzicoHazir(false);
-    enjekteIyzicoForm(iyzicoFormHtml);
-
-    const container = document.getElementById("iyzico-inject-target");
-    if (!container) return;
+    let observer: MutationObserver | null = null;
+    let timers: ReturnType<typeof setTimeout>[] = [];
 
     const kontrolHazir = () => {
-      const iframe = container.querySelector("iframe");
-      const formDiv = container.querySelector("#iyzipay-checkout-form");
-      if (iframe || (formDiv && formDiv.children.length > 0)) {
-        setIyzicoHazir(true);
-      }
+      if (iyzicoFormuYuklendiMi()) setIyzicoHazir(true);
     };
 
-    const timers = [200, 500, 1000, 2000, 3500].map((ms) => setTimeout(kontrolHazir, ms));
-    const observer = new MutationObserver(kontrolHazir);
-    observer.observe(container, { childList: true, subtree: true });
+    const baslat = () => {
+      const el = iyzicoFormRef.current;
+      if (!el) return false;
 
-    setTimeout(() => {
-      const panel = document.getElementById("iyzico-panel");
-      if (panel) {
-        const y = panel.getBoundingClientRect().top + window.scrollY - 120;
-        window.scrollTo({ top: y, behavior: "smooth" });
-      }
-    }, 300);
+      setIyzicoHazir(false);
+      enjekteIyzicoCheckoutForm(el, iyzicoFormHtml);
+
+      timers = [100, 300, 600, 1200, 2000, 4000].map((ms) => setTimeout(kontrolHazir, ms));
+      observer = new MutationObserver(kontrolHazir);
+      observer.observe(document.body, { childList: true, subtree: true });
+
+      setTimeout(() => {
+        const panel = document.getElementById("iyzico-panel");
+        if (panel) {
+          const y = panel.getBoundingClientRect().top + window.scrollY - 120;
+          window.scrollTo({ top: y, behavior: "smooth" });
+        }
+      }, 300);
+
+      return true;
+    };
+
+    if (!baslat()) {
+      requestAnimationFrame(() => baslat());
+    }
 
     return () => {
       timers.forEach(clearTimeout);
-      observer.disconnect();
+      observer?.disconnect();
       temizleIyzicoKalintilari();
     };
   }, [iyzicoFormHtml]);
@@ -230,7 +221,6 @@ export default function OdemeSayfasi() {
     e.preventDefault();
     setYukleniyor(true);
     setIyzicoHazir(false);
-    temizleIyzicoKalintilari();
     setIyzicoFormHtml("");
 
     const sessionEmail = (session && session.user && session.user.email) ? session.user.email : form.eposta;
@@ -501,7 +491,11 @@ export default function OdemeSayfasi() {
                       <span className="text-slate-500 font-bold text-sm animate-pulse uppercase tracking-widest">İyzico Yükleniyor...</span>
                     </div>
                   )}
-                  <div id="iyzico-inject-target" className="responsive w-full relative z-10 min-h-[200px]" />
+                  <div
+                    ref={iyzicoFormRef}
+                    id="iyzipay-checkout-form"
+                    className="responsive w-full relative z-10 min-h-[200px]"
+                  />
                 </div>
               </div>
             )}
