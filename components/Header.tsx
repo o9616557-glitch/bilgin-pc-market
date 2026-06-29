@@ -524,6 +524,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
               </Link>
             </div>
           </div>
+          </div>
 
           {/* Overlay panel — sayfayı itmez, üstte açılır */}
           {seciliKatalog && (
