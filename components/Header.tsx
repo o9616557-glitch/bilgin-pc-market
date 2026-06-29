@@ -312,31 +312,38 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
 
             {/* ORTA: MASAÜSTÜ MEGA MENÜ */}
             <div className="hidden md:flex items-center space-x-6 flex-1 justify-center h-full">
-              <div className="relative flex items-center h-full" onMouseEnter={() => setDropdownOpen(true)} onMouseLeave={() => setDropdownOpen(false)}>
-                <Link href="/kategoriler" prefetch={false} className="flex items-center space-x-2 text-white hover:text-[#3b82f6] py-2 font-semibold transition-colors text-sm">
+              <div className="relative flex items-center h-full">
+                <button
+                  onClick={() => setDropdownOpen(v => !v)}
+                  className={`flex items-center space-x-2 py-2 font-semibold transition-colors text-sm ${dropdownOpen ? "text-[#3b82f6]" : "text-white hover:text-[#3b82f6]"}`}
+                >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                   <span>Tüm Kategoriler</span>
-                </Link>
+                </button>
 
                 {dropdownOpen && (
-                  <div className="absolute top-[60px] left-0 pt-[20px] w-[1100px] z-50">
-                    <div className="bg-[#09090b]/98 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_30px_50px_rgba(0,0,0,0.8)] p-10">
-                      <div className="grid grid-cols-4 gap-12">
-                        {menuCategories.map((category, index) => (
-                          <div key={index}>
-                            <h3 className="text-[#3b82f6] font-bold text-sm tracking-wider uppercase mb-6 border-b border-white/10 pb-3">{category.title}</h3>
-                            <ul className="space-y-4">
-                              {category.items.map((item) => (
-                                <li key={item.slug}>
-                                  <Link href={"/kategori/" + item.slug} prefetch={false} className="text-gray-400 hover:text-white hover:translate-x-1 hover:text-[#3b82f6] transition-all duration-200 block text-base">{item.name}</Link>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ))}
+                  <>
+                    {/* Dışına tıklayınca kapat */}
+                    <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)} />
+                    <div className="absolute top-[60px] left-0 pt-[20px] w-[1100px] z-50">
+                      <div className="bg-[#09090b]/98 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_30px_50px_rgba(0,0,0,0.8)] p-10">
+                        <div className="grid grid-cols-4 gap-12">
+                          {menuCategories.map((category, index) => (
+                            <div key={index}>
+                              <h3 className="text-[#3b82f6] font-bold text-sm tracking-wider uppercase mb-6 border-b border-white/10 pb-3">{category.title}</h3>
+                              <ul className="space-y-4">
+                                {category.items.map((item) => (
+                                  <li key={item.slug}>
+                                    <Link href={"/kategori/" + item.slug} prefetch={false} onClick={() => setDropdownOpen(false)} className="text-gray-400 hover:text-white hover:translate-x-1 hover:text-[#3b82f6] transition-all duration-200 block text-base">{item.name}</Link>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </>
                 )}
               </div>
 <nav className="flex items-center space-x-6">
