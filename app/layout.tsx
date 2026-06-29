@@ -16,7 +16,6 @@ import HesapHafizaCipi from "@/components/HesapHafizaCipi";
 
 // 🚀 1. ADIM: KÜRESEL KALKANI ÇATIYA ÇAĞIRIYORUZ (Sitenin Koruyucusu)
 import GlobalKalkan from "@/components/GlobalKalkan";
-import NavigasyonTemizleyici from "@/components/NavigasyonTemizleyici";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -67,7 +66,6 @@ export default function RootLayout({
 
           {/* 🚀 2. ADIM: KESKİN NİŞANCIYI NÖBETE DİKİYORUZ! (Şalteri inen adamı anında siteden şutlar) */}
           <GlobalKalkan />
-          <NavigasyonTemizleyici />
 
           <CartProvider>
             <CompareProvider>
