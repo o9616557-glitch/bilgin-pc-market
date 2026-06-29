@@ -51,11 +51,55 @@ export default function BilginPCRam({ compact = false }: BilginPCRamProps) {
         .ram-wrapper:not(.ram-wrapper--compact) .ram-container:hover {
           transform: rotate(-15deg) scale(0.95);
         }
+
+        /* Katalog ikonu — küçük ölçek yok, net piksel boyutları */
         .ram-wrapper--compact .ram-container {
-          transform: rotate(-20deg) scale(0.085);
-          filter: drop-shadow(6px 8px 8px rgba(0, 0, 0, 0.55));
+          width: 168px;
+          height: 40px;
+          transform: rotate(-14deg);
+          filter: drop-shadow(3px 5px 6px rgba(0, 0, 0, 0.55));
           transition: none;
         }
+        .ram-wrapper--compact .blue-bar {
+          height: 6px;
+          border-radius: 4px 4px 0 0;
+          box-shadow: 0 -2px 8px rgba(0, 210, 255, 0.45);
+        }
+        .ram-wrapper--compact .heatsink {
+          top: 5px;
+          height: 26px;
+          border-radius: 3px;
+          border-width: 1px;
+          padding: 0 10px;
+        }
+        .ram-wrapper--compact .heatsink-texture {
+          background: repeating-linear-gradient(90deg, transparent, transparent 6px, rgba(255,255,255,0.03) 6px, rgba(255,255,255,0.03) 12px);
+        }
+        .ram-wrapper--compact .logo {
+          font-size: 11px;
+          letter-spacing: 1.5px;
+          text-shadow: 0 0 6px rgba(0, 210, 255, 0.7);
+        }
+        .ram-wrapper--compact .specs {
+          font-size: 7px;
+        }
+        .ram-wrapper--compact .pcb {
+          top: 28px;
+          height: 12px;
+          border-radius: 0 0 3px 3px;
+        }
+        .ram-wrapper--compact .pins-container {
+          height: 5px;
+          padding: 0 4px;
+        }
+        .ram-wrapper--compact .pins-left,
+        .ram-wrapper--compact .pins-right {
+          background: repeating-linear-gradient(90deg, #d4af37, #d4af37 2px, #050a0f 2px, #050a0f 3px);
+        }
+        .ram-wrapper--compact .notch {
+          margin: 0 2px;
+        }
+
         .blue-bar {
           position: absolute;
           top: 0; left: 2%; width: 96%; height: 20px;

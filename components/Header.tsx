@@ -154,6 +154,13 @@ function kategoriKutuSinifi(k: AltKategori) {
   return gradient;
 }
 
+function kategoriKutuBoyutu(k: AltKategori, yer: "desktop" | "mobile") {
+  if (k.slug === "ram") {
+    return yer === "desktop" ? "w-[104px] h-[72px]" : "w-[88px] h-[64px]";
+  }
+  return yer === "desktop" ? "w-14 h-14" : "w-11 h-11";
+}
+
 function ResimliKategoriKarti({
   k,
   onNavigate,
@@ -166,10 +173,10 @@ function ResimliKategoriKarti({
       href={`/kategori/${k.slug}`}
       prefetch={false}
       onClick={onNavigate}
-      className="group flex flex-col items-center w-[88px] shrink-0 h-[86px]"
+      className={`group flex flex-col items-center shrink-0 ${k.slug === "ram" ? "w-[104px] h-[94px]" : "w-[88px] h-[86px]"}`}
     >
       <div
-        className={`relative w-14 h-14 rounded-xl overflow-hidden shrink-0 mb-1.5 ${kategoriKutuSinifi(k)}`}
+        className={`relative rounded-xl overflow-hidden shrink-0 mb-1.5 ${kategoriKutuBoyutu(k, "desktop")} ${kategoriKutuSinifi(k)}`}
       >
         <KategoriGorsel k={k} />
       </div>
@@ -195,7 +202,7 @@ function MobilAltKategoriKarti({
       className="flex flex-col items-center gap-1 p-1.5 rounded-lg hover:bg-white/[0.05] transition-colors"
     >
       <div
-        className={`relative w-11 h-11 rounded-lg overflow-hidden shrink-0 ${kategoriKutuSinifi(k)}`}
+        className={`relative rounded-lg overflow-hidden shrink-0 ${kategoriKutuBoyutu(k, "mobile")} ${kategoriKutuSinifi(k)}`}
       >
         <KategoriGorsel k={k} />
       </div>
