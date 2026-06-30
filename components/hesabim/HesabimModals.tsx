@@ -1,17 +1,30 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import {
-  User,
   ShieldCheck,
   Truck,
   Palette,
   ChevronRight,
+  ChevronLeft,
   X,
   Copy,
   CheckCircle2,
   LogIn,
+  Camera,
+  Chrome,
+  GripVertical,
+  ImagePlus,
+  Bell,
+  PieChart,
+  BarChart3,
+  Sparkles,
+  Star,
+  Server,
+  Headset,
+  Search,
 } from "lucide-react";
 
 export interface HesabimModalsProps {
@@ -27,6 +40,264 @@ export interface HesabimModalsProps {
   handleTakipEt: (takipNumarasi: string) => void;
   girisSartModal: boolean;
   setGirisSartModal: (v: boolean) => void;
+}
+
+const REHBER_ADIMLARI = [
+  {
+    baslik: "Profiliniz, sizin alanınız",
+    ozet: "Fotoğrafınızı ekleyin; üye girişiyle tüm ayarlarınız kalıcı olsun.",
+    kartlar: [
+      {
+        ikon: Camera,
+        renk: "cyan",
+        baslik: "Profil fotoğrafı",
+        metin: "Profil kartındaki kamera simgesine tıklayarak fotoğrafınızı yükleyebilir veya güncelleyebilirsiniz.",
+      },
+      {
+        ikon: Chrome,
+        renk: "blue",
+        baslik: "Google ile kalıcı giriş",
+        metin: "Üye olarak Google ile giriş yaptığınızda menü düzeni, renkler ve görseller hesabınıza kaydedilir; her girişte aynı panel sizi karşılar.",
+      },
+    ],
+  },
+  {
+    baslik: "Menü kutularınız",
+    ozet: "Alt kısımdaki kısayol kutularını dilediğiniz gibi düzenleyin.",
+    kartlar: [
+      {
+        ikon: Palette,
+        renk: "emerald",
+        baslik: "Düzenleme modu",
+        metin: "Profil dairesine tıklayın. Kutuları sürükleyerek sırasını değiştirin; kutuya tıklayarak özel resim ekleyin.",
+      },
+      {
+        ikon: GripVertical,
+        renk: "violet",
+        baslik: "Favoriler, Sistemler, Destek…",
+        metin: "Favoriler, Sistemler, Destek, Kargolar ve Sorgula kutularının yerini ve görselini kendinize göre ayarlayabilirsiniz.",
+      },
+    ],
+  },
+  {
+    baslik: "Bildirim pinleri",
+    ozet: "Destek ve kargo kutularındaki küçük noktaların rengini seçin.",
+    kartlar: [
+      {
+        ikon: Bell,
+        renk: "rose",
+        baslik: "Pin rengi",
+        metin: "Düzenleme modundayken renk paletinden bildirim noktası rengini seçin. Yeni mesaj veya kargo olduğunda bu renkle görünür.",
+      },
+      {
+        ikon: ImagePlus,
+        renk: "amber",
+        baslik: "Kapak görseli",
+        metin: "Profil kartının sağındaki geniş alana tıklayarak kapak görseli de ekleyebilirsiniz.",
+      },
+    ],
+  },
+  {
+    baslik: "Grafik renkleri",
+    ozet: "Sayfanın altındaki harcama grafiklerini kendi tarzınıza uyarlayın.",
+    kartlar: [
+      {
+        ikon: PieChart,
+        renk: "purple",
+        baslik: "Harcama dağılımı",
+        metin: "Pasta grafiğinin başlığındaki palet simgesine tıklayın; dilimlere tıklayarak her kategori için ayrı renk belirleyin.",
+      },
+      {
+        ikon: BarChart3,
+        renk: "cyan",
+        baslik: "Aylık harcama",
+        metin: "Aylık harcama grafiğinin yanındaki palet ile çubuk rengini değiştirin. Sipariş durumu renkleri de aynı şekilde özelleştirilebilir.",
+      },
+    ],
+  },
+] as const;
+
+const IKON_RENK: Record<string, string> = {
+  cyan: "border-cyan-500/25 text-cyan-400",
+  blue: "border-blue-500/25 text-blue-400",
+  emerald: "border-emerald-500/25 text-emerald-400",
+  violet: "border-violet-500/25 text-violet-400",
+  rose: "border-rose-500/25 text-rose-400",
+  amber: "border-amber-500/25 text-amber-400",
+  purple: "border-purple-500/25 text-purple-400",
+};
+
+function HesabimOnboarding({
+  dontShowAgain,
+  setDontShowAgain,
+  onClose,
+}: {
+  dontShowAgain: boolean;
+  setDontShowAgain: (v: boolean) => void;
+  onClose: () => void;
+}) {
+  const [adim, setAdim] = useState(0);
+  const sonAdim = REHBER_ADIMLARI.length - 1;
+  const mevcut = REHBER_ADIMLARI[adim];
+
+  useEffect(() => {
+    setAdim(0);
+  }, []);
+
+  return (
+    <div className="fixed inset-0 z-[9999999] flex items-center justify-center bg-[#050814]/96 backdrop-blur-xl p-4 sm:p-6">
+      <div className="w-full max-w-lg sm:max-w-xl max-h-[min(90dvh,680px)] flex flex-col bg-[#0b1121]/98 border border-cyan-500/15 rounded-2xl sm:rounded-3xl shadow-[0_0_60px_rgba(6,182,212,0.14)] overflow-hidden">
+        <div className="h-1 bg-gradient-to-r from-transparent via-cyan-500/60 to-transparent shrink-0" />
+
+        <div className="p-5 sm:p-7 flex flex-col flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-white/10">
+          <div className="text-center mb-5 sm:mb-6 shrink-0">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-3 relative flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full border border-cyan-400/25 animate-[spin_8s_linear_infinite] border-t-cyan-400" />
+              <div className="absolute inset-1.5 rounded-full bg-[#050814] border border-slate-700/80 flex items-center justify-center">
+                {adim === 0 ? (
+                  <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400" />
+                ) : adim === 1 ? (
+                  <GripVertical className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" />
+                ) : adim === 2 ? (
+                  <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-rose-400" />
+                ) : (
+                  <PieChart className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" />
+                )}
+              </div>
+            </div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-500/80 mb-2">
+              Adım {adim + 1} / {REHBER_ADIMLARI.length}
+            </p>
+            <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight mb-1.5">
+              {mevcut.baslik}
+            </h2>
+            <p className="text-slate-400 text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
+              {mevcut.ozet}
+            </p>
+          </div>
+
+          <div className="flex justify-center gap-1.5 mb-5 shrink-0">
+            {REHBER_ADIMLARI.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`Adım ${i + 1}`}
+                onClick={() => setAdim(i)}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  i === adim ? "w-8 bg-cyan-400" : "w-2 bg-slate-700 hover:bg-slate-500"
+                }`}
+              />
+            ))}
+          </div>
+
+          <div className="space-y-3 flex-1">
+            {mevcut.kartlar.map((kart) => {
+              const Ikon = kart.ikon;
+              const renkSinifi = IKON_RENK[kart.renk] || IKON_RENK.cyan;
+              return (
+                <div
+                  key={kart.baslik}
+                  className="flex items-start gap-3 p-3.5 sm:p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.1] transition-colors"
+                >
+                  <div
+                    className={`w-10 h-10 rounded-xl bg-[#050814] border flex items-center justify-center shrink-0 ${renkSinifi}`}
+                  >
+                    <Ikon className="w-[18px] h-[18px]" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="text-white font-semibold text-sm mb-1">{kart.baslik}</h4>
+                    <p className="text-slate-400 text-xs sm:text-[13px] leading-relaxed">{kart.metin}</p>
+                  </div>
+                </div>
+              );
+            })}
+
+            {adim === 1 && (
+              <div className="flex flex-wrap justify-center gap-2 pt-1 px-1">
+                {[
+                  { ikon: Star, label: "Favoriler" },
+                  { ikon: Server, label: "Sistemler" },
+                  { ikon: Headset, label: "Destek" },
+                  { ikon: Truck, label: "Kargolar" },
+                  { ikon: Search, label: "Sorgula" },
+                ].map(({ ikon: Ikon, label }) => (
+                  <span
+                    key={label}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.06] text-[10px] font-medium text-slate-400"
+                  >
+                    <Ikon className="w-3 h-3 text-slate-500" />
+                    {label}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {adim === 0 && (
+              <Link
+                href="/giris"
+                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] text-slate-300 text-xs font-medium transition-colors"
+              >
+                <Chrome className="w-4 h-4 text-blue-400" />
+                Google ile giriş sayfasına git
+              </Link>
+            )}
+          </div>
+        </div>
+
+        <div className="p-5 sm:p-6 pt-4 border-t border-slate-800/80 bg-[#0a0f1a]/80 shrink-0">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <label
+              className="flex items-center gap-2.5 cursor-pointer group select-none justify-center sm:justify-start order-2 sm:order-1"
+              onClick={() => setDontShowAgain(!dontShowAgain)}
+            >
+              <div
+                className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${
+                  dontShowAgain ? "bg-emerald-500 border-emerald-400" : "bg-[#050814] border-slate-600"
+                }`}
+              >
+                {dontShowAgain && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+              </div>
+              <span className="text-xs font-medium text-slate-400 group-hover:text-slate-200 transition-colors">
+                Bir daha gösterme
+              </span>
+            </label>
+
+            <div className="flex items-center gap-2 order-1 sm:order-2">
+              {adim > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setAdim((a) => a - 1)}
+                  className="flex-1 sm:flex-none px-4 py-3 rounded-xl border border-slate-700 text-slate-300 hover:text-white hover:border-slate-500 text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Geri
+                </button>
+              )}
+              {adim < sonAdim ? (
+                <button
+                  type="button"
+                  onClick={() => setAdim((a) => a + 1)}
+                  className="flex-1 sm:flex-none px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                >
+                  İleri
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex-1 sm:flex-none px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                >
+                  Hadi başlayalım
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function HesabimModals({
@@ -48,75 +319,11 @@ export default function HesabimModals({
       {showOnboarding &&
         portalHazir &&
         createPortal(
-          <div className="fixed inset-0 z-[9999999] flex items-center justify-center bg-[#050814]/95 backdrop-blur-xl p-4 sm:p-6">
-            <div className="w-full max-w-md sm:max-w-lg max-h-[min(88dvh,640px)] overflow-y-auto bg-[#0f172a]/95 border border-cyan-500/20 rounded-2xl sm:rounded-3xl shadow-[0_0_40px_rgba(6,182,212,0.12)] relative -translate-y-0 md:-translate-y-6">
-              <div className="p-5 sm:p-7 flex flex-col">
-                <div className="text-center mb-5 sm:mb-6">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-3 relative flex items-center justify-center">
-                    <div className="absolute inset-0 rounded-full border border-cyan-400/30 animate-[spin_6s_linear_infinite] border-t-cyan-400" />
-                    <div className="absolute inset-1.5 rounded-full bg-[#050814] border border-slate-700 flex items-center justify-center">
-                      <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400" />
-                    </div>
-                  </div>
-                  <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight mb-2">
-                    Kişisel panelinize hoş geldiniz
-                  </h2>
-                  <p className="text-slate-400 text-xs sm:text-sm max-w-sm mx-auto leading-relaxed">
-                    Hesabım sayfasını kendi zevkinize göre özelleştirebilirsiniz. Başlamadan önce iki kısa not:
-                  </p>
-                </div>
-
-                <div className="space-y-3 mb-5 sm:mb-6">
-                  <div className="flex items-start gap-3 p-3 sm:p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-                    <div className="w-9 h-9 rounded-full bg-[#050814] border border-cyan-500/20 flex items-center justify-center shrink-0">
-                      <User className="w-4 h-4 text-cyan-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-white font-medium text-sm mb-1">Menüleri boyayın ve taşıyın</h4>
-                      <p className="text-slate-400 text-xs leading-relaxed">
-                        Profil yuvarlağınıza tıklayarak kutuların yerini değiştirebilir ve renklendirebilirsiniz.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3 p-3 sm:p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-                    <div className="w-9 h-9 rounded-full bg-[#050814] border border-emerald-500/20 flex items-center justify-center shrink-0">
-                      <Palette className="w-4 h-4 text-emerald-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-white font-medium text-sm mb-1">Grafikleri özelleştirin</h4>
-                      <p className="text-slate-400 text-xs leading-relaxed">
-                        Başlıkların yanındaki ikonlara tıklayarak sipariş ve grafik renklerini değiştirebilirsiniz.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t border-slate-800/80">
-                  <label
-                    className="flex items-center gap-2.5 cursor-pointer group select-none justify-center sm:justify-start"
-                    onClick={() => setDontShowAgain(!dontShowAgain)}
-                  >
-                    <div
-                      className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${dontShowAgain ? "bg-emerald-500 border-emerald-400" : "bg-[#050814] border-slate-600"}`}
-                    >
-                      {dontShowAgain && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
-                    </div>
-                    <span className="text-xs font-medium text-slate-300 group-hover:text-white transition-colors">
-                      Bir daha gösterme
-                    </span>
-                  </label>
-
-                  <button
-                    onClick={closeOnboarding}
-                    className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2"
-                  >
-                    Hadi başlayalım <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>,
+          <HesabimOnboarding
+            dontShowAgain={dontShowAgain}
+            setDontShowAgain={setDontShowAgain}
+            onClose={closeOnboarding}
+          />,
           document.body
         )}
 
