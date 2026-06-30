@@ -674,7 +674,7 @@ export default function HesabimPage() {
                       <Palette className="w-10 h-10 text-emerald-400" />
                     </div>
                   ) : aktifAvatar ? (
-                    <Image src={aktifAvatar} alt="Profil" fill className="object-cover rounded-full" />
+                    <img src={aktifAvatar} alt="Profil" className="w-full h-full object-cover rounded-full" />
                   ) : (
                     <span className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-cyan-100 to-cyan-500 drop-shadow-[0_0_15px_rgba(34,211,255,0.8)]">
                       {basHarf}
