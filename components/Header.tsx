@@ -503,14 +503,14 @@ function BilginPcMarka({
   return (
     <Link
       href="/"
-      className={`inline-flex flex-col items-center font-black tracking-tight leading-none select-none ${textSize} ${className}`}
+      className={`inline-flex flex-col items-center justify-center font-black tracking-tight leading-none select-none gap-1 ${textSize} ${className}`}
       aria-label="Bilgin PC Ana Sayfa"
     >
-      <span className="flex items-baseline gap-0.5">
+      <span className="flex items-baseline gap-0.5 leading-none">
         <span className="text-white">BİLGİN</span>
         <span className="text-[#3b82f6]">PC</span>
       </span>
-      <span className="mt-1 h-px w-8 bg-gradient-to-r from-transparent via-[#3b82f6]/70 to-transparent" />
+      <span className="h-px w-8 bg-gradient-to-r from-transparent via-[#3b82f6]/70 to-transparent shrink-0" />
     </Link>
   );
 }
@@ -712,9 +712,9 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
     <>
       <header className="sticky top-0 left-0 w-full z-[99] bg-[#050814]/90 backdrop-blur-md border-b border-white/5 transition-all duration-300 relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Mobil + tablet üst satır (orta logo) */}
-            <div className="relative flex lg:hidden items-center h-20">
-              <div className="flex items-center gap-1 z-10">
+            {/* Mobil + tablet üst satır — logo tam ortada */}
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center h-20 lg:hidden w-full">
+              <div className="flex items-center gap-1 justify-self-start z-10">
                 <button className="flex flex-col justify-center items-center w-10 h-10 focus:outline-none z-[100]" onClick={() => setMenuAcik(!menuAcik)} aria-label="Menü">
                   <span className={"block w-6 h-0.5 bg-white transition-all duration-300 " + (menuAcik ? "rotate-45 translate-y-1.5" : "")}></span>
                   <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "opacity-0" : "")}></span>
@@ -725,10 +725,10 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
 
               <BilginPcMarka
                 size="sm"
-                className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[5] transition-opacity ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
+                className={`justify-self-center self-center z-[5] translate-y-px transition-opacity ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
               />
 
-              <div className={`flex items-center gap-0.5 ml-auto z-10 ${menuAcik ? "pointer-events-none opacity-20" : ""}`}>
+              <div className={`flex items-center gap-0.5 justify-self-end z-10 ${menuAcik ? "pointer-events-none opacity-20" : ""}`}>
                 <button type="button" onClick={() => setAramaAcik(true)} className="p-2 text-white hover:text-[#3b82f6] transition-colors" aria-label="Ara">
                   <Search className="w-5 h-5 shrink-0" />
                 </button>
