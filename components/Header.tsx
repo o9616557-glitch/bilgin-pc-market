@@ -126,7 +126,7 @@ const SARJ_POWERBANK_KATALOG_IMG =
   "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782759673/Ads%C4%B1z_512_x_512_piksel_31_qwxhsn.png";
 
 const KENDIN_TOPLA_KATALOG_IMG =
-  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782760508/Ads%C4%B1z_512_x_512_piksel_36_b43ahm.png";
+  "https://res.cloudinary.com/dtnbkoa9s/image/upload/v1782835438/Ads%C4%B1z_512_x_512_piksel_37_xcmo81.png";
 
 type AltKategori = { slug: string; isim: string; renk: string; resim: string };
 
