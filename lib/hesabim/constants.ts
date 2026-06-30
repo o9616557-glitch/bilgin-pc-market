@@ -39,7 +39,7 @@ export const VARSAYILAN_ALT_MENU = [
   { id: "sistemler", isim: "Sistemler", ikon: Server, renk: "text-emerald-400", isLink: true, href: "/sistemlerim" },
   { id: "destek", isim: "Destek", ikon: Headset, renk: "text-orange-400", isLink: true, href: "/destek-taleplerim" },
   { id: "sorgula", isim: "Sorgula", ikon: Search, renk: "text-blue-400", isLink: true, href: "/siparis-takip" },
-  { id: "kargolar", isim: "Kargolar", ikon: Truck, renk: "text-rose-400", isKargo: true },
+  { id: "kargolar", isim: "Kargolar", ikon: Truck, renk: "text-rose-400", isLink: true, href: "/kargolarim" },
 ];
 
 export function ikonEslestir(liste: any[]) {
