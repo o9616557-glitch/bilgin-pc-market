@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { User, Package, Star, Truck, Server, Search, Headset, LogOut } from "lucide-react";
+import { User, Package, Star, Truck, Server, Search, Headset, LogOut, ChevronRight } from "lucide-react";
 
 /* ─────────────────── KISAYOL MENÜ TANIMLARI ─────────────────── */
 export const KISAYOL_ITEMS = [
@@ -102,13 +102,13 @@ export default function KisayolNav({ active }: { active?: string }) {
       {/* Profil / çıkış kutusu */}
       <ProfilKutusu />
 
-      {/* Menü paneli — içerik panellerinden ayrışsın diye arka planı biraz daha koyu */}
+      {/* Menü paneli — içerik panellerinden ayrışsın diye arka planı bir tık daha koyu */}
       <div
         ref={scrollerRef}
-        className="bg-[#0b1121]/90 backdrop-blur-xl border border-slate-800 rounded-xl p-2 sm:p-4 shadow-xl overflow-x-auto [&::-webkit-scrollbar]:hidden"
+        className="bg-[#0b1121]/80 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-2 shadow-lg overflow-x-auto [&::-webkit-scrollbar]:hidden"
         style={{ scrollbarWidth: "none" }}
       >
-        <nav className="flex flex-row lg:flex-col gap-1.5 min-w-max lg:min-w-0">
+        <nav className="flex flex-row lg:flex-col gap-1.5 lg:gap-0.5 min-w-max lg:min-w-0">
           {KISAYOL_ITEMS.map((item) => {
             const Icon = item.icon;
             const aktif = active === item.id;
@@ -119,14 +119,15 @@ export default function KisayolNav({ active }: { active?: string }) {
                 href={item.href}
                 prefetch
                 scroll={false}
-                className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm rounded-lg transition-colors font-medium shrink-0 lg:shrink border ${
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all font-medium shrink-0 ${
                   aktif
-                    ? "text-white bg-[#020617] border-slate-700"
-                    : "text-slate-400 hover:text-white hover:bg-[#020617] border-transparent"
+                    ? "text-white bg-white/[0.07] border border-white/[0.12]"
+                    : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] border border-transparent"
                 }`}
               >
-                <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${aktif ? "text-cyan-400" : ""}`} />
-                {item.label}
+                <Icon className={`w-4 h-4 shrink-0 ${aktif ? "text-site-accent" : ""}`} />
+                <span className="truncate flex-1">{item.label}</span>
+                {aktif && <ChevronRight className="w-3 h-3 shrink-0 text-site-accent/50" />}
               </Link>
             );
           })}

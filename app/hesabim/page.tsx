@@ -745,15 +745,15 @@ export default function HesabimPage() {
         {status !== "unauthenticated" && aktifPalet !== "menu" && (
           <Link
             href="/guvenlik"
-            className="w-full flex items-center justify-between gap-3 px-4 sm:px-5 py-3 sm:py-4 rounded-2xl bg-[#0f172a] border border-slate-800 hover:border-slate-700 transition-all group"
+            className="w-full flex items-center justify-between gap-3 p-5 sm:p-6 rounded-2xl bg-[#0f172a] border border-slate-800 hover:border-slate-700 shadow-xl transition-all group"
           >
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-5 h-5 text-emerald-400" />
               </div>
               <div className="min-w-0">
-                <p className="text-xs sm:text-sm font-bold text-white">Güvenlik Merkezi</p>
-                <p className="text-[10px] sm:text-xs text-slate-500 truncate">
+                <p className="text-sm font-bold text-white">Güvenlik Merkezi</p>
+                <p className="text-xs text-slate-500 truncate">
                   {guvenlikOzeti
                     ? `${guvenlikOzeti.ikiAdim ? "2FA aktif" : "2FA kapalı"} • ${guvenlikOzeti.cihazSayisi} aktif cihaz`
                     : "Yükleniyor..."}
