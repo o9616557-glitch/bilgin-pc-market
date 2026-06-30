@@ -14,7 +14,6 @@ import {
   CheckCircle2,
   LogIn,
   Camera,
-  Chrome,
   GripVertical,
   ImagePlus,
   Bell,
@@ -54,7 +53,7 @@ const REHBER_ADIMLARI = [
         metin: "Profil kartındaki kamera simgesine tıklayarak fotoğrafınızı yükleyebilir veya güncelleyebilirsiniz.",
       },
       {
-        ikon: Chrome,
+        ikon: LogIn,
         renk: "blue",
         baslik: "Google ile kalıcı giriş",
         metin: "Üye olarak Google ile giriş yaptığınızda menü düzeni, renkler ve görseller hesabınıza kaydedilir; her girişte aynı panel sizi karşılar.",
@@ -237,7 +236,7 @@ function HesabimOnboarding({
                 href="/giris"
                 className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] text-slate-300 text-xs font-medium transition-colors"
               >
-                <Chrome className="w-4 h-4 text-blue-400" />
+                <LogIn className="w-4 h-4 text-blue-400" />
                 Google ile giriş sayfasına git
               </Link>
             )}
