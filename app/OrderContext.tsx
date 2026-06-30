@@ -92,10 +92,15 @@ export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
       const cached = cacheOku();
       if (cached.length > 0) {
         setOrders(cached);
-      } else {
-        void fetchOrders(true);
+        return;
       }
-    } else if (status === "unauthenticated") {
+      const yedek = setTimeout(() => {
+        if (cacheOku().length === 0) void fetchOrders(true);
+      }, 600);
+      return () => clearTimeout(yedek);
+    }
+
+    if (status === "unauthenticated") {
       setOrders([]);
       setLoading(false);
       if (typeof window !== "undefined") sessionStorage.removeItem(CACHE_KEY);

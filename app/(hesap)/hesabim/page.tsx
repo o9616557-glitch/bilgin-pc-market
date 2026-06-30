@@ -284,11 +284,29 @@ export default function HesabimPage() {
     } return [];
   });
   
-  const [adresSayisi, setAdresSayisi] = useState<number>(0);
-  const [favoriSayisi, setFavoriSayisi] = useState<number>(0);
-  const [sistemSayisi, setSistemSayisi] = useState<number>(0);
-  const [acikTalepSayisi, setAcikTalepSayisi] = useState<number>(0);
-  const [yeniMesajVar, setYeniMesajVar] = useState<boolean>(false);
+  const [adresSayisi, setAdresSayisi] = useState<number>(() => {
+    if (typeof window === "undefined") return 0;
+    try { return JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}").adresSayisi || 0; } catch { return 0; }
+  });
+  const [favoriSayisi, setFavoriSayisi] = useState<number>(() => {
+    if (typeof window === "undefined") return 0;
+    try { return JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}").favoriSayisi || 0; } catch { return 0; }
+  });
+  const [sistemSayisi, setSistemSayisi] = useState<number>(() => {
+    if (typeof window === "undefined") return 0;
+    try {
+      const s = localStorage.getItem("bilgin_kayitli_sistemler");
+      return s ? JSON.parse(s).length : 0;
+    } catch { return 0; }
+  });
+  const [acikTalepSayisi, setAcikTalepSayisi] = useState<number>(() => {
+    if (typeof window === "undefined") return 0;
+    try { return JSON.parse(sessionStorage.getItem("bilgin_destek_ozet") || "{}").sayi || 0; } catch { return 0; }
+  });
+  const [yeniMesajVar, setYeniMesajVar] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    try { return !!JSON.parse(sessionStorage.getItem("bilgin_destek_ozet") || "{}").acil; } catch { return false; }
+  });
 
   const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
   const [grafikVerisi, setGrafikVerisi] = useState<any[]>([]);
