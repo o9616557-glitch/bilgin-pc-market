@@ -50,7 +50,7 @@ function ProfilKutusu() {
       ) : (
         <>
           {stable?.user?.image ? (
-            <Image src={stable.user.image} alt={stable.user.name || "Profil"} width={40} height={40} className="rounded-full object-cover shrink-0 ring-2 ring-site-accent/20" />
+            <img src={stable.user.image} alt={stable.user.name || "Profil"} width={40} height={40} style={{ width: 40, height: 40 }} className="rounded-full object-cover shrink-0 ring-2 ring-site-accent/20" />
           ) : (
             <div className="w-10 h-10 rounded-full bg-site-shell border border-white/[0.1] flex items-center justify-center shrink-0">
               <User className="w-5 h-5 text-slate-400" />

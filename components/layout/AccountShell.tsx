@@ -150,7 +150,7 @@ function MobilProfilKarti() {
   return (
     <div className="account-card rounded-2xl p-3 flex items-center gap-3">
       {userImage ? (
-        <Image src={userImage} alt={userName} width={36} height={36} className="rounded-full object-cover shrink-0 ring-2 ring-site-accent/20" />
+        <img src={userImage} alt={userName} width={36} height={36} style={{ width: 36, height: 36 }} className="rounded-full object-cover shrink-0 ring-2 ring-site-accent/20" />
       ) : (
         <div className="w-9 h-9 rounded-full bg-site-shell border border-white/[0.1] flex items-center justify-center shrink-0">
           <User className="w-4 h-4 text-slate-400" />
@@ -295,7 +295,7 @@ function AccountPanel({ active }: { active?: string }) {
           ) : (
             <>
               {userImage ? (
-                <Image src={userImage} alt={userName} width={40} height={40} className="rounded-full object-cover shrink-0 ring-2 ring-site-accent/20" />
+                <img src={userImage} alt={userName} width={40} height={40} style={{ width: 40, height: 40 }} className="rounded-full object-cover shrink-0 ring-2 ring-site-accent/20" />
               ) : (
                 <div className="w-10 h-10 rounded-full bg-site-shell border border-white/[0.1] flex items-center justify-center shrink-0">
                   <User className="w-5 h-5 text-slate-400" />

@@ -1,6 +1,4 @@
 import { Toaster } from "react-hot-toast";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import AuthProvider from "@/components/AuthProvider";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -36,12 +34,11 @@ export const viewport = {
   themeColor: "#050814",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerSession(authOptions);
   return (
     <html lang="tr">
       {/* 🚀 İŞTE BURASI: font-sans eklendi, artık o premium Geist fontu tüm siteye HD kalitesinde basılacak 🚀 */}
@@ -65,7 +62,7 @@ export default async function RootLayout({
             }
           }}
         />
-        <AuthProvider session={session}>
+        <AuthProvider>
           
           {/* 🚀 BİNGO! SİSTEMİN YENİ BEYNİ: F5 atılsa bile arkadan verileri toplayan gizli çipimiz! */}
           <HesapHafizaCipi />

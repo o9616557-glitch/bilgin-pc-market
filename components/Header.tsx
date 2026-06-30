@@ -404,11 +404,12 @@ function ProfilAvatar({ size = 36, className = "" }: { size?: number; className?
 
   if (userImage) {
     return (
-      <Image
+      <img
         src={userImage}
         alt={userName}
         width={size}
         height={size}
+        style={{ width: size, height: size }}
         className={`rounded-full object-cover ring-2 ring-[#3b82f6]/40 ${className}`}
       />
     );

@@ -20,8 +20,6 @@ const nextConfig = {
         hostname: 'res.cloudinary.com',
       },
     ],
-    formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 60 * 60 * 24 * 30,
   },
 };
 
