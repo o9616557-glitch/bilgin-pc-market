@@ -33,3 +33,22 @@ export function cloudinaryUrunResim(url: string, maxWidth = 900): string {
   const transforms = `q_auto:good,f_auto,w_${maxWidth},c_limit`;
   return url.replace(uploadMarker, `${uploadMarker}${transforms}/`);
 }
+
+/** Kategori listesi / kart vitrin görseli */
+export function urunVitrinResmi(
+  urun: {
+    resim?: string;
+    resimler?: string[];
+    images?: { src?: string }[];
+    image?: string;
+  },
+  maxWidth = 480
+): string {
+  const raw =
+    (urun.resimler && urun.resimler[0]) ||
+    urun.resim ||
+    (urun.images && urun.images[0]?.src) ||
+    urun.image ||
+    "/placeholder.jpg";
+  return cloudinaryUrunResim(raw, maxWidth);
+}

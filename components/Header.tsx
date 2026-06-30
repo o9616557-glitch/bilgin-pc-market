@@ -302,6 +302,7 @@ function ResimliKategoriKarti({
   return (
     <Link
       href={`/kategori/${k.slug}`}
+      prefetch
       onClick={onNavigate}
       className="group flex flex-col items-center w-[100px] shrink-0 h-[104px]"
     >
@@ -329,6 +330,7 @@ function MobilAltKategoriKarti({
   return (
     <Link
       href={`/kategori/${k.slug}`}
+      prefetch
       onClick={onClose}
       className="flex flex-col items-center gap-1 p-1.5 rounded-lg hover:bg-white/[0.05] transition-colors"
     >
@@ -390,15 +392,24 @@ function MobilKatalogMenusu({ onClose, hazir }: { onClose: () => void; hazir: bo
               </div>
 
               {panellerHazir && (
-                <div className={acik ? "" : "hidden"}>
-                  <div className="grid grid-cols-3 gap-2 py-2.5 px-0.5">
-                    {ana.altlar.map((k) => (
-                      <MobilAltKategoriKarti
-                        key={`${ana.id}-${k.slug}-${k.isim}`}
-                        k={k}
-                        onClose={onClose}
-                      />
-                    ))}
+                <div
+                  className="grid transition-[grid-template-rows] duration-[380ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
+                  style={{ gridTemplateRows: acik ? "1fr" : "0fr" }}
+                >
+                  <div className="overflow-hidden min-h-0">
+                    <div
+                      className={`grid grid-cols-3 gap-2 py-2.5 px-0.5 transition-opacity duration-[380ms] ease-out ${
+                        acik ? "opacity-100" : "opacity-0"
+                      }`}
+                    >
+                      {ana.altlar.map((k) => (
+                        <MobilAltKategoriKarti
+                          key={`${ana.id}-${k.slug}-${k.isim}`}
+                          k={k}
+                          onClose={onClose}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}

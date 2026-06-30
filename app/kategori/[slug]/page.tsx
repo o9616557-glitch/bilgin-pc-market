@@ -1,5 +1,6 @@
 import clientPromise from "@/lib/mongodb";
 import KategoriClient from "./KategoriClient";
+import { urunVitrinResmi } from "@/lib/cloudinary";
 
 export const revalidate = 3600;
 
@@ -39,6 +40,12 @@ export default async function KategoriSayfasi({ params }: any) {
   }
 
   return (
+    <>
+      {urunler.slice(0, 10).map((urun) => {
+        const href = urunVitrinResmi(urun, 480);
+        if (!href || href === "/placeholder.jpg") return null;
+        return <link key={urun._id} rel="preload" as="image" href={href} />;
+      })}
     <main className="min-h-screen bg-black text-white pt-12 pb-24 px-4 font-sans select-none touch-manipulation">
       <style dangerouslySetInnerHTML={{ __html: `
         .discount-badge-home { position: absolute; top: 10px; right: 10px; width: 65px; height: 90px; z-index: 50; filter: drop-shadow(0px 6px 8px rgba(0,0,0,0.6)); pointer-events: none; }
@@ -53,6 +60,7 @@ export default async function KategoriSayfasi({ params }: any) {
          <KategoriClient urunler={urunler} sayfaBasligi={sayfaBasligi} />
       </div>
     </main>
+    </>
   );
 }
 
