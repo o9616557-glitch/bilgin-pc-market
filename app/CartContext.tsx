@@ -1,6 +1,6 @@
 "use client";
 import { createContext, useContext, useState, useEffect } from "react";
-import { ertele } from "@/lib/performans";
+import { UYE_VERI_EVENT, type UyeBaslangicVerisi } from "@/lib/uye-onbellek";
 
 const CartContext = createContext<any>(null);
 
@@ -8,13 +8,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [sepet, setSepet] = useState<any[]>([]);
 
 useEffect(() => {
-    // 1. ÖNCE LOKAL HAFIZAYI AL (Sitenin ışık hızında açılması için)
     const hafiza = localStorage.getItem("bilgin-sepet");
     if (hafiza) setSepet(JSON.parse(hafiza));
 
     const buluttanGetir = async () => {
       try {
-        // Ön belleğe takılmaması için sonuna saat damgası ekledik
         const res = await fetch("/api/sepet?t=" + new Date().getTime(), { 
           cache: "no-store",
           headers: { "Cache-Control": "no-cache" }
@@ -22,7 +20,6 @@ useEffect(() => {
         const data = await res.json();
         
         if (data.success && data.cart) {
-          // EKRAN TİTREMESİN DİYE AKILLI KONTROL
           setSepet((eskiSepet) => {
             const eskiDurum = JSON.stringify(eskiSepet);
             const yeniDurum = JSON.stringify(data.cart);
@@ -39,13 +36,18 @@ useEffect(() => {
       }
     };
 
-    // İlk açılışta ana thread boşaldığında bir kez çalıştır
-    ertele(buluttanGetir, 1500);
+    const uyeVerisiGeldi = (e: Event) => {
+      const veri = (e as CustomEvent<UyeBaslangicVerisi>).detail;
+      if (!veri?.cart) return;
+      setSepet(veri.cart);
+      localStorage.setItem("bilgin-sepet", JSON.stringify(veri.cart));
+    };
 
-    // 🚀 SADECE SEKMEYE GERİ DÖNÜLDÜĞÜNDE GÜNCELLER (SİSTEMİ YORMAZ)
+    window.addEventListener(UYE_VERI_EVENT, uyeVerisiGeldi);
     window.addEventListener("focus", buluttanGetir);
 
     return () => {
+      window.removeEventListener(UYE_VERI_EVENT, uyeVerisiGeldi);
       window.removeEventListener("focus", buluttanGetir);
     };
   }, []);

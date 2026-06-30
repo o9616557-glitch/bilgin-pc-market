@@ -9,7 +9,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { Search, X, Clock, Flame, ArrowRight, ChevronRight, ChevronDown, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { cloudinaryKatalogResim } from "@/lib/cloudinary";
-import { ertele } from "@/lib/performans";
 
 const KATALOG_ICON_DESKTOP = 72;
 const KATALOG_ICON_MOBILE = 56;
@@ -489,25 +488,7 @@ export default function Header() {
     localStorage.removeItem("bilgin_kayitli_sistemler");
     await signOut(); 
   };
-  // 🚀 KAPIDAKİ AKILLI ÇIRAK MOTORU (SADECE GİRİŞ YAPINCA ÇALIŞIR — idle'da yüklenir)
-  useEffect(() => {
-    if (!session?.user?.email) return;
 
-    const cirakDepoyaKossun = async () => {
-      try {
-        const res = await fetch("/api/sistemlerim?t=" + new Date().getTime());
-        
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success) {
-            localStorage.setItem("bilgin_kayitli_sistemler", JSON.stringify(data.systems));
-          }
-        }
-      } catch (error) {}
-    };
-
-    ertele(cirakDepoyaKossun, 2000);
-  }, [session]);
 // 🔥 ŞEFİN KUSURSUZ KATEGORİ BULUCU MOTORU 🔥
 const kelimeTemizle = (metin: string) => {
   return metin.toLowerCase()

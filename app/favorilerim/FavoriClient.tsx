@@ -12,6 +12,7 @@ import { useCart } from "@/app/CartContext";
 import { useSession } from "next-auth/react";
 import { useOrders } from "@/app/OrderContext";
 import KisayolNav from "@/components/layout/KisayolNav";
+import { UYE_VERI_EVENT, type UyeBaslangicVerisi } from "@/lib/uye-onbellek";
 // 🚀 DİKKAT: useRouter'a ve router.refresh()'e ihtiyacımız kalmadı, kasma bombasını imha ettik!
 
 interface Props {
@@ -59,19 +60,26 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
   useEffect(() => {
     setSayfaYuklendi(true);
 
-    // 1. Sayfa açılır açılmaz Next.js'in eski verisi yerine TARAYICI HAFIZASINA bakıyoruz
     const hafiza = sessionStorage.getItem("bilgin-favoriler");
     
     if (hafiza) {
-      // Eğer hafızada güncel liste varsa anında onu basıyoruz (Göz kırpmayı engeller)
       setFavoriteProducts(JSON.parse(hafiza));
     } else {
-      // İlk defa giriyorsa sunucudan geleni kullanıyoruz
       setFavoriteProducts(initialFavorites);
     }
 
-    // 2. Ardından her ihtimale karşı arka planda güncel listeyi çekip kontrol ediyoruz
-    favorileriGuncelle();
+    const uyeVerisiGeldi = (e: Event) => {
+      const veri = (e as CustomEvent<UyeBaslangicVerisi>).detail;
+      if (veri?.favorites) setFavoriteProducts(veri.favorites);
+    };
+
+    window.addEventListener(UYE_VERI_EVENT, uyeVerisiGeldi);
+
+    if (!hafiza) {
+      favorileriGuncelle();
+    }
+
+    return () => window.removeEventListener(UYE_VERI_EVENT, uyeVerisiGeldi);
   }, []);
 
   // 🚀 GÜVENLİ EKRAN DONDURMA: DOM'u yormayan temizlik motoru

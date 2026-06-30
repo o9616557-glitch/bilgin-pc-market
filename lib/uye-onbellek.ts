@@ -43,12 +43,10 @@ export function uyeOnbellegineYaz(veri: UyeBaslangicVerisi) {
   );
   sessionStorage.setItem("bilgin_siparisler", JSON.stringify(veri.orders));
 
-  if (veri.cart.length > 0) {
+  if (veri.cart) {
     localStorage.setItem("bilgin-sepet", JSON.stringify(veri.cart));
   }
-  if (veri.systems.length > 0) {
-    localStorage.setItem("bilgin_kayitli_sistemler", JSON.stringify(veri.systems));
-  }
+  localStorage.setItem("bilgin_kayitli_sistemler", JSON.stringify(veri.systems));
 
   window.dispatchEvent(new CustomEvent(HESAP_GUNCELLENDI_EVENT));
   window.dispatchEvent(new CustomEvent(UYE_VERI_EVENT, { detail: veri }));

@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { ertele } from "@/lib/performans";
+import { UYE_VERI_EVENT, type UyeBaslangicVerisi } from "@/lib/uye-onbellek";
 
 interface OrderContextType {
   orders: any[];
@@ -39,12 +39,23 @@ export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
   const { status } = useSession();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [hafizaHazir, setHafizaHazir] = useState(false);
 
   useEffect(() => {
     const cached = cacheOku();
     if (cached.length > 0) setOrders(cached);
-    setHafizaHazir(true);
+  }, []);
+
+  useEffect(() => {
+    const uyeVerisiGeldi = (e: Event) => {
+      const veri = (e as CustomEvent<UyeBaslangicVerisi>).detail;
+      if (!veri?.orders) return;
+      setOrders(veri.orders);
+      cacheYaz(veri.orders);
+      setLoading(false);
+    };
+
+    window.addEventListener(UYE_VERI_EVENT, uyeVerisiGeldi);
+    return () => window.removeEventListener(UYE_VERI_EVENT, uyeVerisiGeldi);
   }, []);
 
   const fetchOrders = useCallback(async (ilkYukleme = false) => {
@@ -70,16 +81,12 @@ export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    if (!hafizaHazir || status === "loading") return;
-
-    if (status === "authenticated") {
-      ertele(() => fetchOrders(true), 2000);
-    } else if (status === "unauthenticated") {
+    if (status === "unauthenticated") {
       setOrders([]);
       setLoading(false);
       if (typeof window !== "undefined") sessionStorage.removeItem(CACHE_KEY);
     }
-  }, [status, hafizaHazir, fetchOrders]);
+  }, [status]);
 
   return (
     <OrderContext.Provider value={{ orders, loading, refreshOrders: () => fetchOrders(false) }}>
