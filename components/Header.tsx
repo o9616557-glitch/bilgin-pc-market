@@ -741,7 +741,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
 
   const bildirimLink = (
     <Link
-      href="/hesabim"
+      href="/bildirimler"
       className="relative p-2 text-white hover:text-[#3b82f6] transition-colors"
       aria-label="Bildirimler"
       title="Bildirimler"
