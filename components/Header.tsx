@@ -535,16 +535,16 @@ function BilginPcMarka({
   );
 }
 
-function MobilProfilLink({ className = "" }: { className?: string }) {
+function MobilProfilLink() {
   const { status } = useSession();
 
   if (status === "loading") {
-    return <div className={`lg:hidden w-9 h-9 rounded-full bg-white/[0.06] border border-white/[0.12] ${className}`} />;
+    return <div className="lg:hidden w-9 h-9 rounded-full bg-white/[0.06] border border-white/[0.12] shrink-0" />;
   }
 
   return (
-    <Link href="/hesabim" className={`lg:hidden p-1 transition-all ${className}`} aria-label="Hesabım">
-      <ProfilAvatar size={36} />
+    <Link href="/hesabim" className="lg:hidden p-0.5 transition-all shrink-0" aria-label="Hesabım">
+      <ProfilAvatar size={34} />
     </Link>
   );
 }
@@ -779,15 +779,17 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                   <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "opacity-0" : "")}></span>
                   <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "-rotate-45 -translate-y-1.5" : "")}></span>
                 </button>
-                <div className={`flex items-center ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}>
+                <div className={menuAcik ? "opacity-20 pointer-events-none" : ""}>
                   {mesajLink}
-                  <BilginPcMarka size="sm" variant="horizontal" glow className="px-0.5" />
                 </div>
               </div>
 
-              <MobilProfilLink
-                className={`justify-self-center self-center z-[5] transition-opacity ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
-              />
+              <div
+                className={`flex items-center gap-1.5 sm:gap-2 justify-self-center self-center z-[5] transition-opacity ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
+              >
+                <MobilProfilLink />
+                <BilginPcMarka size="sm" variant="horizontal" glow className="px-0.5 shrink-0" />
+              </div>
 
               <div className={`flex items-center gap-0.5 justify-self-end z-10 ${menuAcik ? "pointer-events-none opacity-20" : ""}`}>
                 <button type="button" onClick={() => setAramaAcik(true)} className="p-2 text-white hover:text-[#3b82f6] transition-colors" aria-label="Ara">
