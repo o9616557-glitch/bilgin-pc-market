@@ -8,6 +8,9 @@ import User from "@/models/User";
 import nodemailer from "nodemailer";
 import crypto from "crypto";
 import { headers } from "next/headers"; 
+import { connectMongo } from "@/lib/mongoose";
+
+const CİHAZ_KONTROL_ARALIGI_MS = 5 * 60 * 1000;
 
 async function konumuBul(ip: string) {
   try {
@@ -88,7 +91,7 @@ export const authOptions: NextAuthOptions = {
       credentials: { email: { label: "Email", type: "text" }, password: { label: "Sifre", type: "password" }, code: { label: "2FA", type: "text" } },
       async authorize(credentials, req) {
         if (!credentials?.email || !credentials?.password) throw new Error("Lütfen e-posta ve şifre girin.");
-        if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
+        await connectMongo();
 
         const user = await User.findOne({ email: credentials.email });
         if (!user) throw new Error("Bu e-posta adresiyle kayıtlı kullanıcı bulunamadı.");
@@ -176,7 +179,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account }) {
       try {
-        if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
+        await connectMongo();
 
         // 🧊 İŞTE DÜZELTTİĞİMİZ BUZ ÇÖZME MOTORU
         if (user && user.email) {
@@ -247,26 +250,36 @@ export const authOptions: NextAuthOptions = {
     },
 
     async jwt({ token, user }) {
-      if (user) { 
-        token.id = user.id; 
-        token.deviceId = (user as any).deviceId; 
+      if (user) {
+        token.id = user.id;
+        token.deviceId = (user as any).deviceId;
+        token.lastDeviceCheck = Date.now();
       }
 
       if (!user && token?.email && token?.deviceId) {
-        try {
-          if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
-          
-          const dbUser = await User.findOne({ email: token.email }).select("activeDevices image");
-          
-          if (dbUser) {
-            const buCihaz = dbUser.activeDevices.find((c: any) => c.deviceId === token.deviceId);
-            if (!buCihaz || buCihaz.isActive === false) {
-              return { ...token, isLoggedOut: true }; 
+        const simdi = Date.now();
+        const sonKontrol = (token.lastDeviceCheck as number) || 0;
+        const kontrolGerekli = simdi - sonKontrol >= CİHAZ_KONTROL_ARALIGI_MS;
+
+        if (kontrolGerekli) {
+          try {
+            await connectMongo();
+
+            const dbUser = await User.findOne({ email: token.email }).select("activeDevices image");
+
+            if (dbUser) {
+              const buCihaz = dbUser.activeDevices.find((c: any) => c.deviceId === token.deviceId);
+              if (!buCihaz || buCihaz.isActive === false) {
+                return { ...token, isLoggedOut: true };
+              }
+              if (dbUser.image) token.dbImage = dbUser.image;
             }
-            // Kullanıcının DB'deki güncel profil fotoğrafını token'a ekle
-            if (dbUser.image) token.dbImage = dbUser.image;
+
+            token.lastDeviceCheck = simdi;
+          } catch (err) {
+            console.error("Cihaz kontrol hatası:", err);
           }
-        } catch (err) { console.error("Cihaz kontrol hatası:", err); }
+        }
       }
       return token;
     },
@@ -288,7 +301,7 @@ export const authOptions: NextAuthOptions = {
   events: {
     async signOut({ token }) {
       try {
-        if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
+        await connectMongo();
         
         // Hem normal hem kurumsal (Google vs.) oturumlarda cihazı tam algılaması için e-posta ile güncelliyoruz
         if (token?.email && token?.deviceId) {

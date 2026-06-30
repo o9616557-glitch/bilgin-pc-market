@@ -9,6 +9,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Search, X, Clock, Flame, ArrowRight, ChevronRight, ChevronDown, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { cloudinaryKatalogResim } from "@/lib/cloudinary";
+import { ertele } from "@/lib/performans";
 
 const KATALOG_ICON_DESKTOP = 72;
 const KATALOG_ICON_MOBILE = 56;
@@ -392,9 +393,13 @@ function ProfilAvatar({ size = 36, className = "" }: { size?: number; className?
   if (status === "loading") {
     return (
       <div
-        className={`rounded-full bg-white/[0.08] animate-pulse ${className}`}
+        className={`rounded-full bg-white/[0.06] border border-white/[0.12] flex items-center justify-center ${className}`}
         style={{ width: size, height: size }}
-      />
+      >
+        <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      </div>
     );
   }
 
@@ -439,7 +444,7 @@ function MobilLogoAlani({ menuAcik }: { menuAcik: boolean }) {
   const href = session ? "/hesabim" : "/giris";
 
   if (status === "loading") {
-    return <div className="md:hidden w-9 h-9 rounded-full bg-white/[0.06] animate-pulse" />;
+    return <div className="md:hidden w-9 h-9 rounded-full bg-white/[0.06] border border-white/[0.12]" />;
   }
 
   return (
@@ -484,9 +489,8 @@ export default function Header() {
     localStorage.removeItem("bilgin_kayitli_sistemler");
     await signOut(); 
   };
-  // 🚀 KAPIDAKİ AKILLI ÇIRAK MOTORU (SADECE GİRİŞ YAPINCA ÇALIŞIR)
+  // 🚀 KAPIDAKİ AKILLI ÇIRAK MOTORU (SADECE GİRİŞ YAPINCA ÇALIŞIR — idle'da yüklenir)
   useEffect(() => {
-    // Şefim giriş yapmadıysa çırak yerinden kıpırdamaz, bekler.
     if (!session?.user?.email) return;
 
     const cirakDepoyaKossun = async () => {
@@ -502,7 +506,7 @@ export default function Header() {
       } catch (error) {}
     };
 
-    cirakDepoyaKossun();
+    ertele(cirakDepoyaKossun, 2000);
   }, [session]);
 // 🔥 ŞEFİN KUSURSUZ KATEGORİ BULUCU MOTORU 🔥
 const kelimeTemizle = (metin: string) => {
@@ -539,11 +543,13 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
   }, []);
 
   useEffect(() => {
+    if (!aramaAcik || populerUrunler.length > 0) return;
+
     fetch("/api/arama?init=true")
       .then(res => res.json())
       .then(data => setPopulerUrunler(data))
       .catch(() => setPopulerUrunler([]));
-  }, []);
+  }, [aramaAcik, populerUrunler.length]);
 
   useEffect(() => {
     if (aramaAcik) {

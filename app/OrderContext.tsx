@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
+import { ertele } from "@/lib/performans";
 
 interface OrderContextType {
   orders: any[];
@@ -72,7 +73,7 @@ export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
     if (!hafizaHazir || status === "loading") return;
 
     if (status === "authenticated") {
-      fetchOrders(true);
+      ertele(() => fetchOrders(true), 2000);
     } else if (status === "unauthenticated") {
       setOrders([]);
       setLoading(false);

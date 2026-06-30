@@ -1,4 +1,6 @@
 import { Toaster } from "react-hot-toast";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import AuthProvider from "@/components/AuthProvider";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -7,7 +9,7 @@ import Header from "@/components/Header";
 import { CartProvider } from "./CartContext";
 import Footer from "@/components/Footer"; 
 import { CompareProvider } from "./CompareContext";
-import ComparePopup from "./ComparePopup";
+import LazyComparePopup from "@/components/LazyComparePopup";
 // 🚀 BİNGO: Yeni Merkezi Sipariş Hafıza Odamızı İçe Aktarıyoruz
 import { OrderProvider } from "./OrderContext"; 
 
@@ -21,22 +23,25 @@ import NavigasyonTemizleyici from "@/components/NavigasyonTemizleyici";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const viewport = {
   themeColor: "#050814",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession(authOptions);
   return (
     <html lang="tr">
       {/* 🚀 İŞTE BURASI: font-sans eklendi, artık o premium Geist fontu tüm siteye HD kalitesinde basılacak 🚀 */}
@@ -60,7 +65,7 @@ export default function RootLayout({
             }
           }}
         />
-        <AuthProvider>
+        <AuthProvider session={session}>
           
           {/* 🚀 BİNGO! SİSTEMİN YENİ BEYNİ: F5 atılsa bile arkadan verileri toplayan gizli çipimiz! */}
           <HesapHafizaCipi />
@@ -78,7 +83,7 @@ export default function RootLayout({
                   {children}
                 </main>
                 <Footer />
-                <ComparePopup />
+                <LazyComparePopup />
               </OrderProvider>
             </CompareProvider>
           </CartProvider>

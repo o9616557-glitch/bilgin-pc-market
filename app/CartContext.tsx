@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useState, useEffect } from "react";
+import { ertele } from "@/lib/performans";
 
 const CartContext = createContext<any>(null);
 
@@ -38,8 +39,8 @@ useEffect(() => {
       }
     };
 
-    // İlk açılışta bir kez çalıştır
-    buluttanGetir();
+    // İlk açılışta ana thread boşaldığında bir kez çalıştır
+    ertele(buluttanGetir, 1500);
 
     // 🚀 SADECE SEKMEYE GERİ DÖNÜLDÜĞÜNDE GÜNCELLER (SİSTEMİ YORMAZ)
     window.addEventListener("focus", buluttanGetir);

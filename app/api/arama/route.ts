@@ -74,7 +74,11 @@ export async function GET(request: Request) {
       resim: (u.resimler && u.resimler[0]) || u.resim || u.image || "/placeholder.jpg"
     }));
 
-    return NextResponse.json(temizUrunler);
+    const response = NextResponse.json(temizUrunler);
+    if (init) {
+      response.headers.set("Cache-Control", "public, s-maxage=300, stale-while-revalidate=600");
+    }
+    return response;
   } catch (error) {
     console.error("API Arama Hatası:", error);
     return NextResponse.json([]);

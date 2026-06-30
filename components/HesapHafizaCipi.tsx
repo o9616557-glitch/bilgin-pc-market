@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
+import { ertele } from "@/lib/performans";
 
 export default function HesapHafizaCipi() {
   const { data: session, status } = useSession();
@@ -64,7 +65,7 @@ export default function HesapHafizaCipi() {
       }
     };
 
-    ustaHafizayiDoldur();
+    ertele(ustaHafizayiDoldur, 2500);
   }, [session?.user?.email, status]);
 
   return null;

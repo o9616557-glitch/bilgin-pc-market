@@ -1,21 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    serverComponentsExternalPackages: ["iyzipay", "postman-request"],
-    outputFileTracingIncludes: {
-      "/api/*/": [
-        "./node_modules/iyzipay/*/",
-        "./node_modules/postman-request/*/"
-      ],
-    },
+  serverExternalPackages: ["iyzipay", "postman-request"],
+  outputFileTracingIncludes: {
+    "/api/*/": [
+      "./node_modules/iyzipay/*/",
+      "./node_modules/postman-request/*/"
+    ],
   },
-  eslint: {
-    ignoreDuringBuilds: true,
+  experimental: {
+    optimizePackageImports: ["lucide-react", "react-hot-toast"],
   },
   typescript: {
     ignoreBuildErrors: true,
   },
-  // 🚀 CLOUDINARY (BULUT RESİMLERİ) İÇİN GÜVENLİK İZNİ 🚀
   images: {
     remotePatterns: [
       {
@@ -23,6 +20,8 @@ const nextConfig = {
         hostname: 'res.cloudinary.com',
       },
     ],
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
   },
 };
 

@@ -9,16 +9,22 @@ export default function GlobalKalkan() {
   const pathname = usePathname();
   const isKicking = useRef(false); // 🚀 Şutlama işlemini sadece 1 kez yapması için kilit
 
-  // 1. GÖREV: Periyodik güvenlik kontrolü (sayfa değişiminde oturum yenileme kaldırıldı — gereksiz loading yapıyordu)
+  // 1. GÖREV: Periyodik güvenlik kontrolü — sekmeye dönünce veya 5 dk'da bir
   useEffect(() => {
     if (pathname && (pathname.includes("/giris") || pathname.includes("/login"))) return;
     if (status !== "authenticated") return;
 
-    const radar = setInterval(() => {
-      update();
-    }, 60000);
+    const oturumuYenile = () => {
+      if (document.visibilityState === "visible") update();
+    };
 
-    return () => clearInterval(radar);
+    const radar = setInterval(oturumuYenile, 5 * 60 * 1000);
+    document.addEventListener("visibilitychange", oturumuYenile);
+
+    return () => {
+      clearInterval(radar);
+      document.removeEventListener("visibilitychange", oturumuYenile);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, status]);
 
