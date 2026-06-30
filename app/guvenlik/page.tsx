@@ -225,22 +225,22 @@ export default function GuvenlikPage() {
  return (
     <>
       <AccountShell active="guvenlik">
-        <div className="flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
+        <div className="flex flex-col min-w-0 gap-5 w-full">
             
-            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 lg:p-8 shadow-xl relative overflow-hidden group">
-              <div className="absolute -top-10 -right-10 w-40 h-40 bg-cyan-500/10 blur-[50px] pointer-events-none rounded-full"></div>
+            <div className="account-card rounded-2xl p-5 sm:p-6 relative overflow-hidden">
+              <div className="absolute -top-10 -right-10 w-40 h-40 bg-site-accent/[0.04] blur-[50px] pointer-events-none rounded-full"></div>
               <div className="flex items-center gap-3 sm:gap-4 relative z-10">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#020617] border border-cyan-500/30 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.2)] shrink-0">
-                  <Lock className="w-6 h-6 sm:w-8 sm:h-8 text-cyan-400" />
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-site-shell border border-white/[0.08] rounded-full flex items-center justify-center shrink-0">
+                  <Lock className="w-6 h-6 text-site-accent/80" />
                 </div>
               <div>
-                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight mb-0.5 sm:mb-1">Güvenlik Merkezi</h1>
+                  <h1 className="text-lg sm:text-xl font-bold text-white mb-0.5">Güvenlik Merkezi</h1>
                   {status === "unauthenticated" ? (
-                    <p className="text-cyan-400/90 text-xs sm:text-sm font-medium">
+                    <p className="text-slate-400 text-xs sm:text-sm">
                       Ayarlarınızı görüntülemek ve işlem yapabilmek için lütfen giriş yapınız.
                     </p>
                   ) : (
-                    <p className="text-slate-400 text-xs sm:text-sm font-medium">
+                    <p className="text-slate-400 text-xs sm:text-sm">
                       Hesabınızı 256-bit şifreleme ile koruyun.
                     </p>
                   )}

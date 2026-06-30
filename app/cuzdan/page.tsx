@@ -282,17 +282,17 @@ export default function CuzdanPage() {
   return (
     <>
     <AccountShell active="cuzdan">
-        <div className="flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
+        <div className="flex flex-col min-w-0 gap-5 w-full">
 
-          <div className="account-card rounded-2xl p-5 sm:p-6 lg:p-8 relative overflow-hidden">
+          <div className="account-card rounded-2xl p-5 sm:p-6 relative overflow-hidden">
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-site-accent/[0.04] blur-[50px] pointer-events-none rounded-full" />
             <div className="flex items-center gap-3 sm:gap-4 relative z-10">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-site-shell border border-white/[0.08] rounded-full flex items-center justify-center shrink-0">
-                <CreditCard className="w-6 h-6 sm:w-8 sm:h-8 text-site-accent/80" />
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-site-shell border border-white/[0.08] rounded-full flex items-center justify-center shrink-0">
+                <CreditCard className="w-6 h-6 text-site-accent/80" />
               </div>
               <div>
-                <h1 className="site-h1 mb-0.5 sm:mb-1">Dijital Cüzdanım</h1>
-                <p className="site-body text-xs sm:text-sm">Bakiyeniz, kayıtlı kartlarınız ve ödeme geçmişiniz tek ekranda.</p>
+                <h1 className="text-lg sm:text-xl font-bold text-white mb-0.5">Dijital Cüzdanım</h1>
+                <p className="text-slate-400 text-xs sm:text-sm">Bakiyeniz, kayıtlı kartlarınız ve ödeme geçmişiniz tek ekranda.</p>
               </div>
             </div>
           </div>

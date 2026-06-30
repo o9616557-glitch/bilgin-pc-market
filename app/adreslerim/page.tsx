@@ -225,8 +225,8 @@ export default function AdreslerimPage() {
                 <MapPin className="w-6 h-6 text-cyan-400/80" />
               </div>
               <div className="min-w-0">
-                <h1 className="text-base sm:text-xl font-bold text-white mb-0.5 truncate">Adreslerim</h1>
-                <p className="text-slate-400 text-xs hidden sm:block">Teslimat ve fatura adreslerinizi yönetin</p>
+                <h1 className="text-lg sm:text-xl font-bold text-white mb-0.5 truncate">Adreslerim</h1>
+                <p className="text-slate-400 text-xs sm:text-sm">Teslimat ve fatura adreslerinizi yönetin</p>
               </div>
             </div>
             <button
