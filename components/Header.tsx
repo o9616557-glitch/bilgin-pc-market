@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useCart } from "@/app/CartContext";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
-import { Search, X, Clock, Flame, ArrowRight, ChevronRight, ChevronDown, Loader2 } from "lucide-react";
+import { Search, X, Clock, Flame, ArrowRight, ChevronRight, ChevronDown, Loader2, Mail } from "lucide-react";
 import toast from "react-hot-toast";
 import { cloudinaryKatalogResim } from "@/lib/cloudinary";
 
@@ -657,6 +657,19 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
     localStorage.setItem("sonAramalar", JSON.stringify(yeni));
   };
 
+  const mesajLink = (
+    <Link
+      href="/mesajlarim"
+      className="relative p-2 text-white transition-colors group"
+      aria-label="Mesajlarım"
+      title="Mesajlarım"
+    >
+      <span className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-white/[0.05] border border-white/[0.1] group-hover:bg-[#3b82f6]/15 group-hover:border-[#3b82f6]/40 group-hover:text-[#3b82f6] transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+        <Mail className="w-[18px] h-[18px] shrink-0" strokeWidth={2.25} />
+      </span>
+    </Link>
+  );
+
   return (
     <>
       <header className="sticky top-0 left-0 w-full z-[99] bg-[#050814]/90 backdrop-blur-md border-b border-white/5 transition-all duration-300 relative">
@@ -675,6 +688,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                 <button type="button" onClick={() => setAramaAcik(true)} className="p-2 text-white hover:text-[#3b82f6] transition-colors" aria-label="Ara">
                   <Search className="w-5 h-5 shrink-0" />
                 </button>
+                {mesajLink}
                 <Link href="/sepet" className="relative p-2 text-white hover:text-[#3b82f6] transition-colors" aria-label="Sepet">
                   <div className="relative">
                     <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
@@ -723,6 +737,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                 >
                   <ProfilAvatar size={34} />
                 </Link>
+                {mesajLink}
                 <Link href="/sepet" className="relative p-2 text-white hover:text-[#3b82f6] transition-colors" aria-label="Sepet">
                   <div className="relative">
                     <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
