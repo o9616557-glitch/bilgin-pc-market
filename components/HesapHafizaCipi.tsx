@@ -4,6 +4,30 @@ import { useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { oturumHafizasiniTemizle } from "@/lib/oturum-hafiza";
 
+type DestekTalep = {
+  musteriGizledi?: boolean;
+  durum?: string;
+  mesajlar?: { gonderen?: string }[];
+};
+
+function sonMesajAdminMi(talep: DestekTalep) {
+  const msgs = talep.mesajlar || [];
+  const son = msgs[msgs.length - 1];
+  return son?.gonderen?.toLowerCase() === "admin";
+}
+
+function destekOzetiHesapla(talepler: DestekTalep[]) {
+  const aciklar = talepler.filter((t) => t.durum !== "Çözüldü" && !t.musteriGizledi);
+  const okunmamis = aciklar.filter(sonMesajAdminMi).length;
+  const acil = okunmamis > 0 || aciklar.some((t) => t.durum === "Yanıt Bekleniyor");
+
+  return {
+    sayi: aciklar.length,
+    acil,
+    okunmamis,
+  };
+}
+
 export default function HesapHafizaCipi() {
   const { data: session, status } = useSession();
   const yuklendiRef = useRef(false);
@@ -38,8 +62,7 @@ export default function HesapHafizaCipi() {
 
         let adresSayisi = 0;
         let favoriSayisi = 0;
-        let acikTalepSayisi = 0;
-        let acilMesaj = false;
+        let destekOzet = { sayi: 0, acil: false, okunmamis: 0 };
 
         if (adresRes.ok) {
           const adresData = await adresRes.json();
@@ -57,9 +80,7 @@ export default function HesapHafizaCipi() {
         if (destekRes.ok) {
           const destekData = await destekRes.json();
           if (destekData.talepler) {
-            const aciklar = destekData.talepler.filter((t: { durum?: string }) => t.durum !== "Çözüldü");
-            acikTalepSayisi = aciklar.length;
-            acilMesaj = aciklar.some((t: { durum?: string }) => t.durum === "Yanıt Bekleniyor");
+            destekOzet = destekOzetiHesapla(destekData.talepler);
           }
         }
         if (sistemRes.ok) {
@@ -76,18 +97,7 @@ export default function HesapHafizaCipi() {
           favoriSayisi,
         }));
 
-        sessionStorage.setItem("bilgin_destek_ozet", JSON.stringify({
-          sayi: acikTalepSayisi,
-          acil: acilMesaj,
-          okunmamis: destekData.talepler
-            ? destekData.talepler.filter((t: { musteriGizledi?: boolean; durum?: string; mesajlar?: { gonderen?: string }[] }) => {
-                if (t.musteriGizledi || t.durum === "Çözüldü") return false;
-                const msgs = t.mesajlar || [];
-                const son = msgs[msgs.length - 1];
-                return son?.gonderen === "Admin";
-              }).length
-            : 0,
-        }));
+        sessionStorage.setItem("bilgin_destek_ozet", JSON.stringify(destekOzet));
 
         window.dispatchEvent(new CustomEvent("bilgin-hesap-guncellendi"));
       } catch (error) {

@@ -41,7 +41,7 @@ export async function PUT(request: Request) {
       const guncelTalep = await Destek.findByIdAndUpdate(
         id,
         { 
-          $push: { mesajlar: { gonderen: "admin", metin: mesaj, tarih: new Date() } },
+          $push: { mesajlar: { gonderen: "Admin", metin: mesaj, tarih: new Date() } },
           $set: { durum: "Yanıt Bekleniyor" } 
         },
         { new: true, strict: false } 

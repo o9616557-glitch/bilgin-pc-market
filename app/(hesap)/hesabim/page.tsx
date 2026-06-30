@@ -305,7 +305,10 @@ export default function HesabimPage() {
   });
   const [yeniMesajVar, setYeniMesajVar] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
-    try { return !!JSON.parse(sessionStorage.getItem("bilgin_destek_ozet") || "{}").acil; } catch { return false; }
+    try {
+      const o = JSON.parse(sessionStorage.getItem("bilgin_destek_ozet") || "{}");
+      return !!o.acil || (o.okunmamis || 0) > 0;
+    } catch { return false; }
   });
 
   const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
@@ -495,7 +498,7 @@ export default function HesabimPage() {
         if (destekOzet) {
           const parsed = JSON.parse(destekOzet);
           setAcikTalepSayisi(parsed.sayi || 0);
-          setYeniMesajVar(!!parsed.acil);
+          setYeniMesajVar(!!parsed.acil || (parsed.okunmamis || 0) > 0);
         }
         const kayitliSistemler = localStorage.getItem("bilgin_kayitli_sistemler");
         if (kayitliSistemler) {
