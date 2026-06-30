@@ -15,7 +15,10 @@ const CİHAZ_KONTROL_ARALIGI_MS = 5 * 60 * 1000;
 async function konumuBul(ip: string) {
   try {
     if (ip === "127.0.0.1" || ip === "::1" || ip.includes("192.168") || ip === "Bilinmeyen IP") return "Yerel Ağ (Localhost)";
-    const res = await fetch(`http://ip-api.com/json/${ip}?lang=tr`);
+    const res = await Promise.race([
+      fetch(`http://ip-api.com/json/${ip}?lang=tr`, { signal: AbortSignal.timeout(800) }),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), 800)),
+    ]);
     if (!res.ok) return "Bilinmeyen Konum";
     const data = await res.json();
     if (data.status === "success") return `${data.city}, ${data.country}`;
@@ -111,20 +114,29 @@ export const authOptions: NextAuthOptions = {
         const userAgent = req?.headers?.["user-agent"] || "Bilinmeyen Cihaz";
         const ipAddress = req?.headers?.["x-forwarded-for"] || "Bilinmeyen IP";
         const anlasilirCihaz = cihazBilgisiCevir(userAgent);
-        const konumBilgisi = await konumuBul(ipAddress);
 
         const suAnkiZaman = new Date();
         const biletVarMi = user.karantinaPass && user.karantinaPass > suAnkiZaman;
+        const bildirimTercihi = user.notificationPreference || 'new_device';
+        const cihazTanindikMi = user.trustedDevices && user.trustedDevices.includes(anlasilirCihaz);
+        const mevcutCihazKayit = user.activeDevices.find((d: any) => d.deviceInfo === userAgent && d.isActive === true);
+
+        const alarmGerekli = !biletVarMi && (
+          bildirimTercihi === 'all' ||
+          (bildirimTercihi === 'new_device' && !cihazTanindikMi)
+        );
+
+        let konumBilgisi = mevcutCihazKayit?.location || "Bilinmeyen Konum";
+        if (alarmGerekli) {
+          konumBilgisi = await konumuBul(ipAddress);
+        }
 
         if (!biletVarMi) {
-          const bildirimTercihi = user.notificationPreference || 'new_device';
-          const cihazTanindikMi = user.trustedDevices && user.trustedDevices.includes(anlasilirCihaz);
-          
-          let alarmVer = false;
+          let alarmVer = alarmGerekli;
           let alarmTipi = "";
 
-          if (bildirimTercihi === 'all') { alarmVer = true; alarmTipi = "TAM_KARANTINA"; } 
-          else if (bildirimTercihi === 'new_device' && !cihazTanindikMi) { alarmVer = true; alarmTipi = "AKILLI_MUHAFIZ"; }
+          if (bildirimTercihi === 'all') { alarmTipi = "TAM_KARANTINA"; }
+          else if (bildirimTercihi === 'new_device' && !cihazTanindikMi) { alarmTipi = "AKILLI_MUHAFIZ"; }
 
           if (alarmVer) {
             const onayToken = crypto.randomBytes(32).toString('hex');
@@ -160,7 +172,7 @@ export const authOptions: NextAuthOptions = {
         user.karantinaPass = undefined;
 
         // Aynı userAgent'tan zaten aktif kayıt varsa güncelle, yeni kayıt açma
-        const mevcutCihaz = user.activeDevices.find((d: any) => d.deviceInfo === userAgent && d.isActive === true);
+        const mevcutCihaz = mevcutCihazKayit;
         if (mevcutCihaz) {
           mevcutCihaz.lastActive = new Date();
           mevcutCihaz.ipAddress = ipAddress;
@@ -198,18 +210,29 @@ export const authOptions: NextAuthOptions = {
             const userAgent = headersList.get("user-agent") || "Bilinmeyen Cihaz";
             const ipAddress = headersList.get("x-forwarded-for") || headersList.get("x-real-ip") || "Bilinmeyen IP";
             const anlasilirCihaz = cihazBilgisiCevir(userAgent);
-            const konumBilgisi = await konumuBul(ipAddress);
 
             const suAnkiZaman = new Date();
             const biletVarMi = dbUser.karantinaPass && dbUser.karantinaPass > suAnkiZaman;
+            const bildirimTercihi = dbUser.notificationPreference || 'new_device';
+            const cihazTanindikMi = dbUser.trustedDevices && dbUser.trustedDevices.includes(anlasilirCihaz);
+            const mevcutCihaz = dbUser.activeDevices.find((d: any) => d.deviceInfo === userAgent && d.isActive === true);
+
+            const alarmGerekli = !biletVarMi && (
+              bildirimTercihi === 'all' ||
+              (bildirimTercihi === 'new_device' && !cihazTanindikMi)
+            );
+
+            let konumBilgisi = mevcutCihaz?.location || "Bilinmeyen Konum";
+            if (alarmGerekli) {
+              konumBilgisi = await konumuBul(ipAddress);
+            }
 
             if (!biletVarMi) {
-              const bildirimTercihi = dbUser.notificationPreference || 'new_device';
-              const cihazTanindikMi = dbUser.trustedDevices && dbUser.trustedDevices.includes(anlasilirCihaz);
-              
-              let alarmVer = false; let alarmTipi = "";
-              if (bildirimTercihi === 'all') { alarmVer = true; alarmTipi = "TAM_KARANTINA"; } 
-              else if (bildirimTercihi === 'new_device' && !cihazTanindikMi) { alarmVer = true; alarmTipi = "AKILLI_MUHAFIZ"; }
+              let alarmVer = alarmGerekli;
+              let alarmTipi = "";
+
+              if (bildirimTercihi === 'all') { alarmTipi = "TAM_KARANTINA"; }
+              else if (bildirimTercihi === 'new_device' && !cihazTanindikMi) { alarmTipi = "AKILLI_MUHAFIZ"; }
 
               if (alarmVer) {
                 const onayToken = crypto.randomBytes(32).toString('hex');
@@ -228,7 +251,6 @@ export const authOptions: NextAuthOptions = {
             dbUser.karantinaPass = undefined;
 
             // Aynı userAgent'tan zaten aktif kayıt varsa güncelle, yeni kayıt açma
-            const mevcutCihaz = dbUser.activeDevices.find((d: any) => d.deviceInfo === userAgent && d.isActive === true);
             if (mevcutCihaz) {
               mevcutCihaz.lastActive = new Date();
               mevcutCihaz.ipAddress = ipAddress;
