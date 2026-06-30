@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { oturumHafizasiniTemizle } from "@/lib/oturum-hafiza";
 import { useOrders } from "@/app/OrderContext";
-import AccountShell from "@/components/layout/AccountShell";
+import KisayolNav from "@/components/layout/KisayolNav";
 import Image from "next/image";
 import RenkPaleti from "@/components/hesabim/RenkPaleti";
 import {
@@ -634,8 +634,11 @@ export default function HesabimPage() {
 
   return (
   <>
-  <AccountShell active="hesabim">
-    <div suppressHydrationWarning={true} className="flex flex-col gap-6 w-full">
+  <div className="site-page p-4 sm:p-6 lg:p-8 relative overflow-clip">
+    <div className="site-glow-top top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[320px]" />
+    <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
+      <KisayolNav active="profil" />
+      <div suppressHydrationWarning={true} className="flex-1 flex flex-col min-w-0 gap-6 w-full">
 
         <div className={`w-full relative rounded-[2rem] p-[2px] transition-all duration-300 shadow-[0_0_50px_rgba(0,210,255,0.15)] group ${aktifPalet === 'menu' ? 'bg-gradient-to-r from-emerald-500/50 via-emerald-900 to-emerald-500/20 shadow-[0_0_50px_rgba(16,185,129,0.3)]' : 'bg-gradient-to-r from-cyan-500/30 via-[#0f172a] to-cyan-500/10'}`}>
           <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-transparent opacity-20 blur-xl rounded-[2rem] transition-opacity duration-500"></div>
@@ -872,7 +875,8 @@ export default function HesabimPage() {
         />
 
     </div>
-  </AccountShell>
+    </div>
+  </div>
 
       <HesabimModals
         showOnboarding={showOnboarding}
