@@ -12,7 +12,6 @@ import { useCart } from "@/app/CartContext";
 import { useSession } from "next-auth/react";
 import { useOrders } from "@/app/OrderContext";
 import KisayolNav from "@/components/layout/KisayolNav";
-import { UYE_VERI_EVENT, type UyeBaslangicVerisi } from "@/lib/uye-onbellek";
 // 🚀 DİKKAT: useRouter'a ve router.refresh()'e ihtiyacımız kalmadı, kasma bombasını imha ettik!
 
 interface Props {
@@ -61,25 +60,14 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
     setSayfaYuklendi(true);
 
     const hafiza = sessionStorage.getItem("bilgin-favoriler");
-    
+
     if (hafiza) {
       setFavoriteProducts(JSON.parse(hafiza));
     } else {
       setFavoriteProducts(initialFavorites);
     }
 
-    const uyeVerisiGeldi = (e: Event) => {
-      const veri = (e as CustomEvent<UyeBaslangicVerisi>).detail;
-      if (veri?.favorites) setFavoriteProducts(veri.favorites);
-    };
-
-    window.addEventListener(UYE_VERI_EVENT, uyeVerisiGeldi);
-
-    if (!hafiza) {
-      favorileriGuncelle();
-    }
-
-    return () => window.removeEventListener(UYE_VERI_EVENT, uyeVerisiGeldi);
+    favorileriGuncelle();
   }, []);
 
   // 🚀 GÜVENLİ EKRAN DONDURMA: DOM'u yormayan temizlik motoru

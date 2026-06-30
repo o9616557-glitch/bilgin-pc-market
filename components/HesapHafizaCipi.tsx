@@ -2,58 +2,93 @@
 
 import { useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
-import {
-  uyeOnbellektenGoster,
-  uyeOnbellegineYaz,
-  type UyeBaslangicVerisi,
-} from "@/lib/uye-onbellek";
 import { oturumHafizasiniTemizle } from "@/lib/oturum-hafiza";
 
 export default function HesapHafizaCipi() {
   const { data: session, status } = useSession();
-  const yukleniyorRef = useRef(false);
+  const yuklendiRef = useRef(false);
   const sonEmailRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
       if (sonEmailRef.current) oturumHafizasiniTemizle();
-      yukleniyorRef.current = false;
+      yuklendiRef.current = false;
       sonEmailRef.current = null;
       return;
     }
 
     if (status !== "authenticated" || !session?.user?.email) return;
 
-    const email = session.user.email;
-    const hesapDegisti = sonEmailRef.current !== email;
-    sonEmailRef.current = email;
-
-    if (hesapDegisti) {
-      yukleniyorRef.current = false;
+    if (sonEmailRef.current !== session.user.email) {
+      yuklendiRef.current = false;
+      sonEmailRef.current = session.user.email;
     }
 
-    uyeOnbellektenGoster();
+    if (yuklendiRef.current) return;
+    yuklendiRef.current = true;
 
-    if (yukleniyorRef.current) return;
-    yukleniyorRef.current = true;
-
-    const uyeVerisiniYukle = async () => {
+    const ustaHafizayiDoldur = async () => {
       try {
-        const res = await fetch("/api/uye-baslangic", { cache: "no-store" });
-        if (!res.ok) {
-          yukleniyorRef.current = false;
-          return;
+        const [adresRes, favoriRes, destekRes, sistemRes] = await Promise.all([
+          fetch("/api/addresses", { cache: "no-store" }),
+          fetch("/api/favorites", { cache: "no-store" }),
+          fetch("/api/destek", { cache: "no-store" }),
+          fetch("/api/sistemlerim", { cache: "no-store" }),
+        ]);
+
+        let adresSayisi = 0;
+        let favoriSayisi = 0;
+        let acikTalepSayisi = 0;
+        let acilMesaj = false;
+
+        if (adresRes.ok) {
+          const adresData = await adresRes.json();
+          const adresler = adresData.addresses || [];
+          adresSayisi = adresler.length;
+          sessionStorage.setItem("bilgin-adresler", JSON.stringify(adresler));
+          sessionStorage.setItem("bilgin_adresler_cache", JSON.stringify(adresler));
+        }
+        if (favoriRes.ok) {
+          const favoriData = await favoriRes.json();
+          const favoriler = favoriData.favorites || [];
+          favoriSayisi = favoriler.length;
+          sessionStorage.setItem("bilgin-favoriler", JSON.stringify(favoriler));
+        }
+        if (destekRes.ok) {
+          const destekData = await destekRes.json();
+          if (destekData.talepler) {
+            const aciklar = destekData.talepler.filter((t: { durum?: string }) => t.durum !== "Çözüldü");
+            acikTalepSayisi = aciklar.length;
+            acilMesaj = aciklar.some((t: { durum?: string }) => t.durum === "Yanıt Bekleniyor");
+          }
+        }
+        if (sistemRes.ok) {
+          const sistemData = await sistemRes.json();
+          if (sistemData.success && sistemData.systems) {
+            localStorage.setItem("bilgin_kayitli_sistemler", JSON.stringify(sistemData.systems));
+          }
         }
 
-        const veri = (await res.json()) as UyeBaslangicVerisi;
-        uyeOnbellegineYaz(veri);
+        const eskiHafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
+        sessionStorage.setItem("bilgin_hesabim_data", JSON.stringify({
+          ...eskiHafiza,
+          adresSayisi,
+          favoriSayisi,
+        }));
+
+        sessionStorage.setItem("bilgin_destek_ozet", JSON.stringify({
+          sayi: acikTalepSayisi,
+          acil: acilMesaj,
+        }));
+
+        window.dispatchEvent(new CustomEvent("bilgin-hesap-guncellendi"));
       } catch (error) {
-        console.error("Üye verisi yüklenemedi:", error);
-        yukleniyorRef.current = false;
+        console.error("Hesap hafızası güncellenemedi:", error);
+        yuklendiRef.current = false;
       }
     };
 
-    void uyeVerisiniYukle();
+    void ustaHafizayiDoldur();
   }, [session?.user?.email, status]);
 
   return null;

@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { UYE_VERI_EVENT, type UyeBaslangicVerisi } from "@/lib/uye-onbellek";
 
 interface OrderContextType {
   orders: any[];
@@ -49,18 +48,12 @@ export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
   const { status } = useSession();
   const [orders, setOrders] = useState<any[]>(() => cacheOku());
   const [loading, setLoading] = useState(false);
+  const [hafizaHazir, setHafizaHazir] = useState(false);
 
   useEffect(() => {
-    const uyeVerisiGeldi = (e: Event) => {
-      const veri = (e as CustomEvent<UyeBaslangicVerisi>).detail;
-      if (!veri?.orders) return;
-      setOrders(veri.orders);
-      cacheYaz(veri.orders);
-      setLoading(false);
-    };
-
-    window.addEventListener(UYE_VERI_EVENT, uyeVerisiGeldi);
-    return () => window.removeEventListener(UYE_VERI_EVENT, uyeVerisiGeldi);
+    const cached = cacheOku();
+    if (cached.length > 0) setOrders(cached);
+    setHafizaHazir(true);
   }, []);
 
   const fetchOrders = useCallback(async (ilkYukleme = false) => {
@@ -86,26 +79,16 @@ export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    if (status === "loading") return;
+    if (!hafizaHazir || status === "loading") return;
 
     if (status === "authenticated") {
-      const cached = cacheOku();
-      if (cached.length > 0) {
-        setOrders(cached);
-        return;
-      }
-      const yedek = setTimeout(() => {
-        if (cacheOku().length === 0) void fetchOrders(true);
-      }, 600);
-      return () => clearTimeout(yedek);
-    }
-
-    if (status === "unauthenticated") {
+      void fetchOrders(true);
+    } else if (status === "unauthenticated") {
       setOrders([]);
       setLoading(false);
       if (typeof window !== "undefined") sessionStorage.removeItem(CACHE_KEY);
     }
-  }, [status, fetchOrders]);
+  }, [status, hafizaHazir, fetchOrders]);
 
   return (
     <OrderContext.Provider value={{ orders, loading, refreshOrders: () => fetchOrders(false) }}>

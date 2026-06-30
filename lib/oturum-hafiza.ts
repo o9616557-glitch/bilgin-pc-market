@@ -8,7 +8,6 @@ export function oturumHafizasiniTemizle() {
     "bilgin-adresler",
     "bilgin-favoriler",
     "bilgin_destek_ozet",
-    "bilgin_uye_baslangic",
     "bilgin_adresler_cache",
   ].forEach((key) => sessionStorage.removeItem(key));
 

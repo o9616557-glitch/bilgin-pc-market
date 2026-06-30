@@ -1,57 +1,48 @@
 "use client";
 import { createContext, useContext, useState, useEffect } from "react";
-import { UYE_VERI_EVENT, type UyeBaslangicVerisi } from "@/lib/uye-onbellek";
 
 const CartContext = createContext<any>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [sepet, setSepet] = useState<any[]>([]);
 
-useEffect(() => {
+  useEffect(() => {
     const hafiza = localStorage.getItem("bilgin-sepet");
     if (hafiza) setSepet(JSON.parse(hafiza));
 
     const buluttanGetir = async () => {
       try {
-        const res = await fetch("/api/sepet?t=" + new Date().getTime(), { 
+        const res = await fetch("/api/sepet?t=" + new Date().getTime(), {
           cache: "no-store",
-          headers: { "Cache-Control": "no-cache" }
+          headers: { "Cache-Control": "no-cache" },
         });
         const data = await res.json();
-        
+
         if (data.success && data.cart) {
           setSepet((eskiSepet) => {
             const eskiDurum = JSON.stringify(eskiSepet);
             const yeniDurum = JSON.stringify(data.cart);
-            
+
             if (eskiDurum !== yeniDurum) {
               localStorage.setItem("bilgin-sepet", yeniDurum);
               return data.cart;
             }
-            return eskiSepet; 
+            return eskiSepet;
           });
         }
-      } catch (error) {
-        // Hata olursa sessiz kal
+      } catch {
+        // Sessiz kal
       }
     };
 
-    const uyeVerisiGeldi = (e: Event) => {
-      const veri = (e as CustomEvent<UyeBaslangicVerisi>).detail;
-      if (!veri?.cart) return;
-      setSepet(veri.cart);
-      localStorage.setItem("bilgin-sepet", JSON.stringify(veri.cart));
-    };
-
-    window.addEventListener(UYE_VERI_EVENT, uyeVerisiGeldi);
+    void buluttanGetir();
     window.addEventListener("focus", buluttanGetir);
 
     return () => {
-      window.removeEventListener(UYE_VERI_EVENT, uyeVerisiGeldi);
       window.removeEventListener("focus", buluttanGetir);
     };
   }, []);
-  // 🚀 BULUT YEDEKLEME MOTORU (Lokal sepeti asla bozmaz, sadece arkadan kopyasını yollar)
+
   const bulutaYedekle = async (guncelSepet: any[]) => {
     try {
       await fetch("/api/sepet", {
@@ -59,41 +50,36 @@ useEffect(() => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ items: guncelSepet }),
       });
-    } catch (error) {
-      // İnternet kopsa bile lokal sepet çalışmaya devam eder, müşteri asla hata görmez
+    } catch {
+      // Sessiz kal
     }
   };
 
-const sepeteEkle = (urun: any, topluIslemMi = false) => {
+  const sepeteEkle = (urun: any, topluIslemMi = false) => {
     setSepet((eskiSepet) => {
       const urunId = String(urun.id || urun._id);
-      
-      // 🚀 VARYASYON KÖPRÜSÜ: Eğer gelen varyasyon "Sistem Parçası" veya "Sihirbaz Parçası" ise
-      // ikisini de tek bir isimde ("Sihirbaz Parçası") eşitliyoruz ki sepet bunları aynı ürün saysın!
+
       let urunVaryasyon = urun.varyasyon || "Standart Model";
       if (urunVaryasyon === "Sistem Parçası" || urunVaryasyon === "Sihirbaz Parçası") {
         urunVaryasyon = "Sihirbaz Parçası";
       }
-      
-      // 🚀 AYNI ÜRÜNÜ YAKALAMA RADARI
+
       const varMi = eskiSepet.find((i) => {
         const idEslesiyor = String(i.id || i._id) === urunId;
-        
-        // Sepetteki eski ürünlerin de varyasyonunu kontrol ederken aynı mantıkla bakıyoruz
+
         let eskiVaryasyon = i.varyasyon || "Standart Model";
         if (eskiVaryasyon === "Sistem Parçası" || eskiVaryasyon === "Sihirbaz Parçası") {
           eskiVaryasyon = "Sihirbaz Parçası";
         }
-        
+
         return idEslesiyor && eskiVaryasyon === urunVaryasyon;
       });
-      
+
       let yeni;
       if (varMi) {
-        // 🚀 BİRLEŞTİRME MOTORU
         yeni = eskiSepet.map((i) => {
           const idEslesiyor = String(i.id || i._id) === urunId;
-          
+
           let eskiVaryasyon = i.varyasyon || "Standart Model";
           if (eskiVaryasyon === "Sistem Parçası" || eskiVaryasyon === "Sihirbaz Parçası") {
             eskiVaryasyon = "Sihirbaz Parçası";
@@ -106,16 +92,15 @@ const sepeteEkle = (urun: any, topluIslemMi = false) => {
           return i;
         });
       } else {
-        // İlk defa ekleniyorsa, normalize edilmiş varyasyon adıyla ekle
         yeni = [...eskiSepet, { ...urun, id: urunId, varyasyon: urunVaryasyon, adet: urun.adet || 1 }];
       }
-      
+
       localStorage.setItem("bilgin-sepet", JSON.stringify(yeni));
-      
+
       if (!topluIslemMi) {
-        bulutaYedekle(yeni); 
+        bulutaYedekle(yeni);
       }
-      
+
       return yeni;
     });
   };
@@ -123,18 +108,18 @@ const sepeteEkle = (urun: any, topluIslemMi = false) => {
   const sepettenSil = (id: string, varyasyon: string, slug?: string) => {
     const arananId = String(id);
     const arananVaryasyon = varyasyon || "Standart Model";
-    
+
     const yeni = sepet.filter((i) => {
       const idEslesiyor = String(i.id || i._id) === arananId;
       const slugEslesiyor = (i.slug && slug) ? i.slug === slug : false;
       const varyasyonEslesiyor = (i.varyasyon || "Standart Model") === arananVaryasyon;
-      
+
       return !((idEslesiyor || slugEslesiyor) && varyasyonEslesiyor);
     });
-    
+
     setSepet(yeni);
     localStorage.setItem("bilgin-sepet", JSON.stringify(yeni));
-    bulutaYedekle(yeni); // 🔥 Silindikten sonra bulutu güncelle
+    bulutaYedekle(yeni);
   };
 
   const adetGuncelle = (id: string, varyasyon: string, miktar: number, slug?: string) => {
@@ -154,17 +139,16 @@ const sepeteEkle = (urun: any, topluIslemMi = false) => {
     });
     setSepet(yeni);
     localStorage.setItem("bilgin-sepet", JSON.stringify(yeni));
-    bulutaYedekle(yeni); // 🔥 Adet değiştikten sonra bulutu güncelle
+    bulutaYedekle(yeni);
   };
 
   const sepetiBosalt = () => {
     setSepet([]);
     localStorage.setItem("bilgin-sepet", "[]");
-    bulutaYedekle([]); // 🔥 Sepet boşalınca bulutu da temizle
+    bulutaYedekle([]);
   };
 
   return (
-    // Ufak bir düzeltme: Sepet sayfasında `sepetiTemizle` kullanmışsın, hata vermesin diye onu da ekledim.
     <CartContext.Provider value={{ sepet, sepeteEkle, sepettenSil, adetGuncelle, sepetiBosalt, sepetiTemizle: sepetiBosalt }}>
       {children}
     </CartContext.Provider>

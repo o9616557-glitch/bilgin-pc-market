@@ -4,7 +4,6 @@ import React, { useEffect, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { MapPin, Plus, Trash2, Loader2, Home, Edit2, X } from "lucide-react";
 import toast from "react-hot-toast";
-import { UYE_VERI_EVENT, type UyeBaslangicVerisi } from "@/lib/uye-onbellek";
 
 interface Address {
   _id: string;
@@ -169,23 +168,7 @@ export default function AdreslerimPage() {
     finally { setIsLoading(false); }
   }, []);
 
-  useEffect(() => {
-    fetchAddresses();
-
-    const uyeVerisiGeldi = (e: Event) => {
-      const veri = (e as CustomEvent<UyeBaslangicVerisi>).detail;
-      if (!veri?.addresses) return;
-      setAddresses(veri.addresses as Address[]);
-      setIsLoading(false);
-      try {
-        sessionStorage.setItem(CACHE_KEY, JSON.stringify(veri.addresses));
-        sessionStorage.setItem("bilgin_adresler_cache", JSON.stringify(veri.addresses));
-      } catch {}
-    };
-
-    window.addEventListener(UYE_VERI_EVENT, uyeVerisiGeldi);
-    return () => window.removeEventListener(UYE_VERI_EVENT, uyeVerisiGeldi);
-  }, [fetchAddresses]);
+  useEffect(() => { fetchAddresses(); }, [fetchAddresses]);
 
   const updateCache = (list: Address[]) => {
     setAddresses(list);
