@@ -34,7 +34,7 @@ export default function KargolarimPage() {
         <KisayolNav active="kargolar" />
 
         {/* ➡️ SAĞ İÇERİK */}
-        <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full animate-in fade-in duration-300">
+        <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
 
           {/* BAŞLIK KUTUSU */}
           <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5 z-40 overflow-hidden group">

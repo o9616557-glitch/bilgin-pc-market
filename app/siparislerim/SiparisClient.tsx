@@ -161,13 +161,13 @@ const { sepeteEkle } = useCart();
     <div className="site-page p-4 sm:p-6 lg:p-8 relative overflow-clip">
       <div className="site-glow-top top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[280px]" />
 
-      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start site-content-in">
+      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
         
         {/* SOL MENÜ */}
         <KisayolNav active="siparisler" />
 
         {/* SAĞ İÇERİK */}
-        <div className="flex-1 flex flex-col min-w-0 w-full relative gap-5 lg:gap-6 animate-in fade-in duration-300">
+        <div className="flex-1 flex flex-col min-w-0 w-full relative gap-5 lg:gap-6">
           
           {selectedOrder ? (
             /* DETAY EKRANI */
