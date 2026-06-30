@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { User, Mail, Lock, ArrowLeft, Eye, EyeOff, Info, X, CheckCircle2 } from "lucide-react";
 import { signIn } from "next-auth/react";
 import toast from "react-hot-toast";
-import AuthShell, { authBtnPrimaryClass, authBtnSecondaryClass, authInputClass, authSubtitleClass, authTitleClass } from "@/components/auth/AuthShell";
+import AuthShell, { authBtnPrimaryClass, authBtnSecondaryClass, authDividerClass, authFormGapClass, authInputClass, authSubtitleClass, authTitleClass } from "@/components/auth/AuthShell";
 
 export default function KayitPage() {
   const [name, setName] = useState("");
@@ -81,15 +81,19 @@ export default function KayitPage() {
   return (
     <>
     <AuthShell>
-        <h1 className={`${authTitleClass} mb-2 border-l-2 border-white/30 pl-4`}>
-          YENİ <span className="text-white/60">KAYIT</span>
-        </h1>
-        <p className={`${authSubtitleClass} mb-6 sm:mb-8`}>
-          Bilgin PC Market'e katılın ve avantajlardan yararlanın.
-        </p>
-        
-        {/* ✅ GOOGLE KAYIT MOTORU (Yükleme Animasyonlu ve Kilit Korumalı) ✅ */}
-        <div className="w-full mb-6">
+      <div className="flex flex-col h-full min-h-0 lg:h-auto lg:block">
+        <div className="shrink-0">
+          <h1 className={`${authTitleClass} mb-1 border-l-2 border-white/30 pl-3`}>
+            YENİ <span className="text-white/60">KAYIT</span>
+          </h1>
+          <p className={`${authSubtitleClass} mb-2 lg:mb-6`}>
+            <span className="lg:hidden">Hızlıca üye olun.</span>
+            <span className="hidden lg:inline">Bilgin PC Market&apos;e katılın ve avantajlardan yararlanın.</span>
+          </p>
+        </div>
+
+        <div className="flex-1 min-h-0 flex flex-col justify-center lg:flex-none lg:block">
+        <div className="w-full mb-1 lg:mb-4">
           <button
             type="button"
             onClick={handleGoogleSignIn}
@@ -103,18 +107,17 @@ export default function KayitPage() {
               <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
               <path fill="none" d="M0 0h48v48H0z"/>
             </svg>
-            <span className="text-sm font-bold text-white tracking-wide">Google ile Kayıt Ol</span>
+            <span className="text-xs lg:text-sm font-bold text-white tracking-wide">Google ile Kayıt Ol</span>
           </button>
         </div>
 
-        <div className="flex items-center gap-4 mb-6">
+        <div className={authDividerClass}>
           <div className="h-px bg-white/10 flex-1"></div>
-          <span className="text-slate-500 text-xs font-bold uppercase tracking-widest">Veya E-Posta İle</span>
+          <span className="text-slate-500 text-[10px] lg:text-xs font-bold uppercase tracking-widest">Veya E-Posta</span>
           <div className="h-px bg-white/10 flex-1"></div>
         </div>
 
-        {/* KAYIT FORMU */}
-        <form onSubmit={handleRegister} className="flex flex-col gap-4 mb-6">
+        <form onSubmit={handleRegister} className={`${authFormGapClass} mb-0`}>
           <div className="relative">
             <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
             <input 
@@ -172,18 +175,20 @@ export default function KayitPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className={`${authBtnPrimaryClass} mt-2`}
+            className={`${authBtnPrimaryClass} mt-1 lg:mt-2`}
           >
             {isLoading ? "KAYIT OLUŞTURULUYOR..." : "KAYIT OL"}
           </button>
         </form>
+        </div>
 
-        <div className="text-center">
-          <p className="text-slate-400 text-sm">
+        <div className="shrink-0 text-center pt-2 lg:pt-4">
+          <p className="text-slate-400 text-xs lg:text-sm">
             Zaten hesabınız var mı? <Link href="/giris" className="text-white font-bold hover:underline underline-offset-4">Giriş Yap</Link>
           </p>
         </div>
-      </AuthShell>
+      </div>
+    </AuthShell>
 
       {/* 🚀 ŞİFRE KURALLARI BİLGİLENDİRME PENCERESİ (MODAL) 🚀 */}
       {showInfoModal && (

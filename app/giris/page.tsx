@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, Lock, ArrowLeft, ArrowRight, UserCircle2, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { signIn } from "next-auth/react";
 import toast from "react-hot-toast";
-import AuthShell, { authBtnPrimaryClass, authBtnSecondaryClass, authInputClass, authSubtitleClass, authTitleClass } from "@/components/auth/AuthShell";
+import AuthShell, { authBtnPrimaryClass, authBtnSecondaryClass, authDividerClass, authFormGapClass, authInputClass, authSubtitleClass, authTitleClass } from "@/components/auth/AuthShell";
 
 // 🚀 BÜTÜN KODLARINI GÜVENLİ BİR KUTUYA ALDIK
 function GirisIcerik() {
@@ -143,17 +143,27 @@ function GirisIcerik() {
 
   return (
     <AuthShell>
-          <h1 className={`${authTitleClass} mb-2 border-l-2 border-white/30 pl-4`}>
-           GİRİŞ <span className="text-white/60">YAP</span>
+      <div className="flex flex-col h-full min-h-0 lg:h-auto lg:block">
+        <div className="shrink-0">
+          <h1 className={`${authTitleClass} mb-1 border-l-2 border-white/30 pl-3`}>
+            GİRİŞ <span className="text-white/60">YAP</span>
           </h1>
-          <p className={`${authSubtitleClass} mb-6 sm:mb-8`}>
-            {step === 1 
-              ? "Güvenli alışveriş ve sipariş takibi için hesabınıza giriş yapın. Eğer hesabınız yoksa hızlıca kayıt olabilirsiniz."
-              : "Hesabınızın güvenliği için ekstra doğrulama gerekiyor."}
+          <p className={`${authSubtitleClass} mb-2 lg:mb-6`}>
+            <span className="lg:hidden">
+              {step === 1 ? "Hesabınıza giriş yapın." : "Ek güvenlik doğrulaması gerekli."}
+            </span>
+            <span className="hidden lg:inline">
+              {step === 1
+                ? "Güvenli alışveriş ve sipariş takibi için hesabınıza giriş yapın. Eğer hesabınız yoksa hızlıca kayıt olabilirsiniz."
+                : "Hesabınızın güvenliği için ekstra doğrulama gerekiyor."}
+            </span>
           </p>
+        </div>
+
+        <div className="flex-1 min-h-0 flex flex-col justify-center lg:flex-none lg:block">
 {/* SADECE 1. ADIMDA (ŞİFRE EKRANINDA) GÖRÜNEN GOOGLE BUTONU */}
        {step === 1 && (
-        <div className="w-full mb-6 animate-in fade-in duration-500">
+        <div className="w-full mb-1 lg:mb-4">
           <button
             type="button"
           onClick={() => {
@@ -171,23 +181,22 @@ function GirisIcerik() {
               <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
               <path fill="none" d="M0 0h48v48H0z"/>
             </svg>
-            <span className="text-sm font-bold text-white tracking-wide">Google ile Giriş Yap</span>
+            <span className="text-xs lg:text-sm font-bold text-white tracking-wide">Google ile Giriş Yap</span>
           </button>
           
-          <div className="flex items-center gap-4 mt-6 mb-6">
+          <div className={authDividerClass}>
             <div className="h-px bg-white/10 flex-1"></div>
-            <span className="text-slate-500 text-xs font-bold uppercase tracking-widest">Veya E-Posta İle</span>
+            <span className="text-slate-500 text-[10px] lg:text-xs font-bold uppercase tracking-widest">Veya E-Posta</span>
             <div className="h-px bg-white/10 flex-1"></div>
           </div>
         </div>
        )}
 
-        {/* GİRİŞ FORMU */}
-        <form onSubmit={handleLogin} className="flex flex-col gap-4 mb-2">
+        <form onSubmit={handleLogin} className={`${authFormGapClass} mb-0 lg:mb-2`}>
           
           {/* 🚀 VİTES 1: NORMAL ŞİFRE KUTULARI */}
           {step === 1 && (
-            <div className="flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-300">
+            <div className={`${authFormGapClass}`}>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                 <input 
@@ -219,7 +228,7 @@ function GirisIcerik() {
                 </button>
               </div>
 
-              <div className="flex justify-end mb-2">
+              <div className="flex justify-end">
                  <Link href="/sifre-sifirla" className="text-xs text-slate-400 hover:text-white transition-colors">
                     Şifremi unuttum
                  </Link>
@@ -229,13 +238,13 @@ function GirisIcerik() {
 
           {/* 🚀 VİTES 2: GİZLİ 2FA KOD KUTUSU */}
           {step === 2 && (
-            <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-right-4 duration-300 bg-white/[0.03] border border-white/10 p-6 rounded-2xl backdrop-blur-sm">
-              <div className="flex justify-center mb-2">
-                <div className="w-16 h-16 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center">
-                  <ShieldCheck className="w-8 h-8 text-white/80" />
+            <div className={`${authFormGapClass} bg-white/[0.03] border border-white/10 p-4 lg:p-6 rounded-2xl backdrop-blur-sm`}>
+              <div className="flex justify-center">
+                <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center">
+                  <ShieldCheck className="w-6 h-6 lg:w-8 lg:h-8 text-white/80" />
                 </div>
               </div>
-              <p className="text-center text-sm text-slate-300">
+              <p className="text-center text-xs lg:text-sm text-slate-300">
                 <strong className="text-white">{email}</strong> adresine gönderdiğimiz 6 haneli kodu girin.
               </p>
               
@@ -246,7 +255,7 @@ function GirisIcerik() {
                   value={twoFactorCode}
                   onChange={(e) => setTwoFactorCode(e.target.value.replace(/\D/g, ''))} // Sadece sayı girmesine izin verir
                   placeholder="000000" 
-                  className="w-full bg-black/40 border border-white/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] rounded-xl py-4 text-center tracking-[0.5em] text-2xl font-black text-white placeholder-slate-600 focus:outline-none focus:border-white/40 focus:shadow-[0_0_25px_rgba(255,255,255,0.06)] transition-all"
+                  className="w-full bg-black/40 border border-white/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] rounded-xl py-3 lg:py-4 text-center tracking-[0.5em] text-xl lg:text-2xl font-black text-white placeholder-slate-600 focus:outline-none focus:border-white/40 focus:shadow-[0_0_25px_rgba(255,255,255,0.06)] transition-all"
                   required 
                 />
               </div>
@@ -254,7 +263,7 @@ function GirisIcerik() {
               <button 
                 type="button" 
                 onClick={() => setStep(1)} 
-                className="flex items-center justify-center gap-2 text-xs text-slate-400 hover:text-white transition-colors mt-2"
+                className="flex items-center justify-center gap-2 text-xs text-slate-400 hover:text-white transition-colors"
               >
                 <ArrowLeft size={14} /> Geri Dön ve Şifreyi Değiştir
               </button>
@@ -264,33 +273,37 @@ function GirisIcerik() {
        {/* AKILLI BUTON (Vitese Göre Yazısı Değişir) */}
        <button
          type="submit"
-         className={`${authBtnPrimaryClass} mt-2`}
+         className={`${authBtnPrimaryClass} mt-1 lg:mt-2`}
        >
          {step === 1 ? "GİRİŞ YAP" : "KODU DOĞRULA VE GİRİŞ YAP"}
        </button>
         </form>
+        </div>
 
         {step === 1 && (
-          <div className="text-center mb-6 mt-4 animate-in fade-in duration-500">
-            <p className="text-slate-400 text-sm">
-              Hesabınız yok mu? <Link href="/kayit" className="text-white font-bold hover:underline underline-offset-4">Yeni Kayıt Oluştur</Link>
-            </p>
+          <div className="shrink-0 pt-2 lg:pt-0">
+            <div className="text-center mb-2 lg:mb-4 lg:mt-4">
+              <p className="text-slate-400 text-xs lg:text-sm">
+                Hesabınız yok mu? <Link href="/kayit" className="text-white font-bold hover:underline underline-offset-4">Kayıt Ol</Link>
+              </p>
+            </div>
+
+            <div className="pt-2 lg:pt-6 border-t border-white/10 lg:mt-6">
+              <Link
+                href="/"
+                prefetch={true}
+                className={`${authBtnSecondaryClass} py-2.5 lg:py-3`}
+              >
+                <UserCircle2 size={16} className="text-slate-400 group-hover:text-white transition-colors" />
+                <span className="text-slate-300 group-hover:text-white font-medium text-xs lg:text-sm transition-colors">
+                  Üye Olmadan Devam Et
+                </span>
+                <ArrowRight size={14} className="text-slate-500 group-hover:translate-x-1 group-hover:text-white transition-all" />
+              </Link>
+            </div>
           </div>
         )}
-
-      <div className="pt-6 border-t border-white/10 mt-6">
-       <Link 
-         href="/" 
-         prefetch={true} 
-         className={`${authBtnSecondaryClass} py-3 active:scale-[0.98]`}
-       >
-         <UserCircle2 size={18} className="text-slate-400 group-hover:text-white transition-colors duration-100" />
-         <span className="text-slate-300 group-hover:text-white font-medium transition-colors duration-100">
-           Üye Olmadan Devam Et
-         </span>
-         <ArrowRight size={16} className="text-slate-500 group-hover:translate-x-1 group-hover:text-white transition-all duration-100" />
-       </Link>
-     </div>
+      </div>
     </AuthShell>
   );
 }

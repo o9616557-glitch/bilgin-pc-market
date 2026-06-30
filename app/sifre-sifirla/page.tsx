@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Mail, ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
-import AuthShell, { authBtnPrimaryClass, authInputClass, authSubtitleClass, authTitleClass } from "@/components/auth/AuthShell";
+import AuthShell, { authBtnPrimaryClass, authFormGapClass, authInputClass, authSubtitleClass, authTitleClass } from "@/components/auth/AuthShell";
 
 export default function SifreSifirlaPage() {
   const [email, setEmail] = useState("");
@@ -43,36 +43,43 @@ export default function SifreSifirlaPage() {
 
   return (
     <AuthShell>
-      <Link
-        href="/giris"
-        className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-6 text-sm font-bold uppercase tracking-wider"
-      >
-        <ArrowLeft size={16} /> Giriş Yap&apos;a Dön
-      </Link>
+      <div className="flex flex-col h-full min-h-0 justify-between lg:h-auto lg:block">
+        <div className="shrink-0">
+          <Link
+            href="/giris"
+            className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-2 lg:mb-6 text-xs lg:text-sm font-bold uppercase tracking-wider"
+          >
+            <ArrowLeft size={14} /> Giriş Yap&apos;a Dön
+          </Link>
 
-      <h1 className={`${authTitleClass} mb-2`}>ŞİFREMİ UNUTTUM</h1>
-      <p className={`${authSubtitleClass} mb-6 sm:mb-8`}>
-        Kayıtlı e-posta adresinizi girin. Size yeni bir şifre belirlemeniz için güvenli bir bağlantı göndereceğiz.
-      </p>
-
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="relative">
-          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="E-Posta Adresiniz"
-            className={authInputClass}
-            required
-            disabled={isLoading}
-          />
+          <h1 className={`${authTitleClass} mb-1`}>ŞİFREMİ UNUTTUM</h1>
+          <p className={`${authSubtitleClass} mb-2 lg:mb-8`}>
+            <span className="lg:hidden">E-postanıza sıfırlama linki gönderilir.</span>
+            <span className="hidden lg:inline">
+              Kayıtlı e-posta adresinizi girin. Size yeni bir şifre belirlemeniz için güvenli bir bağlantı göndereceğiz.
+            </span>
+          </p>
         </div>
 
-        <button type="submit" disabled={isLoading} className={`${authBtnPrimaryClass} mt-2`}>
-          {isLoading ? "GÖNDERİLİYOR..." : "SIFIRLAMA LİNKİ GÖNDER"}
-        </button>
-      </form>
+        <form onSubmit={handleSubmit} className={`${authFormGapClass} flex-1 flex flex-col justify-center lg:flex-none lg:block`}>
+          <div className="relative">
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="E-Posta Adresiniz"
+              className={authInputClass}
+              required
+              disabled={isLoading}
+            />
+          </div>
+
+          <button type="submit" disabled={isLoading} className={`${authBtnPrimaryClass} mt-1 lg:mt-2`}>
+            {isLoading ? "GÖNDERİLİYOR..." : "SIFIRLAMA LİNKİ GÖNDER"}
+          </button>
+        </form>
+      </div>
     </AuthShell>
   );
 }
