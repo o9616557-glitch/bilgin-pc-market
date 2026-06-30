@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { useCompare } from "@/app/CompareContext";
 import { X, Gamepad2, ChevronLeft, ChevronRight, ShoppingCart, Heart, GitCompare, Share2, Star, Zap, Info, Gauge, Crosshair } from "lucide-react";
 import Link from "next/link"; 
+import { cloudinaryUrunResim } from "@/lib/cloudinary";
 
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const { sepeteEkle } = useCart(); 
@@ -226,6 +227,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
   let resimler = [product.resim || "https://via.placeholder.com/600"];
   if (product.images && Array.isArray(product.images) && product.images.length > 0) { resimler = product.images.map((img: any) => typeof img === "string" ? img : (img?.src || resimler[0])); }
+  resimler = resimler.map((url: string) => cloudinaryUrunResim(url, 900));
 
   const cokluResim = resimler.length > 1;
   const loopResimler = cokluResim ? [resimler[resimler.length - 1], ...resimler, resimler[0]] : resimler;
@@ -495,7 +497,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               {resimler.length === 1 ? (
                 <img 
                   src={resimler[0]} 
-                  alt={urunAdi} 
+                  alt={urunAdi}
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
                   style={{
                     transformOrigin: zoomOrigin,
                     transform: isHoveringImg && !lightboxAcik ? "scale(2.4)" : "scale(1)",
@@ -541,7 +546,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               <div className="hidden sm:flex gap-3 overflow-x-auto pb-2 select-none [&::-webkit-scrollbar]:hidden">
                 {resimler.map((img: string, idx: number) => (
                   <button key={idx} onClick={() => degistirResim(idx)} className={`w-20 h-20 flex-shrink-0 bg-white/[0.02] border rounded-xl p-2 transition-all duration-300 flex items-center justify-center touch-manipulation ${seciliResimIndex === idx ? "border-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.2)]" : "border-white/5 opacity-50 hover:opacity-100 hover:border-white/20"}`}>
-                    <img src={img} alt="" className="max-w-full max-h-full object-contain" />
+                    <img src={cloudinaryUrunResim(img, 160)} alt="" loading="lazy" decoding="async" className="max-w-full max-h-full object-contain" />
                   </button>
                 ))}
               </div>
