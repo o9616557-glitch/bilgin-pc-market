@@ -11,7 +11,6 @@ import RenkPaleti from "@/components/hesabim/RenkPaleti";
 import {
   VARSAYILAN_UST_MENU,
   VARSAYILAN_ALT_MENU,
-  ikonEslestir,
   menuEksikleriEkle,
 } from "@/lib/hesabim/constants";
 import { destekOzetOku } from "@/lib/destek-ozet";
@@ -224,7 +223,10 @@ export default function HesabimPage() {
   }, [showOnboarding]);
   const [ustMenuListesi, setUstMenuListesi] = useState(() => {
     if (typeof window !== "undefined") {
-      try { const cached = localStorage.getItem("bilgin_ust_menu_v4"); if (cached) return ikonEslestir(JSON.parse(cached)); } catch (e) {}
+      try {
+        const cached = localStorage.getItem("bilgin_ust_menu_v4");
+        if (cached) return menuEksikleriEkle(JSON.parse(cached), VARSAYILAN_UST_MENU);
+      } catch (e) {}
     }
     return VARSAYILAN_UST_MENU;
   });
@@ -233,7 +235,10 @@ export default function HesabimPage() {
     if (typeof window !== "undefined") {
       try {
         const cached = localStorage.getItem("bilgin_alt_menu_v4");
-        if (cached) return menuEksikleriEkle(JSON.parse(cached), VARSAYILAN_ALT_MENU);
+        if (cached) {
+          const filtreli = JSON.parse(cached).filter((item: { id: string }) => item.id !== "bildirimler");
+          return menuEksikleriEkle(filtreli, VARSAYILAN_ALT_MENU);
+        }
       } catch (e) {}
     }
     return VARSAYILAN_ALT_MENU;
@@ -242,14 +247,23 @@ export default function HesabimPage() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
-      const cached = localStorage.getItem("bilgin_alt_menu_v4");
-      const parsed = cached ? JSON.parse(cached) : [];
-      if (!parsed.some((item: { id: string }) => item.id === "bildirimler")) {
-        const temiz = altMenuListesi.map(({ ikon, ...kalan }: any) => kalan);
-        localStorage.setItem("bilgin_alt_menu_v4", JSON.stringify(temiz));
+      const altCached = localStorage.getItem("bilgin_alt_menu_v4");
+      if (altCached) {
+        const parsed = JSON.parse(altCached);
+        const filtreli = parsed.filter((item: { id: string }) => item.id !== "bildirimler");
+        if (filtreli.length !== parsed.length) {
+          localStorage.setItem("bilgin_alt_menu_v4", JSON.stringify(filtreli));
+        }
+      }
+      const ustCached = localStorage.getItem("bilgin_ust_menu_v4");
+      const ustParsed = ustCached ? JSON.parse(ustCached) : [];
+      if (!ustParsed.some((item: { id: string }) => item.id === "bildirimler")) {
+        const birlesik = [...ustParsed, { id: "bildirimler", isim: "Bildirimler", renk: "text-amber-400", isLink: true, href: "/bildirimler" }];
+        localStorage.setItem("bilgin_ust_menu_v4", JSON.stringify(birlesik));
+        setUstMenuListesi(menuEksikleriEkle(birlesik, VARSAYILAN_UST_MENU));
       }
     } catch {}
-  }, [altMenuListesi]);
+  }, []);
 
   const [siparisRenkleri, setSiparisRenkleri] = useState<Record<string, any>>(() => {
     if(typeof window !== 'undefined') {
@@ -665,6 +679,82 @@ export default function HesabimPage() {
   const userEmail = status === "unauthenticated" ? "" : (session?.user?.email || "");
   const basHarf = userName.charAt(0).toUpperCase();
 
+  const panoKutulariniCiz = (
+    liste: any[],
+    suruklenenRef: React.MutableRefObject<number | null>,
+    onDragEnter: (hedefIndex: number) => void,
+  ) => liste.map((item: any, index: number) => {
+    const IkonBileseni = item.ikon;
+    const isSecili = seciliKutuId === item.id;
+    const kargoVarmi = item.id === "kargolar" && kargoSiparisleri.length > 0;
+    const mesajVarmi = item.id === "destek" && yeniMesajVar;
+    const bildirimVarmi = item.id === "bildirimler" && kargoSiparisleri.length > 0;
+
+    const KutuIcerigi = (
+      <div
+        draggable={aktifPalet === "menu"}
+        onDragStart={() => { suruklenenRef.current = index; }}
+        onDragEnter={() => onDragEnter(index)}
+        onDragOver={(e) => e.preventDefault()}
+        onDragEnd={() => {
+          suruklenenRef.current = null;
+          if (aktifPalet === "menu") veritabaninaKaydet(ustMenuListesi, altMenuListesi, siparisRenkleri, pastaRenkleri, cubukRenk);
+        }}
+        onClick={() => {
+          if (aktifPalet === "menu") {
+            setResimYuklenecekKutu(item.id);
+            kutuInputRef.current?.click();
+          } else if (item.isKargo) {
+            handleKargoClick();
+          }
+        }}
+        className={`flex flex-col items-center gap-1 lg:gap-2 group w-full min-w-0 select-none ${isSecili ? "relative z-[9999]" : "relative z-10"}`}
+      >
+        <div className={`relative w-full aspect-square max-w-[52px] sm:max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl overflow-hidden transition-all duration-300 ${
+          aktifPalet === "menu"
+            ? "ring-2 ring-dashed ring-emerald-500/60 cursor-pointer hover:ring-emerald-400"
+            : "cursor-pointer group-hover:scale-[1.04]"
+        }`}>
+          {kutuResimleri[item.id] ? (
+            <Image src={kutuResimleri[item.id]} alt={item.isim} fill className="object-cover" />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center bg-[#0f172a] border border-slate-800 group-hover:border-cyan-500/30 transition-colors">
+              <IkonBileseni className={`w-4 h-4 sm:w-6 sm:h-6 lg:w-7 lg:h-7 ${item.renk} opacity-60`} />
+              {aktifPalet === "menu" && (
+                <Camera className="w-3 h-3 text-emerald-400 mt-1 opacity-80" />
+              )}
+            </div>
+          )}
+
+          {aktifPalet === "menu" && (
+            <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Camera className="w-4 h-4 text-white" />
+              <span className="text-[8px] text-white font-medium">Resim Ekle</span>
+            </div>
+          )}
+
+          {(kargoVarmi || mesajVarmi || bildirimVarmi) && aktifPalet !== "menu" && (
+            <span className="absolute top-1 right-1 flex h-2.5 w-2.5 z-10">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: pingRenk }} />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 border border-[#0f172a]" style={{ backgroundColor: pingRenk }} />
+            </span>
+          )}
+        </div>
+
+        <span className={`text-[8px] sm:text-[10px] lg:text-xs font-bold tracking-wide text-center truncate w-full px-0.5 transition-colors ${aktifPalet === "menu" ? "text-emerald-400" : "text-slate-300 group-hover:text-cyan-400"}`}>
+          {item.isim}
+        </span>
+      </div>
+    );
+
+    if (item.isLink && aktifPalet !== "menu") {
+      return <Link key={item.id} href={item.href || "#"} onClick={kilitliIslem} prefetch={true} className="w-full min-w-0">{KutuIcerigi}</Link>;
+    }
+    return <React.Fragment key={item.id}>{KutuIcerigi}</React.Fragment>;
+  });
+
+  const panoGridSinifi = `grid grid-cols-5 gap-1 sm:gap-2 lg:gap-4 w-full min-w-0 transition-all duration-300 ${aktifPalet === "menu" ? "bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50" : ""}`;
+
   return (
   <>
     <div suppressHydrationWarning={true} className="flex flex-col gap-6 w-full">
@@ -798,83 +888,13 @@ export default function HesabimPage() {
           </Link>
         )}
 
-        <div className="w-full block">
-          <div className={`grid grid-cols-3 sm:grid-cols-6 gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${aktifPalet === 'menu' ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
-            {altMenuListesi.map((item: any, index: number) => {
-              const IkonBileseni = item.ikon;
-              const isSecili = seciliKutuId === item.id;
-              
-              const kargoVarmi = item.id === "kargolar" && kargoSiparisleri.length > 0;
-              const mesajVarmi = item.id === "destek" && yeniMesajVar;
-              const bildirimVarmi = item.id === "bildirimler" && kargoSiparisleri.length > 0;
-
-              const KutuIcerigi = (
-                <div
-                  draggable={aktifPalet === 'menu'}
-                  onDragStart={() => (suruklenenAltRef.current = index)}
-                  onDragEnter={() => handleDragEnterAlt(index)}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDragEnd={() => {
-                     suruklenenAltRef.current = null;
-                     if(aktifPalet === 'menu') veritabaninaKaydet(ustMenuListesi, altMenuListesi, siparisRenkleri, pastaRenkleri, cubukRenk);
-                  }}
-                  onClick={() => {
-                    if (aktifPalet === 'menu') {
-                      setResimYuklenecekKutu(item.id);
-                      kutuInputRef.current?.click();
-                    } else if (item.isKargo) {
-                      handleKargoClick();
-                    }
-                  }}
-                  className={`flex flex-col items-center gap-1.5 lg:gap-2.5 group w-full select-none ${isSecili ? "relative z-[9999]" : "relative z-10"}`}
-                >
-                  {/* Resim alanı */}
-                  <div className={`relative w-full aspect-square max-w-[64px] lg:max-w-none lg:h-24 rounded-2xl overflow-hidden transition-all duration-300 ${
-                      aktifPalet === 'menu'
-                      ? "ring-2 ring-dashed ring-emerald-500/60 cursor-pointer hover:ring-emerald-400"
-                      : "cursor-pointer group-hover:scale-[1.04]"
-                  }`}>
-                    {kutuResimleri[item.id] ? (
-                      <Image src={kutuResimleri[item.id]} alt={item.isim} fill className="object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center bg-[#0f172a] border border-slate-800 group-hover:border-cyan-500/30 transition-colors">
-                        <IkonBileseni className={`w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 ${item.renk} opacity-60`} />
-                        {aktifPalet === 'menu' && (
-                          <Camera className="w-3 h-3 text-emerald-400 mt-1 opacity-80" />
-                        )}
-                      </div>
-                    )}
-
-                    {/* Düzenleme modunda: resim seç overlay */}
-                    {aktifPalet === 'menu' && (
-                      <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Camera className="w-4 h-4 text-white" />
-                        <span className="text-[8px] text-white font-medium">Resim Ekle</span>
-                      </div>
-                    )}
-
-                    {/* Bildirim noktası */}
-                    {(kargoVarmi || mesajVarmi || bildirimVarmi) && aktifPalet !== 'menu' && (
-                      <span className="absolute top-1 right-1 flex h-2.5 w-2.5 z-10">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: pingRenk }}></span>
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 border border-[#0f172a]" style={{ backgroundColor: pingRenk }}></span>
-                      </span>
-                    )}
-                  </div>
-                  
-                  <span className={`text-[9px] sm:text-[10px] lg:text-xs font-bold tracking-wide text-center truncate w-full px-0.5 transition-colors ${aktifPalet === 'menu' ? "text-emerald-400" : "text-slate-300 group-hover:text-cyan-400"}`}>
-                    {item.isim}
-                  </span>
-                </div>
-              );
-
-              if (item.isLink && aktifPalet !== 'menu') {
-                return <Link key={item.id} href={item.href || "#"} onClick={kilitliIslem} prefetch={true} className="w-full">{KutuIcerigi}</Link>;
-              }
-              return <React.Fragment key={item.id}>{KutuIcerigi}</React.Fragment>;
-            })}
+        <div className="w-full block flex flex-col gap-3 sm:gap-4">
+          <div className={panoGridSinifi}>
+            {panoKutulariniCiz(ustMenuListesi, suruklenenUstRef, handleDragEnterUst)}
           </div>
-          {/* Gizli kutu resim input */}
+          <div className={panoGridSinifi}>
+            {panoKutulariniCiz(altMenuListesi, suruklenenAltRef, handleDragEnterAlt)}
+          </div>
           <input ref={kutuInputRef} type="file" accept="image/*" className="hidden" onChange={handleKutuResimSec} />
         </div>
 

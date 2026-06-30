@@ -33,13 +33,13 @@ export const VARSAYILAN_UST_MENU = [
   { id: "favoriler", isim: "Favoriler", ikon: Star, renk: "text-purple-400", isLink: true, href: "/favorilerim" },
   { id: "adresler", isim: "Adresler", ikon: MapPin, renk: "text-cyan-400", isLink: true, href: "/adreslerim" },
   { id: "sistemler", isim: "Sistemler", ikon: Server, renk: "text-emerald-400", isLink: true, href: "/sistemlerim" },
+  { id: "bildirimler", isim: "Bildirimler", ikon: Bell, renk: "text-amber-400", isLink: true, href: "/bildirimler" },
 ];
 
 export const VARSAYILAN_ALT_MENU = [
   { id: "favoriler", isim: "Favoriler", ikon: Star, renk: "text-purple-400", isLink: true, href: "/favorilerim" },
   { id: "sistemler", isim: "Sistemler", ikon: Server, renk: "text-emerald-400", isLink: true, href: "/sistemlerim" },
   { id: "destek", isim: "Destek", ikon: Headset, renk: "text-orange-400", isLink: true, href: "/destek-taleplerim" },
-  { id: "bildirimler", isim: "Bildirimler", ikon: Bell, renk: "text-amber-400", isLink: true, href: "/bildirimler" },
   { id: "sorgula", isim: "Sorgula", ikon: Search, renk: "text-blue-400", isLink: true, href: "/siparis-takip" },
   { id: "kargolar", isim: "Kargolar", ikon: Truck, renk: "text-rose-400", isLink: true, href: "/kargolarim" },
 ];
@@ -58,6 +58,8 @@ export function ikonEslestir(liste: any[]) {
     if (item.id === "cuzdan") ikonBileseni = CreditCard;
     if (item.id === "guvenlik") ikonBileseni = ShieldCheck;
     if (item.id === "adresler") ikonBileseni = MapPin;
+    if (item.id === "siparisler") ikonBileseni = Package;
+    if (item.id === "favoriler") ikonBileseni = Star;
     if (item.id === "sistemler") ikonBileseni = Server;
     if (item.id === "kargolar") ikonBileseni = Truck;
     if (item.id === "destek") ikonBileseni = Headset;
