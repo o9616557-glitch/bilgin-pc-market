@@ -29,6 +29,7 @@ export function uyeOnbellegineYaz(veri: UyeBaslangicVerisi) {
   sessionStorage.setItem("bilgin_uye_baslangic", JSON.stringify(veri));
   sessionStorage.setItem("bilgin-favoriler", JSON.stringify(veri.favorites));
   sessionStorage.setItem("bilgin-adresler", JSON.stringify(veri.addresses));
+  sessionStorage.setItem("bilgin_adresler_cache", JSON.stringify(veri.addresses));
   sessionStorage.setItem(
     "bilgin_hesabim_data",
     JSON.stringify({

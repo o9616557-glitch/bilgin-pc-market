@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { MapPin, Plus, Trash2, Loader2, Home, Edit2, X } from "lucide-react";
 import toast from "react-hot-toast";
+import { UYE_VERI_EVENT, type UyeBaslangicVerisi } from "@/lib/uye-onbellek";
 
 interface Address {
   _id: string;
@@ -17,7 +18,7 @@ interface Address {
 }
 
 const BOSH_FORM = { title: "", fullName: "", phone: "", email: "", city: "", district: "", fullAddress: "" };
-const CACHE_KEY = "bilgin_adresler_cache";
+const CACHE_KEY = "bilgin-adresler";
 
 /* ── Tam ekran form modal ── */
 function AdresModal({
@@ -140,30 +141,51 @@ export default function AdreslerimPage() {
 
   useEffect(() => { setPortalReady(true); }, []);
 
-  /* Cache-first fetch — sadece ilk açılışta API'ye gider */
+  /* Cache-first fetch — önbellek varsa anında göster */
   const fetchAddresses = useCallback(async (force = false) => {
     if (!force) {
-      try {
-        const cached = sessionStorage.getItem(CACHE_KEY);
-        if (cached) {
-          setAddresses(JSON.parse(cached));
-          setIsLoading(false);
-          return;
-        }
-      } catch { /* sessionStorage erişimi yoksa devam */ }
+      for (const key of [CACHE_KEY, "bilgin_adresler_cache"]) {
+        try {
+          const cached = sessionStorage.getItem(key);
+          if (cached) {
+            setAddresses(JSON.parse(cached));
+            setIsLoading(false);
+            return;
+          }
+        } catch { /* devam */ }
+      }
     }
     try {
       const res  = await fetch("/api/addresses");
       const data = await res.json();
       if (res.ok) {
         setAddresses(data.addresses);
-        try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(data.addresses)); } catch {}
+        try {
+          sessionStorage.setItem(CACHE_KEY, JSON.stringify(data.addresses));
+          sessionStorage.setItem("bilgin_adresler_cache", JSON.stringify(data.addresses));
+        } catch {}
       } else if (res.status === 401) toast.error("Adreslerinizi görmek için giriş yapmalısınız.");
     } catch { toast.error("Adresler yüklenirken hata oluştu."); }
     finally { setIsLoading(false); }
   }, []);
 
-  useEffect(() => { fetchAddresses(); }, [fetchAddresses]);
+  useEffect(() => {
+    fetchAddresses();
+
+    const uyeVerisiGeldi = (e: Event) => {
+      const veri = (e as CustomEvent<UyeBaslangicVerisi>).detail;
+      if (!veri?.addresses) return;
+      setAddresses(veri.addresses as Address[]);
+      setIsLoading(false);
+      try {
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify(veri.addresses));
+        sessionStorage.setItem("bilgin_adresler_cache", JSON.stringify(veri.addresses));
+      } catch {}
+    };
+
+    window.addEventListener(UYE_VERI_EVENT, uyeVerisiGeldi);
+    return () => window.removeEventListener(UYE_VERI_EVENT, uyeVerisiGeldi);
+  }, [fetchAddresses]);
 
   const updateCache = (list: Address[]) => {
     setAddresses(list);

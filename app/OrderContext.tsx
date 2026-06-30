@@ -16,7 +16,12 @@ function cacheOku(): any[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = sessionStorage.getItem(CACHE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed.length > 0) return parsed;
+    }
+    const hafiza = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
+    return hafiza.tumSiparisler || [];
   } catch {
     return [];
   }
@@ -26,6 +31,11 @@ function cacheYaz(siparisler: any[]) {
   if (typeof window === "undefined") return;
   try {
     sessionStorage.setItem(CACHE_KEY, JSON.stringify(siparisler));
+    const eski = JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}");
+    sessionStorage.setItem(
+      "bilgin_hesabim_data",
+      JSON.stringify({ ...eski, tumSiparisler: siparisler })
+    );
   } catch {}
 }
 
@@ -37,13 +47,8 @@ const OrderContext = createContext<OrderContextType>({
 
 export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
   const { status } = useSession();
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>(() => cacheOku());
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const cached = cacheOku();
-    if (cached.length > 0) setOrders(cached);
-  }, []);
 
   useEffect(() => {
     const uyeVerisiGeldi = (e: Event) => {
@@ -81,12 +86,21 @@ export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
+    if (status === "loading") return;
+
+    if (status === "authenticated") {
+      const cached = cacheOku();
+      if (cached.length > 0) {
+        setOrders(cached);
+      } else {
+        void fetchOrders(true);
+      }
+    } else if (status === "unauthenticated") {
       setOrders([]);
       setLoading(false);
       if (typeof window !== "undefined") sessionStorage.removeItem(CACHE_KEY);
     }
-  }, [status]);
+  }, [status, fetchOrders]);
 
   return (
     <OrderContext.Provider value={{ orders, loading, refreshOrders: () => fetchOrders(false) }}>
