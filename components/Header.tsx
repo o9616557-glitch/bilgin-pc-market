@@ -495,22 +495,27 @@ function BilginPcMarka({
   className = "",
   size = "md",
   variant = "stacked",
+  glow = false,
 }: {
   className?: string;
   size?: "sm" | "md";
   variant?: "stacked" | "horizontal";
+  glow?: boolean;
 }) {
-  const textSize = size === "sm" ? "text-[17px] sm:text-lg" : "text-2xl";
+  const textSize = size === "sm" ? "text-[15px] sm:text-base" : "text-2xl";
+  const glowClass = glow
+    ? "relative drop-shadow-[0_0_10px_rgba(59,130,246,0.95)] before:absolute before:inset-[-6px] before:-z-10 before:rounded-lg before:bg-[#3b82f6]/20 before:blur-md before:animate-pulse"
+    : "";
 
   if (variant === "horizontal") {
     return (
       <Link
         href="/"
-        className={`inline-flex items-center font-black tracking-tight leading-none select-none shrink-0 ${textSize} ${className}`}
+        className={`inline-flex items-center font-black tracking-tight leading-none select-none shrink-0 ${textSize} ${glowClass} ${className}`}
         aria-label="Bilgin PC Ana Sayfa"
       >
         <span className="text-white">BİLGİN</span>
-        <span className="text-[#3b82f6] ml-1">PC</span>
+        <span className="text-[#3b82f6] ml-0.5">PC</span>
       </Link>
     );
   }
@@ -518,7 +523,7 @@ function BilginPcMarka({
   return (
     <Link
       href="/"
-      className={`inline-flex flex-col items-center justify-center font-black tracking-tight leading-none select-none gap-1 ${textSize} ${className}`}
+      className={`inline-flex flex-col items-center justify-center font-black tracking-tight leading-none select-none gap-1 ${textSize} ${glowClass} ${className}`}
       aria-label="Bilgin PC Ana Sayfa"
     >
       <span className="flex items-baseline gap-0.5 leading-none">
@@ -530,16 +535,16 @@ function BilginPcMarka({
   );
 }
 
-function MobilProfilLink() {
+function MobilProfilLink({ className = "" }: { className?: string }) {
   const { status } = useSession();
 
   if (status === "loading") {
-    return <div className="lg:hidden w-8 h-8 rounded-full bg-white/[0.06] border border-white/[0.12]" />;
+    return <div className={`lg:hidden w-9 h-9 rounded-full bg-white/[0.06] border border-white/[0.12] ${className}`} />;
   }
 
   return (
-    <Link href="/hesabim" className="lg:hidden p-1 transition-all" aria-label="Hesabım">
-      <ProfilAvatar size={32} />
+    <Link href="/hesabim" className={`lg:hidden p-1 transition-all ${className}`} aria-label="Hesabım">
+      <ProfilAvatar size={36} />
     </Link>
   );
 }
@@ -775,14 +780,13 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                   <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "-rotate-45 -translate-y-1.5" : "")}></span>
                 </button>
                 <div className={`flex items-center ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}>
-                  <MobilProfilLink />
                   {mesajLink}
+                  <BilginPcMarka size="sm" variant="horizontal" glow className="px-0.5" />
                 </div>
               </div>
 
-              <BilginPcMarka
-                size="sm"
-                className={`justify-self-center self-center z-[5] translate-y-px transition-opacity ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
+              <MobilProfilLink
+                className={`justify-self-center self-center z-[5] transition-opacity ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
               />
 
               <div className={`flex items-center gap-0.5 justify-self-end z-10 ${menuAcik ? "pointer-events-none opacity-20" : ""}`}>
