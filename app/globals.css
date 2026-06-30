@@ -58,6 +58,13 @@ body {
     animation: account-page-slide 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
     will-change: transform, opacity;
   }
+
+  /* Parmakla kaydırılan ray — ortadaki gerçek sayfa, yanlarda önizleme */
+  .account-track {
+    display: flex;
+    transform: translateX(-100%);
+    will-change: transform;
+  }
 }
 
 @keyframes site-content-in {

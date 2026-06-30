@@ -7,7 +7,7 @@ import { useSession, signOut, signIn } from "next-auth/react";
 import { useState, useEffect, useRef } from "react";
 import {
   User, ShieldCheck, CreditCard, MessageSquare, Database,
-  Mail, Star, MapPin, ChevronRight, ChevronDown, Menu,
+  Mail, Star, MapPin, ChevronRight, Menu,
   LogIn, UserPlus, LogOut,
   Eye, EyeOff, Loader2, X, SwitchCamera
 } from "lucide-react";
@@ -427,14 +427,42 @@ function MobilHesapMenu({ active }: { active?: string }) {
   );
 }
 
+/* ─────────────────── SAYFA ÖNİZLEMESİ (kaydırırken yan slot) ─────────────────── */
+function SayfaOnizleme({ item }: { item: typeof NAV_ITEMS[number] }) {
+  const Icon = item.icon;
+  return (
+    <div className="flex flex-col gap-4 w-full select-none pointer-events-none">
+      <div className="account-card rounded-2xl p-5 flex items-center gap-3">
+        <div className="w-11 h-11 rounded-xl bg-site-accent/10 border border-site-accent/20 flex items-center justify-center shrink-0">
+          <Icon className="w-5 h-5 text-site-accent" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-white font-semibold text-base truncate">{item.label}</p>
+          <p className="text-slate-500 text-xs">Açmak için bırakın</p>
+        </div>
+      </div>
+      <div className="account-card rounded-2xl p-5 flex flex-col gap-3">
+        <div className="h-3 w-2/3 bg-white/[0.06] rounded animate-pulse" />
+        <div className="h-3 w-1/2 bg-white/[0.05] rounded animate-pulse" />
+        <div className="h-24 w-full bg-white/[0.04] rounded-xl animate-pulse" />
+        <div className="h-3 w-3/4 bg-white/[0.05] rounded animate-pulse" />
+        <div className="h-3 w-2/5 bg-white/[0.04] rounded animate-pulse" />
+      </div>
+    </div>
+  );
+}
+
 /* ─────────────────── ANA EXPORT ─────────────────── */
 export default function AccountShell({ children, active }: AccountShellProps) {
   const router = useRouter();
   const pathname = usePathname();
   const aktifIndex = NAV_ITEMS.findIndex((i) => i.id === active);
 
-  const icerikRef = useRef<HTMLDivElement>(null);
+  const rayRef = useRef<HTMLDivElement>(null);
   const surukle = useRef({ x: 0, y: 0, dx: 0, aktif: false, yatay: false });
+
+  const oncekiItem = aktifIndex > 0 ? NAV_ITEMS[aktifIndex - 1] : null;
+  const sonrakiItem = aktifIndex !== -1 && aktifIndex < NAV_ITEMS.length - 1 ? NAV_ITEMS[aktifIndex + 1] : null;
 
   /* Tüm hesap sayfalarını önceden yükle — geçişlerde loading olmasın */
   useEffect(() => {
@@ -442,15 +470,20 @@ export default function AccountShell({ children, active }: AccountShellProps) {
   }, [router]);
 
   const hedefVar = (yon: number) =>
-    aktifIndex !== -1 &&
-    ((yon < 0 && aktifIndex < NAV_ITEMS.length - 1) || (yon > 0 && aktifIndex > 0));
+    (yon < 0 && !!sonrakiItem) || (yon > 0 && !!oncekiItem);
 
-  /* Telefon gibi: parmak hareketini birebir takip et (yağ gibi akış) */
+  /* Rayı, ortadaki sayfa görünecek şekilde konumla (mobil) */
+  const rayKonumla = (ekDx: number) => {
+    const el = rayRef.current;
+    if (el) el.style.transform = `translateX(calc(-100% + ${ekDx}px))`;
+  };
+
+  /* Telefon gibi: parmak hareketini birebir takip et — iki sayfa da görünür */
   const onTouchStart = (e: React.TouchEvent) => {
     if (aktifIndex === -1) return;
     const t = e.touches[0];
     surukle.current = { x: t.clientX, y: t.clientY, dx: 0, aktif: true, yatay: false };
-    const el = icerikRef.current;
+    const el = rayRef.current;
     if (el) el.style.transition = "none";
   };
 
@@ -467,29 +500,28 @@ export default function AccountShell({ children, active }: AccountShellProps) {
       else return;
     }
 
-    // Sınırda direnç uygula (hedef sayfa yoksa zor hareket etsin)
+    // Sınırda direnç uygula (o yönde sayfa yoksa zor hareket etsin)
     let eff = dx;
     if (!hedefVar(dx)) eff = dx * 0.25;
     s.dx = eff;
-    const el = icerikRef.current;
-    if (el) el.style.transform = `translateX(${eff}px)`;
+    rayKonumla(eff);
   };
 
   const onTouchEnd = () => {
     const s = surukle.current;
-    const el = icerikRef.current;
+    const el = rayRef.current;
     s.aktif = false;
     if (!el) return;
-    el.style.transition = "transform 0.32s cubic-bezier(0.16, 1, 0.3, 1)";
+    el.style.transition = "transform 0.34s cubic-bezier(0.16, 1, 0.3, 1)";
 
     const esik = 70;
     if (s.yatay && Math.abs(s.dx) > esik && hedefVar(s.dx)) {
-      const genislik = el.offsetWidth || window.innerWidth;
-      el.style.transform = `translateX(${s.dx < 0 ? -genislik : genislik}px)`;
-      const hedef = s.dx < 0 ? NAV_ITEMS[aktifIndex + 1].href : NAV_ITEMS[aktifIndex - 1].href;
-      router.push(hedef);
+      // Komşu sayfayı tam görünür yap, animasyon bitince o sayfaya geç
+      el.style.transform = s.dx < 0 ? "translateX(-200%)" : "translateX(0%)";
+      const hedef = s.dx < 0 ? sonrakiItem!.href : oncekiItem!.href;
+      window.setTimeout(() => router.push(hedef), 180);
     } else {
-      el.style.transform = "translateX(0px)";
+      rayKonumla(0); // geri yerine otur
     }
   };
 
@@ -511,16 +543,29 @@ export default function AccountShell({ children, active }: AccountShellProps) {
           <AccountPanel active={active} />
         </aside>
 
-        {/* İçerik alanı — mobilde tam genişlik + kayma geçişi + swipe, masaüstünde esnek */}
+        {/* İçerik alanı — mobilde 3 slotlu kaydırma rayı, masaüstünde normal */}
         <div
-          key={pathname}
-          ref={icerikRef}
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
-          className="site-content-in account-page-slide w-full lg:flex-1 lg:min-w-0"
+          className="w-full lg:flex-1 lg:min-w-0"
         >
-          {children}
+          <div ref={rayRef} key={pathname} className="account-track lg:!block lg:!transform-none">
+            {/* Önceki sayfa önizlemesi — sadece mobil */}
+            <div className="w-full shrink-0 lg:hidden pr-4">
+              {oncekiItem ? <SayfaOnizleme item={oncekiItem} /> : <span />}
+            </div>
+
+            {/* Gerçek sayfa (ortada) */}
+            <div className="site-content-in w-full shrink-0 lg:w-full">
+              {children}
+            </div>
+
+            {/* Sonraki sayfa önizlemesi — sadece mobil */}
+            <div className="w-full shrink-0 lg:hidden pl-4">
+              {sonrakiItem ? <SayfaOnizleme item={sonrakiItem} /> : <span />}
+            </div>
+          </div>
         </div>
 
       </div>
