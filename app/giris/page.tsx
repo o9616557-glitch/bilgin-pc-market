@@ -143,12 +143,12 @@ function GirisIcerik() {
 
   return (
     <AuthShell>
-      <div className="flex flex-col h-full min-h-0 lg:h-auto lg:block">
-        <div className="shrink-0">
-          <h1 className={`${authTitleClass} mb-1 border-l-2 border-white/30 pl-3`}>
+      <div className="max-lg:flex max-lg:flex-col max-lg:h-full max-lg:min-h-0">
+        <div className="max-lg:shrink-0">
+          <h1 className={`${authTitleClass} mb-2 border-l-2 lg:border-l-4 border-white/30 pl-3 lg:pl-4`}>
             GİRİŞ <span className="text-white/60">YAP</span>
           </h1>
-          <p className={`${authSubtitleClass} mb-2 lg:mb-6`}>
+          <p className={`${authSubtitleClass} mb-2 lg:mb-8`}>
             <span className="lg:hidden">
               {step === 1 ? "Hesabınıza giriş yapın." : "Ek güvenlik doğrulaması gerekli."}
             </span>
@@ -160,10 +160,10 @@ function GirisIcerik() {
           </p>
         </div>
 
-        <div className="flex-1 min-h-0 flex flex-col justify-center lg:flex-none lg:block">
+        <div className="max-lg:flex-1 max-lg:min-h-0 max-lg:flex max-lg:flex-col max-lg:justify-center">
 {/* SADECE 1. ADIMDA (ŞİFRE EKRANINDA) GÖRÜNEN GOOGLE BUTONU */}
        {step === 1 && (
-        <div className="w-full mb-1 lg:mb-4">
+        <div className="w-full mb-1 lg:mb-6">
           <button
             type="button"
           onClick={() => {
@@ -186,7 +186,10 @@ function GirisIcerik() {
           
           <div className={authDividerClass}>
             <div className="h-px bg-white/10 flex-1"></div>
-            <span className="text-slate-500 text-[10px] lg:text-xs font-bold uppercase tracking-widest">Veya E-Posta</span>
+            <span className="text-slate-500 text-[10px] lg:text-xs font-bold uppercase tracking-widest">
+              <span className="lg:hidden">Veya E-Posta</span>
+              <span className="hidden lg:inline">Veya E-Posta İle</span>
+            </span>
             <div className="h-px bg-white/10 flex-1"></div>
           </div>
         </div>
@@ -281,10 +284,14 @@ function GirisIcerik() {
         </div>
 
         {step === 1 && (
-          <div className="shrink-0 pt-2 lg:pt-0">
-            <div className="text-center mb-2 lg:mb-4 lg:mt-4">
+          <div className="max-lg:shrink-0 max-lg:pt-2">
+            <div className="text-center mb-2 lg:mb-0 lg:mt-4">
               <p className="text-slate-400 text-xs lg:text-sm">
-                Hesabınız yok mu? <Link href="/kayit" className="text-white font-bold hover:underline underline-offset-4">Kayıt Ol</Link>
+                Hesabınız yok mu?{" "}
+                <Link href="/kayit" className="text-white font-bold hover:underline underline-offset-4">
+                  <span className="lg:hidden">Kayıt Ol</span>
+                  <span className="hidden lg:inline">Yeni Kayıt Oluştur</span>
+                </Link>
               </p>
             </div>
 
@@ -294,11 +301,11 @@ function GirisIcerik() {
                 prefetch={true}
                 className={`${authBtnSecondaryClass} py-2.5 lg:py-3`}
               >
-                <UserCircle2 size={16} className="text-slate-400 group-hover:text-white transition-colors" />
+                <UserCircle2 size={18} className="text-slate-400 group-hover:text-white transition-colors" />
                 <span className="text-slate-300 group-hover:text-white font-medium text-xs lg:text-sm transition-colors">
                   Üye Olmadan Devam Et
                 </span>
-                <ArrowRight size={14} className="text-slate-500 group-hover:translate-x-1 group-hover:text-white transition-all" />
+                <ArrowRight size={16} className="text-slate-500 group-hover:translate-x-1 group-hover:text-white transition-all" />
               </Link>
             </div>
           </div>

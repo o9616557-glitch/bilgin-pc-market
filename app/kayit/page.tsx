@@ -81,19 +81,19 @@ export default function KayitPage() {
   return (
     <>
     <AuthShell>
-      <div className="flex flex-col h-full min-h-0 lg:h-auto lg:block">
-        <div className="shrink-0">
-          <h1 className={`${authTitleClass} mb-1 border-l-2 border-white/30 pl-3`}>
+      <div className="max-lg:flex max-lg:flex-col max-lg:h-full max-lg:min-h-0">
+        <div className="max-lg:shrink-0">
+          <h1 className={`${authTitleClass} mb-2 border-l-2 lg:border-l-4 border-white/30 pl-3 lg:pl-4`}>
             YENİ <span className="text-white/60">KAYIT</span>
           </h1>
-          <p className={`${authSubtitleClass} mb-2 lg:mb-6`}>
+          <p className={`${authSubtitleClass} mb-2 lg:mb-8`}>
             <span className="lg:hidden">Hızlıca üye olun.</span>
             <span className="hidden lg:inline">Bilgin PC Market&apos;e katılın ve avantajlardan yararlanın.</span>
           </p>
         </div>
 
-        <div className="flex-1 min-h-0 flex flex-col justify-center lg:flex-none lg:block">
-        <div className="w-full mb-1 lg:mb-4">
+        <div className="max-lg:flex-1 max-lg:min-h-0 max-lg:flex max-lg:flex-col max-lg:justify-center">
+        <div className="w-full mb-1 lg:mb-6">
           <button
             type="button"
             onClick={handleGoogleSignIn}
@@ -113,11 +113,14 @@ export default function KayitPage() {
 
         <div className={authDividerClass}>
           <div className="h-px bg-white/10 flex-1"></div>
-          <span className="text-slate-500 text-[10px] lg:text-xs font-bold uppercase tracking-widest">Veya E-Posta</span>
+          <span className="text-slate-500 text-[10px] lg:text-xs font-bold uppercase tracking-widest">
+            <span className="lg:hidden">Veya E-Posta</span>
+            <span className="hidden lg:inline">Veya E-Posta İle</span>
+          </span>
           <div className="h-px bg-white/10 flex-1"></div>
         </div>
 
-        <form onSubmit={handleRegister} className={`${authFormGapClass} mb-0`}>
+        <form onSubmit={handleRegister} className={`${authFormGapClass} mb-0 lg:mb-6`}>
           <div className="relative">
             <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
             <input 
@@ -182,7 +185,7 @@ export default function KayitPage() {
         </form>
         </div>
 
-        <div className="shrink-0 text-center pt-2 lg:pt-4">
+        <div className="max-lg:shrink-0 max-lg:pt-2 text-center lg:mt-0">
           <p className="text-slate-400 text-xs lg:text-sm">
             Zaten hesabınız var mı? <Link href="/giris" className="text-white font-bold hover:underline underline-offset-4">Giriş Yap</Link>
           </p>

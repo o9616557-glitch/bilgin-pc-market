@@ -6,20 +6,14 @@ import { Phone, Mail, ShieldCheck, FileText, Info, RefreshCcw, Smartphone, Globe
 export default function Footer() {
   const pathname = usePathname(); 
 
-  // Ödeme, sepet ve auth sayfalarında footer gizle
-  const footerGizli =
-    pathname?.includes("/sepet") ||
-    pathname?.includes("/odeme") ||
-    pathname === "/giris" ||
-    pathname === "/kayit" ||
-    pathname === "/sifre-sifirla" ||
-    pathname === "/yeni-sifre";
-
-  if (footerGizli) {
+  // Sepet ve ödeme: her yerde gizli
+  if (pathname?.includes("/sepet") || pathname?.includes("/odeme")) {
     return null;
   }
 
-  // 🚀 2. Telefonda (Mobilde) Footer'ın görünmesine izin verdiğin sayfalar
+  const authSayfalari = ["/giris", "/kayit", "/sifre-sifirla", "/yeni-sifre"];
+  const authSayfasi = authSayfalari.includes(pathname || "");
+
   const mobilIzinliSayfalar = [
     "/", 
     "/hakkimizda", 
@@ -30,9 +24,11 @@ export default function Footer() {
 
   // Eğer izin verdiğin sayfalardaysak 'flex' veriyoruz (hem mobil hem PC görür)
   // İzinli sayfalar dışındaysak 'hidden md:flex' veriyoruz (mobilde gizlenir, sadece PC'de görünür)
-  const mobilGörünümAyari = mobilIzinliSayfalar.includes(pathname || "") 
-    ? "flex" 
-    : "hidden md:flex";
+  const mobilGörünümAyari = authSayfasi
+    ? "hidden lg:flex"
+    : mobilIzinliSayfalar.includes(pathname || "")
+      ? "flex"
+      : "hidden md:flex";
 
   return (
     <footer className={`${mobilGörünümAyari} bg-[#09090b] border-t border-slate-800/80 pt-16 relative overflow-hidden flex-col items-center ${pathname?.includes('/product') ? 'pb-40 md:pb-8' : 'pb-8'}`}>

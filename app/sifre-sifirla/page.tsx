@@ -43,16 +43,16 @@ export default function SifreSifirlaPage() {
 
   return (
     <AuthShell>
-      <div className="flex flex-col h-full min-h-0 justify-between lg:h-auto lg:block">
-        <div className="shrink-0">
+      <div className="max-lg:flex max-lg:flex-col max-lg:h-full max-lg:min-h-0 max-lg:justify-between lg:block">
+        <div className="max-lg:shrink-0">
           <Link
             href="/giris"
             className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-2 lg:mb-6 text-xs lg:text-sm font-bold uppercase tracking-wider"
           >
-            <ArrowLeft size={14} /> Giriş Yap&apos;a Dön
+            <ArrowLeft size={16} /> Giriş Yap&apos;a Dön
           </Link>
 
-          <h1 className={`${authTitleClass} mb-1`}>ŞİFREMİ UNUTTUM</h1>
+          <h1 className={`${authTitleClass} mb-2`}>ŞİFREMİ UNUTTUM</h1>
           <p className={`${authSubtitleClass} mb-2 lg:mb-8`}>
             <span className="lg:hidden">E-postanıza sıfırlama linki gönderilir.</span>
             <span className="hidden lg:inline">
@@ -61,7 +61,7 @@ export default function SifreSifirlaPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className={`${authFormGapClass} flex-1 flex flex-col justify-center lg:flex-none lg:block`}>
+        <form onSubmit={handleSubmit} className={`${authFormGapClass} max-lg:flex-1 max-lg:flex max-lg:flex-col max-lg:justify-center lg:block`}>
           <div className="relative">
             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
             <input
