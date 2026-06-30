@@ -476,19 +476,59 @@ function ProfilAvatar({ size = 36, className = "" }: { size?: number; className?
   );
 }
 
-function MobilLogoAlani({ menuAcik }: { menuAcik: boolean }) {
+function BilginPcMarka({
+  className = "",
+  size = "md",
+  variant = "stacked",
+}: {
+  className?: string;
+  size?: "sm" | "md";
+  variant?: "stacked" | "horizontal";
+}) {
+  const textSize = size === "sm" ? "text-[17px] sm:text-lg" : "text-2xl";
+
+  if (variant === "horizontal") {
+    return (
+      <Link
+        href="/"
+        className={`inline-flex items-center font-black tracking-tight leading-none select-none shrink-0 ${textSize} ${className}`}
+        aria-label="Bilgin PC Ana Sayfa"
+      >
+        <span className="text-white">BİLGİN</span>
+        <span className="text-[#3b82f6] ml-1">PC</span>
+      </Link>
+    );
+  }
+
+  return (
+    <Link
+      href="/"
+      className={`inline-flex flex-col items-center font-black tracking-tight leading-none select-none ${textSize} ${className}`}
+      aria-label="Bilgin PC Ana Sayfa"
+    >
+      <span className="flex items-baseline gap-0.5">
+        <span className="text-white">BİLGİN</span>
+        <span className="text-[#3b82f6]">PC</span>
+      </span>
+      <span className="mt-1 h-px w-8 bg-gradient-to-r from-transparent via-[#3b82f6]/70 to-transparent" />
+    </Link>
+  );
+}
+
+function MobilProfilLink({ menuAcik }: { menuAcik: boolean }) {
   const { status } = useSession();
 
   if (status === "loading") {
-    return <div className="md:hidden w-9 h-9 rounded-full bg-white/[0.06] border border-white/[0.12]" />;
+    return <div className="lg:hidden w-8 h-8 rounded-full bg-white/[0.06] border border-white/[0.12]" />;
   }
 
   return (
     <Link
       href="/hesabim"
-      className={`md:hidden relative z-[100] transition-all ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
+      className={`lg:hidden p-1 transition-all ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
+      aria-label="Hesabım"
     >
-      <ProfilAvatar size={36} />
+      <ProfilAvatar size={32} />
     </Link>
   );
 }
@@ -672,17 +712,23 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
     <>
       <header className="sticky top-0 left-0 w-full z-[99] bg-[#050814]/90 backdrop-blur-md border-b border-white/5 transition-all duration-300 relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Mobil üst satır */}
-            <div className="flex md:hidden items-center justify-between h-20 gap-2 sm:gap-4">
-              <div className="flex-shrink-0 flex items-center gap-3">
-                <button className="flex flex-col justify-center items-center w-10 h-10 focus:outline-none z-[100]" onClick={() => setMenuAcik(!menuAcik)}>
+            {/* Mobil + tablet üst satır (orta logo) */}
+            <div className="relative flex lg:hidden items-center h-20">
+              <div className="flex items-center gap-1 z-10">
+                <button className="flex flex-col justify-center items-center w-10 h-10 focus:outline-none z-[100]" onClick={() => setMenuAcik(!menuAcik)} aria-label="Menü">
                   <span className={"block w-6 h-0.5 bg-white transition-all duration-300 " + (menuAcik ? "rotate-45 translate-y-1.5" : "")}></span>
                   <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "opacity-0" : "")}></span>
                   <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "-rotate-45 -translate-y-1.5" : "")}></span>
                 </button>
-                <MobilLogoAlani menuAcik={menuAcik} />
+                <MobilProfilLink menuAcik={menuAcik} />
               </div>
-              <div className={`flex items-center gap-1 shrink-0 ${menuAcik ? "pointer-events-none opacity-20" : ""}`}>
+
+              <BilginPcMarka
+                size="sm"
+                className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[5] transition-opacity ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
+              />
+
+              <div className={`flex items-center gap-0.5 ml-auto z-10 ${menuAcik ? "pointer-events-none opacity-20" : ""}`}>
                 <button type="button" onClick={() => setAramaAcik(true)} className="p-2 text-white hover:text-[#3b82f6] transition-colors" aria-label="Ara">
                   <Search className="w-5 h-5 shrink-0" />
                 </button>
@@ -701,10 +747,8 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
             </div>
 
             {/* Masaüstü: logo + arama + sağ ikonlar aynı hizada */}
-            <div className="hidden md:flex items-center justify-between gap-4 py-3 min-h-[72px]">
-              <Link href="/" className="text-white font-black text-2xl tracking-tight items-center shrink-0">
-                BİLGİN <span className="text-[#3b82f6] ml-1">PC</span>
-              </Link>
+            <div className="hidden lg:flex items-center justify-between gap-4 py-3 min-h-[72px]">
+              <BilginPcMarka size="md" variant="horizontal" />
 
               <form onSubmit={handleAramaSubmit} className="relative flex-1 min-w-0 mx-1 lg:mx-3">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
@@ -754,7 +798,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
           {/* Katalog — sadece şerit + panel alanında açık kalır */}
           <div
             ref={katalogRef}
-            className="hidden md:block relative"
+            className="hidden lg:block relative"
             onMouseLeave={() => setAcikSeritKatalog(null)}
           >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -806,7 +850,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
       </header>
 
       {/* 📱 MOBİL MENÜ */}
-      <div className={`md:hidden fixed top-[80px] left-0 w-full h-[calc(100vh-80px)] bg-[#050814] z-[98] overflow-y-auto transition-transform duration-300 ${menuAcik ? "translate-x-0" : "-translate-x-full"}`}>
+      <div className={`lg:hidden fixed top-[80px] left-0 w-full h-[calc(100vh-80px)] bg-[#050814] z-[98] overflow-y-auto transition-transform duration-300 ${menuAcik ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="px-3 py-4 pb-32">
 
           {/* Kendin Topla */}
