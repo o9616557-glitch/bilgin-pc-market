@@ -364,7 +364,7 @@ function MobilHesapMenu({ active }: { active?: string }) {
   const AktifIcon = aktifItem?.icon ?? Menu;
 
   return (
-    <div className="account-card p-2">
+    <div className="account-card p-2 relative z-30">
       {/* Aç/kapa başlığı */}
       <button
         type="button"
@@ -379,9 +379,14 @@ function MobilHesapMenu({ active }: { active?: string }) {
         <ChevronDown className={`w-4 h-4 shrink-0 text-slate-500 transition-transform duration-200 ${acik ? "rotate-180" : ""}`} />
       </button>
 
-      {/* Alt alta açılan liste — sadece açıkken DOM'da, anlık */}
+      {/* Açıkken dışına tıklayınca kapat */}
       {acik && (
-        <div className="mt-1 flex flex-col gap-0.5">
+        <div className="fixed inset-0 z-20" onClick={() => setAcik(false)} />
+      )}
+
+      {/* Alt alta açılan liste — alttaki içeriği itmez, üstüne biner */}
+      {acik && (
+        <div className="absolute left-2 right-2 top-full mt-1 z-30 account-card p-2 flex flex-col gap-0.5 shadow-2xl">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.id}
