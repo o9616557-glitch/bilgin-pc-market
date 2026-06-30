@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter, usePathname } from "next/navigation";
 import { useSession, signOut, signIn } from "next-auth/react";
 import { useState, useEffect, useRef } from "react";
 import {
   User, ShieldCheck, CreditCard, MessageSquare, Database,
-  Mail, Star, MapPin, ChevronRight, ChevronDown, Menu,
+  Mail, Star, MapPin, ChevronRight, ChevronDown, Menu, ArrowLeft,
   LogIn, UserPlus, LogOut,
   Eye, EyeOff, Loader2, X, SwitchCamera
 } from "lucide-react";
@@ -357,66 +358,113 @@ function AccountPanel({ active }: { active?: string }) {
   );
 }
 
-/* ─────────────────── MOBİL HESAP MENÜSÜ (açılır/kapanır) ─────────────────── */
+/* ─────────────────── MOBİL HESAP MENÜSÜ (tam ekran) ─────────────────── */
 function MobilHesapMenu({ active }: { active?: string }) {
   const [acik, setAcik] = useState(false);
   const aktifItem = NAV_ITEMS.find((i) => i.id === active);
   const AktifIcon = aktifItem?.icon ?? Menu;
 
+  /* Menü açıkken arka plan kaymasını kilitle */
+  useEffect(() => {
+    document.body.style.overflow = acik ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [acik]);
+
   return (
-    <div className="account-card p-2 relative z-30">
-      {/* Aç/kapa başlığı */}
-      <button
-        type="button"
-        onClick={() => setAcik((v) => !v)}
-        aria-expanded={acik}
-        className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-white/[0.04] transition-colors"
-      >
-        <AktifIcon className="w-4 h-4 shrink-0 text-site-accent" />
-        <span className="flex-1 text-left truncate">
-          {aktifItem ? aktifItem.label : "Hesap Menüsü"}
-        </span>
-        <ChevronDown className={`w-4 h-4 shrink-0 text-slate-500 transition-transform duration-200 ${acik ? "rotate-180" : ""}`} />
-      </button>
+    <>
+      {/* Açılış butonu — o anki sayfanın adını gösterir */}
+      <div className="account-card p-2">
+        <button
+          type="button"
+          onClick={() => setAcik(true)}
+          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-white/[0.04] transition-colors"
+        >
+          <AktifIcon className="w-4 h-4 shrink-0 text-site-accent" />
+          <span className="flex-1 text-left truncate">
+            {aktifItem ? aktifItem.label : "Hesap Menüsü"}
+          </span>
+          <Menu className="w-4 h-4 shrink-0 text-slate-500" />
+        </button>
+      </div>
 
-      {/* Açıkken dışına tıklayınca kapat */}
+      {/* Tam ekran menü — header'ın hemen altından ekran sonuna kadar */}
       {acik && (
-        <div className="fixed inset-0 z-20" onClick={() => setAcik(false)} />
-      )}
-
-      {/* Alt alta açılan liste — alttaki içeriği itmez, üstüne biner */}
-      {acik && (
-        <div className="absolute left-0 right-0 top-full mt-1 z-30 bg-site-card border border-white/[0.08] rounded-xl p-2 flex flex-col gap-0.5 shadow-2xl">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.id}
-              href={item.href}
-              prefetch
+        <div className="lg:hidden fixed top-[80px] inset-x-0 bottom-0 z-[97] site-page flex flex-col animate-in fade-in slide-in-from-left-8 duration-200">
+          {/* Üst bar — geri tuşu */}
+          <div className="flex items-center gap-2 px-3 h-14 border-b border-white/[0.06] shrink-0">
+            <button
+              type="button"
               onClick={() => setAcik(false)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                active === item.id
-                  ? "text-white bg-white/[0.07] border border-white/[0.12]"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] border border-transparent"
-              }`}
+              className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-sm font-medium text-slate-300 hover:text-white hover:bg-white/[0.05] transition-colors"
             >
-              <item.icon className={`w-4 h-4 shrink-0 ${active === item.id ? "text-site-accent" : ""}`} />
-              <span className="flex-1 truncate">{item.label}</span>
-              {active === item.id && <ChevronRight className="w-3 h-3 shrink-0 text-site-accent/50" />}
-            </Link>
-          ))}
+              <ArrowLeft className="w-5 h-5 shrink-0" />
+              Geri
+            </button>
+            <span className="flex-1 text-center text-sm font-semibold text-white pr-12">Hesap Menüsü</span>
+          </div>
+
+          {/* Liste — alt alta, tam ekran kaydırılabilir */}
+          <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-1">
+            {NAV_ITEMS.map((item) => (
+              <Link
+                key={item.id}
+                href={item.href}
+                prefetch
+                onClick={() => setAcik(false)}
+                className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl text-[15px] font-medium transition-colors ${
+                  active === item.id
+                    ? "text-white bg-white/[0.07] border border-white/[0.12]"
+                    : "text-slate-300 hover:text-white hover:bg-white/[0.04] border border-transparent"
+                }`}
+              >
+                <item.icon className={`w-5 h-5 shrink-0 ${active === item.id ? "text-site-accent" : "text-slate-400"}`} />
+                <span className="flex-1 truncate">{item.label}</span>
+                <ChevronRight className="w-4 h-4 shrink-0 text-slate-600" />
+              </Link>
+            ))}
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
 /* ─────────────────── ANA EXPORT ─────────────────── */
 export default function AccountShell({ children, active }: AccountShellProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const aktifIndex = NAV_ITEMS.findIndex((i) => i.id === active);
+  const touchBas = useRef<{ x: number; y: number } | null>(null);
+
+  /* Tüm hesap sayfalarını önceden yükle — geçişlerde loading olmasın */
+  useEffect(() => {
+    NAV_ITEMS.forEach((i) => router.prefetch(i.href));
+  }, [router]);
+
+  /* Telefon gibi yatay kaydırınca komşu sayfaya geç */
+  const onTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    touchBas.current = { x: t.clientX, y: t.clientY };
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (!touchBas.current || aktifIndex === -1) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchBas.current.x;
+    const dy = t.clientY - touchBas.current.y;
+    touchBas.current = null;
+    if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.5) return; // belirgin yatay kaydırma şart
+    if (dx < 0 && aktifIndex < NAV_ITEMS.length - 1) {
+      router.push(NAV_ITEMS[aktifIndex + 1].href);
+    } else if (dx > 0 && aktifIndex > 0) {
+      router.push(NAV_ITEMS[aktifIndex - 1].href);
+    }
+  };
+
   return (
     <div className="site-page p-4 sm:p-6 lg:p-8">
       <div className="site-glow-top top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[320px]" />
 
-      {/* Mobil: profil kartı + açılır/kapanır hesap menüsü */}
+      {/* Mobil: profil kartı + tam ekran hesap menüsü */}
       <div className="lg:hidden mb-4 flex flex-col gap-2">
         <MobilProfilKarti />
         <MobilHesapMenu active={active} />
@@ -430,8 +478,15 @@ export default function AccountShell({ children, active }: AccountShellProps) {
           <AccountPanel active={active} />
         </aside>
 
-        {/* İçerik alanı — mobilde tam genişlik, masaüstünde esnek */}
-        <div className="site-content-in w-full lg:flex-1 lg:min-w-0">{children}</div>
+        {/* İçerik alanı — mobilde tam genişlik + kayma geçişi + swipe, masaüstünde esnek */}
+        <div
+          key={pathname}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+          className="site-content-in account-page-slide w-full lg:flex-1 lg:min-w-0"
+        >
+          {children}
+        </div>
 
       </div>
     </div>
