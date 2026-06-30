@@ -17,6 +17,7 @@ import { destekOzetOku } from "@/lib/destek-ozet";
 import {
   User,
   ShieldCheck,
+  Bell,
   Palette,
   Camera,
   Loader2,
@@ -236,7 +237,10 @@ export default function HesabimPage() {
       try {
         const cached = localStorage.getItem("bilgin_alt_menu_v4");
         if (cached) {
-          const filtreli = JSON.parse(cached).filter((item: { id: string }) => item.id !== "bildirimler");
+          const izinli = new Set(VARSAYILAN_ALT_MENU.map((item) => item.id));
+          const filtreli = JSON.parse(cached).filter(
+            (item: { id: string }) => izinli.has(item.id) && item.id !== "bildirimler",
+          );
           return menuEksikleriEkle(filtreli, VARSAYILAN_ALT_MENU);
         }
       } catch (e) {}
@@ -249,18 +253,12 @@ export default function HesabimPage() {
     try {
       const altCached = localStorage.getItem("bilgin_alt_menu_v4");
       if (altCached) {
+        const izinli = new Set(VARSAYILAN_ALT_MENU.map((item) => item.id));
         const parsed = JSON.parse(altCached);
-        const filtreli = parsed.filter((item: { id: string }) => item.id !== "bildirimler");
+        const filtreli = parsed.filter((item: { id: string }) => izinli.has(item.id) && item.id !== "bildirimler");
         if (filtreli.length !== parsed.length) {
           localStorage.setItem("bilgin_alt_menu_v4", JSON.stringify(filtreli));
         }
-      }
-      const ustCached = localStorage.getItem("bilgin_ust_menu_v4");
-      const ustParsed = ustCached ? JSON.parse(ustCached) : [];
-      if (!ustParsed.some((item: { id: string }) => item.id === "bildirimler")) {
-        const birlesik = [...ustParsed, { id: "bildirimler", isim: "Bildirimler", renk: "text-amber-400", isLink: true, href: "/bildirimler" }];
-        localStorage.setItem("bilgin_ust_menu_v4", JSON.stringify(birlesik));
-        setUstMenuListesi(menuEksikleriEkle(birlesik, VARSAYILAN_UST_MENU));
       }
     } catch {}
   }, []);
@@ -688,7 +686,6 @@ export default function HesabimPage() {
     const isSecili = seciliKutuId === item.id;
     const kargoVarmi = item.id === "kargolar" && kargoSiparisleri.length > 0;
     const mesajVarmi = item.id === "destek" && yeniMesajVar;
-    const bildirimVarmi = item.id === "bildirimler" && kargoSiparisleri.length > 0;
 
     const KutuIcerigi = (
       <div
@@ -733,7 +730,7 @@ export default function HesabimPage() {
             </div>
           )}
 
-          {(kargoVarmi || mesajVarmi || bildirimVarmi) && aktifPalet !== "menu" && (
+          {(kargoVarmi || mesajVarmi) && aktifPalet !== "menu" && (
             <span className="absolute top-1 right-1 flex h-2.5 w-2.5 z-10">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: pingRenk }} />
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 border border-[#0f172a]" style={{ backgroundColor: pingRenk }} />
@@ -865,33 +862,54 @@ export default function HesabimPage() {
         </div>
 
         {status !== "unauthenticated" && aktifPalet !== "menu" && (
-          <Link
-            href="/guvenlik"
-            className="w-full flex items-center justify-between gap-3 p-5 sm:p-6 rounded-2xl bg-[#0f172a] border border-slate-800 hover:border-slate-700 shadow-xl transition-all group"
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-5 h-5 text-emerald-400" />
+          <div className="flex flex-col gap-3">
+            <Link
+              href="/guvenlik"
+              className="w-full flex items-center justify-between gap-3 p-5 sm:p-6 rounded-2xl bg-[#0f172a] border border-slate-800 hover:border-slate-700 shadow-xl transition-all group"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-white">Güvenlik Merkezi</p>
+                  <p className="text-xs text-slate-500 truncate">
+                    {guvenlikOzeti
+                      ? `${guvenlikOzeti.ikiAdim ? "2FA aktif" : "2FA kapalı"} • ${guvenlikOzeti.cihazSayisi} aktif cihaz`
+                      : "Yükleniyor..."}
+                  </p>
+                </div>
               </div>
-              <div className="min-w-0">
-                <p className="text-sm font-bold text-white">Güvenlik Merkezi</p>
-                <p className="text-xs text-slate-500 truncate">
-                  {guvenlikOzeti
-                    ? `${guvenlikOzeti.ikiAdim ? "2FA aktif" : "2FA kapalı"} • ${guvenlikOzeti.cihazSayisi} aktif cihaz`
-                    : "Yükleniyor..."}
-                </p>
+              <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest shrink-0 group-hover:text-cyan-300">
+                Yönet →
+              </span>
+            </Link>
+
+            <Link
+              href="/bildirimler"
+              className="w-full flex items-center justify-between gap-3 p-5 sm:p-6 rounded-2xl bg-[#0f172a] border border-slate-800 hover:border-slate-700 shadow-xl transition-all group"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+                  <Bell className="w-5 h-5 text-amber-400" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-white">Bildirimler</p>
+                  <p className="text-xs text-slate-500 truncate">
+                    {kargoSiparisleri.length > 0
+                      ? `${kargoSiparisleri.length} kargo güncellemesi`
+                      : "Sipariş ve kargo bildirimleri"}
+                  </p>
+                </div>
               </div>
-            </div>
-            <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest shrink-0 group-hover:text-cyan-300">
-              Yönet →
-            </span>
-          </Link>
+              <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest shrink-0 group-hover:text-cyan-300">
+                Görüntüle →
+              </span>
+            </Link>
+          </div>
         )}
 
-        <div className="w-full block flex flex-col gap-3 sm:gap-4">
-          <div className={panoGridSinifi}>
-            {panoKutulariniCiz(ustMenuListesi, suruklenenUstRef, handleDragEnterUst)}
-          </div>
+        <div className="w-full block">
           <div className={panoGridSinifi}>
             {panoKutulariniCiz(altMenuListesi, suruklenenAltRef, handleDragEnterAlt)}
           </div>

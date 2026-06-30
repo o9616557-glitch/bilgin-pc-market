@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { 
   MapPin, Plus, Trash2, Mail, Phone, Edit2, X, 
-  User, ShieldCheck, CreditCard, Loader2,
+  User, ShieldCheck, CreditCard, Loader2, Bell,
   Truck, Search, Star, Monitor, Package, Calendar, PackageX, Copy,
   Headphones
 } from "lucide-react";
@@ -209,6 +209,9 @@ export default function AdresYoneticisi({ initialAddresses }: Props) {
                 </Link>
                 <Link href="/guvenlik" className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-white hover:bg-[#020617] rounded-lg transition-all font-medium">
                   <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Güvenlik
+                </Link>
+                <Link href="/bildirimler" className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[11px] sm:text-sm text-slate-400 hover:text-white hover:bg-[#020617] rounded-lg transition-all font-medium">
+                  <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Bildirimler
                 </Link>
               </nav>
             </div>

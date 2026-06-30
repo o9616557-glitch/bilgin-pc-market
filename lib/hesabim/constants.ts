@@ -33,7 +33,6 @@ export const VARSAYILAN_UST_MENU = [
   { id: "favoriler", isim: "Favoriler", ikon: Star, renk: "text-purple-400", isLink: true, href: "/favorilerim" },
   { id: "adresler", isim: "Adresler", ikon: MapPin, renk: "text-cyan-400", isLink: true, href: "/adreslerim" },
   { id: "sistemler", isim: "Sistemler", ikon: Server, renk: "text-emerald-400", isLink: true, href: "/sistemlerim" },
-  { id: "bildirimler", isim: "Bildirimler", ikon: Bell, renk: "text-amber-400", isLink: true, href: "/bildirimler" },
 ];
 
 export const VARSAYILAN_ALT_MENU = [

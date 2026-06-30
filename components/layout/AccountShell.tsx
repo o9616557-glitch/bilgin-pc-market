@@ -9,7 +9,7 @@ import {
   User, ShieldCheck, CreditCard, MessageSquare, Database,
   Mail, Star, MapPin, ChevronRight, Menu,
   LogIn, UserPlus, LogOut,
-  Eye, EyeOff, Loader2, X, SwitchCamera
+  Eye, EyeOff, Loader2, X, SwitchCamera, Bell,
 } from "lucide-react";
 
 /* ─────────────────── NAV TANIMLARI ─────────────────── */
@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { href: "/hesabim",            label: "Profil",             icon: User,          id: "hesabim" },
   { href: "/cuzdan",             label: "Cüzdan",              icon: CreditCard,    id: "cuzdan" },
   { href: "/guvenlik",           label: "Güvenlik",            icon: ShieldCheck,   id: "guvenlik" },
+  { href: "/bildirimler",        label: "Bildirimler",         icon: Bell,          id: "bildirimler" },
   { href: "/mesajlarim",         label: "Mesajlar",            icon: MessageSquare, id: "mesajlarim" },
   { href: "/veri-talebi",        label: "Veri Talebi",         icon: Database,      id: "veri-talebi" },
   { href: "/eposta-degistir",    label: "E-posta Değiştir",    icon: Mail,          id: "eposta-degistir" },
