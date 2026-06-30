@@ -386,7 +386,7 @@ function MobilHesapMenu({ active }: { active?: string }) {
 
       {/* Alt alta açılan liste — alttaki içeriği itmez, üstüne biner */}
       {acik && (
-        <div className="absolute left-2 right-2 top-full mt-1 z-30 account-card p-2 flex flex-col gap-0.5 shadow-2xl">
+        <div className="absolute left-0 right-0 top-full mt-1 z-30 bg-site-card border border-white/[0.08] rounded-xl p-2 flex flex-col gap-0.5 shadow-2xl">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.id}
