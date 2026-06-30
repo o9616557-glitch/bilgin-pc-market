@@ -660,13 +660,11 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
   const mesajLink = (
     <Link
       href="/mesajlarim"
-      className="relative p-2 text-white transition-colors group"
+      className="relative p-2 text-white hover:text-[#3b82f6] transition-colors"
       aria-label="Mesajlarım"
       title="Mesajlarım"
     >
-      <span className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-white/[0.05] border border-white/[0.1] group-hover:bg-[#3b82f6]/15 group-hover:border-[#3b82f6]/40 group-hover:text-[#3b82f6] transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
-        <Mail className="w-[18px] h-[18px] shrink-0" strokeWidth={2.25} />
-      </span>
+      <Mail className="w-5 h-5 shrink-0" strokeWidth={2} />
     </Link>
   );
 
@@ -732,10 +730,10 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                 </Link>
                 <Link
                   href="/hesabim"
-                  className="p-1 rounded-full hover:ring-2 hover:ring-[#3b82f6]/30 transition-all"
+                  className="p-2 text-white hover:text-[#3b82f6] transition-colors"
                   aria-label="Hesabım"
                 >
-                  <ProfilAvatar size={34} />
+                  <ProfilAvatar size={28} />
                 </Link>
                 {mesajLink}
                 <Link href="/sepet" className="relative p-2 text-white hover:text-[#3b82f6] transition-colors" aria-label="Sepet">
