@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, Lock, ArrowLeft, ArrowRight, UserCircle2, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { signIn } from "next-auth/react";
-import toast from "react-hot-toast"; 
+import toast from "react-hot-toast";
+import AuthShell, { authBtnPrimaryClass, authBtnSecondaryClass, authInputClass, authSubtitleClass, authTitleClass } from "@/components/auth/AuthShell";
 
 // 🚀 BÜTÜN KODLARINI GÜVENLİ BİR KUTUYA ALDIK
 function GirisIcerik() {
@@ -140,27 +141,12 @@ function GirisIcerik() {
     };
   }, [urlError, waitingForApproval, email, urlUserMail, urlProvider]); 
 
-  // 👇 BURADAN AŞAĞISINA (return kısmına ve HTML/Tasarım kodlarına) KESİNLİKLE DOKUNMUYORSUN!
   return (
-    <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center p-0 sm:p-4 relative overflow-hidden">
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#3b82f6] rounded-full mix-blend-screen filter blur-[150px] opacity-10"></div>
-      
-     <div className="w-full max-w-md bg-[#09090b] border-none sm:border border-white/10 rounded-none sm:rounded-2xl p-6 sm:p-8 min-h-[100dvh] sm:min-h-[auto] flex flex-col justify-center shadow-2xl relative z-10 box-border overflow-y-auto">
-        
-        {/* BİLGİN PC LOGO */}
-          <div className="flex flex-col items-center justify-center w-full mb-8 shrink-0 mt-8 sm:mt-0">
-            <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tight drop-shadow-[0_0_10px_rgba(0,0,0,0.5)]">
-              <span className="text-white">BİLGİN</span>
-              <span className="text-[#3b82f6]">PC</span>
-            </div>
-            <div className="h-[2px] w-12 bg-[#3b82f6]/50 mt-2"></div>
-          </div>
-
-          {/* GİRİŞ YAP BAŞLIĞI */}
-         <h1 className="text-lg sm:text-xl font-bold uppercase tracking-wide text-white drop-shadow-md mb-2 border-l-4 border-[#3b82f6] pl-4">
-           GİRİŞ <span className="text-[#3b82f6] font-black">YAP</span>
+    <AuthShell>
+          <h1 className={`${authTitleClass} mb-2 border-l-2 border-white/30 pl-4`}>
+           GİRİŞ <span className="text-white/60">YAP</span>
           </h1>
-          <p className="text-slate-400 text-sm mb-8 font-medium">
+          <p className={`${authSubtitleClass} mb-6 sm:mb-8`}>
             {step === 1 
               ? "Güvenli alışveriş ve sipariş takibi için hesabınıza giriş yapın. Eğer hesabınız yoksa hızlıca kayıt olabilirsiniz."
               : "Hesabınızın güvenliği için ekstra doğrulama gerekiyor."}
@@ -176,7 +162,7 @@ function GirisIcerik() {
     signIn('google', { callbackUrl: '/' });
   }, 150);
 }}
-            className="w-full hover:bg-white/5 border border-white/10 py-3.5 rounded-xl flex items-center justify-center gap-3 transition-colors group"
+            className={authBtnSecondaryClass}
           >
             <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
               <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -209,7 +195,7 @@ function GirisIcerik() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="E-Posta Adresiniz" 
-                  className="w-full bg-[#050814] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#3b82f6]/50 transition-colors"
+                  className={authInputClass}
                   required 
                 />
               </div>
@@ -221,7 +207,7 @@ function GirisIcerik() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Şifreniz" 
-                  className="w-full bg-[#050814] border border-white/10 rounded-xl py-3 pl-12 pr-12 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#3b82f6]/50 transition-colors"
+                  className={`${authInputClass} pr-12`}
                   required 
                 />
                 <button 
@@ -234,7 +220,7 @@ function GirisIcerik() {
               </div>
 
               <div className="flex justify-end mb-2">
-                 <Link href="/sifre-sifirla" className="text-xs text-slate-400 hover:text-[#3b82f6] transition-colors">
+                 <Link href="/sifre-sifirla" className="text-xs text-slate-400 hover:text-white transition-colors">
                     Şifremi unuttum
                  </Link>
               </div>
@@ -243,10 +229,10 @@ function GirisIcerik() {
 
           {/* 🚀 VİTES 2: GİZLİ 2FA KOD KUTUSU */}
           {step === 2 && (
-            <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-right-4 duration-300 bg-[#3b82f6]/5 border border-[#3b82f6]/20 p-6 rounded-2xl">
+            <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-right-4 duration-300 bg-white/[0.03] border border-white/10 p-6 rounded-2xl backdrop-blur-sm">
               <div className="flex justify-center mb-2">
-                <div className="w-16 h-16 rounded-full bg-[#3b82f6]/10 flex items-center justify-center">
-                  <ShieldCheck className="w-8 h-8 text-[#3b82f6]" />
+                <div className="w-16 h-16 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center">
+                  <ShieldCheck className="w-8 h-8 text-white/80" />
                 </div>
               </div>
               <p className="text-center text-sm text-slate-300">
@@ -260,7 +246,7 @@ function GirisIcerik() {
                   value={twoFactorCode}
                   onChange={(e) => setTwoFactorCode(e.target.value.replace(/\D/g, ''))} // Sadece sayı girmesine izin verir
                   placeholder="000000" 
-                  className="w-full bg-[#050814] border border-[#3b82f6]/50 shadow-[0_0_15px_rgba(59,130,246,0.1)] rounded-xl py-4 text-center tracking-[0.5em] text-2xl font-black text-white placeholder-slate-600 focus:outline-none focus:border-[#3b82f6] focus:shadow-[0_0_25px_rgba(59,130,246,0.2)] transition-all"
+                  className="w-full bg-black/40 border border-white/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] rounded-xl py-4 text-center tracking-[0.5em] text-2xl font-black text-white placeholder-slate-600 focus:outline-none focus:border-white/40 focus:shadow-[0_0_25px_rgba(255,255,255,0.06)] transition-all"
                   required 
                 />
               </div>
@@ -278,7 +264,7 @@ function GirisIcerik() {
        {/* AKILLI BUTON (Vitese Göre Yazısı Değişir) */}
        <button
          type="submit"
-         className="w-full py-3.5 mt-2 bg-[#3b82f6] text-white text-sm font-black uppercase tracking-widest rounded-xl transition-all duration-300 hover:bg-[#1e40af] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+         className={`${authBtnPrimaryClass} mt-2`}
        >
          {step === 1 ? "GİRİŞ YAP" : "KODU DOĞRULA VE GİRİŞ YAP"}
        </button>
@@ -287,7 +273,7 @@ function GirisIcerik() {
         {step === 1 && (
           <div className="text-center mb-6 mt-4 animate-in fade-in duration-500">
             <p className="text-slate-400 text-sm">
-              Hesabınız yok mu? <Link href="/kayit" className="text-[#3b82f6] font-bold hover:underline">Yeni Kayıt Oluştur</Link>
+              Hesabınız yok mu? <Link href="/kayit" className="text-white font-bold hover:underline underline-offset-4">Yeni Kayıt Oluştur</Link>
             </p>
           </div>
         )}
@@ -296,24 +282,23 @@ function GirisIcerik() {
        <Link 
          href="/" 
          prefetch={true} 
-         className="w-full bg-white/5 border border-white/10 rounded-xl py-3 flex items-center justify-center gap-2 group hover:bg-white/10 transition-all duration-100 active:scale-95"
+         className={`${authBtnSecondaryClass} py-3 active:scale-[0.98]`}
        >
-         <UserCircle2 size={18} className="text-slate-400 group-hover:text-[#3b82f6] transition-colors duration-100" />
+         <UserCircle2 size={18} className="text-slate-400 group-hover:text-white transition-colors duration-100" />
          <span className="text-slate-300 group-hover:text-white font-medium transition-colors duration-100">
            Üye Olmadan Devam Et
          </span>
-         <ArrowRight size={16} className="text-slate-500 group-hover:translate-x-1 group-hover:text-[#3b82f6] transition-all duration-100" />
+         <ArrowRight size={16} className="text-slate-500 group-hover:translate-x-1 group-hover:text-white transition-all duration-100" />
        </Link>
      </div>
-    </div>
-    </div>
+    </AuthShell>
   );
 }
 
 // 🚀 VERCEL'İ ÇÖKMEKTEN KURTARAN ANA KALKAN (SUSPENSE)
 export default function GirisPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#050814] flex items-center justify-center text-[#3b82f6] font-black uppercase tracking-widest text-sm animate-pulse">Güvenli Bağlantı Kuruluyor...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center text-white/60 font-black uppercase tracking-widest text-sm animate-pulse">Güvenli Bağlantı Kuruluyor...</div>}>
       <GirisIcerik />
     </Suspense>
   );

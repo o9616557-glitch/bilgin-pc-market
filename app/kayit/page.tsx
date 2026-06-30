@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { User, Mail, Lock, ArrowLeft, Eye, EyeOff, Info, X, CheckCircle2 } from "lucide-react";
 import { signIn } from "next-auth/react";
 import toast from "react-hot-toast";
+import AuthShell, { authBtnPrimaryClass, authBtnSecondaryClass, authInputClass, authSubtitleClass, authTitleClass } from "@/components/auth/AuthShell";
 
 export default function KayitPage() {
   const [name, setName] = useState("");
@@ -78,25 +79,12 @@ export default function KayitPage() {
   };
   
   return (
-    <div className="min-h-screen bg-[#050814] text-white flex items-center justify-center p-0 sm:p-4 relative overflow-hidden">
-      {/* Arka Plan Efekti */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#3b82f6] rounded-full mix-blend-screen filter blur-[150px] opacity-10"></div>
-      
-      <div className="w-full max-w-md bg-[#09090b] border-none sm:border border-white/10 rounded-none sm:rounded-2xl p-6 sm:p-8 min-h-[100dvh] sm:min-h-[auto] flex flex-col justify-center shadow-2xl relative z-10 box-border overflow-y-auto">
-
-        {/* BİLGİN PC LOGO */}
-        <div className="flex flex-col items-center justify-center w-full mb-8 shrink-0 mt-8 sm:mt-0">
-          <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tight drop-shadow-[0_0_10px_rgba(0,0,0,0.5)]">
-            <span className="text-white">BİLGİN</span>
-            <span className="text-[#3b82f6]">PC</span>
-          </div>
-          <div className="h-[2px] w-12 bg-[#3b82f6]/50 mt-2"></div>
-        </div>
-
-        <h1 className="text-lg sm:text-xl font-bold uppercase tracking-wide text-white drop-shadow-md mb-2 border-l-4 border-[#3b82f6] pl-4">
-          YENİ <span className="text-[#3b82f6] font-black">KAYIT</span>
+    <>
+    <AuthShell>
+        <h1 className={`${authTitleClass} mb-2 border-l-2 border-white/30 pl-4`}>
+          YENİ <span className="text-white/60">KAYIT</span>
         </h1>
-        <p className="text-slate-400 text-sm mb-8 font-medium">
+        <p className={`${authSubtitleClass} mb-6 sm:mb-8`}>
           Bilgin PC Market'e katılın ve avantajlardan yararlanın.
         </p>
         
@@ -106,7 +94,7 @@ export default function KayitPage() {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={isLoading}
-            className="w-full hover:bg-white/5 border border-white/10 py-3.5 rounded-xl flex items-center justify-center gap-3 transition-all group shadow-md hover:shadow-white/5 hover:border-white/30 disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`${authBtnSecondaryClass} disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
               <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -134,7 +122,7 @@ export default function KayitPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Adınız Soyadınız" 
-              className="w-full bg-[#050814] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#3b82f6]/50 transition-colors"
+              className={authInputClass}
               required 
             />
           </div>
@@ -146,7 +134,7 @@ export default function KayitPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="E-Posta Adresiniz" 
-              className="w-full bg-[#050814] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#3b82f6]/50 transition-colors"
+              className={authInputClass}
               required 
             />
           </div>
@@ -158,7 +146,7 @@ export default function KayitPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Şifreniz" 
-              className="w-full bg-[#050814] border border-white/10 rounded-xl py-3 pl-12 pr-20 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#3b82f6]/50 transition-colors"
+              className={`${authInputClass} pr-20`}
               required 
             />
             
@@ -166,7 +154,7 @@ export default function KayitPage() {
               <button 
                 type="button" 
                 onClick={() => setShowInfoModal(true)} 
-                className="text-slate-500 hover:text-[#3b82f6] transition-colors"
+                className="text-slate-500 hover:text-white transition-colors"
                 title="Şifre Kuralları"
               >
                 <Info size={18} />
@@ -184,7 +172,7 @@ export default function KayitPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3.5 mt-2 bg-[#3b82f6] text-white text-sm font-black uppercase tracking-widest rounded-xl transition-all duration-300 hover:bg-[#1e40af] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`${authBtnPrimaryClass} mt-2`}
           >
             {isLoading ? "KAYIT OLUŞTURULUYOR..." : "KAYIT OL"}
           </button>
@@ -192,15 +180,16 @@ export default function KayitPage() {
 
         <div className="text-center">
           <p className="text-slate-400 text-sm">
-            Zaten hesabınız var mı? <Link href="/giris" className="text-[#3b82f6] font-bold hover:underline">Giriş Yap</Link>
+            Zaten hesabınız var mı? <Link href="/giris" className="text-white font-bold hover:underline underline-offset-4">Giriş Yap</Link>
           </p>
         </div>
-      </div>
+      </AuthShell>
 
       {/* 🚀 ŞİFRE KURALLARI BİLGİLENDİRME PENCERESİ (MODAL) 🚀 */}
       {showInfoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-[#09090b] border border-white/10 rounded-2xl p-6 max-w-sm w-full shadow-2xl relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+          <div className="relative overflow-hidden border border-white/10 rounded-2xl p-6 max-w-sm w-full shadow-2xl bg-gradient-to-br from-white/[0.08] via-white/[0.03] to-black/80 backdrop-blur-2xl">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
             <button 
               onClick={() => setShowInfoModal(false)} 
               className="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors"
@@ -209,7 +198,7 @@ export default function KayitPage() {
             </button>
             
             <h3 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
-              <Lock className="text-[#3b82f6]" size={20} />
+              <Lock className="text-white/70" size={20} />
               Şifre Kuralları
             </h3>
             
@@ -219,26 +208,26 @@ export default function KayitPage() {
             
             <ul className="space-y-3 mb-6">
               <li className="flex items-start gap-2 text-sm text-slate-300">
-                <CheckCircle2 size={16} className="text-[#3b82f6] mt-0.5 shrink-0" />
+                <CheckCircle2 size={16} className="text-white/60 mt-0.5 shrink-0" />
                 <span>En az <strong className="text-white font-semibold">5 karakter</strong> uzunluğunda olmalıdır.</span>
               </li>
               <li className="flex items-start gap-2 text-sm text-slate-300">
-                <CheckCircle2 size={16} className="text-[#3b82f6] mt-0.5 shrink-0" />
+                <CheckCircle2 size={16} className="text-white/60 mt-0.5 shrink-0" />
                 <span>İçerisinde en az <strong className="text-white font-semibold">bir harf</strong> bulunmalıdır.</span>
               </li>
               <li className="flex items-start gap-2 text-sm text-slate-300">
-                <CheckCircle2 size={16} className="text-[#3b82f6] mt-0.5 shrink-0" />
+                <CheckCircle2 size={16} className="text-white/60 mt-0.5 shrink-0" />
                 <span>İçerisinde en az <strong className="text-white font-semibold">bir rakam</strong> bulunmalıdır.</span>
               </li>
               <li className="flex items-start gap-2 text-sm text-slate-300">
-                <CheckCircle2 size={16} className="text-[#3b82f6] mt-0.5 shrink-0" />
+                <CheckCircle2 size={16} className="text-white/60 mt-0.5 shrink-0" />
                 <span>"1234" veya "abcd" gibi <strong className="text-white font-semibold">ardışık sıralı</strong> karakterler içermemelidir.</span>
               </li>
             </ul>
             
             <button 
               onClick={() => setShowInfoModal(false)} 
-              className="w-full py-3 bg-[#3b82f6]/10 hover:bg-[#3b82f6]/20 text-[#3b82f6] border border-[#3b82f6]/30 rounded-xl text-sm font-bold transition-colors"
+              className="w-full py-3 bg-white/[0.06] hover:bg-white/10 text-white border border-white/15 rounded-xl text-sm font-bold transition-colors"
             >
               Tamamdır, Teşekkürler
             </button>
@@ -246,6 +235,6 @@ export default function KayitPage() {
         </div>
       )}
 
-    </div>
+    </>
   );
 }
