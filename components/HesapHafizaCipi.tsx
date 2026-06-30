@@ -79,6 +79,14 @@ export default function HesapHafizaCipi() {
         sessionStorage.setItem("bilgin_destek_ozet", JSON.stringify({
           sayi: acikTalepSayisi,
           acil: acilMesaj,
+          okunmamis: destekData.talepler
+            ? destekData.talepler.filter((t: { musteriGizledi?: boolean; durum?: string; mesajlar?: { gonderen?: string }[] }) => {
+                if (t.musteriGizledi || t.durum === "Çözüldü") return false;
+                const msgs = t.mesajlar || [];
+                const son = msgs[msgs.length - 1];
+                return son?.gonderen === "Admin";
+              }).length
+            : 0,
         }));
 
         window.dispatchEvent(new CustomEvent("bilgin-hesap-guncellendi"));

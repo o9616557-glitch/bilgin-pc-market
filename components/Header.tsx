@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import { useCart } from "@/app/CartContext";
+import { useOrders } from "@/app/OrderContext";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
-import { Search, X, Clock, Flame, ArrowRight, ChevronRight, ChevronDown, Loader2, Mail } from "lucide-react";
+import { Search, X, Clock, Flame, ArrowRight, ChevronRight, ChevronDown, Loader2, Mail, Bell } from "lucide-react";
 import toast from "react-hot-toast";
 import { cloudinaryKatalogResim } from "@/lib/cloudinary";
 
@@ -476,6 +477,19 @@ function ProfilAvatar({ size = 36, className = "" }: { size?: number; className?
   );
 }
 
+function HeaderIkonBadge({ sayi, children }: { sayi: number; children: ReactNode }) {
+  return (
+    <div className="relative">
+      {children}
+      {sayi > 0 && (
+        <span className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[10px] font-black min-w-5 h-5 px-1 flex items-center justify-center rounded-full border-2 border-[#050814] shadow-[0_0_4px_rgba(239,68,68,0.4)] select-none leading-none">
+          {sayi > 9 ? "9+" : sayi}
+        </span>
+      )}
+    </div>
+  );
+}
+
 function BilginPcMarka({
   className = "",
   size = "md",
@@ -515,7 +529,7 @@ function BilginPcMarka({
   );
 }
 
-function MobilProfilLink({ menuAcik }: { menuAcik: boolean }) {
+function MobilProfilLink() {
   const { status } = useSession();
 
   if (status === "loading") {
@@ -523,11 +537,7 @@ function MobilProfilLink({ menuAcik }: { menuAcik: boolean }) {
   }
 
   return (
-    <Link
-      href="/hesabim"
-      className={`lg:hidden p-1 transition-all ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
-      aria-label="Hesabım"
-    >
+    <Link href="/hesabim" className="lg:hidden p-1 transition-all" aria-label="Hesabım">
       <ProfilAvatar size={32} />
     </Link>
   );
@@ -541,6 +551,8 @@ export default function Header() {
   if (gizlenecekSayfalar.includes(pathname)) return null; 
 
   const { sepet } = useCart();
+  const { orders } = useOrders();
+  const [okunmamisMesaj, setOkunmamisMesaj] = useState(0);
   const [menuAcik, setMenuAcik] = useState(false);
   const [hesabimAcik, setHesabimAcik] = useState(false);
   const [acikSeritKatalog, setAcikSeritKatalog] = useState<string | null>(null);
@@ -557,7 +569,24 @@ export default function Header() {
   const hesabimRef = useRef<HTMLDivElement>(null);
   
   const sepetAdedi = sepet.reduce((toplam: number, urun: any) => toplam + (urun.adet || 1), 0);
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const kargoBildirimSayisi = orders.filter((o) =>
+    (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo")
+  ).length;
+
+  useEffect(() => {
+    const destekOzetOku = () => {
+      try {
+        const ozet = JSON.parse(sessionStorage.getItem("bilgin_destek_ozet") || "{}");
+        setOkunmamisMesaj(ozet.okunmamis || 0);
+      } catch {
+        setOkunmamisMesaj(0);
+      }
+    };
+    destekOzetOku();
+    window.addEventListener("bilgin-hesap-guncellendi", destekOzetOku);
+    return () => window.removeEventListener("bilgin-hesap-guncellendi", destekOzetOku);
+  }, [status, session?.user?.email]);
   const isAdmin = session?.user?.email?.toLowerCase() === "o9616557@gmail.com";
   const [cikisOnayAcik, setCikisOnayAcik] = useState(false); // 🚀 YENİ EKLEDİĞİMİZ MERKEZİ ONAY MOTORU
   // 🚀 GÜVENLİK MOTORU: Çıkış yaparken çırağın defterini yakar
@@ -704,7 +733,32 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
       aria-label="Mesajlarım"
       title="Mesajlarım"
     >
-      <Mail className="w-5 h-5 shrink-0" strokeWidth={2} />
+      <HeaderIkonBadge sayi={okunmamisMesaj}>
+        <Mail className="w-5 h-5 shrink-0" strokeWidth={2} />
+      </HeaderIkonBadge>
+    </Link>
+  );
+
+  const bildirimLink = (
+    <Link
+      href="/hesabim"
+      className="relative p-2 text-white hover:text-[#3b82f6] transition-colors"
+      aria-label="Bildirimler"
+      title="Bildirimler"
+    >
+      <HeaderIkonBadge sayi={kargoBildirimSayisi}>
+        <Bell className="w-5 h-5 shrink-0" strokeWidth={2} />
+      </HeaderIkonBadge>
+    </Link>
+  );
+
+  const sepetLink = (
+    <Link href="/sepet" className="relative p-2 text-white hover:text-[#3b82f6] transition-colors" aria-label="Sepet">
+      <HeaderIkonBadge sayi={sepetAdedi}>
+        <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+      </HeaderIkonBadge>
     </Link>
   );
 
@@ -714,13 +768,16 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Mobil + tablet üst satır — logo tam ortada */}
             <div className="grid grid-cols-[1fr_auto_1fr] items-center h-20 lg:hidden w-full">
-              <div className="flex items-center gap-1 justify-self-start z-10">
+              <div className="flex items-center gap-0.5 justify-self-start z-10">
                 <button className="flex flex-col justify-center items-center w-10 h-10 focus:outline-none z-[100]" onClick={() => setMenuAcik(!menuAcik)} aria-label="Menü">
                   <span className={"block w-6 h-0.5 bg-white transition-all duration-300 " + (menuAcik ? "rotate-45 translate-y-1.5" : "")}></span>
                   <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "opacity-0" : "")}></span>
                   <span className={"block w-6 h-0.5 bg-white mt-1 transition-all duration-300 " + (menuAcik ? "-rotate-45 -translate-y-1.5" : "")}></span>
                 </button>
-                <MobilProfilLink menuAcik={menuAcik} />
+                <div className={`flex items-center ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}>
+                  <MobilProfilLink />
+                  {mesajLink}
+                </div>
               </div>
 
               <BilginPcMarka
@@ -732,17 +789,8 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                 <button type="button" onClick={() => setAramaAcik(true)} className="p-2 text-white hover:text-[#3b82f6] transition-colors" aria-label="Ara">
                   <Search className="w-5 h-5 shrink-0" />
                 </button>
-                {mesajLink}
-                <Link href="/sepet" className="relative p-2 text-white hover:text-[#3b82f6] transition-colors" aria-label="Sepet">
-                  <div className="relative">
-                    <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    {sepetAdedi > 0 && (
-                      <span className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-[#050814] shadow-[0_0_4px_rgba(239,68,68,0.4)] select-none leading-none pt-[0.5px]">
-                        {sepetAdedi}
-                      </span>
-                    )}
-                  </div>
-                </Link>
+                {bildirimLink}
+                {sepetLink}
               </div>
             </div>
 
@@ -780,16 +828,8 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                   <ProfilAvatar size={28} />
                 </Link>
                 {mesajLink}
-                <Link href="/sepet" className="relative p-2 text-white hover:text-[#3b82f6] transition-colors" aria-label="Sepet">
-                  <div className="relative">
-                    <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    {sepetAdedi > 0 && (
-                      <span className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-[#050814] shadow-[0_0_4px_rgba(239,68,68,0.4)] select-none leading-none pt-[0.5px]">
-                        {sepetAdedi}
-                      </span>
-                    )}
-                  </div>
-                </Link>
+                {bildirimLink}
+                {sepetLink}
               </div>
             </div>
 
