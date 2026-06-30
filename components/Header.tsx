@@ -225,13 +225,28 @@ const KATALOG_TUM_URUNLER = KATALOG_SERIT.flatMap((kat) =>
 function katalogResimUrlSeti(): Set<string> {
   const urls = new Set<string>();
   for (const kat of KATALOG_SERIT) {
-    if (kat.resim) urls.add(cloudinaryKatalogResim(kat.resim, KATALOG_ICON_DESKTOP));
+    if (kat.resim) {
+      urls.add(cloudinaryKatalogResim(kat.resim, KATALOG_ICON_DESKTOP));
+      urls.add(cloudinaryKatalogResim(kat.resim, KATALOG_ICON_MOBILE_ANA));
+    }
     for (const alt of kat.altlar) {
-      if (alt.resim) urls.add(cloudinaryKatalogResim(alt.resim, KATALOG_ICON_DESKTOP));
+      if (alt.resim) {
+        urls.add(cloudinaryKatalogResim(alt.resim, KATALOG_ICON_DESKTOP));
+        urls.add(cloudinaryKatalogResim(alt.resim, KATALOG_ICON_MOBILE));
+      }
     }
   }
   urls.add(cloudinaryKatalogResim(KENDIN_TOPLA_KATALOG_IMG, KATALOG_ICON_DESKTOP));
+  urls.add(cloudinaryKatalogResim(KENDIN_TOPLA_KATALOG_IMG, KATALOG_ICON_MOBILE_ANA));
   return urls;
+}
+
+function katalogResimleriniOnYukle() {
+  for (const url of katalogResimUrlSeti()) {
+    const img = new window.Image();
+    img.decoding = "async";
+    img.src = url;
+  }
 }
 
 function akilliKategoriBul(metin: string) {
@@ -331,8 +346,9 @@ function MobilAltKategoriKarti({
   );
 }
 
-function MobilKatalogMenusu({ onClose }: { onClose: () => void }) {
+function MobilKatalogMenusu({ onClose, hazir }: { onClose: () => void; hazir: boolean }) {
   const [acikAna, setAcikAna] = useState<string | null>(null);
+  const panellerHazir = hazir || acikAna !== null;
 
   return (
     <div>
@@ -373,22 +389,19 @@ function MobilKatalogMenusu({ onClose }: { onClose: () => void }) {
                 </button>
               </div>
 
-              <div
-                className="grid transition-[grid-template-rows] duration-300 ease-in-out"
-                style={{ gridTemplateRows: acik ? "1fr" : "0fr" }}
-              >
-                <div className="overflow-hidden min-h-0">
+              {panellerHazir && (
+                <div className={acik ? "" : "hidden"}>
                   <div className="grid grid-cols-3 gap-2 py-2.5 px-0.5">
                     {ana.altlar.map((k) => (
                       <MobilAltKategoriKarti
-                        key={`${k.slug}-${k.isim}`}
+                        key={`${ana.id}-${k.slug}-${k.isim}`}
                         k={k}
                         onClose={onClose}
                       />
                     ))}
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           );
         })}
@@ -531,13 +544,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
   }, [acikSeritKatalog]);
 
   useEffect(() => {
-    const onYukle = () => {
-      for (const url of katalogResimUrlSeti()) {
-        const img = new window.Image();
-        img.decoding = "async";
-        img.src = url;
-      }
-    };
+    const onYukle = () => katalogResimleriniOnYukle();
 
     if ("requestIdleCallback" in window) {
       const id = window.requestIdleCallback(onYukle, { timeout: 1500 });
@@ -547,6 +554,11 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
     const timer = window.setTimeout(onYukle, 400);
     return () => window.clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (!menuAcik) return;
+    katalogResimleriniOnYukle();
+  }, [menuAcik]);
 
   useEffect(() => {
     const kayitliAramalar = localStorage.getItem("sonAramalar");
@@ -785,7 +797,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
           </Link>
 
           {/* Kategoriler — 6 ana, resimli accordion */}
-          <MobilKatalogMenusu onClose={() => setMenuAcik(false)} />
+          <MobilKatalogMenusu onClose={() => setMenuAcik(false)} hazir={menuAcik} />
 
         </div>
       </div>

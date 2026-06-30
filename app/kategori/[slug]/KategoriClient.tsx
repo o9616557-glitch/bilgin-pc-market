@@ -6,6 +6,7 @@ import { Cpu, PackageX, Star, Filter, X, ShoppingCart, GitCompare } from "lucide
 import { useCart } from "@/app/CartContext";
 import { useCompare } from "@/app/CompareContext";
 import toast from "react-hot-toast";
+import { cloudinaryUrunResim } from "@/lib/cloudinary";
 
 function BanknoteIcon(props: any) {
   return (
@@ -451,9 +452,10 @@ export default function KategoriClient({ urunler, sayfaBasligi }: { urunler: any
     </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filtrelenmisUrunler.map((urun: any) => {
+              {filtrelenmisUrunler.map((urun: any, index: number) => {
                   const targetId = urun._id || urun.id;
                   const vitrinResmi = urun.resim || (urun.images && urun.images[0]?.src) || "/placeholder.jpg";
+                  const optimizedResim = cloudinaryUrunResim(vitrinResmi, 480);
                   
                   const normalFiyat = Number(urun.regular_price || urun.fiyat || urun.price || 0);
                   const indirimliFiyat = urun.indirimliFiyat ? Number(urun.indirimliFiyat) : null;
@@ -500,7 +502,14 @@ if (urun.fetchedReviews && urun.fetchedReviews.length > 0) {
                         )}
 
                         <div className="w-full h-full flex items-center justify-center relative z-10 transition-transform duration-700 ease-out group-hover:scale-105">
-                          <img src={vitrinResmi} alt={urun.isim || urun.name} loading="lazy" className={`w-full h-full object-contain filter drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] ${tukendiMi ? "grayscale opacity-30" : ""}`} />
+                          <img
+                            src={optimizedResim}
+                            alt={urun.isim || urun.name}
+                            loading={index < 4 ? "eager" : "lazy"}
+                            fetchPriority={index < 2 ? "high" : undefined}
+                            decoding="async"
+                            className={`w-full h-full object-contain filter drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] ${tukendiMi ? "grayscale opacity-30" : ""}`}
+                          />
                         </div>
                       </div>
 
