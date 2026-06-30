@@ -38,7 +38,7 @@ type AuthShellProps = {
 
 export default function AuthShell({ children }: AuthShellProps) {
   return (
-    <div className="min-h-screen min-h-[100dvh] bg-black text-white relative overflow-hidden">
+    <div className="fixed inset-0 z-40 w-full overflow-y-auto overscroll-none lg:relative lg:inset-auto lg:z-auto lg:overflow-visible min-h-[100dvh] lg:min-h-screen bg-black text-white">
       {/* Cam parıltı arka plan */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -top-1/4 -left-1/4 h-[55%] w-[55%] rounded-full bg-white/[0.03] blur-[120px]" />
@@ -48,8 +48,8 @@ export default function AuthShell({ children }: AuthShellProps) {
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,transparent_40%,rgba(0,0,0,0.3)_100%)]" />
       </div>
 
-      <div className="relative z-10 min-h-screen min-h-[100dvh] flex items-center justify-center px-4 py-8 sm:px-6 md:px-8 lg:px-12 xl:px-16">
-        <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-8 xl:gap-10 items-stretch">
+      <div className="relative z-10 min-h-screen min-h-[100dvh] flex items-stretch justify-center p-0 lg:px-12 xl:px-16 lg:py-8">
+        <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-0 lg:gap-8 xl:gap-10 items-stretch min-h-[100dvh] lg:min-h-0">
           {/* Sol panel — masaüstü / tablet yatay */}
           <div className="hidden lg:flex flex-col justify-between rounded-3xl border border-white/[0.08] bg-gradient-to-br from-white/[0.08] via-white/[0.03] to-transparent backdrop-blur-2xl p-10 xl:p-12 shadow-[0_8px_60px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.12)] relative overflow-hidden">
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
@@ -83,9 +83,9 @@ export default function AuthShell({ children }: AuthShellProps) {
             </p>
           </div>
 
-          {/* Form paneli */}
-          <div className="flex flex-col justify-center">
-            <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/[0.08] bg-gradient-to-br from-white/[0.07] via-white/[0.02] to-black/40 backdrop-blur-2xl p-6 sm:p-8 md:p-10 shadow-[0_8px_60px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.1)] min-h-0 lg:min-h-[520px]">
+          {/* Form paneli — mobil/tablet tam ekran, masaüstü kart */}
+          <div className="flex flex-col justify-center w-full min-h-[100dvh] lg:min-h-0">
+            <div className="relative overflow-y-auto overflow-x-hidden flex flex-col justify-center flex-1 w-full min-h-[100dvh] lg:min-h-[520px] rounded-none lg:rounded-3xl border-0 lg:border border-white/[0.08] bg-gradient-to-br from-white/[0.07] via-white/[0.02] to-black/40 backdrop-blur-2xl p-6 sm:p-8 md:p-10 lg:p-10 shadow-none lg:shadow-[0_8px_60px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.1)] pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
               <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
               <div className="absolute -top-16 right-8 h-32 w-32 rounded-full bg-white/[0.04] blur-3xl pointer-events-none" />
 

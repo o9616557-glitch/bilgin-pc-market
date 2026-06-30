@@ -6,8 +6,16 @@ import { Phone, Mail, ShieldCheck, FileText, Info, RefreshCcw, Smartphone, Globe
 export default function Footer() {
   const pathname = usePathname(); 
 
-  // 🚀 1. Ödeme ve Sepet sayfalarında hem PC hem Mobilde komple engelle
-  if (pathname?.includes("/sepet") || pathname?.includes("/odeme")) {
+  // Ödeme, sepet ve auth sayfalarında footer gizle
+  const footerGizli =
+    pathname?.includes("/sepet") ||
+    pathname?.includes("/odeme") ||
+    pathname === "/giris" ||
+    pathname === "/kayit" ||
+    pathname === "/sifre-sifirla" ||
+    pathname === "/yeni-sifre";
+
+  if (footerGizli) {
     return null;
   }
 

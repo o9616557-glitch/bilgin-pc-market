@@ -497,7 +497,7 @@ export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const gizlenecekSayfalar = ["/sepet", "/odeme", "/giris", "/kayit", "/checkout"];
+  const gizlenecekSayfalar = ["/sepet", "/odeme", "/giris", "/kayit", "/sifre-sifirla", "/yeni-sifre", "/checkout"];
   if (gizlenecekSayfalar.includes(pathname)) return null; 
 
   const { sepet } = useCart();
