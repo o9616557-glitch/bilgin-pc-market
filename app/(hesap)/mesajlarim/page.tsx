@@ -1,11 +1,9 @@
 "use client";
 
-import AccountShell from "@/components/layout/AccountShell";
 import { MessageSquare } from "lucide-react";
 
 export default function MesajlarimPage() {
   return (
-    <AccountShell active="mesajlarim">
       <div className="flex flex-col gap-5">
         <div className="account-card rounded-2xl p-5 sm:p-6 relative overflow-hidden">
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-site-accent/[0.04] blur-[50px] pointer-events-none rounded-full" />
@@ -30,6 +28,5 @@ export default function MesajlarimPage() {
           </div>
         </div>
       </div>
-    </AccountShell>
   );
 }

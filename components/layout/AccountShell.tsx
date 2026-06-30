@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useSession, signOut, signIn } from "next-auth/react";
 import { useState, useEffect, useRef } from "react";
 import {
@@ -430,6 +430,10 @@ function MobilHesapMenu({ active }: { active?: string }) {
 /* ─────────────────── ANA EXPORT ─────────────────── */
 export default function AccountShell({ children, active }: AccountShellProps) {
   const router = useRouter();
+  const pathname = usePathname();
+
+  /* active verilmemişse (ortak layout kullanımı) URL'den türet */
+  const aktif = active ?? NAV_ITEMS.find((i) => i.href === pathname)?.id;
 
   /* Tüm hesap sayfalarını önceden yükle — geçişlerde loading/göz kırpma olmasın */
   useEffect(() => {
@@ -443,7 +447,7 @@ export default function AccountShell({ children, active }: AccountShellProps) {
       {/* Mobil: profil kartı + tam ekran hesap menüsü */}
       <div className="lg:hidden mb-4 flex flex-col gap-2">
         <MobilProfilKarti />
-        <MobilHesapMenu active={active} />
+        <MobilHesapMenu active={aktif} />
       </div>
 
       {/* Desktop: panel sol, içerik sağ */}
@@ -451,7 +455,7 @@ export default function AccountShell({ children, active }: AccountShellProps) {
 
         {/* Sol panel — sabit, animasyon yok */}
         <aside className="hidden lg:block w-[260px] xl:w-[280px] shrink-0 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full">
-          <AccountPanel active={active} />
+          <AccountPanel active={aktif} />
         </aside>
 
         {/* İçerik alanı — mobilde tam genişlik, masaüstünde esnek */}

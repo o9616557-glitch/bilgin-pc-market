@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import AccountShell from "@/components/layout/AccountShell";
 import { Mail, Eye, EyeOff, CheckCircle2, XCircle, Loader2, Link2, ChevronRight } from "lucide-react";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
@@ -61,8 +60,7 @@ export default function EpostaDegistirPage() {
   };
 
   return (
-    <AccountShell active="eposta-degistir">
-      <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5">
         <div className="account-card rounded-2xl p-5 sm:p-6 relative overflow-hidden">
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-site-accent/[0.04] blur-[50px] pointer-events-none rounded-full" />
           <div className="flex items-center gap-3 sm:gap-4 relative z-10">
@@ -171,6 +169,5 @@ export default function EpostaDegistirPage() {
           </form>
         </div>
       </div>
-    </AccountShell>
   );
 }

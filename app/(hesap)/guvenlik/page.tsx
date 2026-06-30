@@ -10,8 +10,6 @@ import {
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react"; 
 import { oturumHafizasiniTemizle } from "@/lib/oturum-hafiza";
-import AccountShell from "@/components/layout/AccountShell";
-
 export default function GuvenlikPage() {
   // 🚀 STATUS MOTORU EKLENDİ (Misafir mi değil mi anlamak için)
   const { data: session, status } = useSession(); 
@@ -224,7 +222,6 @@ export default function GuvenlikPage() {
 
  return (
     <>
-      <AccountShell active="guvenlik">
         <div className="flex flex-col min-w-0 gap-5 w-full">
             
             <div className="account-card rounded-2xl p-5 sm:p-6 relative overflow-hidden">
@@ -619,7 +616,6 @@ export default function GuvenlikPage() {
             </div>
 
         </div>
-      </AccountShell>
 
       {/* 🚀 ŞİFRELİ GÜVENLİK ONAY PENCERESİ */}
       <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ${

@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { oturumHafizasiniTemizle } from "@/lib/oturum-hafiza";
 import { useOrders } from "@/app/OrderContext";
-import AccountShell from "@/components/layout/AccountShell";
 import Image from "next/image";
 import RenkPaleti from "@/components/hesabim/RenkPaleti";
 import {
@@ -634,7 +633,6 @@ export default function HesabimPage() {
 
   return (
   <>
-  <AccountShell active="hesabim">
     <div suppressHydrationWarning={true} className="flex flex-col gap-6 w-full">
 
         <div className={`w-full relative rounded-[2rem] p-[2px] transition-all duration-300 shadow-[0_0_50px_rgba(0,210,255,0.15)] group ${aktifPalet === 'menu' ? 'bg-gradient-to-r from-emerald-500/50 via-emerald-900 to-emerald-500/20 shadow-[0_0_50px_rgba(16,185,129,0.3)]' : 'bg-gradient-to-r from-cyan-500/30 via-[#0f172a] to-cyan-500/10'}`}>
@@ -872,7 +870,6 @@ export default function HesabimPage() {
         />
 
     </div>
-  </AccountShell>
 
       <HesabimModals
         showOnboarding={showOnboarding}

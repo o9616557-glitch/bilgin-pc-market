@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
-import AccountShell from "@/components/layout/AccountShell";
 import { MapPin, Plus, Trash2, Loader2, Home, Edit2, X } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -213,7 +212,7 @@ export default function AdreslerimPage() {
   };
 
   return (
-    <AccountShell active="adreslerim">
+    <>
       <div className="flex flex-col gap-5">
 
         {/* Başlık */}
@@ -338,6 +337,6 @@ export default function AdreslerimPage() {
           onClose={() => { setModalMode(null); setEditTarget(null); }}
         />
       )}
-    </AccountShell>
+    </>
   );
 }

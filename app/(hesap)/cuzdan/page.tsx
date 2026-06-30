@@ -8,7 +8,6 @@ import {
   CheckCircle2, XCircle, Clock, Loader2, LogIn, UserPlus,
   Wallet, Gift, Star, MoreVertical, ChevronRight
 } from "lucide-react";
-import AccountShell from "@/components/layout/AccountShell";
 import toast from "react-hot-toast";
 import { paraFormatla, type KayitliKart, type CuzdanIslem } from "@/lib/cuzdan";
 
@@ -281,7 +280,6 @@ export default function CuzdanPage() {
 
   return (
     <>
-    <AccountShell active="cuzdan">
         <div className="flex flex-col min-w-0 gap-5 w-full">
 
           <div className="account-card rounded-2xl p-5 sm:p-6 relative overflow-hidden">
@@ -428,7 +426,6 @@ export default function CuzdanPage() {
             </>
           )}
         </div>
-    </AccountShell>
 
       {/* Kart ekle modal */}
       {kartModal && (
