@@ -10,6 +10,29 @@ import {
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react"; 
 import { oturumHafizasiniTemizle } from "@/lib/oturum-hafiza";
+
+const GUVENLIK_CACHE_KEY = "bilgin_guvenlik";
+function guvenlikCacheOku(): any {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(GUVENLIK_CACHE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+function guvenlikCacheYaz(data: {
+  ikiAdimEmail: boolean;
+  bildirimTercihi: string;
+  sifreVarMi: boolean;
+  aktifCihazlar: any[];
+}) {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(GUVENLIK_CACHE_KEY, JSON.stringify(data));
+  } catch {}
+}
+
 export default function GuvenlikPage() {
   // 🚀 STATUS MOTORU EKLENDİ (Misafir mi değil mi anlamak için)
   const { data: session, status } = useSession(); 
@@ -32,14 +55,16 @@ export default function GuvenlikPage() {
   const [islemDurumu, setIslemDurumu] = useState({ tip: "", mesaj: "" });
   const [yukleniyor, setYukleniyor] = useState(false);
 
-  const [ikiAdimEmail, setIkiAdimEmail] = useState(false);
-  const [bildirimTercihi, setBildirimTercihi] = useState('new_device'); 
-  const [sifreVarMi, setSifreVarMi] = useState(true);
+  const [ikiAdimEmail, setIkiAdimEmail] = useState<boolean>(() => guvenlikCacheOku()?.ikiAdimEmail ?? false);
+  const [bildirimTercihi, setBildirimTercihi] = useState<string>(() => guvenlikCacheOku()?.bildirimTercihi ?? 'new_device'); 
+  const [sifreVarMi, setSifreVarMi] = useState<boolean>(() => guvenlikCacheOku()?.sifreVarMi ?? true);
   const [ikiAdimDurum, setIkiAdimDurum] = useState({ tip: "", mesaj: "" });
   const [ikiAdimYukleniyor, setIkiAdimYukleniyor] = useState(false);
 
-  const [aktifCihazlar, setAktifCihazlar] = useState<any[]>([]);
-  const [cihazlarYukleniyor, setCihazlarYukleniyor] = useState(false);
+  const [aktifCihazlar, setAktifCihazlar] = useState<any[]>(() => guvenlikCacheOku()?.aktifCihazlar ?? []);
+  const [cihazlarYukleniyor, setCihazlarYukleniyor] = useState<boolean>(() => {
+    try { return !sessionStorage.getItem(GUVENLIK_CACHE_KEY); } catch { return true; }
+  });
   const [cikisYukleniyor, setCikisYukleniyor] = useState(false);
 
   const [islemModali, setIslemModali] = useState<{acik: boolean, tur: 'dondur' | 'sil'}>({acik: false, tur: 'dondur'});
@@ -59,7 +84,7 @@ export default function GuvenlikPage() {
     if (status !== "authenticated") return;
 
     const ayarlariGetir = async (ilkYukleme = false) => {
-      if (ilkYukleme) setCihazlarYukleniyor(true);
+      // Cache yoksa spinner zaten açık; cache varsa sessiz arka plan yenilemesi yapılır.
       try {
         const res = await fetch("/api/user/get-2fa", { cache: 'no-store' });
         if (res.ok) {
@@ -71,6 +96,7 @@ export default function GuvenlikPage() {
             setSifreVarMi(data.hasPassword !== false);
           }
           
+          let siraliCihazlar: any[] = aktifCihazlar;
           if (data.activeDevices) {
             if (mevcutCihazId) {
               const benimCihaz = data.activeDevices.find((c: any) => c.deviceId === mevcutCihazId);
@@ -81,11 +107,19 @@ export default function GuvenlikPage() {
             }
 
             const yasayanCihazlar = data.activeDevices.filter((c: any) => c.isActive === true);
-            const siraliCihazlar = yasayanCihazlar.sort((a: any, b: any) => 
+            siraliCihazlar = yasayanCihazlar.sort((a: any, b: any) => 
               new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime()
             );
             setAktifCihazlar(siraliCihazlar);
           }
+
+          // Arka planda çekilen güncel ayarları sessionStorage'a yaz (geçişte göz kırpmayı önler)
+          guvenlikCacheYaz({
+            ikiAdimEmail: data.twoFactorEmail,
+            bildirimTercihi: data.notificationPreference || 'none',
+            sifreVarMi: data.hasPassword !== false,
+            aktifCihazlar: siraliCihazlar,
+          });
         }
       } catch (error) {
         console.error("Ayarlar çekilemedi:", error);
@@ -189,6 +223,7 @@ export default function GuvenlikPage() {
       } else {
         setIkiAdimDurum({ tip: "basari", mesaj: "Ayar kaydedildi!" });
         setTimeout(() => setIkiAdimDurum({ tip: "", mesaj: "" }), 3000); 
+        guvenlikCacheYaz({ ikiAdimEmail: yeniEmail, bildirimTercihi: yeniBildirim, sifreVarMi, aktifCihazlar });
       }
     } catch (error) {
       setIkiAdimDurum({ tip: "hata", mesaj: "Sunucu bağlantı hatası." });
@@ -210,7 +245,9 @@ export default function GuvenlikPage() {
       });
 
       if (res.ok) {
-        setAktifCihazlar(aktifCihazlar.filter(c => c.deviceId === mevcutCihazId));
+        const yeniListe = aktifCihazlar.filter(c => c.deviceId === mevcutCihazId);
+        setAktifCihazlar(yeniListe);
+        guvenlikCacheYaz({ ikiAdimEmail, bildirimTercihi, sifreVarMi, aktifCihazlar: yeniListe });
         setIslemDurumu({ tip: "basari", mesaj: "Diğer tüm cihazlardaki oturumlarınız sonlandırıldı." });
       }
     } catch (error) {

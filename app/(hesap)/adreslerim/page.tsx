@@ -127,8 +127,12 @@ function AdresModal({
 
 /* ── Ana sayfa ── */
 export default function AdreslerimPage() {
-  const [addresses, setAddresses]   = useState<Address[]>([]);
-  const [isLoading, setIsLoading]   = useState(true);
+  const [addresses, setAddresses]   = useState<Address[]>(() => {
+    try { const c = sessionStorage.getItem(CACHE_KEY); return c ? JSON.parse(c) : []; } catch { return []; }
+  });
+  const [isLoading, setIsLoading]   = useState(() => {
+    try { return !sessionStorage.getItem(CACHE_KEY); } catch { return true; }
+  });
   const [modalMode, setModalMode]   = useState<"add" | "edit" | null>(null);
   const [editTarget, setEditTarget] = useState<Address | null>(null);
   const [portalReady, setPortalReady]   = useState(false);
