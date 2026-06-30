@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useCart } from "@/app/CartContext";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
@@ -223,6 +222,18 @@ const KATALOG_TUM_URUNLER = KATALOG_SERIT.flatMap((kat) =>
   kat.altlar.map((a) => ({ name: a.isim, slug: a.slug }))
 );
 
+function katalogResimUrlSeti(): Set<string> {
+  const urls = new Set<string>();
+  for (const kat of KATALOG_SERIT) {
+    if (kat.resim) urls.add(cloudinaryKatalogResim(kat.resim, KATALOG_ICON_DESKTOP));
+    for (const alt of kat.altlar) {
+      if (alt.resim) urls.add(cloudinaryKatalogResim(alt.resim, KATALOG_ICON_DESKTOP));
+    }
+  }
+  urls.add(cloudinaryKatalogResim(KENDIN_TOPLA_KATALOG_IMG, KATALOG_ICON_DESKTOP));
+  return urls;
+}
+
 function akilliKategoriBul(metin: string) {
   if (!metin) return null;
   const k = metin.toLowerCase();
@@ -254,12 +265,14 @@ function KatalogGorsel({
   displayPx: number;
 }) {
   return (
-    <Image
+    <img
       src={cloudinaryKatalogResim(src, displayPx)}
       alt={alt}
-      fill
-      sizes={`${displayPx}px`}
-      className="object-contain p-1"
+      width={displayPx}
+      height={displayPx}
+      loading="eager"
+      decoding="async"
+      className="absolute inset-0 w-full h-full object-contain p-1"
     />
   );
 }
@@ -517,7 +530,23 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
     return () => document.removeEventListener("mousedown", disariTikla);
   }, [acikSeritKatalog]);
 
-  const seciliKatalog = KATALOG_SERIT.find((k) => k.id === acikSeritKatalog);
+  useEffect(() => {
+    const onYukle = () => {
+      for (const url of katalogResimUrlSeti()) {
+        const img = new window.Image();
+        img.decoding = "async";
+        img.src = url;
+      }
+    };
+
+    if ("requestIdleCallback" in window) {
+      const id = window.requestIdleCallback(onYukle, { timeout: 1500 });
+      return () => window.cancelIdleCallback(id);
+    }
+
+    const timer = window.setTimeout(onYukle, 400);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const kayitliAramalar = localStorage.getItem("sonAramalar");
@@ -712,19 +741,26 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
             </div>
           </div>
 
-          {/* Overlay panel — sabit boy, eşit aralık */}
-          {seciliKatalog && (
+          {/* Overlay panel — tüm kataloglar DOM'da, geçiş anında görünür */}
+          {acikSeritKatalog && (
             <div className="hidden md:block absolute top-full left-0 w-full border-t border-white/[0.06] bg-[#050814]/98 backdrop-blur-md shadow-[0_12px_40px_rgba(0,0,0,0.55)] z-50">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[180px] flex items-center">
-                <div className="flex flex-wrap justify-start items-start gap-x-5 gap-y-4 w-full overflow-hidden">
-                  {seciliKatalog.altlar.map((k) => (
-                    <ResimliKategoriKarti
-                      key={`${k.slug}-${k.isim}`}
-                      k={k}
-                      onNavigate={() => setAcikSeritKatalog(null)}
-                    />
-                  ))}
-                </div>
+                {KATALOG_SERIT.map((kat) => (
+                  <div
+                    key={kat.id}
+                    className={`flex flex-wrap justify-start items-start gap-x-5 gap-y-4 w-full overflow-hidden ${
+                      acikSeritKatalog === kat.id ? "" : "hidden"
+                    }`}
+                  >
+                    {kat.altlar.map((k) => (
+                      <ResimliKategoriKarti
+                        key={`${kat.id}-${k.slug}-${k.isim}`}
+                        k={k}
+                        onNavigate={() => setAcikSeritKatalog(null)}
+                      />
+                    ))}
+                  </div>
+                ))}
               </div>
             </div>
           )}
