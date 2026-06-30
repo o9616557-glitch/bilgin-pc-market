@@ -7,7 +7,7 @@ import { useSession, signOut, signIn } from "next-auth/react";
 import { useState, useEffect, useRef } from "react";
 import {
   User, ShieldCheck, CreditCard, MessageSquare, Database,
-  Mail, Star, MapPin, ChevronRight, ChevronDown, Menu, ArrowLeft,
+  Mail, Star, MapPin, ChevronRight, ChevronDown, Menu,
   LogIn, UserPlus, LogOut,
   Eye, EyeOff, Loader2, X, SwitchCamera
 } from "lucide-react";
@@ -389,18 +389,16 @@ function MobilHesapMenu({ active }: { active?: string }) {
 
       {/* Tam ekran menü — header'ın hemen altından ekran sonuna kadar */}
       {acik && (
-        <div className="lg:hidden fixed top-[80px] inset-x-0 bottom-0 z-[97] site-page flex flex-col animate-in fade-in slide-in-from-left-8 duration-200">
-          {/* Üst bar — geri tuşu */}
-          <div className="flex items-center gap-2 px-3 h-14 border-b border-white/[0.06] shrink-0">
+        <div className="lg:hidden fixed top-[80px] inset-x-0 bottom-0 z-[97] site-page flex flex-col animate-in fade-in slide-in-from-right-8 duration-300">
+          {/* Üst bar — solda "Hesap Menüsü" (dokununca kapanır) */}
+          <div className="flex items-center px-4 h-14 border-b border-white/[0.06] shrink-0">
             <button
               type="button"
               onClick={() => setAcik(false)}
-              className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-sm font-medium text-slate-300 hover:text-white hover:bg-white/[0.05] transition-colors"
+              className="text-sm font-semibold text-white"
             >
-              <ArrowLeft className="w-5 h-5 shrink-0" />
-              Geri
+              Hesap Menüsü
             </button>
-            <span className="flex-1 text-center text-sm font-semibold text-white pr-12">Hesap Menüsü</span>
           </div>
 
           {/* Liste — alt alta, tam ekran kaydırılabilir */}
@@ -434,29 +432,64 @@ export default function AccountShell({ children, active }: AccountShellProps) {
   const router = useRouter();
   const pathname = usePathname();
   const aktifIndex = NAV_ITEMS.findIndex((i) => i.id === active);
-  const touchBas = useRef<{ x: number; y: number } | null>(null);
+
+  const icerikRef = useRef<HTMLDivElement>(null);
+  const surukle = useRef({ x: 0, y: 0, dx: 0, aktif: false, yatay: false });
 
   /* Tüm hesap sayfalarını önceden yükle — geçişlerde loading olmasın */
   useEffect(() => {
     NAV_ITEMS.forEach((i) => router.prefetch(i.href));
   }, [router]);
 
-  /* Telefon gibi yatay kaydırınca komşu sayfaya geç */
+  const hedefVar = (yon: number) =>
+    aktifIndex !== -1 &&
+    ((yon < 0 && aktifIndex < NAV_ITEMS.length - 1) || (yon > 0 && aktifIndex > 0));
+
+  /* Telefon gibi: parmak hareketini birebir takip et (yağ gibi akış) */
   const onTouchStart = (e: React.TouchEvent) => {
+    if (aktifIndex === -1) return;
     const t = e.touches[0];
-    touchBas.current = { x: t.clientX, y: t.clientY };
+    surukle.current = { x: t.clientX, y: t.clientY, dx: 0, aktif: true, yatay: false };
+    const el = icerikRef.current;
+    if (el) el.style.transition = "none";
   };
-  const onTouchEnd = (e: React.TouchEvent) => {
-    if (!touchBas.current || aktifIndex === -1) return;
-    const t = e.changedTouches[0];
-    const dx = t.clientX - touchBas.current.x;
-    const dy = t.clientY - touchBas.current.y;
-    touchBas.current = null;
-    if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.5) return; // belirgin yatay kaydırma şart
-    if (dx < 0 && aktifIndex < NAV_ITEMS.length - 1) {
-      router.push(NAV_ITEMS[aktifIndex + 1].href);
-    } else if (dx > 0 && aktifIndex > 0) {
-      router.push(NAV_ITEMS[aktifIndex - 1].href);
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    const s = surukle.current;
+    if (!s.aktif) return;
+    const t = e.touches[0];
+    const dx = t.clientX - s.x;
+    const dy = t.clientY - s.y;
+
+    if (!s.yatay) {
+      if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) s.yatay = true;
+      else if (Math.abs(dy) > 8) { s.aktif = false; return; } // dikey kaydırma → bırak
+      else return;
+    }
+
+    // Sınırda direnç uygula (hedef sayfa yoksa zor hareket etsin)
+    let eff = dx;
+    if (!hedefVar(dx)) eff = dx * 0.25;
+    s.dx = eff;
+    const el = icerikRef.current;
+    if (el) el.style.transform = `translateX(${eff}px)`;
+  };
+
+  const onTouchEnd = () => {
+    const s = surukle.current;
+    const el = icerikRef.current;
+    s.aktif = false;
+    if (!el) return;
+    el.style.transition = "transform 0.32s cubic-bezier(0.16, 1, 0.3, 1)";
+
+    const esik = 70;
+    if (s.yatay && Math.abs(s.dx) > esik && hedefVar(s.dx)) {
+      const genislik = el.offsetWidth || window.innerWidth;
+      el.style.transform = `translateX(${s.dx < 0 ? -genislik : genislik}px)`;
+      const hedef = s.dx < 0 ? NAV_ITEMS[aktifIndex + 1].href : NAV_ITEMS[aktifIndex - 1].href;
+      router.push(hedef);
+    } else {
+      el.style.transform = "translateX(0px)";
     }
   };
 
@@ -481,7 +514,9 @@ export default function AccountShell({ children, active }: AccountShellProps) {
         {/* İçerik alanı — mobilde tam genişlik + kayma geçişi + swipe, masaüstünde esnek */}
         <div
           key={pathname}
+          ref={icerikRef}
           onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
           className="site-content-in account-page-slide w-full lg:flex-1 lg:min-w-0"
         >
