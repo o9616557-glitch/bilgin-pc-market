@@ -477,8 +477,7 @@ function ProfilAvatar({ size = 36, className = "" }: { size?: number; className?
 }
 
 function MobilLogoAlani({ menuAcik }: { menuAcik: boolean }) {
-  const { data: session, status } = useSession();
-  const href = session ? "/hesabim" : "/giris";
+  const { status } = useSession();
 
   if (status === "loading") {
     return <div className="md:hidden w-9 h-9 rounded-full bg-white/[0.06] border border-white/[0.12]" />;
@@ -486,7 +485,7 @@ function MobilLogoAlani({ menuAcik }: { menuAcik: boolean }) {
 
   return (
     <Link
-      href={href}
+      href="/hesabim"
       className={`md:hidden relative z-[100] transition-all ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
     >
       <ProfilAvatar size={36} />
@@ -722,7 +721,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                   Kendin Topla
                 </Link>
                 <Link
-                  href={session ? "/hesabim" : "/giris"}
+                  href="/hesabim"
                   className="p-1 rounded-full hover:ring-2 hover:ring-[#3b82f6]/30 transition-all"
                   aria-label="Hesabım"
                 >

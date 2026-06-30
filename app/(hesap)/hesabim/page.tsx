@@ -646,7 +646,7 @@ export default function HesabimPage() {
 
   const kargoSiparisleri = hamSiparisler.filter(s => (s.status || s.durum || "").toLowerCase().includes("kargo"));
   const userName = status === "unauthenticated" ? "Misafir" : (session?.user?.name || "Özkan");
-  const userEmail = status === "unauthenticated" ? "Lütfen giriş yapın" : (session?.user?.email || "");
+  const userEmail = status === "unauthenticated" ? "Giriş yapmadan gezebilirsiniz" : (session?.user?.email || "");
   const basHarf = userName.charAt(0).toUpperCase();
 
   return (
