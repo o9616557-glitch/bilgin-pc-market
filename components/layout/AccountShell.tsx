@@ -6,7 +6,7 @@ import { useSession, signOut, signIn } from "next-auth/react";
 import { useState, useEffect, useRef } from "react";
 import {
   User, ShieldCheck, CreditCard, MessageSquare, Database,
-  Mail, Star, MapPin, ChevronRight,
+  Mail, Star, MapPin, ChevronRight, ChevronDown, Menu,
   LogIn, UserPlus, LogOut,
   Eye, EyeOff, Loader2, X, SwitchCamera
 } from "lucide-react";
@@ -357,33 +357,64 @@ function AccountPanel({ active }: { active?: string }) {
   );
 }
 
+/* ─────────────────── MOBİL HESAP MENÜSÜ (açılır/kapanır) ─────────────────── */
+function MobilHesapMenu({ active }: { active?: string }) {
+  const [acik, setAcik] = useState(false);
+  const aktifItem = NAV_ITEMS.find((i) => i.id === active);
+  const AktifIcon = aktifItem?.icon ?? Menu;
+
+  return (
+    <div className="account-card p-2">
+      {/* Aç/kapa başlığı */}
+      <button
+        type="button"
+        onClick={() => setAcik((v) => !v)}
+        aria-expanded={acik}
+        className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-white/[0.04] transition-colors"
+      >
+        <AktifIcon className="w-4 h-4 shrink-0 text-site-accent" />
+        <span className="flex-1 text-left truncate">
+          {aktifItem ? aktifItem.label : "Hesap Menüsü"}
+        </span>
+        <ChevronDown className={`w-4 h-4 shrink-0 text-slate-500 transition-transform duration-200 ${acik ? "rotate-180" : ""}`} />
+      </button>
+
+      {/* Alt alta açılan liste — sadece açıkken DOM'da, anlık */}
+      {acik && (
+        <div className="mt-1 flex flex-col gap-0.5">
+          {NAV_ITEMS.map((item) => (
+            <Link
+              key={item.id}
+              href={item.href}
+              prefetch
+              onClick={() => setAcik(false)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                active === item.id
+                  ? "text-white bg-white/[0.07] border border-white/[0.12]"
+                  : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] border border-transparent"
+              }`}
+            >
+              <item.icon className={`w-4 h-4 shrink-0 ${active === item.id ? "text-site-accent" : ""}`} />
+              <span className="flex-1 truncate">{item.label}</span>
+              {active === item.id && <ChevronRight className="w-3 h-3 shrink-0 text-site-accent/50" />}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ─────────────────── ANA EXPORT ─────────────────── */
 export default function AccountShell({ children, active }: AccountShellProps) {
   return (
     <div className="site-page p-4 sm:p-6 lg:p-8">
       <div className="site-glow-top top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[320px]" />
 
-      {/* Mobil: profil kartı + yatay scroll nav */}
+      {/* Mobil: profil kartı + açılır/kapanır hesap menüsü */}
       <div className="lg:hidden mb-4 flex flex-col gap-2">
         <MobilProfilKarti />
-        <div className="account-card p-2">
-          <div className="flex gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none" }}>
-            {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.id}
-                href={item.href}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium shrink-0 transition-all ${
-                  active === item.id
-                    ? "text-white bg-white/[0.07] border border-white/[0.12]"
-                    : "text-slate-500 hover:text-slate-300 border border-transparent"
-                }`}
-              >
-                <item.icon className={`w-3.5 h-3.5 shrink-0 ${active === item.id ? "text-site-accent" : ""}`} />
-                {item.label}
-              </Link>
-            ))}
-          </div>
-        </div>
+        <MobilHesapMenu active={active} />
       </div>
 
       {/* Desktop: panel sol, içerik sağ */}
