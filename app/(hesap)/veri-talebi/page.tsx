@@ -26,7 +26,7 @@ export default function VeriTalebiPage() {
             </div>
             <div>
               <h1 className="text-lg sm:text-xl font-bold text-white mb-0.5">Veri Talebi</h1>
-              <p className="text-slate-400 text-xs sm:text-sm">KVKK kapsamında kişisel verilerinizi talep edin veya silin.</p>
+              <p className="text-slate-400 text-xs sm:text-sm">KVKK kapsamında verilerinizi yönetin.</p>
             </div>
           </div>
         </div>

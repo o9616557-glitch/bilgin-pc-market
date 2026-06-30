@@ -290,7 +290,7 @@ export default function CuzdanPage() {
               </div>
               <div>
                 <h1 className="text-lg sm:text-xl font-bold text-white mb-0.5">Dijital Cüzdanım</h1>
-                <p className="text-slate-400 text-xs sm:text-sm">Bakiyeniz, kayıtlı kartlarınız ve ödeme geçmişiniz tek ekranda.</p>
+                <p className="text-slate-400 text-xs sm:text-sm">Bakiye, kartlar ve ödeme geçmişi.</p>
               </div>
             </div>
           </div>
