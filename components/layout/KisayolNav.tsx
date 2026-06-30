@@ -44,7 +44,6 @@ function ProfilKutusu() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-white text-sm font-semibold">Misafir</p>
-            <p className="text-slate-500 text-[11px]">Giriş yapmadan gezebilirsiniz</p>
           </div>
           <Link href="/giris" className="text-xs font-semibold text-cyan-400 border border-cyan-500/30 rounded-lg px-3 py-1.5 hover:bg-cyan-500/10 transition-colors shrink-0">
             Giriş Yap

@@ -223,9 +223,7 @@ export default function HesabimModals({
                 <ShieldCheck className="w-7 h-7 text-cyan-400" />
               </div>
               <h3 className="text-lg font-black text-white mb-2 tracking-tight">Erişim Kısıtlı</h3>
-              <p className="text-slate-400 text-sm mb-5 leading-relaxed">
-                Bu işlem için giriş yapmanız gerekiyor. İsterseniz paneli gezmeye devam edebilirsiniz.
-              </p>
+              <p className="text-slate-400 text-sm mb-5 leading-relaxed">Bu işlem için giriş yapmanız gerekiyor.</p>
               <div className="flex flex-col gap-2.5">
                 <Link
                   href="/giris"

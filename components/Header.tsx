@@ -504,7 +504,7 @@ export default function Header() {
   const [menuAcik, setMenuAcik] = useState(false);
   const [hesabimAcik, setHesabimAcik] = useState(false);
   const [acikSeritKatalog, setAcikSeritKatalog] = useState<string | null>(null);
-  const seritRef = useRef<HTMLDivElement>(null);
+  const katalogRef = useRef<HTMLDivElement>(null);
   
   const [aramaAcik, setAramaAcik] = useState(false);
   const [aramaMetni, setAramaMetni] = useState("");
@@ -545,7 +545,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
   useEffect(() => {
     if (!acikSeritKatalog) return;
     const disariTikla = (e: MouseEvent) => {
-      if (seritRef.current && !seritRef.current.contains(e.target as Node)) {
+      if (katalogRef.current && !katalogRef.current.contains(e.target as Node)) {
         setAcikSeritKatalog(null);
       }
     };
@@ -660,10 +660,6 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
   return (
     <>
       <header className="sticky top-0 left-0 w-full z-[99] bg-[#050814]/90 backdrop-blur-md border-b border-white/5 transition-all duration-300 relative">
-        <div
-          ref={seritRef}
-          onMouseLeave={() => setAcikSeritKatalog(null)}
-        >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Mobil üst satır */}
             <div className="flex md:hidden items-center justify-between h-20 gap-2 sm:gap-4">
@@ -740,53 +736,60 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
               </div>
             </div>
 
-            {/* Masaüstü: 6 kategori — arama altında */}
-            <div className="hidden md:flex items-stretch gap-0.5 pb-2.5 pt-1 border-t border-white/[0.04]">
-              {KATALOG_SERIT.map((kat) => {
-                const aktif = acikSeritKatalog === kat.id;
-                return (
-                  <button
-                    key={kat.id}
-                    type="button"
-                    title={kat.isim}
-                    onMouseEnter={() => setAcikSeritKatalog(kat.id)}
-                    className={`flex-1 min-w-0 px-1 py-1.5 text-center transition-colors border-b-2 text-white ${
-                      aktif ? "border-[#3b82f6]" : "border-transparent hover:border-white/30"
-                    }`}
-                  >
-                    <span className="text-[11px] lg:text-xs font-medium tracking-wide truncate block px-0.5">
-                      {kat.kisaIsim}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
           </div>
 
-          {/* Overlay panel — tüm kataloglar DOM'da, geçiş anında görünür */}
-          {acikSeritKatalog && (
-            <div className="hidden md:block absolute top-full left-0 w-full border-t border-white/[0.06] bg-[#050814]/98 backdrop-blur-md shadow-[0_12px_40px_rgba(0,0,0,0.55)] z-50">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[180px] flex items-center">
-                {KATALOG_SERIT.map((kat) => (
-                  <div
-                    key={kat.id}
-                    className={`flex flex-wrap justify-start items-start gap-x-5 gap-y-4 w-full overflow-hidden ${
-                      acikSeritKatalog === kat.id ? "" : "hidden"
-                    }`}
-                  >
-                    {kat.altlar.map((k) => (
-                      <ResimliKategoriKarti
-                        key={`${kat.id}-${k.slug}-${k.isim}`}
-                        k={k}
-                        onNavigate={() => setAcikSeritKatalog(null)}
-                      />
-                    ))}
-                  </div>
-                ))}
+          {/* Katalog — sadece şerit + panel alanında açık kalır */}
+          <div
+            ref={katalogRef}
+            className="hidden md:block relative"
+            onMouseLeave={() => setAcikSeritKatalog(null)}
+          >
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex items-stretch gap-0.5 pb-2.5 pt-1 border-t border-white/[0.04]">
+                {KATALOG_SERIT.map((kat) => {
+                  const aktif = acikSeritKatalog === kat.id;
+                  return (
+                    <button
+                      key={kat.id}
+                      type="button"
+                      title={kat.isim}
+                      onMouseEnter={() => setAcikSeritKatalog(kat.id)}
+                      className={`flex-1 min-w-0 px-1 py-1.5 text-center transition-colors border-b-2 text-white ${
+                        aktif ? "border-[#3b82f6]" : "border-transparent hover:border-white/30"
+                      }`}
+                    >
+                      <span className="text-[11px] lg:text-xs font-medium tracking-wide truncate block px-0.5">
+                        {kat.kisaIsim}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
-          )}
-        </div>
+
+            {acikSeritKatalog && (
+              <div className="absolute top-full left-0 w-full border-t border-white/[0.06] bg-[#050814]/98 backdrop-blur-md shadow-[0_12px_40px_rgba(0,0,0,0.55)] z-50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[180px] flex items-center">
+                  {KATALOG_SERIT.map((kat) => (
+                    <div
+                      key={kat.id}
+                      className={`flex flex-wrap justify-start items-start gap-x-5 gap-y-4 w-full overflow-hidden ${
+                        acikSeritKatalog === kat.id ? "" : "hidden"
+                      }`}
+                    >
+                      {kat.altlar.map((k) => (
+                        <ResimliKategoriKarti
+                          key={`${kat.id}-${k.slug}-${k.isim}`}
+                          k={k}
+                          onNavigate={() => setAcikSeritKatalog(null)}
+                        />
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
       </header>
 
       {/* 📱 MOBİL MENÜ */}

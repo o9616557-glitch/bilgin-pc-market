@@ -137,7 +137,6 @@ function MobilProfilKarti() {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-white text-xs font-semibold">Misafir</p>
-          <p className="text-slate-500 text-[10px]">Giriş yapmadan gezebilirsiniz</p>
         </div>
         <Link href="/giris" className="text-xs font-semibold text-site-accent border border-site-accent/30 rounded-xl px-3 py-1.5 hover:bg-site-accent/10 transition-colors shrink-0">
           Giriş Yap
@@ -230,9 +229,6 @@ function AccountPanel({ active }: { active?: string }) {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-white text-sm font-semibold">Misafir</p>
-                <p className="text-slate-500 text-[11px] leading-relaxed">
-                  Paneli gezebilirsiniz. Sipariş veya kayıt için giriş yapın.
-                </p>
               </div>
             </div>
             <div className="flex gap-2">
