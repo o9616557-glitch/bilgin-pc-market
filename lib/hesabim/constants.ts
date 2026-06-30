@@ -9,6 +9,7 @@ import {
   MapPin,
   Search,
   Headset,
+  Bell,
 } from "lucide-react";
 
 export const RENK_SECENEKLERI = [
@@ -38,9 +39,17 @@ export const VARSAYILAN_ALT_MENU = [
   { id: "favoriler", isim: "Favoriler", ikon: Star, renk: "text-purple-400", isLink: true, href: "/favorilerim" },
   { id: "sistemler", isim: "Sistemler", ikon: Server, renk: "text-emerald-400", isLink: true, href: "/sistemlerim" },
   { id: "destek", isim: "Destek", ikon: Headset, renk: "text-orange-400", isLink: true, href: "/destek-taleplerim" },
+  { id: "bildirimler", isim: "Bildirimler", ikon: Bell, renk: "text-amber-400", isLink: true, href: "/bildirimler" },
   { id: "sorgula", isim: "Sorgula", ikon: Search, renk: "text-blue-400", isLink: true, href: "/siparis-takip" },
   { id: "kargolar", isim: "Kargolar", ikon: Truck, renk: "text-rose-400", isLink: true, href: "/kargolarim" },
 ];
+
+export function menuEksikleriEkle(mevcut: any[], varsayilan: any[]) {
+  const ids = new Set(mevcut.map((item: any) => item.id));
+  const eksikler = varsayilan.filter((item) => !ids.has(item.id));
+  const birlesik = eksikler.length > 0 ? [...mevcut, ...eksikler] : mevcut;
+  return ikonEslestir(birlesik);
+}
 
 export function ikonEslestir(liste: any[]) {
   return liste.map((item: any) => {
@@ -52,6 +61,7 @@ export function ikonEslestir(liste: any[]) {
     if (item.id === "sistemler") ikonBileseni = Server;
     if (item.id === "kargolar") ikonBileseni = Truck;
     if (item.id === "destek") ikonBileseni = Headset;
+    if (item.id === "bildirimler") ikonBileseni = Bell;
     if (item.id === "sorgula") ikonBileseni = Search;
     return { ...item, ikon: ikonBileseni };
   });

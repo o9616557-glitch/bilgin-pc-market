@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 
 interface OrderContextType {
@@ -49,6 +49,7 @@ export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
   const [orders, setOrders] = useState<any[]>(() => cacheOku());
   const [loading, setLoading] = useState(false);
   const [hafizaHazir, setHafizaHazir] = useState(false);
+  const oturumAciktiRef = useRef(false);
 
   useEffect(() => {
     const cached = cacheOku();
@@ -82,8 +83,9 @@ export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
     if (!hafizaHazir || status === "loading") return;
 
     if (status === "authenticated") {
+      oturumAciktiRef.current = true;
       void fetchOrders(true);
-    } else if (status === "unauthenticated") {
+    } else if (status === "unauthenticated" && oturumAciktiRef.current) {
       setOrders([]);
       setLoading(false);
       if (typeof window !== "undefined") sessionStorage.removeItem(CACHE_KEY);

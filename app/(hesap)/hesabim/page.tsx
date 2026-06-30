@@ -12,7 +12,9 @@ import {
   VARSAYILAN_UST_MENU,
   VARSAYILAN_ALT_MENU,
   ikonEslestir,
+  menuEksikleriEkle,
 } from "@/lib/hesabim/constants";
+import { destekOzetOku } from "@/lib/destek-ozet";
 import {
   User,
   ShieldCheck,
@@ -229,10 +231,25 @@ export default function HesabimPage() {
 
   const [altMenuListesi, setAltMenuListesi] = useState(() => {
     if (typeof window !== "undefined") {
-      try { const cached = localStorage.getItem("bilgin_alt_menu_v4"); if (cached) return ikonEslestir(JSON.parse(cached)); } catch (e) {}
+      try {
+        const cached = localStorage.getItem("bilgin_alt_menu_v4");
+        if (cached) return menuEksikleriEkle(JSON.parse(cached), VARSAYILAN_ALT_MENU);
+      } catch (e) {}
     }
     return VARSAYILAN_ALT_MENU;
   });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const cached = localStorage.getItem("bilgin_alt_menu_v4");
+      const parsed = cached ? JSON.parse(cached) : [];
+      if (!parsed.some((item: { id: string }) => item.id === "bildirimler")) {
+        const temiz = altMenuListesi.map(({ ikon, ...kalan }: any) => kalan);
+        localStorage.setItem("bilgin_alt_menu_v4", JSON.stringify(temiz));
+      }
+    } catch {}
+  }, [altMenuListesi]);
 
   const [siparisRenkleri, setSiparisRenkleri] = useState<Record<string, any>>(() => {
     if(typeof window !== 'undefined') {
@@ -301,14 +318,12 @@ export default function HesabimPage() {
   });
   const [acikTalepSayisi, setAcikTalepSayisi] = useState<number>(() => {
     if (typeof window === "undefined") return 0;
-    try { return JSON.parse(sessionStorage.getItem("bilgin_destek_ozet") || "{}").sayi || 0; } catch { return 0; }
+    return destekOzetOku().sayi || 0;
   });
   const [yeniMesajVar, setYeniMesajVar] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
-    try {
-      const o = JSON.parse(sessionStorage.getItem("bilgin_destek_ozet") || "{}");
-      return !!o.acil || (o.okunmamis || 0) > 0;
-    } catch { return false; }
+    const o = destekOzetOku();
+    return !!o.acil || (o.okunmamis || 0) > 0;
   });
 
   const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
@@ -456,7 +471,8 @@ export default function HesabimPage() {
   };
 
   const handleCikisYap = async () => {
-    oturumHafizasiniTemizle();
+    const email = session?.user?.email;
+    oturumHafizasiniTemizle(email);
     localStorage.removeItem("bilgin_ust_menu_v4");
     localStorage.removeItem("bilgin_alt_menu_v4");
     const cihazId = (session?.user as any)?.deviceId;
@@ -494,12 +510,9 @@ export default function HesabimPage() {
           if (parsed.favoriSayisi !== undefined) setFavoriSayisi(parsed.favoriSayisi);
           if (parsed.adresSayisi !== undefined) setAdresSayisi(parsed.adresSayisi);
         }
-        const destekOzet = sessionStorage.getItem("bilgin_destek_ozet");
-        if (destekOzet) {
-          const parsed = JSON.parse(destekOzet);
-          setAcikTalepSayisi(parsed.sayi || 0);
-          setYeniMesajVar(!!parsed.acil || (parsed.okunmamis || 0) > 0);
-        }
+        const ozet = destekOzetOku(session.user.email);
+        setAcikTalepSayisi(ozet.sayi || 0);
+        setYeniMesajVar(!!ozet.acil || (ozet.okunmamis || 0) > 0);
         const kayitliSistemler = localStorage.getItem("bilgin_kayitli_sistemler");
         if (kayitliSistemler) {
           const parsedSistemler = JSON.parse(kayitliSistemler);
@@ -786,13 +799,14 @@ export default function HesabimPage() {
         )}
 
         <div className="w-full block">
-          <div className={`grid grid-cols-5 gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${aktifPalet === 'menu' ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
+          <div className={`grid grid-cols-3 sm:grid-cols-6 gap-1.5 sm:gap-3 lg:gap-4 w-full transition-all duration-300 ${aktifPalet === 'menu' ? 'bg-[#0f172a]/50 p-2 sm:p-4 rounded-3xl border-2 border-dashed border-emerald-500/50' : ''}`}>
             {altMenuListesi.map((item: any, index: number) => {
               const IkonBileseni = item.ikon;
               const isSecili = seciliKutuId === item.id;
               
               const kargoVarmi = item.id === "kargolar" && kargoSiparisleri.length > 0;
               const mesajVarmi = item.id === "destek" && yeniMesajVar;
+              const bildirimVarmi = item.id === "bildirimler" && kargoSiparisleri.length > 0;
 
               const KutuIcerigi = (
                 <div
@@ -840,7 +854,7 @@ export default function HesabimPage() {
                     )}
 
                     {/* Bildirim noktası */}
-                    {(kargoVarmi || mesajVarmi) && aktifPalet !== 'menu' && (
+                    {(kargoVarmi || mesajVarmi || bildirimVarmi) && aktifPalet !== 'menu' && (
                       <span className="absolute top-1 right-1 flex h-2.5 w-2.5 z-10">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: pingRenk }}></span>
                         <span className="relative inline-flex rounded-full h-2.5 w-2.5 border border-[#0f172a]" style={{ backgroundColor: pingRenk }}></span>

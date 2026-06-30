@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, type ReactNode } from "react";
 import Link from "next/link";
+import { destekOzetOku } from "@/lib/destek-ozet";
 import { useCart } from "@/app/CartContext";
 import { useOrders } from "@/app/OrderContext";
 import { useSession, signOut } from "next-auth/react";
@@ -552,7 +553,10 @@ export default function Header() {
 
   const { sepet } = useCart();
   const { orders } = useOrders();
-  const [okunmamisMesaj, setOkunmamisMesaj] = useState(0);
+  const [okunmamisMesaj, setOkunmamisMesaj] = useState(() => {
+    if (typeof window === "undefined") return 0;
+    return destekOzetOku().okunmamis || 0;
+  });
   const [menuAcik, setMenuAcik] = useState(false);
   const [hesabimAcik, setHesabimAcik] = useState(false);
   const [acikSeritKatalog, setAcikSeritKatalog] = useState<string | null>(null);
@@ -575,17 +579,13 @@ export default function Header() {
   ).length;
 
   useEffect(() => {
-    const destekOzetOku = () => {
-      try {
-        const ozet = JSON.parse(sessionStorage.getItem("bilgin_destek_ozet") || "{}");
-        setOkunmamisMesaj(ozet.okunmamis || 0);
-      } catch {
-        setOkunmamisMesaj(0);
-      }
+    const destekOzetOkuHandler = () => {
+      const ozet = destekOzetOku(session?.user?.email);
+      setOkunmamisMesaj(ozet.okunmamis || 0);
     };
-    destekOzetOku();
-    window.addEventListener("bilgin-hesap-guncellendi", destekOzetOku);
-    return () => window.removeEventListener("bilgin-hesap-guncellendi", destekOzetOku);
+    if (status !== "loading") destekOzetOkuHandler();
+    window.addEventListener("bilgin-hesap-guncellendi", destekOzetOkuHandler);
+    return () => window.removeEventListener("bilgin-hesap-guncellendi", destekOzetOkuHandler);
   }, [status, session?.user?.email]);
   const isAdmin = session?.user?.email?.toLowerCase() === "o9616557@gmail.com";
   const [cikisOnayAcik, setCikisOnayAcik] = useState(false); // 🚀 YENİ EKLEDİĞİMİZ MERKEZİ ONAY MOTORU

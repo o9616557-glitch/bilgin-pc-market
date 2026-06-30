@@ -778,7 +778,7 @@ export default function GuvenlikPage() {
                       );
                       
                       setTimeout(async () => {
-                        oturumHafizasiniTemizle();
+                        oturumHafizasiniTemizle(session?.user?.email);
                         await signOut({ redirect: false });
                         window.location.href = '/giris'; 
                       }, 2000);

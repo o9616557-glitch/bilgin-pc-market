@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { oturumHafizasiniTemizle } from "@/lib/oturum-hafiza";
+import { destekOzetYaz } from "@/lib/destek-ozet";
 
 type DestekTalep = {
   musteriGizledi?: boolean;
@@ -32,16 +33,23 @@ export default function HesapHafizaCipi() {
   const { data: session, status } = useSession();
   const yuklendiRef = useRef(false);
   const sonEmailRef = useRef<string | null>(null);
+  const oturumAciktiRef = useRef(false);
 
   useEffect(() => {
+    if (status === "loading") return;
+
     if (status === "unauthenticated") {
-      if (sonEmailRef.current) oturumHafizasiniTemizle();
+      if (oturumAciktiRef.current) {
+        oturumHafizasiniTemizle(sonEmailRef.current);
+      }
       yuklendiRef.current = false;
       sonEmailRef.current = null;
       return;
     }
 
-    if (status !== "authenticated" || !session?.user?.email) return;
+    if (!session?.user?.email) return;
+
+    oturumAciktiRef.current = true;
 
     if (sonEmailRef.current !== session.user.email) {
       yuklendiRef.current = false;
@@ -97,7 +105,7 @@ export default function HesapHafizaCipi() {
           favoriSayisi,
         }));
 
-        sessionStorage.setItem("bilgin_destek_ozet", JSON.stringify(destekOzet));
+        destekOzetYaz(destekOzet, session.user.email);
 
         window.dispatchEvent(new CustomEvent("bilgin-hesap-guncellendi"));
       } catch (error) {

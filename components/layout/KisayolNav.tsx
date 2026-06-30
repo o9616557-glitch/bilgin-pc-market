@@ -5,13 +5,14 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { User, Package, Star, Truck, Server, Search, Headset, LogOut, ChevronRight } from "lucide-react";
+import { User, Package, Star, Truck, Server, Search, Headset, Bell, LogOut, ChevronRight } from "lucide-react";
 
 /* ─────────────────── KISAYOL MENÜ TANIMLARI ─────────────────── */
 export const KISAYOL_ITEMS = [
   { id: "profil",     label: "Profil",       href: "/hesabim",           icon: User },
   { id: "siparisler", label: "Siparişlerim", href: "/siparislerim",      icon: Package },
   { id: "favori",     label: "Favoriler",    href: "/favorilerim",       icon: Star },
+  { id: "bildirimler", label: "Bildirimler", href: "/bildirimler",       icon: Bell },
   { id: "kargolar",   label: "Kargolar",     href: "/kargolarim",        icon: Truck },
   { id: "sistemler",  label: "Sistemler",    href: "/sistemlerim",       icon: Server },
   { id: "sorgula",    label: "Sorgula",      href: "/siparis-takip",     icon: Search },

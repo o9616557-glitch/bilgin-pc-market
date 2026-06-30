@@ -1,4 +1,4 @@
-export function oturumHafizasiniTemizle() {
+export function oturumHafizasiniTemizle(email?: string | null) {
   if (typeof window === "undefined") return;
 
   [
@@ -13,4 +13,8 @@ export function oturumHafizasiniTemizle() {
 
   localStorage.removeItem("bilgin_kayitli_sistemler");
   localStorage.removeItem("bilgin_destek_talepleri");
+
+  if (email) {
+    localStorage.removeItem(`bilgin_destek_ozet_${email.toLowerCase()}`);
+  }
 }
