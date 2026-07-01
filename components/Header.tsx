@@ -586,6 +586,7 @@ export default function Header() {
   const headerRef = useRef<HTMLElement>(null);
   const [headerYukseklik, setHeaderYukseklik] = useState(116);
   const [masaustuKatalogHazir, setMasaustuKatalogHazir] = useState(false);
+  const [masaustuHoverHareketiVar, setMasaustuHoverHareketiVar] = useState(false);
   
   const sepetAdedi = sepet.reduce((toplam: number, urun: any) => toplam + (urun.adet || 1), 0);
   const { data: session, status } = useSession();
@@ -626,13 +627,29 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
       kelimeTemizle(item.slug).includes(aramaMetniTemiz)
     )
   : [];
-  // PC: sayfa değişince (sepet → ürün vb.) katalog panelini kapat; fare üstte kaldıysa yanlış hover'ı engelle
+  // PC: sayfa değişince (sepet -> urun vb.) katalog panelini kapat.
+  // Katalog ancak yeni sayfada GERCEK bir mouse hareketinden sonra yeniden acilabilir.
   useEffect(() => {
     setAcikSeritKatalog(null);
     setMasaustuKatalogHazir(false);
+    setMasaustuHoverHareketiVar(false);
     const timer = window.setTimeout(() => setMasaustuKatalogHazir(true), 400);
     return () => window.clearTimeout(timer);
   }, [pathname]);
+
+  useEffect(() => {
+    if (!masaustuKatalogHazir) return;
+
+    const ilkGercekMouseHareketi = () => {
+      if (window.matchMedia("(min-width: 1024px)").matches) {
+        setMasaustuHoverHareketiVar(true);
+      }
+      window.removeEventListener("mousemove", ilkGercekMouseHareketi);
+    };
+
+    window.addEventListener("mousemove", ilkGercekMouseHareketi, { passive: true });
+    return () => window.removeEventListener("mousemove", ilkGercekMouseHareketi);
+  }, [masaustuKatalogHazir]);
 
   useEffect(() => {
     if (!acikSeritKatalog) return;
@@ -957,7 +974,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                       type="button"
                       title={kat.isim}
                       onMouseEnter={() => {
-                        if (!masaustuKatalogHazir || aramaAcik) return;
+                        if (!masaustuKatalogHazir || !masaustuHoverHareketiVar || aramaAcik) return;
                         setAcikSeritKatalog(kat.id);
                       }}
                       className={`flex-1 min-w-0 px-1 py-1.5 text-center transition-colors border-b-2 text-white ${
