@@ -524,7 +524,6 @@ export default function OdemeSayfasi() {
         </span>
         <span className="flex-1 text-left min-w-0">
           <span className="block text-sm font-medium">BKM Express</span>
-          <span className="block text-[11px] text-slate-500 mt-0.5">Kayıtlı kartınla hızlı öde</span>
         </span>
         <div
           className={[
@@ -858,15 +857,7 @@ export default function OdemeSayfasi() {
                       </div>
                     </div>
                   </>
-                ) : odemeYontemi === "bkm" ? (
-                  <div className="rounded-2xl border border-orange-400/15 bg-orange-500/[0.04] p-4 sm:p-5 mb-5">
-                    <p className="text-white text-sm font-medium mb-1">BKM Express</p>
-                    <p className="text-slate-400 text-xs leading-relaxed">
-                      İyzico ekranında <span className="text-slate-300">BKM Express</span> sekmesini seçin.
-                      Ödeme için BKM Express hesabınız ve kayıtlı kartınız olmalıdır.
-                    </p>
-                  </div>
-                ) : (
+                ) : odemeYontemi === "bkm" ? null : (
                   <HavaleDetayKarti />
                 )}
 
