@@ -299,12 +299,12 @@ export default function OdemeSayfasi() {
           sessionStorage.removeItem(ODEME_FORM_CACHE_KEY);
           localStorage.removeItem("bilgin-sepet");
           window.location.href = "/siparis-basarili?kodu=" + data.siparisKodu;
-        } else if (data.paymentPageUrl) {
+        } else if (data.paymentPageUrl || data.redirectUrl) {
           sessionStorage.setItem(
             ODEME_FORM_CACHE_KEY,
             JSON.stringify({ form, faturaForm, faturaAyni, asama, odemeYontemi, seciliKartId })
           );
-          window.location.href = data.paymentPageUrl;
+          window.location.href = data.paymentPageUrl || data.redirectUrl;
           return;
         } else {
           alert("Ödeme sayfası oluşturulamadı. Lütfen tekrar deneyin.");
@@ -351,9 +351,9 @@ export default function OdemeSayfasi() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const odemeYontemiSec = (yontem: "kart" | "havale") => {
+  const odemeYontemiSec = (yontem: "kart" | "havale" | "bkm") => {
     setOdemeYontemi(yontem);
-    if (yontem === "havale") setSeciliKartId(null);
+    if (yontem === "havale" || yontem === "bkm") setSeciliKartId(null);
   };
 
   const KayitliKartSecimi = () => {
@@ -465,40 +465,75 @@ export default function OdemeSayfasi() {
   };
 
   const OdemeYontemiKartlari = ({ compact = false }: { compact?: boolean }) => (
-    <div className={`grid grid-cols-2 gap-3 ${compact ? "mb-4" : "mb-5"}`}>
+    <div className={compact ? "mb-4" : "mb-5"}>
+      <div className="grid grid-cols-2 gap-3">
+        <button
+          type="button"
+          onClick={() => odemeYontemiSec("kart")}
+          className={[
+            "relative rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-2 touch-manipulation active:scale-[0.98]",
+            compact ? "py-3 px-2 min-h-[64px]" : "py-4 px-3 min-h-[80px]",
+            odemeYontemi === "kart"
+              ? "bg-[#00d2ff]/10 text-[#00d2ff] border-[#00d2ff]/50 shadow-[0_0_20px_rgba(0,210,255,0.12)]"
+              : "bg-white/[0.03] text-slate-400 border-white/[0.08] hover:border-white/20 hover:text-white",
+          ].join(" ")}
+        >
+          {odemeYontemi === "kart" && (
+            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#00d2ff] shadow-[0_0_8px_#00d2ff]" />
+          )}
+          <CreditCard className={compact ? "w-5 h-5" : "w-6 h-6"} />
+          <span className="text-[11px] sm:text-xs font-bold text-center leading-tight">Kredi / Banka Kartı</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => odemeYontemiSec("havale")}
+          className={[
+            "relative rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-2 touch-manipulation active:scale-[0.98]",
+            compact ? "py-3 px-2 min-h-[64px]" : "py-4 px-3 min-h-[80px]",
+            odemeYontemi === "havale"
+              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.12)]"
+              : "bg-white/[0.03] text-slate-400 border-white/[0.08] hover:border-white/20 hover:text-white",
+          ].join(" ")}
+        >
+          {odemeYontemi === "havale" && (
+            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
+          )}
+          <Banknote className={compact ? "w-5 h-5" : "w-6 h-6"} />
+          <span className="text-[11px] sm:text-xs font-bold text-center leading-tight">Havale / EFT</span>
+        </button>
+      </div>
+
+      <div className="flex items-center gap-3 mt-4 mb-3">
+        <div className="flex-1 h-px bg-white/[0.06]" />
+        <span className="text-[10px] text-slate-500 uppercase tracking-wider">veya</span>
+        <div className="flex-1 h-px bg-white/[0.06]" />
+      </div>
+
       <button
         type="button"
-        onClick={() => odemeYontemiSec("kart")}
+        onClick={() => odemeYontemiSec("bkm")}
         className={[
-          "relative rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-2 touch-manipulation active:scale-[0.98]",
-          compact ? "py-3 px-2 min-h-[64px]" : "py-4 px-3 min-h-[80px]",
-          odemeYontemi === "kart"
-            ? "bg-[#00d2ff]/10 text-[#00d2ff] border-[#00d2ff]/50 shadow-[0_0_20px_rgba(0,210,255,0.12)]"
-            : "bg-white/[0.03] text-slate-400 border-white/[0.08] hover:border-white/20 hover:text-white",
+          "w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-all touch-manipulation active:scale-[0.99]",
+          odemeYontemi === "bkm"
+            ? "border-orange-400/35 bg-orange-500/[0.07] text-white"
+            : "border-white/[0.08] bg-white/[0.02] text-slate-300 hover:border-white/15 hover:bg-white/[0.04]",
         ].join(" ")}
       >
-        {odemeYontemi === "kart" && (
-          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#00d2ff] shadow-[0_0_8px_#00d2ff]" />
-        )}
-        <CreditCard className={compact ? "w-5 h-5" : "w-6 h-6"} />
-        <span className="text-[11px] sm:text-xs font-bold text-center leading-tight">Kredi / Banka Kartı</span>
-      </button>
-      <button
-        type="button"
-        onClick={() => odemeYontemiSec("havale")}
-        className={[
-          "relative rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-2 touch-manipulation active:scale-[0.98]",
-          compact ? "py-3 px-2 min-h-[64px]" : "py-4 px-3 min-h-[80px]",
-          odemeYontemi === "havale"
-            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.12)]"
-            : "bg-white/[0.03] text-slate-400 border-white/[0.08] hover:border-white/20 hover:text-white",
-        ].join(" ")}
-      >
-        {odemeYontemi === "havale" && (
-          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
-        )}
-        <Banknote className={compact ? "w-5 h-5" : "w-6 h-6"} />
-        <span className="text-[11px] sm:text-xs font-bold text-center leading-tight">Havale / EFT</span>
+        <span className="w-9 h-9 rounded-lg bg-white flex items-center justify-center shrink-0 shadow-sm">
+          <span className="text-[9px] font-black text-[#d35400] tracking-tight leading-none">BKM</span>
+        </span>
+        <span className="flex-1 text-left min-w-0">
+          <span className="block text-sm font-medium">BKM Express</span>
+          <span className="block text-[11px] text-slate-500 mt-0.5">Kayıtlı kartınla hızlı öde</span>
+        </span>
+        <div
+          className={[
+            "w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center",
+            odemeYontemi === "bkm" ? "border-orange-400 bg-orange-400" : "border-slate-600",
+          ].join(" ")}
+        >
+          {odemeYontemi === "bkm" && <Check className="w-2.5 h-2.5 text-white" />}
+        </div>
       </button>
     </div>
   );
@@ -823,6 +858,13 @@ export default function OdemeSayfasi() {
                       </div>
                     </div>
                   </>
+                ) : odemeYontemi === "bkm" ? (
+                  <div className="rounded-2xl border border-orange-400/15 bg-orange-500/[0.04] p-4 sm:p-5 mb-5">
+                    <p className="text-white text-sm font-medium mb-1">BKM Express</p>
+                    <p className="text-slate-400 text-xs leading-relaxed">
+                      BKM hesabınızdaki kartla güvenli ödeme yapılır. Onay sonrası siparişiniz hazırlanır.
+                    </p>
+                  </div>
                 ) : (
                   <HavaleDetayKarti />
                 )}
@@ -842,6 +884,8 @@ export default function OdemeSayfasi() {
                   >
                     {yukleniyor ? "İşleniyor…" : odemeYontemi === "kart" ? (
                       <><CreditCard className="w-4 h-4" /> {seciliKartId ? "Kayıtlı kart ile öde" : "Kart ile öde"}</>
+                    ) : odemeYontemi === "bkm" ? (
+                      <><span className="text-[10px] font-black tracking-tight">BKM</span> Express ile öde</>
                     ) : (
                       <><Banknote className="w-4 h-4" /> Havale siparişini onayla</>
                     )}

@@ -23,8 +23,9 @@ export async function POST(request: Request) {
     const db = client.db("bilginpcmarket");
     const siparisKodu = `BPC-${Math.floor(100000 + Math.random() * 900000)}`;
 
-    // 🚀 BİNGO: Diğer sayfaların tanıması için orijinal "havale" ve "kart" kodları
-    const gercekOdemeYontemi = odemeYontemi === "havale" ? "havale" : "kart";
+    // 🚀 BİNGO: Diğer sayfaların tanıması için orijinal ödeme kodları
+    const gercekOdemeYontemi =
+      odemeYontemi === "havale" ? "havale" : odemeYontemi === "bkm" ? "bkm" : "kart";
     const ilkDurum = odemeYontemi === "havale" ? "Havale Bekliyor" : "Ödeme Bekliyor";
 
     const yeniSiparis = {
@@ -182,7 +183,38 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, odemeYontemi: "havale", siparisKodu });
     }
 
-    // ================= KART ÖDEMESİ KISMI =================
+    const gsmNumber = (() => {
+      const raw = String(musteri.telefon || "").replace(/\D/g, "");
+      if (!raw) return "+905555555555";
+      if (raw.startsWith("90")) return `+${raw}`;
+      if (raw.startsWith("0")) return `+9${raw}`;
+      return `+90${raw}`;
+    })();
+
+    const iyzicoAlici = {
+      id: `MUSTERI-${siparisKodu}`,
+      name: musteri.ad || "Müşteri",
+      surname: musteri.soyad || "Soyadı",
+      gsmNumber,
+      email: musteri.eposta || "test@test.com",
+      identityNumber: "11111111111",
+      lastLoginDate: "2026-05-21 12:00:00",
+      registrationDate: "2026-05-21 12:00:00",
+      registrationAddress: musteri.adres || "Test Adresi",
+      ip: "85.34.78.112",
+      city: musteri.sehir || "Istanbul",
+      country: "Turkey",
+      zipCode: "34000",
+    };
+    const iyzicoAdres = {
+      contactName: `${musteri.ad} ${musteri.soyad}`,
+      city: musteri.sehir || "Istanbul",
+      country: "Turkey",
+      address: musteri.adres || "Test Adresi",
+      zipCode: "34000",
+    };
+
+    // ================= KART / BKM ÖDEMESİ =================
     let sepetUrunleri = sepet.map((item: any) => ({
       id: item.id, name: item.isim, category1: "Bilgisayar Donanim", itemType: "PHYSICAL", price: (item.fiyat * item.adet).toString()
     }));
@@ -196,15 +228,52 @@ export async function POST(request: Request) {
 
     let iyzicoCardUserKey = await kartUserKeyPromise;
 
+    if (odemeYontemi === "bkm") {
+      const bkmTalep = {
+        locale: "tr",
+        conversationId: siparisKodu,
+        price: toplamTutar.toString(),
+        basketId: siparisKodu,
+        paymentGroup: "PRODUCT",
+        callbackUrl: `https://www.bilginpcmarket.com/api/bkm-sonuc?siparisKodu=${siparisKodu}`,
+        enabledInstallments: [1, 2, 3, 6, 9],
+        buyer: iyzicoAlici,
+        shippingAddress: iyzicoAdres,
+        billingAddress: iyzicoAdres,
+        basketItems: sepetUrunleri,
+      };
+
+      const bkmSonuc: any = await new Promise((resolve) => {
+        iyzipay.bkmInitialize.create(bkmTalep, (err: any, result: any) => {
+          if (err) resolve({ status: "failure", errorMessage: err.message || JSON.stringify(err) });
+          else resolve(result);
+        });
+      });
+
+      if (bkmSonuc.status === "success") {
+        const redirectUrl = bkmSonuc.redirectUrl || bkmSonuc.paymentPageUrl;
+        if (!redirectUrl) {
+          return NextResponse.json({ error: "BKM yönlendirme adresi alınamadı." }, { status: 400 });
+        }
+        return NextResponse.json({
+          success: true,
+          odemeYontemi: "bkm",
+          redirectUrl,
+        });
+      }
+      return NextResponse.json(
+        { error: `BKM Express reddedildi: ${bkmSonuc.errorMessage || JSON.stringify(bkmSonuc)}` },
+        { status: 400 }
+      );
+    }
+
     const iyzicoTalep: Record<string, unknown> = {
       locale: "tr", conversationId: siparisKodu, price: toplamTutar.toString(), paidPrice: toplamTutar.toString(), currency: "TRY", basketId: siparisKodu, paymentGroup: "PRODUCT",
       callbackUrl: `https://www.bilginpcmarket.com/api/iyzico-sonuc?siparisKodu=${siparisKodu}`,
       enabledInstallments: [1, 2, 3, 6, 9],
-      buyer: {
-        id: "MUSTERI-123", name: musteri.ad || "Müşteri", surname: musteri.soyad || "Soyadı", gsmNumber: "+905555555555", email: musteri.eposta || "test@test.com", identityNumber: "11111111111", lastLoginDate: "2026-05-21 12:00:00", registrationDate: "2026-05-21 12:00:00", registrationAddress: musteri.adres || "Test Adresi", ip: "85.34.78.112", city: musteri.sehir || "Istanbul", country: "Turkey", zipCode: "34000"
-      },
-      shippingAddress: { contactName: `${musteri.ad} ${musteri.soyad}`, city: musteri.sehir || "Istanbul", country: "Turkey", address: musteri.adres || "Test Adresi", zipCode: "34000" },
-      billingAddress: { contactName: `${musteri.ad} ${musteri.soyad}`, city: musteri.sehir || "Istanbul", country: "Turkey", address: musteri.adres || "Test Adresi", zipCode: "34000" },
+      buyer: iyzicoAlici,
+      shippingAddress: iyzicoAdres,
+      billingAddress: iyzicoAdres,
       basketItems: sepetUrunleri
     };
 
