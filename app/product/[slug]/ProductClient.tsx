@@ -16,6 +16,7 @@ import {
   useUrunResimBuyutec,
 } from "@/components/UrunResimBuyutec";
 import KargoTeslimatNotu from "@/components/KargoTeslimatNotu";
+import { useTarayiciAltBosluk } from "@/hooks/useTarayiciAltBosluk";
 
 function UrunGaleriResmi({
   src,
@@ -76,6 +77,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const { sepeteEkle } = useCart();
   const { karsilastirmayaEkle, setPopupAcik } = useCompare(); 
   const [mobil, setMobil] = useState(false);
+  const tarayiciAltBosluk = useTarayiciAltBosluk();
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
@@ -501,7 +503,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   );
 
   return (
-    <div className="bg-[#050505] text-white font-sans pb-36 sm:pb-10 relative site-page-soft-in">
+    <div
+      className="bg-[#050505] text-white font-sans sm:pb-10 relative site-page-soft-in"
+      style={{ paddingBottom: mobil ? `calc(9.5rem + ${tarayiciAltBosluk}px)` : undefined }}
+    >
       <BuyutecResimOnyukle src={aktifResimHd} aktif={!mobil} />
       
       <style dangerouslySetInnerHTML={{ __html: `
@@ -933,8 +938,11 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
      {/* MOBİL ALT BAR — body'ye portal; kaydırınca da hep ekranın altında kalır */}
       {typeof document !== "undefined" && createPortal(
-        <div className="md:hidden fixed inset-x-0 bottom-0 z-[9990] select-none">
-         <div className="bg-[#050505]/98 backdrop-blur-2xl border-t border-white/10 px-4 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-20px_40px_rgba(0,0,0,0.9)]">
+        <div
+          className="md:hidden fixed inset-x-0 z-[9990] select-none transition-[bottom] duration-150 ease-out"
+          style={{ bottom: tarayiciAltBosluk }}
+        >
+         <div className="bg-[#050505]/98 backdrop-blur-2xl border-t border-white/10 px-4 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] shadow-[0_-20px_40px_rgba(0,0,0,0.9)]">
             <div className="flex items-center justify-between gap-2 mb-2 min-w-0">
                <div className="flex flex-col min-w-0">
                   {indirimVarMi && !tukendiMi && (

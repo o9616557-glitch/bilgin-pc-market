@@ -1,6 +1,6 @@
 import { Toaster } from "react-hot-toast";
 import AuthProvider from "@/components/AuthProvider";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Suspense } from "react";
@@ -31,8 +31,12 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-export const viewport = {
+export const viewport: Viewport = {
   themeColor: "#050814",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({
