@@ -234,7 +234,7 @@ export default function CuzdanPage() {
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Mağaza Kredisi</span>
                   </div>
                   <p className="text-xl sm:text-2xl font-black text-white">{paraFormatla(storeCredit)}</p>
-                  <p className="text-[10px] text-slate-500 mt-1">İade ve promosyon bakiyeleri</p>
+                  <p className="text-[10px] text-slate-500 mt-1">Onaylı iade, iptal ve kampanya bakiyeleri</p>
                 </div>
                 <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-5">
                   <div className="flex items-center gap-2 mb-2">
@@ -275,9 +275,16 @@ export default function CuzdanPage() {
                           <p className="text-xs font-bold text-slate-300">Mağaza Kredisi</p>
                         </div>
                         <ul className="text-[11px] sm:text-xs text-slate-500 space-y-1.5 leading-relaxed list-disc list-inside">
-                          <li>İade işlemlerinizde ve özel kampanyalarda hesabınıza TL olarak yüklenir.</li>
-                          <li>Ödeme adımında sepet tutarından otomatik düşebilirsiniz.</li>
-                          <li>Nakit çekilemez; yalnızca mağazamızda alışverişte kullanılır.</li>
+                          <li>
+                            <strong className="text-slate-400 font-semibold">İade:</strong> Ürün iadeniz onaylandığında ve tutar size mağaza kredisi olarak tanımlandığında cüzdanınıza TL yüklenir. Kartınıza yapılan banka iadesi ayrı bir süreçtir.
+                          </li>
+                          <li>
+                            <strong className="text-slate-400 font-semibold">İptal:</strong> Sipariş iptallerinde ödeme krediye aktarıldığında bakiyeniz burada görünür.
+                          </li>
+                          <li>
+                            <strong className="text-slate-400 font-semibold">Kampanya:</strong> Üyelere özel hediye, promosyon veya telafi bakiyeleri bu alana eklenir.
+                          </li>
+                          <li>Ödeme adımında sepet tutarından düşebilirsiniz; nakit çekilemez, yalnızca mağazamızda kullanılır.</li>
                         </ul>
                       </div>
                       <div className="rounded-xl border border-slate-800/80 bg-[#020617]/60 p-4">
