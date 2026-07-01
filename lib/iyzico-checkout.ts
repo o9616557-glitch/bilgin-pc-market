@@ -1,5 +1,7 @@
 /** İyzico checkoutFormContent — script çalıştırma ve çıkışta temizlik */
 
+export const IYZICO_CHECKOUT_STORAGE_KEY = "iyzico_checkout_html";
+
 export function sifirlaSayfaKilidi() {
   document.body.style.overflow = "";
   document.body.style.removeProperty("overflow");
@@ -32,10 +34,9 @@ function silOdemeIframeKalintilari() {
   document.querySelectorAll("iframe").forEach((iframe) => {
     const src = iframe.getAttribute("src") || "";
     const odemeIframe =
-      /iyzipay|iyzico/i.test(src) ||
-      !src ||
-      src === "about:blank" ||
-      src.startsWith("chrome-error:");
+      /iyzipay|iyzico|cpp\.iyzipay/i.test(src) ||
+      src.startsWith("chrome-error:") ||
+      (src === "about:blank" && iframe.closest("#iyzipay-checkout-form, .iyzico-tam-ekran-kaplama"));
 
     if (odemeIframe) iframe.remove();
   });

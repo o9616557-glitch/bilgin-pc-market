@@ -1,19 +1,12 @@
 "use client";
 import { ArrowLeft, CreditCard, Banknote, ShieldCheck, MapPin, Edit3, User, Phone, Mail, ChevronRight, ChevronLeft, Package, Copy, Check, Plus } from "lucide-react";
 import { useCart } from "../CartContext";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import {
-  temizleIyzicoKalintilari,
-  temizleOdemeSayfasiKalintilari,
-  enjekteIyzicoCheckoutForm,
-  iyzicoIframeVarMi,
-  iyzicoIframeKaydirmaAyarla,
-  iyzicoTamEkranKapat,
-  iyzicoIframeBozukMu,
-} from "@/lib/iyzico-checkout";
+import { temizleOdemeSayfasiKalintilari, IYZICO_CHECKOUT_STORAGE_KEY } from "@/lib/iyzico-checkout";
 import { type KayitliKart } from "@/lib/cuzdan";
 
 const KART_MARKA: Record<string, string> = {
@@ -29,13 +22,12 @@ const fieldClass =
   "w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-site-accent/50 focus:bg-white/[0.05] transition-colors";
 
 export default function OdemeSayfasi() {
+  const router = useRouter();
   const { data: session, status } = useSession();
   const { sepet } = useCart();
 
   const [odemeYontemi, setOdemeYontemi] = useState("kart");
   const [yukleniyor, setYukleniyor] = useState(false);
-  const [iyzicoFormHtml, setIyzicoFormHtml] = useState<string>("");
-  const iyzicoFormRef = useRef<HTMLDivElement>(null);
   const [ibanKopyalandi, setIbanKopyalandi] = useState(false);
   const [faturaAyni, setFaturaAyni] = useState(true);
   const [acikSozlesme, setAcikSozlesme] = useState<"mesafeli" | "gizlilik" | null>(null);
@@ -45,9 +37,6 @@ export default function OdemeSayfasi() {
   const [kayitliKartlarYukleniyor, setKayitliKartlarYukleniyor] = useState(false);
   const [seciliKartId, setSeciliKartId] = useState<string | null>(null);
   const [odemeIptalAcik, setOdemeIptalAcik] = useState(false);
-  const iyzicoGeriKaydi = useRef(false);
-  const iyzicoPopstateYoksay = useRef(false);
-  const iyzicoAcikRef = useRef(false);
 
   const [adresAraniyor, setAdresAraniyor] = useState(() => {
     if (typeof window === "undefined") return true;
@@ -92,14 +81,12 @@ export default function OdemeSayfasi() {
 
   useEffect(() => {
     sessionStorage.removeItem("iyzico_temizle");
-    const kurtar = () => {
-      if (/chrome-error|chromewebdata/i.test(window.location.href)) {
-        window.location.replace("/odeme");
-      }
-    };
-    window.addEventListener("pageshow", kurtar);
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("iptal") === "1") {
+      setOdemeIptalAcik(true);
+      window.history.replaceState(null, "", "/odeme");
+    }
     return () => {
-      window.removeEventListener("pageshow", kurtar);
       temizleOdemeSayfasiKalintilari();
     };
   }, []);
@@ -224,131 +211,10 @@ export default function OdemeSayfasi() {
   const inputDegis = (e: any) => { setForm({ ...form, [e.target.name]: e.target.value }); };
   const faturaInputDegis = (e: any) => { setFaturaForm({ ...faturaForm, [e.target.name]: e.target.value }); };
 
-  const iyzicoKapat = useCallback((iptalMi = false) => {
-    iyzicoAcikRef.current = false;
-    iyzicoTamEkranKapat();
-    setIyzicoFormHtml("");
-    if (iptalMi) setOdemeIptalAcik(true);
-  }, []);
-
-  /** Üst çubuk — doğrudan kapatır; history.back() tek başına güvenilir değil */
-  const iyzicoOdemeDon = useCallback(() => {
-    if (!iyzicoAcikRef.current) return;
-    iyzicoPopstateYoksay.current = true;
-    const sentinel = iyzicoGeriKaydi.current;
-    iyzicoGeriKaydi.current = false;
-    iyzicoKapat(true);
-    const taban = window.location.pathname + window.location.search;
-    window.history.replaceState(null, "", taban);
-    if (sentinel) window.history.back();
-  }, [iyzicoKapat]);
-
-  useEffect(() => {
-    iyzicoAcikRef.current = Boolean(iyzicoFormHtml);
-  }, [iyzicoFormHtml]);
-
-  /** Telefon geri tuşu — İyzico açıkken önce ödeme formuna dön */
-  useEffect(() => {
-    if (!iyzicoFormHtml) return;
-
-    const taban = window.location.pathname + window.location.search;
-    window.history.replaceState(window.history.state, "", taban);
-    iyzicoGeriKaydi.current = true;
-    window.history.pushState({ iyzicoOdeme: true }, "", taban);
-
-    const geriAlgila = () => {
-      if (iyzicoPopstateYoksay.current) {
-        iyzicoPopstateYoksay.current = false;
-        return;
-      }
-      if (!iyzicoAcikRef.current) return;
-
-      iyzicoGeriKaydi.current = false;
-      iyzicoKapat(true);
-      const temiz = window.location.pathname.startsWith("/odeme")
-        ? window.location.pathname + window.location.search
-        : "/odeme";
-      window.history.replaceState(null, "", temiz);
-    };
-
-    window.addEventListener("popstate", geriAlgila);
-    return () => window.removeEventListener("popstate", geriAlgila);
-  }, [iyzicoFormHtml, iyzicoKapat]);
-
-  useEffect(() => {
-    if (!iyzicoFormHtml) return;
-
-    const baslat = () => {
-      const el = iyzicoFormRef.current;
-      if (!el) return false;
-      enjekteIyzicoCheckoutForm(el, iyzicoFormHtml);
-      return true;
-    };
-
-    if (!baslat()) requestAnimationFrame(() => baslat());
-
-    const scrollObserver = new MutationObserver(() => iyzicoIframeKaydirmaAyarla());
-    scrollObserver.observe(document.body, { childList: true, subtree: true });
-    const scrollTimers = [300, 800, 1500, 3000].map((ms) => setTimeout(iyzicoIframeKaydirmaAyarla, ms));
-
-    return () => {
-      scrollObserver.disconnect();
-      scrollTimers.forEach(clearTimeout);
-      temizleIyzicoKalintilari();
-    };
-  }, [iyzicoFormHtml]);
-
-  /** İyzico'nun kendi X ile kapandığını algıla → forma geri dön */
-  useEffect(() => {
-    if (!iyzicoFormHtml) return;
-
-    let iframeGoruldu = false;
-
-    const kontrol = () => {
-      if (iyzicoIframeBozukMu()) {
-        iyzicoKapat(true);
-        return;
-      }
-      if (iyzicoIframeVarMi()) {
-        iframeGoruldu = true;
-        return;
-      }
-      if (iframeGoruldu) {
-        iyzicoKapat(true);
-      }
-    };
-
-    const observer = new MutationObserver(kontrol);
-    observer.observe(document.body, { childList: true, subtree: true });
-    const timers = [500, 1500, 3000, 5000].map((ms) => setTimeout(kontrol, ms));
-    const bozukKontrol = setInterval(kontrol, 800);
-
-    return () => {
-      observer.disconnect();
-      timers.forEach(clearTimeout);
-      clearInterval(bozukKontrol);
-    };
-  }, [iyzicoFormHtml, iyzicoKapat]);
-
-  useEffect(() => {
-    if (iyzicoFormHtml) {
-      document.documentElement.classList.add("iyzico-tam-ekran");
-      document.body.classList.add("iyzico-tam-ekran");
-    } else {
-      document.documentElement.classList.remove("iyzico-tam-ekran");
-      document.body.classList.remove("iyzico-tam-ekran");
-    }
-    return () => {
-      document.documentElement.classList.remove("iyzico-tam-ekran");
-      document.body.classList.remove("iyzico-tam-ekran");
-    };
-  }, [iyzicoFormHtml]);
-
   const siparisTamamla = async (e: React.FormEvent) => {
     e.preventDefault();
     setYukleniyor(true);
     setOdemeIptalAcik(false);
-    setIyzicoFormHtml("");
 
     const sessionEmail = (session && session.user && session.user.email) ? session.user.email : form.eposta;
 
@@ -379,7 +245,8 @@ export default function OdemeSayfasi() {
           localStorage.removeItem("bilgin-sepet");
           window.location.href = "/siparis-basarili?kodu=" + data.siparisKodu;
         } else {
-          setIyzicoFormHtml(data.checkoutFormContent);
+          sessionStorage.setItem(IYZICO_CHECKOUT_STORAGE_KEY, data.checkoutFormContent);
+          router.push("/odeme/iyzico");
         }
       } else {
         alert("Hata Oluştu: " + (data.error || "İşlem reddedildi."));
@@ -424,7 +291,6 @@ export default function OdemeSayfasi() {
   };
 
   const odemeYontemiSec = (yontem: "kart" | "havale") => {
-    setIyzicoFormHtml("");
     setOdemeYontemi(yontem);
     if (yontem === "havale") setSeciliKartId(null);
   };
@@ -698,7 +564,7 @@ export default function OdemeSayfasi() {
     );
   }
 
-  if (odemeIptalAcik && !iyzicoFormHtml) {
+  if (odemeIptalAcik) {
     return (
       <div className="min-h-[100dvh] bg-white flex flex-col items-center justify-center px-6 text-center pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
         <p className="text-[88px] sm:text-[120px] font-black leading-none text-slate-200 select-none" aria-hidden>
@@ -710,48 +576,12 @@ export default function OdemeSayfasi() {
         </p>
         <button
           type="button"
-          onClick={() => {
-            setOdemeIptalAcik(false);
-            const taban = window.location.pathname + window.location.search;
-            window.history.replaceState(null, "", taban);
-          }}
+          onClick={() => setOdemeIptalAcik(false)}
           className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-[#1a1a2e] text-white text-sm font-semibold hover:bg-[#252540] transition-colors touch-manipulation"
         >
           <ArrowLeft className="w-4 h-4" /> Ödemeye dön
         </button>
       </div>
-    );
-  }
-
-  if (iyzicoFormHtml) {
-    const ustCubuk =
-      typeof document !== "undefined"
-        ? createPortal(
-            <div className="iyzico-ust-cubuk">
-              <button
-                type="button"
-                onClick={iyzicoOdemeDon}
-                className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900 px-3 py-2 rounded-lg hover:bg-slate-100 touch-manipulation min-h-[44px]"
-              >
-                <ArrowLeft className="w-4 h-4 shrink-0" />
-                Ödemeye dön
-              </button>
-            </div>,
-            document.body
-          )
-        : null;
-
-    return (
-      <>
-        {ustCubuk}
-        <div className="iyzico-tam-ekran-kaplama fixed inset-0 z-[99990] bg-white w-full overflow-y-auto overscroll-y-contain">
-          <div
-            ref={iyzicoFormRef}
-            id="iyzipay-checkout-form"
-            className="responsive w-full bg-white"
-          />
-        </div>
-      </>
     );
   }
 
