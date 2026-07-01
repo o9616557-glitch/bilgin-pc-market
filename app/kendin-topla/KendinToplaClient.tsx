@@ -266,7 +266,8 @@ const handleAddSystemToCart = async () => {
   };
   return (
     <div className="bg-[#050505] text-white min-h-screen font-sans pb-32">
-      <div className="border-b border-white/5 bg-[#09090b]/90 backdrop-blur-xl lg:sticky lg:top-20 z-40">
+      {/* sticky top: mobil header ~7.25rem, masaüstü header+katalog ~7rem */}
+      <div className="sticky top-[7.25rem] lg:top-28 z-40 border-b border-white/5 bg-[#09090b]/95 backdrop-blur-xl shadow-[0_8px_24px_rgba(0,0,0,0.25)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col lg:flex-row lg:items-start justify-between gap-4">
           <div className="flex items-center space-x-3 shrink-0 pt-1">
             <span className="text-[#00d2ff] font-black text-xl tracking-tight">🔧 SİSTEM ATÖLYESİ </span>
