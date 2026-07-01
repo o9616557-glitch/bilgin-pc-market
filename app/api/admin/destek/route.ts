@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
+import clientPromise from "@/lib/mongodb";
 import Destek from "@/models/Destek";
+import { magazaKrediEkle } from "@/lib/magaza-kredi";
 
 // 🚀 ADMİN ÖNBELLEK KİLİDİ: Admin panelinin de anlık canlı veri çekmesini sağlar (Tembelliği önler)
 export const dynamic = "force-dynamic";
@@ -51,6 +53,54 @@ export async function PUT(request: Request) {
     
     if (action === "status") {
       const guncelTalep = await Destek.findByIdAndUpdate(id, { durum }, { new: true, strict: false });
+      return NextResponse.json({ success: true, talep: guncelTalep });
+    }
+
+    if (action === "iade_tamamla") {
+      const { tutar, yontem } = body;
+      const tutarNum = Number(tutar);
+      if (!tutarNum || tutarNum <= 0) {
+        return NextResponse.json({ success: false, message: "Geçerli bir iade tutarı girin." });
+      }
+
+      const talep = await Destek.findById(id);
+      if (!talep) return NextResponse.json({ success: false, message: "Talep bulunamadı." });
+      if (talep.iadeOdendi) {
+        return NextResponse.json({ success: false, message: "Bu talep için iade zaten işlendi." });
+      }
+
+      const yontemFinal = yontem || talep.iadeYontemi || "kart";
+      const siparisEtiket = talep.siparisNo || talep.talepNo;
+
+      if (yontemFinal === "magaza_kredisi") {
+        const client = await clientPromise;
+        const db = client.db("bilginpcmarket");
+        await magazaKrediEkle(
+          db,
+          talep.kullaniciEmail,
+          tutarNum,
+          `İade — ${siparisEtiket}`,
+          talep.talepNo
+        );
+      }
+
+      const adminMesaj =
+        yontemFinal === "magaza_kredisi"
+          ? `İade tutarınız (${tutarNum.toLocaleString("tr-TR")} TL) mağaza kredisi olarak cüzdanınıza yüklendi. Bir sonraki alışverişinizde ödeme adımında kullanabilirsiniz.`
+          : `Kart/banka iadeniz (${tutarNum.toLocaleString("tr-TR")} TL) başlatıldı. Ödediğiniz karta 3-7 iş günü içinde yansıyacaktır.`;
+
+      const guncelTalep = await Destek.findByIdAndUpdate(
+        id,
+        {
+          iadeOdendi: true,
+          iadeTutari: tutarNum,
+          iadeYontemi: yontemFinal,
+          durum: "Çözüldü",
+          $push: { mesajlar: { gonderen: "Admin", metin: adminMesaj, tarih: new Date() } },
+        },
+        { new: true, strict: false }
+      );
+
       return NextResponse.json({ success: true, talep: guncelTalep });
     }
 

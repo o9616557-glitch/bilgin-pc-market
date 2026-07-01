@@ -31,9 +31,14 @@ const DestekSchema = new mongoose.Schema({
   
   konu: { 
     type: String, 
-    enum: ['iade', 'teknik', 'kargo', 'diger'],
+    enum: ['iade', 'iptal', 'teknik', 'kargo', 'diger'],
     required: true 
-  }, // İkonları ve renkleri buna göre belirleyeceğiz
+  },
+  
+  siparisNo: { type: String },
+  iadeYontemi: { type: String, enum: ['kart', 'magaza_kredisi'] },
+  iadeTutari: { type: Number },
+  iadeOdendi: { type: Boolean, default: false }, // İkonları ve renkleri buna göre belirleyeceğiz
   
   durum: { 
     type: String, 

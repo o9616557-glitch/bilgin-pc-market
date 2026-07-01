@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import clientPromise from "@/lib/mongodb";
+import { magazaKrediDus, magazaKrediEkle, sepetFiyatlariniAyarla } from "@/lib/magaza-kredi";
 import { iyzicoConfig } from "@/lib/iyzico-config";
 // @ts-ignore
 import Iyzipay from "iyzipay";
@@ -13,7 +14,7 @@ export async function POST(request: Request) {
     const iyzipay = new Iyzipay(iyzicoConfig());
     
     const body = await request.json();
-    const { musteri, sepet, odemeYontemi, toplamTutar, siparisNotu, kayitliKartId } = body;
+    const { musteri, sepet, odemeYontemi, toplamTutar, siparisNotu, kayitliKartId, kullanilanKredi: istenenKredi } = body;
 
     if (!musteri || !sepet || !odemeYontemi || !toplamTutar) {
       return NextResponse.json({ error: "Formda eksik bilgi var şef!" }, { status: 400 });
@@ -22,24 +23,47 @@ export async function POST(request: Request) {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
     const siparisKodu = `BPC-${Math.floor(100000 + Math.random() * 900000)}`;
+    const musteriEmail = musteri?.eposta || musteri?.email || "";
 
-    // 🚀 BİNGO: Diğer sayfaların tanıması için orijinal ödeme kodları
     const gercekOdemeYontemi =
       odemeYontemi === "havale" ? "havale" : odemeYontemi === "bkm" ? "bkm" : "kart";
     const ilkDurum = odemeYontemi === "havale" ? "Havale Bekliyor" : "Ödeme Bekliyor";
+
+    let kullanilanKredi = 0;
+    if (Number(istenenKredi) > 0 && musteriEmail) {
+      const session = await getServerSession(authOptions);
+      if (session?.user?.email?.toLowerCase() === musteriEmail.toLowerCase()) {
+        try {
+          const { kullanilan } = await magazaKrediDus(
+            db,
+            session.user.email,
+            Math.min(Number(istenenKredi), Number(toplamTutar)),
+            `Sipariş — ${siparisKodu}`,
+            siparisKodu
+          );
+          kullanilanKredi = kullanilan;
+        } catch {
+          return NextResponse.json({ error: "Mağaza kredisi kullanılamadı veya yetersiz." }, { status: 400 });
+        }
+      }
+    }
+
+    const odenecekTutar = Math.max(0, Number(toplamTutar) - kullanilanKredi);
 
     const yeniSiparis = {
       siparisKodu,
       musteri,
       sepet,
-      odemeYontemi: gercekOdemeYontemi, 
+      odemeYontemi: gercekOdemeYontemi,
       siparisNotu: siparisNotu || "Not eklenmemiş",
       toplamTutar,
-      durum: ilkDurum, 
+      kullanilanKredi,
+      odenecekTutar,
+      durum: ilkDurum,
       tاريخ: new Date(),
-      userEmail: musteri?.eposta || musteri?.email || "",
-      email: musteri?.eposta || musteri?.email || "",
-      items: sepet, 
+      userEmail: musteriEmail,
+      email: musteriEmail,
+      items: sepet,
       totalPrice: toplamTutar,
       status: ilkDurum
     };
@@ -103,7 +127,7 @@ export async function POST(request: Request) {
               
               <p style="color: #a1a1aa; font-size: 15px; line-height: 1.6; margin-bottom: 35px; padding: 0 15px; text-align: center;">
                 Siparişiniz sistemimize başarıyla ulaştı. <strong>Havale/EFT işleminiz onaylandığında</strong> siparişiniz hazırlık aşamasına geçecektir.
-                <br><br><span style="color: #3b82f6; font-weight: bold; font-size: 16px;">Ödenecek Tutar: ${toplamTutar} TL</span>${musteriNotuHtml}
+                <br><br><span style="color: #3b82f6; font-weight: bold; font-size: 16px;">Ödenecek Tutar: ${odenecekTutar} TL</span>${kullanilanKredi > 0 ? `<br><span style="color: #10b981; font-size: 13px;">Mağaza kredisi kullanıldı: ${kullanilanKredi} TL</span>` : ""}${musteriNotuHtml}
               </p>
 
               <div style="background-color: rgba(255, 255, 255, 0.05); padding: 25px; border-radius: 12px; margin: 0 auto 35px auto; border: 1px dashed rgba(0, 229, 255, 0.4); max-width: 320px; text-align: center;">
@@ -160,14 +184,15 @@ export async function POST(request: Request) {
         const adminMailSecenekleri = {
           from: `"Bilgin PC Sistem" <o9616557@gmail.com>`,
           to: "o9616557@gmail.com",
-          subject: `🚨 YENİ SİPARİŞ GELDİ! (HAVALE BEKLİYOR) - Tutar: ${toplamTutar} TL`,
+          subject: `🚨 YENİ SİPARİŞ GELDİ! (HAVALE BEKLİYOR) - Tutar: ${odenecekTutar} TL`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #050505; color: #ffffff; padding: 30px; border-radius: 12px; border: 2px solid #3b82f6;">
               <h2 style="color: #3b82f6; text-align: center; text-transform: uppercase;">Şefim, Dükkana Yeni Havale Siparişi Düştü! 📝</h2>
               
               <div style="background-color: #121215; padding: 25px; border-radius: 8px; margin: 25px 0; border: 1px solid #27272a;">
                 <p style="color: #a1a1aa; font-size: 15px;"><strong>Müşteri:</strong> <span style="color: #fff;">${aliciAdSoyad}</span></p>
-                <p style="color: #a1a1aa; font-size: 15px;"><strong>Ödenecek Para:</strong> <span style="color: #3b82f6; font-weight: bold; font-size: 18px;">${toplamTutar} TL (Havale)</span></p>
+                <p style="color: #a1a1aa; font-size: 15px;"><strong>Ödenecek Para:</strong> <span style="color: #3b82f6; font-weight: bold; font-size: 18px;">${odenecekTutar} TL (Havale)</span></p>
+                ${kullanilanKredi > 0 ? `<p style="color: #a1a1aa; font-size: 15px;"><strong>Mağaza Kredisi:</strong> <span style="color: #10b981;">${kullanilanKredi} TL kullanıldı</span></p>` : ""}
                 ${adminNotuHtml}
               </div>
               
@@ -180,7 +205,22 @@ export async function POST(request: Request) {
         transporter.sendMail(adminMailSecenekleri).catch((err: any) => console.error(err));
       } catch (mailHatasi) {}
 
-      return NextResponse.json({ success: true, odemeYontemi: "havale", siparisKodu });
+      return NextResponse.json({ success: true, odemeYontemi: "havale", siparisKodu, kullanilanKredi, odenecekTutar });
+    }
+
+    // Tamamı mağaza kredisiyle ödendi
+    if (odenecekTutar <= 0) {
+      await db.collection("orders").updateOne(
+        { siparisKodu },
+        { $set: { durum: "Ödendi / Hazırlanıyor", status: "Ödendi / Hazırlanıyor", odemeYontemi: "magaza_kredisi" } }
+      );
+      return NextResponse.json({
+        success: true,
+        odemeYontemi: "magaza_kredisi",
+        siparisKodu,
+        kullanilanKredi,
+        odenecekTutar: 0,
+      });
     }
 
     const gsmNumber = (() => {
@@ -215,24 +255,19 @@ export async function POST(request: Request) {
     };
 
     // ================= KART / BKM ÖDEMESİ =================
-    let sepetUrunleri = sepet.map((item: any) => ({
-      id: item.id, name: item.isim, category1: "Bilgisayar Donanim", itemType: "PHYSICAL", price: (item.fiyat * item.adet).toString()
-    }));
-
     const araToplam = sepet.reduce((top: number, u: any) => top + (u.fiyat * u.adet), 0);
     const kargoUcreti = araToplam > 5000 ? 0 : 1;
-    
-    if (kargoUcreti > 0) {
-      sepetUrunleri.push({ id: "KARGO-01", name: "Teslimat Bedeli", category1: "Hizmet", itemType: "VIRTUAL", price: kargoUcreti.toString() });
-    }
+    const { urunler: sepetUrunleri, odenecek: iyzicoTutar } = sepetFiyatlariniAyarla(
+      sepet, kargoUcreti, Number(toplamTutar), kullanilanKredi
+    );
 
     let iyzicoCardUserKey = await kartUserKeyPromise;
 
     const iyzicoTalep: Record<string, unknown> = {
       locale: "tr",
       conversationId: siparisKodu,
-      price: toplamTutar.toString(),
-      paidPrice: toplamTutar.toString(),
+      price: iyzicoTutar.toString(),
+      paidPrice: iyzicoTutar.toString(),
       currency: "TRY",
       basketId: siparisKodu,
       paymentGroup: "PRODUCT",
@@ -260,7 +295,25 @@ export async function POST(request: Request) {
         success: true,
         odemeYontemi: odemeYontemi === "bkm" ? "bkm" : "kart",
         paymentPageUrl: iyzicoSonuc.paymentPageUrl,
+        kullanilanKredi,
+        odenecekTutar,
       });
+    }
+
+    if (kullanilanKredi > 0 && musteriEmail) {
+      try {
+        await magazaKrediEkle(
+          db,
+          musteriEmail,
+          kullanilanKredi,
+          `İptal — ödeme başarısız (${siparisKodu})`,
+          siparisKodu
+        );
+        await db.collection("orders").updateOne(
+          { siparisKodu },
+          { $set: { kullanilanKredi: 0, odenecekTutar: toplamTutar } }
+        );
+      } catch { /* sessiz */ }
     }
 
     return NextResponse.json(

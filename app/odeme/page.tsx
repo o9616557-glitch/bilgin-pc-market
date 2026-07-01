@@ -40,6 +40,9 @@ export default function OdemeSayfasi() {
   const [seciliKartId, setSeciliKartId] = useState<string | null>(null);
   const [odemeIptalAcik, setOdemeIptalAcik] = useState(false);
 
+  const [magazaKredisi, setMagazaKredisi] = useState(0);
+  const [krediKullan, setKrediKullan] = useState(true);
+
   const [adresAraniyor, setAdresAraniyor] = useState(() => {
     if (typeof window === "undefined") return true;
     return !localStorage.getItem("bilgin_hizli_adresler");
@@ -80,6 +83,19 @@ export default function OdemeSayfasi() {
 
     kartlariGetir();
   }, [status, odemeYontemi]);
+
+  useEffect(() => {
+    if (status !== "authenticated") {
+      setMagazaKredisi(0);
+      return;
+    }
+    fetch("/api/cuzdan?t=" + Date.now(), { cache: "no-store" })
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data?.storeCredit != null) setMagazaKredisi(Number(data.storeCredit) || 0);
+      })
+      .catch(() => setMagazaKredisi(0));
+  }, [status]);
 
   /** İyzico ödeme adımında bağlantıyı önceden aç — sayfa daha hızlı açılır */
   useEffect(() => {
@@ -255,6 +271,10 @@ export default function OdemeSayfasi() {
   };
 
   const { araToplam, kargo, genelToplam } = hesaplaTutar();
+  const kullanilacakKredi = krediKullan && magazaKredisi > 0
+    ? Math.min(magazaKredisi, genelToplam)
+    : 0;
+  const odenecekTutar = Math.max(0, genelToplam - kullanilacakKredi);
   const inputDegis = (e: any) => { setForm({ ...form, [e.target.name]: e.target.value }); };
   const faturaInputDegis = (e: any) => { setFaturaForm({ ...faturaForm, [e.target.name]: e.target.value }); };
 
@@ -278,7 +298,8 @@ export default function OdemeSayfasi() {
       siparisNotu: form.siparisNotu, // <--- İŞTE JİLET GİBİ BURAYA EKLENDİ ŞEFİM
       toplamTutar: genelToplam,
       totalPrice: genelToplam,
-      genelToplam: genelToplam
+      genelToplam: genelToplam,
+      kullanilanKredi: kullanilacakKredi,
     };
     if (odemeYontemi === "kart" && seciliKartId) {
       (siparisVerisi as any).kayitliKartId = seciliKartId;
@@ -288,7 +309,7 @@ export default function OdemeSayfasi() {
       const data = await response.json();
       
       if (data.success) {
-        if (data.odemeYontemi === "havale") {
+        if (data.odemeYontemi === "havale" || data.odemeYontemi === "magaza_kredisi") {
           sessionStorage.removeItem(ODEME_FORM_CACHE_KEY);
           localStorage.removeItem("bilgin-sepet");
           window.location.href = "/siparis-basarili?kodu=" + data.siparisKodu;
@@ -531,10 +552,37 @@ export default function OdemeSayfasi() {
           <span>Kargo</span>
           <span>{kargo === 0 ? <span className="text-emerald-400 text-xs font-medium">Ücretsiz</span> : <span className="text-white font-medium tabular-nums">{kargo} TL</span>}</span>
         </div>
+        {status === "authenticated" && magazaKredisi > 0 && (
+          <div className="pt-2 border-t border-white/[0.06]">
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={krediKullan}
+                onChange={(e) => setKrediKullan(e.target.checked)}
+                className="mt-0.5 rounded border-slate-600 text-site-accent focus:ring-site-accent/50"
+              />
+              <div className="flex-1 min-w-0">
+                <span className="text-sm text-slate-300 group-hover:text-white transition-colors">Mağaza kredimi kullan</span>
+                <p className="text-[10px] text-slate-500 mt-0.5">
+                  Bakiyeniz: {magazaKredisi.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} TL
+                  {krediKullan && kullanilacakKredi > 0 && (
+                    <span className="text-emerald-400"> — {kullanilacakKredi.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} TL düşülecek</span>
+                  )}
+                </p>
+              </div>
+            </label>
+          </div>
+        )}
+        {kullanilacakKredi > 0 && (
+          <div className="flex justify-between text-emerald-400/90 text-sm">
+            <span>Mağaza kredisi</span>
+            <span className="font-medium tabular-nums">−{kullanilacakKredi.toLocaleString("tr-TR")} TL</span>
+          </div>
+        )}
       </div>
       <div className="flex justify-between items-center border-t border-white/[0.06] pt-3 mt-3">
-        <span className="text-sm text-slate-400">Genel toplam</span>
-        <span className="text-lg sm:text-xl font-semibold text-site-accent tabular-nums">{genelToplam.toLocaleString("tr-TR")} <span className="text-sm text-slate-400 font-medium">TL</span></span>
+        <span className="text-sm text-slate-400">{odenecekTutar < genelToplam ? "Ödenecek tutar" : "Genel toplam"}</span>
+        <span className="text-lg sm:text-xl font-semibold text-site-accent tabular-nums">{odenecekTutar.toLocaleString("tr-TR")} <span className="text-sm text-slate-400 font-medium">TL</span></span>
       </div>
       {notGoster && (
         <div className="mt-4 pt-4 border-t border-white/[0.06]">

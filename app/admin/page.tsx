@@ -36,6 +36,7 @@ export default function AdminPaneli() {
   // DESTEK TALEPLERİ STATE'LERİ 🚀
   const [talepler, setTalepler] = useState<any[]>([]);
   const [talepCevaplari, setTalepCevaplari] = useState<{ [key: string]: string }>({});
+  const [iadeTutarlari, setIadeTutarlari] = useState<{ [key: string]: string }>({});
   const [silinecekTalepID, setSilinecekTalepID] = useState<string | null>(null);
 
   // DİĞER STATELER
@@ -175,6 +176,29 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
         talepleriGetir(); // Durum değişince ekranı hemen yeniler
       }
     } catch (e) { toast.error("Güncellenemedi."); }
+  };
+
+  const iadeTamamla = async (id: string, yontem: "kart" | "magaza_kredisi") => {
+    const tutar = iadeTutarlari[id];
+    if (!tutar || Number(tutar) <= 0) return toast.error("İade tutarını girin şefim!");
+    const toastId = toast.loading(yontem === "magaza_kredisi" ? "Mağaza kredisi yükleniyor..." : "Kart iadesi işleniyor...");
+    try {
+      const res = await fetch("/api/admin/destek", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI },
+        body: JSON.stringify({ id, action: "iade_tamamla", tutar: Number(tutar), yontem }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast.success(yontem === "magaza_kredisi" ? "Kredi cüzdana yüklendi!" : "Kart iadesi müşteriye bildirildi.", { id: toastId });
+        setIadeTutarlari((prev) => ({ ...prev, [id]: "" }));
+        talepleriGetir();
+      } else {
+        toast.error(data.message || "İşlem başarısız.", { id: toastId });
+      }
+    } catch {
+      toast.error("Bağlantı hatası.", { id: toastId });
+    }
   };
 
   const talepSilmeIslemi = async () => {
@@ -383,6 +407,21 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                           <span className="text-xs text-slate-500 font-bold bg-[#0b1120] px-2 py-1 rounded border border-slate-800">#{talep.talepNo}</span>
                         </div>
                         <div className="text-slate-400 text-sm font-medium"><span className="text-slate-300 font-bold">{talep.kullaniciEmail}</span> tarafından açıldı</div>
+                        {(talep.konu === "iade" || talep.konu === "iptal") && (
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {talep.siparisNo && (
+                              <span className="text-[10px] font-bold text-slate-400 bg-[#0b1120] px-2 py-1 rounded border border-slate-800">Sipariş: {talep.siparisNo}</span>
+                            )}
+                            <span className={`text-[10px] font-bold px-2 py-1 rounded border ${talep.iadeYontemi === "magaza_kredisi" ? "bg-cyan-950/30 text-cyan-400 border-cyan-900/50" : "bg-slate-800 text-slate-300 border-slate-700"}`}>
+                              Tercih: {talep.iadeYontemi === "magaza_kredisi" ? "Mağaza kredisi" : talep.iadeYontemi === "kart" ? "Kart iadesi" : "Belirtilmedi"}
+                            </span>
+                            {talep.iadeOdendi && (
+                              <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/30 px-2 py-1 rounded border border-emerald-900/50">
+                                İade tamamlandı{talep.iadeTutari ? ` — ${Number(talep.iadeTutari).toLocaleString("tr-TR")} TL` : ""}
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
                       <div className="text-right">
                         <span className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border ${talep.durum === 'Çözüldü' ? 'bg-emerald-950/30 text-emerald-500 border-emerald-900/50' : talep.durum === 'Yanıt Bekleniyor' ? 'bg-amber-950/30 text-amber-500 border-amber-900/50' : 'bg-slate-800 text-slate-300 border-slate-700'}`}>
@@ -431,6 +470,36 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
 
                     <div className="flex flex-col gap-3 pt-4 border-t border-slate-700/50 mt-2">
                       <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Hızlı İşlemler</label>
+                      {(talep.konu === "iade" || talep.konu === "iptal") && !talep.iadeOdendi && (
+                        <div className="p-3 bg-[#0b1120] border border-slate-700 rounded-lg space-y-2">
+                          <label className="block text-[10px] font-bold text-slate-400 uppercase">İade tutarı (TL)</label>
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={iadeTutarlari[talep._id] || ""}
+                            onChange={(e) => setIadeTutarlari((prev) => ({ ...prev, [talep._id]: e.target.value }))}
+                            placeholder="Örn. 1250"
+                            className="w-full bg-[#111827] border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50"
+                          />
+                          <div className="flex flex-col gap-2">
+                            <button
+                              type="button"
+                              onClick={() => iadeTamamla(talep._id, "magaza_kredisi")}
+                              className="w-full py-2.5 rounded-lg bg-cyan-950/40 border border-cyan-800/50 text-cyan-300 text-[10px] font-black uppercase tracking-wider hover:bg-cyan-900/30 transition-colors"
+                            >
+                              Mağaza kredisine yükle
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => iadeTamamla(talep._id, "kart")}
+                              className="w-full py-2.5 rounded-lg bg-slate-800 border border-slate-600 text-slate-300 text-[10px] font-black uppercase tracking-wider hover:bg-slate-700 transition-colors"
+                            >
+                              Kart iadesi yapıldı (bildir)
+                            </button>
+                          </div>
+                        </div>
+                      )}
                       <div className="flex gap-2">
                         <button 
                           onClick={() => talepDurumGuncelle(talep._id, talep.durum === 'Çözüldü' ? 'Açık' : 'Çözüldü')} 

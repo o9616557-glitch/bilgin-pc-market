@@ -234,7 +234,7 @@ export default function CuzdanPage() {
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Mağaza Kredisi</span>
                   </div>
                   <p className="text-xl sm:text-2xl font-black text-white">{paraFormatla(storeCredit)}</p>
-                  <p className="text-[10px] text-slate-500 mt-1">Onaylı iade, iptal ve kampanya bakiyeleri</p>
+                  <p className="text-[10px] text-slate-500 mt-1">İade kredisi ve kampanya bakiyeleri</p>
                 </div>
                 <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-5">
                   <div className="flex items-center gap-2 mb-2">
@@ -276,15 +276,15 @@ export default function CuzdanPage() {
                         </div>
                         <ul className="text-[11px] sm:text-xs text-slate-500 space-y-1.5 leading-relaxed list-disc list-inside">
                           <li>
-                            <strong className="text-slate-400 font-semibold">İade:</strong> Ürün iadeniz onaylandığında ve tutar size mağaza kredisi olarak tanımlandığında cüzdanınıza TL yüklenir. Kartınıza yapılan banka iadesi ayrı bir süreçtir.
+                            İade talebinde <strong className="text-slate-400 font-semibold">mağaza kredisi</strong> veya <strong className="text-slate-400 font-semibold">kart iadesi</strong> seçebilirsiniz (Amazon tarzı).
                           </li>
                           <li>
-                            <strong className="text-slate-400 font-semibold">İptal:</strong> Sipariş iptallerinde ödeme krediye aktarıldığında bakiyeniz burada görünür.
+                            <strong className="text-slate-400 font-semibold">Mağaza kredisi:</strong> Onay sonrası anında cüzdana yüklenir; sonraki alışverişte ödeme adımında düşülür.
                           </li>
                           <li>
-                            <strong className="text-slate-400 font-semibold">Kampanya:</strong> Üyelere özel hediye, promosyon veya telafi bakiyeleri bu alana eklenir.
+                            <strong className="text-slate-400 font-semibold">Kart iadesi:</strong> Paranız ödediğiniz karta/hesaba iade edilir (3-7 iş günü).
                           </li>
-                          <li>Ödeme adımında sepet tutarından düşebilirsiniz; nakit çekilemez, yalnızca mağazamızda kullanılır.</li>
+                          <li>Nakit çekilemez; kredi yalnızca mağazamızda harcanır.</li>
                         </ul>
                       </div>
                       <div className="rounded-xl border border-slate-800/80 bg-[#020617]/60 p-4">

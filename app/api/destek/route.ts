@@ -35,8 +35,13 @@ export async function POST(request: Request) {
     if (!session || !session.user?.email) return NextResponse.json({ success: false, message: "Yetkisiz erişim." }, { status: 401 });
     
     const body = await request.json();
-    const { konu, mesaj } = body;
+    const { konu, mesaj, siparisNo, iadeYontemi } = body;
     if (!konu || !mesaj) return NextResponse.json({ success: false, message: "Eksik bilgi." }, { status: 400 });
+
+    const iadeKonu = konu === "iade" || konu === "iptal";
+    if (iadeKonu && iadeYontemi && !["kart", "magaza_kredisi"].includes(iadeYontemi)) {
+      return NextResponse.json({ success: false, message: "Geçersiz iade yöntemi." }, { status: 400 });
+    }
 
     if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
 
@@ -52,6 +57,8 @@ export async function POST(request: Request) {
       kullaniciEmail: session.user.email,
       konu: konu,
       durum: "İnceleniyor",
+      ...(siparisNo ? { siparisNo: String(siparisNo).trim() } : {}),
+      ...(iadeKonu && iadeYontemi ? { iadeYontemi } : {}),
       mesajlar: [{ gonderen: "Musteri", metin: mesaj }]
     });
 

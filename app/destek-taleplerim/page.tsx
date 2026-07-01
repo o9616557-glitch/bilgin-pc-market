@@ -51,6 +51,7 @@ export default function DestekIadePage() {
   const [talepKonusu, setTalepKonusu] = useState("");
   const [talepBaslik, setTalepBaslik] = useState("");
   const [talepMesaji, setTalepMesaji] = useState("");
+  const [iadeYontemi, setIadeYontemi] = useState<"kart" | "magaza_kredisi">("magaza_kredisi");
   const [silinecekTalepId, setSilinecekTalepId] = useState<string | null>(null);
   
   const [kargoPopupAcik, setKargoPopupAcik] = useState(false);
@@ -130,14 +131,19 @@ useEffect(() => {
       const res = await fetch("/api/destek", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ konu: talepKonusu, mesaj: `[Başlık: ${talepBaslik}]\n\n${talepMesaji}` })
+        body: JSON.stringify({
+          konu: talepKonusu,
+          mesaj: `[Başlık: ${talepBaslik}]\n\n${talepMesaji}`,
+          siparisNo: talepBaslik,
+          ...(talepKonusu === "iade" || talepKonusu === "iptal" ? { iadeYontemi } : {}),
+        })
       });
       const data = await res.json();
 
       if (res.ok && data.success) {
         toast.success("Talebiniz başarıyla oluşturuldu! 🚀", { id: toastId });
         setYeniTalepModal(false);
-        setTalepKonusu(""); setTalepBaslik(""); setTalepMesaji("");
+        setTalepKonusu(""); setTalepBaslik(""); setTalepMesaji(""); setIadeYontemi("magaza_kredisi");
         setTalepler(prev => {
           const yeniListe = [data.talep, ...prev];
           localStorage.setItem("bilgin_destek_talepleri", JSON.stringify(yeniListe));
@@ -470,8 +476,32 @@ useEffect(() => {
                       Kargodaki Ürünler İçin Önemli Not
                     </h4>
                     <p className="text-amber-400/80 text-[11px] leading-relaxed font-medium">
-                      Eğer iptal veya iade etmek istediğiniz sipariş <span className="text-white font-bold">"Kargoda"</span> aşamasındaysa doğrudan iptal edilemez. İadenizin güvenle yapılabilmesi için kargo kapınıza ulaştığında <span className="text-white font-bold underline">paketi teslim almayıp kapıda reddetmeniz</span> gerekmektedir. Ürün depomuza geri döndüğünde paranız kartınıza iade edilecektir.
+                      Eğer iptal veya iade etmek istediğiniz sipariş <span className="text-white font-bold">"Kargoda"</span> aşamasındaysa doğrudan iptal edilemez. İadenizin güvenle yapılabilmesi için kargo kapınıza ulaştığında <span className="text-white font-bold underline">paketi teslim almayıp kapıda reddetmeniz</span> gerekmektedir.
                     </p>
+                  </div>
+                </div>
+              )}
+
+              {(talepKonusu === "iade" || talepKonusu === "iptal") && (
+                <div className="p-4 bg-[#020617] border border-slate-800 rounded-xl space-y-3">
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest">İade yönteminizi seçin</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIadeYontemi("magaza_kredisi")}
+                      className={`p-3 rounded-xl border-2 text-left transition-all ${iadeYontemi === "magaza_kredisi" ? "border-cyan-500/50 bg-cyan-500/10" : "border-slate-800 hover:border-slate-700"}`}
+                    >
+                      <p className="text-xs font-bold text-white mb-1">Mağaza kredisi</p>
+                      <p className="text-[10px] text-slate-500 leading-relaxed">Onay sonrası anında cüzdanınıza yüklenir; sonraki alışverişte kullanırsınız.</p>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIadeYontemi("kart")}
+                      className={`p-3 rounded-xl border-2 text-left transition-all ${iadeYontemi === "kart" ? "border-cyan-500/50 bg-cyan-500/10" : "border-slate-800 hover:border-slate-700"}`}
+                    >
+                      <p className="text-xs font-bold text-white mb-1">Kartıma / hesabıma iade</p>
+                      <p className="text-[10px] text-slate-500 leading-relaxed">Ödediğiniz karta veya hesaba iade; genelde 3-7 iş günü sürer.</p>
+                    </button>
                   </div>
                 </div>
               )}
