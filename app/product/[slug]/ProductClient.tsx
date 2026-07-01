@@ -10,11 +10,54 @@ import { X, Gamepad2, ChevronLeft, ChevronRight, ShoppingCart, Heart, GitCompare
 import Link from "next/link"; 
 import { cloudinaryUrunResim } from "@/lib/cloudinary";
 
+function UrunGaleriResmi({
+  src,
+  alt,
+  className = "",
+  style,
+  draggable,
+  soluk,
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+  style?: React.CSSProperties;
+  draggable?: boolean;
+  soluk?: boolean;
+}) {
+  const [hazir, setHazir] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    setHazir(false);
+    if (imgRef.current?.complete) setHazir(true);
+  }, [src]);
+
+  return (
+    <img
+      ref={imgRef}
+      src={src}
+      alt={alt}
+      loading="eager"
+      fetchPriority="high"
+      decoding="async"
+      draggable={draggable}
+      onLoad={() => setHazir(true)}
+      style={style}
+      className={`${className} transition-opacity duration-500 ease-out ${
+        hazir ? (soluk ? "opacity-30 grayscale" : "opacity-100") : "opacity-0"
+      }`}
+    />
+  );
+}
+
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const { sepeteEkle } = useCart(); 
   const { karsilastirmayaEkle, setPopupAcik } = useCompare(); 
-  const [sayfaYuklendi, setSayfaYuklendi] = useState(false);
-  useEffect(() => { setSayfaYuklendi(true); }, []);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
   
   // Varsayılan olarak Açıklama sekmesi açık gelecek
   const [activeTab, setActiveTab] = useState("aciklama");
@@ -420,7 +463,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   );
 
   return (
-    <div className="bg-[#050505] text-white font-sans pb-0 sm:pb-10 relative">
+    <div className="bg-[#050505] text-white font-sans pb-0 sm:pb-10 relative site-page-soft-in">
       
       <style dangerouslySetInnerHTML={{ __html: `
         body { -webkit-tap-highlight-color: transparent; }
@@ -495,17 +538,15 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </button>
 
               {resimler.length === 1 ? (
-                <img 
-                  src={resimler[0]} 
+                <UrunGaleriResmi
+                  src={resimler[0]}
                   alt={urunAdi}
-                  loading="eager"
-                  fetchPriority="high"
-                  decoding="async"
                   style={{
                     transformOrigin: zoomOrigin,
                     transform: isHoveringImg && !lightboxAcik ? "scale(2.4)" : "scale(1)",
                   }}
-                  className={`w-full h-full object-contain pointer-events-none sm:filter sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] transition-transform duration-150 ease-out ${tukendiMi ? "grayscale opacity-50" : ""}`} 
+                  className="w-full h-full object-contain pointer-events-none sm:filter sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] transition-transform duration-150 ease-out"
+                  soluk={tukendiMi}
                 />
               ) : (
                 <div
@@ -518,15 +559,16 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 >
                   {loopResimler.map((img: string, idx: number) => (
                     <div key={`${img}-${idx}`} className="min-w-full w-full h-full flex items-center justify-center flex-shrink-0">
-                      <img
+                      <UrunGaleriResmi
                         src={img}
                         alt={`${urunAdi} - ${idx + 1}`}
                         draggable={false}
+                        soluk={tukendiMi}
                         style={{
                           transformOrigin: idx === trackIndex ? zoomOrigin : "center center",
                           transform: idx === trackIndex && isHoveringImg && !isGalleryDragging && !lightboxAcik ? "scale(2.4)" : "scale(1)",
                         }}
-                        className={`w-full h-full object-contain pointer-events-none sm:filter sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] transition-transform duration-150 ease-out ${tukendiMi ? "grayscale opacity-50" : ""}`}
+                        className="w-full h-full object-contain pointer-events-none sm:filter sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] transition-transform duration-150 ease-out"
                       />
                     </div>
                   ))}
