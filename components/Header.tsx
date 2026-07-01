@@ -535,16 +535,21 @@ function BilginPcMarka({
   );
 }
 
-function MobilProfilLink() {
+function MobilProfilLink({ size = 42 }: { size?: number }) {
   const { status } = useSession();
 
   if (status === "loading") {
-    return <div className="lg:hidden w-9 h-9 rounded-full bg-white/[0.06] border border-white/[0.12] shrink-0" />;
+    return (
+      <div
+        className="lg:hidden rounded-full bg-white/[0.06] border border-white/[0.12] shrink-0"
+        style={{ width: size, height: size }}
+      />
+    );
   }
 
   return (
-    <Link href="/hesabim" className="lg:hidden p-0.5 transition-all shrink-0" aria-label="Hesabım">
-      <ProfilAvatar size={34} />
+    <Link href="/hesabim" className="lg:hidden shrink-0 transition-all" aria-label="Hesabım">
+      <ProfilAvatar size={size} />
     </Link>
   );
 }
@@ -786,9 +791,8 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
               </div>
 
               <div
-                className={`flex items-center gap-1.5 sm:gap-2 justify-self-center self-center z-[5] transition-opacity ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
+                className={`flex items-center justify-center justify-self-center self-center z-[5] transition-opacity ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}
               >
-                <MobilProfilLink />
                 <BilginPcMarka size="sm" variant="horizontal" glow className="px-0.5 shrink-0" />
               </div>
 
@@ -798,12 +802,13 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
               </div>
               </div>
 
-              <div className={`px-3 sm:px-4 pb-3 pt-0.5 ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}>
+              <div className={`flex items-center gap-2.5 px-3 sm:px-4 pb-3 pt-0.5 ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}>
+                <MobilProfilLink size={42} />
                 <button
                   type="button"
                   onClick={() => setAramaAcik(true)}
                   aria-label="Ara"
-                  className="mx-auto flex w-full max-w-[300px] sm:max-w-[340px] items-center gap-2.5 h-9 px-4 rounded-full bg-white/[0.05] border border-white/[0.09] text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-all duration-200 hover:bg-white/[0.08] hover:border-white/[0.14] active:scale-[0.99]"
+                  className="flex flex-1 min-w-0 items-center gap-2.5 h-10 pl-3.5 pr-4 rounded-full bg-white/[0.05] border border-white/[0.09] text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-all duration-200 hover:bg-white/[0.08] hover:border-white/[0.14] active:scale-[0.99]"
                 >
                   <Search className="w-4 h-4 text-slate-400 shrink-0" />
                   <span className="text-[13px] text-slate-500 truncate font-normal">Ürün, marka veya kategori ara...</span>
@@ -907,7 +912,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
       </header>
 
       {/* 📱 MOBİL MENÜ */}
-      <div className={`lg:hidden fixed top-[7.125rem] left-0 w-full h-[calc(100vh-7.125rem)] bg-[#050814] z-[98] overflow-y-auto transition-transform duration-300 ${menuAcik ? "translate-x-0" : "-translate-x-full"}`}>
+      <div className={`lg:hidden fixed top-[7.25rem] left-0 w-full h-[calc(100vh-7.25rem)] bg-[#050814] z-[98] overflow-y-auto transition-transform duration-300 ${menuAcik ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="px-3 py-4 pb-32">
 
           {/* Kendin Topla */}
