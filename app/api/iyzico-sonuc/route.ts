@@ -30,9 +30,22 @@ export async function POST(request: Request) {
       const client = await clientPromise;
       const db = client.db("bilginpcmarket");
       
+      const mevcutSiparis = await db.collection("orders").findOne({ siparisKodu });
+      const odemeEtiketi =
+        mevcutSiparis?.odemeYontemi === "bkm" || sonuc.paymentType === "BKM"
+          ? "bkm"
+          : "kart";
+
       await db.collection("orders").updateOne(
         { siparisKodu: siparisKodu },
-        { $set: { durum: "Ödendi / Hazırlanıyor", status: "Ödendi / Hazırlanıyor", odemeYontemi: "kart", odemeId: sonuc.paymentId } }
+        {
+          $set: {
+            durum: "Ödendi / Hazırlanıyor",
+            status: "Ödendi / Hazırlanıyor",
+            odemeYontemi: odemeEtiketi,
+            odemeId: sonuc.paymentId,
+          },
+        }
       );
 
       try {

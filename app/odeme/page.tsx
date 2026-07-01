@@ -862,7 +862,8 @@ export default function OdemeSayfasi() {
                   <div className="rounded-2xl border border-orange-400/15 bg-orange-500/[0.04] p-4 sm:p-5 mb-5">
                     <p className="text-white text-sm font-medium mb-1">BKM Express</p>
                     <p className="text-slate-400 text-xs leading-relaxed">
-                      BKM hesabınızdaki kartla güvenli ödeme yapılır. Onay sonrası siparişiniz hazırlanır.
+                      İyzico ekranında <span className="text-slate-300">BKM Express</span> sekmesini seçin.
+                      Ödeme için BKM Express hesabınız ve kayıtlı kartınız olmalıdır.
                     </p>
                   </div>
                 ) : (

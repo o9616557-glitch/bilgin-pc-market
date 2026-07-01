@@ -228,56 +228,23 @@ export async function POST(request: Request) {
 
     let iyzicoCardUserKey = await kartUserKeyPromise;
 
-    if (odemeYontemi === "bkm") {
-      const bkmTalep = {
-        locale: "tr",
-        conversationId: siparisKodu,
-        price: toplamTutar.toString(),
-        basketId: siparisKodu,
-        paymentGroup: "PRODUCT",
-        callbackUrl: `https://www.bilginpcmarket.com/api/bkm-sonuc?siparisKodu=${siparisKodu}`,
-        enabledInstallments: [1, 2, 3, 6, 9],
-        buyer: iyzicoAlici,
-        shippingAddress: iyzicoAdres,
-        billingAddress: iyzicoAdres,
-        basketItems: sepetUrunleri,
-      };
-
-      const bkmSonuc: any = await new Promise((resolve) => {
-        iyzipay.bkmInitialize.create(bkmTalep, (err: any, result: any) => {
-          if (err) resolve({ status: "failure", errorMessage: err.message || JSON.stringify(err) });
-          else resolve(result);
-        });
-      });
-
-      if (bkmSonuc.status === "success") {
-        const redirectUrl = bkmSonuc.redirectUrl || bkmSonuc.paymentPageUrl;
-        if (!redirectUrl) {
-          return NextResponse.json({ error: "BKM yönlendirme adresi alınamadı." }, { status: 400 });
-        }
-        return NextResponse.json({
-          success: true,
-          odemeYontemi: "bkm",
-          redirectUrl,
-        });
-      }
-      return NextResponse.json(
-        { error: `BKM Express reddedildi: ${bkmSonuc.errorMessage || JSON.stringify(bkmSonuc)}` },
-        { status: 400 }
-      );
-    }
-
     const iyzicoTalep: Record<string, unknown> = {
-      locale: "tr", conversationId: siparisKodu, price: toplamTutar.toString(), paidPrice: toplamTutar.toString(), currency: "TRY", basketId: siparisKodu, paymentGroup: "PRODUCT",
+      locale: "tr",
+      conversationId: siparisKodu,
+      price: toplamTutar.toString(),
+      paidPrice: toplamTutar.toString(),
+      currency: "TRY",
+      basketId: siparisKodu,
+      paymentGroup: "PRODUCT",
       callbackUrl: `https://www.bilginpcmarket.com/api/iyzico-sonuc?siparisKodu=${siparisKodu}`,
       enabledInstallments: [1, 2, 3, 6, 9],
       buyer: iyzicoAlici,
       shippingAddress: iyzicoAdres,
       billingAddress: iyzicoAdres,
-      basketItems: sepetUrunleri
+      basketItems: sepetUrunleri,
     };
 
-    if (iyzicoCardUserKey) {
+    if (odemeYontemi === "kart" && iyzicoCardUserKey) {
       iyzicoTalep.cardUserKey = iyzicoCardUserKey;
     }
 
@@ -291,12 +258,15 @@ export async function POST(request: Request) {
     if (iyzicoSonuc.status === "success") {
       return NextResponse.json({
         success: true,
-        odemeYontemi: "kart",
+        odemeYontemi: odemeYontemi === "bkm" ? "bkm" : "kart",
         paymentPageUrl: iyzicoSonuc.paymentPageUrl,
       });
-    } else {
-      return NextResponse.json({ error: `Iyzico Reddetti: ${iyzicoSonuc.errorMessage || JSON.stringify(iyzicoSonuc)}` }, { status: 400 });
     }
+
+    return NextResponse.json(
+      { error: `Iyzico Reddetti: ${iyzicoSonuc.errorMessage || JSON.stringify(iyzicoSonuc)}` },
+      { status: 400 }
+    );
   } catch (error: any) {
     return NextResponse.json({ error: `Arka Uç Çöktü: ${error.message}` }, { status: 500 });
   }
