@@ -16,6 +16,8 @@ const KART_MARKA: Record<string, string> = {
   diger: "KART",
 };
 
+const ODEME_FORM_CACHE_KEY = "odeme_form_cache";
+
 const labelClass = "text-xs text-slate-400 font-medium block mb-1.5";
 const fieldClass =
   "w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-site-accent/50 focus:bg-white/[0.05] transition-colors";
@@ -79,12 +81,42 @@ export default function OdemeSayfasi() {
 
   useEffect(() => {
     sessionStorage.removeItem("iyzico_temizle");
+
+    try {
+      const ham = sessionStorage.getItem(ODEME_FORM_CACHE_KEY);
+      if (ham) {
+        const c = JSON.parse(ham);
+        if (c.form) setForm(c.form);
+        if (c.faturaForm) setFaturaForm(c.faturaForm);
+        if (typeof c.faturaAyni === "boolean") setFaturaAyni(c.faturaAyni);
+        if (c.asama) setAsama(c.asama);
+        if (c.odemeYontemi) setOdemeYontemi(c.odemeYontemi);
+        if (c.seciliKartId !== undefined) setSeciliKartId(c.seciliKartId);
+        setAdresKilitli(true);
+        setAdresAraniyor(false);
+      }
+    } catch {
+      /* önbellek bozuksa yoksay */
+    }
+
+    setYukleniyor(false);
+
     const params = new URLSearchParams(window.location.search);
     if (params.get("iptal") === "1") {
       setOdemeIptalAcik(true);
       window.history.replaceState(null, "", "/odeme");
     }
+
+    const sayfaGeri = () => setYukleniyor(false);
+    const sekmeGeri = () => {
+      if (document.visibilityState === "visible") setYukleniyor(false);
+    };
+    window.addEventListener("pageshow", sayfaGeri);
+    document.addEventListener("visibilitychange", sekmeGeri);
+
     return () => {
+      window.removeEventListener("pageshow", sayfaGeri);
+      document.removeEventListener("visibilitychange", sekmeGeri);
       temizleOdemeSayfasiKalintilari();
     };
   }, []);
@@ -240,10 +272,15 @@ export default function OdemeSayfasi() {
       
       if (data.success) {
         if (data.odemeYontemi === "havale") {
+          sessionStorage.removeItem(ODEME_FORM_CACHE_KEY);
           localStorage.removeItem("bilgin-sepet");
           window.location.href = "/siparis-basarili?kodu=" + data.siparisKodu;
         } else if (data.paymentPageUrl) {
-          window.location.replace(data.paymentPageUrl);
+          sessionStorage.setItem(
+            ODEME_FORM_CACHE_KEY,
+            JSON.stringify({ form, faturaForm, faturaAyni, asama, odemeYontemi, seciliKartId })
+          );
+          window.location.href = data.paymentPageUrl;
           return;
         } else {
           alert("Ödeme sayfası oluşturulamadı. Lütfen tekrar deneyin.");
