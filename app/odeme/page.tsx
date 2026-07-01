@@ -7,14 +7,7 @@ import { createPortal } from "react-dom";
 import { useSession } from "next-auth/react";
 import { temizleOdemeSayfasiKalintilari } from "@/lib/iyzico-checkout";
 import { type KayitliKart } from "@/lib/cuzdan";
-
-const KART_MARKA: Record<string, string> = {
-  visa: "VISA",
-  mastercard: "MASTERCARD",
-  troy: "TROY",
-  amex: "AMEX",
-  diger: "KART",
-};
+import { KartYigini } from "@/components/KayitliKartGorseli";
 
 const ODEME_FORM_CACHE_KEY = "odeme_form_cache";
 
@@ -393,73 +386,30 @@ export default function OdemeSayfasi() {
       <div className="rounded-2xl border border-[#00d2ff]/20 bg-[#00d2ff]/[0.03] p-4 sm:p-5 mb-5">
         <p className="text-white text-sm font-semibold mb-1">Kayıtlı kartınız</p>
         <p className="text-slate-500 text-xs mb-4">Seçtiğiniz kart İyzico güvenli ödeme ekranında hazır gelir.</p>
-        <div className="space-y-2">
-          {kayitliKartlar.map((kart) => {
-            const secili = seciliKartId === kart._id;
-            return (
-              <button
-                key={kart._id}
-                type="button"
-                onClick={() => setSeciliKartId(kart._id)}
-                className={[
-                  "w-full flex items-center gap-3 p-3.5 rounded-xl border-2 text-left transition-all touch-manipulation",
-                  secili
-                    ? "border-[#00d2ff]/50 bg-[#00d2ff]/10"
-                    : "border-white/[0.08] bg-white/[0.02] hover:border-white/20",
-                ].join(" ")}
-              >
-                <div className={[
-                  "w-10 h-10 rounded-lg flex items-center justify-center shrink-0",
-                  secili ? "bg-[#00d2ff]/20" : "bg-white/[0.05]",
-                ].join(" ")}>
-                  <CreditCard className={secili ? "w-5 h-5 text-[#00d2ff]" : "w-5 h-5 text-slate-400"} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-white text-sm font-medium font-mono tracking-wider">•••• {kart.last4}</span>
-                    <span className="text-[10px] font-bold text-slate-500 uppercase">{KART_MARKA[kart.brand] || "KART"}</span>
-                    {kart.isDefault && (
-                      <span className="text-[9px] font-bold text-[#00d2ff]/80 bg-[#00d2ff]/10 px-1.5 py-0.5 rounded">Varsayılan</span>
-                    )}
-                  </div>
-                  <p className="text-slate-500 text-[11px] truncate mt-0.5">
-                    {kart.holderName} · {kart.expiryMonth}/{kart.expiryYear}
-                  </p>
-                </div>
-                <div className={[
-                  "w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center",
-                  secili ? "border-[#00d2ff] bg-[#00d2ff]" : "border-slate-600",
-                ].join(" ")}>
-                  {secili && <Check className="w-3 h-3 text-black" />}
-                </div>
-              </button>
-            );
-          })}
+        <KartYigini
+          kartlar={kayitliKartlar}
+          mod="secim"
+          seciliId={seciliKartId}
+          onSec={setSeciliKartId}
+        />
+        <div className="flex justify-center mt-4">
           <button
             type="button"
             onClick={() => setSeciliKartId(null)}
             className={[
-              "w-full flex items-center gap-3 p-3.5 rounded-xl border-2 text-left transition-all touch-manipulation",
+              "inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 text-sm font-medium transition-all touch-manipulation",
               seciliKartId === null
-                ? "border-[#00d2ff]/50 bg-[#00d2ff]/10"
-                : "border-white/[0.08] bg-white/[0.02] hover:border-white/20",
+                ? "border-[#00d2ff]/50 bg-[#00d2ff]/10 text-white"
+                : "border-white/[0.08] bg-white/[0.02] text-slate-300 hover:border-white/20",
             ].join(" ")}
           >
-            <div className="w-10 h-10 rounded-lg bg-white/[0.05] flex items-center justify-center shrink-0">
-              <Plus className="w-5 h-5 text-slate-400" />
-            </div>
-            <div className="flex-1">
-              <span className="text-white text-sm font-medium">Farklı kart ile öde</span>
-              <p className="text-slate-500 text-[11px] mt-0.5">İyzico ekranında yeni kart bilgisi girin</p>
-            </div>
-            <div className={[
-              "w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center",
-              seciliKartId === null ? "border-[#00d2ff] bg-[#00d2ff]" : "border-slate-600",
-            ].join(" ")}>
-              {seciliKartId === null && <Check className="w-3 h-3 text-black" />}
-            </div>
+            <Plus className="w-4 h-4 shrink-0" />
+            Farklı kart ile öde
           </button>
         </div>
+        {seciliKartId === null && (
+          <p className="text-slate-500 text-[11px] text-center mt-2">İyzico ekranında yeni kart bilgisi girin</p>
+        )}
       </div>
     );
   };
