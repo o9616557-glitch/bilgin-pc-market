@@ -3,25 +3,76 @@
 import { useEffect, useState } from "react";
 import { Truck } from "lucide-react";
 
-const KARGO_SINIR_SAAT = 16;
+const HAFTA_ICI_SINIR = 16;
+const CUMARTESI_SINIR = 13;
 
-function kargoDurumu() {
-  const saat = Number(
-    new Intl.DateTimeFormat("tr-TR", {
-      timeZone: "Europe/Istanbul",
-      hour: "numeric",
-      hour12: false,
-    }).format(new Date())
-  );
-  const bugun = saat < KARGO_SINIR_SAAT;
+type KargoTip = "bugun" | "yarin" | "pazartesi";
+
+type KargoBilgi = {
+  tip: KargoTip;
+  baslik: string;
+  aciklama: string;
+};
+
+function istanbulSaatVeGun() {
+  const parcalar = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Europe/Istanbul",
+    weekday: "short",
+    hour: "numeric",
+    hour12: false,
+  }).formatToParts(new Date());
+
   return {
-    bugun,
-    baslik: bugun ? "Bugün kargoda" : "Yarın kargoda",
-    aciklama: bugun
-      ? "16:00'a kadar verilen siparişler bugün yola çıkar"
-      : "Siparişiniz yarın kargoya teslim edilir",
+    gun: parcalar.find((p) => p.type === "weekday")?.value ?? "Mon",
+    saat: Number(parcalar.find((p) => p.type === "hour")?.value ?? 0),
   };
 }
+
+function kargoDurumu(): KargoBilgi {
+  const { gun, saat } = istanbulSaatVeGun();
+
+  if (gun === "Sun" || (gun === "Sat" && saat >= CUMARTESI_SINIR)) {
+    return {
+      tip: "pazartesi",
+      baslik: "Pazartesi kargoda",
+      aciklama: "Siparişiniz pazartesi sabahı kargoya verilir",
+    };
+  }
+
+  if (gun === "Sat" && saat < CUMARTESI_SINIR) {
+    return {
+      tip: "bugun",
+      baslik: "Bugün kargoda",
+      aciklama: "13:00'a kadar verilen siparişler bugün yola çıkar",
+    };
+  }
+
+  if (saat < HAFTA_ICI_SINIR) {
+    return {
+      tip: "bugun",
+      baslik: "Bugün kargoda",
+      aciklama: "16:00'a kadar verilen siparişler bugün yola çıkar",
+    };
+  }
+
+  return {
+    tip: "yarin",
+    baslik: "Yarın kargoda",
+    aciklama: "Siparişiniz yarın kargoya teslim edilir",
+  };
+}
+
+const RENKLER: Record<KargoTip, string> = {
+  bugun: "text-emerald-400 bg-emerald-500/10 border-emerald-500/25",
+  yarin: "text-amber-400 bg-amber-500/10 border-amber-500/25",
+  pazartesi: "text-sky-400 bg-sky-500/10 border-sky-500/25",
+};
+
+const IKON_ARKA: Record<KargoTip, string> = {
+  bugun: "bg-emerald-500/15",
+  yarin: "bg-amber-500/15",
+  pazartesi: "bg-sky-500/15",
+};
 
 export default function KargoTeslimatNotu({ compact = false }: { compact?: boolean }) {
   const [kargo, setKargo] = useState(kargoDurumu);
@@ -32,9 +83,7 @@ export default function KargoTeslimatNotu({ compact = false }: { compact?: boole
     return () => clearInterval(id);
   }, []);
 
-  const renk = kargo.bugun
-    ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/25"
-    : "text-amber-400 bg-amber-500/10 border-amber-500/25";
+  const renk = RENKLER[kargo.tip];
 
   if (compact) {
     return (
@@ -48,14 +97,8 @@ export default function KargoTeslimatNotu({ compact = false }: { compact?: boole
   }
 
   return (
-    <div
-      className={`flex items-center gap-2.5 mt-4 px-3.5 py-2.5 rounded-xl border ${renk}`}
-    >
-      <div
-        className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-          kargo.bugun ? "bg-emerald-500/15" : "bg-amber-500/15"
-        }`}
-      >
+    <div className={`flex items-center gap-2.5 mt-4 px-3.5 py-2.5 rounded-xl border ${renk}`}>
+      <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${IKON_ARKA[kargo.tip]}`}>
         <Truck className="w-3.5 h-3.5" strokeWidth={2.5} />
       </div>
       <div className="min-w-0">
