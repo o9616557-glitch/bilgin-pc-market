@@ -88,6 +88,21 @@ export async function POST(request: Request) {
 
     await db.collection("orders").insertOne(yeniSiparis);
 
+    // Tamamı mağaza kredisiyle ödendi — havale/kart akışına girmeden önce
+    if (odenecekTutar <= 0) {
+      await db.collection("orders").updateOne(
+        { siparisKodu },
+        { $set: { durum: "Ödendi / Hazırlanıyor", status: "Ödendi / Hazırlanıyor", odemeYontemi: "magaza_kredisi" } }
+      );
+      return NextResponse.json({
+        success: true,
+        odemeYontemi: "magaza_kredisi",
+        siparisKodu,
+        kullanilanKredi,
+        odenecekTutar: 0,
+      });
+    }
+
     // ================= SADECE HAVALE İSE MAİL AT (JİLET GİBİ YENİ SÜRÜM) =================
     if (odemeYontemi === "havale") {
       try {
@@ -206,21 +221,6 @@ export async function POST(request: Request) {
       } catch (mailHatasi) {}
 
       return NextResponse.json({ success: true, odemeYontemi: "havale", siparisKodu, kullanilanKredi, odenecekTutar });
-    }
-
-    // Tamamı mağaza kredisiyle ödendi
-    if (odenecekTutar <= 0) {
-      await db.collection("orders").updateOne(
-        { siparisKodu },
-        { $set: { durum: "Ödendi / Hazırlanıyor", status: "Ödendi / Hazırlanıyor", odemeYontemi: "magaza_kredisi" } }
-      );
-      return NextResponse.json({
-        success: true,
-        odemeYontemi: "magaza_kredisi",
-        siparisKodu,
-        kullanilanKredi,
-        odenecekTutar: 0,
-      });
     }
 
     const gsmNumber = (() => {

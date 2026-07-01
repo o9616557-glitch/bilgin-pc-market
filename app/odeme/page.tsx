@@ -1,5 +1,5 @@
 "use client";
-import { ArrowLeft, CreditCard, Banknote, ShieldCheck, MapPin, Edit3, User, Phone, Mail, ChevronRight, ChevronLeft, Package, Copy, Check, Plus, Landmark } from "lucide-react";
+import { ArrowLeft, CreditCard, Banknote, ShieldCheck, MapPin, Edit3, User, Phone, Mail, ChevronRight, ChevronLeft, Package, Copy, Check, Plus, Landmark, Wallet } from "lucide-react";
 import { useCart } from "../CartContext";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -275,6 +275,7 @@ export default function OdemeSayfasi() {
     ? Math.min(magazaKredisi, genelToplam)
     : 0;
   const odenecekTutar = Math.max(0, genelToplam - kullanilacakKredi);
+  const tamamiKrediyle = krediKullan && kullanilacakKredi > 0 && odenecekTutar === 0;
   const inputDegis = (e: any) => { setForm({ ...form, [e.target.name]: e.target.value }); };
   const faturaInputDegis = (e: any) => { setFaturaForm({ ...faturaForm, [e.target.name]: e.target.value }); };
 
@@ -368,6 +369,84 @@ export default function OdemeSayfasi() {
   const odemeYontemiSec = (yontem: "kart" | "havale" | "bkm") => {
     setOdemeYontemi(yontem);
     if (yontem === "havale" || yontem === "bkm") setSeciliKartId(null);
+  };
+
+  const MagazaKrediAlani = ({ buyuk = false }: { buyuk?: boolean }) => {
+    if (status === "loading") return null;
+
+    if (status !== "authenticated") {
+      return (
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 mb-5">
+          <p className="text-slate-400 text-xs leading-relaxed">
+            Mağaza kredisi kullanmak için{" "}
+            <Link href="/giris?callbackUrl=/odeme" className="text-site-accent hover:underline font-medium">
+              giriş yapın
+            </Link>
+            . İade krediniz cüzdanınızda görünür.
+          </p>
+        </div>
+      );
+    }
+
+    if (magazaKredisi <= 0) return null;
+
+    return (
+      <div
+        className={[
+          "rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/[0.08] via-transparent to-transparent mb-5",
+          buyuk ? "p-4 sm:p-5" : "p-4",
+        ].join(" ")}
+      >
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center shrink-0">
+            <Wallet className="w-5 h-5 text-emerald-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-white text-sm font-semibold mb-0.5">Mağaza kredisi</p>
+            <p className="text-slate-500 text-xs mb-3">
+              Bakiyeniz:{" "}
+              <span className="text-emerald-400 font-semibold tabular-nums">
+                {magazaKredisi.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} TL
+              </span>
+            </p>
+            <label className="flex items-center gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={krediKullan}
+                onChange={(e) => setKrediKullan(e.target.checked)}
+                className="w-4 h-4 rounded border-slate-600 text-emerald-500 focus:ring-emerald-500/40"
+              />
+              <span className="text-sm text-slate-300 group-hover:text-white transition-colors">
+                Bu siparişte mağaza kredimi kullan
+              </span>
+            </label>
+            {krediKullan && kullanilacakKredi > 0 && (
+              <div className="mt-3 pt-3 border-t border-emerald-500/20 space-y-1.5 text-xs">
+                <div className="flex justify-between text-slate-400">
+                  <span>Krediden düşülecek</span>
+                  <span className="text-emerald-400 font-bold tabular-nums">
+                    −{kullanilacakKredi.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} TL
+                  </span>
+                </div>
+                {tamamiKrediyle ? (
+                  <p className="text-emerald-300 leading-relaxed">
+                    Kalan ödeme yok. Sipariş tamamı mağaza kredinizle karşılanacak — kart veya havale gerekmez.
+                  </p>
+                ) : (
+                  <p className="text-slate-500 leading-relaxed">
+                    Kalan{" "}
+                    <span className="text-white font-semibold tabular-nums">
+                      {odenecekTutar.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} TL
+                    </span>{" "}
+                    için aşağıdan ödeme yöntemi seçin.
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const KayitliKartSecimi = () => {
@@ -552,29 +631,8 @@ export default function OdemeSayfasi() {
           <span>Kargo</span>
           <span>{kargo === 0 ? <span className="text-emerald-400 text-xs font-medium">Ücretsiz</span> : <span className="text-white font-medium tabular-nums">{kargo} TL</span>}</span>
         </div>
-        {status === "authenticated" && magazaKredisi > 0 && (
-          <div className="pt-2 border-t border-white/[0.06]">
-            <label className="flex items-start gap-3 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={krediKullan}
-                onChange={(e) => setKrediKullan(e.target.checked)}
-                className="mt-0.5 rounded border-slate-600 text-site-accent focus:ring-site-accent/50"
-              />
-              <div className="flex-1 min-w-0">
-                <span className="text-sm text-slate-300 group-hover:text-white transition-colors">Mağaza kredimi kullan</span>
-                <p className="text-[10px] text-slate-500 mt-0.5">
-                  Bakiyeniz: {magazaKredisi.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} TL
-                  {krediKullan && kullanilacakKredi > 0 && (
-                    <span className="text-emerald-400"> — {kullanilacakKredi.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} TL düşülecek</span>
-                  )}
-                </p>
-              </div>
-            </label>
-          </div>
-        )}
         {kullanilacakKredi > 0 && (
-          <div className="flex justify-between text-emerald-400/90 text-sm">
+          <div className="flex justify-between text-emerald-400/90 text-sm pt-2 border-t border-white/[0.06]">
             <span>Mağaza kredisi</span>
             <span className="font-medium tabular-nums">−{kullanilacakKredi.toLocaleString("tr-TR")} TL</span>
           </div>
@@ -720,6 +778,7 @@ export default function OdemeSayfasi() {
           {asama === 1 && (
             <div className="max-w-2xl mx-auto space-y-4">
               <SiparisOzetiKutusu notGoster />
+              <MagazaKrediAlani buyuk />
               <button
                 type="button"
                 onClick={asamaIleri}
@@ -811,8 +870,13 @@ export default function OdemeSayfasi() {
                 )}
 
                 <hr className="border-white/[0.06] mb-5" />
-                <h3 className="text-sm font-semibold text-white mb-3">Ödeme yöntemi</h3>
-                <OdemeYontemiKartlari />
+                <MagazaKrediAlani buyuk />
+                {!tamamiKrediyle && (
+                  <>
+                    <h3 className="text-sm font-semibold text-white mb-3">Ödeme yöntemi</h3>
+                    <OdemeYontemiKartlari />
+                  </>
+                )}
 
                 <div className="bg-white/[0.02] border border-white/[0.06] p-3.5 rounded-xl mb-5 text-center">
                   <p className="text-slate-400 text-xs leading-relaxed">
@@ -845,10 +909,19 @@ export default function OdemeSayfasi() {
             <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 max-w-5xl mx-auto">
               <div className="flex-1 min-w-0 glass-card p-4 sm:p-6 lg:p-8">
                 <h3 className="text-sm font-semibold text-white mb-1">Ödeme</h3>
-                <p className="text-slate-500 text-xs mb-4">Yöntemi değiştirebilirsiniz</p>
-                <OdemeYontemiKartlari compact />
+                <p className="text-slate-500 text-xs mb-4">
+                  {tamamiKrediyle ? "Mağaza krediniz sipariş tutarını karşılıyor" : "Yöntemi değiştirebilirsiniz"}
+                </p>
+                <MagazaKrediAlani buyuk />
 
-                {odemeYontemi === "kart" ? (
+                {!tamamiKrediyle && (
+                  <>
+                    <h3 className="text-sm font-semibold text-white mb-3">Ödeme yöntemi</h3>
+                    <OdemeYontemiKartlari compact />
+                  </>
+                )}
+
+                {!tamamiKrediyle && odemeYontemi === "kart" ? (
                   <>
                     <KayitliKartSecimi />
                     <div className="rounded-2xl border border-[#00d2ff]/20 bg-[#00d2ff]/[0.04] p-4 sm:p-5 mb-5">
@@ -867,8 +940,14 @@ export default function OdemeSayfasi() {
                       </div>
                     </div>
                   </>
-                ) : odemeYontemi === "bkm" ? null : (
+                ) : !tamamiKrediyle && odemeYontemi === "bkm" ? null : !tamamiKrediyle ? (
                   <HavaleDetayKarti />
+                ) : (
+                  <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/[0.06] p-4 sm:p-5 mb-5">
+                    <p className="text-emerald-300 text-sm font-medium leading-relaxed">
+                      Sipariş tutarının tamamı mağaza kredinizden düşülecek. Onayladığınızda siparişiniz hazırlık aşamasına geçer.
+                    </p>
+                  </div>
                 )}
 
                 <div className="lg:hidden mb-5">
@@ -884,7 +963,9 @@ export default function OdemeSayfasi() {
                     disabled={yukleniyor}
                     className={["flex-1 py-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 touch-manipulation", yukleniyor ? "bg-slate-800 text-slate-500 cursor-not-allowed" : "btn-primary"].join(" ")}
                   >
-                    {yukleniyor ? "İşleniyor…" : odemeYontemi === "kart" ? (
+                    {yukleniyor ? "İşleniyor…" : tamamiKrediyle ? (
+                      <><Wallet className="w-4 h-4" /> Mağaza kredisi ile tamamla</>
+                    ) : odemeYontemi === "kart" ? (
                       <><CreditCard className="w-4 h-4" /> {seciliKartId ? "Kayıtlı kart ile öde" : "Kart ile öde"}</>
                     ) : odemeYontemi === "bkm" ? (
                       <><span className="text-[10px] font-black tracking-tight">BKM</span> Express ile öde</>
