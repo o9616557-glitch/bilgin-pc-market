@@ -64,18 +64,18 @@ function UrunGaleriResmi({
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const { sepeteEkle } = useCart(); 
   const { karsilastirmayaEkle, setPopupAcik } = useCompare(); 
-  const [masaustu, setMasaustu] = useState(false);
+  const [mobil, setMobil] = useState(false);
 
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 768px)");
-    const guncelle = () => setMasaustu(mq.matches);
+    const mq = window.matchMedia("(max-width: 767px)");
+    const guncelle = () => setMobil(mq.matches);
     guncelle();
     mq.addEventListener("change", guncelle);
     return () => mq.removeEventListener("change", guncelle);
   }, []);
 
   useEffect(() => {
-    if (window.matchMedia("(min-width: 768px)").matches) {
+    if (window.matchMedia("(max-width: 767px)").matches) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, []);
@@ -484,7 +484,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   );
 
   return (
-    <div className="bg-[#050814] md:bg-[#050505] text-white font-sans pb-0 sm:pb-10 relative site-page-soft-in">
+    <div className="bg-[#050505] text-white font-sans pb-0 sm:pb-10 relative site-page-soft-in">
       
       <style dangerouslySetInnerHTML={{ __html: `
         body { -webkit-tap-highlight-color: transparent; }
@@ -562,7 +562,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 <UrunGaleriResmi
                   src={resimler[0]}
                   alt={urunAdi}
-                  yumusak={masaustu}
+                  yumusak={mobil}
                   soluk={tukendiMi}
                   style={{
                     transformOrigin: zoomOrigin,
@@ -585,7 +585,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                         src={img}
                         alt={`${urunAdi} - ${idx + 1}`}
                         draggable={false}
-                        yumusak={masaustu}
+                        yumusak={mobil}
                         soluk={tukendiMi}
                         style={{
                           transformOrigin: idx === trackIndex ? zoomOrigin : "center center",
@@ -870,7 +870,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       </div>
 
      {/* MOBİL ALT SEPET BAR ALANI */}
-      <div className="sm:hidden fixed bottom-0 left-0 w-full bg-[#050814]/95 backdrop-blur-2xl border-t border-white/10 px-4 py-3 z-50 flex items-center justify-between shadow-[0_-20px_40px_rgba(0,0,0,0.8)] select-none">
+      <div className="sm:hidden fixed bottom-0 left-0 w-full bg-[#050505]/95 backdrop-blur-2xl border-t border-white/10 px-4 py-3 z-50 flex items-center justify-between shadow-[0_-20px_40px_rgba(0,0,0,0.8)] select-none">
          <div className="flex flex-col">
             {indirimVarMi && !tukendiMi && <span className="text-gray-500 text-[11px] line-through font-medium mb-0.5">{normalFiyat.toLocaleString("tr-TR")} ₺</span>}
             <span className="text-[22px] font-black text-white leading-none mb-1.5">{gecerliFiyat.toLocaleString("tr-TR")} <span className="text-[#00d2ff] text-lg">₺</span></span>

@@ -64,15 +64,6 @@ body {
   }
 }
 
-@keyframes site-urun-giris {
-  from {
-    opacity: 0.55;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 @keyframes site-glow-in {
   from {
     opacity: 0;
@@ -91,15 +82,9 @@ body {
     animation: site-content-in 0.12s ease-out both;
   }
 
-  @media (min-width: 768px) {
+  @media (max-width: 767px) {
     .site-page-soft-in {
       animation: site-page-soft-in 0.48s cubic-bezier(0.4, 0, 0.2, 1) both;
-    }
-  }
-
-  @media (max-width: 767px) {
-    .site-urun-giris-mobil {
-      animation: site-urun-giris 0.32s ease-out both;
     }
   }
 
