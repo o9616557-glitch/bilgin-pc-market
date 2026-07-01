@@ -6,8 +6,8 @@ import { destekOzetOku } from "@/lib/destek-ozet";
 import { useCart } from "@/app/CartContext";
 import { useOrders } from "@/app/OrderContext";
 import { useSession, signOut } from "next-auth/react";
-import { usePathname } from "next/navigation";
-import { Search, ChevronDown, Mail, Bell } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Search, X, ChevronDown, Mail, Bell } from "lucide-react";
 import { cloudinaryKatalogResim } from "@/lib/cloudinary";
 
 const KATALOG_ICON_DESKTOP = 72;
@@ -535,6 +535,9 @@ function MobilProfilLink({ size = 42, onNavigate }: { size?: number; onNavigate?
 
 export default function Header() {
   const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const aramaSayfasinda = pathname === "/arama";
 
   const gizlenecekSayfalar = ["/sepet", "/odeme", "/giris", "/kayit", "/sifre-sifirla", "/yeni-sifre", "/checkout"];
   const headerGizli = gizlenecekSayfalar.includes(pathname);
@@ -550,7 +553,9 @@ export default function Header() {
   const [acikSeritKatalog, setAcikSeritKatalog] = useState<string | null>(null);
   const katalogRef = useRef<HTMLDivElement>(null);
   const hesabimRef = useRef<HTMLDivElement>(null);
-  
+  const aramaInputRef = useRef<HTMLInputElement>(null);
+  const [aramaMetni, setAramaMetni] = useState("");
+
   const sepetAdedi = sepet.reduce((toplam: number, urun: any) => toplam + (urun.adet || 1), 0);
   const { data: session, status } = useSession();
   const kargoBildirimSayisi = orders.filter((o) =>
@@ -578,6 +583,46 @@ export default function Header() {
     setAcikSeritKatalog(null);
     setMenuAcik(false);
   }, [pathname]);
+
+  useEffect(() => {
+    if (aramaSayfasinda) {
+      setAramaMetni(searchParams.get("q") || "");
+    } else {
+      setAramaMetni("");
+    }
+  }, [aramaSayfasinda, searchParams]);
+
+  useEffect(() => {
+    if (!aramaSayfasinda) return;
+    const timer = window.setTimeout(() => {
+      aramaInputRef.current?.focus();
+    }, 80);
+    return () => window.clearTimeout(timer);
+  }, [aramaSayfasinda]);
+
+  useEffect(() => {
+    if (!aramaSayfasinda) return;
+    const temiz = aramaMetni.trim();
+    const urlKelime = searchParams.get("q") || "";
+
+    if (temiz === urlKelime) return;
+
+    const timer = window.setTimeout(() => {
+      if (temiz.length < 2) {
+        if (urlKelime) router.replace("/arama", { scroll: false });
+        return;
+      }
+      router.replace(`/arama?q=${encodeURIComponent(temiz)}`, { scroll: false });
+    }, 300);
+
+    return () => window.clearTimeout(timer);
+  }, [aramaMetni, aramaSayfasinda, router, searchParams]);
+
+  const aramaTemizle = () => {
+    setAramaMetni("");
+    router.replace("/arama", { scroll: false });
+    aramaInputRef.current?.focus();
+  };
 
   useEffect(() => {
     if (!acikSeritKatalog) return;
@@ -696,14 +741,37 @@ export default function Header() {
 
               <div className={`flex items-center gap-2.5 px-3 sm:px-4 pb-3 pt-0.5 ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}>
                 <MobilProfilLink size={42} onNavigate={() => setMenuAcik(false)} />
-                <Link
-                  href="/arama"
-                  aria-label="Ara"
-                  className="flex flex-1 min-w-0 items-center gap-2.5 h-10 pl-3.5 pr-4 rounded-full bg-white/[0.05] border border-white/[0.09] text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-all duration-200 hover:bg-white/[0.08] hover:border-white/[0.14] active:scale-[0.99]"
-                >
-                  <Search className="w-4 h-4 text-slate-400 shrink-0" />
-                  <span className="text-[13px] text-slate-500 truncate font-normal">Ürün, marka veya kategori ara...</span>
-                </Link>
+                {aramaSayfasinda ? (
+                  <form
+                    onSubmit={(e) => e.preventDefault()}
+                    className="flex flex-1 min-w-0 items-center gap-2 h-10 pl-3.5 pr-2 rounded-full bg-white/[0.07] border border-[#3b82f6]/35 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                  >
+                    <Search className="w-4 h-4 text-[#3b82f6] shrink-0" />
+                    <input
+                      ref={aramaInputRef}
+                      type="search"
+                      enterKeyHint="search"
+                      value={aramaMetni}
+                      onChange={(e) => setAramaMetni(e.target.value)}
+                      placeholder="Ürün, marka veya kategori ara..."
+                      className="flex-1 min-w-0 bg-transparent text-[13px] text-white placeholder-slate-500 outline-none"
+                    />
+                    {aramaMetni && (
+                      <button type="button" onClick={aramaTemizle} className="p-1.5 text-slate-400 hover:text-white shrink-0" aria-label="Temizle">
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </form>
+                ) : (
+                  <Link
+                    href="/arama"
+                    aria-label="Ara"
+                    className="flex flex-1 min-w-0 items-center gap-2.5 h-10 pl-3.5 pr-4 rounded-full bg-white/[0.05] border border-white/[0.09] text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-all duration-200 hover:bg-white/[0.08] hover:border-white/[0.14] active:scale-[0.99]"
+                  >
+                    <Search className="w-4 h-4 text-slate-400 shrink-0" />
+                    <span className="text-[13px] text-slate-500 truncate font-normal">Ürün, marka veya kategori ara...</span>
+                  </Link>
+                )}
               </div>
             </div>
 
@@ -711,13 +779,38 @@ export default function Header() {
             <div className="hidden lg:flex items-center justify-between gap-4 py-3 min-h-[72px]">
               <BilginPcMarka size="md" variant="horizontal" />
 
-              <Link
-                href="/arama"
-                className="relative flex-1 min-w-0 mx-1 lg:mx-3 flex items-center h-10 bg-white/[0.06] border border-white/[0.1] rounded-lg pl-9 pr-4 text-sm text-slate-500 hover:border-[#3b82f6]/50 hover:bg-white/[0.08] transition-colors"
-              >
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                <span className="truncate">Ürün, marka veya kategori ara...</span>
-              </Link>
+              {aramaSayfasinda ? (
+                <form onSubmit={(e) => e.preventDefault()} className="relative flex-1 min-w-0 mx-1 lg:mx-3">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                  <input
+                    ref={aramaInputRef}
+                    type="search"
+                    enterKeyHint="search"
+                    value={aramaMetni}
+                    onChange={(e) => setAramaMetni(e.target.value)}
+                    placeholder="Ürün, marka veya kategori ara..."
+                    className="w-full h-10 bg-white/[0.06] border border-white/[0.1] rounded-lg pl-9 pr-9 text-sm text-white placeholder-slate-500 outline-none focus:border-[#3b82f6]/50 focus:bg-white/[0.08] transition-colors"
+                  />
+                  {aramaMetni && (
+                    <button
+                      type="button"
+                      onClick={aramaTemizle}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white"
+                      aria-label="Temizle"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </form>
+              ) : (
+                <Link
+                  href="/arama"
+                  className="relative flex-1 min-w-0 mx-1 lg:mx-3 flex items-center h-10 bg-white/[0.06] border border-white/[0.1] rounded-lg pl-9 pr-4 text-sm text-slate-500 hover:border-[#3b82f6]/50 hover:bg-white/[0.08] transition-colors"
+                >
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                  <span className="truncate">Ürün, marka veya kategori ara...</span>
+                </Link>
+              )}
 
               <div className="flex items-center gap-1 lg:gap-2 shrink-0">
                 <Link

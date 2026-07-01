@@ -3,6 +3,7 @@ import AuthProvider from "@/components/AuthProvider";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Suspense } from "react";
 import Header from "@/components/Header";
 import { CartProvider } from "./CartContext";
 import Footer from "@/components/Footer"; 
@@ -75,7 +76,9 @@ export default function RootLayout({
             <CompareProvider>
               {/* 🚀 ŞALTERİ KALDIRDIK: Artık siteye giren herkesin siparişleri arka planda sessizce indirilecek */}
               <OrderProvider>
-                <Header />
+                <Suspense fallback={<div className="h-16 lg:h-[72px] bg-[#050814] border-b border-white/5" />}>
+                  <Header />
+                </Suspense>
                 <main className="flex-grow w-full site-content-in">
                   {children}
                 </main>
