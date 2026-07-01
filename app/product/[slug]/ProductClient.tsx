@@ -6,7 +6,7 @@ import { createPortal } from "react-dom";
 import { useCart } from "../../CartContext"; 
 import toast from "react-hot-toast";
 import { useCompare } from "@/app/CompareContext";
-import { X, Gamepad2, ChevronLeft, ChevronRight, ShoppingCart, Heart, GitCompare, Share2, Star, Zap, Info, Gauge, Crosshair } from "lucide-react";
+import { X, Gamepad2, ChevronLeft, ChevronRight, ShoppingCart, Heart, GitCompare, Share2, Star, Zap, Info, Gauge, Crosshair, ArrowRight } from "lucide-react";
 import Link from "next/link"; 
 import { cloudinaryUrunResim, cloudinaryUrunBuyutecResim } from "@/lib/cloudinary";
 import {
@@ -71,7 +71,8 @@ function UrunGaleriResmi({
 }
 
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
-  const { sepeteEkle } = useCart(); 
+  const router = useRouter();
+  const { sepeteEkle } = useCart();
   const { karsilastirmayaEkle, setPopupAcik } = useCompare(); 
   const [mobil, setMobil] = useState(false);
 
@@ -236,42 +237,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     } catch (error) {} setIsSubmitting(false);
   };
 
- const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    if (tukendiMi) return;
-    
-    const btn = e.currentTarget;
-    if (btn.disabled) return; 
-    btn.disabled = true;
-
-    try { 
-      sepeteEkle({ 
-        id: String(pId), 
-        isim: urunAdi, 
-        fiyat: gecerliFiyat, 
-        resim: product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/400", 
-        varyasyon: "Standart Model", 
-        havaleIndirimi: havaleYuzdesi,
-        slug: product.slug
-      }); 
-      
-      const originalHTML = btn.innerHTML;
-      const originalClasses = btn.className; 
-      
-      btn.className = `hidden sm:flex flex-1 h-14 sm:h-16 rounded-2xl font-black text-sm sm:text-lg uppercase tracking-widest items-center justify-center gap-2 sm:gap-3 transition-all duration-300 touch-manipulation bg-[#10b981] text-white scale-95 shadow-[0_0_20px_rgba(16,185,129,0.5)]`;
-      btn.innerHTML = '<svg class="w-6 h-6 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> EKLENDİ';
-      
-      setTimeout(() => {
-        btn.className = originalClasses; 
-        btn.innerHTML = originalHTML;
-        btn.disabled = false;
-      }, 1500);
-
-    } catch (error) {
-      btn.disabled = false;
-    }
-  };
-  
   const handleShare = async () => {
     if (navigator.share) { try { await navigator.share({ title: urunAdi, text: "Bu ürüne bak!", url: window.location.href }); } catch (err) {} } else { navigator.clipboard.writeText(window.location.href); setCopied(true); setTimeout(() => setCopied(false), 2000); toast.success("Bağlantı kopyalandı"); }
   };
@@ -303,6 +268,52 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const loopResimler = cokluResim ? [resimler[resimler.length - 1], ...resimler, resimler[0]] : resimler;
 
   const resimLen = resimler.length;
+
+  const sepetUrunPayload = () => ({
+    id: String(pId),
+    isim: urunAdi,
+    fiyat: gecerliFiyat,
+    resim: product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/400",
+    varyasyon: "Standart Model",
+    havaleIndirimi: havaleYuzdesi,
+    slug: product.slug,
+  });
+
+  const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (tukendiMi) return;
+
+    const btn = e.currentTarget;
+    if (btn.disabled) return;
+    btn.disabled = true;
+
+    try {
+      sepeteEkle(sepetUrunPayload());
+
+      const originalHTML = btn.innerHTML;
+      const originalClasses = btn.className;
+
+      btn.className =
+        "flex-1 h-12 rounded-xl font-bold text-[11px] uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all duration-300 touch-manipulation bg-[#10b981] text-white scale-[0.98] shadow-[0_0_20px_rgba(16,185,129,0.4)]";
+      btn.innerHTML =
+        '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Eklendi';
+
+      setTimeout(() => {
+        btn.className = originalClasses;
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+      }, 1500);
+    } catch {
+      btn.disabled = false;
+    }
+  };
+
+  const handleSimdiAl = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (tukendiMi) return;
+    sepeteEkle(sepetUrunPayload());
+    router.push("/sepet");
+  };
 
   const snapTrackIndex = (target: number) => {
     isResettingRef.current = true;
@@ -489,7 +500,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   );
 
   return (
-    <div className="bg-[#050505] text-white font-sans pb-0 sm:pb-10 relative site-page-soft-in">
+    <div className="bg-[#050505] text-white font-sans pb-32 sm:pb-10 relative site-page-soft-in">
       <BuyutecResimOnyukle src={aktifResimHd} aktif={!mobil} />
       
       <style dangerouslySetInnerHTML={{ __html: `
@@ -678,19 +689,47 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                )}
             </div>
 
-            <div className="flex gap-2 sm:gap-4 mb-8 sm:mb-10 select-none">
-               <button onClick={handleAddToCart} disabled={addingToCart || tukendiMi} className={`hidden sm:flex flex-1 h-14 sm:h-16 rounded-2xl font-black text-sm sm:text-lg uppercase tracking-widest items-center justify-center gap-2 sm:gap-3 transition-all touch-manipulation ${tukendiMi ? 'bg-zinc-800 text-zinc-500' : 'bg-[#3b82f6] text-black hover:bg-[#00c4db] shadow-[0_0_20px_rgba(0,229,255,0.2)]'}`}>
-                  <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" /> {tukendiMi ? "Tükendi" : "Sepete Ekle"}
-               </button>
-               <button onClick={handleToggleFavorite} className={`w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl flex items-center justify-center border transition-all touch-manipulation ${isFav ? 'bg-red-500/10 border-red-500 text-red-500' : 'bg-[#09090b] border-white/10 hover:border-[#00d2ff] hover:text-[#00d2ff]'}`} title="Favori">
+            <div className="flex flex-col gap-3 mb-8 sm:mb-10 select-none">
+               <div className="hidden sm:flex gap-2 sm:gap-3">
+                  <button
+                    type="button"
+                    onClick={handleAddToCart}
+                    disabled={addingToCart || tukendiMi}
+                    className={`flex-1 h-12 sm:h-14 md:h-16 rounded-2xl font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 sm:gap-2.5 transition-all touch-manipulation active:scale-[0.98] ${
+                      tukendiMi
+                        ? "bg-zinc-800/80 text-zinc-500 border border-zinc-700 cursor-not-allowed"
+                        : "bg-white/[0.04] border border-white/15 text-white hover:border-[#00d2ff]/50 hover:bg-[#00d2ff]/[0.07] hover:text-[#00d2ff]"
+                    }`}
+                  >
+                    <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+                    {tukendiMi ? "Tükendi" : "Sepete Ekle"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSimdiAl}
+                    disabled={tukendiMi}
+                    className={`flex-1 h-12 sm:h-14 md:h-16 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 sm:gap-2.5 transition-all touch-manipulation active:scale-[0.98] ${
+                      tukendiMi
+                        ? "bg-zinc-800/80 text-zinc-500 cursor-not-allowed"
+                        : "bg-gradient-to-r from-[#00d2ff] to-[#3b82f6] text-black shadow-[0_0_22px_rgba(0,210,255,0.25)] hover:shadow-[0_0_30px_rgba(0,210,255,0.4)] hover:brightness-110"
+                    }`}
+                  >
+                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+                    Şimdi Al
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 opacity-80" />
+                  </button>
+               </div>
+               <div className="flex gap-2 sm:gap-3 justify-end sm:justify-start">
+               <button onClick={handleToggleFavorite} className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex-shrink-0 rounded-2xl flex items-center justify-center border transition-all touch-manipulation ${isFav ? 'bg-red-500/10 border-red-500 text-red-500' : 'bg-[#09090b] border-white/10 hover:border-[#00d2ff] hover:text-[#00d2ff]'}`} title="Favori">
                   <Heart className={`w-5 h-5 sm:w-6 sm:h-6 ${isFav ? 'fill-red-500' : ''}`} />
                </button>
-               <button onClick={handleCompare} className="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl bg-[#09090b] border border-white/10 flex items-center justify-center transition-all touch-manipulation hover:border-[#00d2ff] hover:text-[#00d2ff]" title="Karşılaştır">
+               <button onClick={handleCompare} className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex-shrink-0 rounded-2xl bg-[#09090b] border border-white/10 flex items-center justify-center transition-all touch-manipulation hover:border-[#00d2ff] hover:text-[#00d2ff]" title="Karşılaştır">
                   <GitCompare className="w-5 h-5 sm:w-6 sm:h-6" />
                </button>
-               <button onClick={handleShare} className="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl bg-[#09090b] border border-white/10 flex items-center justify-center transition-all touch-manipulation hover:border-[#00d2ff] hover:text-[#00d2ff]" title="Paylaş">
+               <button onClick={handleShare} className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex-shrink-0 rounded-2xl bg-[#09090b] border border-white/10 flex items-center justify-center transition-all touch-manipulation hover:border-[#00d2ff] hover:text-[#00d2ff]" title="Paylaş">
                   <Share2 className="w-5 h-5 sm:w-6 sm:h-6" />
                </button>
+               </div>
             </div>
 
            {kategoriIsmi.includes("Ekran") && (
@@ -879,49 +918,49 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       </div>
 
      {/* MOBİL ALT SEPET BAR ALANI */}
-      <div className="sm:hidden fixed bottom-0 left-0 w-full bg-[#050505]/95 backdrop-blur-2xl border-t border-white/10 px-4 py-3 z-50 flex items-center justify-between shadow-[0_-20px_40px_rgba(0,0,0,0.8)] select-none">
-         <div className="flex flex-col">
-            {indirimVarMi && !tukendiMi && <span className="text-gray-500 text-[11px] line-through font-medium mb-0.5">{normalFiyat.toLocaleString("tr-TR")} ₺</span>}
-            <span className="text-[22px] font-black text-white leading-none mb-1.5">{gecerliFiyat.toLocaleString("tr-TR")} <span className="text-[#00d2ff] text-lg">₺</span></span>
-            
-            {havaleYuzdesi > 0 && !tukendiMi && (
-               <span className="text-[#10b981] text-[10px] font-black tracking-wide flex items-center gap-1">
-                  <Zap className="w-3 h-3" /> HAVALE: {havaleFiyati.toLocaleString("tr-TR", {maximumFractionDigits: 0})} ₺
-               </span>
-            )}
+      <div className="sm:hidden fixed bottom-0 left-0 w-full z-50 select-none">
+         <div className="bg-[#050505]/95 backdrop-blur-2xl border-t border-white/10 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-20px_40px_rgba(0,0,0,0.8)]">
+            <div className="flex items-end justify-between mb-2.5">
+               <div className="flex flex-col min-w-0">
+                  {indirimVarMi && !tukendiMi && <span className="text-gray-500 text-[11px] line-through font-medium mb-0.5">{normalFiyat.toLocaleString("tr-TR")} ₺</span>}
+                  <span className="text-[22px] font-black text-white leading-none mb-1">{gecerliFiyat.toLocaleString("tr-TR")} <span className="text-[#00d2ff] text-lg">₺</span></span>
+                  {havaleYuzdesi > 0 && !tukendiMi && (
+                     <span className="text-[#10b981] text-[10px] font-black tracking-wide flex items-center gap-1">
+                        <Zap className="w-3 h-3" /> HAVALE: {havaleFiyati.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
+                     </span>
+                  )}
+               </div>
+            </div>
+            <div className="flex gap-2">
+               <button
+                  type="button"
+                  onClick={handleAddToCart}
+                  disabled={tukendiMi}
+                  className={`flex-1 h-12 rounded-xl font-bold text-[11px] uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all touch-manipulation active:scale-[0.98] ${
+                     tukendiMi
+                        ? "bg-zinc-800 text-zinc-500"
+                        : "bg-white/[0.05] border border-white/15 text-white"
+                  }`}
+               >
+                  <ShoppingCart className="w-4 h-4 shrink-0" />
+                  {tukendiMi ? "Tükendi" : "Sepete Ekle"}
+               </button>
+               <button
+                  type="button"
+                  onClick={handleSimdiAl}
+                  disabled={tukendiMi}
+                  className={`flex-1 h-12 rounded-xl font-black text-[11px] uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all touch-manipulation active:scale-[0.98] ${
+                     tukendiMi
+                        ? "bg-zinc-800 text-zinc-500"
+                        : "bg-gradient-to-r from-[#00d2ff] to-[#3b82f6] text-black shadow-[0_0_18px_rgba(0,210,255,0.3)]"
+                  }`}
+               >
+                  <Zap className="w-4 h-4 shrink-0" />
+                  Şimdi Al
+                  <ArrowRight className="w-3.5 h-3.5 shrink-0 opacity-80" />
+               </button>
+            </div>
          </div>
-         <button 
-           onClick={(e) => {
-             e.preventDefault();
-             if (tukendiMi) return;
-             const btn = e.currentTarget;
-             if (btn.disabled) return; 
-             btn.disabled = true;
-
-             try { 
-               sepeteEkle({ 
-                 id: String(pId), isim: urunAdi, fiyat: gecerliFiyat, resim: product.resim || (product.images && product.images[0]?.src) || "https://via.placeholder.com/400", varyasyon: "Standart Model", havaleIndirimi: havaleYuzdesi, slug: product.slug
-               }); 
-               
-               const originalHTML = btn.innerHTML;
-               const originalClasses = btn.className;
-               
-               btn.className = `h-12 px-6 rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-300 touch-manipulation bg-[#10b981] text-white scale-95 shadow-[0_0_20px_rgba(16,185,129,0.5)]`;
-               btn.innerHTML = '<svg class="w-5 h-5 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> EKLENDİ';
-               
-               setTimeout(() => {
-                 btn.className = originalClasses;
-                 btn.innerHTML = originalHTML;
-                 btn.disabled = false;
-               }, 1500);
-
-             } catch (error) { btn.disabled = false; }
-           }} 
-           disabled={tukendiMi} 
-           className={`h-12 px-6 rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-300 touch-manipulation ${tukendiMi ? 'bg-zinc-800 text-zinc-500' : 'bg-[#00d2ff] text-black shadow-[0_0_20px_rgba(0,210,255,0.3)] hover:bg-[#00c4db]'}`}
-         >
-            <ShoppingCart className="w-4 h-4" /> {tukendiMi ? "Tükendi" : "Sepete Ekle"}
-         </button>
       </div>
 
       {lightboxAcik && typeof document !== "undefined" && createPortal(
