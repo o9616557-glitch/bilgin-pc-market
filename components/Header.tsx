@@ -1046,7 +1046,10 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
             className="fixed left-0 right-0 bottom-0 z-[106] flex flex-col bg-[#050814] border-t border-white/[0.08] shadow-[0_-12px_48px_rgba(0,0,0,0.6)] overflow-hidden"
             style={{ top: headerYukseklik, height: `calc(100dvh - ${headerYukseklik}px)` }}
           >
-            <div className="flex-1 overflow-y-auto overscroll-contain w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 lg:pb-8">
+            <div
+              className="flex-1 overflow-y-auto overscroll-contain w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 lg:pb-8 [&::-webkit-scrollbar]:hidden"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
               <div className="w-full max-w-6xl mx-auto">
                 {aramaMetni.length > 0 ? (
                   <div className={`flex w-full gap-6 lg:gap-8 ${bulunanKategoriler.length > 0 ? "flex-col lg:flex-row lg:items-start" : "flex-col"}`}>
