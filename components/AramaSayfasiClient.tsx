@@ -147,6 +147,12 @@ export default function AramaSayfasiClient({ initialQ = "" }: { initialQ?: strin
                 </div>
               </div>
             )}
+
+            {!aramaYapildi && sonAramalar.length === 0 && populerUrunler.length === 0 && (
+              <p className="text-center text-slate-500 py-16 text-sm">
+                Üstteki arama kutusuna yazmaya başlayın; sonuçlar burada listelenir.
+              </p>
+            )}
           </div>
         )}
       </div>
