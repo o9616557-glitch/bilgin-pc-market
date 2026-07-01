@@ -9,6 +9,11 @@ import { useCompare } from "@/app/CompareContext";
 import { X, Gamepad2, ChevronLeft, ChevronRight, ShoppingCart, Heart, GitCompare, Share2, Star, Zap, Info, Gauge, Crosshair } from "lucide-react";
 import Link from "next/link"; 
 import { cloudinaryUrunResim } from "@/lib/cloudinary";
+import {
+  UrunResimBuyutecPanel,
+  UrunResimLens,
+  useUrunResimBuyutec,
+} from "@/components/UrunResimBuyutec";
 
 function UrunGaleriResmi({
   src,
@@ -18,6 +23,7 @@ function UrunGaleriResmi({
   draggable,
   soluk,
   yumusak,
+  zoomImg,
 }: {
   src: string;
   alt: string;
@@ -26,6 +32,7 @@ function UrunGaleriResmi({
   draggable?: boolean;
   soluk?: boolean;
   yumusak?: boolean;
+  zoomImg?: boolean;
 }) {
   const [hazir, setHazir] = useState(!yumusak);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -48,6 +55,7 @@ function UrunGaleriResmi({
       fetchPriority="high"
       decoding="async"
       draggable={draggable}
+      data-zoom-img={zoomImg ? "" : undefined}
       onLoad={() => setHazir(true)}
       style={style}
       className={`${className}${
@@ -130,9 +138,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const isResettingRef = useRef(false);
   const touchStartTimeRef = useRef(0);
   const [lightboxAcik, setLightboxAcik] = useState(false);
-  
-  const [zoomOrigin, setZoomOrigin] = useState("center center");
-  const [isHoveringImg, setIsHoveringImg] = useState(false);
   
   const tabsRef = useRef<HTMLDivElement>(null);
 
@@ -353,8 +358,12 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     trackIndexRef.current = prev;
   };
 
+  const buyutecAktif = !mobil && !lightboxAcik && !isGalleryDragging;
+  const { hovering: buyutecHover, lens: buyutecLens, handleMouseMove: buyutecMouseMove, handleMouseLeave: buyutecKapat } =
+    useUrunResimBuyutec(buyutecAktif);
+
   const acLightbox = () => {
-    setIsHoveringImg(false);
+    buyutecKapat();
     setLightboxAcik(true);
   };
 
@@ -426,13 +435,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     transform: `translateX(calc(-${trackIndex * 100}% + ${dragX}px))`,
   };
 
-  // MouseEvent hatası düzeltildi
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - left) / width) * 100;
-    const y = ((e.clientY - top) / height) * 100;
-    setZoomOrigin(`${x}% ${y}%`);
-  };
+  const aktifResimSrc = resimler[seciliResimIndex] ?? resimler[0];
+  const aktifResimHd = cloudinaryUrunResim(aktifResimSrc, 1800);
 
   const kategoriIsmi = product.kategori || "Ürünler";
   const kategoriSlug = product.kategoriSlug || (product.kategori ? product.kategori.replace(/[çÇ]/g, 'c').replace(/[ğĞ]/g, 'g').replace(/[şŞ]/g, 's').replace(/[üÜ]/g, 'u').replace(/[ıİ]/g, 'i').replace(/[öÖ]/g, 'o').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : "urunler");
@@ -501,7 +505,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         <div className="flex flex-col md:flex-row gap-0 sm:gap-8 lg:gap-12 relative items-start mb-12">
           
           {/* SOL KOLON (RESİMLER) */}
-          <div className="w-full md:w-[45%] flex flex-col relative md:sticky md:top-28 h-max mb-2 sm:mb-0 transition-all duration-500">
+          <div className="w-full md:w-[45%] flex flex-col relative md:sticky md:top-28 h-max mb-2 sm:mb-0 transition-all duration-500 overflow-visible">
             <div className="flex items-center gap-2 mb-2 sm:mb-4 px-4 sm:px-0 pt-4 sm:pt-0">
                {tukendiMi ? (
                   <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] sm:text-xs font-black px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg tracking-widest flex items-center gap-2"><span className="w-2 h-2 bg-red-500 rounded-full"></span> TÜKENDİ</div>
@@ -510,6 +514,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                )}
             </div>
 
+            <div className="relative overflow-visible mb-2">
             <div 
               ref={galleryRef}
               onTouchStart={handleGalleryTouchStart}
@@ -519,9 +524,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   ? () => handleGalleryTouchEnd(galleryRef, true)
                   : () => acLightbox()
               }
-              onMouseMove={handleMouseMove}
-              onMouseEnter={() => setIsHoveringImg(true)}
-              onMouseLeave={() => { setIsHoveringImg(false); setZoomOrigin("center center"); }}
+              onMouseMove={buyutecMouseMove}
+              onMouseLeave={buyutecKapat}
               onClick={() => {
                 if (tapHandledRef.current) {
                   tapHandledRef.current = false;
@@ -533,7 +537,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 }
                 acLightbox();
               }}
-              className="relative isolate z-0 w-full aspect-square sm:aspect-[4/3] bg-transparent sm:bg-white/[0.02] sm:backdrop-blur-xl sm:border sm:border-white/5 sm:rounded-2xl flex items-center justify-center p-0 sm:p-6 overflow-hidden mb-2 group select-none cursor-zoom-in touch-manipulation"
+              className="relative isolate z-0 w-full aspect-square sm:aspect-[4/3] bg-transparent sm:bg-white/[0.02] sm:backdrop-blur-xl sm:border sm:border-white/5 sm:rounded-2xl flex items-center justify-center p-0 sm:p-6 overflow-hidden group select-none md:cursor-crosshair touch-manipulation"
             >
               {indirimVarMi && !tukendiMi && (
                 <div className="badge-rosette-page !z-10"><span>%{indirimOrani}</span><span>İNDİRİM</span></div>
@@ -541,8 +545,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               
               <button 
                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); oncekiResim(); }} 
-                 onMouseEnter={(e) => { e.stopPropagation(); setIsHoveringImg(false); }}
-                 onMouseLeave={(e) => { e.stopPropagation(); setIsHoveringImg(true); }}
+                 onMouseEnter={(e) => { e.stopPropagation(); buyutecKapat(); }}
                  onMouseMove={(e) => e.stopPropagation()}
                  className="hidden sm:flex absolute left-3 z-30 w-10 h-10 bg-black/50 border border-white/10 rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-[#00d2ff] hover:text-black hover:scale-110 touch-manipulation"
               >
@@ -550,8 +553,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </button>
               <button 
                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); sonrakiResim(); }} 
-                 onMouseEnter={(e) => { e.stopPropagation(); setIsHoveringImg(false); }}
-                 onMouseLeave={(e) => { e.stopPropagation(); setIsHoveringImg(true); }}
+                 onMouseEnter={(e) => { e.stopPropagation(); buyutecKapat(); }}
                  onMouseMove={(e) => e.stopPropagation()}
                  className="hidden sm:flex absolute right-3 z-30 w-10 h-10 bg-black/50 border border-white/10 rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-[#00d2ff] hover:text-black hover:scale-110 touch-manipulation"
               >
@@ -564,11 +566,8 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                   alt={urunAdi}
                   yumusak={mobil}
                   soluk={tukendiMi}
-                  style={{
-                    transformOrigin: zoomOrigin,
-                    transform: isHoveringImg && !lightboxAcik ? "scale(2.4)" : "scale(1)",
-                  }}
-                  className="w-full h-full object-contain pointer-events-none sm:filter sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] transition-transform duration-150 ease-out"
+                  zoomImg
+                  className="w-full h-full object-contain pointer-events-none sm:filter sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)]"
                 />
               ) : (
                 <div
@@ -587,16 +586,24 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                         draggable={false}
                         yumusak={mobil}
                         soluk={tukendiMi}
-                        style={{
-                          transformOrigin: idx === trackIndex ? zoomOrigin : "center center",
-                          transform: idx === trackIndex && isHoveringImg && !isGalleryDragging && !lightboxAcik ? "scale(2.4)" : "scale(1)",
-                        }}
-                        className="w-full h-full object-contain pointer-events-none sm:filter sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] transition-transform duration-150 ease-out"
+                        zoomImg={idx === trackIndex}
+                        className="w-full h-full object-contain pointer-events-none sm:filter sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)]"
                       />
                     </div>
                   ))}
                 </div>
               )}
+
+              {buyutecLens && buyutecHover && <UrunResimLens lens={buyutecLens} />}
+            </div>
+
+            {buyutecLens && (
+              <UrunResimBuyutecPanel
+                lens={buyutecLens}
+                resimSrc={aktifResimHd}
+                visible={buyutecHover && buyutecAktif}
+              />
+            )}
             </div>
 
             {resimler.length > 1 && (
