@@ -3,20 +3,21 @@ import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { 
-  Package, ShoppingCart, LogOut, Trash2, Edit, Plus, Truck, 
+  Package, ShoppingCart, LogOut, Trash2, 
   CheckCircle2, XCircle, MessageSquare, Save, Crown, 
-  Star, HelpCircle, ShieldAlert, Clock, User, Headset, Send
+  Star, HelpCircle, ShieldAlert, Clock, User, Headset, Send,
+  LayoutDashboard, Megaphone, Bell, AlertTriangle
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { adminMi } from "@/lib/admin";
 
 export default function AdminPaneli() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const ADMIN_EMAIL = "o9616557@gmail.com"; 
 
   useEffect(() => {
     if (status !== "loading") {
-      if (!session || session?.user?.email?.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+      if (!session || !adminMi(session?.user?.email)) {
         router.push("/"); 
       }
     }
@@ -25,7 +26,7 @@ export default function AdminPaneli() {
   const [sifre, setSifre] = useState("");
   // 🚀 Şifre ekranı atlandı
   const [girisYapildi, setGirisYapildi] = useState(true);
-  const [aktifSekme, setAktifSekme] = useState<"siparisler" | "urunler" | "yorumlar" | "talepler">("siparisler");
+  const [aktifSekme, setAktifSekme] = useState<"ozet" | "siparisler" | "yorumlar" | "talepler">("ozet");
   const [yukleniyor, setYukleniyor] = useState(true);
 
   // SİPARİŞ & GÜNCELLEME STATE'LERİ
@@ -39,19 +40,12 @@ export default function AdminPaneli() {
   const [iadeTutarlari, setIadeTutarlari] = useState<{ [key: string]: string }>({});
   const [silinecekTalepID, setSilinecekTalepID] = useState<string | null>(null);
 
-  // DİĞER STATELER
-  const [urunler, setUrunler] = useState<any[]>([]);
-  const [duzenlenenUrun, setDuzenlenenUrun] = useState<any | null>(null);
-  const [yeniUrunModu, setYeniUrunModu] = useState(false);
-  const [formIsim, setFormIsim] = useState("");
-  const [formFiyat, setFormFiyat] = useState("");
-  const [formIndirimliFiyat, setFormIndirimliFiyat] = useState(""); 
-  const [formHavaleIndirimi, setFormHavaleIndirimi] = useState("5"); 
-  const [formStok, setFormStok] = useState("Stokta Var");
-  const [formStokAdedi, setFormStokAdedi] = useState(""); 
-  const [formResim, setFormResim] = useState("");
-  const [formKategori, setFormKategori] = useState("Bilgisayar");
-  
+  // DUYURU STATE
+  const [duyuruMetin, setDuyuruMetin] = useState("");
+  const [duyuruAktif, setDuyuruAktif] = useState(false);
+  const [duyuruTip, setDuyuruTip] = useState<"bilgi" | "uyari" | "kampanya">("bilgi");
+  const [duyuruKaydediliyor, setDuyuruKaydediliyor] = useState(false);
+
   const [yorumlar, setYorumlar] = useState<any[]>([]);
   const [replyId, setReplyId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
@@ -79,9 +73,9 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
     setYukleniyor(true);
     // Varsa fonksiyonları çalıştır (hata vermemesi için typeof ile kontrol edildi)
     if (typeof siparisleriGetir === "function") await siparisleriGetir();
-    if (typeof urunleriGetir === "function") await urunleriGetir();
     if (typeof yorumlariGetir === "function") await yorumlariGetir();
-    if (typeof talepleriGetir === "function") await talepleriGetir(); 
+    if (typeof talepleriGetir === "function") await talepleriGetir();
+    if (typeof duyuruGetir === "function") await duyuruGetir();
     setYukleniyor(false);
   };
 
@@ -229,23 +223,54 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
       }
     } catch (e) { toast.error("Silinemedi."); }
   };
-  // Ürün ve Yorum Fonksiyonları (Aynı)
-  const urunleriGetir = async () => { try { const res = await fetch(`/api/admin/products?v=${Date.now()}`, { headers: { "x-patron-anahtar": PATRON_SIFRESI }}); const data = await res.json(); if (data.success) setUrunler(data.urunler); } catch (e) {} };
-  const urunKaydet = async (e: React.FormEvent) => { e.preventDefault(); try { const gonderilecekVeri: any = { isim: formIsim, fiyat: formFiyat, indirimliFiyat: formIndirimliFiyat, havaleIndirimi: formHavaleIndirimi, stokDurumu: formStok, stokAdedi: formStokAdedi, resim: formResim, kategori: formKategori }; if (duzenlenenUrun) gonderilecekVeri.id = duzenlenenUrun._id; const res = await fetch("/api/admin/products", { method: "PUT", headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI }, body: JSON.stringify(gonderilecekVeri) }); if ((await res.json()).success) { toast.success(duzenlenenUrun ? "Ürün güncellendi." : "Yeni ürün eklendi."); formuKapat(); urunleriGetir(); } } catch (e) { toast.error("Hata oluştu."); } };
-  const urunSilmeIslemi = async (id: string) => { if (!window.confirm("Bu ürünü silmek istediğine emin misin?")) return; try { const res = await fetch(`/api/admin/products?id=${id}`, { method: "DELETE", headers: { "x-patron-anahtar": PATRON_SIFRESI }}); if ((await res.json()).success) { setUrunler(urunler.filter(u => u._id !== id)); toast.success("Ürün silindi."); } } catch (e) { toast.error("Silinemedi."); } };
+  // Ürün ve Yorum Fonksiyonları
+  const duyuruGetir = async () => {
+    try {
+      const res = await fetch(`/api/admin/duyuru?v=${Date.now()}`, { headers: { "x-patron-anahtar": PATRON_SIFRESI } });
+      const data = await res.json();
+      if (data.success) {
+        setDuyuruMetin(data.duyuru?.metin || "");
+        setDuyuruAktif(Boolean(data.duyuru?.aktif));
+        setDuyuruTip(data.duyuru?.tip || "bilgi");
+      }
+    } catch {}
+  };
+
+  const duyuruKaydet = async () => {
+    setDuyuruKaydediliyor(true);
+    try {
+      const res = await fetch("/api/admin/duyuru", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI },
+        body: JSON.stringify({ metin: duyuruMetin, aktif: duyuruAktif, tip: duyuruTip }),
+      });
+      if ((await res.json()).success) {
+        toast.success(duyuruAktif && duyuruMetin.trim() ? "Duyuru yayında!" : "Duyuru kaydedildi.");
+      } else {
+        toast.error("Kaydedilemedi.");
+      }
+    } catch {
+      toast.error("Bağlantı hatası.");
+    } finally {
+      setDuyuruKaydediliyor(false);
+    }
+  };
+
   const yorumlariGetir = async () => { try { const res = await fetch("/api/reviews", { headers: { "x-patron-anahtar": PATRON_SIFRESI } }); const result = await res.json(); if (result.success) setYorumlar(result.data); } catch (error) {} };
   const yorumDurumGuncelle = async (id: string, currentStatus: boolean) => { try { const res = await fetch("/api/reviews", { method: "PUT", headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI }, body: JSON.stringify({ id, onaylandi: !currentStatus }) }); if (res.ok) { toast.success(currentStatus ? "Yorum gizlendi." : "Yorum yayında."); yorumlariGetir(); } } catch (error) { toast.error("Güncellenemedi."); } };
   const yorumCevapGonder = async (id: string) => { if (!replyText.trim()) return toast.error("Cevap boş olamaz!"); try { const res = await fetch("/api/reviews", { method: "PUT", headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI }, body: JSON.stringify({ id, answer: replyText, onaylandi: true }) }); if (res.ok) { setReplyId(null); setReplyText(""); toast.success("Cevap yayınlandı."); yorumlariGetir(); } } catch (error) { toast.error("Gönderilemedi."); } };
   const yorumSilmeIslemi = async () => { if (!silinecekYorumID) return; try { const res = await fetch(`/api/reviews?id=${silinecekYorumID}`, { method: "DELETE", headers: { "x-patron-anahtar": PATRON_SIFRESI }}); if (res.ok) { setSilinecekYorumID(null); toast.success("Yorum silindi."); yorumlariGetir(); } } catch (error) { toast.error("Silinemedi."); } };
-  const urunDuzenleModunuAc = (urun: any) => { setDuzenlenenUrun(urun); setFormIsim(urun.isim || urun.name || ""); setFormFiyat((urun.regular_price || urun.fiyat || urun.price || 0).toString()); setFormIndirimliFiyat(urun.indirimliFiyat ? urun.indirimliFiyat.toString() : ""); setFormHavaleIndirimi(urun.havaleIndirimi !== undefined ? urun.havaleIndirimi.toString() : "5"); setFormStok(urun.stokDurumu || "Stokta Var"); setFormStokAdedi((urun.stokAdedi !== null && urun.stokAdedi !== undefined && urun.stokAdedi !== "" && Number(urun.stokAdedi) !== 10) ? urun.stokAdedi.toString() : ""); setFormResim(urun.resim || ""); setFormKategori(urun.kategori || "Bilgisayar"); setYeniUrunModu(true); };
-  const yeniUrunModunuAc = () => { setDuzenlenenUrun(null); setFormIsim(""); setFormFiyat(""); setFormIndirimliFiyat(""); setFormHavaleIndirimi("5"); setFormStok("Stokta Var"); setFormStokAdedi(""); setFormResim(""); setFormKategori("Bilgisayar"); setYeniUrunModu(true); };
-  const formuKapat = () => { setYeniUrunModu(false); setDuzenlenenUrun(null); };
+
+  const bekleyenHavale = siparisler.filter((s) => (s.durum || "").includes("Havale")).length;
+  const hazirlaniyor = siparisler.filter((s) => (s.durum || "").includes("Hazırlanıyor")).length;
+  const acikTalepler = talepler.filter((t) => t.durum !== "Çözüldü").length;
+  const bekleyenYorumlar = yorumlar.filter((y) => !y.onaylandi).length;
+  const bekleyenIade = talepler.filter((t) => (t.konu === "iade" || t.konu === "iptal") && !t.iadeOdendi).length;
 // 🚀 ŞİFRESİZ GİRİŞ İÇİN BÜTÜN VERİLERİ OTOMATİK ÇEKEN MOTOR
   useEffect(() => {
     if (typeof siparisleriGetir === "function") siparisleriGetir();
-    if (typeof urunleriGetir === "function") urunleriGetir();
     if (typeof yorumlariGetir === "function") yorumlariGetir();
-    // (Destek talepleri motorunu yukarıda zaten yapmıştık, o kendi kendine çalışıyor)
+    if (typeof duyuruGetir === "function") duyuruGetir();
   }, []);
   if (status === "loading" || (yukleniyor && !girisYapildi)) {
     return <div className="min-h-screen bg-[#0b1120] flex items-center justify-center text-slate-500 text-sm font-bold tracking-widest uppercase">Sistem Başlatılıyor...</div>;
@@ -280,20 +305,20 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
         </div>
 
         <nav className="flex-1 p-4 flex flex-col gap-2 overflow-y-auto custom-scrollbar">
+          <button onClick={() => setAktifSekme("ozet")} className={`flex items-center gap-3 px-4 py-4 rounded-lg text-sm font-bold uppercase tracking-wider transition-colors ${aktifSekme === "ozet" ? "bg-slate-800 text-slate-200" : "text-slate-500 hover:bg-slate-800/50 hover:text-slate-300"}`}>
+            <LayoutDashboard className="w-5 h-5" /> Özet & Duyuru
+          </button>
+
           <button onClick={() => setAktifSekme("siparisler")} className={`flex items-center gap-3 px-4 py-4 rounded-lg text-sm font-bold uppercase tracking-wider transition-colors ${aktifSekme === "siparisler" ? "bg-slate-800 text-slate-200" : "text-slate-500 hover:bg-slate-800/50 hover:text-slate-300"}`}>
             <ShoppingCart className="w-5 h-5" /> Siparişler <span className="ml-auto bg-[#0b1120] px-2.5 py-1 rounded text-xs border border-slate-700/50">{siparisler.length}</span>
           </button>
           
           <button onClick={() => setAktifSekme("talepler")} className={`flex items-center gap-3 px-4 py-4 rounded-lg text-sm font-bold uppercase tracking-wider transition-colors ${aktifSekme === "talepler" ? "bg-slate-800 text-slate-200" : "text-slate-500 hover:bg-slate-800/50 hover:text-slate-300"}`}>
-            <Headset className="w-5 h-5" /> Destek & İade <span className="ml-auto bg-[#0b1120] px-2.5 py-1 rounded text-xs border border-slate-700/50">{talepler.filter(t => t.durum !== 'Çözüldü').length > 0 ? <span className="text-indigo-400">{talepler.filter(t => t.durum !== 'Çözüldü').length} Açık</span> : talepler.length}</span>
-          </button>
-
-          <button onClick={() => setAktifSekme("urunler")} className={`flex items-center gap-3 px-4 py-4 rounded-lg text-sm font-bold uppercase tracking-wider transition-colors ${aktifSekme === "urunler" ? "bg-slate-800 text-slate-200" : "text-slate-500 hover:bg-slate-800/50 hover:text-slate-300"}`}>
-            <Package className="w-5 h-5" /> Envanter <span className="ml-auto bg-[#0b1120] px-2.5 py-1 rounded text-xs border border-slate-700/50">{urunler.length}</span>
+            <Headset className="w-5 h-5" /> Destek & İade <span className="ml-auto bg-[#0b1120] px-2.5 py-1 rounded text-xs border border-slate-700/50">{acikTalepler > 0 ? <span className="text-indigo-400">{acikTalepler} Açık</span> : talepler.length}</span>
           </button>
 
           <button onClick={() => setAktifSekme("yorumlar")} className={`flex items-center gap-3 px-4 py-4 rounded-lg text-sm font-bold uppercase tracking-wider transition-colors ${aktifSekme === "yorumlar" ? "bg-slate-800 text-slate-200" : "text-slate-500 hover:bg-slate-800/50 hover:text-slate-300"}`}>
-            <MessageSquare className="w-5 h-5" /> Yorumlar <span className="ml-auto bg-[#0b1120] px-2.5 py-1 rounded text-xs border border-slate-700/50">{yorumlar.filter(y => !y.onaylandi).length > 0 ? <span className="text-amber-500">{yorumlar.filter(y => !y.onaylandi).length} Yeni</span> : yorumlar.length}</span>
+            <MessageSquare className="w-5 h-5" /> Yorumlar <span className="ml-auto bg-[#0b1120] px-2.5 py-1 rounded text-xs border border-slate-700/50">{bekleyenYorumlar > 0 ? <span className="text-amber-500">{bekleyenYorumlar} Yeni</span> : yorumlar.length}</span>
           </button>
         </nav>
 
@@ -310,19 +335,133 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
           
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
             <h2 className="text-2xl font-black text-slate-200 uppercase tracking-widest">
-              {aktifSekme === "siparisler" ? "Operasyon ve Sipariş Yönetimi" : 
-               aktifSekme === "talepler" ? "Destek ve İade Yönetimi" : 
-               aktifSekme === "urunler" ? "Envanter Yönetimi" : "Soru ve Yorumlar"}
+              {aktifSekme === "ozet" ? "Operasyon Özeti & Bilgilendirme" :
+               aktifSekme === "siparisler" ? "Operasyon ve Sipariş Yönetimi" : 
+               aktifSekme === "talepler" ? "Destek ve İade Yönetimi" : "Soru ve Yorumlar"}
             </h2>
-            {aktifSekme === "urunler" && (
-              <button onClick={yeniUrunModunuAc} className="flex items-center gap-2 bg-slate-200 hover:bg-white text-slate-900 px-6 py-3 rounded-lg font-bold uppercase tracking-wider text-sm transition-colors shrink-0">
-                <Plus className="w-5 h-5" /> Yeni Ürün
-              </button>
-            )}
           </div>
 
           {yukleniyor ? (
             <div className="text-center py-20 text-slate-500 text-base font-bold tracking-widest uppercase">Veriler Yükleniyor...</div>
+          ) : aktifSekme === "ozet" ? (
+
+            /* 📊 ÖZET & BİLGİLENDİRME */
+            <div className="flex flex-col gap-8">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <button onClick={() => setAktifSekme("siparisler")} className="bg-[#111827] border border-slate-800 rounded-xl p-5 text-left hover:border-slate-600 transition-colors">
+                  <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Havale Bekleyen</div>
+                  <div className={`text-3xl font-black ${bekleyenHavale > 0 ? "text-amber-400" : "text-slate-400"}`}>{bekleyenHavale}</div>
+                </button>
+                <button onClick={() => setAktifSekme("siparisler")} className="bg-[#111827] border border-slate-800 rounded-xl p-5 text-left hover:border-slate-600 transition-colors">
+                  <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Hazırlanıyor</div>
+                  <div className={`text-3xl font-black ${hazirlaniyor > 0 ? "text-emerald-400" : "text-slate-400"}`}>{hazirlaniyor}</div>
+                </button>
+                <button onClick={() => setAktifSekme("talepler")} className="bg-[#111827] border border-slate-800 rounded-xl p-5 text-left hover:border-slate-600 transition-colors">
+                  <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Açık Destek</div>
+                  <div className={`text-3xl font-black ${acikTalepler > 0 ? "text-indigo-400" : "text-slate-400"}`}>{acikTalepler}</div>
+                </button>
+                <button onClick={() => setAktifSekme("yorumlar")} className="bg-[#111827] border border-slate-800 rounded-xl p-5 text-left hover:border-slate-600 transition-colors">
+                  <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Onay Bekleyen</div>
+                  <div className={`text-3xl font-black ${bekleyenYorumlar > 0 ? "text-amber-400" : "text-slate-400"}`}>{bekleyenYorumlar}</div>
+                </button>
+              </div>
+
+              {(bekleyenHavale > 0 || bekleyenIade > 0 || bekleyenYorumlar > 0) && (
+                <div className="bg-[#111827] border border-slate-700 rounded-xl p-6">
+                  <h3 className="text-sm font-black text-slate-300 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <Bell className="w-4 h-4 text-amber-400" /> Şimdi Bakılacaklar
+                  </h3>
+                  <ul className="flex flex-col gap-2 text-sm text-slate-400">
+                    {bekleyenHavale > 0 && (
+                      <li>
+                        <button onClick={() => setAktifSekme("siparisler")} className="hover:text-amber-300 transition-colors">
+                          • {bekleyenHavale} sipariş havale onayı bekliyor
+                        </button>
+                      </li>
+                    )}
+                    {bekleyenIade > 0 && (
+                      <li>
+                        <button onClick={() => setAktifSekme("talepler")} className="hover:text-cyan-300 transition-colors">
+                          • {bekleyenIade} iade/iptal talebi işlem bekliyor
+                        </button>
+                      </li>
+                    )}
+                    {bekleyenYorumlar > 0 && (
+                      <li>
+                        <button onClick={() => setAktifSekme("yorumlar")} className="hover:text-amber-300 transition-colors">
+                          • {bekleyenYorumlar} yorum onay bekliyor
+                        </button>
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              )}
+
+              <div className="bg-[#111827] border border-slate-700 rounded-xl p-6">
+                <h3 className="text-sm font-black text-slate-300 uppercase tracking-widest mb-1 flex items-center gap-2">
+                  <Megaphone className="w-4 h-4 text-blue-400" /> Site Duyurusu (Müşteri Bilgilendirme)
+                </h3>
+                <p className="text-xs text-slate-500 mb-5">Aktif duyuru tüm sitede header altında banner olarak görünür.</p>
+
+                <div className="flex flex-col gap-4">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Duyuru Metni</label>
+                    <textarea
+                      value={duyuruMetin}
+                      onChange={(e) => setDuyuruMetin(e.target.value)}
+                      placeholder="Örn: Kargo yoğunluğu nedeniyle teslimatlar 1-2 gün gecikebilir."
+                      className="w-full bg-[#0b1120] border border-slate-700 rounded-lg p-4 text-sm text-slate-300 focus:outline-none focus:border-slate-500 min-h-[100px] resize-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Duyuru Tipi</label>
+                      <select
+                        value={duyuruTip}
+                        onChange={(e) => setDuyuruTip(e.target.value as "bilgi" | "uyari" | "kampanya")}
+                        className="w-full bg-[#0b1120] border border-slate-700 rounded-lg px-4 py-3 text-sm text-slate-300 focus:outline-none"
+                      >
+                        <option value="bilgi">Bilgi (mavi)</option>
+                        <option value="uyari">Uyarı (sarı)</option>
+                        <option value="kampanya">Kampanya (yeşil)</option>
+                      </select>
+                    </div>
+                    <div className="flex items-end">
+                      <label className="flex items-center gap-3 cursor-pointer bg-[#0b1120] border border-slate-700 rounded-lg px-4 py-3 w-full">
+                        <input
+                          type="checkbox"
+                          checked={duyuruAktif}
+                          onChange={(e) => setDuyuruAktif(e.target.checked)}
+                          className="w-4 h-4 rounded accent-emerald-500"
+                        />
+                        <span className="text-sm font-bold text-slate-300">Sitede yayınla</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {duyuruAktif && duyuruMetin.trim() && (
+                    <div className={`rounded-lg border p-3 text-sm flex items-start gap-2 ${
+                      duyuruTip === "uyari" ? "bg-amber-950/30 border-amber-900/50 text-amber-200" :
+                      duyuruTip === "kampanya" ? "bg-emerald-950/30 border-emerald-900/50 text-emerald-200" :
+                      "bg-blue-950/30 border-blue-900/50 text-blue-200"
+                    }`}>
+                      {duyuruTip === "uyari" ? <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" /> : <Megaphone className="w-4 h-4 shrink-0 mt-0.5" />}
+                      <span>{duyuruMetin}</span>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={duyuruKaydet}
+                    disabled={duyuruKaydediliyor}
+                    className="self-start flex items-center gap-2 bg-slate-200 hover:bg-white disabled:opacity-50 text-slate-900 px-6 py-3 rounded-lg font-bold uppercase tracking-wider text-sm transition-colors"
+                  >
+                    <Save className="w-4 h-4" /> {duyuruKaydediliyor ? "Kaydediliyor..." : "Duyuruyu Kaydet"}
+                  </button>
+                </div>
+              </div>
+            </div>
+
           ) : aktifSekme === "siparisler" ? (
             
             /* 📦 SİPARİŞLER BANT SİSTEMİ */
@@ -555,38 +694,6 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
               ))}
             </div>
 
-          ) : aktifSekme === "urunler" ? (
-            
-            /* 💻 ÜRÜNLER (Bant Sistemi) */
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {urunler.map((urun) => {
-                const gosterilenFiyat = urun.indirimliFiyat ? Number(urun.indirimliFiyat) : Number(urun.regular_price || urun.fiyat || urun.price || 0);
-                const gosterilecekDurum = (urun.stokDurumu === "Tükendi" || urun.stokAdedi === 0 || urun.stokAdedi === "0") ? "Tükendi" : "Stokta Var";
-                return (
-                  <div key={urun._id} className="bg-[#111827] border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between items-start mb-4">
-                        <span className="bg-[#0b1120] border border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-lg w-fit">{urun.kategori || "Genel"}</span>
-                        <div className="flex flex-col items-end gap-1.5">
-                          <div className={`px-3 py-1 rounded border text-[10px] font-bold uppercase tracking-wider ${gosterilecekDurum === "Tükendi" ? "bg-red-950/30 border-red-900/50 text-red-500" : "bg-emerald-950/30 border-emerald-900/50 text-emerald-500"}`}>{gosterilecekDurum}</div>
-                          {(urun.stokAdedi && Number(urun.stokAdedi) !== 10) ? <span className="text-xs text-slate-500 font-bold">{urun.stokAdedi} Adet</span> : null}
-                        </div>
-                      </div>
-                      <div className="text-base font-medium text-slate-300 leading-snug mb-4 line-clamp-2 min-h-[48px]">{urun.isim || urun.name}</div>
-                      <div className="bg-[#0b1120] rounded-lg p-4 mb-5 border border-slate-800/50">
-                        <div className="text-xl font-bold text-slate-200">{gosterilenFiyat.toLocaleString("tr-TR")} <span className="text-sm text-slate-500">TL</span></div>
-                        <div className="text-xs text-slate-500 mt-1.5 uppercase tracking-wider">Havale İndirimi: %{(urun.havaleIndirimi !== undefined ? urun.havaleIndirimi : 5)}</div>
-                      </div>
-                    </div>
-                    <div className="flex gap-3">
-                      <button onClick={() => urunDuzenleModunuAc(urun)} className="flex-1 bg-[#0b1120] border border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors">Düzenle</button>
-                      <button onClick={() => urunSilmeIslemi(urun._id)} className="flex-1 bg-[#0b1120] border border-slate-700 text-slate-500 hover:bg-red-950/30 hover:text-red-400 hover:border-red-900/50 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors">Sil</button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
           ) : (
 
             /* 💬 YORUMLAR (Bant Sistemi) */
@@ -626,38 +733,6 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
           )}
         </div>
       </div>
-
-      {/* 🚀 YENİ ÜRÜN MODALI VE SİLME MODALLARI AYNEN KORUNDU */}
-      {yeniUrunModu && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <form onSubmit={urunKaydet} className="bg-[#111827] border border-slate-800 rounded-2xl p-8 w-full max-w-xl flex flex-col max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl">
-            <div className="flex items-center justify-between mb-6 border-b border-slate-800 pb-4">
-              <h3 className="text-base font-bold text-slate-200 uppercase tracking-widest">{duzenlenenUrun ? "Ürünü Düzenle" : "Yeni Ürün Ekle"}</h3>
-              <button type="button" onClick={formuKapat} className="text-slate-500 hover:text-slate-300 transition-colors"><XCircle className="w-6 h-6" /></button>
-            </div>
-            <div className="flex flex-col gap-4">
-              <div><label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Ürün Adı</label><input type="text" value={formIsim} onChange={(e) => setFormIsim(e.target.value)} required className="w-full bg-[#0b1120] border border-slate-700 rounded-lg px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-slate-500" /></div>
-              <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Normal Fiyat (TL)</label><input type="number" value={formFiyat} onChange={(e) => setFormFiyat(e.target.value)} required className="w-full bg-[#0b1120] border border-slate-700 rounded-lg px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-slate-500" /></div>
-                <div><label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">İndirimli Fiyat (TL)</label><input type="number" value={formIndirimliFiyat} onChange={(e) => setFormIndirimliFiyat(e.target.value)} className="w-full bg-[#0b1120] border border-slate-700 rounded-lg px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-slate-500" /></div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Stok Adedi</label><input type="number" value={formStokAdedi} onChange={(e) => setFormStokAdedi(e.target.value)} placeholder="Boş = Sınırsız" className="w-full bg-[#0b1120] border border-slate-700 rounded-lg px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-slate-500" /></div>
-                <div><label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Havale İndirimi (%)</label><input type="number" value={formHavaleIndirimi} onChange={(e) => setFormHavaleIndirimi(e.target.value)} min="0" max="100" className="w-full bg-[#0b1120] border border-slate-700 rounded-lg px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-slate-500" /></div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Stok Durumu</label><select value={formStok} onChange={(e) => setFormStok(e.target.value)} className="w-full bg-[#0b1120] border border-slate-700 rounded-lg px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-slate-500"><option value="Stokta Var">Stokta Var</option><option value="Tükendi">Tükendi</option></select></div>
-                <div><label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Kategori</label><input type="text" value={formKategori} onChange={(e) => setFormKategori(e.target.value)} className="w-full bg-[#0b1120] border border-slate-700 rounded-lg px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-slate-500" /></div>
-              </div>
-              <div><label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Resim URL Yolu</label><input type="text" value={formResim} onChange={(e) => setFormResim(e.target.value)} className="w-full bg-[#0b1120] border border-slate-700 rounded-lg px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-slate-500" /></div>
-              <div className="flex gap-3 mt-4 pt-5 border-t border-slate-800">
-                <button type="button" onClick={formuKapat} className="flex-1 bg-[#0b1120] border border-slate-700 text-slate-400 hover:text-slate-200 py-4 rounded-lg text-sm font-bold uppercase tracking-wider transition-colors">İptal</button>
-                <button type="submit" className="flex-1 bg-slate-200 hover:bg-white text-slate-900 py-4 rounded-lg text-sm font-bold uppercase tracking-wider transition-colors flex justify-center items-center gap-2"><Save className="w-4 h-4" /> Kaydet</button>
-              </div>
-            </div>
-          </form>
-        </div>
-      )}
 
       {/* ORTAK SİLME ONAY MODALI */}
       {(silinecekSiparisID || silinecekYorumID || silinecekTalepID) && (

@@ -5,6 +5,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Suspense } from "react";
 import Header from "@/components/Header";
+import DuyuruBant from "@/components/DuyuruBant";
 import { CartProvider } from "./CartContext";
 import Footer from "@/components/Footer"; 
 import { CompareProvider } from "./CompareContext";
@@ -82,6 +83,9 @@ export default function RootLayout({
               <OrderProvider>
                 <Suspense fallback={<div className="h-16 lg:h-[72px] bg-[#050814] border-b border-white/5" />}>
                   <Header />
+                </Suspense>
+                <Suspense fallback={null}>
+                  <DuyuruBant />
                 </Suspense>
                 <main className="flex-grow w-full site-content-in">
                   {children}

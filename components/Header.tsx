@@ -7,7 +7,8 @@ import { useCart } from "@/app/CartContext";
 import { useOrders } from "@/app/OrderContext";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Search, X, ChevronDown, Mail, Bell } from "lucide-react";
+import { Search, X, ChevronDown, Mail, Bell, Crown } from "lucide-react";
+import { adminMi } from "@/lib/admin";
 import { cloudinaryKatalogResim } from "@/lib/cloudinary";
 
 const KATALOG_ICON_DESKTOP = 72;
@@ -595,7 +596,7 @@ export default function Header() {
     window.addEventListener("bilgin-hesap-guncellendi", destekOzetOkuHandler);
     return () => window.removeEventListener("bilgin-hesap-guncellendi", destekOzetOkuHandler);
   }, [status, session?.user?.email]);
-  const isAdmin = session?.user?.email?.toLowerCase() === "o9616557@gmail.com";
+  const isAdmin = adminMi(session?.user?.email);
   const [cikisOnayAcik, setCikisOnayAcik] = useState(false); // 🚀 YENİ EKLEDİĞİMİZ MERKEZİ ONAY MOTORU
   // 🚀 GÜVENLİK MOTORU: Çıkış yaparken çırağın defterini yakar
   const guvenliCikisYap = async () => {
@@ -751,6 +752,17 @@ export default function Header() {
     </Link>
   );
 
+  const adminLink = isAdmin && status === "authenticated" && !pathname.startsWith("/admin") ? (
+    <Link
+      href="/admin"
+      className="p-2 text-amber-400/90 hover:text-amber-300 transition-colors"
+      aria-label="Yönetim Paneli"
+      title="Yönetim Paneli"
+    >
+      <Crown className="w-5 h-5 shrink-0" strokeWidth={2} />
+    </Link>
+  ) : null;
+
   if (headerGizli) return null;
 
   return (
@@ -778,6 +790,7 @@ export default function Header() {
               </div>
 
               <div className={`flex items-center gap-0.5 justify-self-end z-10 ${menuAcik ? "pointer-events-none opacity-20" : ""}`}>
+                {adminLink}
                 {bildirimLink}
                 {sepetLink}
               </div>
@@ -866,6 +879,7 @@ export default function Header() {
                 >
                   <ProfilAvatar size={28} />
                 </Link>
+                {adminLink}
                 {mesajLink}
                 {bildirimLink}
                 {sepetLink}
