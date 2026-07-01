@@ -1,18 +1,8 @@
 import Link from "next/link";
 import clientPromise from "@/lib/mongodb";
+import { urunAramaQueryOlustur } from "@/lib/product-search";
 
 export const dynamic = "force-dynamic";
-
-function gelismisRegex(metin: string) {
-  if (!metin) return "";
-  return metin
-    .replace(/[iİıI]/g, "[iİıI]")
-    .replace(/[gĞğG]/g, "[gĞğG]")
-    .replace(/[cÇçC]/g, "[cÇçC]")
-    .replace(/[sŞşS]/g, "[sŞşS]")
-    .replace(/[oÖöO]/g, "[oÖöO]")
-    .replace(/[uÜüU]/g, "[uÜüU]");
-}
 
 export default async function AramaSayfasi({ searchParams }: any) {
   const arananKelime = searchParams?.q || "";
@@ -21,36 +11,34 @@ export default async function AramaSayfasi({ searchParams }: any) {
   try {
     const client = await clientPromise;
     const db = client.db();
-   let query = {};
-    if (arananKelime.trim()) {
-      // 🚀 ŞEFİN PARÇALAYICISI: Müşterinin yazdığı kelimeleri boşluklardan ayırır
-      const kelimeler = arananKelime.trim().split(/\s+/);
-      
-      const aramaSartlari = kelimeler.map((kelime: string) => {
-        const gucluKelime = gelismisRegex(kelime);
-        return {
-          $or: [
-            { isim: { $regex: gucluKelime, $options: "i" } },
-            { name: { $regex: gucluKelime, $options: "i" } },
-            { marka: { $regex: gucluKelime, $options: "i" } },
-            { kategori: { $regex: gucluKelime, $options: "i" } }
-          ]
-        };
-      });
+    const query = arananKelime.trim() ? urunAramaQueryOlustur(arananKelime) : {};
+    const projection = {
+      isim: 1, name: 1, slug: 1,
+      indirimliFiyat: 1, price: 1, fiyat: 1,
+      resimler: 1, resim: 1, image: 1, images: 1,
+    };
 
-      // Bütün kelimelerin aynı üründe geçmesini zorunlu tut
-      query = { $and: aramaSartlari };
-    }
+    let urunler = await db.collection("products").find(query).project(projection).limit(60).maxTimeMS(1800).toArray();
+    if (urunler.length === 0) urunler = await db.collection("urunler").find(query).project(projection).limit(60).maxTimeMS(1800).toArray();
+    if (urunler.length === 0) urunler = await db.collection("uruns").find(query).project(projection).limit(60).maxTimeMS(1800).toArray();
 
-    let urunler = await db.collection("urunler").find(query).toArray();
-    if (urunler.length === 0) urunler = await db.collection("uruns").find(query).toArray();
-    if (urunler.length === 0) urunler = await db.collection("products").find(query).toArray();
+    const resimBul = (urun: any) => {
+      if (Array.isArray(urun.resimler) && urun.resimler[0]) return urun.resimler[0];
+      if (urun.resim) return urun.resim;
+      if (urun.image) return urun.image;
+      if (Array.isArray(urun.images) && urun.images[0]) {
+        return typeof urun.images[0] === "string" ? urun.images[0] : (urun.images[0]?.src || "/placeholder.jpg");
+      }
+      return "/placeholder.jpg";
+    };
 
     temizUrunler = urunler.map((urun: any) => ({
       ...urun,
       _id: urun._id.toString(),
+      isim: urun.isim || urun.name || "",
+      slug: urun.slug || urun._id.toString(),
       fiyat: urun.indirimliFiyat || urun.fiyat || urun.price || 0,
-      resim: (urun.resimler && urun.resimler[0]) || urun.resim || urun.image || "/placeholder.jpg"
+      resim: resimBul(urun)
     }));
   } catch (error) {
     console.error("Arama hatası:", error);

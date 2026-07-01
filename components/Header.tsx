@@ -705,21 +705,32 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
   }, [aramaAcik]);
 
   useEffect(() => {
-    if (aramaMetni.trim().length >= 2) {
-      setAramaYukleniyor(true);
+    const kelime = aramaMetni.trim();
+
+    if (kelime.length >= 2) {
+      const controller = new AbortController();
       const timer = setTimeout(async () => {
+        setAramaYukleniyor(true);
         try {
-          const res = await fetch("/api/arama?q=" + encodeURIComponent(aramaMetni));
+          const res = await fetch("/api/arama?q=" + encodeURIComponent(kelime), {
+            signal: controller.signal,
+          });
           const data = await res.json();
           setCanliSonuclar(data);
-        } catch (e) { 
-          setCanliSonuclar([]); 
+        } catch (e: any) {
+          if (e?.name !== "AbortError") setCanliSonuclar([]);
+        } finally {
+          if (!controller.signal.aborted) setAramaYukleniyor(false);
         }
-        setAramaYukleniyor(false);
-      }, 150); 
-      return () => clearTimeout(timer);
+      }, 350);
+
+      return () => {
+        clearTimeout(timer);
+        controller.abort();
+      };
     } else {
       setCanliSonuclar([]);
+      setAramaYukleniyor(false);
     }
   }, [aramaMetni]);
 
