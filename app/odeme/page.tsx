@@ -12,8 +12,11 @@ import {
   iyzicoIframeVarMi,
   iyzicoIframeKaydirmaAyarla,
   iyzicoTamEkranKapat,
+  iyzicoIframeBozukMu,
 } from "@/lib/iyzico-checkout";
 import { type KayitliKart } from "@/lib/cuzdan";
+
+const IYZICO_ODEME_HASH = "#iyzico-odeme";
 
 const KART_MARKA: Record<string, string> = {
   visa: "VISA",
@@ -214,28 +217,40 @@ export default function OdemeSayfasi() {
   const inputDegis = (e: any) => { setForm({ ...form, [e.target.name]: e.target.value }); };
   const faturaInputDegis = (e: any) => { setFaturaForm({ ...faturaForm, [e.target.name]: e.target.value }); };
 
-  const iyzicoKapat = useCallback((iptalMi = false) => {
+  const iyzicoKapat = useCallback((iptalMi = false, hashTemizle = true) => {
+    iyzicoHistoryAktif.current = false;
     iyzicoTamEkranKapat();
     setIyzicoFormHtml("");
     if (iptalMi) setOdemeIptalAcik(true);
+    if (hashTemizle && window.location.hash === IYZICO_ODEME_HASH) {
+      const taban = window.location.pathname + window.location.search;
+      window.history.replaceState(null, "", taban);
+    }
   }, []);
 
-  /** Telefon geri tuşu: İyzico açıkken önce ödeme formuna dön */
+  /** Telefon geri tuşu — aynı /odeme URL'sinde kalır, "couldn't load" olmaz */
   useEffect(() => {
     if (!iyzicoFormHtml) return;
 
-    window.history.pushState({ iyzicoOdeme: true }, "");
+    const taban = window.location.pathname + window.location.search;
+    if (window.location.hash !== IYZICO_ODEME_HASH) {
+      window.history.pushState({ iyzicoOdeme: true }, "", taban + IYZICO_ODEME_HASH);
+    }
     iyzicoHistoryAktif.current = true;
 
-    const geriTusu = () => {
-      if (iyzicoHistoryAktif.current) {
-        iyzicoHistoryAktif.current = false;
-        iyzicoKapat(true);
+    const geriAlgila = () => {
+      if (!iyzicoHistoryAktif.current) return;
+      if (window.location.hash !== IYZICO_ODEME_HASH) {
+        iyzicoKapat(true, false);
       }
     };
 
-    window.addEventListener("popstate", geriTusu);
-    return () => window.removeEventListener("popstate", geriTusu);
+    window.addEventListener("popstate", geriAlgila);
+    window.addEventListener("hashchange", geriAlgila);
+    return () => {
+      window.removeEventListener("popstate", geriAlgila);
+      window.removeEventListener("hashchange", geriAlgila);
+    };
   }, [iyzicoFormHtml, iyzicoKapat]);
 
   useEffect(() => {
@@ -268,6 +283,10 @@ export default function OdemeSayfasi() {
     let iframeGoruldu = false;
 
     const kontrol = () => {
+      if (iyzicoIframeBozukMu()) {
+        iyzicoKapat(true);
+        return;
+      }
       if (iyzicoIframeVarMi()) {
         iframeGoruldu = true;
         return;
@@ -280,10 +299,12 @@ export default function OdemeSayfasi() {
     const observer = new MutationObserver(kontrol);
     observer.observe(document.body, { childList: true, subtree: true });
     const timers = [500, 1500, 3000, 5000].map((ms) => setTimeout(kontrol, ms));
+    const bozukKontrol = setInterval(kontrol, 800);
 
     return () => {
       observer.disconnect();
       timers.forEach(clearTimeout);
+      clearInterval(bozukKontrol);
     };
   }, [iyzicoFormHtml, iyzicoKapat]);
 
@@ -683,9 +704,11 @@ export default function OdemeSayfasi() {
           <button
             type="button"
             onClick={() => {
-              iyzicoHistoryAktif.current = false;
-              iyzicoKapat(true);
-              window.history.back();
+              if (window.location.hash === IYZICO_ODEME_HASH) {
+                window.history.back();
+              } else {
+                iyzicoKapat(true);
+              }
             }}
             className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900 px-2 py-1.5 rounded-lg hover:bg-slate-100 touch-manipulation"
           >

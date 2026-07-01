@@ -112,3 +112,17 @@ export function iyzicoIframeVarMi(): boolean {
     )
   );
 }
+
+/** İframe boş / chrome hata sayfasına düştü mü (mobil geri tuşu) */
+export function iyzicoIframeBozukMu(): boolean {
+  const iframe = document.querySelector(
+    "iframe[src*='iyzipay'], iframe[src*='iyzico'], iframe[src*='cpp.iyzipay']"
+  ) as HTMLIFrameElement | null;
+  if (!iframe) return false;
+  const src = iframe.getAttribute("src") || "";
+  return (
+    !src ||
+    src === "about:blank" ||
+    /chrome-error|chromewebdata|couldn't be found/i.test(src)
+  );
+}
