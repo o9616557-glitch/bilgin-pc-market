@@ -4,7 +4,15 @@ import clientPromise from "@/lib/mongodb";
 import Destek from "@/models/Destek";
 import { magazaKrediEkle } from "@/lib/magaza-kredi";
 import { siparisNoCikar, siparisTutarBul, siparisBul } from "@/lib/siparis-bul";
-import { siparisIadeCuzdanIslemleri, siparisNakitIadeTutari } from "@/lib/siparis-puan";
+import { siparisIadeIslemleri } from "@/lib/siparis-puan";
+import {
+  iadeKalemleriniDogrula,
+  kalanIadeEdilebilirTutar,
+  oransalIadeMiktarlari,
+  sepetKalemleriniIadeOzetineCevir,
+  siparisSepeti,
+  siparisToplamTutar,
+} from "@/lib/iade-hesapla";
 
 // 🚀 ADMİN ÖNBELLEK KİLİDİ: Admin panelinin de anlık canlı veri çekmesini sağlar (Tembelliği önler)
 export const dynamic = "force-dynamic";
@@ -41,11 +49,25 @@ export async function GET(request: Request) {
         }
 
         const sonuc = await siparisTutarBul(db, kod);
+        const siparis = await siparisBul(db, kod);
+        const sepet = siparis ? siparisSepeti(siparis) : [];
+        const siparisKalemleri = sepet.length ? sepetKalemleriniIadeOzetineCevir(sepet) : [];
+        const kalanIade = siparis ? kalanIadeEdilebilirTutar(siparis) : sonuc.tutar;
+
+        let onerilenTutar = kalanIade;
+        if (talep.iadeKalemleri?.length && siparis) {
+          const dogrulama = iadeKalemleriniDogrula(sepet, talep.iadeKalemleri);
+          if (dogrulama.ok) onerilenTutar = dogrulama.tutar;
+        }
+
         return {
           ...talep,
           siparisTutari: sonuc.tutar,
           siparisKoduBulunan: sonuc.siparisKodu,
           siparisBulundu: sonuc.bulundu,
+          siparisKalemleri,
+          kalanIadeEdilebilir: kalanIade,
+          onerilenIadeTutar: onerilenTutar,
         };
       })
     );
@@ -82,7 +104,7 @@ export async function PUT(request: Request) {
     }
 
     if (action === "iade_tamamla") {
-      const { tutar, yontem } = body;
+      const { tutar, yontem, iadeKalemleri: bodyKalemler } = body;
 
       const talep = await Destek.findById(id);
       if (!talep) return NextResponse.json({ success: false, message: "Talep bulunamadı." });
@@ -93,14 +115,31 @@ export async function PUT(request: Request) {
       const client = await clientPromise;
       const db = client.db("bilginpcmarket");
 
+      const kod = siparisNoCikar(talep);
+      const siparis = kod ? await siparisBul(db, kod) : null;
+      const kalemler = bodyKalemler?.length ? bodyKalemler : talep.iadeKalemleri || [];
+
       let tutarNum = Number(tutar);
+      let dogrulanmisKalemler = kalemler;
+
+      if (siparis && kalemler.length) {
+        const dogrulama = iadeKalemleriniDogrula(siparisSepeti(siparis), kalemler);
+        if (!dogrulama.ok) {
+          return NextResponse.json({ success: false, message: dogrulama.hata }, { status: 400 });
+        }
+        dogrulanmisKalemler = dogrulama.normalized;
+        if (!tutarNum || tutarNum <= 0) tutarNum = dogrulama.tutar;
+      }
+
       if (!tutarNum || tutarNum <= 0) {
-        const kod = siparisNoCikar(talep);
-        if (kod) {
+        if (siparis) {
+          tutarNum = kalanIadeEdilebilirTutar(siparis);
+        } else if (kod) {
           const sonuc = await siparisTutarBul(db, kod);
           tutarNum = Number(sonuc.tutar || 0);
         }
       }
+
       if (!tutarNum || tutarNum <= 0) {
         return NextResponse.json({
           success: false,
@@ -108,24 +147,40 @@ export async function PUT(request: Request) {
         });
       }
 
+      if (siparis) {
+        const kalan = kalanIadeEdilebilirTutar(siparis);
+        if (tutarNum > kalan + 0.01) {
+          return NextResponse.json({
+            success: false,
+            message: `En fazla ${kalan.toLocaleString("tr-TR")} TL iade edilebilir.`,
+          }, { status: 400 });
+        }
+      }
+
       const yontemFinal = yontem || talep.iadeYontemi || "kart";
       const siparisEtiket = talep.siparisNo || talep.talepNo;
+      const toplamSiparis = siparis ? siparisToplamTutar(siparis) : tutarNum;
+      const iadeTipi = tutarNum >= toplamSiparis - 0.01 ? "tam" : "kismi";
 
-      const kod = siparisNoCikar(talep);
-      const siparis = kod ? await siparisBul(db, kod) : null;
+      const nakitKrediYukle =
+        siparis && yontemFinal === "magaza_kredisi"
+          ? oransalIadeMiktarlari(siparis, tutarNum).buNakitIade
+          : tutarNum;
+
+      let islemSonuc: { tamIade: boolean; gercekIade: number } | null = null;
       if (siparis) {
-        await siparisIadeCuzdanIslemleri(db, siparis);
-        await db.collection("orders").updateOne(
-          { _id: siparis._id },
-          { $set: { durum: "İade Edildi", status: "İade Edildi" } }
-        );
+        islemSonuc = await siparisIadeIslemleri(db, siparis, tutarNum, {
+          talepNo: talep.talepNo,
+          kalemler: dogrulanmisKalemler.length ? dogrulanmisKalemler : undefined,
+        });
+        if (!islemSonuc) {
+          return NextResponse.json({ success: false, message: "İade işlenemedi (kalan tutar yok)." }, { status: 400 });
+        }
+        tutarNum = islemSonuc.gercekIade;
       }
 
       if (yontemFinal === "magaza_kredisi") {
-        const nakitIade = siparis ? siparisNakitIadeTutari(siparis) : tutarNum;
-        const yuklenecek = siparis
-          ? Math.min(tutarNum, nakitIade > 0 ? nakitIade : tutarNum)
-          : tutarNum;
+        const yuklenecek = Math.min(tutarNum, nakitKrediYukle > 0 ? nakitKrediYukle : tutarNum);
         if (yuklenecek > 0) {
           await magazaKrediEkle(
             db,
@@ -137,10 +192,11 @@ export async function PUT(request: Request) {
         }
       }
 
+      const tipMetni = iadeTipi === "kismi" ? "Kısmi iade" : "Tam iade";
       const adminMesaj =
         yontemFinal === "magaza_kredisi"
-          ? `İade işlemi tamamlandı. Siparişte kullandığınız puan ve mağaza kredisi (varsa) cüzdanınıza iade edildi. Nakit iade tutarı (${tutarNum.toLocaleString("tr-TR")} TL) mağaza kredisi olarak yüklendi; sonraki alışverişinizde kullanabilirsiniz.`
-          : `İade işlemi tamamlandı. Siparişte kullandığınız puan ve mağaza kredisi (varsa) cüzdanınıza iade edildi. Kart/banka iadeniz (${tutarNum.toLocaleString("tr-TR")} TL) başlatıldı; ödediğiniz karta 3-7 iş günü içinde yansıyacaktır.`;
+          ? `${tipMetni} tamamlandı. Bu iade için oransal puan/kredi düzenlemeleri yapıldı. Nakit iade tutarı (${tutarNum.toLocaleString("tr-TR")} TL) mağaza kredisi olarak yüklendi.`
+          : `${tipMetni} tamamlandı. Bu iade için oransal puan/kredi düzenlemeleri yapıldı. Kart/banka iadeniz (${tutarNum.toLocaleString("tr-TR")} TL) başlatıldı; 3-7 iş günü içinde yansıyacaktır.`;
 
       const guncelTalep = await Destek.findByIdAndUpdate(
         id,
@@ -148,6 +204,8 @@ export async function PUT(request: Request) {
           iadeOdendi: true,
           iadeTutari: tutarNum,
           iadeYontemi: yontemFinal,
+          iadeTipi,
+          ...(dogrulanmisKalemler.length ? { iadeKalemleri: dogrulanmisKalemler } : {}),
           durum: "Çözüldü",
           $push: { mesajlar: { gonderen: "Admin", metin: adminMesaj, tarih: new Date() } },
         },

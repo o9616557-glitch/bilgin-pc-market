@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"; 
 import mongoose from "mongoose";
 import Destek from "@/models/Destek";
+import clientPromise from "@/lib/mongodb";
 
 // 🚀 NETXJS TUZAĞINI KIRAN MOTOR: Önbelleğe almayı yasaklar, her saniye veritabanından canlı çeker!
 export const dynamic = "force-dynamic";
@@ -35,12 +36,39 @@ export async function POST(request: Request) {
     if (!session || !session.user?.email) return NextResponse.json({ success: false, message: "Yetkisiz erişim." }, { status: 401 });
     
     const body = await request.json();
-    const { konu, mesaj, siparisNo, iadeYontemi } = body;
+    const { konu, mesaj, siparisNo, iadeYontemi, iadeKalemleri } = body;
     if (!konu || !mesaj) return NextResponse.json({ success: false, message: "Eksik bilgi." }, { status: 400 });
 
     const iadeKonu = konu === "iade" || konu === "iptal";
     if (iadeKonu && iadeYontemi && !["kart", "magaza_kredisi"].includes(iadeYontemi)) {
       return NextResponse.json({ success: false, message: "Geçersiz iade yöntemi." }, { status: 400 });
+    }
+
+    let dogrulanmisKalemler: any[] = [];
+    let iadeTipi: "tam" | "kismi" | undefined;
+    let hesaplananTutar: number | undefined;
+
+    if (konu === "iade" && siparisNo && iadeKalemleri?.length) {
+      const client = await clientPromise;
+      const db = client.db("bilginpcmarket");
+      const { siparisBul } = await import("@/lib/siparis-bul");
+      const { iadeKalemleriniDogrula, siparisSepeti, siparisToplamTutar } = await import("@/lib/iade-hesapla");
+      const siparis = await siparisBul(db, String(siparisNo).trim());
+      if (!siparis) {
+        return NextResponse.json({ success: false, message: "Sipariş bulunamadı." }, { status: 404 });
+      }
+      const siparisEmail = (siparis.userEmail || siparis.email || siparis.musteri?.eposta || "").toLowerCase();
+      if (siparisEmail && siparisEmail !== session.user.email.toLowerCase()) {
+        return NextResponse.json({ success: false, message: "Bu sipariş size ait değil." }, { status: 403 });
+      }
+      const dogrulama = iadeKalemleriniDogrula(siparisSepeti(siparis), iadeKalemleri);
+      if (!dogrulama.ok) {
+        return NextResponse.json({ success: false, message: dogrulama.hata }, { status: 400 });
+      }
+      dogrulanmisKalemler = dogrulama.normalized;
+      hesaplananTutar = dogrulama.tutar;
+      const toplam = siparisToplamTutar(siparis);
+      iadeTipi = dogrulama.tutar >= toplam - 0.01 ? "tam" : "kismi";
     }
 
     if (mongoose.connection.readyState !== 1) await mongoose.connect(process.env.MONGODB_URI as string);
@@ -59,6 +87,7 @@ export async function POST(request: Request) {
       durum: "İnceleniyor",
       ...(siparisNo ? { siparisNo: String(siparisNo).trim() } : {}),
       ...(iadeKonu && iadeYontemi ? { iadeYontemi } : {}),
+      ...(dogrulanmisKalemler.length ? { iadeKalemleri: dogrulanmisKalemler, iadeTipi, iadeTutari: hesaplananTutar } : {}),
       mesajlar: [{ gonderen: "Musteri", metin: mesaj }]
     });
 

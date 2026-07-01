@@ -17,6 +17,14 @@ const MesajSchema = new mongoose.Schema({
   }
 });
 
+const IadeKalemiSchema = new mongoose.Schema({
+  urunId: { type: String, required: true },
+  adet: { type: Number, required: true },
+  isim: { type: String },
+  birimFiyat: { type: Number },
+  tutar: { type: Number },
+}, { _id: false });
+
 const DestekSchema = new mongoose.Schema({
   talepNo: { 
     type: String, 
@@ -38,6 +46,8 @@ const DestekSchema = new mongoose.Schema({
   siparisNo: { type: String },
   iadeYontemi: { type: String, enum: ['kart', 'magaza_kredisi'] },
   iadeTutari: { type: Number },
+  iadeTipi: { type: String, enum: ['tam', 'kismi'] },
+  iadeKalemleri: [IadeKalemiSchema],
   iadeOdendi: { type: Boolean, default: false }, // İkonları ve renkleri buna göre belirleyeceğiz
   
   durum: { 

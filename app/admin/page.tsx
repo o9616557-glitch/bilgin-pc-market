@@ -38,6 +38,7 @@ export default function AdminPaneli() {
   const [talepler, setTalepler] = useState<any[]>([]);
   const [talepCevaplari, setTalepCevaplari] = useState<{ [key: string]: string }>({});
   const [iadeTutarlari, setIadeTutarlari] = useState<{ [key: string]: string }>({});
+  const [iadeKalemSecimleri, setIadeKalemSecimleri] = useState<Record<string, Record<string, number>>>({});
   const [silinecekTalepID, setSilinecekTalepID] = useState<string | null>(null);
 
   // DUYURU STATE
@@ -126,10 +127,22 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
             if (
               (t.konu === "iade" || t.konu === "iptal") &&
               !t.iadeOdendi &&
-              t.siparisTutari > 0 &&
+              (t.onerilenIadeTutar > 0 || t.kalanIadeEdilebilir > 0 || t.siparisTutari > 0) &&
               (!merged[t._id] || merged[t._id] === "")
             ) {
-              merged[t._id] = String(t.siparisTutari);
+              const tutar = t.onerilenIadeTutar || t.kalanIadeEdilebilir || t.siparisTutari;
+              merged[t._id] = String(tutar);
+            }
+          }
+          return merged;
+        });
+        setIadeKalemSecimleri((prev) => {
+          const merged = { ...prev };
+          for (const t of data.talepler || []) {
+            if ((t.konu === "iade" || t.konu === "iptal") && t.iadeKalemleri?.length && !merged[t._id]) {
+              const secim: Record<string, number> = {};
+              for (const k of t.iadeKalemleri) secim[k.urunId] = k.adet;
+              merged[t._id] = secim;
             }
           }
           return merged;
@@ -188,15 +201,47 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
     } catch (e) { toast.error("Güncellenemedi."); }
   };
 
+  const iadeKalemAdetGuncelle = (talepId: string, urunId: string, adet: number, max: number, kalemler: any[]) => {
+    const yeni = Math.max(0, Math.min(max, adet));
+    setIadeKalemSecimleri((prev) => {
+      const talepSecim = { ...(prev[talepId] || {}) };
+      if (yeni <= 0) delete talepSecim[urunId];
+      else talepSecim[urunId] = yeni;
+      return { ...prev, [talepId]: talepSecim };
+    });
+    const secim = { ...(iadeKalemSecimleri[talepId] || {}) };
+    if (yeni <= 0) delete secim[urunId];
+    else secim[urunId] = yeni;
+    const tutar = kalemler.reduce((s, k) => s + k.birimFiyat * (secim[k.urunId] || 0), 0);
+    if (tutar > 0) {
+      setIadeTutarlari((prev) => ({ ...prev, [talepId]: String(Math.round(tutar * 100) / 100) }));
+    }
+  };
+
   const iadeTamamla = async (id: string, yontem: "kart" | "magaza_kredisi") => {
     const tutar = iadeTutarlari[id];
     if (!tutar || Number(tutar) <= 0) return toast.error("İade tutarını girin şefim!");
+    const talep = talepler.find((t) => t._id === id);
+    const secim = iadeKalemSecimleri[id] || {};
+    const kalemlerKaynak = talep?.siparisKalemleri || [];
+    const iadeKalemleri = Object.entries(secim)
+      .filter(([, adet]) => adet > 0)
+      .map(([urunId, adet]) => {
+        const k = kalemlerKaynak.find((x: any) => x.urunId === urunId) || talep?.iadeKalemleri?.find((x: any) => x.urunId === urunId);
+        return { urunId, adet, isim: k?.isim, birimFiyat: k?.birimFiyat };
+      });
     const toastId = toast.loading(yontem === "magaza_kredisi" ? "Mağaza kredisi yükleniyor..." : "Kart iadesi işleniyor...");
     try {
       const res = await fetch("/api/admin/destek", {
         method: "PUT",
         headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI },
-        body: JSON.stringify({ id, action: "iade_tamamla", tutar: Number(tutar), yontem }),
+        body: JSON.stringify({
+          id,
+          action: "iade_tamamla",
+          tutar: Number(tutar),
+          yontem,
+          ...(iadeKalemleri.length ? { iadeKalemleri } : {}),
+        }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -518,6 +563,8 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                           <option value="Ödendi / Hazırlanıyor">Ödendi / Hazırlanıyor</option>
                           <option value="Kargoya Verildi">Kargoya Verildi</option>
                           <option value="Tamamlandı">Tamamlandı</option>
+                          <option value="Kısmen İade Edildi">Kısmen İade Edildi</option>
+                          <option value="İade Edildi">İade Edildi</option>
                           <option value="İptal Edildi">İptal Edildi</option>
                         </select>
                       </div>
@@ -629,13 +676,49 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                         <div className="p-3 bg-[#0b1120] border border-slate-700 rounded-lg space-y-2">
                           {talep.siparisBulundu && talep.siparisTutari > 0 ? (
                             <p className="text-[10px] text-cyan-400 leading-relaxed">
-                              Sipariş bulundu{talep.siparisKoduBulunan ? `: ${talep.siparisKoduBulunan}` : ""} — tutar{" "}
-                              <strong>{Number(talep.siparisTutari).toLocaleString("tr-TR")} TL</strong> otomatik dolduruldu.
+                              Sipariş bulundu{talep.siparisKoduBulunan ? `: ${talep.siparisKoduBulunan}` : ""} — toplam{" "}
+                              <strong>{Number(talep.siparisTutari).toLocaleString("tr-TR")} TL</strong>
+                              {talep.kalanIadeEdilebilir > 0 && talep.kalanIadeEdilebilir < talep.siparisTutari ? (
+                                <> · kalan iade edilebilir <strong>{Number(talep.kalanIadeEdilebilir).toLocaleString("tr-TR")} TL</strong></>
+                              ) : null}
                             </p>
                           ) : (
                             <p className="text-[10px] text-amber-400/90 leading-relaxed">
                               Sipariş kaydı bulunamadı. Tutarı elle girin veya sipariş numarasını kontrol edin (ör. BPC-123456).
                             </p>
+                          )}
+                          {talep.iadeKalemleri?.length > 0 && (
+                            <p className="text-[10px] text-amber-400/90">
+                              Müşteri kısmi iade talep etti: {talep.iadeKalemleri.map((k: any) => `${k.isim || "Ürün"} ×${k.adet}`).join(", ")}
+                            </p>
+                          )}
+                          {talep.siparisKalemleri?.length > 0 && (
+                            <div className="space-y-1.5 max-h-36 overflow-y-auto admin-sohbet-kutusu">
+                              <p className="text-[10px] font-bold text-slate-500 uppercase">İade kalemleri seç</p>
+                              {talep.siparisKalemleri.map((k: any) => {
+                                const secili = iadeKalemSecimleri[talep._id]?.[k.urunId] || 0;
+                                const devreDisi = k.iadeEdilebilirAdet <= 0;
+                                return (
+                                  <div key={k.urunId} className={`flex items-center gap-2 text-[10px] p-2 rounded border ${devreDisi ? "border-slate-800 opacity-50" : "border-slate-700"}`}>
+                                    <input
+                                      type="checkbox"
+                                      checked={secili > 0}
+                                      disabled={devreDisi}
+                                      onChange={(e) => iadeKalemAdetGuncelle(talep._id, k.urunId, e.target.checked ? 1 : 0, k.iadeEdilebilirAdet, talep.siparisKalemleri)}
+                                    />
+                                    <span className="flex-1 text-slate-300 truncate">{k.isim}</span>
+                                    <span className="text-slate-500 shrink-0">{k.birimFiyat?.toLocaleString("tr-TR")} TL</span>
+                                    {secili > 0 && (
+                                      <div className="flex items-center gap-1 shrink-0">
+                                        <button type="button" onClick={() => iadeKalemAdetGuncelle(talep._id, k.urunId, secili - 1, k.iadeEdilebilirAdet, talep.siparisKalemleri)} className="w-5 h-5 rounded bg-slate-800 text-slate-400">−</button>
+                                        <span className="w-4 text-center text-white">{secili}</span>
+                                        <button type="button" onClick={() => iadeKalemAdetGuncelle(talep._id, k.urunId, secili + 1, k.iadeEdilebilirAdet, talep.siparisKalemleri)} className="w-5 h-5 rounded bg-slate-800 text-slate-400">+</button>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
                           )}
                           <label className="block text-[10px] font-bold text-slate-400 uppercase">İade tutarı (TL)</label>
                           <div className="flex gap-2">
@@ -648,6 +731,16 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                               placeholder="Örn. 1250"
                               className="flex-1 bg-[#111827] border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50"
                             />
+                            {talep.kalanIadeEdilebilir > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => setIadeTutarlari((prev) => ({ ...prev, [talep._id]: String(talep.kalanIadeEdilebilir) }))}
+                                className="shrink-0 px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-[10px] font-bold text-slate-300 uppercase hover:bg-slate-700 transition-colors"
+                                title="Kalan iade edilebilir tutarı yükle"
+                              >
+                                Kalanı al
+                              </button>
+                            )}
                             {talep.siparisTutari > 0 && (
                               <button
                                 type="button"

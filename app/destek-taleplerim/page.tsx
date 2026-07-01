@@ -52,6 +52,10 @@ export default function DestekIadePage() {
   const [talepBaslik, setTalepBaslik] = useState("");
   const [talepMesaji, setTalepMesaji] = useState("");
   const [iadeYontemi, setIadeYontemi] = useState<"kart" | "magaza_kredisi">("magaza_kredisi");
+  const [siparisKalemleri, setSiparisKalemleri] = useState<any[]>([]);
+  const [seciliIadeKalemleri, setSeciliIadeKalemleri] = useState<Record<string, number>>({});
+  const [kalemYukleniyor, setKalemYukleniyor] = useState(false);
+  const [hesaplananIadeTutar, setHesaplananIadeTutar] = useState<number | null>(null);
   const [silinecekTalepId, setSilinecekTalepId] = useState<string | null>(null);
   
   const [kargoPopupAcik, setKargoPopupAcik] = useState(false);
@@ -120,6 +124,58 @@ useEffect(() => {
     }
   }, [status]);
 
+  useEffect(() => {
+    if (talepKonusu !== "iade" || !talepBaslik.trim() || talepBaslik.trim().length < 4) {
+      setSiparisKalemleri([]);
+      setSeciliIadeKalemleri({});
+      setHesaplananIadeTutar(null);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setKalemYukleniyor(true);
+      try {
+        const res = await fetch(`/api/destek/siparis-kalemleri?siparisNo=${encodeURIComponent(talepBaslik.trim())}`);
+        const data = await res.json();
+        if (res.ok && data.success) {
+          setSiparisKalemleri(data.kalemler || []);
+          setSeciliIadeKalemleri({});
+          setHesaplananIadeTutar(null);
+        } else {
+          setSiparisKalemleri([]);
+        }
+      } catch {
+        setSiparisKalemleri([]);
+      } finally {
+        setKalemYukleniyor(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [talepKonusu, talepBaslik]);
+
+  const iadeKalemAdetDegistir = (urunId: string, adet: number, max: number) => {
+    const yeni = Math.max(0, Math.min(max, adet));
+    setSeciliIadeKalemleri((prev) => {
+      const kopya = { ...prev };
+      if (yeni <= 0) delete kopya[urunId];
+      else kopya[urunId] = yeni;
+      return kopya;
+    });
+  };
+
+  useEffect(() => {
+    if (talepKonusu !== "iade" || !Object.keys(seciliIadeKalemleri).length) {
+      setHesaplananIadeTutar(null);
+      return;
+    }
+    const tutar = siparisKalemleri.reduce((s, k) => {
+      const adet = seciliIadeKalemleri[k.urunId] || 0;
+      return s + k.birimFiyat * adet;
+    }, 0);
+    setHesaplananIadeTutar(Math.round(tutar * 100) / 100);
+  }, [seciliIadeKalemleri, siparisKalemleri, talepKonusu]);
+
   const handleTalepGonder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!talepKonusu || !talepMesaji || !talepBaslik) return;
@@ -127,15 +183,23 @@ useEffect(() => {
     setTalepGonderiliyor(true);
     const toastId = toast.loading("Destek talebiniz iletiliyor...");
 
+    const iadeKalemleri = Object.entries(seciliIadeKalemleri)
+      .filter(([, adet]) => adet > 0)
+      .map(([urunId, adet]) => {
+        const k = siparisKalemleri.find((x) => x.urunId === urunId);
+        return { urunId, adet, isim: k?.isim, birimFiyat: k?.birimFiyat };
+      });
+
     try {
       const res = await fetch("/api/destek", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           konu: talepKonusu,
-          mesaj: `[Başlık: ${talepBaslik}]\n\n${talepMesaji}`,
+          mesaj: `[Başlık: ${talepBaslik}]\n\n${talepMesaji}${hesaplananIadeTutar ? `\n\n[İade tutarı: ${hesaplananIadeTutar.toLocaleString("tr-TR")} TL]` : ""}`,
           siparisNo: talepBaslik,
           ...(talepKonusu === "iade" || talepKonusu === "iptal" ? { iadeYontemi } : {}),
+          ...(talepKonusu === "iade" && iadeKalemleri.length ? { iadeKalemleri } : {}),
         })
       });
       const data = await res.json();
@@ -144,6 +208,7 @@ useEffect(() => {
         toast.success("Talebiniz başarıyla oluşturuldu! 🚀", { id: toastId });
         setYeniTalepModal(false);
         setTalepKonusu(""); setTalepBaslik(""); setTalepMesaji(""); setIadeYontemi("magaza_kredisi");
+        setSiparisKalemleri([]); setSeciliIadeKalemleri({}); setHesaplananIadeTutar(null);
         setTalepler(prev => {
           const yeniListe = [data.talep, ...prev];
           localStorage.setItem("bilgin_destek_talepleri", JSON.stringify(yeniListe));
@@ -510,6 +575,55 @@ useEffect(() => {
                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Talep Başlığı / Sipariş No</label>
                 <input type="text" value={talepBaslik} onChange={(e) => setTalepBaslik(e.target.value)} placeholder="Kısa bir başlık veya Sipariş Numarası girin..." className="w-full bg-[#020617] border border-slate-800 focus:border-indigo-500/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors" required />
               </div>
+
+              {talepKonusu === "iade" && talepBaslik.trim().length >= 4 && (
+                <div className="p-4 bg-[#020617] border border-slate-800 rounded-xl space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">İade edilecek ürünler</label>
+                    {kalemYukleniyor && <Loader2 className="w-4 h-4 animate-spin text-slate-500" />}
+                  </div>
+                  {siparisKalemleri.length === 0 && !kalemYukleniyor ? (
+                    <p className="text-[11px] text-slate-500">Sipariş bulunamadı veya iade edilebilir ürün kalmadı. Sipariş numarasını kontrol edin (ör. BPC-123456).</p>
+                  ) : (
+                    <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
+                      {siparisKalemleri.map((k) => {
+                        const secili = seciliIadeKalemleri[k.urunId] || 0;
+                        const devreDisi = k.iadeEdilebilirAdet <= 0;
+                        return (
+                          <div key={k.urunId} className={`flex items-center gap-3 p-2.5 rounded-lg border ${devreDisi ? "border-slate-800/50 opacity-50" : "border-slate-800"}`}>
+                            <input
+                              type="checkbox"
+                              checked={secili > 0}
+                              disabled={devreDisi}
+                              onChange={(e) => iadeKalemAdetDegistir(k.urunId, e.target.checked ? 1 : 0, k.iadeEdilebilirAdet)}
+                              className="rounded border-slate-600"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-bold text-white truncate">{k.isim}</p>
+                              <p className="text-[10px] text-slate-500">
+                                {k.birimFiyat.toLocaleString("tr-TR")} TL × iade edilebilir {k.iadeEdilebilirAdet}
+                              </p>
+                            </div>
+                            {secili > 0 && (
+                              <div className="flex items-center gap-1 shrink-0">
+                                <button type="button" onClick={() => iadeKalemAdetDegistir(k.urunId, secili - 1, k.iadeEdilebilirAdet)} className="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 text-sm">−</button>
+                                <span className="w-6 text-center text-xs font-bold text-white">{secili}</span>
+                                <button type="button" onClick={() => iadeKalemAdetDegistir(k.urunId, secili + 1, k.iadeEdilebilirAdet)} className="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 text-sm">+</button>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {hesaplananIadeTutar !== null && hesaplananIadeTutar > 0 && (
+                    <p className="text-xs text-cyan-400 font-semibold">
+                      Tahmini iade tutarı: {hesaplananIadeTutar.toLocaleString("tr-TR")} TL
+                      {hesaplananIadeTutar < (siparisKalemleri.reduce((s, k) => s + k.birimFiyat * k.iadeEdilebilirAdet, 0)) ? " (kısmi iade)" : ""}
+                    </p>
+                  )}
+                </div>
+              )}
               
               <div>
                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Mesajınız</label>

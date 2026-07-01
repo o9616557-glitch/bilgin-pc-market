@@ -1,6 +1,13 @@
 import type { Db } from "mongodb";
 import { puanEkle, puanGeriYukle, puanGeriAl, puanKazanHesapla } from "@/lib/odul-puan";
 import { magazaKrediEkle } from "@/lib/magaza-kredi";
+import {
+  type IadeKalemi,
+  kalanIadeEdilebilirTutar,
+  oransalIadeMiktarlari,
+  sepetIadeAdetleriniGuncelle,
+  siparisSepeti,
+} from "@/lib/iade-hesapla";
 
 const ODUL_VERILEBILIR_DURUMLAR = [
   "Ödendi / Hazırlanıyor",
@@ -124,38 +131,125 @@ export function siparisNakitIadeTutari(siparis: any): number {
 }
 
 /**
- * Tam iade: kazanılan puanı geri al, siparişte kullanılan puan/krediyi cüzdana iade et.
- * Amazon tarzı — ödeme yöntemine göre nakit iade ayrı işlenir.
+ * Kısmi veya tam iade: puan/kredi oransal iade, sepet kalemlerinde iade adedi güncelleme.
  */
-export async function siparisIadeCuzdanIslemleri(db: Db, siparis: any): Promise<void> {
-  if (!siparis || siparis.iadeCuzdanIslendi) return;
+export async function siparisIadeIslemleri(
+  db: Db,
+  siparis: any,
+  iadeTutar: number,
+  opts?: { talepNo?: string; kalemler?: IadeKalemi[] }
+): Promise<{ tamIade: boolean; gercekIade: number } | null> {
+  if (!siparis || iadeTutar <= 0) return null;
 
   const email = siparisEmail(siparis);
-  if (!email) return;
+  if (!email) return null;
 
-  await siparisOdulPuanGeriAl(db, siparis);
+  const kalan = kalanIadeEdilebilirTutar(siparis);
+  if (kalan <= 0) return null;
 
-  const guncel = await db.collection("orders").findOne({ _id: siparis._id });
-  if (guncel) await siparisKullanilanPuanIade(db, guncel);
+  const {
+    gercekIade,
+    buPuanGeriAl,
+    buPuanIade,
+    buKrediIade,
+    buTabanGeriAl,
+    tamIade,
+    yeniToplamIade,
+  } = oransalIadeMiktarlari(siparis, iadeTutar);
 
-  const kullanilanKredi = Number(siparis.kullanilanKredi || 0);
-  if (kullanilanKredi > 0 && !siparis.krediIadeEdildi) {
+  if (gercekIade <= 0) return null;
+
+  const kod = siparis.siparisKodu || "";
+  const ref = opts?.talepNo || kod;
+
+  if (buPuanGeriAl > 0 && siparis.puanVerildi) {
+    await puanGeriAl(
+      db,
+      email,
+      buPuanGeriAl,
+      `İade — kazanılan puan geri alındı (${kod})`,
+      kod
+    );
+  }
+
+  if (buTabanGeriAl > 0) {
+    await db.collection("wallets").updateOne(
+      { email },
+      { $inc: { lifetimeOdemeTabani: -buTabanGeriAl } }
+    );
+  }
+
+  if (buPuanIade > 0) {
+    await puanGeriYukle(
+      db,
+      email,
+      buPuanIade,
+      `İade — kullanılan puan iadesi (${kod})`,
+      kod
+    );
+  }
+
+  if (buKrediIade > 0) {
     await magazaKrediEkle(
       db,
       email,
-      kullanilanKredi,
-      `İade — siparişte kullanılan mağaza kredisi iade (${siparis.siparisKodu || ""})`,
-      siparis.siparisKodu
+      buKrediIade,
+      `İade — kullanılan mağaza kredisi iadesi (${kod})`,
+      kod
     );
   }
+
+  const sepet = siparisSepeti(siparis);
+  const guncelSepet = opts?.kalemler?.length
+    ? sepetIadeAdetleriniGuncelle(sepet, opts.kalemler)
+    : sepet;
+
+  const iadeKaydi = {
+    talepNo: opts?.talepNo || null,
+    tutar: gercekIade,
+    tarih: new Date(),
+    kalemler: opts?.kalemler || [],
+    tamIade,
+  };
+
+  const yeniDurum = tamIade ? "İade Edildi" : "Kısmen İade Edildi";
 
   await db.collection("orders").updateOne(
     { _id: siparis._id },
     {
       $set: {
-        iadeCuzdanIslendi: true,
-        krediIadeEdildi: kullanilanKredi > 0 ? true : siparis.krediIadeEdildi,
+        sepet: guncelSepet,
+        items: guncelSepet,
+        toplamIadeEdilenTutar: yeniToplamIade,
+        iadeEdilenPuanGeriAl: Number(siparis.iadeEdilenPuanGeriAl || 0) + buPuanGeriAl,
+        iadeEdilenKullanilanPuan: Number(siparis.iadeEdilenKullanilanPuan || 0) + buPuanIade,
+        iadeEdilenKredi: Number(siparis.iadeEdilenKredi || 0) + buKrediIade,
+        iadeEdilenPuanKazanmaTabani: Number(siparis.iadeEdilenPuanKazanmaTabani || 0) + buTabanGeriAl,
+        durum: yeniDurum,
+        status: yeniDurum,
+        ...(tamIade
+          ? {
+              iadeCuzdanIslendi: true,
+              puanVerildi: buPuanGeriAl >= Number(siparis.kazanilanPuan || 0) ? false : siparis.puanVerildi,
+              krediIadeEdildi: Number(siparis.iadeEdilenKredi || 0) + buKrediIade >= Number(siparis.kullanilanKredi || 0),
+              kullanilanPuanIadeEdildi:
+                Number(siparis.iadeEdilenKullanilanPuan || 0) + buPuanIade >= Number(siparis.kullanilanPuan || 0),
+            }
+          : {}),
       },
+      $push: { iadeGecmisi: iadeKaydi } as any,
     }
   );
+
+  return { tamIade, gercekIade };
+}
+
+/**
+ * Tam kalan iade (iptal veya eski tam-iade akışı).
+ */
+export async function siparisIadeCuzdanIslemleri(db: Db, siparis: any): Promise<void> {
+  if (!siparis || siparis.iadeCuzdanIslendi) return;
+  const kalan = kalanIadeEdilebilirTutar(siparis);
+  if (kalan <= 0) return;
+  await siparisIadeIslemleri(db, siparis, kalan);
 }
