@@ -40,6 +40,11 @@ function KartGorseli({ kart, secili, onSil, onVarsayilan }: {
               VARSAYILAN
             </span>
           )}
+          {kart.iyzicoHazir === false && (
+            <span className="text-[8px] font-black tracking-widest text-amber-400/90 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+              YENİDEN EKLE
+            </span>
+          )}
           <span className="text-[9px] font-bold tracking-widest text-slate-500">
             {MARKA_ETIKET[kart.brand] || "KART"}
           </span>
@@ -232,6 +237,7 @@ export default function CuzdanPage() {
         transactions: data.transactions ?? transactions,
       });
       toast.success(data.mesaj || "Kart kaydedildi.");
+      if (data.uyari) toast(data.uyari, { icon: "⚠️", duration: 8000 });
     } catch (e: any) {
       toast.error(e.message);
     } finally {
@@ -349,6 +355,13 @@ export default function CuzdanPage() {
                       <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Kayıtlı Kartlarım</h2>
                     </div>
                   </div>
+
+                  {savedCards.some((k) => !k.iyzicoHazir) && (
+                    <div className="mb-4 p-3.5 rounded-xl border border-emerald-500/25 bg-emerald-500/[0.06] text-[11px] sm:text-xs text-emerald-200/90 leading-relaxed">
+                      <strong className="text-emerald-300">Kart Saklama aktif.</strong>{" "}
+                      &quot;YENİDEN EKLE&quot; etiketli kartları silip tekrar kaydedin; böylece İyzico&apos;ya bağlanır ve ödeme sayfasında kullanılabilir.
+                    </div>
+                  )}
 
                   <div className="flex flex-col gap-4">
                     {savedCards.length === 0 ? (

@@ -1,15 +1,12 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
+import { iyzicoConfig } from "@/lib/iyzico-config";
 // @ts-ignore
 import Iyzipay from "iyzipay";
 
 export async function POST(request: Request) {
   try {
-    const iyzipay = new Iyzipay({
-      apiKey: process.env.IYZICO_API_KEY,
-      secretKey: process.env.IYZICO_SECRET_KEY,
-      uri: process.env.IYZICO_URI
-    });
+    const iyzipay = new Iyzipay(iyzicoConfig());
 
     const formData = await request.formData();
     const token = formData.get("token");

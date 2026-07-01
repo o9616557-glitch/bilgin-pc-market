@@ -3,12 +3,10 @@ import CheckoutFormInitialize from 'iyzipay/lib/resources/CheckoutFormInitialize
 // @ts-ignore
 import CheckoutForm from 'iyzipay/lib/resources/CheckoutForm';
 
+import { iyzicoConfig } from "@/lib/iyzico-config";
+
 // Canlı ortam değişkenlerini güvenle bağlıyoruz
-const iyzicoConfig = {
-    apiKey: process.env.IYZICO_API_KEY || '',
-    secretKey: process.env.IYZICO_SECRET_KEY || '',
-    uri: process.env.IYZICO_URI || 'https://sandbox-api.iyzipay.com'
-};
+const iyzicoConfigValues = iyzicoConfig();
 
 /**
  * 👑 ULTRA BYPASS MOTORU: 
@@ -18,11 +16,11 @@ const iyzicoConfig = {
 const iyzipay = {
     checkoutForm: {
         initialize: (request: any, callback: any) => {
-            const instance = new CheckoutFormInitialize(iyzicoConfig);
+            const instance = new CheckoutFormInitialize(iyzicoConfigValues);
             instance.create(request, callback);
         },
         retrieve: (request: any, callback: any) => {
-            const instance = new CheckoutForm(iyzicoConfig);
+            const instance = new CheckoutForm(iyzicoConfigValues);
             instance.retrieve(request, callback);
         }
     }

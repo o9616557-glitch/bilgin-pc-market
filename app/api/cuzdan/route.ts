@@ -10,7 +10,12 @@ import {
   yeniKartId,
   type KayitliKart,
 } from "@/lib/cuzdan";
-import { iyzicoKartKaydet, iyzicoKartSil } from "@/lib/iyzico-kart";
+import {
+  iyzicoKartKaydet,
+  iyzicoKartSil,
+  IyzicoKartHata,
+  IYZICO_KART_SAKLAMA_UYARI,
+} from "@/lib/iyzico-kart";
 
 export const dynamic = "force-dynamic";
 
@@ -143,6 +148,7 @@ export async function POST(req: Request) {
 
       let iyzicoCardUserKey = wallet.iyzicoCardUserKey as string | undefined;
       let cardToken: string | undefined;
+      let iyzicoUyari: string | undefined;
 
       try {
         const iyzicoSonuc = await iyzicoKartKaydet({
@@ -156,12 +162,21 @@ export async function POST(req: Request) {
         });
         iyzicoCardUserKey = iyzicoSonuc.cardUserKey;
         cardToken = iyzicoSonuc.cardToken;
-      } catch (iyzicoHata: any) {
+      } catch (iyzicoHata: unknown) {
         console.error("İyzico kart kayıt hatası:", iyzicoHata);
-        return NextResponse.json(
-          { hata: iyzicoHata?.message || "Kart güvenli ödeme sistemine kaydedilemedi." },
-          { status: 400 }
-        );
+        const kapali =
+          iyzicoHata instanceof IyzicoKartHata && iyzicoHata.kartSaklamaKapali;
+
+        if (!kapali) {
+          const mesaj =
+            iyzicoHata instanceof Error
+              ? iyzicoHata.message
+              : "Kart güvenli ödeme sistemine kaydedilemedi.";
+          return NextResponse.json({ hata: mesaj }, { status: 400 });
+        }
+
+        // 3007: Eklenti kapalı — kartı yalnızca cüzdanda tut (İyzico token'sız)
+        iyzicoUyari = IYZICO_KART_SAKLAMA_UYARI;
       }
 
       const yeniKart = {
@@ -173,19 +188,29 @@ export async function POST(req: Request) {
         expiryYear: yil,
         isDefault: kartlar.length === 0,
         createdAt: new Date().toISOString(),
-        cardToken,
+        ...(cardToken ? { cardToken } : {}),
       };
+
+      const guncelleme: Record<string, unknown> = { updatedAt: new Date() };
+      if (iyzicoCardUserKey) guncelleme.iyzicoCardUserKey = iyzicoCardUserKey;
 
       await wallets.updateOne(
         { email },
         {
           $push: { savedCards: yeniKart } as any,
-          $set: { iyzicoCardUserKey, updatedAt: new Date() },
+          $set: guncelleme,
         }
       );
 
       const data = await cuzdanGetir(email);
-      return NextResponse.json({ success: true, mesaj: "Kart kaydedildi.", ...data });
+      return NextResponse.json({
+        success: true,
+        mesaj: cardToken
+          ? "Kart kaydedildi ve İyzico'ya bağlandı."
+          : "Kart cüzdanınıza kaydedildi.",
+        uyari: iyzicoUyari,
+        ...data,
+      });
     }
 
     if (action === "deleteCard") {

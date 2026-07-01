@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import clientPromise from "@/lib/mongodb";
+import { iyzicoConfig } from "@/lib/iyzico-config";
 // @ts-ignore
 import Iyzipay from "iyzipay";
 // @ts-ignore
@@ -9,11 +10,7 @@ import "postman-request";
 
 export async function POST(request: Request) {
   try {
-    const iyzipay = new Iyzipay({
-      apiKey: process.env.IYZICO_API_KEY,
-      secretKey: process.env.IYZICO_SECRET_KEY,
-      uri: process.env.IYZICO_URI
-    });
+    const iyzipay = new Iyzipay(iyzicoConfig());
     
     const body = await request.json();
     const { musteri, sepet, odemeYontemi, toplamTutar, siparisNotu, kayitliKartId } = body;

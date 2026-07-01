@@ -2,13 +2,10 @@
 import Iyzipay from "iyzipay";
 // @ts-ignore
 import "postman-request";
+import { iyzicoConfig } from "@/lib/iyzico-config";
 
 function iyzipayOrnegi() {
-  return new Iyzipay({
-    apiKey: process.env.IYZICO_API_KEY,
-    secretKey: process.env.IYZICO_SECRET_KEY,
-    uri: process.env.IYZICO_URI,
-  });
+  return new Iyzipay(iyzicoConfig());
 }
 
 function iyzicoCagri<T>(fn: (cb: (err: unknown, result: T) => void) => void): Promise<T> {
@@ -33,6 +30,23 @@ export interface IyzicoKartSonuc {
   lastFourDigits?: string;
   cardAssociation?: string;
 }
+
+/** İyzico hata kodu 3007 — hesapta Kart Saklama eklentisi aktif değil */
+export class IyzicoKartHata extends Error {
+  errorCode?: string;
+  kartSaklamaKapali: boolean;
+
+  constructor(message: string, errorCode?: string) {
+    super(message);
+    this.name = "IyzicoKartHata";
+    this.errorCode = errorCode;
+    this.kartSaklamaKapali =
+      errorCode === "3007" || /kart saklama.*tanımlı değil/i.test(message);
+  }
+}
+
+export const IYZICO_KART_SAKLAMA_UYARI =
+  "İyzico hesabınızda Kart Saklama eklentisi aktif değil. Panel → Eklentiler → Kart Saklama'yı satın alıp aktifleştirin (hata kodu: 3007). Eklenti açılana kadar kart yalnızca cüzdanda görünür; ödemede İyzico'ya taşınamaz.";
 
 export async function iyzicoKartKaydet(opts: {
   email: string;
@@ -66,7 +80,10 @@ export async function iyzicoKartKaydet(opts: {
   const sonuc: any = await iyzicoCagri((cb) => iyzipay.card.create(talep, cb));
 
   if (sonuc.status !== "success" || !sonuc.cardUserKey || !sonuc.cardToken) {
-    throw new Error(sonuc.errorMessage || "Kart İyzico'ya kaydedilemedi.");
+    throw new IyzicoKartHata(
+      sonuc.errorMessage || "Kart İyzico'ya kaydedilemedi.",
+      sonuc.errorCode
+    );
   }
 
   return {
