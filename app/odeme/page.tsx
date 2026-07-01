@@ -3,6 +3,7 @@ import { ArrowLeft, CreditCard, Banknote, ShieldCheck, MapPin, Edit3, User, Phon
 import { useCart } from "../CartContext";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { createPortal } from "react-dom";
 import { useSession } from "next-auth/react";
 import {
   temizleIyzicoKalintilari,
@@ -404,25 +405,33 @@ export default function OdemeSayfasi() {
   );
 
   const AsamaGostergesi = () => (
-    <div className="flex items-center gap-1 sm:gap-2 mb-6 sm:mb-8">
-      {[
-        { n: 1, baslik: "Özet" },
-        { n: 2, baslik: "Adres" },
-        { n: 3, baslik: "Ödeme" },
-      ].map(({ n, baslik }, i) => (
-        <div key={n} className="flex items-center flex-1 min-w-0 gap-1 sm:gap-2">
-          <div
-            className={[
-              "w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[11px] sm:text-xs font-bold shrink-0 transition-colors",
-              asama >= n ? "bg-site-accent text-black" : "bg-white/10 text-slate-500",
-            ].join(" ")}
-          >
-            {n}
+    <div className="flex justify-center mb-6 sm:mb-8 px-2">
+      <div className="flex items-center w-full max-w-sm sm:max-w-md mx-auto">
+        {[
+          { n: 1, baslik: "Özet" },
+          { n: 2, baslik: "Adres" },
+          { n: 3, baslik: "Ödeme" },
+        ].map(({ n, baslik }, i) => (
+          <div key={n} className="contents">
+            <div className="flex flex-col items-center gap-1.5 shrink-0 min-w-[56px] sm:min-w-[64px]">
+              <div
+                className={[
+                  "w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-xs font-bold transition-colors",
+                  asama >= n ? "bg-site-accent text-black shadow-[0_0_12px_rgba(0,210,255,0.35)]" : "bg-white/10 text-slate-500",
+                ].join(" ")}
+              >
+                {n}
+              </div>
+              <span className={`text-[10px] sm:text-xs font-medium text-center ${asama >= n ? "text-white" : "text-slate-500"}`}>
+                {baslik}
+              </span>
+            </div>
+            {i < 2 && (
+              <div className={`flex-1 h-0.5 mx-1 sm:mx-2 rounded-full mb-5 ${asama > n ? "bg-site-accent" : "bg-white/10"}`} />
+            )}
           </div>
-          <span className={`text-[10px] sm:text-xs font-medium truncate hidden sm:block ${asama >= n ? "text-white" : "text-slate-500"}`}>{baslik}</span>
-          {i < 2 && <div className={`flex-1 h-0.5 rounded-full min-w-[8px] ${asama > n ? "bg-site-accent" : "bg-white/10"}`} />}
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 
@@ -502,8 +511,10 @@ export default function OdemeSayfasi() {
       </div>
 
       <div className="site-container-narrow pb-8">
-        <h1 className="site-h2 mb-2">Güvenli ödeme</h1>
-        <p className="text-slate-500 text-sm mb-4">3 adımda siparişinizi tamamlayın</p>
+        <div className="text-center max-w-lg mx-auto mb-2">
+          <h1 className="site-h2 mb-2">Güvenli ödeme</h1>
+          <p className="text-slate-500 text-sm">3 adımda siparişinizi tamamlayın</p>
+        </div>
         <AsamaGostergesi />
 
         <form onSubmit={(e) => { if (asama !== 3) { e.preventDefault(); return; } void siparisTamamla(e); }}>
@@ -523,7 +534,7 @@ export default function OdemeSayfasi() {
 
           {/* ——— AŞAMA 2: Adres + ödeme yöntemi ——— */}
           {asama === 2 && (
-            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 max-w-5xl mx-auto">
               <div className="flex-1 min-w-0 glass-card p-4 sm:p-6 lg:p-8">
                 <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-site-accent" /> Teslimat bilgileri
@@ -633,7 +644,7 @@ export default function OdemeSayfasi() {
 
           {/* ——— AŞAMA 3: Kart (İyzico) veya Havale ——— */}
           {asama === 3 && (
-            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 max-w-5xl mx-auto">
               <div className="flex-1 min-w-0 glass-card p-4 sm:p-6 lg:p-8">
                 <h3 className="text-sm font-semibold text-white mb-1">Ödeme</h3>
                 <p className="text-slate-500 text-xs mb-4">Yöntemi değiştirebilirsiniz</p>
@@ -681,18 +692,17 @@ export default function OdemeSayfasi() {
         </form>
       </div>
 
-   {acikSozlesme && (
-        <div className="fixed inset-0 z-[999] flex items-end sm:items-center justify-center bg-[#050814]/85 backdrop-blur-md p-0 sm:p-4 animate-in fade-in">
-          <div className="relative w-full sm:w-[92%] max-w-3xl h-[92dvh] sm:h-[88vh] flex flex-col rounded-t-2xl sm:rounded-2xl shadow-[0_0_60px_rgba(0,0,0,0.8)] animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300 overflow-hidden bg-white">
-            <div className="flex items-center justify-center text-center p-4 sm:p-5 border-b border-gray-200 shrink-0 bg-white">
-              <h2 className="text-sm sm:text-base font-black text-black tracking-wide uppercase">
+   {acikSozlesme && typeof document !== "undefined" && createPortal(
+        <div className="fixed inset-0 z-[99999] flex flex-col bg-white w-full h-[100dvh] max-h-[100dvh]">
+            <div className="flex items-center justify-center text-center p-4 sm:p-5 border-b border-gray-200 shrink-0 bg-white pt-[max(1rem,env(safe-area-inset-top))]">
+              <h2 className="text-sm sm:text-base font-black text-black tracking-wide uppercase px-4">
                 {acikSozlesme === "mesafeli" ? "Mesafeli Satış Sözleşmesi" : "Gizlilik ve KVKK Politikası"}
               </h2>
             </div>
 
             <div
               onScroll={sozlesmeKaydirmaRadari}
-              className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6 text-sm text-gray-700 space-y-6 leading-relaxed bg-zinc-50 [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full"
+              className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6 md:p-8 text-sm text-gray-700 space-y-6 leading-relaxed bg-zinc-50 [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full"
             >
               {acikSozlesme === "mesafeli" ? (
                 <>
@@ -784,12 +794,12 @@ export default function OdemeSayfasi() {
               )}
             </div>
 
-            <div className="p-4 sm:p-5 border-t border-gray-200 shrink-0 bg-white">
+            <div className="p-4 sm:p-5 border-t border-gray-200 shrink-0 bg-white pb-[max(1rem,env(safe-area-inset-bottom))]">
               <button
                 type="button"
                 onClick={() => setAcikSozlesme(null)}
                 disabled={!sozlesmeOkundu}
-                className={`w-full py-3.5 text-sm font-bold tracking-wide rounded-xl transition-all duration-300 ${
+                className={`w-full max-w-lg mx-auto block py-3.5 text-sm font-bold tracking-wide rounded-xl transition-all duration-300 ${
                   sozlesmeOkundu
                     ? "bg-[#3b82f6] hover:bg-[#2563eb] text-white shadow-[0_0_20px_rgba(59,130,246,0.25)] cursor-pointer"
                     : "bg-slate-200 text-slate-500 cursor-not-allowed"
@@ -798,8 +808,8 @@ export default function OdemeSayfasi() {
                 {sozlesmeOkundu ? "Okudum, kapat" : "Onaylamak için metni aşağı kaydırın"}
               </button>
             </div>
-          </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
