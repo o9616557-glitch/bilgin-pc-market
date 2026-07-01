@@ -1,7 +1,7 @@
 import type { Db } from "mongodb";
 
-/** Her 400 TL nakit/havale/kart ödemesi = 1 puan (200.000 TL → 500 puan ≈ 500 TL) */
-export const PUAN_KAZANMA_HARCAMA_BASI = 400;
+/** Her 200 TL nakit/havale/kart ödemesi = 1 puan (100.000 TL → 500 puan ≈ 500 TL) */
+export const PUAN_KAZANMA_HARCAMA_BASI = 200;
 
 /** 1 puan = 1 TL indirim */
 export const PUAN_TL_DEGERI = 1;
@@ -13,7 +13,7 @@ export const MIN_KULLANIM_PUAN = 50;
 export const MAX_INDIRIM_ORANI = 0.7;
 
 /** İlerleme çubuğu hedefi (gösterim) */
-export const HEDEF_HARCAMA_TL = 200_000;
+export const HEDEF_HARCAMA_TL = 100_000;
 export const HEDEF_ODUL_PUAN = 500;
 
 export interface PuanHareket {
@@ -163,5 +163,39 @@ export async function puanGeriYukle(
       $set: { updatedAt: new Date() },
     },
     { upsert: true }
+  );
+}
+
+/** Kazanılmış ödül puanını geri al (iade/iptal) */
+export async function puanGeriAl(
+  db: Db,
+  email: string,
+  puan: number,
+  aciklama: string,
+  ref?: string
+): Promise<void> {
+  if (puan <= 0) return;
+
+  const wallet = await db.collection("wallets").findOne({ email });
+  const mevcut = Number(wallet?.loyaltyPoints || 0);
+  const dusulecek = Math.min(mevcut, Math.floor(puan));
+  if (dusulecek <= 0) return;
+
+  const hareket: PuanHareket = {
+    _id: crypto.randomUUID(),
+    tip: "iptal",
+    puan: -dusulecek,
+    aciklama,
+    tarih: new Date().toISOString(),
+    ...(ref ? { ref } : {}),
+  };
+
+  await db.collection("wallets").findOneAndUpdate(
+    { email },
+    {
+      $inc: { loyaltyPoints: -dusulecek },
+      $push: { pointHistory: hareket } as any,
+      $set: { updatedAt: new Date() },
+    }
   );
 }

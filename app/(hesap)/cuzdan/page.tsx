@@ -314,11 +314,11 @@ export default function CuzdanPage() {
                           <p className="text-xs font-bold text-slate-300">Ödül Puanları</p>
                         </div>
                         <ul className="text-[11px] sm:text-xs text-slate-500 space-y-1.5 leading-relaxed list-disc list-inside">
-                          <li>Her <strong className="text-slate-400 font-semibold">400 TL</strong> kart/havale ödemesinde <strong className="text-slate-400 font-semibold">1 puan</strong> kazanırsınız.</li>
-                          <li><strong className="text-slate-400 font-semibold">200.000 TL</strong> alışverişte <strong className="text-slate-400 font-semibold">500 TL</strong> değerinde ödül birikir.</li>
+                          <li>Her <strong className="text-slate-400 font-semibold">200 TL</strong> kart/havale ödemesinde <strong className="text-slate-400 font-semibold">1 puan</strong> kazanırsınız.</li>
+                          <li><strong className="text-slate-400 font-semibold">100.000 TL</strong> alışverişte <strong className="text-slate-400 font-semibold">500 TL</strong> değerinde ödül birikir.</li>
                           <li>Ödeme sayfasında puan + mağaza kredisini birlikte kullanabilirsiniz (toplam indirim siparişin %70&apos;ini geçmez).</li>
                           <li>Havale siparişlerinde puan, ödemeniz onaylandıktan sonra yüklenir.</li>
-                          <li>İptal/iade edilen siparişlerin puanı geri alınır.</li>
+                          <li>İade/iptalde kazandığınız puan geri alınır; kullandığınız puan ve kredi cüzdanınıza iade edilir.</li>
                         </ul>
                       </div>
                     </div>

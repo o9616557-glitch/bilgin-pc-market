@@ -1,5 +1,6 @@
 import type { Db } from "mongodb";
-import { puanEkle, puanGeriYukle, puanKazanHesapla } from "@/lib/odul-puan";
+import { puanEkle, puanGeriYukle, puanGeriAl, puanKazanHesapla } from "@/lib/odul-puan";
+import { magazaKrediEkle } from "@/lib/magaza-kredi";
 
 const ODUL_VERILEBILIR_DURUMLAR = [
   "Ödendi / Hazırlanıyor",
@@ -68,11 +69,11 @@ export async function siparisOdulPuanGeriAl(db: Db, siparis: any): Promise<void>
   const email = siparisEmail(siparis);
   if (!email) return;
 
-  await puanGeriYukle(
+  await puanGeriAl(
     db,
     email,
     kazanilan,
-    `Sipariş iptali — puan geri alındı (${siparis.siparisKodu || ""})`,
+    `İade/iptal — kazanılan puan geri alındı (${siparis.siparisKodu || ""})`,
     siparis.siparisKodu
   );
 
@@ -109,5 +110,52 @@ export async function siparisKullanilanPuanIade(db: Db, siparis: any): Promise<v
   await db.collection("orders").updateOne(
     { _id: siparis._id },
     { $set: { kullanilanPuanIadeEdildi: true } }
+  );
+}
+
+/** Sipariş nakit/kart/havale ile ödenen kısım (iade tutarı için) */
+export function siparisNakitIadeTutari(siparis: any): number {
+  const odenecek = Number(siparis?.odenecekTutar);
+  if (!Number.isNaN(odenecek) && odenecek >= 0) return odenecek;
+  const toplam = Number(siparis?.toplamTutar || siparis?.totalPrice || 0);
+  const kredi = Number(siparis?.kullanilanKredi || 0);
+  const puan = Number(siparis?.kullanilanPuan || 0);
+  return Math.max(0, toplam - kredi - puan);
+}
+
+/**
+ * Tam iade: kazanılan puanı geri al, siparişte kullanılan puan/krediyi cüzdana iade et.
+ * Amazon tarzı — ödeme yöntemine göre nakit iade ayrı işlenir.
+ */
+export async function siparisIadeCuzdanIslemleri(db: Db, siparis: any): Promise<void> {
+  if (!siparis || siparis.iadeCuzdanIslendi) return;
+
+  const email = siparisEmail(siparis);
+  if (!email) return;
+
+  await siparisOdulPuanGeriAl(db, siparis);
+
+  const guncel = await db.collection("orders").findOne({ _id: siparis._id });
+  if (guncel) await siparisKullanilanPuanIade(db, guncel);
+
+  const kullanilanKredi = Number(siparis.kullanilanKredi || 0);
+  if (kullanilanKredi > 0 && !siparis.krediIadeEdildi) {
+    await magazaKrediEkle(
+      db,
+      email,
+      kullanilanKredi,
+      `İade — siparişte kullanılan mağaza kredisi iade (${siparis.siparisKodu || ""})`,
+      siparis.siparisKodu
+    );
+  }
+
+  await db.collection("orders").updateOne(
+    { _id: siparis._id },
+    {
+      $set: {
+        iadeCuzdanIslendi: true,
+        krediIadeEdildi: kullanilanKredi > 0 ? true : siparis.krediIadeEdildi,
+      },
+    }
   );
 }

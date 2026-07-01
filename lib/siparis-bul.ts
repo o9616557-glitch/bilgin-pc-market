@@ -60,3 +60,33 @@ export async function siparisTutarBul(
 
   return { tutar: null, siparisKodu: null, bulundu: false };
 }
+
+export async function siparisBul(db: Db, hamKod: string) {
+  const temiz = String(hamKod || "").trim();
+  if (!temiz) return null;
+
+  const orders = db.collection("orders");
+  const adaylar = new Set<string>();
+  adaylar.add(temiz);
+  adaylar.add(temiz.toUpperCase());
+
+  const bpc = temiz.match(/BPC-?\s*(\d{6})/i);
+  if (bpc) adaylar.add(`BPC-${bpc[1]}`);
+
+  const sadeceRakam = temiz.replace(/\D/g, "");
+  if (sadeceRakam.length >= 6) {
+    adaylar.add(`BPC-${sadeceRakam.slice(-6)}`);
+  }
+
+  for (const kod of adaylar) {
+    const siparis = await orders.findOne({
+      $or: [
+        { siparisKodu: { $regex: new RegExp(`^${escapeRegex(kod)}$`, "i") } },
+        { orderNumber: { $regex: new RegExp(`^${escapeRegex(kod)}$`, "i") } },
+      ],
+    });
+    if (siparis) return siparis;
+  }
+
+  return null;
+}

@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 import clientPromise from "@/lib/mongodb";
 import Destek from "@/models/Destek";
 import { magazaKrediEkle } from "@/lib/magaza-kredi";
-import { siparisNoCikar, siparisTutarBul } from "@/lib/siparis-bul";
+import { siparisNoCikar, siparisTutarBul, siparisBul } from "@/lib/siparis-bul";
+import { siparisIadeCuzdanIslemleri, siparisNakitIadeTutari } from "@/lib/siparis-puan";
 
 // 🚀 ADMİN ÖNBELLEK KİLİDİ: Admin panelinin de anlık canlı veri çekmesini sağlar (Tembelliği önler)
 export const dynamic = "force-dynamic";
@@ -110,20 +111,36 @@ export async function PUT(request: Request) {
       const yontemFinal = yontem || talep.iadeYontemi || "kart";
       const siparisEtiket = talep.siparisNo || talep.talepNo;
 
-      if (yontemFinal === "magaza_kredisi") {
-        await magazaKrediEkle(
-          db,
-          talep.kullaniciEmail,
-          tutarNum,
-          `İade — ${siparisEtiket}`,
-          talep.talepNo
+      const kod = siparisNoCikar(talep);
+      const siparis = kod ? await siparisBul(db, kod) : null;
+      if (siparis) {
+        await siparisIadeCuzdanIslemleri(db, siparis);
+        await db.collection("orders").updateOne(
+          { _id: siparis._id },
+          { $set: { durum: "İade Edildi", status: "İade Edildi" } }
         );
+      }
+
+      if (yontemFinal === "magaza_kredisi") {
+        const nakitIade = siparis ? siparisNakitIadeTutari(siparis) : tutarNum;
+        const yuklenecek = siparis
+          ? Math.min(tutarNum, nakitIade > 0 ? nakitIade : tutarNum)
+          : tutarNum;
+        if (yuklenecek > 0) {
+          await magazaKrediEkle(
+            db,
+            talep.kullaniciEmail,
+            yuklenecek,
+            `İade — ${siparisEtiket}`,
+            talep.talepNo
+          );
+        }
       }
 
       const adminMesaj =
         yontemFinal === "magaza_kredisi"
-          ? `İade tutarınız (${tutarNum.toLocaleString("tr-TR")} TL) mağaza kredisi olarak cüzdanınıza yüklendi. Bir sonraki alışverişinizde ödeme adımında kullanabilirsiniz.`
-          : `Kart/banka iadeniz (${tutarNum.toLocaleString("tr-TR")} TL) başlatıldı. Ödediğiniz karta 3-7 iş günü içinde yansıyacaktır.`;
+          ? `İade işlemi tamamlandı. Siparişte kullandığınız puan ve mağaza kredisi (varsa) cüzdanınıza iade edildi. Nakit iade tutarı (${tutarNum.toLocaleString("tr-TR")} TL) mağaza kredisi olarak yüklendi; sonraki alışverişinizde kullanabilirsiniz.`
+          : `İade işlemi tamamlandı. Siparişte kullandığınız puan ve mağaza kredisi (varsa) cüzdanınıza iade edildi. Kart/banka iadeniz (${tutarNum.toLocaleString("tr-TR")} TL) başlatıldı; ödediğiniz karta 3-7 iş günü içinde yansıyacaktır.`;
 
       const guncelTalep = await Destek.findByIdAndUpdate(
         id,
