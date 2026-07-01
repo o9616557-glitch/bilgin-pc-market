@@ -312,7 +312,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     e.preventDefault();
     if (tukendiMi) return;
     sepeteEkle(sepetUrunPayload());
-    router.push("/sepet");
+    router.push("/odeme");
   };
 
   const snapTrackIndex = (target: number) => {
