@@ -7,6 +7,21 @@ function nakitIadeTutari(siparis: any): number {
   return Math.max(0, toplam - kredi - puan);
 }
 
+/** Siparişte kart/havale ile ödenen toplam tutar */
+export function siparisNakitOdemeTutari(siparis: any): number {
+  return nakitIadeTutari(siparis);
+}
+
+export function kalanNakitIadeTutari(siparis: any): number {
+  const nakitToplam = nakitIadeTutari(siparis);
+  const toplam = siparisToplamTutar(siparis);
+  const iadeEdilen = Number(siparis?.toplamIadeEdilenTutar || 0);
+  if (toplam <= 0 || nakitToplam <= 0) return 0;
+  const oran = Math.min(1, iadeEdilen / toplam);
+  const zatenIadeNakit = Math.round(nakitToplam * oran * 100) / 100;
+  return Math.max(0, Math.round((nakitToplam - zatenIadeNakit) * 100) / 100);
+}
+
 export type SepetKalemi = {
   id?: string;
   _id?: string;

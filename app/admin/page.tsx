@@ -201,6 +201,18 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
     } catch (e) { toast.error("Güncellenemedi."); }
   };
 
+  const kalanTumunuAl = (talep: any) => {
+    const kalan = talep.kalanIadeEdilebilir ?? talep.siparisTutari ?? 0;
+    setIadeTutarlari((prev) => ({ ...prev, [talep._id]: String(kalan) }));
+    if (talep.siparisKalemleri?.length) {
+      const secim: Record<string, number> = {};
+      for (const k of talep.siparisKalemleri) {
+        if (k.iadeEdilebilirAdet > 0) secim[k.urunId] = k.iadeEdilebilirAdet;
+      }
+      setIadeKalemSecimleri((prev) => ({ ...prev, [talep._id]: secim }));
+    }
+  };
+
   const iadeKalemAdetGuncelle = (talepId: string, urunId: string, adet: number, max: number, kalemler: any[]) => {
     const yeni = Math.max(0, Math.min(max, adet));
     setIadeKalemSecimleri((prev) => {
@@ -675,13 +687,26 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                       {(talep.konu === "iade" || talep.konu === "iptal") && !talep.iadeOdendi && (
                         <div className="p-3 bg-[#0b1120] border border-slate-700 rounded-lg space-y-2">
                           {talep.siparisBulundu && talep.siparisTutari > 0 ? (
-                            <p className="text-[10px] text-cyan-400 leading-relaxed">
-                              Sipariş bulundu{talep.siparisKoduBulunan ? `: ${talep.siparisKoduBulunan}` : ""} — toplam{" "}
-                              <strong>{Number(talep.siparisTutari).toLocaleString("tr-TR")} TL</strong>
-                              {talep.kalanIadeEdilebilir > 0 && talep.kalanIadeEdilebilir < talep.siparisTutari ? (
-                                <> · kalan iade edilebilir <strong>{Number(talep.kalanIadeEdilebilir).toLocaleString("tr-TR")} TL</strong></>
-                              ) : null}
-                            </p>
+                            <div className="text-[10px] leading-relaxed space-y-1">
+                              <p className="text-cyan-400">
+                                Sipariş{talep.siparisKoduBulunan ? ` ${talep.siparisKoduBulunan}` : ""} — toplam{" "}
+                                <strong>{Number(talep.siparisTutari).toLocaleString("tr-TR")} TL</strong>
+                              </p>
+                              <p className="text-slate-400">
+                                Sipariş kalanı: <strong className="text-white">{Number(talep.kalanIadeEdilebilir ?? talep.siparisTutari).toLocaleString("tr-TR")} TL</strong>
+                                {(talep.kullanilanKredi > 0 || talep.kullanilanPuan > 0) && (
+                                  <> · kredi {Number(talep.kullanilanKredi || 0).toLocaleString("tr-TR")} TL · puan {Number(talep.kullanilanPuan || 0)}</>
+                                )}
+                              </p>
+                              {talep.nakitOdemeTutari != null && (
+                                <p className="text-emerald-400/90">
+                                  Nakit ödeme (kart/havale): <strong>{Number(talep.nakitOdemeTutari).toLocaleString("tr-TR")} TL</strong>
+                                  {talep.kalanNakitIade != null && talep.kalanNakitIade < talep.nakitOdemeTutari && (
+                                    <> · kalan nakit iadesi <strong>{Number(talep.kalanNakitIade).toLocaleString("tr-TR")} TL</strong></>
+                                  )}
+                                </p>
+                              )}
+                            </div>
                           ) : (
                             <p className="text-[10px] text-amber-400/90 leading-relaxed">
                               Sipariş kaydı bulunamadı. Tutarı elle girin veya sipariş numarasını kontrol edin (ör. BPC-123456).
@@ -720,7 +745,10 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                               })}
                             </div>
                           )}
-                          <label className="block text-[10px] font-bold text-slate-400 uppercase">İade tutarı (TL)</label>
+                          <label className="block text-[10px] font-bold text-slate-400 uppercase">Sipariş iade tutarı (TL)</label>
+                          <p className="text-[9px] text-slate-500 leading-relaxed">
+                            Ürün/kalem bazlı iade tutarı. Kart veya mağaza kredisine yüklenen nakit kısım ayrıca hesaplanır.
+                          </p>
                           <div className="flex gap-2">
                             <input
                               type="number"
@@ -731,27 +759,31 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                               placeholder="Örn. 1250"
                               className="flex-1 bg-[#111827] border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50"
                             />
-                            {talep.kalanIadeEdilebilir > 0 && (
+                            {(talep.kalanIadeEdilebilir > 0 || talep.siparisTutari > 0) && (
                               <button
                                 type="button"
-                                onClick={() => setIadeTutarlari((prev) => ({ ...prev, [talep._id]: String(talep.kalanIadeEdilebilir) }))}
-                                className="shrink-0 px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-[10px] font-bold text-slate-300 uppercase hover:bg-slate-700 transition-colors"
-                                title="Kalan iade edilebilir tutarı yükle"
+                                onClick={() => kalanTumunuAl(talep)}
+                                className="shrink-0 px-3 py-2 rounded-lg bg-cyan-950/50 border border-cyan-800/50 text-[10px] font-bold text-cyan-300 uppercase hover:bg-cyan-900/40 transition-colors"
+                                title="Kalan tüm ürünleri seç ve sipariş kalan tutarını doldur"
                               >
-                                Kalanı al
-                              </button>
-                            )}
-                            {talep.siparisTutari > 0 && (
-                              <button
-                                type="button"
-                                onClick={() => setIadeTutarlari((prev) => ({ ...prev, [talep._id]: String(talep.siparisTutari) }))}
-                                className="shrink-0 px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-[10px] font-bold text-slate-300 uppercase hover:bg-slate-700 transition-colors"
-                                title="Sipariş tutarını tekrar yükle"
-                              >
-                                Siparişten al
+                                Hepsini iade et
                               </button>
                             )}
                           </div>
+                          {talep.kalanNakitIade != null && Number(iadeTutarlari[talep._id]) > 0 && (
+                            <p className="text-[10px] text-emerald-400/90">
+                              Bu iade için tahmini nakit (kart/kredi):{" "}
+                              <strong>
+                                {(() => {
+                                  const girilen = Number(iadeTutarlari[talep._id] || 0);
+                                  const kalanSiparis = talep.kalanIadeEdilebilir || talep.siparisTutari || 1;
+                                  const oran = Math.min(1, girilen / kalanSiparis);
+                                  const nakit = Math.round((talep.kalanNakitIade || 0) * oran * 100) / 100;
+                                  return nakit.toLocaleString("tr-TR");
+                                })()} TL
+                              </strong>
+                            </p>
+                          )}
                           <div className="flex flex-col gap-2">
                             <button
                               type="button"

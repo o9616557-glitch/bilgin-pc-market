@@ -8,8 +8,10 @@ import { siparisIadeIslemleri } from "@/lib/siparis-puan";
 import {
   iadeKalemleriniDogrula,
   kalanIadeEdilebilirTutar,
+  kalanNakitIadeTutari,
   oransalIadeMiktarlari,
   sepetKalemleriniIadeOzetineCevir,
+  siparisNakitOdemeTutari,
   siparisSepeti,
   siparisToplamTutar,
 } from "@/lib/iade-hesapla";
@@ -53,6 +55,8 @@ export async function GET(request: Request) {
         const sepet = siparis ? siparisSepeti(siparis) : [];
         const siparisKalemleri = sepet.length ? sepetKalemleriniIadeOzetineCevir(sepet) : [];
         const kalanIade = siparis ? kalanIadeEdilebilirTutar(siparis) : sonuc.tutar;
+        const nakitOdeme = siparis ? siparisNakitOdemeTutari(siparis) : null;
+        const kalanNakit = siparis ? kalanNakitIadeTutari(siparis) : null;
 
         let onerilenTutar = kalanIade;
         if (talep.iadeKalemleri?.length && siparis) {
@@ -67,6 +71,10 @@ export async function GET(request: Request) {
           siparisBulundu: sonuc.bulundu,
           siparisKalemleri,
           kalanIadeEdilebilir: kalanIade,
+          nakitOdemeTutari: nakitOdeme,
+          kalanNakitIade: kalanNakit,
+          kullanilanKredi: siparis ? Number(siparis.kullanilanKredi || 0) : 0,
+          kullanilanPuan: siparis ? Number(siparis.kullanilanPuan || 0) : 0,
           onerilenIadeTutar: onerilenTutar,
         };
       })
@@ -162,10 +170,8 @@ export async function PUT(request: Request) {
       const toplamSiparis = siparis ? siparisToplamTutar(siparis) : tutarNum;
       const iadeTipi = tutarNum >= toplamSiparis - 0.01 ? "tam" : "kismi";
 
-      const nakitKrediYukle =
-        siparis && yontemFinal === "magaza_kredisi"
-          ? oransalIadeMiktarlari(siparis, tutarNum).buNakitIade
-          : tutarNum;
+      const oranHesap = siparis ? oransalIadeMiktarlari(siparis, tutarNum) : null;
+      const nakitIadeMiktari = oranHesap?.buNakitIade ?? tutarNum;
 
       let islemSonuc: { tamIade: boolean; gercekIade: number } | null = null;
       if (siparis) {
@@ -179,8 +185,12 @@ export async function PUT(request: Request) {
         tutarNum = islemSonuc.gercekIade;
       }
 
+      const gercekNakitIade = siparis && oranHesap
+        ? nakitIadeMiktari
+        : tutarNum;
+
       if (yontemFinal === "magaza_kredisi") {
-        const yuklenecek = Math.min(tutarNum, nakitKrediYukle > 0 ? nakitKrediYukle : tutarNum);
+        const yuklenecek = gercekNakitIade;
         if (yuklenecek > 0) {
           await magazaKrediEkle(
             db,
@@ -195,14 +205,15 @@ export async function PUT(request: Request) {
       const tipMetni = iadeTipi === "kismi" ? "Kısmi iade" : "Tam iade";
       const adminMesaj =
         yontemFinal === "magaza_kredisi"
-          ? `${tipMetni} tamamlandı. Bu iade için oransal puan/kredi düzenlemeleri yapıldı. Nakit iade tutarı (${tutarNum.toLocaleString("tr-TR")} TL) mağaza kredisi olarak yüklendi.`
-          : `${tipMetni} tamamlandı. Bu iade için oransal puan/kredi düzenlemeleri yapıldı. Kart/banka iadeniz (${tutarNum.toLocaleString("tr-TR")} TL) başlatıldı; 3-7 iş günü içinde yansıyacaktır.`;
+          ? `${tipMetni} tamamlandı (${tutarNum.toLocaleString("tr-TR")} TL sipariş iadesi). Puan/kredi düzenlemeleri yapıldı. Nakit ödeme kısmı olan ${gercekNakitIade.toLocaleString("tr-TR")} TL mağaza kredisi olarak yüklendi.`
+          : `${tipMetni} tamamlandı (${tutarNum.toLocaleString("tr-TR")} TL sipariş iadesi). Puan/kredi düzenlemeleri yapıldı. Kart/banka iadeniz ${gercekNakitIade.toLocaleString("tr-TR")} TL (nakit ödeme kısmı) başlatıldı; 3-7 iş günü içinde yansıyacaktır.`;
 
       const guncelTalep = await Destek.findByIdAndUpdate(
         id,
         {
           iadeOdendi: true,
           iadeTutari: tutarNum,
+          iadeNakitTutari: gercekNakitIade,
           iadeYontemi: yontemFinal,
           iadeTipi,
           ...(dogrulanmisKalemler.length ? { iadeKalemleri: dogrulanmisKalemler } : {}),
