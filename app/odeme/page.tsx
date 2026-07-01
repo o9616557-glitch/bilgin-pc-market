@@ -16,8 +16,6 @@ import {
 } from "@/lib/iyzico-checkout";
 import { type KayitliKart } from "@/lib/cuzdan";
 
-const IYZICO_ODEME_HASH = "#iyzico-odeme";
-
 const KART_MARKA: Record<string, string> = {
   visa: "VISA",
   mastercard: "MASTERCARD",
@@ -47,7 +45,9 @@ export default function OdemeSayfasi() {
   const [kayitliKartlarYukleniyor, setKayitliKartlarYukleniyor] = useState(false);
   const [seciliKartId, setSeciliKartId] = useState<string | null>(null);
   const [odemeIptalAcik, setOdemeIptalAcik] = useState(false);
-  const iyzicoHistoryAktif = useRef(false);
+  const iyzicoGeriKaydi = useRef(false);
+  const iyzicoPopstateYoksay = useRef(false);
+  const iyzicoAcikRef = useRef(false);
 
   const [adresAraniyor, setAdresAraniyor] = useState(() => {
     if (typeof window === "undefined") return true;
@@ -92,7 +92,14 @@ export default function OdemeSayfasi() {
 
   useEffect(() => {
     sessionStorage.removeItem("iyzico_temizle");
+    const kurtar = () => {
+      if (/chrome-error|chromewebdata/i.test(window.location.href)) {
+        window.location.replace("/odeme");
+      }
+    };
+    window.addEventListener("pageshow", kurtar);
     return () => {
+      window.removeEventListener("pageshow", kurtar);
       temizleOdemeSayfasiKalintilari();
     };
   }, []);
@@ -217,40 +224,55 @@ export default function OdemeSayfasi() {
   const inputDegis = (e: any) => { setForm({ ...form, [e.target.name]: e.target.value }); };
   const faturaInputDegis = (e: any) => { setFaturaForm({ ...faturaForm, [e.target.name]: e.target.value }); };
 
-  const iyzicoKapat = useCallback((iptalMi = false, hashTemizle = true) => {
-    iyzicoHistoryAktif.current = false;
+  const iyzicoKapat = useCallback((iptalMi = false) => {
+    iyzicoAcikRef.current = false;
     iyzicoTamEkranKapat();
     setIyzicoFormHtml("");
     if (iptalMi) setOdemeIptalAcik(true);
-    if (hashTemizle && window.location.hash === IYZICO_ODEME_HASH) {
-      const taban = window.location.pathname + window.location.search;
-      window.history.replaceState(null, "", taban);
-    }
   }, []);
 
-  /** Telefon geri tuşu — aynı /odeme URL'sinde kalır, "couldn't load" olmaz */
+  /** Üst çubuk — doğrudan kapatır; history.back() tek başına güvenilir değil */
+  const iyzicoOdemeDon = useCallback(() => {
+    if (!iyzicoAcikRef.current) return;
+    iyzicoPopstateYoksay.current = true;
+    const sentinel = iyzicoGeriKaydi.current;
+    iyzicoGeriKaydi.current = false;
+    iyzicoKapat(true);
+    const taban = window.location.pathname + window.location.search;
+    window.history.replaceState(null, "", taban);
+    if (sentinel) window.history.back();
+  }, [iyzicoKapat]);
+
+  useEffect(() => {
+    iyzicoAcikRef.current = Boolean(iyzicoFormHtml);
+  }, [iyzicoFormHtml]);
+
+  /** Telefon geri tuşu — İyzico açıkken önce ödeme formuna dön */
   useEffect(() => {
     if (!iyzicoFormHtml) return;
 
     const taban = window.location.pathname + window.location.search;
-    if (window.location.hash !== IYZICO_ODEME_HASH) {
-      window.history.pushState({ iyzicoOdeme: true }, "", taban + IYZICO_ODEME_HASH);
-    }
-    iyzicoHistoryAktif.current = true;
+    window.history.replaceState(window.history.state, "", taban);
+    iyzicoGeriKaydi.current = true;
+    window.history.pushState({ iyzicoOdeme: true }, "", taban);
 
     const geriAlgila = () => {
-      if (!iyzicoHistoryAktif.current) return;
-      if (window.location.hash !== IYZICO_ODEME_HASH) {
-        iyzicoKapat(true, false);
+      if (iyzicoPopstateYoksay.current) {
+        iyzicoPopstateYoksay.current = false;
+        return;
       }
+      if (!iyzicoAcikRef.current) return;
+
+      iyzicoGeriKaydi.current = false;
+      iyzicoKapat(true);
+      const temiz = window.location.pathname.startsWith("/odeme")
+        ? window.location.pathname + window.location.search
+        : "/odeme";
+      window.history.replaceState(null, "", temiz);
     };
 
     window.addEventListener("popstate", geriAlgila);
-    window.addEventListener("hashchange", geriAlgila);
-    return () => {
-      window.removeEventListener("popstate", geriAlgila);
-      window.removeEventListener("hashchange", geriAlgila);
-    };
+    return () => window.removeEventListener("popstate", geriAlgila);
   }, [iyzicoFormHtml, iyzicoKapat]);
 
   useEffect(() => {
@@ -688,7 +710,11 @@ export default function OdemeSayfasi() {
         </p>
         <button
           type="button"
-          onClick={() => setOdemeIptalAcik(false)}
+          onClick={() => {
+            setOdemeIptalAcik(false);
+            const taban = window.location.pathname + window.location.search;
+            window.history.replaceState(null, "", taban);
+          }}
           className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-[#1a1a2e] text-white text-sm font-semibold hover:bg-[#252540] transition-colors touch-manipulation"
         >
           <ArrowLeft className="w-4 h-4" /> Ödemeye dön
@@ -698,30 +724,34 @@ export default function OdemeSayfasi() {
   }
 
   if (iyzicoFormHtml) {
+    const ustCubuk =
+      typeof document !== "undefined"
+        ? createPortal(
+            <div className="iyzico-ust-cubuk">
+              <button
+                type="button"
+                onClick={iyzicoOdemeDon}
+                className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900 px-3 py-2 rounded-lg hover:bg-slate-100 touch-manipulation min-h-[44px]"
+              >
+                <ArrowLeft className="w-4 h-4 shrink-0" />
+                Ödemeye dön
+              </button>
+            </div>,
+            document.body
+          )
+        : null;
+
     return (
-      <div className="iyzico-tam-ekran-kaplama fixed inset-0 z-[99990] bg-white w-full overflow-y-auto overscroll-y-contain flex flex-col">
-        <div className="sticky top-0 z-[99999] flex items-center gap-2 bg-white border-b border-slate-200 px-3 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] shrink-0 shadow-sm">
-          <button
-            type="button"
-            onClick={() => {
-              if (window.location.hash === IYZICO_ODEME_HASH) {
-                window.history.back();
-              } else {
-                iyzicoKapat(true);
-              }
-            }}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900 px-2 py-1.5 rounded-lg hover:bg-slate-100 touch-manipulation"
-          >
-            <ArrowLeft className="w-4 h-4 shrink-0" />
-            Ödemeye dön
-          </button>
+      <>
+        {ustCubuk}
+        <div className="iyzico-tam-ekran-kaplama fixed inset-0 z-[99990] bg-white w-full overflow-y-auto overscroll-y-contain">
+          <div
+            ref={iyzicoFormRef}
+            id="iyzipay-checkout-form"
+            className="responsive w-full bg-white"
+          />
         </div>
-        <div
-          ref={iyzicoFormRef}
-          id="iyzipay-checkout-form"
-          className="responsive w-full flex-1 min-h-0 bg-white"
-        />
-      </div>
+      </>
     );
   }
 

@@ -214,12 +214,30 @@ body.iyzico-tam-ekran main {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
+  padding-top: calc(52px + env(safe-area-inset-top, 0px));
+}
+
+/* İyzico iframe üstüne binmesin — geri butonu her zaman tıklanabilir */
+.iyzico-ust-cubuk {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: max(0.75rem, env(safe-area-inset-top, 0px)) 0.75rem 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  pointer-events: auto;
+  touch-action: manipulation;
 }
 
 .iyzico-tam-ekran-kaplama #iyzipay-checkout-form,
 .iyzico-tam-ekran-kaplama #iyzipay-checkout-form > div {
   width: 100% !important;
-  min-height: calc(100dvh - 56px) !important;
+  min-height: calc(100dvh - 52px - env(safe-area-inset-top, 0px)) !important;
   max-width: none !important;
   max-height: none !important;
   height: auto !important;
@@ -233,12 +251,13 @@ body.iyzico-tam-ekran iframe[src*="cpp.iyzipay"] {
   top: auto !important;
   left: auto !important;
   width: 100% !important;
-  min-height: 100dvh !important;
+  min-height: calc(100dvh - 52px - env(safe-area-inset-top, 0px)) !important;
   height: auto !important;
   max-width: none !important;
   max-height: none !important;
   border: 0 !important;
   display: block !important;
+  z-index: 1 !important;
 }
 
 #iyzipay-checkout-form.responsive:empty {
