@@ -16,6 +16,7 @@ import {
   IyzicoKartHata,
   IYZICO_KART_SAKLAMA_UYARI,
 } from "@/lib/iyzico-kart";
+import { puanIlerlemeHesapla, PUAN_KAZANMA_HARCAMA_BASI, PUAN_TL_DEGERI, MIN_KULLANIM_PUAN, HEDEF_HARCAMA_TL, HEDEF_ODUL_PUAN } from "@/lib/odul-puan";
 
 export const dynamic = "force-dynamic";
 
@@ -70,6 +71,14 @@ async function cuzdanGetir(email: string) {
   return {
     storeCredit: Number(wallet.storeCredit || 0),
     loyaltyPoints: Number(wallet.loyaltyPoints || 0),
+    puanIlerleme: puanIlerlemeHesapla(Number(wallet.lifetimeOdemeTabani || 0)),
+    puanKurallari: {
+      harcamaBasi: PUAN_KAZANMA_HARCAMA_BASI,
+      puanTlDegeri: PUAN_TL_DEGERI,
+      minKullanim: MIN_KULLANIM_PUAN,
+      hedefHarcama: HEDEF_HARCAMA_TL,
+      hedefOdulPuan: HEDEF_ODUL_PUAN,
+    },
     savedCards,
     transactions: siparisleriIslemlereCevir(orders),
     userName: user?.name || "",

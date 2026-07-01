@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import clientPromise from "@/lib/mongodb";
 import { magazaKrediDus, magazaKrediEkle, sepetFiyatlariniAyarla } from "@/lib/magaza-kredi";
+import { puanDus, puanGeriYukle, maxKullanilabilirPuan, MIN_KULLANIM_PUAN, MAX_INDIRIM_ORANI } from "@/lib/odul-puan";
+import { siparisOdulPuanVer } from "@/lib/siparis-puan";
 import { iyzicoConfig } from "@/lib/iyzico-config";
 // @ts-ignore
 import Iyzipay from "iyzipay";
@@ -14,7 +16,7 @@ export async function POST(request: Request) {
     const iyzipay = new Iyzipay(iyzicoConfig());
     
     const body = await request.json();
-    const { musteri, sepet, odemeYontemi, toplamTutar, siparisNotu, kayitliKartId, kullanilanKredi: istenenKredi } = body;
+    const { musteri, sepet, odemeYontemi, toplamTutar, siparisNotu, kayitliKartId, kullanilanKredi: istenenKredi, kullanilanPuan: istenenPuan } = body;
 
     if (!musteri || !sepet || !odemeYontemi || !toplamTutar) {
       return NextResponse.json({ error: "Formda eksik bilgi var şef!" }, { status: 400 });
@@ -29,26 +31,66 @@ export async function POST(request: Request) {
       odemeYontemi === "havale" ? "havale" : odemeYontemi === "bkm" ? "bkm" : "kart";
     const ilkDurum = odemeYontemi === "havale" ? "Havale Bekliyor" : "Ödeme Bekliyor";
 
-    let kullanilanKredi = 0;
-    if (Number(istenenKredi) > 0 && musteriEmail) {
-      const session = await getServerSession(authOptions);
-      if (session?.user?.email?.toLowerCase() === musteriEmail.toLowerCase()) {
-        try {
-          const { kullanilan } = await magazaKrediDus(
-            db,
-            session.user.email,
-            Math.min(Number(istenenKredi), Number(toplamTutar)),
-            `Sipariş — ${siparisKodu}`,
-            siparisKodu
-          );
-          kullanilanKredi = kullanilan;
-        } catch {
-          return NextResponse.json({ error: "Mağaza kredisi kullanılamadı veya yetersiz." }, { status: 400 });
-        }
+    const session = await getServerSession(authOptions);
+    const toplamNum = Number(toplamTutar);
+    const maxIndirimTL = toplamNum * MAX_INDIRIM_ORANI;
+
+    let kullanilanPuan = 0;
+    if (Number(istenenPuan) > 0 && musteriEmail && session?.user?.email?.toLowerCase() === musteriEmail.toLowerCase()) {
+      const mevcutPuan = await (async () => {
+        const w = await db.collection("wallets").findOne({ email: session.user!.email! });
+        return Number(w?.loyaltyPoints || 0);
+      })();
+      const istenen = Math.floor(Number(istenenPuan));
+      if (istenen < MIN_KULLANIM_PUAN) {
+        return NextResponse.json({ error: `En az ${MIN_KULLANIM_PUAN} puan kullanılabilir.` }, { status: 400 });
+      }
+      const limit = maxKullanilabilirPuan(mevcutPuan, toplamNum, 0);
+      const kullanilacak = Math.min(istenen, limit);
+      if (kullanilacak < MIN_KULLANIM_PUAN) {
+        return NextResponse.json({ error: "Puan indirimi bu sipariş için uygulanamıyor." }, { status: 400 });
+      }
+      try {
+        const { kullanilan } = await puanDus(db, session.user!.email!, kullanilacak, `Sipariş — ${siparisKodu}`, siparisKodu);
+        kullanilanPuan = kullanilan;
+      } catch {
+        return NextResponse.json({ error: "Ödül puanı kullanılamadı veya yetersiz." }, { status: 400 });
       }
     }
 
-    const odenecekTutar = Math.max(0, Number(toplamTutar) - kullanilanKredi);
+    let kullanilanKredi = 0;
+    if (Number(istenenKredi) > 0 && musteriEmail && session?.user?.email?.toLowerCase() === musteriEmail.toLowerCase()) {
+      try {
+        const krediLimit = Math.max(0, maxIndirimTL - kullanilanPuan);
+        const { kullanilan } = await magazaKrediDus(
+          db,
+          session!.user!.email!,
+          Math.min(Number(istenenKredi), toplamNum - kullanilanPuan, krediLimit),
+          `Sipariş — ${siparisKodu}`,
+          siparisKodu
+        );
+        kullanilanKredi = kullanilan;
+      } catch {
+        if (kullanilanPuan > 0) {
+          try {
+            await puanGeriYukle(db, session!.user!.email!, kullanilanPuan, `İptal — kredi yetersiz (${siparisKodu})`, siparisKodu);
+          } catch { /* sessiz */ }
+        }
+        return NextResponse.json({ error: "Mağaza kredisi kullanılamadı veya yetersiz." }, { status: 400 });
+      }
+    }
+
+    if (kullanilanPuan + kullanilanKredi > maxIndirimTL + 0.01) {
+      if (kullanilanPuan > 0) {
+        try { await puanGeriYukle(db, session!.user!.email!, kullanilanPuan, `İptal — indirim sınırı (${siparisKodu})`, siparisKodu); } catch {}
+      }
+      if (kullanilanKredi > 0) {
+        try { await magazaKrediEkle(db, session!.user!.email!, kullanilanKredi, `İptal — indirim sınırı (${siparisKodu})`, siparisKodu); } catch {}
+      }
+      return NextResponse.json({ error: "Toplam indirim siparişin %70'ini aşamaz." }, { status: 400 });
+    }
+
+    const odenecekTutar = Math.max(0, toplamNum - kullanilanPuan - kullanilanKredi);
 
     const yeniSiparis = {
       siparisKodu,
@@ -58,7 +100,10 @@ export async function POST(request: Request) {
       siparisNotu: siparisNotu || "Not eklenmemiş",
       toplamTutar,
       kullanilanKredi,
+      kullanilanPuan,
       odenecekTutar,
+      puanVerildi: false,
+      kazanilanPuan: 0,
       durum: ilkDurum,
       tاريخ: new Date(),
       userEmail: musteriEmail,
@@ -88,17 +133,28 @@ export async function POST(request: Request) {
 
     await db.collection("orders").insertOne(yeniSiparis);
 
-    // Tamamı mağaza kredisiyle ödendi — havale/kart akışına girmeden önce
+    // Tamamı mağaza kredisi / puan ile ödendi
     if (odenecekTutar <= 0) {
+      const odemeTipi = kullanilanPuan > 0 && kullanilanKredi > 0
+        ? "magaza_kredisi_puan"
+        : kullanilanPuan > 0
+          ? "odul_puani"
+          : "magaza_kredisi";
+
       await db.collection("orders").updateOne(
         { siparisKodu },
-        { $set: { durum: "Ödendi / Hazırlanıyor", status: "Ödendi / Hazırlanıyor", odemeYontemi: "magaza_kredisi" } }
+        { $set: { durum: "Ödendi / Hazırlanıyor", status: "Ödendi / Hazırlanıyor", odemeYontemi: odemeTipi } }
       );
+
+      const tamamlanan = await db.collection("orders").findOne({ siparisKodu });
+      if (tamamlanan) await siparisOdulPuanVer(db, tamamlanan);
+
       return NextResponse.json({
         success: true,
-        odemeYontemi: "magaza_kredisi",
+        odemeYontemi: odemeTipi,
         siparisKodu,
         kullanilanKredi,
+        kullanilanPuan,
         odenecekTutar: 0,
       });
     }
@@ -220,7 +276,7 @@ export async function POST(request: Request) {
         transporter.sendMail(adminMailSecenekleri).catch((err: any) => console.error(err));
       } catch (mailHatasi) {}
 
-      return NextResponse.json({ success: true, odemeYontemi: "havale", siparisKodu, kullanilanKredi, odenecekTutar });
+      return NextResponse.json({ success: true, odemeYontemi: "havale", siparisKodu, kullanilanKredi, kullanilanPuan, odenecekTutar });
     }
 
     const gsmNumber = (() => {
@@ -258,7 +314,7 @@ export async function POST(request: Request) {
     const araToplam = sepet.reduce((top: number, u: any) => top + (u.fiyat * u.adet), 0);
     const kargoUcreti = araToplam > 5000 ? 0 : 1;
     const { urunler: sepetUrunleri, odenecek: iyzicoTutar } = sepetFiyatlariniAyarla(
-      sepet, kargoUcreti, Number(toplamTutar), kullanilanKredi
+      sepet, kargoUcreti, toplamNum, kullanilanKredi + kullanilanPuan
     );
 
     let iyzicoCardUserKey = await kartUserKeyPromise;
@@ -296,22 +352,22 @@ export async function POST(request: Request) {
         odemeYontemi: odemeYontemi === "bkm" ? "bkm" : "kart",
         paymentPageUrl: iyzicoSonuc.paymentPageUrl,
         kullanilanKredi,
+        kullanilanPuan,
         odenecekTutar,
       });
     }
 
-    if (kullanilanKredi > 0 && musteriEmail) {
+    if ((kullanilanKredi > 0 || kullanilanPuan > 0) && musteriEmail) {
       try {
-        await magazaKrediEkle(
-          db,
-          musteriEmail,
-          kullanilanKredi,
-          `İptal — ödeme başarısız (${siparisKodu})`,
-          siparisKodu
-        );
+        if (kullanilanKredi > 0) {
+          await magazaKrediEkle(db, musteriEmail, kullanilanKredi, `İptal — ödeme başarısız (${siparisKodu})`, siparisKodu);
+        }
+        if (kullanilanPuan > 0) {
+          await puanGeriYukle(db, musteriEmail, kullanilanPuan, `İptal — ödeme başarısız (${siparisKodu})`, siparisKodu);
+        }
         await db.collection("orders").updateOne(
           { siparisKodu },
-          { $set: { kullanilanKredi: 0, odenecekTutar: toplamTutar } }
+          { $set: { kullanilanKredi: 0, kullanilanPuan: 0, odenecekTutar: toplamTutar } }
         );
       } catch { /* sessiz */ }
     }

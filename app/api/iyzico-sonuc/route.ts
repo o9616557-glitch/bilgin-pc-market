@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import { iyzicoConfig } from "@/lib/iyzico-config";
+import { siparisOdulPuanVer } from "@/lib/siparis-puan";
 // @ts-ignore
 import Iyzipay from "iyzipay";
 
@@ -47,6 +48,9 @@ export async function POST(request: Request) {
           },
         }
       );
+
+      const guncelSiparis = await db.collection("orders").findOne({ siparisKodu });
+      if (guncelSiparis) await siparisOdulPuanVer(db, guncelSiparis);
 
       try {
         const siparis = await db.collection("orders").findOne({ siparisKodu: siparisKodu });

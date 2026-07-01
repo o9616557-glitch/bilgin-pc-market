@@ -1,5 +1,6 @@
 "use client";
-import { ArrowLeft, CreditCard, Banknote, ShieldCheck, MapPin, Edit3, User, Phone, Mail, ChevronRight, ChevronLeft, Package, Copy, Check, Plus, Landmark, Wallet } from "lucide-react";
+import { ArrowLeft, CreditCard, Banknote, ShieldCheck, MapPin, Edit3, User, Phone, Mail, ChevronRight, ChevronLeft, Package, Copy, Check, Plus, Landmark, Wallet, Gift } from "lucide-react";
+import { maxKullanilabilirPuan, MIN_KULLANIM_PUAN, MAX_INDIRIM_ORANI, PUAN_KAZANMA_HARCAMA_BASI, HEDEF_HARCAMA_TL, HEDEF_ODUL_PUAN } from "@/lib/odul-puan";
 import { useCart } from "../CartContext";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -42,6 +43,8 @@ export default function OdemeSayfasi() {
 
   const [magazaKredisi, setMagazaKredisi] = useState(0);
   const [krediKullan, setKrediKullan] = useState(true);
+  const [loyaltyPoints, setLoyaltyPoints] = useState(0);
+  const [puanKullan, setPuanKullan] = useState(true);
 
   const [adresAraniyor, setAdresAraniyor] = useState(() => {
     if (typeof window === "undefined") return true;
@@ -87,14 +90,19 @@ export default function OdemeSayfasi() {
   useEffect(() => {
     if (status !== "authenticated") {
       setMagazaKredisi(0);
+      setLoyaltyPoints(0);
       return;
     }
     fetch("/api/cuzdan?t=" + Date.now(), { cache: "no-store" })
       .then((r) => r.ok ? r.json() : null)
       .then((data) => {
         if (data?.storeCredit != null) setMagazaKredisi(Number(data.storeCredit) || 0);
+        if (data?.loyaltyPoints != null) setLoyaltyPoints(Number(data.loyaltyPoints) || 0);
       })
-      .catch(() => setMagazaKredisi(0));
+      .catch(() => {
+        setMagazaKredisi(0);
+        setLoyaltyPoints(0);
+      });
   }, [status]);
 
   /** İyzico ödeme adımında bağlantıyı önceden aç — sayfa daha hızlı açılır */
@@ -271,11 +279,22 @@ export default function OdemeSayfasi() {
   };
 
   const { araToplam, kargo, genelToplam } = hesaplaTutar();
-  const kullanilacakKredi = krediKullan && magazaKredisi > 0
-    ? Math.min(magazaKredisi, genelToplam)
-    : 0;
-  const odenecekTutar = Math.max(0, genelToplam - kullanilacakKredi);
-  const tamamiKrediyle = krediKullan && kullanilacakKredi > 0 && odenecekTutar === 0;
+  const maxIndirimTL = genelToplam * MAX_INDIRIM_ORANI;
+  const kullanilacakPuan =
+    puanKullan && loyaltyPoints >= MIN_KULLANIM_PUAN
+      ? maxKullanilabilirPuan(loyaltyPoints, genelToplam, 0)
+      : 0;
+  const kullanilacakKredi =
+    krediKullan && magazaKredisi > 0
+      ? Math.min(
+          magazaKredisi,
+          Math.max(0, genelToplam - kullanilacakPuan),
+          Math.max(0, maxIndirimTL - kullanilacakPuan)
+        )
+      : 0;
+  const odenecekTutar = Math.max(0, genelToplam - kullanilacakPuan - kullanilacakKredi);
+  const tamamiCuzdanla =
+    odenecekTutar === 0 && (kullanilacakPuan > 0 || kullanilacakKredi > 0);
   const inputDegis = (e: any) => { setForm({ ...form, [e.target.name]: e.target.value }); };
   const faturaInputDegis = (e: any) => { setFaturaForm({ ...faturaForm, [e.target.name]: e.target.value }); };
 
@@ -301,6 +320,7 @@ export default function OdemeSayfasi() {
       totalPrice: genelToplam,
       genelToplam: genelToplam,
       kullanilanKredi: kullanilacakKredi,
+      kullanilanPuan: kullanilacakPuan,
     };
     if (odemeYontemi === "kart" && seciliKartId) {
       (siparisVerisi as any).kayitliKartId = seciliKartId;
@@ -310,7 +330,12 @@ export default function OdemeSayfasi() {
       const data = await response.json();
       
       if (data.success) {
-        if (data.odemeYontemi === "havale" || data.odemeYontemi === "magaza_kredisi") {
+        if (
+          data.odemeYontemi === "havale" ||
+          data.odemeYontemi === "magaza_kredisi" ||
+          data.odemeYontemi === "odul_puani" ||
+          data.odemeYontemi === "magaza_kredisi_puan"
+        ) {
           sessionStorage.removeItem(ODEME_FORM_CACHE_KEY);
           localStorage.removeItem("bilgin-sepet");
           window.location.href = "/siparis-basarili?kodu=" + data.siparisKodu;
@@ -371,6 +396,57 @@ export default function OdemeSayfasi() {
     if (yontem === "havale" || yontem === "bkm") setSeciliKartId(null);
   };
 
+  const OdulPuanAlani = ({ buyuk = false }: { buyuk?: boolean }) => {
+    if (status === "loading") return null;
+    if (status !== "authenticated") return null;
+    if (loyaltyPoints < MIN_KULLANIM_PUAN) return null;
+
+    return (
+      <div
+        className={[
+          "rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/[0.08] via-transparent to-transparent mb-5",
+          buyuk ? "p-4 sm:p-5" : "p-4",
+        ].join(" ")}
+      >
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center shrink-0">
+            <Gift className="w-5 h-5 text-amber-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-white text-sm font-semibold mb-0.5">Ödül puanları</p>
+            <p className="text-slate-500 text-xs mb-3">
+              Bakiyeniz:{" "}
+              <span className="text-amber-400 font-semibold tabular-nums">
+                {loyaltyPoints.toLocaleString("tr-TR")} puan
+              </span>
+              <span className="text-slate-600"> (1 puan = 1 TL)</span>
+            </p>
+            <label className="flex items-center gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={puanKullan}
+                onChange={(e) => setPuanKullan(e.target.checked)}
+                className="w-4 h-4 rounded border-slate-600 text-amber-500 focus:ring-amber-500/40"
+              />
+              <span className="text-sm text-slate-300 group-hover:text-white transition-colors">
+                Ödül puanlarımı indirim olarak kullan
+              </span>
+            </label>
+            <p className="text-[10px] text-slate-600 mt-2 leading-relaxed">
+              Her {PUAN_KAZANMA_HARCAMA_BASI.toLocaleString("tr-TR")} TL ödemede 1 puan kazanırsınız.
+              {HEDEF_HARCAMA_TL.toLocaleString("tr-TR")} TL&apos;de {HEDEF_ODUL_PUAN} TL değerinde ödül.
+            </p>
+            {puanKullan && kullanilacakPuan > 0 && (
+              <div className="mt-3 pt-3 border-t border-amber-500/20 text-xs text-amber-300/90">
+                −{kullanilacakPuan.toLocaleString("tr-TR")} TL indirim uygulanacak
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const MagazaKrediAlani = ({ buyuk = false }: { buyuk?: boolean }) => {
     if (status === "loading") return null;
 
@@ -378,11 +454,11 @@ export default function OdemeSayfasi() {
       return (
         <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 mb-5">
           <p className="text-slate-400 text-xs leading-relaxed">
-            Mağaza kredisi kullanmak için{" "}
+            Mağaza kredisi ve ödül puanı için{" "}
             <Link href="/giris?callbackUrl=/odeme" className="text-site-accent hover:underline font-medium">
               giriş yapın
             </Link>
-            . İade krediniz cüzdanınızda görünür.
+            .
           </p>
         </div>
       );
@@ -428,9 +504,9 @@ export default function OdemeSayfasi() {
                     −{kullanilacakKredi.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} TL
                   </span>
                 </div>
-                {tamamiKrediyle ? (
+                {tamamiCuzdanla ? (
                   <p className="text-emerald-300 leading-relaxed">
-                    Kalan ödeme yok. Sipariş tamamı mağaza kredinizle karşılanacak — kart veya havale gerekmez.
+                    Kalan ödeme yok. Sipariş puan ve/veya mağaza kredinizle tamamlanacak.
                   </p>
                 ) : (
                   <p className="text-slate-500 leading-relaxed">
@@ -438,7 +514,7 @@ export default function OdemeSayfasi() {
                     <span className="text-white font-semibold tabular-nums">
                       {odenecekTutar.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} TL
                     </span>{" "}
-                    için aşağıdan ödeme yöntemi seçin.
+                    için ödeme yöntemi seçin.
                   </p>
                 )}
               </div>
@@ -631,6 +707,12 @@ export default function OdemeSayfasi() {
           <span>Kargo</span>
           <span>{kargo === 0 ? <span className="text-emerald-400 text-xs font-medium">Ücretsiz</span> : <span className="text-white font-medium tabular-nums">{kargo} TL</span>}</span>
         </div>
+        {kullanilacakPuan > 0 && (
+          <div className="flex justify-between text-amber-400/90 text-sm pt-2 border-t border-white/[0.06]">
+            <span>Ödül puanı</span>
+            <span className="font-medium tabular-nums">−{kullanilacakPuan.toLocaleString("tr-TR")} TL</span>
+          </div>
+        )}
         {kullanilacakKredi > 0 && (
           <div className="flex justify-between text-emerald-400/90 text-sm pt-2 border-t border-white/[0.06]">
             <span>Mağaza kredisi</span>
@@ -778,6 +860,7 @@ export default function OdemeSayfasi() {
           {asama === 1 && (
             <div className="max-w-2xl mx-auto space-y-4">
               <SiparisOzetiKutusu notGoster />
+              <OdulPuanAlani buyuk />
               <MagazaKrediAlani buyuk />
               <button
                 type="button"
@@ -870,8 +953,9 @@ export default function OdemeSayfasi() {
                 )}
 
                 <hr className="border-white/[0.06] mb-5" />
-                <MagazaKrediAlani buyuk />
-                {!tamamiKrediyle && (
+                <OdulPuanAlani buyuk />
+              <MagazaKrediAlani buyuk />
+                {!tamamiCuzdanla && (
                   <>
                     <h3 className="text-sm font-semibold text-white mb-3">Ödeme yöntemi</h3>
                     <OdemeYontemiKartlari />
@@ -910,18 +994,19 @@ export default function OdemeSayfasi() {
               <div className="flex-1 min-w-0 glass-card p-4 sm:p-6 lg:p-8">
                 <h3 className="text-sm font-semibold text-white mb-1">Ödeme</h3>
                 <p className="text-slate-500 text-xs mb-4">
-                  {tamamiKrediyle ? "Mağaza krediniz sipariş tutarını karşılıyor" : "Yöntemi değiştirebilirsiniz"}
+                  {tamamiCuzdanla ? "Puan ve krediniz sipariş tutarını karşılıyor" : "Yöntemi değiştirebilirsiniz"}
                 </p>
-                <MagazaKrediAlani buyuk />
+                <OdulPuanAlani buyuk />
+              <MagazaKrediAlani buyuk />
 
-                {!tamamiKrediyle && (
+                {!tamamiCuzdanla && (
                   <>
                     <h3 className="text-sm font-semibold text-white mb-3">Ödeme yöntemi</h3>
                     <OdemeYontemiKartlari compact />
                   </>
                 )}
 
-                {!tamamiKrediyle && odemeYontemi === "kart" ? (
+                {!tamamiCuzdanla && odemeYontemi === "kart" ? (
                   <>
                     <KayitliKartSecimi />
                     <div className="rounded-2xl border border-[#00d2ff]/20 bg-[#00d2ff]/[0.04] p-4 sm:p-5 mb-5">
@@ -940,12 +1025,12 @@ export default function OdemeSayfasi() {
                       </div>
                     </div>
                   </>
-                ) : !tamamiKrediyle && odemeYontemi === "bkm" ? null : !tamamiKrediyle ? (
+                ) : !tamamiCuzdanla && odemeYontemi === "bkm" ? null : !tamamiCuzdanla ? (
                   <HavaleDetayKarti />
                 ) : (
                   <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/[0.06] p-4 sm:p-5 mb-5">
                     <p className="text-emerald-300 text-sm font-medium leading-relaxed">
-                      Sipariş tutarının tamamı mağaza kredinizden düşülecek. Onayladığınızda siparişiniz hazırlık aşamasına geçer.
+                      Sipariş tutarı ödül puanı ve/veya mağaza kredinizden düşülecek. Onayladığınızda siparişiniz hazırlık aşamasına geçer.
                     </p>
                   </div>
                 )}
@@ -963,8 +1048,8 @@ export default function OdemeSayfasi() {
                     disabled={yukleniyor}
                     className={["flex-1 py-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 touch-manipulation", yukleniyor ? "bg-slate-800 text-slate-500 cursor-not-allowed" : "btn-primary"].join(" ")}
                   >
-                    {yukleniyor ? "İşleniyor…" : tamamiKrediyle ? (
-                      <><Wallet className="w-4 h-4" /> Mağaza kredisi ile tamamla</>
+                    {yukleniyor ? "İşleniyor…" : tamamiCuzdanla ? (
+                      <><Wallet className="w-4 h-4" /> Puan / kredi ile tamamla</>
                     ) : odemeYontemi === "kart" ? (
                       <><CreditCard className="w-4 h-4" /> {seciliKartId ? "Kayıtlı kart ile öde" : "Kart ile öde"}</>
                     ) : odemeYontemi === "bkm" ? (

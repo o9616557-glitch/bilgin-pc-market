@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
+import { siparisOdulPuanVer, siparisOdulPuanGeriAl, siparisKullanilanPuanIade } from "@/lib/siparis-puan";
+import { magazaKrediEkle } from "@/lib/magaza-kredi";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -61,6 +63,31 @@ export async function PUT(request: Request) {
       { _id: new ObjectId(id) },
       { $set: guncellenecekler }
     );
+
+    const guncelSiparis = await db.collection("orders").findOne({ _id: new ObjectId(id) });
+
+    if (guncelSiparis && yeniDurum === "İptal Edildi") {
+      await siparisOdulPuanGeriAl(db, guncelSiparis);
+      await siparisKullanilanPuanIade(db, guncelSiparis);
+      const iadeKredi = Number(guncelSiparis.kullanilanKredi || 0);
+      if (iadeKredi > 0 && !guncelSiparis.krediIadeEdildi) {
+        const email = guncelSiparis.userEmail || guncelSiparis.email;
+        if (email) {
+          try {
+            await magazaKrediEkle(db, email, iadeKredi, `Sipariş iptali — kredi iadesi (${guncelSiparis.siparisKodu})`, guncelSiparis.siparisKodu);
+            await db.collection("orders").updateOne({ _id: guncelSiparis._id }, { $set: { krediIadeEdildi: true } });
+          } catch { /* sessiz */ }
+        }
+      }
+    }
+
+    if (
+      guncelSiparis &&
+      yeniDurum &&
+      (yeniDurum === "Ödendi / Hazırlanıyor" || yeniDurum === "Kargoya Verildi" || yeniDurum === "Tamamlandı")
+    ) {
+      await siparisOdulPuanVer(db, guncelSiparis);
+    }
 
     if (siparis && yeniDurum && (yeniDurum === "Ödendi / Hazırlanıyor" || yeniDurum === "Kargoya Verildi" || yeniDurum === "Tamamlandı" || yeniDurum === "İptal Edildi")) {
       const nodemailer = require("nodemailer");

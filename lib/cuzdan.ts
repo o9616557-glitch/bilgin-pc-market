@@ -72,6 +72,8 @@ export function bosCuzdan(email: string) {
     storeCredit: 0,
     loyaltyPoints: 0,
     creditHistory: [] as { _id: string; tip: string; tutar: number; aciklama: string; tarih: string }[],
+    pointHistory: [] as { _id: string; tip: string; puan: number; aciklama: string; tarih: string }[],
+    lifetimeOdemeTabani: 0,
     savedCards: [] as KayitliKart[],
     createdAt: new Date(),
     updatedAt: new Date(),

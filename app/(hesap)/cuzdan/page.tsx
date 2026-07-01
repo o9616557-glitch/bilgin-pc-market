@@ -75,6 +75,7 @@ function cuzdanCacheOku() {
 function cuzdanCacheYaz(data: {
   storeCredit: number;
   loyaltyPoints: number;
+  puanIlerleme?: { harcama: number; hedef: number; kalanTL: number; yuzde: number; sonrakiOdulPuan: number };
   savedCards: KayitliKart[];
   transactions: CuzdanIslem[];
 }) {
@@ -88,6 +89,7 @@ export default function CuzdanPage() {
   const { status } = useSession();
   const [storeCredit, setStoreCredit] = useState(() => cuzdanCacheOku()?.storeCredit ?? 0);
   const [loyaltyPoints, setLoyaltyPoints] = useState(() => cuzdanCacheOku()?.loyaltyPoints ?? 0);
+  const [puanIlerleme, setPuanIlerleme] = useState(() => cuzdanCacheOku()?.puanIlerleme ?? null);
   const [savedCards, setSavedCards] = useState<KayitliKart[]>(() => cuzdanCacheOku()?.savedCards ?? []);
   const [transactions, setTransactions] = useState<CuzdanIslem[]>(() => cuzdanCacheOku()?.transactions ?? []);
 
@@ -108,11 +110,13 @@ export default function CuzdanPage() {
       const yeniVeri = {
         storeCredit: data.storeCredit ?? 0,
         loyaltyPoints: data.loyaltyPoints ?? 0,
+        puanIlerleme: data.puanIlerleme ?? null,
         savedCards: data.savedCards ?? [],
         transactions: data.transactions ?? [],
       };
       setStoreCredit(yeniVeri.storeCredit);
       setLoyaltyPoints(yeniVeri.loyaltyPoints);
+      setPuanIlerleme(yeniVeri.puanIlerleme);
       setSavedCards(yeniVeri.savedCards);
       setTransactions(yeniVeri.transactions);
       cuzdanCacheYaz(yeniVeri);
@@ -242,7 +246,24 @@ export default function CuzdanPage() {
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Ödül Puanları</span>
                   </div>
                   <p className="text-xl sm:text-2xl font-black text-white">{loyaltyPoints.toLocaleString("tr-TR")} <span className="text-sm font-bold text-slate-500">puan</span></p>
-                  <p className="text-[10px] text-slate-500 mt-1">Her alışverişinizde birikir</p>
+                  <p className="text-[10px] text-slate-500 mt-1">1 puan = 1 TL indirim · min. 50 puan</p>
+                  {puanIlerleme && (
+                    <div className="mt-3 pt-3 border-t border-slate-800/80">
+                      <div className="flex justify-between text-[10px] text-slate-500 mb-1.5">
+                        <span>Sonraki {puanIlerleme.sonrakiOdulPuan} TL ödül</span>
+                        <span>{puanIlerleme.yuzde}%</span>
+                      </div>
+                      <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-amber-600 to-amber-400 rounded-full transition-all"
+                          style={{ width: `${puanIlerleme.yuzde}%` }}
+                        />
+                      </div>
+                      <p className="text-[10px] text-amber-400/80 mt-1.5">
+                        {puanIlerleme.kalanTL.toLocaleString("tr-TR")} TL ödeme kaldı
+                      </p>
+                    </div>
+                  )}
                 </div>
                 <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-5">
                   <div className="flex items-center gap-2 mb-2">
@@ -293,9 +314,11 @@ export default function CuzdanPage() {
                           <p className="text-xs font-bold text-slate-300">Ödül Puanları</p>
                         </div>
                         <ul className="text-[11px] sm:text-xs text-slate-500 space-y-1.5 leading-relaxed list-disc list-inside">
-                          <li>Tamamlanan her siparişinizde puan kazanırsınız.</li>
-                          <li>Ödeme sayfasında puanlarınızı indirim olarak kullanabilirsiniz.</li>
-                          <li>Biriken puanlarınız bu sayfada görüntülenir; süresi dolmadan kullanmanızı öneririz.</li>
+                          <li>Her <strong className="text-slate-400 font-semibold">400 TL</strong> kart/havale ödemesinde <strong className="text-slate-400 font-semibold">1 puan</strong> kazanırsınız.</li>
+                          <li><strong className="text-slate-400 font-semibold">200.000 TL</strong> alışverişte <strong className="text-slate-400 font-semibold">500 TL</strong> değerinde ödül birikir.</li>
+                          <li>Ödeme sayfasında puan + mağaza kredisini birlikte kullanabilirsiniz (toplam indirim siparişin %70&apos;ini geçmez).</li>
+                          <li>Havale siparişlerinde puan, ödemeniz onaylandıktan sonra yüklenir.</li>
+                          <li>İptal/iade edilen siparişlerin puanı geri alınır.</li>
                         </ul>
                       </div>
                     </div>

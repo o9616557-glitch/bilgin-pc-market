@@ -83,14 +83,14 @@ export async function magazaKrediDus(
   return { kalan: Number(sonuc.storeCredit || 0), kullanilan };
 }
 
-/** İyzico sepet tutarını krediye göre orantılı küçültür */
+/** İyzico sepet tutarını indirime göre orantılı küçültür */
 export function sepetFiyatlariniAyarla(
   sepet: any[],
   kargoUcreti: number,
   toplamTutar: number,
-  kullanilanKredi: number
+  toplamIndirim: number
 ): { urunler: { id: string; name: string; category1: string; itemType: string; price: string }[]; odenecek: number } {
-  const odenecek = Math.max(0, toplamTutar - kullanilanKredi);
+  const odenecek = Math.max(0, toplamTutar - toplamIndirim);
   if (odenecek === 0) return { urunler: [], odenecek: 0 };
 
   const oran = odenecek / toplamTutar;
