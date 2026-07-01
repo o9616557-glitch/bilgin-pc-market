@@ -76,7 +76,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const { sepeteEkle } = useCart();
   const { karsilastirmayaEkle, setPopupAcik } = useCompare(); 
   const [mobil, setMobil] = useState(false);
-  const [mobilAltBarGizle, setMobilAltBarGizle] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
@@ -91,19 +90,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, []);
-
-  useEffect(() => {
-    if (!mobil) return;
-    const footer = document.querySelector("footer");
-    if (!footer) return;
-
-    const gozlemci = new IntersectionObserver(
-      ([giris]) => setMobilAltBarGizle(giris.isIntersecting),
-      { threshold: 0.08, rootMargin: "0px 0px -8px 0px" }
-    );
-    gozlemci.observe(footer);
-    return () => gozlemci.disconnect();
-  }, [mobil]);
 
   // Varsayılan olarak Açıklama sekmesi açık gelecek
   const [activeTab, setActiveTab] = useState("aciklama");
@@ -515,7 +501,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   );
 
   return (
-    <div className="bg-[#050505] text-white font-sans pb-32 sm:pb-10 relative site-page-soft-in">
+    <div className="bg-[#050505] text-white font-sans pb-36 sm:pb-10 relative site-page-soft-in">
       <BuyutecResimOnyukle src={aktifResimHd} aktif={!mobil} />
       
       <style dangerouslySetInnerHTML={{ __html: `
@@ -945,13 +931,10 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
       </div>
 
-     {/* MOBİL ALT SEPET BAR — yapışkan; sayfa sonunda footer ile birlikte aşağı iner */}
-      <div
-        className={`sm:hidden fixed bottom-0 left-0 w-full z-50 select-none transition-transform duration-300 ease-out ${
-          mobilAltBarGizle ? "translate-y-full pointer-events-none" : "translate-y-0"
-        }`}
-      >
-         <div className="bg-[#050505]/95 backdrop-blur-2xl border-t border-white/10 px-4 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-20px_40px_rgba(0,0,0,0.8)]">
+     {/* MOBİL ALT BAR — body'ye portal; kaydırınca da hep ekranın altında kalır */}
+      {typeof document !== "undefined" && createPortal(
+        <div className="md:hidden fixed inset-x-0 bottom-0 z-[9990] select-none">
+         <div className="bg-[#050505]/98 backdrop-blur-2xl border-t border-white/10 px-4 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-20px_40px_rgba(0,0,0,0.9)]">
             <div className="flex items-center justify-between gap-2 mb-2 min-w-0">
                <div className="flex flex-col min-w-0">
                   {indirimVarMi && !tukendiMi && (
@@ -996,7 +979,9 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                </button>
             </div>
          </div>
-      </div>
+        </div>,
+        document.body
+      )}
 
       {lightboxAcik && typeof document !== "undefined" && createPortal(
         <div 
