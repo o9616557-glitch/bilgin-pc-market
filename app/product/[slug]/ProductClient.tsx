@@ -15,6 +15,7 @@ import {
   UrunResimLens,
   useUrunResimBuyutec,
 } from "@/components/UrunResimBuyutec";
+import KargoTeslimatNotu from "@/components/KargoTeslimatNotu";
 
 function UrunGaleriResmi({
   src,
@@ -75,6 +76,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   const { sepeteEkle } = useCart();
   const { karsilastirmayaEkle, setPopupAcik } = useCompare(); 
   const [mobil, setMobil] = useState(false);
+  const [mobilAltBarGizle, setMobilAltBarGizle] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
@@ -89,6 +91,19 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, []);
+
+  useEffect(() => {
+    if (!mobil) return;
+    const footer = document.querySelector("footer");
+    if (!footer) return;
+
+    const gozlemci = new IntersectionObserver(
+      ([giris]) => setMobilAltBarGizle(giris.isIntersecting),
+      { threshold: 0.08, rootMargin: "0px 0px -8px 0px" }
+    );
+    gozlemci.observe(footer);
+    return () => gozlemci.disconnect();
+  }, [mobil]);
 
   // Varsayılan olarak Açıklama sekmesi açık gelecek
   const [activeTab, setActiveTab] = useState("aciklama");
@@ -687,6 +702,19 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                    <span className="text-[#10b981] font-black tracking-wider text-xs sm:text-sm">HAVALE: {havaleFiyati.toLocaleString("tr-TR", {maximumFractionDigits: 0})} TL</span>
                  </div>
                )}
+
+               {!tukendiMi && <KargoTeslimatNotu />}
+            </div>
+
+            {/* Mobil fiyat + kargo — masaüstü fiyat kutusunun telefon karşılığı */}
+            <div className="sm:hidden mb-4 px-4 sm:px-0 select-none">
+               {indirimVarMi && !tukendiMi && (
+                 <div className="text-gray-500 text-sm line-through font-bold mb-0.5">{normalFiyat.toLocaleString("tr-TR")} TL</div>
+               )}
+               <div className="text-3xl font-black leading-none text-white mb-2">
+                  {gecerliFiyat.toLocaleString("tr-TR")} <span className="text-xl text-[#00d2ff]">TL</span>
+               </div>
+               {!tukendiMi && <KargoTeslimatNotu />}
             </div>
 
             <div className="flex flex-col gap-3 mb-8 sm:mb-10 select-none">
@@ -917,19 +945,26 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
       </div>
 
-     {/* MOBİL ALT SEPET BAR ALANI */}
-      <div className="sm:hidden fixed bottom-0 left-0 w-full z-50 select-none">
-         <div className="bg-[#050505]/95 backdrop-blur-2xl border-t border-white/10 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-20px_40px_rgba(0,0,0,0.8)]">
-            <div className="flex items-end justify-between mb-2.5">
+     {/* MOBİL ALT SEPET BAR — yapışkan; sayfa sonunda footer ile birlikte aşağı iner */}
+      <div
+        className={`sm:hidden fixed bottom-0 left-0 w-full z-50 select-none transition-transform duration-300 ease-out ${
+          mobilAltBarGizle ? "translate-y-full pointer-events-none" : "translate-y-0"
+        }`}
+      >
+         <div className="bg-[#050505]/95 backdrop-blur-2xl border-t border-white/10 px-4 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-20px_40px_rgba(0,0,0,0.8)]">
+            <div className="flex items-center justify-between gap-2 mb-2 min-w-0">
                <div className="flex flex-col min-w-0">
-                  {indirimVarMi && !tukendiMi && <span className="text-gray-500 text-[11px] line-through font-medium mb-0.5">{normalFiyat.toLocaleString("tr-TR")} ₺</span>}
-                  <span className="text-[22px] font-black text-white leading-none mb-1">{gecerliFiyat.toLocaleString("tr-TR")} <span className="text-[#00d2ff] text-lg">₺</span></span>
-                  {havaleYuzdesi > 0 && !tukendiMi && (
-                     <span className="text-[#10b981] text-[10px] font-black tracking-wide flex items-center gap-1">
-                        <Zap className="w-3 h-3" /> HAVALE: {havaleFiyati.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
+                  {indirimVarMi && !tukendiMi && (
+                     <span className="text-gray-500 text-[10px] line-through font-medium leading-none mb-0.5">
+                        {normalFiyat.toLocaleString("tr-TR")} ₺
                      </span>
                   )}
+                  <span className="text-[20px] font-black text-white leading-none">
+                     {gecerliFiyat.toLocaleString("tr-TR")}{" "}
+                     <span className="text-[#00d2ff] text-base">₺</span>
+                  </span>
                </div>
+               {!tukendiMi && <KargoTeslimatNotu compact />}
             </div>
             <div className="flex gap-2">
                <button
