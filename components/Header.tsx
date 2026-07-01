@@ -771,8 +771,9 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
     <>
       <header className="sticky top-0 left-0 w-full z-[99] bg-[#050814]/90 backdrop-blur-md border-b border-white/5 transition-all duration-300 relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Mobil + tablet üst satır — logo tam ortada */}
-            <div className="grid grid-cols-[1fr_auto_1fr] items-center h-20 lg:hidden w-full">
+            {/* Mobil + tablet — logo üstte, arama fasulyesi altta */}
+            <div className="lg:hidden w-full">
+              <div className="grid grid-cols-[1fr_auto_1fr] items-center h-16 w-full">
               <div className="flex items-center gap-0.5 justify-self-start z-10">
                 <button className="flex flex-col justify-center items-center w-10 h-10 focus:outline-none z-[100]" onClick={() => setMenuAcik(!menuAcik)} aria-label="Menü">
                   <span className={"block w-6 h-0.5 bg-white transition-all duration-300 " + (menuAcik ? "rotate-45 translate-y-1.5" : "")}></span>
@@ -792,11 +793,21 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
               </div>
 
               <div className={`flex items-center gap-0.5 justify-self-end z-10 ${menuAcik ? "pointer-events-none opacity-20" : ""}`}>
-                <button type="button" onClick={() => setAramaAcik(true)} className="p-2 text-white hover:text-[#3b82f6] transition-colors" aria-label="Ara">
-                  <Search className="w-5 h-5 shrink-0" />
-                </button>
                 {bildirimLink}
                 {sepetLink}
+              </div>
+              </div>
+
+              <div className={`px-3 sm:px-4 pb-3 pt-0.5 ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}>
+                <button
+                  type="button"
+                  onClick={() => setAramaAcik(true)}
+                  aria-label="Ara"
+                  className="mx-auto flex w-full max-w-[300px] sm:max-w-[340px] items-center gap-2.5 h-9 px-4 rounded-full bg-white/[0.05] border border-white/[0.09] text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-all duration-200 hover:bg-white/[0.08] hover:border-white/[0.14] active:scale-[0.99]"
+                >
+                  <Search className="w-4 h-4 text-slate-400 shrink-0" />
+                  <span className="text-[13px] text-slate-500 truncate font-normal">Ürün, marka veya kategori ara...</span>
+                </button>
               </div>
             </div>
 
@@ -896,7 +907,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
       </header>
 
       {/* 📱 MOBİL MENÜ */}
-      <div className={`lg:hidden fixed top-[80px] left-0 w-full h-[calc(100vh-80px)] bg-[#050814] z-[98] overflow-y-auto transition-transform duration-300 ${menuAcik ? "translate-x-0" : "-translate-x-full"}`}>
+      <div className={`lg:hidden fixed top-[7.125rem] left-0 w-full h-[calc(100vh-7.125rem)] bg-[#050814] z-[98] overflow-y-auto transition-transform duration-300 ${menuAcik ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="px-3 py-4 pb-32">
 
           {/* Kendin Topla */}
