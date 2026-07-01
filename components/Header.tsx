@@ -580,7 +580,10 @@ export default function Header() {
   const [aramaYukleniyor, setAramaYukleniyor] = useState(false);
   
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const mobilAramaInputRef = useRef<HTMLInputElement>(null);
   const hesabimRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
+  const [headerYukseklik, setHeaderYukseklik] = useState(116);
   
   const sepetAdedi = sepet.reduce((toplam: number, urun: any) => toplam + (urun.adet || 1), 0);
   const { data: session, status } = useSession();
@@ -665,14 +668,40 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
 
   useEffect(() => {
     if (aramaAcik) {
-      setTimeout(() => searchInputRef.current?.focus(), 30);
-      document.body.style.overflow = "hidden";
+      setTimeout(() => {
+        if (window.matchMedia("(min-width: 1024px)").matches) {
+          searchInputRef.current?.focus();
+        } else {
+          mobilAramaInputRef.current?.focus();
+        }
+      }, 30);
     } else {
       setAramaMetni("");
-      document.body.style.overflow = "";
     }
-    return () => { document.body.style.overflow = ""; };
   }, [aramaAcik]);
+
+  useEffect(() => {
+    if (!aramaAcik) return;
+    const esc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setAramaAcik(false);
+    };
+    window.addEventListener("keydown", esc);
+    return () => window.removeEventListener("keydown", esc);
+  }, [aramaAcik]);
+
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const olc = () => setHeaderYukseklik(el.offsetHeight);
+    olc();
+    const ro = new ResizeObserver(olc);
+    ro.observe(el);
+    window.addEventListener("resize", olc);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", olc);
+    };
+  }, []);
 
   useEffect(() => {
     if (aramaMetni.trim().length >= 2) {
@@ -700,17 +729,16 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
     document.addEventListener("mousedown", disariTiklandi);
     return () => document.removeEventListener("mousedown", disariTiklandi);
   }, []);
-// 🚀 HAMBURGER VEYA HESABIM AÇILINCA SAYFAYI BETON GİBİ DONDURAN KİLİT
   useEffect(() => {
-    if (menuAcik || hesabimAcik) {
+    if (menuAcik || hesabimAcik || aramaAcik) {
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "";
     }
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "";
     };
-  }, [menuAcik, hesabimAcik]);
+  }, [menuAcik, hesabimAcik, aramaAcik]);
 const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
     if (e) e.preventDefault();
     const aranacak = ozelKelime || aramaMetni;
@@ -774,7 +802,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
 
   return (
     <>
-      <header className="sticky top-0 left-0 w-full z-[99] bg-[#050814]/90 backdrop-blur-md border-b border-white/5 transition-all duration-300 relative">
+      <header ref={headerRef} className="sticky top-0 left-0 w-full z-[100] bg-[#050814]/90 backdrop-blur-md border-b border-white/5 transition-all duration-300 relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Mobil + tablet — logo üstte, arama fasulyesi altta */}
             <div className="lg:hidden w-full">
@@ -802,17 +830,43 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
               </div>
               </div>
 
-              <div className={`flex items-center gap-2.5 px-3 sm:px-4 pb-3 pt-0.5 ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}>
+              <div className={`flex items-center gap-2.5 px-3 sm:px-4 pb-3 pt-0.5 ${menuAcik && !aramaAcik ? "opacity-20 pointer-events-none" : ""}`}>
                 <MobilProfilLink size={42} />
-                <button
-                  type="button"
-                  onClick={() => setAramaAcik(true)}
-                  aria-label="Ara"
-                  className="flex flex-1 min-w-0 items-center gap-2.5 h-10 pl-3.5 pr-4 rounded-full bg-white/[0.05] border border-white/[0.09] text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-all duration-200 hover:bg-white/[0.08] hover:border-white/[0.14] active:scale-[0.99]"
-                >
-                  <Search className="w-4 h-4 text-slate-400 shrink-0" />
-                  <span className="text-[13px] text-slate-500 truncate font-normal">Ürün, marka veya kategori ara...</span>
-                </button>
+                {aramaAcik ? (
+                  <form
+                    onSubmit={handleAramaSubmit}
+                    className="flex flex-1 min-w-0 items-center gap-2 h-10 pl-3.5 pr-2 rounded-full bg-white/[0.07] border border-[#3b82f6]/35 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                  >
+                    <Search className="w-4 h-4 text-[#3b82f6] shrink-0" />
+                    <input
+                      ref={mobilAramaInputRef}
+                      type="text"
+                      value={aramaMetni}
+                      onChange={(e) => setAramaMetni(e.target.value)}
+                      placeholder="Ürün, marka veya kategori ara..."
+                      className="flex-1 min-w-0 bg-transparent text-[13px] text-white placeholder-slate-500 outline-none"
+                    />
+                    {aramaMetni ? (
+                      <button type="button" onClick={() => setAramaMetni("")} className="p-1.5 text-slate-400 hover:text-white shrink-0" aria-label="Temizle">
+                        <X className="w-4 h-4" />
+                      </button>
+                    ) : (
+                      <button type="button" onClick={() => setAramaAcik(false)} className="p-1.5 text-slate-400 hover:text-white shrink-0" aria-label="Kapat">
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </form>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setAramaAcik(true)}
+                    aria-label="Ara"
+                    className="flex flex-1 min-w-0 items-center gap-2.5 h-10 pl-3.5 pr-4 rounded-full bg-white/[0.05] border border-white/[0.09] text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-all duration-200 hover:bg-white/[0.08] hover:border-white/[0.14] active:scale-[0.99]"
+                  >
+                    <Search className="w-4 h-4 text-slate-400 shrink-0" />
+                    <span className="text-[13px] text-slate-500 truncate font-normal">Ürün, marka veya kategori ara...</span>
+                  </button>
+                )}
               </div>
             </div>
 
@@ -823,13 +877,27 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
               <form onSubmit={handleAramaSubmit} className="relative flex-1 min-w-0 mx-1 lg:mx-3">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                 <input
+                  ref={searchInputRef}
                   type="text"
                   placeholder="Ürün, marka veya kategori ara..."
                   value={aramaMetni}
                   onChange={(e) => setAramaMetni(e.target.value)}
                   onFocus={() => setAramaAcik(true)}
-                  className="w-full h-10 bg-white/[0.06] border border-white/[0.1] rounded-lg pl-9 pr-3 text-sm text-white placeholder-slate-500 outline-none focus:border-[#3b82f6]/50 focus:bg-white/[0.08] transition-colors"
+                  className="w-full h-10 bg-white/[0.06] border border-white/[0.1] rounded-lg pl-9 pr-9 text-sm text-white placeholder-slate-500 outline-none focus:border-[#3b82f6]/50 focus:bg-white/[0.08] transition-colors"
                 />
+                {(aramaMetni || aramaAcik) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (aramaMetni) setAramaMetni("");
+                      else setAramaAcik(false);
+                    }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white"
+                    aria-label={aramaMetni ? "Temizle" : "Kapat"}
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
               </form>
 
               <div className="flex items-center gap-1 lg:gap-2 shrink-0">
@@ -934,148 +1002,133 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
         </div>
       </div>
 
-      {/* Arama paneli — site tasarımına uyumlu */}
+      {/* Arama paneli — header sabit, içerik altta */}
       {aramaAcik && (
-        <div className="fixed inset-0 z-[99999] site-page flex flex-col overflow-hidden animate-in fade-in duration-200">
-          <div className="site-glow-top top-0 left-1/2 -translate-x-1/2 w-[min(700px,100vw)] h-[200px] pointer-events-none" />
+        <>
+          <div
+            className="fixed left-0 right-0 bottom-0 z-[98] bg-black/55 backdrop-blur-[3px]"
+            style={{ top: headerYukseklik }}
+            onClick={() => setAramaAcik(false)}
+            aria-hidden
+          />
 
-          <div className="glass-panel border-b border-white/[0.06] rounded-none shrink-0 relative z-10">
-            <div className="site-container max-w-4xl py-4 flex items-center gap-3 sm:gap-4">
-              <form onSubmit={handleAramaSubmit} className="relative flex-1 w-full">
-                <button type="submit" className="absolute inset-y-0 left-0 pl-4 flex items-center z-10">
-                  <Search className="w-5 h-5 text-site-accent" />
-                </button>
+          <div
+            className="fixed left-0 right-0 bottom-0 z-[99] flex flex-col bg-[#050814] border-t border-white/[0.08] shadow-[0_-12px_48px_rgba(0,0,0,0.55)] overflow-hidden lg:rounded-b-2xl lg:mx-4 lg:mb-2 lg:border lg:border-white/[0.08] lg:max-h-[min(78vh,calc(100dvh-80px))]"
+            style={{ top: headerYukseklik }}
+          >
+            <div className="flex-1 overflow-y-auto overscroll-contain w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 lg:pb-8">
+              <div className="w-full max-w-6xl mx-auto">
+                {aramaMetni.length > 0 ? (
+                  <div className={`flex w-full gap-6 lg:gap-8 ${bulunanKategoriler.length > 0 ? "flex-col lg:flex-row lg:items-start" : "flex-col"}`}>
+                    {bulunanKategoriler.length > 0 && (
+                      <div className="w-full lg:w-[260px] xl:w-[280px] shrink-0">
+                        <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400 flex items-center gap-2 border-b border-white/[0.06] pb-3 mb-4">
+                          <Search className="w-3.5 h-3.5 text-[#3b82f6]" /> İlgili kategoriler
+                        </h3>
+                        <div className="flex flex-col gap-2">
+                          {bulunanKategoriler.map((kat) => (
+                            <Link
+                              key={kat.slug}
+                              href={"/kategori/" + kat.slug}
+                              onClick={() => setAramaAcik(false)}
+                              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.07] hover:border-[#3b82f6]/30 hover:bg-white/[0.05] text-slate-300 hover:text-white transition-all text-sm font-medium group"
+                            >
+                              <div className="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.08] group-hover:border-[#3b82f6]/30 flex items-center justify-center shrink-0">
+                                <div className="w-1.5 h-1.5 rounded-full bg-slate-500 group-hover:bg-[#3b82f6]" />
+                              </div>
+                              <span className="flex-1 text-left">{kat.name}</span>
+                              <ArrowRight className="w-4 h-4 opacity-40 group-hover:opacity-100 text-[#3b82f6] shrink-0" />
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  placeholder="Ürün, marka veya kategori ara..."
-                  value={aramaMetni}
-                  onChange={(e) => setAramaMetni(e.target.value)}
-                  className="w-full h-12 sm:h-14 bg-site-shell/60 border border-white/[0.08] focus:border-site-accent/50 focus:bg-site-shell rounded-xl pl-12 pr-12 text-base sm:text-lg text-white placeholder-slate-500 outline-none transition-all"
-                />
+                    <div className="w-full flex-1 min-w-0">
+                      <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400 flex items-center gap-2 border-b border-white/[0.06] pb-3 mb-4">
+                        {aramaYukleniyor ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#3b82f6]" /> : <Search className="w-3.5 h-3.5" />}
+                        Ürün sonuçları
+                      </h3>
 
-                {aramaMetni && (
-                  <button type="button" onClick={() => setAramaMetni("")} className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-white z-10">
-                    <X className="w-5 h-5" />
-                  </button>
+                      {canliSonuclar.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                          {canliSonuclar.map((urun) => (
+                            <Link
+                              key={urun._id}
+                              href={"/product/" + urun.slug}
+                              onClick={() => setAramaAcik(false)}
+                              className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl bg-white/[0.03] border border-white/[0.07] hover:border-[#3b82f6]/25 transition-all group"
+                            >
+                              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#09090b] rounded-xl p-2 flex shrink-0 items-center justify-center border border-white/[0.06]">
+                                <img src={urun.resim} alt={urun.isim} className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform" />
+                              </div>
+                              <div className="flex flex-col min-w-0 flex-1">
+                                <span className="text-sm font-medium text-white line-clamp-2 leading-snug mb-1 text-left">{urun.isim}</span>
+                                <span className="text-base font-semibold text-[#3b82f6] text-left">{Number(urun.fiyat).toLocaleString("tr-TR")} ₺</span>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      ) : (
+                        !aramaYukleniyor && aramaMetniTemiz.length >= 2 && (
+                          <div className="w-full rounded-2xl border border-white/[0.08] bg-white/[0.02] px-5 py-10 sm:py-14 text-left sm:text-center">
+                            <div className="w-12 h-12 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center mb-4 sm:mx-auto">
+                              <Search className="w-5 h-5 text-slate-500" />
+                            </div>
+                            <p className="text-white font-semibold text-base mb-1.5">Aradığınız kriterlere uygun ürün bulunamadı</p>
+                            <p className="text-slate-500 text-sm leading-relaxed max-w-md sm:mx-auto">Farklı bir kelime deneyin veya sol menüden kategorilere göz atın.</p>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-8 w-full">
+                    {sonAramalar.length > 0 && (
+                      <div>
+                        <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400 flex items-center gap-2 mb-4">
+                          <Clock className="w-4 h-4" /> Son aramalar
+                        </h3>
+                        <div className="flex flex-col rounded-xl border border-white/[0.07] bg-white/[0.02] overflow-hidden divide-y divide-white/[0.06]">
+                          {sonAramalar.map((kelime, idx) => (
+                            <div key={idx} className="flex items-center justify-between px-4 py-3.5 hover:bg-white/[0.03] transition-colors group cursor-pointer" onClick={() => handleAramaSubmit(undefined, kelime)}>
+                              <span className="text-slate-300 group-hover:text-[#3b82f6] text-sm text-left">&ldquo;{kelime}&rdquo;</span>
+                              <button type="button" onClick={(e) => { e.stopPropagation(); gecmisAramayiSil(kelime); }} className="text-slate-500 hover:text-red-400 p-1 shrink-0">
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {populerUrunler.length > 0 && (
+                      <div>
+                        <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400 mb-4">En çok satanlar</h3>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                          {populerUrunler.map((urun) => (
+                            <Link
+                              key={urun._id}
+                              href={"/product/" + urun.slug}
+                              onClick={() => setAramaAcik(false)}
+                              className="flex flex-col p-3 rounded-xl bg-white/[0.03] border border-white/[0.07] hover:border-[#3b82f6]/25 transition-all group"
+                            >
+                              <div className="aspect-square bg-[#09090b] rounded-xl mb-3 flex items-center justify-center p-2 border border-white/[0.06]">
+                                <img src={urun.resim} alt={urun.isim} className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform" />
+                              </div>
+                              <h4 className="text-xs text-slate-300 font-medium line-clamp-2 flex-1 mb-2 text-left">{urun.isim}</h4>
+                              <span className="text-sm font-semibold text-[#3b82f6] text-left">{Number(urun.fiyat).toLocaleString("tr-TR")} ₺</span>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 )}
-              </form>
-
-              <button onClick={() => setAramaAcik(false)} className="text-slate-400 hover:text-white p-2 font-medium text-xs sm:text-sm shrink-0 transition-colors">
-                Kapat
-              </button>
+              </div>
             </div>
           </div>
-
-          <div className="flex-1 overflow-y-auto site-container max-w-4xl py-6 sm:py-8 pb-28 relative z-10 site-content-in">
-         {aramaMetni.length > 0 ? (
-              <div className="flex flex-col md:flex-row gap-6 md:gap-8 w-full items-start">
-                <div className="w-full md:w-[280px] shrink-0">
-                  <h3 className="site-label flex items-center gap-2 border-b border-white/[0.06] pb-3 mb-4">
-                    <Search className="w-3.5 h-3.5 text-site-accent" /> İlgili kategoriler
-                  </h3>
-
-                  {bulunanKategoriler.length > 0 ? (
-                    <div className="flex flex-col gap-2">
-                      {bulunanKategoriler.map((kat) => (
-                        <Link
-                          key={kat.slug}
-                          href={"/kategori/" + kat.slug}
-                          onClick={() => setAramaAcik(false)}
-                          className="glass-panel px-4 py-3 hover:border-site-accent/30 text-slate-300 hover:text-white rounded-xl transition-all flex items-center gap-3 text-sm font-medium group"
-                        >
-                          <div className="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.08] group-hover:border-site-accent/30 flex items-center justify-center shrink-0 transition-all">
-                            <div className="w-1.5 h-1.5 rounded-full bg-slate-500 group-hover:bg-site-accent transition-all" />
-                          </div>
-                          <span className="flex-1">{kat.name}</span>
-                          <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 text-site-accent transition-all" />
-                        </Link>
-                      ))}
-                    </div>
-                 ) : null}
-                </div>
-                <div className="w-full flex-1 min-w-0">
-                  <h3 className="site-label flex items-center gap-2 border-b border-white/[0.06] pb-3 mb-4">
-                    {aramaYukleniyor ? <Loader2 className="w-3.5 h-3.5 animate-spin text-site-accent" /> : <Search className="w-3.5 h-3.5" />}
-                    Ürün sonuçları
-                  </h3>
-
-                  {canliSonuclar.length > 0 ? (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                      {canliSonuclar.map((urun) => (
-                        <Link
-                          key={urun._id}
-                          href={"/product/" + urun.slug}
-                          onClick={() => setAramaAcik(false)}
-                          className="glass-card p-4 hover:border-site-accent/25 rounded-xl transition-all flex items-center gap-4 group"
-                        >
-                          <div className="w-16 h-16 bg-site-shell rounded-xl p-2 flex shrink-0 items-center justify-center border border-white/[0.06]">
-                            <img src={urun.resim} alt={urun.isim} className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform" />
-                          </div>
-                          <div className="flex flex-col min-w-0">
-                            <span className="text-sm font-medium text-white line-clamp-2 leading-snug mb-1">{urun.isim}</span>
-                            <span className="text-base font-semibold text-site-accent">{Number(urun.fiyat).toLocaleString("tr-TR")} ₺</span>
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
-                  ) : (
-                    !aramaYukleniyor && (
-                      <div className="text-center py-16 flex flex-col items-center justify-center glass-card border-dashed">
-                        <span className="text-3xl mb-3 opacity-30">🔍</span>
-                        <span className="site-body text-sm">Aradığınız kriterde ürün bulunamadı.</span>
-                      </div>
-                    )
-                  )}
-                </div>
-
-              </div>
-            ) : (
-              <div className="space-y-8">
-                {sonAramalar.length > 0 && (
-                  <div>
-                    <h3 className="site-label flex items-center gap-2 mb-4">
-                      <Clock className="w-4 h-4" /> Son aramalar
-                    </h3>
-                    <div className="flex flex-col glass-card overflow-hidden divide-y divide-white/[0.06]">
-                      {sonAramalar.map((kelime, idx) => (
-                        <div key={idx} className="flex items-center justify-between p-4 hover:bg-white/[0.03] transition-colors group cursor-pointer" onClick={() => handleAramaSubmit(undefined, kelime)}>
-                          <span className="text-slate-300 group-hover:text-site-accent text-sm">&ldquo;{kelime}&rdquo;</span>
-                          <button onClick={(e) => { e.stopPropagation(); gecmisAramayiSil(kelime); }} className="text-slate-500 hover:text-red-400 p-1">
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {populerUrunler.length > 0 && (
-                  <div>
-                    <h3 className="site-label mb-4">En çok satanlar</h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      {populerUrunler.map((urun) => (
-                        <Link
-                          key={urun._id}
-                          href={"/product/" + urun.slug}
-                          onClick={() => setAramaAcik(false)}
-                          className="glass-card p-3 hover:border-site-accent/25 group transition-all flex flex-col"
-                        >
-                          <div className="aspect-square bg-site-shell rounded-xl mb-3 flex items-center justify-center p-2 border border-white/[0.06]">
-                             <img src={urun.resim} alt={urun.isim} className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform" />
-                          </div>
-                          <h4 className="text-xs text-slate-300 font-medium line-clamp-2 flex-1 mb-2">{urun.isim}</h4>
-                          <span className="text-sm font-semibold text-site-accent">{Number(urun.fiyat).toLocaleString("tr-TR")} ₺</span>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
+        </>
       )}
       {/* 🚀 HEM PC HEM MOBİLDE EKRANIN TAM ORTASINA ÇÖKEN ULTRA LÜKS ONAY PANELİ */}
       {cikisOnayAcik && (
