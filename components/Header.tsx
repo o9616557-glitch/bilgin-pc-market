@@ -645,6 +645,17 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
   }, [pathname]);
 
   useEffect(() => {
+    if (aramaAcik) setAcikSeritKatalog(null);
+  }, [aramaAcik]);
+
+  useEffect(() => {
+    if (!acikSeritKatalog) return;
+    const kapat = () => setAcikSeritKatalog(null);
+    window.addEventListener("scroll", kapat, { passive: true });
+    return () => window.removeEventListener("scroll", kapat);
+  }, [acikSeritKatalog]);
+
+  useEffect(() => {
     const disariTikla = (e: MouseEvent) => {
       if (katalogRef.current && !katalogRef.current.contains(e.target as Node)) {
         setAcikSeritKatalog(null);
@@ -962,7 +973,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
           {/* Katalog — sadece şerit + panel alanında açık kalır */}
           <div
             ref={katalogRef}
-            className={`hidden lg:block relative ${aramaAcik ? "z-[120]" : ""}`}
+            className="hidden lg:block relative"
             onMouseLeave={() => setAcikSeritKatalog(null)}
           >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -974,7 +985,9 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                       key={kat.id}
                       type="button"
                       title={kat.isim}
-                      onMouseEnter={() => setAcikSeritKatalog(kat.id)}
+                      onMouseEnter={() => {
+                        if (!aramaAcik) setAcikSeritKatalog(kat.id);
+                      }}
                       className={`flex-1 min-w-0 px-1 py-1.5 text-center transition-colors border-b-2 text-white ${
                         aktif ? "border-[#3b82f6]" : "border-transparent hover:border-white/30"
                       }`}
@@ -989,7 +1002,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
             </div>
 
             {acikSeritKatalog && (
-              <div className={`absolute top-full left-0 w-full border-t border-white/[0.06] bg-[#050814]/98 backdrop-blur-md shadow-[0_12px_40px_rgba(0,0,0,0.55)] ${aramaAcik ? "z-[120]" : "z-50"}`}>
+              <div className="absolute top-full left-0 w-full z-50 border-t border-white/[0.08] bg-[#050814]">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[180px] flex items-center">
                   {KATALOG_SERIT.map((kat) => (
                     <div
@@ -1047,7 +1060,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
           />
 
           <div
-            className="fixed left-0 right-0 bottom-0 z-[95] flex flex-col bg-[#050814] border-t border-white/[0.08] shadow-[0_-12px_48px_rgba(0,0,0,0.6)] overflow-hidden"
+            className="fixed left-0 right-0 bottom-0 z-[95] flex flex-col bg-[#050814] border-t border-white/[0.08] overflow-hidden"
             style={{ top: headerYukseklik, height: `calc(100dvh - ${headerYukseklik}px)` }}
           >
             <div className="flex-1 overflow-y-auto overscroll-contain w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 lg:pb-8">
