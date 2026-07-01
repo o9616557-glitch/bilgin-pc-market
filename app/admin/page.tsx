@@ -17,7 +17,7 @@ export default function AdminPaneli() {
 
   useEffect(() => {
     if (status !== "loading") {
-      if (!session || !adminMi(session?.user?.email)) {
+      if (!session || !(adminMi(session?.user?.email) || (session.user as { isAdmin?: boolean }).isAdmin)) {
         router.push("/"); 
       }
     }

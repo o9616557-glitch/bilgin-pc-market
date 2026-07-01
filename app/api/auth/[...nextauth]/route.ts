@@ -9,6 +9,7 @@ import nodemailer from "nodemailer";
 import crypto from "crypto";
 import { headers } from "next/headers"; 
 import { connectMongo } from "@/lib/mongoose";
+import { adminMi } from "@/lib/admin";
 
 const CİHAZ_KONTROL_ARALIGI_MS = 5 * 60 * 1000;
 
@@ -276,6 +277,14 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.deviceId = (user as any).deviceId;
         token.lastDeviceCheck = Date.now();
+        if (user.email) {
+          token.email = user.email;
+          token.isAdmin = adminMi(user.email);
+        }
+      }
+
+      if (token.email && token.isAdmin === undefined) {
+        token.isAdmin = adminMi(token.email as string);
       }
 
       if (!user && token?.email && token?.deviceId) {
@@ -312,6 +321,8 @@ export const authOptions: NextAuthOptions = {
       } else if (session.user) {
         (session.user as any).id = token.id;
         (session.user as any).deviceId = token.deviceId;
+        if (token.email) session.user.email = token.email as string;
+        (session.user as any).isAdmin = Boolean(token.isAdmin);
         // DB'deki güncel profil fotoğrafını oturuma yansıt
         if (token.dbImage) session.user.image = token.dbImage as string;
       }

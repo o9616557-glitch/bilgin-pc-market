@@ -596,7 +596,8 @@ export default function Header() {
     window.addEventListener("bilgin-hesap-guncellendi", destekOzetOkuHandler);
     return () => window.removeEventListener("bilgin-hesap-guncellendi", destekOzetOkuHandler);
   }, [status, session?.user?.email]);
-  const isAdmin = adminMi(session?.user?.email);
+  const isAdmin =
+    Boolean((session?.user as { isAdmin?: boolean })?.isAdmin) || adminMi(session?.user?.email);
   const [cikisOnayAcik, setCikisOnayAcik] = useState(false); // 🚀 YENİ EKLEDİĞİMİZ MERKEZİ ONAY MOTORU
   // 🚀 GÜVENLİK MOTORU: Çıkış yaparken çırağın defterini yakar
   const guvenliCikisYap = async () => {
@@ -755,11 +756,12 @@ export default function Header() {
   const adminLink = isAdmin && status === "authenticated" && !pathname.startsWith("/admin") ? (
     <Link
       href="/admin"
-      className="p-2 text-amber-400/90 hover:text-amber-300 transition-colors"
+      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-300 hover:bg-amber-500/25 hover:text-amber-200 transition-colors shrink-0"
       aria-label="Yönetim Paneli"
       title="Yönetim Paneli"
     >
-      <Crown className="w-5 h-5 shrink-0" strokeWidth={2} />
+      <Crown className="w-4 h-4 shrink-0" strokeWidth={2.5} />
+      <span className="hidden xl:inline text-[11px] font-black uppercase tracking-wider">Panel</span>
     </Link>
   ) : null;
 
@@ -947,6 +949,17 @@ export default function Header() {
         <div className="px-3 py-4 pb-32">
 
           {/* Kendin Topla */}
+          {isAdmin && status === "authenticated" && (
+            <Link
+              href="/admin"
+              onClick={() => setMenuAcik(false)}
+              className="flex items-center gap-2.5 px-2.5 py-2.5 mb-2 rounded-xl border border-amber-500/35 bg-amber-500/10 hover:bg-amber-500/15 transition-colors"
+            >
+              <Crown className="w-5 h-5 text-amber-300 shrink-0" strokeWidth={2.5} />
+              <span className="flex-1 text-left text-[13px] font-bold text-amber-200">Yönetim Paneli</span>
+            </Link>
+          )}
+
           <Link
             href="/kendin-topla"
             onClick={() => setMenuAcik(false)}
