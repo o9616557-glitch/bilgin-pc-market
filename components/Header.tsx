@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, type ReactNode } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { destekOzetOku } from "@/lib/destek-ozet";
@@ -560,7 +560,7 @@ export default function Header() {
   const router = useRouter();
 
   const gizlenecekSayfalar = ["/sepet", "/odeme", "/giris", "/kayit", "/sifre-sifirla", "/yeni-sifre", "/checkout"];
-  if (gizlenecekSayfalar.includes(pathname)) return null; 
+  const headerGizli = gizlenecekSayfalar.includes(pathname);
 
   const { sepet } = useCart();
   const { orders } = useOrders();
@@ -584,9 +584,8 @@ export default function Header() {
   const mobilAramaInputRef = useRef<HTMLInputElement>(null);
   const hesabimRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLElement>(null);
+  const navigasyonSonrasiRef = useRef(false);
   const [headerYukseklik, setHeaderYukseklik] = useState(116);
-  const [masaustuKatalogHazir, setMasaustuKatalogHazir] = useState(false);
-  const [masaustuHoverHareketiVar, setMasaustuHoverHareketiVar] = useState(false);
   
   const sepetAdedi = sepet.reduce((toplam: number, urun: any) => toplam + (urun.adet || 1), 0);
   const { data: session, status } = useSession();
@@ -627,29 +626,22 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
       kelimeTemizle(item.slug).includes(aramaMetniTemiz)
     )
   : [];
-  // PC: sayfa değişince (sepet -> urun vb.) katalog panelini kapat.
-  // Katalog ancak yeni sayfada GERCEK bir mouse hareketinden sonra yeniden acilabilir.
-  useEffect(() => {
+
+  // Arama popup'i sayfa degisince acik kalmasin (sepet -> urun, ana -> urun vb.)
+  useLayoutEffect(() => {
+    navigasyonSonrasiRef.current = true;
+    setAramaAcik(false);
+    setAramaMetni("");
+    setCanliSonuclar([]);
+    setAramaYukleniyor(false);
     setAcikSeritKatalog(null);
-    setMasaustuKatalogHazir(false);
-    setMasaustuHoverHareketiVar(false);
-    const timer = window.setTimeout(() => setMasaustuKatalogHazir(true), 400);
+
+    const timer = window.setTimeout(() => {
+      navigasyonSonrasiRef.current = false;
+    }, 500);
+
     return () => window.clearTimeout(timer);
   }, [pathname]);
-
-  useEffect(() => {
-    if (!masaustuKatalogHazir) return;
-
-    const ilkGercekMouseHareketi = () => {
-      if (window.matchMedia("(min-width: 1024px)").matches) {
-        setMasaustuHoverHareketiVar(true);
-      }
-      window.removeEventListener("mousemove", ilkGercekMouseHareketi);
-    };
-
-    window.addEventListener("mousemove", ilkGercekMouseHareketi, { passive: true });
-    return () => window.removeEventListener("mousemove", ilkGercekMouseHareketi);
-  }, [masaustuKatalogHazir]);
 
   useEffect(() => {
     if (!acikSeritKatalog) return;
@@ -831,6 +823,8 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
     </Link>
   );
 
+  if (headerGizli) return null;
+
   return (
     <>
       <header ref={headerRef} className={`sticky top-0 left-0 w-full bg-[#050814]/90 backdrop-blur-md border-b border-white/5 transition-all duration-300 relative ${aramaAcik ? "z-[110]" : "z-[100]"}`}>
@@ -913,7 +907,10 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                   placeholder="Ürün, marka veya kategori ara..."
                   value={aramaMetni}
                   onChange={(e) => setAramaMetni(e.target.value)}
-                  onFocus={() => setAramaAcik(true)}
+                  onFocus={() => {
+                    if (navigasyonSonrasiRef.current) return;
+                    setAramaAcik(true);
+                  }}
                   className="w-full h-10 bg-white/[0.06] border border-white/[0.1] rounded-lg pl-9 pr-9 text-sm text-white placeholder-slate-500 outline-none focus:border-[#3b82f6]/50 focus:bg-white/[0.08] transition-colors"
                 />
                 {(aramaMetni || aramaAcik) && (
@@ -973,10 +970,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                       key={kat.id}
                       type="button"
                       title={kat.isim}
-                      onMouseEnter={() => {
-                        if (!masaustuKatalogHazir || !masaustuHoverHareketiVar || aramaAcik) return;
-                        setAcikSeritKatalog(kat.id);
-                      }}
+                      onMouseEnter={() => setAcikSeritKatalog(kat.id)}
                       className={`flex-1 min-w-0 px-1 py-1.5 text-center transition-colors border-b-2 text-white ${
                         aktif ? "border-[#3b82f6]" : "border-transparent hover:border-white/30"
                       }`}
@@ -991,12 +985,14 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
             </div>
 
             {acikSeritKatalog && (
-              <div className="absolute top-full left-0 w-full z-50 border-t border-white/[0.08] bg-[#050814]">
+              <div className="absolute top-full left-0 w-full border-t border-white/[0.06] bg-[#050814]/98 backdrop-blur-md shadow-[0_12px_40px_rgba(0,0,0,0.55)] z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[180px] flex items-center">
-                  {KATALOG_SERIT.filter((kat) => kat.id === acikSeritKatalog).map((kat) => (
+                  {KATALOG_SERIT.map((kat) => (
                     <div
                       key={kat.id}
-                      className="flex flex-wrap justify-start items-start gap-x-5 gap-y-4 w-full overflow-hidden"
+                      className={`flex flex-wrap justify-start items-start gap-x-5 gap-y-4 w-full overflow-hidden ${
+                        acikSeritKatalog === kat.id ? "" : "hidden"
+                      }`}
                     >
                       {kat.altlar.map((k) => (
                         <ResimliKategoriKarti
@@ -1047,7 +1043,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
           />
 
           <div
-            className="fixed left-0 right-0 bottom-0 z-[106] flex flex-col bg-[#050814] border-t border-white/[0.08] overflow-hidden"
+            className="fixed left-0 right-0 bottom-0 z-[106] flex flex-col bg-[#050814] border-t border-white/[0.08] shadow-[0_-12px_48px_rgba(0,0,0,0.6)] overflow-hidden"
             style={{ top: headerYukseklik, height: `calc(100dvh - ${headerYukseklik}px)` }}
           >
             <div className="flex-1 overflow-y-auto overscroll-contain w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 lg:pb-8">
