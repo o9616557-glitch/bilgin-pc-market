@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, type ReactNode } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, type ReactNode } from "react";
 import Link from "next/link";
 import { destekOzetOku } from "@/lib/destek-ozet";
 import { useCart } from "@/app/CartContext";
@@ -553,8 +553,26 @@ export default function Header() {
   const [acikSeritKatalog, setAcikSeritKatalog] = useState<string | null>(null);
   const katalogRef = useRef<HTMLDivElement>(null);
   const hesabimRef = useRef<HTMLDivElement>(null);
-  const aramaInputRef = useRef<HTMLInputElement>(null);
+  const mobilAramaRef = useRef<HTMLInputElement>(null);
+  const masaustuAramaRef = useRef<HTMLInputElement>(null);
+  const aramaOdakBekliyor = useRef(false);
   const [aramaMetni, setAramaMetni] = useState("");
+
+  const aramaInputOdakla = useCallback(() => {
+    const hedef = window.matchMedia("(min-width: 1024px)").matches
+      ? masaustuAramaRef.current
+      : mobilAramaRef.current;
+    hedef?.focus({ preventScroll: true });
+  }, []);
+
+  const aramaSayfasinaGec = useCallback(() => {
+    if (aramaSayfasinda) {
+      aramaInputOdakla();
+      return;
+    }
+    aramaOdakBekliyor.current = true;
+    router.push("/arama");
+  }, [aramaSayfasinda, router, aramaInputOdakla]);
 
   const sepetAdedi = sepet.reduce((toplam: number, urun: any) => toplam + (urun.adet || 1), 0);
   const { data: session, status } = useSession();
@@ -585,20 +603,18 @@ export default function Header() {
   }, [pathname]);
 
   useEffect(() => {
-    if (aramaSayfasinda) {
-      setAramaMetni(searchParams.get("q") || "");
-    } else {
-      setAramaMetni("");
-    }
+    if (!aramaSayfasinda) return;
+    if (aramaOdakBekliyor.current) return;
+    setAramaMetni(searchParams.get("q") || "");
   }, [aramaSayfasinda, searchParams]);
 
-  useEffect(() => {
-    if (!aramaSayfasinda) return;
-    const timer = window.setTimeout(() => {
-      aramaInputRef.current?.focus();
-    }, 80);
-    return () => window.clearTimeout(timer);
-  }, [aramaSayfasinda]);
+  useLayoutEffect(() => {
+    if (!aramaSayfasinda || !aramaOdakBekliyor.current) return;
+    aramaOdakBekliyor.current = false;
+    aramaInputOdakla();
+    const yedek = window.setTimeout(aramaInputOdakla, 50);
+    return () => window.clearTimeout(yedek);
+  }, [aramaSayfasinda, aramaInputOdakla]);
 
   useEffect(() => {
     if (!aramaSayfasinda) return;
