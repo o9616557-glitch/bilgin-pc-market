@@ -168,22 +168,27 @@ export function KartGorseli({ kart, secili, onOnde, mod = "cuzdan", onSil, onVar
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); setMenuAcik(!menuAcik); }}
-                  className="w-7 h-7 rounded-lg bg-black/25 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/40 transition-colors"
+                  title="Kart işlemleri"
+                  aria-label="Kart işlemleri — varsayılan yap veya sil"
+                  className="w-7 h-7 rounded-lg bg-black/30 backdrop-blur-sm border border-white/15 flex items-center justify-center text-white/80 hover:text-white hover:bg-black/45 transition-colors"
                 >
                   <MoreVertical className="w-3.5 h-3.5" />
                 </button>
                 {menuAcik && (
                   <>
                     <div className="fixed inset-0 z-20" onClick={() => setMenuAcik(false)} />
-                    <div className="absolute right-0 top-8 z-30 min-w-[140px] bg-[#0f172a] border border-slate-800 rounded-xl shadow-xl overflow-hidden">
+                    <div className="absolute right-0 top-8 z-30 min-w-[160px] bg-[#0f172a] border border-slate-700 rounded-xl shadow-xl overflow-hidden">
                       {!kart.isDefault && (
                         <button
                           type="button"
                           onClick={() => { onVarsayilan(); setMenuAcik(false); }}
-                          className="w-full px-3 py-2.5 text-left text-[11px] font-bold text-slate-300 hover:bg-slate-800/60 transition-colors"
+                          className="w-full px-3 py-2.5 text-left text-[11px] font-bold text-cyan-300 hover:bg-cyan-500/10 transition-colors"
                         >
                           Varsayılan Yap
                         </button>
+                      )}
+                      {kart.isDefault && (
+                        <p className="px-3 py-2 text-[10px] text-slate-500 border-b border-slate-800">Bu kart varsayılan</p>
                       )}
                       <button
                         type="button"

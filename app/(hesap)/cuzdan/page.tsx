@@ -300,12 +300,29 @@ export default function CuzdanPage() {
 
                 {/* Kartlar */}
                 <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col">
-                  <div className="flex items-center justify-between mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-800/80">
-                    <div className="flex items-center gap-2 sm:gap-3">
-                      <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
-                      <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Kayıtlı Kartlarım</h2>
+                  <div className="flex items-center justify-between gap-3 mb-1 pb-3 sm:pb-4 border-b border-slate-800/80">
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                      <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 shrink-0" />
+                      <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider truncate">Kayıtlı Kartlarım</h2>
                     </div>
+                    {savedCards.length < 5 && (
+                      <button
+                        type="button"
+                        onClick={() => setKartModal(true)}
+                        title="Yeni kart ekle"
+                        aria-label="Yeni kart ekle"
+                        className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-cyan-500/40 hover:bg-cyan-500/10 flex items-center justify-center text-slate-400 hover:text-cyan-400 transition-all shrink-0"
+                      >
+                        <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+                      </button>
+                    )}
                   </div>
+                  {savedCards.length > 0 && (
+                    <p className="text-[10px] sm:text-[11px] text-slate-500 mb-4 leading-relaxed">
+                      Varsayılan kartı değiştirmek için öne getirdiğiniz kartın sağ üstündeki{" "}
+                      <span className="text-slate-400 font-bold">⋮</span> menüsünden &quot;Varsayılan Yap&quot;ı seçin.
+                    </p>
+                  )}
 
                   {savedCards.some((k) => !k.iyzicoHazir) && (
                     <div className="mb-4 p-3.5 rounded-xl border border-emerald-500/25 bg-emerald-500/[0.06] text-[11px] sm:text-xs text-emerald-200/90 leading-relaxed">
@@ -319,7 +336,14 @@ export default function CuzdanPage() {
                       <div className="text-center py-8 px-4 border border-dashed border-slate-800 rounded-2xl">
                         <CreditCard className="w-8 h-8 text-slate-700 mx-auto mb-3" />
                         <p className="text-sm text-slate-500 mb-1">Henüz kayıtlı kartınız yok</p>
-                        <p className="text-[10px] text-slate-600">Ödeme sırasında hızlı seçim için kart ekleyebilirsiniz.</p>
+                        <p className="text-[10px] text-slate-600 mb-4">Ödeme sırasında hızlı seçim için kart ekleyebilirsiniz.</p>
+                        <button
+                          type="button"
+                          onClick={() => setKartModal(true)}
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-bold uppercase tracking-wider transition-all"
+                        >
+                          <Plus className="w-3.5 h-3.5" /> İlk Kartınızı Ekleyin
+                        </button>
                       </div>
                     ) : (
                       <KartYigini
@@ -327,19 +351,6 @@ export default function CuzdanPage() {
                         onSil={(id) => setSilinecekKart(id)}
                         onVarsayilan={varsayilanYap}
                       />
-                    )}
-
-                    {savedCards.length < 5 && (
-                      <div className="flex justify-center pt-2">
-                        <button
-                          type="button"
-                          onClick={() => setKartModal(true)}
-                          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-dashed border-slate-700 bg-slate-900/30 hover:bg-slate-800/40 hover:border-slate-600 transition-all group"
-                        >
-                          <Plus className="w-4 h-4 text-slate-500 group-hover:text-slate-300 transition-colors" />
-                          <span className="text-xs font-bold text-slate-500 group-hover:text-slate-300 uppercase tracking-wider">Yeni Kart Ekle</span>
-                        </button>
-                      </div>
                     )}
                   </div>
                 </div>
