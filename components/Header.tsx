@@ -497,13 +497,11 @@ function BilginPcMarka({
   size = "md",
   variant = "stacked",
   glow = false,
-  onNavigate,
 }: {
   className?: string;
   size?: "sm" | "md";
   variant?: "stacked" | "horizontal";
   glow?: boolean;
-  onNavigate?: () => void;
 }) {
   const textSize = size === "sm" ? "text-[15px] sm:text-base" : "text-2xl";
   const glowClass = glow
@@ -514,7 +512,6 @@ function BilginPcMarka({
     return (
       <Link
         href="/"
-        onClick={onNavigate}
         className={`inline-flex items-center font-black tracking-tight leading-none select-none shrink-0 ${textSize} ${glowClass} ${className}`}
         aria-label="Bilgin PC Ana Sayfa"
       >
@@ -527,7 +524,6 @@ function BilginPcMarka({
   return (
     <Link
       href="/"
-      onClick={onNavigate}
       className={`inline-flex flex-col items-center justify-center font-black tracking-tight leading-none select-none gap-1 ${textSize} ${glowClass} ${className}`}
       aria-label="Bilgin PC Ana Sayfa"
     >
@@ -588,15 +584,7 @@ export default function Header() {
   const mobilAramaInputRef = useRef<HTMLInputElement>(null);
   const hesabimRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLElement>(null);
-  const oncekiPath = useRef(pathname);
   const [headerYukseklik, setHeaderYukseklik] = useState(116);
-
-  const aramaVePanelleriKapat = () => {
-    setAramaAcik(false);
-    setMenuAcik(false);
-    setAcikSeritKatalog(null);
-  };
-  const aramaKapat = () => aramaVePanelleriKapat();
   
   const sepetAdedi = sepet.reduce((toplam: number, urun: any) => toplam + (urun.adet || 1), 0);
   const { data: session, status } = useSession();
@@ -638,24 +626,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
     )
   : [];
   useEffect(() => {
-    if (oncekiPath.current !== pathname) {
-      aramaVePanelleriKapat();
-      oncekiPath.current = pathname;
-    }
-  }, [pathname]);
-
-  useEffect(() => {
-    if (aramaAcik) setAcikSeritKatalog(null);
-  }, [aramaAcik]);
-
-  useEffect(() => {
     if (!acikSeritKatalog) return;
-    const kapat = () => setAcikSeritKatalog(null);
-    window.addEventListener("scroll", kapat, { passive: true });
-    return () => window.removeEventListener("scroll", kapat);
-  }, [acikSeritKatalog]);
-
-  useEffect(() => {
     const disariTikla = (e: MouseEvent) => {
       if (katalogRef.current && !katalogRef.current.contains(e.target as Node)) {
         setAcikSeritKatalog(null);
@@ -713,7 +684,7 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
   useEffect(() => {
     if (!aramaAcik) return;
     const esc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") aramaKapat();
+      if (e.key === "Escape") setAramaAcik(false);
     };
     window.addEventListener("keydown", esc);
     return () => window.removeEventListener("keydown", esc);
@@ -734,32 +705,21 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
   }, [aramaAcik]);
 
   useEffect(() => {
-    const kelime = aramaMetni.trim();
-
-    if (kelime.length >= 2) {
-      const controller = new AbortController();
+    if (aramaMetni.trim().length >= 2) {
+      setAramaYukleniyor(true);
       const timer = setTimeout(async () => {
-        setAramaYukleniyor(true);
         try {
-          const res = await fetch("/api/arama?q=" + encodeURIComponent(kelime), {
-            signal: controller.signal,
-          });
+          const res = await fetch("/api/arama?q=" + encodeURIComponent(aramaMetni));
           const data = await res.json();
           setCanliSonuclar(data);
-        } catch (e: any) {
-          if (e?.name !== "AbortError") setCanliSonuclar([]);
-        } finally {
-          if (!controller.signal.aborted) setAramaYukleniyor(false);
+        } catch (e) { 
+          setCanliSonuclar([]); 
         }
-      }, 350);
-
-      return () => {
-        clearTimeout(timer);
-        controller.abort();
-      };
+        setAramaYukleniyor(false);
+      }, 150); 
+      return () => clearTimeout(timer);
     } else {
       setCanliSonuclar([]);
-      setAramaYukleniyor(false);
     }
   }, [aramaMetni]);
 
@@ -789,7 +749,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
       setSonAramalar(yeniAramalar);
       localStorage.setItem("sonAramalar", JSON.stringify(yeniAramalar));
       
-      aramaVePanelleriKapat();
+      setAramaAcik(false);
       
       // ❌ ESKİ KOD: Sayfayı tamamen yenileyip loading ekranına düşürüyordu
       // window.location.href = "/arama?q=" + encodeURIComponent(aranacak);
@@ -804,6 +764,8 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
     setSonAramalar(yeni);
     localStorage.setItem("sonAramalar", JSON.stringify(yeni));
   };
+
+  const aramaKapat = () => setAramaAcik(false);
 
   const mesajLink = (
     <Link
@@ -845,7 +807,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
 
   return (
     <>
-      <header ref={headerRef} className={`sticky top-0 left-0 w-full bg-[#050814] border-b border-white/5 relative ${aramaAcik ? "z-[110]" : "z-[100]"}`}>
+      <header ref={headerRef} className={`sticky top-0 left-0 w-full bg-[#050814]/90 backdrop-blur-md border-b border-white/5 transition-all duration-300 relative ${aramaAcik ? "z-[110]" : "z-[100]"}`}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Mobil + tablet — logo üstte, arama fasulyesi altta */}
             <div className="lg:hidden w-full">
@@ -862,9 +824,9 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
               </div>
 
               <div
-                className={`flex items-center justify-center justify-self-center self-center z-[20] relative transition-opacity ${menuAcik && !aramaAcik ? "opacity-20 pointer-events-none" : ""}`}
+                className={`flex items-center justify-center justify-self-center self-center z-[5] transition-opacity ${menuAcik && !aramaAcik ? "opacity-20 pointer-events-none" : ""}`}
               >
-                <BilginPcMarka size="sm" variant="horizontal" glow className="px-0.5 shrink-0" onNavigate={aramaVePanelleriKapat} />
+                <BilginPcMarka size="sm" variant="horizontal" glow className="px-0.5 shrink-0" />
               </div>
 
               <div className={`flex items-center gap-0.5 justify-self-end z-10 ${menuAcik && !aramaAcik ? "pointer-events-none opacity-20" : ""}`}>
@@ -894,7 +856,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                         <X className="w-4 h-4" />
                       </button>
                     ) : (
-                      <button type="button" onClick={aramaKapat} className="p-1.5 text-slate-400 hover:text-white shrink-0" aria-label="Kapat">
+                      <button type="button" onClick={() => setAramaAcik(false)} className="p-1.5 text-slate-400 hover:text-white shrink-0" aria-label="Kapat">
                         <X className="w-4 h-4" />
                       </button>
                     )}
@@ -915,7 +877,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
 
             {/* Masaüstü: logo + arama + sağ ikonlar aynı hizada */}
             <div className="hidden lg:flex items-center justify-between gap-4 py-3 min-h-[72px]">
-              <BilginPcMarka size="md" variant="horizontal" onNavigate={aramaVePanelleriKapat} />
+              <BilginPcMarka size="md" variant="horizontal" />
 
               <form onSubmit={handleAramaSubmit} className="relative flex-1 min-w-0 mx-1 lg:mx-3">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
@@ -933,7 +895,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                     type="button"
                     onClick={() => {
                       if (aramaMetni) setAramaMetni("");
-                      else aramaKapat();
+                      else setAramaAcik(false);
                     }}
                     className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white"
                     aria-label={aramaMetni ? "Temizle" : "Kapat"}
@@ -985,9 +947,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                       key={kat.id}
                       type="button"
                       title={kat.isim}
-                      onMouseEnter={() => {
-                        if (!aramaAcik) setAcikSeritKatalog(kat.id);
-                      }}
+                      onMouseEnter={() => setAcikSeritKatalog(kat.id)}
                       className={`flex-1 min-w-0 px-1 py-1.5 text-center transition-colors border-b-2 text-white ${
                         aktif ? "border-[#3b82f6]" : "border-transparent hover:border-white/30"
                       }`}
@@ -1002,18 +962,20 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
             </div>
 
             {acikSeritKatalog && (
-              <div className="absolute top-full left-0 w-full z-50 border-t border-white/[0.08] bg-[#050814] overflow-hidden">
+              <div className="absolute top-full left-0 w-full border-t border-white/[0.06] bg-[#050814]/98 backdrop-blur-md shadow-[0_12px_40px_rgba(0,0,0,0.55)] z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[180px] flex items-center">
-                  {KATALOG_SERIT.filter((kat) => kat.id === acikSeritKatalog).map((kat) => (
+                  {KATALOG_SERIT.map((kat) => (
                     <div
                       key={kat.id}
-                      className="flex flex-wrap justify-start items-start gap-x-5 gap-y-4 w-full overflow-hidden"
+                      className={`flex flex-wrap justify-start items-start gap-x-5 gap-y-4 w-full overflow-hidden ${
+                        acikSeritKatalog === kat.id ? "" : "hidden"
+                      }`}
                     >
                       {kat.altlar.map((k) => (
                         <ResimliKategoriKarti
                           key={`${kat.id}-${k.slug}-${k.isim}`}
                           k={k}
-                          onNavigate={aramaVePanelleriKapat}
+                          onNavigate={() => setAcikSeritKatalog(null)}
                         />
                       ))}
                     </div>
@@ -1025,13 +987,13 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
       </header>
 
       {/* 📱 MOBİL MENÜ */}
-      <div className={`lg:hidden fixed top-[7.25rem] left-0 w-full h-[calc(100vh-7.25rem)] bg-[#050814] z-[98] overflow-y-auto ${menuAcik ? "block" : "hidden"}`}>
+      <div className={`lg:hidden fixed top-[7.25rem] left-0 w-full h-[calc(100vh-7.25rem)] bg-[#050814] z-[98] overflow-y-auto transition-transform duration-300 ${menuAcik ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="px-3 py-4 pb-32">
 
           {/* Kendin Topla */}
           <Link
             href="/kendin-topla"
-            onClick={aramaVePanelleriKapat}
+            onClick={() => setMenuAcik(false)}
             className="flex items-center gap-2.5 px-2.5 py-2 mb-2 rounded-xl overflow-hidden border border-emerald-500/25 bg-white/[0.03] hover:bg-white/[0.06] transition-colors group"
           >
             <div className="relative w-12 h-12 rounded-lg shrink-0 overflow-hidden">
@@ -1042,7 +1004,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
           </Link>
 
           {/* Kategoriler — 6 ana, resimli accordion */}
-          <MobilKatalogMenusu onClose={aramaVePanelleriKapat} hazir={menuAcik} />
+          <MobilKatalogMenusu onClose={() => setMenuAcik(false)} hazir={menuAcik} />
 
         </div>
       </div>
@@ -1051,14 +1013,14 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
       {aramaAcik && typeof document !== "undefined" && createPortal(
         <>
           <div
-            className="fixed inset-0 z-[90] bg-black/65 backdrop-blur-[4px]"
+            className="fixed inset-0 z-[105] bg-black/65 backdrop-blur-[4px]"
             style={{ clipPath: `inset(${headerYukseklik}px 0 0 0)` }}
             onClick={aramaKapat}
             aria-hidden
           />
 
           <div
-            className="fixed left-0 right-0 bottom-0 z-[95] flex flex-col bg-[#050814] border-t border-white/[0.08] overflow-hidden"
+            className="fixed left-0 right-0 bottom-0 z-[106] flex flex-col bg-[#050814] border-t border-white/[0.08] shadow-[0_-12px_48px_rgba(0,0,0,0.6)] overflow-hidden"
             style={{ top: headerYukseklik, height: `calc(100dvh - ${headerYukseklik}px)` }}
           >
             <div className="flex-1 overflow-y-auto overscroll-contain w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 lg:pb-8">
@@ -1075,7 +1037,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                             <Link
                               key={kat.slug}
                               href={"/kategori/" + kat.slug}
-                              onClick={aramaVePanelleriKapat}
+                              onClick={() => setAramaAcik(false)}
                               className="flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.07] hover:border-[#3b82f6]/30 hover:bg-white/[0.05] text-slate-300 hover:text-white transition-all text-sm font-medium group"
                             >
                               <div className={`relative w-12 h-12 rounded-lg overflow-hidden shrink-0 ${kat.resim ? "" : `bg-gradient-to-br ${kat.renk || "from-slate-700 to-slate-900"}`}`}>
@@ -1103,7 +1065,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                             <Link
                               key={urun._id}
                               href={"/product/" + urun.slug}
-                              onClick={aramaVePanelleriKapat}
+                              onClick={() => setAramaAcik(false)}
                               className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl bg-white/[0.03] border border-white/[0.07] hover:border-[#3b82f6]/25 transition-all group"
                             >
                               <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#09090b] rounded-xl p-2 flex shrink-0 items-center justify-center border border-white/[0.06]">
@@ -1157,7 +1119,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                             <Link
                               key={urun._id}
                               href={"/product/" + urun.slug}
-                              onClick={aramaVePanelleriKapat}
+                              onClick={() => setAramaAcik(false)}
                               className="flex flex-col p-3 rounded-xl bg-white/[0.03] border border-white/[0.07] hover:border-[#3b82f6]/25 transition-all group"
                             >
                               <div className="aspect-square bg-[#09090b] rounded-xl mb-3 flex items-center justify-center p-2 border border-white/[0.06]">

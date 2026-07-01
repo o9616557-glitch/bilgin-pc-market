@@ -76,7 +76,7 @@ export default function RootLayout({
               {/* 🚀 ŞALTERİ KALDIRDIK: Artık siteye giren herkesin siparişleri arka planda sessizce indirilecek */}
               <OrderProvider>
                 <Header />
-                <main className="flex-grow w-full">
+                <main className="flex-grow w-full site-content-in">
                   {children}
                 </main>
                 <Footer />
