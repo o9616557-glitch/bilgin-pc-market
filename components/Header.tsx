@@ -306,6 +306,7 @@ function ResimliKategoriKarti({
     <Link
       href={`/kategori/${k.slug}`}
       prefetch
+      onPointerDown={() => onNavigate?.()}
       onClick={onNavigate}
       className="group flex flex-col items-center w-[100px] shrink-0 h-[104px]"
     >
@@ -334,6 +335,7 @@ function MobilAltKategoriKarti({
     <Link
       href={`/kategori/${k.slug}`}
       prefetch
+      onPointerDown={onClose}
       onClick={onClose}
       className="flex flex-col items-center gap-1 p-1.5 rounded-lg hover:bg-white/[0.05] transition-colors"
     >
@@ -638,6 +640,19 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
     )
   : [];
   useEffect(() => {
+    const navigasyonOncesi = (e: PointerEvent) => {
+      const link = (e.target as HTMLElement).closest("a[href]");
+      if (!link) return;
+      const href = link.getAttribute("href");
+      if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
+      if (/^https?:\/\//i.test(href) && !href.startsWith(window.location.origin)) return;
+      aramaVePanelleriKapat();
+    };
+    document.addEventListener("pointerdown", navigasyonOncesi, true);
+    return () => document.removeEventListener("pointerdown", navigasyonOncesi, true);
+  }, []);
+
+  useEffect(() => {
     if (oncekiPath.current !== pathname) {
       aramaVePanelleriKapat();
       oncekiPath.current = pathname;
@@ -845,7 +860,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
 
   return (
     <>
-      <header ref={headerRef} className={`sticky top-0 left-0 w-full bg-[#050814]/90 backdrop-blur-md border-b border-white/5 transition-all duration-300 relative ${aramaAcik ? "z-[110]" : "z-[100]"}`}>
+      <header ref={headerRef} className={`sticky top-0 left-0 w-full bg-[#050814] border-b border-white/5 relative ${aramaAcik ? "z-[110]" : "z-[100]"}`}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Mobil + tablet — logo üstte, arama fasulyesi altta */}
             <div className="lg:hidden w-full">
@@ -1002,14 +1017,12 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
             </div>
 
             {acikSeritKatalog && (
-              <div className="absolute top-full left-0 w-full z-50 border-t border-white/[0.08] bg-[#050814]">
+              <div className="absolute top-full left-0 w-full z-50 border-t border-white/[0.08] bg-[#050814] overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[180px] flex items-center">
-                  {KATALOG_SERIT.map((kat) => (
+                  {KATALOG_SERIT.filter((kat) => kat.id === acikSeritKatalog).map((kat) => (
                     <div
                       key={kat.id}
-                      className={`flex flex-wrap justify-start items-start gap-x-5 gap-y-4 w-full overflow-hidden ${
-                        acikSeritKatalog === kat.id ? "" : "hidden"
-                      }`}
+                      className="flex flex-wrap justify-start items-start gap-x-5 gap-y-4 w-full overflow-hidden"
                     >
                       {kat.altlar.map((k) => (
                         <ResimliKategoriKarti
@@ -1027,7 +1040,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
       </header>
 
       {/* 📱 MOBİL MENÜ */}
-      <div className={`lg:hidden fixed top-[7.25rem] left-0 w-full h-[calc(100vh-7.25rem)] bg-[#050814] z-[98] overflow-y-auto transition-transform duration-300 ${menuAcik ? "translate-x-0" : "-translate-x-full"}`}>
+      <div className={`lg:hidden fixed top-[7.25rem] left-0 w-full h-[calc(100vh-7.25rem)] bg-[#050814] z-[98] overflow-y-auto ${menuAcik ? "block" : "hidden"}`}>
         <div className="px-3 py-4 pb-32">
 
           {/* Kendin Topla */}
