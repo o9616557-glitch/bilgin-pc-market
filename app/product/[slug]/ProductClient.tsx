@@ -505,7 +505,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
         <div className="flex flex-col md:flex-row gap-0 sm:gap-8 lg:gap-12 relative items-start mb-12">
           
           {/* SOL KOLON (RESİMLER) */}
-          <div className="w-full md:w-[45%] flex flex-col relative md:sticky md:top-28 h-max mb-2 sm:mb-0 transition-all duration-500 overflow-visible">
+          <div className={`w-full md:w-[45%] flex flex-col relative md:sticky md:top-28 h-max mb-2 sm:mb-0 transition-all duration-500 overflow-visible ${buyutecHover && buyutecAktif ? "z-[100]" : "z-10"}`}>
             <div className="flex items-center gap-2 mb-2 sm:mb-4 px-4 sm:px-0 pt-4 sm:pt-0">
                {tukendiMi ? (
                   <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] sm:text-xs font-black px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg tracking-widest flex items-center gap-2"><span className="w-2 h-2 bg-red-500 rounded-full"></span> TÜKENDİ</div>
@@ -635,7 +635,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
           </div>
 
           {/* SAĞ KOLON (BİLGİLER VE SEPET) */}
-          <div className="w-full md:w-[55%] flex flex-col mt-4 sm:mt-0">
+          <div className="w-full md:w-[55%] flex flex-col mt-4 sm:mt-0 relative z-0">
             <div className="flex items-center gap-2 mb-3 text-[10px] sm:text-xs font-black uppercase tracking-widest text-gray-500 select-none">
                <Link href="/" className="hover:text-[#00d2ff] transition-colors">Ana Sayfa</Link>
                <span className="text-gray-700">/</span>
