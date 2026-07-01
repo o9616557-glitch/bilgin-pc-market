@@ -7,6 +7,14 @@ export function sifirlaSayfaKilidi() {
   document.documentElement.style.overflow = "";
 }
 
+/** İyzico tam ekranı kapat — siyah ekran / body kilidi kalıntısını önler */
+export function iyzicoTamEkranKapat() {
+  temizleIyzicoKalintilari();
+  document.documentElement.classList.remove("iyzico-tam-ekran");
+  document.body.classList.remove("iyzico-tam-ekran");
+  sifirlaSayfaKilidi();
+}
+
 function silIyzicoScriptleri() {
   document.querySelectorAll("script").forEach((script) => {
     const src = script.getAttribute("src") || "";

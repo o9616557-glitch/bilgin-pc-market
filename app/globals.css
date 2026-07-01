@@ -219,7 +219,7 @@ body.iyzico-tam-ekran main {
 .iyzico-tam-ekran-kaplama #iyzipay-checkout-form,
 .iyzico-tam-ekran-kaplama #iyzipay-checkout-form > div {
   width: 100% !important;
-  min-height: 100dvh !important;
+  min-height: calc(100dvh - 56px) !important;
   max-width: none !important;
   max-height: none !important;
   height: auto !important;

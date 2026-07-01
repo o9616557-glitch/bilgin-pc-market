@@ -1,7 +1,7 @@
 "use client";
 import { ArrowLeft, CreditCard, Banknote, ShieldCheck, MapPin, Edit3, User, Phone, Mail, ChevronRight, ChevronLeft, Package, Copy, Check, Plus } from "lucide-react";
 import { useCart } from "../CartContext";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { createPortal } from "react-dom";
 import { useSession } from "next-auth/react";
@@ -11,6 +11,7 @@ import {
   enjekteIyzicoCheckoutForm,
   iyzicoIframeVarMi,
   iyzicoIframeKaydirmaAyarla,
+  iyzicoTamEkranKapat,
 } from "@/lib/iyzico-checkout";
 import { type KayitliKart } from "@/lib/cuzdan";
 
@@ -42,6 +43,8 @@ export default function OdemeSayfasi() {
   const [kayitliKartlar, setKayitliKartlar] = useState<KayitliKart[]>([]);
   const [kayitliKartlarYukleniyor, setKayitliKartlarYukleniyor] = useState(false);
   const [seciliKartId, setSeciliKartId] = useState<string | null>(null);
+  const [odemeIptalAcik, setOdemeIptalAcik] = useState(false);
+  const iyzicoHistoryAktif = useRef(false);
 
   const [adresAraniyor, setAdresAraniyor] = useState(() => {
     if (typeof window === "undefined") return true;
@@ -211,6 +214,30 @@ export default function OdemeSayfasi() {
   const inputDegis = (e: any) => { setForm({ ...form, [e.target.name]: e.target.value }); };
   const faturaInputDegis = (e: any) => { setFaturaForm({ ...faturaForm, [e.target.name]: e.target.value }); };
 
+  const iyzicoKapat = useCallback((iptalMi = false) => {
+    iyzicoTamEkranKapat();
+    setIyzicoFormHtml("");
+    if (iptalMi) setOdemeIptalAcik(true);
+  }, []);
+
+  /** Telefon geri tuşu: İyzico açıkken önce ödeme formuna dön */
+  useEffect(() => {
+    if (!iyzicoFormHtml) return;
+
+    window.history.pushState({ iyzicoOdeme: true }, "");
+    iyzicoHistoryAktif.current = true;
+
+    const geriTusu = () => {
+      if (iyzicoHistoryAktif.current) {
+        iyzicoHistoryAktif.current = false;
+        iyzicoKapat(true);
+      }
+    };
+
+    window.addEventListener("popstate", geriTusu);
+    return () => window.removeEventListener("popstate", geriTusu);
+  }, [iyzicoFormHtml, iyzicoKapat]);
+
   useEffect(() => {
     if (!iyzicoFormHtml) return;
 
@@ -246,8 +273,7 @@ export default function OdemeSayfasi() {
         return;
       }
       if (iframeGoruldu) {
-        temizleIyzicoKalintilari();
-        setIyzicoFormHtml("");
+        iyzicoKapat(true);
       }
     };
 
@@ -259,7 +285,7 @@ export default function OdemeSayfasi() {
       observer.disconnect();
       timers.forEach(clearTimeout);
     };
-  }, [iyzicoFormHtml]);
+  }, [iyzicoFormHtml, iyzicoKapat]);
 
   useEffect(() => {
     if (iyzicoFormHtml) {
@@ -278,6 +304,7 @@ export default function OdemeSayfasi() {
   const siparisTamamla = async (e: React.FormEvent) => {
     e.preventDefault();
     setYukleniyor(true);
+    setOdemeIptalAcik(false);
     setIyzicoFormHtml("");
 
     const sessionEmail = (session && session.user && session.user.email) ? session.user.email : form.eposta;
@@ -628,13 +655,48 @@ export default function OdemeSayfasi() {
     );
   }
 
+  if (odemeIptalAcik && !iyzicoFormHtml) {
+    return (
+      <div className="min-h-[100dvh] bg-white flex flex-col items-center justify-center px-6 text-center pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+        <p className="text-[88px] sm:text-[120px] font-black leading-none text-slate-200 select-none" aria-hidden>
+          :(
+        </p>
+        <h1 className="text-xl sm:text-2xl font-bold text-slate-800 -mt-6 mb-2">Ödeme iptal edildi</h1>
+        <p className="text-slate-500 text-sm max-w-xs mb-8 leading-relaxed">
+          İşleminiz tamamlanmadı. Kartınızdan tahsilat yapılmadı.
+        </p>
+        <button
+          type="button"
+          onClick={() => setOdemeIptalAcik(false)}
+          className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-[#1a1a2e] text-white text-sm font-semibold hover:bg-[#252540] transition-colors touch-manipulation"
+        >
+          <ArrowLeft className="w-4 h-4" /> Ödemeye dön
+        </button>
+      </div>
+    );
+  }
+
   if (iyzicoFormHtml) {
     return (
-      <div className="iyzico-tam-ekran-kaplama fixed inset-0 z-[99990] bg-white w-full overflow-y-auto overscroll-y-contain">
+      <div className="iyzico-tam-ekran-kaplama fixed inset-0 z-[99990] bg-white w-full overflow-y-auto overscroll-y-contain flex flex-col">
+        <div className="sticky top-0 z-[99999] flex items-center gap-2 bg-white border-b border-slate-200 px-3 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] shrink-0 shadow-sm">
+          <button
+            type="button"
+            onClick={() => {
+              iyzicoHistoryAktif.current = false;
+              iyzicoKapat(true);
+              window.history.back();
+            }}
+            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900 px-2 py-1.5 rounded-lg hover:bg-slate-100 touch-manipulation"
+          >
+            <ArrowLeft className="w-4 h-4 shrink-0" />
+            Ödemeye dön
+          </button>
+        </div>
         <div
           ref={iyzicoFormRef}
           id="iyzipay-checkout-form"
-          className="responsive w-full min-h-[100dvh]"
+          className="responsive w-full flex-1 min-h-0 bg-white"
         />
       </div>
     );
@@ -810,8 +872,8 @@ export default function OdemeSayfasi() {
                           <p className="text-white text-sm font-semibold mb-1">Güvenli kart ödemesi</p>
                           <p className="text-slate-400 text-xs leading-relaxed">
                             {seciliKartId
-                              ? "Seçtiğiniz kart İyzico ekranında hazır gelir; yalnızca CVV ile onaylamanız yeterlidir."
-                              : "Kart bilgileriniz İyzico güvenli ödeme ekranında alınır. Sitemizde saklanmaz."}
+                              ? "Kayıtlı kartınız hazır gelir; bankanız onay SMS’i gönderebilir."
+                              : "Kart bilgileriniz İyzico güvenli ödeme ekranında alınır."}
                           </p>
                         </div>
                       </div>
