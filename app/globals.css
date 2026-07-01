@@ -82,12 +82,6 @@ body {
     animation: site-content-in 0.12s ease-out both;
   }
 
-  @media (min-width: 1024px) {
-    .site-content-in {
-      animation: none;
-    }
-  }
-
   @media (max-width: 767px) {
     .site-page-soft-in {
       animation: site-page-soft-in 0.48s cubic-bezier(0.4, 0, 0.2, 1) both;
