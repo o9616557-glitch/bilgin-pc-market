@@ -827,7 +827,7 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
 
   return (
     <>
-      <header ref={headerRef} className={`sticky top-0 left-0 w-full bg-[#050814]/90 backdrop-blur-md border-b border-white/5 transition-all duration-300 relative ${aramaAcik ? "z-[110]" : "z-[100]"}`}>
+      <header ref={headerRef} className={`sticky top-0 left-0 w-full bg-[#050814]/90 lg:bg-[#050814] backdrop-blur-md lg:backdrop-blur-none border-b border-white/5 transition-all duration-300 lg:transition-none relative ${aramaAcik ? "z-[110]" : "z-[100]"}`}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Mobil + tablet — logo üstte, arama fasulyesi altta */}
             <div className="lg:hidden w-full">
@@ -1036,19 +1036,18 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
       {aramaAcik && typeof document !== "undefined" && createPortal(
         <>
           <div
-            className="fixed inset-0 z-[105] bg-black/65 backdrop-blur-[4px]"
+            className="fixed inset-0 z-[105] bg-black/65 lg:bg-black/45 backdrop-blur-[4px] lg:backdrop-blur-none"
             style={{ clipPath: `inset(${headerYukseklik}px 0 0 0)` }}
             onClick={aramaKapat}
             aria-hidden
           />
 
           <div
-            className="fixed left-0 right-0 bottom-0 z-[106] flex flex-col bg-[#050814] border-t border-white/[0.08] shadow-[0_-12px_48px_rgba(0,0,0,0.6)] overflow-hidden"
+            className="fixed left-0 right-0 bottom-0 z-[106] flex flex-col bg-[#050814] border-t border-white/[0.08] shadow-[0_-12px_48px_rgba(0,0,0,0.6)] lg:shadow-none overflow-hidden"
             style={{ top: headerYukseklik, height: `calc(100dvh - ${headerYukseklik}px)` }}
           >
             <div
-              className="flex-1 overflow-y-auto overscroll-contain w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 lg:pb-8 [&::-webkit-scrollbar]:hidden"
-              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              className="flex-1 overflow-y-auto overscroll-contain w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 lg:pb-8"
             >
               <div className="w-full max-w-6xl mx-auto">
                 {aramaMetni.length > 0 ? (

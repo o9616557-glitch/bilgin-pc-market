@@ -80,16 +80,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
     }
   }, []);
 
-  useEffect(() => {
-    document.documentElement.classList.add("product-page-scrollbar-hidden");
-    document.body.classList.add("product-page-scrollbar-hidden");
-
-    return () => {
-      document.documentElement.classList.remove("product-page-scrollbar-hidden");
-      document.body.classList.remove("product-page-scrollbar-hidden");
-    };
-  }, []);
-  
   // Varsayılan olarak Açıklama sekmesi açık gelecek
   const [activeTab, setActiveTab] = useState("aciklama");
   // 🚀 BİNGO: URL'DEN GELEN #yorumlar RADARI
@@ -499,17 +489,6 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       <style dangerouslySetInnerHTML={{ __html: `
         body { -webkit-tap-highlight-color: transparent; }
         button, img, a, .select-none { -webkit-touch-callout: none; user-select: none; }
-        html.product-page-scrollbar-hidden,
-        body.product-page-scrollbar-hidden {
-          scrollbar-width: none;
-          -ms-overflow-style: none;
-        }
-        html.product-page-scrollbar-hidden::-webkit-scrollbar,
-        body.product-page-scrollbar-hidden::-webkit-scrollbar {
-          display: none;
-          width: 0;
-          height: 0;
-        }
         .badge-rosette-page { position: absolute; top: 15px; right: 15px; width: 70px; height: 70px; background: #e60000; clip-path: polygon(50% 0%, 60% 10%, 75% 5%, 80% 20%, 95% 25%, 90% 40%, 100% 50%, 90% 60%, 95% 75%, 80% 80%, 75% 95%, 60% 90%, 50% 100%, 40% 90%, 25% 95%, 20% 80%, 5% 75%, 10% 60%, 0% 50%, 10% 40%, 5% 25%, 20% 20%, 25% 5%, 40% 10%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); pointer-events: none; }
         .badge-rosette-page span:first-child { font-size: 18px; font-weight: 900; line-height: 1; margin-top: 5px; }
         .badge-rosette-page span:last-child { font-size: 11px; font-weight: 900; line-height: 1; }
