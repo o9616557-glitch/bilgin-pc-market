@@ -17,6 +17,7 @@ import HesapHafizaCipi from "@/components/HesapHafizaCipi";
 // 🚀 1. ADIM: KÜRESEL KALKANI ÇATIYA ÇAĞIRIYORUZ (Sitenin Koruyucusu)
 import GlobalKalkan from "@/components/GlobalKalkan";
 import NavigasyonTemizleyici from "@/components/NavigasyonTemizleyici";
+import UrunGecisi from "@/components/UrunGecisi";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -76,6 +77,7 @@ export default function RootLayout({
               {/* 🚀 ŞALTERİ KALDIRDIK: Artık siteye giren herkesin siparişleri arka planda sessizce indirilecek */}
               <OrderProvider>
                 <Header />
+                <UrunGecisi />
                 <main className="flex-grow w-full site-content-in">
                   {children}
                 </main>

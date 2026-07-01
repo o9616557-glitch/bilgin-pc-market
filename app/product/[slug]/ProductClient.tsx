@@ -10,47 +10,6 @@ import { X, Gamepad2, ChevronLeft, ChevronRight, ShoppingCart, Heart, GitCompare
 import Link from "next/link"; 
 import { cloudinaryUrunResim } from "@/lib/cloudinary";
 
-function UrunGaleriResmi({
-  src,
-  alt,
-  className = "",
-  style,
-  draggable,
-  soluk,
-}: {
-  src: string;
-  alt: string;
-  className?: string;
-  style?: React.CSSProperties;
-  draggable?: boolean;
-  soluk?: boolean;
-}) {
-  const [hazir, setHazir] = useState(false);
-  const imgRef = useRef<HTMLImageElement>(null);
-
-  useEffect(() => {
-    setHazir(false);
-    if (imgRef.current?.complete) setHazir(true);
-  }, [src]);
-
-  return (
-    <img
-      ref={imgRef}
-      src={src}
-      alt={alt}
-      loading="eager"
-      fetchPriority="high"
-      decoding="async"
-      draggable={draggable}
-      onLoad={() => setHazir(true)}
-      style={style}
-      className={`${className} transition-opacity duration-500 ease-out ${
-        hazir ? (soluk ? "opacity-30 grayscale" : "opacity-100") : "opacity-0"
-      }`}
-    />
-  );
-}
-
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const { sepeteEkle } = useCart(); 
   const { karsilastirmayaEkle, setPopupAcik } = useCompare(); 
@@ -459,7 +418,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   );
 
   return (
-    <div className="bg-[#050505] text-white font-sans pb-0 sm:pb-10 relative">
+    <div className="bg-[#050814] text-white font-sans pb-0 sm:pb-10 relative">
       
       <style dangerouslySetInnerHTML={{ __html: `
         body { -webkit-tap-highlight-color: transparent; }
@@ -534,15 +493,17 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
               </button>
 
               {resimler.length === 1 ? (
-                <UrunGaleriResmi
+                <img
                   src={resimler[0]}
                   alt={urunAdi}
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
                   style={{
                     transformOrigin: zoomOrigin,
                     transform: isHoveringImg && !lightboxAcik ? "scale(2.4)" : "scale(1)",
                   }}
-                  className="w-full h-full object-contain pointer-events-none sm:filter sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] transition-transform duration-150 ease-out"
-                  soluk={tukendiMi}
+                  className={`w-full h-full object-contain pointer-events-none sm:filter sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] transition-transform duration-150 ease-out ${tukendiMi ? "grayscale opacity-50" : ""}`}
                 />
               ) : (
                 <div
@@ -555,16 +516,15 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
                 >
                   {loopResimler.map((img: string, idx: number) => (
                     <div key={`${img}-${idx}`} className="min-w-full w-full h-full flex items-center justify-center flex-shrink-0">
-                      <UrunGaleriResmi
+                      <img
                         src={img}
                         alt={`${urunAdi} - ${idx + 1}`}
                         draggable={false}
-                        soluk={tukendiMi}
                         style={{
                           transformOrigin: idx === trackIndex ? zoomOrigin : "center center",
                           transform: idx === trackIndex && isHoveringImg && !isGalleryDragging && !lightboxAcik ? "scale(2.4)" : "scale(1)",
                         }}
-                        className="w-full h-full object-contain pointer-events-none sm:filter sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] transition-transform duration-150 ease-out"
+                        className={`w-full h-full object-contain pointer-events-none sm:filter sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] transition-transform duration-150 ease-out ${tukendiMi ? "grayscale opacity-50" : ""}`}
                       />
                     </div>
                   ))}
@@ -843,7 +803,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
       </div>
 
      {/* MOBİL ALT SEPET BAR ALANI */}
-      <div className="sm:hidden fixed bottom-0 left-0 w-full bg-[#050505]/95 backdrop-blur-2xl border-t border-white/10 px-4 py-3 z-50 flex items-center justify-between shadow-[0_-20px_40px_rgba(0,0,0,0.8)] select-none">
+      <div className="sm:hidden fixed bottom-0 left-0 w-full bg-[#050814]/95 backdrop-blur-2xl border-t border-white/10 px-4 py-3 z-50 flex items-center justify-between shadow-[0_-20px_40px_rgba(0,0,0,0.8)] select-none">
          <div className="flex flex-col">
             {indirimVarMi && !tukendiMi && <span className="text-gray-500 text-[11px] line-through font-medium mb-0.5">{normalFiyat.toLocaleString("tr-TR")} ₺</span>}
             <span className="text-[22px] font-black text-white leading-none mb-1.5">{gecerliFiyat.toLocaleString("tr-TR")} <span className="text-[#00d2ff] text-lg">₺</span></span>
