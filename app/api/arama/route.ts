@@ -61,17 +61,35 @@ export async function GET(request: Request) {
     }
 
     const limit = init ? 4 : 10; 
-    
-    let urunler = await db.collection("urunler").find(query).limit(limit).toArray();
-    if (urunler.length === 0) urunler = await db.collection("uruns").find(query).limit(limit).toArray();
-    if (urunler.length === 0) urunler = await db.collection("products").find(query).limit(limit).toArray();
+
+    // 🚀 Asıl veriler "products" koleksiyonunda. Önce ona gidiyoruz ki
+    // her aramada boş koleksiyonlarda gereksiz $regex taraması yapılmasın.
+    const projection = {
+      isim: 1, name: 1, slug: 1,
+      indirimliFiyat: 1, price: 1, fiyat: 1,
+      resimler: 1, resim: 1, image: 1, images: 1,
+    };
+
+    let urunler = await db.collection("products").find(query).project(projection).limit(limit).toArray();
+    if (urunler.length === 0) urunler = await db.collection("urunler").find(query).project(projection).limit(limit).toArray();
+    if (urunler.length === 0) urunler = await db.collection("uruns").find(query).project(projection).limit(limit).toArray();
+
+    const resimBul = (u: any) => {
+      if (Array.isArray(u.resimler) && u.resimler[0]) return u.resimler[0];
+      if (u.resim) return u.resim;
+      if (u.image) return u.image;
+      if (Array.isArray(u.images) && u.images[0]) {
+        return typeof u.images[0] === "string" ? u.images[0] : (u.images[0]?.src || "/placeholder.jpg");
+      }
+      return "/placeholder.jpg";
+    };
 
     const temizUrunler = urunler.map((u: any) => ({
       _id: u._id.toString(),
       isim: u.isim || u.name || "",
       slug: u.slug || u._id.toString(),
       fiyat: u.indirimliFiyat || u.price || u.fiyat || 0,
-      resim: (u.resimler && u.resimler[0]) || u.resim || u.image || "/placeholder.jpg"
+      resim: resimBul(u),
     }));
 
     const response = NextResponse.json(temizUrunler);

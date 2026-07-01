@@ -221,7 +221,7 @@ const KATALOG_SERIT: { id: string; isim: string; kisaIsim: string; renk: string;
 ];
 
 const KATALOG_TUM_URUNLER = KATALOG_SERIT.flatMap((kat) =>
-  kat.altlar.map((a) => ({ name: a.isim, slug: a.slug }))
+  kat.altlar.map((a) => ({ name: a.isim, slug: a.slug, resim: a.resim, renk: a.renk }))
 );
 
 function katalogResimUrlSeti(): Set<string> {
@@ -1025,19 +1025,21 @@ const handleAramaSubmit = (e?: React.FormEvent, ozelKelime?: string) => {
                         <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400 flex items-center gap-2 border-b border-white/[0.06] pb-3 mb-4">
                           <Search className="w-3.5 h-3.5 text-[#3b82f6]" /> İlgili kategoriler
                         </h3>
-                        <div className="flex flex-col gap-2">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-1 gap-2.5">
                           {bulunanKategoriler.map((kat) => (
                             <Link
                               key={kat.slug}
                               href={"/kategori/" + kat.slug}
                               onClick={() => setAramaAcik(false)}
-                              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.07] hover:border-[#3b82f6]/30 hover:bg-white/[0.05] text-slate-300 hover:text-white transition-all text-sm font-medium group"
+                              className="flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.07] hover:border-[#3b82f6]/30 hover:bg-white/[0.05] text-slate-300 hover:text-white transition-all text-sm font-medium group"
                             >
-                              <div className="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.08] group-hover:border-[#3b82f6]/30 flex items-center justify-center shrink-0">
-                                <div className="w-1.5 h-1.5 rounded-full bg-slate-500 group-hover:bg-[#3b82f6]" />
+                              <div className={`relative w-12 h-12 rounded-lg overflow-hidden shrink-0 ${kat.resim ? "" : `bg-gradient-to-br ${kat.renk || "from-slate-700 to-slate-900"}`}`}>
+                                {kat.resim && (
+                                  <KatalogGorsel src={kat.resim} alt={kat.name} displayPx={KATALOG_ICON_MOBILE} />
+                                )}
                               </div>
-                              <span className="flex-1 text-left">{kat.name}</span>
-                              <ArrowRight className="w-4 h-4 opacity-40 group-hover:opacity-100 text-[#3b82f6] shrink-0" />
+                              <span className="flex-1 text-left leading-tight line-clamp-2">{kat.name}</span>
+                              <ArrowRight className="w-4 h-4 opacity-40 group-hover:opacity-100 text-[#3b82f6] shrink-0 hidden lg:block" />
                             </Link>
                           ))}
                         </div>
