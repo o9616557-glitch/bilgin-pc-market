@@ -53,6 +53,17 @@ body {
   }
 }
 
+@keyframes site-page-soft-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes site-urun-giris {
   from {
     opacity: 0.55;
@@ -80,8 +91,16 @@ body {
     animation: site-content-in 0.12s ease-out both;
   }
 
-  .site-urun-giris {
-    animation: site-urun-giris 0.32s ease-out both;
+  @media (min-width: 768px) {
+    .site-page-soft-in {
+      animation: site-page-soft-in 0.48s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .site-urun-giris-mobil {
+      animation: site-urun-giris 0.32s ease-out both;
+    }
   }
 
   .site-glow-top {

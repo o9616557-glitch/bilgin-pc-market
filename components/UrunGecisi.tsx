@@ -5,13 +5,24 @@ import { useEffect, useRef, useState } from "react";
 
 type GecisFazi = "idle" | "cikis" | "giris";
 
-/** Ürün linkine tıklanınca hafif karartma, sayfa açılınca yumuşak aydınlanma. */
+/** Ürün linkine tıklanınca hafif karartma — yalnızca mobil. */
 export default function UrunGecisi() {
   const pathname = usePathname();
   const [faz, setFaz] = useState<GecisFazi>("idle");
+  const [mobil, setMobil] = useState(false);
   const oncekiPath = useRef(pathname);
 
   useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const guncelle = () => setMobil(mq.matches);
+    guncelle();
+    mq.addEventListener("change", guncelle);
+    return () => mq.removeEventListener("change", guncelle);
+  }, []);
+
+  useEffect(() => {
+    if (!mobil) return;
+
     const urunLinkiMi = (hedef: EventTarget | null) => {
       const el = (hedef as Element | null)?.closest("a[href^='/product/']");
       if (!el) return false;
@@ -28,9 +39,14 @@ export default function UrunGecisi() {
 
     document.addEventListener("click", tikla, true);
     return () => document.removeEventListener("click", tikla, true);
-  }, []);
+  }, [mobil]);
 
   useEffect(() => {
+    if (!mobil) {
+      setFaz("idle");
+      return;
+    }
+
     if (oncekiPath.current === pathname) return;
 
     const urunSayfasi = pathname?.startsWith("/product/");
@@ -43,9 +59,9 @@ export default function UrunGecisi() {
     }
 
     setFaz("idle");
-  }, [pathname]);
+  }, [pathname, mobil]);
 
-  if (faz === "idle") return null;
+  if (!mobil || faz === "idle") return null;
 
   return (
     <div

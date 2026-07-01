@@ -1,6 +1,6 @@
 export default function ProductLoading() {
   return (
-    <div className="bg-[#050814] text-white min-h-[70vh]">
+    <div className="bg-[#050814] md:bg-[#050505] text-white min-h-[70vh]">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-6 sm:py-10 animate-pulse">
         <div className="flex flex-col md:flex-row gap-6 sm:gap-10">
           <div className="w-full md:w-[45%] aspect-square bg-white/[0.04] sm:rounded-2xl" />
