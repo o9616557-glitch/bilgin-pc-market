@@ -43,6 +43,24 @@ export async function POST(request: Request) {
       status: ilkDurum
     };
     
+    const kartUserKeyPromise =
+      odemeYontemi !== "kart" || !kayitliKartId
+        ? Promise.resolve(undefined as string | undefined)
+        : (async (): Promise<string | undefined> => {
+            const session = await getServerSession(authOptions);
+            const email = session?.user?.email || musteri?.eposta || musteri?.email;
+            if (!email) return undefined;
+            const wallet = await db.collection("wallets").findOne({ email });
+            if (!wallet) return undefined;
+            const kart = (wallet.savedCards || []).find(
+              (k: any) => String(k._id) === String(kayitliKartId)
+            );
+            if (kart?.cardToken && wallet.iyzicoCardUserKey) {
+              return wallet.iyzicoCardUserKey as string;
+            }
+            return undefined;
+          })();
+
     await db.collection("orders").insertOne(yeniSiparis);
 
     // ================= SADECE HAVALE İSE MAİL AT (JİLET GİBİ YENİ SÜRÜM) =================
@@ -176,22 +194,7 @@ export async function POST(request: Request) {
       sepetUrunleri.push({ id: "KARGO-01", name: "Teslimat Bedeli", category1: "Hizmet", itemType: "VIRTUAL", price: kargoUcreti.toString() });
     }
 
-    let iyzicoCardUserKey: string | undefined;
-    if (kayitliKartId) {
-      const session = await getServerSession(authOptions);
-      const email = session?.user?.email || musteri?.eposta || musteri?.email;
-      if (email) {
-        const wallet = await db.collection("wallets").findOne({ email });
-        if (wallet) {
-          const kart = (wallet.savedCards || []).find(
-            (k: any) => String(k._id) === String(kayitliKartId)
-          );
-          if (kart?.cardToken && wallet.iyzicoCardUserKey) {
-            iyzicoCardUserKey = wallet.iyzicoCardUserKey;
-          }
-        }
-      }
-    }
+    let iyzicoCardUserKey = await kartUserKeyPromise;
 
     const iyzicoTalep: Record<string, unknown> = {
       locale: "tr", conversationId: siparisKodu, price: toplamTutar.toString(), paidPrice: toplamTutar.toString(), currency: "TRY", basketId: siparisKodu, paymentGroup: "PRODUCT",
