@@ -10,6 +10,7 @@ import {
   yeniKartId,
   type KayitliKart,
 } from "@/lib/cuzdan";
+import { iyzicoKartKaydet, iyzicoKartSil } from "@/lib/iyzico-kart";
 
 export const dynamic = "force-dynamic";
 
@@ -58,6 +59,7 @@ async function cuzdanGetir(email: string) {
     expiryYear: k.expiryYear,
     isDefault: !!k.isDefault,
     createdAt: k.createdAt || new Date().toISOString(),
+    iyzicoHazir: !!(k.cardToken && (wallet.iyzicoCardUserKey || k.cardUserKey)),
   }));
 
   return {
@@ -139,6 +141,29 @@ export async function POST(req: Request) {
         return NextResponse.json({ hata: "Bu kart zaten kayıtlı." }, { status: 400 });
       }
 
+      let iyzicoCardUserKey = wallet.iyzicoCardUserKey as string | undefined;
+      let cardToken: string | undefined;
+
+      try {
+        const iyzicoSonuc = await iyzicoKartKaydet({
+          email,
+          cardNumber: temizNumara,
+          holderName: holderName.trim(),
+          expiryMonth: ay,
+          expiryYear: yil,
+          cardUserKey: iyzicoCardUserKey,
+          externalId: email,
+        });
+        iyzicoCardUserKey = iyzicoSonuc.cardUserKey;
+        cardToken = iyzicoSonuc.cardToken;
+      } catch (iyzicoHata: any) {
+        console.error("İyzico kart kayıt hatası:", iyzicoHata);
+        return NextResponse.json(
+          { hata: iyzicoHata?.message || "Kart güvenli ödeme sistemine kaydedilemedi." },
+          { status: 400 }
+        );
+      }
+
       const yeniKart = {
         _id: yeniKartId(),
         last4,
@@ -148,13 +173,14 @@ export async function POST(req: Request) {
         expiryYear: yil,
         isDefault: kartlar.length === 0,
         createdAt: new Date().toISOString(),
+        cardToken,
       };
 
       await wallets.updateOne(
         { email },
         {
           $push: { savedCards: yeniKart } as any,
-          $set: { updatedAt: new Date() },
+          $set: { iyzicoCardUserKey, updatedAt: new Date() },
         }
       );
 
@@ -170,6 +196,14 @@ export async function POST(req: Request) {
 
       const silinen = kartlar.find((k) => String(k._id) === String(cardId));
       const kalan = kartlar.filter((k) => String(k._id) !== String(cardId));
+
+      if (silinen?.cardToken && wallet.iyzicoCardUserKey) {
+        try {
+          await iyzicoKartSil(wallet.iyzicoCardUserKey, silinen.cardToken);
+        } catch (iyzicoHata) {
+          console.error("İyzico kart silme hatası:", iyzicoHata);
+        }
+      }
 
       if (silinen?.isDefault && kalan.length > 0) {
         kalan[0].isDefault = true;

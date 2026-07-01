@@ -419,7 +419,7 @@ export default function CuzdanPage() {
                 <div>
                   <p className="text-xs sm:text-sm font-bold text-slate-300 mb-0.5">Güvenli Kart Saklama</p>
                   <p className="text-[10px] sm:text-xs text-slate-500 leading-relaxed">
-                    Tam kart numaranız ve CVV kodunuz sunucularımızda saklanmaz. Yalnızca son 4 hane ve kart bilgileri hızlı ödeme kolaylığı için tutulur. Ödeme işlemleri iyzico altyapısı üzerinden şifrelenir.
+                    Tam kart numaranız ve CVV kodunuz sunucularımızda saklanmaz. Kartlarınız İyzico güvenli kart saklama altyapısına kaydedilir; ödeme sırasında hızlı kullanım için yalnızca son 4 hane ve kart bilgileri görüntülenir.
                   </p>
                 </div>
               </div>

@@ -1,5 +1,5 @@
 "use client";
-import { ArrowLeft, CreditCard, Banknote, ShieldCheck, MapPin, Edit3, User, Phone, Mail, ChevronRight, ChevronLeft, Package, Copy, Check } from "lucide-react";
+import { ArrowLeft, CreditCard, Banknote, ShieldCheck, MapPin, Edit3, User, Phone, Mail, ChevronRight, ChevronLeft, Package, Copy, Check, Plus } from "lucide-react";
 import { useCart } from "../CartContext";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -12,6 +12,15 @@ import {
   iyzicoIframeVarMi,
   iyzicoIframeKaydirmaAyarla,
 } from "@/lib/iyzico-checkout";
+import { type KayitliKart } from "@/lib/cuzdan";
+
+const KART_MARKA: Record<string, string> = {
+  visa: "VISA",
+  mastercard: "MASTERCARD",
+  troy: "TROY",
+  amex: "AMEX",
+  diger: "KART",
+};
 
 const labelClass = "text-xs text-slate-400 font-medium block mb-1.5";
 const fieldClass =
@@ -30,6 +39,10 @@ export default function OdemeSayfasi() {
   const [acikSozlesme, setAcikSozlesme] = useState<"mesafeli" | "gizlilik" | null>(null);
   const [asama, setAsama] = useState(1);
 
+  const [kayitliKartlar, setKayitliKartlar] = useState<KayitliKart[]>([]);
+  const [kayitliKartlarYukleniyor, setKayitliKartlarYukleniyor] = useState(false);
+  const [seciliKartId, setSeciliKartId] = useState<string | null>(null);
+
   const [adresAraniyor, setAdresAraniyor] = useState(() => {
     if (typeof window === "undefined") return true;
     return !localStorage.getItem("bilgin_hizli_adresler");
@@ -47,6 +60,29 @@ export default function OdemeSayfasi() {
       setFaturaForm((prev) => ({ ...prev, eposta: userEmail }));
     }
   }, [session, status]);
+
+  useEffect(() => {
+    if (status !== "authenticated" || odemeYontemi !== "kart") return;
+
+    const kartlariGetir = async () => {
+      setKayitliKartlarYukleniyor(true);
+      try {
+        const res = await fetch("/api/cuzdan?t=" + Date.now(), { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json();
+        const kartlar: KayitliKart[] = (data.savedCards || []).filter((k: KayitliKart) => k.iyzicoHazir);
+        setKayitliKartlar(kartlar);
+        const varsayilan = kartlar.find((k) => k.isDefault) || kartlar[0];
+        setSeciliKartId(varsayilan?._id ?? null);
+      } catch {
+        setKayitliKartlar([]);
+      } finally {
+        setKayitliKartlarYukleniyor(false);
+      }
+    };
+
+    kartlariGetir();
+  }, [status, odemeYontemi]);
 
   useEffect(() => {
     sessionStorage.removeItem("iyzico_temizle");
@@ -261,6 +297,9 @@ export default function OdemeSayfasi() {
       totalPrice: genelToplam,
       genelToplam: genelToplam
     };
+    if (odemeYontemi === "kart" && seciliKartId) {
+      (siparisVerisi as any).kayitliKartId = seciliKartId;
+    }
     try {
       const response = await fetch("/api/siparis", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(siparisVerisi) });
       const data = await response.json();
@@ -317,6 +356,115 @@ export default function OdemeSayfasi() {
   const odemeYontemiSec = (yontem: "kart" | "havale") => {
     setIyzicoFormHtml("");
     setOdemeYontemi(yontem);
+    if (yontem === "havale") setSeciliKartId(null);
+  };
+
+  const KayitliKartSecimi = () => {
+    if (status !== "authenticated") {
+      return (
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 mb-5">
+          <p className="text-slate-400 text-xs leading-relaxed">
+            Kayıtlı kartlarınızı kullanmak için{" "}
+            <Link href="/giris?callbackUrl=/odeme" className="text-site-accent hover:underline">giriş yapın</Link>
+            {" "}veya ödeme sırasında yeni kart girebilirsiniz.
+          </p>
+        </div>
+      );
+    }
+
+    if (kayitliKartlarYukleniyor) {
+      return (
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 mb-5 animate-pulse">
+          <div className="h-3 bg-white/10 w-1/3 rounded mb-3" />
+          <div className="h-14 bg-white/5 rounded-xl" />
+        </div>
+      );
+    }
+
+    if (kayitliKartlar.length === 0) {
+      return (
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 mb-5">
+          <p className="text-slate-400 text-xs leading-relaxed mb-2">
+            Henüz hızlı ödeme için kayıtlı kartınız yok. İyzico ekranında yeni kart girebilir veya{" "}
+            <Link href="/cuzdan" className="text-site-accent hover:underline">cüzdanınıza kart ekleyebilirsiniz</Link>.
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="rounded-2xl border border-[#00d2ff]/20 bg-[#00d2ff]/[0.03] p-4 sm:p-5 mb-5">
+        <p className="text-white text-sm font-semibold mb-1">Kayıtlı kartınız</p>
+        <p className="text-slate-500 text-xs mb-4">Seçtiğiniz kart İyzico güvenli ödeme ekranında hazır gelir.</p>
+        <div className="space-y-2">
+          {kayitliKartlar.map((kart) => {
+            const secili = seciliKartId === kart._id;
+            return (
+              <button
+                key={kart._id}
+                type="button"
+                onClick={() => setSeciliKartId(kart._id)}
+                className={[
+                  "w-full flex items-center gap-3 p-3.5 rounded-xl border-2 text-left transition-all touch-manipulation",
+                  secili
+                    ? "border-[#00d2ff]/50 bg-[#00d2ff]/10"
+                    : "border-white/[0.08] bg-white/[0.02] hover:border-white/20",
+                ].join(" ")}
+              >
+                <div className={[
+                  "w-10 h-10 rounded-lg flex items-center justify-center shrink-0",
+                  secili ? "bg-[#00d2ff]/20" : "bg-white/[0.05]",
+                ].join(" ")}>
+                  <CreditCard className={secili ? "w-5 h-5 text-[#00d2ff]" : "w-5 h-5 text-slate-400"} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-white text-sm font-medium font-mono tracking-wider">•••• {kart.last4}</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase">{KART_MARKA[kart.brand] || "KART"}</span>
+                    {kart.isDefault && (
+                      <span className="text-[9px] font-bold text-[#00d2ff]/80 bg-[#00d2ff]/10 px-1.5 py-0.5 rounded">Varsayılan</span>
+                    )}
+                  </div>
+                  <p className="text-slate-500 text-[11px] truncate mt-0.5">
+                    {kart.holderName} · {kart.expiryMonth}/{kart.expiryYear}
+                  </p>
+                </div>
+                <div className={[
+                  "w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center",
+                  secili ? "border-[#00d2ff] bg-[#00d2ff]" : "border-slate-600",
+                ].join(" ")}>
+                  {secili && <Check className="w-3 h-3 text-black" />}
+                </div>
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            onClick={() => setSeciliKartId(null)}
+            className={[
+              "w-full flex items-center gap-3 p-3.5 rounded-xl border-2 text-left transition-all touch-manipulation",
+              seciliKartId === null
+                ? "border-[#00d2ff]/50 bg-[#00d2ff]/10"
+                : "border-white/[0.08] bg-white/[0.02] hover:border-white/20",
+            ].join(" ")}
+          >
+            <div className="w-10 h-10 rounded-lg bg-white/[0.05] flex items-center justify-center shrink-0">
+              <Plus className="w-5 h-5 text-slate-400" />
+            </div>
+            <div className="flex-1">
+              <span className="text-white text-sm font-medium">Farklı kart ile öde</span>
+              <p className="text-slate-500 text-[11px] mt-0.5">İyzico ekranında yeni kart bilgisi girin</p>
+            </div>
+            <div className={[
+              "w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center",
+              seciliKartId === null ? "border-[#00d2ff] bg-[#00d2ff]" : "border-slate-600",
+            ].join(" ")}>
+              {seciliKartId === null && <Check className="w-3 h-3 text-black" />}
+            </div>
+          </button>
+        </div>
+      </div>
+    );
   };
 
   const OdemeYontemiKartlari = ({ compact = false }: { compact?: boolean }) => (
@@ -651,17 +799,24 @@ export default function OdemeSayfasi() {
                 <OdemeYontemiKartlari compact />
 
                 {odemeYontemi === "kart" ? (
-                  <div className="rounded-2xl border border-[#00d2ff]/20 bg-[#00d2ff]/[0.04] p-4 sm:p-5 mb-5">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-[#00d2ff]/15 flex items-center justify-center shrink-0">
-                        <ShieldCheck className="w-5 h-5 text-[#00d2ff]" />
-                      </div>
-                      <div>
-                        <p className="text-white text-sm font-semibold mb-1">Güvenli kart ödemesi</p>
-                        <p className="text-slate-400 text-xs leading-relaxed">Kart bilgileriniz İyzico güvenli ödeme ekranında alınır. Sitemizde saklanmaz.</p>
+                  <>
+                    <KayitliKartSecimi />
+                    <div className="rounded-2xl border border-[#00d2ff]/20 bg-[#00d2ff]/[0.04] p-4 sm:p-5 mb-5">
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-[#00d2ff]/15 flex items-center justify-center shrink-0">
+                          <ShieldCheck className="w-5 h-5 text-[#00d2ff]" />
+                        </div>
+                        <div>
+                          <p className="text-white text-sm font-semibold mb-1">Güvenli kart ödemesi</p>
+                          <p className="text-slate-400 text-xs leading-relaxed">
+                            {seciliKartId
+                              ? "Seçtiğiniz kart İyzico ekranında hazır gelir; yalnızca CVV ile onaylamanız yeterlidir."
+                              : "Kart bilgileriniz İyzico güvenli ödeme ekranında alınır. Sitemizde saklanmaz."}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </>
                 ) : (
                   <HavaleDetayKarti />
                 )}
@@ -679,7 +834,11 @@ export default function OdemeSayfasi() {
                     disabled={yukleniyor}
                     className={["flex-1 py-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 touch-manipulation", yukleniyor ? "bg-slate-800 text-slate-500 cursor-not-allowed" : "btn-primary"].join(" ")}
                   >
-                    {yukleniyor ? "İşleniyor…" : odemeYontemi === "kart" ? <><CreditCard className="w-4 h-4" /> Kart ile öde</> : <><Banknote className="w-4 h-4" /> Havale siparişini onayla</>}
+                    {yukleniyor ? "İşleniyor…" : odemeYontemi === "kart" ? (
+                      <><CreditCard className="w-4 h-4" /> {seciliKartId ? "Kayıtlı kart ile öde" : "Kart ile öde"}</>
+                    ) : (
+                      <><Banknote className="w-4 h-4" /> Havale siparişini onayla</>
+                    )}
                   </button>
                 </div>
               </div>

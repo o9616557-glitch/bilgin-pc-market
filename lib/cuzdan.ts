@@ -9,6 +9,8 @@ export interface KayitliKart {
   expiryYear: string;
   isDefault: boolean;
   createdAt: string;
+  /** İyzico kart saklama ile senkronize; ödemede kullanılabilir */
+  iyzicoHazir?: boolean;
 }
 
 export interface CuzdanIslem {

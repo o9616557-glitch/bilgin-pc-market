@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import clientPromise from "@/lib/mongodb";
 // @ts-ignore
 import Iyzipay from "iyzipay";
@@ -14,7 +16,7 @@ export async function POST(request: Request) {
     });
     
     const body = await request.json();
-    const { musteri, sepet, odemeYontemi, toplamTutar, siparisNotu } = body;
+    const { musteri, sepet, odemeYontemi, toplamTutar, siparisNotu, kayitliKartId } = body;
 
     if (!musteri || !sepet || !odemeYontemi || !toplamTutar) {
       return NextResponse.json({ error: "Formda eksik bilgi var şef!" }, { status: 400 });
@@ -177,7 +179,24 @@ export async function POST(request: Request) {
       sepetUrunleri.push({ id: "KARGO-01", name: "Teslimat Bedeli", category1: "Hizmet", itemType: "VIRTUAL", price: kargoUcreti.toString() });
     }
 
-    const iyzicoTalep = {
+    let iyzicoCardUserKey: string | undefined;
+    if (kayitliKartId) {
+      const session = await getServerSession(authOptions);
+      const email = session?.user?.email || musteri?.eposta || musteri?.email;
+      if (email) {
+        const wallet = await db.collection("wallets").findOne({ email });
+        if (wallet) {
+          const kart = (wallet.savedCards || []).find(
+            (k: any) => String(k._id) === String(kayitliKartId)
+          );
+          if (kart?.cardToken && wallet.iyzicoCardUserKey) {
+            iyzicoCardUserKey = wallet.iyzicoCardUserKey;
+          }
+        }
+      }
+    }
+
+    const iyzicoTalep: Record<string, unknown> = {
       locale: "tr", conversationId: siparisKodu, price: toplamTutar.toString(), paidPrice: toplamTutar.toString(), currency: "TRY", basketId: siparisKodu, paymentGroup: "PRODUCT",
       callbackUrl: `https://www.bilginpcmarket.com/api/iyzico-sonuc?siparisKodu=${siparisKodu}`,
       enabledInstallments: [1, 2, 3, 6, 9],
@@ -188,6 +207,10 @@ export async function POST(request: Request) {
       billingAddress: { contactName: `${musteri.ad} ${musteri.soyad}`, city: musteri.sehir || "Istanbul", country: "Turkey", address: musteri.adres || "Test Adresi", zipCode: "34000" },
       basketItems: sepetUrunleri
     };
+
+    if (iyzicoCardUserKey) {
+      iyzicoTalep.cardUserKey = iyzicoCardUserKey;
+    }
 
     const iyzicoSonuc: any = await new Promise((resolve) => {
       iyzipay.checkoutFormInitialize.create(iyzicoTalep, (err: any, result: any) => {
