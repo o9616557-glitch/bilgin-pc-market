@@ -54,10 +54,6 @@ function UrunGaleriResmi({
 export default function ProductClient({ product, allProducts = [] }: { product: Record<string, any>; allProducts?: any[] }) {
   const { sepeteEkle } = useCart(); 
   const { karsilastirmayaEkle, setPopupAcik } = useCompare(); 
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
   
   // Varsayılan olarak Açıklama sekmesi açık gelecek
   const [activeTab, setActiveTab] = useState("aciklama");
@@ -463,7 +459,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   );
 
   return (
-    <div className="bg-[#050505] text-white font-sans pb-0 sm:pb-10 relative site-page-soft-in">
+    <div className="bg-[#050505] text-white font-sans pb-0 sm:pb-10 relative">
       
       <style dangerouslySetInnerHTML={{ __html: `
         body { -webkit-tap-highlight-color: transparent; }
