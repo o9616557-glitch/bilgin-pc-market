@@ -840,11 +840,7 @@ export default function OdemeSayfasi() {
                     disabled={yukleniyor}
                     className={["flex-1 py-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 touch-manipulation", yukleniyor ? "bg-slate-800 text-slate-500 cursor-not-allowed" : "btn-primary"].join(" ")}
                   >
-                    {yukleniyor
-                      ? odemeYontemi === "kart"
-                        ? "Yönlendiriliyor…"
-                        : "İşleniyor…"
-                      : odemeYontemi === "kart" ? (
+                    {yukleniyor ? "İşleniyor…" : odemeYontemi === "kart" ? (
                       <><CreditCard className="w-4 h-4" /> {seciliKartId ? "Kayıtlı kart ile öde" : "Kart ile öde"}</>
                     ) : (
                       <><Banknote className="w-4 h-4" /> Havale siparişini onayla</>
@@ -860,15 +856,6 @@ export default function OdemeSayfasi() {
           )}
         </form>
       </div>
-
-      {yukleniyor && odemeYontemi === "kart" && typeof document !== "undefined" && createPortal(
-        <div className="fixed inset-0 z-[2147483646] bg-white flex flex-col items-center justify-center px-6 text-center pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
-          <div className="w-11 h-11 border-[3px] border-slate-200 border-t-[#1a1a2e] rounded-full animate-spin mb-5" />
-          <p className="text-slate-800 text-base font-semibold">Güvenli ödeme sayfasına aktarılıyorsunuz</p>
-          <p className="text-slate-400 text-sm mt-2">İyzico güvenli ödeme ekranı açılıyor…</p>
-        </div>,
-        document.body
-      )}
 
    {acikSozlesme && typeof document !== "undefined" && createPortal(
         <div className="fixed inset-0 z-[99999] flex flex-col bg-white w-full h-[100dvh] max-h-[100dvh]">
