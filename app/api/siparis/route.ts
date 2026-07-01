@@ -217,7 +217,11 @@ export async function POST(request: Request) {
     });
 
     if (iyzicoSonuc.status === "success") {
-      return NextResponse.json({ success: true, odemeYontemi: "kart", checkoutFormContent: iyzicoSonuc.checkoutFormContent });
+      return NextResponse.json({
+        success: true,
+        odemeYontemi: "kart",
+        paymentPageUrl: iyzicoSonuc.paymentPageUrl,
+      });
     } else {
       return NextResponse.json({ error: `Iyzico Reddetti: ${iyzicoSonuc.errorMessage || JSON.stringify(iyzicoSonuc)}` }, { status: 400 });
     }

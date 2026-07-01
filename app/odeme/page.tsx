@@ -4,9 +4,8 @@ import { useCart } from "../CartContext";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createPortal } from "react-dom";
-import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { temizleOdemeSayfasiKalintilari, IYZICO_CHECKOUT_STORAGE_KEY } from "@/lib/iyzico-checkout";
+import { temizleOdemeSayfasiKalintilari } from "@/lib/iyzico-checkout";
 import { type KayitliKart } from "@/lib/cuzdan";
 
 const KART_MARKA: Record<string, string> = {
@@ -22,7 +21,6 @@ const fieldClass =
   "w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-site-accent/50 focus:bg-white/[0.05] transition-colors";
 
 export default function OdemeSayfasi() {
-  const router = useRouter();
   const { data: session, status } = useSession();
   const { sepet } = useCart();
 
@@ -244,9 +242,11 @@ export default function OdemeSayfasi() {
         if (data.odemeYontemi === "havale") {
           localStorage.removeItem("bilgin-sepet");
           window.location.href = "/siparis-basarili?kodu=" + data.siparisKodu;
+        } else if (data.paymentPageUrl) {
+          window.location.replace(data.paymentPageUrl);
+          return;
         } else {
-          sessionStorage.setItem(IYZICO_CHECKOUT_STORAGE_KEY, data.checkoutFormContent);
-          router.push("/odeme/iyzico");
+          alert("Ödeme sayfası oluşturulamadı. Lütfen tekrar deneyin.");
         }
       } else {
         alert("Hata Oluştu: " + (data.error || "İşlem reddedildi."));

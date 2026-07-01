@@ -1,7 +1,5 @@
 /** İyzico checkoutFormContent — script çalıştırma ve çıkışta temizlik */
 
-export const IYZICO_CHECKOUT_STORAGE_KEY = "iyzico_checkout_html";
-
 export function sifirlaSayfaKilidi() {
   document.body.style.overflow = "";
   document.body.style.removeProperty("overflow");
