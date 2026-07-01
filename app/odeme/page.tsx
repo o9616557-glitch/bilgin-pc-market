@@ -1,5 +1,5 @@
 "use client";
-import { ArrowLeft, CreditCard, Banknote, ShieldCheck, MapPin, Edit3, User, Phone, Mail, ChevronRight, ChevronLeft, Package, Copy, Check, Plus } from "lucide-react";
+import { ArrowLeft, CreditCard, Banknote, ShieldCheck, MapPin, Edit3, User, Phone, Mail, ChevronRight, ChevronLeft, Package, Copy, Check, Plus, Landmark } from "lucide-react";
 import { useCart } from "../CartContext";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -464,78 +464,89 @@ export default function OdemeSayfasi() {
     );
   };
 
-  const OdemeYontemiKartlari = ({ compact = false }: { compact?: boolean }) => (
-    <div className={compact ? "mb-4" : "mb-5"}>
-      <div className="grid grid-cols-2 gap-3">
+  const OdemeYontemiKartlari = ({ compact = false }: { compact?: boolean }) => {
+    const satirSinif = (secili: boolean, tip: "kart" | "havale" | "bkm") => {
+      if (!secili) {
+        return "border-white/[0.08] bg-white/[0.02] text-slate-300 hover:border-white/15 hover:bg-white/[0.04]";
+      }
+      if (tip === "kart") return "border-[#00d2ff]/40 bg-[#00d2ff]/[0.08] text-white";
+      if (tip === "havale") return "border-emerald-400/35 bg-emerald-500/[0.07] text-white";
+      return "border-orange-400/35 bg-orange-500/[0.07] text-white";
+    };
+
+    const radyoSinif = (secili: boolean, tip: "kart" | "havale" | "bkm") => {
+      if (!secili) return "border-slate-600";
+      if (tip === "kart") return "border-[#00d2ff] bg-[#00d2ff]";
+      if (tip === "havale") return "border-emerald-400 bg-emerald-400";
+      return "border-orange-400 bg-orange-400";
+    };
+
+    return (
+      <div className={`space-y-2 ${compact ? "mb-4" : "mb-5"}`}>
         <button
           type="button"
           onClick={() => odemeYontemiSec("kart")}
           className={[
-            "relative rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-2 touch-manipulation active:scale-[0.98]",
-            compact ? "py-3 px-2 min-h-[64px]" : "py-4 px-3 min-h-[80px]",
-            odemeYontemi === "kart"
-              ? "bg-[#00d2ff]/10 text-[#00d2ff] border-[#00d2ff]/50 shadow-[0_0_20px_rgba(0,210,255,0.12)]"
-              : "bg-white/[0.03] text-slate-400 border-white/[0.08] hover:border-white/20 hover:text-white",
+            "w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-all touch-manipulation active:scale-[0.99]",
+            satirSinif(odemeYontemi === "kart", "kart"),
           ].join(" ")}
         >
-          {odemeYontemi === "kart" && (
-            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#00d2ff] shadow-[0_0_8px_#00d2ff]" />
-          )}
-          <CreditCard className={compact ? "w-5 h-5" : "w-6 h-6"} />
-          <span className="text-[11px] sm:text-xs font-bold text-center leading-tight">Kredi / Banka Kartı</span>
+          <span className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-800 to-slate-950 flex flex-col items-center justify-center shrink-0 shadow-sm border border-white/10 overflow-hidden">
+            <CreditCard className="w-4 h-4 text-[#00d2ff] mb-0.5" strokeWidth={2.25} />
+            <span className="flex items-center gap-1 leading-none">
+              <span className="text-[6px] font-black text-white/90 tracking-tighter">VISA</span>
+              <span className="text-[6px] font-black text-white/50">·</span>
+              <span className="text-[6px] font-black text-white/90 tracking-tighter">MC</span>
+            </span>
+          </span>
+          <span className="flex-1 text-left min-w-0">
+            <span className="block text-sm font-medium">Kredi / Banka Kartı</span>
+          </span>
+          <div className={["w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center", radyoSinif(odemeYontemi === "kart", "kart")].join(" ")}>
+            {odemeYontemi === "kart" && <Check className="w-2.5 h-2.5 text-black" />}
+          </div>
         </button>
+
         <button
           type="button"
           onClick={() => odemeYontemiSec("havale")}
           className={[
-            "relative rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-2 touch-manipulation active:scale-[0.98]",
-            compact ? "py-3 px-2 min-h-[64px]" : "py-4 px-3 min-h-[80px]",
-            odemeYontemi === "havale"
-              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.12)]"
-              : "bg-white/[0.03] text-slate-400 border-white/[0.08] hover:border-white/20 hover:text-white",
+            "w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-all touch-manipulation active:scale-[0.99]",
+            satirSinif(odemeYontemi === "havale", "havale"),
           ].join(" ")}
         >
-          {odemeYontemi === "havale" && (
-            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
-          )}
-          <Banknote className={compact ? "w-5 h-5" : "w-6 h-6"} />
-          <span className="text-[11px] sm:text-xs font-bold text-center leading-tight">Havale / EFT</span>
+          <span className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-600 to-emerald-500 flex items-center justify-center shrink-0 shadow-sm">
+            <Landmark className="w-5 h-5 text-white" strokeWidth={2} />
+          </span>
+          <span className="flex-1 text-left min-w-0">
+            <span className="block text-sm font-medium">Havale / EFT</span>
+          </span>
+          <div className={["w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center", radyoSinif(odemeYontemi === "havale", "havale")].join(" ")}>
+            {odemeYontemi === "havale" && <Check className="w-2.5 h-2.5 text-white" />}
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => odemeYontemiSec("bkm")}
+          className={[
+            "w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-all touch-manipulation active:scale-[0.99]",
+            satirSinif(odemeYontemi === "bkm", "bkm"),
+          ].join(" ")}
+        >
+          <span className="w-10 h-10 rounded-lg bg-white flex items-center justify-center shrink-0 shadow-sm">
+            <span className="text-[10px] font-black text-[#d35400] tracking-tight leading-none">BKM</span>
+          </span>
+          <span className="flex-1 text-left min-w-0">
+            <span className="block text-sm font-medium">BKM Express</span>
+          </span>
+          <div className={["w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center", radyoSinif(odemeYontemi === "bkm", "bkm")].join(" ")}>
+            {odemeYontemi === "bkm" && <Check className="w-2.5 h-2.5 text-white" />}
+          </div>
         </button>
       </div>
-
-      <div className="flex items-center gap-3 mt-4 mb-3">
-        <div className="flex-1 h-px bg-white/[0.06]" />
-        <span className="text-[10px] text-slate-500 uppercase tracking-wider">veya</span>
-        <div className="flex-1 h-px bg-white/[0.06]" />
-      </div>
-
-      <button
-        type="button"
-        onClick={() => odemeYontemiSec("bkm")}
-        className={[
-          "w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-all touch-manipulation active:scale-[0.99]",
-          odemeYontemi === "bkm"
-            ? "border-orange-400/35 bg-orange-500/[0.07] text-white"
-            : "border-white/[0.08] bg-white/[0.02] text-slate-300 hover:border-white/15 hover:bg-white/[0.04]",
-        ].join(" ")}
-      >
-        <span className="w-9 h-9 rounded-lg bg-white flex items-center justify-center shrink-0 shadow-sm">
-          <span className="text-[9px] font-black text-[#d35400] tracking-tight leading-none">BKM</span>
-        </span>
-        <span className="flex-1 text-left min-w-0">
-          <span className="block text-sm font-medium">BKM Express</span>
-        </span>
-        <div
-          className={[
-            "w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center",
-            odemeYontemi === "bkm" ? "border-orange-400 bg-orange-400" : "border-slate-600",
-          ].join(" ")}
-        >
-          {odemeYontemi === "bkm" && <Check className="w-2.5 h-2.5 text-white" />}
-        </div>
-      </button>
-    </div>
-  );
+    );
+  };
 
   const SiparisOzetiKutusu = ({ notGoster = false }: { notGoster?: boolean }) => (
     <div className="glass-card p-4 sm:p-5">
