@@ -124,9 +124,25 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
     try {
       const res = await fetch(`/api/admin/destek?v=${Date.now()}`, { headers: { "x-patron-anahtar": PATRON_SIFRESI }});
       const data = await res.json();
-      if (data.success) setTalepler(data.talepler);
+      if (data.success) {
+        setTalepler(data.talepler);
+        setIadeTutarlari((prev) => {
+          const merged = { ...prev };
+          for (const t of data.talepler || []) {
+            if (
+              (t.konu === "iade" || t.konu === "iptal") &&
+              !t.iadeOdendi &&
+              t.siparisTutari > 0 &&
+              (!merged[t._id] || merged[t._id] === "")
+            ) {
+              merged[t._id] = String(t.siparisTutari);
+            }
+          }
+          return merged;
+        });
+      }
     } catch (e) {}
-  }; // 🚀 DİKKAT: Fonksiyonu burada kapattık, hapishaneden çıktı!
+  };
 
   // 🚀 BİNGO: ADMİN RADARI (Sayfayı yenilemeden 5 saniyede bir yeni mesajları çeker)
   useEffect(() => {
@@ -472,16 +488,38 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                       <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Hızlı İşlemler</label>
                       {(talep.konu === "iade" || talep.konu === "iptal") && !talep.iadeOdendi && (
                         <div className="p-3 bg-[#0b1120] border border-slate-700 rounded-lg space-y-2">
+                          {talep.siparisBulundu && talep.siparisTutari > 0 ? (
+                            <p className="text-[10px] text-cyan-400 leading-relaxed">
+                              Sipariş bulundu{talep.siparisKoduBulunan ? `: ${talep.siparisKoduBulunan}` : ""} — tutar{" "}
+                              <strong>{Number(talep.siparisTutari).toLocaleString("tr-TR")} TL</strong> otomatik dolduruldu.
+                            </p>
+                          ) : (
+                            <p className="text-[10px] text-amber-400/90 leading-relaxed">
+                              Sipariş kaydı bulunamadı. Tutarı elle girin veya sipariş numarasını kontrol edin (ör. BPC-123456).
+                            </p>
+                          )}
                           <label className="block text-[10px] font-bold text-slate-400 uppercase">İade tutarı (TL)</label>
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={iadeTutarlari[talep._id] || ""}
-                            onChange={(e) => setIadeTutarlari((prev) => ({ ...prev, [talep._id]: e.target.value }))}
-                            placeholder="Örn. 1250"
-                            className="w-full bg-[#111827] border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50"
-                          />
+                          <div className="flex gap-2">
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={iadeTutarlari[talep._id] || ""}
+                              onChange={(e) => setIadeTutarlari((prev) => ({ ...prev, [talep._id]: e.target.value }))}
+                              placeholder="Örn. 1250"
+                              className="flex-1 bg-[#111827] border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50"
+                            />
+                            {talep.siparisTutari > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => setIadeTutarlari((prev) => ({ ...prev, [talep._id]: String(talep.siparisTutari) }))}
+                                className="shrink-0 px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-[10px] font-bold text-slate-300 uppercase hover:bg-slate-700 transition-colors"
+                                title="Sipariş tutarını tekrar yükle"
+                              >
+                                Siparişten al
+                              </button>
+                            )}
+                          </div>
                           <div className="flex flex-col gap-2">
                             <button
                               type="button"

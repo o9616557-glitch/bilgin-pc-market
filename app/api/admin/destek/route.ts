@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import clientPromise from "@/lib/mongodb";
 import Destek from "@/models/Destek";
 import { magazaKrediEkle } from "@/lib/magaza-kredi";
+import { siparisNoCikar, siparisTutarBul } from "@/lib/siparis-bul";
 
 // 🚀 ADMİN ÖNBELLEK KİLİDİ: Admin panelinin de anlık canlı veri çekmesini sağlar (Tembelliği önler)
 export const dynamic = "force-dynamic";
@@ -24,7 +25,30 @@ export async function GET(request: Request) {
   if (!guvenlikKontrolu(request)) return NextResponse.json({ success: false }, { status: 401 });
   await connectDB();
   try {
-    const talepler = await Destek.find().sort({ createdAt: -1 });
+    const client = await clientPromise;
+    const db = client.db("bilginpcmarket");
+    const taleplerRaw = await Destek.find().sort({ createdAt: -1 }).lean();
+
+    const talepler = await Promise.all(
+      taleplerRaw.map(async (talep: any) => {
+        const konu = talep.konu;
+        if (konu !== "iade" && konu !== "iptal") return talep;
+
+        const kod = siparisNoCikar(talep);
+        if (!kod) {
+          return { ...talep, siparisTutari: null, siparisKoduBulunan: null, siparisBulundu: false };
+        }
+
+        const sonuc = await siparisTutarBul(db, kod);
+        return {
+          ...talep,
+          siparisTutari: sonuc.tutar,
+          siparisKoduBulunan: sonuc.siparisKodu,
+          siparisBulundu: sonuc.bulundu,
+        };
+      })
+    );
+
     return NextResponse.json({ success: true, talepler });
   } catch (error: any) {
     return NextResponse.json({ success: false, message: error.message });
@@ -58,10 +82,6 @@ export async function PUT(request: Request) {
 
     if (action === "iade_tamamla") {
       const { tutar, yontem } = body;
-      const tutarNum = Number(tutar);
-      if (!tutarNum || tutarNum <= 0) {
-        return NextResponse.json({ success: false, message: "Geçerli bir iade tutarı girin." });
-      }
 
       const talep = await Destek.findById(id);
       if (!talep) return NextResponse.json({ success: false, message: "Talep bulunamadı." });
@@ -69,12 +89,28 @@ export async function PUT(request: Request) {
         return NextResponse.json({ success: false, message: "Bu talep için iade zaten işlendi." });
       }
 
+      const client = await clientPromise;
+      const db = client.db("bilginpcmarket");
+
+      let tutarNum = Number(tutar);
+      if (!tutarNum || tutarNum <= 0) {
+        const kod = siparisNoCikar(talep);
+        if (kod) {
+          const sonuc = await siparisTutarBul(db, kod);
+          tutarNum = Number(sonuc.tutar || 0);
+        }
+      }
+      if (!tutarNum || tutarNum <= 0) {
+        return NextResponse.json({
+          success: false,
+          message: "Geçerli bir iade tutarı girin veya sipariş numarasını kontrol edin.",
+        });
+      }
+
       const yontemFinal = yontem || talep.iadeYontemi || "kart";
       const siparisEtiket = talep.siparisNo || talep.talepNo;
 
       if (yontemFinal === "magaza_kredisi") {
-        const client = await clientPromise;
-        const db = client.db("bilginpcmarket");
         await magazaKrediEkle(
           db,
           talep.kullaniciEmail,
