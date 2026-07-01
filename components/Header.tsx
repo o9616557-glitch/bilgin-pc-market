@@ -646,8 +646,10 @@ export default function Header() {
   };
 
   const aramaInputOrtak = {
-    type: "search" as const,
+    type: "text" as const,
+    inputMode: "search" as const,
     enterKeyHint: "search" as const,
+    autoComplete: "off",
     value: aramaMetni,
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => setAramaMetni(e.target.value),
     placeholder: "Ürün, marka veya kategori ara...",
@@ -781,8 +783,8 @@ export default function Header() {
               </div>
               </div>
 
-              <div className={`flex items-center gap-2.5 px-3 sm:px-4 pb-3 pt-0.5 ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}>
-                <MobilProfilLink size={42} onNavigate={() => setMenuAcik(false)} />
+              <div className={`grid grid-cols-[auto_1fr] items-center gap-2 pb-3 pt-0.5 ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}>
+                <MobilProfilLink size={46} onNavigate={() => setMenuAcik(false)} />
                 <form
                   onSubmit={(e) => e.preventDefault()}
                   onPointerDown={() => {
