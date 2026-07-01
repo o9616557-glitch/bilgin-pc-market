@@ -13,6 +13,9 @@ const MARKA_ETIKET: Record<string, string> = {
 };
 
 export const KART_YIGIN_PEEK = 44;
+export const KART_YIGIN_PEEK_ODEME = 36;
+
+export type KartBoyut = "normal" | "odeme";
 
 const KART_TEMA: Record<string, { gradient: string; sheen: string; border: string }> = {
   visa: {
@@ -42,9 +45,9 @@ const KART_TEMA: Record<string, { gradient: string; sheen: string; border: strin
   },
 };
 
-function KartCipi() {
+function KartCipi({ kucuk }: { kucuk?: boolean }) {
   return (
-    <div className="w-10 h-7 sm:w-11 sm:h-8 rounded-[5px] bg-gradient-to-br from-[#e8d48a] via-[#c9a84c] to-[#9a7229] border border-[#f5ebc8]/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_6px_rgba(0,0,0,0.35)] relative overflow-hidden shrink-0">
+    <div className={`${kucuk ? "w-8 h-6 md:w-9 md:h-7" : "w-10 h-7 sm:w-11 sm:h-8"} rounded-[5px] bg-gradient-to-br from-[#e8d48a] via-[#c9a84c] to-[#9a7229] border border-[#f5ebc8]/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_6px_rgba(0,0,0,0.35)] relative overflow-hidden shrink-0`}>
       <div className="absolute inset-[3px] rounded-[3px] border border-black/12" />
       <div className="absolute top-[38%] left-1.5 right-1.5 h-px bg-black/18" />
       <div className="absolute top-[52%] left-2 right-2 h-px bg-black/12" />
@@ -53,9 +56,9 @@ function KartCipi() {
   );
 }
 
-function TemassizIkon() {
+function TemassizIkon({ kucuk }: { kucuk?: boolean }) {
   return (
-    <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-6 sm:h-6 text-white/50 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <svg viewBox="0 0 24 24" className={`${kucuk ? "w-4 h-4 md:w-5 md:h-5" : "w-5 h-5 sm:w-6 sm:h-6"} text-white/50 shrink-0`} fill="none" stroke="currentColor" strokeWidth="1.5">
       <path d="M8 12a4 4 0 0 1 8 0" strokeLinecap="round" />
       <path d="M5 12a7 7 0 0 1 14 0" strokeLinecap="round" opacity="0.7" />
       <path d="M2 12a10 10 0 0 1 20 0" strokeLinecap="round" opacity="0.4" />
@@ -101,11 +104,12 @@ function MarkaLogosu({ brand, kucuk }: { brand: string; kucuk?: boolean }) {
   );
 }
 
-export function KartGorseli({ kart, secili, onOnde, mod = "cuzdan", onSil, onVarsayilan, onOneGetir, onSec }: {
+export function KartGorseli({ kart, secili, onOnde, mod = "cuzdan", boyut = "normal", onSil, onVarsayilan, onOneGetir, onSec }: {
   kart: KayitliKart;
   secili?: boolean;
   onOnde?: boolean;
   mod?: "cuzdan" | "secim";
+  boyut?: KartBoyut;
   onSil?: () => void;
   onVarsayilan?: () => void;
   onOneGetir?: () => void;
@@ -115,6 +119,7 @@ export function KartGorseli({ kart, secili, onOnde, mod = "cuzdan", onSil, onVar
   const tema = KART_TEMA[kart.brand] || KART_TEMA.diger;
   const menuGoster = mod === "cuzdan" && onOnde !== false;
   const tiklanabilir = onOnde === false || (mod === "secim" && onOnde);
+  const odemeKibar = boyut === "odeme";
 
   const tikla = () => {
     if (onOnde === false) onOneGetir?.();
@@ -127,7 +132,9 @@ export function KartGorseli({ kart, secili, onOnde, mod = "cuzdan", onSil, onVar
       tabIndex={tiklanabilir ? 0 : undefined}
       onClick={tiklanabilir ? tikla : undefined}
       onKeyDown={tiklanabilir ? (e) => { if (e.key === "Enter" || e.key === " ") tikla(); } : undefined}
-      className={`relative w-full aspect-[1.586/1] rounded-[14px] p-3.5 sm:p-5 flex flex-col overflow-hidden transition-all duration-300 select-none ${
+      className={`relative w-full aspect-[1.586/1] rounded-[14px] flex flex-col overflow-hidden transition-all duration-300 select-none ${
+        odemeKibar ? "p-3.5 md:p-3 md:rounded-[12px]" : "p-3.5 sm:p-5"
+      } ${
         tiklanabilir ? "cursor-pointer" : ""
       } ${
         secili
@@ -135,7 +142,11 @@ export function KartGorseli({ kart, secili, onOnde, mod = "cuzdan", onSil, onVar
             ? "ring-2 ring-[#00d2ff]/60 ring-offset-2 ring-offset-[#0f172a]"
             : "ring-2 ring-cyan-400/40 ring-offset-2 ring-offset-[#0f172a]"
           : ""
-      } shadow-[0_12px_40px_rgba(0,0,0,0.45),0_2px_8px_rgba(0,0,0,0.3)]`}
+      } ${
+        odemeKibar
+          ? "shadow-[0_12px_40px_rgba(0,0,0,0.45),0_2px_8px_rgba(0,0,0,0.3)] md:shadow-[0_6px_20px_rgba(0,0,0,0.32),0_1px_4px_rgba(0,0,0,0.18)]"
+          : "shadow-[0_12px_40px_rgba(0,0,0,0.45),0_2px_8px_rgba(0,0,0,0.3)]"
+      }`}
     >
       <div className={`absolute inset-0 bg-gradient-to-br ${tema.gradient}`} />
       <div className={`absolute inset-0 bg-gradient-to-tr ${tema.sheen}`} />
@@ -146,8 +157,8 @@ export function KartGorseli({ kart, secili, onOnde, mod = "cuzdan", onSil, onVar
       <div className="relative z-10 flex flex-col h-full min-h-0">
         <div className="flex justify-between items-start gap-2 shrink-0">
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-            <KartCipi />
-            <TemassizIkon />
+            <KartCipi kucuk={odemeKibar} />
+            <TemassizIkon kucuk={odemeKibar} />
           </div>
           <div className="flex items-start gap-1.5 sm:gap-2 shrink-0">
             <MarkaLogosu brand={kart.brand} kucuk />
@@ -203,16 +214,20 @@ export function KartGorseli({ kart, secili, onOnde, mod = "cuzdan", onSil, onVar
               </div>
             )}
             {mod === "secim" && secili && onOnde !== false && (
-              <div className="w-6 h-6 rounded-full bg-[#00d2ff] flex items-center justify-center shrink-0 shadow-lg">
-                <Check className="w-3.5 h-3.5 text-black" strokeWidth={3} />
+              <div className="w-6 h-6 md:w-5 md:h-5 rounded-full bg-[#00d2ff] flex items-center justify-center shrink-0 shadow-lg">
+                <Check className="w-3.5 h-3.5 md:w-3 md:h-3 text-black" strokeWidth={3} />
               </div>
             )}
           </div>
         </div>
 
-        <div className="flex-1 flex items-center min-h-0 py-1 sm:py-2">
+        <div className="flex-1 flex items-center min-h-0 py-1 sm:py-2 md:py-1">
           <p
-            className="font-mono font-medium text-white/90 whitespace-nowrap w-full text-[13px] sm:text-base tracking-[0.12em] sm:tracking-[0.16em] leading-none"
+            className={`font-mono font-medium text-white/90 whitespace-nowrap w-full leading-none ${
+              odemeKibar
+                ? "text-[13px] md:text-[11px] tracking-[0.12em] md:tracking-[0.14em]"
+                : "text-[13px] sm:text-base tracking-[0.12em] sm:tracking-[0.16em]"
+            }`}
             style={{ textShadow: "0 1px 2px rgba(0,0,0,0.4)" }}
           >
             <span className="opacity-80">••••</span>
@@ -228,7 +243,7 @@ export function KartGorseli({ kart, secili, onOnde, mod = "cuzdan", onSil, onVar
         <div className="flex justify-between items-end gap-2 shrink-0">
           <div className="min-w-0 flex-1">
             <span className="text-[7px] uppercase tracking-[0.2em] text-white/45 block mb-0.5">Kart Sahibi</span>
-            <span className="text-[10px] sm:text-[11px] font-bold tracking-wide text-white/85 truncate block uppercase">
+            <span className="text-[10px] sm:text-[11px] md:text-[10px] font-bold tracking-wide text-white/85 truncate block uppercase">
               {kart.holderName}
             </span>
           </div>
@@ -246,9 +261,10 @@ export function KartGorseli({ kart, secili, onOnde, mod = "cuzdan", onSil, onVar
   );
 }
 
-export function KartYigini({ kartlar, mod = "cuzdan", seciliId, onSec, onSil, onVarsayilan }: {
+export function KartYigini({ kartlar, mod = "cuzdan", boyut = "normal", seciliId, onSec, onSil, onVarsayilan }: {
   kartlar: KayitliKart[];
   mod?: "cuzdan" | "secim";
+  boyut?: KartBoyut;
   seciliId?: string | null;
   onSec?: (id: string) => void;
   onSil?: (id: string) => void;
@@ -304,12 +320,17 @@ export function KartYigini({ kartlar, mod = "cuzdan", seciliId, onSec, onSil, on
     onSec?.(id);
   };
 
+  const peek = boyut === "odeme" ? KART_YIGIN_PEEK_ODEME : KART_YIGIN_PEEK;
+  const kapsayiciClass = boyut === "odeme"
+    ? "mx-auto w-full max-w-sm md:max-w-[268px]"
+    : "mx-auto w-full max-w-sm";
+
   return (
-    <div className="mx-auto w-full max-w-sm">
+    <div className={kapsayiciClass}>
       <div className="relative w-full">
         <div
           className="w-full aspect-[1.586/1] pointer-events-none"
-          style={{ marginBottom: kartlar.length > 1 ? (kartlar.length - 1) * KART_YIGIN_PEEK : 0 }}
+          style={{ marginBottom: kartlar.length > 1 ? (kartlar.length - 1) * peek : 0 }}
           aria-hidden
         />
         {siralıKartlar.map((kart, i) => {
@@ -320,7 +341,7 @@ export function KartYigini({ kartlar, mod = "cuzdan", seciliId, onSec, onSil, on
               key={kart._id}
               className="absolute left-0 right-0 top-0 transition-all duration-300 ease-out"
               style={{
-                transform: `translateY(${i * KART_YIGIN_PEEK}px)`,
+                transform: `translateY(${i * peek}px)`,
                 zIndex: siralıKartlar.length - i,
               }}
             >
@@ -329,6 +350,7 @@ export function KartYigini({ kartlar, mod = "cuzdan", seciliId, onSec, onSil, on
                 secili={secili}
                 onOnde={onOnde}
                 mod={mod}
+                boyut={boyut}
                 onSil={onSil ? () => onSil(kart._id) : undefined}
                 onVarsayilan={onVarsayilan ? () => onVarsayilan(kart._id) : undefined}
                 onOneGetir={() => oneGetir(kart._id)}

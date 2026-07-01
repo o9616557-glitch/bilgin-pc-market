@@ -389,6 +389,7 @@ export default function OdemeSayfasi() {
         <KartYigini
           kartlar={kayitliKartlar}
           mod="secim"
+          boyut="odeme"
           seciliId={seciliKartId}
           onSec={setSeciliKartId}
         />
