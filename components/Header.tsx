@@ -306,7 +306,6 @@ function ResimliKategoriKarti({
     <Link
       href={`/kategori/${k.slug}`}
       prefetch
-      onPointerDown={() => onNavigate?.()}
       onClick={onNavigate}
       className="group flex flex-col items-center w-[100px] shrink-0 h-[104px]"
     >
@@ -335,7 +334,6 @@ function MobilAltKategoriKarti({
     <Link
       href={`/kategori/${k.slug}`}
       prefetch
-      onPointerDown={onClose}
       onClick={onClose}
       className="flex flex-col items-center gap-1 p-1.5 rounded-lg hover:bg-white/[0.05] transition-colors"
     >
@@ -639,19 +637,6 @@ const bulunanKategoriler = aramaMetniTemiz.length > 1
       kelimeTemizle(item.slug).includes(aramaMetniTemiz)
     )
   : [];
-  useEffect(() => {
-    const navigasyonOncesi = (e: PointerEvent) => {
-      const link = (e.target as HTMLElement).closest("a[href]");
-      if (!link) return;
-      const href = link.getAttribute("href");
-      if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
-      if (/^https?:\/\//i.test(href) && !href.startsWith(window.location.origin)) return;
-      aramaVePanelleriKapat();
-    };
-    document.addEventListener("pointerdown", navigasyonOncesi, true);
-    return () => document.removeEventListener("pointerdown", navigasyonOncesi, true);
-  }, []);
-
   useEffect(() => {
     if (oncekiPath.current !== pathname) {
       aramaVePanelleriKapat();
