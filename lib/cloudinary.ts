@@ -34,6 +34,21 @@ export function cloudinaryUrunResim(url: string, maxWidth = 900): string {
   return url.replace(uploadMarker, `${uploadMarker}${transforms}/`);
 }
 
+/** Büyüteç paneli — yüksek çözünürlük ve kalite; yazı/etiketler daha net görünür. */
+export function cloudinaryUrunBuyutecResim(url: string, maxWidth = 2800): string {
+  if (!url || !url.includes("res.cloudinary.com")) return url;
+
+  const uploadMarker = "/image/upload/";
+  const markerIndex = url.indexOf(uploadMarker);
+  if (markerIndex === -1) return url;
+
+  const afterUpload = url.slice(markerIndex + uploadMarker.length);
+  if (!afterUpload.startsWith("v")) return url;
+
+  const transforms = `q_auto:best,f_auto,w_${maxWidth},c_limit,dpr_auto`;
+  return url.replace(uploadMarker, `${uploadMarker}${transforms}/`);
+}
+
 /** Kategori listesi / kart vitrin görseli */
 export function urunVitrinResmi(
   urun: {

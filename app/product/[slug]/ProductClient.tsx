@@ -8,8 +8,9 @@ import toast from "react-hot-toast";
 import { useCompare } from "@/app/CompareContext";
 import { X, Gamepad2, ChevronLeft, ChevronRight, ShoppingCart, Heart, GitCompare, Share2, Star, Zap, Info, Gauge, Crosshair } from "lucide-react";
 import Link from "next/link"; 
-import { cloudinaryUrunResim } from "@/lib/cloudinary";
+import { cloudinaryUrunResim, cloudinaryUrunBuyutecResim } from "@/lib/cloudinary";
 import {
+  BuyutecResimOnyukle,
   UrunResimBuyutecPanel,
   UrunResimLens,
   useUrunResimBuyutec,
@@ -436,7 +437,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
   };
 
   const aktifResimSrc = resimler[seciliResimIndex] ?? resimler[0];
-  const aktifResimHd = cloudinaryUrunResim(aktifResimSrc, 1800);
+  const aktifResimHd = cloudinaryUrunBuyutecResim(aktifResimSrc);
 
   const kategoriIsmi = product.kategori || "Ürünler";
   const kategoriSlug = product.kategoriSlug || (product.kategori ? product.kategori.replace(/[çÇ]/g, 'c').replace(/[ğĞ]/g, 'g').replace(/[şŞ]/g, 's').replace(/[üÜ]/g, 'u').replace(/[ıİ]/g, 'i').replace(/[öÖ]/g, 'o').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : "urunler");
@@ -489,6 +490,7 @@ export default function ProductClient({ product, allProducts = [] }: { product: 
 
   return (
     <div className="bg-[#050505] text-white font-sans pb-0 sm:pb-10 relative site-page-soft-in">
+      <BuyutecResimOnyukle src={aktifResimHd} aktif={!mobil} />
       
       <style dangerouslySetInnerHTML={{ __html: `
         body { -webkit-tap-highlight-color: transparent; }

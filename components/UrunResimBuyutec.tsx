@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const BUYUTEC_ORANI = 2.5;
 const PANEL_GENISLIK_CARPANI = 1;
@@ -79,6 +79,16 @@ export function useUrunResimBuyutec(aktif: boolean) {
   return { hovering, lens, handleMouseMove, handleMouseLeave };
 }
 
+/** Büyüteç HD görselini önceden yükler — panel açılınca yazılar daha net görünür. */
+export function BuyutecResimOnyukle({ src, aktif }: { src: string; aktif: boolean }) {
+  useEffect(() => {
+    if (!aktif || !src) return;
+    const img = new Image();
+    img.src = src;
+  }, [src, aktif]);
+  return null;
+}
+
 export function UrunResimLens({ lens }: { lens: BuyutecLens }) {
   const { left, top, lensW, lensH } = lensKonumu(lens);
 
@@ -107,19 +117,30 @@ export function UrunResimBuyutecPanel({
   const panelH = lens.containerH * PANEL_YUKSEKLIK_CARPANI;
   const bgScaleX = BUYUTEC_ORANI * PANEL_GENISLIK_CARPANI;
   const bgScaleY = BUYUTEC_ORANI * PANEL_YUKSEKLIK_CARPANI;
+  const imgW = lens.imgW * bgScaleX;
+  const imgH = lens.imgH * bgScaleY;
+  const imgLeft = lens.imgX * PANEL_GENISLIK_CARPANI - relLensX * bgScaleX;
+  const imgTop = lens.imgY * PANEL_YUKSEKLIK_CARPANI - relLensY * bgScaleY;
 
   return (
     <div
       className="hidden md:block absolute left-[calc(100%+10px)] top-1/2 -translate-y-1/2 z-[200] rounded-2xl border border-white/10 bg-[#070707] overflow-hidden pointer-events-none shadow-[0_30px_70px_rgba(0,0,0,0.9)] ring-1 ring-white/5 animate-in fade-in zoom-in-95 duration-150"
-      style={{
-        width: panelW,
-        height: panelH,
-        backgroundImage: `url(${resimSrc})`,
-        backgroundSize: `${lens.imgW * bgScaleX}px ${lens.imgH * bgScaleY}px`,
-        backgroundPosition: `${lens.imgX * PANEL_GENISLIK_CARPANI - relLensX * bgScaleX}px ${lens.imgY * PANEL_YUKSEKLIK_CARPANI - relLensY * bgScaleY}px`,
-        backgroundRepeat: "no-repeat",
-      }}
+      style={{ width: panelW, height: panelH }}
       aria-hidden
-    />
+    >
+      <img
+        src={resimSrc}
+        alt=""
+        draggable={false}
+        decoding="sync"
+        className="absolute max-w-none select-none"
+        style={{
+          width: imgW,
+          height: imgH,
+          left: imgLeft,
+          top: imgTop,
+        }}
+      />
+    </div>
   );
 }
