@@ -1,5 +1,5 @@
 "use client";
-import { ArrowLeft, CreditCard, Banknote, ShieldCheck, MapPin, Edit3, User, Phone, Mail, X } from "lucide-react";
+import { ArrowLeft, CreditCard, Banknote, ShieldCheck, MapPin, Edit3, User, Phone, Mail, ChevronRight, ChevronLeft, Package, Copy, Check } from "lucide-react";
 import { useCart } from "../CartContext";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -27,6 +27,7 @@ export default function OdemeSayfasi() {
   const [ibanKopyalandi, setIbanKopyalandi] = useState(false);
   const [faturaAyni, setFaturaAyni] = useState(true);
   const [acikSozlesme, setAcikSozlesme] = useState<"mesafeli" | "gizlilik" | null>(null);
+  const [asama, setAsama] = useState(1);
 
   const [adresAraniyor, setAdresAraniyor] = useState(() => {
     if (typeof window === "undefined") return true;
@@ -286,6 +287,178 @@ export default function OdemeSayfasi() {
     setTimeout(() => setIbanKopyalandi(false), 2000);
   };
 
+  const adresTamamMi = () =>
+    !!(form.ad?.trim() && form.soyad?.trim() && form.telefon?.trim() && form.eposta?.trim() && form.adres?.trim() && form.sehir?.trim() && form.ilce?.trim()) &&
+    (faturaAyni || !!(faturaForm.ad?.trim() && faturaForm.soyad?.trim() && faturaForm.telefon?.trim() && faturaForm.eposta?.trim() && faturaForm.adres?.trim() && faturaForm.sehir?.trim() && faturaForm.ilce?.trim()));
+
+  const asamaIleri = () => {
+    if (asama === 1) {
+      setAsama(2);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    if (asama === 2) {
+      if (adresAraniyor) return;
+      if (!adresTamamMi()) {
+        alert("Lütfen teslimat bilgilerini eksiksiz doldurun.");
+        return;
+      }
+      setAsama(3);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const asamaGeri = () => {
+    setAsama((a) => Math.max(1, a - 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const odemeYontemiSec = (yontem: "kart" | "havale") => {
+    setIyzicoFormHtml("");
+    setOdemeYontemi(yontem);
+  };
+
+  const OdemeYontemiKartlari = ({ compact = false }: { compact?: boolean }) => (
+    <div className={`grid grid-cols-2 gap-3 ${compact ? "mb-4" : "mb-5"}`}>
+      <button
+        type="button"
+        onClick={() => odemeYontemiSec("kart")}
+        className={[
+          "relative rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-2 touch-manipulation active:scale-[0.98]",
+          compact ? "py-3 px-2 min-h-[64px]" : "py-4 px-3 min-h-[80px]",
+          odemeYontemi === "kart"
+            ? "bg-[#00d2ff]/10 text-[#00d2ff] border-[#00d2ff]/50 shadow-[0_0_20px_rgba(0,210,255,0.12)]"
+            : "bg-white/[0.03] text-slate-400 border-white/[0.08] hover:border-white/20 hover:text-white",
+        ].join(" ")}
+      >
+        {odemeYontemi === "kart" && (
+          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#00d2ff] shadow-[0_0_8px_#00d2ff]" />
+        )}
+        <CreditCard className={compact ? "w-5 h-5" : "w-6 h-6"} />
+        <span className="text-[11px] sm:text-xs font-bold text-center leading-tight">Kredi / Banka Kartı</span>
+      </button>
+      <button
+        type="button"
+        onClick={() => odemeYontemiSec("havale")}
+        className={[
+          "relative rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-2 touch-manipulation active:scale-[0.98]",
+          compact ? "py-3 px-2 min-h-[64px]" : "py-4 px-3 min-h-[80px]",
+          odemeYontemi === "havale"
+            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.12)]"
+            : "bg-white/[0.03] text-slate-400 border-white/[0.08] hover:border-white/20 hover:text-white",
+        ].join(" ")}
+      >
+        {odemeYontemi === "havale" && (
+          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
+        )}
+        <Banknote className={compact ? "w-5 h-5" : "w-6 h-6"} />
+        <span className="text-[11px] sm:text-xs font-bold text-center leading-tight">Havale / EFT</span>
+      </button>
+    </div>
+  );
+
+  const SiparisOzetiKutusu = ({ notGoster = false }: { notGoster?: boolean }) => (
+    <div className="glass-card p-4 sm:p-5">
+      <h2 className="text-sm sm:text-base font-semibold text-white mb-4 pb-3 border-b border-white/[0.06] flex items-center gap-2">
+        <Package className="w-4 h-4 text-site-accent" /> Sipariş özeti
+      </h2>
+      <div className="space-y-3 mb-4 max-h-[280px] sm:max-h-[320px] overflow-y-auto custom-scrollbar pr-1">
+        {sepet.map((urun: any) => {
+          const indirimOrani = urun.havaleIndirimi !== undefined && urun.havaleIndirimi !== null ? Number(urun.havaleIndirimi) : 0;
+          let birimFiyat = Number(urun.fiyat);
+          if (odemeYontemi === "havale" && indirimOrani > 0) birimFiyat -= (birimFiyat * indirimOrani) / 100;
+          return (
+            <div key={urun.id} className="flex gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 bg-white/[0.03] rounded-lg border border-white/[0.06] flex items-center justify-center p-1">
+                <img src={urun.resim || urun.image || "/placeholder.jpg"} alt={urun.isim} className="max-w-full max-h-full object-contain" />
+              </div>
+              <div className="flex-1 min-w-0 flex flex-col justify-center gap-1">
+                <span className="text-white text-xs font-medium leading-snug line-clamp-2">{urun.isim}</span>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-slate-500 text-[10px]">{urun.adet} adet</span>
+                  <span className="text-site-accent font-semibold text-xs tabular-nums">{(birimFiyat * urun.adet).toLocaleString("tr-TR")} TL</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="space-y-2 text-sm">
+        <div className="flex justify-between text-slate-400"><span>Ara toplam</span><span className="text-white font-medium tabular-nums">{araToplam.toLocaleString("tr-TR")} TL</span></div>
+        <div className="flex justify-between text-slate-400">
+          <span>Kargo</span>
+          <span>{kargo === 0 ? <span className="text-emerald-400 text-xs font-medium">Ücretsiz</span> : <span className="text-white font-medium tabular-nums">{kargo} TL</span>}</span>
+        </div>
+      </div>
+      <div className="flex justify-between items-center border-t border-white/[0.06] pt-3 mt-3">
+        <span className="text-sm text-slate-400">Genel toplam</span>
+        <span className="text-lg sm:text-xl font-semibold text-site-accent tabular-nums">{genelToplam.toLocaleString("tr-TR")} <span className="text-sm text-slate-400 font-medium">TL</span></span>
+      </div>
+      {notGoster && (
+        <div className="mt-4 pt-4 border-t border-white/[0.06]">
+          <label className={labelClass}>Sipariş notu <span className="text-slate-600">(isteğe bağlı)</span></label>
+          <textarea rows={3} name="siparisNotu" value={form.siparisNotu} onChange={inputDegis} placeholder="Kargocuya iletmek istediğiniz not…" className={`${fieldClass} resize-none`} />
+        </div>
+      )}
+    </div>
+  );
+
+  const AsamaGostergesi = () => (
+    <div className="flex items-center gap-1 sm:gap-2 mb-6 sm:mb-8">
+      {[
+        { n: 1, baslik: "Özet" },
+        { n: 2, baslik: "Adres" },
+        { n: 3, baslik: "Ödeme" },
+      ].map(({ n, baslik }, i) => (
+        <div key={n} className="flex items-center flex-1 min-w-0 gap-1 sm:gap-2">
+          <div
+            className={[
+              "w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[11px] sm:text-xs font-bold shrink-0 transition-colors",
+              asama >= n ? "bg-site-accent text-black" : "bg-white/10 text-slate-500",
+            ].join(" ")}
+          >
+            {n}
+          </div>
+          <span className={`text-[10px] sm:text-xs font-medium truncate hidden sm:block ${asama >= n ? "text-white" : "text-slate-500"}`}>{baslik}</span>
+          {i < 2 && <div className={`flex-1 h-0.5 rounded-full min-w-[8px] ${asama > n ? "bg-site-accent" : "bg-white/10"}`} />}
+        </div>
+      ))}
+    </div>
+  );
+
+  const HavaleDetayKarti = () => (
+    <div className="rounded-2xl border border-emerald-500/25 bg-gradient-to-br from-emerald-500/[0.08] via-transparent to-transparent p-4 sm:p-5 mb-5">
+      <p className="text-emerald-400 text-sm font-semibold mb-1">Havale / EFT bilgileri</p>
+      <p className="text-slate-500 text-xs mb-4">Açıklama alanına <span className="text-slate-300">adınız ve soyadınızı</span> yazmayı unutmayın.</p>
+      <div className="space-y-3 text-sm">
+        <div className="flex justify-between gap-4 py-2 border-b border-white/[0.06]">
+          <span className="text-slate-500 shrink-0">Banka</span>
+          <span className="text-white font-medium text-right">Yapı Kredi</span>
+        </div>
+        <div className="flex justify-between gap-4 py-2 border-b border-white/[0.06]">
+          <span className="text-slate-500 shrink-0">Alıcı</span>
+          <span className="text-white font-medium text-right">Özkan BİLGİN</span>
+        </div>
+        <div className="pt-1">
+          <span className="text-slate-500 text-xs block mb-2">IBAN</span>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 bg-black/30 rounded-xl p-3 border border-white/[0.06]">
+            <code className="text-emerald-300 text-xs sm:text-sm font-mono tracking-wide break-all flex-1">TR14 0006 7010 0000 0043 3005 49</code>
+            <button
+              type="button"
+              onClick={ibanKopyala}
+              className={[
+                "inline-flex items-center justify-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg transition-all shrink-0",
+                ibanKopyalandi ? "bg-emerald-500 text-white" : "bg-site-accent text-white hover:opacity-90",
+              ].join(" ")}
+            >
+              {ibanKopyalandi ? <><Check className="w-3.5 h-3.5" /> Kopyalandı</> : <><Copy className="w-3.5 h-3.5" /> Kopyala</>}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   if (sepet.length === 0) {
     return (
       <div className="min-h-[80vh] site-page flex flex-col items-center justify-center px-4">
@@ -328,261 +501,198 @@ export default function OdemeSayfasi() {
         </div>
       </div>
 
-      <div className="site-container-narrow">
-        <h1 className="site-h2 mb-6">Güvenli ödeme</h1>
+      <div className="site-container-narrow pb-8">
+        <h1 className="site-h2 mb-2">Güvenli ödeme</h1>
+        <p className="text-slate-500 text-sm mb-4">3 adımda siparişinizi tamamlayın</p>
+        <AsamaGostergesi />
 
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-          <div className="flex-1 min-w-0">
-            <form
-              onSubmit={siparisTamamla}
-              className="glass-card p-4 sm:p-6 lg:p-8 relative overflow-hidden transition-all duration-300"
-            >
-              <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-site-accent" /> Teslimat bilgileri
-              </h3>
+        <form onSubmit={(e) => { if (asama !== 3) { e.preventDefault(); return; } void siparisTamamla(e); }}>
+          {/* ——— AŞAMA 1: Ürün özeti + not ——— */}
+          {asama === 1 && (
+            <div className="max-w-2xl mx-auto space-y-4">
+              <SiparisOzetiKutusu notGoster />
+              <button
+                type="button"
+                onClick={asamaIleri}
+                className="w-full py-3.5 rounded-xl text-sm font-semibold btn-primary flex items-center justify-center gap-2 touch-manipulation"
+              >
+                Devam et <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
 
-              {adresAraniyor ? (
-                <div className="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 animate-pulse mb-6">
-                  <div className="h-3 bg-white/10 w-1/3 rounded mb-3" />
-                  <div className="h-10 bg-white/5 w-full rounded-xl mb-2" />
-                  <div className="h-16 bg-white/5 w-full rounded-xl" />
-                </div>
-              ) : adresKilitli ? (
-                <div className="mb-6 bg-white/[0.03] border border-site-accent/20 rounded-xl p-4 sm:p-5">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div className="space-y-2 min-w-0">
-                      <div className="flex items-center gap-2 text-white font-medium text-sm sm:text-base">
-                        <User className="w-4 h-4 text-site-accent shrink-0" /> {form.ad} {form.soyad}
+          {/* ——— AŞAMA 2: Adres + ödeme yöntemi ——— */}
+          {asama === 2 && (
+            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+              <div className="flex-1 min-w-0 glass-card p-4 sm:p-6 lg:p-8">
+                <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-site-accent" /> Teslimat bilgileri
+                </h3>
+
+                {adresAraniyor ? (
+                  <div className="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 animate-pulse mb-6">
+                    <div className="h-3 bg-white/10 w-1/3 rounded mb-3" />
+                    <div className="h-10 bg-white/5 w-full rounded-xl mb-2" />
+                    <div className="h-16 bg-white/5 w-full rounded-xl" />
+                  </div>
+                ) : adresKilitli ? (
+                  <div className="mb-6 bg-white/[0.03] border border-site-accent/20 rounded-xl p-4 sm:p-5">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                      <div className="space-y-2 min-w-0">
+                        <div className="flex items-center gap-2 text-white font-medium text-sm sm:text-base">
+                          <User className="w-4 h-4 text-site-accent shrink-0" /> {form.ad} {form.soyad}
+                        </div>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-slate-400 text-xs sm:text-sm">
+                          <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> {form.telefon}</span>
+                          <span className="hidden sm:inline text-slate-600">·</span>
+                          <span className="flex items-center gap-1.5 truncate"><Mail className="w-3.5 h-3.5 shrink-0" /> {form.eposta}</span>
+                        </div>
+                        <div className="flex items-start gap-1.5 text-slate-300 text-xs sm:text-sm">
+                          <MapPin className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                          <span>{form.adres}, <span className="text-white font-medium">{form.ilce} / {form.sehir}</span></span>
+                        </div>
                       </div>
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-slate-400 text-xs sm:text-sm">
-                        <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> {form.telefon}</span>
-                        <span className="hidden sm:inline text-slate-600">·</span>
-                        <span className="flex items-center gap-1.5 truncate"><Mail className="w-3.5 h-3.5 shrink-0" /> {form.eposta}</span>
-                      </div>
-                      <div className="flex items-start gap-1.5 text-slate-300 text-xs sm:text-sm">
-                        <MapPin className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                        <span>{form.adres}, <span className="text-white font-medium">{form.ilce} / {form.sehir}</span></span>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setAdresKilitli(false)}
-                      className="shrink-0 flex items-center gap-2 text-site-accent text-xs font-medium px-3 py-2 rounded-lg border border-white/[0.08] hover:border-site-accent/40 hover:bg-site-accent/5 transition-all"
-                    >
-                      <Edit3 className="w-3.5 h-3.5" /> Düzenle
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-3 sm:space-y-4 mb-6">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div><label className={labelClass}>Adınız</label><input type="text" name="ad" value={form.ad} onChange={inputDegis} required className={fieldClass} /></div>
-                    <div><label className={labelClass}>Soyadınız</label><input type="text" name="soyad" value={form.soyad} onChange={inputDegis} required className={fieldClass} /></div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div><label className={labelClass}>Telefon</label><input type="tel" name="telefon" value={form.telefon} onChange={inputDegis} required className={fieldClass} /></div>
-                    <div><label className={labelClass}>E-posta</label><input type="email" name="eposta" value={form.eposta} onChange={inputDegis} required className={fieldClass} /></div>
-                  </div>
-                  <div>
-                    <label className={labelClass}>Açık adres</label>
-                    <textarea rows={3} name="adres" value={form.adres} onChange={inputDegis} required className={`${fieldClass} resize-none`} />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div><label className={labelClass}>Şehir</label><input type="text" name="sehir" value={form.sehir} onChange={inputDegis} required className={fieldClass} /></div>
-                    <div><label className={labelClass}>İlçe</label><input type="text" name="ilce" value={form.ilce} onChange={inputDegis} required className={fieldClass} /></div>
-                  </div>
-                </div>
-              )}
-
-              {!adresKilitli && (
-                <div className="flex items-center gap-2.5 mb-4 py-1">
-                  <input type="checkbox" id="faturaAyni" checked={faturaAyni} onChange={(e) => setFaturaAyni(e.target.checked)} className="w-4 h-4 cursor-pointer accent-site-accent rounded" />
-                  <label htmlFor="faturaAyni" className="text-slate-300 text-sm cursor-pointer">Fatura adresim teslimat ile aynı</label>
-                </div>
-              )}
-
-              {!faturaAyni && !adresKilitli && (
-                <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-4 sm:p-5 mb-5">
-                  <h4 className="text-site-accent text-sm font-semibold mb-3">Fatura bilgileri</h4>
-                  <div className="grid grid-cols-2 gap-3 mb-3">
-                    <div><label className={labelClass}>Adınız</label><input type="text" name="ad" value={faturaForm.ad} onChange={faturaInputDegis} required={!faturaAyni} className={fieldClass} /></div>
-                    <div><label className={labelClass}>Soyadınız</label><input type="text" name="soyad" value={faturaForm.soyad} onChange={faturaInputDegis} required={!faturaAyni} className={fieldClass} /></div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-                    <div><label className={labelClass}>Telefon</label><input type="tel" name="telefon" value={faturaForm.telefon} onChange={faturaInputDegis} required={!faturaAyni} className={fieldClass} /></div>
-                    <div><label className={labelClass}>E-posta</label><input type="email" name="eposta" value={faturaForm.eposta} onChange={faturaInputDegis} required={!faturaAyni} className={fieldClass} /></div>
-                  </div>
-                  <div className="mb-3">
-                    <label className={labelClass}>Açık adres</label>
-                    <textarea rows={3} name="adres" value={faturaForm.adres} onChange={faturaInputDegis} required={!faturaAyni} className={`${fieldClass} resize-none`} />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div><label className={labelClass}>Şehir</label><input type="text" name="sehir" value={faturaForm.sehir} onChange={faturaInputDegis} required={!faturaAyni} className={fieldClass} /></div>
-                    <div><label className={labelClass}>İlçe</label><input type="text" name="ilce" value={faturaForm.ilce} onChange={faturaInputDegis} required={!faturaAyni} className={fieldClass} /></div>
-                  </div>
-                </div>
-              )}
-
-              <hr className="border-white/[0.06] mb-5" />
-
-              <h3 className="text-sm font-semibold text-white mb-3">Ödeme yöntemi</h3>
-              <div className="grid grid-cols-2 gap-3 mb-5">
-                <button
-                  type="button"
-                  onClick={() => { setIyzicoFormHtml(""); setOdemeYontemi("kart"); }}
-                  className={[
-                    "py-3 px-2 sm:px-4 rounded-xl border transition-all flex flex-col items-center justify-center gap-1.5 min-h-[72px]",
-                    odemeYontemi === "kart"
-                      ? "bg-site-accent/10 text-site-accent border-site-accent/40"
-                      : "bg-white/[0.03] text-slate-400 border-white/[0.08] hover:border-white/15",
-                  ].join(" ")}
-                >
-                  <CreditCard className="w-5 h-5" />
-                  <span className="text-[11px] sm:text-xs font-medium text-center leading-tight">Kredi / Banka Kartı</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setIyzicoFormHtml(""); setOdemeYontemi("havale"); }}
-                  className={[
-                    "py-3 px-2 sm:px-4 rounded-xl border transition-all flex flex-col items-center justify-center gap-1.5 min-h-[72px]",
-                    odemeYontemi === "havale"
-                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/40"
-                      : "bg-white/[0.03] text-slate-400 border-white/[0.08] hover:border-white/15",
-                  ].join(" ")}
-                >
-                  <Banknote className="w-5 h-5" />
-                  <span className="text-[11px] sm:text-xs font-medium text-center leading-tight">Havale / EFT</span>
-                </button>
-              </div>
-
-              {odemeYontemi === "havale" && (
-                <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-4 text-sm mb-5 leading-relaxed">
-                  <p className="text-emerald-400 font-medium mb-2">Havale talimatı</p>
-                  <p className="text-slate-400 text-xs sm:text-sm mb-3">Açıklama alanına <span className="text-white font-medium">adınız ve soyadınızı</span> yazın.</p>
-                  <div className="font-mono text-xs sm:text-sm bg-black/30 p-3 rounded-lg border border-white/[0.06] space-y-1.5">
-                    <div><span className="text-slate-500">Banka:</span> <span className="text-slate-300">Yapı Kredi</span></div>
-                    <div><span className="text-slate-500">Alıcı:</span> <span className="text-slate-300">Özkan BİLGİN</span></div>
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-white/[0.06]">
-                      <div className="text-slate-300 break-all text-[11px] sm:text-xs">
-                        <span className="text-slate-500">IBAN:</span> TR14 0006 7010 0000 0043 3005 49
-                      </div>
-                      <button
-                        type="button"
-                        onClick={ibanKopyala}
-                        className={["text-xs font-medium px-3 py-1.5 rounded-lg transition-all shrink-0", ibanKopyalandi ? "bg-emerald-500 text-white" : "bg-site-accent text-white hover:bg-site-accent-hover"].join(" ")}
-                      >
-                        {ibanKopyalandi ? "Kopyalandı" : "Kopyala"}
+                      <button type="button" onClick={() => setAdresKilitli(false)} className="shrink-0 flex items-center gap-2 text-site-accent text-xs font-medium px-3 py-2 rounded-lg border border-white/[0.08] hover:border-site-accent/40 hover:bg-site-accent/5 transition-all">
+                        <Edit3 className="w-3.5 h-3.5" /> Düzenle
                       </button>
                     </div>
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div className="space-y-3 sm:space-y-4 mb-6">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div><label className={labelClass}>Adınız</label><input type="text" name="ad" value={form.ad} onChange={inputDegis} required className={fieldClass} /></div>
+                      <div><label className={labelClass}>Soyadınız</label><input type="text" name="soyad" value={form.soyad} onChange={inputDegis} required className={fieldClass} /></div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div><label className={labelClass}>Telefon</label><input type="tel" name="telefon" value={form.telefon} onChange={inputDegis} required className={fieldClass} /></div>
+                      <div><label className={labelClass}>E-posta</label><input type="email" name="eposta" value={form.eposta} onChange={inputDegis} required className={fieldClass} /></div>
+                    </div>
+                    <div><label className={labelClass}>Açık adres</label><textarea rows={3} name="adres" value={form.adres} onChange={inputDegis} required className={`${fieldClass} resize-none`} /></div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div><label className={labelClass}>Şehir</label><input type="text" name="sehir" value={form.sehir} onChange={inputDegis} required className={fieldClass} /></div>
+                      <div><label className={labelClass}>İlçe</label><input type="text" name="ilce" value={form.ilce} onChange={inputDegis} required className={fieldClass} /></div>
+                    </div>
+                  </div>
+                )}
 
-              <div className="bg-white/[0.02] border border-white/[0.06] p-3.5 rounded-xl mb-5 text-center">
-                <p className="text-slate-400 text-xs leading-relaxed">
-                  Siparişi onaylayarak{" "}
-                  <span onClick={() => setAcikSozlesme("mesafeli")} className="text-site-accent hover:underline cursor-pointer">Mesafeli Satış Sözleşmesi</span>
-                  {" "}ve{" "}
-                  <span onClick={() => setAcikSozlesme("gizlilik")} className="text-site-accent hover:underline cursor-pointer">Gizlilik Politikası</span>
-                  &apos;nı kabul edersiniz.
-                </p>
+                {!adresKilitli && (
+                  <div className="flex items-center gap-2.5 mb-4 py-1">
+                    <input type="checkbox" id="faturaAyni" checked={faturaAyni} onChange={(e) => setFaturaAyni(e.target.checked)} className="w-4 h-4 cursor-pointer accent-site-accent rounded" />
+                    <label htmlFor="faturaAyni" className="text-slate-300 text-sm cursor-pointer">Fatura adresim teslimat ile aynı</label>
+                  </div>
+                )}
+
+                {!faturaAyni && !adresKilitli && (
+                  <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-4 sm:p-5 mb-5">
+                    <h4 className="text-site-accent text-sm font-semibold mb-3">Fatura bilgileri</h4>
+                    <div className="grid grid-cols-2 gap-3 mb-3">
+                      <div><label className={labelClass}>Adınız</label><input type="text" name="ad" value={faturaForm.ad} onChange={faturaInputDegis} required={!faturaAyni} className={fieldClass} /></div>
+                      <div><label className={labelClass}>Soyadınız</label><input type="text" name="soyad" value={faturaForm.soyad} onChange={faturaInputDegis} required={!faturaAyni} className={fieldClass} /></div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                      <div><label className={labelClass}>Telefon</label><input type="tel" name="telefon" value={faturaForm.telefon} onChange={faturaInputDegis} required={!faturaAyni} className={fieldClass} /></div>
+                      <div><label className={labelClass}>E-posta</label><input type="email" name="eposta" value={faturaForm.eposta} onChange={faturaInputDegis} required={!faturaAyni} className={fieldClass} /></div>
+                    </div>
+                    <div className="mb-3"><label className={labelClass}>Açık adres</label><textarea rows={3} name="adres" value={faturaForm.adres} onChange={faturaInputDegis} required={!faturaAyni} className={`${fieldClass} resize-none`} /></div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div><label className={labelClass}>Şehir</label><input type="text" name="sehir" value={faturaForm.sehir} onChange={faturaInputDegis} required={!faturaAyni} className={fieldClass} /></div>
+                      <div><label className={labelClass}>İlçe</label><input type="text" name="ilce" value={faturaForm.ilce} onChange={faturaInputDegis} required={!faturaAyni} className={fieldClass} /></div>
+                    </div>
+                  </div>
+                )}
+
+                <hr className="border-white/[0.06] mb-5" />
+                <h3 className="text-sm font-semibold text-white mb-3">Ödeme yöntemi</h3>
+                <OdemeYontemiKartlari />
+
+                <div className="bg-white/[0.02] border border-white/[0.06] p-3.5 rounded-xl mb-5 text-center">
+                  <p className="text-slate-400 text-xs leading-relaxed">
+                    Siparişi onaylayarak{" "}
+                    <button type="button" onClick={() => setAcikSozlesme("mesafeli")} className="text-site-accent hover:underline">Mesafeli Satış Sözleşmesi</button>
+                    {" "}ve{" "}
+                    <button type="button" onClick={() => setAcikSozlesme("gizlilik")} className="text-site-accent hover:underline">Gizlilik Politikası</button>
+                    &apos;nı kabul edersiniz.
+                  </p>
+                </div>
+
+                <div className="flex flex-col-reverse sm:flex-row gap-3">
+                  <button type="button" onClick={asamaGeri} className="flex-1 py-3.5 rounded-xl text-sm font-medium border border-white/10 text-slate-300 hover:bg-white/5 flex items-center justify-center gap-2 touch-manipulation">
+                    <ChevronLeft className="w-4 h-4" /> Geri
+                  </button>
+                  <button type="button" onClick={asamaIleri} disabled={adresAraniyor} className={["flex-1 py-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 touch-manipulation", adresAraniyor ? "bg-slate-800 text-slate-500 cursor-not-allowed" : "btn-primary"].join(" ")}>
+                    {adresAraniyor ? "Kontrol ediliyor…" : <>Ödemeye geç <ChevronRight className="w-4 h-4" /></>}
+                  </button>
+                </div>
               </div>
 
-              <button
-                type="submit"
-                disabled={yukleniyor || adresAraniyor}
-                className={["w-full py-3.5 rounded-xl text-sm font-medium transition-all", yukleniyor || adresAraniyor ? "bg-slate-800 text-slate-500 cursor-not-allowed" : "btn-primary"].join(" ")}
-              >
-                {adresAraniyor ? "Bilgiler kontrol ediliyor…" : yukleniyor ? "İşleniyor…" : "Siparişi onayla"}
-              </button>
-            </form>
-          </div>
+              <div className="hidden lg:block w-[320px] shrink-0 lg:sticky lg:top-28 h-fit">
+                <SiparisOzetiKutusu />
+              </div>
+            </div>
+          )}
 
-         <div className="w-full lg:w-[340px] shrink-0 lg:sticky lg:top-28 h-fit space-y-4">
-            <div className="glass-card p-5 sm:p-6">
-                <h2 className="text-base font-semibold text-white mb-4 pb-3 border-b border-white/[0.06]">Sipariş özeti</h2>
+          {/* ——— AŞAMA 3: Kart (İyzico) veya Havale ——— */}
+          {asama === 3 && (
+            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+              <div className="flex-1 min-w-0 glass-card p-4 sm:p-6 lg:p-8">
+                <h3 className="text-sm font-semibold text-white mb-1">Ödeme</h3>
+                <p className="text-slate-500 text-xs mb-4">Yöntemi değiştirebilirsiniz</p>
+                <OdemeYontemiKartlari compact />
 
-                <div className="space-y-3 mb-5 max-h-[320px] overflow-y-auto custom-scrollbar pr-1">
-                  {sepet.map((urun: any) => (
-                    <div key={urun.id} className="flex gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                      <div className="w-14 h-14 shrink-0 bg-white/[0.03] rounded-lg border border-white/[0.06] flex items-center justify-center p-1">
-                        <img
-                          src={urun.resim || urun.image || "/placeholder.jpg"}
-                          alt={urun.isim}
-                          className="max-w-full max-h-full object-contain"
-                        />
+                {odemeYontemi === "kart" ? (
+                  <div className="rounded-2xl border border-[#00d2ff]/20 bg-[#00d2ff]/[0.04] p-4 sm:p-5 mb-5">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-[#00d2ff]/15 flex items-center justify-center shrink-0">
+                        <ShieldCheck className="w-5 h-5 text-[#00d2ff]" />
                       </div>
-                      <div className="flex-1 min-w-0 flex flex-col justify-center gap-1">
-                        <span className="text-white text-xs font-medium leading-snug line-clamp-2">{urun.isim}</span>
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-slate-500 text-[10px]">{urun.adet} adet</span>
-                          <span className="text-site-accent font-semibold text-xs tabular-nums">
-                            {(urun.fiyat * urun.adet).toLocaleString("tr-TR")} TL
-                          </span>
-                        </div>
+                      <div>
+                        <p className="text-white text-sm font-semibold mb-1">Güvenli kart ödemesi</p>
+                        <p className="text-slate-400 text-xs leading-relaxed">Kart bilgileriniz İyzico güvenli ödeme ekranında alınır. Sitemizde saklanmaz.</p>
                       </div>
                     </div>
-                  ))}
-                </div>
-
-                <div className="space-y-2.5 text-sm">
-                  <div className="flex justify-between text-slate-400"><span>Ara toplam</span><span className="text-white font-medium tabular-nums">{araToplam.toLocaleString("tr-TR")} TL</span></div>
-                  <div className="flex justify-between text-slate-400">
-                    <span>Kargo</span>
-                    <span>{kargo === 0 ? <span className="text-emerald-400 text-xs font-medium">Ücretsiz</span> : <span className="text-white font-medium tabular-nums">{kargo} TL</span>}</span>
                   </div>
-                </div>
-                <div className="flex justify-between items-center border-t border-white/[0.06] pt-4 mt-4">
-                  <span className="text-sm text-slate-400">Genel toplam</span>
-                  <span className="text-xl font-semibold text-site-accent tabular-nums">{genelToplam.toLocaleString("tr-TR")} <span className="text-sm text-slate-400 font-medium">TL</span></span>
-                </div>
-             </div>
+                ) : (
+                  <HavaleDetayKarti />
+                )}
 
-     <div className={["glass-card p-4 sm:p-5 transition-all", iyzicoFormHtml ? "border-rose-500/20 opacity-80" : ""].join(" ")}>
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Edit3 className={["w-4 h-4", iyzicoFormHtml ? "text-slate-500" : "text-site-accent"].join(" ")} />
-              <h3 className="text-sm font-semibold text-white">Sipariş notu</h3>
+                <div className="lg:hidden mb-5">
+                  <SiparisOzetiKutusu />
+                </div>
+
+                <div className="flex flex-col-reverse sm:flex-row gap-3">
+                  <button type="button" onClick={asamaGeri} className="flex-1 py-3.5 rounded-xl text-sm font-medium border border-white/10 text-slate-300 hover:bg-white/5 flex items-center justify-center gap-2 touch-manipulation">
+                    <ChevronLeft className="w-4 h-4" /> Geri
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={yukleniyor}
+                    className={["flex-1 py-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 touch-manipulation", yukleniyor ? "bg-slate-800 text-slate-500 cursor-not-allowed" : "btn-primary"].join(" ")}
+                  >
+                    {yukleniyor ? "İşleniyor…" : odemeYontemi === "kart" ? <><CreditCard className="w-4 h-4" /> Kart ile öde</> : <><Banknote className="w-4 h-4" /> Havale siparişini onayla</>}
+                  </button>
+                </div>
+              </div>
+
+              <div className="hidden lg:block w-[320px] shrink-0 lg:sticky lg:top-28 h-fit">
+                <SiparisOzetiKutusu />
+              </div>
             </div>
-            {iyzicoFormHtml && (
-              <span className="text-rose-400 text-[10px] font-medium bg-rose-500/10 px-2 py-0.5 rounded">Kilitli</span>
-            )}
-          </div>
-          <p className="text-slate-400 text-xs mb-3 leading-relaxed">
-            {iyzicoFormHtml ? "Ödeme adımında not düzenlenemez." : "Kargocuya iletmek istediğiniz notu yazabilirsiniz (isteğe bağlı)."}
-          </p>
-          <textarea
-            rows={3}
-            name="siparisNotu"
-            value={form.siparisNotu}
-            onChange={inputDegis}
-            disabled={iyzicoFormHtml !== ""}
-            placeholder="Notunuz…"
-            className={[`${fieldClass} resize-none`, iyzicoFormHtml ? "opacity-50 cursor-not-allowed" : ""].join(" ")}
-          />
-        </div>
-
-          </div>
-        </div>
+          )}
+        </form>
       </div>
 
    {acikSozlesme && (
-        // 🚀 İŞTE O EFSANE TAŞ ZEMİN (ARKA PLANI DONDURAN VE BULANIKLAŞTIRAN KISIM)
-        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-[#050814]/80 backdrop-blur-md transition-all duration-300 animate-in fade-in">
-          
-          {/* 📜 SÖZLEŞME KUTUSUNUN ANA ÇERÇEVESİ */}
-          <div className="relative w-[95%] sm:w-[90%] max-w-3xl max-h-[90vh] flex flex-col rounded-2xl shadow-[0_0_60px_rgba(0,0,0,0.8)] animate-in zoom-in-95 duration-300">
-       {/* 🚀 BAŞLIK KISMI (X BUTONU UÇURULDU - KAÇIŞ YOK!) 🚀 */}
-            <div className="flex items-center justify-center text-center p-5 sm:p-6 border-b border-gray-100 shrink-0 bg-white rounded-t-2xl">
-              <h2 className="text-base sm:text-lg font-black text-black tracking-widest uppercase">
+        <div className="fixed inset-0 z-[999] flex items-end sm:items-center justify-center bg-[#050814]/85 backdrop-blur-md p-0 sm:p-4 animate-in fade-in">
+          <div className="relative w-full sm:w-[92%] max-w-3xl h-[92dvh] sm:h-[88vh] flex flex-col rounded-t-2xl sm:rounded-2xl shadow-[0_0_60px_rgba(0,0,0,0.8)] animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300 overflow-hidden bg-white">
+            <div className="flex items-center justify-center text-center p-4 sm:p-5 border-b border-gray-200 shrink-0 bg-white">
+              <h2 className="text-sm sm:text-base font-black text-black tracking-wide uppercase">
                 {acikSozlesme === "mesafeli" ? "Mesafeli Satış Sözleşmesi" : "Gizlilik ve KVKK Politikası"}
               </h2>
             </div>
 
-          {/* 📜 AŞAĞI KAYDIRILABİLİR İÇERİK (LIGHT MODE SCROLL ALANI) 📜 */}
-            <div 
-              onScroll={sozlesmeKaydirmaRadari} 
-              className="p-5 sm:p-6 overflow-y-auto text-sm text-gray-700 space-y-6 leading-relaxed [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 hover:[&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-thumb]:rounded-full bg-zinc-50"
+            <div
+              onScroll={sozlesmeKaydirmaRadari}
+              className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6 text-sm text-gray-700 space-y-6 leading-relaxed bg-zinc-50 [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full"
             >
               {acikSozlesme === "mesafeli" ? (
                 <>
@@ -674,26 +784,23 @@ export default function OdemeSayfasi() {
               )}
             </div>
 
-        {/* 🛑 BUTON KISMI (AKILLI KİLİT) 🛑 */}
-            <div className="p-4 sm:p-5 border-t border-white/10 shrink-0 bg-[#0a0a0a] rounded-b-2xl">
-              <button 
-                onClick={() => setAcikSozlesme(null)} 
+            <div className="p-4 sm:p-5 border-t border-gray-200 shrink-0 bg-white">
+              <button
+                type="button"
+                onClick={() => setAcikSozlesme(null)}
                 disabled={!sozlesmeOkundu}
-                className={`w-full py-3.5 text-sm font-black tracking-widest rounded-xl transition-all duration-300 ${
-                  sozlesmeOkundu 
-                    ? "bg-[#3b82f6] hover:bg-[#2563eb] text-white shadow-[0_0_20px_rgba(59,130,246,0.3)] cursor-pointer" 
-                    : "bg-slate-800 text-slate-500 cursor-not-allowed opacity-60"
+                className={`w-full py-3.5 text-sm font-bold tracking-wide rounded-xl transition-all duration-300 ${
+                  sozlesmeOkundu
+                    ? "bg-[#3b82f6] hover:bg-[#2563eb] text-white shadow-[0_0_20px_rgba(59,130,246,0.25)] cursor-pointer"
+                    : "bg-slate-200 text-slate-500 cursor-not-allowed"
                 }`}
               >
-                {sozlesmeOkundu ? "OKUDUM, KAPAT" : "ONAYLAMAK İÇİN METNİ AŞAĞI KAYDIRIN"}
+                {sozlesmeOkundu ? "Okudum, kapat" : "Onaylamak için metni aşağı kaydırın"}
               </button>
             </div>
-
           </div>
         </div>
       )}
-
-      </div>
-
+    </div>
   );
 }
