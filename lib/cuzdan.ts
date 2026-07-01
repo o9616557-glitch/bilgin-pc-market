@@ -60,6 +60,12 @@ export function paraFormatla(tutar: number): string {
   }).format(tutar);
 }
 
+/** Kart numarasını 4'lü gruplar halinde boşlukla ayırır (örn. 1234 5678 9012 3456). */
+export function kartNumarasiFormatla(deger: string): string {
+  const rakamlar = deger.replace(/\D/g, "").slice(0, 16);
+  return rakamlar.replace(/(\d{4})(?=\d)/g, "$1 ");
+}
+
 export function bosCuzdan(email: string) {
   return {
     email,

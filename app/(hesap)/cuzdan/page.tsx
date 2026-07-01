@@ -6,10 +6,10 @@ import { useSession } from "next-auth/react";
 import {
   ShieldCheck, CreditCard, Plus, Receipt, Trash2,
   CheckCircle2, XCircle, Clock, Loader2, LogIn, UserPlus,
-  Wallet, Gift, Star, MoreVertical, ChevronRight
+  Wallet, Gift, Star, MoreVertical, ChevronRight, ChevronDown, Info
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { paraFormatla, type KayitliKart, type CuzdanIslem } from "@/lib/cuzdan";
+import { paraFormatla, kartNumarasiFormatla, type KayitliKart, type CuzdanIslem } from "@/lib/cuzdan";
 
 const MARKA_ETIKET: Record<string, string> = {
   visa: "VISA",
@@ -186,6 +186,7 @@ export default function CuzdanPage() {
   const [kartModal, setKartModal] = useState(false);
   const [kartYukleniyor, setKartYukleniyor] = useState(false);
   const [silinecekKart, setSilinecekKart] = useState<string | null>(null);
+  const [bakiyeBilgiAcik, setBakiyeBilgiAcik] = useState(false);
   const [form, setForm] = useState({
     cardNumber: "", holderName: "", expiryMonth: "", expiryYear: "",
   });
@@ -330,10 +331,10 @@ export default function CuzdanPage() {
                 <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-5">
                   <div className="flex items-center gap-2 mb-2">
                     <Gift className="w-4 h-4 text-slate-500" />
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Sadakat Puanı</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Ödül Puanları</span>
                   </div>
                   <p className="text-xl sm:text-2xl font-black text-white">{loyaltyPoints.toLocaleString("tr-TR")} <span className="text-sm font-bold text-slate-500">puan</span></p>
-                  <p className="text-[10px] text-slate-500 mt-1">Alışverişlerinizden kazanılır</p>
+                  <p className="text-[10px] text-slate-500 mt-1">Her alışverişinizde birikir</p>
                 </div>
                 <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-5">
                   <div className="flex items-center gap-2 mb-2">
@@ -343,6 +344,48 @@ export default function CuzdanPage() {
                   <p className="text-xl sm:text-2xl font-black text-white">{savedCards.length}<span className="text-sm font-bold text-slate-500"> / 5</span></p>
                   <p className="text-[10px] text-slate-500 mt-1">Hızlı ödeme için kayıtlı</p>
                 </div>
+              </div>
+
+              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setBakiyeBilgiAcik((v) => !v)}
+                  className="w-full flex items-center justify-between gap-3 p-4 sm:p-5 text-left hover:bg-slate-800/20 transition-colors"
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <Info className="w-4 h-4 text-slate-500 shrink-0" />
+                    <span className="text-xs sm:text-sm font-bold text-slate-400">Kredi ve puanlar nasıl çalışır?</span>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${bakiyeBilgiAcik ? "rotate-180" : ""}`} />
+                </button>
+                {bakiyeBilgiAcik && (
+                  <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-0 border-t border-slate-800/60">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+                      <div className="rounded-xl border border-slate-800/80 bg-[#020617]/60 p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Wallet className="w-3.5 h-3.5 text-cyan-400/80" />
+                          <p className="text-xs font-bold text-slate-300">Mağaza Kredisi</p>
+                        </div>
+                        <ul className="text-[11px] sm:text-xs text-slate-500 space-y-1.5 leading-relaxed list-disc list-inside">
+                          <li>İade işlemlerinizde ve özel kampanyalarda hesabınıza TL olarak yüklenir.</li>
+                          <li>Ödeme adımında sepet tutarından otomatik düşebilirsiniz.</li>
+                          <li>Nakit çekilemez; yalnızca mağazamızda alışverişte kullanılır.</li>
+                        </ul>
+                      </div>
+                      <div className="rounded-xl border border-slate-800/80 bg-[#020617]/60 p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Gift className="w-3.5 h-3.5 text-amber-400/80" />
+                          <p className="text-xs font-bold text-slate-300">Ödül Puanları</p>
+                        </div>
+                        <ul className="text-[11px] sm:text-xs text-slate-500 space-y-1.5 leading-relaxed list-disc list-inside">
+                          <li>Tamamlanan her siparişinizde puan kazanırsınız.</li>
+                          <li>Ödeme sayfasında puanlarınızı indirim olarak kullanabilirsiniz.</li>
+                          <li>Biriken puanlarınız bu sayfada görüntülenir; süresi dolmadan kullanmanızı öneririz.</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 lg:gap-6">
@@ -452,8 +495,10 @@ export default function CuzdanPage() {
                 <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 block">Kart Numarası</label>
                 <input
                   value={form.cardNumber}
-                  onChange={(e) => setForm({ ...form, cardNumber: e.target.value })}
+                  onChange={(e) => setForm({ ...form, cardNumber: kartNumarasiFormatla(e.target.value) })}
                   placeholder="0000 0000 0000 0000"
+                  inputMode="numeric"
+                  autoComplete="cc-number"
                   maxLength={19}
                   className="w-full bg-[#020617] border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-slate-600 font-mono"
                 />
