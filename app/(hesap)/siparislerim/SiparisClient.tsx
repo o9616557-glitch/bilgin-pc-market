@@ -146,6 +146,11 @@ const { sepeteEkle } = useCart();
 
   const DurumRozetiGoster = ({ durum }: { durum: string }) => {
     const d = (durum || "").toLocaleLowerCase("tr-TR");
+    if (d.includes("iptal") || d.includes("i̇ptal")) return (
+        <div className="w-max inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-black uppercase tracking-widest shadow-inner">
+           <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> İPTAL EDİLDİ
+        </div>
+    );
     if (d.includes("kısmen iade") || d.includes("kismen iade")) return (
         <div className="w-max inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-orange-500/10 border border-orange-500/20 text-orange-300 text-[10px] font-black uppercase tracking-widest shadow-inner">
            <RefreshCw className="w-3.5 h-3.5" /> KISMİ İADE
@@ -154,11 +159,6 @@ const { sepeteEkle } = useCart();
     if (d.includes("iade")) return (
         <div className="w-max inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-orange-500/10 border border-orange-500/20 text-orange-300 text-[10px] font-black uppercase tracking-widest shadow-inner">
            <RefreshCw className="w-3.5 h-3.5" /> İADE EDİLDİ
-        </div>
-    );
-    if (d.includes("iptal") || d.includes("i̇ptal")) return (
-        <div className="w-max inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-black uppercase tracking-widest shadow-inner">
-           <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> İPTAL EDİLDİ
         </div>
     );
     if (d.includes("teslim") || d.includes("tamam") || d.includes("bit") || d.includes("son")) return (
@@ -249,6 +249,15 @@ const { sepeteEkle } = useCart();
     const urunIsim = String(item.title || item.isim || item.name || "");
     const itemAdet = Number(item.quantity || item.adet || 1);
     const iadeEdilenAdet = siparisKalemiIadeAdet(selectedOrder, item);
+    const urunIade = urunIadeIslendiMi(
+      selectedOrder,
+      destekTalepleri,
+      selectedOrderSiparisKodu,
+      urunId,
+      urunIsim,
+      iadeEdilenAdet
+    );
+    if (urunIade) return false;
     const durumMetni = durumMetniNorm(selectedOrder?.durum || selectedOrder?.status);
     const teslimEdildi = durumMetni.includes("teslim") || durumMetni.includes("tamam");
     return urunIptalEdilebilirMi(
@@ -405,8 +414,9 @@ const { sepeteEkle } = useCart();
                     iadeEdilenAdet
                   );
                   const urunTamIade = urunTamIadeMi(iadeEdilenAdet, itemAdet);
+                  const urunAktif = !urunIadeVar && !urunIptal;
                   const iptalButonuGoster =
-                    !urunIadeVar &&
+                    urunAktif &&
                     urunIptalEdilebilirMi(
                     selectedOrder,
                     destekTalepleri,
@@ -421,8 +431,7 @@ const { sepeteEkle } = useCart();
                     }
                   );
                   const iadeButonuGoster =
-                    !urunIadeVar &&
-                    !urunIptal &&
+                    urunAktif &&
                     !isIptal &&
                     !urunTamIade &&
                     isTeslimEdildi &&
@@ -448,9 +457,14 @@ const { sepeteEkle } = useCart();
                             <Link href={urunLinki} className="text-[11px] sm:text-xs font-bold text-white hover:text-cyan-400 transition-colors leading-snug block break-words">
                               {item.title || item.isim}
                             </Link>
-                            {urunIadeVar && (
+                            {urunIadeVar && urunTamIade && (
                               <span className="px-2 py-1 rounded-md bg-orange-500/10 border border-orange-500/20 text-orange-300 text-[9px] font-black uppercase tracking-widest">
                                 İade Edildi
+                              </span>
+                            )}
+                            {urunIadeVar && !urunTamIade && (
+                              <span className="px-2 py-1 rounded-md bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[9px] font-black uppercase tracking-widest">
+                                Kısmi İade
                               </span>
                             )}
                             {urunIptal && (
@@ -488,7 +502,7 @@ const { sepeteEkle } = useCart();
                         </div>
                       </div>
 
-                      {isTeslimEdildi && !isIptal && iadeEdilenAdet === 0 && (
+                      {isTeslimEdildi && urunAktif && (
                         <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mt-1 -mb-1">
                           {iadeSuresiGectiMi ? (
                             <span className="text-slate-500 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> 15 Günlük İade Süresi Doldu</span>
@@ -499,7 +513,7 @@ const { sepeteEkle } = useCart();
                       )}
 
                       <div className="flex flex-col gap-2 pt-3 border-t border-slate-800/50 mt-auto">
-                        {isTeslimEdildi && !urunIadeVar && !urunIptal && (
+                        {isTeslimEdildi && urunAktif && (
                           <div className="flex flex-wrap items-center gap-1.5">
                             <Link
                               href={`${urunLinki}#yorumlar`}
@@ -544,7 +558,7 @@ const { sepeteEkle } = useCart();
                           {urunIadeVar ? (
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-orange-500/5 text-orange-300 border border-orange-500/20 text-[10px] font-medium">
                               <RefreshCw className="w-3 h-3 shrink-0" />
-                              İade Edildi
+                              {urunTamIade ? "İade Edildi" : "Kısmi İade"}
                             </span>
                           ) : urunIptal ? (
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-red-500/5 text-red-400 border border-red-500/20 text-[10px] font-medium">
@@ -556,7 +570,7 @@ const { sepeteEkle } = useCart();
                               <Clock className="w-3 h-3 shrink-0" />
                               {incelemeMetni}
                             </span>
-                          ) : iadeSuresiGectiMi && isTeslimEdildi && !urunIadeVar && !urunIptal ? (
+                          ) : iadeSuresiGectiMi && isTeslimEdildi && urunAktif ? (
                             <Link
                               href="/destek-taleplerim/yeni?konu=teknik"
                               className="inline-flex items-center gap-1 px-2.5 py-1.5 text-slate-400 hover:bg-slate-800/50 border border-slate-700 rounded-md transition-all text-[10px] font-semibold whitespace-nowrap"
