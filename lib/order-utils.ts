@@ -23,12 +23,63 @@ export function getOrderShippingCompany(order?: OrderLike | null) {
 }
 
 export function siparisKalemleri(order?: OrderLike | null) {
-  if (order?.sepet?.length) return order.sepet;
-  return order?.items || order?.cartItems || [];
+  const sepet = order?.sepet || [];
+  const items = order?.items || order?.cartItems || [];
+  if (!sepet.length) return items;
+  if (!items.length) return sepet;
+
+  return sepet.map((sepetKalem) => {
+    const sepetId = String(sepetKalem.id || sepetKalem._id || sepetKalem.productId || "");
+    const eslesen = items.find((item) => {
+      const itemId = String(item.id || item._id || item.productId || "");
+      return sepetId && itemId && sepetId === itemId;
+    });
+
+    return {
+      ...(eslesen || {}),
+      ...sepetKalem,
+      iadeEdilenAdet: Math.max(
+        Number(sepetKalem.iadeEdilenAdet || 0),
+        Number(eslesen?.iadeEdilenAdet || 0)
+      ),
+      quantity:
+        sepetKalem.quantity ||
+        sepetKalem.adet ||
+        eslesen?.quantity ||
+        eslesen?.adet ||
+        1,
+      adet:
+        sepetKalem.adet ||
+        sepetKalem.quantity ||
+        eslesen?.adet ||
+        eslesen?.quantity ||
+        1,
+      title:
+        sepetKalem.title ||
+        sepetKalem.isim ||
+        sepetKalem.name ||
+        eslesen?.title ||
+        eslesen?.isim,
+      isim:
+        sepetKalem.isim ||
+        sepetKalem.title ||
+        eslesen?.isim ||
+        eslesen?.title,
+    };
+  });
 }
 
-export function siparisKalemiIadeAdet(_order: OrderLike | null | undefined, item: OrderItemLike): number {
-  return Number(item.iadeEdilenAdet || 0);
+export function siparisKalemiIadeAdet(order: OrderLike | null | undefined, item: OrderItemLike): number {
+  const urunId = String(item.id || item._id || item.productId || "");
+  const urunIsim = String(item.title || item.isim || item.name || "");
+  const kalem = siparisKalemleri(order).find((k) =>
+    urunKalemiEslesir(
+      { urunId: String(k.id || k._id || k.productId), isim: String(k.title || k.isim || k.name) },
+      urunId,
+      urunIsim
+    )
+  );
+  return Number(kalem?.iadeEdilenAdet || item.iadeEdilenAdet || 0);
 }
 
 export function siparisIadeOzeti(order?: OrderLike | null) {
@@ -431,7 +482,22 @@ export function siparisOtomatikIadeIptalKapaliMi(order?: OrderLike | null) {
   return ozet.tamamlandi && ozet.gectiMi;
 }
 
-/** Ürün için iade işlemi yapıldı mı — yalnızca o ürüne ait kayıt */
+function urunSiparisKalemEslesir(
+  kalem: OrderItemLike,
+  urunId: string,
+  urunIsim?: string
+) {
+  return urunKalemiEslesir(
+    {
+      urunId: String(kalem.id || kalem._id || kalem.productId),
+      isim: String(kalem.title || kalem.isim || kalem.name),
+    },
+    urunId,
+    urunIsim
+  );
+}
+
+/** Ürün için iade işlemi yapıldı mı */
 export function urunIadeIslendiMi(
   order: OrderLike | null | undefined,
   talepler: UrunDestekTalepLike[],
@@ -451,11 +517,54 @@ export function urunIadeIslendiMi(
     return true;
   }
 
-  return talepler.some((t) => {
-    if (t.konu !== "iade" || !t.iadeOdendi) return false;
-    if (!siparisKodlariEslesir(t.siparisNo || "", siparisKodu)) return false;
-    return t.iadeKalemleri?.some((k) => urunKalemiEslesir(k, urunId, urunIsim));
-  });
+  if (
+    talepler.some((t) => {
+      if (t.konu !== "iade" || !t.iadeOdendi) return false;
+      if (!siparisKodlariEslesir(t.siparisNo || "", siparisKodu)) return false;
+      return t.iadeKalemleri?.some((k) => urunKalemiEslesir(k, urunId, urunIsim));
+    })
+  ) {
+    return true;
+  }
+
+  const durum = durumMetniNorm(getOrderStatusText(order));
+  if (!durumIadeMi(durum) || durumIptalMi(durum)) return false;
+
+  const kalemler = siparisKalemleri(order);
+  if (!kalemler.some((k) => urunSiparisKalemEslesir(k, urunId, urunIsim))) return false;
+
+  // Tam sipariş iadesi → tüm ürünler iade
+  if (!durum.includes("kısmen") && !durum.includes("kismen")) return true;
+
+  // Tek ürünlü sipariş + kısmi iade durumu → o ürün iade
+  if (kalemler.length === 1) return true;
+
+  return false;
+}
+
+/** null = iade yok, tam = ürün tamamen iade, kismi = ürünün bir kısmı iade */
+export function urunIadeDurumu(
+  order: OrderLike | null | undefined,
+  talepler: UrunDestekTalepLike[],
+  siparisKodu: string,
+  urunId: string,
+  urunIsim: string | undefined,
+  itemAdet: number,
+  iadeEdilenAdet: number
+): null | "tam" | "kismi" {
+  if (!urunIadeIslendiMi(order, talepler, siparisKodu, urunId, urunIsim, iadeEdilenAdet)) {
+    return null;
+  }
+
+  if (iadeEdilenAdet > 0) {
+    return iadeEdilenAdet >= itemAdet ? "tam" : "kismi";
+  }
+
+  const durum = durumMetniNorm(getOrderStatusText(order));
+  if (!durum.includes("kısmen") && !durum.includes("kismen")) return "tam";
+  if ((siparisKalemleri(order).length || 0) === 1) return "tam";
+
+  return "kismi";
 }
 
 export function urunTamIadeMi(iadeEdilenAdet: number, itemAdet: number): boolean {

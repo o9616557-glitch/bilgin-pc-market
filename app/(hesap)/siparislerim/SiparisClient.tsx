@@ -12,7 +12,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { useOrders } from "@/app/OrderContext"; 
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
-import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisGosterimDurumu, siparisIadeOzeti, siparisIadeSuresiOzeti, siparisIadeYontemi, siparisKalemiIadeAdet, siparisKalemleri, urunBekleyenIslemEtiketi, urunIadeIslendiMi, urunIadeYontemiBul, urunIadeYontemiMetni, urunTamIadeMi, urunIptalEdilebilirMi, urunIptalEdildiMi, urunTalepBekliyorTemizle, durumIptalMi, durumMetniNorm, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
+import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisGosterimDurumu, siparisIadeOzeti, siparisIadeSuresiOzeti, siparisIadeYontemi, siparisKalemiIadeAdet, siparisKalemleri, urunBekleyenIslemEtiketi, urunIadeDurumu, urunIadeIslendiMi, urunIadeYontemiBul, urunIadeYontemiMetni, urunIptalEdilebilirMi, urunIptalEdildiMi, urunTalepBekliyorTemizle, durumIptalMi, durumMetniNorm, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 
 export default function SiparisClient() {
@@ -405,15 +405,17 @@ const { sepeteEkle } = useCart();
                     itemAdet,
                     iadeEdilenAdet
                   );
-                  const urunIadeVar = urunIadeIslendiMi(
+                  const urunIadeDurumuSonuc = urunIadeDurumu(
                     selectedOrder,
                     destekTalepleri,
                     selectedOrderSiparisKodu,
                     urunId,
                     urunIsim,
+                    itemAdet,
                     iadeEdilenAdet
                   );
-                  const urunTamIade = urunTamIadeMi(iadeEdilenAdet, itemAdet);
+                  const urunIadeVar = urunIadeDurumuSonuc !== null;
+                  const urunTamIade = urunIadeDurumuSonuc === "tam";
                   const urunAktif = !urunIadeVar && !urunIptal;
                   const iptalButonuGoster =
                     urunAktif &&
@@ -838,12 +840,12 @@ const { sepeteEkle } = useCart();
                   {filtrelenmisSiparisler.map((order: OrderLike) => {
                     const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id?.slice(-8).toUpperCase() || "SİPARİŞ";
                     const durumMetni = siparisGosterimDurumu(order);
-                    const firstItem = order.items && order.items.length > 0 ? order.items[0] : null;
+                    const firstItem = siparisKalemleri(order)[0] || null;
                     const listeIadeYontemi = siparisIadeYontemi(order, destekTalepleri);
                     const listeIadeMetni = urunIadeYontemiMetni(listeIadeYontemi);
                     const listeIadeVar =
                       durumMetni.toLowerCase().includes("iade") ||
-                      (order.items || []).some((i) => Number(i.iadeEdilenAdet || 0) > 0);
+                      siparisKalemleri(order).some((i) => Number(i.iadeEdilenAdet || 0) > 0);
 
                     return (
                       <div key={order._id || currentSiparisKodu} className="flex flex-col gap-4 bg-[#0f172a] border border-slate-800 hover:border-cyan-500/50 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(6,182,212,0.1)] p-5 rounded-2xl transition-all duration-300">
