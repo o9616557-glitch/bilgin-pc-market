@@ -48,6 +48,20 @@ export async function POST(request: Request) {
     let iadeTipi: "tam" | "kismi" | undefined;
     let hesaplananTutar: number | undefined;
 
+    if (iadeKonu && siparisNo) {
+      const client = await clientPromise;
+      const db = client.db("bilginpcmarket");
+      const { siparisBul } = await import("@/lib/siparis-bul");
+      const { siparisOtomatikIadeIptalKapaliMi } = await import("@/lib/order-utils");
+      const siparis = await siparisBul(db, String(siparisNo).trim());
+      if (siparis && siparisOtomatikIadeIptalKapaliMi(siparis)) {
+        return NextResponse.json({
+          success: false,
+          message: "15 günlük iade süresi doldu. Lütfen teknik destek veya kargo konusunda genel talep oluşturun.",
+        }, { status: 400 });
+      }
+    }
+
     if ((konu === "iade" || konu === "iptal") && siparisNo && iadeKalemleri?.length) {
       const client = await clientPromise;
       const db = client.db("bilginpcmarket");
@@ -56,6 +70,13 @@ export async function POST(request: Request) {
       const siparis = await siparisBul(db, String(siparisNo).trim());
       if (!siparis) {
         return NextResponse.json({ success: false, message: "Sipariş bulunamadı." }, { status: 404 });
+      }
+      const { siparisOtomatikIadeIptalKapaliMi } = await import("@/lib/order-utils");
+      if (siparisOtomatikIadeIptalKapaliMi(siparis)) {
+        return NextResponse.json({
+          success: false,
+          message: "15 günlük iade süresi doldu. Lütfen teknik destek veya kargo konusunda genel talep oluşturun.",
+        }, { status: 400 });
       }
       const siparisEmail = (siparis.userEmail || siparis.email || siparis.musteri?.eposta || "").toLowerCase();
       if (siparisEmail && siparisEmail !== session.user.email.toLowerCase()) {

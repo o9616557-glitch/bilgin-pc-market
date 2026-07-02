@@ -6,13 +6,13 @@ import {
   PackageOpen, Package, Truck, CheckCircle2, Clock, 
   User, ShieldCheck, CreditCard, PackageX, ChevronRight, Calendar,
   ArrowLeft, MessageSquare, ShoppingCart, Star, AlertCircle, Info, ChevronDown,
-  MapPin, Search, Monitor, Headphones, Wallet
+  MapPin, Search, Monitor, Headphones, Wallet, Headset
 } from "lucide-react"; 
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { useOrders } from "@/app/OrderContext"; 
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
-import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisIadeOzeti, siparisIadeYontemi, urunBekleyenIslemEtiketi, urunIadeYontemiBul, urunIadeYontemiMetni, urunIptalEdilebilirMi, urunIptalEdildiMi, urunTalepBekliyorTemizle, durumIptalMi, durumMetniNorm, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
+import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisIadeOzeti, siparisIadeSuresiOzeti, siparisIadeYontemi, urunBekleyenIslemEtiketi, urunIadeYontemiBul, urunIadeYontemiMetni, urunIptalEdilebilirMi, urunIptalEdildiMi, urunTalepBekliyorTemizle, durumIptalMi, durumMetniNorm, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 
 export default function SiparisClient() {
@@ -226,6 +226,9 @@ const { sepeteEkle } = useCart();
   const selectedOrderIadeOzeti = siparisIadeOzeti(selectedOrder);
   const selectedOrderOdemeBekliyor = isOdemeBekleyenSiparis(selectedOrder);
   const selectedOrderHavaleBekliyor = isHavaleBekleyenSiparis(selectedOrder);
+  const selectedOrderIadeSuresi = siparisIadeSuresiOzeti(selectedOrder);
+  const selectedOrderIadeSuresiGecti = selectedOrderIadeSuresi.gectiMi;
+  const selectedOrderAlimTarihi = new Date(selectedOrder?.createdAt || selectedOrder?.tarih || Date.now());
   const siparisKalemiId = (item: OrderItemLike) =>
     String(item.id || item._id || item.productId || "");
   const siparisdeIptalEdilebilirUrunVar = (selectedOrder?.items || []).some((item: OrderItemLike) => {
@@ -348,15 +351,15 @@ const { sepeteEkle } = useCart();
               <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
                 {selectedOrder.items?.map((item: OrderItemLike, idx: number) => {
                   const durumMetni = durumMetniNorm(selectedOrder.durum || selectedOrder.status);
-                  const isTeslimEdildi = durumMetni.includes("teslim") || durumMetni.includes("tamam");
+                  const isTeslimEdildi =
+                    durumMetni.includes("teslim") ||
+                    durumMetni.includes("tamam") ||
+                    selectedOrderIadeSuresi.tamamlandi;
                   const isKargoda = durumMetni.includes("kargo");
                   const isIptal = durumIptalMi(durumMetni);
-                  
-                  const siparisTarihi = new Date(selectedOrder.createdAt || selectedOrder.tarih);
-                  const iadeBitisTarihi = new Date(siparisTarihi.getTime() + (17 * 24 * 60 * 60 * 1000));
-                  const bugun = new Date();
-                  const iadeSuresiGectiMi = bugun > iadeBitisTarihi;
-                  const iadeyeKalanGun = Math.ceil((iadeBitisTarihi.getTime() - bugun.getTime()) / (1000 * 60 * 60 * 24));
+                  const iadeSuresiGectiMi = selectedOrderIadeSuresiGecti;
+                  const iadeBitisTarihi = selectedOrderIadeSuresi.bitisTarihi;
+                  const iadeyeKalanGun = selectedOrderIadeSuresi.kalanGun;
 
                   const urunLinki = `/product/${item?.slug || item?.productId || item?.id || item?._id || ''}`;
                   const urunId = siparisKalemiId(item);
@@ -440,7 +443,7 @@ const { sepeteEkle } = useCart();
                           <div className="mt-auto">
                             <p className="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider mb-0.5">Miktar: {item.quantity || item.adet} Adet</p>
                             <p className="text-slate-500 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider mb-0.5 flex items-center gap-1">
-                              <Calendar className="w-3 h-3 shrink-0" /> Alım Tarihi: {siparisTarihi.toLocaleDateString("tr-TR")}
+                              <Calendar className="w-3 h-3 shrink-0" /> Alım Tarihi: {selectedOrderAlimTarihi.toLocaleDateString("tr-TR")}
                             </p>
                             {Number(item.iadeEdilenAdet || 0) > 0 && (
                               <>
@@ -468,10 +471,10 @@ const { sepeteEkle } = useCart();
                       {isTeslimEdildi && !isIptal && iadeEdilenAdet === 0 && (
                         <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mt-1 -mb-1">
                           {iadeSuresiGectiMi ? (
-                            <span className="text-slate-500 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> 14 Günlük İade Süresi Doldu</span>
-                          ) : (
+                            <span className="text-slate-500 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> 15 Günlük İade Süresi Doldu</span>
+                          ) : iadeBitisTarihi ? (
                             <span className="text-emerald-500 flex items-center gap-1"><Info className="w-3 h-3" /> İade için son {iadeyeKalanGun} gün ({iadeBitisTarihi.toLocaleDateString("tr-TR")})</span>
-                          )}
+                          ) : null}
                         </div>
                       )}
 
@@ -533,6 +536,14 @@ const { sepeteEkle } = useCart();
                               <Clock className="w-3 h-3 shrink-0" />
                               {incelemeMetni}
                             </span>
+                          ) : iadeSuresiGectiMi && isTeslimEdildi && !urunTamIade && !urunIptal ? (
+                            <Link
+                              href="/destek-taleplerim/yeni?konu=teknik"
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-slate-400 hover:bg-slate-800/50 border border-slate-700 rounded-md transition-all text-[10px] font-semibold whitespace-nowrap"
+                            >
+                              <Headset className="w-3 h-3 shrink-0" />
+                              Destek Talebi Oluştur
+                            </Link>
                           ) : (
                             <>
                               {iadeButonuGoster && isTeslimEdildi && (

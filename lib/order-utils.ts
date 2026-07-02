@@ -349,6 +349,60 @@ export function durumIadeMi(d?: string | null) {
   return n.includes("iade") || n.includes("kısmen iade") || n.includes("kismen iade");
 }
 
+export const IADE_SURESI_GUN = 15;
+
+export function siparisTamamlandiMi(durum?: string | null) {
+  const d = durumMetniNorm(durum);
+  return d.includes("teslim") || d.includes("tamam");
+}
+
+export function siparisTamamlanmaTarihi(order?: OrderLike | null): Date | null {
+  if (!order) return null;
+  const kayitli = (order as { tamamlanmaTarihi?: string | Date }).tamamlanmaTarihi;
+  if (kayitli) return new Date(kayitli);
+
+  const durum = getOrderStatusText(order);
+  const d = durumMetniNorm(durum);
+  const teslimSonrasi =
+    d.includes("teslim") || d.includes("tamam") || durumIadeMi(d);
+  if (!teslimSonrasi) return null;
+
+  const fallback = order.tarih || order.createdAt;
+  return fallback ? new Date(fallback) : null;
+}
+
+export function siparisIadeSuresiOzeti(order?: OrderLike | null) {
+  const baslangicTarihi = siparisTamamlanmaTarihi(order);
+
+  if (!baslangicTarihi) {
+    return {
+      tamamlandi: false,
+      gectiMi: false,
+      kalanGun: IADE_SURESI_GUN,
+      bitisTarihi: null as Date | null,
+      baslangicTarihi: null,
+    };
+  }
+
+  const bitisTarihi = new Date(
+    baslangicTarihi.getTime() + IADE_SURESI_GUN * 24 * 60 * 60 * 1000
+  );
+  const bugun = new Date();
+  const gectiMi = bugun > bitisTarihi;
+  const kalanGun = Math.max(
+    0,
+    Math.ceil((bitisTarihi.getTime() - bugun.getTime()) / (1000 * 60 * 60 * 24))
+  );
+
+  return { tamamlandi: true, gectiMi, kalanGun, bitisTarihi, baslangicTarihi };
+}
+
+/** Tamamlanmış siparişte 15 günlük iade/iptal süresi dolduysa */
+export function siparisOtomatikIadeIptalKapaliMi(order?: OrderLike | null) {
+  const ozet = siparisIadeSuresiOzeti(order);
+  return ozet.tamamlandi && ozet.gectiMi;
+}
+
 /** Admin tarafında tamamlanmış ürün iptali */
 export function urunTamamlanmisIptalMi(
   talepler: UrunDestekTalepLike[],

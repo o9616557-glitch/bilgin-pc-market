@@ -59,6 +59,7 @@ export interface OrderLike {
   odemeDurumu?: string;
   createdAt?: string | Date;
   tarih?: string | Date;
+  tamamlanmaTarihi?: string | Date;
   odemeYontemi?: string;
   paymentMethod?: string;
   siparisNotu?: string;

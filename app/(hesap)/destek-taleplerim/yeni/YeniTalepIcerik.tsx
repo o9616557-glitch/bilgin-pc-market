@@ -32,6 +32,7 @@ export default function YeniTalepIcerik() {
   const [talepGonderiliyor, setTalepGonderiliyor] = useState(false);
   const [onSecilenUrunId, setOnSecilenUrunId] = useState<string | null>(null);
   const [kargoUyari, setKargoUyari] = useState(false);
+  const [iadeSuresiGecti, setIadeSuresiGecti] = useState(false);
   const [paramHazir, setParamHazir] = useState(false);
 
   const kalemSecimKonu = talepKonusu === "iade" || talepKonusu === "iptal";
@@ -60,6 +61,7 @@ export default function YeniTalepIcerik() {
       setSiparisKalemleri([]);
       setSeciliIadeKalemleri({});
       setHesaplananIadeTutar(null);
+      setIadeSuresiGecti(false);
       return;
     }
 
@@ -72,6 +74,7 @@ export default function YeniTalepIcerik() {
         const data = await res.json();
         if (res.ok && data.success) {
           const kalemler = data.kalemler || [];
+          setIadeSuresiGecti(Boolean(data.iadeSuresiGecti));
           setSiparisKalemleri(kalemler);
           if (onSecilenUrunId) {
             const kalem = kalemler.find((k: { urunId: string }) => k.urunId === onSecilenUrunId);
@@ -87,9 +90,11 @@ export default function YeniTalepIcerik() {
           }
         } else {
           setSiparisKalemleri([]);
+          setIadeSuresiGecti(false);
         }
       } catch {
         setSiparisKalemleri([]);
+        setIadeSuresiGecti(false);
       } finally {
         setKalemYukleniyor(false);
       }
@@ -142,6 +147,11 @@ export default function YeniTalepIcerik() {
   const handleTalepGonder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!talepKonusu || !talepMesaji || !talepBaslik) return;
+
+    if (kalemSecimKonu && iadeSuresiGecti) {
+      toast.error("15 günlük iade süresi doldu. Lütfen teknik destek konusunda genel talep oluşturun.");
+      return;
+    }
 
     let iadeKalemleri = Object.entries(seciliIadeKalemleri)
       .filter(([, adet]) => adet > 0)
@@ -297,7 +307,7 @@ export default function YeniTalepIcerik() {
                 </div>
               )}
 
-              {(talepKonusu === "iade" || talepKonusu === "iptal") && (
+              {(talepKonusu === "iade" || talepKonusu === "iptal") && !iadeSuresiGecti && (
                 <div className="p-4 sm:p-5 bg-[#020617] border border-slate-800 rounded-xl space-y-3">
                   <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest">
                     İade yönteminizi seçin
@@ -337,7 +347,35 @@ export default function YeniTalepIcerik() {
                 />
               </div>
 
-              {kalemSecimKonu && talepBaslik.trim().length >= 4 && (
+              {kalemSecimKonu && iadeSuresiGecti && (
+                <div className="p-4 sm:p-5 bg-amber-950/20 border border-amber-900/40 rounded-xl flex gap-3">
+                  <AlertCircle className="w-5 h-5 text-amber-400 shrink-0" />
+                  <div className="space-y-2">
+                    <p className="text-sm font-bold text-amber-300">15 günlük iade süresi doldu</p>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      Bu sipariş için otomatik iade/iptal talebi oluşturulamaz. Sorununuz için{" "}
+                      <button
+                        type="button"
+                        onClick={() => setTalepKonusu("teknik")}
+                        className="text-cyan-400 underline underline-offset-2"
+                      >
+                        teknik destek
+                      </button>{" "}
+                      veya{" "}
+                      <button
+                        type="button"
+                        onClick={() => setTalepKonusu("kargo")}
+                        className="text-cyan-400 underline underline-offset-2"
+                      >
+                        kargo
+                      </button>{" "}
+                      konusunda genel talep oluşturabilirsiniz.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {kalemSecimKonu && talepBaslik.trim().length >= 4 && !iadeSuresiGecti && (
                 <div className="p-4 sm:p-5 bg-[#020617] border border-slate-800 rounded-xl space-y-3">
                   <div className="flex items-center justify-between gap-2">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
@@ -428,7 +466,7 @@ export default function YeniTalepIcerik() {
 
               <button
                 type="submit"
-                disabled={talepGonderiliyor || !talepKonusu || !talepMesaji || !talepBaslik}
+                disabled={talepGonderiliyor || !talepKonusu || !talepMesaji || !talepBaslik || (kalemSecimKonu && iadeSuresiGecti)}
                 className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-black text-sm uppercase tracking-widest transition-all disabled:opacity-50"
               >
                 {talepGonderiliyor ? (

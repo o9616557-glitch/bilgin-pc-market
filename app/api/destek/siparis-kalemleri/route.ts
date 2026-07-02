@@ -10,6 +10,7 @@ import {
   siparisSepeti,
   siparisToplamTutar,
 } from "@/lib/iade-hesapla";
+import { siparisOtomatikIadeIptalKapaliMi } from "@/lib/order-utils";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +45,8 @@ export async function GET(request: Request) {
     }
 
     const sepet = siparisSepeti(siparis);
-    const kalemler = sepetKalemleriniIadeOzetineCevir(sepet);
+    const iadeSuresiGecti = siparisOtomatikIadeIptalKapaliMi(siparis);
+    const kalemler = iadeSuresiGecti ? [] : sepetKalemleriniIadeOzetineCevir(sepet);
 
     return NextResponse.json({
       success: true,
@@ -52,6 +54,7 @@ export async function GET(request: Request) {
       toplamTutar: siparisToplamTutar(siparis),
       kalanIadeEdilebilir: kalanIadeEdilebilirTutar(siparis),
       durum: siparis.durum || siparis.status,
+      iadeSuresiGecti,
       kalemler,
     });
   } catch (error: any) {
@@ -87,6 +90,13 @@ export async function POST(request: Request) {
 
     if (siparisEmail && siparisEmail !== email) {
       return NextResponse.json({ success: false, message: "Bu sipariş size ait değil." }, { status: 403 });
+    }
+
+    if (siparisOtomatikIadeIptalKapaliMi(siparis)) {
+      return NextResponse.json({
+        success: false,
+        message: "15 günlük iade süresi doldu. Lütfen genel destek talebi oluşturun.",
+      }, { status: 400 });
     }
 
     const dogrulama = iadeKalemleriniDogrula(siparisSepeti(siparis), iadeKalemleri);

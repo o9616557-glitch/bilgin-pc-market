@@ -82,6 +82,9 @@ export async function PUT(request: Request) {
         guncellenecekler.musteriyeGoster = true;
         guncellenecekler.odemeDurumu = "onaylandi";
       }
+      if (yeniDurum === "Tamamlandı" && !siparis?.tamamlanmaTarihi) {
+        guncellenecekler.tamamlanmaTarihi = new Date();
+      }
       if (yeniDurum === "İptal Edildi") {
         guncellenecekler.musteriyeGoster = true;
         guncellenecekler.odemeDurumu = "iptal";
