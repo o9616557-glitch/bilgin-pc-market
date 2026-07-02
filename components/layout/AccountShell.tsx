@@ -6,30 +6,11 @@ import { useRouter, usePathname } from "next/navigation";
 import { useSession, signOut, signIn } from "next-auth/react";
 import { useState, useEffect, useRef } from "react";
 import {
-  User, ShieldCheck, CreditCard, MessageSquare, Database,
-  Mail, Star, MapPin, ChevronRight, Menu,
+  User, CreditCard, ChevronRight, Menu,
   LogIn, UserPlus, LogOut,
   Eye, EyeOff, Loader2, X, SwitchCamera,
-  Server, Headset, Search, Truck,
 } from "lucide-react";
-
-/* ─────────────────── NAV TANIMLARI ─────────────────── */
-const NAV_ITEMS = [
-  { href: "/hesabim",            label: "Profil",             icon: User,          id: "hesabim" },
-  { href: "/cuzdan",             label: "Cüzdan",              icon: CreditCard,    id: "cuzdan" },
-  { href: "/guvenlik",           label: "Güvenlik",            icon: ShieldCheck,   id: "guvenlik" },
-  { href: "/favorilerim",        label: "Favoriler",           icon: Star,          id: "favoriler" },
-  { href: "/sistemlerim",        label: "Sistemler",           icon: Server,        id: "sistemler" },
-  { href: "/destek-taleplerim",  label: "Destek",              icon: Headset,       id: "destek" },
-  { href: "/siparis-takip",      label: "Sorgula",             icon: Search,        id: "sorgula" },
-  { href: "/kargolarim",         label: "Kargolar",            icon: Truck,         id: "kargolar" },
-  { href: "/mesajlarim",         label: "Mesajlar",            icon: MessageSquare, id: "mesajlarim" },
-  { href: "/veri-talebi",        label: "Veri Talebi",         icon: Database,      id: "veri-talebi" },
-  { href: "/eposta-degistir",    label: "E-posta Değiştir",    icon: Mail,          id: "eposta-degistir" },
-  { href: "/yorumlarim",         label: "Ürün Yorumları",      icon: Star,          id: "yorumlarim" },
-  { href: "/siparis-yorumlarim", label: "Sipariş Yorumları",   icon: Star,          id: "siparis-yorumlarim" },
-  { href: "/adreslerim",         label: "Adreslerim",          icon: MapPin,        id: "adreslerim" },
-];
+import { NAV_ITEMS } from "@/lib/hesap/nav-items";
 
 
 /* ─────────────────── TİPLER ─────────────────── */
@@ -383,73 +364,25 @@ function AccountPanel({ active }: { active?: string }) {
   );
 }
 
-/* ─────────────────── MOBİL HESAP MENÜSÜ (tam ekran) ─────────────────── */
-function MobilHesapMenu({ active }: { active?: string }) {
-  const [acik, setAcik] = useState(false);
+/* ─────────────────── MOBİL HESAP MENÜ LİNKİ ─────────────────── */
+function MobilHesapMenuLink({ active }: { active?: string }) {
   const aktifItem = NAV_ITEMS.find((i) => i.id === active);
   const AktifIcon = aktifItem?.icon ?? Menu;
 
-  /* Menü açıkken arka plan kaymasını kilitle */
-  useEffect(() => {
-    document.body.style.overflow = acik ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [acik]);
-
   return (
-    <>
-      {/* Açılış butonu — o anki sayfanın adını gösterir */}
-      <div className="account-card p-2">
-        <button
-          type="button"
-          onClick={() => setAcik(true)}
-          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-white/[0.04] transition-colors"
-        >
-          <AktifIcon className="w-4 h-4 shrink-0 text-site-accent" />
-          <span className="flex-1 text-left truncate">
-            {aktifItem ? aktifItem.label : "Hesap Menüsü"}
-          </span>
-          <Menu className="w-4 h-4 shrink-0 text-slate-500" />
-        </button>
-      </div>
-
-      {/* Tam ekran menü — header'ın hemen altından ekran sonuna kadar */}
-      {acik && (
-        <div className="lg:hidden fixed top-[80px] inset-x-0 bottom-0 z-[97] site-page flex flex-col animate-in fade-in slide-in-from-top-3 duration-200 ease-out">
-          {/* Üst bar — solda "Hesap Menüsü" (dokununca kapanır) */}
-          <div className="flex items-center px-4 h-14 border-b border-white/[0.06] shrink-0">
-            <button
-              type="button"
-              onClick={() => setAcik(false)}
-              className="text-sm font-semibold text-white"
-            >
-              Hesap Menüsü
-            </button>
-          </div>
-
-          {/* Liste — alt alta, tam ekran kaydırılabilir */}
-          <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-1">
-            {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.id}
-                href={item.href}
-                prefetch
-                scroll={false}
-                onClick={() => setAcik(false)}
-                className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl text-[15px] font-medium transition-colors ${
-                  active === item.id
-                    ? "text-white bg-white/[0.07] border border-white/[0.12]"
-                    : "text-slate-300 hover:text-white hover:bg-white/[0.04] border border-transparent"
-                }`}
-              >
-                <item.icon className={`w-5 h-5 shrink-0 ${active === item.id ? "text-site-accent" : "text-slate-400"}`} />
-                <span className="flex-1 truncate">{item.label}</span>
-                <ChevronRight className="w-4 h-4 shrink-0 text-slate-600" />
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-    </>
+    <div className="account-card p-2">
+      <Link
+        href="/hesap-menu"
+        prefetch
+        className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-white/[0.04] transition-colors"
+      >
+        <AktifIcon className="w-4 h-4 shrink-0 text-site-accent" />
+        <span className="flex-1 text-left truncate">
+          {aktifItem ? aktifItem.label : "Hesap Menüsü"}
+        </span>
+        <Menu className="w-4 h-4 shrink-0 text-slate-500" />
+      </Link>
+    </div>
   );
 }
 
@@ -461,20 +394,23 @@ export default function AccountShell({ children, active }: AccountShellProps) {
   /* active verilmemişse (ortak layout kullanımı) URL'den türet */
   const aktif = active ?? NAV_ITEMS.find((i) => i.href === pathname)?.id;
 
+  const hesapMenuSayfasi = pathname === "/hesap-menu";
+
   /* Tüm hesap sayfalarını önceden yükle — geçişlerde loading/göz kırpma olmasın */
   useEffect(() => {
     NAV_ITEMS.forEach((i) => router.prefetch(i.href));
     router.prefetch("/siparislerim");
+    router.prefetch("/hesap-menu");
   }, [router]);
 
   return (
     <div className="site-page p-4 sm:p-6 lg:p-8">
       <div className="site-glow-top top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[320px]" />
 
-      {/* Mobil: profil kartı + tam ekran hesap menüsü */}
+      {/* Mobil: profil kartı + hesap menüsü sayfasına link */}
       <div className="lg:hidden mb-4 flex flex-col gap-2">
         <MobilProfilKarti />
-        <MobilHesapMenu active={aktif} />
+        {!hesapMenuSayfasi && <MobilHesapMenuLink active={aktif} />}
       </div>
 
       {/* Desktop: panel sol, içerik sağ */}
