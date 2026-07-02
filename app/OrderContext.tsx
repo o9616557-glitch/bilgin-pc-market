@@ -47,7 +47,7 @@ const OrderContext = createContext<OrderContextType>({
 
 export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
   const { status } = useSession();
-  const [orders, setOrders] = useState<any[]>(() => cacheOku());
+  const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [hafizaHazir, setHafizaHazir] = useState(false);
   const oturumAciktiRef = useRef(false);

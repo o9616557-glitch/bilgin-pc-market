@@ -387,7 +387,7 @@ export default function AccountShell({ children, active }: AccountShellProps) {
 
   return (
     <div className="site-page p-4 sm:p-6 lg:p-8">
-      <div className="site-glow-top top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[320px]" />
+      <div className="site-glow-top pointer-events-none top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[320px]" />
 
       {/* Mobil: profil kartı + hesap menüsü sayfasına link */}
       <div className="lg:hidden mb-4 flex flex-col gap-2 relative z-20">

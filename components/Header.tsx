@@ -948,7 +948,7 @@ export default function Header() {
       </header>
 
       {/* 📱 MOBİL MENÜ */}
-      <div className={`lg:hidden fixed top-[7.25rem] left-0 w-full h-[calc(100vh-7.25rem)] bg-[#050814] z-[98] overflow-y-auto transition-transform duration-300 ${menuAcik ? "translate-x-0" : "-translate-x-full"}`}>
+      <div className={`lg:hidden fixed top-[7.25rem] left-0 w-full h-[calc(100vh-7.25rem)] bg-[#050814] z-[98] overflow-y-auto transition-transform duration-300 ${menuAcik ? "translate-x-0 pointer-events-auto" : "-translate-x-full pointer-events-none"}`}>
         <div className="px-3 py-4 pb-32">
 
           {/* Kendin Topla */}

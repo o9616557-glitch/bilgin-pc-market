@@ -34,13 +34,17 @@ export default function HesabimPage() {
 
   const BANNER_KEY = "bilgin_profil_banner_v1";
   const bannerInputRef = useRef<HTMLInputElement>(null);
-  const [bannerUrl, setBannerUrl] = useState<string | null>(() => {
-    if (typeof window === "undefined") return null;
-    return localStorage.getItem(BANNER_KEY) || null;
-  });
+  const [bannerUrl, setBannerUrl] = useState<string | null>(null);
   const [bannerYukleniyor, setBannerYukleniyor] = useState(false);
 
   const profilVarlikYuklendi = useRef(false);
+  useEffect(() => {
+    try {
+      const kayitli = localStorage.getItem(BANNER_KEY);
+      if (kayitli) setBannerUrl(kayitli);
+    } catch {}
+  }, []);
+
   useEffect(() => {
     if (status !== "authenticated" || profilVarlikYuklendi.current) return;
     profilVarlikYuklendi.current = true;
@@ -123,14 +127,7 @@ export default function HesabimPage() {
 
   const aktifAvatar = avatarOnizleme || session?.user?.image;
 
-  const [hamSiparisler, setHamSiparisler] = useState<any[]>(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      return JSON.parse(sessionStorage.getItem("bilgin_hesabim_data") || "{}").tumSiparisler || [];
-    } catch {
-      return [];
-    }
-  });
+  const [hamSiparisler, setHamSiparisler] = useState<any[]>([]);
 
   const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
   const [grafikVerisi, setGrafikVerisi] = useState<any[]>([]);
