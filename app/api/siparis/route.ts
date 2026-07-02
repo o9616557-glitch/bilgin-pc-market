@@ -5,6 +5,7 @@ import clientPromise from "@/lib/mongodb";
 import { magazaKrediDus, magazaKrediEkle, sepetFiyatlariniAyarla } from "@/lib/magaza-kredi";
 import { puanDus, puanGeriYukle, maxKullanilabilirPuan, MIN_KULLANIM_PUAN, MAX_INDIRIM_ORANI } from "@/lib/odul-puan";
 import { siparisOdulPuanVer } from "@/lib/siparis-puan";
+import { basariliOdemeSonrasiEskiTaslaklariKapat } from "@/lib/order-reservations";
 import { iyzicoConfig } from "@/lib/iyzico-config";
 // @ts-ignore
 import Iyzipay from "iyzipay";
@@ -151,6 +152,9 @@ export async function POST(request: Request) {
 
       const tamamlanan = await db.collection("orders").findOne({ siparisKodu });
       if (tamamlanan) await siparisOdulPuanVer(db, tamamlanan);
+      if (musteriEmail) {
+        await basariliOdemeSonrasiEskiTaslaklariKapat(db, musteriEmail, siparisKodu);
+      }
 
       return NextResponse.json({
         success: true,

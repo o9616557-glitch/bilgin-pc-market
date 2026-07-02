@@ -37,7 +37,7 @@ export default function AdminPaneli() {
   const [silinecekSiparisID, setSilinecekSiparisID] = useState<string | null>(null);
   const [guncellenenID, setGuncellenenID] = useState<string | null>(null); 
   const [siparisOdemeFiltresi, setSiparisOdemeFiltresi] = useState<
-    "tumu" | "odeme_bekliyor" | "havale_bekliyor" | "odendi" | "onaylandi" | "zaman_asimi" | "iptal"
+    "tumu" | "odeme_bekliyor" | "havale_bekliyor" | "odendi" | "onaylandi" | "iptal"
   >("tumu");
 
   // DESTEK TALEPLERİ STATE'LERİ 🚀
@@ -399,13 +399,6 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
         idleClassName: "border-slate-800 bg-[#111827] text-slate-300 hover:border-blue-800/50",
       },
       {
-        value: "zaman_asimi" as const,
-        label: "Zaman Aşımı",
-        count: odemeDurumSayilari.zaman_asimi || 0,
-        activeClassName: "border-orange-500/50 bg-orange-950/40 text-orange-100",
-        idleClassName: "border-slate-800 bg-[#111827] text-slate-300 hover:border-orange-800/50",
-      },
-      {
         value: "odendi" as const,
         label: "Ödendi",
         count: odemeDurumSayilari.odendi || 0,
@@ -680,7 +673,6 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                   <option value="havale_bekliyor">Havale Bekleniyor</option>
                   <option value="odendi">Ödendi</option>
                   <option value="onaylandi">Onaylandı</option>
-                  <option value="zaman_asimi">Zaman Aşımı</option>
                   <option value="iptal">İptal</option>
                 </select>
               </div>

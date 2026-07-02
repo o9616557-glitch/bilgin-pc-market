@@ -85,4 +85,7 @@ export interface OrderLike {
   rezervIadeEdildi?: boolean;
   toplamIadeEdilenTutar?: number;
   iadeGecmisi?: RefundHistoryLike[];
+  gecersizDeneme?: boolean;
+  supersededBy?: string;
+  odemeHataMesaji?: string;
 }

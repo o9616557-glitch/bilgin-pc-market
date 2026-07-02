@@ -4,6 +4,7 @@ import { iyzicoConfig } from "@/lib/iyzico-config";
 import { magazaKrediEkle } from "@/lib/magaza-kredi";
 import { puanGeriYukle } from "@/lib/odul-puan";
 import { siparisOdulPuanVer } from "@/lib/siparis-puan";
+import { basariliOdemeSonrasiEskiTaslaklariKapat } from "@/lib/order-reservations";
 // @ts-ignore
 import Iyzipay from "iyzipay";
 
@@ -55,6 +56,16 @@ export async function POST(request: Request) {
 
       const guncelSiparis = await db.collection("orders").findOne({ siparisKodu });
       if (guncelSiparis) await siparisOdulPuanVer(db, guncelSiparis);
+
+      const musteriEmail =
+        mevcutSiparis?.userEmail ||
+        mevcutSiparis?.email ||
+        mevcutSiparis?.musteri?.eposta ||
+        mevcutSiparis?.musteri?.email ||
+        "";
+      if (musteriEmail && siparisKodu) {
+        await basariliOdemeSonrasiEskiTaslaklariKapat(db, musteriEmail, siparisKodu);
+      }
 
       try {
         const siparis = await db.collection("orders").findOne({ siparisKodu: siparisKodu });

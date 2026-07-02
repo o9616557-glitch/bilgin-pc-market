@@ -21,6 +21,8 @@ export async function GET(request: Request) {
     const siparisler = await db.collection("orders").find({
       $and: [
         { gizlendi: { $ne: true } },
+        { gecersizDeneme: { $ne: true } },
+        { odemeDurumu: { $nin: ["zaman_asimi"] } },
         {
           $nor: [
             {
