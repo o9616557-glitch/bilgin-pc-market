@@ -404,18 +404,19 @@ export default function OdemeSayfasi() {
     return (
       <div
         className={[
-          "rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/[0.08] via-transparent to-transparent",
-          yanPanel ? "mb-0" : "mb-5",
-          buyuk ? "p-4 sm:p-5" : "p-4",
+          yanPanel
+            ? "p-3 sm:p-3.5 border-0 rounded-none bg-transparent"
+            : "rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/[0.08] via-transparent to-transparent mb-5",
+          !yanPanel && (buyuk ? "p-4 sm:p-5" : "p-4"),
         ].join(" ")}
       >
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center shrink-0">
+        <div className={`flex items-start ${yanPanel ? "gap-2.5" : "gap-3"}`}>
+          <div className={`${yanPanel ? "w-9 h-9" : "w-10 h-10"} rounded-xl bg-amber-500/15 flex items-center justify-center shrink-0`}>
             <Gift className="w-5 h-5 text-amber-400" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-white text-sm font-semibold mb-0.5">Ödül puanları</p>
-            <p className="text-slate-500 text-xs mb-3">
+            <p className={`text-slate-500 text-xs ${yanPanel ? "mb-2" : "mb-3"}`}>
               Bakiyeniz:{" "}
               <span className="text-amber-400 font-semibold tabular-nums">
                 {loyaltyPoints.toLocaleString("tr-TR")} puan
@@ -453,7 +454,7 @@ export default function OdemeSayfasi() {
 
     if (status !== "authenticated") {
       return (
-        <div className={["rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4", yanPanel ? "mb-0" : "mb-5"].join(" ")}>
+        <div className={["rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4", yanPanel ? "mb-0 border-0 rounded-none bg-transparent p-3 sm:p-3.5" : "mb-5"].join(" ")}>
           <p className="text-slate-400 text-xs leading-relaxed">
             Mağaza kredisi ve ödül puanı için{" "}
             <Link href="/giris?callbackUrl=/odeme" className="text-site-accent hover:underline font-medium">
@@ -470,18 +471,19 @@ export default function OdemeSayfasi() {
     return (
       <div
         className={[
-          "rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/[0.08] via-transparent to-transparent",
-          yanPanel ? "mb-0" : "mb-5",
-          buyuk ? "p-4 sm:p-5" : "p-4",
+          yanPanel
+            ? "p-3 sm:p-3.5 border-0 rounded-none bg-transparent"
+            : "rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/[0.08] via-transparent to-transparent mb-5",
+          !yanPanel && (buyuk ? "p-4 sm:p-5" : "p-4"),
         ].join(" ")}
       >
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center shrink-0">
+        <div className={`flex items-start ${yanPanel ? "gap-2.5" : "gap-3"}`}>
+          <div className={`${yanPanel ? "w-9 h-9" : "w-10 h-10"} rounded-xl bg-emerald-500/15 flex items-center justify-center shrink-0`}>
             <Wallet className="w-5 h-5 text-emerald-400" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-white text-sm font-semibold mb-0.5">Mağaza kredisi</p>
-            <p className="text-slate-500 text-xs mb-3">
+            <p className={`text-slate-500 text-xs ${yanPanel ? "mb-2" : "mb-3"}`}>
               Bakiyeniz:{" "}
               <span className="text-emerald-400 font-semibold tabular-nums">
                 {magazaKredisi.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} TL
@@ -594,12 +596,14 @@ export default function OdemeSayfasi() {
   };
 
   const CuzdanPuanYanPaneli = () => (
-    <div className="glass-card p-4 sm:p-5 space-y-4">
-      <h2 className="text-sm font-semibold text-white pb-3 border-b border-white/[0.06] flex items-center gap-2">
+    <div className="glass-card p-4 sm:p-5">
+      <h2 className="text-sm font-semibold text-white mb-2.5 flex items-center gap-2">
         <Wallet className="w-4 h-4 text-site-accent" /> Puan & kredi
       </h2>
-      <OdulPuanAlani yanPanel />
-      <MagazaKrediAlani yanPanel />
+      <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] overflow-hidden divide-y divide-white/[0.06]">
+        <OdulPuanAlani yanPanel />
+        <MagazaKrediAlani yanPanel />
+      </div>
     </div>
   );
 
