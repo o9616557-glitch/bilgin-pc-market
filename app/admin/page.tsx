@@ -58,6 +58,8 @@ export default function AdminPaneli() {
   const [replyText, setReplyText] = useState("");
   const [silinecekYorumID, setSilinecekYorumID] = useState<string | null>(null);
 
+  const [bakimTemizleniyor, setBakimTemizleniyor] = useState(false);
+
   const PATRON_SIFRESI = "Bilgin123";
 
   const odemeDurumuRozeti = (odemeDurumu?: string) => {
@@ -157,6 +159,61 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
   };
   const siparisleriGetir = async () => { try { const res = await fetch(`/api/admin/siparisler?v=${Date.now()}`, { headers: { "x-patron-anahtar": PATRON_SIFRESI }}); const data = await res.json(); if (data.success) setSiparisler(data.siparisler); } catch (e) {} };
   const siparisSilmeIslemi = async () => { if (!silinecekSiparisID) return; try { const res = await fetch(`/api/admin/siparisler?id=${silinecekSiparisID}`, { method: "DELETE", headers: { "x-patron-anahtar": PATRON_SIFRESI }}); if ((await res.json()).success) { setSiparisler(siparisler.filter(s => s._id !== silinecekSiparisID)); setSilinecekSiparisID(null); toast.success("Sipariş silindi."); } } catch (e) { toast.error("Silinemedi."); } };
+
+  const eskiDenemeleriTemizle = async () => {
+    if (bakimTemizleniyor) return;
+
+    setBakimTemizleniyor(true);
+    const toastId = toast.loading("Eski başarısız denemeler kontrol ediliyor...");
+
+    try {
+      const onizlemeRes = await fetch(
+        "/api/admin/bakim/stale-order-attempts?includeIptal=true",
+        { headers: { "x-patron-anahtar": PATRON_SIFRESI } }
+      );
+      const onizleme = await onizlemeRes.json();
+
+      if (!onizlemeRes.ok || !onizleme.success) {
+        toast.error(onizleme?.error || "Önizleme alınamadı.", { id: toastId });
+        return;
+      }
+
+      const adet = onizleme?.summary?.total || 0;
+      if (adet === 0) {
+        toast.success("Temizlenecek eski deneme bulunamadı.", { id: toastId });
+        return;
+      }
+
+      const onay = window.confirm(
+        `${adet} adet eski başarısız/zaman aşımı ödeme denemesi operasyon listesinden çıkarılacak. Devam edilsin mi?`
+      );
+      if (!onay) {
+        toast.dismiss(toastId);
+        return;
+      }
+
+      toast.loading(`${adet} kayıt temizleniyor...`, { id: toastId });
+
+      const temizleRes = await fetch("/api/admin/bakim/stale-order-attempts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-patron-anahtar": PATRON_SIFRESI },
+        body: JSON.stringify({ includeIptal: true }),
+      });
+      const temizle = await temizleRes.json();
+
+      if (!temizleRes.ok || !temizle.success) {
+        toast.error(temizle?.error || "Temizlik başarısız oldu.", { id: toastId });
+        return;
+      }
+
+      toast.success(`${temizle.modifiedCount || 0} kayıt temizlendi.`, { id: toastId });
+      await siparisleriGetir();
+    } catch (e) {
+      toast.error("Bağlantı hatası.", { id: toastId });
+    } finally {
+      setBakimTemizleniyor(false);
+    }
+  };
 
 // 🚀 --- DESTEK TALEPLERİ İŞLEMLERİ (YENİ EKLENDİ) --- 🚀
   const talepleriGetir = async () => {
@@ -663,18 +720,30 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                     Kullanıcı tarafından gizlenen siparişler bu sayıya dahil değildir.
                   </div>
                 </div>
-                <select
-                  value={siparisOdemeFiltresi}
-                  onChange={(e) => setSiparisOdemeFiltresi(e.target.value as typeof siparisOdemeFiltresi)}
-                  className="bg-[#0b1120] border border-slate-700 rounded-lg px-4 py-3 text-sm font-bold text-slate-200 focus:outline-none focus:border-slate-500"
-                >
-                  <option value="tumu">Tüm Siparişler</option>
-                  <option value="odeme_bekliyor">Kart Bekleniyor</option>
-                  <option value="havale_bekliyor">Havale Bekleniyor</option>
-                  <option value="odendi">Ödendi</option>
-                  <option value="onaylandi">Onaylandı</option>
-                  <option value="iptal">İptal</option>
-                </select>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={eskiDenemeleriTemizle}
+                    disabled={bakimTemizleniyor}
+                    title="Zaman aşımına uğrayan veya başarısız kalan eski ödeme denemelerini operasyon listesinden çıkarır."
+                    className="inline-flex items-center gap-2 rounded-lg border border-orange-800/50 bg-orange-950/30 px-4 py-3 text-sm font-bold text-orange-200 transition hover:border-orange-600/60 hover:bg-orange-900/30 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <AlertTriangle className="h-4 w-4" />
+                    {bakimTemizleniyor ? "Temizleniyor..." : "Eski Denemeleri Temizle"}
+                  </button>
+                  <select
+                    value={siparisOdemeFiltresi}
+                    onChange={(e) => setSiparisOdemeFiltresi(e.target.value as typeof siparisOdemeFiltresi)}
+                    className="bg-[#0b1120] border border-slate-700 rounded-lg px-4 py-3 text-sm font-bold text-slate-200 focus:outline-none focus:border-slate-500"
+                  >
+                    <option value="tumu">Tüm Siparişler</option>
+                    <option value="odeme_bekliyor">Kart Bekleniyor</option>
+                    <option value="havale_bekliyor">Havale Bekleniyor</option>
+                    <option value="odendi">Ödendi</option>
+                    <option value="onaylandi">Onaylandı</option>
+                    <option value="iptal">İptal</option>
+                  </select>
+                </div>
               </div>
 
               {filtrelenmisSiparisler.length === 0 ? (
