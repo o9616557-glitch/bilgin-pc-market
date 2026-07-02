@@ -1048,6 +1048,8 @@ export function siparisArsivKalemleriniTopla(
     const opts = { talepler, siparisKodu };
 
     for (const item of siparisKalemleri(order)) {
+      if (!siparisKalemiArsivdeMi(order, item, opts)) continue;
+
       const tip = siparisKalemiArsivTipi(order, item, opts);
       const itemAdet = Number(item.quantity || item.adet || item.miktar || 1);
       const iadeAdet =

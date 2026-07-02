@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useOrders } from "@/app/OrderContext";
 import {
+  ARSIV_SURESI_GUN,
   KART_IADE_BANKA_NOTU,
   arsivKalemiZamanFiltresineUygun,
   siparisArsivKalemleriniTopla,
@@ -125,12 +126,12 @@ export default function ArsivPage() {
       </div>
 
       <p className="text-xs text-slate-500 font-medium leading-relaxed px-1">
-        Tüm siparişlerinizdeki ürünler burada listelenir. Yukarıdaki zaman filtresiyle dilediğiniz döneme göre süzebilirsiniz.
-        Güncel siparişlerinizi{" "}
+        Sipariş tarihinden {ARSIV_SURESI_GUN} gün (3 ay) geçen ürünler burada listelenir.
+        Son 3 ay içindeki siparişleriniz{" "}
         <Link href="/siparislerim" className="text-cyan-400 hover:underline">
           Siparişlerim
         </Link>{" "}
-        sayfasından takip edebilirsiniz.
+        sayfasında kalır.
       </p>
 
       {arsivKalemleri.length === 0 ? (
@@ -142,7 +143,7 @@ export default function ArsivPage() {
           <p className="text-slate-400 text-sm max-w-md mx-auto font-medium leading-relaxed">
             {tumArsivKalemleri.length > 0
               ? "Seçtiğiniz zaman aralığında ürün bulunmuyor. Farklı bir filtre deneyin."
-              : "Henüz hiç siparişiniz bulunmuyor."}
+              : `Henüz ${ARSIV_SURESI_GUN} gününü (3 ay) dolduran siparişiniz yok.`}
           </p>
         </div>
       ) : (
