@@ -121,6 +121,11 @@ const { sepeteEkle } = useCart();
            <Truck className="w-3.5 h-3.5 animate-bounce" /> KARGODA
         </div>
     );
+    if (d.includes("havale")) return (
+        <div className="w-max inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-[10px] font-black uppercase tracking-widest shadow-inner">
+           <Clock className="w-3.5 h-3.5" /> HAVALE BEKLENİYOR
+        </div>
+    );
     if (d.includes("hazır") || d.includes("ödendi") || d.includes("odendi")) return (
         <div className="w-max inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-black uppercase tracking-widest shadow-inner">
            <Package className="w-3.5 h-3.5" /> HAZIRLANIYOR

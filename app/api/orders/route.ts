@@ -52,7 +52,12 @@ export async function GET() {
             { "musteri.eposta": { $in: aranacakMailler } }
           ]
         },
-        { musteriyeGoster: true },
+        {
+          $or: [
+            { musteriyeGoster: true },
+            { odemeDurumu: "havale_bekliyor" },
+          ],
+        },
         { gizlendi: { $ne: true } } 
       ]
     }).sort({ _id: -1 }).toArray() as OrderLike[];
