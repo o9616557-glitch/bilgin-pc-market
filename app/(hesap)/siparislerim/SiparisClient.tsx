@@ -241,6 +241,10 @@ const { sepeteEkle } = useCart();
   const selectedOrderIsKargoda = selectedOrderDurumMetni.includes("kargo");
   const selectedOrderIsIptal = durumIptalMi(selectedOrderDurumMetni);
   const selectedOrderIadeOzeti = siparisIadeOzeti(selectedOrder);
+  const selectedOrderKismiIade =
+    selectedOrderIadeOzeti.kismi ||
+    selectedOrderDurumMetni.includes("kısmen") ||
+    selectedOrderDurumMetni.includes("kismen");
   const selectedOrderOdemeBekliyor = isOdemeBekleyenSiparis(selectedOrder);
   const selectedOrderHavaleBekliyor = isHavaleBekleyenSiparis(selectedOrder);
   const selectedOrderIadeSuresi = siparisIadeSuresiOzeti(selectedOrder);
@@ -416,7 +420,8 @@ const { sepeteEkle } = useCart();
                   );
                   const urunIadeVar = urunSatirindaIadeVar(item);
                   const urunTamIade = iadeEdilenAdet > 0 ? iadeEdilenAdet >= itemAdet : siparisKalemTamIadeMi(selectedOrder, item, selectedOrderIadeOpts);
-                  const yorumTekrarAlGoster = siparisTeslimEdildi && !urunIptal && !urunIadeVar;
+                  const yorumTekrarAlGoster =
+                    siparisTeslimEdildi && !selectedOrderKismiIade && !urunIptal && !urunIadeVar;
                   const iptalButonuGoster =
                     !urunIadeVar &&
                     !urunIptal &&
@@ -434,6 +439,7 @@ const { sepeteEkle } = useCart();
                     }
                   );
                   const iadeButonuGoster =
+                    !selectedOrderKismiIade &&
                     !urunIadeVar &&
                     !urunIptal &&
                     !urunTamIade &&
