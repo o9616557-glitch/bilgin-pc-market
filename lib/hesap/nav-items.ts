@@ -31,3 +31,31 @@ export const NAV_ITEMS = [
 ] as const;
 
 export type NavItemId = (typeof NAV_ITEMS)[number]["id"];
+
+/** Mobil hesap menüsü — gruplu kutular (Amazon tarzı) */
+export const NAV_MENU_GRUPLARI: { baslik: string; ids: NavItemId[] }[] = [
+  {
+    baslik: "Profil & Ödeme",
+    ids: ["hesabim", "cuzdan"],
+  },
+  {
+    baslik: "Siparişler",
+    ids: ["kargolar", "sorgula"],
+  },
+  {
+    baslik: "Alışverişim",
+    ids: ["favoriler", "sistemler"],
+  },
+  {
+    baslik: "Müşteri Hizmetleri",
+    ids: ["destek", "mesajlarim"],
+  },
+  {
+    baslik: "Hesap Ayarları",
+    ids: ["guvenlik", "adreslerim", "eposta-degistir", "veri-talebi", "yorumlarim", "siparis-yorumlarim"],
+  },
+];
+
+export function navItemBul(id: NavItemId) {
+  return NAV_ITEMS.find((i) => i.id === id);
+}
