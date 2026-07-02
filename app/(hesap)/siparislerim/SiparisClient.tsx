@@ -12,7 +12,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { useOrders } from "@/app/OrderContext"; 
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
-import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisGosterimDurumu, siparisIadeOzeti, siparisIadeSuresiOzeti, siparisIadeYontemi, siparisKalemiIadeAdet, siparisKalemleri, urunBekleyenIslemEtiketi, urunIadeDurumu, urunIadeIslendiMi, urunIadeYontemiBul, urunIadeYontemiMetni, urunIptalEdilebilirMi, urunIptalEdildiMi, urunTalepBekliyorTemizle, durumIptalMi, durumMetniNorm, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
+import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisGosterimDurumu, siparisIadeOzeti, siparisIadeSuresiOzeti, siparisIadeYontemi, siparisKalemiIadeAdet, siparisKalemIadeEdildiMi, siparisKalemTamIadeMi, siparisKalemleri, siparisTamamlandiMi, urunBekleyenIslemEtiketi, urunIadeYontemiBul, urunIadeYontemiMetni, urunIptalEdilebilirMi, urunIptalEdildiMi, urunTalepBekliyorTemizle, durumIptalMi, durumMetniNorm, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 
 export default function SiparisClient() {
@@ -253,14 +253,7 @@ const { sepeteEkle } = useCart();
     const urunIsim = String(item.title || item.isim || item.name || "");
     const itemAdet = Number(item.quantity || item.adet || 1);
     const iadeEdilenAdet = siparisKalemiIadeAdet(selectedOrder, item, selectedOrderIadeOpts);
-    const urunIade = urunIadeIslendiMi(
-      selectedOrder,
-      destekTalepleri,
-      selectedOrderSiparisKodu,
-      urunId,
-      urunIsim,
-      iadeEdilenAdet
-    );
+    const urunIade = siparisKalemIadeEdildiMi(selectedOrder, item, selectedOrderIadeOpts);
     if (urunIade) return false;
     const durumMetni = durumMetniNorm(selectedOrder?.durum || selectedOrder?.status);
     const teslimEdildi = durumMetni.includes("teslim") || durumMetni.includes("tamam");
@@ -378,9 +371,8 @@ const { sepeteEkle } = useCart();
               <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
                 {selectedOrderKalemleri.map((item: OrderItemLike, idx: number) => {
                   const durumMetni = durumMetniNorm(selectedOrder.durum || selectedOrder.status);
-                  const isTeslimEdildi =
-                    durumMetni.includes("teslim") ||
-                    durumMetni.includes("tamam") ||
+                  const siparisTeslimEdildi =
+                    siparisTamamlandiMi(selectedOrder.durum || selectedOrder.status) ||
                     selectedOrderIadeSuresi.tamamlandi;
                   const isKargoda = durumMetni.includes("kargo");
                   const isIptal = durumIptalMi(durumMetni);
@@ -409,18 +401,10 @@ const { sepeteEkle } = useCart();
                     itemAdet,
                     iadeEdilenAdet
                   );
-                  const urunIadeDurumuSonuc = urunIadeDurumu(
-                    selectedOrder,
-                    destekTalepleri,
-                    selectedOrderSiparisKodu,
-                    urunId,
-                    urunIsim,
-                    itemAdet,
-                    iadeEdilenAdet
-                  );
-                  const urunIadeVar = urunIadeDurumuSonuc !== null;
-                  const urunTamIade = urunIadeDurumuSonuc === "tam";
+                  const urunIadeVar = siparisKalemIadeEdildiMi(selectedOrder, item, selectedOrderIadeOpts);
+                  const urunTamIade = siparisKalemTamIadeMi(selectedOrder, item, selectedOrderIadeOpts);
                   const urunAktif = !urunIadeVar && !urunIptal;
+                  const yorumTekrarAlGoster = siparisTeslimEdildi && urunAktif;
                   const iptalButonuGoster =
                     urunAktif &&
                     urunIptalEdilebilirMi(
@@ -433,14 +417,14 @@ const { sepeteEkle } = useCart();
                     iadeEdilenAdet,
                     {
                       odemeBekliyor: selectedOrderOdemeBekliyor,
-                      teslimEdildi: isTeslimEdildi,
+                      teslimEdildi: siparisTeslimEdildi,
                     }
                   );
                   const iadeButonuGoster =
                     urunAktif &&
-                    !isIptal &&
                     !urunTamIade &&
-                    isTeslimEdildi &&
+                    !isIptal &&
+                    siparisTeslimEdildi &&
                     !iadeSuresiGectiMi &&
                     !selectedOrderOdemeBekliyor &&
                     iadeEdilenAdet < itemAdet &&
@@ -508,7 +492,7 @@ const { sepeteEkle } = useCart();
                         </div>
                       </div>
 
-                      {isTeslimEdildi && urunAktif && !urunIadeVar && (
+                      {yorumTekrarAlGoster && (
                         <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mt-1 -mb-1">
                           {iadeSuresiGectiMi ? (
                             <span className="text-slate-500 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> 15 Günlük İade Süresi Doldu</span>
@@ -519,7 +503,7 @@ const { sepeteEkle } = useCart();
                       )}
 
                       <div className="flex flex-col gap-2 pt-3 border-t border-slate-800/50 mt-auto">
-                        {isTeslimEdildi && urunAktif && !urunIadeVar && (
+                        {yorumTekrarAlGoster && (
                           <div className="flex flex-wrap items-center gap-1.5">
                             <Link
                               href={`${urunLinki}#yorumlar`}
@@ -576,7 +560,7 @@ const { sepeteEkle } = useCart();
                               <Clock className="w-3 h-3 shrink-0" />
                               {incelemeMetni}
                             </span>
-                          ) : iadeSuresiGectiMi && isTeslimEdildi && urunAktif ? (
+                          ) : iadeSuresiGectiMi && siparisTeslimEdildi && urunAktif ? (
                             <Link
                               href="/destek-taleplerim/yeni?konu=teknik"
                               className="inline-flex items-center gap-1 px-2.5 py-1.5 text-slate-400 hover:bg-slate-800/50 border border-slate-700 rounded-md transition-all text-[10px] font-semibold whitespace-nowrap"
@@ -586,7 +570,7 @@ const { sepeteEkle } = useCart();
                             </Link>
                           ) : (
                             <>
-                              {iadeButonuGoster && isTeslimEdildi && (
+                              {iadeButonuGoster && (
                                 <Link
                                   href={`/destek-taleplerim/yeni?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade&urunId=${encodeURIComponent(urunId)}`}
                                   className="inline-flex items-center gap-1 px-2.5 py-1.5 text-red-400 hover:bg-red-500/10 border border-red-500/20 rounded-md transition-all text-[10px] font-semibold whitespace-nowrap"
@@ -604,7 +588,7 @@ const { sepeteEkle } = useCart();
                                     <RefreshCw className="w-3 h-3 shrink-0" />
                                     Ürünü İptal Et
                                   </Link>
-                                ) : !isTeslimEdildi && (
+                                ) : !siparisTeslimEdildi && (
                                   <Link
                                     href={`/destek-taleplerim/yeni?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iptal&urunId=${encodeURIComponent(urunId)}`}
                                     className="inline-flex items-center gap-1 px-2.5 py-1.5 text-red-400 hover:bg-red-500/10 border border-red-500/20 rounded-md transition-all text-[10px] font-semibold whitespace-nowrap"
