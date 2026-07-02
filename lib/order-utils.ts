@@ -204,18 +204,67 @@ export function urunTalepBekliyorTemizle(siparisKodu: string, urunId: string) {
 
 export type IadeYontemi = "kart" | "magaza_kredisi";
 
+export function urunIadeYontemiBul(
+  order: OrderLike | null | undefined,
+  talepler: UrunDestekTalepLike[],
+  siparisKodu: string,
+  urunId: string,
+  urunIsim?: string
+): IadeYontemi | null {
+  const gecmis = order?.iadeGecmisi || [];
+  for (let i = gecmis.length - 1; i >= 0; i--) {
+    const kayit = gecmis[i];
+    if (kayit.yontem !== "kart" && kayit.yontem !== "magaza_kredisi") continue;
+    const eslesen = kayit.kalemler?.some((k) => urunKalemiEslesir(k, urunId, urunIsim));
+    if (eslesen) return kayit.yontem;
+  }
+
+  for (let i = talepler.length - 1; i >= 0; i--) {
+    const t = talepler[i];
+    if (!t.iadeOdendi) continue;
+    if (t.iadeYontemi !== "kart" && t.iadeYontemi !== "magaza_kredisi") continue;
+    if (!siparisKodlariEslesir(t.siparisNo || "", siparisKodu)) continue;
+    const eslesen = t.iadeKalemleri?.some((k) => urunKalemiEslesir(k, urunId, urunIsim));
+    if (eslesen) return t.iadeYontemi;
+  }
+
+  return null;
+}
+
+export function urunIadeYontemiMetni(yontem?: IadeYontemi | null): string | null {
+  if (yontem === "magaza_kredisi") return "Mağaza kredisine yüklendi";
+  if (yontem === "kart") return "Kartınıza / hesabınıza yatırıldı";
+  return null;
+}
+
 export function siparisIadeYontemi(
   order?: OrderLike | null,
   talepler?: UrunDestekTalepLike[]
 ): IadeYontemi | null {
-  const gecmis = order?.iadeGecmisi;
+  if (!order) return null;
+
+  const kod = String(order.siparisKodu || order.orderNumber || "");
+  const iadeUrunleri = (order.items || []).filter((item) => Number(item.iadeEdilenAdet || 0) > 0);
+
+  if (iadeUrunleri.length) {
+    const yontemler = new Set<IadeYontemi>();
+    for (const item of iadeUrunleri) {
+      const urunId = String(item.id || item._id || item.productId || "");
+      const isim = item.title || item.isim || item.name;
+      const yontem = urunIadeYontemiBul(order, talepler || [], kod, urunId, isim);
+      if (yontem) yontemler.add(yontem);
+    }
+    if (yontemler.size === 1) return [...yontemler][0];
+    return null;
+  }
+
+  const gecmis = order.iadeGecmisi;
   if (gecmis?.length) {
     const son = gecmis[gecmis.length - 1]?.yontem;
     if (son === "kart" || son === "magaza_kredisi") return son;
   }
 
-  if (!order || !talepler?.length) return null;
-  const kod = String(order.siparisKodu || order.orderNumber || "");
+  if (!talepler?.length) return null;
   const talep = talepler.find(
     (t) =>
       t.iadeOdendi &&
