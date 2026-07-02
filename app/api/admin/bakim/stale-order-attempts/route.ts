@@ -6,11 +6,26 @@ export const revalidate = 0;
 
 const GIZLI_ANAHTAR = "Bilgin123";
 
+type BakimOrder = {
+  _id: unknown;
+  siparisKodu?: string;
+  odemeDurumu?: string;
+  durum?: string;
+  status?: string;
+  musteriyeGoster?: boolean;
+  gizlendi?: boolean;
+  gecersizDeneme?: boolean;
+  supersededBy?: string;
+  odemeHataMesaji?: string;
+  createdAt?: Date | string;
+  tarih?: Date | string;
+};
+
 function parseBool(value: string | null) {
   return value === "1" || value === "true";
 }
 
-function formatOrder(order: any) {
+function formatOrder(order: BakimOrder) {
   return {
     id: String(order._id),
     siparisKodu: order.siparisKodu || "-",
