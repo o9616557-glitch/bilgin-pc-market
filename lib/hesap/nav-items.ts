@@ -18,15 +18,15 @@ export const NAV_ITEMS = [
   { href: "/cuzdan",             label: "Cüzdanım ve Kayıtlı Kartlar",    icon: CreditCard,    id: "cuzdan" },
   { href: "/guvenlik",           label: "Güvenlik ve Oturum Açma",        icon: ShieldCheck,   id: "guvenlik" },
   { href: "/favorilerim",        label: "Favori Ürünlerim",               icon: Star,          id: "favoriler" },
-  { href: "/sistemlerim",        label: "Kayıtlı Bilgisayar Sistemlerim", icon: Server,        id: "sistemler" },
+  { href: "/sistemlerim",        label: "Toplama Bilgisayar Sistemlerim", icon: Server,        id: "sistemler" },
   { href: "/destek-taleplerim",  label: "Destek Taleplerim",              icon: Headset,       id: "destek" },
-  { href: "/siparis-takip",      label: "Sipariş Durumu Sorgula",         icon: Search,        id: "sorgula" },
-  { href: "/kargolarim",         label: "Kargodaki Siparişlerim",         icon: Truck,         id: "kargolar" },
+  { href: "/siparis-takip",      label: "Sipariş Numarası ile Sorgula",   icon: Search,        id: "sorgula" },
+  { href: "/kargolarim",         label: "Kargoya Verilen Siparişlerim",   icon: Truck,         id: "kargolar" },
   { href: "/mesajlarim",         label: "Gelen Mesajlarım",               icon: MessageSquare, id: "mesajlarim" },
   { href: "/veri-talebi",        label: "Kişisel Veri Talebi",            icon: Database,      id: "veri-talebi" },
   { href: "/eposta-degistir",    label: "E-posta Adresimi Değiştir",      icon: Mail,          id: "eposta-degistir" },
-  { href: "/yorumlarim",         label: "Yazdığım Ürün Yorumları",        icon: Star,          id: "yorumlarim" },
-  { href: "/siparis-yorumlarim", label: "Yazdığım Sipariş Yorumları",     icon: Star,          id: "siparis-yorumlarim" },
+  { href: "/yorumlarim",         label: "Ürün Yorumlarım",                icon: Star,          id: "yorumlarim" },
+  { href: "/siparis-yorumlarim", label: "Sipariş Yorumlarım",             icon: Star,          id: "siparis-yorumlarim" },
   { href: "/adreslerim",         label: "Teslimat Adreslerim",            icon: MapPin,        id: "adreslerim" },
 ] as const;
 
@@ -43,7 +43,7 @@ export const NAV_MENU_GRUPLARI: { baslik: string; ids: NavItemId[] }[] = [
     ids: ["kargolar", "sorgula"],
   },
   {
-    baslik: "Kayıtlı Ürünlerim",
+    baslik: "Favoriler ve Toplama Sistemlerim",
     ids: ["favoriler", "sistemler"],
   },
   {
