@@ -451,6 +451,7 @@ const { sepeteEkle } = useCart();
                   const iadeTarihSonuKosesiGoster =
                     siparisTeslimEdildi &&
                     iadeBitisTarihi &&
+                    !selectedOrderKismiIade &&
                     !urunIadeVar &&
                     !urunIptal &&
                     !urunBekleyenIslem;
