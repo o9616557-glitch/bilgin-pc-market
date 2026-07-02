@@ -78,3 +78,75 @@ export function normalizeOrderStatus(order?: OrderLike | null) {
 
   return order?.durum || order?.status || "Hazırlanıyor";
 }
+
+export type UrunDestekTalepLike = {
+  konu?: string;
+  durum?: string;
+  siparisNo?: string;
+  iadeKalemleri?: { urunId?: string; isim?: string; adet?: number }[];
+};
+
+const URUN_TALEP_KEY = "bilgin_urun_talep";
+
+export function siparisKodlariEslesir(a: string, b: string) {
+  const na = String(a || "").trim().toUpperCase();
+  const nb = String(b || "").trim().toUpperCase();
+  if (!na || !nb) return false;
+  if (na === nb) return true;
+  const bpcA = na.match(/BPC-?\d{6}/);
+  const bpcB = nb.match(/BPC-?\d{6}/);
+  return Boolean(bpcA && bpcB && bpcA[0] === bpcB[0]);
+}
+
+export function urunKalemiEslesir(
+  talepKalem: { urunId?: string; isim?: string },
+  urunId: string,
+  urunIsim?: string
+) {
+  const tid = String(talepKalem.urunId || "").trim();
+  const uid = String(urunId || "").trim();
+  if (tid && uid) {
+    if (tid === uid) return true;
+    if (tid.length >= 12 && uid.length >= 12 && (tid.endsWith(uid.slice(-12)) || uid.endsWith(tid.slice(-12)))) {
+      return true;
+    }
+  }
+  if (talepKalem.isim && urunIsim) {
+    return talepKalem.isim.toLowerCase().trim() === urunIsim.toLowerCase().trim();
+  }
+  return false;
+}
+
+export function urunIcinAcikDestekDurumu(
+  talepler: UrunDestekTalepLike[],
+  siparisKodu: string,
+  urunId: string,
+  urunIsim?: string
+): string | null {
+  const acik = talepler.find((t) => {
+    if (t.durum === "Çözüldü") return false;
+    if (t.konu !== "iptal" && t.konu !== "iade") return false;
+    if (!siparisKodlariEslesir(t.siparisNo || "", siparisKodu)) return false;
+    if (t.iadeKalemleri?.length) {
+      return t.iadeKalemleri.some((k) => urunKalemiEslesir(k, urunId, urunIsim));
+    }
+    return false;
+  });
+  if (!acik) return null;
+  return acik.durum === "Yanıt Bekleniyor" ? "Yanıt Bekleniyor" : "İnceleniyor";
+}
+
+export function urunTalepBekliyorKaydet(siparisKodu: string, urunId: string) {
+  if (typeof window === "undefined") return;
+  sessionStorage.setItem(`${URUN_TALEP_KEY}:${siparisKodu}:${urunId}`, "1");
+}
+
+export function urunTalepBekliyorMu(siparisKodu: string, urunId: string) {
+  if (typeof window === "undefined") return false;
+  return sessionStorage.getItem(`${URUN_TALEP_KEY}:${siparisKodu}:${urunId}`) === "1";
+}
+
+export function urunTalepBekliyorTemizle(siparisKodu: string, urunId: string) {
+  if (typeof window === "undefined") return;
+  sessionStorage.removeItem(`${URUN_TALEP_KEY}:${siparisKodu}:${urunId}`);
+}

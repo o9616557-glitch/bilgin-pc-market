@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useOrders } from "@/app/OrderContext";
 import KisayolNav from "@/components/layout/KisayolNav";
+import { urunTalepBekliyorKaydet } from "@/lib/order-utils";
 
 interface Props {
   initialFavorites?: any[]; // Kendi yapına göre opsiyonel bıraktım
@@ -253,6 +254,11 @@ useEffect(() => {
 
       if (res.ok && data.success) {
         toast.success("Talebiniz başarıyla oluşturuldu! 🚀", { id: toastId });
+        if (kalemSecimKonu && iadeKalemleri.length && talepBaslik.trim()) {
+          for (const k of iadeKalemleri) {
+            if (k.urunId) urunTalepBekliyorKaydet(talepBaslik.trim(), k.urunId);
+          }
+        }
         setYeniTalepModal(false);
         setTalepKonusu(""); setTalepBaslik(""); setTalepMesaji(""); setIadeYontemi("magaza_kredisi");
         setSiparisKalemleri([]); setSeciliIadeKalemleri({}); setHesaplananIadeTutar(null); setOnSecilenUrunId(null);
