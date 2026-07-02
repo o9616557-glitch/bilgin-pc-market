@@ -71,9 +71,10 @@ const { sepeteEkle } = useCart();
   }, []);
 
   const siparisDetayAc = (order: OrderLike) => {
+    const guncel = localOrders.find((o) => o._id === order._id) || order;
+    setSelectedOrder(guncel);
     refreshOrders();
     void destekTalepleriniGetir();
-    setSelectedOrder(order);
   };
 
   useEffect(() => {
@@ -404,7 +405,7 @@ const { sepeteEkle } = useCart();
                   const urunIadeVar = siparisKalemIadeEdildiMi(selectedOrder, item, selectedOrderIadeOpts);
                   const urunTamIade = siparisKalemTamIadeMi(selectedOrder, item, selectedOrderIadeOpts);
                   const urunAktif = !urunIadeVar && !urunIptal;
-                  const yorumTekrarAlGoster = siparisTeslimEdildi && urunAktif;
+                  const yorumTekrarAlGoster = siparisTeslimEdildi && !urunIptal && !urunIadeVar;
                   const iptalButonuGoster =
                     urunAktif &&
                     urunIptalEdilebilirMi(

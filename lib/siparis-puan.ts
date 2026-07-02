@@ -205,6 +205,12 @@ export async function siparisIadeIslemleri(
 
   const sepet = siparisSepeti(siparis);
   let iadeKalemleri = opts?.kalemler || [];
+  if (!iadeKalemleri.length && opts?.talepNo) {
+    const talep = await db.collection("desteks").findOne({ talepNo: opts.talepNo });
+    if (talep?.iadeKalemleri?.length) {
+      iadeKalemleri = talep.iadeKalemleri;
+    }
+  }
   if (!iadeKalemleri.length) {
     const iadeEdilebilirKalemler = sepet.filter((k) => iadeEdilebilirAdet(k) > 0);
     if (iadeEdilebilirKalemler.length === 1) {

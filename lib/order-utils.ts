@@ -98,7 +98,7 @@ export function siparisKalemiIadeAdet(
   const siparisKodu = opts?.siparisKodu || String(order?.siparisKodu || order?.orderNumber || "");
   if (opts?.talepler?.length && siparisKodu) {
     for (const t of opts.talepler) {
-      if (t.konu !== "iade" || !t.iadeOdendi) continue;
+      if (t.konu !== "iade" || !iadeTalebiTamamlandiMi(t)) continue;
       if (!siparisKodlariEslesir(t.siparisNo || "", siparisKodu)) continue;
       for (const g of t.iadeKalemleri || []) {
         if (siparisKalemRefEslesirMi(g, item)) {
@@ -119,36 +119,23 @@ export function siparisKalemIadeEdildiMi(
 ): boolean {
   if (siparisKalemiIadeAdet(order, item, opts) > 0) return true;
 
-  for (const kayit of order?.iadeGecmisi || []) {
-    if (kayit.kalemler?.some((g) => siparisKalemRefEslesirMi(g, item))) return true;
-  }
-
-  const siparisKodu = opts?.siparisKodu || String(order?.siparisKodu || order?.orderNumber || "");
-  for (const t of opts?.talepler || []) {
-    if (t.konu !== "iade" || !t.iadeOdendi) continue;
-    if (!siparisKodlariEslesir(t.siparisNo || "", siparisKodu)) continue;
-    if (t.iadeKalemleri?.some((g) => siparisKalemRefEslesirMi(g, item))) return true;
+  if (
+    siparisIadeEdilenKalemleri(order, opts).some((g) => siparisKalemRefEslesirMi(g, item))
+  ) {
+    return true;
   }
 
   const durum = durumMetniNorm(getOrderStatusText(order));
   if (!durumIadeMi(durum) || durumIptalMi(durum)) return false;
+  if (durum.includes("kısmen") || durum.includes("kismen")) return false;
 
   const kalemler = siparisKalemleri(order);
-  if (
-    !kalemler.some((k) =>
-      siparisKalemRefEslesirMi(
-        { urunId: String(k.id || k._id || k.productId), isim: String(k.title || k.isim || k.name) },
-        item
-      )
+  return kalemler.some((k) =>
+    siparisKalemRefEslesirMi(
+      { urunId: String(k.id || k._id || k.productId), isim: String(k.title || k.isim || k.name) },
+      item
     )
-  ) {
-    return false;
-  }
-
-  if (!durum.includes("kısmen") && !durum.includes("kismen")) return true;
-  if (kalemler.length === 1) return true;
-
-  return false;
+  );
 }
 
 /** Ürün satırı tamamen iade edildi mi */
@@ -285,8 +272,21 @@ export function siparisKodlariEslesir(a: string, b: string) {
 function isimNorm(s?: string | null) {
   return String(s || "")
     .toLocaleLowerCase("tr-TR")
+    .replace(/[^a-z0-9ğüşıöçâîûê\s]/gi, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function isimlerEslesirMi(a?: string | null, b?: string | null) {
+  const na = isimNorm(a);
+  const nb = isimNorm(b);
+  if (!na || !nb) return false;
+  if (na === nb) return true;
+  const uzunluk = Math.min(na.length, nb.length, 28);
+  if (uzunluk < 8) return false;
+  const naBas = na.slice(0, uzunluk);
+  const nbBas = nb.slice(0, uzunluk);
+  return na.includes(nbBas) || nb.includes(naBas);
 }
 
 export function siparisKalemIdleri(item: OrderItemLike): string[] {
@@ -315,13 +315,7 @@ export function urunKalemiEslesir(
     }
   }
   if (talepKalem.isim && urunIsim) {
-    const a = isimNorm(talepKalem.isim);
-    const b = isimNorm(urunIsim);
-    if (!a || !b) return false;
-    if (a === b) return true;
-    if (a.length >= 8 && b.length >= 8 && (a.includes(b.slice(0, 24)) || b.includes(a.slice(0, 24)))) {
-      return true;
-    }
+    if (isimlerEslesirMi(talepKalem.isim, urunIsim)) return true;
   }
   return false;
 }
@@ -335,6 +329,54 @@ export function siparisKalemRefEslesirMi(
     if (urunKalemiEslesir(ref, id, isim)) return true;
   }
   return urunKalemiEslesir(ref, "", isim);
+}
+
+function iadeTalebiTamamlandiMi(t: UrunDestekTalepLike) {
+  return Boolean(t.iadeOdendi) || t.durum === "Çözüldü";
+}
+
+/** Siparişte iade edilmiş tüm kalemler (sepet + geçmiş + talep) */
+export function siparisIadeEdilenKalemleri(
+  order: OrderLike | null | undefined,
+  opts?: { talepler?: UrunDestekTalepLike[]; siparisKodu?: string }
+): { urunId?: string; isim?: string; adet: number }[] {
+  const kalemler: { urunId?: string; isim?: string; adet: number }[] = [];
+
+  for (const item of siparisKalemleri(order)) {
+    const adet = Number(item.iadeEdilenAdet || 0);
+    if (adet > 0) {
+      kalemler.push({
+        urunId: String(item.id || item._id || item.productId || ""),
+        isim: String(item.title || item.isim || item.name || ""),
+        adet,
+      });
+    }
+  }
+
+  for (const kayit of order?.iadeGecmisi || []) {
+    for (const g of kayit.kalemler || []) {
+      kalemler.push({
+        urunId: g.urunId,
+        isim: g.isim,
+        adet: Number(g.adet || 0),
+      });
+    }
+  }
+
+  const siparisKodu = opts?.siparisKodu || String(order?.siparisKodu || order?.orderNumber || "");
+  for (const t of opts?.talepler || []) {
+    if (t.konu !== "iade" || !iadeTalebiTamamlandiMi(t)) continue;
+    if (!siparisKodlariEslesir(t.siparisNo || "", siparisKodu)) continue;
+    for (const g of t.iadeKalemleri || []) {
+      kalemler.push({
+        urunId: g.urunId,
+        isim: g.isim,
+        adet: Number(g.adet || 0),
+      });
+    }
+  }
+
+  return kalemler;
 }
 
 export function urunIcinAcikDestekEtiketi(

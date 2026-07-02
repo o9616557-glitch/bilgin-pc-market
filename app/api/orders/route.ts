@@ -93,11 +93,13 @@ export async function GET() {
 
         return {
           ...item,
-          // 🧠 MÜKEMMEL DOKUNUŞ: Depodan bulduğu etiketi fişe basıyor!
           kategoriSlug: zimbaliKategori || item.kategoriSlug || item.kategori || "",
           title: item.title || item.isim || item.name || "Ürün",
+          isim: item.isim || item.title || item.name || "Ürün",
           quantity: item.quantity || item.adet || item.miktar || 1,
+          adet: item.adet || item.quantity || item.miktar || 1,
           price: Number(item.price || item.fiyat || 0),
+          iadeEdilenAdet: Number(item.iadeEdilenAdet || 0),
           image: item.image || item.resim || "https://app.bilginpcmarket.com/placeholder.png"
         };
       }));
