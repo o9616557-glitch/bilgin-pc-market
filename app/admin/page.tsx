@@ -760,7 +760,7 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                   </div>
                 </div>
               );
-              )})}
+              })}
             </div>
 
           ) : aktifSekme === "talepler" ? (
