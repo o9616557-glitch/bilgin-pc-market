@@ -304,7 +304,7 @@ const { sepeteEkle } = useCart();
       const originalHTML = btn.innerHTML;
       const originalClasses = btn.className;
       
-      btn.className = "flex-1 flex items-center justify-center gap-1 sm:gap-1.5 h-8 px-1 sm:px-2 bg-emerald-500 text-white rounded-md transition-all font-black text-[8px] sm:text-[9px] uppercase tracking-widest whitespace-nowrap scale-95 shadow-[0_0_10px_rgba(16,185,129,0.5)]";
+      btn.className = "flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-emerald-500 text-white border border-emerald-400/40 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap scale-95 shadow-[0_0_10px_rgba(16,185,129,0.5)]";
       btn.innerHTML = '<svg class="w-3 h-3 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> EKLENDİ';
       
       // 1.5 saniye sonra eski haline çeviriyoruz
@@ -314,7 +314,7 @@ const { sepeteEkle } = useCart();
       }, 1500);
     }
   }} 
-  className="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 h-8 px-1 sm:px-2 bg-cyan-600/10 hover:bg-cyan-600 text-cyan-400 hover:text-white border border-cyan-500/30 rounded-md transition-all font-black text-[8px] sm:text-[9px] uppercase tracking-widest whitespace-nowrap"
+  className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-cyan-600/10 hover:bg-cyan-600 text-cyan-400 hover:text-white border border-cyan-500/30 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap"
 >
   <ShoppingCart className="w-3 h-3 shrink-0" /> Tekrar Al
 </button>
