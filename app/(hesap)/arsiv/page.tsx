@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { useOrders } from "@/app/OrderContext";
 import {
-  ARSIV_SURESI_GUN,
   KART_IADE_BANKA_NOTU,
   arsivKalemiZamanFiltresineUygun,
   siparisArsivKalemleriniTopla,
@@ -74,8 +73,7 @@ export default function ArsivPage() {
           <div>
             <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-0.5">Arşiv</h1>
             <p className="text-slate-400 text-xs font-medium tracking-wide">
-              {ARSIV_SURESI_GUN} günü dolan{" "}
-              <span className="font-black text-slate-300">{arsivKalemleri.length}</span> ürün
+              Toplam <span className="font-black text-slate-300">{arsivKalemleri.length}</span> ürün
             </p>
           </div>
         </div>
@@ -125,12 +123,12 @@ export default function ArsivPage() {
       </div>
 
       <p className="text-xs text-slate-500 font-medium leading-relaxed px-1">
-        Sipariş tarihinden {ARSIV_SURESI_GUN} gün (3 ay) geçen tüm ürünler otomatik olarak buraya taşınır.
-        Tamamlanan veya devam eden fark etmez. Son 3 ay içindeki siparişleriniz{" "}
+        Tüm siparişlerinizdeki ürünler burada listelenir. Yukarıdaki zaman filtresiyle dilediğiniz döneme göre süzebilirsiniz.
+        Güncel siparişlerinizi{" "}
         <Link href="/siparislerim" className="text-cyan-400 hover:underline">
           Siparişlerim
         </Link>{" "}
-        sayfasında kalır.
+        sayfasından takip edebilirsiniz.
       </p>
 
       {arsivKalemleri.length === 0 ? (
@@ -141,8 +139,8 @@ export default function ArsivPage() {
           <h2 className="text-xl font-black uppercase tracking-wide mb-2 text-white">Arşiv Boş</h2>
           <p className="text-slate-400 text-sm max-w-md mx-auto font-medium leading-relaxed">
             {tumArsivKalemleri.length > 0
-              ? "Seçtiğiniz zaman aralığında arşivlenmiş ürün bulunmuyor. Farklı bir filtre deneyin."
-              : `Henüz ${ARSIV_SURESI_GUN} gününü dolduran ürününüz yok. Süre dolunca ürünler otomatik olarak buraya taşınır.`}
+              ? "Seçtiğiniz zaman aralığında ürün bulunmuyor. Farklı bir filtre deneyin."
+              : "Henüz hiç siparişiniz bulunmuyor."}
           </p>
         </div>
       ) : (

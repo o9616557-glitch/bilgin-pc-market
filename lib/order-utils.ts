@@ -982,9 +982,7 @@ export function siparisKalemiArsivTipi(
   order: OrderLike | null | undefined,
   item: OrderItemLike,
   opts?: { talepler?: UrunDestekTalepLike[]; siparisKodu?: string }
-): ArsivKalemiTipi | null {
-  if (!siparisKalemiArsivdeMi(order, item, opts)) return null;
-
+): ArsivKalemiTipi {
   if (siparisKalemiIptalAdminOnaylandiMi(order, item, opts)) {
     return "iptal";
   }
@@ -1058,9 +1056,7 @@ export function siparisArsivKalemleriniTopla(
     const opts = { talepler, siparisKodu };
 
     for (const item of siparisKalemleri(order)) {
-      if (!siparisKalemiArsivdeMi(order, item, opts)) continue;
-
-      const tip = siparisKalemiArsivTipi(order, item, opts) || "siparis";
+      const tip = siparisKalemiArsivTipi(order, item, opts);
       const itemAdet = Number(item.quantity || item.adet || item.miktar || 1);
       const iadeAdet =
         tip === "iade"
