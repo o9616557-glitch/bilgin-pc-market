@@ -12,7 +12,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { useOrders } from "@/app/OrderContext"; 
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
-import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisIadeOzeti, siparisIadeYontemi, urunBekleyenIslemEtiketi, urunIadeYontemiBul, urunIadeYontemiMetni, urunIptalEdildiMi, urunTalepBekliyorTemizle, durumIadeMi, durumIptalMi, durumMetniNorm, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
+import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisIadeOzeti, siparisIadeYontemi, urunBekleyenIslemEtiketi, urunIadeYontemiBul, urunIadeYontemiMetni, urunIptalEdilebilirMi, urunIptalEdildiMi, urunTalepBekliyorTemizle, durumIptalMi, durumMetniNorm, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 
 export default function SiparisClient() {
@@ -224,14 +224,33 @@ const { sepeteEkle } = useCart();
   const selectedOrderIsKargoda = selectedOrderDurumMetni.includes("kargo");
   const selectedOrderIsIptal = durumIptalMi(selectedOrderDurumMetni);
   const selectedOrderIadeOzeti = siparisIadeOzeti(selectedOrder);
-  const selectedOrderIsIade = durumIadeMi(selectedOrderDurumMetni) || selectedOrderIadeOzeti.var;
   const selectedOrderOdemeBekliyor = isOdemeBekleyenSiparis(selectedOrder);
   const selectedOrderHavaleBekliyor = isHavaleBekleyenSiparis(selectedOrder);
+  const siparisKalemiId = (item: OrderItemLike) =>
+    String(item.id || item._id || item.productId || "");
+  const siparisdeIptalEdilebilirUrunVar = (selectedOrder?.items || []).some((item: OrderItemLike) => {
+    const urunId = siparisKalemiId(item);
+    const urunIsim = String(item.title || item.isim || item.name || "");
+    const itemAdet = Number(item.quantity || item.adet || 1);
+    const iadeEdilenAdet = Number(item.iadeEdilenAdet || 0);
+    const durumMetni = durumMetniNorm(selectedOrder?.durum || selectedOrder?.status);
+    const teslimEdildi = durumMetni.includes("teslim") || durumMetni.includes("tamam");
+    return urunIptalEdilebilirMi(
+      selectedOrder,
+      destekTalepleri,
+      selectedOrderSiparisKodu,
+      urunId,
+      urunIsim,
+      itemAdet,
+      iadeEdilenAdet,
+      { odemeBekliyor: selectedOrderOdemeBekliyor, teslimEdildi }
+    );
+  });
   const selectedOrderTopluIptalGoster =
     (selectedOrder?.items?.length || 0) > 1 &&
+    siparisdeIptalEdilebilirUrunVar &&
     !selectedOrderIsIptal &&
     !selectedOrderIsTeslimEdildi &&
-    !selectedOrderIsIade &&
     !selectedOrderOdemeBekliyor;
   const selectedOrderIadeKalemleri = (selectedOrder?.items || [])
     .filter((item: OrderItemLike) => Number(item.iadeEdilenAdet || 0) > 0)
@@ -271,9 +290,6 @@ const { sepeteEkle } = useCart();
       </div>
     );
   };
-
-  const siparisKalemiId = (item: OrderItemLike) =>
-    String(item.id || item._id || item.productId || "");
 
   return (
     <>
@@ -335,7 +351,6 @@ const { sepeteEkle } = useCart();
                   const isTeslimEdildi = durumMetni.includes("teslim") || durumMetni.includes("tamam");
                   const isKargoda = durumMetni.includes("kargo");
                   const isIptal = durumIptalMi(durumMetni);
-                  const isIade = durumIadeMi(durumMetni);
                   
                   const siparisTarihi = new Date(selectedOrder.createdAt || selectedOrder.tarih);
                   const iadeBitisTarihi = new Date(siparisTarihi.getTime() + (17 * 24 * 60 * 60 * 1000));
@@ -365,21 +380,27 @@ const { sepeteEkle } = useCart();
                     iadeEdilenAdet
                   );
                   const urunTamIade = iadeEdilenAdet > 0 && iadeEdilenAdet >= itemAdet;
+                  const iptalButonuGoster = urunIptalEdilebilirMi(
+                    selectedOrder,
+                    destekTalepleri,
+                    selectedOrderSiparisKodu,
+                    urunId,
+                    urunIsim,
+                    itemAdet,
+                    iadeEdilenAdet,
+                    {
+                      odemeBekliyor: selectedOrderOdemeBekliyor,
+                      teslimEdildi: isTeslimEdildi,
+                    }
+                  );
                   const iadeButonuGoster =
                     !urunIptal &&
                     !isIptal &&
-                    !isIade &&
+                    !urunTamIade &&
+                    isTeslimEdildi &&
                     !iadeSuresiGectiMi &&
                     !selectedOrderOdemeBekliyor &&
                     iadeEdilenAdet < itemAdet &&
-                    !incelemeMetni;
-                  const iptalButonuGoster =
-                    !urunIptal &&
-                    !isIptal &&
-                    !isIade &&
-                    !iadeSuresiGectiMi &&
-                    !selectedOrderOdemeBekliyor &&
-                    iadeEdilenAdet === 0 &&
                     !incelemeMetni;
 
                   return (

@@ -381,3 +381,27 @@ export function urunIptalEdildiMi(
   }
   return false;
 }
+
+/** Kısmi siparişte yalnızca henüz iptal edilmemiş kalemler için */
+export function urunIptalEdilebilirMi(
+  order: OrderLike | null | undefined,
+  talepler: UrunDestekTalepLike[],
+  siparisKodu: string,
+  urunId: string,
+  urunIsim: string | undefined,
+  itemAdet: number,
+  iadeEdilenAdet: number,
+  options?: { odemeBekliyor?: boolean; teslimEdildi?: boolean }
+): boolean {
+  if (!order) return false;
+  if (options?.odemeBekliyor || options?.teslimEdildi) return false;
+  if (durumIptalMi(getOrderStatusText(order))) return false;
+  if (urunIptalEdildiMi(order, talepler, siparisKodu, urunId, urunIsim, itemAdet, iadeEdilenAdet)) {
+    return false;
+  }
+  if (urunBekleyenIslemEtiketi(talepler, siparisKodu, urunId, urunIsim, iadeEdilenAdet)) {
+    return false;
+  }
+  if (iadeEdilenAdet > 0) return false;
+  return true;
+}
