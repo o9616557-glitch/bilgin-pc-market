@@ -474,7 +474,7 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
           </button>
 
           <button onClick={() => setAktifSekme("siparisler")} className={`flex items-center gap-3 px-4 py-4 rounded-lg text-sm font-bold uppercase tracking-wider transition-colors ${aktifSekme === "siparisler" ? "bg-slate-800 text-slate-200" : "text-slate-500 hover:bg-slate-800/50 hover:text-slate-300"}`}>
-            <ShoppingCart className="w-5 h-5" /> Siparişler <span className="ml-auto bg-[#0b1120] px-2.5 py-1 rounded text-xs border border-slate-700/50">{siparisler.length}</span>
+            <ShoppingCart className="w-5 h-5" /> Siparişler <span className="ml-auto bg-[#0b1120] px-2.5 py-1 rounded text-[10px] border border-slate-700/50"><span className="text-slate-500 mr-1">Görünür</span>{siparisler.length}</span>
           </button>
           
           <button onClick={() => setAktifSekme("talepler")} className={`flex items-center gap-3 px-4 py-4 rounded-lg text-sm font-bold uppercase tracking-wider transition-colors ${aktifSekme === "talepler" ? "bg-slate-800 text-slate-200" : "text-slate-500 hover:bg-slate-800/50 hover:text-slate-300"}`}>
@@ -658,7 +658,16 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
               <div className="bg-[#111827] border border-slate-800 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
                 <div>
                   <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Ödeme Durumu Filtresi</div>
-                  <div className="text-sm text-slate-400">Toplam: <span className="text-slate-200 font-bold">{filtrelenmisSiparisler.length}</span> sipariş</div>
+                  <div className="text-sm text-slate-400">
+                    {siparisOdemeFiltresi === "tumu" ? (
+                      <>Görünür toplam: <span className="text-slate-200 font-bold">{filtrelenmisSiparisler.length}</span> sipariş</>
+                    ) : (
+                      <>Filtre sonucu: <span className="text-slate-200 font-bold">{filtrelenmisSiparisler.length}</span> sipariş</>
+                    )}
+                  </div>
+                  <div className="text-[11px] text-slate-500 mt-1">
+                    Kullanıcı tarafından gizlenen siparişler bu sayıya dahil değildir.
+                  </div>
                 </div>
                 <select
                   value={siparisOdemeFiltresi}

@@ -19,11 +19,16 @@ export async function GET(request: Request) {
     const db = client.db("bilginpcmarket");
     
     const siparisler = await db.collection("orders").find({
-      $nor: [
+      $and: [
+        { gizlendi: { $ne: true } },
         {
-          musteriyeGoster: false,
-          odemeDurumu: "odeme_bekliyor",
-          odemeYontemi: { $in: ["kart", "bkm"] },
+          $nor: [
+            {
+              musteriyeGoster: false,
+              odemeDurumu: "odeme_bekliyor",
+              odemeYontemi: { $in: ["kart", "bkm"] },
+            },
+          ],
         },
       ],
     }).sort({ tarih: -1 }).toArray();
@@ -73,6 +78,7 @@ export async function PUT(request: Request) {
         guncellenecekler.odemeDurumu = "onaylandi";
       }
       if (yeniDurum === "İptal Edildi") {
+        guncellenecekler.musteriyeGoster = true;
         guncellenecekler.odemeDurumu = "iptal";
       }
     }
