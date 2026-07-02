@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     let iadeTipi: "tam" | "kismi" | undefined;
     let hesaplananTutar: number | undefined;
 
-    if (konu === "iade" && siparisNo && iadeKalemleri?.length) {
+    if ((konu === "iade" || konu === "iptal") && siparisNo && iadeKalemleri?.length) {
       const client = await clientPromise;
       const db = client.db("bilginpcmarket");
       const { siparisBul } = await import("@/lib/siparis-bul");

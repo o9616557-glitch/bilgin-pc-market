@@ -208,6 +208,9 @@ const { sepeteEkle } = useCart();
         ? "Kart / Para İadesi"
         : null;
 
+  const siparisKalemiId = (item: OrderItemLike) =>
+    String(item.id || item._id || item.productId || "");
+
   return (
     <div className="site-page p-4 sm:p-6 lg:p-8 relative overflow-clip">
       <div className="site-glow-top top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[280px]" />
@@ -390,7 +393,7 @@ const { sepeteEkle } = useCart();
 
                         {!isIptal && !isIade && !iadeSuresiGectiMi && !selectedOrderOdemeBekliyor && (
                           isTeslimEdildi ? (
-                            <Link href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade`} className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap">
+                            <Link href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade&urunId=${encodeURIComponent(siparisKalemiId(item))}`} className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap">
                               <RefreshCw className="w-3 h-3 shrink-0" /> İade Et
                             </Link>
                           ) : isKargoda ? (
@@ -398,7 +401,7 @@ const { sepeteEkle } = useCart();
                               <RefreshCw className="w-3 h-3 shrink-0" /> İptal Et
                             </button>
                           ) : (
-                            <Link href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iptal`} className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap">
+                            <Link href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iptal&urunId=${encodeURIComponent(siparisKalemiId(item))}`} className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap">
                               <RefreshCw className="w-3 h-3 shrink-0" /> İptal Et
                             </Link>
                           )

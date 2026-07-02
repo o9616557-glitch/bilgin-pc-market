@@ -25,6 +25,7 @@ export function kalanNakitIadeTutari(siparis: any): number {
 export type SepetKalemi = {
   id?: string;
   _id?: string;
+  productId?: string;
   isim?: string;
   name?: string;
   fiyat?: number;
@@ -42,7 +43,7 @@ export type IadeKalemi = {
 };
 
 export function kalemiId(k: SepetKalemi): string {
-  return String(k.id || k._id || "");
+  return String(k.id || k._id || k.productId || "");
 }
 
 export function kalemiIsim(k: SepetKalemi): string {
