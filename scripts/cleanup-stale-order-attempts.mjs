@@ -64,18 +64,23 @@ async function main() {
   }
 
   const query = {
-    $or: [
-      { odemeDurumu: "zaman_asimi" },
-      { gecersizDeneme: true },
-      ...(shouldIncludeIptal
-        ? [
-            {
-              musteriyeGoster: false,
-              odemeDurumu: "iptal",
-              odemeHataMesaji: { $exists: true, $ne: "" },
-            },
-          ]
-        : []),
+    $and: [
+      { bakimTemizlendiAt: { $exists: false } },
+      {
+        $or: [
+          { odemeDurumu: "zaman_asimi" },
+          { gecersizDeneme: true },
+          ...(shouldIncludeIptal
+            ? [
+                {
+                  musteriyeGoster: false,
+                  odemeDurumu: "iptal",
+                  odemeHataMesaji: { $exists: true, $ne: "" },
+                },
+              ]
+            : []),
+        ],
+      },
     ],
   };
 

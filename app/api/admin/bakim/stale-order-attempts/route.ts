@@ -33,18 +33,23 @@ async function adayKayitlariGetir(
   const db = client.db("bilginpcmarket");
 
   const query = {
-    $or: [
-      { odemeDurumu: "zaman_asimi" },
-      { gecersizDeneme: true },
-      ...(includeIptal
-        ? [
-            {
-              musteriyeGoster: false,
-              odemeDurumu: "iptal",
-              odemeHataMesaji: { $exists: true, $ne: "" },
-            },
-          ]
-        : []),
+    $and: [
+      { bakimTemizlendiAt: { $exists: false } },
+      {
+        $or: [
+          { odemeDurumu: "zaman_asimi" },
+          { gecersizDeneme: true },
+          ...(includeIptal
+            ? [
+                {
+                  musteriyeGoster: false,
+                  odemeDurumu: "iptal",
+                  odemeHataMesaji: { $exists: true, $ne: "" },
+                },
+              ]
+            : []),
+        ],
+      },
     ],
   };
 
