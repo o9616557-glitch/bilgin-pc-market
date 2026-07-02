@@ -30,6 +30,23 @@ export interface OrderItemLike {
   fiyat?: number | string;
   kategoriSlug?: string;
   kategori?: string;
+  iadeEdilenAdet?: number;
+}
+
+export interface RefundedOrderItemLike {
+  urunId: string;
+  adet: number;
+  isim?: string;
+  birimFiyat?: number;
+  tutar?: number;
+}
+
+export interface RefundHistoryLike {
+  talepNo?: string | null;
+  tutar?: number;
+  tarih?: string | Date;
+  kalemler?: RefundedOrderItemLike[];
+  tamIade?: boolean;
 }
 
 export interface OrderLike {
@@ -65,4 +82,6 @@ export interface OrderLike {
   gizlendi?: boolean;
   musteriyeGoster?: boolean;
   rezervIadeEdildi?: boolean;
+  toplamIadeEdilenTutar?: number;
+  iadeGecmisi?: RefundHistoryLike[];
 }

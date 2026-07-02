@@ -735,13 +735,35 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                         <div className="flex flex-col gap-3">
                           {siparis.sepet?.map((urun: OrderItemLike, i: number) => (
                             <div key={i} className="flex flex-col border-b border-slate-800 pb-3 last:border-0 last:pb-0">
-                              <div className="text-sm font-medium text-slate-300 leading-snug"><span className="font-black text-slate-500 mr-2 text-base">{urun.adet}x</span>{urun.isim || urun.name}</div>
+                              <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-slate-300 leading-snug">
+                                <span><span className="font-black text-slate-500 mr-2 text-base">{urun.adet}x</span>{urun.isim || urun.name}</span>
+                                {Number(urun.iadeEdilenAdet || 0) > 0 && (
+                                  <span className="px-2 py-1 rounded-md bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[9px] font-black uppercase tracking-widest">
+                                    Kısmi İade
+                                  </span>
+                                )}
+                              </div>
+                              {Number(urun.iadeEdilenAdet || 0) > 0 && (
+                                <div className="mt-1 text-[10px] font-black uppercase tracking-widest text-rose-400">
+                                  İade Edilen: {Number(urun.iadeEdilenAdet || 0)} Adet
+                                </div>
+                              )}
                               <div className="text-[11px] text-slate-600 font-mono mt-1">ID: {urun.id || urun._id}</div>
                             </div>
                           ))}
                         </div>
                       </div>
                     </div>
+                    {Number(siparis.toplamIadeEdilenTutar || 0) > 0 && (
+                      <div className="bg-rose-950/20 border border-rose-900/40 rounded-lg p-4">
+                        <div className="text-[10px] font-black uppercase tracking-widest text-rose-400 mb-2">
+                          İade Özeti
+                        </div>
+                        <div className="text-sm text-slate-300">
+                          Bu siparişte toplam <span className="font-black text-rose-400">{Number(siparis.toplamIadeEdilenTutar || 0).toLocaleString("tr-TR")} TL</span> iade işlendi.
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* SAĞ TARAF: KONTROL PANELİ */}

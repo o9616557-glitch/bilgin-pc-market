@@ -14,7 +14,7 @@ import { useOrders } from "@/app/OrderContext";
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
 import KisayolNav from "@/components/layout/KisayolNav";
 import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber } from "@/lib/order-utils";
-import type { OrderItemLike, OrderLike } from "@/lib/order-types";
+import type { OrderItemLike, OrderLike, RefundedOrderItemLike } from "@/lib/order-types";
 
 export default function SiparisClient() {
   const { orders: contextOrders, refreshOrders } = useOrders();
@@ -184,6 +184,14 @@ const { sepeteEkle } = useCart();
     (selectedOrder?.items?.length || 0) > 1 &&
     !selectedOrderIsIptal &&
     !selectedOrderIsTeslimEdildi;
+  const selectedOrderIadeKalemleri = (selectedOrder?.items || [])
+    .filter((item: OrderItemLike) => Number(item.iadeEdilenAdet || 0) > 0)
+    .map((item: OrderItemLike) => ({
+      urunId: String(item.id || item._id || item.productId || ""),
+      isim: item.title || item.isim || item.name || "Ürün",
+      adet: Number(item.iadeEdilenAdet || 0),
+      birimFiyat: Number(item.price || item.fiyat || 0),
+    }));
 
   return (
     <div className="site-page p-4 sm:p-6 lg:p-8 relative overflow-clip">
@@ -278,12 +286,24 @@ const { sepeteEkle } = useCart();
                         </Link>
                         
                         <div className="flex-1 flex flex-col h-full min-w-0">
-                          <Link href={urunLinki} className="text-[11px] sm:text-xs font-bold text-white hover:text-cyan-400 transition-colors leading-snug mb-2 block break-words">
-                            {item.title || item.isim}
-                          </Link>
+                          <div className="mb-2 flex flex-wrap items-center gap-2">
+                            <Link href={urunLinki} className="text-[11px] sm:text-xs font-bold text-white hover:text-cyan-400 transition-colors leading-snug block break-words">
+                              {item.title || item.isim}
+                            </Link>
+                            {Number(item.iadeEdilenAdet || 0) > 0 && (
+                              <span className="px-2 py-1 rounded-md bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[9px] font-black uppercase tracking-widest">
+                                Kısmi İade
+                              </span>
+                            )}
+                          </div>
                           
                           <div className="mt-auto">
                             <p className="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider mb-0.5">Miktar: {item.quantity || item.adet} Adet</p>
+                            {Number(item.iadeEdilenAdet || 0) > 0 && (
+                              <p className="text-rose-400 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider mb-1">
+                                İade Edildi: {Number(item.iadeEdilenAdet || 0)} Adet
+                              </p>
+                            )}
                             <p className="text-sm sm:text-base font-black text-cyan-400 whitespace-nowrap">
                               {Number((item.price || item.fiyat || 0) * (item.quantity || item.adet || 1)).toLocaleString("tr-TR")} TL
                             </p>
@@ -444,6 +464,37 @@ const { sepeteEkle } = useCart();
                   </div>
                 </div>
               </div>
+
+              {selectedOrderIadeKalemleri.length > 0 && (
+                <div className="bg-[#0f172a] border border-rose-900/40 rounded-xl p-5 shadow-lg">
+                  <h3 className="text-xs font-black text-rose-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <RefreshCw className="w-4 h-4" /> İade Edilen Ürünler
+                  </h3>
+                  <div className="space-y-3">
+                    {selectedOrderIadeKalemleri.map((kalem: RefundedOrderItemLike) => (
+                      <div key={`${kalem.urunId}-${kalem.adet}`} className="bg-[#020617] border border-slate-800 rounded-lg px-4 py-3 flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-bold text-white">{kalem.isim}</p>
+                          <p className="text-[10px] uppercase tracking-widest text-rose-400 font-black mt-1">
+                            {kalem.adet} adet iade edildi
+                          </p>
+                        </div>
+                        <div className="text-right text-xs text-slate-400">
+                          {kalem.birimFiyat ? `${Number(kalem.birimFiyat).toLocaleString("tr-TR")} TL / adet` : ""}
+                        </div>
+                      </div>
+                    ))}
+                    {Number(selectedOrder.toplamIadeEdilenTutar || 0) > 0 && (
+                      <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-sm">
+                        <span className="text-slate-400 font-bold uppercase tracking-widest">Toplam İade</span>
+                        <span className="text-rose-400 font-black">
+                          {Number(selectedOrder.toplamIadeEdilenTutar || 0).toLocaleString("tr-TR")} TL
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
           ) : (
