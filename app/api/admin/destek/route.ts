@@ -178,6 +178,7 @@ export async function PUT(request: Request) {
         islemSonuc = await siparisIadeIslemleri(db, siparis, tutarNum, {
           talepNo: talep.talepNo,
           kalemler: dogrulanmisKalemler.length ? dogrulanmisKalemler : undefined,
+          yontem: yontemFinal,
         });
         if (!islemSonuc) {
           return NextResponse.json({ success: false, message: "İade işlenemedi (kalan tutar yok)." }, { status: 400 });

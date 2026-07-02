@@ -47,6 +47,7 @@ export interface RefundHistoryLike {
   tarih?: string | Date;
   kalemler?: RefundedOrderItemLike[];
   tamIade?: boolean;
+  yontem?: "kart" | "magaza_kredisi";
 }
 
 export interface OrderLike {

@@ -180,10 +180,15 @@ const { sepeteEkle } = useCart();
   const selectedOrderIsTeslimEdildi = selectedOrderDurumMetni.includes("teslim") || selectedOrderDurumMetni.includes("tamam");
   const selectedOrderIsKargoda = selectedOrderDurumMetni.includes("kargo");
   const selectedOrderIsIptal = selectedOrderDurumMetni.includes("iptal");
+  const selectedOrderIsIade =
+    selectedOrderDurumMetni.includes("iade") ||
+    selectedOrderDurumMetni.includes("kısmen iade") ||
+    selectedOrderDurumMetni.includes("kismen iade");
   const selectedOrderTopluIptalGoster =
     (selectedOrder?.items?.length || 0) > 1 &&
     !selectedOrderIsIptal &&
-    !selectedOrderIsTeslimEdildi;
+    !selectedOrderIsTeslimEdildi &&
+    !selectedOrderIsIade;
   const selectedOrderIadeKalemleri = (selectedOrder?.items || [])
     .filter((item: OrderItemLike) => Number(item.iadeEdilenAdet || 0) > 0)
     .map((item: OrderItemLike) => ({
@@ -192,6 +197,13 @@ const { sepeteEkle } = useCart();
       adet: Number(item.iadeEdilenAdet || 0),
       birimFiyat: Number(item.price || item.fiyat || 0),
     }));
+  const sonIadeKaydi = selectedOrder?.iadeGecmisi?.[selectedOrder.iadeGecmisi.length - 1];
+  const iadeYontemiMetni =
+    sonIadeKaydi?.yontem === "magaza_kredisi"
+      ? "Mağaza Kredisi"
+      : sonIadeKaydi?.yontem === "kart"
+        ? "Kart / Para İadesi"
+        : null;
 
   return (
     <div className="site-page p-4 sm:p-6 lg:p-8 relative overflow-clip">
@@ -264,6 +276,7 @@ const { sepeteEkle } = useCart();
                   const isTeslimEdildi = durumMetni.includes("teslim") || durumMetni.includes("tamam");
                   const isKargoda = durumMetni.includes("kargo");
                   const isIptal = durumMetni.includes("iptal");
+                  const isIade = durumMetni.includes("iade") || durumMetni.includes("kısmen iade") || durumMetni.includes("kismen iade");
                   
                   const siparisTarihi = new Date(selectedOrder.createdAt || selectedOrder.tarih);
                   const iadeBitisTarihi = new Date(siparisTarihi.getTime() + (17 * 24 * 60 * 60 * 1000));
@@ -372,7 +385,7 @@ const { sepeteEkle } = useCart();
 </button>
 )}
 
-                        {!isIptal && !iadeSuresiGectiMi && (
+                        {!isIptal && !isIade && !iadeSuresiGectiMi && (
                           isTeslimEdildi ? (
                             <Link href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade`} className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap">
                               <RefreshCw className="w-3 h-3 shrink-0" /> İade Et
@@ -458,6 +471,14 @@ const { sepeteEkle } = useCart();
                           <button onClick={(e) => handleCopy(getOrderTrackingNumber(selectedOrder), e)} className="text-cyan-400 hover:text-white transition-colors">
                             <Copy className="w-3.5 h-3.5" />
                           </button>
+                        </div>
+                      </div>
+                    )}
+                    {iadeYontemiMetni && (
+                      <div>
+                        <p className="text-[9px] text-rose-400 font-black uppercase tracking-widest mb-1.5">İADE YÖNTEMİ</p>
+                        <div className="bg-rose-500/10 border border-rose-500/20 p-3 rounded-lg text-xs text-rose-300 font-bold">
+                          {iadeYontemiMetni}
                         </div>
                       </div>
                     )}

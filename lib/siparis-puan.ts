@@ -137,7 +137,7 @@ export async function siparisIadeIslemleri(
   db: Db,
   siparis: any,
   iadeTutar: number,
-  opts?: { talepNo?: string; kalemler?: IadeKalemi[] }
+  opts?: { talepNo?: string; kalemler?: IadeKalemi[]; yontem?: "kart" | "magaza_kredisi" }
 ): Promise<{ tamIade: boolean; gercekIade: number } | null> {
   if (!siparis || iadeTutar <= 0) return null;
 
@@ -210,6 +210,7 @@ export async function siparisIadeIslemleri(
     tarih: new Date(),
     kalemler: opts?.kalemler || [],
     tamIade,
+    yontem: opts?.yontem || "kart",
   };
 
   const yeniDurum = tamIade ? "İade Edildi" : "Kısmen İade Edildi";
