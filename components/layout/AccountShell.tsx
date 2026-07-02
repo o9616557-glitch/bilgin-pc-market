@@ -350,24 +350,28 @@ function AccountPanel({ active }: { active?: string }) {
   );
 }
 
-/* ─────────────────── MOBİL HESAP MENÜ LİNKİ ─────────────────── */
-function MobilHesapMenuLink({ active }: { active?: string }) {
-  const aktifItem = NAV_ITEMS.find((i) => i.id === active);
-  const AktifIcon = aktifItem?.icon ?? Menu;
+/* ─────────────────── MOBİL ALT MENÜ ÇUBUĞU (hamburger → tam ekran sayfa) ─────────────────── */
+function MobilHesapAltBar({ active }: { active?: string }) {
+  const router = useRouter();
+  const aktifItem = NAV_ITEMS.find((i) => i.id === active) ?? NAV_ITEMS[0];
+  const AktifIcon = aktifItem.icon;
 
   return (
-    <div className="account-card p-2">
-      <Link
-        href="/hesap-menu"
-        prefetch
-        className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-white/[0.04] transition-colors"
-      >
-        <AktifIcon className="w-4 h-4 shrink-0 text-site-accent" />
-        <span className="flex-1 text-left truncate">
-          {aktifItem ? aktifItem.label : "Hesap Menüsü"}
-        </span>
-        <Menu className="w-4 h-4 shrink-0 text-slate-500" />
-      </Link>
+    <div className="lg:hidden fixed bottom-0 inset-x-0 z-[95] px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 pointer-events-none">
+      <div className="account-card p-1.5 flex items-center gap-1 pointer-events-auto shadow-[0_-12px_40px_rgba(0,0,0,0.55)] border-white/[0.1]">
+        <div className="flex items-center gap-2.5 flex-1 min-w-0 px-3 py-2.5">
+          <AktifIcon className="w-4 h-4 shrink-0 text-site-accent" />
+          <span className="text-sm font-semibold text-white truncate">{aktifItem.label}</span>
+        </div>
+        <button
+          type="button"
+          onClick={() => router.push("/hesap-menu")}
+          className="flex items-center justify-center w-11 h-11 rounded-xl bg-site-accent/10 hover:bg-site-accent/20 border border-site-accent/25 transition-colors shrink-0 active:scale-95"
+          aria-label="Hesap menüsünü aç"
+        >
+          <Menu className="w-5 h-5 text-site-accent" />
+        </button>
+      </div>
     </div>
   );
 }
@@ -390,14 +394,19 @@ export default function AccountShell({ children, active }: AccountShellProps) {
   }, [router]);
 
   return (
-    <div className="site-page p-4 sm:p-6 lg:p-8">
+    <div
+      className={`site-page ${
+        hesapMenuSayfasi ? "p-0 lg:p-8" : "p-4 sm:p-6 lg:p-8 pb-24 sm:pb-24 lg:pb-8"
+      }`}
+    >
       <div className="site-glow-top pointer-events-none top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[320px]" />
 
-      {/* Mobil: profil kartı + hesap menüsü sayfasına link */}
-      <div className="lg:hidden mb-4 flex flex-col gap-2 relative z-20">
-        <MobilProfilKarti />
-        {!hesapMenuSayfasi && <MobilHesapMenuLink active={aktif} />}
-      </div>
+      {/* Mobil: profil kartı (menü sayfasında gizli) */}
+      {!hesapMenuSayfasi && (
+        <div className="lg:hidden mb-4 flex flex-col gap-2 relative z-20">
+          <MobilProfilKarti />
+        </div>
+      )}
 
       {/* Desktop: panel sol, içerik sağ */}
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-6 relative z-10 lg:items-start">
@@ -411,6 +420,9 @@ export default function AccountShell({ children, active }: AccountShellProps) {
         <div className="w-full lg:flex-1 lg:min-w-0">{children}</div>
 
       </div>
+
+      {/* Mobil: altta sabit menü çubuğu — hamburger tam ekran /hesap-menu sayfasına gider */}
+      {!hesapMenuSayfasi && <MobilHesapAltBar active={aktif} />}
     </div>
   );
 }
