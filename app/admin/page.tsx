@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { 
@@ -36,6 +36,9 @@ export default function AdminPaneli() {
   const [siparisler, setSiparisler] = useState<OrderLike[]>([]);
   const [silinecekSiparisID, setSilinecekSiparisID] = useState<string | null>(null);
   const [guncellenenID, setGuncellenenID] = useState<string | null>(null); 
+  const [siparisOdemeFiltresi, setSiparisOdemeFiltresi] = useState<
+    "tumu" | "odeme_bekliyor" | "havale_bekliyor" | "odendi" | "onaylandi" | "zaman_asimi" | "iptal"
+  >("tumu");
 
   // DESTEK TALEPLERİ STATE'LERİ 🚀
   const [talepler, setTalepler] = useState<SupportRequestLike[]>([]);
@@ -365,6 +368,68 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
   const acikTalepler = talepler.filter((t) => t.durum !== "Çözüldü").length;
   const bekleyenYorumlar = yorumlar.filter((y) => !y.onaylandi).length;
   const bekleyenIade = talepler.filter((t) => (t.konu === "iade" || t.konu === "iptal") && !t.iadeOdendi).length;
+  const hizliSiparisSayaclari = useMemo(() => {
+    const odemeDurumSayilari = siparisler.reduce<Record<string, number>>((acc, siparis) => {
+      const key = siparis.odemeDurumu || "tumu";
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+
+    return [
+      {
+        value: "tumu" as const,
+        label: "Tüm Siparişler",
+        count: siparisler.length,
+        activeClassName: "border-slate-500 bg-slate-800/80 text-slate-100",
+        idleClassName: "border-slate-800 bg-[#111827] text-slate-300 hover:border-slate-700",
+      },
+      {
+        value: "odeme_bekliyor" as const,
+        label: "Kart Bekleyen",
+        count: odemeDurumSayilari.odeme_bekliyor || 0,
+        activeClassName: "border-amber-500/50 bg-amber-950/40 text-amber-100",
+        idleClassName: "border-slate-800 bg-[#111827] text-slate-300 hover:border-amber-800/50",
+      },
+      {
+        value: "havale_bekliyor" as const,
+        label: "Havale Bekleyen",
+        count: odemeDurumSayilari.havale_bekliyor || 0,
+        activeClassName: "border-blue-500/50 bg-blue-950/40 text-blue-100",
+        idleClassName: "border-slate-800 bg-[#111827] text-slate-300 hover:border-blue-800/50",
+      },
+      {
+        value: "zaman_asimi" as const,
+        label: "Zaman Aşımı",
+        count: odemeDurumSayilari.zaman_asimi || 0,
+        activeClassName: "border-orange-500/50 bg-orange-950/40 text-orange-100",
+        idleClassName: "border-slate-800 bg-[#111827] text-slate-300 hover:border-orange-800/50",
+      },
+      {
+        value: "odendi" as const,
+        label: "Ödendi",
+        count: odemeDurumSayilari.odendi || 0,
+        activeClassName: "border-emerald-500/50 bg-emerald-950/40 text-emerald-100",
+        idleClassName: "border-slate-800 bg-[#111827] text-slate-300 hover:border-emerald-800/50",
+      },
+      {
+        value: "onaylandi" as const,
+        label: "Onaylandı",
+        count: odemeDurumSayilari.onaylandi || 0,
+        activeClassName: "border-cyan-500/50 bg-cyan-950/40 text-cyan-100",
+        idleClassName: "border-slate-800 bg-[#111827] text-slate-300 hover:border-cyan-800/50",
+      },
+      {
+        value: "iptal" as const,
+        label: "İptal",
+        count: odemeDurumSayilari.iptal || 0,
+        activeClassName: "border-rose-500/50 bg-rose-950/40 text-rose-100",
+        idleClassName: "border-slate-800 bg-[#111827] text-slate-300 hover:border-rose-800/50",
+      },
+    ];
+  }, [siparisler]);
+  const filtrelenmisSiparisler = siparisOdemeFiltresi === "tumu"
+    ? siparisler
+    : siparisler.filter((siparis) => siparis.odemeDurumu === siparisOdemeFiltresi);
 // 🚀 ŞİFRESİZ GİRİŞ İÇİN BÜTÜN VERİLERİ OTOMATİK ÇEKEN MOTOR
   useEffect(() => {
     if (typeof siparisleriGetir === "function") siparisleriGetir();
@@ -565,7 +630,56 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
             
             /* 📦 SİPARİŞLER BANT SİSTEMİ */
             <div className="flex flex-col gap-6">
-              {siparisler.map((siparis) => {
+              <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3">
+                {hizliSiparisSayaclari.map((sayac) => {
+                  const aktif = siparisOdemeFiltresi === sayac.value;
+                  return (
+                    <button
+                      key={sayac.value}
+                      type="button"
+                      onClick={() => setSiparisOdemeFiltresi(sayac.value)}
+                      className={`rounded-xl border p-4 text-left transition-colors ${aktif ? sayac.activeClassName : sayac.idleClassName}`}
+                    >
+                      <div className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2">
+                        {sayac.label}
+                      </div>
+                      <div className="flex items-end justify-between gap-3">
+                        <span className="text-3xl font-black">{sayac.count}</span>
+                        {aktif && (
+                          <span className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80">
+                            Aktif
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="bg-[#111827] border border-slate-800 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+                <div>
+                  <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Ödeme Durumu Filtresi</div>
+                  <div className="text-sm text-slate-400">Toplam: <span className="text-slate-200 font-bold">{filtrelenmisSiparisler.length}</span> sipariş</div>
+                </div>
+                <select
+                  value={siparisOdemeFiltresi}
+                  onChange={(e) => setSiparisOdemeFiltresi(e.target.value as typeof siparisOdemeFiltresi)}
+                  className="bg-[#0b1120] border border-slate-700 rounded-lg px-4 py-3 text-sm font-bold text-slate-200 focus:outline-none focus:border-slate-500"
+                >
+                  <option value="tumu">Tüm Siparişler</option>
+                  <option value="odeme_bekliyor">Kart Bekleniyor</option>
+                  <option value="havale_bekliyor">Havale Bekleniyor</option>
+                  <option value="odendi">Ödendi</option>
+                  <option value="onaylandi">Onaylandı</option>
+                  <option value="zaman_asimi">Zaman Aşımı</option>
+                  <option value="iptal">İptal</option>
+                </select>
+              </div>
+
+              {filtrelenmisSiparisler.length === 0 ? (
+                <div className="bg-[#111827] border border-slate-800 rounded-xl p-10 text-center text-slate-500 font-bold uppercase tracking-widest">
+                  Seçili ödeme durumunda sipariş bulunmuyor.
+                </div>
+              ) : filtrelenmisSiparisler.map((siparis) => {
                 const siparisId = String(siparis._id || "");
                 return (
                 <div key={siparisId || siparis.siparisKodu} className="bg-[#111827] border border-slate-700 rounded-xl flex flex-col xl:flex-row overflow-hidden shadow-lg">
@@ -582,8 +696,8 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                           <div className="text-xs font-bold text-slate-400 bg-slate-800 px-2 py-1 rounded inline-block uppercase tracking-wider">
                             {siparis.odemeYontemi === "kart" ? "Kredi Kartı" : siparis.odemeYontemi === "bkm" ? "BKM" : "Havale / EFT"}
                           </div>
-                          <div className={`text-xs font-bold px-2 py-1 rounded inline-block uppercase tracking-wider ${odemeDurumuRozeti((siparis as any).odemeDurumu)}`}>
-                            {odemeDurumuEtiketi((siparis as any).odemeDurumu)}
+                          <div className={`text-xs font-bold px-2 py-1 rounded inline-block uppercase tracking-wider ${odemeDurumuRozeti(siparis.odemeDurumu)}`}>
+                            {odemeDurumuEtiketi(siparis.odemeDurumu)}
                           </div>
                         </div>
                       </div>
@@ -646,7 +760,7 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                   </div>
                 </div>
               );
-              })}
+              )})}
             </div>
 
           ) : aktifSekme === "talepler" ? (

@@ -38,6 +38,7 @@ export interface OrderLike {
   orderNumber?: string;
   durum?: string;
   status?: string;
+  odemeDurumu?: string;
   createdAt?: string | Date;
   tarih?: string | Date;
   odemeYontemi?: string;
@@ -62,4 +63,6 @@ export interface OrderLike {
   email?: string;
   userEmail?: string;
   gizlendi?: boolean;
+  musteriyeGoster?: boolean;
+  rezervIadeEdildi?: boolean;
 }
