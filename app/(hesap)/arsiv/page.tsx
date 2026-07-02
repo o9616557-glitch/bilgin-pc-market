@@ -22,7 +22,7 @@ import {
 } from "@/lib/order-utils";
 
 export default function ArsivPage() {
-  const { orders: localOrders } = useOrders();
+  const { orders: localOrders, refreshOrders } = useOrders();
   const [destekTalepleri, setDestekTalepleri] = useState<UrunDestekTalepLike[]>([]);
 
   const destekTalepleriniGetir = useCallback(async () => {
@@ -38,8 +38,9 @@ export default function ArsivPage() {
   }, []);
 
   useEffect(() => {
+    refreshOrders();
     void destekTalepleriniGetir();
-  }, [destekTalepleriniGetir]);
+  }, [refreshOrders, destekTalepleriniGetir]);
 
   const arsivKalemleri = siparisArsivKalemleriniTopla(localOrders, destekTalepleri);
 

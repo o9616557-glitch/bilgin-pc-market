@@ -116,8 +116,12 @@ export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, [status, hafizaHazir, fetchOrders]);
 
+  const refreshOrders = useCallback(() => {
+    void fetchOrders(false);
+  }, [fetchOrders]);
+
   return (
-    <OrderContext.Provider value={{ orders, loading, refreshOrders: () => fetchOrders(false) }}>
+    <OrderContext.Provider value={{ orders, loading, refreshOrders }}>
       {children}
     </OrderContext.Provider>
   );

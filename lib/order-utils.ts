@@ -863,36 +863,30 @@ export interface ArsivKalemi {
 }
 
 /** Admin onayıyla tamamlanmış iade — bekleyen talep veya yalnızca sipariş durumu sayılmaz */
-function siparisKalemiTamIadeAdminOnaylandiMi(
+function siparisKalemiIadeAdminOnaylandiMi(
   order: OrderLike | null | undefined,
   item: OrderItemLike,
   opts?: { talepler?: UrunDestekTalepLike[]; siparisKodu?: string }
 ): boolean {
-  const itemAdet = Number(item.quantity || item.adet || item.miktar || 1);
-  const kalemden = Number(item.iadeEdilenAdet || 0);
-  if (kalemden >= itemAdet) return true;
+  if (siparisKalemiIadeAdet(order, item, opts) > 0) return true;
 
-  let gecmisten = 0;
   for (const kayit of order?.iadeGecmisi || []) {
     for (const g of kayit.kalemler || []) {
       if (siparisKalemRefEslesirMi(g, item)) {
-        gecmisten += Number(g.adet || 0);
+        return true;
       }
     }
   }
-  if (gecmisten >= itemAdet) return true;
 
   const siparisKodu = opts?.siparisKodu || String(order?.siparisKodu || order?.orderNumber || "");
   for (const t of opts?.talepler || []) {
     if (t.konu !== "iade" || !iadeTalebiTamamlandiMi(t)) continue;
     if (!siparisKodlariEslesir(t.siparisNo || "", siparisKodu)) continue;
-    let talepten = 0;
     for (const g of t.iadeKalemleri || []) {
       if (siparisKalemRefEslesirMi(g, item)) {
-        talepten += Number(g.adet || 0);
+        return true;
       }
     }
-    if (talepten >= itemAdet) return true;
   }
 
   return false;
@@ -907,7 +901,6 @@ function siparisKalemiIptalAdminOnaylandiMi(
   const siparisKodu = opts?.siparisKodu || String(order?.siparisKodu || order?.orderNumber || "");
   const urunId = String(item.id || item._id || item.productId || "");
   const urunIsim = String(item.title || item.isim || item.name || "");
-  const itemAdet = Number(item.quantity || item.adet || item.miktar || 1);
   const iadeEdilenAdet = siparisKalemiIadeAdet(order, item, opts);
   const talepler = opts?.talepler || [];
 
@@ -950,7 +943,7 @@ export function siparisKalemiArsivdeMi(
     return true;
   }
 
-  return siparisKalemiTamIadeAdminOnaylandiMi(order, item, opts);
+  return siparisKalemiIadeAdminOnaylandiMi(order, item, opts);
 }
 
 export function siparisKalemiArsivTipi(
@@ -960,16 +953,11 @@ export function siparisKalemiArsivTipi(
 ): ArsivKalemiTipi | null {
   if (!siparisKalemiArsivdeMi(order, item, opts)) return null;
 
-  const siparisKodu = opts?.siparisKodu || String(order?.siparisKodu || order?.orderNumber || "");
-  const urunId = String(item.id || item._id || item.productId || "");
-  const urunIsim = String(item.title || item.isim || item.name || "");
-  const talepler = opts?.talepler || [];
-
   if (siparisKalemiIptalAdminOnaylandiMi(order, item, opts)) {
     return "iptal";
   }
 
-  if (siparisKalemiTamIadeAdminOnaylandiMi(order, item, opts)) {
+  if (siparisKalemiIadeAdminOnaylandiMi(order, item, opts)) {
     return "iade";
   }
 
