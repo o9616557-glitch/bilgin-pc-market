@@ -395,6 +395,7 @@ export default function AccountShell({ children, active }: AccountShellProps) {
   useEffect(() => {
     NAV_ITEMS.forEach((i) => router.prefetch(i.href));
     router.prefetch("/siparislerim");
+    router.prefetch("/bildirimler");
     router.prefetch("/hesap-menu");
   }, [router]);
 
