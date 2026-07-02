@@ -449,8 +449,11 @@ const { sepeteEkle } = useCart();
 )}
 
                         {incelemeMetni ? (
-                          <div className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-amber-500/5 text-amber-400 border border-amber-500/20 rounded-md font-black text-[9px] uppercase tracking-widest whitespace-nowrap">
-                            <Clock className="w-3 h-3 shrink-0" /> {incelemeMetni}
+                          <div className="flex-1 flex items-center justify-center h-8 px-2 bg-amber-500/5 text-amber-400 border border-amber-500/20 rounded-md font-black text-[9px] uppercase tracking-widest whitespace-nowrap leading-none">
+                            <span className="inline-flex items-center justify-center gap-1.5">
+                              <Clock className="size-3 shrink-0" strokeWidth={2.5} />
+                              <span>{incelemeMetni}</span>
+                            </span>
                           </div>
                         ) : (
                           <>
@@ -458,9 +461,12 @@ const { sepeteEkle } = useCart();
                               <Link
                                 href={`/destek-taleplerim/yeni?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade&urunId=${encodeURIComponent(urunId)}`}
                                 onClick={() => urunTalepBekliyorKaydet(selectedOrderSiparisKodu, urunId, "iade")}
-                                className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap"
+                                className="flex-1 flex items-center justify-center h-8 px-2 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap leading-none"
                               >
-                                <RefreshCw className="w-3 h-3 shrink-0" /> İade Et
+                                <span className="inline-flex items-center justify-center gap-1.5">
+                                  <RefreshCw className="size-3 shrink-0" strokeWidth={2.5} />
+                                  <span>İade Et</span>
+                                </span>
                               </Link>
                             )}
                             {iptalButonuGoster && (
@@ -468,17 +474,23 @@ const { sepeteEkle } = useCart();
                                 <Link
                                   href={`/destek-taleplerim/yeni?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iptal&urunId=${encodeURIComponent(urunId)}&kargo=1`}
                                   onClick={() => urunTalepBekliyorKaydet(selectedOrderSiparisKodu, urunId, "iptal")}
-                                  className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-amber-500/5 hover:bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap"
+                                  className="flex-1 flex items-center justify-center h-8 px-2 bg-amber-500/5 hover:bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap leading-none"
                                 >
-                                  <RefreshCw className="w-3 h-3 shrink-0" /> İptal Et
+                                  <span className="inline-flex items-center justify-center gap-1.5">
+                                    <RefreshCw className="size-3 shrink-0" strokeWidth={2.5} />
+                                    <span>İptal Et</span>
+                                  </span>
                                 </Link>
                               ) : !isTeslimEdildi && (
                                 <Link
                                   href={`/destek-taleplerim/yeni?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iptal&urunId=${encodeURIComponent(urunId)}`}
                                   onClick={() => urunTalepBekliyorKaydet(selectedOrderSiparisKodu, urunId, "iptal")}
-                                  className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap"
+                                  className="flex-1 flex items-center justify-center h-8 px-2 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap leading-none"
                                 >
-                                  <RefreshCw className="w-3 h-3 shrink-0" /> İptal Et
+                                  <span className="inline-flex items-center justify-center gap-1.5">
+                                    <RefreshCw className="size-3 shrink-0" strokeWidth={2.5} />
+                                    <span>İptal Et</span>
+                                  </span>
                                 </Link>
                               )
                             )}
