@@ -6,14 +6,14 @@ import {
   PackageOpen, Package, Truck, CheckCircle2, Clock, 
   User, ShieldCheck, CreditCard, PackageX, ChevronRight, Calendar,
   ArrowLeft, MessageSquare, ShoppingCart, Star, AlertCircle, Info, ChevronDown,
-  MapPin, Search, Monitor, Headphones
+  MapPin, Search, Monitor, Headphones, Wallet
 } from "lucide-react"; 
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { useOrders } from "@/app/OrderContext"; 
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
 import KisayolNav from "@/components/layout/KisayolNav";
-import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, urunBekleyenIslemEtiketi, urunTalepBekliyorKaydet, urunTalepBekliyorTemizle, type UrunDestekTalepLike } from "@/lib/order-utils";
+import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, iadeYontemiBilgisi, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, siparisIadeYontemi, urunBekleyenIslemEtiketi, urunTalepBekliyorKaydet, urunTalepBekliyorTemizle, type UrunDestekTalepLike } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike, RefundedOrderItemLike } from "@/lib/order-types";
 
 export default function SiparisClient() {
@@ -64,6 +64,10 @@ const { sepeteEkle } = useCart();
       /* sessiz */
     }
   }, []);
+
+  useEffect(() => {
+    destekTalepleriniGetir();
+  }, [destekTalepleriniGetir]);
 
   useEffect(() => {
     if (!selectedOrder) return;
@@ -235,13 +239,8 @@ const { sepeteEkle } = useCart();
       adet: Number(item.iadeEdilenAdet || 0),
       birimFiyat: Number(item.price || item.fiyat || 0),
     }));
-  const sonIadeKaydi = selectedOrder?.iadeGecmisi?.[selectedOrder.iadeGecmisi.length - 1];
-  const iadeYontemiMetni =
-    sonIadeKaydi?.yontem === "magaza_kredisi"
-      ? "Mağaza Kredisi"
-      : sonIadeKaydi?.yontem === "kart"
-        ? "Kart / Para İadesi"
-        : null;
+  const selectedOrderIadeYontemi = siparisIadeYontemi(selectedOrder, destekTalepleri);
+  const iadeYontemiBilgi = iadeYontemiBilgisi(selectedOrderIadeYontemi);
 
   const siparisKalemiId = (item: OrderItemLike) =>
     String(item.id || item._id || item.productId || "");
@@ -376,9 +375,21 @@ const { sepeteEkle } = useCart();
                           <div className="mt-auto">
                             <p className="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider mb-0.5">Miktar: {item.quantity || item.adet} Adet</p>
                             {Number(item.iadeEdilenAdet || 0) > 0 && (
-                              <p className="text-rose-400 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider mb-1">
-                                İade Edildi: {Number(item.iadeEdilenAdet || 0)} Adet
-                              </p>
+                              <>
+                                <p className="text-rose-400 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider mb-0.5">
+                                  İade Edildi: {Number(item.iadeEdilenAdet || 0)} Adet
+                                </p>
+                                {iadeYontemiBilgi && (
+                                  <p className="text-[9px] sm:text-[10px] font-semibold text-slate-400 mb-1 flex items-center gap-1 leading-none">
+                                    {selectedOrderIadeYontemi === "magaza_kredisi" ? (
+                                      <Wallet className="size-3 shrink-0 text-cyan-400" strokeWidth={2.5} />
+                                    ) : (
+                                      <CreditCard className="size-3 shrink-0 text-emerald-400" strokeWidth={2.5} />
+                                    )}
+                                    <span>{iadeYontemiBilgi.kisa}</span>
+                                  </p>
+                                )}
+                              </>
                             )}
                             <p className="text-sm sm:text-base font-black text-cyan-400 whitespace-nowrap">
                               {Number((item.price || item.fiyat || 0) * (item.quantity || item.adet || 1)).toLocaleString("tr-TR")} TL
@@ -593,11 +604,21 @@ const { sepeteEkle } = useCart();
                         </div>
                       </div>
                     )}
-                    {iadeYontemiMetni && (
+                    {iadeYontemiBilgi && (
                       <div>
-                        <p className="text-[9px] text-rose-400 font-black uppercase tracking-widest mb-1.5">İADE YÖNTEMİ</p>
-                        <div className="bg-rose-500/10 border border-rose-500/20 p-3 rounded-lg text-xs text-rose-300 font-bold">
-                          {iadeYontemiMetni}
+                        <p className="text-[9px] text-rose-400 font-black uppercase tracking-widest mb-1.5">İADE NERESİNE YATIRILDI?</p>
+                        <div className="bg-rose-500/10 border border-rose-500/20 p-3 rounded-lg">
+                          <p className="text-xs text-rose-200 font-bold flex items-center gap-1.5 leading-none mb-1.5">
+                            {selectedOrderIadeYontemi === "magaza_kredisi" ? (
+                              <Wallet className="size-3.5 shrink-0 text-cyan-400" strokeWidth={2.5} />
+                            ) : (
+                              <CreditCard className="size-3.5 shrink-0 text-emerald-400" strokeWidth={2.5} />
+                            )}
+                            <span>{iadeYontemiBilgi.baslik}</span>
+                          </p>
+                          <p className="text-[11px] text-slate-400 font-medium leading-relaxed">
+                            {iadeYontemiBilgi.aciklama}
+                          </p>
                         </div>
                       </div>
                     )}
@@ -610,6 +631,27 @@ const { sepeteEkle } = useCart();
                   <h3 className="text-xs font-black text-rose-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                     <RefreshCw className="w-4 h-4" /> İade Edilen Ürünler
                   </h3>
+                  {iadeYontemiBilgi && (
+                    <div className={`mb-4 rounded-lg border p-3.5 ${
+                      selectedOrderIadeYontemi === "magaza_kredisi"
+                        ? "border-cyan-500/25 bg-cyan-500/5"
+                        : "border-emerald-500/25 bg-emerald-500/5"
+                    }`}>
+                      <p className={`text-xs font-black uppercase tracking-widest flex items-center gap-1.5 leading-none ${
+                        selectedOrderIadeYontemi === "magaza_kredisi" ? "text-cyan-300" : "text-emerald-300"
+                      }`}>
+                        {selectedOrderIadeYontemi === "magaza_kredisi" ? (
+                          <Wallet className="size-3.5 shrink-0" strokeWidth={2.5} />
+                        ) : (
+                          <CreditCard className="size-3.5 shrink-0" strokeWidth={2.5} />
+                        )}
+                        {iadeYontemiBilgi.baslik}
+                      </p>
+                      <p className="mt-2 text-[11px] text-slate-400 font-medium leading-relaxed">
+                        {iadeYontemiBilgi.aciklama}
+                      </p>
+                    </div>
+                  )}
                   <div className="space-y-3">
                     {selectedOrderIadeKalemleri.map((kalem: RefundedOrderItemLike) => (
                       <div key={`${kalem.urunId}-${kalem.adet}`} className="bg-[#020617] border border-slate-800 rounded-lg px-4 py-3 flex items-center justify-between gap-3">
@@ -729,6 +771,10 @@ const { sepeteEkle } = useCart();
                     const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id?.slice(-8).toUpperCase() || "SİPARİŞ";
                     const durumMetni = getOrderStatusText(order);
                     const firstItem = order.items && order.items.length > 0 ? order.items[0] : null;
+                    const listeIadeYontemi = iadeYontemiBilgisi(siparisIadeYontemi(order, destekTalepleri));
+                    const listeIadeVar =
+                      durumMetni.toLowerCase().includes("iade") ||
+                      (order.items || []).some((i) => Number(i.iadeEdilenAdet || 0) > 0);
 
                     return (
                       <div key={order._id || currentSiparisKodu} className="flex flex-col gap-4 bg-[#0f172a] border border-slate-800 hover:border-cyan-500/50 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(6,182,212,0.1)] p-5 rounded-2xl transition-all duration-300">
@@ -774,6 +820,17 @@ const { sepeteEkle } = useCart();
                             </Link>
                           </div>
                         </div>
+
+                        {listeIadeVar && listeIadeYontemi && (
+                          <p className="text-[10px] font-semibold text-slate-400 flex items-center gap-1 leading-none -mt-1">
+                            {siparisIadeYontemi(order, destekTalepleri) === "magaza_kredisi" ? (
+                              <Wallet className="size-3 shrink-0 text-cyan-400" strokeWidth={2.5} />
+                            ) : (
+                              <CreditCard className="size-3 shrink-0 text-emerald-400" strokeWidth={2.5} />
+                            )}
+                            İade: {listeIadeYontemi.kisa}
+                          </p>
+                        )}
 
                         <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-800/60">
                           <div className="flex flex-col">

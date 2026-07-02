@@ -83,6 +83,8 @@ export type UrunDestekTalepLike = {
   konu?: string;
   durum?: string;
   siparisNo?: string;
+  iadeYontemi?: "kart" | "magaza_kredisi";
+  iadeOdendi?: boolean;
   iadeKalemleri?: { urunId?: string; isim?: string; adet?: number }[];
 };
 
@@ -198,4 +200,49 @@ export function urunBekleyenIslemEtiketi(
 export function urunTalepBekliyorTemizle(siparisKodu: string, urunId: string) {
   if (typeof window === "undefined") return;
   sessionStorage.removeItem(`${URUN_TALEP_KEY}:${siparisKodu}:${urunId}`);
+}
+
+export type IadeYontemi = "kart" | "magaza_kredisi";
+
+export function siparisIadeYontemi(
+  order?: OrderLike | null,
+  talepler?: UrunDestekTalepLike[]
+): IadeYontemi | null {
+  const gecmis = order?.iadeGecmisi;
+  if (gecmis?.length) {
+    const son = gecmis[gecmis.length - 1]?.yontem;
+    if (son === "kart" || son === "magaza_kredisi") return son;
+  }
+
+  if (!order || !talepler?.length) return null;
+  const kod = String(order.siparisKodu || order.orderNumber || "");
+  const talep = talepler.find(
+    (t) =>
+      t.iadeOdendi &&
+      (t.iadeYontemi === "kart" || t.iadeYontemi === "magaza_kredisi") &&
+      siparisKodlariEslesir(t.siparisNo || "", kod)
+  );
+  return talep?.iadeYontemi === "kart" || talep?.iadeYontemi === "magaza_kredisi"
+    ? talep.iadeYontemi
+    : null;
+}
+
+export function iadeYontemiBilgisi(yontem?: IadeYontemi | null) {
+  if (yontem === "magaza_kredisi") {
+    return {
+      baslik: "Mağaza kredisine yüklendi",
+      aciklama:
+        "İade tutarı mağaza kredi cüzdanınıza eklendi. Bir sonraki alışverişinizde kullanabilirsiniz.",
+      kisa: "Kredi cüzdanına yüklendi",
+    };
+  }
+  if (yontem === "kart") {
+    return {
+      baslik: "Kartınıza / hesabınıza yatırıldı",
+      aciklama:
+        "İade tutarı ödeme yaptığınız karta veya banka hesabınıza iade edildi. Yansıması 3-7 iş günü sürebilir.",
+      kisa: "Hesaba yatırıldı",
+    };
+  }
+  return null;
 }
