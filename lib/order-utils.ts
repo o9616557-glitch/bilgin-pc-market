@@ -117,7 +117,7 @@ export function urunKalemiEslesir(
   return false;
 }
 
-export function urunIcinAcikDestekDurumu(
+export function urunIcinAcikDestekEtiketi(
   talepler: UrunDestekTalepLike[],
   siparisKodu: string,
   urunId: string,
@@ -133,17 +133,66 @@ export function urunIcinAcikDestekDurumu(
     return false;
   });
   if (!acik) return null;
-  return acik.durum === "Yanıt Bekleniyor" ? "Yanıt Bekleniyor" : "İnceleniyor";
+
+  if (acik.durum === "Yanıt Bekleniyor") {
+    return acik.konu === "iade" ? "İade Yanıtı Bekleniyor" : "İptal Yanıtı Bekleniyor";
+  }
+  return acik.konu === "iade" ? "İade Onayı Bekleniyor" : "İptal Onayı Bekleniyor";
 }
 
-export function urunTalepBekliyorKaydet(siparisKodu: string, urunId: string) {
+/** @deprecated urunIcinAcikDestekEtiketi kullanın */
+export function urunIcinAcikDestekDurumu(
+  talepler: UrunDestekTalepLike[],
+  siparisKodu: string,
+  urunId: string,
+  urunIsim?: string
+): string | null {
+  return urunIcinAcikDestekEtiketi(talepler, siparisKodu, urunId, urunIsim);
+}
+
+export function urunTalepBekliyorKaydet(
+  siparisKodu: string,
+  urunId: string,
+  konu: "iade" | "iptal" = "iptal"
+) {
   if (typeof window === "undefined") return;
-  sessionStorage.setItem(`${URUN_TALEP_KEY}:${siparisKodu}:${urunId}`, "1");
+  sessionStorage.setItem(`${URUN_TALEP_KEY}:${siparisKodu}:${urunId}`, konu);
+}
+
+export function urunTalepBekliyorKonu(
+  siparisKodu: string,
+  urunId: string
+): "iade" | "iptal" | null {
+  if (typeof window === "undefined") return null;
+  const val = sessionStorage.getItem(`${URUN_TALEP_KEY}:${siparisKodu}:${urunId}`);
+  if (val === "iade" || val === "iptal") return val;
+  if (val === "1") return "iptal";
+  return null;
 }
 
 export function urunTalepBekliyorMu(siparisKodu: string, urunId: string) {
-  if (typeof window === "undefined") return false;
-  return sessionStorage.getItem(`${URUN_TALEP_KEY}:${siparisKodu}:${urunId}`) === "1";
+  return urunTalepBekliyorKonu(siparisKodu, urunId) !== null;
+}
+
+export function urunBekleyenIslemEtiketi(
+  talepler: UrunDestekTalepLike[],
+  siparisKodu: string,
+  urunId: string,
+  urunIsim: string | undefined,
+  iadeEdilenAdet: number
+): string | null {
+  if (iadeEdilenAdet > 0) {
+    urunTalepBekliyorTemizle(siparisKodu, urunId);
+    return null;
+  }
+
+  const acikEtiket = urunIcinAcikDestekEtiketi(talepler, siparisKodu, urunId, urunIsim);
+  if (acikEtiket) return acikEtiket;
+
+  const bekleyenKonu = urunTalepBekliyorKonu(siparisKodu, urunId);
+  if (bekleyenKonu === "iade") return "İade Onayı Bekleniyor";
+  if (bekleyenKonu === "iptal") return "İptal Onayı Bekleniyor";
+  return null;
 }
 
 export function urunTalepBekliyorTemizle(siparisKodu: string, urunId: string) {

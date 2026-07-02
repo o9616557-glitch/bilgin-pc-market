@@ -193,8 +193,9 @@ export default function YeniTalepIcerik() {
 
       if (res.ok && data.success) {
         if (kalemSecimKonu && iadeKalemleri.length && talepBaslik.trim()) {
+          const konu = talepKonusu === "iade" ? "iade" : "iptal";
           for (const k of iadeKalemleri) {
-            if (k.urunId) urunTalepBekliyorKaydet(talepBaslik.trim(), k.urunId);
+            if (k.urunId) urunTalepBekliyorKaydet(talepBaslik.trim(), k.urunId, konu);
           }
         }
         toast.success("Talebiniz oluşturuldu. İnceleniyor.", { id: toastId });

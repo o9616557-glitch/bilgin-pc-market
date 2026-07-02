@@ -13,7 +13,7 @@ import toast from "react-hot-toast";
 import { useOrders } from "@/app/OrderContext"; 
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
 import KisayolNav from "@/components/layout/KisayolNav";
-import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, urunIcinAcikDestekDurumu, urunTalepBekliyorKaydet, urunTalepBekliyorMu, type UrunDestekTalepLike } from "@/lib/order-utils";
+import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, urunBekleyenIslemEtiketi, urunTalepBekliyorKaydet, urunTalepBekliyorTemizle, type UrunDestekTalepLike } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike, RefundedOrderItemLike } from "@/lib/order-types";
 
 export default function SiparisClient() {
@@ -327,14 +327,13 @@ const { sepeteEkle } = useCart();
                   const urunIsim = String(item.title || item.isim || item.name || "");
                   const itemAdet = Number(item.quantity || item.adet || 1);
                   const iadeEdilenAdet = Number(item.iadeEdilenAdet || 0);
-                  const acikTalepDurumu = urunIcinAcikDestekDurumu(
+                  const incelemeMetni = urunBekleyenIslemEtiketi(
                     destekTalepleri,
                     selectedOrderSiparisKodu,
                     urunId,
-                    urunIsim
+                    urunIsim,
+                    iadeEdilenAdet
                   );
-                  const incelemeMetni =
-                    acikTalepDurumu || (urunTalepBekliyorMu(selectedOrderSiparisKodu, urunId) ? "İnceleniyor" : null);
                   const iadeButonuGoster =
                     !isIptal &&
                     !isIade &&
@@ -367,14 +366,9 @@ const { sepeteEkle } = useCart();
                             <Link href={urunLinki} className="text-[11px] sm:text-xs font-bold text-white hover:text-cyan-400 transition-colors leading-snug block break-words">
                               {item.title || item.isim}
                             </Link>
-                            {Number(item.iadeEdilenAdet || 0) > 0 && (
+                            {Number(item.iadeEdilenAdet || 0) > 0 && iadeEdilenAdet < itemAdet && (
                               <span className="px-2 py-1 rounded-md bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[9px] font-black uppercase tracking-widest">
                                 Kısmi İade
-                              </span>
-                            )}
-                            {incelemeMetni && (
-                              <span className="px-2 py-1 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[9px] font-black uppercase tracking-widest">
-                                {incelemeMetni}
                               </span>
                             )}
                           </div>
@@ -463,7 +457,7 @@ const { sepeteEkle } = useCart();
                             {iadeButonuGoster && isTeslimEdildi && (
                               <Link
                                 href={`/destek-taleplerim/yeni?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade&urunId=${encodeURIComponent(urunId)}`}
-                                onClick={() => urunTalepBekliyorKaydet(selectedOrderSiparisKodu, urunId)}
+                                onClick={() => urunTalepBekliyorKaydet(selectedOrderSiparisKodu, urunId, "iade")}
                                 className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap"
                               >
                                 <RefreshCw className="w-3 h-3 shrink-0" /> İade Et
@@ -473,7 +467,7 @@ const { sepeteEkle } = useCart();
                               isKargoda ? (
                                 <Link
                                   href={`/destek-taleplerim/yeni?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iptal&urunId=${encodeURIComponent(urunId)}&kargo=1`}
-                                  onClick={() => urunTalepBekliyorKaydet(selectedOrderSiparisKodu, urunId)}
+                                  onClick={() => urunTalepBekliyorKaydet(selectedOrderSiparisKodu, urunId, "iptal")}
                                   className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-amber-500/5 hover:bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap"
                                 >
                                   <RefreshCw className="w-3 h-3 shrink-0" /> İptal Et
@@ -481,7 +475,7 @@ const { sepeteEkle } = useCart();
                               ) : !isTeslimEdildi && (
                                 <Link
                                   href={`/destek-taleplerim/yeni?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iptal&urunId=${encodeURIComponent(urunId)}`}
-                                  onClick={() => urunTalepBekliyorKaydet(selectedOrderSiparisKodu, urunId)}
+                                  onClick={() => urunTalepBekliyorKaydet(selectedOrderSiparisKodu, urunId, "iptal")}
                                   className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap"
                                 >
                                   <RefreshCw className="w-3 h-3 shrink-0" /> İptal Et
