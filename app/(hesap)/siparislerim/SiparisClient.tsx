@@ -434,7 +434,7 @@ const { sepeteEkle } = useCart();
                     iadeEdilenAdet,
                     siparisKalemIdleri(item)
                   );
-                  const urunBekleyenIade = Boolean(incelemeMetni?.toLocaleLowerCase("tr-TR").includes("iade"));
+                  const urunBekleyenIslem = Boolean(incelemeMetni);
                   const urunIptal = urunIptalEdildiMi(
                     selectedOrder,
                     destekTalepleri,
@@ -447,8 +447,9 @@ const { sepeteEkle } = useCart();
                   const urunIadeVar = urunSatirindaIadeVar(item);
                   const urunTamIade = iadeEdilenAdet > 0 ? iadeEdilenAdet >= itemAdet : siparisKalemTamIadeMi(selectedOrder, item, selectedOrderIadeOpts);
                   const yorumTekrarAlGoster =
-                    siparisTeslimEdildi && !selectedOrderKismiIade && !urunIptal && !urunIadeVar;
+                    siparisTeslimEdildi && !selectedOrderKismiIade && !urunIptal && !urunIadeVar && !urunBekleyenIslem;
                   const iptalButonuGoster =
+                    !urunBekleyenIslem &&
                     !urunIadeVar &&
                     !urunIptal &&
                     (selectedOrderKismiIade ||
@@ -574,7 +575,7 @@ const { sepeteEkle } = useCart();
                         )}
 
                         <div className="flex items-center justify-end gap-2 min-h-[28px]">
-                          {urunBekleyenIade && incelemeMetni ? (
+                          {urunBekleyenIslem && incelemeMetni ? (
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-amber-500/5 text-amber-400 border border-amber-500/20 text-[10px] font-medium">
                               <Clock className="w-3 h-3 shrink-0" />
                               {incelemeMetni}
@@ -597,11 +598,6 @@ const { sepeteEkle } = useCart();
                               <RefreshCw className="w-3 h-3 shrink-0" />
                               İptal Et
                             </Link>
-                          ) : incelemeMetni ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-amber-500/5 text-amber-400 border border-amber-500/20 text-[10px] font-medium">
-                              <Clock className="w-3 h-3 shrink-0" />
-                              {incelemeMetni}
-                            </span>
                           ) : iadeSuresiGectiMi && siparisTeslimEdildi && !urunIadeVar && !urunIptal ? (
                             <Link
                               href="/destek-taleplerim/yeni?konu=teknik"

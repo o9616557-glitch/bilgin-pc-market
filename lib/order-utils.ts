@@ -499,8 +499,8 @@ export function urunBekleyenIslemEtiketi(
   }
 
   const bekleyenKonu = urunTalepBekliyorKonu(siparisKodu, urunId, urunIdler);
-  if (bekleyenKonu === "iade") return "İade oluşturuluyor";
-  if (bekleyenKonu === "iptal") return "İptal talebi oluşturuluyor";
+  if (bekleyenKonu === "iade") return "İade süreci başladı";
+  if (bekleyenKonu === "iptal") return "İptal süreci başladı";
 
   const ids = [...new Set([urunId, ...(urunIdler || [])].filter(Boolean))];
   const acik = talepler.find((t) => {
@@ -514,8 +514,8 @@ export function urunBekleyenIslemEtiketi(
   });
   if (!acik) return null;
 
-  if (acik.konu === "iade") return "İade oluşturuluyor";
-  return "İptal talebi oluşturuluyor";
+  if (acik.konu === "iade") return "İade süreci başladı";
+  return "İptal süreci başladı";
 }
 
 export function urunTalepBekliyorTemizle(siparisKodu: string, urunId: string) {
