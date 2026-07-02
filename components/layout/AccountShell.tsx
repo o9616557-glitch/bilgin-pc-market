@@ -389,6 +389,9 @@ export default function AccountShell({ children, active }: AccountShellProps) {
   const headerYukseklik = useSiteHeaderYukseklik();
   const [portalHazir, setPortalHazir] = useState(false);
 
+  /* Masaüstü sol panel — header yüksekliğine göre (katalog şeridi dahil) */
+  const panelUstBosluk = headerYukseklik > 0 ? headerYukseklik + 16 : 128;
+
   useEffect(() => setPortalHazir(true), []);
 
   /* Tüm hesap sayfalarını önceden yükle — geçişlerde loading/göz kırpma olmasın */
@@ -430,7 +433,13 @@ export default function AccountShell({ children, active }: AccountShellProps) {
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-6 relative z-10 lg:items-start">
 
         {/* Sol panel — sabit, animasyon yok */}
-        <aside className="hidden lg:block w-[260px] xl:w-[280px] shrink-0 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto relative z-20 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full">
+        <aside
+          className="hidden lg:block w-[260px] xl:w-[280px] shrink-0 sticky overflow-y-auto z-30 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full"
+          style={{
+            top: panelUstBosluk,
+            maxHeight: `calc(100dvh - ${panelUstBosluk + 16}px)`,
+          }}
+        >
           <AccountPanel active={aktif} />
         </aside>
 
