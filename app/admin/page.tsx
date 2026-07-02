@@ -11,6 +11,8 @@ import {
 import toast from "react-hot-toast";
 import { adminMi } from "@/lib/admin";
 import { ORDER_STATUS_OPTIONS } from "@/lib/order-utils";
+import type { OrderItemLike, OrderLike } from "@/lib/order-types";
+import type { RefundItemLike, ReviewLike, SupportMessageLike, SupportRequestLike } from "@/lib/admin-types";
 
 export default function AdminPaneli() {
   const { data: session, status } = useSession();
@@ -31,12 +33,12 @@ export default function AdminPaneli() {
   const [yukleniyor, setYukleniyor] = useState(true);
 
   // SİPARİŞ & GÜNCELLEME STATE'LERİ
-  const [siparisler, setSiparisler] = useState<any[]>([]);
+  const [siparisler, setSiparisler] = useState<OrderLike[]>([]);
   const [silinecekSiparisID, setSilinecekSiparisID] = useState<string | null>(null);
   const [guncellenenID, setGuncellenenID] = useState<string | null>(null); 
 
   // DESTEK TALEPLERİ STATE'LERİ 🚀
-  const [talepler, setTalepler] = useState<any[]>([]);
+  const [talepler, setTalepler] = useState<SupportRequestLike[]>([]);
   const [talepCevaplari, setTalepCevaplari] = useState<{ [key: string]: string }>({});
   const [iadeTutarlari, setIadeTutarlari] = useState<{ [key: string]: string }>({});
   const [iadeKalemSecimleri, setIadeKalemSecimleri] = useState<Record<string, Record<string, number>>>({});
@@ -48,7 +50,7 @@ export default function AdminPaneli() {
   const [duyuruTip, setDuyuruTip] = useState<"bilgi" | "uyari" | "kampanya">("bilgi");
   const [duyuruKaydediliyor, setDuyuruKaydediliyor] = useState(false);
 
-  const [yorumlar, setYorumlar] = useState<any[]>([]);
+  const [yorumlar, setYorumlar] = useState<ReviewLike[]>([]);
   const [replyId, setReplyId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
   const [silinecekYorumID, setSilinecekYorumID] = useState<string | null>(null);
@@ -187,8 +189,9 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
         // Eğer veritabanı reddederse tam olarak neden reddettiğini kırmızı ekranda yazacak!
         toast.error("Hata: " + (data.message || "Bilinmeyen bir sorun oluştu."), { id: toastId }); 
       }
-    } catch (e: any) { 
-      toast.error("Bağlantı Hatası: " + e.message, { id: toastId }); 
+    } catch (e: unknown) { 
+      const mesaj = e instanceof Error ? e.message : "Bilinmeyen bağlantı hatası";
+      toast.error("Bağlantı Hatası: " + mesaj, { id: toastId }); 
     }
   };
 
@@ -202,7 +205,7 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
     } catch (e) { toast.error("Güncellenemedi."); }
   };
 
-  const kalanTumunuAl = (talep: any) => {
+  const kalanTumunuAl = (talep: SupportRequestLike) => {
     const kalan = talep.kalanIadeEdilebilir ?? talep.siparisTutari ?? 0;
     setIadeTutarlari((prev) => ({ ...prev, [talep._id]: String(kalan) }));
     if (talep.siparisKalemleri?.length) {
@@ -214,7 +217,7 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
     }
   };
 
-  const iadeKalemAdetGuncelle = (talepId: string, urunId: string, adet: number, max: number, kalemler: any[]) => {
+  const iadeKalemAdetGuncelle = (talepId: string, urunId: string, adet: number, max: number, kalemler: RefundItemLike[]) => {
     const yeni = Math.max(0, Math.min(max, adet));
     setIadeKalemSecimleri((prev) => {
       const talepSecim = { ...(prev[talepId] || {}) };
@@ -240,7 +243,7 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
     const iadeKalemleri = Object.entries(secim)
       .filter(([, adet]) => adet > 0)
       .map(([urunId, adet]) => {
-        const k = kalemlerKaynak.find((x: any) => x.urunId === urunId) || talep?.iadeKalemleri?.find((x: any) => x.urunId === urunId);
+        const k = kalemlerKaynak.find((x: RefundItemLike) => x.urunId === urunId) || talep?.iadeKalemleri?.find((x: RefundItemLike) => x.urunId === urunId);
         return { urunId, adet, isim: k?.isim, birimFiyat: k?.birimFiyat };
       });
     const toastId = toast.loading(yontem === "magaza_kredisi" ? "Mağaza kredisi yükleniyor..." : "Kart iadesi işleniyor...");
@@ -524,14 +527,16 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
             
             /* 📦 SİPARİŞLER BANT SİSTEMİ */
             <div className="flex flex-col gap-6">
-              {siparisler.map((siparis) => (
-                <div key={siparis._id} className="bg-[#111827] border border-slate-700 rounded-xl flex flex-col xl:flex-row overflow-hidden shadow-lg">
+              {siparisler.map((siparis) => {
+                const siparisId = String(siparis._id || "");
+                return (
+                <div key={siparisId || siparis.siparisKodu} className="bg-[#111827] border border-slate-700 rounded-xl flex flex-col xl:flex-row overflow-hidden shadow-lg">
                   {/* SOL TARAF: BİLGİLER */}
                   <div className="flex-[3] p-6 flex flex-col gap-6 border-b xl:border-b-0 xl:border-r border-slate-800">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                       <div>
                         <div className="text-xl font-black text-slate-200 tracking-wider mb-1">{siparis.siparisKodu}</div>
-                        <div className="text-sm text-slate-500 font-medium uppercase tracking-wider flex items-center gap-1.5"><Clock className="w-4 h-4" /> {new Date(siparis.tarih).toLocaleString("tr-TR")}</div>
+                        <div className="text-sm text-slate-500 font-medium uppercase tracking-wider flex items-center gap-1.5"><Clock className="w-4 h-4" /> {new Date(siparis.tarih || siparis.createdAt || Date.now()).toLocaleString("tr-TR")}</div>
                       </div>
                       <div className="text-right">
                         <div className="text-2xl font-black text-emerald-500">{Number((siparis.toplamTutar) || (siparis.Tutar) || 0).toLocaleString("tr-TR")} <span className="text-sm text-emerald-600">TL</span></div>
@@ -555,7 +560,7 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                       <div className="bg-[#0b1120] p-5 rounded-lg border border-slate-800 max-h-[300px] overflow-y-auto custom-scrollbar">
                         <div className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-3 sticky top-0 bg-[#0b1120] pb-2 flex items-center gap-2"><Package className="w-4 h-4" /> Sipariş İçeriği ({siparis.sepet?.length || 0} Parça)</div>
                         <div className="flex flex-col gap-3">
-                          {siparis.sepet?.map((urun: any, i: number) => (
+                          {siparis.sepet?.map((urun: OrderItemLike, i: number) => (
                             <div key={i} className="flex flex-col border-b border-slate-800 pb-3 last:border-0 last:pb-0">
                               <div className="text-sm font-medium text-slate-300 leading-snug"><span className="font-black text-slate-500 mr-2 text-base">{urun.adet}x</span>{urun.isim || urun.name}</div>
                               <div className="text-[11px] text-slate-600 font-mono mt-1">ID: {urun.id || urun._id}</div>
@@ -571,7 +576,7 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                     <div className="flex flex-col gap-5">
                       <div>
                         <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Sipariş Durumu</label>
-                        <select id={`durum-${siparis._id}`} defaultValue={siparis.durum} className="w-full bg-[#0b1120] border border-slate-600 rounded-lg px-4 py-3 text-sm font-bold text-slate-200 focus:outline-none focus:border-slate-400 appearance-none">
+                        <select id={`durum-${siparisId}`} defaultValue={siparis.durum} className="w-full bg-[#0b1120] border border-slate-600 rounded-lg px-4 py-3 text-sm font-bold text-slate-200 focus:outline-none focus:border-slate-400 appearance-none">
                           {ORDER_STATUS_OPTIONS.map((durum) => (
                             <option key={durum} value={durum}>{durum}</option>
                           ))}
@@ -579,23 +584,24 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                       </div>
                       <div className="p-4 bg-indigo-950/30 border border-indigo-900/50 rounded-lg">
                         <label className="block text-xs font-bold text-indigo-400/80 uppercase tracking-wider mb-2">Müşteriye Takip Mesajı Bırak</label>
-                        <input type="text" id={`mesaj-${siparis._id}`} defaultValue={siparis.musteriMesaji || ""} placeholder="Örn: Kargonuz özenle paketlendi..." className="w-full bg-[#0b1120] border border-indigo-900/50 rounded-lg px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-indigo-500/50 transition-colors" />
+                        <input type="text" id={`mesaj-${siparisId}`} defaultValue={siparis.musteriMesaji || ""} placeholder="Örn: Kargonuz özenle paketlendi..." className="w-full bg-[#0b1120] border border-indigo-900/50 rounded-lg px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-indigo-500/50 transition-colors" />
                       </div>
                       <div className="p-4 bg-emerald-950/20 border border-emerald-900/30 rounded-lg">
                         <label className="block text-xs font-bold text-emerald-500/70 uppercase tracking-wider mb-2">Kargo Bilgilerini İşle</label>
                         <div className="flex flex-col sm:flex-row gap-3">
-                          <input type="text" id={`firma-${siparis._id}`} defaultValue={siparis.kargoFirmasi || ""} placeholder="Firma Adı" className="flex-1 bg-[#0b1120] border border-emerald-900/50 rounded-lg px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-emerald-600/50" />
-                          <input type="text" id={`takip-${siparis._id}`} defaultValue={siparis.takipNo || ""} placeholder="Takip No" className="flex-[2] bg-[#0b1120] border border-emerald-900/50 rounded-lg px-4 py-3 text-sm font-mono text-slate-300 focus:outline-none focus:border-emerald-600/50 tracking-widest" />
+                          <input type="text" id={`firma-${siparisId}`} defaultValue={siparis.kargoFirmasi || ""} placeholder="Firma Adı" className="flex-1 bg-[#0b1120] border border-emerald-900/50 rounded-lg px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-emerald-600/50" />
+                          <input type="text" id={`takip-${siparisId}`} defaultValue={siparis.takipNo || ""} placeholder="Takip No" className="flex-[2] bg-[#0b1120] border border-emerald-900/50 rounded-lg px-4 py-3 text-sm font-mono text-slate-300 focus:outline-none focus:border-emerald-600/50 tracking-widest" />
                         </div>
                       </div>
                     </div>
                     <div className="flex gap-3 pt-4 border-t border-slate-700/50 mt-2">
-                      <button onClick={() => setSilinecekSiparisID(siparis._id)} className="w-14 flex items-center justify-center bg-[#0b1120] border border-slate-700 text-slate-500 hover:text-red-400 hover:border-red-500/30 rounded-lg transition-colors"><Trash2 className="w-5 h-5" /></button>
-                      <button onClick={() => siparisGuncelle(siparis._id)} className={`flex-1 font-black uppercase tracking-widest text-sm py-4 rounded-lg transition-all flex items-center justify-center gap-2 ${guncellenenID === siparis._id ? 'bg-emerald-600 text-white' : 'bg-slate-200 hover:bg-white text-slate-900'}`}>{guncellenenID === siparis._id ? <><CheckCircle2 className="w-5 h-5" /> GÜNCELLENDİ</> : <><Save className="w-5 h-5" /> KAYDET VE GÜNCELLE</>}</button>
+                      <button onClick={() => setSilinecekSiparisID(siparisId)} className="w-14 flex items-center justify-center bg-[#0b1120] border border-slate-700 text-slate-500 hover:text-red-400 hover:border-red-500/30 rounded-lg transition-colors"><Trash2 className="w-5 h-5" /></button>
+                      <button onClick={() => siparisGuncelle(siparisId)} className={`flex-1 font-black uppercase tracking-widest text-sm py-4 rounded-lg transition-all flex items-center justify-center gap-2 ${guncellenenID === siparisId ? 'bg-emerald-600 text-white' : 'bg-slate-200 hover:bg-white text-slate-900'}`}>{guncellenenID === siparisId ? <><CheckCircle2 className="w-5 h-5" /> GÜNCELLENDİ</> : <><Save className="w-5 h-5" /> KAYDET VE GÜNCELLE</>}</button>
                     </div>
                   </div>
                 </div>
-              ))}
+              );
+              })}
             </div>
 
           ) : aktifSekme === "talepler" ? (
@@ -645,7 +651,7 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                     {/* Mesaj Akışı */}
              {/* Mesaj Akışı */}
 <div className="flex-1 bg-[#0b1120] border border-slate-800 rounded-lg p-5 flex flex-col gap-4 overflow-y-auto max-h-[400px] custom-scrollbar mesaj-gecmisi-kutusu">
-                      {talep.mesajlar?.map((msg: any, index: number) => (
+                      {talep.mesajlar?.map((msg: SupportMessageLike, index: number) => (
                         <div key={index} className={`flex flex-col max-w-[80%] ${msg.gonderen === 'admin' ? 'self-end items-end' : 'self-start items-start'}`}>
                           <div className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${msg.gonderen === 'admin' ? 'text-indigo-400' : 'text-slate-400'}`}>
                             {msg.gonderen === 'admin' ? 'Müşteri Hizmetleri' : 'Müşteri'}
@@ -711,13 +717,13 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                           )}
                           {talep.iadeKalemleri?.length > 0 && (
                             <p className="text-[10px] text-amber-400/90">
-                              Müşteri kısmi iade talep etti: {talep.iadeKalemleri.map((k: any) => `${k.isim || "Ürün"} ×${k.adet}`).join(", ")}
+                              Müşteri kısmi iade talep etti: {talep.iadeKalemleri.map((k: RefundItemLike) => `${k.isim || "Ürün"} ×${k.adet}`).join(", ")}
                             </p>
                           )}
                           {talep.siparisKalemleri?.length > 0 && (
                             <div className="space-y-1.5 max-h-36 overflow-y-auto admin-sohbet-kutusu">
                               <p className="text-[10px] font-bold text-slate-500 uppercase">İade kalemleri seç</p>
-                              {talep.siparisKalemleri.map((k: any) => {
+                              {talep.siparisKalemleri.map((k: RefundItemLike) => {
                                 const secili = iadeKalemSecimleri[talep._id]?.[k.urunId] || 0;
                                 const devreDisi = k.iadeEdilebilirAdet <= 0;
                                 return (

@@ -51,7 +51,7 @@ export async function GET() {
         },
         { gizlendi: { $ne: true } } 
       ]
-    }).sort({ _id: -1 }).toArray();
+    }).sort({ _id: -1 }).toArray() as OrderLike[];
 
     // 🚀 KURYE ARKA ODAYA (PRODUCTS) HIZLI GEÇİŞ YAPIYOR!
     const safeOrders = await Promise.all(rawOrders.map(async (order: OrderLike) => {
@@ -96,7 +96,7 @@ export async function GET() {
 
       return {
         ...order,
-        _id: order._id.toString(),
+        _id: String(order._id || ""),
         items: safeItems,
         totalPrice: Number(order.totalPrice || order.toplamTutar || order.genelToplam || 0),
         createdAt: order.createdAt || order.tarih || new Date().toISOString(),

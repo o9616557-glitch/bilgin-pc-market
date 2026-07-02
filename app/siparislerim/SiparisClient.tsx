@@ -553,12 +553,12 @@ const { sepeteEkle } = useCart();
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-6 relative z-0">
                   {filtrelenmisSiparisler.map((order: OrderLike) => {
-                    const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase();
+                    const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id?.slice(-8).toUpperCase() || "SİPARİŞ";
                     const durumMetni = getOrderStatusText(order);
                     const firstItem = order.items && order.items.length > 0 ? order.items[0] : null;
 
                     return (
-                      <div key={order._id} className="flex flex-col gap-4 bg-[#0f172a] border border-slate-800 hover:border-cyan-500/50 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(6,182,212,0.1)] p-5 rounded-2xl transition-all duration-300">
+                      <div key={order._id || currentSiparisKodu} className="flex flex-col gap-4 bg-[#0f172a] border border-slate-800 hover:border-cyan-500/50 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(6,182,212,0.1)] p-5 rounded-2xl transition-all duration-300">
                         
                         <div className="flex justify-between items-center border-b border-slate-800/60 pb-3">
                           <span className="text-[11px] font-bold text-slate-400 flex items-center gap-1.5">
@@ -717,7 +717,7 @@ const { sepeteEkle } = useCart();
                   );
                 }
 
-                return kargoSiparisleri.map((siparis: any, idx: number) => {
+                return kargoSiparisleri.map((siparis: OrderLike, idx: number) => {
                   const siparisKodu = siparis.siparisKodu || siparis.orderNumber || siparis._id?.slice(-8).toUpperCase() || "SİPARİŞ";
                   const tarih = siparis.createdAt ? new Date(siparis.createdAt).toLocaleDateString("tr-TR") : siparis.tarih ? new Date(siparis.tarih).toLocaleDateString("tr-TR") : "";
                   const firma = siparis.kargoFirmasi || siparis.shippingCompany || "Belirtilmemiş";

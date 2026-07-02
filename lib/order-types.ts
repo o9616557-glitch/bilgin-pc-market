@@ -1,3 +1,15 @@
+export interface CustomerLike {
+  ad?: string;
+  isim?: string;
+  soyad?: string;
+  telefon?: string;
+  eposta?: string;
+  email?: string;
+  adres?: string;
+  ilce?: string;
+  sehir?: string;
+}
+
 export interface OrderItemLike {
   _id?: string;
   id?: string;
@@ -14,8 +26,8 @@ export interface OrderItemLike {
   quantity?: number;
   adet?: number;
   miktar?: number;
-  price?: number;
-  fiyat?: number;
+  price?: number | string;
+  fiyat?: number | string;
   kategoriSlug?: string;
   kategori?: string;
 }
@@ -37,14 +49,16 @@ export interface OrderLike {
   trackingNumber?: string;
   kargoFirmasi?: string;
   shippingCompany?: string;
-  totalPrice?: number;
-  toplamTutar?: number;
-  genelToplam?: number;
+  totalPrice?: number | string;
+  toplamTutar?: number | string;
+  genelToplam?: number | string;
+  Tutar?: number | string;
   items?: OrderItemLike[];
   sepet?: OrderItemLike[];
-  customerDetails?: Record<string, unknown>;
-  shippingAddress?: Record<string, unknown>;
-  musteri?: Record<string, any>;
+  cartItems?: OrderItemLike[];
+  customerDetails?: CustomerLike;
+  shippingAddress?: CustomerLike;
+  musteri?: CustomerLike;
   email?: string;
   userEmail?: string;
   gizlendi?: boolean;
