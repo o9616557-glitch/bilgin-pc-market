@@ -405,10 +405,15 @@ function MobilKatalogMenusu({ onClose, hazir }: { onClose: () => void; hazir: bo
 
 function ProfilAvatar({ size = 36, className = "" }: { size?: number; className?: string }) {
   const { data: session, status } = useSession();
+  const [hazir, setHazir] = useState(false);
   const userImage = session?.user?.image;
   const userName = session?.user?.name || "";
 
-  if (status === "loading") {
+  useEffect(() => {
+    setHazir(true);
+  }, []);
+
+  if (!hazir || status === "loading") {
     return (
       <div
         className={`rounded-full bg-white/[0.06] border border-white/[0.12] flex items-center justify-center ${className}`}
@@ -551,10 +556,8 @@ export default function Header() {
 
   const { sepet } = useCart();
   const { orders } = useOrders();
-  const [okunmamisMesaj, setOkunmamisMesaj] = useState(() => {
-    if (typeof window === "undefined") return 0;
-    return destekOzetOku().okunmamis || 0;
-  });
+  const [hydrated, setHydrated] = useState(false);
+  const [okunmamisMesaj, setOkunmamisMesaj] = useState(0);
   const [menuAcik, setMenuAcik] = useState(false);
   const [hesabimAcik, setHesabimAcik] = useState(false);
   const [acikSeritKatalog, setAcikSeritKatalog] = useState<string | null>(null);
@@ -588,14 +591,19 @@ export default function Header() {
   ).length;
 
   useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
     const destekOzetOkuHandler = () => {
       const ozet = destekOzetOku(session?.user?.email);
       setOkunmamisMesaj(ozet.okunmamis || 0);
     };
+    if (!hydrated) return;
     if (status !== "loading") destekOzetOkuHandler();
     window.addEventListener("bilgin-hesap-guncellendi", destekOzetOkuHandler);
     return () => window.removeEventListener("bilgin-hesap-guncellendi", destekOzetOkuHandler);
-  }, [status, session?.user?.email]);
+  }, [hydrated, status, session?.user?.email]);
   const isAdmin =
     Boolean((session?.user as { isAdmin?: boolean })?.isAdmin) || adminMi(session?.user?.email);
   const [cikisOnayAcik, setCikisOnayAcik] = useState(false); // 🚀 YENİ EKLEDİĞİMİZ MERKEZİ ONAY MOTORU
@@ -756,7 +764,7 @@ export default function Header() {
     </Link>
   );
 
-  const adminLink = isAdmin && status === "authenticated" && !pathname.startsWith("/admin") ? (
+  const adminLink = hydrated && isAdmin && status === "authenticated" && !pathname.startsWith("/admin") ? (
     <Link
       href="/admin"
       className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-300 hover:bg-amber-500/25 hover:text-amber-200 transition-colors shrink-0"
@@ -952,7 +960,7 @@ export default function Header() {
         <div className="px-3 py-4 pb-32">
 
           {/* Kendin Topla */}
-          {isAdmin && status === "authenticated" && (
+          {hydrated && isAdmin && status === "authenticated" && (
             <Link
               href="/admin"
               onClick={() => setMenuAcik(false)}

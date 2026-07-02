@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { useSession } from "next-auth/react";
 import { useOrders } from "@/app/OrderContext";
@@ -25,7 +25,9 @@ const HesabimModals = dynamic(() => import("@/components/hesabim/HesabimModals")
 export default function HesabimPage() {
   const { data: session, status, update: updateSession } = useSession();
   const { orders: siparisler } = useOrders();
-  const suAnkiTarih = new Date();
+  const suAnkiTarihRef = useRef<Date | null>(null);
+  if (!suAnkiTarihRef.current) suAnkiTarihRef.current = new Date();
+  const suAnkiTarih = suAnkiTarihRef.current;
   const yil = suAnkiTarih.getFullYear();
 
   const dosyaInputRef = useRef<HTMLInputElement>(null);
@@ -129,31 +131,10 @@ export default function HesabimPage() {
 
   const [hamSiparisler, setHamSiparisler] = useState<any[]>([]);
 
-  const [sonSiparislerListesi, setSonSiparislerListesi] = useState<any[]>([]);
-  const [grafikVerisi, setGrafikVerisi] = useState<any[]>([]);
   const [girisSartModal, setGirisSartModal] = useState(false);
 
   const [guvenlikOzeti, setGuvenlikOzeti] = useState<{ ikiAdim: boolean; cihazSayisi: number } | null>(null);
   const guvenlikYuklendi = useRef(false);
-
-  const [pastaVerisi, setPastaVerisi] = useState({
-    kendinTopla: { yuzde: 0, offset: 0 },
-    bilesen: { yuzde: 0, offset: 0 },
-    cevre: { yuzde: 0, offset: 0 },
-    sistem: { yuzde: 0, offset: 0 },
-    aksesuar: { yuzde: 0, offset: 0 },
-    maxYuzde: 0,
-  });
-
-  const [aylikPastaVerisi, setAylikPastaVerisi] = useState({
-    kendinTopla: { yuzde: 0, offset: 0 },
-    bilesen: { yuzde: 0, offset: 0 },
-    cevre: { yuzde: 0, offset: 0 },
-    sistem: { yuzde: 0, offset: 0 },
-    aksesuar: { yuzde: 0, offset: 0 },
-    maxYuzde: 0,
-    ayAdi: "",
-  });
 
   const [seciliYil, setSeciliYil] = useState<number>(yil);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -218,12 +199,19 @@ export default function HesabimPage() {
     if (status === "unauthenticated") setHamSiparisler([]);
   }, [status]);
 
-  useEffect(() => {
-    if (!hamSiparisler) return;
+  const { sonSiparislerListesi, grafikVerisi, pastaVerisi, aylikPastaVerisi } = useMemo(() => {
+    const bosPasta = {
+      kendinTopla: { yuzde: 0, offset: 0 },
+      bilesen: { yuzde: 0, offset: 0 },
+      cevre: { yuzde: 0, offset: 0 },
+      sistem: { yuzde: 0, offset: 0 },
+      aksesuar: { yuzde: 0, offset: 0 },
+      maxYuzde: 0,
+    };
+
     const sirali = [...hamSiparisler].sort(
       (a: any, b: any) => new Date(b.createdAt || b.tarih).getTime() - new Date(a.createdAt || a.tarih).getTime()
     );
-    setSonSiparislerListesi(sirali.slice(0, 7));
 
     const aylar = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
     const aylarUzun = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
@@ -287,48 +275,39 @@ export default function HesabimPage() {
     });
 
     const maxTutar = Math.max(...aylikToplamlar);
-    setGrafikVerisi(
-      aylikToplamlar.map((tutar, index) => ({
-        etiket: aylar[index],
-        yuzde: maxTutar > 0 && tutar > 0 ? Math.max((tutar / maxTutar) * 100, 5) : 2,
-        tutar,
-      }))
-    );
+    const grafik = aylikToplamlar.map((tutar, index) => ({
+      etiket: aylar[index],
+      yuzde: maxTutar > 0 && tutar > 0 ? Math.max((tutar / maxTutar) * 100, 5) : 2,
+      tutar,
+    }));
 
     const genelToplam = cK_toplam + cB_toplam + cC_toplam + cS_toplam + cA_toplam;
+    let pasta = bosPasta;
     if (genelToplam > 0) {
       const p1 = (cK_toplam / genelToplam) * 100;
       const p2 = (cB_toplam / genelToplam) * 100;
       const p3 = (cC_toplam / genelToplam) * 100;
       const p4 = (cS_toplam / genelToplam) * 100;
       const p5 = (cA_toplam / genelToplam) * 100;
-      setPastaVerisi({
+      pasta = {
         kendinTopla: { yuzde: Math.round(p1), offset: 0 },
         bilesen: { yuzde: Math.round(p2), offset: p1 },
         cevre: { yuzde: Math.round(p3), offset: p1 + p2 },
         sistem: { yuzde: Math.round(p4), offset: p1 + p2 + p3 },
         aksesuar: { yuzde: Math.round(p5), offset: p1 + p2 + p3 + p4 },
         maxYuzde: Math.round(Math.max(p1, p2, p3, p4, p5)),
-      });
-    } else {
-      setPastaVerisi({
-        kendinTopla: { yuzde: 0, offset: 0 },
-        bilesen: { yuzde: 0, offset: 0 },
-        cevre: { yuzde: 0, offset: 0 },
-        sistem: { yuzde: 0, offset: 0 },
-        aksesuar: { yuzde: 0, offset: 0 },
-        maxYuzde: 0,
-      });
+      };
     }
 
     const aylikNetToplam = m_cK + m_cB + m_cC + m_cS + m_cA;
+    let aylikPasta = { ...bosPasta, ayAdi: aylarUzun[aktifAy] };
     if (aylikNetToplam > 0) {
       const ap1 = (m_cK / aylikNetToplam) * 100;
       const ap2 = (m_cB / aylikNetToplam) * 100;
       const ap3 = (m_cC / aylikNetToplam) * 100;
       const ap4 = (m_cS / aylikNetToplam) * 100;
       const ap5 = (m_cA / aylikNetToplam) * 100;
-      setAylikPastaVerisi({
+      aylikPasta = {
         kendinTopla: { yuzde: Math.round(ap1), offset: 0 },
         bilesen: { yuzde: Math.round(ap2), offset: ap1 },
         cevre: { yuzde: Math.round(ap3), offset: ap1 + ap2 },
@@ -336,18 +315,15 @@ export default function HesabimPage() {
         aksesuar: { yuzde: Math.round(ap5), offset: ap1 + ap2 + ap3 + ap4 },
         maxYuzde: Math.round(Math.max(ap1, ap2, ap3, ap4, ap5)),
         ayAdi: aylarUzun[aktifAy],
-      });
-    } else {
-      setAylikPastaVerisi({
-        kendinTopla: { yuzde: 0, offset: 0 },
-        bilesen: { yuzde: 0, offset: 0 },
-        cevre: { yuzde: 0, offset: 0 },
-        sistem: { yuzde: 0, offset: 0 },
-        aksesuar: { yuzde: 0, offset: 0 },
-        maxYuzde: 0,
-        ayAdi: aylarUzun[aktifAy],
-      });
+      };
     }
+
+    return {
+      sonSiparislerListesi: sirali.slice(0, 7),
+      grafikVerisi: grafik,
+      pastaVerisi: pasta,
+      aylikPastaVerisi: aylikPasta,
+    };
   }, [hamSiparisler, seciliYil, tiklananAy, suAnkiTarih]);
 
   const userName = status === "unauthenticated" ? "Misafir" : session?.user?.name || "Kullanıcı";

@@ -102,10 +102,12 @@ function MobilProfilKarti() {
   const { data: session, status } = useSession();
   const [mounted, setMounted] = useState(false);
   const lastRef = useRef<typeof session>(null);
-  if (session) lastRef.current = session;
   const stable = session ?? lastRef.current;
 
   useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    if (session) lastRef.current = session;
+  }, [session]);
 
   if (!mounted || (status === "loading" && !lastRef.current)) {
     return (
@@ -168,7 +170,6 @@ function AccountPanel({ active }: { active?: string }) {
   const { data: session, status } = useSession();
   const [mounted, setMounted] = useState(false);
   const lastSessionRef = useRef<typeof session>(null);
-  if (session) lastSessionRef.current = session;
   const stableSession = session ?? lastSessionRef.current;
   const isGuest = mounted && status === "unauthenticated" && !stableSession;
   const isInitialLoad = !mounted || (status === "loading" && !lastSessionRef.current);
@@ -177,6 +178,9 @@ function AccountPanel({ active }: { active?: string }) {
   const [gecisHedef, setGecisHedef] = useState<string | null>(null);
 
   useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    if (session) lastSessionRef.current = session;
+  }, [session]);
 
   useEffect(() => {
     if (!mounted) return;

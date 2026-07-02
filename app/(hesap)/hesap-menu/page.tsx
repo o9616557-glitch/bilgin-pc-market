@@ -2,18 +2,24 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/hesap/nav-items";
 
 export default function HesapMenuPage() {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     if (window.matchMedia("(min-width: 1024px)").matches) {
       router.replace("/hesabim");
     }
   }, [router]);
+
+  if (!mounted) {
+    return <div className="lg:hidden min-h-[200px]" />;
+  }
 
   return (
     <div className="lg:hidden flex flex-col gap-1">
