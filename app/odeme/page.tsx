@@ -396,7 +396,7 @@ export default function OdemeSayfasi() {
     if (yontem === "havale" || yontem === "bkm") setSeciliKartId(null);
   };
 
-  const OdulPuanAlani = ({ buyuk = false }: { buyuk?: boolean }) => {
+  const OdulPuanAlani = ({ buyuk = false, yanPanel = false }: { buyuk?: boolean; yanPanel?: boolean }) => {
     if (status === "loading") return null;
     if (status !== "authenticated") return null;
     if (loyaltyPoints < MIN_KULLANIM_PUAN) return null;
@@ -404,7 +404,8 @@ export default function OdemeSayfasi() {
     return (
       <div
         className={[
-          "rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/[0.08] via-transparent to-transparent mb-5",
+          "rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/[0.08] via-transparent to-transparent",
+          yanPanel ? "mb-0" : "mb-5",
           buyuk ? "p-4 sm:p-5" : "p-4",
         ].join(" ")}
       >
@@ -447,12 +448,12 @@ export default function OdemeSayfasi() {
     );
   };
 
-  const MagazaKrediAlani = ({ buyuk = false }: { buyuk?: boolean }) => {
+  const MagazaKrediAlani = ({ buyuk = false, yanPanel = false }: { buyuk?: boolean; yanPanel?: boolean }) => {
     if (status === "loading") return null;
 
     if (status !== "authenticated") {
       return (
-        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 mb-5">
+        <div className={["rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4", yanPanel ? "mb-0" : "mb-5"].join(" ")}>
           <p className="text-slate-400 text-xs leading-relaxed">
             Mağaza kredisi ve ödül puanı için{" "}
             <Link href="/giris?callbackUrl=/odeme" className="text-site-accent hover:underline font-medium">
@@ -469,7 +470,8 @@ export default function OdemeSayfasi() {
     return (
       <div
         className={[
-          "rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/[0.08] via-transparent to-transparent mb-5",
+          "rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/[0.08] via-transparent to-transparent",
+          yanPanel ? "mb-0" : "mb-5",
           buyuk ? "p-4 sm:p-5" : "p-4",
         ].join(" ")}
       >
@@ -590,6 +592,16 @@ export default function OdemeSayfasi() {
       </div>
     );
   };
+
+  const CuzdanPuanYanPaneli = () => (
+    <div className="glass-card p-4 sm:p-5 space-y-4">
+      <h2 className="text-sm font-semibold text-white pb-3 border-b border-white/[0.06] flex items-center gap-2">
+        <Wallet className="w-4 h-4 text-site-accent" /> Puan & kredi
+      </h2>
+      <OdulPuanAlani yanPanel />
+      <MagazaKrediAlani yanPanel />
+    </div>
+  );
 
   const OdemeYontemiKartlari = ({ compact = false }: { compact?: boolean }) => {
     const satirSinif = (secili: boolean, tip: "kart" | "havale" | "bkm") => {
@@ -858,17 +870,23 @@ export default function OdemeSayfasi() {
         <form onSubmit={(e) => { if (asama !== 3) { e.preventDefault(); return; } void siparisTamamla(e); }}>
           {/* ——— AŞAMA 1: Ürün özeti + not ——— */}
           {asama === 1 && (
-            <div className="max-w-2xl mx-auto space-y-4">
-              <SiparisOzetiKutusu notGoster />
-              <OdulPuanAlani buyuk />
-              <MagazaKrediAlani buyuk />
-              <button
-                type="button"
-                onClick={asamaIleri}
-                className="w-full py-3.5 rounded-xl text-sm font-semibold btn-primary flex items-center justify-center gap-2 touch-manipulation"
-              >
-                Devam et <ChevronRight className="w-4 h-4" />
-              </button>
+            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 max-w-5xl mx-auto">
+              <div className="flex-1 min-w-0 space-y-4">
+                <SiparisOzetiKutusu notGoster />
+                <div className="lg:hidden">
+                  <CuzdanPuanYanPaneli />
+                </div>
+                <button
+                  type="button"
+                  onClick={asamaIleri}
+                  className="w-full py-3.5 rounded-xl text-sm font-semibold btn-primary flex items-center justify-center gap-2 touch-manipulation"
+                >
+                  Devam et <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="hidden lg:block w-[320px] shrink-0 lg:sticky lg:top-28 h-fit space-y-4">
+                <CuzdanPuanYanPaneli />
+              </div>
             </div>
           )}
 
@@ -953,8 +971,6 @@ export default function OdemeSayfasi() {
                 )}
 
                 <hr className="border-white/[0.06] mb-5" />
-                <OdulPuanAlani buyuk />
-              <MagazaKrediAlani buyuk />
                 {!tamamiCuzdanla && (
                   <>
                     <h3 className="text-sm font-semibold text-white mb-3">Ödeme yöntemi</h3>
@@ -972,6 +988,11 @@ export default function OdemeSayfasi() {
                   </p>
                 </div>
 
+                <div className="lg:hidden mb-5 space-y-4">
+                  <CuzdanPuanYanPaneli />
+                  <SiparisOzetiKutusu />
+                </div>
+
                 <div className="flex flex-col-reverse sm:flex-row gap-3">
                   <button type="button" onClick={asamaGeri} className="flex-1 py-3.5 rounded-xl text-sm font-medium border border-white/10 text-slate-300 hover:bg-white/5 flex items-center justify-center gap-2 touch-manipulation">
                     <ChevronLeft className="w-4 h-4" /> Geri
@@ -982,7 +1003,8 @@ export default function OdemeSayfasi() {
                 </div>
               </div>
 
-              <div className="hidden lg:block w-[320px] shrink-0 lg:sticky lg:top-28 h-fit">
+              <div className="hidden lg:block w-[320px] shrink-0 lg:sticky lg:top-28 h-fit space-y-4">
+                <CuzdanPuanYanPaneli />
                 <SiparisOzetiKutusu />
               </div>
             </div>
@@ -996,8 +1018,6 @@ export default function OdemeSayfasi() {
                 <p className="text-slate-500 text-xs mb-4">
                   {tamamiCuzdanla ? "Puan ve krediniz sipariş tutarını karşılıyor" : "Yöntemi değiştirebilirsiniz"}
                 </p>
-                <OdulPuanAlani buyuk />
-              <MagazaKrediAlani buyuk />
 
                 {!tamamiCuzdanla && (
                   <>
@@ -1035,7 +1055,8 @@ export default function OdemeSayfasi() {
                   </div>
                 )}
 
-                <div className="lg:hidden mb-5">
+                <div className="lg:hidden mb-5 space-y-4">
+                  <CuzdanPuanYanPaneli />
                   <SiparisOzetiKutusu />
                 </div>
 
@@ -1061,7 +1082,8 @@ export default function OdemeSayfasi() {
                 </div>
               </div>
 
-              <div className="hidden lg:block w-[320px] shrink-0 lg:sticky lg:top-28 h-fit">
+              <div className="hidden lg:block w-[320px] shrink-0 lg:sticky lg:top-28 h-fit space-y-4">
+                <CuzdanPuanYanPaneli />
                 <SiparisOzetiKutusu />
               </div>
             </div>
