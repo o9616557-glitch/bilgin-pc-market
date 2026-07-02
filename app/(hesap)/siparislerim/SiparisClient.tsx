@@ -407,7 +407,7 @@ const { sepeteEkle } = useCart();
                     <p className="text-sm font-bold text-white mb-1">Bu siparişte aktif ürün kalmadı</p>
                     <p className="text-xs text-slate-500 mb-4">
                       {selectedOrderArsivAdet > 0
-                        ? "İade veya iptal edilen ürünler arşivinize taşındı."
+                        ? "3 ayını dolduran ürünler arşivinize taşındı."
                         : "Bu siparişte görüntülenecek ürün bulunmuyor."}
                     </p>
                     {selectedOrderArsivAdet > 0 && (
@@ -694,7 +694,7 @@ const { sepeteEkle } = useCart();
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#0f172a] border border-slate-800 rounded-xl px-5 py-4">
                   <p className="text-xs text-slate-500 font-medium">
                     Bu siparişte <span className="text-slate-300 font-bold">{selectedOrderArsivAdet}</span> ürün arşivde
-                    (iade veya iptal tamamlandı).
+                    (3 ayını doldurdu).
                   </p>
                   <Link
                     href="/arsiv"

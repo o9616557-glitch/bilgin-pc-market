@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Archive,
@@ -11,19 +11,33 @@ import {
   Headset,
   Wallet,
   CreditCard,
+  ChevronDown,
+  CheckCircle2,
 } from "lucide-react";
 import { useOrders } from "@/app/OrderContext";
 import {
+  ARSIV_SURESI_GUN,
   KART_IADE_BANKA_NOTU,
+  arsivKalemiZamanFiltresineUygun,
   siparisArsivKalemleriniTopla,
+  siparisGosterimDurumu,
   urunIadeYontemiMetni,
   type ArsivKalemi,
   type UrunDestekTalepLike,
 } from "@/lib/order-utils";
 
+const zamanSecenekleri = [
+  { id: "tumu", ad: "Tüm Zamanlar" },
+  { id: "son6", ad: "Son 6 Ay" },
+  { id: "2026", ad: "2026 Yılı" },
+  { id: "2025", ad: "2025 Yılı" },
+];
+
 export default function ArsivPage() {
   const { orders: localOrders, refreshOrders } = useOrders();
   const [destekTalepleri, setDestekTalepleri] = useState<UrunDestekTalepLike[]>([]);
+  const [zamanFiltresi, setZamanFiltresi] = useState("tumu");
+  const [zamanAcik, setZamanAcik] = useState(false);
 
   const destekTalepleriniGetir = useCallback(async () => {
     try {
@@ -42,7 +56,11 @@ export default function ArsivPage() {
     void destekTalepleriniGetir();
   }, [refreshOrders, destekTalepleriniGetir]);
 
-  const arsivKalemleri = siparisArsivKalemleriniTopla(localOrders, destekTalepleri);
+  const tumArsivKalemleri = siparisArsivKalemleriniTopla(localOrders, destekTalepleri);
+  const arsivKalemleri = useMemo(
+    () => tumArsivKalemleri.filter((kalem) => arsivKalemiZamanFiltresineUygun(kalem, zamanFiltresi)),
+    [tumArsivKalemleri, zamanFiltresi]
+  );
 
   return (
     <div className="flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
@@ -56,26 +74,63 @@ export default function ArsivPage() {
           <div>
             <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-0.5">Arşiv</h1>
             <p className="text-slate-400 text-xs font-medium tracking-wide">
-              İade veya iptal tamamlanan{" "}
+              {ARSIV_SURESI_GUN} günü dolan{" "}
               <span className="font-black text-slate-300">{arsivKalemleri.length}</span> ürün
             </p>
           </div>
         </div>
 
-        <Link
-          href="/siparislerim"
-          className="w-full xl:w-auto flex items-center justify-center gap-2 bg-[#020617] hover:bg-slate-800 border border-slate-700 rounded-lg px-4 sm:px-6 py-3 transition-colors text-[10px] sm:text-xs text-white font-black uppercase tracking-widest shadow-lg shrink-0 relative z-10"
-        >
-          <Package className="w-4 h-4" /> Siparişlerim
-        </Link>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full xl:w-auto relative z-10">
+          <div className="relative flex-1 sm:flex-none min-w-0">
+            <button
+              onClick={() => setZamanAcik(!zamanAcik)}
+              className="w-full flex items-center justify-between gap-2 bg-[#020617] hover:bg-slate-800 border border-slate-700 rounded-lg px-3 sm:px-4 py-2.5 transition-colors text-[10px] sm:text-xs text-slate-300 font-bold whitespace-nowrap"
+            >
+              <div className="flex items-center gap-2 truncate">
+                <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <span className="truncate">{zamanSecenekleri.find((z) => z.id === zamanFiltresi)?.ad}</span>
+              </div>
+              <ChevronDown className={`w-3.5 h-3.5 shrink-0 text-slate-500 transition-transform ${zamanAcik ? "rotate-180" : ""}`} />
+            </button>
+
+            {zamanAcik && (
+              <div className="absolute top-full mt-1.5 left-0 w-full bg-[#0f172a] border border-slate-700 rounded-lg shadow-2xl overflow-hidden py-1 z-[100]">
+                {zamanSecenekleri.map((secenek) => (
+                  <button
+                    key={secenek.id}
+                    onClick={() => {
+                      setZamanFiltresi(secenek.id);
+                      setZamanAcik(false);
+                    }}
+                    className={`w-full text-left px-4 py-2.5 text-[10px] sm:text-xs font-bold transition-colors ${
+                      zamanFiltresi === secenek.id
+                        ? "bg-slate-800 text-white"
+                        : "text-slate-400 hover:bg-slate-800/50 hover:text-white"
+                    }`}
+                  >
+                    {secenek.ad}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <Link
+            href="/siparislerim"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#020617] hover:bg-slate-800 border border-slate-700 rounded-lg px-4 sm:px-6 py-2.5 transition-colors text-[10px] sm:text-xs text-white font-black uppercase tracking-widest shadow-lg shrink-0"
+          >
+            <Package className="w-4 h-4" /> Siparişlerim
+          </Link>
+        </div>
       </div>
 
       <p className="text-xs text-slate-500 font-medium leading-relaxed px-1">
-        Burada yalnızca işlemi bitmiş ürünler listelenir. Devam eden siparişleriniz ve bekleyen iade talepleriniz{" "}
+        Sipariş tarihinden {ARSIV_SURESI_GUN} gün (3 ay) geçen tüm ürünler otomatik olarak buraya taşınır.
+        Tamamlanan veya devam eden fark etmez. Son 3 ay içindeki siparişleriniz{" "}
         <Link href="/siparislerim" className="text-cyan-400 hover:underline">
           Siparişlerim
         </Link>{" "}
-        sayfasında görünür.
+        sayfasında kalır.
       </p>
 
       {arsivKalemleri.length === 0 ? (
@@ -85,7 +140,9 @@ export default function ArsivPage() {
           </div>
           <h2 className="text-xl font-black uppercase tracking-wide mb-2 text-white">Arşiv Boş</h2>
           <p className="text-slate-400 text-sm max-w-md mx-auto font-medium leading-relaxed">
-            Henüz iade veya iptal tamamlanmış ürününüz yok. İşlem bittiğinde ilgili ürünler otomatik olarak buraya taşınır.
+            {tumArsivKalemleri.length > 0
+              ? "Seçtiğiniz zaman aralığında arşivlenmiş ürün bulunmuyor. Farklı bir filtre deneyin."
+              : `Henüz ${ARSIV_SURESI_GUN} gününü dolduran ürününüz yok. Süre dolunca ürünler otomatik olarak buraya taşınır.`}
           </p>
         </div>
       ) : (
@@ -112,11 +169,25 @@ export default function ArsivPage() {
 }
 
 function ArsivKart({ kalem }: { kalem: ArsivKalemi }) {
-  const { item, siparisKodu, tip, iadeAdet, yontem, islemTarihi } = kalem;
+  const { item, order, siparisKodu, tip, iadeAdet, yontem, islemTarihi } = kalem;
   const urunLinki = `/product/${item?.slug || item?.productId || item?.id || item?._id || ""}`;
   const birimFiyat = Number(item.price || item.fiyat || 0);
   const tutar = birimFiyat * iadeAdet;
   const yontemMetni = urunIadeYontemiMetni(yontem);
+  const siparisDurumu = siparisGosterimDurumu(order);
+
+  const tipEtiketi =
+    tip === "iade" ? "İade edildi" : tip === "iptal" ? "İptal edildi" : siparisDurumu || "Arşivlendi";
+
+  const tipStil =
+    tip === "iade"
+      ? "bg-orange-500/5 text-orange-300 border-orange-500/20"
+      : tip === "iptal"
+        ? "bg-red-500/5 text-red-400 border-red-500/20"
+        : "bg-slate-500/5 text-slate-300 border-slate-500/20";
+
+  const TipIkon =
+    tip === "iade" ? RefreshCw : tip === "iptal" ? RefreshCw : CheckCircle2;
 
   return (
     <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-4 shadow-md flex flex-col gap-3">
@@ -135,14 +206,10 @@ function ArsivKart({ kalem }: { kalem: ArsivKalemi }) {
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-1.5 mb-1">
             <span
-              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider border ${
-                tip === "iade"
-                  ? "bg-orange-500/5 text-orange-300 border-orange-500/20"
-                  : "bg-red-500/5 text-red-400 border-red-500/20"
-              }`}
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider border ${tipStil}`}
             >
-              <RefreshCw className="w-3 h-3" />
-              {tip === "iade" ? "İade edildi" : "İptal edildi"}
+              <TipIkon className="w-3 h-3" />
+              {tipEtiketi}
             </span>
             <span className="text-[9px] font-bold text-slate-500">#{siparisKodu}</span>
           </div>
@@ -152,7 +219,7 @@ function ArsivKart({ kalem }: { kalem: ArsivKalemi }) {
           {islemTarihi && (
             <p className="text-[10px] text-slate-500 font-medium mt-1 flex items-center gap-1">
               <Calendar className="w-3 h-3 shrink-0" />
-              {islemTarihi.toLocaleDateString("tr-TR")}
+              Sipariş: {islemTarihi.toLocaleDateString("tr-TR")}
             </p>
           )}
         </div>

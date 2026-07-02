@@ -630,6 +630,26 @@ export function durumIadeMi(d?: string | null) {
 }
 
 export const IADE_SURESI_GUN = 15;
+export const ARSIV_SURESI_GUN = 90;
+
+export function siparisTarihi(order?: OrderLike | null): Date | null {
+  const raw = order?.createdAt || order?.tarih;
+  return raw ? new Date(raw) : null;
+}
+
+/** Sipariş tarihinden 3 ay geçtiyse ürünler arşive taşınır */
+export function siparisArsivSuresiDolduMu(order?: OrderLike | null, bugun = new Date()) {
+  const tarih = siparisTarihi(order);
+  if (!tarih) return false;
+  const sinir = new Date(tarih.getTime() + ARSIV_SURESI_GUN * 24 * 60 * 60 * 1000);
+  return bugun >= sinir;
+}
+
+export function siparisArsivBitisTarihi(order?: OrderLike | null): Date | null {
+  const tarih = siparisTarihi(order);
+  if (!tarih) return null;
+  return new Date(tarih.getTime() + ARSIV_SURESI_GUN * 24 * 60 * 60 * 1000);
+}
 
 /** Sipariş listesinde gösterilecek durum metni */
 export function siparisGosterimDurumu(order?: OrderLike | null) {
@@ -850,7 +870,7 @@ export function urunIptalEdilebilirMi(
   return true;
 }
 
-export type ArsivKalemiTipi = "iade" | "iptal";
+export type ArsivKalemiTipi = "iade" | "iptal" | "siparis";
 
 export interface ArsivKalemi {
   order: OrderLike;
@@ -917,33 +937,14 @@ function siparisKalemiIptalAdminOnaylandiMi(
   return false;
 }
 
-/** Tamamlanmış iade veya iptal — bekleyen talepler arşive girmez */
+/** Sipariş tarihinden 3 ay geçen tüm ürünler arşivde gösterilir */
 export function siparisKalemiArsivdeMi(
   order: OrderLike | null | undefined,
-  item: OrderItemLike,
-  opts?: { talepler?: UrunDestekTalepLike[]; siparisKodu?: string }
+  _item?: OrderItemLike,
+  _opts?: { talepler?: UrunDestekTalepLike[]; siparisKodu?: string }
 ): boolean {
   if (!order) return false;
-
-  const siparisKodu = opts?.siparisKodu || String(order.siparisKodu || order.orderNumber || "");
-  const urunId = String(item.id || item._id || item.productId || "");
-  const urunIsim = String(item.title || item.isim || item.name || "");
-  const iadeEdilenAdet = siparisKalemiIadeAdet(order, item, opts);
-  const idler = siparisKalemIdleri(item);
-  const talepler = opts?.talepler || [];
-
-  if (urunBekleyenIadeMi(talepler, siparisKodu, urunId, urunIsim, iadeEdilenAdet, idler)) {
-    return false;
-  }
-  if (urunBekleyenIslemEtiketi(talepler, siparisKodu, urunId, urunIsim, iadeEdilenAdet, idler)) {
-    return false;
-  }
-
-  if (siparisKalemiIptalAdminOnaylandiMi(order, item, opts)) {
-    return true;
-  }
-
-  return siparisKalemiIadeAdminOnaylandiMi(order, item, opts);
+  return siparisArsivSuresiDolduMu(order);
 }
 
 export function siparisKalemiArsivTipi(
@@ -961,7 +962,7 @@ export function siparisKalemiArsivTipi(
     return "iade";
   }
 
-  return null;
+  return "siparis";
 }
 
 export function siparisKalemiArsivTarihi(
@@ -991,8 +992,28 @@ export function siparisKalemiArsivTarihi(
   if (tamamlananTalep?.updatedAt) return new Date(tamamlananTalep.updatedAt);
   if (tamamlananTalep?.createdAt) return new Date(tamamlananTalep.createdAt);
 
-  const tamamlanma = order.tamamlanmaTarihi || order.createdAt || order.tarih;
-  return tamamlanma ? new Date(tamamlanma) : null;
+  return siparisTarihi(order);
+}
+
+export function arsivKalemiZamanFiltresineUygun(
+  kalem: ArsivKalemi,
+  filtre: string,
+  bugun = new Date()
+) {
+  if (filtre === "tumu") return true;
+
+  const tarih = siparisTarihi(kalem.order);
+  if (!tarih) return false;
+
+  if (filtre === "son6") {
+    const altiAyOnce = new Date(bugun);
+    altiAyOnce.setMonth(bugun.getMonth() - 6);
+    return tarih >= altiAyOnce;
+  }
+  if (filtre === "2026") return tarih.getFullYear() === 2026;
+  if (filtre === "2025") return tarih.getFullYear() === 2025;
+
+  return true;
 }
 
 export function siparisArsivKalemleriniTopla(
@@ -1008,11 +1029,12 @@ export function siparisArsivKalemleriniTopla(
     for (const item of siparisKalemleri(order)) {
       if (!siparisKalemiArsivdeMi(order, item, opts)) continue;
 
-      const tip = siparisKalemiArsivTipi(order, item, opts) || "iade";
+      const tip = siparisKalemiArsivTipi(order, item, opts) || "siparis";
+      const itemAdet = Number(item.quantity || item.adet || item.miktar || 1);
       const iadeAdet =
         tip === "iade"
           ? Math.max(siparisKalemiIadeAdet(order, item, opts), Number(item.iadeEdilenAdet || 0))
-          : Number(item.quantity || item.adet || item.miktar || 1);
+          : itemAdet;
 
       sonuc.push({
         order,
