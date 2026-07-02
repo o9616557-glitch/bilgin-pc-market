@@ -425,19 +425,20 @@ const { sepeteEkle } = useCart();
                   const iptalButonuGoster =
                     !urunIadeVar &&
                     !urunIptal &&
-                    urunIptalEdilebilirMi(
-                    selectedOrder,
-                    destekTalepleri,
-                    selectedOrderSiparisKodu,
-                    urunId,
-                    urunIsim,
-                    itemAdet,
-                    iadeEdilenAdet,
-                    {
-                      odemeBekliyor: selectedOrderOdemeBekliyor,
-                      teslimEdildi: siparisTeslimEdildi,
-                    }
-                  );
+                    (selectedOrderKismiIade ||
+                      urunIptalEdilebilirMi(
+                        selectedOrder,
+                        destekTalepleri,
+                        selectedOrderSiparisKodu,
+                        urunId,
+                        urunIsim,
+                        itemAdet,
+                        iadeEdilenAdet,
+                        {
+                          odemeBekliyor: selectedOrderOdemeBekliyor,
+                          teslimEdildi: siparisTeslimEdildi,
+                        }
+                      ));
                   const iadeButonuGoster =
                     !selectedOrderKismiIade &&
                     !urunIadeVar &&
@@ -575,6 +576,14 @@ const { sepeteEkle } = useCart();
                               <RefreshCw className="w-3 h-3 shrink-0" />
                               İptal edildi
                             </span>
+                          ) : selectedOrderKismiIade && iptalButonuGoster ? (
+                            <Link
+                              href={`/destek-taleplerim/yeni?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iptal&urunId=${encodeURIComponent(urunId)}`}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-red-400 hover:bg-red-500/10 border border-red-500/20 rounded-md transition-all text-[10px] font-semibold whitespace-nowrap"
+                            >
+                              <RefreshCw className="w-3 h-3 shrink-0" />
+                              İptal Et
+                            </Link>
                           ) : incelemeMetni ? (
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-amber-500/5 text-amber-400 border border-amber-500/20 text-[10px] font-medium">
                               <Clock className="w-3 h-3 shrink-0" />
@@ -608,7 +617,7 @@ const { sepeteEkle } = useCart();
                                     <RefreshCw className="w-3 h-3 shrink-0" />
                                     Ürünü İptal Et
                                   </Link>
-                                ) : !siparisTeslimEdildi && (
+                                ) : (selectedOrderKismiIade || !siparisTeslimEdildi) && (
                                   <Link
                                     href={`/destek-taleplerim/yeni?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iptal&urunId=${encodeURIComponent(urunId)}`}
                                     className="inline-flex items-center gap-1 px-2.5 py-1.5 text-red-400 hover:bg-red-500/10 border border-red-500/20 rounded-md transition-all text-[10px] font-semibold whitespace-nowrap"
