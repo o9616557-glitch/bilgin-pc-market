@@ -294,3 +294,50 @@ export function iadeYontemiBilgisi(yontem?: IadeYontemi | null) {
   }
   return null;
 }
+
+export function durumMetniNorm(d?: string | null) {
+  return (d || "").toLocaleLowerCase("tr-TR");
+}
+
+export function durumIptalMi(d?: string | null) {
+  const n = durumMetniNorm(d);
+  return n.includes("iptal") || n.includes("i̇ptal") || n.includes("red");
+}
+
+export function durumIadeMi(d?: string | null) {
+  const n = durumMetniNorm(d);
+  return n.includes("iade") || n.includes("kısmen iade") || n.includes("kismen iade");
+}
+
+/** Admin tarafında tamamlanmış ürün iptali */
+export function urunTamamlanmisIptalMi(
+  talepler: UrunDestekTalepLike[],
+  siparisKodu: string,
+  urunId: string,
+  urunIsim?: string
+): boolean {
+  return talepler.some((t) => {
+    if (t.konu !== "iptal") return false;
+    if (t.durum !== "Çözüldü") return false;
+    if (!siparisKodlariEslesir(t.siparisNo || "", siparisKodu)) return false;
+    if (!t.iadeKalemleri?.length) return false;
+    return t.iadeKalemleri.some((k) => urunKalemiEslesir(k, urunId, urunIsim));
+  });
+}
+
+export function urunIptalEdildiMi(
+  order: OrderLike | null | undefined,
+  talepler: UrunDestekTalepLike[],
+  siparisKodu: string,
+  urunId: string,
+  urunIsim: string | undefined,
+  itemAdet: number,
+  iadeEdilenAdet: number
+): boolean {
+  if (durumIptalMi(getOrderStatusText(order))) return true;
+  if (urunTamamlanmisIptalMi(talepler, siparisKodu, urunId, urunIsim)) return true;
+  if (itemAdet > 0 && iadeEdilenAdet >= itemAdet) {
+    return urunTamamlanmisIptalMi(talepler, siparisKodu, urunId, urunIsim);
+  }
+  return false;
+}

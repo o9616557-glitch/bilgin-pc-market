@@ -12,7 +12,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { useOrders } from "@/app/OrderContext"; 
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
-import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisIadeYontemi, urunBekleyenIslemEtiketi, urunIadeYontemiBul, urunIadeYontemiMetni, urunTalepBekliyorTemizle, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
+import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisIadeYontemi, urunBekleyenIslemEtiketi, urunIadeYontemiBul, urunIadeYontemiMetni, urunIptalEdildiMi, urunTalepBekliyorTemizle, durumIadeMi, durumIptalMi, durumMetniNorm, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 
 export default function SiparisClient() {
@@ -214,14 +214,11 @@ const { sepeteEkle } = useCart();
 
   const selectedOrderSiparisKodu =
     selectedOrder?.siparisKodu || selectedOrder?.orderNumber || selectedOrder?._id?.slice(-8)?.toUpperCase() || "";
-  const selectedOrderDurumMetni = (selectedOrder?.durum || selectedOrder?.status || "").toLowerCase();
+  const selectedOrderDurumMetni = durumMetniNorm(selectedOrder?.durum || selectedOrder?.status);
   const selectedOrderIsTeslimEdildi = selectedOrderDurumMetni.includes("teslim") || selectedOrderDurumMetni.includes("tamam");
   const selectedOrderIsKargoda = selectedOrderDurumMetni.includes("kargo");
-  const selectedOrderIsIptal = selectedOrderDurumMetni.includes("iptal");
-  const selectedOrderIsIade =
-    selectedOrderDurumMetni.includes("iade") ||
-    selectedOrderDurumMetni.includes("kısmen iade") ||
-    selectedOrderDurumMetni.includes("kismen iade");
+  const selectedOrderIsIptal = durumIptalMi(selectedOrderDurumMetni);
+  const selectedOrderIsIade = durumIadeMi(selectedOrderDurumMetni);
   const selectedOrderOdemeBekliyor = isOdemeBekleyenSiparis(selectedOrder);
   const selectedOrderHavaleBekliyor = isHavaleBekleyenSiparis(selectedOrder);
   const selectedOrderTopluIptalGoster =
@@ -328,11 +325,11 @@ const { sepeteEkle } = useCart();
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
                 {selectedOrder.items?.map((item: OrderItemLike, idx: number) => {
-                  const durumMetni = (selectedOrder.durum || selectedOrder.status || "").toLowerCase();
+                  const durumMetni = durumMetniNorm(selectedOrder.durum || selectedOrder.status);
                   const isTeslimEdildi = durumMetni.includes("teslim") || durumMetni.includes("tamam");
                   const isKargoda = durumMetni.includes("kargo");
-                  const isIptal = durumMetni.includes("iptal");
-                  const isIade = durumMetni.includes("iade") || durumMetni.includes("kısmen iade") || durumMetni.includes("kismen iade");
+                  const isIptal = durumIptalMi(durumMetni);
+                  const isIade = durumIadeMi(durumMetni);
                   
                   const siparisTarihi = new Date(selectedOrder.createdAt || selectedOrder.tarih);
                   const iadeBitisTarihi = new Date(siparisTarihi.getTime() + (17 * 24 * 60 * 60 * 1000));
@@ -352,7 +349,17 @@ const { sepeteEkle } = useCart();
                     urunIsim,
                     iadeEdilenAdet
                   );
+                  const urunIptal = urunIptalEdildiMi(
+                    selectedOrder,
+                    destekTalepleri,
+                    selectedOrderSiparisKodu,
+                    urunId,
+                    urunIsim,
+                    itemAdet,
+                    iadeEdilenAdet
+                  );
                   const iadeButonuGoster =
+                    !urunIptal &&
                     !isIptal &&
                     !isIade &&
                     !iadeSuresiGectiMi &&
@@ -360,6 +367,7 @@ const { sepeteEkle } = useCart();
                     iadeEdilenAdet < itemAdet &&
                     !incelemeMetni;
                   const iptalButonuGoster =
+                    !urunIptal &&
                     !isIptal &&
                     !isIade &&
                     !iadeSuresiGectiMi &&
@@ -387,6 +395,11 @@ const { sepeteEkle } = useCart();
                             {Number(item.iadeEdilenAdet || 0) > 0 && iadeEdilenAdet < itemAdet && (
                               <span className="px-2 py-1 rounded-md bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[9px] font-black uppercase tracking-widest">
                                 Kısmi İade
+                              </span>
+                            )}
+                            {urunIptal && (
+                              <span className="px-2 py-1 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-[9px] font-black uppercase tracking-widest">
+                                İptal Edildi
                               </span>
                             )}
                           </div>
@@ -469,7 +482,12 @@ const { sepeteEkle } = useCart();
                         )}
 
                         <div className="flex items-center justify-end gap-2 min-h-[28px]">
-                          {incelemeMetni ? (
+                          {urunIptal ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-red-500/5 text-red-400 border border-red-500/20 text-[10px] font-medium">
+                              <RefreshCw className="w-3 h-3 shrink-0" />
+                              İptal edildi
+                            </span>
+                          ) : incelemeMetni ? (
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-amber-500/5 text-amber-400 border border-amber-500/20 text-[10px] font-medium">
                               <Clock className="w-3 h-3 shrink-0" />
                               {incelemeMetni}
