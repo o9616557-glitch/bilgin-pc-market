@@ -12,7 +12,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { useOrders } from "@/app/OrderContext"; 
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
-import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisIadeYontemi, urunBekleyenIslemEtiketi, urunIadeYontemiBul, urunIadeYontemiMetni, urunIptalEdildiMi, urunTalepBekliyorTemizle, durumIadeMi, durumIptalMi, durumMetniNorm, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
+import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisIadeOzeti, siparisIadeYontemi, urunBekleyenIslemEtiketi, urunIadeYontemiBul, urunIadeYontemiMetni, urunIptalEdildiMi, urunTalepBekliyorTemizle, durumIadeMi, durumIptalMi, durumMetniNorm, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 
 export default function SiparisClient() {
@@ -159,6 +159,11 @@ const { sepeteEkle } = useCart();
            <Truck className="w-3.5 h-3.5 animate-bounce" /> KARGODA
         </div>
     );
+    if (d.includes("ödeme bekliyor") || d.includes("odeme bekliyor")) return (
+        <div className="w-max inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-[10px] font-black uppercase tracking-widest shadow-inner">
+           <Clock className="w-3.5 h-3.5" /> ÖDEME BEKLENİYOR
+        </div>
+    );
     if (d.includes("havale")) return (
         <div className="w-max inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-[10px] font-black uppercase tracking-widest shadow-inner">
            <Clock className="w-3.5 h-3.5" /> HAVALE BEKLENİYOR
@@ -218,7 +223,8 @@ const { sepeteEkle } = useCart();
   const selectedOrderIsTeslimEdildi = selectedOrderDurumMetni.includes("teslim") || selectedOrderDurumMetni.includes("tamam");
   const selectedOrderIsKargoda = selectedOrderDurumMetni.includes("kargo");
   const selectedOrderIsIptal = durumIptalMi(selectedOrderDurumMetni);
-  const selectedOrderIsIade = durumIadeMi(selectedOrderDurumMetni);
+  const selectedOrderIadeOzeti = siparisIadeOzeti(selectedOrder);
+  const selectedOrderIsIade = durumIadeMi(selectedOrderDurumMetni) || selectedOrderIadeOzeti.var;
   const selectedOrderOdemeBekliyor = isOdemeBekleyenSiparis(selectedOrder);
   const selectedOrderHavaleBekliyor = isHavaleBekleyenSiparis(selectedOrder);
   const selectedOrderTopluIptalGoster =
@@ -358,6 +364,7 @@ const { sepeteEkle } = useCart();
                     itemAdet,
                     iadeEdilenAdet
                   );
+                  const urunTamIade = iadeEdilenAdet > 0 && iadeEdilenAdet >= itemAdet;
                   const iadeButonuGoster =
                     !urunIptal &&
                     !isIptal &&
@@ -397,6 +404,11 @@ const { sepeteEkle } = useCart();
                                 Kısmi İade
                               </span>
                             )}
+                            {urunTamIade && (
+                              <span className="px-2 py-1 rounded-md bg-orange-500/10 border border-orange-500/20 text-orange-300 text-[9px] font-black uppercase tracking-widest">
+                                İade Edildi
+                              </span>
+                            )}
                             {urunIptal && (
                               <span className="px-2 py-1 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-[9px] font-black uppercase tracking-widest">
                                 İptal Edildi
@@ -429,7 +441,7 @@ const { sepeteEkle } = useCart();
                         </div>
                       </div>
 
-                      {isTeslimEdildi && !isIptal && (
+                      {isTeslimEdildi && !isIptal && iadeEdilenAdet === 0 && (
                         <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mt-1 -mb-1">
                           {iadeSuresiGectiMi ? (
                             <span className="text-slate-500 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> 14 Günlük İade Süresi Doldu</span>
@@ -440,7 +452,7 @@ const { sepeteEkle } = useCart();
                       )}
 
                       <div className="flex flex-col gap-2 pt-3 border-t border-slate-800/50 mt-auto">
-                        {isTeslimEdildi && (
+                        {isTeslimEdildi && !urunTamIade && (
                           <div className="flex flex-wrap items-center gap-1.5">
                             <Link
                               href={`${urunLinki}#yorumlar`}
@@ -482,7 +494,12 @@ const { sepeteEkle } = useCart();
                         )}
 
                         <div className="flex items-center justify-end gap-2 min-h-[28px]">
-                          {urunIptal ? (
+                          {urunTamIade ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-orange-500/5 text-orange-300 border border-orange-500/20 text-[10px] font-medium">
+                              <RefreshCw className="w-3 h-3 shrink-0" />
+                              İade tamamlandı
+                            </span>
+                          ) : urunIptal ? (
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-red-500/5 text-red-400 border border-red-500/20 text-[10px] font-medium">
                               <RefreshCw className="w-3 h-3 shrink-0" />
                               İptal edildi

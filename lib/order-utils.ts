@@ -22,18 +22,46 @@ export function getOrderShippingCompany(order?: OrderLike | null) {
   return order?.kargoFirmasi || order?.shippingCompany || "";
 }
 
+export function siparisKalemleri(order?: OrderLike | null) {
+  return order?.items || order?.sepet || order?.cartItems || [];
+}
+
+export function siparisIadeOzeti(order?: OrderLike | null) {
+  if (!order) return { var: false, kismi: false, tam: false };
+
+  const items = siparisKalemleri(order);
+  const iadeKalemleri = items.filter((item) => Number(item.iadeEdilenAdet || 0) > 0);
+  const gecmisVar = (order.iadeGecmisi?.length || 0) > 0;
+  const toplamIade = Number(order.toplamIadeEdilenTutar || 0) > 0;
+
+  if (!iadeKalemleri.length && !gecmisVar && !toplamIade) {
+    return { var: false, kismi: false, tam: false };
+  }
+
+  if (!items.length) {
+    const durum = durumMetniNorm(getOrderStatusText(order));
+    const tam = durum.includes("iade") && !durum.includes("kısmen") && !durum.includes("kismen");
+    return { var: true, kismi: !tam, tam };
+  }
+
+  const tumKalemlerIade = items.every((item) => {
+    const adet = Number(item.quantity || item.adet || item.miktar || 1);
+    return Number(item.iadeEdilenAdet || 0) >= adet;
+  });
+
+  return { var: true, kismi: !tumKalemlerIade, tam: tumKalemlerIade };
+}
+
 /** Ödeme henüz tamamlanmamış siparişler (havale/kart bekleyen) */
 export function isOdemeBekleyenSiparis(order?: OrderLike | null) {
   if (!order) return false;
 
-  const odemeDurumu = (order.odemeDurumu || "").toLowerCase();
-  if (odemeDurumu === "odendi" || odemeDurumu === "onaylandi") return false;
-  if (odemeDurumu === "havale_bekliyor" || odemeDurumu === "odeme_bekliyor") return true;
-
-  const durum = getOrderStatusText(order).toLocaleLowerCase("tr-TR");
-  if (durum.includes("iptal") || durum.includes("iade")) return false;
+  const durum = durumMetniNorm(getOrderStatusText(order));
+  if (durumIptalMi(durum) || durumIadeMi(durum)) return false;
+  if (siparisIadeOzeti(order).var) return false;
   if (
     durum.includes("hazır") ||
+    durum.includes("hazir") ||
     durum.includes("ödendi") ||
     durum.includes("odendi") ||
     durum.includes("kargo") ||
@@ -42,6 +70,10 @@ export function isOdemeBekleyenSiparis(order?: OrderLike | null) {
   ) {
     return false;
   }
+
+  const odemeDurumu = (order.odemeDurumu || "").toLowerCase();
+  if (odemeDurumu === "odendi" || odemeDurumu === "onaylandi") return false;
+  if (odemeDurumu === "havale_bekliyor" || odemeDurumu === "odeme_bekliyor") return true;
 
   return (
     durum.includes("ödeme bekliyor") ||
@@ -67,9 +99,17 @@ export function isHavaleBekleyenSiparis(order?: OrderLike | null) {
 export function normalizeOrderStatus(order?: OrderLike | null) {
   const rawStatus = `${order?.durum || ""} ${order?.status || ""} ${order?.paymentMethod || ""}`.toLocaleLowerCase("tr-TR");
 
+  if (rawStatus.includes("iptal") || rawStatus.includes("i̇ptal") || rawStatus.includes("red")) {
+    return "İptal Edildi";
+  }
+
+  const iadeOzeti = siparisIadeOzeti(order);
+  if (iadeOzeti.var) {
+    return iadeOzeti.tam ? "İade Edildi" : "Kısmen İade Edildi";
+  }
+
   if (rawStatus.includes("kısmen iade") || rawStatus.includes("kismen iade")) return "Kısmen İade Edildi";
   if (rawStatus.includes("iade")) return "İade Edildi";
-  if (rawStatus.includes("iptal") || rawStatus.includes("red")) return "İptal Edildi";
   if (rawStatus.includes("teslim") || rawStatus.includes("tamam")) return "Tamamlandı";
   if (rawStatus.includes("kargo")) return "Kargoya Verildi";
   if (rawStatus.includes("havale")) return "Ödeme Bekliyor (Havale)";
