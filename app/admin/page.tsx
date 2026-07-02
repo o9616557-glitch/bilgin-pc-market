@@ -13,6 +13,7 @@ import { adminMi } from "@/lib/admin";
 import { ORDER_STATUS_OPTIONS } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 import type { RefundItemLike, ReviewLike, SupportMessageLike, SupportRequestLike } from "@/lib/admin-types";
+import { iadeKalemlerindenSecimOlustur } from "@/lib/iade-hesapla";
 
 export default function AdminPaneli() {
   const { data: session, status } = useSession();
@@ -225,14 +226,22 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
         setIadeTutarlari((prev) => {
           const merged = { ...prev };
           for (const t of data.talepler || []) {
-            if (
-              (t.konu === "iade" || t.konu === "iptal") &&
-              !t.iadeOdendi &&
-              (t.onerilenIadeTutar > 0 || t.kalanIadeEdilebilir > 0 || t.siparisTutari > 0) &&
-              (!merged[t._id] || merged[t._id] === "")
-            ) {
-              const tutar = t.onerilenIadeTutar || t.kalanIadeEdilebilir || t.siparisTutari;
-              merged[t._id] = String(tutar);
+            if ((t.konu !== "iade" && t.konu !== "iptal") || t.iadeOdendi) continue;
+            if (merged[t._id] && merged[t._id] !== "") continue;
+
+            const hasKalem = Boolean(t.iadeKalemleri?.length && t.siparisKalemleri?.length);
+            if (hasKalem) {
+              const { tutar } = iadeKalemlerindenSecimOlustur(t.siparisKalemleri, t.iadeKalemleri);
+              if (tutar > 0) {
+                merged[t._id] = String(tutar);
+                continue;
+              }
+            }
+
+            if (t.onerilenIadeTutar > 0 && hasKalem) {
+              merged[t._id] = String(t.onerilenIadeTutar);
+            } else if (!hasKalem && (t.kalanIadeEdilebilir > 0 || t.siparisTutari > 0)) {
+              merged[t._id] = String(t.kalanIadeEdilebilir || t.siparisTutari);
             }
           }
           return merged;
@@ -240,11 +249,23 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
         setIadeKalemSecimleri((prev) => {
           const merged = { ...prev };
           for (const t of data.talepler || []) {
-            if ((t.konu === "iade" || t.konu === "iptal") && t.iadeKalemleri?.length && !merged[t._id]) {
-              const secim: Record<string, number> = {};
-              for (const k of t.iadeKalemleri) secim[k.urunId] = k.adet;
-              merged[t._id] = secim;
+            if ((t.konu !== "iade" && t.konu !== "iptal") || !t.iadeKalemleri?.length) continue;
+            const existing = merged[t._id];
+            if (existing && Object.keys(existing).length > 0) continue;
+
+            if (t.siparisKalemleri?.length) {
+              const { secim } = iadeKalemlerindenSecimOlustur(t.siparisKalemleri, t.iadeKalemleri);
+              if (Object.keys(secim).length) {
+                merged[t._id] = secim;
+                continue;
+              }
             }
+
+            const secim: Record<string, number> = {};
+            for (const k of t.iadeKalemleri) {
+              if (k.urunId) secim[k.urunId] = k.adet;
+            }
+            if (Object.keys(secim).length) merged[t._id] = secim;
           }
           return merged;
         });
@@ -321,15 +342,16 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
       const talepSecim = { ...(prev[talepId] || {}) };
       if (yeni <= 0) delete talepSecim[urunId];
       else talepSecim[urunId] = yeni;
+
+      const tutar = kalemler.reduce((s, k) => s + k.birimFiyat * (talepSecim[k.urunId] || 0), 0);
+      if (tutar > 0) {
+        setIadeTutarlari((tPrev) => ({ ...tPrev, [talepId]: String(Math.round(tutar * 100) / 100) }));
+      } else {
+        setIadeTutarlari((tPrev) => ({ ...tPrev, [talepId]: "" }));
+      }
+
       return { ...prev, [talepId]: talepSecim };
     });
-    const secim = { ...(iadeKalemSecimleri[talepId] || {}) };
-    if (yeni <= 0) delete secim[urunId];
-    else secim[urunId] = yeni;
-    const tutar = kalemler.reduce((s, k) => s + k.birimFiyat * (secim[k.urunId] || 0), 0);
-    if (tutar > 0) {
-      setIadeTutarlari((prev) => ({ ...prev, [talepId]: String(Math.round(tutar * 100) / 100) }));
-    }
   };
 
   const iadeTamamla = async (id: string, yontem: "kart" | "magaza_kredisi") => {
@@ -876,7 +898,7 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                       <div>
                         <div className="flex items-center gap-2 mb-2">
                           <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest ${talep.konu === 'iade' ? 'bg-rose-950/30 text-rose-400 border border-rose-900/50' : talep.konu === 'teknik' ? 'bg-blue-950/30 text-blue-400 border border-blue-900/50' : 'bg-indigo-950/30 text-indigo-400 border border-indigo-900/50'}`}>
-                            {talep.konu === 'iade' ? 'İade İşlemi' : talep.konu === 'teknik' ? 'Teknik Destek' : 'Kargo / Diğer'}
+                            {talep.konu === 'iade' ? 'İade İşlemi' : talep.konu === 'iptal' ? 'Sipariş İptali' : talep.konu === 'teknik' ? 'Teknik Destek' : 'Kargo / Diğer'}
                           </span>
                           <span className="text-xs text-slate-500 font-bold bg-[#0b1120] px-2 py-1 rounded border border-slate-800">#{talep.talepNo}</span>
                         </div>

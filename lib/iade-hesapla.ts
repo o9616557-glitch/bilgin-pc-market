@@ -95,7 +95,7 @@ export function iadeKalemleriniDogrula(
     const adet = Math.floor(Number(kalem.adet || 0));
     if (adet <= 0) continue;
 
-    const satir = sepet.find((s) => kalemiId(s) === String(kalem.urunId));
+    const satir = eslestirSepetKalemi(sepet, kalem);
     if (!satir) {
       return { ok: false, tutar: 0, hata: "Siparişte bulunmayan ürün seçildi.", normalized: [] };
     }
@@ -127,6 +127,112 @@ export function iadeKalemleriniDogrula(
   }
 
   return { ok: true, tutar: Math.round(tutar * 100) / 100, normalized };
+}
+
+export function eslestirSepetKalemi(
+  sepet: SepetKalemi[],
+  ref: { urunId?: string; isim?: string }
+): SepetKalemi | null {
+  const refId = String(ref.urunId || "").trim();
+  if (refId) {
+    const satir = sepet.find((s) => {
+      const id = kalemiId(s);
+      return (
+        id === refId ||
+        String(s.id || "") === refId ||
+        String(s._id || "") === refId ||
+        String(s.productId || "") === refId
+      );
+    });
+    if (satir) return satir;
+  }
+
+  if (ref.isim) {
+    const norm = ref.isim.toLowerCase().trim();
+    const tam = sepet.find((s) => kalemiIsim(s).toLowerCase().trim() === norm);
+    if (tam) return tam;
+    return (
+      sepet.find(
+        (s) =>
+          kalemiIsim(s).toLowerCase().includes(norm.slice(0, 20)) ||
+          norm.includes(kalemiIsim(s).toLowerCase().slice(0, 20))
+      ) || null
+    );
+  }
+
+  return null;
+}
+
+export function musteriKalemleriniSepeteEslestir(
+  sepet: SepetKalemi[],
+  kalemler: IadeKalemi[]
+): IadeKalemi[] {
+  return kalemler.map((k) => {
+    const satir = eslestirSepetKalemi(sepet, k);
+    if (!satir) return k;
+    const birimFiyat = kalemiFiyat(satir);
+    const adet = Number(k.adet || 0);
+    return {
+      urunId: kalemiId(satir),
+      adet,
+      isim: kalemiIsim(satir),
+      birimFiyat,
+      tutar: Math.round(birimFiyat * adet * 100) / 100,
+    };
+  });
+}
+
+export function mesajdanKalemleriCikar(metin: string): IadeKalemi[] {
+  const block = metin.match(/\[(?:İade|İptal|Iade|Iptal) kalemleri:\s*([^\]]+)\]/i);
+  if (!block?.[1]) return [];
+
+  const kalemler: IadeKalemi[] = [];
+  for (const part of block[1].split(",")) {
+    const trimmed = part.trim();
+    const match = trimmed.match(/^(.+?)\s+x(\d+)$/i);
+    if (!match) continue;
+    kalemler.push({
+      urunId: "",
+      isim: match[1].trim(),
+      adet: Number(match[2]) || 1,
+    });
+  }
+  return kalemler;
+}
+
+export function iadeKalemlerindenSecimOlustur(
+  siparisKalemleri: Array<{
+    urunId: string;
+    isim: string;
+    birimFiyat: number;
+    iadeEdilebilirAdet: number;
+  }>,
+  musteriKalemleri: IadeKalemi[]
+) {
+  const secim: Record<string, number> = {};
+  let tutar = 0;
+
+  for (const mk of musteriKalemleri) {
+    const sk =
+      siparisKalemleri.find((k) => k.urunId === mk.urunId) ||
+      siparisKalemleri.find(
+        (k) => mk.isim && k.isim.toLowerCase().trim() === mk.isim!.toLowerCase().trim()
+      ) ||
+      siparisKalemleri.find(
+        (k) =>
+          mk.isim &&
+          (k.isim.toLowerCase().includes(mk.isim!.toLowerCase().slice(0, 15)) ||
+            mk.isim!.toLowerCase().includes(k.isim.toLowerCase().slice(0, 15)))
+      );
+
+    if (!sk || sk.iadeEdilebilirAdet <= 0) continue;
+
+    const adet = Math.min(Number(mk.adet || 1), sk.iadeEdilebilirAdet);
+    secim[sk.urunId] = adet;
+    tutar += sk.birimFiyat * adet;
+  }
+
+  return { secim, tutar: Math.round(tutar * 100) / 100 };
 }
 
 export function sepetKalemleriniIadeOzetineCevir(sepet: SepetKalemi[]) {

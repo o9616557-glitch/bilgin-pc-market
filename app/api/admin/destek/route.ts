@@ -7,8 +7,11 @@ import { siparisNoCikar, siparisTutarBul, siparisBul } from "@/lib/siparis-bul";
 import { siparisIadeIslemleri } from "@/lib/siparis-puan";
 import {
   iadeKalemleriniDogrula,
+  iadeKalemlerindenSecimOlustur,
   kalanIadeEdilebilirTutar,
   kalanNakitIadeTutari,
+  mesajdanKalemleriCikar,
+  musteriKalemleriniSepeteEslestir,
   oransalIadeMiktarlari,
   sepetKalemleriniIadeOzetineCevir,
   siparisNakitOdemeTutari,
@@ -58,10 +61,26 @@ export async function GET(request: Request) {
         const nakitOdeme = siparis ? siparisNakitOdemeTutari(siparis) : null;
         const kalanNakit = siparis ? kalanNakitIadeTutari(siparis) : null;
 
+        const metin = (talep.mesajlar || []).map((m: { metin?: string }) => m.metin || "").join("\n");
+        let musteriKalemleri = talep.iadeKalemleri?.length
+          ? [...talep.iadeKalemleri]
+          : mesajdanKalemleriCikar(metin);
+
+        if (siparis && musteriKalemleri.length) {
+          musteriKalemleri = musteriKalemleriniSepeteEslestir(sepet, musteriKalemleri);
+        }
+
         let onerilenTutar = kalanIade;
-        if (talep.iadeKalemleri?.length && siparis) {
-          const dogrulama = iadeKalemleriniDogrula(sepet, talep.iadeKalemleri);
-          if (dogrulama.ok) onerilenTutar = dogrulama.tutar;
+        if (musteriKalemleri.length && siparisKalemleri.length) {
+          const dogrulama = siparis
+            ? iadeKalemleriniDogrula(sepet, musteriKalemleri)
+            : { ok: false, tutar: 0 };
+          if (dogrulama.ok) {
+            onerilenTutar = dogrulama.tutar;
+          } else {
+            const { tutar } = iadeKalemlerindenSecimOlustur(siparisKalemleri, musteriKalemleri);
+            if (tutar > 0) onerilenTutar = tutar;
+          }
         }
 
         return {
@@ -76,6 +95,7 @@ export async function GET(request: Request) {
           kullanilanKredi: siparis ? Number(siparis.kullanilanKredi || 0) : 0,
           kullanilanPuan: siparis ? Number(siparis.kullanilanPuan || 0) : 0,
           onerilenIadeTutar: onerilenTutar,
+          iadeKalemleri: musteriKalemleri.length ? musteriKalemleri : talep.iadeKalemleri,
         };
       })
     );
