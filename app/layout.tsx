@@ -24,12 +24,16 @@ const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
   display: "swap",
+  adjustFontFallback: true,
+  preload: true,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
+  adjustFontFallback: true,
+  preload: true,
 });
 
 export const viewport: Viewport = {
@@ -48,7 +52,7 @@ export default function RootLayout({
   return (
     <html lang="tr">
       {/* 🚀 İŞTE BURASI: font-sans eklendi, artık o premium Geist fontu tüm siteye HD kalitesinde basılacak 🚀 */}
-      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased min-h-screen flex flex-col bg-[#050814] overflow-x-hidden`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} font-sans text-sharp min-h-screen flex flex-col bg-[#050814] overflow-x-hidden`}>
         <Toaster 
           position="top-right"
           containerStyle={{
