@@ -15,7 +15,6 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useOrders } from "@/app/OrderContext";
 import KisayolNav from "@/components/layout/KisayolNav";
-import { urunTalepBekliyorKaydet } from "@/lib/order-utils";
 
 interface Props {
   initialFavorites?: any[]; // Kendi yapına göre opsiyonel bıraktım
@@ -41,42 +40,35 @@ export default function DestekIadePage() {
     return true;
   });
   
-  const [yeniTalepModal, setYeniTalepModal] = useState(false);
   const [aktifTab, setAktifTab] = useState<'acik' | 'gecmis'>('acik');
-  const [talepGonderiliyor, setTalepGonderiliyor] = useState(false);
 
   const [seciliTalepId, setSeciliTalepId] = useState<string | null>(null);
   const [cevapMesajlari, setCevapMesajlari] = useState<Record<string, string>>({});
   const [cevapGonderiliyor, setCevapGonderiliyor] = useState(false);
 
-  const [talepKonusu, setTalepKonusu] = useState("");
-  const [talepBaslik, setTalepBaslik] = useState("");
-  const [talepMesaji, setTalepMesaji] = useState("");
-  const [iadeYontemi, setIadeYontemi] = useState<"kart" | "magaza_kredisi">("magaza_kredisi");
-  const [siparisKalemleri, setSiparisKalemleri] = useState<any[]>([]);
-  const [seciliIadeKalemleri, setSeciliIadeKalemleri] = useState<Record<string, number>>({});
-  const [kalemYukleniyor, setKalemYukleniyor] = useState(false);
-  const [hesaplananIadeTutar, setHesaplananIadeTutar] = useState<number | null>(null);
   const [silinecekTalepId, setSilinecekTalepId] = useState<string | null>(null);
-  
-  const [onSecilenUrunId, setOnSecilenUrunId] = useState<string | null>(null);
   const [kargoPopupAcik, setKargoPopupAcik] = useState(false);
   const { orders: localOrders } = useOrders();
 
-  const kalemSecimKonu = talepKonusu === "iade" || talepKonusu === "iptal";
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("siparisNo") || params.get("konu") || params.get("urunId")) {
+      router.replace(`/destek-taleplerim/yeni?${params.toString()}`);
+    }
+  }, [router]);
 
   // 🚀 MODAL VE MOBİL SOHBET AÇILINCA ARKA PLANI DONDURAN MOTOR
   useEffect(() => {
     if (typeof window !== "undefined") {
       const isMobile = window.innerWidth < 640;
-      if (yeniTalepModal || silinecekTalepId || kargoPopupAcik || (seciliTalepId && isMobile)) {
+      if (silinecekTalepId || kargoPopupAcik || (seciliTalepId && isMobile)) {
         document.body.style.overflow = 'hidden';
       } else {
         document.body.style.overflow = 'unset';
       }
     }
     return () => { document.body.style.overflow = 'unset'; }; 
-  }, [yeniTalepModal, silinecekTalepId, kargoPopupAcik, seciliTalepId]);
+  }, [silinecekTalepId, kargoPopupAcik, seciliTalepId]);
 
   const talepleriGetir = async () => {
     if (!session?.user?.email) return;
@@ -116,161 +108,6 @@ useEffect(() => {
       }, 250);
     }
   }, [seciliTalepId, talepler]);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get("siparisNo")) {
-        setTalepBaslik(params.get("siparisNo") || "");
-        setTalepKonusu(params.get("konu") || "iade");
-        setOnSecilenUrunId(params.get("urunId"));
-        setYeniTalepModal(true);
-      }
-    }
-  }, [status]);
-
-  useEffect(() => {
-    if (!kalemSecimKonu || !talepBaslik.trim() || talepBaslik.trim().length < 4) {
-      setSiparisKalemleri([]);
-      setSeciliIadeKalemleri({});
-      setHesaplananIadeTutar(null);
-      return;
-    }
-
-    const timer = setTimeout(async () => {
-      setKalemYukleniyor(true);
-      try {
-        const res = await fetch(`/api/destek/siparis-kalemleri?siparisNo=${encodeURIComponent(talepBaslik.trim())}`);
-        const data = await res.json();
-        if (res.ok && data.success) {
-          const kalemler = data.kalemler || [];
-          setSiparisKalemleri(kalemler);
-          if (onSecilenUrunId) {
-            const kalem = kalemler.find((k: { urunId: string }) => k.urunId === onSecilenUrunId);
-            if (kalem && kalem.iadeEdilebilirAdet > 0) {
-              setSeciliIadeKalemleri({ [onSecilenUrunId]: 1 });
-            } else {
-              setSeciliIadeKalemleri({});
-              setHesaplananIadeTutar(null);
-            }
-          } else {
-            setSeciliIadeKalemleri({});
-            setHesaplananIadeTutar(null);
-          }
-        } else {
-          setSiparisKalemleri([]);
-        }
-      } catch {
-        setSiparisKalemleri([]);
-      } finally {
-        setKalemYukleniyor(false);
-      }
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [talepKonusu, talepBaslik, onSecilenUrunId]);
-
-  const iadeKalemAdetDegistir = (urunId: string, adet: number, max: number) => {
-    const yeni = Math.max(0, Math.min(max, adet));
-    setSeciliIadeKalemleri((prev) => {
-      const kopya = { ...prev };
-      if (yeni <= 0) delete kopya[urunId];
-      else kopya[urunId] = yeni;
-      return kopya;
-    });
-  };
-
-  useEffect(() => {
-    if (!onSecilenUrunId || !siparisKalemleri.length) return;
-
-    const kalem = siparisKalemleri.find((k) => k.urunId === onSecilenUrunId);
-    if (kalem && kalem.iadeEdilebilirAdet > 0) {
-      setSeciliIadeKalemleri({ [onSecilenUrunId]: 1 });
-    }
-  }, [onSecilenUrunId, siparisKalemleri]);
-
-  useEffect(() => {
-    if (!kalemSecimKonu || !Object.keys(seciliIadeKalemleri).length) {
-      setHesaplananIadeTutar(null);
-      return;
-    }
-    const tutar = siparisKalemleri.reduce((s, k) => {
-      const adet = seciliIadeKalemleri[k.urunId] || 0;
-      return s + k.birimFiyat * adet;
-    }, 0);
-    setHesaplananIadeTutar(Math.round(tutar * 100) / 100);
-  }, [seciliIadeKalemleri, siparisKalemleri, kalemSecimKonu]);
-
-  const handleTalepGonder = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!talepKonusu || !talepMesaji || !talepBaslik) return;
-
-    let iadeKalemleri = Object.entries(seciliIadeKalemleri)
-      .filter(([, adet]) => adet > 0)
-      .map(([urunId, adet]) => {
-        const k = siparisKalemleri.find((x) => x.urunId === urunId);
-        return { urunId, adet, isim: k?.isim, birimFiyat: k?.birimFiyat };
-      });
-
-    if (kalemSecimKonu && !iadeKalemleri.length) {
-      const tekKalem = siparisKalemleri.filter((k) => k.iadeEdilebilirAdet > 0);
-      if (tekKalem.length === 1) {
-        iadeKalemleri = [{
-          urunId: tekKalem[0].urunId,
-          adet: 1,
-          isim: tekKalem[0].isim,
-          birimFiyat: tekKalem[0].birimFiyat,
-        }];
-      }
-    }
-
-    if (kalemSecimKonu && siparisKalemleri.length > 1 && !iadeKalemleri.length) {
-      toast.error(talepKonusu === "iptal"
-        ? "Lütfen iptal etmek istediğiniz ürünü seçin."
-        : "Lütfen iade etmek istediğiniz ürünü seçin.");
-      return;
-    }
-
-    const kalemOzeti = iadeKalemleri
-      .map((k) => `${k.isim || "Ürün"} x${k.adet}`)
-      .join(", ");
-    
-    setTalepGonderiliyor(true);
-    const toastId = toast.loading("Destek talebiniz iletiliyor...");
-
-    try {
-      const res = await fetch("/api/destek", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          konu: talepKonusu,
-          mesaj: `[Başlık: ${talepBaslik}]\n\n${talepMesaji}${kalemOzeti ? `\n\n[${talepKonusu === "iptal" ? "İptal" : "İade"} kalemleri: ${kalemOzeti}]` : ""}${hesaplananIadeTutar ? `\n\n[Tutar: ${hesaplananIadeTutar.toLocaleString("tr-TR")} TL]` : ""}`,
-          siparisNo: talepBaslik,
-          ...(kalemSecimKonu ? { iadeYontemi } : {}),
-          ...(kalemSecimKonu && iadeKalemleri.length ? { iadeKalemleri } : {}),
-        })
-      });
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        toast.success("Talebiniz başarıyla oluşturuldu! 🚀", { id: toastId });
-        if (kalemSecimKonu && iadeKalemleri.length && talepBaslik.trim()) {
-          for (const k of iadeKalemleri) {
-            if (k.urunId) urunTalepBekliyorKaydet(talepBaslik.trim(), k.urunId);
-          }
-        }
-        setYeniTalepModal(false);
-        setTalepKonusu(""); setTalepBaslik(""); setTalepMesaji(""); setIadeYontemi("magaza_kredisi");
-        setSiparisKalemleri([]); setSeciliIadeKalemleri({}); setHesaplananIadeTutar(null); setOnSecilenUrunId(null);
-        setTalepler(prev => {
-          const yeniListe = [data.talep, ...prev];
-          localStorage.setItem("bilgin_destek_talepleri", JSON.stringify(yeniListe));
-          return yeniListe;
-        });
-      } else { toast.error(data.message || "Talep iletilemedi.", { id: toastId }); }
-    } catch (error) { toast.error("Bağlantı hatası.", { id: toastId }); } 
-    finally { setTalepGonderiliyor(false); }
-  };
 
   const handleCevapGonder = async (talepId: string) => {
     const mesajMetni = cevapMesajlari[talepId];
@@ -372,9 +209,9 @@ useEffect(() => {
                 </div>
 
                 <div className="flex flex-row items-center gap-2 sm:gap-3 w-full xl:w-auto relative z-50">
-                  <button onClick={() => setYeniTalepModal(true)} className="w-full xl:w-auto flex items-center justify-center gap-1.5 sm:gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 border border-indigo-500/30 rounded-lg px-4 sm:px-6 py-3 transition-colors text-[10px] sm:text-xs text-white font-black uppercase tracking-widest shadow-lg">
+                  <Link href="/destek-taleplerim/yeni" className="w-full xl:w-auto flex items-center justify-center gap-1.5 sm:gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 border border-indigo-500/30 rounded-lg px-4 sm:px-6 py-3 transition-colors text-[10px] sm:text-xs text-white font-black uppercase tracking-widest shadow-lg">
                     <PlusCircle className="w-4 h-4 shrink-0" /> YENİ TALEP
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -550,151 +387,6 @@ useEffect(() => {
               </>
             );
           })()}
-        </div>
-      )}
-
-      {/* 🚀 YENİ TALEP OLUŞTUR MODALI */}
-      {yeniTalepModal && (
-        <div style={{ zIndex: 999999 }} className="fixed inset-0 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full flex flex-col shadow-2xl relative overflow-y-auto max-h-[85vh] custom-scrollbar animate-in zoom-in-95 duration-200">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-blue-500"></div>
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-black text-white uppercase tracking-wider flex items-center gap-2"><PlusCircle className="w-6 h-6 text-indigo-400" /> YENİ TALEP OLUŞTUR</h3>
-              <button onClick={() => setYeniTalepModal(false)} className="text-slate-500 hover:text-white bg-[#020617] p-1.5 rounded-xl border border-slate-800 transition-colors"><X className="w-5 h-5" /></button>
-            </div>
-            
-            <form onSubmit={handleTalepGonder} className="flex flex-col gap-4">
-              
-              {/* KONU SEÇİM ALANI */}
-              <div>
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">İşlem Konusu</label>
-                <select 
-                  value={talepKonusu} 
-                  onChange={(e) => setTalepKonusu(e.target.value)} 
-                  className="w-full bg-[#020617] border border-slate-800 focus:border-indigo-500/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors appearance-none" 
-                  required
-                >
-                  <option value="" disabled>Lütfen bir konu seçin</option>
-                  <option value="iptal">Sipariş İptali / Değişiklik</option>
-                  <option value="iade">Kolay İade İşlemi</option>
-                  <option value="teknik">Teknik Destek / Arıza</option>
-                  <option value="kargo">Kargo / Teslimat Sorunu</option>
-                  <option value="diger">Diğer Konular</option>
-                </select>
-              </div>
-
-              {/* 🚀 BİNGO: DİNAMİK CANLI UYARI MOTORU */}
-              {(talepKonusu === "iptal" || talepKonusu === "kargo" || talepKonusu === "iade") && (
-                <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl flex gap-3 animate-in fade-in zoom-in-95 duration-300">
-                  <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0">
-                    <Truck className="w-4 h-4 text-amber-400" />
-                  </div>
-                  <div>
-                    <h4 className="text-amber-400 font-black text-xs uppercase tracking-widest mb-1">
-                      Kargodaki Ürünler İçin Önemli Not
-                    </h4>
-                    <p className="text-amber-400/80 text-[11px] leading-relaxed font-medium">
-                      Eğer iptal veya iade etmek istediğiniz sipariş <span className="text-white font-bold">"Kargoda"</span> aşamasındaysa doğrudan iptal edilemez. İadenizin güvenle yapılabilmesi için kargo kapınıza ulaştığında <span className="text-white font-bold underline">paketi teslim almayıp kapıda reddetmeniz</span> gerekmektedir.
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {(talepKonusu === "iade" || talepKonusu === "iptal") && (
-                <div className="p-4 bg-[#020617] border border-slate-800 rounded-xl space-y-3">
-                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest">İade yönteminizi seçin</label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setIadeYontemi("magaza_kredisi")}
-                      className={`p-3 rounded-xl border-2 text-left transition-all ${iadeYontemi === "magaza_kredisi" ? "border-cyan-500/50 bg-cyan-500/10" : "border-slate-800 hover:border-slate-700"}`}
-                    >
-                      <p className="text-xs font-bold text-white mb-1">Mağaza kredisi</p>
-                      <p className="text-[10px] text-slate-500 leading-relaxed">Onay sonrası anında cüzdanınıza yüklenir; sonraki alışverişte kullanırsınız.</p>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setIadeYontemi("kart")}
-                      className={`p-3 rounded-xl border-2 text-left transition-all ${iadeYontemi === "kart" ? "border-cyan-500/50 bg-cyan-500/10" : "border-slate-800 hover:border-slate-700"}`}
-                    >
-                      <p className="text-xs font-bold text-white mb-1">Kartıma / hesabıma iade</p>
-                      <p className="text-[10px] text-slate-500 leading-relaxed">Ödediğiniz karta veya hesaba iade; genelde 3-7 iş günü sürer.</p>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Talep Başlığı / Sipariş No</label>
-                <input type="text" value={talepBaslik} onChange={(e) => setTalepBaslik(e.target.value)} placeholder="Kısa bir başlık veya Sipariş Numarası girin..." className="w-full bg-[#020617] border border-slate-800 focus:border-indigo-500/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors" required />
-              </div>
-
-              {kalemSecimKonu && talepBaslik.trim().length >= 4 && (
-                <div className="p-4 bg-[#020617] border border-slate-800 rounded-xl space-y-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                      {talepKonusu === "iptal" ? "İptal edilecek ürünler" : "İade edilecek ürünler"}
-                    </label>
-                    {kalemYukleniyor && <Loader2 className="w-4 h-4 animate-spin text-slate-500" />}
-                  </div>
-                  {siparisKalemleri.length === 0 && !kalemYukleniyor ? (
-                    <p className="text-[11px] text-slate-500">
-                      Sipariş bulunamadı veya işlem yapılabilir ürün kalmadı. Sipariş numarasını kontrol edin (ör. BPC-123456).
-                    </p>
-                  ) : (
-                    <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
-                      {siparisKalemleri.map((k) => {
-                        const secili = seciliIadeKalemleri[k.urunId] || 0;
-                        const devreDisi = k.iadeEdilebilirAdet <= 0;
-                        return (
-                          <div key={k.urunId} className={`flex items-center gap-3 p-2.5 rounded-lg border ${devreDisi ? "border-slate-800/50 opacity-50" : "border-slate-800"}`}>
-                            <input
-                              type="checkbox"
-                              checked={secili > 0}
-                              disabled={devreDisi}
-                              onChange={(e) => iadeKalemAdetDegistir(k.urunId, e.target.checked ? 1 : 0, k.iadeEdilebilirAdet)}
-                              className="rounded border-slate-600"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-bold text-white truncate">{k.isim}</p>
-                              <p className="text-[10px] text-slate-500">
-                                {k.birimFiyat.toLocaleString("tr-TR")} TL × işlem yapılabilir {k.iadeEdilebilirAdet}
-                              </p>
-                            </div>
-                            {secili > 0 && (
-                              <div className="flex items-center gap-1 shrink-0">
-                                <button type="button" onClick={() => iadeKalemAdetDegistir(k.urunId, secili - 1, k.iadeEdilebilirAdet)} className="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 text-sm">−</button>
-                                <span className="w-6 text-center text-xs font-bold text-white">{secili}</span>
-                                <button type="button" onClick={() => iadeKalemAdetDegistir(k.urunId, secili + 1, k.iadeEdilebilirAdet)} className="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 text-sm">+</button>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                  {hesaplananIadeTutar !== null && hesaplananIadeTutar > 0 && (
-                    <p className="text-xs text-cyan-400 font-semibold">
-                      Tahmini tutar: {hesaplananIadeTutar.toLocaleString("tr-TR")} TL
-                      {hesaplananIadeTutar < (siparisKalemleri.reduce((s, k) => s + k.birimFiyat * k.iadeEdilebilirAdet, 0)) ? ` (kısmi ${talepKonusu === "iptal" ? "iptal" : "iade"})` : ""}
-                    </p>
-                  )}
-                </div>
-              )}
-              
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Mesajınız</label>
-                <textarea value={talepMesaji} onChange={(e) => setTalepMesaji(e.target.value)} placeholder="Sorununuzu veya talebinizi detaylıca açıklayın..." className="w-full bg-[#020617] border border-slate-800 focus:border-indigo-500/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors min-h-[120px] resize-none" required></textarea>
-              </div>
-              
-              <div className="bg-indigo-500/5 border border-indigo-500/10 p-3 rounded-xl flex gap-3 mt-2">
-                <AlertCircle className="w-5 h-5 text-indigo-400 shrink-0" />
-                <p className="text-[10px] sm:text-xs text-slate-400 font-medium leading-relaxed">Talepleriniz ortalama 15 dakika içerisinde uzman ekibimiz tarafından yanıtlanmaktadır. İade işlemleri için kargo kodu tarafınıza iletilecektir.</p>
-              </div>
-              
-              <button type="submit" disabled={talepGonderiliyor || !talepKonusu || !talepMesaji || !talepBaslik} className="mt-4 w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-black text-sm uppercase tracking-widest transition-all disabled:opacity-50">{talepGonderiliyor ? <><Loader2 className="w-5 h-5 animate-spin" /> İŞLENİYOR...</> : <><Send className="w-5 h-5" /> TALEBİ GÖNDER</>}</button>
-            </form>
-          </div>
         </div>
       )}
 

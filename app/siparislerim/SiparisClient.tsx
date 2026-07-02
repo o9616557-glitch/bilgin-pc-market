@@ -13,7 +13,7 @@ import toast from "react-hot-toast";
 import { useOrders } from "@/app/OrderContext"; 
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
 import KisayolNav from "@/components/layout/KisayolNav";
-import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, urunIcinAcikDestekDurumu, urunTalepBekliyorKaydet, urunTalepBekliyorMu, urunTalepBekliyorTemizle, type UrunDestekTalepLike } from "@/lib/order-utils";
+import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, urunIcinAcikDestekDurumu, urunTalepBekliyorKaydet, urunTalepBekliyorMu, type UrunDestekTalepLike } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike, RefundedOrderItemLike } from "@/lib/order-types";
 
 export default function SiparisClient() {
@@ -38,9 +38,6 @@ const { sepeteEkle } = useCart();
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
   
   const [kargoPopupAcik, setKargoPopupAcik] = useState<boolean>(false);
-  const [kargoIptalModalAcik, setKargoIptalModalAcik] = useState(false);
-  const [iptalEdilecekSiparisKodu, setIptalEdilecekSiparisKodu] = useState("");
-  const [iptalEdilecekUrunId, setIptalEdilecekUrunId] = useState("");
 
   const [zamanFiltresi, setZamanFiltresi] = useState<string>("tumu");
   const [durumFiltresi, setDurumFiltresi] = useState<string>("tumu");
@@ -87,14 +84,14 @@ const { sepeteEkle } = useCart();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      if (kargoPopupAcik || orderToDelete || kargoIptalModalAcik) {
+      if (kargoPopupAcik || orderToDelete) {
         document.body.style.overflow = 'hidden';
       } else {
         document.body.style.overflow = 'unset';
       }
     }
     return () => { document.body.style.overflow = 'unset'; }; 
-  }, [kargoPopupAcik, orderToDelete, kargoIptalModalAcik]);
+  }, [kargoPopupAcik, orderToDelete]);
 
   const zamanSecenekleri = [
     { id: "tumu", ad: "Tüm Zamanlar" },
@@ -293,18 +290,15 @@ const { sepeteEkle } = useCart();
 
                   {selectedOrderTopluIptalGoster && (
                     selectedOrderIsKargoda ? (
-                      <button
-                        onClick={() => {
-                          setIptalEdilecekSiparisKodu(selectedOrderSiparisKodu);
-                          setKargoIptalModalAcik(true);
-                        }}
+                      <Link
+                        href={`/destek-taleplerim/yeni?siparisNo=${selectedOrderSiparisKodu}&konu=iptal&kargo=1`}
                         className="w-full xl:w-auto flex items-center justify-center gap-2 px-4 py-3 bg-amber-500/5 hover:bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-lg transition-all font-black text-[10px] uppercase tracking-widest whitespace-nowrap"
                       >
                         <RefreshCw className="w-3.5 h-3.5 shrink-0" /> Toplu İptal Et
-                      </button>
+                      </Link>
                     ) : (
                       <Link
-                        href={`/destek-taleplerim?siparisNo=${selectedOrderSiparisKodu}&konu=iptal`}
+                        href={`/destek-taleplerim/yeni?siparisNo=${selectedOrderSiparisKodu}&konu=iptal`}
                         className="w-full xl:w-auto flex items-center justify-center gap-2 px-4 py-3 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg transition-all font-black text-[10px] uppercase tracking-widest whitespace-nowrap"
                       >
                         <RefreshCw className="w-3.5 h-3.5 shrink-0" /> Toplu İptal Et
@@ -468,7 +462,7 @@ const { sepeteEkle } = useCart();
                           <>
                             {iadeButonuGoster && isTeslimEdildi && (
                               <Link
-                                href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade&urunId=${encodeURIComponent(urunId)}`}
+                                href={`/destek-taleplerim/yeni?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade&urunId=${encodeURIComponent(urunId)}`}
                                 onClick={() => urunTalepBekliyorKaydet(selectedOrderSiparisKodu, urunId)}
                                 className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap"
                               >
@@ -477,20 +471,16 @@ const { sepeteEkle } = useCart();
                             )}
                             {iptalButonuGoster && (
                               isKargoda ? (
-                                <button
-                                  onClick={() => {
-                                    urunTalepBekliyorKaydet(selectedOrderSiparisKodu, urunId);
-                                    setIptalEdilecekSiparisKodu(selectedOrder.siparisKodu || selectedOrder.orderNumber);
-                                    setIptalEdilecekUrunId(urunId);
-                                    setKargoIptalModalAcik(true);
-                                  }}
+                                <Link
+                                  href={`/destek-taleplerim/yeni?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iptal&urunId=${encodeURIComponent(urunId)}&kargo=1`}
+                                  onClick={() => urunTalepBekliyorKaydet(selectedOrderSiparisKodu, urunId)}
                                   className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-amber-500/5 hover:bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap"
                                 >
                                   <RefreshCw className="w-3 h-3 shrink-0" /> İptal Et
-                                </button>
+                                </Link>
                               ) : !isTeslimEdildi && (
                                 <Link
-                                  href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iptal&urunId=${encodeURIComponent(urunId)}`}
+                                  href={`/destek-taleplerim/yeni?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iptal&urunId=${encodeURIComponent(urunId)}`}
                                   onClick={() => urunTalepBekliyorKaydet(selectedOrderSiparisKodu, urunId)}
                                   className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap"
                                 >
@@ -819,54 +809,6 @@ const { sepeteEkle } = useCart();
             <div className="flex w-full gap-3 relative z-10">
               <button onClick={() => setOrderToDelete(null)} className="flex-1 bg-[#020617] border border-slate-800 hover:bg-slate-800/50 text-slate-400 hover:text-white font-bold py-3.5 rounded-xl transition-all text-xs uppercase tracking-wider">İptal</button>
               <button onClick={confirmDelete} className="flex-1 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold py-3.5 rounded-xl transition-all text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(220,38,38,0.2)]">Evet, Sil</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* KARGO İPTAL UYARI MODALI */}
-      {kargoIptalModalAcik && (
-        <div style={{ zIndex: 999999 }} className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
-          <div className="bg-[#0f172a] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full flex flex-col items-center text-center shadow-[0_20px_50px_rgba(0,0,0,0.9)] relative overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="absolute -top-10 -right-10 w-32 h-32 bg-amber-500/10 blur-[40px] pointer-events-none rounded-full"></div>
-            
-            <div className="w-16 h-16 rounded-full border border-amber-500/20 bg-amber-500/10 flex items-center justify-center mb-5">
-              <Truck className="w-7 h-7 text-amber-400 animate-pulse" />
-            </div>
-            
-            <h3 className="text-lg font-black text-white uppercase tracking-wider mb-2">Ürününüz Şu An Kargoda!</h3>
-            
-            <p className="text-slate-300 text-xs sm:text-sm mb-6 font-medium leading-relaxed">
-              Siparişiniz kargo firmasına teslim edildiği için sistem üzerinden otomatik olarak iptal edilemez. 
-              <br /><br />
-              <span className="text-amber-400 font-black">Önemli:</span> İptal işleminin tamamlanması için kargo kapınıza geldiğinde <span className="text-white font-bold underline">kargoyu teslim almayıp kapıda reddetmeniz</span> gerekmektedir. Paket bize geri döndüğünde paranız otomatik iade edilir.
-            </p>
-            
-            <div className="flex w-full gap-3">
-              <button 
-                onClick={() => {
-                  if (iptalEdilecekUrunId) {
-                    urunTalepBekliyorTemizle(iptalEdilecekSiparisKodu, iptalEdilecekUrunId);
-                  }
-                  setIptalEdilecekUrunId("");
-                  setKargoIptalModalAcik(false);
-                }} 
-                className="flex-1 bg-[#020617] border border-slate-700 hover:border-slate-500 text-slate-400 hover:text-white py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all"
-              >
-                Vazgeç
-              </button>
-              <Link 
-                href={`/destek-taleplerim?siparisNo=${iptalEdilecekSiparisKodu}&konu=iptal${iptalEdilecekUrunId ? `&urunId=${encodeURIComponent(iptalEdilecekUrunId)}` : ""}`}
-                onClick={() => {
-                  if (iptalEdilecekUrunId) {
-                    urunTalepBekliyorKaydet(iptalEdilecekSiparisKodu, iptalEdilecekUrunId);
-                  }
-                  setKargoIptalModalAcik(false);
-                }}
-                className="flex-1 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-black py-3.5 rounded-xl transition-all text-xs uppercase tracking-widest text-center flex items-center justify-center shadow-[0_0_20px_rgba(245,158,11,0.2)]"
-              >
-                Yine de Talep Aç
-              </Link>
             </div>
           </div>
         </div>
