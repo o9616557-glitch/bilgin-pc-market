@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { 
@@ -13,6 +13,7 @@ import { adminMi } from "@/lib/admin";
 import { ORDER_STATUS_OPTIONS } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 import type { RefundItemLike, ReviewLike, SupportMessageLike, SupportRequestLike } from "@/lib/admin-types";
+import { iadeKalemlerindenSecimOlustur } from "@/lib/iade-hesapla";
 
 export default function AdminPaneli() {
   const { data: session, status } = useSession();
@@ -46,7 +47,6 @@ export default function AdminPaneli() {
   const [iadeTutarlari, setIadeTutarlari] = useState<{ [key: string]: string }>({});
   const [iadeKalemSecimleri, setIadeKalemSecimleri] = useState<Record<string, Record<string, number>>>({});
   const [silinecekTalepID, setSilinecekTalepID] = useState<string | null>(null);
-  const iadeElleDuzenlenenRef = useRef(new Set<string>());
 
   // DUYURU STATE
   const [duyuruMetin, setDuyuruMetin] = useState("");
@@ -223,54 +223,71 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
       const data = await res.json();
       if (data.success) {
         setTalepler(data.talepler);
+
+        setIadeKalemSecimleri((prev) => {
+          const merged = { ...prev };
+          for (const t of data.talepler || []) {
+            if ((t.konu !== "iade" && t.konu !== "iptal") || t.iadeOdendi) continue;
+            const id = String(t._id);
+            if (merged[id] && Object.keys(merged[id]).length > 0) continue;
+
+            if (t.iadeBaslangicSecim && Object.keys(t.iadeBaslangicSecim).length > 0) {
+              merged[id] = t.iadeBaslangicSecim;
+              continue;
+            }
+
+            if (t.iadeKalemleri?.length && t.siparisKalemleri?.length) {
+              const { secim } = iadeKalemlerindenSecimOlustur(t.siparisKalemleri, t.iadeKalemleri);
+              if (Object.keys(secim).length > 0) {
+                merged[id] = secim;
+                continue;
+              }
+            }
+
+            if (t.iadeKalemleri?.length) {
+              const secim: Record<string, number> = {};
+              for (const k of t.iadeKalemleri) {
+                if (k.urunId) secim[k.urunId] = k.adet;
+              }
+              if (Object.keys(secim).length > 0) merged[id] = secim;
+            }
+          }
+          return merged;
+        });
+
+        setIadeTutarlari((prev) => {
+          const merged = { ...prev };
+          for (const t of data.talepler || []) {
+            if ((t.konu !== "iade" && t.konu !== "iptal") || t.iadeOdendi) continue;
+            const id = String(t._id);
+            if (merged[id] && merged[id] !== "") continue;
+
+            const kismiTalep = Boolean(t.iadeKismiTalep || t.iadeKalemleri?.length);
+
+            if (t.iadeBaslangicTutar != null && t.iadeBaslangicTutar > 0) {
+              merged[id] = String(t.iadeBaslangicTutar);
+              continue;
+            }
+
+            if (t.iadeKalemleri?.length && t.siparisKalemleri?.length) {
+              const { tutar } = iadeKalemlerindenSecimOlustur(t.siparisKalemleri, t.iadeKalemleri);
+              if (tutar > 0) {
+                merged[id] = String(tutar);
+                continue;
+              }
+            }
+
+            if (t.onerilenIadeTutar > 0 && kismiTalep) {
+              merged[id] = String(t.onerilenIadeTutar);
+            } else if (!kismiTalep && (t.kalanIadeEdilebilir > 0 || t.siparisTutari > 0)) {
+              merged[id] = String(t.onerilenIadeTutar || t.kalanIadeEdilebilir || t.siparisTutari);
+            }
+          }
+          return merged;
+        });
       }
     } catch (e) {}
   };
-
-  // İade taleplerinde müşterinin seçtiği ürün/tutarı otomatik doldur (elle düzenlenmemişse)
-  useEffect(() => {
-    const yeniSecim: Record<string, Record<string, number>> = {};
-    const yeniTutar: Record<string, string> = {};
-
-    for (const t of talepler) {
-      if ((t.konu !== "iade" && t.konu !== "iptal") || t.iadeOdendi) continue;
-      const id = String(t._id);
-      if (iadeElleDuzenlenenRef.current.has(id)) continue;
-
-      const baslangicSecim = t.iadeBaslangicSecim;
-      const baslangicTutar = t.iadeBaslangicTutar;
-
-      if (baslangicSecim && Object.keys(baslangicSecim).length > 0) {
-        yeniSecim[id] = baslangicSecim;
-      }
-
-      if (baslangicTutar != null && baslangicTutar > 0) {
-        yeniTutar[id] = String(baslangicTutar);
-      } else if (!t.iadeKismiTalep && (t.kalanIadeEdilebilir > 0 || t.siparisTutari > 0)) {
-        yeniTutar[id] = String(t.kalanIadeEdilebilir || t.siparisTutari);
-      }
-    }
-
-    if (Object.keys(yeniSecim).length) {
-      setIadeKalemSecimleri((prev) => {
-        const merged = { ...prev };
-        for (const [id, secim] of Object.entries(yeniSecim)) {
-          if (!iadeElleDuzenlenenRef.current.has(id)) merged[id] = secim;
-        }
-        return merged;
-      });
-    }
-
-    if (Object.keys(yeniTutar).length) {
-      setIadeTutarlari((prev) => {
-        const merged = { ...prev };
-        for (const [id, tutar] of Object.entries(yeniTutar)) {
-          if (!iadeElleDuzenlenenRef.current.has(id)) merged[id] = tutar;
-        }
-        return merged;
-      });
-    }
-  }, [talepler]);
 
   // 🚀 BİNGO: ADMİN RADARI (Sayfayı yenilemeden 5 saniyede bir yeni mesajları çeker)
   useEffect(() => {
@@ -325,7 +342,6 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
 
   const kalanTumunuAl = (talep: SupportRequestLike) => {
     const id = String(talep._id);
-    iadeElleDuzenlenenRef.current.add(id);
     const kalan = talep.kalanIadeEdilebilir ?? talep.siparisTutari ?? 0;
     setIadeTutarlari((prev) => ({ ...prev, [id]: String(kalan) }));
     if (talep.siparisKalemleri?.length) {
@@ -338,7 +354,6 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
   };
 
   const iadeKalemAdetGuncelle = (talepId: string, urunId: string, adet: number, max: number, kalemler: RefundItemLike[]) => {
-    iadeElleDuzenlenenRef.current.add(String(talepId));
     const yeni = Math.max(0, Math.min(max, adet));
     setIadeKalemSecimleri((prev) => {
       const talepSecim = { ...(prev[talepId] || {}) };
@@ -386,7 +401,6 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
       if (res.ok && data.success) {
         toast.success(yontem === "magaza_kredisi" ? "Kredi cüzdana yüklendi!" : "Kart iadesi müşteriye bildirildi.", { id: toastId });
         setIadeTutarlari((prev) => ({ ...prev, [talepId]: "" }));
-        iadeElleDuzenlenenRef.current.delete(talepId);
         await siparisleriGetir();
         talepleriGetir();
       } else {
@@ -1042,10 +1056,7 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                               min="0"
                               step="0.01"
                               value={iadeTutarlari[String(talep._id)] || ""}
-                              onChange={(e) => {
-                                iadeElleDuzenlenenRef.current.add(String(talep._id));
-                                setIadeTutarlari((prev) => ({ ...prev, [String(talep._id)]: e.target.value }));
-                              }}
+                              onChange={(e) => setIadeTutarlari((prev) => ({ ...prev, [String(talep._id)]: e.target.value }))}
                               placeholder="Örn. 1250"
                               className="flex-1 bg-[#111827] border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50"
                             />
