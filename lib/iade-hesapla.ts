@@ -200,6 +200,57 @@ export function mesajdanKalemleriCikar(metin: string): IadeKalemi[] {
   return kalemler;
 }
 
+function isimNorm(s: string) {
+  return s.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function urunIdEslesir(a: string, b: string) {
+  const sa = String(a || "").trim();
+  const sb = String(b || "").trim();
+  if (!sa || !sb) return false;
+  if (sa === sb) return true;
+  if (sa.length >= 12 && sb.length >= 12 && (sa.endsWith(sb.slice(-12)) || sb.endsWith(sa.slice(-12)))) {
+    return true;
+  }
+  return false;
+}
+
+function siparisKalemiEslestir(
+  siparisKalemleri: Array<{
+    urunId: string;
+    isim: string;
+    birimFiyat: number;
+    iadeEdilebilirAdet: number;
+  }>,
+  mk: IadeKalemi
+) {
+  if (mk.urunId) {
+    const idEslesme = siparisKalemleri.find((k) => urunIdEslesir(k.urunId, mk.urunId));
+    if (idEslesme) return idEslesme;
+  }
+
+  if (mk.isim) {
+    const norm = isimNorm(mk.isim);
+    const tam = siparisKalemleri.find((k) => isimNorm(k.isim) === norm);
+    if (tam) return tam;
+    const kismi = siparisKalemleri.find(
+      (k) =>
+        isimNorm(k.isim).includes(norm.slice(0, 20)) ||
+        norm.includes(isimNorm(k.isim).slice(0, 20))
+    );
+    if (kismi) return kismi;
+  }
+
+  if (mk.birimFiyat && mk.birimFiyat > 0) {
+    const fiyatEslesme = siparisKalemleri.filter(
+      (k) => Math.abs(k.birimFiyat - mk.birimFiyat!) < 0.02
+    );
+    if (fiyatEslesme.length === 1) return fiyatEslesme[0];
+  }
+
+  return null;
+}
+
 export function iadeKalemlerindenSecimOlustur(
   siparisKalemleri: Array<{
     urunId: string;
@@ -213,18 +264,7 @@ export function iadeKalemlerindenSecimOlustur(
   let tutar = 0;
 
   for (const mk of musteriKalemleri) {
-    const sk =
-      siparisKalemleri.find((k) => k.urunId === mk.urunId) ||
-      siparisKalemleri.find(
-        (k) => mk.isim && k.isim.toLowerCase().trim() === mk.isim!.toLowerCase().trim()
-      ) ||
-      siparisKalemleri.find(
-        (k) =>
-          mk.isim &&
-          (k.isim.toLowerCase().includes(mk.isim!.toLowerCase().slice(0, 15)) ||
-            mk.isim!.toLowerCase().includes(k.isim.toLowerCase().slice(0, 15)))
-      );
-
+    const sk = siparisKalemiEslestir(siparisKalemleri, mk);
     if (!sk || sk.iadeEdilebilirAdet <= 0) continue;
 
     const adet = Math.min(Number(mk.adet || 1), sk.iadeEdilebilirAdet);
@@ -233,6 +273,64 @@ export function iadeKalemlerindenSecimOlustur(
   }
 
   return { secim, tutar: Math.round(tutar * 100) / 100 };
+}
+
+export function mesajdanTutarCikar(metin: string): number | null {
+  const match = metin.match(/\[Tutar:\s*([^\]]+)\]/i);
+  if (!match?.[1]) return null;
+  const ham = match[1].trim().replace(/[^\d.,]/g, "");
+  if (!ham) return null;
+  const normalized = ham.includes(",")
+    ? ham.replace(/\./g, "").replace(",", ".")
+    : ham;
+  const val = Number(normalized);
+  return !Number.isNaN(val) && val > 0 ? Math.round(val * 100) / 100 : null;
+}
+
+export function talepIadeBaslangicDurumu(input: {
+  siparisKalemleri: Array<{
+    urunId: string;
+    isim: string;
+    birimFiyat: number;
+    iadeEdilebilirAdet: number;
+  }>;
+  musteriKalemleri: IadeKalemi[];
+  iadeTutari?: number | null;
+  kalanIadeEdilebilir?: number | null;
+  siparisTutari?: number | null;
+  mesajMetni?: string;
+}) {
+  const { siparisKalemleri, musteriKalemleri } = input;
+  const kismiSinyal =
+    musteriKalemleri.length > 0 ||
+    (input.iadeTutari != null && input.iadeTutari > 0) ||
+    Boolean(input.mesajMetni && mesajdanKalemleriCikar(input.mesajMetni).length);
+
+  if (musteriKalemleri.length && siparisKalemleri.length) {
+    const { secim, tutar } = iadeKalemlerindenSecimOlustur(siparisKalemleri, musteriKalemleri);
+    if (Object.keys(secim).length > 0) {
+      const tutarKaynak =
+        tutar > 0
+          ? tutar
+          : input.iadeTutari && input.iadeTutari > 0
+            ? input.iadeTutari
+            : mesajdanTutarCikar(input.mesajMetni || "");
+      return {
+        secim,
+        tutar: tutarKaynak && tutarKaynak > 0 ? tutarKaynak : tutar,
+        kismi: true,
+      };
+    }
+  }
+
+  if (kismiSinyal) {
+    const mesajTutar = mesajdanTutarCikar(input.mesajMetni || "");
+    const tutar = input.iadeTutari || mesajTutar || 0;
+    return { secim: {}, tutar, kismi: true };
+  }
+
+  const tamTutar = input.kalanIadeEdilebilir || input.siparisTutari || 0;
+  return { secim: {}, tutar: tamTutar, kismi: false };
 }
 
 export function sepetKalemleriniIadeOzetineCevir(sepet: SepetKalemi[]) {

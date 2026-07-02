@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { 
@@ -13,7 +13,6 @@ import { adminMi } from "@/lib/admin";
 import { ORDER_STATUS_OPTIONS } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 import type { RefundItemLike, ReviewLike, SupportMessageLike, SupportRequestLike } from "@/lib/admin-types";
-import { iadeKalemlerindenSecimOlustur } from "@/lib/iade-hesapla";
 
 export default function AdminPaneli() {
   const { data: session, status } = useSession();
@@ -47,6 +46,7 @@ export default function AdminPaneli() {
   const [iadeTutarlari, setIadeTutarlari] = useState<{ [key: string]: string }>({});
   const [iadeKalemSecimleri, setIadeKalemSecimleri] = useState<Record<string, Record<string, number>>>({});
   const [silinecekTalepID, setSilinecekTalepID] = useState<string | null>(null);
+  const iadeElleDuzenlenenRef = useRef(new Set<string>());
 
   // DUYURU STATE
   const [duyuruMetin, setDuyuruMetin] = useState("");
@@ -223,55 +223,54 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
       const data = await res.json();
       if (data.success) {
         setTalepler(data.talepler);
-        setIadeTutarlari((prev) => {
-          const merged = { ...prev };
-          for (const t of data.talepler || []) {
-            if ((t.konu !== "iade" && t.konu !== "iptal") || t.iadeOdendi) continue;
-            if (merged[t._id] && merged[t._id] !== "") continue;
-
-            const hasKalem = Boolean(t.iadeKalemleri?.length && t.siparisKalemleri?.length);
-            if (hasKalem) {
-              const { tutar } = iadeKalemlerindenSecimOlustur(t.siparisKalemleri, t.iadeKalemleri);
-              if (tutar > 0) {
-                merged[t._id] = String(tutar);
-                continue;
-              }
-            }
-
-            if (t.onerilenIadeTutar > 0 && hasKalem) {
-              merged[t._id] = String(t.onerilenIadeTutar);
-            } else if (!hasKalem && (t.kalanIadeEdilebilir > 0 || t.siparisTutari > 0)) {
-              merged[t._id] = String(t.kalanIadeEdilebilir || t.siparisTutari);
-            }
-          }
-          return merged;
-        });
-        setIadeKalemSecimleri((prev) => {
-          const merged = { ...prev };
-          for (const t of data.talepler || []) {
-            if ((t.konu !== "iade" && t.konu !== "iptal") || !t.iadeKalemleri?.length) continue;
-            const existing = merged[t._id];
-            if (existing && Object.keys(existing).length > 0) continue;
-
-            if (t.siparisKalemleri?.length) {
-              const { secim } = iadeKalemlerindenSecimOlustur(t.siparisKalemleri, t.iadeKalemleri);
-              if (Object.keys(secim).length) {
-                merged[t._id] = secim;
-                continue;
-              }
-            }
-
-            const secim: Record<string, number> = {};
-            for (const k of t.iadeKalemleri) {
-              if (k.urunId) secim[k.urunId] = k.adet;
-            }
-            if (Object.keys(secim).length) merged[t._id] = secim;
-          }
-          return merged;
-        });
       }
     } catch (e) {}
   };
+
+  // İade taleplerinde müşterinin seçtiği ürün/tutarı otomatik doldur (elle düzenlenmemişse)
+  useEffect(() => {
+    const yeniSecim: Record<string, Record<string, number>> = {};
+    const yeniTutar: Record<string, string> = {};
+
+    for (const t of talepler) {
+      if ((t.konu !== "iade" && t.konu !== "iptal") || t.iadeOdendi) continue;
+      const id = String(t._id);
+      if (iadeElleDuzenlenenRef.current.has(id)) continue;
+
+      const baslangicSecim = t.iadeBaslangicSecim;
+      const baslangicTutar = t.iadeBaslangicTutar;
+
+      if (baslangicSecim && Object.keys(baslangicSecim).length > 0) {
+        yeniSecim[id] = baslangicSecim;
+      }
+
+      if (baslangicTutar != null && baslangicTutar > 0) {
+        yeniTutar[id] = String(baslangicTutar);
+      } else if (!t.iadeKismiTalep && (t.kalanIadeEdilebilir > 0 || t.siparisTutari > 0)) {
+        yeniTutar[id] = String(t.kalanIadeEdilebilir || t.siparisTutari);
+      }
+    }
+
+    if (Object.keys(yeniSecim).length) {
+      setIadeKalemSecimleri((prev) => {
+        const merged = { ...prev };
+        for (const [id, secim] of Object.entries(yeniSecim)) {
+          if (!iadeElleDuzenlenenRef.current.has(id)) merged[id] = secim;
+        }
+        return merged;
+      });
+    }
+
+    if (Object.keys(yeniTutar).length) {
+      setIadeTutarlari((prev) => {
+        const merged = { ...prev };
+        for (const [id, tutar] of Object.entries(yeniTutar)) {
+          if (!iadeElleDuzenlenenRef.current.has(id)) merged[id] = tutar;
+        }
+        return merged;
+      });
+    }
+  }, [talepler]);
 
   // 🚀 BİNGO: ADMİN RADARI (Sayfayı yenilemeden 5 saniyede bir yeni mesajları çeker)
   useEffect(() => {
@@ -325,18 +324,21 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
   };
 
   const kalanTumunuAl = (talep: SupportRequestLike) => {
+    const id = String(talep._id);
+    iadeElleDuzenlenenRef.current.add(id);
     const kalan = talep.kalanIadeEdilebilir ?? talep.siparisTutari ?? 0;
-    setIadeTutarlari((prev) => ({ ...prev, [talep._id]: String(kalan) }));
+    setIadeTutarlari((prev) => ({ ...prev, [id]: String(kalan) }));
     if (talep.siparisKalemleri?.length) {
       const secim: Record<string, number> = {};
       for (const k of talep.siparisKalemleri) {
         if (k.iadeEdilebilirAdet > 0) secim[k.urunId] = k.iadeEdilebilirAdet;
       }
-      setIadeKalemSecimleri((prev) => ({ ...prev, [talep._id]: secim }));
+      setIadeKalemSecimleri((prev) => ({ ...prev, [id]: secim }));
     }
   };
 
   const iadeKalemAdetGuncelle = (talepId: string, urunId: string, adet: number, max: number, kalemler: RefundItemLike[]) => {
+    iadeElleDuzenlenenRef.current.add(String(talepId));
     const yeni = Math.max(0, Math.min(max, adet));
     setIadeKalemSecimleri((prev) => {
       const talepSecim = { ...(prev[talepId] || {}) };
@@ -355,10 +357,11 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
   };
 
   const iadeTamamla = async (id: string, yontem: "kart" | "magaza_kredisi") => {
-    const tutar = iadeTutarlari[id];
+    const talepId = String(id);
+    const tutar = iadeTutarlari[talepId];
     if (!tutar || Number(tutar) <= 0) return toast.error("İade tutarını girin şefim!");
-    const talep = talepler.find((t) => t._id === id);
-    const secim = iadeKalemSecimleri[id] || {};
+    const talep = talepler.find((t) => String(t._id) === talepId);
+    const secim = iadeKalemSecimleri[talepId] || {};
     const kalemlerKaynak = talep?.siparisKalemleri || [];
     const iadeKalemleri = Object.entries(secim)
       .filter(([, adet]) => adet > 0)
@@ -382,7 +385,8 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
       const data = await res.json();
       if (res.ok && data.success) {
         toast.success(yontem === "magaza_kredisi" ? "Kredi cüzdana yüklendi!" : "Kart iadesi müşteriye bildirildi.", { id: toastId });
-        setIadeTutarlari((prev) => ({ ...prev, [id]: "" }));
+        setIadeTutarlari((prev) => ({ ...prev, [talepId]: "" }));
+        iadeElleDuzenlenenRef.current.delete(talepId);
         await siparisleriGetir();
         talepleriGetir();
       } else {
@@ -1003,7 +1007,8 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                             <div className="space-y-1.5 max-h-36 overflow-y-auto admin-sohbet-kutusu">
                               <p className="text-[10px] font-bold text-slate-500 uppercase">İade kalemleri seç</p>
                               {talep.siparisKalemleri.map((k: RefundItemLike) => {
-                                const secili = iadeKalemSecimleri[talep._id]?.[k.urunId] || 0;
+                                const talepId = String(talep._id);
+                                const secili = iadeKalemSecimleri[talepId]?.[k.urunId] || 0;
                                 const devreDisi = k.iadeEdilebilirAdet <= 0;
                                 return (
                                   <div key={k.urunId} className={`flex items-center gap-2 text-[10px] p-2 rounded border ${devreDisi ? "border-slate-800 opacity-50" : "border-slate-700"}`}>
@@ -1011,15 +1016,15 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                                       type="checkbox"
                                       checked={secili > 0}
                                       disabled={devreDisi}
-                                      onChange={(e) => iadeKalemAdetGuncelle(talep._id, k.urunId, e.target.checked ? 1 : 0, k.iadeEdilebilirAdet, talep.siparisKalemleri)}
+                                      onChange={(e) => iadeKalemAdetGuncelle(talepId, k.urunId, e.target.checked ? 1 : 0, k.iadeEdilebilirAdet, talep.siparisKalemleri)}
                                     />
                                     <span className="flex-1 text-slate-300 truncate">{k.isim}</span>
                                     <span className="text-slate-500 shrink-0">{k.birimFiyat?.toLocaleString("tr-TR")} TL</span>
                                     {secili > 0 && (
                                       <div className="flex items-center gap-1 shrink-0">
-                                        <button type="button" onClick={() => iadeKalemAdetGuncelle(talep._id, k.urunId, secili - 1, k.iadeEdilebilirAdet, talep.siparisKalemleri)} className="w-5 h-5 rounded bg-slate-800 text-slate-400">−</button>
+                                        <button type="button" onClick={() => iadeKalemAdetGuncelle(talepId, k.urunId, secili - 1, k.iadeEdilebilirAdet, talep.siparisKalemleri)} className="w-5 h-5 rounded bg-slate-800 text-slate-400">−</button>
                                         <span className="w-4 text-center text-white">{secili}</span>
-                                        <button type="button" onClick={() => iadeKalemAdetGuncelle(talep._id, k.urunId, secili + 1, k.iadeEdilebilirAdet, talep.siparisKalemleri)} className="w-5 h-5 rounded bg-slate-800 text-slate-400">+</button>
+                                        <button type="button" onClick={() => iadeKalemAdetGuncelle(talepId, k.urunId, secili + 1, k.iadeEdilebilirAdet, talep.siparisKalemleri)} className="w-5 h-5 rounded bg-slate-800 text-slate-400">+</button>
                                       </div>
                                     )}
                                   </div>
@@ -1036,8 +1041,11 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                               type="number"
                               min="0"
                               step="0.01"
-                              value={iadeTutarlari[talep._id] || ""}
-                              onChange={(e) => setIadeTutarlari((prev) => ({ ...prev, [talep._id]: e.target.value }))}
+                              value={iadeTutarlari[String(talep._id)] || ""}
+                              onChange={(e) => {
+                                iadeElleDuzenlenenRef.current.add(String(talep._id));
+                                setIadeTutarlari((prev) => ({ ...prev, [String(talep._id)]: e.target.value }));
+                              }}
                               placeholder="Örn. 1250"
                               className="flex-1 bg-[#111827] border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50"
                             />
@@ -1052,12 +1060,12 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                               </button>
                             )}
                           </div>
-                          {talep.kalanNakitIade != null && Number(iadeTutarlari[talep._id]) > 0 && (
+                          {talep.kalanNakitIade != null && Number(iadeTutarlari[String(talep._id)]) > 0 && (
                             <p className="text-[10px] text-emerald-400/90">
                               Bu iade için tahmini nakit (kart/kredi):{" "}
                               <strong>
                                 {(() => {
-                                  const girilen = Number(iadeTutarlari[talep._id] || 0);
+                                  const girilen = Number(iadeTutarlari[String(talep._id)] || 0);
                                   const kalanSiparis = talep.kalanIadeEdilebilir || talep.siparisTutari || 1;
                                   const oran = Math.min(1, girilen / kalanSiparis);
                                   const nakit = Math.round((talep.kalanNakitIade || 0) * oran * 100) / 100;

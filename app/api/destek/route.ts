@@ -52,7 +52,7 @@ export async function POST(request: Request) {
       const client = await clientPromise;
       const db = client.db("bilginpcmarket");
       const { siparisBul } = await import("@/lib/siparis-bul");
-      const { iadeKalemleriniDogrula, siparisSepeti, siparisToplamTutar } = await import("@/lib/iade-hesapla");
+      const { iadeKalemleriniDogrula, musteriKalemleriniSepeteEslestir, siparisSepeti, siparisToplamTutar } = await import("@/lib/iade-hesapla");
       const siparis = await siparisBul(db, String(siparisNo).trim());
       if (!siparis) {
         return NextResponse.json({ success: false, message: "Sipariş bulunamadı." }, { status: 404 });
@@ -61,7 +61,9 @@ export async function POST(request: Request) {
       if (siparisEmail && siparisEmail !== session.user.email.toLowerCase()) {
         return NextResponse.json({ success: false, message: "Bu sipariş size ait değil." }, { status: 403 });
       }
-      const dogrulama = iadeKalemleriniDogrula(siparisSepeti(siparis), iadeKalemleri);
+      const sepet = siparisSepeti(siparis);
+      const eslesmisKalemler = musteriKalemleriniSepeteEslestir(sepet, iadeKalemleri);
+      const dogrulama = iadeKalemleriniDogrula(sepet, eslesmisKalemler);
       if (!dogrulama.ok) {
         return NextResponse.json({ success: false, message: dogrulama.hata }, { status: 400 });
       }

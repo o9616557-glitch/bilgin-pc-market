@@ -7,16 +7,17 @@ import { siparisNoCikar, siparisTutarBul, siparisBul } from "@/lib/siparis-bul";
 import { siparisIadeIslemleri } from "@/lib/siparis-puan";
 import {
   iadeKalemleriniDogrula,
-  iadeKalemlerindenSecimOlustur,
   kalanIadeEdilebilirTutar,
   kalanNakitIadeTutari,
   mesajdanKalemleriCikar,
+  mesajdanTutarCikar,
   musteriKalemleriniSepeteEslestir,
   oransalIadeMiktarlari,
   sepetKalemleriniIadeOzetineCevir,
   siparisNakitOdemeTutari,
   siparisSepeti,
   siparisToplamTutar,
+  talepIadeBaslangicDurumu,
 } from "@/lib/iade-hesapla";
 
 // 🚀 ADMİN ÖNBELLEK KİLİDİ: Admin panelinin de anlık canlı veri çekmesini sağlar (Tembelliği önler)
@@ -70,18 +71,14 @@ export async function GET(request: Request) {
           musteriKalemleri = musteriKalemleriniSepeteEslestir(sepet, musteriKalemleri);
         }
 
-        let onerilenTutar = kalanIade;
-        if (musteriKalemleri.length && siparisKalemleri.length) {
-          const dogrulama = siparis
-            ? iadeKalemleriniDogrula(sepet, musteriKalemleri)
-            : { ok: false, tutar: 0 };
-          if (dogrulama.ok) {
-            onerilenTutar = dogrulama.tutar;
-          } else {
-            const { tutar } = iadeKalemlerindenSecimOlustur(siparisKalemleri, musteriKalemleri);
-            if (tutar > 0) onerilenTutar = tutar;
-          }
-        }
+        const iadeBaslangic = talepIadeBaslangicDurumu({
+          siparisKalemleri,
+          musteriKalemleri,
+          iadeTutari: talep.iadeTutari,
+          kalanIadeEdilebilir: kalanIade,
+          siparisTutari: sonuc.tutar,
+          mesajMetni: metin,
+        });
 
         return {
           ...talep,
@@ -94,7 +91,10 @@ export async function GET(request: Request) {
           kalanNakitIade: kalanNakit,
           kullanilanKredi: siparis ? Number(siparis.kullanilanKredi || 0) : 0,
           kullanilanPuan: siparis ? Number(siparis.kullanilanPuan || 0) : 0,
-          onerilenIadeTutar: onerilenTutar,
+          onerilenIadeTutar: iadeBaslangic.tutar,
+          iadeBaslangicSecim: iadeBaslangic.secim,
+          iadeBaslangicTutar: iadeBaslangic.tutar,
+          iadeKismiTalep: iadeBaslangic.kismi,
           iadeKalemleri: musteriKalemleri.length ? musteriKalemleri : talep.iadeKalemleri,
         };
       })

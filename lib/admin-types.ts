@@ -22,6 +22,9 @@ export interface SupportRequestLike {
   siparisTutari?: number;
   iadeKalemleri?: RefundItemLike[];
   siparisKalemleri?: RefundItemLike[];
+  iadeBaslangicSecim?: Record<string, number>;
+  iadeBaslangicTutar?: number;
+  iadeKismiTalep?: boolean;
   mesajlar?: SupportMessageLike[];
   musteriAdi?: string;
   musteriEmail?: string;
