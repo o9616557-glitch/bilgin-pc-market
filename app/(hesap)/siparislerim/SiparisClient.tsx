@@ -414,6 +414,10 @@ const { sepeteEkle } = useCart();
                   const iadeSuresiGectiMi = selectedOrderIadeSuresiGecti;
                   const iadeBitisTarihi = selectedOrderIadeSuresi.bitisTarihi;
                   const iadeyeKalanGun = selectedOrderIadeSuresi.kalanGun;
+                  const iadeSuresiKapali = siparisTeslimEdildi && iadeSuresiGectiMi;
+                  const iadeSuresiBitisMetni = iadeBitisTarihi
+                    ? `${iadeBitisTarihi.toLocaleDateString("tr-TR")} tarihinde iade süreci sona erdi.`
+                    : "İade süreci sona erdi.";
 
                   const urunLinki = `/product/${item?.slug || item?.productId || item?.id || item?._id || ''}`;
                   const urunId = siparisKalemiId(item);
@@ -449,6 +453,7 @@ const { sepeteEkle } = useCart();
                   const yorumTekrarAlGoster =
                     siparisTeslimEdildi && !selectedOrderKismiIade && !urunIptal && !urunIadeVar && !urunBekleyenIslem;
                   const iptalButonuGoster =
+                    !iadeSuresiKapali &&
                     !urunBekleyenIslem &&
                     !urunIadeVar &&
                     !urunIptal &&
@@ -523,11 +528,17 @@ const { sepeteEkle } = useCart();
                       </div>
 
                       {yorumTekrarAlGoster && (
-                        <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mt-1 -mb-1">
-                          {iadeSuresiGectiMi ? (
-                            <span className="text-slate-500 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> 15 Günlük İade Süresi Doldu</span>
+                        <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-medium tracking-wide mt-1 -mb-1">
+                          {iadeSuresiKapali ? (
+                            <span className="text-slate-400 flex items-start gap-1 leading-relaxed normal-case">
+                              <AlertCircle className="w-3 h-3 shrink-0 mt-0.5" />
+                              {iadeSuresiBitisMetni}
+                            </span>
                           ) : iadeBitisTarihi ? (
-                            <span className="text-emerald-500 flex items-center gap-1"><Info className="w-3 h-3" /> İade için son {iadeyeKalanGun} gün ({iadeBitisTarihi.toLocaleDateString("tr-TR")})</span>
+                            <span className="text-emerald-500 flex items-center gap-1 font-bold uppercase tracking-wider">
+                              <Info className="w-3 h-3" />
+                              İade için son {iadeyeKalanGun} gün ({iadeBitisTarihi.toLocaleDateString("tr-TR")})
+                            </span>
                           ) : null}
                         </div>
                       )}
@@ -598,14 +609,20 @@ const { sepeteEkle } = useCart();
                               <RefreshCw className="w-3 h-3 shrink-0" />
                               İptal Et
                             </Link>
-                          ) : iadeSuresiGectiMi && siparisTeslimEdildi && !urunIadeVar && !urunIptal ? (
-                            <Link
-                              href="/destek-taleplerim/yeni?konu=teknik"
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-slate-400 hover:bg-slate-800/50 border border-slate-700 rounded-md transition-all text-[10px] font-semibold whitespace-nowrap"
-                            >
-                              <Headset className="w-3 h-3 shrink-0" />
-                              Destek Talebi Oluştur
-                            </Link>
+                          ) : iadeSuresiKapali && !urunIadeVar && !urunIptal && !urunBekleyenIslem ? (
+                            <div className="flex flex-col items-end gap-1.5 text-right max-w-[240px]">
+                              <p className="text-[10px] text-slate-400 leading-relaxed font-normal">
+                                {iadeSuresiBitisMetni}{" "}
+                                Bir sorununuz varsa destek ekibimiz size yardımcı olur.
+                              </p>
+                              <Link
+                                href="/destek-taleplerim/yeni?konu=teknik"
+                                className="inline-flex items-center gap-1 px-2.5 py-1.5 text-slate-300 hover:bg-slate-800/50 border border-slate-700 rounded-md transition-all text-[10px] font-semibold whitespace-nowrap"
+                              >
+                                <Headset className="w-3 h-3 shrink-0" />
+                                Destek Talebi Oluştur
+                              </Link>
+                            </div>
                           ) : (
                             <>
                               {iadeButonuGoster && (
