@@ -398,9 +398,12 @@ const { sepeteEkle } = useCart();
                   const urunId = siparisKalemiId(item);
                   const urunIsim = String(item.title || item.isim || item.name || "");
                   const itemAdet = Number(item.quantity || item.adet || item.miktar || 1);
-                  const iadeEdilenAdet = Math.max(
-                    Number(item.iadeEdilenAdet || 0),
-                    siparisKalemiIadeAdet(selectedOrder, item, selectedOrderIadeOpts)
+                  const iadeEdilenAdet = Math.min(
+                    Math.max(
+                      Number(item.iadeEdilenAdet || 0),
+                      siparisKalemiIadeAdet(selectedOrder, item, selectedOrderIadeOpts)
+                    ),
+                    itemAdet
                   );
                   const incelemeMetni = urunBekleyenIslemEtiketi(
                     destekTalepleri,
@@ -468,21 +471,6 @@ const { sepeteEkle } = useCart();
                             <Link href={urunLinki} className="text-[11px] sm:text-xs font-bold text-white hover:text-cyan-400 transition-colors leading-snug block break-words">
                               {item.title || item.isim}
                             </Link>
-                            {urunIadeVar && urunTamIade && (
-                              <span className="px-2 py-1 rounded-md bg-orange-500/10 border border-orange-500/20 text-orange-300 text-[9px] font-black uppercase tracking-widest">
-                                İade Edildi
-                              </span>
-                            )}
-                            {urunIadeVar && !urunTamIade && (
-                              <span className="px-2 py-1 rounded-md bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[9px] font-black uppercase tracking-widest">
-                                Kısmi İade
-                              </span>
-                            )}
-                            {urunIptal && (
-                              <span className="px-2 py-1 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-[9px] font-black uppercase tracking-widest">
-                                İptal Edildi
-                              </span>
-                            )}
                           </div>
                           
                           <div className="mt-auto">
@@ -490,11 +478,8 @@ const { sepeteEkle } = useCart();
                             <p className="text-slate-500 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider mb-0.5 flex items-center gap-1">
                               <Calendar className="w-3 h-3 shrink-0" /> Alım Tarihi: {selectedOrderAlimTarihi.toLocaleDateString("tr-TR")}
                             </p>
-                            {urunIadeVar && iadeEdilenAdet > 0 && (
+                            {urunIadeVar && (
                               <>
-                                <p className="text-rose-400 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider mb-0.5">
-                                  İade Edildi: {iadeEdilenAdet} Adet
-                                </p>
                                 {iadeYontemiSatiriGoster(
                                   urunIadeYontemiBul(
                                     selectedOrder,
@@ -569,7 +554,7 @@ const { sepeteEkle } = useCart();
                           {urunIadeVar ? (
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-orange-500/5 text-orange-300 border border-orange-500/20 text-[10px] font-medium">
                               <RefreshCw className="w-3 h-3 shrink-0" />
-                              {urunTamIade ? "İade Edildi" : "Kısmi İade"}
+                              İade Edildi
                             </span>
                           ) : urunIptal ? (
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-red-500/5 text-red-400 border border-red-500/20 text-[10px] font-medium">

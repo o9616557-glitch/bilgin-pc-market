@@ -84,6 +84,8 @@ export function siparisKalemiIadeAdet(
     )
   );
   const kalemden = Number(kalem?.iadeEdilenAdet || item.iadeEdilenAdet || 0);
+  const itemAdet = Number(item.quantity || item.adet || item.miktar || 1);
+  if (kalemden > 0) return Math.min(kalemden, itemAdet);
 
   let gecmisten = 0;
   for (const kayit of order?.iadeGecmisi || []) {
@@ -108,7 +110,7 @@ export function siparisKalemiIadeAdet(
     }
   }
 
-  return Math.max(kalemden, gecmisten, talepten);
+  return Math.min(Math.max(gecmisten, talepten), itemAdet);
 }
 
 /** Ürün satırında iade var mı — tek kaynak */
@@ -761,12 +763,9 @@ export function urunIptalEdildiMi(
   itemAdet: number,
   iadeEdilenAdet: number
 ): boolean {
+  if (iadeEdilenAdet > 0) return false;
   if (durumIptalMi(getOrderStatusText(order))) return true;
-  if (urunTamamlanmisIptalMi(talepler, siparisKodu, urunId, urunIsim)) return true;
-  if (itemAdet > 0 && iadeEdilenAdet >= itemAdet) {
-    return urunTamamlanmisIptalMi(talepler, siparisKodu, urunId, urunIsim);
-  }
-  return false;
+  return urunTamamlanmisIptalMi(talepler, siparisKodu, urunId, urunIsim);
 }
 
 /** Kısmi siparişte yalnızca henüz iptal edilmemiş kalemler için */

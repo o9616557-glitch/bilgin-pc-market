@@ -82,7 +82,10 @@ export async function GET() {
           ? order.items
           : order.cartItems || [];
 
-      const iadeKayitlari = siparisIadeKayitlariniTopla(order, tumIadeTalepleri);
+      const sepetteIadeVar = hamKalemler.some((k) => Number(k.iadeEdilenAdet || 0) > 0);
+      const iadeKayitlari = sepetteIadeVar
+        ? []
+        : siparisIadeKayitlariniTopla(order, tumIadeTalepleri);
       const rawItems = siparisKalemlerineIadeKayitlariniUygula(
         hamKalemler as SepetKalemi[],
         iadeKayitlari

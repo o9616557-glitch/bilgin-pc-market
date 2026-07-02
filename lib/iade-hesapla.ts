@@ -413,6 +413,28 @@ export function sepetIadeAdetleriniGuncelle(
   });
 }
 
+function isimAnahtar(s?: string | null) {
+  return String(s || "")
+    .toLocaleLowerCase("tr-TR")
+    .replace(/[^a-z0-9ğüşıöç\s]/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function iadeKalemleriniBirlestir(kayitlar: IadeKalemi[]): IadeKalemi[] {
+  const birlesik = new Map<string, IadeKalemi>();
+  for (const k of kayitlar) {
+    const anahtar = `${String(k.urunId || "").trim()}|${isimAnahtar(k.isim)}`;
+    const mevcut = birlesik.get(anahtar);
+    if (!mevcut) {
+      birlesik.set(anahtar, { ...k });
+      continue;
+    }
+    mevcut.adet = Math.max(Number(mevcut.adet || 0), Number(k.adet || 0));
+  }
+  return [...birlesik.values()];
+}
+
 /** Sipariş + taleplerden tüm iade kalemlerini topla */
 export function siparisIadeKayitlariniTopla(
   order: { siparisKodu?: string; orderNumber?: string; iadeGecmisi?: { kalemler?: IadeKalemi[] }[] },
@@ -436,7 +458,7 @@ export function siparisIadeKayitlariniTopla(
     }
   }
 
-  return kayitlar;
+  return iadeKalemleriniBirlestir(kayitlar);
 }
 
 /** İade kayıtlarını sepet kalemlerine yaz */
