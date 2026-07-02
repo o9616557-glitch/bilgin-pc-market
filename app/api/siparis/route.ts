@@ -105,6 +105,8 @@ export async function POST(request: Request) {
       puanVerildi: false,
       kazanilanPuan: 0,
       durum: ilkDurum,
+      musteriyeGoster: false,
+      odemeDurumu: odemeYontemi === "havale" ? "havale_bekliyor" : "odeme_bekliyor",
       tarih: new Date(),
       createdAt: new Date(),
       userEmail: musteriEmail,
@@ -144,7 +146,7 @@ export async function POST(request: Request) {
 
       await db.collection("orders").updateOne(
         { siparisKodu },
-        { $set: { durum: "Ödendi / Hazırlanıyor", status: "Ödendi / Hazırlanıyor", odemeYontemi: odemeTipi } }
+        { $set: { durum: "Ödendi / Hazırlanıyor", status: "Ödendi / Hazırlanıyor", odemeYontemi: odemeTipi, musteriyeGoster: true, odemeDurumu: "odendi" } }
       );
 
       const tamamlanan = await db.collection("orders").findOne({ siparisKodu });

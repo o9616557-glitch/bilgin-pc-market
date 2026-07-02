@@ -8,6 +8,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 import { getOrderShippingCompany, getOrderTrackingNumber, normalizeOrderStatus } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
+import { staleKartBekleyenSiparisleriTemizle } from "@/lib/order-reservations";
 
 // 🚀 VERCEL ÖNBELLEK KİLİDİNİ PARÇALAMA EMİRLERİ
 export const dynamic = "force-dynamic";
@@ -27,6 +28,8 @@ export async function GET() {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket"); 
     const currentEmail = session.user.email;
+
+    await staleKartBekleyenSiparisleriTemizle(db, currentEmail);
 
     // 🚀 BİNGO: ŞEFİN ÇANTASINDAKİ TÜM E-POSTALARI ÇEKİYORUZ!
     const dbUser = await User.findOne({ email: currentEmail }).select("kayitliEpostalar");
@@ -49,6 +52,7 @@ export async function GET() {
             { "musteri.eposta": { $in: aranacakMailler } }
           ]
         },
+        { musteriyeGoster: true },
         { gizlendi: { $ne: true } } 
       ]
     }).sort({ _id: -1 }).toArray() as OrderLike[];

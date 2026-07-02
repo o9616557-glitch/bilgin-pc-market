@@ -56,6 +56,44 @@ export default function AdminPaneli() {
   const [silinecekYorumID, setSilinecekYorumID] = useState<string | null>(null);
 
   const PATRON_SIFRESI = "Bilgin123";
+
+  const odemeDurumuRozeti = (odemeDurumu?: string) => {
+    switch (odemeDurumu) {
+      case "odeme_bekliyor":
+        return "bg-amber-950/40 text-amber-300 border border-amber-800/50";
+      case "havale_bekliyor":
+        return "bg-blue-950/40 text-blue-300 border border-blue-800/50";
+      case "odendi":
+        return "bg-emerald-950/40 text-emerald-300 border border-emerald-800/50";
+      case "onaylandi":
+        return "bg-cyan-950/40 text-cyan-300 border border-cyan-800/50";
+      case "zaman_asimi":
+        return "bg-orange-950/40 text-orange-300 border border-orange-800/50";
+      case "iptal":
+        return "bg-rose-950/40 text-rose-300 border border-rose-800/50";
+      default:
+        return "bg-slate-800 text-slate-300 border border-slate-700";
+    }
+  };
+
+  const odemeDurumuEtiketi = (odemeDurumu?: string) => {
+    switch (odemeDurumu) {
+      case "odeme_bekliyor":
+        return "Kart Bekleniyor";
+      case "havale_bekliyor":
+        return "Havale Bekleniyor";
+      case "odendi":
+        return "Ödendi";
+      case "onaylandi":
+        return "Onaylandı";
+      case "zaman_asimi":
+        return "Zaman Aşımı";
+      case "iptal":
+        return "İptal";
+      default:
+        return "Durum Yok";
+    }
+  };
 // 🚀 BİNGO: GECİKMELİ KESİN KAYDIRMA MOTORU (ADMİN İÇİN)
   useEffect(() => {
     // Sekme değiştiğinde veya yeni mesaj geldiğinde çalışır
@@ -540,7 +578,14 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                       </div>
                       <div className="text-right">
                         <div className="text-2xl font-black text-emerald-500">{Number((siparis.toplamTutar) || (siparis.Tutar) || 0).toLocaleString("tr-TR")} <span className="text-sm text-emerald-600">TL</span></div>
-                        <div className="text-xs font-bold text-slate-400 bg-slate-800 px-2 py-1 rounded inline-block uppercase tracking-wider mt-1">{siparis.odemeYontemi === "kart" ? "Kredi Kartı" : "Havale / EFT"}</div>
+                        <div className="flex flex-wrap justify-end gap-2 mt-1">
+                          <div className="text-xs font-bold text-slate-400 bg-slate-800 px-2 py-1 rounded inline-block uppercase tracking-wider">
+                            {siparis.odemeYontemi === "kart" ? "Kredi Kartı" : siparis.odemeYontemi === "bkm" ? "BKM" : "Havale / EFT"}
+                          </div>
+                          <div className={`text-xs font-bold px-2 py-1 rounded inline-block uppercase tracking-wider ${odemeDurumuRozeti((siparis as any).odemeDurumu)}`}>
+                            {odemeDurumuEtiketi((siparis as any).odemeDurumu)}
+                          </div>
+                        </div>
                       </div>
                     </div>
 

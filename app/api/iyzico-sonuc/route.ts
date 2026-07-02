@@ -45,6 +45,8 @@ export async function POST(request: Request) {
             status: "Ödendi / Hazırlanıyor",
             odemeYontemi: odemeEtiketi,
             odemeId: sonuc.paymentId,
+            musteriyeGoster: true,
+            odemeDurumu: "odendi",
           },
         }
       );

@@ -56,6 +56,13 @@ export async function PUT(request: Request) {
     if (yeniDurum !== undefined) {
       guncellenecekler.durum = yeniDurum;
       guncellenecekler.status = yeniDurum;
+      if (yeniDurum === "Ödendi / Hazırlanıyor" || yeniDurum === "Kargoya Verildi" || yeniDurum === "Tamamlandı") {
+        guncellenecekler.musteriyeGoster = true;
+        guncellenecekler.odemeDurumu = "onaylandi";
+      }
+      if (yeniDurum === "İptal Edildi") {
+        guncellenecekler.odemeDurumu = "iptal";
+      }
     }
     if (musteriMesaji !== undefined) guncellenecekler.musteriMesaji = musteriMesaji;
     if (kargoFirmasi !== undefined) {
