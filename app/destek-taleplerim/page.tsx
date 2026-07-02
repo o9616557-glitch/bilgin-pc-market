@@ -59,6 +59,7 @@ export default function DestekIadePage() {
   const [silinecekTalepId, setSilinecekTalepId] = useState<string | null>(null);
   
   const [onSecilenUrunId, setOnSecilenUrunId] = useState<string | null>(null);
+  const [kargoPopupAcik, setKargoPopupAcik] = useState(false);
   const { orders: localOrders } = useOrders();
 
   const kalemSecimKonu = talepKonusu === "iade" || talepKonusu === "iptal";
@@ -67,14 +68,14 @@ export default function DestekIadePage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const isMobile = window.innerWidth < 640;
-      if (yeniTalepModal || silinecekTalepId || (seciliTalepId && isMobile)) {
+      if (yeniTalepModal || silinecekTalepId || kargoPopupAcik || (seciliTalepId && isMobile)) {
         document.body.style.overflow = 'hidden';
       } else {
         document.body.style.overflow = 'unset';
       }
     }
     return () => { document.body.style.overflow = 'unset'; }; 
-  }, [yeniTalepModal, silinecekTalepId, seciliTalepId]);
+  }, [yeniTalepModal, silinecekTalepId, kargoPopupAcik, seciliTalepId]);
 
   const talepleriGetir = async () => {
     if (!session?.user?.email) return;
