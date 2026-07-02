@@ -14,7 +14,6 @@ import { useCart } from "@/app/CartContext";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useOrders } from "@/app/OrderContext";
-import AccountShell from "@/components/layout/AccountShell";
 
 interface Props {
   initialFavorites?: any[]; // Kendi yapına göre opsiyonel bıraktım
@@ -89,10 +88,10 @@ export default function DestekIadePage() {
 
 useEffect(() => {
     if (status === "authenticated") {
-      talepleriGetir(); 
-      // 🚀 RADARI ŞİMDİLİK YORUMA ALDIK VEYA SÜRESİNİ UZATTIK (10000 yerine 60000)
-      // const radar = setInterval(talepleriGetir, 60000); 
-      // return () => clearInterval(radar); 
+      const zamanlayici = window.setTimeout(() => {
+        void talepleriGetir();
+      }, 100);
+      return () => window.clearTimeout(zamanlayici);
     } else if (status === "unauthenticated") {
       setYukleniyor(false);
     }
@@ -177,8 +176,7 @@ useEffect(() => {
 
   return (
     <>
-      <AccountShell active="destek">
-        <div className="flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
+      <div className="flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
             
             {/* 🚀 BAŞLIK PANELİ */}
             <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative flex flex-col gap-5 z-40">
@@ -319,7 +317,6 @@ useEffect(() => {
             </div>
 
         </div>
-      </AccountShell>
 
       {/* 🚀 MOBİL SOHBET ARAYÜZÜ */}
       {seciliTalepId && talepler.find(t => t._id === seciliTalepId) && (

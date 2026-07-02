@@ -14,7 +14,6 @@ import {
   RefreshCw,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import AccountShell from "@/components/layout/AccountShell";
 import { urunTalepBekliyorKaydet } from "@/lib/order-utils";
 
 export default function YeniTalepIcerik() {
@@ -219,8 +218,7 @@ export default function YeniTalepIcerik() {
   }
 
   return (
-    <AccountShell active="destek">
-      <div className="flex flex-col min-w-0 w-full gap-5 lg:gap-6">
+    <div className="flex flex-col min-w-0 w-full gap-5 lg:gap-6">
           <Link
             href={geriLink}
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0f172a] hover:bg-indigo-600/10 border border-slate-800 hover:border-indigo-500/30 text-slate-300 hover:text-indigo-400 transition-all rounded-lg font-black text-xs uppercase tracking-widest w-max"
@@ -445,7 +443,6 @@ export default function YeniTalepIcerik() {
               </button>
             </form>
           </div>
-        </div>
-    </AccountShell>
+    </div>
   );
 }

@@ -10,7 +10,6 @@ import {
   MapPin, Package, Star, Headphones, Search, Truck, PackageX, Calendar, Copy, Check
 } from "lucide-react";
 import { useOrders } from "@/app/OrderContext";
-import AccountShell from "@/components/layout/AccountShell";
 
 export default function SistemlerimPage() {
   const { sepeteEkle } = useCart();
@@ -69,7 +68,8 @@ export default function SistemlerimPage() {
       }
     };
 
-    sessizGuncelleme();
+    const zamanlayici = window.setTimeout(sessizGuncelleme, 100);
+    return () => window.clearTimeout(zamanlayici);
   }, []);
 
   const handleCopy = (code: string, e?: React.MouseEvent) => {
@@ -148,7 +148,7 @@ export default function SistemlerimPage() {
   };
 
   return (
-    <AccountShell active="sistemler">
+    <>
       <div className="flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
         
           {/* 🚀 BAŞLIK KUTUSU (Diğer sayfalar ile aynı: rounded-xl, p-5 sm:p-6, flex-row) */}
@@ -453,6 +453,6 @@ export default function SistemlerimPage() {
         </div>
       )}
 
-    </AccountShell>
+    </>
   );
 }

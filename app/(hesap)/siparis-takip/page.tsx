@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast"; // <--- BİNGO! BU SATIRI EKLE
 import { useOrders } from "@/app/OrderContext";
-import AccountShell from "@/components/layout/AccountShell";
 import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 
@@ -102,7 +101,7 @@ export default function SiparisTakipPage() {
     : "";
 
   return (
-    <AccountShell active="sorgula">
+    <>
       <div className="flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
           
           {/* 🚀 BAŞLIK KUTUSU */}
@@ -446,6 +445,6 @@ export default function SiparisTakipPage() {
           background: rgba(6, 182, 212, 0.4);
         }
       `}</style>
-    </AccountShell>
+    </>
   );
 }

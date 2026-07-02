@@ -12,7 +12,6 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { useOrders } from "@/app/OrderContext"; 
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
-import AccountShell from "@/components/layout/AccountShell";
 import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisIadeYontemi, urunBekleyenIslemEtiketi, urunIadeYontemiBul, urunIadeYontemiMetni, urunTalepBekliyorKaydet, urunTalepBekliyorTemizle, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 
@@ -274,7 +273,7 @@ const { sepeteEkle } = useCart();
     String(item.id || item._id || item.productId || "");
 
   return (
-    <AccountShell>
+    <>
       <div className="flex flex-col min-w-0 w-full relative gap-5 lg:gap-6">
           
           {selectedOrder ? (
@@ -963,6 +962,6 @@ const { sepeteEkle } = useCart();
         </div>
       )}
 
-    </AccountShell>
+    </>
   );
 }

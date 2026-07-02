@@ -59,14 +59,23 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
     setSayfaYuklendi(true);
 
     const hafiza = sessionStorage.getItem("bilgin-favoriler");
-
     if (hafiza) {
-      setFavoriteProducts(JSON.parse(hafiza));
-    } else {
+      try {
+        setFavoriteProducts(JSON.parse(hafiza));
+      } catch {
+        setFavoriteProducts(initialFavorites);
+      }
+    } else if (initialFavorites.length > 0) {
       setFavoriteProducts(initialFavorites);
+      sessionStorage.setItem("bilgin-favoriler", JSON.stringify(initialFavorites));
     }
 
-    favorileriGuncelle();
+    // Geçişi bloklamasın — arka planda güncelle
+    const zamanlayici = window.setTimeout(() => {
+      void favorileriGuncelle();
+    }, 120);
+
+    return () => window.clearTimeout(zamanlayici);
   }, []);
 
   // 🚀 GÜVENLİ EKRAN DONDURMA: DOM'u yormayan temizlik motoru

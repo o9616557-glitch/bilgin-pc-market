@@ -44,6 +44,8 @@ function NavLink({ href, label, icon: Icon, id, active }: {
   return (
     <Link
       href={href}
+      prefetch
+      scroll={false}
       className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all font-medium shrink-0 ${
         isActive
           ? "text-white bg-white/[0.07] border border-white/[0.12]"
@@ -431,6 +433,7 @@ function MobilHesapMenu({ active }: { active?: string }) {
                 key={item.id}
                 href={item.href}
                 prefetch
+                scroll={false}
                 onClick={() => setAcik(false)}
                 className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl text-[15px] font-medium transition-colors ${
                   active === item.id
