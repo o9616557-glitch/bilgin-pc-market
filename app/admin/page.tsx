@@ -681,6 +681,11 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                 </div>
               ) : filtrelenmisSiparisler.map((siparis) => {
                 const siparisId = String(siparis._id || "");
+                const seciliDurum =
+                  siparis.durum === "Ödeme Bekliyor" &&
+                  (siparis.odemeDurumu === "havale_bekliyor" || siparis.odemeYontemi === "havale")
+                    ? "Ödeme Bekliyor (Havale)"
+                    : siparis.durum;
                 return (
                 <div key={siparisId || siparis.siparisKodu} className="bg-[#111827] border border-slate-700 rounded-xl flex flex-col xl:flex-row overflow-hidden shadow-lg">
                   {/* SOL TARAF: BİLGİLER */}
@@ -735,7 +740,7 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                     <div className="flex flex-col gap-5">
                       <div>
                         <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Sipariş Durumu</label>
-                        <select id={`durum-${siparisId}`} defaultValue={siparis.durum} className="w-full bg-[#0b1120] border border-slate-600 rounded-lg px-4 py-3 text-sm font-bold text-slate-200 focus:outline-none focus:border-slate-400 appearance-none">
+                        <select id={`durum-${siparisId}`} defaultValue={seciliDurum} className="w-full bg-[#0b1120] border border-slate-600 rounded-lg px-4 py-3 text-sm font-bold text-slate-200 focus:outline-none focus:border-slate-400 appearance-none">
                           {ORDER_STATUS_OPTIONS.map((durum) => (
                             <option key={durum} value={durum}>{durum}</option>
                           ))}

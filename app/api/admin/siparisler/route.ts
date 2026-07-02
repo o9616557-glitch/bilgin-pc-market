@@ -64,6 +64,10 @@ export async function PUT(request: Request) {
     if (yeniDurum !== undefined) {
       guncellenecekler.durum = yeniDurum;
       guncellenecekler.status = yeniDurum;
+      if (yeniDurum === "Ödeme Bekliyor (Havale)") {
+        guncellenecekler.musteriyeGoster = true;
+        guncellenecekler.odemeDurumu = "havale_bekliyor";
+      }
       if (yeniDurum === "Ödendi / Hazırlanıyor" || yeniDurum === "Kargoya Verildi" || yeniDurum === "Tamamlandı") {
         guncellenecekler.musteriyeGoster = true;
         guncellenecekler.odemeDurumu = "onaylandi";

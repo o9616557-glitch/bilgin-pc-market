@@ -2,7 +2,6 @@ import type { OrderLike } from "@/lib/order-types";
 
 export const ORDER_STATUS_OPTIONS = [
   "Ödeme Bekliyor (Havale)",
-  "Ödeme Bekliyor",
   "Ödendi / Hazırlanıyor",
   "Kargoya Verildi",
   "Tamamlandı",
