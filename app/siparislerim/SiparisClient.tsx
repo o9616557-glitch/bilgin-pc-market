@@ -13,7 +13,7 @@ import toast from "react-hot-toast";
 import { useOrders } from "@/app/OrderContext"; 
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
 import KisayolNav from "@/components/layout/KisayolNav";
-import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isOdemeBekleyenSiparis } from "@/lib/order-utils";
+import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike, RefundedOrderItemLike } from "@/lib/order-types";
 
 export default function SiparisClient() {
@@ -185,6 +185,7 @@ const { sepeteEkle } = useCart();
     selectedOrderDurumMetni.includes("kısmen iade") ||
     selectedOrderDurumMetni.includes("kismen iade");
   const selectedOrderOdemeBekliyor = isOdemeBekleyenSiparis(selectedOrder);
+  const selectedOrderHavaleBekliyor = isHavaleBekleyenSiparis(selectedOrder);
   const selectedOrderTopluIptalGoster =
     (selectedOrder?.items?.length || 0) > 1 &&
     !selectedOrderIsIptal &&
@@ -408,6 +409,29 @@ const { sepeteEkle } = useCart();
                   );
                 })}
               </div>
+
+              {selectedOrderOdemeBekliyor && (
+                <div className="flex gap-3 rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-4 sm:p-5">
+                  <Info className="mt-0.5 h-5 w-5 shrink-0 text-cyan-400" />
+                  <div className="min-w-0">
+                    <p className="mb-1.5 text-[10px] font-black uppercase tracking-widest text-cyan-300">
+                      {selectedOrderHavaleBekliyor ? "Havale / EFT Bekleniyor" : "Ödeme Bekleniyor"}
+                    </p>
+                    <p className="text-xs font-medium leading-relaxed text-slate-300">
+                      {selectedOrderHavaleBekliyor ? (
+                        <>
+                          Havale veya EFT ödemeniz henüz tarafımıza ulaşmadı. Ödeme yapılmazsa sipariş otomatik iptal edilir ve işleme alınmaz.
+                          Ödeme yaptıysanız onay sürecini bekleyebilirsiniz; onaylandığında siparişiniz hazırlanmaya başlar.
+                        </>
+                      ) : (
+                        <>
+                          Kart ödemeniz henüz tamamlanmadı. Ödeme yapılmazsa sipariş işleme alınmaz ve otomatik iptal edilir.
+                        </>
+                      )}
+                    </p>
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 shadow-lg flex flex-col justify-between">
