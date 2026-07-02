@@ -10,6 +10,7 @@ interface OrderContextType {
 }
 
 const CACHE_KEY = "bilgin_siparisler";
+const ORDERS_REFRESH_INTERVAL_MS = 60_000;
 
 function cacheOku(): any[] {
   if (typeof window === "undefined") return [];
@@ -90,6 +91,29 @@ export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(false);
       if (typeof window !== "undefined") sessionStorage.removeItem(CACHE_KEY);
     }
+  }, [status, hafizaHazir, fetchOrders]);
+
+  useEffect(() => {
+    if (!hafizaHazir || status !== "authenticated") return;
+
+    const yenile = () => {
+      void fetchOrders(false);
+    };
+
+    const interval = window.setInterval(yenile, ORDERS_REFRESH_INTERVAL_MS);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") yenile();
+    };
+    const handleFocus = () => yenile();
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
+    };
   }, [status, hafizaHazir, fetchOrders]);
 
   return (
