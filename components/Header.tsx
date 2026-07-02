@@ -809,8 +809,7 @@ export default function Header() {
               </div>
               </div>
 
-              <div className={`grid grid-cols-[auto_1fr] items-center gap-2 pb-3 pt-0.5 ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}>
-                <MobilProfilLink size={46} onNavigate={() => setMenuAcik(false)} />
+              <div className={`grid grid-cols-[1fr_auto] items-center gap-2 pb-3 pt-0.5 ${menuAcik ? "opacity-20 pointer-events-none" : ""}`}>
                 <form
                   onSubmit={(e) => e.preventDefault()}
                   onPointerDown={() => {
@@ -839,6 +838,7 @@ export default function Header() {
                     </button>
                   )}
                 </form>
+                <MobilProfilLink size={46} onNavigate={() => setMenuAcik(false)} />
               </div>
             </div>
 
