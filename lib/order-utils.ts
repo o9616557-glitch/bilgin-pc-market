@@ -674,14 +674,6 @@ export function siparisArsivSuresiOzeti(order?: OrderLike | null, bugun = new Da
   return { var: true, dolduMu, kalanGun, bitisTarihi, baslangicTarihi };
 }
 
-export function siparisArsivKalanGunMetni(order?: OrderLike | null): string | null {
-  const ozet = siparisArsivSuresiOzeti(order);
-  if (!ozet.var || ozet.dolduMu) return null;
-  if (ozet.kalanGun <= 0) return "Bugün arşive taşınır";
-  if (ozet.kalanGun === 1) return "Arşive 1 gün kaldı";
-  return `Arşive ${ozet.kalanGun} gün kaldı`;
-}
-
 /** Sipariş listesinde gösterilecek durum metni */
 export function siparisGosterimDurumu(order?: OrderLike | null) {
   const durum = getOrderStatusText(order);

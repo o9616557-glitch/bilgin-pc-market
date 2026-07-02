@@ -63,8 +63,10 @@ export default function ArsivPage() {
 
   return (
     <div className="flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
-      <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5 z-40 overflow-hidden group">
-        <div className="absolute -top-20 -right-20 w-64 h-64 bg-slate-500/10 blur-[60px] pointer-events-none rounded-full" />
+      <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5 z-50 group">
+        <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
+          <div className="absolute -top-20 -right-20 w-64 h-64 bg-slate-500/10 blur-[60px] rounded-full" />
+        </div>
 
         <div className="flex items-center gap-3 sm:gap-4 relative z-10">
           <div className="w-12 h-12 bg-[#020617] border border-slate-600/40 rounded-full flex items-center justify-center shadow-lg shrink-0">
@@ -78,8 +80,8 @@ export default function ArsivPage() {
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full xl:w-auto relative z-10">
-          <div className="relative flex-1 sm:flex-none min-w-0">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full xl:w-auto relative z-50">
+          <div className="relative flex-1 sm:flex-none min-w-0 z-50">
             <button
               onClick={() => setZamanAcik(!zamanAcik)}
               className="w-full flex items-center justify-between gap-2 bg-[#020617] hover:bg-slate-800 border border-slate-700 rounded-lg px-3 sm:px-4 py-2.5 transition-colors text-[10px] sm:text-xs text-slate-300 font-bold whitespace-nowrap"

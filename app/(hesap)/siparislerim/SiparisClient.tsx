@@ -12,7 +12,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { useOrders } from "@/app/OrderContext"; 
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
-import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisArsivKalanGunMetni, siparisArsivSuresiDolduMu, siparisArsivSuresiOzeti, siparisGosterimDurumu, siparisIadeOzeti, siparisIadeSuresiOzeti, siparisIadeYontemi, siparisKalemiArsivdeMi, siparisKalemiIadeAdet, siparisKalemIadeEdildiMi, siparisKalemTamIadeMi, siparisKalemleri, siparisKalemIdleri, siparisTamamlandiMi, urunBekleyenIadeMi, urunBekleyenIslemEtiketi, urunIadeYontemiBul, urunIadeYontemiMetni, urunIptalEdilebilirMi, urunIptalEdildiMi, urunTalepBekliyorTemizle, durumIptalMi, durumMetniNorm, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
+import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisArsivSuresiOzeti, siparisGosterimDurumu, siparisIadeOzeti, siparisIadeSuresiOzeti, siparisIadeYontemi, siparisKalemiArsivdeMi, siparisKalemiIadeAdet, siparisKalemIadeEdildiMi, siparisKalemTamIadeMi, siparisKalemleri, siparisKalemIdleri, siparisTamamlandiMi, urunBekleyenIadeMi, urunBekleyenIslemEtiketi, urunIadeYontemiBul, urunIadeYontemiMetni, urunIptalEdilebilirMi, urunIptalEdildiMi, urunTalepBekliyorTemizle, durumIptalMi, durumMetniNorm, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 
 export default function SiparisClient() {
@@ -250,7 +250,7 @@ const { sepeteEkle } = useCart();
   const selectedOrderIadeSuresi = siparisIadeSuresiOzeti(selectedOrder);
   const selectedOrderIadeSuresiGecti = selectedOrderIadeSuresi.gectiMi;
   const selectedOrderArsivSuresi = siparisArsivSuresiOzeti(selectedOrder);
-  const selectedOrderArsivKalanMetni = siparisArsivKalanGunMetni(selectedOrder);
+  const selectedOrderArsivBitisTarihi = selectedOrderArsivSuresi.bitisTarihi;
   const selectedOrderAlimTarihi = new Date(selectedOrder?.createdAt || selectedOrder?.tarih || Date.now());
   const siparisKalemiId = (item: OrderItemLike) =>
     String(item.id || item._id || item.productId || "");
@@ -403,25 +403,15 @@ const { sepeteEkle } = useCart();
                 </div>
               </div>
 
-              {selectedOrderArsivKalanMetni && selectedOrderAktifKalemleri.length > 0 && (
-                <div className="flex gap-3 rounded-xl border border-slate-700/60 bg-slate-800/25 p-4 sm:p-5">
-                  <Archive className={`mt-0.5 h-5 w-5 shrink-0 ${selectedOrderArsivSuresi.kalanGun <= 7 ? "text-amber-400" : "text-slate-400"}`} />
-                  <div className="min-w-0">
-                    <p className="mb-1 text-[10px] font-black uppercase tracking-widest text-slate-300">
-                      Arşiv Geri Sayımı
-                    </p>
-                    <p className="text-xs font-medium leading-relaxed text-slate-300">
-                      Bu siparişteki ürünler{" "}
-                      <span className="font-bold text-white">
-                        {selectedOrderArsivSuresi.bitisTarihi?.toLocaleDateString("tr-TR")}
-                      </span>{" "}
-                      tarihinde otomatik olarak arşive taşınır.
-                    </p>
-                    <p className={`mt-1 text-[11px] font-bold ${selectedOrderArsivSuresi.kalanGun <= 7 ? "text-amber-400" : "text-cyan-400"}`}>
-                      {selectedOrderArsivKalanMetni}
-                    </p>
-                  </div>
-                </div>
+              {selectedOrderArsivBitisTarihi &&
+                !selectedOrderArsivSuresi.dolduMu &&
+                selectedOrderAktifKalemleri.length > 0 && (
+                <p className="text-xs font-medium text-slate-500 px-1">
+                  <span className="font-bold text-slate-300">
+                    {selectedOrderArsivBitisTarihi.toLocaleDateString("tr-TR")}
+                  </span>{" "}
+                  tarihinde arşive taşınır.
+                </p>
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
@@ -573,14 +563,6 @@ const { sepeteEkle } = useCart();
                             <p className="text-slate-500 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider mb-0.5 flex items-center gap-1">
                               <Calendar className="w-3 h-3 shrink-0" /> Alım Tarihi: {selectedOrderAlimTarihi.toLocaleDateString("tr-TR")}
                             </p>
-                            {selectedOrderArsivKalanMetni && (
-                              <p className={`font-medium text-[9px] sm:text-[10px] mb-0.5 flex items-center gap-1 normal-case tracking-normal ${
-                                selectedOrderArsivSuresi.kalanGun <= 7 ? "text-amber-400/90" : "text-slate-500"
-                              }`}>
-                                <Archive className="w-3 h-3 shrink-0" />
-                                {selectedOrderArsivKalanMetni}
-                              </p>
-                            )}
                             {urunIadeVar && (
                               <>
                                 {iadeYontemiSatiriGoster(
@@ -938,27 +920,15 @@ const { sepeteEkle } = useCart();
                     const listeIadeVar =
                       durumMetni.toLowerCase().includes("iade") ||
                       siparisKalemleri(order).some((i) => Number(i.iadeEdilenAdet || 0) > 0);
-                    const listeArsivKalanMetni = siparisArsivKalanGunMetni(order);
-                    const listeArsivSuresi = siparisArsivSuresiOzeti(order);
 
                     return (
                       <div key={order._id || currentSiparisKodu} className="flex flex-col gap-4 bg-[#0f172a] border border-slate-800 hover:border-cyan-500/50 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(6,182,212,0.1)] p-5 rounded-2xl transition-all duration-300">
                         
                         <div className="flex justify-between items-center border-b border-slate-800/60 pb-3">
-                          <div className="flex flex-col gap-1 min-w-0">
-                            <span className="text-[11px] font-bold text-slate-400 flex items-center gap-1.5">
-                              <Calendar className="w-3.5 h-3.5 shrink-0" />
-                              {new Date(order.createdAt || order.tarih).toLocaleDateString("tr-TR")}
-                            </span>
-                            {listeArsivKalanMetni && !siparisArsivSuresiDolduMu(order) && (
-                              <span className={`text-[10px] font-medium flex items-center gap-1 ${
-                                listeArsivSuresi.kalanGun <= 7 ? "text-amber-400" : "text-slate-500"
-                              }`}>
-                                <Archive className="w-3 h-3 shrink-0" />
-                                {listeArsivKalanMetni}
-                              </span>
-                            )}
-                          </div>
+                          <span className="text-[11px] font-bold text-slate-400 flex items-center gap-1.5">
+                            <Calendar className="w-3.5 h-3.5 shrink-0" />
+                            {new Date(order.createdAt || order.tarih).toLocaleDateString("tr-TR")}
+                          </span>
                           <DurumRozetiGoster durum={durumMetni} />
                         </div>
 
