@@ -12,7 +12,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { useOrders } from "@/app/OrderContext"; 
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
-import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisIadeOzeti, siparisIadeSuresiOzeti, siparisIadeYontemi, urunBekleyenIslemEtiketi, urunIadeYontemiBul, urunIadeYontemiMetni, urunIptalEdilebilirMi, urunIptalEdildiMi, urunTalepBekliyorTemizle, durumIptalMi, durumMetniNorm, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
+import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisGosterimDurumu, siparisIadeOzeti, siparisIadeSuresiOzeti, siparisIadeYontemi, urunBekleyenIslemEtiketi, urunIadeIslendiMi, urunIadeYontemiBul, urunIadeYontemiMetni, urunTamIadeMi, urunIptalEdilebilirMi, urunIptalEdildiMi, urunTalepBekliyorTemizle, durumIptalMi, durumMetniNorm, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 
 export default function SiparisClient() {
@@ -382,8 +382,18 @@ const { sepeteEkle } = useCart();
                     itemAdet,
                     iadeEdilenAdet
                   );
-                  const urunTamIade = iadeEdilenAdet > 0 && iadeEdilenAdet >= itemAdet;
-                  const iptalButonuGoster = urunIptalEdilebilirMi(
+                  const urunIadeVar = urunIadeIslendiMi(
+                    selectedOrder,
+                    destekTalepleri,
+                    selectedOrderSiparisKodu,
+                    urunId,
+                    urunIsim,
+                    iadeEdilenAdet
+                  );
+                  const urunTamIade = urunTamIadeMi(iadeEdilenAdet, itemAdet);
+                  const iptalButonuGoster =
+                    !urunIadeVar &&
+                    urunIptalEdilebilirMi(
                     selectedOrder,
                     destekTalepleri,
                     selectedOrderSiparisKodu,
@@ -397,6 +407,7 @@ const { sepeteEkle } = useCart();
                     }
                   );
                   const iadeButonuGoster =
+                    !urunIadeVar &&
                     !urunIptal &&
                     !isIptal &&
                     !urunTamIade &&
@@ -423,12 +434,7 @@ const { sepeteEkle } = useCart();
                             <Link href={urunLinki} className="text-[11px] sm:text-xs font-bold text-white hover:text-cyan-400 transition-colors leading-snug block break-words">
                               {item.title || item.isim}
                             </Link>
-                            {Number(item.iadeEdilenAdet || 0) > 0 && iadeEdilenAdet < itemAdet && (
-                              <span className="px-2 py-1 rounded-md bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[9px] font-black uppercase tracking-widest">
-                                Kısmi İade
-                              </span>
-                            )}
-                            {urunTamIade && (
+                            {urunIadeVar && (
                               <span className="px-2 py-1 rounded-md bg-orange-500/10 border border-orange-500/20 text-orange-300 text-[9px] font-black uppercase tracking-widest">
                                 İade Edildi
                               </span>
@@ -445,10 +451,10 @@ const { sepeteEkle } = useCart();
                             <p className="text-slate-500 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider mb-0.5 flex items-center gap-1">
                               <Calendar className="w-3 h-3 shrink-0" /> Alım Tarihi: {selectedOrderAlimTarihi.toLocaleDateString("tr-TR")}
                             </p>
-                            {Number(item.iadeEdilenAdet || 0) > 0 && (
+                            {urunIadeVar && iadeEdilenAdet > 0 && (
                               <>
                                 <p className="text-rose-400 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider mb-0.5">
-                                  İade Edildi: {Number(item.iadeEdilenAdet || 0)} Adet
+                                  İade Edildi: {iadeEdilenAdet} Adet
                                 </p>
                                 {iadeYontemiSatiriGoster(
                                   urunIadeYontemiBul(
@@ -479,7 +485,7 @@ const { sepeteEkle } = useCart();
                       )}
 
                       <div className="flex flex-col gap-2 pt-3 border-t border-slate-800/50 mt-auto">
-                        {isTeslimEdildi && !urunTamIade && (
+                        {isTeslimEdildi && !urunIadeVar && !urunIptal && (
                           <div className="flex flex-wrap items-center gap-1.5">
                             <Link
                               href={`${urunLinki}#yorumlar`}
@@ -521,10 +527,10 @@ const { sepeteEkle } = useCart();
                         )}
 
                         <div className="flex items-center justify-end gap-2 min-h-[28px]">
-                          {urunTamIade ? (
+                          {urunIadeVar ? (
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-orange-500/5 text-orange-300 border border-orange-500/20 text-[10px] font-medium">
                               <RefreshCw className="w-3 h-3 shrink-0" />
-                              İade tamamlandı
+                              İade Edildi
                             </span>
                           ) : urunIptal ? (
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-red-500/5 text-red-400 border border-red-500/20 text-[10px] font-medium">
@@ -536,7 +542,7 @@ const { sepeteEkle } = useCart();
                               <Clock className="w-3 h-3 shrink-0" />
                               {incelemeMetni}
                             </span>
-                          ) : iadeSuresiGectiMi && isTeslimEdildi && !urunTamIade && !urunIptal ? (
+                          ) : iadeSuresiGectiMi && isTeslimEdildi && !urunIadeVar && !urunIptal ? (
                             <Link
                               href="/destek-taleplerim/yeni?konu=teknik"
                               className="inline-flex items-center gap-1 px-2.5 py-1.5 text-slate-400 hover:bg-slate-800/50 border border-slate-700 rounded-md transition-all text-[10px] font-semibold whitespace-nowrap"
@@ -803,7 +809,7 @@ const { sepeteEkle } = useCart();
                 <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-6 relative z-0">
                   {filtrelenmisSiparisler.map((order: OrderLike) => {
                     const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id?.slice(-8).toUpperCase() || "SİPARİŞ";
-                    const durumMetni = getOrderStatusText(order);
+                    const durumMetni = siparisGosterimDurumu(order);
                     const firstItem = order.items && order.items.length > 0 ? order.items[0] : null;
                     const listeIadeYontemi = siparisIadeYontemi(order, destekTalepleri);
                     const listeIadeMetni = urunIadeYontemiMetni(listeIadeYontemi);

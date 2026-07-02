@@ -351,6 +351,15 @@ export function durumIadeMi(d?: string | null) {
 
 export const IADE_SURESI_GUN = 15;
 
+/** Sipariş listesinde gösterilecek durum metni */
+export function siparisGosterimDurumu(order?: OrderLike | null) {
+  const iadeOzeti = siparisIadeOzeti(order);
+  if (iadeOzeti.tam) return "İade Edildi";
+  if (iadeOzeti.kismi) return "Kısmen İade Edildi";
+  return getOrderStatusText(order);
+}
+
+
 export function siparisTamamlandiMi(durum?: string | null) {
   const d = durumMetniNorm(durum);
   return d.includes("teslim") || d.includes("tamam");
@@ -401,6 +410,37 @@ export function siparisIadeSuresiOzeti(order?: OrderLike | null) {
 export function siparisOtomatikIadeIptalKapaliMi(order?: OrderLike | null) {
   const ozet = siparisIadeSuresiOzeti(order);
   return ozet.tamamlandi && ozet.gectiMi;
+}
+
+/** Ürün için iade işlemi yapıldı mı (kısmi veya tam) */
+export function urunIadeIslendiMi(
+  order: OrderLike | null | undefined,
+  talepler: UrunDestekTalepLike[],
+  siparisKodu: string,
+  urunId: string,
+  urunIsim: string | undefined,
+  iadeEdilenAdet: number
+): boolean {
+  if (iadeEdilenAdet > 0) return true;
+
+  const gecmis = order?.iadeGecmisi || [];
+  if (
+    gecmis.some((kayit) =>
+      kayit.kalemler?.some((k) => urunKalemiEslesir(k, urunId, urunIsim))
+    )
+  ) {
+    return true;
+  }
+
+  return talepler.some((t) => {
+    if (t.konu !== "iade" || !t.iadeOdendi) return false;
+    if (!siparisKodlariEslesir(t.siparisNo || "", siparisKodu)) return false;
+    return t.iadeKalemleri?.some((k) => urunKalemiEslesir(k, urunId, urunIsim));
+  });
+}
+
+export function urunTamIadeMi(iadeEdilenAdet: number, itemAdet: number): boolean {
+  return iadeEdilenAdet > 0 && iadeEdilenAdet >= itemAdet;
 }
 
 /** Admin tarafında tamamlanmış ürün iptali */
