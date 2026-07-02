@@ -12,6 +12,11 @@ const HesabimAnalytics = dynamic(() => import("@/components/hesabim/HesabimAnaly
   loading: () => null,
 });
 
+const HesabimHizliErisim = dynamic(() => import("@/components/hesabim/HesabimHizliErisim"), {
+  ssr: false,
+  loading: () => null,
+});
+
 const HesabimModals = dynamic(() => import("@/components/hesabim/HesabimModals"), {
   ssr: false,
   loading: () => null,
@@ -131,6 +136,9 @@ export default function HesabimPage() {
   const [grafikVerisi, setGrafikVerisi] = useState<any[]>([]);
   const [girisSartModal, setGirisSartModal] = useState(false);
 
+  const [guvenlikOzeti, setGuvenlikOzeti] = useState<{ ikiAdim: boolean; cihazSayisi: number } | null>(null);
+  const guvenlikYuklendi = useRef(false);
+
   const [pastaVerisi, setPastaVerisi] = useState({
     kendinTopla: { yuzde: 0, offset: 0 },
     bilesen: { yuzde: 0, offset: 0 },
@@ -184,6 +192,19 @@ export default function HesabimPage() {
 
     hafizadanOku();
     window.addEventListener("bilgin-hesap-guncellendi", hafizadanOku);
+
+    if (!guvenlikYuklendi.current) {
+      guvenlikYuklendi.current = true;
+      fetch("/api/user/get-2fa", { cache: "no-store" })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (!data) return;
+          const aktifCihazlar = (data.activeDevices || []).filter((c: any) => c.isActive === true);
+          setGuvenlikOzeti({ ikiAdim: !!data.twoFactorEmail, cihazSayisi: aktifCihazlar.length });
+        })
+        .catch(() => {});
+    }
+
     return () => window.removeEventListener("bilgin-hesap-guncellendi", hafizadanOku);
   }, [status, session?.user?.email]);
 
@@ -335,6 +356,9 @@ export default function HesabimPage() {
   const userName = status === "unauthenticated" ? "Misafir" : session?.user?.name || "Kullanıcı";
   const userEmail = status === "unauthenticated" ? "" : session?.user?.email || "";
   const basHarf = userName.charAt(0).toUpperCase();
+  const kargoSiparisleri = hamSiparisler.filter((s) =>
+    (s.status || s.durum || "").toLowerCase().includes("kargo")
+  );
 
   return (
     <>
@@ -407,6 +431,13 @@ export default function HesabimPage() {
             </div>
           </div>
         </div>
+
+        {status !== "unauthenticated" && (
+          <HesabimHizliErisim
+            guvenlikOzeti={guvenlikOzeti}
+            kargoSayisi={kargoSiparisleri.length}
+          />
+        )}
 
         <HesabimAnalytics
           sonSiparislerListesi={sonSiparislerListesi}

@@ -26,8 +26,7 @@ function NavLink({ href, label, icon: Icon, id, active }: {
     <Link
       href={href}
       prefetch
-      scroll={false}
-      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all font-medium shrink-0 ${
+      className={`relative z-10 flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all font-medium shrink-0 ${
         isActive
           ? "text-white bg-white/[0.07] border border-white/[0.12]"
           : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] border border-transparent"
@@ -101,12 +100,14 @@ function AccountSwitchModal({ email, onClose }: { email: string; onClose: () => 
 /* ─────────────────── MOBİL PROFİL KARTI ─────────────────── */
 function MobilProfilKarti() {
   const { data: session, status } = useSession();
+  const [mounted, setMounted] = useState(false);
   const lastRef = useRef<typeof session>(null);
   if (session) lastRef.current = session;
   const stable = session ?? lastRef.current;
-  const isFirst = status === "loading" && !lastRef.current;
 
-  if (isFirst) {
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted || (status === "loading" && !lastRef.current)) {
     return (
       <div className="account-card rounded-2xl p-3 flex items-center gap-3">
         <div className="w-9 h-9 rounded-full bg-white/[0.05] animate-pulse shrink-0" />
@@ -165,25 +166,29 @@ function MobilProfilKarti() {
 /* ─────────────────── PANEL BİLEŞENİ ─────────────────── */
 function AccountPanel({ active }: { active?: string }) {
   const { data: session, status } = useSession();
-  // Son bilinen session'ı tut — status "loading" olduğunda eski veriyle render et, göz kırpmayı önle
+  const [mounted, setMounted] = useState(false);
   const lastSessionRef = useRef<typeof session>(null);
   if (session) lastSessionRef.current = session;
   const stableSession = session ?? lastSessionRef.current;
-  const isInitialLoad = status === "loading" && !lastSessionRef.current;
+  const isGuest = mounted && status === "unauthenticated" && !stableSession;
+  const isInitialLoad = !mounted || (status === "loading" && !lastSessionRef.current);
 
   const [kayitliHesaplar, setKayitliHesaplar] = useState<SavedAccount[]>([]);
   const [gecisHedef, setGecisHedef] = useState<string | null>(null);
 
+  useEffect(() => setMounted(true), []);
+
   useEffect(() => {
+    if (!mounted) return;
     try {
       const raw = localStorage.getItem("bilgin_saved_accounts");
       if (raw) setKayitliHesaplar(JSON.parse(raw));
     } catch {}
-  }, []);
+  }, [mounted]);
 
   /* Oturum açıkken bu hesabı kayıtlı listene ekle */
   useEffect(() => {
-    if (!session?.user?.email) return;
+    if (!mounted || !session?.user?.email) return;
     const raw = localStorage.getItem("bilgin_saved_accounts");
     const liste: SavedAccount[] = raw ? JSON.parse(raw) : [];
     const mevcutEmail = session.user.email;
@@ -198,84 +203,9 @@ function AccountPanel({ active }: { active?: string }) {
     } else {
       setKayitliHesaplar(liste);
     }
-  }, [session]);
+  }, [mounted, session]);
 
   const digerHesaplar = kayitliHesaplar.filter((h) => h.email !== session?.user?.email);
-
-  /* ── MİSAFİR PANELİ — menü görünür, işlem için giriş gerekir ── */
-  if (status === "unauthenticated") {
-    return (
-      <>
-        {gecisHedef && (
-          <AccountSwitchModal email={gecisHedef} onClose={() => setGecisHedef(null)} />
-        )}
-
-        <div className="flex flex-col gap-2">
-          <div className="account-card rounded-2xl p-4 flex flex-col gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-site-shell border border-white/[0.08] flex items-center justify-center shrink-0">
-                <User className="w-5 h-5 text-slate-500" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-white text-sm font-semibold">Misafir</p>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Link
-                href="/giris"
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-site-accent-strong to-blue-600 hover:opacity-90 text-white font-semibold text-sm transition-all"
-              >
-                <LogIn className="w-4 h-4" />
-                Giriş Yap
-              </Link>
-              <Link
-                href="/kayit"
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.08] text-slate-300 font-medium text-sm transition-all"
-              >
-                <UserPlus className="w-4 h-4" />
-                Üye Ol
-              </Link>
-            </div>
-          </div>
-
-          {kayitliHesaplar.length > 0 && (
-            <div className="account-card rounded-2xl p-3">
-              <p className="text-[10px] font-semibold text-slate-600 uppercase tracking-wider px-2 mb-2">Önceki Hesaplar</p>
-              {kayitliHesaplar.map((h) => (
-                <button
-                  key={h.email}
-                  onClick={() => setGecisHedef(h.email)}
-                  className="w-full flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-white/[0.04] transition-colors text-left"
-                >
-                  {h.image ? (
-                    <Image src={h.image} alt={h.name} width={28} height={28} className="rounded-full object-cover shrink-0" />
-                  ) : (
-                    <div className="w-7 h-7 rounded-full bg-site-shell border border-white/[0.08] flex items-center justify-center shrink-0">
-                      <User className="w-3.5 h-3.5 text-slate-500" />
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-slate-300 text-xs font-medium truncate">{h.name || h.email}</p>
-                    <p className="text-slate-600 text-[10px] truncate">{h.email}</p>
-                  </div>
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-700 shrink-0" />
-                </button>
-              ))}
-            </div>
-          )}
-
-          <div className="account-card rounded-2xl p-2 flex flex-col gap-0.5">
-            {NAV_ITEMS.map((item) => (
-              <NavLink key={item.id} {...item} active={active} />
-            ))}
-          </div>
-        </div>
-      </>
-    );
-  }
-
-  /* ── GİRİŞ YAPMIŞ veya YÜKLENİYOR ── */
-  // stableSession: geçiş sırasında son bilinen veriyi kullan, göz kırpmayı önle
   const userImage = stableSession?.user?.image;
   const userName  = stableSession?.user?.name  || "";
   const userEmail = stableSession?.user?.email || "";
@@ -288,18 +218,45 @@ function AccountPanel({ active }: { active?: string }) {
 
       <div className="flex flex-col gap-2">
 
-        {/* Profil mini-kartı — sadece gerçek ilk yüklemede skeleton göster */}
-        <div className="account-card rounded-2xl p-4 flex items-center gap-3">
+        {/* Profil mini-kartı */}
+        <div className="account-card rounded-2xl p-4 flex flex-col gap-3">
           {isInitialLoad ? (
-            <>
+            <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-white/[0.05] animate-pulse shrink-0" />
               <div className="flex-1 flex flex-col gap-1.5">
                 <div className="h-3 w-24 bg-white/[0.05] rounded animate-pulse" />
                 <div className="h-2.5 w-32 bg-white/[0.04] rounded animate-pulse" />
               </div>
+            </div>
+          ) : isGuest ? (
+            <>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-site-shell border border-white/[0.08] flex items-center justify-center shrink-0">
+                  <User className="w-5 h-5 text-slate-500" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-white text-sm font-semibold">Misafir</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Link
+                  href="/giris"
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-site-accent-strong to-blue-600 hover:opacity-90 text-white font-semibold text-sm transition-all"
+                >
+                  <LogIn className="w-4 h-4" />
+                  Giriş Yap
+                </Link>
+                <Link
+                  href="/kayit"
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.08] text-slate-300 font-medium text-sm transition-all"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  Üye Ol
+                </Link>
+              </div>
             </>
           ) : (
-            <>
+            <div className="flex items-center gap-3">
               {userImage ? (
                 <img src={userImage} alt={userName} width={40} height={40} style={{ width: 40, height: 40 }} className="rounded-full object-cover shrink-0 ring-2 ring-site-accent/20" />
               ) : (
@@ -318,12 +275,37 @@ function AccountPanel({ active }: { active?: string }) {
               >
                 <LogOut className="w-4 h-4" />
               </button>
-            </>
+            </div>
           )}
         </div>
 
-        {/* Diğer hesaplar (tek tıkla geçiş) */}
-        {digerHesaplar.length > 0 && (
+        {isGuest && kayitliHesaplar.length > 0 && (
+          <div className="account-card rounded-2xl p-3">
+            <p className="text-[10px] font-semibold text-slate-600 uppercase tracking-wider px-2 mb-2">Önceki Hesaplar</p>
+            {kayitliHesaplar.map((h) => (
+              <button
+                key={h.email}
+                onClick={() => setGecisHedef(h.email)}
+                className="w-full flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-white/[0.04] transition-colors text-left"
+              >
+                {h.image ? (
+                  <Image src={h.image} alt={h.name} width={28} height={28} className="rounded-full object-cover shrink-0" />
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-site-shell border border-white/[0.08] flex items-center justify-center shrink-0">
+                    <User className="w-3.5 h-3.5 text-slate-500" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-slate-300 text-xs font-medium truncate">{h.name || h.email}</p>
+                  <p className="text-slate-600 text-[10px] truncate">{h.email}</p>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-700 shrink-0" />
+              </button>
+            ))}
+          </div>
+        )}
+
+        {!isGuest && !isInitialLoad && digerHesaplar.length > 0 && (
           <div className="account-card rounded-2xl p-3">
             <p className="text-[10px] font-semibold text-slate-600 uppercase tracking-wider px-2 mb-2 flex items-center gap-1.5">
               <SwitchCamera className="w-3 h-3" />
@@ -353,7 +335,7 @@ function AccountPanel({ active }: { active?: string }) {
         )}
 
         {/* Ana navigasyon — her zaman görünür */}
-        <div className="account-card rounded-2xl p-2 flex flex-col gap-0.5">
+        <div className="account-card rounded-2xl p-2 flex flex-col gap-0.5 relative z-20">
           {NAV_ITEMS.map((item) => (
             <NavLink key={item.id} {...item} active={active} />
           ))}
@@ -408,7 +390,7 @@ export default function AccountShell({ children, active }: AccountShellProps) {
       <div className="site-glow-top top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[320px]" />
 
       {/* Mobil: profil kartı + hesap menüsü sayfasına link */}
-      <div className="lg:hidden mb-4 flex flex-col gap-2">
+      <div className="lg:hidden mb-4 flex flex-col gap-2 relative z-20">
         <MobilProfilKarti />
         {!hesapMenuSayfasi && <MobilHesapMenuLink active={aktif} />}
       </div>
@@ -417,7 +399,7 @@ export default function AccountShell({ children, active }: AccountShellProps) {
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-6 relative z-10 lg:items-start">
 
         {/* Sol panel — sabit, animasyon yok */}
-        <aside className="hidden lg:block w-[260px] xl:w-[280px] shrink-0 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full">
+        <aside className="hidden lg:block w-[260px] xl:w-[280px] shrink-0 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto relative z-20 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full">
           <AccountPanel active={aktif} />
         </aside>
 
