@@ -413,7 +413,6 @@ const { sepeteEkle } = useCart();
                   const isIptal = durumIptalMi(durumMetni);
                   const iadeSuresiGectiMi = selectedOrderIadeSuresiGecti;
                   const iadeBitisTarihi = selectedOrderIadeSuresi.bitisTarihi;
-                  const iadeyeKalanGun = selectedOrderIadeSuresi.kalanGun;
                   const iadeSuresiKapali = siparisTeslimEdildi && iadeSuresiGectiMi;
                   const iadeSuresiBitisMetni = iadeBitisTarihi
                     ? `${iadeBitisTarihi.toLocaleDateString("tr-TR")} tarihinde iade süreci sona erdi.`
@@ -509,11 +508,6 @@ const { sepeteEkle } = useCart();
                           <p className="text-[11px] font-bold text-white mt-0.5 tabular-nums">
                             {iadeBitisTarihi.toLocaleDateString("tr-TR")}
                           </p>
-                          {!iadeSuresiKapali && (
-                            <p className="text-[8px] text-emerald-500/80 mt-0.5 font-medium normal-case">
-                              Son {iadeyeKalanGun} gün
-                            </p>
-                          )}
                         </div>
                       )}
                       
