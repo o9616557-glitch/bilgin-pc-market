@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 import { useOrders } from "@/app/OrderContext";
 import KisayolNav from "@/components/layout/KisayolNav";
+import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber } from "@/lib/order-utils";
+import type { OrderLike } from "@/lib/order-types";
 
 export default function KargolarimPage() {
   const { orders: localOrders } = useOrders();
@@ -19,8 +21,8 @@ export default function KargolarimPage() {
     setTimeout(() => setKopyalanan(null), 2000);
   };
 
-  const kargoSiparisleri = localOrders.filter((o: any) =>
-    (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo")
+  const kargoSiparisleri = localOrders.filter((o: OrderLike) =>
+    getOrderStatusText(o).toLocaleLowerCase("tr-TR").includes("kargo")
   );
 
   return (
@@ -73,15 +75,16 @@ export default function KargolarimPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-              {kargoSiparisleri.map((siparis: any, idx: number) => {
+              {kargoSiparisleri.map((siparis: OrderLike, idx: number) => {
                 const siparisKodu = siparis.siparisKodu || siparis.orderNumber || siparis._id?.slice(-8).toUpperCase() || "SİPARİŞ";
                 const tarih = siparis.createdAt
                   ? new Date(siparis.createdAt).toLocaleDateString("tr-TR")
                   : siparis.tarih
                   ? new Date(siparis.tarih).toLocaleDateString("tr-TR")
                   : "";
-                const firma = siparis.kargoFirmasi || siparis.shippingCompany || "Belirtilmemiş";
-                const takipNo = siparis.takipNo || siparis.kargoTakipNo || siparis.trackingNumber || "Takip No Girilmemiş";
+                const firma = getOrderShippingCompany(siparis) || "Belirtilmemiş";
+                const takipNo = getOrderTrackingNumber(siparis) || "Takip No Girilmemiş";
+                const durum = getOrderStatusText(siparis);
 
                 return (
                   <div
@@ -96,6 +99,12 @@ export default function KargolarimPage() {
                     </div>
 
                     <div className="flex flex-col gap-3">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-slate-500 font-medium">Durum</span>
+                        <span className="font-bold text-cyan-400 px-2 py-1 bg-cyan-950/20 rounded-md border border-cyan-500/20">
+                          {durum || "Kargoya Verildi"}
+                        </span>
+                      </div>
                       <div className="flex justify-between items-center text-xs">
                         <span className="text-slate-500 font-medium">Kargo Firması</span>
                         <span className="font-bold text-white px-2 py-1 bg-[#020617] rounded-md border border-slate-800">{firma}</span>

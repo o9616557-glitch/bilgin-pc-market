@@ -10,12 +10,14 @@ import {
 import toast from "react-hot-toast"; // <--- BİNGO! BU SATIRI EKLE
 import { useOrders } from "@/app/OrderContext";
 import KisayolNav from "@/components/layout/KisayolNav";
+import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber } from "@/lib/order-utils";
+import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 
 // ... kodun geri kalanı aynı
 
 export default function SiparisTakipPage() {
   const [kodu, setKodu] = useState("");
-  const [siparis, setSiparis] = useState<any>(null);
+  const [siparis, setSiparis] = useState<OrderLike | null>(null);
   const [hata, setHata] = useState("");
   const [yukleniyor, setYukleniyor] = useState(false);
   const [kopyalandi, setKopyalandi] = useState(false);
@@ -40,16 +42,22 @@ export default function SiparisTakipPage() {
 
   const aktifAdimBul = (durum: string) => {
     if (!durum) return 0; 
-    const d = durum.toLowerCase();
-    if (durum === "Teslim Edildi" || d.includes("teslim") || d.includes("tamam") || d.includes("tamal") || d.includes("bit") || d.includes("son")) return 3;
-    if (durum === "Kargoya Verildi" || d.includes("kargo")) return 2;
-    if (durum === "Ödendi / Hazırlanıyor" || d.includes("hazır") || d.includes("odendi")) return 1;
+    const d = durum.toLocaleLowerCase("tr-TR");
+    if (d.includes("iptal") || d.includes("iade")) return 0;
+    if (d.includes("teslim") || d.includes("tamam") || d.includes("tamal") || d.includes("bit") || d.includes("son")) return 3;
+    if (d.includes("kargo")) return 2;
+    if (d.includes("hazır") || d.includes("ödendi") || d.includes("odendi")) return 1;
     return 0;
   };
 
   const iptalEdildiMi = (durum: string) => {
     if (!durum) return false;
-    return durum === "İptal Edildi" || durum.toLowerCase().includes("iptal");
+    return durum.toLocaleLowerCase("tr-TR").includes("iptal");
+  };
+
+  const iadeMi = (durum: string) => {
+    if (!durum) return false;
+    return durum.toLocaleLowerCase("tr-TR").includes("iade");
   };
 
   const sorgula = async (e: React.FormEvent) => {
@@ -84,6 +92,9 @@ export default function SiparisTakipPage() {
   };
 
   const magazaMesaji = siparis?.musteriMesaji || siparis?.mesaj || siparis?.not || siparis?.adminNotu || siparis?.aciklama;
+  const durumMetni = getOrderStatusText(siparis);
+  const takipNo = getOrderTrackingNumber(siparis);
+  const kargoFirmasi = getOrderShippingCompany(siparis);
 
   const siparisTarihi = siparis?.createdAt || siparis?.tarih;
   const formatliTarih = siparisTarihi 
@@ -176,7 +187,7 @@ export default function SiparisTakipPage() {
                 </div>
               )}
 
-              {iptalEdildiMi(siparis.durum) ? (
+              {iptalEdildiMi(durumMetni) ? (
                 <div className="p-8 sm:p-12 bg-[#0f172a] border border-slate-800 rounded-2xl text-center shadow-xl">
                   <div className="w-20 h-20 rounded-full bg-[#020617] border border-rose-500/20 flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(225,29,72,0.1)]">
                     <span className="text-4xl text-rose-500 font-black">×</span>
@@ -184,6 +195,16 @@ export default function SiparisTakipPage() {
                   <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tight mb-3">Sipariş İptal Edildi</h3>
                   <p className="text-slate-400 text-sm max-w-md mx-auto leading-relaxed">
                     Bu sipariş iptal edilmiş görünüyor. Sorularınız için <span className="text-cyan-400 font-bold">0850 305 59 68</span> numaralı hattan bize ulaşabilirsiniz.
+                  </p>
+                </div>
+              ) : iadeMi(durumMetni) ? (
+                <div className="p-8 sm:p-12 bg-[#0f172a] border border-slate-800 rounded-2xl text-center shadow-xl">
+                  <div className="w-20 h-20 rounded-full bg-[#020617] border border-orange-500/20 flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(249,115,22,0.1)]">
+                    <span className="text-3xl text-orange-400 font-black">↺</span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tight mb-3">İade Süreci Başladı</h3>
+                  <p className="text-slate-400 text-sm max-w-md mx-auto leading-relaxed">
+                    Siparişiniz için iade kaydı görünüyor. Detaylı bilgi için destek ekibimizle iletişime geçebilirsiniz.
                   </p>
                 </div>
               ) : (
@@ -194,11 +215,11 @@ export default function SiparisTakipPage() {
                     
                     <div 
                       className="absolute left-0 top-[21px] sm:top-[29px] h-[4px] sm:h-[6px] bg-gradient-to-r from-blue-600 to-cyan-400 rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(6,182,212,0.6)]"
-                      style={{ width: `${(aktifAdimBul(siparis.durum) / (adimlar.length - 1)) * 100}%` }}
+                      style={{ width: `${(aktifAdimBul(durumMetni) / (adimlar.length - 1)) * 100}%` }}
                     ></div>
 
                     {adimlar.map((adim, index) => {
-                      const aktifAdimNo = aktifAdimBul(siparis.durum);
+                      const aktifAdimNo = aktifAdimBul(durumMetni);
                       const tamamlandiMi = index <= aktifAdimNo;
                       const suAnkiMi = index === aktifAdimNo;
                       
@@ -248,8 +269,8 @@ export default function SiparisTakipPage() {
                      
                      <div className="sm:text-right bg-[#020617] p-4 rounded-xl border border-slate-800 w-full sm:w-auto">
                        <p className="text-slate-500 text-[10px] uppercase tracking-[0.2em] font-black mb-1">Güncel Durum</p>
-                       <p className={`text-sm sm:text-base font-black uppercase tracking-widest ${iptalEdildiMi(siparis.durum) ? 'text-rose-400' : 'text-cyan-400'}`}>
-                         {siparis.durum || "HAZIRLANIYOR"}
+                       <p className={`text-sm sm:text-base font-black uppercase tracking-widest ${iptalEdildiMi(durumMetni) ? 'text-rose-400' : iadeMi(durumMetni) ? 'text-orange-400' : 'text-cyan-400'}`}>
+                         {durumMetni || "HAZIRLANIYOR"}
                        </p>
                      </div>
                    </div>
@@ -258,7 +279,7 @@ export default function SiparisTakipPage() {
                     <div className="flex-1">
                       <p className="text-slate-500 text-[10px] uppercase tracking-[0.2em] font-black mb-3">PAKET İÇERİĞİ</p>
                       <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                        {siparis.items.map((urun: any, i: number) => (
+                        {siparis.items.map((urun: OrderItemLike, i: number) => (
                           <div key={i} className="flex items-center gap-3 sm:gap-4 bg-[#020617] p-3 rounded-2xl border border-slate-800 group hover:border-cyan-500/30 transition-all shadow-sm">
                             
                             <Link href={"/product/" + (urun.slug || urun.id || urun._id)} prefetch={true} className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden bg-[#0f172a] border border-slate-800 flex-shrink-0 relative block cursor-pointer">
@@ -290,23 +311,53 @@ export default function SiparisTakipPage() {
                    )}
                 </div>
 
-                {/* SAĞ: WHATSAPP DESTEK */}
-                <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl flex flex-col justify-center items-center text-center relative overflow-hidden group">
-                   <div className="absolute top-0 left-0 w-full h-1 bg-[#25D366]"></div>
-                   <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-[#25D366]/5 blur-[40px] pointer-events-none rounded-full"></div>
-                   
-                   <div className="w-16 h-16 rounded-full bg-[#020617] flex items-center justify-center mb-5 border border-slate-800 group-hover:scale-110 group-hover:border-[#25D366]/30 transition-all duration-500 shadow-[0_0_20px_rgba(37,211,102,0.1)]">
-                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-8 h-8 fill-[#25D366]">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.82 9.82 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
-                     </svg>
-                 </div>
-                 <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-tight mb-3">WhatsApp Destek</h3>
-                 <p className="text-slate-500 text-[10px] sm:text-xs font-medium leading-relaxed mb-6 uppercase tracking-wide">
-                   Siparişinizle ilgili her türlü sorunuz için bize ulaşın.
-                 </p>
-                 <a href="https://wa.me/905327345023" target="_blank" rel="noopener noreferrer" className="w-full py-4 bg-[#25D366] hover:bg-[#20b858] text-black text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] rounded-xl transition-all shadow-[0_0_20px_rgba(37,211,102,0.2)] hover:shadow-[0_0_30px_rgba(37,211,102,0.4)] flex justify-center items-center gap-2 relative z-10">
-                   DESTEK MERKEZİ
-                 </a>
+                <div className="flex flex-col gap-5 lg:gap-6">
+                  <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
+                    <p className="text-slate-500 text-[10px] uppercase tracking-[0.2em] font-black mb-4">KARGO BİLGİLERİ</p>
+                    <div className="space-y-4">
+                      <div className="bg-[#020617] border border-slate-800 rounded-xl p-4">
+                        <p className="text-slate-500 text-[10px] uppercase tracking-[0.2em] font-black mb-2">Kargo Firması</p>
+                        <p className="text-white font-black text-sm sm:text-base">{kargoFirmasi || "Henüz atanmadı"}</p>
+                      </div>
+                      <div className="bg-[#020617] border border-slate-800 rounded-xl p-4">
+                        <p className="text-slate-500 text-[10px] uppercase tracking-[0.2em] font-black mb-2">Takip Numarası</p>
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="text-cyan-400 font-black text-sm sm:text-base truncate">{takipNo || "Henüz eklenmedi"}</p>
+                          {takipNo && (
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(takipNo);
+                                toast.success("Takip numarası kopyalandı!");
+                              }}
+                              className="p-2 bg-cyan-950/20 border border-cyan-500/20 rounded-xl text-cyan-400 hover:text-white hover:bg-cyan-600/20 transition-colors shrink-0"
+                              title="Takip numarasını kopyala"
+                            >
+                              <Copy className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SAĞ: WHATSAPP DESTEK */}
+                  <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl flex flex-col justify-center items-center text-center relative overflow-hidden group">
+                     <div className="absolute top-0 left-0 w-full h-1 bg-[#25D366]"></div>
+                     <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-[#25D366]/5 blur-[40px] pointer-events-none rounded-full"></div>
+                     
+                     <div className="w-16 h-16 rounded-full bg-[#020617] flex items-center justify-center mb-5 border border-slate-800 group-hover:scale-110 group-hover:border-[#25D366]/30 transition-all duration-500 shadow-[0_0_20px_rgba(37,211,102,0.1)]">
+                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-8 h-8 fill-[#25D366]">
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.82 9.82 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
+                       </svg>
+                   </div>
+                   <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-tight mb-3">WhatsApp Destek</h3>
+                   <p className="text-slate-500 text-[10px] sm:text-xs font-medium leading-relaxed mb-6 uppercase tracking-wide">
+                     Siparişinizle ilgili her türlü sorunuz için bize ulaşın.
+                   </p>
+                   <a href="https://wa.me/905327345023" target="_blank" rel="noopener noreferrer" className="w-full py-4 bg-[#25D366] hover:bg-[#20b858] text-black text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] rounded-xl transition-all shadow-[0_0_20px_rgba(37,211,102,0.2)] hover:shadow-[0_0_30px_rgba(37,211,102,0.4)] flex justify-center items-center gap-2 relative z-10">
+                     DESTEK MERKEZİ
+                   </a>
+                  </div>
                 </div>
 
               </div>
@@ -336,7 +387,7 @@ export default function SiparisTakipPage() {
 
             <div className="flex-1 overflow-y-auto pr-1 space-y-4 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
               {(() => {
-                const kargoSiparisleri = localOrders.filter(o => (o.durum || o.status || "").toLocaleLowerCase("tr-TR").includes("kargo"));
+                const kargoSiparisleri = localOrders.filter((o: OrderLike) => getOrderStatusText(o).toLocaleLowerCase("tr-TR").includes("kargo"));
                 
                 if (kargoSiparisleri.length === 0) {
                   return (
@@ -349,11 +400,11 @@ export default function SiparisTakipPage() {
                   );
                 }
 
-                return kargoSiparisleri.map((siparis: any, idx: number) => {
+                return kargoSiparisleri.map((siparis: OrderLike, idx: number) => {
                   const siparisKodu = siparis.siparisKodu || siparis.orderNumber || siparis._id?.slice(-8).toUpperCase() || "SİPARİŞ";
                   const tarih = siparis.createdAt ? new Date(siparis.createdAt).toLocaleDateString("tr-TR") : siparis.tarih ? new Date(siparis.tarih).toLocaleDateString("tr-TR") : "";
-                  const firma = siparis.kargoFirmasi || siparis.shippingCompany || "Belirtilmemiş";
-                  const takipNo = siparis.takipNo || siparis.kargoTakipNo || siparis.trackingNumber || "Takip No Girilmemiş";
+                  const firma = getOrderShippingCompany(siparis) || "Belirtilmemiş";
+                  const takipNo = getOrderTrackingNumber(siparis) || "Takip No Girilmemiş";
 
                   return (
                     <div key={siparis._id || idx} className="bg-[#020617] border border-slate-800/80 p-4 rounded-2xl flex flex-col gap-4 group hover:border-cyan-500/30 transition-colors relative z-10 mb-2">

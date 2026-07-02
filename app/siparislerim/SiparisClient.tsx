@@ -13,6 +13,8 @@ import toast from "react-hot-toast";
 import { useOrders } from "@/app/OrderContext"; 
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
 import KisayolNav from "@/components/layout/KisayolNav";
+import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber } from "@/lib/order-utils";
+import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 
 export default function SiparisClient() {
   const { orders: contextOrders, refreshOrders } = useOrders();
@@ -20,8 +22,8 @@ export default function SiparisClient() {
   // 🚀 Sepete ekleme fonksiyonunu çektik (Senin context'te ismi sepeteEkle ise addToCart yerine onu yazarsın)
 const { sepeteEkle } = useCart();
 
-  const [localOrders, setLocalOrders] = useState<any[]>([]);
-  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+  const [localOrders, setLocalOrders] = useState<OrderLike[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<OrderLike | null>(null);
 
   useEffect(() => {
     setLocalOrders(contextOrders);
@@ -94,6 +96,16 @@ const { sepeteEkle } = useCart();
 
   const DurumRozetiGoster = ({ durum }: { durum: string }) => {
     const d = (durum || "").toLocaleLowerCase("tr-TR");
+    if (d.includes("kısmen iade") || d.includes("kismen iade")) return (
+        <div className="w-max inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-orange-500/10 border border-orange-500/20 text-orange-300 text-[10px] font-black uppercase tracking-widest shadow-inner">
+           <RefreshCw className="w-3.5 h-3.5" /> KISMİ İADE
+        </div>
+    );
+    if (d.includes("iade")) return (
+        <div className="w-max inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-orange-500/10 border border-orange-500/20 text-orange-300 text-[10px] font-black uppercase tracking-widest shadow-inner">
+           <RefreshCw className="w-3.5 h-3.5" /> İADE EDİLDİ
+        </div>
+    );
     if (d.includes("iptal") || d.includes("i̇ptal")) return (
         <div className="w-max inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-black uppercase tracking-widest shadow-inner">
            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> İPTAL EDİLDİ
@@ -142,7 +154,7 @@ const { sepeteEkle } = useCart();
     }
 
     if (durumFiltresi !== "tumu") {
-      const d = (order.durum || order.status || "").toLocaleLowerCase("tr-TR");
+      const d = getOrderStatusText(order).toLocaleLowerCase("tr-TR");
       if (durumFiltresi === "teslim") {
         durumUygun = d.includes("teslim") || d.includes("tamam") || d.includes("bit");
       } else if (durumFiltresi === "kargo") {
@@ -192,9 +204,9 @@ const { sepeteEkle } = useCart();
                       <Package className="w-5 h-5 text-cyan-400" />
                     </div>
                     <div>
-                      <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-0.5">Siparişlerim</h1>
+                      <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-0.5">Sipariş Detayı</h1>
                       <p className="text-cyan-400/80 text-xs font-medium tracking-wide">
-                        Listelenen: <span className="font-black text-cyan-400">{filtrelenmisSiparisler.length}</span> Sipariş
+                        Kod: <span className="font-black text-cyan-400">#{selectedOrder.siparisKodu || selectedOrder.orderNumber || selectedOrder._id?.slice(-8)?.toUpperCase()}</span>
                       </p>
                     </div>
                   </div>
@@ -261,7 +273,7 @@ const { sepeteEkle } = useCart();
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
-                {selectedOrder.items?.map((item: any, idx: number) => {
+                {selectedOrder.items?.map((item: OrderItemLike, idx: number) => {
                   const durumMetni = (selectedOrder.durum || selectedOrder.status || "").toLowerCase();
                   const isTeslimEdildi = durumMetni.includes("teslim") || durumMetni.includes("tamam");
                   const isKargoda = durumMetni.includes("kargo");
@@ -420,12 +432,28 @@ const { sepeteEkle } = useCart();
                         {(selectedOrder.siparisNotu && selectedOrder.siparisNotu.trim() !== "" && selectedOrder.siparisNotu !== "Not eklenmemiş") ? selectedOrder.siparisNotu : "Siparişe özel not eklenmemiş."}
                       </div>
                     </div>
-                    {selectedOrder.kargoTakipNo && (
+                    {selectedOrder.musteriMesaji && (
+                      <div>
+                        <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-1.5">MAĞAZA NOTU</p>
+                        <div className="bg-[#020617] border border-slate-800 p-3 rounded-lg text-xs text-slate-300 font-medium leading-relaxed">
+                          {selectedOrder.musteriMesaji}
+                        </div>
+                      </div>
+                    )}
+                    {getOrderShippingCompany(selectedOrder) && (
+                      <div>
+                        <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-1.5">KARGO FİRMASI</p>
+                        <div className="bg-[#020617] border border-slate-800 p-3 rounded-lg text-xs text-white font-semibold">
+                          {getOrderShippingCompany(selectedOrder)}
+                        </div>
+                      </div>
+                    )}
+                    {getOrderTrackingNumber(selectedOrder) && (
                       <div>
                         <p className="text-[9px] text-cyan-500 font-black uppercase tracking-widest mb-1.5">KARGO TAKİP NUMARASI</p>
                         <div className="bg-cyan-500/10 border border-cyan-500/20 p-3 rounded-lg text-xs text-cyan-400 font-bold flex justify-between items-center">
-                          {selectedOrder.kargoTakipNo}
-                          <button onClick={(e) => handleCopy(selectedOrder.kargoTakipNo, e)} className="text-cyan-400 hover:text-white transition-colors">
+                          {getOrderTrackingNumber(selectedOrder)}
+                          <button onClick={(e) => handleCopy(getOrderTrackingNumber(selectedOrder), e)} className="text-cyan-400 hover:text-white transition-colors">
                             <Copy className="w-3.5 h-3.5" />
                           </button>
                         </div>
@@ -524,9 +552,9 @@ const { sepeteEkle } = useCart();
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-6 relative z-0">
-                  {filtrelenmisSiparisler.map((order: any) => {
+                  {filtrelenmisSiparisler.map((order: OrderLike) => {
                     const currentSiparisKodu = order.siparisKodu || order.orderNumber || order._id.slice(-8).toUpperCase();
-                    const durumMetni = order.durum || order.status || "";
+                    const durumMetni = getOrderStatusText(order);
                     const firstItem = order.items && order.items.length > 0 ? order.items[0] : null;
 
                     return (

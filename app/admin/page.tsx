@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { adminMi } from "@/lib/admin";
+import { ORDER_STATUS_OPTIONS } from "@/lib/order-utils";
 
 export default function AdminPaneli() {
   const { data: session, status } = useSession();
@@ -571,13 +572,9 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                       <div>
                         <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Sipariş Durumu</label>
                         <select id={`durum-${siparis._id}`} defaultValue={siparis.durum} className="w-full bg-[#0b1120] border border-slate-600 rounded-lg px-4 py-3 text-sm font-bold text-slate-200 focus:outline-none focus:border-slate-400 appearance-none">
-                          <option value="Ödeme Bekliyor (Havale)">Ödeme Bekliyor (Havale)</option>
-                          <option value="Ödendi / Hazırlanıyor">Ödendi / Hazırlanıyor</option>
-                          <option value="Kargoya Verildi">Kargoya Verildi</option>
-                          <option value="Tamamlandı">Tamamlandı</option>
-                          <option value="Kısmen İade Edildi">Kısmen İade Edildi</option>
-                          <option value="İade Edildi">İade Edildi</option>
-                          <option value="İptal Edildi">İptal Edildi</option>
+                          {ORDER_STATUS_OPTIONS.map((durum) => (
+                            <option key={durum} value={durum}>{durum}</option>
+                          ))}
                         </select>
                       </div>
                       <div className="p-4 bg-indigo-950/30 border border-indigo-900/50 rounded-lg">

@@ -6,6 +6,8 @@ import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
+import { getOrderShippingCompany, getOrderTrackingNumber, normalizeOrderStatus } from "@/lib/order-utils";
+import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 
 // 🚀 VERCEL ÖNBELLEK KİLİDİNİ PARÇALAMA EMİRLERİ
 export const dynamic = "force-dynamic";
@@ -52,10 +54,10 @@ export async function GET() {
     }).sort({ _id: -1 }).toArray();
 
     // 🚀 KURYE ARKA ODAYA (PRODUCTS) HIZLI GEÇİŞ YAPIYOR!
-    const safeOrders = await Promise.all(rawOrders.map(async (order) => {
+    const safeOrders = await Promise.all(rawOrders.map(async (order: OrderLike) => {
       const rawItems = order.items || order.sepet || order.cartItems || [];
       
-      const safeItems = await Promise.all(rawItems.map(async (item: any) => {
+      const safeItems = await Promise.all(rawItems.map(async (item: OrderItemLike) => {
         let zimbaliKategori = ""; 
         
         try {
@@ -87,13 +89,10 @@ export async function GET() {
         };
       }));
 
-      // 🚀 AKILLI MÜHÜR MOTORU
-      const hamDurumMetni = `${order.durum || ""} ${order.status || ""} ${order.paymentMethod || ""}`.toLowerCase();
-      
-      let sonDurum = order.durum || order.status || "Hazırlanıyor";
-      if (hamDurumMetni.includes("iptal") || hamDurumMetni.includes("red") || hamDurumMetni.includes("iade")) {
-        sonDurum = "İptal Edildi";
-      }
+      const hamDurumMetni = `${order.durum || ""} ${order.status || ""} ${order.paymentMethod || ""}`.toLocaleLowerCase("tr-TR");
+      const sonDurum = normalizeOrderStatus(order);
+      const takipNo = getOrderTrackingNumber(order);
+      const kargoFirmasi = getOrderShippingCompany(order);
 
       return {
         ...order,
@@ -103,6 +102,11 @@ export async function GET() {
         createdAt: order.createdAt || order.tarih || new Date().toISOString(),
         shippingAddress: order.shippingAddress || order.musteri || order.customerDetails || {},
         searchableStatus: hamDurumMetni,
+        takipNo,
+        kargoTakipNo: takipNo,
+        trackingNumber: takipNo,
+        kargoFirmasi,
+        shippingCompany: kargoFirmasi,
         status: sonDurum, 
         durum: sonDurum
       };

@@ -53,10 +53,20 @@ export async function PUT(request: Request) {
     const siparis = await db.collection("orders").findOne({ _id: new ObjectId(id) });
 
     const guncellenecekler: any = {};
-    if (yeniDurum !== undefined) guncellenecekler.durum = yeniDurum;
+    if (yeniDurum !== undefined) {
+      guncellenecekler.durum = yeniDurum;
+      guncellenecekler.status = yeniDurum;
+    }
     if (musteriMesaji !== undefined) guncellenecekler.musteriMesaji = musteriMesaji;
-    if (kargoFirmasi !== undefined) guncellenecekler.kargoFirmasi = kargoFirmasi;
-    if (takipNo !== undefined) guncellenecekler.takipNo = takipNo;
+    if (kargoFirmasi !== undefined) {
+      guncellenecekler.kargoFirmasi = kargoFirmasi;
+      guncellenecekler.shippingCompany = kargoFirmasi;
+    }
+    if (takipNo !== undefined) {
+      guncellenecekler.takipNo = takipNo;
+      guncellenecekler.kargoTakipNo = takipNo;
+      guncellenecekler.trackingNumber = takipNo;
+    }
 
     await db.collection("orders").updateOne(
       { _id: new ObjectId(id) },
