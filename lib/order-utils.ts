@@ -651,6 +651,37 @@ export function siparisArsivBitisTarihi(order?: OrderLike | null): Date | null {
   return new Date(tarih.getTime() + ARSIV_SURESI_GUN * 24 * 60 * 60 * 1000);
 }
 
+export function siparisArsivSuresiOzeti(order?: OrderLike | null, bugun = new Date()) {
+  const baslangicTarihi = siparisTarihi(order);
+  const bitisTarihi = siparisArsivBitisTarihi(order);
+
+  if (!baslangicTarihi || !bitisTarihi) {
+    return {
+      var: false,
+      dolduMu: false,
+      kalanGun: ARSIV_SURESI_GUN,
+      bitisTarihi: null as Date | null,
+      baslangicTarihi: null as Date | null,
+    };
+  }
+
+  const dolduMu = bugun >= bitisTarihi;
+  const kalanGun = Math.max(
+    0,
+    Math.ceil((bitisTarihi.getTime() - bugun.getTime()) / (1000 * 60 * 60 * 24))
+  );
+
+  return { var: true, dolduMu, kalanGun, bitisTarihi, baslangicTarihi };
+}
+
+export function siparisArsivKalanGunMetni(order?: OrderLike | null): string | null {
+  const ozet = siparisArsivSuresiOzeti(order);
+  if (!ozet.var || ozet.dolduMu) return null;
+  if (ozet.kalanGun <= 0) return "Bugün arşive taşınır";
+  if (ozet.kalanGun === 1) return "Arşive 1 gün kaldı";
+  return `Arşive ${ozet.kalanGun} gün kaldı`;
+}
+
 /** Sipariş listesinde gösterilecek durum metni */
 export function siparisGosterimDurumu(order?: OrderLike | null) {
   const durum = getOrderStatusText(order);
