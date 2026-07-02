@@ -439,6 +439,9 @@ const { sepeteEkle } = useCart();
                           
                           <div className="mt-auto">
                             <p className="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider mb-0.5">Miktar: {item.quantity || item.adet} Adet</p>
+                            <p className="text-slate-500 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider mb-0.5 flex items-center gap-1">
+                              <Calendar className="w-3 h-3 shrink-0" /> Alım Tarihi: {siparisTarihi.toLocaleDateString("tr-TR")}
+                            </p>
                             {Number(item.iadeEdilenAdet || 0) > 0 && (
                               <>
                                 <p className="text-rose-400 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider mb-0.5">

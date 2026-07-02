@@ -835,24 +835,38 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
                       <div className="bg-[#0b1120] p-5 rounded-lg border border-slate-800 max-h-[300px] overflow-y-auto custom-scrollbar">
                         <div className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-3 sticky top-0 bg-[#0b1120] pb-2 flex items-center gap-2"><Package className="w-4 h-4" /> Sipariş İçeriği ({siparis.sepet?.length || 0} Parça)</div>
                         <div className="flex flex-col gap-3">
-                          {siparis.sepet?.map((urun: OrderItemLike, i: number) => (
+                          {siparis.sepet?.map((urun: OrderItemLike, i: number) => {
+                            const urunAdet = Number(urun.adet || urun.quantity || 1);
+                            const urunIadeAdet = Number(urun.iadeEdilenAdet || 0);
+                            const urunTamIade = urunIadeAdet > 0 && urunIadeAdet >= urunAdet;
+                            return (
                             <div key={i} className="flex flex-col border-b border-slate-800 pb-3 last:border-0 last:pb-0">
                               <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-slate-300 leading-snug">
                                 <span><span className="font-black text-slate-500 mr-2 text-base">{urun.adet}x</span>{urun.isim || urun.name}</span>
-                                {Number(urun.iadeEdilenAdet || 0) > 0 && (
-                                  <span className="px-2 py-1 rounded-md bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[9px] font-black uppercase tracking-widest">
-                                    Kısmi İade
-                                  </span>
+                                {urunIadeAdet > 0 && (
+                                  urunTamIade ? (
+                                    <span className="px-2 py-1 rounded-md bg-orange-500/10 border border-orange-500/20 text-orange-300 text-[9px] font-black uppercase tracking-widest">
+                                      İade Edildi
+                                    </span>
+                                  ) : (
+                                    <span className="px-2 py-1 rounded-md bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[9px] font-black uppercase tracking-widest">
+                                      Kısmi İade
+                                    </span>
+                                  )
                                 )}
                               </div>
-                              {Number(urun.iadeEdilenAdet || 0) > 0 && (
+                              {urunIadeAdet > 0 && (
                                 <div className="mt-1 text-[10px] font-black uppercase tracking-widest text-rose-400">
-                                  İade Edilen: {Number(urun.iadeEdilenAdet || 0)} Adet
+                                  İade Edilen: {urunIadeAdet} Adet
                                 </div>
                               )}
+                              <div className="text-[11px] text-slate-500 font-medium mt-1 flex items-center gap-1">
+                                <Clock className="w-3 h-3 shrink-0" /> Alım Tarihi: {new Date(siparis.tarih || siparis.createdAt || Date.now()).toLocaleDateString("tr-TR")}
+                              </div>
                               <div className="text-[11px] text-slate-600 font-mono mt-1">ID: {urun.id || urun._id}</div>
                             </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
                     </div>
