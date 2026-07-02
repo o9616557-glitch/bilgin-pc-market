@@ -174,6 +174,17 @@ const { sepeteEkle } = useCart();
     return zamanUygun && durumUygun;
   });
 
+  const selectedOrderSiparisKodu =
+    selectedOrder?.siparisKodu || selectedOrder?.orderNumber || selectedOrder?._id?.slice(-8)?.toUpperCase() || "";
+  const selectedOrderDurumMetni = (selectedOrder?.durum || selectedOrder?.status || "").toLowerCase();
+  const selectedOrderIsTeslimEdildi = selectedOrderDurumMetni.includes("teslim") || selectedOrderDurumMetni.includes("tamam");
+  const selectedOrderIsKargoda = selectedOrderDurumMetni.includes("kargo");
+  const selectedOrderIsIptal = selectedOrderDurumMetni.includes("iptal");
+  const selectedOrderTopluIptalGoster =
+    (selectedOrder?.items?.length || 0) > 1 &&
+    !selectedOrderIsIptal &&
+    !selectedOrderIsTeslimEdildi;
+
   return (
     <div className="site-page p-4 sm:p-6 lg:p-8 relative overflow-clip">
       <div className="site-glow-top top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[280px]" />
@@ -211,10 +222,31 @@ const { sepeteEkle } = useCart();
                     <div>
                       <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-0.5">Sipariş Detayı</h1>
                       <p className="text-cyan-400/80 text-xs font-medium tracking-wide">
-                        Kod: <span className="font-black text-cyan-400">#{selectedOrder.siparisKodu || selectedOrder.orderNumber || selectedOrder._id?.slice(-8)?.toUpperCase()}</span>
+                        Kod: <span className="font-black text-cyan-400">#{selectedOrderSiparisKodu}</span>
                       </p>
                     </div>
                   </div>
+
+                  {selectedOrderTopluIptalGoster && (
+                    selectedOrderIsKargoda ? (
+                      <button
+                        onClick={() => {
+                          setIptalEdilecekSiparisKodu(selectedOrderSiparisKodu);
+                          setKargoIptalModalAcik(true);
+                        }}
+                        className="w-full xl:w-auto flex items-center justify-center gap-2 px-4 py-3 bg-amber-500/5 hover:bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-lg transition-all font-black text-[10px] uppercase tracking-widest whitespace-nowrap"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5 shrink-0" /> Toplu İptal Et
+                      </button>
+                    ) : (
+                      <Link
+                        href={`/destek-taleplerim?siparisNo=${selectedOrderSiparisKodu}&konu=iptal`}
+                        className="w-full xl:w-auto flex items-center justify-center gap-2 px-4 py-3 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg transition-all font-black text-[10px] uppercase tracking-widest whitespace-nowrap"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5 shrink-0" /> Toplu İptal Et
+                      </Link>
+                    )
+                  )}
 
                 </div>
               </div>
