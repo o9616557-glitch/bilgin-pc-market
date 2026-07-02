@@ -449,6 +449,12 @@ const { sepeteEkle } = useCart();
                     iadeEdilenAdet
                   );
                   const urunIadeVar = urunSatirindaIadeVar(item);
+                  const iadeTarihSonuKosesiGoster =
+                    siparisTeslimEdildi &&
+                    iadeBitisTarihi &&
+                    !urunIadeVar &&
+                    !urunIptal &&
+                    !urunBekleyenIslem;
                   const urunTamIade = iadeEdilenAdet > 0 ? iadeEdilenAdet >= itemAdet : siparisKalemTamIadeMi(selectedOrder, item, selectedOrderIadeOpts);
                   const yorumTekrarAlGoster =
                     siparisTeslimEdildi && !selectedOrderKismiIade && !urunIptal && !urunIadeVar && !urunBekleyenIslem;
@@ -484,7 +490,32 @@ const { sepeteEkle } = useCart();
                     !incelemeMetni;
 
                   return (
-                    <div key={idx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-4 shadow-md flex flex-col h-full gap-3 sm:gap-4">
+                    <div key={idx} className="relative overflow-hidden bg-[#0f172a] border border-slate-800 rounded-xl p-4 shadow-md flex flex-col h-full gap-3 sm:gap-4">
+                      {iadeTarihSonuKosesiGoster && (
+                        <div
+                          className={`absolute top-0 right-0 z-10 px-2.5 py-1.5 rounded-bl-xl border-l border-b text-right ${
+                            iadeSuresiKapali
+                              ? "bg-slate-800/95 border-slate-700"
+                              : "bg-emerald-950/90 border-emerald-800/40"
+                          }`}
+                        >
+                          <p
+                            className={`text-[9px] font-medium normal-case tracking-normal leading-tight ${
+                              iadeSuresiKapali ? "text-slate-400" : "text-emerald-400/90"
+                            }`}
+                          >
+                            {iadeSuresiKapali ? "İade tarih sonu" : "İade son tarihi"}
+                          </p>
+                          <p className="text-[11px] font-bold text-white mt-0.5 tabular-nums">
+                            {iadeBitisTarihi.toLocaleDateString("tr-TR")}
+                          </p>
+                          {!iadeSuresiKapali && (
+                            <p className="text-[8px] text-emerald-500/80 mt-0.5 font-medium normal-case">
+                              Son {iadeyeKalanGun} gün
+                            </p>
+                          )}
+                        </div>
+                      )}
                       
                       <div className="flex items-start gap-3 sm:gap-4 flex-1">
                         <Link href={urunLinki} className="w-20 h-20 shrink-0 bg-[#020617] rounded-lg border border-slate-800 hover:border-cyan-500/50 flex items-center justify-center p-2 transition-colors">
@@ -495,7 +526,7 @@ const { sepeteEkle } = useCart();
                           )}
                         </Link>
                         
-                        <div className="flex-1 flex flex-col h-full min-w-0">
+                        <div className={`flex-1 flex flex-col h-full min-w-0 ${iadeTarihSonuKosesiGoster ? "pr-24 sm:pr-28" : ""}`}>
                           <div className="mb-2 flex flex-wrap items-center gap-2">
                             <Link href={urunLinki} className="text-[11px] sm:text-xs font-bold text-white hover:text-cyan-400 transition-colors leading-snug block break-words">
                               {item.title || item.isim}
@@ -528,63 +559,47 @@ const { sepeteEkle } = useCart();
                       </div>
 
                       {yorumTekrarAlGoster && (
-                        <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-medium tracking-wide mt-1 -mb-1">
-                          {iadeSuresiKapali ? (
-                            <span className="text-slate-400 flex items-start gap-1 leading-relaxed normal-case">
-                              <AlertCircle className="w-3 h-3 shrink-0 mt-0.5" />
-                              {iadeSuresiBitisMetni}
-                            </span>
-                          ) : iadeBitisTarihi ? (
-                            <span className="text-emerald-500 flex items-center gap-1 font-bold uppercase tracking-wider">
-                              <Info className="w-3 h-3" />
-                              İade için son {iadeyeKalanGun} gün ({iadeBitisTarihi.toLocaleDateString("tr-TR")})
-                            </span>
-                          ) : null}
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <Link
+                            href={`${urunLinki}#yorumlar`}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#020617] hover:bg-slate-800/50 text-slate-300 hover:text-white border border-slate-700 rounded-md transition-all text-[10px] font-semibold whitespace-nowrap"
+                          >
+                            <Star className="w-3 h-3 shrink-0" /> Yorumla
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              if (!sepeteEkle) return;
+                              const urunSlug = item?.slug || item?.productId || item?.id || item?._id || "";
+                              sepeteEkle({
+                                id: String(item?.id || item?._id || item?.productId || urunSlug),
+                                isim: item?.title || item?.isim || "Ürün",
+                                fiyat: Number(item?.price || item?.fiyat || 0),
+                                resim: item?.image || item?.resim || "https://via.placeholder.com/400",
+                                varyasyon: "Standart Model",
+                                havaleIndirimi: 5,
+                                slug: urunSlug,
+                              });
+                              const btn = e.currentTarget;
+                              const originalHTML = btn.innerHTML;
+                              const originalClasses = btn.className;
+                              btn.className = "inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-500 text-white border border-emerald-400/40 rounded-md text-[10px] font-semibold whitespace-nowrap";
+                              btn.innerHTML = '<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Eklendi';
+                              setTimeout(() => {
+                                btn.className = originalClasses;
+                                btn.innerHTML = originalHTML;
+                              }, 1500);
+                            }}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-cyan-600/10 hover:bg-cyan-600 text-cyan-400 hover:text-white border border-cyan-500/30 rounded-md transition-all text-[10px] font-semibold whitespace-nowrap"
+                          >
+                            <ShoppingCart className="w-3 h-3 shrink-0" /> Tekrar Al
+                          </button>
                         </div>
                       )}
 
                       <div className="flex flex-col gap-2 pt-3 border-t border-slate-800/50 mt-auto">
-                        {yorumTekrarAlGoster && (
-                          <div className="flex flex-wrap items-center gap-1.5">
-                            <Link
-                              href={`${urunLinki}#yorumlar`}
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#020617] hover:bg-slate-800/50 text-slate-300 hover:text-white border border-slate-700 rounded-md transition-all text-[10px] font-semibold whitespace-nowrap"
-                            >
-                              <Star className="w-3 h-3 shrink-0" /> Yorumla
-                            </Link>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                if (!sepeteEkle) return;
-                                const urunSlug = item?.slug || item?.productId || item?.id || item?._id || "";
-                                sepeteEkle({
-                                  id: String(item?.id || item?._id || item?.productId || urunSlug),
-                                  isim: item?.title || item?.isim || "Ürün",
-                                  fiyat: Number(item?.price || item?.fiyat || 0),
-                                  resim: item?.image || item?.resim || "https://via.placeholder.com/400",
-                                  varyasyon: "Standart Model",
-                                  havaleIndirimi: 5,
-                                  slug: urunSlug,
-                                });
-                                const btn = e.currentTarget;
-                                const originalHTML = btn.innerHTML;
-                                const originalClasses = btn.className;
-                                btn.className = "inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-500 text-white border border-emerald-400/40 rounded-md text-[10px] font-semibold whitespace-nowrap";
-                                btn.innerHTML = '<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Eklendi';
-                                setTimeout(() => {
-                                  btn.className = originalClasses;
-                                  btn.innerHTML = originalHTML;
-                                }, 1500);
-                              }}
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-cyan-600/10 hover:bg-cyan-600 text-cyan-400 hover:text-white border border-cyan-500/30 rounded-md transition-all text-[10px] font-semibold whitespace-nowrap"
-                            >
-                              <ShoppingCart className="w-3 h-3 shrink-0" /> Tekrar Al
-                            </button>
-                          </div>
-                        )}
-
                         <div className="flex items-center justify-end gap-2 min-h-[28px]">
                           {urunBekleyenIslem && incelemeMetni ? (
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-amber-500/5 text-amber-400 border border-amber-500/20 text-[10px] font-medium">
