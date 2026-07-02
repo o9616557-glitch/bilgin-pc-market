@@ -5,6 +5,8 @@ import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useSession, signOut, signIn } from "next-auth/react";
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
+import { useSiteHeaderYukseklik } from "@/hooks/useSiteHeaderYukseklik";
 import {
   User, CreditCard, ChevronRight, Menu,
   LogIn, UserPlus, LogOut,
@@ -384,6 +386,10 @@ export default function AccountShell({ children, active }: AccountShellProps) {
 
   const hesapMenuSayfasi = pathname === "/hesap-menu";
   const hesabimSayfasi = pathname === "/hesabim";
+  const headerYukseklik = useSiteHeaderYukseklik();
+  const [portalHazir, setPortalHazir] = useState(false);
+
+  useEffect(() => setPortalHazir(true), []);
 
   /* Tüm hesap sayfalarını önceden yükle — geçişlerde loading/göz kırpma olmasın */
   useEffect(() => {
@@ -392,13 +398,21 @@ export default function AccountShell({ children, active }: AccountShellProps) {
     router.prefetch("/hesap-menu");
   }, [router]);
 
-  /* Mobil menü sayfası — header altından tam ekran, üstten başlar */
-  if (hesapMenuSayfasi) {
-    return (
-      <div className="lg:hidden fixed inset-x-0 top-[7.25rem] bottom-0 z-[90] bg-[#050814] flex flex-col overflow-hidden">
+  /* Mobil menü — header'a bitişik, body'ye portal (scroll/transform kayması olmasın) */
+  if (hesapMenuSayfasi && portalHazir) {
+    return createPortal(
+      <div
+        className="lg:hidden fixed inset-x-0 bottom-0 z-[90] bg-[#050814] flex flex-col overflow-hidden"
+        style={{ top: headerYukseklik > 0 ? headerYukseklik : 116 }}
+      >
         {children}
-      </div>
+      </div>,
+      document.body
     );
+  }
+
+  if (hesapMenuSayfasi) {
+    return null;
   }
 
   return (

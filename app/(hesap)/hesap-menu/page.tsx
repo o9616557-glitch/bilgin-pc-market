@@ -23,8 +23,8 @@ export default function HesapMenuPage() {
   }
 
   return (
-    <div className="flex flex-col h-full animate-in slide-in-from-top-2 duration-200">
-      <div className="flex items-center gap-2 px-3 py-3 border-b border-white/[0.06] bg-[#050814] shrink-0">
+    <>
+      <div className="flex items-center gap-2 px-3 py-2.5 border-b border-white/[0.06] bg-[#050814] shrink-0">
         <button
           type="button"
           onClick={() => router.back()}
@@ -36,7 +36,7 @@ export default function HesapMenuPage() {
         <h1 className="text-base font-bold text-white tracking-tight">Menü</h1>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-0.5">
+      <nav className="flex-1 min-h-0 overflow-y-auto px-3 py-2 flex flex-col gap-0.5">
         {NAV_ITEMS.map((item) => (
           <Link
             key={item.id}
@@ -52,6 +52,6 @@ export default function HesapMenuPage() {
           </Link>
         ))}
       </nav>
-    </div>
+    </>
   );
 }
