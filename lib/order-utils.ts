@@ -425,12 +425,38 @@ export function urunTalepBekliyorKaydet(
 
 export function urunTalepBekliyorKonu(
   siparisKodu: string,
-  urunId: string
+  urunId: string,
+  urunIdler?: string[]
 ): "iade" | "iptal" | null {
   if (typeof window === "undefined") return null;
-  const val = sessionStorage.getItem(`${URUN_TALEP_KEY}:${siparisKodu}:${urunId}`);
-  if (val === "iade" || val === "iptal") return val;
-  if (val === "1") return "iptal";
+  const ids = [...new Set([urunId, ...(urunIdler || [])].filter(Boolean))];
+
+  const normalizeKonu = (val: string | null): "iade" | "iptal" | null => {
+    if (val === "iade" || val === "iptal") return val;
+    if (val === "1") return "iptal";
+    return null;
+  };
+
+  for (const id of ids) {
+    const direct = normalizeKonu(sessionStorage.getItem(`${URUN_TALEP_KEY}:${siparisKodu}:${id}`));
+    if (direct) return direct;
+  }
+
+  const prefix = `${URUN_TALEP_KEY}:`;
+  for (let i = 0; i < sessionStorage.length; i++) {
+    const key = sessionStorage.key(i);
+    if (!key?.startsWith(prefix)) continue;
+    const rest = key.slice(prefix.length);
+    const sep = rest.lastIndexOf(":");
+    if (sep < 0) continue;
+    const keySiparis = rest.slice(0, sep);
+    const keyUrunId = rest.slice(sep + 1);
+    if (!siparisKodlariEslesir(keySiparis, siparisKodu)) continue;
+    if (!ids.some((id) => urunKalemiEslesir({ urunId: keyUrunId }, id))) continue;
+    const konu = normalizeKonu(sessionStorage.getItem(key));
+    if (konu) return konu;
+  }
+
   return null;
 }
 
@@ -438,21 +464,58 @@ export function urunTalepBekliyorMu(siparisKodu: string, urunId: string) {
   return urunTalepBekliyorKonu(siparisKodu, urunId) !== null;
 }
 
+export function urunBekleyenIadeMi(
+  talepler: UrunDestekTalepLike[],
+  siparisKodu: string,
+  urunId: string,
+  urunIsim: string | undefined,
+  iadeEdilenAdet: number,
+  urunIdler?: string[]
+): boolean {
+  if (iadeEdilenAdet > 0) return false;
+  if (urunTalepBekliyorKonu(siparisKodu, urunId, urunIdler) === "iade") return true;
+
+  const ids = [...new Set([urunId, ...(urunIdler || [])].filter(Boolean))];
+  return talepler.some((t) => {
+    if (t.konu !== "iade") return false;
+    if (t.iadeOdendi || t.durum === "Çözüldü") return false;
+    if (!siparisKodlariEslesir(t.siparisNo || "", siparisKodu)) return false;
+    if (!t.iadeKalemleri?.length) return false;
+    return t.iadeKalemleri.some((k) => ids.some((id) => urunKalemiEslesir(k, id, urunIsim)));
+  });
+}
+
 export function urunBekleyenIslemEtiketi(
   talepler: UrunDestekTalepLike[],
   siparisKodu: string,
   urunId: string,
   urunIsim: string | undefined,
-  iadeEdilenAdet: number
+  iadeEdilenAdet: number,
+  urunIdler?: string[]
 ): string | null {
   if (iadeEdilenAdet > 0) {
     urunTalepBekliyorTemizle(siparisKodu, urunId);
     return null;
   }
 
-  const acikEtiket = urunIcinAcikDestekEtiketi(talepler, siparisKodu, urunId, urunIsim);
-  if (acikEtiket) return acikEtiket;
-  return null;
+  const bekleyenKonu = urunTalepBekliyorKonu(siparisKodu, urunId, urunIdler);
+  if (bekleyenKonu === "iade") return "İade oluşturuluyor";
+  if (bekleyenKonu === "iptal") return "İptal talebi oluşturuluyor";
+
+  const ids = [...new Set([urunId, ...(urunIdler || [])].filter(Boolean))];
+  const acik = talepler.find((t) => {
+    if (t.durum === "Çözüldü" || t.iadeOdendi) return false;
+    if (t.konu !== "iptal" && t.konu !== "iade") return false;
+    if (!siparisKodlariEslesir(t.siparisNo || "", siparisKodu)) return false;
+    if (t.iadeKalemleri?.length) {
+      return t.iadeKalemleri.some((k) => ids.some((id) => urunKalemiEslesir(k, id, urunIsim)));
+    }
+    return false;
+  });
+  if (!acik) return null;
+
+  if (acik.konu === "iade") return "İade oluşturuluyor";
+  return "İptal talebi oluşturuluyor";
 }
 
 export function urunTalepBekliyorTemizle(siparisKodu: string, urunId: string) {

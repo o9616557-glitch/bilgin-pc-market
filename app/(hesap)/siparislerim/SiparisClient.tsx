@@ -12,7 +12,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { useOrders } from "@/app/OrderContext"; 
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
-import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisGosterimDurumu, siparisIadeOzeti, siparisIadeSuresiOzeti, siparisIadeYontemi, siparisKalemiIadeAdet, siparisKalemIadeEdildiMi, siparisKalemTamIadeMi, siparisKalemleri, siparisTamamlandiMi, urunBekleyenIslemEtiketi, urunIadeYontemiBul, urunIadeYontemiMetni, urunIptalEdilebilirMi, urunIptalEdildiMi, urunTalepBekliyorTemizle, durumIptalMi, durumMetniNorm, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
+import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisGosterimDurumu, siparisIadeOzeti, siparisIadeSuresiOzeti, siparisIadeYontemi, siparisKalemiIadeAdet, siparisKalemIadeEdildiMi, siparisKalemTamIadeMi, siparisKalemleri, siparisKalemIdleri, siparisTamamlandiMi, urunBekleyenIadeMi, urunBekleyenIslemEtiketi, urunIadeYontemiBul, urunIadeYontemiMetni, urunIptalEdilebilirMi, urunIptalEdildiMi, urunTalepBekliyorTemizle, durumIptalMi, durumMetniNorm, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 
 export default function SiparisClient() {
@@ -256,6 +256,27 @@ const { sepeteEkle } = useCart();
 
   const urunSatirindaIadeVar = useCallback(
     (item: OrderItemLike) => {
+      const urunId = siparisKalemiId(item);
+      const urunIsim = String(item.title || item.isim || item.name || "");
+      const iadeEdilenAdet = Math.min(
+        Math.max(
+          Number(item.iadeEdilenAdet || 0),
+          siparisKalemiIadeAdet(selectedOrder, item, selectedOrderIadeOpts)
+        ),
+        Number(item.quantity || item.adet || item.miktar || 1)
+      );
+      if (
+        urunBekleyenIadeMi(
+          destekTalepleri,
+          selectedOrderSiparisKodu,
+          urunId,
+          urunIsim,
+          iadeEdilenAdet,
+          siparisKalemIdleri(item)
+        )
+      ) {
+        return false;
+      }
       const satirdan = Number(item.iadeEdilenAdet || 0);
       if (satirdan > 0) return true;
       return siparisKalemIadeEdildiMi(selectedOrder, item, selectedOrderIadeOpts);
@@ -410,8 +431,10 @@ const { sepeteEkle } = useCart();
                     selectedOrderSiparisKodu,
                     urunId,
                     urunIsim,
-                    iadeEdilenAdet
+                    iadeEdilenAdet,
+                    siparisKalemIdleri(item)
                   );
+                  const urunBekleyenIade = Boolean(incelemeMetni?.toLocaleLowerCase("tr-TR").includes("iade"));
                   const urunIptal = urunIptalEdildiMi(
                     selectedOrder,
                     destekTalepleri,
@@ -551,7 +574,12 @@ const { sepeteEkle } = useCart();
                         )}
 
                         <div className="flex items-center justify-end gap-2 min-h-[28px]">
-                          {urunIadeVar ? (
+                          {urunBekleyenIade && incelemeMetni ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-amber-500/5 text-amber-400 border border-amber-500/20 text-[10px] font-medium">
+                              <Clock className="w-3 h-3 shrink-0" />
+                              {incelemeMetni}
+                            </span>
+                          ) : urunIadeVar ? (
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-orange-500/5 text-orange-300 border border-orange-500/20 text-[10px] font-medium">
                               <RefreshCw className="w-3 h-3 shrink-0" />
                               İade Edildi
