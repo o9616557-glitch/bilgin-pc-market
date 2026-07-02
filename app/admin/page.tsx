@@ -304,6 +304,7 @@ const kutular = document.querySelectorAll('.mesaj-gecmisi-kutusu');
       if (res.ok && data.success) {
         toast.success(yontem === "magaza_kredisi" ? "Kredi cüzdana yüklendi!" : "Kart iadesi müşteriye bildirildi.", { id: toastId });
         setIadeTutarlari((prev) => ({ ...prev, [id]: "" }));
+        await siparisleriGetir();
         talepleriGetir();
       } else {
         toast.error(data.message || "İşlem başarısız.", { id: toastId });
