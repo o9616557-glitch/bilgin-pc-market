@@ -3,6 +3,7 @@ import { magazaKrediEkle } from "@/lib/magaza-kredi";
 import { puanGeriYukle } from "@/lib/odul-puan";
 
 const KART_BEKLEME_ASIMI_MS = 30 * 60 * 1000;
+export const HAVALE_BEKLEME_ASIMI_MS = 24 * 60 * 60 * 1000;
 
 const BASARILI_ODEME_DURUMLARI = ["odendi", "onaylandi"];
 
@@ -193,4 +194,63 @@ export async function staleKartBekleyenSiparisleriTemizle(db: Db, email: string)
       }
     );
   }
+}
+
+/** 1 gün içinde ödemesi gelmeyen havale siparişlerini iptal eder; puan/kredi iade edilir */
+export async function staleHavaleBekleyenSiparisleriTemizle(db: Db, email?: string) {
+  const esik = new Date(Date.now() - HAVALE_BEKLEME_ASIMI_MS);
+
+  const filtre: Record<string, unknown>[] = [
+    { odemeDurumu: "havale_bekliyor" },
+    { rezervIadeEdildi: { $ne: true } },
+    { gecersizDeneme: { $ne: true } },
+    {
+      $or: [
+        { createdAt: { $lte: esik } },
+        { tarih: { $lte: esik } },
+      ],
+    },
+  ];
+
+  if (email) {
+    filtre.unshift(musteriEmailSorgusu(email));
+  }
+
+  const bekleyenler = await db.collection("orders").find({ $and: filtre }).toArray();
+
+  for (const siparis of bekleyenler) {
+    const siparisEmail = String(
+      siparis.userEmail || siparis.email || siparis.musteri?.eposta || email || ""
+    );
+    if (!siparisEmail) continue;
+
+    await taslakRezervleriniIadeEt(
+      db,
+      siparisEmail,
+      siparis,
+      "Zaman aşımı — havale/EFT ödemesi alınamadı"
+    );
+
+    await db.collection("orders").updateOne(
+      { _id: siparis._id },
+      {
+        $set: {
+          musteriyeGoster: true,
+          rezervIadeEdildi: true,
+          odemeDurumu: "iptal",
+          durum: "İptal Edildi",
+          status: "İptal Edildi",
+          odemeHataMesaji:
+            "1 gün içinde havale/EFT ödemesi alınamadığı için sipariş otomatik iptal edildi.",
+          kullanilanKredi: 0,
+          kullanilanPuan: 0,
+        },
+      }
+    );
+  }
+}
+
+export async function bekleyenSiparisleriTemizle(db: Db, email: string) {
+  await staleKartBekleyenSiparisleriTemizle(db, email);
+  await staleHavaleBekleyenSiparisleriTemizle(db);
 }

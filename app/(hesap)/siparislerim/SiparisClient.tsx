@@ -542,12 +542,14 @@ const { sepeteEkle } = useCart();
                     <p className="text-xs font-medium leading-relaxed text-slate-300">
                       {selectedOrderHavaleBekliyor ? (
                         <>
-                          Havale veya EFT ödemeniz henüz tarafımıza ulaşmadı. Ödeme yapılmazsa sipariş otomatik iptal edilir ve işleme alınmaz.
+                          Havale veya EFT ödemeniz henüz tarafımıza ulaşmadı.{" "}
+                          <span className="text-cyan-300/90">1 gün (24 saat)</span> içinde ödeme yapılmazsa sipariş otomatik iptal edilir ve işleme alınmaz.
                           Ödeme yaptıysanız onay sürecini bekleyebilirsiniz; onaylandığında siparişiniz hazırlanmaya başlar.
                         </>
                       ) : (
                         <>
-                          Kart ödemeniz henüz tamamlanmadı. Ödeme yapılmazsa sipariş işleme alınmaz ve otomatik iptal edilir.
+                          Kart ödemeniz henüz tamamlanmadı. Ödeme yapılmazsa sipariş işleme alınmaz; tamamlanmayan kart ödemeleri{" "}
+                          <span className="text-cyan-300/90">30 dakika</span> sonra otomatik iptal edilir.
                         </>
                       )}
                     </p>

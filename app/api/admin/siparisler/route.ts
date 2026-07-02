@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import { siparisOdulPuanVer, siparisIadeCuzdanIslemleri } from "@/lib/siparis-puan";
+import { staleHavaleBekleyenSiparisleriTemizle } from "@/lib/order-reservations";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -17,6 +18,8 @@ export async function GET(request: Request) {
 
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
+
+    await staleHavaleBekleyenSiparisleriTemizle(db);
     
     const siparisler = await db.collection("orders").find({
       $and: [

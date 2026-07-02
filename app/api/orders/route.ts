@@ -8,7 +8,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 import { getOrderShippingCompany, getOrderTrackingNumber, normalizeOrderStatus } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
-import { staleKartBekleyenSiparisleriTemizle } from "@/lib/order-reservations";
+import { bekleyenSiparisleriTemizle } from "@/lib/order-reservations";
 
 // 🚀 VERCEL ÖNBELLEK KİLİDİNİ PARÇALAMA EMİRLERİ
 export const dynamic = "force-dynamic";
@@ -29,7 +29,7 @@ export async function GET() {
     const db = client.db("bilginpcmarket"); 
     const currentEmail = session.user.email;
 
-    await staleKartBekleyenSiparisleriTemizle(db, currentEmail);
+    await bekleyenSiparisleriTemizle(db, currentEmail);
 
     // 🚀 BİNGO: ŞEFİN ÇANTASINDAKİ TÜM E-POSTALARI ÇEKİYORUZ!
     const dbUser = await User.findOne({ email: currentEmail }).select("kayitliEpostalar");

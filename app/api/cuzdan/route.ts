@@ -17,7 +17,7 @@ import {
   IYZICO_KART_SAKLAMA_UYARI,
 } from "@/lib/iyzico-kart";
 import { puanIlerlemeHesapla, PUAN_KAZANMA_HARCAMA_BASI, PUAN_TL_DEGERI, MIN_KULLANIM_PUAN, HEDEF_HARCAMA_TL, HEDEF_ODUL_PUAN } from "@/lib/odul-puan";
-import { staleKartBekleyenSiparisleriTemizle } from "@/lib/order-reservations";
+import { bekleyenSiparisleriTemizle } from "@/lib/order-reservations";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +27,7 @@ const MAX_KART = 5;
 async function cuzdanGetir(email: string) {
   const client = await clientPromise;
   const db = client.db(DB_NAME);
-  await staleKartBekleyenSiparisleriTemizle(db, email);
+  await bekleyenSiparisleriTemizle(db, email);
   let wallet = await db.collection("wallets").findOne({ email });
 
   if (!wallet) {
