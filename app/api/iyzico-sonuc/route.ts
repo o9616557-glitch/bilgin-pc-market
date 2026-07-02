@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import { iyzicoConfig } from "@/lib/iyzico-config";
+import { magazaKrediEkle } from "@/lib/magaza-kredi";
+import { puanGeriYukle } from "@/lib/odul-puan";
 import { siparisOdulPuanVer } from "@/lib/siparis-puan";
 // @ts-ignore
 import Iyzipay from "iyzipay";
@@ -202,6 +204,51 @@ export async function POST(request: Request) {
         headers: { "Content-Type": "text/html; charset=utf-8" } 
       });
     } else {
+      try {
+        const client = await clientPromise;
+        const db = client.db("bilginpcmarket");
+        const basarisizSiparis = await db.collection("orders").findOne({ siparisKodu });
+        const musteriEmail =
+          basarisizSiparis?.userEmail ||
+          basarisizSiparis?.email ||
+          basarisizSiparis?.musteri?.eposta ||
+          basarisizSiparis?.musteri?.email ||
+          "";
+        const kullanilanKredi = Number(basarisizSiparis?.kullanilanKredi || 0);
+        const kullanilanPuan = Number(basarisizSiparis?.kullanilanPuan || 0);
+
+        if (musteriEmail) {
+          if (kullanilanKredi > 0) {
+            await magazaKrediEkle(db, musteriEmail, kullanilanKredi, `İptal — ödeme reddedildi (${siparisKodu})`, siparisKodu);
+          }
+          if (kullanilanPuan > 0) {
+            await puanGeriYukle(db, musteriEmail, kullanilanPuan, `İptal — ödeme reddedildi (${siparisKodu})`, siparisKodu);
+          }
+        }
+
+        await db.collection("orders").updateOne(
+          { siparisKodu },
+          {
+            $set: {
+              gizlendi: true,
+              rezervIadeEdildi: true,
+              kullanilanKredi: 0,
+              kullanilanPuan: 0,
+              odemeDurumu: "iptal",
+              odemeHataMesaji: sonuc.errorMessage || "Ödeme reddedildi",
+              odenecekTutar: Number(
+                basarisizSiparis?.toplamTutar ||
+                basarisizSiparis?.totalPrice ||
+                basarisizSiparis?.odenecekTutar ||
+                0
+              ),
+            },
+          }
+        );
+      } catch (cleanupError) {
+        console.error("Başarısız ödeme temizliği yapılamadı:", cleanupError);
+      }
+
       return NextResponse.redirect(new URL("/odeme?hata=odeme_reddedildi", request.url), 303);
     }
   } catch (error) {

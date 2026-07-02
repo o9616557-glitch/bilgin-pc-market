@@ -18,7 +18,15 @@ export async function GET(request: Request) {
     const client = await clientPromise;
     const db = client.db("bilginpcmarket");
     
-    const siparisler = await db.collection("orders").find({}).sort({ tarih: -1 }).toArray();
+    const siparisler = await db.collection("orders").find({
+      $nor: [
+        {
+          musteriyeGoster: false,
+          odemeDurumu: "odeme_bekliyor",
+          odemeYontemi: { $in: ["kart", "bkm"] },
+        },
+      ],
+    }).sort({ tarih: -1 }).toArray();
     
     return new NextResponse(JSON.stringify({ success: true, siparisler }), {
       status: 200,
