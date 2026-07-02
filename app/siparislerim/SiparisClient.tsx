@@ -13,7 +13,7 @@ import toast from "react-hot-toast";
 import { useOrders } from "@/app/OrderContext"; 
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
 import KisayolNav from "@/components/layout/KisayolNav";
-import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, siparisIadeYontemi, urunBekleyenIslemEtiketi, urunIadeYontemiBul, urunIadeYontemiMetni, urunTalepBekliyorKaydet, urunTalepBekliyorTemizle, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
+import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisIadeYontemi, urunBekleyenIslemEtiketi, urunIadeYontemiBul, urunIadeYontemiMetni, urunTalepBekliyorKaydet, urunTalepBekliyorTemizle, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 
 export default function SiparisClient() {
@@ -245,18 +245,28 @@ const { sepeteEkle } = useCart();
       };
     });
 
-  const iadeYontemiSatiriGoster = (yontem: IadeYontemi | null | undefined) => {
+  const iadeYontemiSatiriGoster = (
+    yontem: IadeYontemi | null | undefined,
+    opts?: { bankaNotu?: boolean }
+  ) => {
     const metin = urunIadeYontemiMetni(yontem);
     if (!metin) return null;
     return (
-      <p className="text-[10px] font-medium text-slate-400 flex items-center gap-1 mt-1 leading-snug normal-case tracking-normal">
-        {yontem === "magaza_kredisi" ? (
-          <Wallet className="size-3 shrink-0 text-cyan-400" strokeWidth={2.5} />
-        ) : (
-          <CreditCard className="size-3 shrink-0 text-emerald-400" strokeWidth={2.5} />
+      <div className="mt-1 space-y-0.5">
+        <p className="text-[10px] font-medium text-slate-400 flex items-center gap-1 leading-snug normal-case tracking-normal">
+          {yontem === "magaza_kredisi" ? (
+            <Wallet className="size-3 shrink-0 text-cyan-400" strokeWidth={2.5} />
+          ) : (
+            <CreditCard className="size-3 shrink-0 text-emerald-400" strokeWidth={2.5} />
+          )}
+          <span>{metin}</span>
+        </p>
+        {opts?.bankaNotu && yontem === "kart" && (
+          <p className="text-[10px] text-slate-500 font-medium leading-snug normal-case tracking-normal pl-4">
+            {KART_IADE_BANKA_NOTU}
+          </p>
         )}
-        <span>{metin}</span>
-      </p>
+      </div>
     );
   };
 
@@ -638,7 +648,7 @@ const { sepeteEkle } = useCart();
                           <p className="text-[10px] uppercase tracking-widest text-rose-400 font-black mt-1">
                             {kalem.adet} adet iade edildi
                           </p>
-                          {iadeYontemiSatiriGoster(kalem.yontem)}
+                          {iadeYontemiSatiriGoster(kalem.yontem, { bankaNotu: true })}
                         </div>
                         <div className="text-right text-xs text-slate-400">
                           {kalem.birimFiyat ? `${Number(kalem.birimFiyat).toLocaleString("tr-TR")} TL / adet` : ""}

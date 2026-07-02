@@ -237,6 +237,9 @@ export function urunIadeYontemiMetni(yontem?: IadeYontemi | null): string | null
   return null;
 }
 
+export const KART_IADE_BANKA_NOTU =
+  "İade tutarının banka hesabınıza yansıması 3-7 iş günü sürebilir.";
+
 export function siparisIadeYontemi(
   order?: OrderLike | null,
   talepler?: UrunDestekTalepLike[]
