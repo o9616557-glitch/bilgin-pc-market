@@ -6,13 +6,13 @@ import {
   PackageOpen, Package, Truck, CheckCircle2, Clock, 
   User, ShieldCheck, CreditCard, PackageX, ChevronRight, Calendar,
   ArrowLeft, MessageSquare, ShoppingCart, Star, AlertCircle, Info, ChevronDown,
-  MapPin, Search, Monitor, Headphones, Wallet, Headset
+  MapPin, Search, Monitor, Headphones, Wallet, Headset, Archive
 } from "lucide-react"; 
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { useOrders } from "@/app/OrderContext"; 
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
-import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisGosterimDurumu, siparisIadeOzeti, siparisIadeSuresiOzeti, siparisIadeYontemi, siparisKalemiIadeAdet, siparisKalemIadeEdildiMi, siparisKalemTamIadeMi, siparisKalemleri, siparisKalemIdleri, siparisTamamlandiMi, urunBekleyenIadeMi, urunBekleyenIslemEtiketi, urunIadeYontemiBul, urunIadeYontemiMetni, urunIptalEdilebilirMi, urunIptalEdildiMi, urunTalepBekliyorTemizle, durumIptalMi, durumMetniNorm, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
+import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisGosterimDurumu, siparisIadeOzeti, siparisIadeSuresiOzeti, siparisIadeYontemi, siparisKalemiArsivdeMi, siparisKalemiIadeAdet, siparisKalemIadeEdildiMi, siparisKalemTamIadeMi, siparisKalemleri, siparisKalemIdleri, siparisTamamlandiMi, urunBekleyenIadeMi, urunBekleyenIslemEtiketi, urunIadeYontemiBul, urunIadeYontemiMetni, urunIptalEdilebilirMi, urunIptalEdildiMi, urunTalepBekliyorTemizle, durumIptalMi, durumMetniNorm, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 
 export default function SiparisClient() {
@@ -253,6 +253,16 @@ const { sepeteEkle } = useCart();
   const siparisKalemiId = (item: OrderItemLike) =>
     String(item.id || item._id || item.productId || "");
   const selectedOrderKalemleri = siparisKalemleri(selectedOrder);
+  const selectedOrderAktifKalemleri = selectedOrder
+    ? selectedOrderKalemleri.filter(
+        (item) => !siparisKalemiArsivdeMi(selectedOrder, item, selectedOrderIadeOpts)
+      )
+    : [];
+  const selectedOrderArsivAdet = selectedOrder
+    ? selectedOrderKalemleri.filter((item) =>
+        siparisKalemiArsivdeMi(selectedOrder, item, selectedOrderIadeOpts)
+      ).length
+    : 0;
 
   const urunSatirindaIadeVar = useCallback(
     (item: OrderItemLike) => {
@@ -284,6 +294,7 @@ const { sepeteEkle } = useCart();
     [selectedOrder, selectedOrderIadeOpts, destekTalepleri, selectedOrderSiparisKodu]
   );
   const siparisdeIptalEdilebilirUrunVar = selectedOrderKalemleri.some((item: OrderItemLike) => {
+    if (siparisKalemiArsivdeMi(selectedOrder, item, selectedOrderIadeOpts)) return false;
     const urunId = siparisKalemiId(item);
     const urunIsim = String(item.title || item.isim || item.name || "");
     const itemAdet = Number(item.quantity || item.adet || 1);
@@ -309,20 +320,6 @@ const { sepeteEkle } = useCart();
     !selectedOrderIsIptal &&
     !selectedOrderIsTeslimEdildi &&
     !selectedOrderOdemeBekliyor;
-  const selectedOrderIadeKalemleri = selectedOrderKalemleri
-    .filter((item: OrderItemLike) => siparisKalemiIadeAdet(selectedOrder, item, selectedOrderIadeOpts) > 0)
-    .map((item: OrderItemLike) => {
-      const urunId = String(item.id || item._id || item.productId || "");
-      const isim = item.title || item.isim || item.name || "Ürün";
-      const iadeAdet = siparisKalemiIadeAdet(selectedOrder, item, selectedOrderIadeOpts);
-      return {
-        urunId,
-        isim,
-        adet: iadeAdet,
-        birimFiyat: Number(item.price || item.fiyat || 0),
-        yontem: urunIadeYontemiBul(selectedOrder, destekTalepleri, selectedOrderSiparisKodu, urunId, isim),
-      };
-    });
 
   const iadeYontemiSatiriGoster = (
     yontem: IadeYontemi | null | undefined,
@@ -404,7 +401,26 @@ const { sepeteEkle } = useCart();
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
-                {selectedOrderKalemleri.map((item: OrderItemLike, idx: number) => {
+                {selectedOrderAktifKalemleri.length === 0 ? (
+                  <div className="col-span-full bg-[#0f172a] border border-slate-800 rounded-xl p-8 text-center shadow-md">
+                    <Archive className="w-10 h-10 text-slate-600 mx-auto mb-3" />
+                    <p className="text-sm font-bold text-white mb-1">Bu siparişte aktif ürün kalmadı</p>
+                    <p className="text-xs text-slate-500 mb-4">
+                      {selectedOrderArsivAdet > 0
+                        ? "İade veya iptal edilen ürünler arşivinize taşındı."
+                        : "Bu siparişte görüntülenecek ürün bulunmuyor."}
+                    </p>
+                    {selectedOrderArsivAdet > 0 && (
+                      <Link
+                        href="/arsiv"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#020617] hover:bg-slate-800 border border-slate-700 rounded-lg text-[10px] font-bold uppercase tracking-wider text-slate-300"
+                      >
+                        <Archive className="w-3.5 h-3.5" /> Arşivi Görüntüle
+                      </Link>
+                    )}
+                  </div>
+                ) : (
+                selectedOrderAktifKalemleri.map((item: OrderItemLike, idx: number) => {
                   const durumMetni = durumMetniNorm(selectedOrder.durum || selectedOrder.status);
                   const siparisTeslimEdildi =
                     siparisTamamlandiMi(selectedOrder.durum || selectedOrder.status) ||
@@ -670,8 +686,24 @@ const { sepeteEkle } = useCart();
 
                     </div>
                   );
-                })}
+                })
+                )}
               </div>
+
+              {selectedOrderArsivAdet > 0 && selectedOrderAktifKalemleri.length > 0 && (
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#0f172a] border border-slate-800 rounded-xl px-5 py-4">
+                  <p className="text-xs text-slate-500 font-medium">
+                    Bu siparişte <span className="text-slate-300 font-bold">{selectedOrderArsivAdet}</span> ürün arşivde
+                    (iade veya iptal tamamlandı).
+                  </p>
+                  <Link
+                    href="/arsiv"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#020617] hover:bg-slate-800 border border-slate-700 rounded-lg text-[10px] font-bold uppercase tracking-wider text-slate-300 whitespace-nowrap shrink-0"
+                  >
+                    <Archive className="w-3.5 h-3.5" /> Arşive Git
+                  </Link>
+                </div>
+              )}
 
               {selectedOrderOdemeBekliyor && (
                 <div className="flex gap-3 rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-4 sm:p-5">
@@ -769,37 +801,6 @@ const { sepeteEkle } = useCart();
                 </div>
               </div>
 
-              {selectedOrderIadeKalemleri.length > 0 && (
-                <div className="bg-[#0f172a] border border-rose-900/40 rounded-xl p-5 shadow-lg">
-                  <h3 className="text-xs font-black text-rose-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <RefreshCw className="w-4 h-4" /> İade Edilen Ürünler
-                  </h3>
-                  <div className="space-y-3">
-                    {selectedOrderIadeKalemleri.map((kalem) => (
-                      <div key={`${kalem.urunId}-${kalem.adet}`} className="bg-[#020617] border border-slate-800 rounded-lg px-4 py-3 flex items-center justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="text-sm font-bold text-white">{kalem.isim}</p>
-                          <p className="text-[10px] uppercase tracking-widest text-rose-400 font-black mt-1">
-                            {kalem.adet} adet iade edildi
-                          </p>
-                          {iadeYontemiSatiriGoster(kalem.yontem, { bankaNotu: true })}
-                        </div>
-                        <div className="text-right text-xs text-slate-400">
-                          {kalem.birimFiyat ? `${Number(kalem.birimFiyat).toLocaleString("tr-TR")} TL / adet` : ""}
-                        </div>
-                      </div>
-                    ))}
-                    {Number(selectedOrder.toplamIadeEdilenTutar || 0) > 0 && (
-                      <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-sm">
-                        <span className="text-slate-400 font-bold uppercase tracking-widest">Toplam İade</span>
-                        <span className="text-rose-400 font-black">
-                          {Number(selectedOrder.toplamIadeEdilenTutar || 0).toLocaleString("tr-TR")} TL
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
 
           ) : (
@@ -827,7 +828,13 @@ const { sepeteEkle } = useCart();
                   </div>
 
                   <div className="flex flex-row items-center gap-2 sm:gap-3 w-full xl:w-auto relative z-50">
-                    
+                    <Link
+                      href="/arsiv"
+                      className="hidden sm:inline-flex items-center gap-2 bg-[#020617] hover:bg-slate-800 border border-slate-700 rounded-lg px-3 py-2.5 transition-colors text-[10px] text-slate-300 font-bold uppercase tracking-wider whitespace-nowrap shrink-0"
+                    >
+                      <Archive className="w-3.5 h-3.5" /> Arşiv
+                    </Link>
+
                     {/* ZAMAN FİLTRESİ */}
                     <div className="relative flex-1 xl:flex-none min-w-0">
                       <button onClick={() => {setZamanAcik(!zamanAcik); setDurumAcik(false)}} className="w-full flex items-center justify-between gap-1 sm:gap-2 bg-[#020617] hover:bg-[#020617]/80 border border-slate-800 rounded-lg px-2 sm:px-4 py-2 sm:py-3 xl:w-48 transition-colors text-[9px] sm:text-xs text-slate-300 font-bold whitespace-nowrap overflow-hidden">
