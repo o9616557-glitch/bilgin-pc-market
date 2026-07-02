@@ -231,6 +231,10 @@ const { sepeteEkle } = useCart();
 
   const selectedOrderSiparisKodu =
     selectedOrder?.siparisKodu || selectedOrder?.orderNumber || selectedOrder?._id?.slice(-8)?.toUpperCase() || "";
+  const selectedOrderIadeOpts = {
+    talepler: destekTalepleri,
+    siparisKodu: selectedOrderSiparisKodu,
+  };
   const selectedOrderDurumMetni = durumMetniNorm(selectedOrder?.durum || selectedOrder?.status);
   const selectedOrderIsTeslimEdildi = selectedOrderDurumMetni.includes("teslim") || selectedOrderDurumMetni.includes("tamam");
   const selectedOrderIsKargoda = selectedOrderDurumMetni.includes("kargo");
@@ -248,7 +252,7 @@ const { sepeteEkle } = useCart();
     const urunId = siparisKalemiId(item);
     const urunIsim = String(item.title || item.isim || item.name || "");
     const itemAdet = Number(item.quantity || item.adet || 1);
-    const iadeEdilenAdet = siparisKalemiIadeAdet(selectedOrder, item);
+    const iadeEdilenAdet = siparisKalemiIadeAdet(selectedOrder, item, selectedOrderIadeOpts);
     const urunIade = urunIadeIslendiMi(
       selectedOrder,
       destekTalepleri,
@@ -278,11 +282,11 @@ const { sepeteEkle } = useCart();
     !selectedOrderIsTeslimEdildi &&
     !selectedOrderOdemeBekliyor;
   const selectedOrderIadeKalemleri = selectedOrderKalemleri
-    .filter((item: OrderItemLike) => siparisKalemiIadeAdet(selectedOrder, item) > 0)
+    .filter((item: OrderItemLike) => siparisKalemiIadeAdet(selectedOrder, item, selectedOrderIadeOpts) > 0)
     .map((item: OrderItemLike) => {
       const urunId = String(item.id || item._id || item.productId || "");
       const isim = item.title || item.isim || item.name || "Ürün";
-      const iadeAdet = siparisKalemiIadeAdet(selectedOrder, item);
+      const iadeAdet = siparisKalemiIadeAdet(selectedOrder, item, selectedOrderIadeOpts);
       return {
         urunId,
         isim,
@@ -388,7 +392,7 @@ const { sepeteEkle } = useCart();
                   const urunId = siparisKalemiId(item);
                   const urunIsim = String(item.title || item.isim || item.name || "");
                   const itemAdet = Number(item.quantity || item.adet || item.miktar || 1);
-                  const iadeEdilenAdet = siparisKalemiIadeAdet(selectedOrder, item);
+                  const iadeEdilenAdet = siparisKalemiIadeAdet(selectedOrder, item, selectedOrderIadeOpts);
                   const incelemeMetni = urunBekleyenIslemEtiketi(
                     destekTalepleri,
                     selectedOrderSiparisKodu,
@@ -504,7 +508,7 @@ const { sepeteEkle } = useCart();
                         </div>
                       </div>
 
-                      {isTeslimEdildi && urunAktif && (
+                      {isTeslimEdildi && urunAktif && !urunIadeVar && (
                         <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mt-1 -mb-1">
                           {iadeSuresiGectiMi ? (
                             <span className="text-slate-500 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> 15 Günlük İade Süresi Doldu</span>
@@ -515,7 +519,7 @@ const { sepeteEkle } = useCart();
                       )}
 
                       <div className="flex flex-col gap-2 pt-3 border-t border-slate-800/50 mt-auto">
-                        {isTeslimEdildi && urunAktif && (
+                        {isTeslimEdildi && urunAktif && !urunIadeVar && (
                           <div className="flex flex-wrap items-center gap-1.5">
                             <Link
                               href={`${urunLinki}#yorumlar`}

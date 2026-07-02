@@ -1,3 +1,5 @@
+import { urunKalemiEslesir } from "./order-utils";
+
 function nakitIadeTutari(siparis: any): number {
   const odenecek = Number(siparis?.odenecekTutar);
   if (!Number.isNaN(odenecek) && odenecek >= 0) return odenecek;
@@ -396,7 +398,13 @@ export function sepetIadeAdetleriniGuncelle(
   kalemler: IadeKalemi[]
 ): SepetKalemi[] {
   return sepet.map((satir) => {
-    const kalem = kalemler.find((k) => k.urunId === kalemiId(satir));
+    const kalem = kalemler.find((k) =>
+      urunKalemiEslesir(
+        { urunId: k.urunId, isim: k.isim },
+        kalemiId(satir),
+        kalemiIsim(satir)
+      )
+    );
     if (!kalem) return satir;
     return {
       ...satir,
