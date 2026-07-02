@@ -383,6 +383,7 @@ export default function AccountShell({ children, active }: AccountShellProps) {
   const aktif = active ?? NAV_ITEMS.find((i) => i.href === pathname)?.id;
 
   const hesapMenuSayfasi = pathname === "/hesap-menu";
+  const hesabimSayfasi = pathname === "/hesabim";
 
   /* Tüm hesap sayfalarını önceden yükle — geçişlerde loading/göz kırpma olmasın */
   useEffect(() => {
@@ -391,17 +392,24 @@ export default function AccountShell({ children, active }: AccountShellProps) {
     router.prefetch("/hesap-menu");
   }, [router]);
 
+  /* Mobil menü sayfası — header altından tam ekran, üstten başlar */
+  if (hesapMenuSayfasi) {
+    return (
+      <div className="lg:hidden fixed inset-x-0 top-[7.25rem] bottom-0 z-[90] bg-[#050814] flex flex-col overflow-hidden">
+        {children}
+      </div>
+    );
+  }
+
   return (
-    <div className={`site-page ${hesapMenuSayfasi ? "p-0 lg:p-8" : "p-4 sm:p-6 lg:p-8"}`}>
+    <div className="site-page p-4 sm:p-6 lg:p-8">
       <div className="site-glow-top pointer-events-none top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[320px]" />
 
-      {/* Mobil: profil kartı + menü çubuğu (menü sayfasında gizli) */}
-      {!hesapMenuSayfasi && (
-        <div className="lg:hidden mb-4 flex flex-col gap-2 relative z-20">
-          <MobilProfilKarti />
-          <MobilHesapMenuLink active={aktif} />
-        </div>
-      )}
+      {/* Mobil: profil+çıkış sadece hesabım; hamburger tüm hesap sayfalarında */}
+      <div className="lg:hidden mb-4 flex flex-col gap-2 relative z-20">
+        {hesabimSayfasi && <MobilProfilKarti />}
+        <MobilHesapMenuLink active={aktif} />
+      </div>
 
       {/* Desktop: panel sol, içerik sağ */}
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-6 relative z-10 lg:items-start">
