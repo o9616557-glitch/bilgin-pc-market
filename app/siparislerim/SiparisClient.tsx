@@ -216,65 +216,6 @@ const { sepeteEkle } = useCart();
                     </div>
                   </div>
 
-                  <div className="flex flex-row items-center gap-2 sm:gap-3 w-full xl:w-auto relative z-[60]">
-                    
-                    {/* ============================================== */}
-                    {/* 🚀 ZAMAN FİLTRESİ */}
-                    {/* ============================================== */}
-                    <div className="relative flex-1 xl:flex-none min-w-0">
-                      
-                      {/* 🚀 Görünmez Örtü LOKAL olarak buraya eklendi (Tuşların Arkasında Kalacak) */}
-                      {zamanAcik && <div className="fixed inset-0 z-40" onClick={() => setZamanAcik(false)}></div>}
-                      
-                      <button onClick={() => {setZamanAcik(!zamanAcik); setDurumAcik(false)}} className="relative z-50 w-full flex items-center justify-between gap-1 sm:gap-2 bg-[#020617] hover:bg-[#020617]/80 border border-slate-800 rounded-lg px-2 sm:px-4 py-2 sm:py-3 xl:w-48 transition-colors text-[9px] sm:text-xs text-slate-300 font-bold whitespace-nowrap overflow-hidden">
-                        <div className="flex items-center gap-1.5 sm:gap-2 truncate">
-                          <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-cyan-500 shrink-0" />
-                          <span className="truncate">{zamanSecenekleri.find(z => z.id === zamanFiltresi)?.ad}</span>
-                        </div>
-                        <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 shrink-0 text-slate-500 transition-transform ${zamanAcik ? 'rotate-180' : ''}`} />
-                      </button>
-                      
-                      {/* Menü z-[100] yapıldı ki her şeyin üstüne çıksın */}
-                      {zamanAcik && (
-                        <div className="absolute top-full mt-1.5 left-0 w-full bg-[#0f172a] border border-slate-700 rounded-lg shadow-2xl overflow-hidden py-1 z-[100] animate-in fade-in zoom-in-95 duration-100">
-                          {zamanSecenekleri.map(secenek => (
-                            <button key={secenek.id} onClick={() => {setZamanFiltresi(secenek.id); setZamanAcik(false)}} className={`w-full text-left px-3 sm:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold transition-colors ${zamanFiltresi === secenek.id ? 'bg-cyan-600/10 text-cyan-400' : 'text-slate-300 hover:bg-[#020617] hover:text-white'}`}>
-                              {secenek.ad}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* ============================================== */}
-                    {/* 🚀 DURUM FİLTRESİ */}
-                    {/* ============================================== */}
-                    <div className="relative flex-1 xl:flex-none min-w-0">
-                      
-                      {/* 🚀 Görünmez Örtü LOKAL olarak buraya eklendi */}
-                      {durumAcik && <div className="fixed inset-0 z-40" onClick={() => setDurumAcik(false)}></div>}
-                      
-                      <button onClick={() => {setDurumAcik(!durumAcik); setZamanAcik(false)}} className="relative z-50 w-full flex items-center justify-between gap-1 sm:gap-2 bg-[#020617] hover:bg-[#020617]/80 border border-slate-800 rounded-lg px-2 sm:px-4 py-2 sm:py-3 xl:w-52 transition-colors text-[9px] sm:text-xs text-slate-300 font-bold whitespace-nowrap overflow-hidden">
-                        <div className="flex items-center gap-1.5 sm:gap-2 truncate">
-                          <Filter className="w-3 h-3 sm:w-4 sm:h-4 text-cyan-500 shrink-0" />
-                          <span className="truncate">{durumSecenekleri.find(d => d.id === durumFiltresi)?.ad}</span>
-                        </div>
-                        <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 shrink-0 text-slate-500 transition-transform ${durumAcik ? 'rotate-180' : ''}`} />
-                      </button>
-
-                      {/* Menü z-[100] yapıldı */}
-                      {durumAcik && (
-                        <div className="absolute top-full mt-1.5 left-0 w-full bg-[#0f172a] border border-slate-700 rounded-lg shadow-2xl overflow-hidden py-1 z-[100] animate-in fade-in zoom-in-95 duration-100">
-                          {durumSecenekleri.map(secenek => (
-                            <button key={secenek.id} onClick={() => {setDurumFiltresi(secenek.id); setDurumAcik(false)}} className={`w-full text-left px-3 sm:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold transition-colors ${durumFiltresi === secenek.id ? 'bg-cyan-600/10 text-cyan-400' : 'text-slate-300 hover:bg-[#020617] hover:text-white'}`}>
-                              {secenek.ad}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                  </div>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
@@ -338,6 +279,7 @@ const { sepeteEkle } = useCart();
                         )}
 
                {/* 🚀 BİNGO: TEKRAR AL BUTONU (404 ÇÖZÜMLÜ VE ANİMASYONLU) */}
+{isTeslimEdildi && (
 <button 
   onClick={(e) => {
     e.preventDefault();
@@ -376,6 +318,7 @@ const { sepeteEkle } = useCart();
 >
   <ShoppingCart className="w-3 h-3 shrink-0" /> Tekrar Al
 </button>
+)}
 
                         {!isIptal && !iadeSuresiGectiMi && (
                           isTeslimEdildi ? (
@@ -431,12 +374,14 @@ const { sepeteEkle } = useCart();
                     <MessageSquare className="w-4 h-4" /> Sipariş & Kargo Notları
                   </h3>
                   <div className="space-y-4">
-                    <div>
-                      <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-1.5">SİZİN NOTUNUZ</p>
-                      <div className="bg-[#020617] border border-slate-800 p-3 rounded-lg text-xs text-slate-300 font-medium leading-relaxed">
-                        {(selectedOrder.siparisNotu && selectedOrder.siparisNotu.trim() !== "" && selectedOrder.siparisNotu !== "Not eklenmemiş") ? selectedOrder.siparisNotu : "Siparişe özel not eklenmemiş."}
+                    {selectedOrder.siparisNotu && selectedOrder.siparisNotu.trim() !== "" && selectedOrder.siparisNotu !== "Not eklenmemiş" && (
+                      <div>
+                        <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-1.5">SİZİN NOTUNUZ</p>
+                        <div className="bg-[#020617] border border-slate-800 p-3 rounded-lg text-xs text-slate-300 font-medium leading-relaxed">
+                          {selectedOrder.siparisNotu}
+                        </div>
                       </div>
-                    </div>
+                    )}
                     {selectedOrder.musteriMesaji && (
                       <div>
                         <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-1.5">MAĞAZA NOTU</p>
