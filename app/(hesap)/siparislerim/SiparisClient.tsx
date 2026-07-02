@@ -12,7 +12,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { useOrders } from "@/app/OrderContext"; 
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
-import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisIadeYontemi, urunBekleyenIslemEtiketi, urunIadeYontemiBul, urunIadeYontemiMetni, urunTalepBekliyorKaydet, urunTalepBekliyorTemizle, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
+import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisIadeYontemi, urunBekleyenIslemEtiketi, urunIadeYontemiBul, urunIadeYontemiMetni, urunTalepBekliyorTemizle, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 
 export default function SiparisClient() {
@@ -426,105 +426,87 @@ const { sepeteEkle } = useCart();
                         </div>
                       )}
 
-                      <div className="flex flex-row items-center w-full gap-1.5 sm:gap-2 pt-3.5 border-t border-slate-800/50 mt-auto">
-                        
-                        {/* 🚀 BİNGO: YORUMLAR LİNKİ (#yorumlar çapa etiketiyle doğrudan yorum sekmesine uçar) */}
+                      <div className="flex flex-col gap-2 pt-3 border-t border-slate-800/50 mt-auto">
                         {isTeslimEdildi && (
-                          <Link href={`${urunLinki}#yorumlar`} className="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 h-8 px-1 sm:px-2 bg-[#020617] hover:bg-slate-800/50 text-slate-300 hover:text-white border border-slate-700 rounded-md transition-all font-black text-[8px] sm:text-[9px] uppercase tracking-widest whitespace-nowrap">
-                            <Star className="w-3 h-3 shrink-0" /> Yorumla
-                          </Link>
-                        )}
-
-               {/* 🚀 BİNGO: TEKRAR AL BUTONU (404 ÇÖZÜMLÜ VE ANİMASYONLU) */}
-{isTeslimEdildi && (
-<button 
-  onClick={(e) => {
-    e.preventDefault();
-    e.stopPropagation(); // 🚀 BİNGO: Dış karta tıklanmış gibi algılanıp 404 sayfasına gitmesini engeller!
-    
-    if(sepeteEkle) {
-      // 🚀 SLUG GARANTİSİ: URL'nin 404 vermemesi için gerçek slug'ı yakalıyoruz
-      const urunSlug = item?.slug || item?.productId || item?.id || item?._id || "";
-
-      sepeteEkle({ 
-        id: String(item?.id || item?._id || item?.productId || urunSlug), 
-        isim: item?.title || item?.isim || "Ürün", 
-        fiyat: Number(item?.price || item?.fiyat || 0), 
-        resim: item?.image || item?.resim || "https://via.placeholder.com/400", 
-        varyasyon: "Standart Model", 
-        havaleIndirimi: 5, 
-        slug: urunSlug // 🚀 İŞTE HAYAT KURTARAN YER: Sepet artık linki buradan çekecek!
-      });
-      
-      // 🚀 Butonu yakalayıp yeşil EKLENDİ moduna sokuyoruz (Senin şık animasyonun)
-      const btn = e.currentTarget;
-      const originalHTML = btn.innerHTML;
-      const originalClasses = btn.className;
-      
-      btn.className = "flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-emerald-500 text-white border border-emerald-400/40 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap scale-95 shadow-[0_0_10px_rgba(16,185,129,0.5)]";
-      btn.innerHTML = '<svg class="w-3 h-3 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> EKLENDİ';
-      
-      // 1.5 saniye sonra eski haline çeviriyoruz
-      setTimeout(() => {
-        btn.className = originalClasses;
-        btn.innerHTML = originalHTML;
-      }, 1500);
-    }
-  }} 
-  className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-cyan-600/10 hover:bg-cyan-600 text-cyan-400 hover:text-white border border-cyan-500/30 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap"
->
-  <ShoppingCart className="w-3 h-3 shrink-0" /> Tekrar Al
-</button>
-)}
-
-                        {incelemeMetni ? (
-                          <div className="flex-1 flex items-center justify-center h-8 px-2 bg-amber-500/5 text-amber-400 border border-amber-500/20 rounded-md font-black text-[9px] uppercase tracking-widest whitespace-nowrap leading-none">
-                            <span className="inline-flex items-center justify-center gap-1.5">
-                              <Clock className="size-3 shrink-0" strokeWidth={2.5} />
-                              <span>{incelemeMetni}</span>
-                            </span>
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <Link
+                              href={`${urunLinki}#yorumlar`}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#020617] hover:bg-slate-800/50 text-slate-300 hover:text-white border border-slate-700 rounded-md transition-all text-[10px] font-semibold whitespace-nowrap"
+                            >
+                              <Star className="w-3 h-3 shrink-0" /> Yorumla
+                            </Link>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (!sepeteEkle) return;
+                                const urunSlug = item?.slug || item?.productId || item?.id || item?._id || "";
+                                sepeteEkle({
+                                  id: String(item?.id || item?._id || item?.productId || urunSlug),
+                                  isim: item?.title || item?.isim || "Ürün",
+                                  fiyat: Number(item?.price || item?.fiyat || 0),
+                                  resim: item?.image || item?.resim || "https://via.placeholder.com/400",
+                                  varyasyon: "Standart Model",
+                                  havaleIndirimi: 5,
+                                  slug: urunSlug,
+                                });
+                                const btn = e.currentTarget;
+                                const originalHTML = btn.innerHTML;
+                                const originalClasses = btn.className;
+                                btn.className = "inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-500 text-white border border-emerald-400/40 rounded-md text-[10px] font-semibold whitespace-nowrap";
+                                btn.innerHTML = '<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Eklendi';
+                                setTimeout(() => {
+                                  btn.className = originalClasses;
+                                  btn.innerHTML = originalHTML;
+                                }, 1500);
+                              }}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-cyan-600/10 hover:bg-cyan-600 text-cyan-400 hover:text-white border border-cyan-500/30 rounded-md transition-all text-[10px] font-semibold whitespace-nowrap"
+                            >
+                              <ShoppingCart className="w-3 h-3 shrink-0" /> Tekrar Al
+                            </button>
                           </div>
-                        ) : (
-                          <>
-                            {iadeButonuGoster && isTeslimEdildi && (
-                              <Link
-                                href={`/destek-taleplerim/yeni?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade&urunId=${encodeURIComponent(urunId)}`}
-                                onClick={() => urunTalepBekliyorKaydet(selectedOrderSiparisKodu, urunId, "iade")}
-                                className="flex-1 flex items-center justify-center h-8 px-2 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap leading-none"
-                              >
-                                <span className="inline-flex items-center justify-center gap-1.5">
-                                  <RefreshCw className="size-3 shrink-0" strokeWidth={2.5} />
-                                  <span>İade Et</span>
-                                </span>
-                              </Link>
-                            )}
-                            {iptalButonuGoster && (
-                              isKargoda ? (
-                                <Link
-                                  href={`/destek-taleplerim/yeni?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iptal&urunId=${encodeURIComponent(urunId)}&kargo=1`}
-                                  onClick={() => urunTalepBekliyorKaydet(selectedOrderSiparisKodu, urunId, "iptal")}
-                                  className="flex-1 flex items-center justify-center h-8 px-2 bg-amber-500/5 hover:bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap leading-none"
-                                >
-                                  <span className="inline-flex items-center justify-center gap-1.5">
-                                    <RefreshCw className="size-3 shrink-0" strokeWidth={2.5} />
-                                    <span>İptal Et</span>
-                                  </span>
-                                </Link>
-                              ) : !isTeslimEdildi && (
-                                <Link
-                                  href={`/destek-taleplerim/yeni?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iptal&urunId=${encodeURIComponent(urunId)}`}
-                                  onClick={() => urunTalepBekliyorKaydet(selectedOrderSiparisKodu, urunId, "iptal")}
-                                  className="flex-1 flex items-center justify-center h-8 px-2 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap leading-none"
-                                >
-                                  <span className="inline-flex items-center justify-center gap-1.5">
-                                    <RefreshCw className="size-3 shrink-0" strokeWidth={2.5} />
-                                    <span>İptal Et</span>
-                                  </span>
-                                </Link>
-                              )
-                            )}
-                          </>
                         )}
+
+                        <div className="flex items-center justify-end gap-2 min-h-[28px]">
+                          {incelemeMetni ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-amber-500/5 text-amber-400 border border-amber-500/20 text-[10px] font-medium">
+                              <Clock className="w-3 h-3 shrink-0" />
+                              {incelemeMetni}
+                            </span>
+                          ) : (
+                            <>
+                              {iadeButonuGoster && isTeslimEdildi && (
+                                <Link
+                                  href={`/destek-taleplerim/yeni?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade&urunId=${encodeURIComponent(urunId)}`}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1.5 text-red-400 hover:bg-red-500/10 border border-red-500/20 rounded-md transition-all text-[10px] font-semibold whitespace-nowrap"
+                                >
+                                  <RefreshCw className="w-3 h-3 shrink-0" />
+                                  İade Et
+                                </Link>
+                              )}
+                              {iptalButonuGoster && (
+                                isKargoda ? (
+                                  <Link
+                                    href={`/destek-taleplerim/yeni?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iptal&urunId=${encodeURIComponent(urunId)}&kargo=1`}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1.5 text-amber-400 hover:bg-amber-500/10 border border-amber-500/20 rounded-md transition-all text-[10px] font-semibold whitespace-nowrap"
+                                  >
+                                    <RefreshCw className="w-3 h-3 shrink-0" />
+                                    Ürünü İptal Et
+                                  </Link>
+                                ) : !isTeslimEdildi && (
+                                  <Link
+                                    href={`/destek-taleplerim/yeni?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iptal&urunId=${encodeURIComponent(urunId)}`}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1.5 text-red-400 hover:bg-red-500/10 border border-red-500/20 rounded-md transition-all text-[10px] font-semibold whitespace-nowrap"
+                                  >
+                                    <RefreshCw className="w-3 h-3 shrink-0" />
+                                    Ürünü İptal Et
+                                  </Link>
+                                )
+                              )}
+                            </>
+                          )}
+                        </div>
                       </div>
 
                     </div>

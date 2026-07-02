@@ -190,10 +190,6 @@ export function urunBekleyenIslemEtiketi(
 
   const acikEtiket = urunIcinAcikDestekEtiketi(talepler, siparisKodu, urunId, urunIsim);
   if (acikEtiket) return acikEtiket;
-
-  const bekleyenKonu = urunTalepBekliyorKonu(siparisKodu, urunId);
-  if (bekleyenKonu === "iade") return "İade Onayı Bekleniyor";
-  if (bekleyenKonu === "iptal") return "İptal Onayı Bekleniyor";
   return null;
 }
 
