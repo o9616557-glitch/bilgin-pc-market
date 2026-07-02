@@ -117,6 +117,13 @@ export default function ArsivPage() {
           </div>
 
           <Link
+            href="/destek-taleplerim/yeni?konu=teknik"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#020617] hover:bg-slate-800 border border-slate-700 rounded-lg px-4 sm:px-5 py-2.5 transition-colors text-[10px] sm:text-xs text-slate-300 font-bold uppercase tracking-wider whitespace-nowrap shrink-0"
+          >
+            <Headset className="w-4 h-4" /> Destek Talebi
+          </Link>
+
+          <Link
             href="/siparislerim"
             className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#020617] hover:bg-slate-800 border border-slate-700 rounded-lg px-4 sm:px-6 py-2.5 transition-colors text-[10px] sm:text-xs text-white font-black uppercase tracking-widest shadow-lg shrink-0"
           >
@@ -154,17 +161,6 @@ export default function ArsivPage() {
         </div>
       )}
 
-      <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <p className="text-[11px] text-slate-500 leading-relaxed">
-          Ürününüzle ilgili yeni bir sorun mu var? Destek ekibimiz size yardımcı olabilir.
-        </p>
-        <Link
-          href="/destek-taleplerim/yeni?konu=teknik"
-          className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#020617] hover:bg-slate-800/80 border border-slate-700 rounded-lg text-[10px] font-bold uppercase tracking-wider text-slate-300 whitespace-nowrap shrink-0"
-        >
-          <Headset className="w-3.5 h-3.5" /> Destek Talebi
-        </Link>
-      </div>
     </div>
   );
 }
