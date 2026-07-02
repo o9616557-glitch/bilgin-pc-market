@@ -14,7 +14,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import KisayolNav from "@/components/layout/KisayolNav";
+import AccountShell from "@/components/layout/AccountShell";
 import { urunTalepBekliyorKaydet } from "@/lib/order-utils";
 
 export default function YeniTalepIcerik() {
@@ -212,20 +212,15 @@ export default function YeniTalepIcerik() {
 
   if (!paramHazir || status === "loading") {
     return (
-      <div className="site-page flex min-h-[50vh] items-center justify-center p-8 text-slate-400 text-sm font-bold uppercase tracking-widest">
+      <div className="flex min-h-[50vh] items-center justify-center p-8 text-slate-400 text-sm font-bold uppercase tracking-widest">
         Yükleniyor...
       </div>
     );
   }
 
   return (
-    <div className="site-page p-4 sm:p-6 lg:p-8 relative overflow-clip">
-      <div className="site-glow-top top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[280px]" />
-
-      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
-        <KisayolNav active="destek" />
-
-        <div className="flex-1 flex flex-col min-w-0 w-full gap-5 lg:gap-6">
+    <AccountShell active="destek">
+      <div className="flex flex-col min-w-0 w-full gap-5 lg:gap-6">
           <Link
             href={geriLink}
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0f172a] hover:bg-indigo-600/10 border border-slate-800 hover:border-indigo-500/30 text-slate-300 hover:text-indigo-400 transition-all rounded-lg font-black text-xs uppercase tracking-widest w-max"
@@ -451,7 +446,6 @@ export default function YeniTalepIcerik() {
             </form>
           </div>
         </div>
-      </div>
-    </div>
+    </AccountShell>
   );
 }

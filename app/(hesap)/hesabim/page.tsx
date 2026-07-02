@@ -251,15 +251,7 @@ export default function HesabimPage() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
-      const altCached = localStorage.getItem("bilgin_alt_menu_v4");
-      if (altCached) {
-        const izinli = new Set(VARSAYILAN_ALT_MENU.map((item) => item.id));
-        const parsed = JSON.parse(altCached);
-        const filtreli = parsed.filter((item: { id: string }) => izinli.has(item.id) && item.id !== "bildirimler");
-        if (filtreli.length !== parsed.length) {
-          localStorage.setItem("bilgin_alt_menu_v4", JSON.stringify(filtreli));
-        }
-      }
+      localStorage.setItem("bilgin_alt_menu_v4", "[]");
     } catch {}
   }, []);
 
@@ -908,14 +900,6 @@ export default function HesabimPage() {
             </Link>
           </div>
         )}
-
-        <div className="w-full block">
-          <div className={panoGridSinifi}>
-            {panoKutulariniCiz(altMenuListesi, suruklenenAltRef, handleDragEnterAlt)}
-          </div>
-          <input ref={kutuInputRef} type="file" accept="image/*" className="hidden" onChange={handleKutuResimSec} />
-        </div>
-
 
         <HesabimAnalytics
           aktifPalet={aktifPalet}

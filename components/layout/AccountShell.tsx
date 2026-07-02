@@ -10,6 +10,7 @@ import {
   Mail, Star, MapPin, ChevronRight, Menu,
   LogIn, UserPlus, LogOut,
   Eye, EyeOff, Loader2, X, SwitchCamera,
+  Server, Headset, Search, Truck,
 } from "lucide-react";
 
 /* ─────────────────── NAV TANIMLARI ─────────────────── */
@@ -17,6 +18,11 @@ const NAV_ITEMS = [
   { href: "/hesabim",            label: "Profil",             icon: User,          id: "hesabim" },
   { href: "/cuzdan",             label: "Cüzdan",              icon: CreditCard,    id: "cuzdan" },
   { href: "/guvenlik",           label: "Güvenlik",            icon: ShieldCheck,   id: "guvenlik" },
+  { href: "/favorilerim",        label: "Favoriler",           icon: Star,          id: "favoriler" },
+  { href: "/sistemlerim",        label: "Sistemler",           icon: Server,        id: "sistemler" },
+  { href: "/destek-taleplerim",  label: "Destek",              icon: Headset,       id: "destek" },
+  { href: "/siparis-takip",      label: "Sorgula",             icon: Search,        id: "sorgula" },
+  { href: "/kargolarim",         label: "Kargolar",            icon: Truck,         id: "kargolar" },
   { href: "/mesajlarim",         label: "Mesajlar",            icon: MessageSquare, id: "mesajlarim" },
   { href: "/veri-talebi",        label: "Veri Talebi",         icon: Database,      id: "veri-talebi" },
   { href: "/eposta-degistir",    label: "E-posta Değiştir",    icon: Mail,          id: "eposta-degistir" },
@@ -455,6 +461,7 @@ export default function AccountShell({ children, active }: AccountShellProps) {
   /* Tüm hesap sayfalarını önceden yükle — geçişlerde loading/göz kırpma olmasın */
   useEffect(() => {
     NAV_ITEMS.forEach((i) => router.prefetch(i.href));
+    router.prefetch("/siparislerim");
   }, [router]);
 
   return (

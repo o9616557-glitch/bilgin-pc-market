@@ -35,13 +35,8 @@ export const VARSAYILAN_UST_MENU = [
   { id: "sistemler", isim: "Sistemler", ikon: Server, renk: "text-emerald-400", isLink: true, href: "/sistemlerim" },
 ];
 
-export const VARSAYILAN_ALT_MENU = [
-  { id: "favoriler", isim: "Favoriler", ikon: Star, renk: "text-purple-400", isLink: true, href: "/favorilerim" },
-  { id: "sistemler", isim: "Sistemler", ikon: Server, renk: "text-emerald-400", isLink: true, href: "/sistemlerim" },
-  { id: "destek", isim: "Destek", ikon: Headset, renk: "text-orange-400", isLink: true, href: "/destek-taleplerim" },
-  { id: "sorgula", isim: "Sorgula", ikon: Search, renk: "text-blue-400", isLink: true, href: "/siparis-takip" },
-  { id: "kargolar", isim: "Kargolar", ikon: Truck, renk: "text-rose-400", isLink: true, href: "/kargolarim" },
-];
+/** İç panel kutuları kaldırıldı — bu öğeler yan panele (AccountShell) taşındı */
+export const VARSAYILAN_ALT_MENU: typeof VARSAYILAN_UST_MENU = [];
 
 export function menuEksikleriEkle(mevcut: any[], varsayilan: any[]) {
   const ids = new Set(mevcut.map((item: any) => item.id));

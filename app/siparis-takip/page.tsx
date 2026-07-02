@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast"; // <--- BİNGO! BU SATIRI EKLE
 import { useOrders } from "@/app/OrderContext";
-import KisayolNav from "@/components/layout/KisayolNav";
+import AccountShell from "@/components/layout/AccountShell";
 import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 
@@ -102,19 +102,8 @@ export default function SiparisTakipPage() {
     : "";
 
   return (
-    <div className="site-page p-4 sm:p-6 lg:p-8 relative overflow-clip">
-      <div className="site-glow-top top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[280px]" />
-      
-      {/* 🚀 ARKA PLAN PARLAMASI (Tüm Sayfalarla Uyumlu Opacity 0.05 Turkuaz) */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-cyan-600 blur-[250px] opacity-[0.05] pointer-events-none rounded-full z-0"></div>
-
-      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
-        
-        {/* ⬅️ SOL MENÜ */}
-        <KisayolNav active="sorgula" />
-
-        {/* ➡️ SAĞ İÇERİK */}
-        <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
+    <AccountShell active="sorgula">
+      <div className="flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
           
           {/* 🚀 BAŞLIK KUTUSU */}
           <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5 z-40 overflow-hidden group">
@@ -364,7 +353,6 @@ export default function SiparisTakipPage() {
             </div>
           )}
           
-        </div>
       </div>
 
       {/* 🚀 MİLİMETRİK KARGOLAR POPUP'I */}
@@ -458,6 +446,6 @@ export default function SiparisTakipPage() {
           background: rgba(6, 182, 212, 0.4);
         }
       `}</style>
-    </div>
+    </AccountShell>
   );
 }

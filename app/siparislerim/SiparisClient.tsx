@@ -12,7 +12,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { useOrders } from "@/app/OrderContext"; 
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
-import KisayolNav from "@/components/layout/KisayolNav";
+import AccountShell from "@/components/layout/AccountShell";
 import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisIadeYontemi, urunBekleyenIslemEtiketi, urunIadeYontemiBul, urunIadeYontemiMetni, urunTalepBekliyorKaydet, urunTalepBekliyorTemizle, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 
@@ -274,16 +274,8 @@ const { sepeteEkle } = useCart();
     String(item.id || item._id || item.productId || "");
 
   return (
-    <div className="site-page p-4 sm:p-6 lg:p-8 relative overflow-clip">
-      <div className="site-glow-top top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[280px]" />
-
-      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
-        
-        {/* SOL MENÜ */}
-        <KisayolNav active="siparisler" />
-
-        {/* SAĞ İÇERİK */}
-        <div className="flex-1 flex flex-col min-w-0 w-full relative gap-5 lg:gap-6">
+    <AccountShell>
+      <div className="flex flex-col min-w-0 w-full relative gap-5 lg:gap-6">
           
           {selectedOrder ? (
             /* DETAY EKRANI */
@@ -844,7 +836,6 @@ const { sepeteEkle } = useCart();
               )}
             </div>
           )}
-        </div>
       </div>
 
       {/* SİLME MODALI */}
@@ -972,6 +963,6 @@ const { sepeteEkle } = useCart();
         </div>
       )}
 
-    </div>
+    </AccountShell>
   );
 }

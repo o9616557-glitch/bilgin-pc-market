@@ -11,7 +11,6 @@ import toast from "react-hot-toast";
 import { useCart } from "@/app/CartContext";
 import { useSession } from "next-auth/react";
 import { useOrders } from "@/app/OrderContext";
-import KisayolNav from "@/components/layout/KisayolNav";
 // 🚀 DİKKAT: useRouter'a ve router.refresh()'e ihtiyacımız kalmadı, kasma bombasını imha ettik!
 
 interface Props {
@@ -138,17 +137,8 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
     }, 2000);
   };
   return (
-    <div className="site-page p-4 sm:p-6 lg:p-8 relative overflow-clip">
-      <div className="site-glow-top top-0 left-1/2 -translate-x-1/2 w-[min(900px,100vw)] h-[280px]" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] bg-cyan-600 blur-[250px] opacity-[0.05] pointer-events-none rounded-full z-0"></div>
-
-      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 lg:gap-8 relative z-10 items-start">
-        
-        {/* ⬅️ SOL MENÜ */}
-        <KisayolNav active="favori" />
-
-        {/* ➡️ SAĞ İÇERİK */}
-        <div className="flex-1 flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
+    <>
+    <div className="flex flex-col min-w-0 gap-5 lg:gap-6 w-full">
           
           {/* BAŞLIK KUTUSU */}
           <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl relative flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5 z-40 overflow-hidden group">
@@ -247,7 +237,6 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
               })}
             </div>
           )}
-        </div>
       </div>
 
       {/* SİLME MODALI */}
@@ -343,6 +332,6 @@ export default function FavoriClient({ initialFavorites = [] }: Props) {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
