@@ -12,7 +12,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { useOrders } from "@/app/OrderContext"; 
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
-import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisGosterimDurumu, siparisIadeOzeti, siparisIadeSuresiOzeti, siparisIadeYontemi, urunBekleyenIslemEtiketi, urunIadeIslendiMi, urunIadeYontemiBul, urunIadeYontemiMetni, urunTamIadeMi, urunIptalEdilebilirMi, urunIptalEdildiMi, urunTalepBekliyorTemizle, durumIptalMi, durumMetniNorm, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
+import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isHavaleBekleyenSiparis, isOdemeBekleyenSiparis, KART_IADE_BANKA_NOTU, siparisGosterimDurumu, siparisIadeOzeti, siparisIadeSuresiOzeti, siparisIadeYontemi, siparisKalemiIadeAdet, siparisKalemleri, urunBekleyenIslemEtiketi, urunIadeIslendiMi, urunIadeYontemiBul, urunIadeYontemiMetni, urunTamIadeMi, urunIptalEdilebilirMi, urunIptalEdildiMi, urunTalepBekliyorTemizle, durumIptalMi, durumMetniNorm, type IadeYontemi, type UrunDestekTalepLike } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 
 export default function SiparisClient() {
@@ -27,6 +27,12 @@ const { sepeteEkle } = useCart();
   useEffect(() => {
     setLocalOrders(contextOrders);
   }, [contextOrders]);
+
+  useEffect(() => {
+    if (!selectedOrder?._id) return;
+    const guncel = localOrders.find((o) => o._id === selectedOrder._id);
+    if (guncel) setSelectedOrder(guncel);
+  }, [localOrders, selectedOrder?._id]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -63,6 +69,12 @@ const { sepeteEkle } = useCart();
       /* sessiz */
     }
   }, []);
+
+  const siparisDetayAc = (order: OrderLike) => {
+    refreshOrders();
+    void destekTalepleriniGetir();
+    setSelectedOrder(order);
+  };
 
   useEffect(() => {
     destekTalepleriniGetir();
@@ -231,11 +243,12 @@ const { sepeteEkle } = useCart();
   const selectedOrderAlimTarihi = new Date(selectedOrder?.createdAt || selectedOrder?.tarih || Date.now());
   const siparisKalemiId = (item: OrderItemLike) =>
     String(item.id || item._id || item.productId || "");
-  const siparisdeIptalEdilebilirUrunVar = (selectedOrder?.items || []).some((item: OrderItemLike) => {
+  const selectedOrderKalemleri = siparisKalemleri(selectedOrder);
+  const siparisdeIptalEdilebilirUrunVar = selectedOrderKalemleri.some((item: OrderItemLike) => {
     const urunId = siparisKalemiId(item);
     const urunIsim = String(item.title || item.isim || item.name || "");
     const itemAdet = Number(item.quantity || item.adet || 1);
-    const iadeEdilenAdet = Number(item.iadeEdilenAdet || 0);
+    const iadeEdilenAdet = siparisKalemiIadeAdet(selectedOrder, item);
     const durumMetni = durumMetniNorm(selectedOrder?.durum || selectedOrder?.status);
     const teslimEdildi = durumMetni.includes("teslim") || durumMetni.includes("tamam");
     return urunIptalEdilebilirMi(
@@ -250,20 +263,21 @@ const { sepeteEkle } = useCart();
     );
   });
   const selectedOrderTopluIptalGoster =
-    (selectedOrder?.items?.length || 0) > 1 &&
+    selectedOrderKalemleri.length > 1 &&
     siparisdeIptalEdilebilirUrunVar &&
     !selectedOrderIsIptal &&
     !selectedOrderIsTeslimEdildi &&
     !selectedOrderOdemeBekliyor;
-  const selectedOrderIadeKalemleri = (selectedOrder?.items || [])
-    .filter((item: OrderItemLike) => Number(item.iadeEdilenAdet || 0) > 0)
+  const selectedOrderIadeKalemleri = selectedOrderKalemleri
+    .filter((item: OrderItemLike) => siparisKalemiIadeAdet(selectedOrder, item) > 0)
     .map((item: OrderItemLike) => {
       const urunId = String(item.id || item._id || item.productId || "");
       const isim = item.title || item.isim || item.name || "Ürün";
+      const iadeAdet = siparisKalemiIadeAdet(selectedOrder, item);
       return {
         urunId,
         isim,
-        adet: Number(item.iadeEdilenAdet || 0),
+        adet: iadeAdet,
         birimFiyat: Number(item.price || item.fiyat || 0),
         yontem: urunIadeYontemiBul(selectedOrder, destekTalepleri, selectedOrderSiparisKodu, urunId, isim),
       };
@@ -349,7 +363,7 @@ const { sepeteEkle } = useCart();
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
-                {selectedOrder.items?.map((item: OrderItemLike, idx: number) => {
+                {selectedOrderKalemleri.map((item: OrderItemLike, idx: number) => {
                   const durumMetni = durumMetniNorm(selectedOrder.durum || selectedOrder.status);
                   const isTeslimEdildi =
                     durumMetni.includes("teslim") ||
@@ -364,8 +378,8 @@ const { sepeteEkle } = useCart();
                   const urunLinki = `/product/${item?.slug || item?.productId || item?.id || item?._id || ''}`;
                   const urunId = siparisKalemiId(item);
                   const urunIsim = String(item.title || item.isim || item.name || "");
-                  const itemAdet = Number(item.quantity || item.adet || 1);
-                  const iadeEdilenAdet = Number(item.iadeEdilenAdet || 0);
+                  const itemAdet = Number(item.quantity || item.adet || item.miktar || 1);
+                  const iadeEdilenAdet = siparisKalemiIadeAdet(selectedOrder, item);
                   const incelemeMetni = urunBekleyenIslemEtiketi(
                     destekTalepleri,
                     selectedOrderSiparisKodu,
@@ -881,7 +895,7 @@ const { sepeteEkle } = useCart();
                             </p>
                           </div>
                           <button
-                            onClick={() => setSelectedOrder(order)} 
+                            onClick={() => siparisDetayAc(order)} 
                             className="flex items-center gap-1.5 px-5 py-2.5 bg-cyan-600/10 hover:bg-cyan-600 hover:text-white text-cyan-400 border border-cyan-500/20 rounded-xl transition-all font-black text-[10px] uppercase tracking-widest shrink-0"
                           >
                             Detay <ChevronRight className="w-3.5 h-3.5" />

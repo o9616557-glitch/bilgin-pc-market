@@ -3,6 +3,10 @@ import { puanEkle, puanGeriYukle, puanGeriAl, puanKazanHesapla } from "@/lib/odu
 import { magazaKrediEkle } from "@/lib/magaza-kredi";
 import {
   type IadeKalemi,
+  iadeEdilebilirAdet,
+  kalemiFiyat,
+  kalemiId,
+  kalemiIsim,
   kalanIadeEdilebilirTutar,
   oransalIadeMiktarlari,
   sepetIadeAdetleriniGuncelle,
@@ -200,15 +204,29 @@ export async function siparisIadeIslemleri(
   }
 
   const sepet = siparisSepeti(siparis);
-  const guncelSepet = opts?.kalemler?.length
-    ? sepetIadeAdetleriniGuncelle(sepet, opts.kalemler)
+  let iadeKalemleri = opts?.kalemler || [];
+  if (!iadeKalemleri.length) {
+    const iadeEdilebilirKalemler = sepet.filter((k) => iadeEdilebilirAdet(k) > 0);
+    if (iadeEdilebilirKalemler.length === 1) {
+      const k = iadeEdilebilirKalemler[0];
+      iadeKalemleri = [{
+        urunId: kalemiId(k),
+        adet: iadeEdilebilirAdet(k),
+        isim: kalemiIsim(k),
+        birimFiyat: kalemiFiyat(k),
+      }];
+    }
+  }
+
+  const guncelSepet = iadeKalemleri.length
+    ? sepetIadeAdetleriniGuncelle(sepet, iadeKalemleri)
     : sepet;
 
   const iadeKaydi = {
     talepNo: opts?.talepNo || null,
     tutar: gercekIade,
     tarih: new Date(),
-    kalemler: opts?.kalemler || [],
+    kalemler: iadeKalemleri,
     tamIade,
     yontem: opts?.yontem || "kart",
   };

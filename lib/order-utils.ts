@@ -23,7 +23,55 @@ export function getOrderShippingCompany(order?: OrderLike | null) {
 }
 
 export function siparisKalemleri(order?: OrderLike | null) {
-  return order?.items || order?.sepet || order?.cartItems || [];
+  const sepet = order?.sepet || [];
+  const items = order?.items || order?.cartItems || [];
+  if (!sepet.length) return items;
+  if (!items.length) return sepet;
+
+  return sepet.map((sepetKalem, index) => {
+    const itemKalem = items[index];
+    const eslesen = items.find((k) => {
+      const a = String(sepetKalem.id || sepetKalem._id || sepetKalem.productId || "");
+      const b = String(k.id || k._id || k.productId || "");
+      return a && b && a === b;
+    }) || itemKalem;
+
+    const iadeEdilenAdet = Math.max(
+      Number(sepetKalem.iadeEdilenAdet || 0),
+      Number(eslesen?.iadeEdilenAdet || 0)
+    );
+
+    return {
+      ...eslesen,
+      ...sepetKalem,
+      iadeEdilenAdet,
+      quantity: sepetKalem.quantity || sepetKalem.adet || eslesen?.quantity || eslesen?.adet || 1,
+      adet: sepetKalem.adet || sepetKalem.quantity || eslesen?.adet || eslesen?.quantity || 1,
+      title: sepetKalem.title || sepetKalem.isim || sepetKalem.name || eslesen?.title || eslesen?.isim,
+      isim: sepetKalem.isim || sepetKalem.title || eslesen?.isim || eslesen?.title,
+      price: sepetKalem.price ?? sepetKalem.fiyat ?? eslesen?.price ?? eslesen?.fiyat,
+      fiyat: sepetKalem.fiyat ?? sepetKalem.price ?? eslesen?.fiyat ?? eslesen?.price,
+    };
+  });
+}
+
+export function siparisKalemiIadeAdet(order: OrderLike | null | undefined, item: OrderItemLike): number {
+  const kalemler = siparisKalemleri(order);
+  const itemId = String(item.id || item._id || item.productId || "");
+  const itemIsim = String(item.title || item.isim || item.name || "").toLowerCase().trim();
+
+  for (const kalem of kalemler) {
+    const kalemId = String(kalem.id || kalem._id || kalem.productId || "");
+    const kalemIsim = String(kalem.title || kalem.isim || kalem.name || "").toLowerCase().trim();
+    const eslesir =
+      (itemId && kalemId && itemId === kalemId) ||
+      (itemIsim && kalemIsim && itemIsim === kalemIsim);
+    if (!eslesir) continue;
+    const adet = Number(kalem.iadeEdilenAdet || 0);
+    if (adet > 0) return adet;
+  }
+
+  return Number(item.iadeEdilenAdet || 0);
 }
 
 export function siparisIadeOzeti(order?: OrderLike | null) {
@@ -432,10 +480,40 @@ export function urunIadeIslendiMi(
     return true;
   }
 
-  return talepler.some((t) => {
-    if (t.konu !== "iade" || !t.iadeOdendi) return false;
+  const talepEslesmesi = talepler.some((t) => {
+    if (t.konu !== "iade" && t.konu !== "iptal") return false;
+    if (!t.iadeOdendi) return false;
     if (!siparisKodlariEslesir(t.siparisNo || "", siparisKodu)) return false;
     return t.iadeKalemleri?.some((k) => urunKalemiEslesir(k, urunId, urunIsim));
+  });
+  if (talepEslesmesi) return true;
+
+  const kalemler = siparisKalemleri(order);
+  const iadeOzeti = siparisIadeOzeti(order);
+  if (!iadeOzeti.var) return false;
+
+  if (kalemler.length === 1) {
+    const tek = kalemler[0];
+    const tekId = String(tek.id || tek._id || tek.productId || "");
+    const tekIsim = String(tek.title || tek.isim || tek.name || "");
+    if (urunKalemiEslesir({ urunId: tekId, isim: tekIsim }, urunId, urunIsim)) {
+      return true;
+    }
+  }
+
+  if (iadeOzeti.tam) {
+    return kalemler.some((k) => {
+      const kid = String(k.id || k._id || k.productId || "");
+      const kIsim = String(k.title || k.isim || k.name || "");
+      return urunKalemiEslesir({ urunId: kid, isim: kIsim }, urunId, urunIsim);
+    });
+  }
+
+  return kalemler.some((k) => {
+    const kid = String(k.id || k._id || k.productId || "");
+    const kIsim = String(k.title || k.isim || k.name || "");
+    if (!urunKalemiEslesir({ urunId: kid, isim: kIsim }, urunId, urunIsim)) return false;
+    return Number(k.iadeEdilenAdet || 0) > 0;
   });
 }
 

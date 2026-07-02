@@ -64,7 +64,11 @@ export async function GET() {
 
     // 🚀 KURYE ARKA ODAYA (PRODUCTS) HIZLI GEÇİŞ YAPIYOR!
     const safeOrders = await Promise.all(rawOrders.map(async (order: OrderLike) => {
-      const rawItems = order.items || order.sepet || order.cartItems || [];
+      const rawItems = order.sepet?.length
+        ? order.sepet
+        : order.items?.length
+          ? order.items
+          : order.cartItems || [];
       
       const safeItems = await Promise.all(rawItems.map(async (item: OrderItemLike) => {
         let zimbaliKategori = ""; 
@@ -107,6 +111,7 @@ export async function GET() {
         ...order,
         _id: String(order._id || ""),
         items: safeItems,
+        sepet: safeItems,
         totalPrice: Number(order.totalPrice || order.toplamTutar || order.genelToplam || 0),
         createdAt: order.createdAt || order.tarih || new Date().toISOString(),
         shippingAddress: order.shippingAddress || order.musteri || order.customerDetails || {},
