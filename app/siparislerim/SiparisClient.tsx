@@ -13,7 +13,7 @@ import toast from "react-hot-toast";
 import { useOrders } from "@/app/OrderContext"; 
 import { useCart } from "@/app/CartContext"; // 🚀 BİNGO: Sepet context'ini buraya çağırdık!
 import KisayolNav from "@/components/layout/KisayolNav";
-import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber } from "@/lib/order-utils";
+import { getOrderShippingCompany, getOrderStatusText, getOrderTrackingNumber, isOdemeBekleyenSiparis } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike, RefundedOrderItemLike } from "@/lib/order-types";
 
 export default function SiparisClient() {
@@ -184,11 +184,13 @@ const { sepeteEkle } = useCart();
     selectedOrderDurumMetni.includes("iade") ||
     selectedOrderDurumMetni.includes("kısmen iade") ||
     selectedOrderDurumMetni.includes("kismen iade");
+  const selectedOrderOdemeBekliyor = isOdemeBekleyenSiparis(selectedOrder);
   const selectedOrderTopluIptalGoster =
     (selectedOrder?.items?.length || 0) > 1 &&
     !selectedOrderIsIptal &&
     !selectedOrderIsTeslimEdildi &&
-    !selectedOrderIsIade;
+    !selectedOrderIsIade &&
+    !selectedOrderOdemeBekliyor;
   const selectedOrderIadeKalemleri = (selectedOrder?.items || [])
     .filter((item: OrderItemLike) => Number(item.iadeEdilenAdet || 0) > 0)
     .map((item: OrderItemLike) => ({
@@ -385,7 +387,7 @@ const { sepeteEkle } = useCart();
 </button>
 )}
 
-                        {!isIptal && !isIade && !iadeSuresiGectiMi && (
+                        {!isIptal && !isIade && !iadeSuresiGectiMi && !selectedOrderOdemeBekliyor && (
                           isTeslimEdildi ? (
                             <Link href={`/destek-taleplerim?siparisNo=${selectedOrder.siparisKodu || selectedOrder.orderNumber}&konu=iade`} className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/20 rounded-md transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap">
                               <RefreshCw className="w-3 h-3 shrink-0" /> İade Et

@@ -22,6 +22,35 @@ export function getOrderShippingCompany(order?: OrderLike | null) {
   return order?.kargoFirmasi || order?.shippingCompany || "";
 }
 
+/** Ödeme henüz tamamlanmamış siparişler (havale/kart bekleyen) */
+export function isOdemeBekleyenSiparis(order?: OrderLike | null) {
+  if (!order) return false;
+
+  const odemeDurumu = (order.odemeDurumu || "").toLowerCase();
+  if (odemeDurumu === "odendi" || odemeDurumu === "onaylandi") return false;
+  if (odemeDurumu === "havale_bekliyor" || odemeDurumu === "odeme_bekliyor") return true;
+
+  const durum = getOrderStatusText(order).toLocaleLowerCase("tr-TR");
+  if (durum.includes("iptal") || durum.includes("iade")) return false;
+  if (
+    durum.includes("hazır") ||
+    durum.includes("ödendi") ||
+    durum.includes("odendi") ||
+    durum.includes("kargo") ||
+    durum.includes("teslim") ||
+    durum.includes("tamam")
+  ) {
+    return false;
+  }
+
+  return (
+    durum.includes("ödeme bekliyor") ||
+    durum.includes("odeme bekliyor") ||
+    durum.includes("havale bekliyor") ||
+    durum.includes("havale")
+  );
+}
+
 export function normalizeOrderStatus(order?: OrderLike | null) {
   const rawStatus = `${order?.durum || ""} ${order?.status || ""} ${order?.paymentMethod || ""}`.toLocaleLowerCase("tr-TR");
 
