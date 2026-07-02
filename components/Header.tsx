@@ -684,9 +684,12 @@ export default function Header() {
   useEffect(() => {
     const onYukle = () => katalogResimleriniOnYukle();
 
-    if ("requestIdleCallback" in window) {
-      const id = window.requestIdleCallback(onYukle, { timeout: 1500 });
-      return () => window.cancelIdleCallback(id);
+    const requestIdle = window.requestIdleCallback?.bind(window);
+    const cancelIdle = window.cancelIdleCallback?.bind(window);
+
+    if (requestIdle && cancelIdle) {
+      const id = requestIdle(onYukle, { timeout: 1500 });
+      return () => cancelIdle(id);
     }
 
     const timer = window.setTimeout(onYukle, 400);
