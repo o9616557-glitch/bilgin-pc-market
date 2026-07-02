@@ -1,4 +1,4 @@
-import { urunKalemiEslesir } from "./order-utils";
+import { siparisKodlariEslesir, urunKalemiEslesir } from "./order-utils";
 
 function nakitIadeTutari(siparis: any): number {
   const odenecek = Number(siparis?.odenecekTutar);
@@ -411,4 +411,39 @@ export function sepetIadeAdetleriniGuncelle(
       iadeEdilenAdet: Number(satir.iadeEdilenAdet || 0) + kalem.adet,
     };
   });
+}
+
+/** Sipariş + taleplerden tüm iade kalemlerini topla */
+export function siparisIadeKayitlariniTopla(
+  order: { siparisKodu?: string; orderNumber?: string; iadeGecmisi?: { kalemler?: IadeKalemi[] }[] },
+  talepler: { siparisNo?: string; konu?: string; iadeOdendi?: boolean; durum?: string; iadeKalemleri?: IadeKalemi[] }[]
+): IadeKalemi[] {
+  const kayitlar: IadeKalemi[] = [];
+  const kod = String(order.siparisKodu || order.orderNumber || "");
+
+  for (const g of order.iadeGecmisi || []) {
+    for (const k of g.kalemler || []) {
+      if (Number(k.adet || 0) > 0) kayitlar.push(k);
+    }
+  }
+
+  for (const t of talepler) {
+    if (t.konu !== "iade") continue;
+    if (!t.iadeOdendi && t.durum !== "Çözüldü") continue;
+    if (!siparisKodlariEslesir(t.siparisNo || "", kod)) continue;
+    for (const k of t.iadeKalemleri || []) {
+      if (Number(k.adet || 0) > 0) kayitlar.push(k);
+    }
+  }
+
+  return kayitlar;
+}
+
+/** İade kayıtlarını sepet kalemlerine yaz */
+export function siparisKalemlerineIadeKayitlariniUygula(
+  sepet: SepetKalemi[],
+  kayitlar: IadeKalemi[]
+): SepetKalemi[] {
+  if (!kayitlar.length) return sepet;
+  return sepetIadeAdetleriniGuncelle(sepet, kayitlar);
 }

@@ -9,6 +9,11 @@ import { authOptions } from "../auth/[...nextauth]/route";
 import { getOrderShippingCompany, getOrderTrackingNumber, normalizeOrderStatus } from "@/lib/order-utils";
 import type { OrderItemLike, OrderLike } from "@/lib/order-types";
 import { bekleyenSiparisleriTemizle } from "@/lib/order-reservations";
+import {
+  siparisIadeKayitlariniTopla,
+  siparisKalemlerineIadeKayitlariniUygula,
+  type SepetKalemi,
+} from "@/lib/iade-hesapla";
 
 // 🚀 VERCEL ÖNBELLEK KİLİDİNİ PARÇALAMA EMİRLERİ
 export const dynamic = "force-dynamic";
@@ -62,13 +67,26 @@ export async function GET() {
       ]
     }).sort({ _id: -1 }).toArray() as OrderLike[];
 
+    const tumIadeTalepleri = await db.collection("desteks").find({
+      kullaniciEmail: { $in: aranacakMailler },
+      konu: "iade",
+      $or: [{ iadeOdendi: true }, { durum: "Çözüldü" }],
+      "iadeKalemleri.0": { $exists: true },
+    }).toArray();
+
     // 🚀 KURYE ARKA ODAYA (PRODUCTS) HIZLI GEÇİŞ YAPIYOR!
     const safeOrders = await Promise.all(rawOrders.map(async (order: OrderLike) => {
-      const rawItems = order.sepet?.length
+      const hamKalemler = order.sepet?.length
         ? order.sepet
         : order.items?.length
           ? order.items
           : order.cartItems || [];
+
+      const iadeKayitlari = siparisIadeKayitlariniTopla(order, tumIadeTalepleri);
+      const rawItems = siparisKalemlerineIadeKayitlariniUygula(
+        hamKalemler as SepetKalemi[],
+        iadeKayitlari
+      );
       
       const safeItems = await Promise.all(rawItems.map(async (item: OrderItemLike) => {
         let zimbaliKategori = ""; 

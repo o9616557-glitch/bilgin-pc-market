@@ -249,6 +249,15 @@ const { sepeteEkle } = useCart();
   const siparisKalemiId = (item: OrderItemLike) =>
     String(item.id || item._id || item.productId || "");
   const selectedOrderKalemleri = siparisKalemleri(selectedOrder);
+
+  const urunSatirindaIadeVar = useCallback(
+    (item: OrderItemLike) => {
+      const satirdan = Number(item.iadeEdilenAdet || 0);
+      if (satirdan > 0) return true;
+      return siparisKalemIadeEdildiMi(selectedOrder, item, selectedOrderIadeOpts);
+    },
+    [selectedOrder, selectedOrderIadeOpts, destekTalepleri, selectedOrderSiparisKodu]
+  );
   const siparisdeIptalEdilebilirUrunVar = selectedOrderKalemleri.some((item: OrderItemLike) => {
     const urunId = siparisKalemiId(item);
     const urunIsim = String(item.title || item.isim || item.name || "");
@@ -385,7 +394,10 @@ const { sepeteEkle } = useCart();
                   const urunId = siparisKalemiId(item);
                   const urunIsim = String(item.title || item.isim || item.name || "");
                   const itemAdet = Number(item.quantity || item.adet || item.miktar || 1);
-                  const iadeEdilenAdet = siparisKalemiIadeAdet(selectedOrder, item, selectedOrderIadeOpts);
+                  const iadeEdilenAdet = Math.max(
+                    Number(item.iadeEdilenAdet || 0),
+                    siparisKalemiIadeAdet(selectedOrder, item, selectedOrderIadeOpts)
+                  );
                   const incelemeMetni = urunBekleyenIslemEtiketi(
                     destekTalepleri,
                     selectedOrderSiparisKodu,
@@ -402,12 +414,12 @@ const { sepeteEkle } = useCart();
                     itemAdet,
                     iadeEdilenAdet
                   );
-                  const urunIadeVar = siparisKalemIadeEdildiMi(selectedOrder, item, selectedOrderIadeOpts);
-                  const urunTamIade = siparisKalemTamIadeMi(selectedOrder, item, selectedOrderIadeOpts);
-                  const urunAktif = !urunIadeVar && !urunIptal;
+                  const urunIadeVar = urunSatirindaIadeVar(item);
+                  const urunTamIade = iadeEdilenAdet > 0 ? iadeEdilenAdet >= itemAdet : siparisKalemTamIadeMi(selectedOrder, item, selectedOrderIadeOpts);
                   const yorumTekrarAlGoster = siparisTeslimEdildi && !urunIptal && !urunIadeVar;
                   const iptalButonuGoster =
-                    urunAktif &&
+                    !urunIadeVar &&
+                    !urunIptal &&
                     urunIptalEdilebilirMi(
                     selectedOrder,
                     destekTalepleri,
@@ -422,7 +434,8 @@ const { sepeteEkle } = useCart();
                     }
                   );
                   const iadeButonuGoster =
-                    urunAktif &&
+                    !urunIadeVar &&
+                    !urunIptal &&
                     !urunTamIade &&
                     !isIptal &&
                     siparisTeslimEdildi &&
@@ -561,7 +574,7 @@ const { sepeteEkle } = useCart();
                               <Clock className="w-3 h-3 shrink-0" />
                               {incelemeMetni}
                             </span>
-                          ) : iadeSuresiGectiMi && siparisTeslimEdildi && urunAktif ? (
+                          ) : iadeSuresiGectiMi && siparisTeslimEdildi && !urunIadeVar && !urunIptal ? (
                             <Link
                               href="/destek-taleplerim/yeni?konu=teknik"
                               className="inline-flex items-center gap-1 px-2.5 py-1.5 text-slate-400 hover:bg-slate-800/50 border border-slate-700 rounded-md transition-all text-[10px] font-semibold whitespace-nowrap"
